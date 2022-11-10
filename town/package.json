@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "babylonjs": "^5.31.0"
+    "babylonjs": "^5.31.0",
+    "normalize.css": "^8.0.1",
+    "peerjs": "^1.4.7"
   },
   "devDependencies": {
     "ts-loader": "^9.4.1",
