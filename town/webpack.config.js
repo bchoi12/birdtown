@@ -7,7 +7,11 @@ module.exports = {
         path: path.resolve(__dirname, 'web')
     },
     resolve: {
-        extensions: [".ts", ".js"]
+        extensions: [".ts", ".js"],
+        modules: [
+            path.join(__dirname, './ts'),
+            path.join(__dirname, './node_modules'),
+        ],
     },
     module: {
         rules: [

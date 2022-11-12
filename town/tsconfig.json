@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "baseUrl": "./ts",
+        "rootDir": "./ts",
         "target": "es5",
         "outDir": "js",
         "module": "commonjs",
@@ -18,5 +20,6 @@
     },
     "include": [
       "ts/*.ts",
+      "ts/*/*.ts"
     ],
 }

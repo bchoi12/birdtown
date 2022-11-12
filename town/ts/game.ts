@@ -1,6 +1,7 @@
 import * as BABYLON from "babylonjs";
 
-import { Html } from './html'
+import { Entity } from 'game/entity'
+import { Html } from 'ui/html'
 
 interface GameOptions {
 	headless : boolean;
@@ -14,6 +15,10 @@ export class Game {
 	private _scene : BABYLON.Scene;
 
 	private _camera : BABYLON.FreeCamera;
+
+	private _lastRenderTime : number;
+
+	private _test : Entity;
 
 	constructor(options : GameOptions) {
 		this._canvas = Html.canvasElm(Html.canvasGame);
@@ -40,11 +45,19 @@ export class Game {
 	    ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, this._scene);
 
 
+	    this._test = new Entity(0, 0);
+
+	    this._lastRenderTime = Date.now();
 	    this._engine.runRenderLoop(() => {
+	    	this._test.update(this.timestep());
 	    	this._scene.render();
+
+		    this._lastRenderTime = Date.now();
 	    });
 	}
 
 	scene() : BABYLON.Scene { return this._scene; }
 	engine() : BABYLON.Engine { return this._engine; }
+
+	timestep() : number { return Date.now() - this._lastRenderTime; }
 }

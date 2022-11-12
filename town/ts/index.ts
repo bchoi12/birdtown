@@ -9,7 +9,7 @@ const game = new Game({
 
 const url = window.location.href;
 if (url.endsWith("host")) {
-    const peer = new Peer("bossman69", { debug: 3 });
+    const peer = new Peer("bossman69", { debug: 2 });
 
     peer.on("open", () => {
         console.log("host " + peer.id);
@@ -34,20 +34,18 @@ if (url.endsWith("host")) {
 } else {
     console.log("slothman333");
 
-    const peer = new Peer("slothman333", { debug: 3 });
+    const peer = new Peer("slothman333", { debug: 2 });
 
-    peer.on("connection", (connection) => {
-        console.log("SLOTH CONNECTED");
-    })
-
-    peer.on("error", (error) => {
-        console.error(error);
-    });
-
-    setTimeout(() => {
+    peer.on("open", () => {
         const connection = peer.connect("bossman69");
         connection.on("open", () => {
             connection.send("hello");
+
+            const connection2 = peer.connect("bossman69", { reliable: true });
+            connection2.on("open", () => {
+                console.log("OPEN2");
+                connection2.send("hi reliable");
+            });
         });
 
         connection.on("error", (error) => {
@@ -57,14 +55,13 @@ if (url.endsWith("host")) {
         connection.on("data", (data) => {
             console.log(data);
         });
-    }, 1000);
+    });
 
+    peer.on("connection", (connection) => {
+        console.log("SLOTH CONNECTED");
+    })
 
-    setTimeout(() => {
-        const connection2 = peer.connect("bossman69", { reliable: true });
-        connection2.on("open", () => {
-            console.log("OPEN2");
-            connection2.send("hi reliable");
-        });
-    }, 1000);
+    peer.on("error", (error) => {
+        console.error(error);
+    });
 }
