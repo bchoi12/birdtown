@@ -2,10 +2,10 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { Body } from 'game/body'
 import { ComponentType } from 'game/component'
-import { Keys } from 'game/keys'
 import { Entity, EntityOptions } from 'game/entity'
+import { Keys } from 'game/keys'
+import { Profile } from 'game/profile'
 import { SpacedId } from 'game/spaced_id'
 
 import { Key } from 'ui/input'
@@ -18,7 +18,7 @@ export class Player extends Entity {
 		this.add(new Keys());
 
 		const pos = options.pos;
-		this.add(new Body({
+		this.add(new Profile({
 			bodyFn: () => {
 				return MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/1);
 			},
@@ -34,12 +34,12 @@ export class Player extends Entity {
 		super.preUpdate(ts);
 
 		const keys = <Keys>this.get(ComponentType.KEYS);
-		let body = <Body>this.get(ComponentType.BODY);
+		let profile = <Profile>this.get(ComponentType.PROFILE);
 
 		if (keys.keyDown(Key.LEFT)) {
-			MATTER.Body.applyForce(body.body(), body.pos(), { x: -0.000001, y: 0 });
+			MATTER.Body.applyForce(profile.body(), profile.pos(), { x: -0.000001, y: 0 });
 		} else if (keys.keyDown(Key.RIGHT)) {
-			MATTER.Body.applyForce(body.body(), body.pos(), { x: 0.000001, y: 0 });
+			MATTER.Body.applyForce(profile.body(), profile.pos(), { x: 0.000001, y: 0 });
 		}
 	}
 }

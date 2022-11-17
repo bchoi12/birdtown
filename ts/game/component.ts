@@ -4,7 +4,7 @@ import { Entity } from 'game/entity'
 export enum ComponentType {
 	UNKNOWN,
 	KEYS,
-	BODY,
+	PROFILE,
 }
 
 export interface Component {

@@ -9,14 +9,13 @@ interface BodyOptions {
 	meshFn? : () => BABYLON.Mesh;
 }
 
-// TODO: rename profile
-export class Body extends ComponentBase implements Component {
+export class Profile extends ComponentBase implements Component {
 
 	private _body : MATTER.Body;
 	private _mesh : BABYLON.Mesh;
 
 	constructor(options : BodyOptions) {
-		super(ComponentType.BODY);
+		super(ComponentType.PROFILE);
 
 		if (options.bodyFn) {
 			this._body = options.bodyFn();

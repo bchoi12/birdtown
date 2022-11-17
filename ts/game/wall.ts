@@ -2,7 +2,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { Body } from 'game/body'
+import { Profile } from 'game/profile'
 import { Entity, EntityOptions } from 'game/entity'
 import { SpacedId } from 'game/spaced_id'
 
@@ -12,7 +12,7 @@ export class Wall extends Entity {
 		super(options);
 
 		const pos = options.pos;
-		this.add(new Body({
+		this.add(new Profile({
 			bodyFn: () => {
 				return MATTER.Bodies.rectangle(pos.x, pos.y, /*width=*/16, /*height=*/1, {
 					isStatic: true,
