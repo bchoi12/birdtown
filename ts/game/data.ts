@@ -32,7 +32,9 @@ export class Data {
 	}
 
 	extrapolate(key : number, data : Object) : void {
-		this._data.set(key, data);
+		if (this._data.has(key)) {
+			this._data.set(key, data);
+		}
 	}
 
 	set(key : number, data : Object, seqNum : number, predicate? : () => boolean) : boolean {
@@ -58,21 +60,29 @@ export class Data {
 		return this._data.get(key);
 	}
 
-	filtered(filter : DataFilter, seqNum : number) : Data {
+	filtered(filter : DataFilter, seqNum : number) : Map<number, Object> {
 		if (filter === DataFilter.ALL) {
-			return this;
+			return this._data;
 		}
 
-		let filtered = new Data();
+		let filtered = new Map<number, Object>();
 		switch (filter) {
 		case DataFilter.TCP:
 			this._data.forEach((data, key) => {
-				
+				const change = this._change.get(key);
+				if (change.consecutiveTrue() === 1) {
+					filtered.set(key, data);
+					return;
+				}
 			});
 			return filtered;
 		case DataFilter.UDP:
 			this._data.forEach((data, key) => {
-
+				const change = this._change.get(key);
+				if (change.consecutiveFalse() <= 3) {
+					filtered.set(key, data);
+					return;
+				}
 			});
 			return filtered;
 		default:
@@ -80,10 +90,10 @@ export class Data {
 		}
 	}
 
-	merge(data : Data, seqNum : number) : boolean {
+	merge(data : Map<number, Object>, seqNum : number) : boolean {
 		let changed = false;
 
-		for (const [key, value] of data.entries()) {
+		for (const [key, value] of data) {
 			if (seqNum >= this._seqNum.get(key)) {
 				changed ||= this.set(key, value, seqNum);
 			}
@@ -94,7 +104,7 @@ export class Data {
 
 	private recordChange(key : number, seqNum : number, change : boolean) {
 		if (!this._change.has(key)) {
-			this._change.set(key, new BitMarker(60));
+			this._change.set(key, new BitMarker(32));
 		}
 
 		this._change.get(key).mark(seqNum, change);

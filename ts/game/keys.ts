@@ -22,6 +22,10 @@ export class Keys extends ComponentBase implements Component {
 		this._lastKeys = new Set<Key>();
 	}
 
+	keyDown(key : Key) : boolean { return this._keys.has(key); }
+	keyPressed(key : Key) : boolean { return this._keys.has(key) && !this._lastKeys.has(key); }
+	keyReleased(key : Key) : boolean { return this._lastKeys.has(key) && !this._keys.has(key); }
+
 	changed() : boolean {
 		if (this._lastKeys.size !== this._keys.size) {
 			return true;
@@ -36,18 +40,6 @@ export class Keys extends ComponentBase implements Component {
 		return false;
 	}
 
-	keyDown(key : Key) : boolean {
-		return this._keys.has(key);
-	}
-
-	keyPressed(key : Key) : boolean {
-		return this._keys.has(key) && !this._lastKeys.has(key);
-	}
-
-	keyReleased(key : Key) : boolean {
-		return this._lastKeys.has(key) && !this._keys.has(key);
-	}
-
 	override preUpdate(millis : number) : void {
 		this._lastKeys = new Set<Key>(this._keys);
 		this._keys = new Set<Key>(ui.keys());
@@ -57,7 +49,7 @@ export class Keys extends ComponentBase implements Component {
 		this._data.set(Prop.KEYS, this._keys, seqNum, () => { return this.changed(); });
 	}
 
-	override setData(data : Data, seqNum : number) : void {
+	override setData(data : Map<number, Object>, seqNum : number) : void {
 		const changed = this._data.merge(data, seqNum);
 		if (!changed) {
 			return;

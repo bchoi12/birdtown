@@ -2,7 +2,6 @@ import { Vec2 } from 'game/common'
 import { Component, ComponentType } from 'game/component'
 import { Data, DataFilter } from 'game/data'
 
-
 export enum EntityType {
 	UNKNOWN = 0,
 	WALL = 1,
@@ -82,12 +81,12 @@ export class Entity {
 
 	collide(entity : Entity) : void {}
 
-	data(filter : DataFilter, seqNum : number) : Data {
+	data(filter : DataFilter, seqNum : number) : Map<number, Object> {
 		this._components.forEach((component) => {
 			const data = component.data(filter, seqNum);
-			this._data.set(component.type(), data, seqNum, () => { return !data.empty(); })
+			this._data.set(component.type(), data, seqNum, () => { return filter === DataFilter.ALL || data.size > 0; })
 		});
-		return this._data;
+		return this._data.filtered(filter, seqNum);
 	}
 
 	updateData(seqNum : number) : void {

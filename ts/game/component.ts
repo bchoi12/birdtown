@@ -19,9 +19,9 @@ export interface Component {
 	postPhysics(millis : number) : void
 	postRender(millis : number) : void
 
-	data(filter : DataFilter, seqNum : number) : Data;
+	data(filter : DataFilter, seqNum : number) : Map<number, Object>;
 	updateData(seqNum : number) : void;
-	setData(data : Data, seqNum : number) : void;
+	setData(data : Map<number, Object>, seqNum : number) : void;
 };
 
 export class ComponentBase {
@@ -47,7 +47,7 @@ export class ComponentBase {
 	postPhysics(millis : number) : void {}
 	postRender(millis : number) : void {}
 
-	data(filter : DataFilter, seqNum : number) : Data { return this._data.filtered(filter, seqNum); };
+	data(filter : DataFilter, seqNum : number) : Map<number, Object> { return this._data.filtered(filter, seqNum); };
 	updateData(seqNum : number) : void {}
-	setData(data : Data, seqNum : number) : void {}
+	setData(data : Map<number, Object>, seqNum : number) : void {}
 }

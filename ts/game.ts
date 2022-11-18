@@ -78,7 +78,7 @@ class Game {
 	    	this._entityMap.postRender(millis);
 
 	    	this._entityMap.updateData(this._seqNum);
-	    	this._entityMap.data(DataFilter.ALL, this._seqNum);
+	    	// this._entityMap.data(DataFilter.ALL, this._seqNum);
 
 	    	this._seqNum++;
 		    this._lastRenderTime = Date.now();

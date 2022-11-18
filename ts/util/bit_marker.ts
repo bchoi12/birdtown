@@ -4,7 +4,14 @@ import { defined } from 'util/common'
 export class BitMarker {
 
 	private _bytes : Uint8Array;
+
+	// Number of bits
 	private _size : number;
+
+	// Number of times mark() is called
+	private _marks : number;
+
+	// Sum of all `1` bits
 	private _total : number;
 
 	private _consecutiveTrue : number;
@@ -13,11 +20,16 @@ export class BitMarker {
 	constructor(bits : number) {
 		this._bytes = new Uint8Array(Math.ceil(bits / 8));
 		this._size = bits;
+		this._marks = 0;
 		this._total = 0;
 
 		this._consecutiveTrue = 0;
 		this._consecutiveFalse = 0;
 	}
+
+	total() : number { return this._total; }
+	consecutiveTrue() : number { return this._consecutiveTrue; }
+	consecutiveFalse() : number { return this._consecutiveFalse; }
 
 	mark(index : number, mark : boolean) {
 		index %= this._size;
@@ -46,21 +58,14 @@ export class BitMarker {
 			this._consecutiveTrue = 0;
 			this._consecutiveFalse++;
 		}
-	}
 
-	total() : number {
-		return this._total;
+		this._marks++;
 	}
 
 	percent() : number {
-		return this._total / this._size;
-	}
-
-	consecutiveTrue() : number {
-		return this._consecutiveTrue;
-	}
-
-	consecutiveFalse() : number {
-		return this._consecutiveFalse;
+		if (this._marks <= 0) {
+			return 0;
+		}
+		return this._total / Math.min(this._marks, this._size);
 	}
 }

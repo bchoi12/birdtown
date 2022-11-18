@@ -96,12 +96,12 @@ export class EntityMap {
 		});
 	}
 
-	data(filter : DataFilter, seqNum : number) : Data {
+	data(filter : DataFilter, seqNum : number) : Map<number, Object> {
 		this._map.forEach((entity) => {
 			const data = entity.data(filter, seqNum);
-			this._data.set(entity.id(), data, seqNum, () => { return !data.empty(); })
+			this._data.set(entity.id(), data, seqNum, () => { return data.size > 0; })
 		});
-		return this._data;
+		return this._data.filtered(filter, seqNum);
 	}
 
 	private nextId() : number {

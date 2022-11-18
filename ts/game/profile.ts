@@ -36,14 +36,6 @@ export class Profile extends ComponentBase implements Component {
 		}
 	}
 
-	override setEntity(entity : Entity) : void {
-		super.setEntity(entity);
-
-		if (defined(this._body)) {
-			this._body.label = entity.name();
-		} 
-	}
-
 	body() : MATTER.Body { return this._body; }
 
 	pos() : MATTER.Vector { return this._body.position; }
@@ -90,6 +82,14 @@ export class Profile extends ComponentBase implements Component {
 		if (defined(vec.y)) {
 			this._acc.y = vec.y;
 		}
+	}
+
+	override setEntity(entity : Entity) : void {
+		super.setEntity(entity);
+
+		if (defined(this._body)) {
+			this._body.label = entity.name();
+		} 
 	}
 
 	override update(millis : number) : void {
