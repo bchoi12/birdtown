@@ -2,7 +2,7 @@
     "compilerOptions": {
         "baseUrl": "./ts",
         "rootDir": "./ts",
-        "target": "es5",
+        "target": "es6",
         "outDir": "js",
         "module": "commonjs",
         "noResolve": false,

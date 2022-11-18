@@ -2,14 +2,13 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { Profile } from 'game/profile'
-import { Entity, EntityOptions } from 'game/entity'
-import { SpacedId } from 'game/spaced_id'
 
 export class Wall extends Entity {
 
 	constructor(options : EntityOptions) {
-		super(options);
+		super(EntityType.WALL, options);
 
 		const pos = options.pos;
 		this.add(new Profile({
@@ -19,7 +18,7 @@ export class Wall extends Entity {
 				});
 			},
 			meshFn: () => {
-				return BABYLON.MeshBuilder.CreateBox(this.spacedId().toString(), {
+				return BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: 16,
 					height: 1,
 					depth: 16,

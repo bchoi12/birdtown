@@ -3,6 +3,7 @@ export enum Key {
 	UNKNOWN = 0,
 	LEFT = 1,
 	RIGHT = 2,
+	JUMP = 3,
 }
 
 export class Input {
@@ -42,6 +43,7 @@ export class Input {
 
 		this.mapKey(65, Key.LEFT);
 		this.mapKey(68, Key.RIGHT);
+		this.mapKey(87, Key.JUMP);
 	}
 
 	keys() : Set<number> { return this._keys; }

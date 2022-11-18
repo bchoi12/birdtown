@@ -1,30 +1,39 @@
+import { Vec2 } from 'game/common'
 import { Component, ComponentType } from 'game/component'
-import { Data } from 'game/data'
-import { SpacedId } from 'game/spaced_id'
+import { Data, DataFilter } from 'game/data'
 
-export interface Vec2 {
-	x : number;
-	y : number;
+
+export enum EntityType {
+	UNKNOWN = 0,
+	WALL = 1,
+	PLAYER = 2,
 }
 
 export interface EntityOptions {
-	spacedId : SpacedId;
 	pos : Vec2;
+
+	id? : number;
 }
 
 export class Entity {
 
-	protected _spacedId : SpacedId;
-	protected _data : Data;
+	protected _type : EntityType;
+	protected _id : number;
 
+	protected _data : Data;
 	protected _components : Map<ComponentType, Component>;
 
-	constructor(options : EntityOptions) {
-		this._spacedId = options.spacedId;
+	constructor(type : EntityType, options : EntityOptions) {
+		this._type = type;
+		this._id = options.id;
+
+		this._data = new Data();
 		this._components = new Map();
 	}
 
-	spacedId() : SpacedId { return this._spacedId; }
+	type() : EntityType { return this._type; }
+	id() : number { return this._id; }
+	name() : string { return this._type + "," + this._id; }
 
 	add(component : Component) : void {
 		component.setEntity(this);
@@ -35,33 +44,55 @@ export class Entity {
 		return this._components.get(type);
 	}
 
-	preUpdate(ts : number) : void {
+	preUpdate(millis : number) : void {
 		this._components.forEach((component) => {
-			component.preUpdate(ts);
+			component.preUpdate(millis);
 		});
 	}
 
-	update(ts : number) : void {
+	update(millis : number) : void {
 		this._components.forEach((component) => {
-			component.update(ts);
+			component.update(millis);
 		});
 	}
 
-	postUpdate(ts : number) : void {
+	postUpdate(millis : number) : void {
 		this._components.forEach((component) => {
-			component.postUpdate(ts);
+			component.postUpdate(millis);
 		});
 	}
 
-	postPhysics(ts : number) : void {
+	prePhysics(millis : number) : void {
 		this._components.forEach((component) => {
-			component.postPhysics(ts);
+			component.prePhysics(millis);
 		});
 	}
 
-	postRender(ts : number) : void {
+	postPhysics(millis : number) : void {
 		this._components.forEach((component) => {
-			component.postRender(ts);
+			component.postPhysics(millis);
+		});
+	}
+
+	postRender(millis : number) : void {
+		this._components.forEach((component) => {
+			component.postRender(millis);
+		});
+	}
+
+	collide(entity : Entity) : void {}
+
+	data(filter : DataFilter, seqNum : number) : Data {
+		this._components.forEach((component) => {
+			const data = component.data(filter, seqNum);
+			this._data.set(component.type(), data, seqNum, () => { return !data.empty(); })
+		});
+		return this._data;
+	}
+
+	updateData(seqNum : number) : void {
+		this._components.forEach((component) => {
+			component.updateData(seqNum);
 		});
 	}
 }
