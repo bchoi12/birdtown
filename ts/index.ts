@@ -1,13 +1,11 @@
-import { Peer } from 'peerjs'
-
 import { game } from 'game'
 
-
+const url = window.location.href;
 game.initialize({
-    headless: false,
+    host: url.endsWith("host"),
 });
 
-const url = window.location.href;
+/*
 if (url.endsWith("host")) {
     const peer = new Peer("bossman69", { debug: 2 });
 
@@ -65,3 +63,4 @@ if (url.endsWith("host")) {
         console.error(error);
     });
 }
+*/

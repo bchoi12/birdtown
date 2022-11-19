@@ -1,29 +1,33 @@
 import * as BABYLON from "babylonjs";
 import * as MATTER from "matter-js"
 
-import { DataFilter } from 'game/data'
+import { Camera } from 'game/camera'
+import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity, EntityType } from 'game/entity'
 import { EntityMap } from 'game/entity_map'
+
+import { Client } from 'network/client'
+import { Connection, ChannelType } from 'network/connection'
+import { Host } from 'network/host'
+import { Message, MessageType } from 'network/message'
+
 import { Html } from 'ui/html'
 
-import { Player } from 'game/player'
-import { Wall } from 'game/wall'
-
 interface GameOptions {
-	headless : boolean;
+	host : boolean;
 }
 
 class Game {
-
 	private _canvas : HTMLCanvasElement;
 
+	private _options : GameOptions;
 	private _engine : BABYLON.Engine|BABYLON.NullEngine;
 	private _physics : MATTER.Engine;
 
 	private _scene : BABYLON.Scene;
 	private _entityMap : EntityMap;
-
-	private _camera : BABYLON.FreeCamera;
+	private _camera : Camera;
+	private _connection : Connection;
 
 	private _seqNum : number;
 	private _updateSpeed : number;
@@ -34,24 +38,37 @@ class Game {
 	}
 
 	initialize(options : GameOptions) {
-		if (options.headless) {
-			this._engine = new BABYLON.NullEngine();
-		} else {
-			this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false);
-		}
+		this._options = options;
+
+		// this._engine = new BABYLON.NullEngine();
+		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false);
 
 		this._physics = MATTER.Engine.create({
 			gravity: {
-				y: -0.25,
+				y: -0.2,
 			}
 		});
 
 		this._scene = new BABYLON.Scene(this._engine);
 		this._entityMap = new EntityMap();
-
-		this._camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 10, -20), this._scene);
-	    this._camera.setTarget(BABYLON.Vector3.Zero());
-    	this._camera.attachControl(this._canvas, true);
+		this._camera = new Camera();
+		if (options.host) {
+			this._connection = new Host("bossman69");
+			this._connection.addCallback(MessageType.ENTITY, (msg : Message) => {
+				this._entityMap.pushData({
+					dataMap: <DataMap>msg.D,
+					seqNum: msg.S,
+				});
+			});
+		} else {
+			this._connection = new Client("slothman333", "bossman69");
+			this._connection.addCallback(MessageType.ENTITY, (msg : Message) => {
+				this._entityMap.pushData({
+					dataMap: <DataMap>msg.D,
+					seqNum: msg.S,
+				});
+			});
+		}
 
 	    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), this._scene);
 
@@ -78,13 +95,32 @@ class Game {
 	    	this._entityMap.postRender(millis);
 
 	    	this._entityMap.updateData(this._seqNum);
-	    	// this._entityMap.data(DataFilter.ALL, this._seqNum);
+
+	    	const tcp = this._entityMap.data(DataFilter.TCP, this._seqNum);
+	    	if (Object.keys(tcp).length > 0) {
+		    	this._connection.send(ChannelType.TCP, {
+		    		T: MessageType.ENTITY,
+		    		S: this._seqNum,
+		    		D: tcp,
+		    	});
+	    	}
+
+	    	const udp = this._entityMap.data(DataFilter.UDP, this._seqNum);
+	    	if (Object.keys(udp).length > 0) {
+		    	this._connection.send(ChannelType.UDP, {
+		    		T: MessageType.ENTITY,
+		    		S: this._seqNum,
+		    		D: udp,
+		    	});
+	    	}
 
 	    	this._seqNum++;
 		    this._lastRenderTime = Date.now();
 	    });
 	}
 
+	canvas() : HTMLCanvasElement { return this._canvas; }
+	options() : GameOptions { return this._options; }
 	scene() : BABYLON.Scene { return this._scene; }
 	engine() : BABYLON.Engine { return this._engine; }
 	physics() : MATTER.Engine { return this._physics; }

@@ -1,11 +1,12 @@
 
-import { Data, DataFilter } from 'game/data'
+import { game } from 'game'
+import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity } from 'game/entity'
 
 export enum ComponentType {
-	UNKNOWN,
-	KEYS,
-	PROFILE,
+	UNKNOWN = 0,
+	PROFILE = 1,
+	KEYS = 2,
 }
 
 export interface Component {
@@ -19,9 +20,10 @@ export interface Component {
 	postPhysics(millis : number) : void
 	postRender(millis : number) : void
 
-	data(filter : DataFilter, seqNum : number) : Map<number, Object>;
+	dataEnabled() : boolean;
+	data(filter : DataFilter, seqNum : number) : DataMap;
 	updateData(seqNum : number) : void;
-	setData(data : Map<number, Object>, seqNum : number) : void;
+	mergeData(data : DataMap, seqNum : number) : void;
 };
 
 export class ComponentBase {
@@ -29,16 +31,19 @@ export class ComponentBase {
 	protected _entity : Entity;
 	protected _type : ComponentType;
 	protected _data : Data;
+	protected _clientSide : boolean;
 
 	constructor(type : ComponentType) {
 		this._entity = null;
 		this._type = type;
 		this._data = new Data();
+		this._clientSide = false;
 	}
 
-	setEntity(entity : Entity) : void { this._entity = entity; }
 	entity() : Entity { return this._entity; }
 	type() : ComponentType { return this._type; }
+	setEntity(entity : Entity) : void { this._entity = entity; }
+	setClientSide(clientSide : boolean) : void { this._clientSide = clientSide; }
 
 	preUpdate(millis : number) : void {}
 	update(millis : number) : void {}
@@ -47,7 +52,8 @@ export class ComponentBase {
 	postPhysics(millis : number) : void {}
 	postRender(millis : number) : void {}
 
-	data(filter : DataFilter, seqNum : number) : Map<number, Object> { return this._data.filtered(filter, seqNum); };
+	dataEnabled() : boolean { return game.options().host || this._clientSide; }
+	data(filter : DataFilter, seqNum : number) : DataMap { return this._data.filtered(filter, seqNum); }
 	updateData(seqNum : number) : void {}
-	setData(data : Map<number, Object>, seqNum : number) : void {}
+	mergeData(data : DataMap, seqNum : number) : void {}
 }

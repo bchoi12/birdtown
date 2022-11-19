@@ -1,6 +1,7 @@
 
+import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
-import { Data, DataFilter } from 'game/data'
+import { Data, DataFilter, DataMap } from 'game/data'
 
 import { ui } from 'ui'
 import { Key } from 'ui/input'
@@ -17,6 +18,7 @@ export class Keys extends ComponentBase implements Component {
 
 	constructor() {
 		super(ComponentType.KEYS);
+		this.setClientSide(true);
 
 		this._keys = new Set<Key>();
 		this._lastKeys = new Set<Key>();
@@ -41,22 +43,31 @@ export class Keys extends ComponentBase implements Component {
 	}
 
 	override preUpdate(millis : number) : void {
-		this._lastKeys = new Set<Key>(this._keys);
-		this._keys = new Set<Key>(ui.keys());
-	}
-
-	override updateData(seqNum : number) : void {
-		this._data.set(Prop.KEYS, this._keys, seqNum, () => { return this.changed(); });
-	}
-
-	override setData(data : Map<number, Object>, seqNum : number) : void {
-		const changed = this._data.merge(data, seqNum);
-		if (!changed) {
+		if (!game.options().host) {
 			return;
 		}
 
-		if (this._data.has(Prop.KEYS)) {
-			this._keys = <Set<Key>>this._data.get(Prop.KEYS);
+		this.updateKeys(new Set<Key>(ui.keys()));
+	}
+
+	override updateData(seqNum : number) : void {
+		this._data.set(Prop.KEYS, this._keys, seqNum, () => { return game.options().host && this.changed(); });
+	}
+
+	override mergeData(data : DataMap, seqNum : number) : void {
+		const changed = this._data.merge(data, seqNum);
+
+		if (changed.size === 0) {
+			return;
 		}
+
+		if (changed.has(Prop.KEYS)) {
+			this.updateKeys(new Set(<Array<Key>>this._data.get(Prop.KEYS)));
+		}
+	}
+
+	private updateKeys(keys : Set<number>) {
+		this._lastKeys = new Set(this._keys);
+		this._keys = keys;
 	}
 }

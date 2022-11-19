@@ -11,41 +11,43 @@ export enum DataFilter {
 	UDP = 3,
 }
 
+export type DataMap = { [k: number]: Object } 
+
 export class Data {
 
-	private _data : Map<number, Object>;
+	private _data : DataMap;
 	private _change : Map<number, BitMarker>;
 	private _seqNum : Map<number, number>;
 
 	constructor() {
-		this._data = new Map<number, Object>();
+		this._data = {};
 		this._change = new Map<number, BitMarker>();
 		this._seqNum = new Map<number, number>();
 	}
 
-	clear() : void { this._data.clear(); }
-	empty() : boolean { return this._data.size === 0; }
-	entries() : Map<number, Object> { return this._data; }
-
-	has(key : number) : boolean {
-		return this._data.has(key);
-	}
-
-	extrapolate(key : number, data : Object) : void {
-		if (this._data.has(key)) {
-			this._data.set(key, data);
+	static toObject(data : any) : Object {
+		if (data instanceof Map) {
+			return Object.fromEntries(data);
+		} else if (data instanceof Set) {
+			return Array.from(data);
 		}
+		return data;
 	}
 
-	set(key : number, data : Object, seqNum : number, predicate? : () => boolean) : boolean {
+	empty() : boolean { return Object.keys(this._data).length === 0; }
+	has(key : number) : Object { return defined(this._data[key]); }
+	get(key : number) : Object { return this._data[key]; }
+
+	set(key : number, value : Object, seqNum : number, predicate? : () => boolean) : boolean {
 		if (defined(predicate) && !predicate()) {
 			this.recordChange(key, seqNum, false);
 			return false;
 		}
 
+		const data = Data.toObject(value);
 		if (!defined(this._seqNum.get(key)) || seqNum >= this._seqNum.get(key)) {
-			if (data !== this._data.get(key)) {
-				this._data.set(key, data);
+			if (data !== this._data[key]) {
+				this._data[key] = data;
 				this._seqNum.set(key, seqNum);
 				this.recordChange(key, seqNum, true);
 				return true;
@@ -56,49 +58,45 @@ export class Data {
 		return false;
 	}
 
-	get(key : number) : Object {
-		return this._data.get(key);
-	}
-
-	filtered(filter : DataFilter, seqNum : number) : Map<number, Object> {
+	filtered(filter : DataFilter, seqNum : number) : DataMap {
 		if (filter === DataFilter.ALL) {
 			return this._data;
 		}
 
-		let filtered = new Map<number, Object>();
+		let filtered = {};
 		switch (filter) {
 		case DataFilter.TCP:
-			this._data.forEach((data, key) => {
+			for (const [stringKey, data] of Object.entries(this._data)) {
+				const key = Number(stringKey);
 				const change = this._change.get(key);
 				if (change.consecutiveTrue() === 1) {
-					filtered.set(key, data);
-					return;
-				}
-			});
+					filtered[key] = Data.toObject(data);
+				}				
+			}
 			return filtered;
 		case DataFilter.UDP:
-			this._data.forEach((data, key) => {
+			for (const [stringKey, data] of Object.entries(this._data)) {
+				const key = Number(stringKey);
 				const change = this._change.get(key);
 				if (change.consecutiveFalse() <= 3) {
-					filtered.set(key, data);
-					return;
+					filtered[key] = Data.toObject(data);
 				}
-			});
+			}
 			return filtered;
 		default:
 			return filtered;
 		}
 	}
 
-	merge(data : Map<number, Object>, seqNum : number) : boolean {
-		let changed = false;
+	merge(data : DataMap, seqNum : number) : Set<number> {
+		let changed = new Set<number>();
 
-		for (const [key, value] of data) {
-			if (seqNum >= this._seqNum.get(key)) {
-				changed ||= this.set(key, value, seqNum);
+		for (const [stringKey, value] of Object.entries(data)) {
+			const key = Number(stringKey);
+			if (this.set(key, value, seqNum)) {
+				changed.add(key);
 			}
 		}
-
 		return changed;
 	}
 

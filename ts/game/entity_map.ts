@@ -1,21 +1,28 @@
 import * as MATTER from 'matter-js'
 
-import { Data, DataFilter } from 'game/data'
+import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { Player } from 'game/player'
 import { Wall } from 'game/wall'
+
+interface DataItem {
+	seqNum : number;
+	dataMap : DataMap;
+}
 
 export class EntityMap {
 	private readonly _invalidId = 0;
 
 	private _nextId : number;
 	private _map : Map<number, Entity>;
+	private _pendingData : Array<DataItem>;
 	private _data : Data;
 	private _factory : Map<EntityType, (options : EntityOptions) => Entity>;
 
 	constructor() {
 		this._nextId = 0;
 		this._map = new Map<number, Entity>;
+		this._pendingData = new Array<DataItem>();
 		this._data = new Data();
 
 		this._factory =  new Map();
@@ -41,7 +48,19 @@ export class EntityMap {
 		this._map.delete(id);	
 	}
 
+	pushData(item : DataItem) : void {
+		this._pendingData.push(item);
+	}
+
 	update(millis : number) : void {
+		while(this._pendingData.length > 0) {
+			const item = this._pendingData.pop();
+			for (const [stringKey, dataMap] of Object.entries(item.dataMap)) {
+				const id = Number(stringKey);
+				this.get(id).mergeData(<DataMap>dataMap, item.seqNum);
+			}
+		}
+
 		this._map.forEach((entity) => {
 			entity.preUpdate(millis);
 		});
@@ -96,10 +115,10 @@ export class EntityMap {
 		});
 	}
 
-	data(filter : DataFilter, seqNum : number) : Map<number, Object> {
+	data(filter : DataFilter, seqNum : number) : DataMap {
 		this._map.forEach((entity) => {
 			const data = entity.data(filter, seqNum);
-			this._data.set(entity.id(), data, seqNum, () => { return data.size > 0; })
+			this._data.set(entity.id(), data, seqNum, () => { return Object.keys(data).length > 0; })
 		});
 		return this._data.filtered(filter, seqNum);
 	}

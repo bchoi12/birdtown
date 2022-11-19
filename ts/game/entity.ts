@@ -1,6 +1,6 @@
 import { Vec2 } from 'game/common'
 import { Component, ComponentType } from 'game/component'
-import { Data, DataFilter } from 'game/data'
+import { Data, DataFilter, DataMap } from 'game/data'
 
 export enum EntityType {
 	UNKNOWN = 0,
@@ -14,7 +14,7 @@ export interface EntityOptions {
 	id? : number;
 }
 
-export class Entity {
+export abstract class Entity {
 
 	protected _type : EntityType;
 	protected _id : number;
@@ -29,6 +29,8 @@ export class Entity {
 		this._data = new Data();
 		this._components = new Map();
 	}
+
+	// TODO: ready(), initialize(), deleted()
 
 	type() : EntityType { return this._type; }
 	id() : number { return this._id; }
@@ -81,10 +83,13 @@ export class Entity {
 
 	collide(entity : Entity) : void {}
 
-	data(filter : DataFilter, seqNum : number) : Map<number, Object> {
+	data(filter : DataFilter, seqNum : number) : DataMap {
 		this._components.forEach((component) => {
+			if (!component.dataEnabled()) {
+				return;
+			}
 			const data = component.data(filter, seqNum);
-			this._data.set(component.type(), data, seqNum, () => { return filter === DataFilter.ALL || data.size > 0; })
+			this._data.set(component.type(), data, seqNum, () => { return filter === DataFilter.ALL || Object.keys(data).length > 0; })
 		});
 		return this._data.filtered(filter, seqNum);
 	}
@@ -93,5 +98,12 @@ export class Entity {
 		this._components.forEach((component) => {
 			component.updateData(seqNum);
 		});
+	}
+
+	mergeData(dataMap : DataMap, seqNum : number) : void {
+		for (const [stringKey, data] of Object.entries(dataMap)) {
+			const key = Number(stringKey);
+			this.get(key).mergeData(<DataMap>data, seqNum);
+		}
 	}
 }
