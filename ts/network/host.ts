@@ -5,10 +5,14 @@ export class Host extends Connection {
 
 	constructor(name : string) {
 		super(name);
+	}
 
+	initialize() : void {
 		let peer = this.peer();
 	    peer.on("connection", (connection) => {
-	    	this.register(connection);
+	    	connection.on("open", () => {
+		    	this.register(connection);
+	    	});
 	    });
 
 	    peer.on("close", () => {

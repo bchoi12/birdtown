@@ -13,7 +13,9 @@ export class Client extends Connection {
 		super(name);
 
 		this._hostName = hostName;
+	}
 
+	initialize() : void {
 		let peer = this.peer();
 		peer.on("open", () => {
 			this.initTCP();

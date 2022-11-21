@@ -1,3 +1,4 @@
+import * as MATTER from 'matter-js'
 
 import { ComponentType } from 'game/component'
 
@@ -14,6 +15,7 @@ export enum DataFilter {
 export type DataMap = { [k: number]: Object } 
 
 export class Data {
+	private static readonly _numberEpsilon = 1e-3;
 
 	private _data : DataMap;
 	private _change : Map<number, BitMarker>;
@@ -34,20 +36,46 @@ export class Data {
 		return data;
 	}
 
-	empty() : boolean { return Object.keys(this._data).length === 0; }
-	has(key : number) : Object { return defined(this._data[key]); }
-	get(key : number) : Object { return this._data[key]; }
+	static equals(a : Object, b : Object) : boolean {
+		if (a === b) return true;
+		if (!defined(a) || !defined(b)) return false;
+		if (a !== Object(a) && b !== Object(b)) {
+			if (!Number.isNaN(a) && !Number.isNaN(b)) {
+				return Math.abs(<number>a - <number>b) < Data._numberEpsilon;
+			}
+			return a === b;
+		};
+		if (Object.keys(a).length !== Object.keys(b).length) return false;
 
-	set(key : number, value : Object, seqNum : number, predicate? : () => boolean) : boolean {
+		for (let key in a) {
+			if (!(key in b)) return false;
+			if (!Data.equals(a[key], b[key])) return false;
+		}
+		return true;
+	}
+
+	empty() : boolean { return Object.keys(this._data).length === 0; }
+	has(key : number) : boolean { return defined(this._data[key]); }
+	get(key : number) : Object { return this._data[key]; }
+	set(key : number, data : Object) : boolean {
+		if (!defined(data)) {
+			return false;
+		}
+		this._data[key] = data;
+		return true;
+	}
+
+	update(key : number, data : Object, seqNum : number, predicate? : () => boolean) : boolean {
+		if (!defined(data)) { return false; }
+
 		if (defined(predicate) && !predicate()) {
 			this.recordChange(key, seqNum, false);
 			return false;
 		}
 
-		const data = Data.toObject(value);
-		if (!defined(this._seqNum.get(key)) || seqNum >= this._seqNum.get(key)) {
-			if (data !== this._data[key]) {
-				this._data[key] = data;
+		const object = Data.toObject(data);
+		if (!defined(this._data[key]) || !defined(this._seqNum.get(key)) || seqNum >= this._seqNum.get(key)) {
+			if (this.set(key, object)) {
 				this._seqNum.set(key, seqNum);
 				this.recordChange(key, seqNum, true);
 				return true;
@@ -58,7 +86,7 @@ export class Data {
 		return false;
 	}
 
-	filtered(filter : DataFilter, seqNum : number) : DataMap {
+	filtered(filter : DataFilter) : DataMap {
 		if (filter === DataFilter.ALL) {
 			return this._data;
 		}
@@ -78,7 +106,7 @@ export class Data {
 			for (const [stringKey, data] of Object.entries(this._data)) {
 				const key = Number(stringKey);
 				const change = this._change.get(key);
-				if (change.consecutiveFalse() <= 3) {
+				if (change.consecutiveTrue() >= 1 || change.consecutiveFalse() <= 2) {
 					filtered[key] = Data.toObject(data);
 				}
 			}
@@ -93,7 +121,7 @@ export class Data {
 
 		for (const [stringKey, value] of Object.entries(data)) {
 			const key = Number(stringKey);
-			if (this.set(key, value, seqNum)) {
+			if (this.update(key, value, seqNum)) {
 				changed.add(key);
 			}
 		}

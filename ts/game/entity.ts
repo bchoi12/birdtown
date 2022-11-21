@@ -1,5 +1,7 @@
 import { Vec2 } from 'game/common'
 import { Component, ComponentType } from 'game/component'
+import { Life } from 'game/component/life'
+import { Profile } from 'game/component/profile'
 import { Data, DataFilter, DataMap } from 'game/data'
 
 export enum EntityType {
@@ -9,8 +11,6 @@ export enum EntityType {
 }
 
 export interface EntityOptions {
-	pos : Vec2;
-
 	id? : number;
 }
 
@@ -18,19 +18,47 @@ export abstract class Entity {
 
 	protected _type : EntityType;
 	protected _id : number;
+	protected _initialized : boolean;
+	protected _deleted : boolean;
 
-	protected _data : Data;
 	protected _components : Map<ComponentType, Component>;
 
 	constructor(type : EntityType, options : EntityOptions) {
 		this._type = type;
 		this._id = options.id;
+		this._initialized = false;
+		this._deleted = false;
 
-		this._data = new Data();
 		this._components = new Map();
+		this.add(new Life());
 	}
 
-	// TODO: ready(), initialize(), deleted()
+	ready() : boolean {
+		for (const [_, component] of this._components) {
+			if (!component.ready()) {
+				return false;
+			}
+		}
+		return true;
+	}
+	initialized() : boolean { return this._initialized; }
+	deleted() : boolean { return this._deleted; }
+
+	initialize() : void {
+		this._components.forEach((component) => {
+			component.initialize();
+		});
+		this._initialized = true;
+	}
+	delete() : void {
+		if (this._deleted) return;
+
+		this._components.forEach((component) => {
+			component.delete();
+		});
+
+		this._deleted = true;
+	}
 
 	type() : EntityType { return this._type; }
 	id() : number { return this._id; }
@@ -41,9 +69,8 @@ export abstract class Entity {
 		this._components.set(component.type(), component);
 	}
 
-	get(type : ComponentType) : Component {
-		return this._components.get(type);
-	}
+	get(type : ComponentType) : Component { return this._components.get(type); }
+	profile() : Profile { return <Profile>this._components.get(ComponentType.PROFILE); }
 
 	preUpdate(millis : number) : void {
 		this._components.forEach((component) => {
@@ -75,35 +102,40 @@ export abstract class Entity {
 		});
 	}
 
-	postRender(millis : number) : void {
+	finalize(millis : number) : void {
 		this._components.forEach((component) => {
-			component.postRender(millis);
+			component.finalize(millis);
 		});
 	}
 
 	collide(entity : Entity) : void {}
 
-	data(filter : DataFilter, seqNum : number) : DataMap {
+	filteredData(filter : DataFilter) : DataMap {
+		let dataMap : DataMap = {};
 		this._components.forEach((component) => {
 			if (!component.dataEnabled()) {
 				return;
 			}
-			const data = component.data(filter, seqNum);
-			this._data.set(component.type(), data, seqNum, () => { return filter === DataFilter.ALL || Object.keys(data).length > 0; })
+			const data = component.filteredData(filter);
+			if (Object.keys(data).length > 0) {
+				dataMap[component.type()] = data;
+			}
 		});
-		return this._data.filtered(filter, seqNum);
+		return dataMap;
 	}
 
 	updateData(seqNum : number) : void {
 		this._components.forEach((component) => {
-			component.updateData(seqNum);
+			if (component.dataEnabled()) {
+				component.updateData(seqNum);
+			}
 		});
 	}
 
 	mergeData(dataMap : DataMap, seqNum : number) : void {
-		for (const [stringKey, data] of Object.entries(dataMap)) {
-			const key = Number(stringKey);
-			this.get(key).mergeData(<DataMap>data, seqNum);
+		for (const [stringType, data] of Object.entries(dataMap)) {
+			const componentType = Number(stringType);
+			this.get(componentType).mergeData(<DataMap>data, seqNum);
 		}
 	}
 }

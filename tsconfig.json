@@ -18,8 +18,4 @@
         ],
         "declaration": true,
     },
-    "include": [
-      "ts/*.ts",
-      "ts/*/*.ts"
-    ],
 }

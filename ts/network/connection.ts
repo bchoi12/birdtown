@@ -12,7 +12,9 @@ export enum ChannelType {
 	UDP = "UDP",
 }
 
-type MessageHandler = (msg : Message) => void;
+type PeerMap = Map<string, ChannelMap>;
+type RegisterCallback = (name : string) => void;
+type MessageCallback = (msg : Message) => void;
 
 export abstract class Connection {
 	private static readonly _validChannels : Set<string> = new Set([
@@ -22,20 +24,24 @@ export abstract class Connection {
 
 	protected _peer : Peer;
 	protected _peers : Map<string, ChannelMap>;
-	protected _callbacks : Map<MessageType, MessageHandler>;
+	protected _registerCallbacks : Array<RegisterCallback>;
+	protected _messageCallbacks : Map<MessageType, MessageCallback>;
 
 	constructor(name : string) {
 		this._peer = new Peer(name, {
 			debug: isDev() ? 2 : 0,
 			pingInterval: 1000,
 		});
-		this._peers = new Map<string, ChannelMap>();
-		this._callbacks = new Map<MessageType, MessageHandler>();
+		this._peers = new Map();
+		this._registerCallbacks = new Array();
+		this._messageCallbacks = new Map();
 
 		if (isDev()) {
 			console.log("Initializing connection for " + name);
 		}
 	}
+
+	abstract initialize() : void;
 
 	peer() : Peer { return this._peer; }
 
@@ -44,49 +50,82 @@ export abstract class Connection {
 			console.error("Invalid channel type: " + connection.label);
 			return;
 		}
+		const channelType = <ChannelType>connection.label;
+
+		if (!connection.open) {
+			console.error("Warning: registering unopen " + channelType + " channel for " + connection.peer);
+		}
 
 		if (!this._peers.has(connection.peer)) {
 			this._peers.set(connection.peer, new ChannelMap());
 		}
 
 		let channels = this._peers.get(connection.peer);
-		channels.register(connection);
+		channels.register(channelType, connection);
 
 		connection.on("data", (data : Object) => {
 			this.handleData(data);
 		});
 
-    	if (isDev()) {
-    		console.log("New " + connection.label + " connection to " + connection.peer)
-    	}
+		connection.on("close", () => {
+			channels.delete(channelType);
+		});
+
+		connection.on("error", (error) => {
+			console.error(error);
+		});
+
+		if (channels.ready()) {
+			this._registerCallbacks.forEach((cb) => {
+				cb(connection.peer);
+			});
+		}
 	}
 
 	unregister(connection : DataConnection) {
 		connection.close();
-		this._peers.delete(connection.peer);
-
 		if (isDev()) {
-			console.log("Deleted " + connection.label + " connection to " + connection.peer);
+			console.log("Closed " + connection.label + " connection to " + connection.peer);
 		}
+
+		// TODO: remove peer if all connections are closed
 	}
 
-	addCallback(type : MessageType, cb : MessageHandler) {
-		if (this._callbacks.has(type)) {
+	addRegisterCallback(cb : RegisterCallback) {
+		this._registerCallbacks.push(cb);
+	}
+
+	addMessageCallback(type : MessageType, cb : MessageCallback) {
+		if (this._messageCallbacks.has(type)) {
 			console.error("Warning: overwriting callback for message type " + type);
 		}
-		this._callbacks.set(type, cb);
+		this._messageCallbacks.set(type, cb);
 	}
 
-	send(type : ChannelType, msg : Message) : void {
+	broadcast(type : ChannelType, msg : Message) : void {
 		this._peers.forEach((channels, name) => {
-			if (!channels.has(type)) {
-				console.error("Missing " + type + " connection for " + name);
+			if (!channels.ready()) {
 				return;
 			}
 
-			channels.get(type).send(encode(msg));
+			this.send(name, type, msg);
 		});
 	}
+
+	send(name : string, type : ChannelType, msg : Message) {
+		const channels = this._peers.get(name);
+		if (!channels.ready()) {
+			console.error("Trying to send data to " + name + " before connection is ready");
+			return;
+		}
+
+		if (!channels.has(type)) {
+			console.error("Missing " + type + " connection for " + name);
+			return;
+		}
+
+		channels.get(type).send(encode(msg));
+	} 
 
 	private async handleData(data : Object) {
 		let bytes;
@@ -107,8 +146,8 @@ export abstract class Connection {
 		const decoded : Object = decode(bytes);
 		if ('T' in decoded) {
 			const msg = <Message>decoded;
-			if (this._callbacks.has(msg.T)) {
-				this._callbacks.get(msg.T)(msg);				
+			if (this._messageCallbacks.has(msg.T)) {
+				this._messageCallbacks.get(msg.T)(msg);				
 			}
 		} else {
 			console.error("Missing payload type from message: " + decoded);

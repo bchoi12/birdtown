@@ -6,6 +6,7 @@ import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity, EntityType } from 'game/entity'
 import { EntityMap } from 'game/entity_map'
 
+import { ChannelMap } from 'network/channel_map'
 import { Client } from 'network/client'
 import { Connection, ChannelType } from 'network/connection'
 import { Host } from 'network/host'
@@ -18,6 +19,12 @@ interface GameOptions {
 }
 
 class Game {
+	private static readonly _channelMapping = new Map<DataFilter, ChannelType>([
+		[DataFilter.ALL, ChannelType.TCP],
+		[DataFilter.TCP, ChannelType.TCP],
+		[DataFilter.UDP, ChannelType.UDP],
+	]);
+
 	private _canvas : HTMLCanvasElement;
 
 	private _options : GameOptions;
@@ -54,30 +61,32 @@ class Game {
 		this._camera = new Camera();
 		if (options.host) {
 			this._connection = new Host("bossman69");
-			this._connection.addCallback(MessageType.ENTITY, (msg : Message) => {
-				this._entityMap.pushData({
-					dataMap: <DataMap>msg.D,
-					seqNum: msg.S,
-				});
+			this._connection.addRegisterCallback((name : string) => {
+				const filter = DataFilter.ALL;
+				const [message, has] = this.entityMessage(filter, this._seqNum);
+				if (!has) return;
+
+				this._connection.send(name, Game._channelMapping.get(filter), message);
 			});
 		} else {
 			this._connection = new Client("slothman333", "bossman69");
-			this._connection.addCallback(MessageType.ENTITY, (msg : Message) => {
-				this._entityMap.pushData({
-					dataMap: <DataMap>msg.D,
-					seqNum: msg.S,
-				});
-			});
 		}
+		this._connection.addMessageCallback(MessageType.ENTITY, (msg : Message) => {
+			this._entityMap.pushData({
+				dataMap: <DataMap>msg.D,
+				seqNum: msg.S,
+			});
+		});
+		this._connection.initialize();
 
 	    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), this._scene);
 
-	    this._entityMap.add(EntityType.PLAYER, {
-	    	pos: {x: 0, y: 10},
-	    });
-	    this._entityMap.add(EntityType.WALL, {
-	    	pos: {x: 0, y: 0},
-	    });
+	    if (options.host) {
+	    	let player = this._entityMap.add(EntityType.PLAYER, {});
+	    	player.profile().setPos({x: 0, y: 10});
+		    let wall = this._entityMap.add(EntityType.WALL, {});
+		    wall.profile().setPos({x: 0, y: 0});
+	    }
 
 	    this._seqNum = 1;
 	    this._updateSpeed = 1.0;
@@ -92,26 +101,15 @@ class Game {
 			this._entityMap.handleCollisions(MATTER.Detector.collisions(this.physics().detector));
 
 	    	this._scene.render();
-	    	this._entityMap.postRender(millis);
+	    	this._entityMap.finalize(millis);
 
 	    	this._entityMap.updateData(this._seqNum);
 
-	    	const tcp = this._entityMap.data(DataFilter.TCP, this._seqNum);
-	    	if (Object.keys(tcp).length > 0) {
-		    	this._connection.send(ChannelType.TCP, {
-		    		T: MessageType.ENTITY,
-		    		S: this._seqNum,
-		    		D: tcp,
-		    	});
-	    	}
-
-	    	const udp = this._entityMap.data(DataFilter.UDP, this._seqNum);
-	    	if (Object.keys(udp).length > 0) {
-		    	this._connection.send(ChannelType.UDP, {
-		    		T: MessageType.ENTITY,
-		    		S: this._seqNum,
-		    		D: udp,
-		    	});
+	    	for (const filter of [DataFilter.TCP, DataFilter.ALL]) {
+    			const [message, has] = this.entityMessage(filter, this._seqNum);
+    			if (has) {
+    				this._connection.broadcast(Game._channelMapping.get(filter), message);
+	    		}
 	    	}
 
 	    	this._seqNum++;
@@ -127,6 +125,18 @@ class Game {
 	entities() : EntityMap { return this._entityMap; }
 	updateSpeed() : number { return this._updateSpeed; }
 	timestep() : number { return this._updateSpeed * (Date.now() - this._lastRenderTime); }
+
+	private entityMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
+		const data = this._entityMap.filteredData(filter);
+		if (Object.keys(data).length === 0) {
+			return [null, false];
+		}
+		return [{
+			T: MessageType.ENTITY,
+			S: seqNum,
+			D: data,
+		}, true];
+	}
 }
 
 export const game = new Game();

@@ -2,8 +2,8 @@ import * as MATTER from 'matter-js'
 
 import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
-import { Player } from 'game/player'
-import { Wall } from 'game/wall'
+import { Player } from 'game/entity/player'
+import { Wall } from 'game/entity/wall'
 
 interface DataItem {
 	seqNum : number;
@@ -13,17 +13,17 @@ interface DataItem {
 export class EntityMap {
 	private readonly _invalidId = 0;
 
-	private _nextId : number;
+	private _lastId : number;
 	private _map : Map<number, Entity>;
+	private _initialized : Map<number, Entity>;
 	private _pendingData : Array<DataItem>;
-	private _data : Data;
 	private _factory : Map<EntityType, (options : EntityOptions) => Entity>;
 
 	constructor() {
-		this._nextId = 0;
-		this._map = new Map<number, Entity>;
+		this._lastId = 0;
+		this._map = new Map<number, Entity>();
+		this._initialized = new Map<number, Entity>();
 		this._pendingData = new Array<DataItem>();
-		this._data = new Data();
 
 		this._factory =  new Map();
 		this._factory.set(EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); });
@@ -33,6 +33,12 @@ export class EntityMap {
 	add(type : EntityType, options : EntityOptions) : Entity {
 		if (!options.id) {
 			options.id = this.nextId();
+		} else if (options.id > this._lastId) {
+			this._lastId = options.id;
+		}
+
+		if (this._map.has(options.id)) {
+			console.error("Warning: overwriting object type " + type + ", id " + options.id);
 		}
 
 		const entity = this._factory.get(type)(options);
@@ -40,42 +46,55 @@ export class EntityMap {
 		return entity;
 	}
 
-	get(id : number) : Entity {
-		return this._map.get(id);
-	}
-
+	has(id : number) : boolean { return this._map.has(id); }
+	get(id : number) : Entity { return this._map.get(id); }
 	delete(id : number) : void {
-		this._map.delete(id);	
+		this._map.delete(id);
+		this._initialized.delete(id);
 	}
-
-	pushData(item : DataItem) : void {
-		this._pendingData.push(item);
-	}
+	pushData(item : DataItem) : void { this._pendingData.push(item); }
 
 	update(millis : number) : void {
 		while(this._pendingData.length > 0) {
 			const item = this._pendingData.pop();
-			for (const [stringKey, dataMap] of Object.entries(item.dataMap)) {
-				const id = Number(stringKey);
-				this.get(id).mergeData(<DataMap>dataMap, item.seqNum);
+			for (const [stringSpace, entityMap] of Object.entries(item.dataMap)) {
+				for (const [stringId, dataMap] of Object.entries(entityMap)) {
+					const id = Number(stringId);
+					if (!this.has(id)) {
+						this.add(Number(stringSpace), {id: id});
+					}
+
+					this.get(id).mergeData(<DataMap>dataMap, item.seqNum);
+				}
 			}
 		}
 
 		this._map.forEach((entity) => {
+			if (!entity.initialized() && entity.ready()) {
+				entity.initialize();
+				this._initialized.set(entity.id(), entity);
+			}
+
+			if (entity.deleted()) {
+				this.delete(entity.id());
+			}
+		});
+
+		this._initialized.forEach((entity) => {
 			entity.preUpdate(millis);
 		});
 
-		this._map.forEach((entity) => {
+		this._initialized.forEach((entity) => {
 			entity.update(millis);
 		});
 
-		this._map.forEach((entity) => {
+		this._initialized.forEach((entity) => {
 			entity.postUpdate(millis);
 		});
 	}
 
 	prePhysics(millis : number) : void {
-		this._map.forEach((entity) => {
+		this._initialized.forEach((entity) => {
 			entity.prePhysics(millis);
 		});
 	}
@@ -89,54 +108,68 @@ export class EntityMap {
 				return;
 			}
 
-			const idA = this.idFromLabel(pair.bodyA.label);
-			const idB = this.idFromLabel(pair.bodyB.label);
+			const idA = Number(pair.bodyA.label);
+			const idB = Number(pair.bodyB.label);
 
-			this._map.get(idA).collide(this._map.get(idB));
-			this._map.get(idB).collide(this._map.get(idA));		
+			if (Number.isNaN(idA) || Number.isNaN(idB)) {
+				return;
+			}
+
+			if (!this._initialized.has(idA) || !this._initialized.has(idB)) {
+				return;
+			}
+
+			this._initialized.get(idA).collide(this._initialized.get(idB));
+			this._initialized.get(idB).collide(this._initialized.get(idA));		
 		});
 	}
 
 	postPhysics(millis : number) : void {
-		this._map.forEach((entity) => {
+		this._initialized.forEach((entity) => {
 			entity.postPhysics(millis);
 		});
 	}
 
-	postRender(millis : number) : void {
-		this._map.forEach((entity) => {
-			entity.postRender(millis);
+	finalize(millis : number) : void {
+		this._initialized.forEach((entity) => {
+			entity.finalize(millis);
 		});
 	}
 
 	updateData(seqNum : number) : void {
-		this._map.forEach((entity) => {
+		this._initialized.forEach((entity) => {
 			entity.updateData(seqNum);
 		});
 	}
 
-	data(filter : DataFilter, seqNum : number) : DataMap {
-		this._map.forEach((entity) => {
-			const data = entity.data(filter, seqNum);
-			this._data.set(entity.id(), data, seqNum, () => { return Object.keys(data).length > 0; })
+	filteredData(filter : DataFilter) : DataMap {
+		let dataMap : DataMap = {};
+		this._initialized.forEach((entity) => {	
+			const data = entity.filteredData(filter);
+			if (Object.keys(data).length > 0) {
+				if (!dataMap.hasOwnProperty(entity.type())) {
+					dataMap[entity.type()] = {};
+				}
+				dataMap[entity.type()][entity.id()] = data;
+			}
 		});
-		return this._data.filtered(filter, seqNum);
+		return dataMap;
 	}
 
 	private nextId() : number {
-		return ++this._nextId;
+		return ++this._lastId;
 	}
 
-	private idFromLabel(label : string) : number {
-		const pieces = label.split(",");
+	private idFromName(name : string) : number {
+		const pieces = name.split(",");
 		if (pieces.length !== 2) {
-			console.error("Invalid label: " + label);
+			console.error("Invalid name: " + name);
 			return this._invalidId;
 		}
 
 		const id = Number(pieces[1]);
 		if (!Number.isInteger(id)) {
-			console.error("ID from label is non-integer: " + label);
+			console.error("ID from name is non-integer: " + name);
 			return this._invalidId;
 		}
 

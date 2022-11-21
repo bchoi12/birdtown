@@ -5,29 +5,35 @@ import { ChannelType } from 'network/connection'
 import { isDev } from 'util/common'
 
 export class ChannelMap {
-	private _channels : Map<string, DataConnection>;
+	private _channels : Map<ChannelType, DataConnection>;
 
 	constructor() {
-		this._channels = new Map<string, DataConnection>();
+		this._channels = new Map<ChannelType, DataConnection>();
 	}
 
+	ready() : boolean { return this.has(ChannelType.TCP) && this.has(ChannelType.UDP); }
 	has(type : ChannelType) : boolean { return this._channels.has(type); }
 	get(type : ChannelType) : DataConnection { return this._channels.get(type); }
-
-	register(connection : DataConnection) {
-		if (this._channels.has(connection.label)) {
-			console.error("Warning: overwriting channel " + connection.label);
-			this._channels.get(connection.label).close();
+	delete(type : ChannelType) : void {
+		if (!this._channels.has(type)) {
+			return;
+		}
+		if (isDev()) {
+			console.log("Deleting " + type + " channel to " + this.get(type).peer);
 		}
 
-		this._channels.set(connection.label, connection);
+		this._channels.delete(type);
+	}
 
-		connection.on("close", () => {
-			this._channels.delete(connection.label);
+	register(type : ChannelType, connection : DataConnection) {
+		if (this._channels.has(type)) {
+			console.error("Warning: overwriting channel " + type);
+			this._channels.get(type).close();
+		}
 
-			if (isDev()) {
-				console.log("Lost " + connection.label + " channel to " + connection.peer);
-			}
-		});
+		this._channels.set(type, connection);
+		if (isDev()) {
+			console.log("Registered " + type + " channel to " + connection.peer);
+		}
 	}
 }
