@@ -12,6 +12,9 @@ export enum EntityType {
 
 export interface EntityOptions {
 	id? : number;
+	clientId? : number;
+
+	pos? : Vec2;
 }
 
 export abstract class Entity {
@@ -64,9 +67,10 @@ export abstract class Entity {
 	id() : number { return this._id; }
 	name() : string { return this._type + "," + this._id; }
 
-	add(component : Component) : void {
+	add(component : Component) : Component {
 		component.setEntity(this);
 		this._components.set(component.type(), component);
+		return component;
 	}
 
 	get(type : ComponentType) : Component { return this._components.get(type); }
@@ -102,9 +106,9 @@ export abstract class Entity {
 		});
 	}
 
-	finalize(millis : number) : void {
+	postRender(millis : number) : void {
 		this._components.forEach((component) => {
-			component.finalize(millis);
+			component.postRender(millis);
 		});
 	}
 

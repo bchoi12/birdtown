@@ -24,7 +24,7 @@ export interface Component {
 	postUpdate(millis : number) : void
 	prePhysics(millis : number) : void
 	postPhysics(millis : number) : void
-	finalize(millis : number) : void
+	postRender(millis : number) : void
 
 	dataEnabled() : boolean;
 	filteredData(filter : DataFilter) : DataMap;
@@ -67,7 +67,7 @@ export abstract class ComponentBase {
 	postUpdate(millis : number) : void {}
 	prePhysics(millis : number) : void {}
 	postPhysics(millis : number) : void {}
-	finalize(millis : number) : void {}
+	postRender(millis : number) : void {}
 
 	dataEnabled() : boolean { return game.options().host || this._clientSide; }
 	filteredData(filter : DataFilter) : DataMap {

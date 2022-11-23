@@ -27,6 +27,7 @@ export class Wall extends Entity {
 					depth: 16,
 				}, game.scene());
 			},
+			pos: options.pos,
 		}));
 	}
 }

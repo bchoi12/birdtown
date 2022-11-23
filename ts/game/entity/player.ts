@@ -10,6 +10,8 @@ import { Entity, EntityOptions, EntityType } from 'game/entity'
 
 import { Key } from 'ui/input'
 
+import { defined } from 'util/common'
+
 export class Player extends Entity {
 
 	// TODO: attribute
@@ -20,8 +22,12 @@ export class Player extends Entity {
 
 		this._grounded = true;
 
-		this.add(new Keys());
-		this.add(new Profile({
+		let keys = <Keys>this.add(new Keys());
+		if (defined(options.clientId)) {
+			keys.setClientId(options.clientId)
+		}
+
+		let profile = <Profile>this.add(new Profile({
 			readyFn: (profile : Profile) => {
 				return profile.hasPos();  
 			},
@@ -37,6 +43,10 @@ export class Player extends Entity {
 				}, game.scene());
 			},
 		}));
+		if (defined(options.pos)) {
+			profile.setPos(options.pos);
+		}
+
 	}
 
 	override preUpdate(millis : number) : void {

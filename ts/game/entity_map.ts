@@ -30,7 +30,11 @@ export class EntityMap {
 		this._factory.set(EntityType.WALL, (options : EntityOptions) => { return new Wall(options); });
 	}
 
-	add(type : EntityType, options : EntityOptions) : Entity {
+	add(type : EntityType, options? : EntityOptions) : Entity {
+		if (!options) {
+			options = {};
+		}
+
 		if (!options.id) {
 			options.id = this.nextId();
 		} else if (options.id > this._lastId) {
@@ -130,9 +134,9 @@ export class EntityMap {
 		});
 	}
 
-	finalize(millis : number) : void {
+	postRender(millis : number) : void {
 		this._initialized.forEach((entity) => {
-			entity.finalize(millis);
+			entity.postRender(millis);
 		});
 	}
 

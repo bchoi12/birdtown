@@ -5,6 +5,7 @@ import { ChannelMap } from 'network/channel_map'
 import { Message, MessageType } from 'network/message'
 
 import { isDev } from 'util/common'
+import { DoubleMap } from 'util/double_map'
 
 export enum ChannelType {
 	UNKNOWN = "UNKNOWN",
@@ -24,6 +25,7 @@ export abstract class Connection {
 
 	protected _peer : Peer;
 	protected _peers : Map<string, ChannelMap>;
+	protected _nameAndId : DoubleMap<string, number>;
 	protected _registerCallbacks : Array<RegisterCallback>;
 	protected _messageCallbacks : Map<MessageType, MessageCallback>;
 
@@ -33,6 +35,7 @@ export abstract class Connection {
 			pingInterval: 1000,
 		});
 		this._peers = new Map();
+		this._nameAndId = new DoubleMap();
 		this._registerCallbacks = new Array();
 		this._messageCallbacks = new Map();
 
@@ -44,6 +47,10 @@ export abstract class Connection {
 	abstract initialize() : void;
 
 	peer() : Peer { return this._peer; }
+
+	setId(name : string, id : number) {
+		this._nameAndId.set(name, id);
+	}
 
 	register(connection : DataConnection) {
 		if (!Connection._validChannels.has(connection.label)) {
@@ -112,7 +119,18 @@ export abstract class Connection {
 		});
 	}
 
-	send(name : string, type : ChannelType, msg : Message) {
+	send(peer : string|number, type : ChannelType, msg : Message) {
+		let name;
+		if (typeof(peer) === 'string') {
+			name = peer;
+		} else {
+			if (!this._nameAndId.hasReverse(peer)) {
+				console.error("Error: could not find name for id " + peer);
+				return;
+			}
+			name = this._nameAndId.getReverse(peer);
+		}
+
 		const channels = this._peers.get(name);
 		if (!channels.ready()) {
 			console.error("Trying to send data to " + name + " before connection is ready");
@@ -150,7 +168,7 @@ export abstract class Connection {
 				this._messageCallbacks.get(msg.T)(msg);				
 			}
 		} else {
-			console.error("Missing payload type from message: " + decoded);
+			console.error("Missing payload type from message: ", decoded);
 		}
 	}
 }

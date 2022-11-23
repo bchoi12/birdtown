@@ -6,15 +6,20 @@ import { Data, DataFilter, DataMap } from 'game/data'
 import { ui } from 'ui'
 import { Key } from 'ui/input'
 
+import { defined } from 'util/common'
+
 enum Prop {
 	UNKNOWN = 0,
 	KEYS = 1,
+	CLIENT_ID = 2,
 }
 
 export class Keys extends ComponentBase implements Component {
 
 	private _keys : Set<Key>;
 	private _lastKeys : Set<Key>;
+
+	private _clientId : number;
 
 	constructor() {
 		super(ComponentType.KEYS);
@@ -28,6 +33,8 @@ export class Keys extends ComponentBase implements Component {
 		this._keys = new Set<Key>();
 		this._lastKeys = new Set<Key>();
 	}
+
+	setClientId(id : number) : void { this._clientId = id }
 
 	keyDown(key : Key) : boolean { return this._keys.has(key); }
 	keyPressed(key : Key) : boolean { return this._keys.has(key) && !this._lastKeys.has(key); }
@@ -50,20 +57,19 @@ export class Keys extends ComponentBase implements Component {
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
-		if (!game.options().host) {
-			return;
+		if (defined(this._clientId) && this._clientId === game.id()) {
+			this.updateKeys(new Set<Key>(ui.keys()));
 		}
-
-		this.updateKeys(new Set<Key>(ui.keys()));
 	}
 
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
 
-		if (!game.options().host) {
-			return;
-		}
 		this.setProp(Prop.KEYS, this._keys, seqNum);
+
+		if (defined(this._clientId)) {
+			this.setProp(Prop.CLIENT_ID, this._clientId, seqNum);
+		}
 	}
 
 	override mergeData(data : DataMap, seqNum : number) : void {
@@ -77,6 +83,10 @@ export class Keys extends ComponentBase implements Component {
 
 		if (changed.has(Prop.KEYS)) {
 			this.updateKeys(new Set(<Array<Key>>this._data.get(Prop.KEYS)));
+		}
+
+		if (changed.has(Prop.CLIENT_ID)) {
+			this._clientId = <number>this._data.get(Prop.CLIENT_ID);
 		}
 	}
 

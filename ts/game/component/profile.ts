@@ -13,6 +13,8 @@ type ProfileOptions = {
 	readyFn : (profile : Profile) => boolean;
 	bodyFn : (profile : Profile) => MATTER.Body;
 	meshFn? : () => BABYLON.Mesh;
+
+	pos? : Vec2;
 }
 
 enum Prop {
@@ -44,6 +46,10 @@ export class Profile extends ComponentBase implements Component {
 		this._readyFn = options.readyFn;
 		this._bodyFn = options.bodyFn;
 		this._meshFn = options.meshFn;
+
+		if (defined(options.pos)) {
+			this.setPos(options.pos);
+		}
 	}
 
 	override ready() : boolean {
