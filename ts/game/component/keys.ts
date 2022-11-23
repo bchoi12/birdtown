@@ -29,7 +29,6 @@ export class Keys extends ComponentBase implements Component {
 	override initialize() : void {
 		super.initialize();
 
-		this.setClientSide(true);
 		this._keys = new Set<Key>();
 		this._lastKeys = new Set<Key>();
 	}
@@ -57,25 +56,29 @@ export class Keys extends ComponentBase implements Component {
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
-		if (defined(this._clientId) && this._clientId === game.id()) {
+		// Only update from UI if IDs match
+		if (this.updateKeysLocally()) {
 			this.updateKeys(new Set<Key>(ui.keys()));
 		}
+	}
+
+	override authoritative() : boolean {
+		return game.options().host || this.updateKeysLocally();
 	}
 
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
 
-		this.setProp(Prop.KEYS, this._keys, seqNum);
-
-		if (defined(this._clientId)) {
-			this.setProp(Prop.CLIENT_ID, this._clientId, seqNum);
-		}
+		this.setProp(Prop.KEYS, Data.toObject(this._keys), seqNum);
+		this.setProp(Prop.CLIENT_ID, this._clientId, seqNum);
 	}
 
 	override mergeData(data : DataMap, seqNum : number) : void {
 		super.mergeData(data, seqNum);
 
-		const changed = this._data.merge(data, seqNum);
+		const changed = this._data.merge(data, seqNum, (prop : number) => {
+			return prop !== Prop.KEYS || !this.updateKeysLocally();
+		});
 
 		if (changed.size === 0) {
 			return;
@@ -88,6 +91,10 @@ export class Keys extends ComponentBase implements Component {
 		if (changed.has(Prop.CLIENT_ID)) {
 			this._clientId = <number>this._data.get(Prop.CLIENT_ID);
 		}
+	}
+
+	private updateKeysLocally() : boolean {
+		return defined(this._clientId) && this._clientId === game.id();
 	}
 
 	private updateKeys(keys : Set<number>) {

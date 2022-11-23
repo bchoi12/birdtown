@@ -31,7 +31,7 @@ export class Data {
 		if (data instanceof Map) {
 			return Object.fromEntries(data);
 		} else if (data instanceof Set) {
-			return Array.from(data);
+			return [...data];
 		}
 		return data;
 	}
@@ -73,9 +73,8 @@ export class Data {
 			return false;
 		}
 
-		const object = Data.toObject(data);
 		if (!defined(this._data[key]) || !defined(this._seqNum.get(key)) || seqNum >= this._seqNum.get(key)) {
-			if (this.set(key, object)) {
+			if (this.set(key, data)) {
 				this._seqNum.set(key, seqNum);
 				this.recordChange(key, seqNum, true);
 				return true;
@@ -98,7 +97,7 @@ export class Data {
 				const key = Number(stringKey);
 				const change = this._change.get(key);
 				if (change.consecutiveTrue() === 1) {
-					filtered[key] = Data.toObject(data);
+					filtered[key] = data;
 				}				
 			}
 			return filtered;
@@ -107,7 +106,7 @@ export class Data {
 				const key = Number(stringKey);
 				const change = this._change.get(key);
 				if (change.consecutiveTrue() >= 1 || change.consecutiveFalse() <= 2) {
-					filtered[key] = Data.toObject(data);
+					filtered[key] = data;
 				}
 			}
 			return filtered;
@@ -116,12 +115,15 @@ export class Data {
 		}
 	}
 
-	merge(data : DataMap, seqNum : number) : Set<number> {
+	merge(data : DataMap, seqNum : number, predicate? : (key : number) => boolean) : Set<number> {
 		let changed = new Set<number>();
 
 		for (const [stringKey, value] of Object.entries(data)) {
 			const key = Number(stringKey);
-			if (this.update(key, value, seqNum)) {
+			const updatePredicate = () => {
+				return defined(predicate) ? predicate(key) : true;
+			};
+			if (this.update(key, value, seqNum, updatePredicate)) {
 				changed.add(key);
 			}
 		}

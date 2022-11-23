@@ -117,7 +117,7 @@ export abstract class Entity {
 	filteredData(filter : DataFilter) : DataMap {
 		let dataMap : DataMap = {};
 		this._components.forEach((component) => {
-			if (!component.dataEnabled()) {
+			if (!component.authoritative()) {
 				return;
 			}
 			const data = component.filteredData(filter);
@@ -130,7 +130,7 @@ export abstract class Entity {
 
 	updateData(seqNum : number) : void {
 		this._components.forEach((component) => {
-			if (component.dataEnabled()) {
+			if (component.authoritative()) {
 				component.updateData(seqNum);
 			}
 		});
@@ -138,8 +138,8 @@ export abstract class Entity {
 
 	mergeData(dataMap : DataMap, seqNum : number) : void {
 		for (const [stringType, data] of Object.entries(dataMap)) {
-			const componentType = Number(stringType);
-			this.get(componentType).mergeData(<DataMap>data, seqNum);
+			let component = this.get(Number(stringType));
+			component.mergeData(<DataMap>data, seqNum);
 		}
 	}
 }

@@ -40,7 +40,7 @@ export abstract class Connection {
 		this._messageCallbacks = new Map();
 
 		if (isDev()) {
-			console.log("Initializing connection for " + name);
+			console.log("Initializing connection for " + (name.length > 0 ? name : "new client"));
 		}
 	}
 
