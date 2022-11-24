@@ -12,7 +12,8 @@ import { Host } from 'network/host'
 import { Message, MessageType } from 'network/message'
 
 import { Html } from 'ui/html'
-import { defined, isDev } from 'util/common'
+import { defined, isLocalhost } from 'util/common'
+import { StatsTracker } from 'util/stats_tracker'
 
 interface GameOptions {
 	name : string;
@@ -30,6 +31,7 @@ class Game {
 
 	private _options : GameOptions;
 	private _id : number;
+	private _lastId : number;
 	private _engine : BABYLON.Engine|BABYLON.NullEngine;
 	private _physics : MATTER.Engine;
 
@@ -37,12 +39,10 @@ class Game {
 	private _entityMap : EntityMap;
 	private _camera : Camera;
 	private _connection : Connection;
+	private _channelStats : Map<ChannelType, StatsTracker>;
 
 	private _hostSeqNum : number;
 	private _seqNum : number;
-	private _updateSpeed : number;
-	private _lastRenderTime : number;
-	private _lastId : number;
 
 	constructor() {
 		this._canvas = Html.canvasElm(Html.canvasGame);
@@ -55,6 +55,7 @@ class Game {
 		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false);
 
 		this._physics = MATTER.Engine.create({
+			// TODO: disable built-in gravity
 			gravity: {
 				y: -0.2,
 			}
@@ -67,7 +68,7 @@ class Game {
 			this._id = 1;
 			this._lastId = 1;
 
-			this._connection = new Host("bossman69");
+			this._connection = new Host(options.name);
 			this._connection.addRegisterCallback((name : string) => {
 				this.registerClient(name);
 			});
@@ -82,7 +83,7 @@ class Game {
 				if (msg.N === this._connection.peer().id) {
 					this._id = msg.I;
 
-					if (isDev()) {
+					if (isLocalhost()) {
 						console.log("Got id: " + this._id);
 					}
 				}
@@ -104,6 +105,9 @@ class Game {
 			}
 		});
 		this._connection.initialize();
+		this._channelStats = new Map();
+		this._channelStats.set(ChannelType.UDP, new StatsTracker());
+		this._channelStats.set(ChannelType.TCP, new StatsTracker());
 
 	    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), this._scene);
 
@@ -119,31 +123,28 @@ class Game {
 
 	    this._hostSeqNum = 1;
 	    this._seqNum = 1;
-	    this._updateSpeed = 1.0;
-	    this._lastRenderTime = Date.now();
 	    this._engine.runRenderLoop(() => {
-	    	const millis = Math.min(this.timestep(), 20);
-
-	    	this._entityMap.update(millis);
-	    	this._entityMap.prePhysics(millis);
-	    	MATTER.Engine.update(this._physics, millis);
-	    	this._entityMap.postPhysics(millis);
-			this._entityMap.handleCollisions(MATTER.Detector.collisions(this.physics().detector));
-
+	    	this._entityMap.update();
 	    	this._scene.render();
-	    	this._entityMap.postRender(millis);
-
+	    	this._entityMap.postRender();
 	    	this._entityMap.updateData(this._seqNum);
 
-	    	for (const filter of [DataFilter.TCP, DataFilter.ALL]) {
+	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {
     			const [message, has] = this.entityMessage(filter, this._seqNum);
     			if (has) {
     				this._connection.broadcast(Game._channelMapping.get(filter), message);
+    				this._channelStats.get(Game._channelMapping.get(filter)).add(1);
 	    		}
 	    	}
 
 	    	this._seqNum++;
-		    this._lastRenderTime = Date.now();
+
+	    	// TODO: put this in UI instead
+	    	if (this._seqNum % 120 === 0) {
+	    		this._channelStats.forEach((stats : StatsTracker, channel : ChannelType) => {
+	    			console.log("Sent " + Math.round(stats.flush()) + " messages/s via " + channel);
+	    		});
+	    	}
 	    });
 	}
 
@@ -155,8 +156,6 @@ class Game {
 	engine() : BABYLON.Engine { return this._engine; }
 	physics() : MATTER.Engine { return this._physics; }
 	entities() : EntityMap { return this._entityMap; }
-	updateSpeed() : number { return this._updateSpeed; }
-	timestep() : number { return this._updateSpeed * (Date.now() - this._lastRenderTime); }
 
 	private entityMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
 		const data = this._entityMap.filteredData(filter);
@@ -191,6 +190,11 @@ class Game {
 	}
 
 	private nextId() : number {
+		if (!this.options().host) {
+			console.error("Error: client called nextId()");
+			return -1;
+		}
+
 		return ++this._lastId;
 	}
 }

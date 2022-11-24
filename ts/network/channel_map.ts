@@ -2,7 +2,7 @@ import { DataConnection } from 'peerjs'
 
 import { ChannelType } from 'network/connection'
 
-import { isDev } from 'util/common'
+import { isLocalhost } from 'util/common'
 
 export class ChannelMap {
 	private _channels : Map<ChannelType, DataConnection>;
@@ -18,7 +18,7 @@ export class ChannelMap {
 		if (!this._channels.has(type)) {
 			return;
 		}
-		if (isDev()) {
+		if (isLocalhost()) {
 			console.log("Deleting " + type + " channel to " + this.get(type).peer);
 		}
 
@@ -32,7 +32,7 @@ export class ChannelMap {
 		}
 
 		this._channels.set(type, connection);
-		if (isDev()) {
+		if (isLocalhost()) {
 			console.log("Registered " + type + " channel to " + connection.peer);
 		}
 	}

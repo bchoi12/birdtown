@@ -3,6 +3,8 @@ import { DataConnection } from 'peerjs'
 import { Connection } from 'network/connection'
 import { ChannelType } from 'network/connection'
 
+import { isLocalhost } from 'util/common'
+
 export class Client extends Connection {
 
 	private _hostName : string;
@@ -18,6 +20,10 @@ export class Client extends Connection {
 	initialize() : void {
 		let peer = this.peer();
 		peer.on("open", () => {
+			if (isLocalhost()) {
+				console.log("Opened client connection for " + peer.id);
+			}
+
 			this.initTCP();
 		});
 	}

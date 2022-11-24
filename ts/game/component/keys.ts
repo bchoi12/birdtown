@@ -9,17 +9,14 @@ import { Key } from 'ui/input'
 import { defined } from 'util/common'
 
 enum Prop {
-	UNKNOWN = 0,
-	KEYS = 1,
-	CLIENT_ID = 2,
+	UNKNOWN,
+	KEYS,
 }
 
 export class Keys extends ComponentBase implements Component {
 
 	private _keys : Set<Key>;
 	private _lastKeys : Set<Key>;
-
-	private _clientId : number;
 
 	constructor() {
 		super(ComponentType.KEYS);
@@ -32,8 +29,6 @@ export class Keys extends ComponentBase implements Component {
 		this._keys = new Set<Key>();
 		this._lastKeys = new Set<Key>();
 	}
-
-	setClientId(id : number) : void { this._clientId = id }
 
 	keyDown(key : Key) : boolean { return this._keys.has(key); }
 	keyPressed(key : Key) : boolean { return this._keys.has(key) && !this._lastKeys.has(key); }
@@ -70,7 +65,6 @@ export class Keys extends ComponentBase implements Component {
 		super.updateData(seqNum);
 
 		this.setProp(Prop.KEYS, Data.toObject(this._keys), seqNum);
-		this.setProp(Prop.CLIENT_ID, this._clientId, seqNum);
 	}
 
 	override mergeData(data : DataMap, seqNum : number) : void {
@@ -87,14 +81,10 @@ export class Keys extends ComponentBase implements Component {
 		if (changed.has(Prop.KEYS)) {
 			this.updateKeys(new Set(<Array<Key>>this._data.get(Prop.KEYS)));
 		}
-
-		if (changed.has(Prop.CLIENT_ID)) {
-			this._clientId = <number>this._data.get(Prop.CLIENT_ID);
-		}
 	}
 
 	private updateKeysLocally() : boolean {
-		return defined(this._clientId) && this._clientId === game.id();
+		return this.entity().hasClientId() && this.entity().clientId() === game.id();
 	}
 
 	private updateKeys(keys : Set<number>) {

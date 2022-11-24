@@ -74,10 +74,12 @@ export class Data {
 		}
 
 		if (!defined(this._data[key]) || !defined(this._seqNum.get(key)) || seqNum >= this._seqNum.get(key)) {
-			if (this.set(key, data)) {
-				this._seqNum.set(key, seqNum);
-				this.recordChange(key, seqNum, true);
-				return true;
+			if (!Data.equals(data, this.get(key))) {
+				if (this.set(key, data)) {
+					this._seqNum.set(key, seqNum);
+					this.recordChange(key, seqNum, true);
+					return true;
+				}
 			}
 		}
 
@@ -96,7 +98,7 @@ export class Data {
 			for (const [stringKey, data] of Object.entries(this._data)) {
 				const key = Number(stringKey);
 				const change = this._change.get(key);
-				if (change.consecutiveTrue() === 1) {
+				if (change.consecutiveTrue() === 1 || change.consecutiveFalse() === 1) {
 					filtered[key] = data;
 				}				
 			}

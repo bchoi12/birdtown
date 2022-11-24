@@ -18,11 +18,11 @@ type ProfileOptions = {
 }
 
 enum Prop {
-	UNKNOWN = 0,
-	POS = 1,
-	VEL = 2,
-	ACC = 3,
-	ANGLE = 4,
+	UNKNOWN,
+	POS,
+	VEL,
+	ACC,
+	ANGLE,
 }
 
 export class Profile extends ComponentBase implements Component {

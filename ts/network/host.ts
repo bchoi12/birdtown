@@ -9,18 +9,23 @@ export class Host extends Connection {
 
 	initialize() : void {
 		let peer = this.peer();
-	    peer.on("connection", (connection) => {
-	    	connection.on("open", () => {
-		    	this.register(connection);
-	    	});
-	    });
 
-	    peer.on("close", () => {
-	    	console.error("Server closed!");
-	    })
+		peer.on("open", () => {
+			console.log("Opened host connection for " + peer.id);
 
-	    peer.on("error", (error) => {
-	    	console.error(error);
-	    });
+		    peer.on("connection", (connection) => {
+		    	connection.on("open", () => {
+			    	this.register(connection);
+		    	});
+		    });
+
+		    peer.on("close", () => {
+		    	console.error("Server closed!");
+		    })
+
+		    peer.on("error", (error) => {
+		    	console.error(error);
+		    });
+		});
 	}
 }

@@ -3,6 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { ComponentType } from 'game/component'
+import { Attribute, Attributes } from 'game/attributes'
 import { Keys } from 'game/component/keys'
 import { Profile } from 'game/component/profile'
 import { Data } from 'game/data'
@@ -14,20 +15,19 @@ import { defined } from 'util/common'
 
 export class Player extends Entity {
 
-	// TODO: attribute
-	private _grounded : boolean;
+	private _attributes : Attributes;
+	private _keys : Keys;
+	private _profile : Profile;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.PLAYER, options);
 
-		this._grounded = true;
+		this._attributes = <Attributes>this.add(new Attributes());
+		this._attributes.set(Attribute.GROUNDED, false);
 
-		let keys = <Keys>this.add(new Keys());
-		if (defined(options.clientId)) {
-			keys.setClientId(options.clientId)
-		}
+		this._keys = <Keys>this.add(new Keys());
 
-		let profile = <Profile>this.add(new Profile({
+		this._profile = <Profile>this.add(new Profile({
 			readyFn: (profile : Profile) => {
 				return profile.hasPos();  
 			},
@@ -44,7 +44,7 @@ export class Player extends Entity {
 			},
 		}));
 		if (defined(options.pos)) {
-			profile.setPos(options.pos);
+			this._profile.setPos(options.pos);
 		}
 
 	}
@@ -52,19 +52,16 @@ export class Player extends Entity {
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
-		const keys = <Keys>this.get(ComponentType.KEYS);
-		let profile = <Profile>this.get(ComponentType.PROFILE);
-
-		if (keys.keyDown(Key.LEFT)) {
-			profile.setAcc({ x: -5 });
-		} else if (keys.keyDown(Key.RIGHT)) {
-			profile.setAcc({ x: 5 });
+		if (this._keys.keyDown(Key.LEFT)) {
+			this._profile.setAcc({ x: -5 });
+		} else if (this._keys.keyDown(Key.RIGHT)) {
+			this._profile.setAcc({ x: 5 });
 		} else {
-			profile.setAcc({ x: 0 });
+			this._profile.setAcc({ x: 0 });
 		}
 
-		if (this._grounded && keys.keyDown(Key.JUMP)) {
-			profile.setVel({
+		if (this._attributes.get(Attribute.GROUNDED) && this._keys.keyDown(Key.JUMP)) {
+			this._profile.setVel({
 				y: 0.8,
 			});
 		}
@@ -73,30 +70,28 @@ export class Player extends Entity {
 	override update(millis : number) : void {
 		super.update(millis);
 
-		let profile = <Profile>this.get(ComponentType.PROFILE);
-
-		if (profile.body().position.y < -5) {
-			profile.setPos({ x: 0, y: 10 });
-			profile.setVel({ x: 0, y: 0 });
+		if (this._profile.body().position.y < -5) {
+			this._profile.setPos({ x: 0, y: 10 });
+			this._profile.setVel({ x: 0, y: 0 });
 		}
 
-		if (Math.abs(profile.body().position.x) > 10) {
-			profile.setPos({ x: 0, y: 10 });
-			profile.setVel({ x: 0, y: 0 });
+		if (Math.abs(this._profile.body().position.x) > 10) {
+			this._profile.setPos({ x: 0, y: 10 });
+			this._profile.setVel({ x: 0, y: 0 });
 		}
 	}
 
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
 
-		this._grounded = false;
+		this._attributes.set(Attribute.GROUNDED, false);
 	}
 
 	override collide(entity : Entity) : void {
 		super.collide(entity);
 
 		if (entity.type() === EntityType.WALL) {
-			this._grounded = true;
+			this._attributes.set(Attribute.GROUNDED, true);
 		}
 	}
 }

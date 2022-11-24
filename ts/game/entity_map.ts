@@ -1,5 +1,6 @@
 import * as MATTER from 'matter-js'
 
+import { game } from 'game'	
 import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { Player } from 'game/entity/player'
@@ -13,6 +14,9 @@ interface DataItem {
 export class EntityMap {
 	private readonly _invalidId = 0;
 
+	private _updateSpeed : number;
+	private _lastUpdateTime : number;
+
 	private _lastId : number;
 	private _map : Map<number, Entity>;
 	private _initialized : Map<number, Entity>;
@@ -20,6 +24,9 @@ export class EntityMap {
 	private _factory : Map<EntityType, (options : EntityOptions) => Entity>;
 
 	constructor() {
+		this._updateSpeed = 1;
+		this._lastUpdateTime = Date.now();
+
 		this._lastId = 0;
 		this._map = new Map<number, Entity>();
 		this._initialized = new Map<number, Entity>();
@@ -29,6 +36,9 @@ export class EntityMap {
 		this._factory.set(EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); });
 		this._factory.set(EntityType.WALL, (options : EntityOptions) => { return new Wall(options); });
 	}
+
+	updateSpeed() : number { return this._updateSpeed; }
+	timestep() : number { return this._updateSpeed * (Date.now() - this._lastUpdateTime); }
 
 	add(type : EntityType, options? : EntityOptions) : Entity {
 		if (!options) {
@@ -58,7 +68,8 @@ export class EntityMap {
 	}
 	pushData(item : DataItem) : void { this._pendingData.push(item); }
 
-	update(millis : number) : void {
+	update() : void {
+		const millis = Math.min(this.timestep(), 20);
 		while(this._pendingData.length > 0) {
 			const item = this._pendingData.pop();
 			for (const [stringSpace, entityMap] of Object.entries(item.dataMap)) {
@@ -87,20 +98,23 @@ export class EntityMap {
 		this._initialized.forEach((entity) => {
 			entity.preUpdate(millis);
 		});
-
 		this._initialized.forEach((entity) => {
 			entity.update(millis);
 		});
-
 		this._initialized.forEach((entity) => {
 			entity.postUpdate(millis);
 		});
-	}
 
-	prePhysics(millis : number) : void {
 		this._initialized.forEach((entity) => {
 			entity.prePhysics(millis);
 		});
+    	MATTER.Engine.update(game.physics(), millis);
+		this.handleCollisions(MATTER.Detector.collisions(game.physics().detector));
+		this._initialized.forEach((entity) => {
+			entity.postPhysics(millis);
+		});
+
+		this._lastUpdateTime = Date.now();
 	}
 
 	handleCollisions(collisions : Array<MATTER.Collision>) : void {
@@ -128,15 +142,9 @@ export class EntityMap {
 		});
 	}
 
-	postPhysics(millis : number) : void {
+	postRender() : void {
 		this._initialized.forEach((entity) => {
-			entity.postPhysics(millis);
-		});
-	}
-
-	postRender(millis : number) : void {
-		this._initialized.forEach((entity) => {
-			entity.postRender(millis);
+			entity.postRender();
 		});
 	}
 

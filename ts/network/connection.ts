@@ -4,7 +4,7 @@ import { DataConnection, Peer } from 'peerjs'
 import { ChannelMap } from 'network/channel_map'
 import { Message, MessageType } from 'network/message'
 
-import { isDev } from 'util/common'
+import { isLocalhost } from 'util/common'
 import { DoubleMap } from 'util/double_map'
 
 export enum ChannelType {
@@ -31,7 +31,7 @@ export abstract class Connection {
 
 	constructor(name : string) {
 		this._peer = new Peer(name, {
-			debug: isDev() ? 2 : 0,
+			debug: isLocalhost() ? 2 : 0,
 			pingInterval: 1000,
 		});
 		this._peers = new Map();
@@ -39,7 +39,7 @@ export abstract class Connection {
 		this._registerCallbacks = new Array();
 		this._messageCallbacks = new Map();
 
-		if (isDev()) {
+		if (isLocalhost()) {
 			console.log("Initializing connection for " + (name.length > 0 ? name : "new client"));
 		}
 	}
@@ -91,7 +91,7 @@ export abstract class Connection {
 
 	unregister(connection : DataConnection) {
 		connection.close();
-		if (isDev()) {
+		if (isLocalhost()) {
 			console.log("Closed " + connection.label + " connection to " + connection.peer);
 		}
 

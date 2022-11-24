@@ -6,10 +6,12 @@ import { Entity } from 'game/entity'
 import { defined } from 'util/common'
 
 export enum ComponentType {
-	UNKNOWN = 0,
-	LIFE = 1,
-	PROFILE = 2,
-	KEYS = 3,
+	UNKNOWN,
+	METADATA,
+
+	ATTRIBUTES,
+	KEYS,
+	PROFILE,
 }
 
 export interface Component {
@@ -26,7 +28,7 @@ export interface Component {
 	postUpdate(millis : number) : void
 	prePhysics(millis : number) : void
 	postPhysics(millis : number) : void
-	postRender(millis : number) : void
+	postRender() : void
 
 	authoritative() : boolean;
 	filteredData(filter : DataFilter) : DataMap;
@@ -65,7 +67,7 @@ export abstract class ComponentBase {
 	postUpdate(millis : number) : void {}
 	prePhysics(millis : number) : void {}
 	postPhysics(millis : number) : void {}
-	postRender(millis : number) : void {}
+	postRender() : void {}
 
 	authoritative() : boolean { return game.options().host; }
 	filteredData(filter : DataFilter) : DataMap {
@@ -79,7 +81,7 @@ export abstract class ComponentBase {
 	protected setProp(prop : number, data : Object, seqNum : number, cb? : () => boolean) : boolean {
 		if (this.authoritative()) {
 			return this._data.update(prop, data, seqNum, () => {
-				return (defined(cb) ? cb() : true) && !Data.equals(data, this._data.get(prop));
+				return defined(cb) ? cb() : true;
 			});
 		}
 

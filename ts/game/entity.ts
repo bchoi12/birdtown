@@ -1,13 +1,16 @@
 import { Vec2 } from 'game/common'
 import { Component, ComponentType } from 'game/component'
-import { Life } from 'game/component/life'
+import { Metadata } from 'game/component/metadata'
 import { Profile } from 'game/component/profile'
 import { Data, DataFilter, DataMap } from 'game/data'
 
+import { defined } from 'util/common'
+
 export enum EntityType {
-	UNKNOWN = 0,
-	WALL = 1,
-	PLAYER = 2,
+	UNKNOWN,
+
+	PLAYER,
+	WALL,
 }
 
 export interface EntityOptions {
@@ -21,6 +24,7 @@ export abstract class Entity {
 
 	protected _type : EntityType;
 	protected _id : number;
+	protected _clientId : number;
 	protected _initialized : boolean;
 	protected _deleted : boolean;
 
@@ -29,11 +33,15 @@ export abstract class Entity {
 	constructor(type : EntityType, options : EntityOptions) {
 		this._type = type;
 		this._id = options.id;
+		if (defined(options.clientId)) {
+			this._clientId = options.clientId;
+		}
+
 		this._initialized = false;
 		this._deleted = false;
 
 		this._components = new Map();
-		this.add(new Life());
+		this.add(new Metadata());
 	}
 
 	ready() : boolean {
@@ -66,6 +74,10 @@ export abstract class Entity {
 	type() : EntityType { return this._type; }
 	id() : number { return this._id; }
 	name() : string { return this._type + "," + this._id; }
+
+	hasClientId() : boolean { return defined(this._clientId); }
+	clientId() : number { return this.hasClientId() ? this._clientId : -1; }
+	setClientId(id : number) : void { this._clientId = id; }
 
 	add(component : Component) : Component {
 		component.setEntity(this);
@@ -106,9 +118,9 @@ export abstract class Entity {
 		});
 	}
 
-	postRender(millis : number) : void {
+	postRender() : void {
 		this._components.forEach((component) => {
-			component.postRender(millis);
+			component.postRender();
 		});
 	}
 
