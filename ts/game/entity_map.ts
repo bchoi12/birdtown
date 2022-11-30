@@ -1,3 +1,4 @@
+import * as BABYLON from "babylonjs";
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
@@ -142,7 +143,11 @@ export class EntityMap {
 		});
 	}
 
-	postRender() : void {
+	render(scene : BABYLON.Scene) : void {
+		this._initialized.forEach((entity) => {
+			entity.preRender();
+		});
+	    scene.render();
 		this._initialized.forEach((entity) => {
 			entity.postRender();
 		});

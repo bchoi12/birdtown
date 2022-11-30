@@ -1,4 +1,6 @@
 
+import { options } from 'options'
+
 export enum Key {
 	UNKNOWN = 0,
 	LEFT = 1,
@@ -41,9 +43,9 @@ export class Input {
 		this._keyDownCallbacks.clear();
 		this._keyUpCallbacks.clear();
 
-		this.mapKey(65, Key.LEFT);
-		this.mapKey(68, Key.RIGHT);
-		this.mapKey(87, Key.JUMP);
+		this.mapKey(options.leftKeyCode, Key.LEFT);
+		this.mapKey(options.rightKeyCode, Key.RIGHT);
+		this.mapKey(options.jumpKeyCode, Key.JUMP);
 	}
 
 	keys() : Set<number> { return this._keys; }

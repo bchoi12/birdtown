@@ -1,4 +1,3 @@
-import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
@@ -10,11 +9,8 @@ import { Entity } from 'game/entity'
 import { defined } from 'util/common'
 
 type ProfileOptions = {
-	readyFn : (profile : Profile) => boolean;
-	bodyFn : (profile : Profile) => MATTER.Body;
-	meshFn? : () => BABYLON.Mesh;
-
-	pos? : Vec2;
+	readyFn : (entity : Entity) => boolean;
+	bodyFn : (entity : Entity) => MATTER.Body;
 }
 
 enum Prop {
@@ -27,9 +23,10 @@ enum Prop {
 
 export class Profile extends ComponentBase implements Component {
 
-	private _readyFn : (profile : Profile) => boolean;
-	private _bodyFn : (profile : Profile) => MATTER.Body;
-	private _meshFn : () => BABYLON.Mesh;
+	public static readonly gravity = -2;
+
+	private _readyFn : (entity : Entity) => boolean;
+	private _bodyFn : (entity : Entity) => MATTER.Body;
 
 	private _pos : MATTER.Vector;
 	private _vel : MATTER.Vector;
@@ -37,36 +34,29 @@ export class Profile extends ComponentBase implements Component {
 	private _angle : number;
 	private _body : MATTER.Body;
 
-	// TODO: maybe separate mesh out of this component
-	private _mesh : BABYLON.Mesh;
-
 	constructor(options : ProfileOptions) {
 		super(ComponentType.PROFILE);
 
 		this._readyFn = options.readyFn;
 		this._bodyFn = options.bodyFn;
-		this._meshFn = options.meshFn;
-
-		if (defined(options.pos)) {
-			this.setPos(options.pos);
-		}
 	}
 
 	override ready() : boolean {
-		return this._readyFn(this);
+		return this.hasEntity() && this._readyFn(this.entity());
 	}
+
 	override initialize() : void {
 		super.initialize();
 
-		this._body = this._bodyFn(this);
+		this._body = this._bodyFn(this.entity());
 		MATTER.Composite.add(game.physics().world, this._body)
 		this._body.label = "" + this.entity().id();
-
-		this._mesh = this._meshFn();
 	}
+
 	override delete() : void {
-		if (defined(this._mesh)) this._mesh.dispose();
-		if (defined(this._body)) MATTER.World.remove(game.physics().world, this._body);
+		if (defined(this._body)) {
+			MATTER.World.remove(game.physics().world, this._body);
+		}
 	}
 
 	body() : MATTER.Body { return this._body; }
@@ -115,10 +105,6 @@ export class Profile extends ComponentBase implements Component {
 	setAngle(angle : number) : void { this._angle = angle; }
 	addAngle(delta : number) : void { this._angle += delta; }
 
-	override update(millis : number) : void {
-		super.update(millis);
-	}
-
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
 
@@ -152,13 +138,6 @@ export class Profile extends ComponentBase implements Component {
 		this.setVel(this._body.velocity);
 		this.setPos(this._body.position);
 		this.setAngle(this._body.angle);
-
-		// TODO: move this out of here
-		if (defined(this._mesh) && defined(this._body)) {
-			this._mesh.position.x = this._body.position.x;
-			this._mesh.position.y = this._body.position.y;
-			this._mesh.rotation.z = this._body.angle;
-		}
 	}
 
 	override updateData(seqNum : number) : void {

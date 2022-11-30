@@ -1,4 +1,3 @@
-
 import { game } from 'game'
 import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity } from 'game/entity'
@@ -11,11 +10,14 @@ export enum ComponentType {
 
 	ATTRIBUTES,
 	KEYS,
+	MESH,
 	PROFILE,
 }
 
 export interface Component {
 	type() : ComponentType;
+	hasEntity() : boolean;
+	entity() : Entity;
 	setEntity(entity : Entity) : void;
 
 	ready() : boolean;
@@ -28,6 +30,7 @@ export interface Component {
 	postUpdate(millis : number) : void
 	prePhysics(millis : number) : void
 	postPhysics(millis : number) : void
+	preRender() : void
 	postRender() : void
 
 	authoritative() : boolean;
@@ -57,9 +60,9 @@ export abstract class ComponentBase {
 	}
 	delete() : void {}
 
-	entity() : Entity { return this._entity; }
 	type() : ComponentType { return this._type; }
-	data() : Data { return this._data; }
+	hasEntity() : boolean { return defined(this._entity); }
+	entity() : Entity { return this._entity; }
 	setEntity(entity : Entity) : void { this._entity = entity; }
 
 	preUpdate(millis : number) : void {}
@@ -67,6 +70,7 @@ export abstract class ComponentBase {
 	postUpdate(millis : number) : void {}
 	prePhysics(millis : number) : void {}
 	postPhysics(millis : number) : void {}
+	preRender() : void {}
 	postRender() : void {}
 
 	authoritative() : boolean { return game.options().host; }

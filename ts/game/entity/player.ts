@@ -5,6 +5,7 @@ import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Attribute, Attributes } from 'game/attributes'
 import { Keys } from 'game/component/keys'
+import { Mesh } from 'game/component/mesh'
 import { Profile } from 'game/component/profile'
 import { Data } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
@@ -17,6 +18,7 @@ export class Player extends Entity {
 
 	private _attributes : Attributes;
 	private _keys : Keys;
+	private _mesh : Mesh;
 	private _profile : Profile;
 
 	constructor(options : EntityOptions) {
@@ -28,12 +30,21 @@ export class Player extends Entity {
 		this._keys = <Keys>this.add(new Keys());
 
 		this._profile = <Profile>this.add(new Profile({
-			readyFn: (profile : Profile) => {
-				return profile.hasPos();  
+			readyFn: (entity : Entity) => {
+				return entity.has(ComponentType.PROFILE) && entity.profile().hasPos();  
 			},
-			bodyFn: (profile : Profile) => {
-				const pos = profile.pos();
+			bodyFn: (entity : Entity) => {
+				const pos = entity.profile().pos();
 				return MATTER.Bodies.rectangle(pos.x, pos.y, 1, 1)
+			},
+		}));
+		this._profile.setPos(defined(options.pos) ? options.pos : {x: 0, y: 0});
+		this._profile.setVel({x: 0, y: 0});
+		this._profile.setAcc({x: 0, y: 0});
+
+		this._mesh = <Mesh>this.add(new Mesh({
+			readyFn: (entity : Entity) => {
+				return entity.has(ComponentType.PROFILE) && entity.profile().hasPos();  
 			},
 			meshFn: () => {
 				return BABYLON.MeshBuilder.CreateBox(this.name(), {
@@ -43,14 +54,15 @@ export class Player extends Entity {
 				}, game.scene());
 			},
 		}));
-		if (defined(options.pos)) {
-			this._profile.setPos(options.pos);
-		}
-
 	}
 
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
+
+		this._profile.setAcc({ y: Profile.gravity });
+		if (!this._attributes.get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
+			this._profile.addAcc({ y: Profile.gravity });
+		}
 
 		if (this._keys.keyDown(Key.LEFT)) {
 			this._profile.setAcc({ x: -5 });

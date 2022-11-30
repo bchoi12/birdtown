@@ -55,9 +55,8 @@ class Game {
 		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false);
 
 		this._physics = MATTER.Engine.create({
-			// TODO: disable built-in gravity
 			gravity: {
-				y: -0.2,
+				y: 0,
 			}
 		});
 
@@ -125,8 +124,7 @@ class Game {
 	    this._seqNum = 1;
 	    this._engine.runRenderLoop(() => {
 	    	this._entityMap.update();
-	    	this._scene.render();
-	    	this._entityMap.postRender();
+	    	this._entityMap.render(this._scene);
 	    	this._entityMap.updateData(this._seqNum);
 
 	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {

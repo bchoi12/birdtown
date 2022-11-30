@@ -80,11 +80,16 @@ export abstract class Entity {
 	setClientId(id : number) : void { this._clientId = id; }
 
 	add(component : Component) : Component {
+		if (this._components.has(component.type())) {
+			console.error("Warning: overwriting component " + component.type() + " for object " + this.name());
+		}
+
 		component.setEntity(this);
 		this._components.set(component.type(), component);
 		return component;
 	}
 
+	has (type : ComponentType) : boolean { return this._components.has(type); }
 	get(type : ComponentType) : Component { return this._components.get(type); }
 	profile() : Profile { return <Profile>this._components.get(ComponentType.PROFILE); }
 
@@ -115,6 +120,12 @@ export abstract class Entity {
 	postPhysics(millis : number) : void {
 		this._components.forEach((component) => {
 			component.postPhysics(millis);
+		});
+	}
+
+	preRender() : void {
+		this._components.forEach((component) => {
+			component.preRender();
 		});
 	}
 
