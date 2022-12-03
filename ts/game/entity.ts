@@ -18,12 +18,15 @@ export interface EntityOptions {
 	clientId? : number;
 
 	pos? : Vec2;
+	dim? : Vec2;
 }
 
 export abstract class Entity {
 
 	protected _type : EntityType;
 	protected _id : number;
+
+	// TODO: move to metadata
 	protected _clientId : number;
 	protected _initialized : boolean;
 	protected _deleted : boolean;
@@ -67,7 +70,6 @@ export abstract class Entity {
 		this._components.forEach((component) => {
 			component.delete();
 		});
-
 		this._deleted = true;
 	}
 

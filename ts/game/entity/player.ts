@@ -30,26 +30,28 @@ export class Player extends Entity {
 		this._keys = <Keys>this.add(new Keys());
 
 		this._profile = <Profile>this.add(new Profile({
-			readyFn: (entity : Entity) => {
-				return entity.has(ComponentType.PROFILE) && entity.profile().hasPos();  
-			},
 			bodyFn: (entity : Entity) => {
 				const pos = entity.profile().pos();
-				return MATTER.Bodies.rectangle(pos.x, pos.y, 1, 1)
+				const dim = entity.profile().dim();
+				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y)
 			},
 		}));
-		this._profile.setPos(defined(options.pos) ? options.pos : {x: 0, y: 0});
+		if (defined(options.pos)) {
+			this._profile.setPos(options.pos);
+		}
+		this._profile.setDim({x: 1, y: 1});
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
 
 		this._mesh = <Mesh>this.add(new Mesh({
 			readyFn: (entity : Entity) => {
-				return entity.has(ComponentType.PROFILE) && entity.profile().hasPos();  
+				return entity.profile().ready();  
 			},
-			meshFn: () => {
+			meshFn: (entity : Entity) => {
+				const dim = entity.profile().dim();
 				return BABYLON.MeshBuilder.CreateBox(this.name(), {
-					width: 1,
-					height: 1,
+					width: dim.x,
+					height: dim.y,
 					depth: 1,
 				}, game.scene());
 			},
@@ -73,9 +75,7 @@ export class Player extends Entity {
 		}
 
 		if (this._attributes.get(Attribute.GROUNDED) && this._keys.keyDown(Key.JUMP)) {
-			this._profile.setVel({
-				y: 0.8,
-			});
+			this._profile.setVel({ y: 0.8 });
 		}
 	}
 

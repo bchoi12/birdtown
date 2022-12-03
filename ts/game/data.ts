@@ -15,7 +15,7 @@ export enum DataFilter {
 export type DataMap = { [k: number]: Object } 
 
 export class Data {
-	private static readonly _numberEpsilon = 1e-3;
+	public static readonly numberEpsilon = 1e-3;
 
 	private _data : DataMap;
 	private _change : Map<number, BitMarker>;
@@ -41,7 +41,7 @@ export class Data {
 		if (!defined(a) || !defined(b)) return false;
 		if (a !== Object(a) && b !== Object(b)) {
 			if (!Number.isNaN(a) && !Number.isNaN(b)) {
-				return Math.abs(<number>a - <number>b) < Data._numberEpsilon;
+				return Math.abs(<number>a - <number>b) < Data.numberEpsilon;
 			}
 			return a === b;
 		};

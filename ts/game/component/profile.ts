@@ -9,7 +9,7 @@ import { Entity } from 'game/entity'
 import { defined } from 'util/common'
 
 type ProfileOptions = {
-	readyFn : (entity : Entity) => boolean;
+	readyFn? : (entity : Entity) => boolean;
 	bodyFn : (entity : Entity) => MATTER.Body;
 }
 
@@ -18,6 +18,8 @@ enum Prop {
 	POS,
 	VEL,
 	ACC,
+	DIM,
+	SCALE,
 	ANGLE,
 }
 
@@ -31,18 +33,20 @@ export class Profile extends ComponentBase implements Component {
 	private _pos : MATTER.Vector;
 	private _vel : MATTER.Vector;
 	private _acc : MATTER.Vector;
+	private _dim : MATTER.Vector;
+	private _scale : MATTER.Vector;
 	private _angle : number;
 	private _body : MATTER.Body;
 
 	constructor(options : ProfileOptions) {
 		super(ComponentType.PROFILE);
 
-		this._readyFn = options.readyFn;
+		this._readyFn = defined(options.readyFn) ? options.readyFn : () => { return true; };
 		this._bodyFn = options.bodyFn;
 	}
 
 	override ready() : boolean {
-		return this.hasEntity() && this._readyFn(this.entity());
+		return this.hasPos() && this.hasDim() && this.hasEntity() && this._readyFn(this.entity());
 	}
 
 	override initialize() : void {
@@ -61,7 +65,7 @@ export class Profile extends ComponentBase implements Component {
 
 	body() : MATTER.Body { return this._body; }
 
-	hasPos() : boolean { return defined(this._pos); }
+	private hasPos() : boolean { return defined(this._pos) && defined(this._pos.x, this._pos.y); }
 	pos() : MATTER.Vector { return MATTER.Vector.clone(this._pos); }
 	setPos(vec : Vec2) : void {
 		if (!this.hasPos()) { this._pos = {x: 0, y: 0}; }
@@ -69,12 +73,12 @@ export class Profile extends ComponentBase implements Component {
 		if (defined(vec.y)) { this._pos.y = vec.y; }
 	}
 	addPos(delta : Vec2) : void {
-		if (!this.hasPos()) { return; }
+		if (!this.hasPos()) { this._pos = {x: 0, y: 0}; }
 		if (defined(delta.x)) { this._pos.x += delta.x; }
 		if (defined(delta.y)) { this._pos.y += delta.y; }
 	}
 
-	hasVel() : boolean { return defined(this._vel); }
+	hasVel() : boolean { return defined(this._vel) && defined(this._vel.x, this._vel.y); }
 	vel() : MATTER.Vector { return MATTER.Vector.clone(this._vel); }
 	setVel(vec : Vec2) : void {
 		if (!this.hasVel()) { this._vel = {x: 0, y: 0}; }
@@ -82,12 +86,12 @@ export class Profile extends ComponentBase implements Component {
 		if (defined(vec.y)) { this._vel.y = vec.y; }
 	}
 	addVel(delta : Vec2) : void {
-		if (!this.hasVel()) { return; }
+		if (!this.hasVel()) { this._vel = {x: 0, y: 0}; }
 		if (defined(delta.x)) { this._vel.x += delta.x; }
 		if (defined(delta.y)) { this._vel.y += delta.y; }
 	}
 
-	hasAcc() : boolean { return defined(this._acc); }
+	hasAcc() : boolean { return defined(this._acc) && defined(this._acc.x, this._acc.y); }
 	acc() : MATTER.Vector { return MATTER.Vector.clone(this._acc); }
 	setAcc(vec : Vec2) : void {
 		if (!this.hasAcc()) { this._acc = {x: 0, y: 0}; }
@@ -95,9 +99,29 @@ export class Profile extends ComponentBase implements Component {
 		if (defined(vec.y)) { this._acc.y = vec.y; }
 	}
 	addAcc(delta : Vec2) : void {
-		if (!this.hasAcc()) { return; }
+		if (!this.hasAcc()) { this._acc = {x: 0, y: 0}; }
 		if (defined(delta.x)) { this._acc.x += delta.x; }
 		if (defined(delta.y)) { this._acc.y += delta.y; }
+	}
+
+	private hasDim() : boolean { return defined(this._dim) && defined(this._dim.x, this._dim.y); }
+	dim() : MATTER.Vector { return MATTER.Vector.clone(this._dim); }
+	setDim(vec : Vec2) : void {
+		if (this.hasDim()) {
+			console.error("Error: dimension is already initialized for " + this.entity().name());
+			return;
+		}
+		this._dim = {x: 1, y: 1};
+		if (defined(vec.x)) { this._dim.x = vec.x; }
+		if (defined(vec.y)) { this._dim.y = vec.y; }
+	}
+
+	hasScale() : boolean { return defined(this._scale) && defined(this._scale.x, this._scale.y); }
+	scale() : MATTER.Vector { return MATTER.Vector.clone(this._scale); }
+	setScale(vec : Vec2) : void {
+		if (!this.hasScale()) { this._scale = {x: 1, y: 1}; }
+		if (defined(vec.x)) { this._scale.x = vec.x; }
+		if (defined(vec.y)) { this._scale.y = vec.y; }
 	}
 
 	hasAngle() : boolean { return defined(this._angle); }
@@ -107,6 +131,11 @@ export class Profile extends ComponentBase implements Component {
 
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
+
+		if (this.hasScale()) {
+			const scale = this.scale();
+			MATTER.Body.scale(this._body, scale.x, scale.y);
+		}
 
 		if (this.hasAcc()) {
 			const acc = this.acc();
@@ -122,10 +151,7 @@ export class Profile extends ComponentBase implements Component {
 		if (this.hasVel()) {
 			MATTER.Body.setVelocity(this._body, this.vel());
 		}
-
-		if (this.hasPos()) {
-			MATTER.Body.setPosition(this._body, this.pos());
-		}
+		MATTER.Body.setPosition(this._body, this.pos());
 
 		if (this.hasAngle()) {
 			MATTER.Body.setAngle(this._body, this.angle());
@@ -135,22 +161,31 @@ export class Profile extends ComponentBase implements Component {
 	override postPhysics(millis : number) : void {
 		super.postPhysics(millis);
 
-		this.setVel(this._body.velocity);
+		if (!Data.equals(this._vel, this._body.velocity)) {
+			this.setVel(this._body.velocity);
+		}
+		if (!Data.equals(this._angle, this._body.angle)) {
+			this.setAngle(this._body.angle);
+		}
 		this.setPos(this._body.position);
-		this.setAngle(this._body.angle);
 	}
 
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
 
-		if (this.hasPos()) {
-			this.setProp(Prop.POS, this.pos(), seqNum)
-		}
+		this.setProp(Prop.POS, this.pos(), seqNum)
+
 		if (this.hasVel()) {
 			this.setProp(Prop.VEL, this.vel(), seqNum);
 		}
 		if (this.hasAcc()) {
 			this.setProp(Prop.ACC, this.acc(), seqNum);
+		}
+		if (this.hasDim()) {
+			this.setProp(Prop.DIM, this.dim(), seqNum);
+		}
+		if (this.hasScale()) {
+			this.setProp(Prop.SCALE, this.scale(), seqNum);
 		}
 		if (this.hasAngle()) {
 			this.setProp(Prop.ANGLE, this.angle(), seqNum);
@@ -174,6 +209,12 @@ export class Profile extends ComponentBase implements Component {
 		}
 		if (changed.has(Prop.ACC)) {
 			this.setAcc(<Vec2>this._data.get(Prop.ACC));
+		}
+		if (changed.has(Prop.DIM)) {
+			this.setDim(<Vec2>this._data.get(Prop.DIM));
+		}
+		if (changed.has(Prop.SCALE)) {
+			this.setScale(<Vec2>this._data.get(Prop.SCALE));
 		}
 		if (changed.has(Prop.ANGLE)) {
 			this.setAngle(<number>this._data.get(Prop.ANGLE));

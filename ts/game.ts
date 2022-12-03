@@ -117,6 +117,7 @@ class Game {
 	    	});
 		    this._entityMap.add(EntityType.WALL, {
 		    	pos: {x: 0, y: 0},
+		    	dim: {x: 16, y: 1},
 		    });
 	    }
 

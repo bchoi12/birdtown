@@ -15,12 +15,10 @@ export class Wall extends Entity {
 		super(EntityType.WALL, options);
 
 		let profile = <Profile>this.add(new Profile({
-			readyFn: (entity : Entity) => {
-				return entity.has(ComponentType.PROFILE) && entity.profile().hasPos();
-			},
 			bodyFn: (entity : Entity) => {
 				const pos = entity.profile().pos();
-				return MATTER.Bodies.rectangle(pos.x, pos.y, /*width=*/16, /*height=*/1, {
+				const dim = entity.profile().dim();
+				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
 					isStatic: true,
 				});
 			},
@@ -28,15 +26,19 @@ export class Wall extends Entity {
 		if (defined(options.pos)) {
 			profile.setPos(options.pos);
 		}
+		if (defined(options.dim)) {
+			profile.setDim(options.dim);
+		}
 
-		let mesh = <Mesh>this.add(new Mesh({
+		this.add(new Mesh({
 			readyFn: (entity : Entity) => {
-				return entity.has(ComponentType.PROFILE) && entity.profile().hasPos();
+				return entity.profile().ready();
 			},
-			meshFn: () => {
+			meshFn: (entity : Entity) => {
+				const dim = entity.profile().dim();
 				return BABYLON.MeshBuilder.CreateBox(this.name(), {
-					width: 16,
-					height: 1,
+					width: dim.x,
+					height: dim.y,
 					depth: 16,
 				}, game.scene());
 			},

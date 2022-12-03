@@ -9,13 +9,13 @@ import { defined } from 'util/common'
 
 type MeshOptions = {
 	readyFn : (entity : Entity) => boolean;
-	meshFn : () => BABYLON.Mesh;
+	meshFn : (entity : Entity) => BABYLON.Mesh;
 }
 
 export class Mesh extends ComponentBase implements Component {
 
 	private _readyFn : (entity : Entity) => boolean;
-	private _meshFn : () => BABYLON.Mesh;
+	private _meshFn : (entity : Entity) => BABYLON.Mesh;
 
 	private _mesh : BABYLON.Mesh;
 
@@ -33,7 +33,7 @@ export class Mesh extends ComponentBase implements Component {
 	override initialize() : void {
 		super.initialize();
 
-		this._mesh = this._meshFn();
+		this._mesh = this._meshFn(this.entity());
 	}
 
 	override delete() : void {
@@ -55,7 +55,15 @@ export class Mesh extends ComponentBase implements Component {
 		if (defined(this._mesh) && defined(profile)) {
 			this._mesh.position.x = profile.pos().x;
 			this._mesh.position.y = profile.pos().y;
-			this._mesh.rotation.z = profile.angle();
+
+			if (profile.hasAngle()) {
+				this._mesh.rotation.z = profile.angle();
+			}
+
+			if (profile.hasScale()) {
+				this._mesh.scaling.x = profile.scale().x;
+				this._mesh.scaling.y = profile.scale().y;
+			}
 		}
 	}
 }
