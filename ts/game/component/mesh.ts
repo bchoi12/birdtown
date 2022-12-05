@@ -60,9 +60,9 @@ export class Mesh extends ComponentBase implements Component {
 				this._mesh.rotation.z = profile.angle();
 			}
 
-			if (profile.hasScale()) {
-				this._mesh.scaling.x = profile.scale().x;
-				this._mesh.scaling.y = profile.scale().y;
+			if (profile.hasScaling()) {
+				this._mesh.scaling.x = profile.scaling().x;
+				this._mesh.scaling.y = profile.scaling().y;
 			}
 		}
 	}

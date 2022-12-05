@@ -68,8 +68,10 @@ export class Player extends Entity {
 
 		if (this._keys.keyDown(Key.LEFT)) {
 			this._profile.setAcc({ x: -5 });
+			this._profile.setScaling({x: 0.5, y: 0.5 });
 		} else if (this._keys.keyDown(Key.RIGHT)) {
 			this._profile.setAcc({ x: 5 });
+			this._profile.setScaling({ x: 2, y: 2 });
 		} else {
 			this._profile.setAcc({ x: 0 });
 		}

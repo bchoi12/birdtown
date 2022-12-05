@@ -46,19 +46,41 @@ export class Attributes extends ComponentBase implements Component {
 	}
 
 	set(attribute : Attribute, value : Value) : void {
-		const prop = Attributes._attributeMapping.get(attribute);
-
-		if (!this.validValue(prop, value)) {
-			console.error("Error: tried to set attribute " + attribute + " to " + value);
+		if (!this.validValue(attribute, value)) {
+			console.error("Error: invalid attribute and value", attribute, value);
 			return;
 		}
 
+		const prop = Attributes._attributeMapping.get(attribute);
 		if (!this._attributes.has(prop)) {
 			this._attributes.set(prop, new Map<Attribute, Value>());
 			this._attributeData.set(prop, new Data());
 		}
 
 		this._attributes.get(prop).set(attribute, value);
+	}
+
+	negate(attribute : Attribute) : void {
+		const current = this.get(attribute);
+
+		if (typeof current === 'boolean') {
+			this.set(attribute, !current);
+		} else if (!Number.isNaN(current)) {
+			this.set(attribute, -<number>current);
+		} else {
+			console.error("Error: could not negate " + attribute);
+			return;
+		}
+	}
+
+	add(attribute : Attribute, value : Value) : void {
+		if (Number.isNaN(value) || !this.validValue(attribute, value)) {
+			console.error("Error: attribute cannot be incremented by value", attribute, value);
+			return;
+		}
+
+		const current = <number>this.get(attribute);
+		this.set(attribute, current + <number>value);
 	}
 
 	override ready() { return true; }
@@ -112,7 +134,13 @@ export class Attributes extends ComponentBase implements Component {
 		});
 	}
 
-	private validValue(prop : Prop, value : Value) : boolean {
+	private validValue(attribute : Attribute, value : Value) : boolean {
+		if (!Attributes._attributeMapping.has(attribute)) {
+			console.error("No attribute mapping for attribute " + attribute);
+			return false;
+		}
+
+		const prop = Attributes._attributeMapping.get(attribute);
 		switch(prop) {
 		case Prop.BOOLEANS:
 			return typeof(value) === "boolean";

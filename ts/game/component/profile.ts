@@ -19,8 +19,8 @@ enum Prop {
 	VEL,
 	ACC,
 	DIM,
-	SCALE,
 	ANGLE,
+	SCALING,
 }
 
 export class Profile extends ComponentBase implements Component {
@@ -34,8 +34,10 @@ export class Profile extends ComponentBase implements Component {
 	private _vel : MATTER.Vector;
 	private _acc : MATTER.Vector;
 	private _dim : MATTER.Vector;
-	private _scale : MATTER.Vector;
 	private _angle : number;
+	private _applyScaling : boolean;
+	private _scaleFactor : MATTER.Vector;
+	private _scaling : MATTER.Vector;
 	private _body : MATTER.Body;
 
 	constructor(options : ProfileOptions) {
@@ -107,6 +109,7 @@ export class Profile extends ComponentBase implements Component {
 	private hasDim() : boolean { return defined(this._dim) && defined(this._dim.x, this._dim.y); }
 	dim() : MATTER.Vector { return MATTER.Vector.clone(this._dim); }
 	setDim(vec : Vec2) : void {
+		if (Data.equals(this._dim, vec)) { return; }
 		if (this.hasDim()) {
 			console.error("Error: dimension is already initialized for " + this.entity().name());
 			return;
@@ -116,25 +119,40 @@ export class Profile extends ComponentBase implements Component {
 		if (defined(vec.y)) { this._dim.y = vec.y; }
 	}
 
-	hasScale() : boolean { return defined(this._scale) && defined(this._scale.x, this._scale.y); }
-	scale() : MATTER.Vector { return MATTER.Vector.clone(this._scale); }
-	setScale(vec : Vec2) : void {
-		if (!this.hasScale()) { this._scale = {x: 1, y: 1}; }
-		if (defined(vec.x)) { this._scale.x = vec.x; }
-		if (defined(vec.y)) { this._scale.y = vec.y; }
-	}
-
 	hasAngle() : boolean { return defined(this._angle); }
 	angle() : number { return this._angle; }
 	setAngle(angle : number) : void { this._angle = angle; }
 	addAngle(delta : number) : void { this._angle += delta; }
 
+	hasScaling() : boolean { return defined(this._scaling) && defined(this._scaling.x, this._scaling.y); }
+	scaling() : MATTER.Vector { return MATTER.Vector.clone(this._scaling); }
+	setScaling(vec : Vec2) {
+		if (!defined(this._scaling)) { this._scaling = { x: 1, y: 1}; }
+		if (Data.equals(this._scaling, vec)) { return; }
+
+		this._scaleFactor = {x: 1, y: 1};
+		if (defined(vec.x)) {
+			this._scaleFactor.x = vec.x / this._scaling.x;
+		}
+		if (defined(vec.y)) {
+			this._scaleFactor.y = vec.y / this._scaling.y;
+		}
+
+		if (this._scaleFactor.x === 1 && this._scaleFactor.y === 1) {
+			return;
+		}
+
+		this._applyScaling = true;
+		this._scaling.x = vec.x;
+		this._scaling.y = vec.y;
+	}
+
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
 
-		if (this.hasScale()) {
-			const scale = this.scale();
-			MATTER.Body.scale(this._body, scale.x, scale.y);
+		if (this._applyScaling && defined(this._scaleFactor)) {
+			MATTER.Body.scale(this._body, this._scaleFactor.x, this._scaleFactor.y);
+			this._applyScaling = false;
 		}
 
 		if (this.hasAcc()) {
@@ -184,11 +202,11 @@ export class Profile extends ComponentBase implements Component {
 		if (this.hasDim()) {
 			this.setProp(Prop.DIM, this.dim(), seqNum);
 		}
-		if (this.hasScale()) {
-			this.setProp(Prop.SCALE, this.scale(), seqNum);
-		}
 		if (this.hasAngle()) {
 			this.setProp(Prop.ANGLE, this.angle(), seqNum);
+		}
+		if (this.hasScaling()) {
+			this.setProp(Prop.SCALING, this.scaling(), seqNum);
 		}
 	}
 
@@ -213,11 +231,11 @@ export class Profile extends ComponentBase implements Component {
 		if (changed.has(Prop.DIM)) {
 			this.setDim(<Vec2>this._data.get(Prop.DIM));
 		}
-		if (changed.has(Prop.SCALE)) {
-			this.setScale(<Vec2>this._data.get(Prop.SCALE));
-		}
 		if (changed.has(Prop.ANGLE)) {
 			this.setAngle(<number>this._data.get(Prop.ANGLE));
+		}
+		if (changed.has(Prop.SCALING)) {
+			this.setScaling(<Vec2>this._data.get(Prop.SCALING));
 		}
 	}
 }

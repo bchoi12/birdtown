@@ -83,7 +83,7 @@ class Game {
 					this._id = msg.I;
 
 					if (isLocalhost()) {
-						console.log("Got id: " + this._id);
+						console.log("Got client id: " + this._id);
 					}
 				}
 			});
