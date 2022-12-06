@@ -34,13 +34,13 @@ export class Wall extends Entity {
 			readyFn: (entity : Entity) => {
 				return entity.profile().ready();
 			},
-			meshFn: (entity : Entity) => {
+			meshFn: (entity : Entity, onLoad : (mesh : BABYLON.Mesh) => void) => {
 				const dim = entity.profile().dim();
-				return BABYLON.MeshBuilder.CreateBox(this.name(), {
+				onLoad(BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: dim.x,
 					height: dim.y,
 					depth: 16,
-				}, game.scene());
+				}, game.scene()));
 			},
 		}));
 	}

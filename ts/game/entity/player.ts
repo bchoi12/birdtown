@@ -10,6 +10,8 @@ import { Profile } from 'game/component/profile'
 import { Data } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 
+import { loader, Model } from 'loader'
+
 import { Key } from 'ui/input'
 
 import { defined } from 'util/common'
@@ -44,16 +46,11 @@ export class Player extends Entity {
 		this._profile.setAcc({x: 0, y: 0});
 
 		this._mesh = <Mesh>this.add(new Mesh({
-			readyFn: (entity : Entity) => {
-				return entity.profile().ready();  
-			},
-			meshFn: (entity : Entity) => {
-				const dim = entity.profile().dim();
-				return BABYLON.MeshBuilder.CreateBox(this.name(), {
-					width: dim.x,
-					height: dim.y,
-					depth: 1,
-				}, game.scene());
+			readyFn: (entity : Entity) => { return true; },
+			meshFn: (entity : Entity, onLoad : (mesh : BABYLON.Mesh) => void) => {
+				loader.load(Model.CHICKEN, (mesh : BABYLON.Mesh) => {
+					onLoad(mesh);
+				});
 			},
 		}));
 	}
@@ -68,10 +65,8 @@ export class Player extends Entity {
 
 		if (this._keys.keyDown(Key.LEFT)) {
 			this._profile.setAcc({ x: -5 });
-			this._profile.setScaling({x: 0.5, y: 0.5 });
 		} else if (this._keys.keyDown(Key.RIGHT)) {
 			this._profile.setAcc({ x: 5 });
-			this._profile.setScaling({ x: 2, y: 2 });
 		} else {
 			this._profile.setAcc({ x: 0 });
 		}

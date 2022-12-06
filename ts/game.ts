@@ -52,7 +52,9 @@ class Game {
 		this._options = options;
 
 		// this._engine = new BABYLON.NullEngine();
-		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false);
+		// TODO: fast anti-alias
+		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/true);
+		window.onresize = () => { this.resize(); };
 
 		this._physics = MATTER.Engine.create({
 			gravity: {
@@ -61,6 +63,11 @@ class Game {
 		});
 
 		this._scene = new BABYLON.Scene(this._engine);
+		this._scene.useRightHandedSystem = true;
+		if (isLocalhost()) {
+			this._scene.debugLayer.show();
+		}
+
 		this._entityMap = new EntityMap();
 		this._camera = new Camera();
 		if (options.host) {
@@ -72,7 +79,7 @@ class Game {
 				this.registerClient(name);
 			});
 		} else {
-			this._connection = new Client(options.name, "bossman69");
+			this._connection = new Client(options.name, "birdtown2");
 			this._connection.addMessageCallback(MessageType.NEW_CLIENT, (msg : Message) => {
 				if (!defined(msg.I) || !defined(msg.N)) {
 					console.error("Invalid message: ", msg);
@@ -145,6 +152,10 @@ class Game {
 	    		});
 	    	}
 	    });
+	}
+
+	resize() : void {
+		this._engine.resize();
 	}
 
 	canvas() : HTMLCanvasElement { return this._canvas; }

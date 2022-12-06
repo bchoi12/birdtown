@@ -7,15 +7,17 @@ import { Entity } from 'game/entity'
 
 import { defined } from 'util/common'
 
+type MeshFn = (entity : Entity, onLoad : (mesh: BABYLON.Mesh) => void) => void;
+
 type MeshOptions = {
 	readyFn : (entity : Entity) => boolean;
-	meshFn : (entity : Entity) => BABYLON.Mesh;
+	meshFn : MeshFn;
 }
 
 export class Mesh extends ComponentBase implements Component {
 
 	private _readyFn : (entity : Entity) => boolean;
-	private _meshFn : (entity : Entity) => BABYLON.Mesh;
+	private _meshFn : MeshFn;
 
 	private _mesh : BABYLON.Mesh;
 
@@ -32,22 +34,24 @@ export class Mesh extends ComponentBase implements Component {
 
 	override initialize() : void {
 		super.initialize();
-
-		this._mesh = this._meshFn(this.entity());
+		this._meshFn(this.entity(), (mesh : BABYLON.Mesh) => {
+			this._mesh = mesh;
+		});
 	}
 
 	override delete() : void {
-		if (defined(this._mesh)) {
+		if (this.hasMesh()) {
 			this._mesh.dispose();
 		}
 	}
 
+	hasMesh() : boolean { return defined(this._mesh); }
 	mesh() : BABYLON.Mesh { return this._mesh; }
 
 	override preRender() : void {
 		super.preRender();
 
-		if (!defined(this._mesh)) {
+		if (!this.hasMesh()) {
 			return;
 		}
 
