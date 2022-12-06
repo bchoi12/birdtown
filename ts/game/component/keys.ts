@@ -57,9 +57,8 @@ export class Keys extends ComponentBase implements Component {
 		}
 	}
 
-	override authoritative() : boolean {
-		return game.options().host || this.updateKeysLocally();
-	}
+	override shouldBroadcast() : boolean { return game.options().host || this.updateKeysLocally(); }
+	override isSource() : boolean { return this.updateKeysLocally(); }
 
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
@@ -70,14 +69,14 @@ export class Keys extends ComponentBase implements Component {
 	override mergeData(data : DataMap, seqNum : number) : void {
 		super.mergeData(data, seqNum);
 
-		const changed = this._data.merge(data, seqNum, (prop : number) => {
-			return prop !== Prop.KEYS || !this.updateKeysLocally();
-		});
-
-		if (changed.size === 0) {
+		if (this.updateKeysLocally()) {
 			return;
 		}
 
+		const changed = this._data.merge(data, seqNum);
+		if (changed.size === 0) {
+			return;
+		}
 		if (changed.has(Prop.KEYS)) {
 			this.updateKeys(new Set(<Array<Key>>this._data.get(Prop.KEYS)));
 		}

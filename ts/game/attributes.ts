@@ -86,10 +86,6 @@ export class Attributes extends ComponentBase implements Component {
 	override ready() { return true; }
 
 	override filteredData(filter : DataFilter) : DataMap {
-		if (!this.authoritative()) {
-			return {};
-		}
-
 		let dataMap = {};
 		Attributes._props.forEach((prop : Prop) => {
 			if (!this._attributeData.has(prop)) {

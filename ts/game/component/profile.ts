@@ -154,6 +154,9 @@ export class Profile extends ComponentBase implements Component {
 			MATTER.Body.scale(this._body, this._scaleFactor.x, this._scaleFactor.y);
 			this._applyScaling = false;
 		}
+		if (this.hasAngle()) {
+			MATTER.Body.setAngle(this._body, this.angle());
+		}
 
 		if (this.hasAcc()) {
 			const acc = this.acc();
@@ -170,10 +173,6 @@ export class Profile extends ComponentBase implements Component {
 			MATTER.Body.setVelocity(this._body, this.vel());
 		}
 		MATTER.Body.setPosition(this._body, this.pos());
-
-		if (this.hasAngle()) {
-			MATTER.Body.setAngle(this._body, this.angle());
-		}
 	}
 
 	override postPhysics(millis : number) : void {

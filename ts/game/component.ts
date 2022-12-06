@@ -33,7 +33,8 @@ export interface Component {
 	preRender() : void
 	postRender() : void
 
-	authoritative() : boolean;
+	shouldBroadcast() : boolean;
+	isSource() : boolean;
 	filteredData(filter : DataFilter) : DataMap;
 	updateData(seqNum : number) : void;
 	mergeData(data : DataMap, seqNum : number) : void;
@@ -73,17 +74,13 @@ export abstract class ComponentBase {
 	preRender() : void {}
 	postRender() : void {}
 
-	authoritative() : boolean { return game.options().host; }
-	filteredData(filter : DataFilter) : DataMap {
-		if (!this.authoritative()) {
-			return {};
-		}
-		return this._data.filtered(filter);
-	}
+	shouldBroadcast() : boolean { return game.options().host; }
+	isSource() : boolean { return game.options().host; }
+	filteredData(filter : DataFilter) : DataMap { return this._data.filtered(filter); }
 	updateData(seqNum : number) : void {}
 	mergeData(data : DataMap, seqNum : number) : void {}
 	protected setProp(prop : number, data : Object, seqNum : number, cb? : () => boolean) : boolean {
-		if (this.authoritative()) {
+		if (this.isSource()) {
 			return this._data.update(prop, data, seqNum, () => {
 				return defined(cb) ? cb() : true;
 			});
