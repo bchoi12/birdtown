@@ -90,12 +90,24 @@ export abstract class Connection {
 	}
 
 	unregister(connection : DataConnection) {
-		connection.close();
+		let channels = this._peers.get(connection.peer);
+		const channelType = <ChannelType>connection.label;
+
+		if (connection.open) {
+			connection.close();
+			channels.delete(channelType);
+		}
+
 		if (isLocalhost()) {
 			console.log("Closed " + connection.label + " connection to " + connection.peer);
 		}
 
-		// TODO: remove peer if all connections are closed
+		if (channels.disconnected()) {
+			if (isLocalhost()) {
+				console.log("Client " + connection.peer + " disconnected.");
+			}
+			this._peers.delete(connection.peer);
+		}
 	}
 
 	addRegisterCallback(cb : RegisterCallback) {
@@ -147,10 +159,10 @@ export abstract class Connection {
 
 	private async handleData(data : Object) {
 		let bytes;
-		if (data instanceof Blob) {
-			bytes = new Uint8Array(await data.arrayBuffer());
-		} else if (data instanceof ArrayBuffer) {
+		if (data instanceof ArrayBuffer) {
 			bytes = new Uint8Array(data);
+		} else if (data instanceof Blob) {
+			bytes = new Uint8Array(await data.arrayBuffer());
 		} else {
 			console.error("Unknown data type: " + (typeof data));
 			return;

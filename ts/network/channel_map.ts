@@ -11,6 +11,7 @@ export class ChannelMap {
 		this._channels = new Map<ChannelType, DataConnection>();
 	}
 
+	disconnected() : boolean { return !this.has(ChannelType.TCP); }
 	ready() : boolean { return this.has(ChannelType.TCP) && this.has(ChannelType.UDP); }
 	has(type : ChannelType) : boolean { return this._channels.has(type); }
 	get(type : ChannelType) : DataConnection { return this._channels.get(type); }

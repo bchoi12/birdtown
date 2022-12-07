@@ -1,5 +1,6 @@
 import { Vec2 } from 'game/common'
 import { Component, ComponentType } from 'game/component'
+import { Attributes } from 'game/component/attributes'
 import { Metadata } from 'game/component/metadata'
 import { Profile } from 'game/component/profile'
 import { Data, DataFilter, DataMap } from 'game/data'
@@ -26,7 +27,7 @@ export abstract class Entity {
 	protected _type : EntityType;
 	protected _id : number;
 
-	// TODO: move to metadata
+	// TODO: move to metadata?
 	protected _clientId : number;
 	protected _initialized : boolean;
 	protected _deleted : boolean;
@@ -44,6 +45,7 @@ export abstract class Entity {
 		this._deleted = false;
 
 		this._components = new Map();
+		this.add(new Attributes());
 		this.add(new Metadata());
 	}
 
@@ -93,6 +95,7 @@ export abstract class Entity {
 
 	has (type : ComponentType) : boolean { return this._components.has(type); }
 	get(type : ComponentType) : Component { return this._components.get(type); }
+	attributes() : Attributes { return <Attributes>this._components.get(ComponentType.ATTRIBUTES); }
 	profile() : Profile { return <Profile>this._components.get(ComponentType.PROFILE); }
 
 	preUpdate(millis : number) : void {
@@ -155,9 +158,7 @@ export abstract class Entity {
 
 	updateData(seqNum : number) : void {
 		this._components.forEach((component) => {
-			if (component.isSource()) {
-				component.updateData(seqNum);
-			}
+			component.updateData(seqNum);
 		});
 	}
 

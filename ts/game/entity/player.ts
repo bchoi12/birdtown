@@ -3,7 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { ComponentType } from 'game/component'
-import { Attribute, Attributes } from 'game/attributes'
+import { Attribute, Attributes } from 'game/component/attributes'
 import { Keys } from 'game/component/keys'
 import { Mesh } from 'game/component/mesh'
 import { Profile } from 'game/component/profile'
@@ -17,17 +17,18 @@ import { Key } from 'ui/input'
 import { defined } from 'util/common'
 
 export class Player extends Entity {
+	private readonly _rotationOffset = -0.1;
 
-	private _attributes : Attributes;
 	private _keys : Keys;
 	private _mesh : Mesh;
+	private _playerMesh : BABYLON.Mesh;
 	private _profile : Profile;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.PLAYER, options);
 
-		this._attributes = <Attributes>this.add(new Attributes());
-		this._attributes.set(Attribute.GROUNDED, false);
+		this.attributes().set(Attribute.GROUNDED, false);
+		this.attributes().set(Attribute.SOLID, true);
 
 		this._keys = <Keys>this.add(new Keys());
 
@@ -35,21 +36,29 @@ export class Player extends Entity {
 			bodyFn: (entity : Entity) => {
 				const pos = entity.profile().pos();
 				const dim = entity.profile().dim();
-				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y)
+				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+					inertia: Infinity,
+					friction: 0,
+				})
 			},
 		}));
 		if (defined(options.pos)) {
 			this._profile.setPos(options.pos);
 		}
-		this._profile.setDim({x: 1, y: 1});
+		this._profile.setDim({x: 0.8, y: 1.44 });
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
 
 		this._mesh = <Mesh>this.add(new Mesh({
-			readyFn: (entity : Entity) => { return true; },
+			readyFn: (entity : Entity) => { return entity.profile().ready(); },
 			meshFn: (entity : Entity, onLoad : (mesh : BABYLON.Mesh) => void) => {
 				loader.load(Model.CHICKEN, (mesh : BABYLON.Mesh) => {
 					onLoad(mesh);
+
+					const dim = entity.profile().dim();
+					this._playerMesh = mesh.getChildMeshes<BABYLON.Mesh>(/*direct=*/true)[0];
+					this._playerMesh.rotation.y = Math.PI / 2 + this._rotationOffset;
+					this._playerMesh.position.y -= dim.y / 2;
 				});
 			},
 		}));
@@ -59,19 +68,19 @@ export class Player extends Entity {
 		super.preUpdate(millis);
 
 		this._profile.setAcc({ y: Profile.gravity });
-		if (!this._attributes.get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
+		if (!this.attributes().get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
 			this._profile.addAcc({ y: Profile.gravity });
 		}
 
 		if (this._keys.keyDown(Key.LEFT)) {
-			this._profile.setAcc({ x: -5 });
+			this._profile.setAcc({ x: -2 });
 		} else if (this._keys.keyDown(Key.RIGHT)) {
-			this._profile.setAcc({ x: 5 });
+			this._profile.setAcc({ x: 2 });
 		} else {
 			this._profile.setAcc({ x: 0 });
 		}
 
-		if (this._attributes.get(Attribute.GROUNDED) && this._keys.keyDown(Key.JUMP)) {
+		if (this.attributes().get(Attribute.GROUNDED) && this._keys.keyDown(Key.JUMP)) {
 			this._profile.setVel({ y: 0.8 });
 		}
 	}
@@ -93,14 +102,14 @@ export class Player extends Entity {
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
 
-		this._attributes.set(Attribute.GROUNDED, false);
+		this.attributes().set(Attribute.GROUNDED, false);
 	}
 
 	override collide(entity : Entity) : void {
 		super.collide(entity);
 
-		if (entity.type() === EntityType.WALL) {
-			this._attributes.set(Attribute.GROUNDED, true);
+		if (entity.attributes().getOrDefault(Attribute.SOLID)) {
+			this.attributes().set(Attribute.GROUNDED, true);
 		}
 	}
 }

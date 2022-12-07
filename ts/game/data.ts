@@ -23,8 +23,8 @@ export class Data {
 
 	constructor() {
 		this._data = {};
-		this._change = new Map<number, BitMarker>();
-		this._seqNum = new Map<number, number>();
+		this._change = new Map();
+		this._seqNum = new Map();
 	}
 
 	static toObject(data : any) : Object {
@@ -57,6 +57,7 @@ export class Data {
 	empty() : boolean { return Object.keys(this._data).length === 0; }
 	has(key : number) : boolean { return defined(this._data[key]); }
 	get(key : number) : Object { return this._data[key]; }
+
 	set(key : number, data : Object) : boolean {
 		if (!defined(data)) {
 			return false;
@@ -97,6 +98,10 @@ export class Data {
 		case DataFilter.TCP:
 			for (const [stringKey, data] of Object.entries(this._data)) {
 				const key = Number(stringKey);
+				if (!this._change.has(key)) {
+					continue;
+				}
+
 				const change = this._change.get(key);
 				if (change.consecutiveTrue() === 1 || change.consecutiveFalse() === 1) {
 					filtered[key] = data;
@@ -106,6 +111,10 @@ export class Data {
 		case DataFilter.UDP:
 			for (const [stringKey, data] of Object.entries(this._data)) {
 				const key = Number(stringKey);
+				if (!this._change.has(key)) {
+					continue;
+				}
+
 				const change = this._change.get(key);
 				if (change.consecutiveTrue() >= 1 || change.consecutiveFalse() <= 2) {
 					filtered[key] = data;

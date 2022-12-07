@@ -53,7 +53,7 @@ class Game {
 
 		// this._engine = new BABYLON.NullEngine();
 		// TODO: fast anti-alias
-		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/true);
+		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false);
 		window.onresize = () => { this.resize(); };
 
 		this._physics = MATTER.Engine.create({

@@ -68,7 +68,7 @@ export class Profile extends ComponentBase implements Component {
 	body() : MATTER.Body { return this._body; }
 
 	private hasPos() : boolean { return defined(this._pos) && defined(this._pos.x, this._pos.y); }
-	pos() : MATTER.Vector { return MATTER.Vector.clone(this._pos); }
+	pos() : MATTER.Vector { return this._pos; }
 	setPos(vec : Vec2) : void {
 		if (!this.hasPos()) { this._pos = {x: 0, y: 0}; }
 		if (defined(vec.x)) { this._pos.x = vec.x; }
@@ -81,7 +81,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	hasVel() : boolean { return defined(this._vel) && defined(this._vel.x, this._vel.y); }
-	vel() : MATTER.Vector { return MATTER.Vector.clone(this._vel); }
+	vel() : MATTER.Vector { return this._vel; }
 	setVel(vec : Vec2) : void {
 		if (!this.hasVel()) { this._vel = {x: 0, y: 0}; }
 		if (defined(vec.x)) { this._vel.x = vec.x; }
@@ -94,7 +94,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	hasAcc() : boolean { return defined(this._acc) && defined(this._acc.x, this._acc.y); }
-	acc() : MATTER.Vector { return MATTER.Vector.clone(this._acc); }
+	acc() : MATTER.Vector { return this._acc; }
 	setAcc(vec : Vec2) : void {
 		if (!this.hasAcc()) { this._acc = {x: 0, y: 0}; }
 		if (defined(vec.x)) { this._acc.x = vec.x; }
@@ -107,7 +107,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	private hasDim() : boolean { return defined(this._dim) && defined(this._dim.x, this._dim.y); }
-	dim() : MATTER.Vector { return MATTER.Vector.clone(this._dim); }
+	dim() : MATTER.Vector { return this._dim; }
 	setDim(vec : Vec2) : void {
 		if (Data.equals(this._dim, vec)) { return; }
 		if (this.hasDim()) {
@@ -125,7 +125,7 @@ export class Profile extends ComponentBase implements Component {
 	addAngle(delta : number) : void { this._angle += delta; }
 
 	hasScaling() : boolean { return defined(this._scaling) && defined(this._scaling.x, this._scaling.y); }
-	scaling() : MATTER.Vector { return MATTER.Vector.clone(this._scaling); }
+	scaling() : MATTER.Vector { return this._scaling; }
 	setScaling(vec : Vec2) {
 		if (!defined(this._scaling)) { this._scaling = { x: 1, y: 1}; }
 		if (Data.equals(this._scaling, vec)) { return; }
@@ -190,16 +190,16 @@ export class Profile extends ComponentBase implements Component {
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
 
-		this.setProp(Prop.POS, this.pos(), seqNum)
+		this.setProp(Prop.POS, MATTER.Vector.clone(this.pos()), seqNum)
 
 		if (this.hasVel()) {
-			this.setProp(Prop.VEL, this.vel(), seqNum);
+			this.setProp(Prop.VEL, MATTER.Vector.clone(this.vel()), seqNum);
 		}
 		if (this.hasAcc()) {
-			this.setProp(Prop.ACC, this.acc(), seqNum);
+			this.setProp(Prop.ACC, MATTER.Vector.clone(this.acc()), seqNum);
 		}
 		if (this.hasDim()) {
-			this.setProp(Prop.DIM, this.dim(), seqNum);
+			this.setProp(Prop.DIM, MATTER.Vector.clone(this.dim()), seqNum);
 		}
 		if (this.hasAngle()) {
 			this.setProp(Prop.ANGLE, this.angle(), seqNum);

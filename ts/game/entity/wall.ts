@@ -3,6 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { ComponentType } from 'game/component'
+import { Attribute } from 'game/component/attributes'
 import { Mesh } from 'game/component/mesh'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
@@ -13,6 +14,8 @@ export class Wall extends Entity {
 
 	constructor(options : EntityOptions) {
 		super(EntityType.WALL, options);
+
+		this.attributes().set(Attribute.SOLID, true);
 
 		let profile = <Profile>this.add(new Profile({
 			bodyFn: (entity : Entity) => {
