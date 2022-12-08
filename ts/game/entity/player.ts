@@ -15,14 +15,18 @@ import { loader, Model } from 'loader'
 import { Key } from 'ui/input'
 
 import { defined } from 'util/common'
+import { Timer } from 'util/timer'
 
 export class Player extends Entity {
 	private readonly _rotationOffset = -0.1;
+	private readonly _jumpGracePeriod = 100;
 
 	private _keys : Keys;
 	private _mesh : Mesh;
 	private _playerMesh : BABYLON.Mesh;
 	private _profile : Profile;
+
+	private _jumpTimer : Timer;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.PLAYER, options);
@@ -62,41 +66,68 @@ export class Player extends Entity {
 				});
 			},
 		}));
+
+		this._jumpTimer = this.newTimer();
 	}
 
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
+		// Out of bounds
+		if (this._profile.body().position.y < -8) {
+			this._profile.setPos({ x: 0, y: 10 });
+			this._profile.setVel({ x: 0, y: 0 });
+		}
+
+		// Gravity
 		this._profile.setAcc({ y: Profile.gravity });
 		if (!this.attributes().get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
 			this._profile.addAcc({ y: Profile.gravity });
 		}
 
+		// Keypress acceleration
 		if (this._keys.keyDown(Key.LEFT)) {
-			this._profile.setAcc({ x: -2 });
+			this._profile.setAcc({ x: -1.2 });
 		} else if (this._keys.keyDown(Key.RIGHT)) {
-			this._profile.setAcc({ x: 2 });
+			this._profile.setAcc({ x: 1.2 });
 		} else {
 			this._profile.setAcc({ x: 0 });
 		}
 
-		if (this.attributes().get(Attribute.GROUNDED) && this._keys.keyDown(Key.JUMP)) {
-			this._profile.setVel({ y: 0.8 });
+		// Turn acceleration
+		const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
+		if (turning) {
+			this._profile.acc().x *= 3;
+		}
+
+		// Jumping
+		if (this._jumpTimer.on() && this._keys.keyDown(Key.JUMP)) {
+			this._profile.setVel({ y: 0.3 });
+		}
+
+		// Friction and air resistance
+		const slowing = Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x);
+		if (this.attributes().get(Attribute.GROUNDED)) {
+			if (slowing) {
+				this._profile.vel().x *= 0.85;
+			}
+		} else {
+			if (this._profile.acc().x === 0) {
+				this._profile.vel().x *= 0.95;
+			}
+		}
+
+		// Max speed
+		if (Math.abs(this._profile.vel().x) > 0.3) {
+			this._profile.vel().x *= 0.95;
+		}
+		if (Math.abs(this._profile.vel().y) > 0.6) {
+			this._profile.vel().y *= 0.95;
 		}
 	}
 
 	override update(millis : number) : void {
 		super.update(millis);
-
-		if (this._profile.body().position.y < -5) {
-			this._profile.setPos({ x: 0, y: 10 });
-			this._profile.setVel({ x: 0, y: 0 });
-		}
-
-		if (Math.abs(this._profile.body().position.x) > 10) {
-			this._profile.setPos({ x: 0, y: 10 });
-			this._profile.setVel({ x: 0, y: 0 });
-		}
 	}
 
 	override prePhysics(millis : number) : void {
@@ -105,11 +136,12 @@ export class Player extends Entity {
 		this.attributes().set(Attribute.GROUNDED, false);
 	}
 
-	override collide(entity : Entity) : void {
-		super.collide(entity);
+	override collide(other : Entity) : void {
+		super.collide(other);
 
-		if (entity.attributes().getOrDefault(Attribute.SOLID)) {
+		if (other.attributes().getOrDefault(Attribute.SOLID) && this.profile().above(other.profile())) {
 			this.attributes().set(Attribute.GROUNDED, true);
+			this._jumpTimer.start(this._jumpGracePeriod);
 		}
 	}
 }

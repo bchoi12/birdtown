@@ -6,6 +6,7 @@ import { Profile } from 'game/component/profile'
 import { Data, DataFilter, DataMap } from 'game/data'
 
 import { defined } from 'util/common'
+import { Timer } from 'util/timer'
 
 export enum EntityType {
 	UNKNOWN,
@@ -33,6 +34,7 @@ export abstract class Entity {
 	protected _deleted : boolean;
 
 	protected _components : Map<ComponentType, Component>;
+	protected _timers : Array<Timer>
 
 	constructor(type : EntityType, options : EntityOptions) {
 		this._type = type;
@@ -47,6 +49,8 @@ export abstract class Entity {
 		this._components = new Map();
 		this.add(new Attributes());
 		this.add(new Metadata());
+
+		this._timers = new Array();
 	}
 
 	ready() : boolean {
@@ -98,7 +102,17 @@ export abstract class Entity {
 	attributes() : Attributes { return <Attributes>this._components.get(ComponentType.ATTRIBUTES); }
 	profile() : Profile { return <Profile>this._components.get(ComponentType.PROFILE); }
 
+	newTimer() : Timer {
+		let timer = new Timer();
+		this._timers.push(timer);
+		return timer;
+	}
+
 	preUpdate(millis : number) : void {
+		this._timers.forEach((timer) => {
+			timer.elapse(millis);
+		});
+
 		this._components.forEach((component) => {
 			component.preUpdate(millis);
 		});

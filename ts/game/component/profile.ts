@@ -25,7 +25,7 @@ enum Prop {
 
 export class Profile extends ComponentBase implements Component {
 
-	public static readonly gravity = -2;
+	public static readonly gravity = -1;
 
 	private _readyFn : (entity : Entity) => boolean;
 	private _bodyFn : (entity : Entity) => MATTER.Body;
@@ -236,5 +236,9 @@ export class Profile extends ComponentBase implements Component {
 		if (changed.has(Prop.SCALING)) {
 			this.setScaling(<Vec2>this._data.get(Prop.SCALING));
 		}
+	}
+
+	above(other : Profile) : boolean {
+		return this.pos().y - other.pos().y - (this.dim().y / 2 + other.dim().y / 2) >= -(0.1 * this.dim().y);
 	}
 }
