@@ -70,6 +70,18 @@ export class Player extends Entity {
 		this._jumpTimer = this.newTimer();
 	}
 
+	override ready() : boolean {
+		return super.ready() && this.hasClientId();
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		if (this.clientId() === game.id()) {
+			game.camera().setEntity(this);
+		}
+	}
+
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
@@ -79,19 +91,19 @@ export class Player extends Entity {
 			this._profile.setVel({ x: 0, y: 0 });
 		}
 
+		// Keypress acceleration
+		if (this._keys.keyDown(Key.LEFT)) {
+			this._profile.setAcc({ x: -1 });
+		} else if (this._keys.keyDown(Key.RIGHT)) {
+			this._profile.setAcc({ x: 1 });
+		} else {
+			this._profile.setAcc({ x: 0 });
+		}
+
 		// Gravity
 		this._profile.setAcc({ y: Profile.gravity });
 		if (!this.attributes().get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
-			this._profile.addAcc({ y: Profile.gravity });
-		}
-
-		// Keypress acceleration
-		if (this._keys.keyDown(Key.LEFT)) {
-			this._profile.setAcc({ x: -1.2 });
-		} else if (this._keys.keyDown(Key.RIGHT)) {
-			this._profile.setAcc({ x: 1.2 });
-		} else {
-			this._profile.setAcc({ x: 0 });
+			this._profile.addAcc({ y: 0.7 * Profile.gravity });
 		}
 
 		// Turn acceleration
@@ -101,8 +113,14 @@ export class Player extends Entity {
 		}
 
 		// Jumping
-		if (this._jumpTimer.on() && this._keys.keyDown(Key.JUMP)) {
+		if (this._jumpTimer.on()) {
+			if (this._keys.keyDown(Key.JUMP)) {
+				this._profile.setVel({ y: 0.3 });
+				this._jumpTimer.stop();
+			}
+		} else if (this.attributes().getOrDefault(Attribute.CAN_DOUBLE_JUMP) && this._keys.keyPressed(Key.JUMP)) {
 			this._profile.setVel({ y: 0.3 });
+			this.attributes().set(Attribute.CAN_DOUBLE_JUMP, false);
 		}
 
 		// Friction and air resistance
@@ -119,15 +137,11 @@ export class Player extends Entity {
 
 		// Max speed
 		if (Math.abs(this._profile.vel().x) > 0.3) {
-			this._profile.vel().x *= 0.95;
+			this._profile.vel().x *= 0.9;
 		}
 		if (Math.abs(this._profile.vel().y) > 0.6) {
-			this._profile.vel().y *= 0.95;
+			this._profile.vel().y *= 0.9;
 		}
-	}
-
-	override update(millis : number) : void {
-		super.update(millis);
 	}
 
 	override prePhysics(millis : number) : void {
@@ -141,6 +155,7 @@ export class Player extends Entity {
 
 		if (other.attributes().getOrDefault(Attribute.SOLID) && this.profile().above(other.profile())) {
 			this.attributes().set(Attribute.GROUNDED, true);
+			this.attributes().set(Attribute.CAN_DOUBLE_JUMP, true);
 			this._jumpTimer.start(this._jumpGracePeriod);
 		}
 	}

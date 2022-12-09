@@ -7,6 +7,7 @@ export enum Attribute {
 	UNKNOWN,
 
 	// Boolean
+	CAN_DOUBLE_JUMP,
 	DEAD,
 	GROUNDED,
 	SOLID,
@@ -25,6 +26,7 @@ export class Attributes extends ComponentBase implements Component {
 
 	private static readonly _props = [Prop.BOOLEANS, Prop.INTEGERS, Prop.NUMBERS];
 	private static readonly _attributeMapping = new Map<Attribute, Prop>([
+		[Attribute.CAN_DOUBLE_JUMP, Prop.BOOLEANS],
 		[Attribute.DEAD, Prop.BOOLEANS],
 		[Attribute.GROUNDED, Prop.BOOLEANS],
 		[Attribute.SOLID, Prop.BOOLEANS],

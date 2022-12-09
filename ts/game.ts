@@ -57,16 +57,11 @@ class Game {
 		window.onresize = () => { this.resize(); };
 
 		this._physics = MATTER.Engine.create({
-			gravity: {
-				y: 0,
-			}
+			gravity: { y: 0 }
 		});
 
 		this._scene = new BABYLON.Scene(this._engine);
 		this._scene.useRightHandedSystem = true;
-		if (isLocalhost()) {
-			this._scene.debugLayer.show();
-		}
 
 		this._entityMap = new EntityMap();
 		this._camera = new Camera();
@@ -132,6 +127,7 @@ class Game {
 	    this._seqNum = 1;
 	    this._engine.runRenderLoop(() => {
 	    	this._entityMap.update();
+	    	this._camera.update();
 	    	this._entityMap.render(this._scene);
 	    	this._entityMap.updateData(this._seqNum);
 
@@ -165,6 +161,7 @@ class Game {
 	scene() : BABYLON.Scene { return this._scene; }
 	engine() : BABYLON.Engine { return this._engine; }
 	physics() : MATTER.Engine { return this._physics; }
+	camera() : Camera { return this._camera; }
 	entities() : EntityMap { return this._entityMap; }
 
 	private entityMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {

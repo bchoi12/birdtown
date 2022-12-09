@@ -22,7 +22,7 @@ export class Keys extends ComponentBase implements Component {
 		super(ComponentType.KEYS);
 	}
 
-	override ready() { return true; }
+	override ready() : boolean { return this.entity().hasClientId(); }
 	override initialize() : void {
 		super.initialize();
 
@@ -83,7 +83,7 @@ export class Keys extends ComponentBase implements Component {
 	}
 
 	private updateKeysLocally() : boolean {
-		return this.entity().hasClientId() && this.entity().clientId() === game.id();
+		return this.entity().clientId() === game.id();
 	}
 
 	private updateKeys(keys : Set<number>) {

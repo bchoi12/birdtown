@@ -8,6 +8,14 @@ import { Entity } from 'game/entity'
 
 import { defined } from 'util/common'
 
+export enum CollisionGroup {
+
+}
+
+export enum CollisionCategory {
+	
+}
+
 type ProfileOptions = {
 	readyFn? : (entity : Entity) => boolean;
 	bodyFn : (entity : Entity) => MATTER.Body;
@@ -25,7 +33,7 @@ enum Prop {
 
 export class Profile extends ComponentBase implements Component {
 
-	public static readonly gravity = -1;
+	public static readonly gravity = -0.85;
 
 	private _readyFn : (entity : Entity) => boolean;
 	private _bodyFn : (entity : Entity) => MATTER.Body;

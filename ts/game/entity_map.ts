@@ -122,7 +122,7 @@ export class EntityMap {
 		collisions.forEach((collision) => {
 			if (!collision.pair) return;
 
-			let pair = collision.pair;
+			const pair = collision.pair;
 			if (!pair.bodyA || !pair.bodyA.label || !pair.bodyB || !pair.bodyB.label) {
 				return;
 			}
