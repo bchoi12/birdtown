@@ -2,12 +2,15 @@ import { DataConnection } from 'peerjs'
 
 import { Connection } from 'network/connection'
 import { ChannelType } from 'network/connection'
+import { Pinger } from 'network/pinger'
 
-import { isLocalhost } from 'util/common'
+import { defined, isLocalhost } from 'util/common'
 
 export class Client extends Connection {
 
 	private _hostName : string;
+	private _pinger : Pinger;
+
 	private _tcp : DataConnection;
 	private _udp : DataConnection;
 
@@ -15,6 +18,7 @@ export class Client extends Connection {
 		super(name);
 
 		this._hostName = hostName;
+		this._pinger = new Pinger();
 	}
 
 	initialize() : void {
@@ -24,9 +28,13 @@ export class Client extends Connection {
 				console.log("Opened client connection for " + peer.id);
 			}
 
+			this._pinger.initialize(this);
 			this.initTCP();
 		});
 	}
+
+	hostName() : string { return this._hostName; }
+	ping() : number { return defined(this._pinger) ? this._pinger.ping() : 0; }
 
 	private initTCP() : void {
 		let peer = this.peer();

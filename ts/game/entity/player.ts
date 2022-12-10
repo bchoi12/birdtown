@@ -9,8 +9,7 @@ import { Mesh } from 'game/component/mesh'
 import { Profile } from 'game/component/profile'
 import { Data } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
-
-import { loader, Model } from 'loader'
+import { loader, Model } from 'game/loader'
 
 import { Key } from 'ui/input'
 

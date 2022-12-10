@@ -75,7 +75,7 @@ class Game {
 			});
 		} else {
 			this._connection = new Client(options.name, "birdtown2");
-			this._connection.addMessageCallback(MessageType.NEW_CLIENT, (msg : Message) => {
+			this._connection.addMessageCallback(MessageType.NEW_CLIENT, (peer : string, msg : Message) => {
 				if (!defined(msg.I) || !defined(msg.N)) {
 					console.error("Invalid message: ", msg);
 					return;
@@ -90,7 +90,7 @@ class Game {
 				}
 			});
 		}
-		this._connection.addMessageCallback(MessageType.ENTITY, (msg : Message) => {
+		this._connection.addMessageCallback(MessageType.ENTITY, (peer : string, msg : Message) => {
 			if (!defined(msg.D) || !defined(msg.S)) {
 				console.error("Invalid message: ", msg);
 				return;
@@ -145,6 +145,10 @@ class Game {
 	    	if (this._seqNum % 120 === 0) {
 	    		this._channelStats.forEach((stats : StatsTracker, channel : ChannelType) => {
 	    			console.log("Sent " + Math.round(stats.flush()) + " messages/s via " + channel);
+
+	    			if (this._connection instanceof Client) {
+	    				console.log("Ping: " + this._connection.ping());
+	    			}
 	    		});
 	    	}
 	    });

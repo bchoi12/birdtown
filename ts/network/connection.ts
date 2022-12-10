@@ -15,7 +15,7 @@ export enum ChannelType {
 
 type PeerMap = Map<string, ChannelMap>;
 type RegisterCallback = (name : string) => void;
-type MessageCallback = (msg : Message) => void;
+type MessageCallback = (name : string, msg : Message) => void;
 
 export abstract class Connection {
 	private static readonly _validChannels : Set<string> = new Set([
@@ -71,7 +71,7 @@ export abstract class Connection {
 		channels.register(channelType, connection);
 
 		connection.on("data", (data : Object) => {
-			this.handleData(data);
+			this.handleData(connection.peer, data);
 		});
 
 		connection.on("close", () => {
@@ -131,14 +131,14 @@ export abstract class Connection {
 		});
 	}
 
-	send(peer : string|number, type : ChannelType, msg : Message) {
+	send(peer : string|number, type : ChannelType, msg : Message) : boolean {
 		let name;
 		if (typeof(peer) === 'string') {
 			name = peer;
 		} else {
 			if (!this._nameAndId.hasReverse(peer)) {
 				console.error("Error: could not find name for id " + peer);
-				return;
+				return false;
 			}
 			name = this._nameAndId.getReverse(peer);
 		}
@@ -146,18 +146,19 @@ export abstract class Connection {
 		const channels = this._peers.get(name);
 		if (!channels.ready()) {
 			console.error("Trying to send data to " + name + " before connection is ready");
-			return;
+			return false;
 		}
 
 		if (!channels.has(type)) {
 			console.error("Missing " + type + " connection for " + name);
-			return;
+			return false;
 		}
 
 		channels.get(type).send(encode(msg));
+		return true;
 	} 
 
-	private async handleData(data : Object) {
+	private async handleData(peer : string, data : Object) {
 		let bytes;
 		if (data instanceof ArrayBuffer) {
 			bytes = new Uint8Array(data);
@@ -177,7 +178,7 @@ export abstract class Connection {
 		if ('T' in decoded) {
 			const msg = <Message>decoded;
 			if (this._messageCallbacks.has(msg.T)) {
-				this._messageCallbacks.get(msg.T)(msg);				
+				this._messageCallbacks.get(msg.T)(peer, msg);				
 			}
 		} else {
 			console.error("Missing payload type from message: ", decoded);

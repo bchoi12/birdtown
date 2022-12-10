@@ -1,8 +1,9 @@
 
 export enum MessageType {
-	UNKNOWN = 0,
-	NEW_CLIENT = 1,
-	ENTITY = 2,
+	UNKNOWN,
+	ENTITY,
+	NEW_CLIENT,
+	PING,
 }
 
 export interface Message {
