@@ -6,10 +6,272 @@ body {
     margin: 0;
     padding: 0;
     text-align: center;
+    overflow: hidden;
+
+    font-family: 'Lato';
+    font-size: 2vh;
 }
 
 #canvas-game {
     width: 100%;
     height: 100%;
     touch-action: none;
+}
+
+#div-login {
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+
+  width: 30%;
+  min-width: 320px;
+  top: 30%;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  font-size: 2.5vh;
+}
+#fieldset-login {
+    background-color: rgba(255, 255, 255, 0.8);
+
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid;
+}
+
+#form-login {
+    padding: 10px;
+    text-align: center;
+}
+
+#button-join, #button-host {
+    margin: 0 auto;
+    display: none;
+}
+
+.form-input {
+    text-align: center;
+    width: 80%;
+    margin-bottom: 12px;
+}
+
+#canvas-game {
+    image-rendering: optimizeSpeed;
+    image-rendering: smooth;
+}
+
+#div-overlays {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  top: 0;
+  left: 0;
+}
+
+#div-stats {
+    position: absolute;
+    right: 0;
+    font-size: 0.8em;
+}
+
+#div-chat {
+    position:  absolute;
+    left: 0;
+    
+    bottom: 1em;
+    width: 20em;
+    height: 8em;
+
+    overflow-y: scroll;
+  scrollbar-width: none;
+}
+#input-message {
+    padding: 2px;
+    margin: 0;
+    font-size: 1em;
+    border: none;
+    resize: none;
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+#div-message {
+    position: absolute;
+    display: none;
+    bottom: 0;
+}
+
+#div-tooltips {
+    position: absolute;
+    display: block;
+    text-align: center;
+    width: 60%;
+
+    bottom: 5%;
+    left: 20%;
+
+  color: #f2f2f2;
+}
+
+.tooltip {
+    text-align: center;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0.5em;
+
+    top: 20%;
+    padding: 1em;
+    border-radius: 10px;
+
+    white-space: pre-line;
+
+  background-color: rgba(0,0,0,0.4);
+  color: #f2f2f2;
+
+  transition: opacity 0.3s ease-in, margin-bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  opacity: 0.2;
+  margin-bottom: -3em;
+}
+
+.tooltip.tooltip-show {
+    opacity: 1.0;
+    margin-bottom: 0;
+}
+
+.key-binding {
+    width: 100%;
+    font-size: 1em;
+    height: 1em;
+    margin-bottom: 0.3em;
+}
+
+#div-announcement {
+    position: absolute;
+    display: none;
+    text-align: center;
+    width: 100%;
+
+    top: 20%;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
+
+  color: #f2f2f2;
+
+    background: linear-gradient(to left, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7) 40%, rgba(0, 0, 0, 0.7) 60%, rgba(200, 200, 200, 0.1));
+}
+
+#div-main-announcement {
+    font-size: 2em;
+}
+
+#div-sub-announcement {
+    font-size: 1em;
+}
+
+#div-scoreboard {
+    position: absolute;
+    display: none;
+    text-align: center;
+    width: 70%;
+    height: 70%;
+
+    top: 15%;
+    left: 15%;
+
+    border-radius: 50px;
+
+  background-color: rgba(0,0,0,0.7);
+  color: #f2f2f2;
+    font-size: 2em;
+}
+
+#div-pause {
+    text-align: center;
+  position: absolute;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(0,0,0,0.7);
+
+  color: #f2f2f2;
+    font-size: 2em;
+    padding-top: 5%;
+}
+
+#pause-title {
+    width: 100%;
+    font-size: 1.5em;
+    padding-bottom: 0.3em;
+}
+
+#pause-continue {
+    font-size: 1.5em;
+}
+
+#div-menus {
+    display: flex;
+    width: 80%;
+    margin: 1em auto;
+    height: 60%;
+}
+
+#div-menus fieldset {
+    overflow-y: scroll;
+    text-align: left;
+    font-size: 0.6em;
+    flex: 1;
+}
+
+#div-menus fieldset legend {
+    font-size: 2em;
+}
+
+#fieldset-options label {
+    padding-left: 0.15em;
+}
+
+.option {
+    padding: 0.2em;
+}
+
+#cursor {
+    position: absolute;
+    visibility: hidden;
+}
+
+.spaced {
+    margin: 6px 12px 6px 12px;
+}
+
+.slightly-opaque {
+    opacity: 0.7;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.text-button {
+    padding: 0.1em;
+    margin: 0.2em;
+}
+
+.text-button:hover {
+  text-shadow: 0px 0px 7px #BBBBBB;
+  cursor: pointer;
+}
+
+.no-select {
+    user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent; /* make scrollbar transparent */
 }

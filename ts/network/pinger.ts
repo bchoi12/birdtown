@@ -1,6 +1,4 @@
-import { Client } from 'network/client'
 import { ChannelType, Connection } from 'network/connection'
-import { Host } from 'network/host'
 import { Message, MessageType } from 'network/message'
 
 import { defined } from 'util/common'
@@ -25,25 +23,12 @@ export class Pinger {
 
 	ping() : number { return this._ping; }
 
-	initialize(connection : Connection) : void {
+	initializeForHost(host : Connection) {
 		if (this._initialized) {
 			console.log("Warning: skipping initialization of pinger");
 			return;
 		}
 
-		if (connection instanceof Host) {
-			this.initializeForHost(connection);
-		} else if (connection instanceof Client) {
-			this.initializeForClient(connection);
-		} else {
-			console.log("Error: failed to initialize pinger.");
-			return;
-		}
-
-		this._initialized = true;
-	}
-
-	private initializeForHost(host : Host) {
 		host.addMessageCallback(MessageType.PING, (peer: string, msg : Message) => {
 			if (!defined(msg.S)) {
 				return;
@@ -51,9 +36,16 @@ export class Pinger {
 
 			host.send(peer, ChannelType.TCP, msg);
 		});
+
+		this._initialized = true;
 	}
 
-	private initializeForClient(client : Client) {
+	initializeForClient(client : Connection, hostName : string) {
+		if (this._initialized) {
+			console.log("Warning: skipping initialization of pinger");
+			return;
+		}
+
 		client.addMessageCallback(MessageType.PING, (peer : string, msg : Message) => {
 			if (!defined(msg.S)) {
 				return;
@@ -62,14 +54,15 @@ export class Pinger {
 			const index = msg.S % Pinger._maxPings;
 			this._pings[index] = Date.now() - this._pingTimes[index];
 
-			this._pings.forEach((ping) => {
+			this._ping = 0;
+			this._pings.forEach((ping : number) => {
 				this._ping += ping;
-			})
+			});
 			this._ping = Math.ceil(this._ping / this._pings.length);
 		});
 
 		setTimeout(() => {
-			const success = client.send(client.hostName(), ChannelType.TCP, {
+			const success = client.send(hostName, ChannelType.TCP, {
 				T: MessageType.PING,
 				S: this._lastPingNumber,
 			});
@@ -79,5 +72,7 @@ export class Pinger {
 				this._lastPingNumber++;
 			}
 		}, Pinger._pingInterval);
+
+		this._initialized = true;
 	}
 }

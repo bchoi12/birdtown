@@ -34,7 +34,7 @@ export abstract class Entity {
 	protected _deleted : boolean;
 
 	protected _components : Map<ComponentType, Component>;
-	protected _timers : Array<Timer>
+	protected _timers : Array<Timer>;
 
 	constructor(type : EntityType, options : EntityOptions) {
 		this._type = type;

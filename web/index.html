@@ -6,12 +6,59 @@
     <link href="./normalize.css" rel="stylesheet">
     <link href="./style.css" rel="stylesheet">
 
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Lato:regular,italic,bold,bolditalic" />
     <script src="https://kit.fontawesome.com/b400bccf87.js" crossorigin="anonymous"></script>
 
 </head>
 
 <body>
+    <iframe name="iframe-empty" style="display:none"></iframe>
     <canvas id="canvas-game">Hi</canvas>
+    <div id="div-overlays" oncontextmenu="return false;">
+        <div id="div-stats" class="no-select spaced"></div>
+        <div id="div-chat" class="no-select slightly-opaque spaced"></div>
+        <div id="div-message" class="no-select spaced">
+            <form action="about:blank" target="iframe-empty" onsubmit="return false;">
+                <input id="input-message" type="text" placeholder="Press enter to chat" maxlength="256">
+                <input id="button-message" type="submit" value="" style="display: none;">
+            </form>
+        </div>
+        <div id="div-tooltips"></div>
+        <div id="div-announcement">
+            <div id="div-main-announcement"></div>
+            <div id="div-sub-announcement"></div>
+        </div>
+        <div id="div-scoreboard">
+            <div id="scoreboard-title">Scoreboard</div>
+        </div>
+    </div>
+    <div id="div-pause">
+        <div id="pause-title" class="bold">Paused</div>
+        <div id="div-menus">
+            <fieldset id="fieldset-clients" class="spaced">
+                <legend id="legend-clients">Players</legend>
+            </fieldset>
+            <fieldset id="fieldset-options" class="spaced">
+                <legend id="legend-options">Options</legend>
+            </fieldset>
+            <fieldset id="fieldset-key-bindings" class="spaced">
+                <legend id="legend-key-bindings">Keys</legend>
+            </fieldset>
+        </div>
+        <div id="pause-continue" class="bold text-button">Continue</div>
+    </div>
+    <div id="div-login">
+        <fieldset id="fieldset-login">
+            <legend id="legend-login">birdtown 2</legend>
+            <form id="form-login" action="about:blank" target="iframe-empty" onsubmit="return false;">
+                <!--<input id="input-name" class="form-input" type="text" placeholder="Enter a name" maxlength="16" required>-->
+                <input id="input-room" class="form-input" type="text" placeholder="Enter a room code" maxlength="10" required>
+                <div id="login-info">Loading...</div>
+                <input id="button-host" type="submit" value="Host">
+                <input id="button-join" type="submit" value="Join">
+            </form>
+        </fieldset>
+    </div>
 
     <script src="main.js"></script>
 </body>

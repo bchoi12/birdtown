@@ -17,6 +17,8 @@ import { StatsTracker } from 'util/stats_tracker'
 
 interface GameOptions {
 	name : string;
+	hostName : string;
+
 	host : boolean;
 }
 
@@ -27,6 +29,7 @@ class Game {
 		[DataFilter.UDP, ChannelType.UDP],
 	]);
 
+	private _initialized : boolean;
 	private _canvas : HTMLCanvasElement;
 
 	private _options : GameOptions;
@@ -39,12 +42,12 @@ class Game {
 	private _entityMap : EntityMap;
 	private _camera : Camera;
 	private _connection : Connection;
-	private _channelStats : Map<ChannelType, StatsTracker>;
 
 	private _hostSeqNum : number;
 	private _seqNum : number;
 
 	constructor() {
+		this._initialized = false;
 		this._canvas = Html.canvasElm(Html.canvasGame);
 	}
 
@@ -74,7 +77,7 @@ class Game {
 				this.registerClient(name);
 			});
 		} else {
-			this._connection = new Client(options.name, "birdtown2");
+			this._connection = new Client(options.name, options.hostName);
 			this._connection.addMessageCallback(MessageType.NEW_CLIENT, (peer : string, msg : Message) => {
 				if (!defined(msg.I) || !defined(msg.N)) {
 					console.error("Invalid message: ", msg);
@@ -106,9 +109,6 @@ class Game {
 			}
 		});
 		this._connection.initialize();
-		this._channelStats = new Map();
-		this._channelStats.set(ChannelType.UDP, new StatsTracker());
-		this._channelStats.set(ChannelType.TCP, new StatsTracker());
 
 	    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), this._scene);
 
@@ -135,29 +135,18 @@ class Game {
     			const [message, has] = this.entityMessage(filter, this._seqNum);
     			if (has) {
     				this._connection.broadcast(Game._channelMapping.get(filter), message);
-    				this._channelStats.get(Game._channelMapping.get(filter)).add(1);
 	    		}
 	    	}
 
 	    	this._seqNum++;
-
-	    	// TODO: put this in UI instead
-	    	if (this._seqNum % 120 === 0) {
-	    		this._channelStats.forEach((stats : StatsTracker, channel : ChannelType) => {
-	    			console.log("Sent " + Math.round(stats.flush()) + " messages/s via " + channel);
-
-	    			if (this._connection instanceof Client) {
-	    				console.log("Ping: " + this._connection.ping());
-	    			}
-	    		});
-	    	}
 	    });
+
+	    this._initialized = true;
 	}
 
-	resize() : void {
-		this._engine.resize();
-	}
+	resize() : void { this._engine.resize(); }
 
+	initialized() : boolean { return this._initialized; }
 	canvas() : HTMLCanvasElement { return this._canvas; }
 	hasId() : boolean { return defined(this._id); }
 	id() : number { return this.hasId() ? this._id : -1; }
@@ -167,6 +156,7 @@ class Game {
 	physics() : MATTER.Engine { return this._physics; }
 	camera() : Camera { return this._camera; }
 	entities() : EntityMap { return this._entityMap; }
+	connection() : Connection { return this._connection; }
 
 	private entityMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
 		const data = this._entityMap.filteredData(filter);

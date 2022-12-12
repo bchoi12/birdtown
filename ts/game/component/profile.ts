@@ -186,13 +186,15 @@ export class Profile extends ComponentBase implements Component {
 	override postPhysics(millis : number) : void {
 		super.postPhysics(millis);
 
-		if (!Data.equals(this._vel, this._body.velocity)) {
-			this.setVel(this._body.velocity);
-		}
 		if (!Data.equals(this._angle, this._body.angle)) {
 			this.setAngle(this._body.angle);
 		}
-		this.setPos(this._body.position);
+		if (!Data.equals(this._vel, this._body.velocity)) {
+			let vel = this.interpolateVec(this._vel, this._body.velocity, /*limit=*/0.5, /*weight=*/0.1);
+			this.setVel(vel);
+		}
+		let pos = this.interpolateVec(this._pos, this._body.position, /*limit=*/0.5, /*weight=*/0.1);
+		this.setPos(pos);
 	}
 
 	override updateData(seqNum : number) : void {
@@ -221,7 +223,6 @@ export class Profile extends ComponentBase implements Component {
 		super.mergeData(data, seqNum);
 
 		const changed = this._data.merge(data, seqNum);
-
 		if (changed.size === 0) {
 			return;
 		}
@@ -248,5 +249,35 @@ export class Profile extends ComponentBase implements Component {
 
 	above(other : Profile) : boolean {
 		return this.pos().y - other.pos().y - (this.dim().y / 2 + other.dim().y / 2) >= -(0.1 * this.dim().y);
+	}
+
+	interpolateVec(current : Vec2, next : Vec2, limit : number, weight : number) : Vec2 {
+		if (!defined(current)) {
+			return next;
+		}
+		if (this.isSource() || this.distanceSquared(current, next) >= limit * limit) {
+			return next;
+		}
+
+		return {
+			x: this.lerp(current.x, next.x, weight),
+			y: this.lerp(current.y, next.y, weight),
+		};
+	}
+
+	private distanceSquared(a : Vec2, b : Vec2) {
+		return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+	}
+
+	private lerp(current : number, next : number, weight : number) {
+		if (!defined(current) && !defined(next)) {
+			return 0;
+		} else if (!defined(next)) {
+			return current;
+		} else if (!defined(current)) {
+			return next;
+		}
+
+		return current + weight * (next - current);
 	}
 }

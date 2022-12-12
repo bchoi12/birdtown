@@ -3,6 +3,9 @@ import { DataConnection, Peer } from 'peerjs'
 
 import { ChannelMap } from 'network/channel_map'
 import { Message, MessageType } from 'network/message'
+import { Pinger } from 'network/pinger'
+
+import { options } from 'options'
 
 import { isLocalhost } from 'util/common'
 import { DoubleMap } from 'util/double_map'
@@ -26,16 +29,20 @@ export abstract class Connection {
 	protected _peer : Peer;
 	protected _peers : Map<string, ChannelMap>;
 	protected _nameAndId : DoubleMap<string, number>;
+	protected _pinger : Pinger;
 	protected _registerCallbacks : Array<RegisterCallback>;
 	protected _messageCallbacks : Map<MessageType, MessageCallback>;
 
 	constructor(name : string) {
 		this._peer = new Peer(name, {
-			debug: isLocalhost() ? 2 : 0,
+			debug: 2,
 			pingInterval: 1000,
 		});
 		this._peers = new Map();
 		this._nameAndId = new DoubleMap();
+
+		this._pinger = new Pinger();
+
 		this._registerCallbacks = new Array();
 		this._messageCallbacks = new Map();
 
@@ -47,6 +54,8 @@ export abstract class Connection {
 	abstract initialize() : void;
 
 	peer() : Peer { return this._peer; }
+	peers() : Map<string, ChannelMap> { return this._peers; }
+	ping() : number { return this._pinger.ping(); }
 
 	setId(name : string, id : number) {
 		this._nameAndId.set(name, id);
@@ -54,11 +63,10 @@ export abstract class Connection {
 
 	register(connection : DataConnection) {
 		if (!Connection._validChannels.has(connection.label)) {
-			console.error("Invalid channel type: " + connection.label);
+			console.error("Error: invalid channel type: " + connection.label);
 			return;
 		}
 		const channelType = <ChannelType>connection.label;
-
 		if (!connection.open) {
 			console.error("Warning: registering unopen " + channelType + " channel for " + connection.peer);
 		}
@@ -98,14 +106,10 @@ export abstract class Connection {
 			channels.delete(channelType);
 		}
 
-		if (isLocalhost()) {
-			console.log("Closed " + connection.label + " connection to " + connection.peer);
-		}
+		console.log("Closed " + connection.label + " connection to " + connection.peer);
 
 		if (channels.disconnected()) {
-			if (isLocalhost()) {
-				console.log("Client " + connection.peer + " disconnected.");
-			}
+			console.log("Client " + connection.peer + " disconnected.");
 			this._peers.delete(connection.peer);
 		}
 	}
@@ -143,18 +147,26 @@ export abstract class Connection {
 			name = this._nameAndId.getReverse(peer);
 		}
 
+		if (!this._peers.has(name)) {
+			return false;
+		}
+
 		const channels = this._peers.get(name);
 		if (!channels.ready()) {
-			console.error("Trying to send data to " + name + " before connection is ready");
 			return false;
 		}
 
 		if (!channels.has(type)) {
-			console.error("Missing " + type + " connection for " + name);
 			return false;
 		}
 
-		channels.get(type).send(encode(msg));
+		if (isLocalhost() && options.debugDelay > 0) {
+			setTimeout(() => {
+				channels.send(type, encode(msg));
+			}, options.debugDelay);
+		} else {
+			channels.send(type, encode(msg));
+		}
 		return true;
 	} 
 

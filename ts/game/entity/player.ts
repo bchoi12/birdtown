@@ -11,7 +11,7 @@ import { Data } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { loader, Model } from 'game/loader'
 
-import { Key } from 'ui/input'
+import { Key } from 'ui'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'

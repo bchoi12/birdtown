@@ -1,9 +1,6 @@
 import { game } from 'game'
+import { ui } from 'ui'
 
 console.log("Welcome to birdtown!");
 
-const url = window.location.href;
-game.initialize({
-    name: url.endsWith("host") ? "birdtown2" : "",
-    host: url.endsWith("host"),
-});
+ui.setup();

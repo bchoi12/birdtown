@@ -3,6 +3,41 @@
 export namespace Html {
 
 	export const canvasGame = "canvas-game";
+	export const divLogin = "div-login";
+	export const legendLogin = "legend-login";
+	export const inputName = "input-name";
+	export const inputRoom = "input-room";
+	export const loginInfo = "login-info";
+	export const formLogin = "form-login";
+	export const buttonHost = "button-host";
+	export const buttonJoin = "button-join";
+
+	export const divOverlays = "div-overlays";
+
+	export const divStats = "div-stats";
+
+	export const divChat = "div-chat";
+	export const divMessage = "div-message";
+	export const inputMessage = "input-message";
+
+	export const divTooltips = "div-tooltips";
+	export const classTooltip = "tooltip";
+	export const classTooltipShow = "tooltip-show";
+	export const divAnnouncement = "div-announcement";
+	export const divMainAnnouncement = "div-main-announcement";
+	export const divSubAnnouncement = "div-sub-announcement";
+	export const divScoreboard = "div-scoreboard";
+
+	export const divPause = "div-pause";
+	export const pauseContinue = "pause-continue";
+	export const fieldsetClients = "fieldset-clients";
+
+	export const fieldsetOptions = "fieldset-options";
+
+	export const fieldsetKeyBindings = "fieldset-key-bindings";
+	export const classKeyBinding = "key-binding";
+
+	export const cursor = "cursor";
 
 	export function elm(id : string) : HTMLElement { return document.getElementById(id); }
 	export function canvasElm(id : string) : HTMLCanvasElement { return (<HTMLCanvasElement>document.getElementById(id)); }
@@ -25,6 +60,10 @@ export namespace Html {
 		let hr = document.createElement("hr");
 		hr.style.borderTop = borderStyle;
 		return hr;
+	}
+
+	export function trimmedValue(inputElm : HTMLInputElement) : string {
+		return inputElm.value.trim()
 	}
 }
 

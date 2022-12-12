@@ -57,6 +57,7 @@ export class Data {
 	empty() : boolean { return Object.keys(this._data).length === 0; }
 	has(key : number) : boolean { return defined(this._data[key]); }
 	get(key : number) : Object { return this._data[key]; }
+	getSeqNum(key : number) : number { return this._seqNum[key]; }
 
 	set(key : number, data : Object) : boolean {
 		if (!defined(data)) {

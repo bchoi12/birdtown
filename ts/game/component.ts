@@ -46,12 +46,14 @@ export abstract class ComponentBase {
 	protected _entity : Entity;
 	protected _type : ComponentType;
 	protected _data : Data;
+	protected _lastMergeTime : number;
 
 	constructor(type : ComponentType) {
 		this._initialized = false;
 		this._entity = null;
 		this._type = type;
 		this._data = new Data();
+		this._lastMergeTime = Date.now();
 	}
 
 	abstract ready() : boolean;
@@ -78,7 +80,9 @@ export abstract class ComponentBase {
 	isSource() : boolean { return game.options().host; }
 	filteredData(filter : DataFilter) : DataMap { return this._data.filtered(filter); }
 	updateData(seqNum : number) : void {}
-	mergeData(data : DataMap, seqNum : number) : void {}
+	mergeData(data : DataMap, seqNum : number) : void {
+		this._lastMergeTime = Date.now();
+	}
 	protected setProp(prop : number, data : Object, seqNum : number, cb? : () => boolean) : boolean {
 		if (this.isSource()) {
 			return this._data.update(prop, data, seqNum, () => {
