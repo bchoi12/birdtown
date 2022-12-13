@@ -49,6 +49,7 @@ export class Input extends HandlerBase implements Handler{
 		this.mapKey(options.leftKeyCode, Key.LEFT);
 		this.mapKey(options.rightKeyCode, Key.RIGHT);
 		this.mapKey(options.jumpKeyCode, Key.JUMP);
+		this.mapKey(options.interactKeyCode, Key.INTERACT);
 	}
 
 	setMode(mode : Mode) : void {}

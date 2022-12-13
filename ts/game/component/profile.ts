@@ -28,6 +28,7 @@ enum Prop {
 	ACC,
 	DIM,
 	ANGLE,
+	INERTIA,
 	SCALING,
 }
 
@@ -45,7 +46,11 @@ export class Profile extends ComponentBase implements Component {
 	private _angle : number;
 	private _applyScaling : boolean;
 	private _scaleFactor : MATTER.Vector;
+	private _inertia : number;
 	private _scaling : MATTER.Vector;
+
+	private _initialInertia : number;
+
 	private _body : MATTER.Body;
 
 	constructor(options : ProfileOptions) {
@@ -65,6 +70,8 @@ export class Profile extends ComponentBase implements Component {
 		this._body = this._bodyFn(this.entity());
 		MATTER.Composite.add(game.physics().world, this._body)
 		this._body.label = "" + this.entity().id();
+
+		this._initialInertia = this._body.inertia;
 	}
 
 	override delete() : void {
@@ -74,6 +81,11 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	body() : MATTER.Body { return this._body; }
+
+	stop() : void {
+		this.setVel({x: 0, y: 0});
+		this.setAcc({x: 0, y: 0});
+	}
 
 	private hasPos() : boolean { return defined(this._pos) && defined(this._pos.x, this._pos.y); }
 	pos() : MATTER.Vector { return this._pos; }
@@ -131,6 +143,13 @@ export class Profile extends ComponentBase implements Component {
 	angle() : number { return this._angle; }
 	setAngle(angle : number) : void { this._angle = angle; }
 	addAngle(delta : number) : void { this._angle += delta; }
+	setAngularVelocity(vel : number) : void { MATTER.Body.setAngularVelocity(this._body, vel); }
+	addAngularVelocity(delta : number) : void { MATTER.Body.setAngularVelocity(this._body, this._body.angularVelocity + delta); }
+
+	hasInertia() : boolean { return defined(this._inertia); }
+	inertia() : number { return this._inertia; }
+	setInertia(inertia : number) : void { this._inertia = inertia; }
+	resetInertia() : void { this._inertia = this._initialInertia; }
 
 	hasScaling() : boolean { return defined(this._scaling) && defined(this._scaling.x, this._scaling.y); }
 	scaling() : MATTER.Vector { return this._scaling; }
@@ -164,6 +183,9 @@ export class Profile extends ComponentBase implements Component {
 		}
 		if (this.hasAngle()) {
 			MATTER.Body.setAngle(this._body, this.angle());
+		}
+		if (this.hasInertia()) {
+			MATTER.Body.setInertia(this._body, this.inertia());
 		}
 
 		if (this.hasAcc()) {
@@ -214,6 +236,9 @@ export class Profile extends ComponentBase implements Component {
 		if (this.hasAngle()) {
 			this.setProp(Prop.ANGLE, this.angle(), seqNum);
 		}
+		if (this.hasInertia()) {
+			this.setProp(Prop.INERTIA, this.inertia(), seqNum);
+		}
 		if (this.hasScaling()) {
 			this.setProp(Prop.SCALING, this.scaling(), seqNum);
 		}
@@ -241,6 +266,9 @@ export class Profile extends ComponentBase implements Component {
 		}
 		if (changed.has(Prop.ANGLE)) {
 			this.setAngle(<number>this._data.get(Prop.ANGLE));
+		}
+		if (changed.has(Prop.INERTIA)) {
+			this.setInertia(<number>this._data.get(Prop.INERTIA));
 		}
 		if (changed.has(Prop.SCALING)) {
 			this.setScaling(<Vec2>this._data.get(Prop.SCALING));

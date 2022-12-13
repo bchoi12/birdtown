@@ -13,6 +13,7 @@ import { loader, Model } from 'game/loader'
 
 import { Key } from 'ui'
 
+import { ChangeTracker } from 'util/change_tracker'
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
 
@@ -26,10 +27,12 @@ export class Player extends Entity {
 	private _profile : Profile;
 
 	private _jumpTimer : Timer;
+	private _deadTracker : ChangeTracker<boolean>;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.PLAYER, options);
 
+		this.attributes().set(Attribute.DEAD, false);
 		this.attributes().set(Attribute.GROUNDED, false);
 		this.attributes().set(Attribute.SOLID, true);
 
@@ -40,7 +43,6 @@ export class Player extends Entity {
 				const pos = entity.profile().pos();
 				const dim = entity.profile().dim();
 				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
-					inertia: Infinity,
 					friction: 0,
 				})
 			},
@@ -48,6 +50,7 @@ export class Player extends Entity {
 		if (defined(options.pos)) {
 			this._profile.setPos(options.pos);
 		}
+		this._profile.setInertia(Infinity);
 		this._profile.setDim({x: 0.8, y: 1.44 });
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
@@ -67,6 +70,24 @@ export class Player extends Entity {
 		}));
 
 		this._jumpTimer = this.newTimer();
+
+		this._deadTracker = new ChangeTracker(() => {
+			return <boolean>this.attributes().get(Attribute.DEAD);
+		}, (dead : boolean) => {
+			if (dead) {
+				const x = this._profile.vel().x;
+				const sign = x < 0 ? 1 : -1;
+
+				this._profile.addAngularVelocity(0.5 * sign * Math.max(0.5, Math.abs(x)));
+				this._profile.setAcc({x: 0, y: 0});
+				this._profile.resetInertia();
+			} else {
+				this._profile.setAngle(0);
+				this._profile.setAngularVelocity(0);
+				this._profile.setInertia(Infinity);
+			}
+		});
+
 	}
 
 	override ready() : boolean {
@@ -90,36 +111,46 @@ export class Player extends Entity {
 			this._profile.setVel({ x: 0, y: 0 });
 		}
 
-		// Keypress acceleration
-		if (this._keys.keyDown(Key.LEFT)) {
-			this._profile.setAcc({ x: -1 });
-		} else if (this._keys.keyDown(Key.RIGHT)) {
-			this._profile.setAcc({ x: 1 });
-		} else {
-			this._profile.setAcc({ x: 0 });
-		}
-
 		// Gravity
 		this._profile.setAcc({ y: Profile.gravity });
 		if (!this.attributes().get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
 			this._profile.addAcc({ y: 0.7 * Profile.gravity });
 		}
 
-		// Turn acceleration
-		const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
-		if (turning) {
-			this._profile.acc().x *= 3;
+		if (this._keys.keyDown(Key.INTERACT)) {
+			this.attributes().set(Attribute.DEAD, true);
+		} else {
+			this.attributes().set(Attribute.DEAD, false);
 		}
 
-		// Jumping
-		if (this._jumpTimer.on()) {
-			if (this._keys.keyDown(Key.JUMP)) {
-				this._profile.setVel({ y: 0.3 });
-				this._jumpTimer.stop();
+		this._deadTracker.check();
+
+		if (!this.attributes().getOrDefault(Attribute.DEAD)) {
+			// Keypress acceleration
+			if (this._keys.keyDown(Key.LEFT)) {
+				this._profile.setAcc({ x: -1 });
+			} else if (this._keys.keyDown(Key.RIGHT)) {
+				this._profile.setAcc({ x: 1 });
+			} else {
+				this._profile.setAcc({ x: 0 });
 			}
-		} else if (this.attributes().getOrDefault(Attribute.CAN_DOUBLE_JUMP) && this._keys.keyPressed(Key.JUMP)) {
-			this._profile.setVel({ y: 0.3 });
-			this.attributes().set(Attribute.CAN_DOUBLE_JUMP, false);
+
+			// Turn acceleration
+			const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
+			if (turning) {
+				this._profile.acc().x *= 3;
+			}
+
+			// Jumping
+			if (this._jumpTimer.on()) {
+				if (this._keys.keyDown(Key.JUMP)) {
+					this._profile.setVel({ y: 0.3 });
+					this._jumpTimer.stop();
+				}
+			} else if (this.attributes().getOrDefault(Attribute.CAN_DOUBLE_JUMP) && this._keys.keyPressed(Key.JUMP)) {
+				this._profile.setVel({ y: 0.3 });
+				this.attributes().set(Attribute.CAN_DOUBLE_JUMP, false);
+			}
 		}
 
 		// Friction and air resistance

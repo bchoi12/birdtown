@@ -29,6 +29,7 @@ export enum Key {
 	LEFT,
 	RIGHT,
 	JUMP,
+	INTERACT,
 }
 
 class UI {
