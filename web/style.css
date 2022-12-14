@@ -228,11 +228,11 @@ body {
     font-size: 2em;
 }
 
-#fieldset-options label {
+#fieldset-settings label {
     padding-left: 0.15em;
 }
 
-.option {
+.setting {
     padding: 0.2em;
 }
 

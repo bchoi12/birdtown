@@ -43,7 +43,6 @@ class Game {
 	private _camera : Camera;
 	private _connection : Connection;
 
-	private _hostSeqNum : number;
 	private _seqNum : number;
 
 	constructor() {
@@ -103,8 +102,7 @@ class Game {
 				seqNum: msg.S,
 			});
 
-			if (!options.host && msg.S > this._hostSeqNum) {
-				this._hostSeqNum = msg.S;
+			if (!options.host && msg.S > this._seqNum) {
 				this._seqNum = msg.S;
 			}
 		});
@@ -123,7 +121,6 @@ class Game {
 		    });
 	    }
 
-	    this._hostSeqNum = 1;
 	    this._seqNum = 1;
 	    this._engine.runRenderLoop(() => {
 	    	this._entityMap.update();
@@ -138,7 +135,9 @@ class Game {
 	    		}
 	    	}
 
-	    	this._seqNum++;
+	    	if (game.options().host) {
+		    	this._seqNum++;
+	    	}
 	    });
 
 	    this._initialized = true;

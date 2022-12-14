@@ -61,18 +61,23 @@ export class Pinger {
 			this._ping = Math.ceil(this._ping / this._pings.length);
 		});
 
-		setTimeout(() => {
-			const success = client.send(hostName, ChannelType.TCP, {
-				T: MessageType.PING,
-				S: this._lastPingNumber,
-			});
-
-			if (success) {
-				this._pingTimes[this._lastPingNumber % Pinger._maxPings] = Date.now();
-				this._lastPingNumber++;
-			}
-		}, Pinger._pingInterval);
-
+		this.pingLoop(client, hostName, Pinger._pingInterval);
 		this._initialized = true;
+	}
+
+	private pingLoop(connection : Connection, hostName : string, interval : number) : void {
+		const success = connection.send(hostName, ChannelType.TCP, {
+			T: MessageType.PING,
+			S: this._lastPingNumber,
+		});
+
+		if (success) {
+			this._pingTimes[this._lastPingNumber % Pinger._maxPings] = Date.now();
+			this._lastPingNumber++;
+		}
+
+		setTimeout(() => {
+			this.pingLoop(connection, hostName, interval);
+		}, interval);
 	}
 }

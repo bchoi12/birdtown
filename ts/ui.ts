@@ -3,6 +3,7 @@ import { Handler } from 'ui/handler'
 import { Input } from 'ui/handler/input'
 import { Login } from 'ui/handler/login'
 import { Pause } from 'ui/handler/pause'
+import { Settings } from 'ui/handler/settings'
 import { Stats } from 'ui/handler/stats'
 
 export enum Mode {
@@ -21,6 +22,7 @@ export enum HandlerType {
 	INPUT,
 	LOGIN,
 	PAUSE,
+	SETTINGS,
 	STATS,
 }
 
@@ -40,6 +42,7 @@ class UI {
 	private _input : Input;
 	private _login : Login;
 	private _pause : Pause;
+	private _settings : Settings;
 	private _stats : Stats;
 
 	constructor() {
@@ -55,6 +58,9 @@ class UI {
 
 		this._pause = new Pause();
 		this._handlers.set(this._pause.type(), this._pause);
+
+		this._settings = new Settings();
+		this._handlers.set(this._settings.type(), this._settings);
 
 		this._stats = new Stats();
 		this._handlers.set(this._stats.type(), this._stats);

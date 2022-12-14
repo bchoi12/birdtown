@@ -13,6 +13,8 @@ class Options {
 	public pauseKeyCode : number;
 	public chatKeyCode : number;
 
+	public enableFullscreen : boolean;
+
 	public debugDelay : number;
 
 	constructor() {
@@ -26,6 +28,8 @@ class Options {
 		this.pauseKeyCode = 27;
 		this.chatKeyCode = 13;
 		this.scoreboardKeyCode = 9;
+
+		this.enableFullscreen = false;
 
 		// Debug properties
 		this.debugDelay = 30;

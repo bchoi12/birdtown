@@ -32,7 +32,7 @@ export namespace Html {
 	export const pauseContinue = "pause-continue";
 	export const fieldsetClients = "fieldset-clients";
 
-	export const fieldsetOptions = "fieldset-options";
+	export const fieldsetSettings = "fieldset-settings";
 
 	export const fieldsetKeyBindings = "fieldset-key-bindings";
 	export const classKeyBinding = "key-binding";
