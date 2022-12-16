@@ -37,6 +37,24 @@ export class Settings extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(fullscreen.elm());
 
+		let prediction = new SettingWrapper({
+			id: "input-prediction",
+			type: "range",
+			label: "Client-side prediction",
+
+			min: 0,
+			max: 1,
+			step: .01,
+
+			getOption: () => {
+				return options.predictionWeight;
+			},
+			setOption: (value : number) => {
+				options.predictionWeight = value;
+			},
+		});
+		this._settingsElm.appendChild(prediction.elm());
+
 		if (isLocalhost()) {
 			let debugDelay = new SettingWrapper({
 				id: "input-debug-delay",

@@ -15,6 +15,8 @@ class Options {
 
 	public enableFullscreen : boolean;
 
+	public predictionWeight : number;
+
 	public debugDelay : number;
 
 	constructor() {
@@ -30,6 +32,8 @@ class Options {
 		this.scoreboardKeyCode = 9;
 
 		this.enableFullscreen = false;
+
+		this.predictionWeight = 0.5;
 
 		// Debug properties
 		this.debugDelay = 30;

@@ -9,52 +9,37 @@ import { defined } from 'util/common'
 
 enum Prop {
 	UNKNOWN,
-	KEYS,
+	CURRENT,
+	PRESSED,
+	RELEASED,
 }
 
 export class Keys extends ComponentBase implements Component {
 
-	private _keys : Set<Key>;
-	private _lastKeys : Set<Key>;
-	private _seqNum : number;
+	private _current : Set<Key>;
+	private _pressed : Set<Key>;
+	private _released : Set<Key>;
 
 	constructor() {
 		super(ComponentType.KEYS);
+
+		this._current = new Set<Key>();
+		this._pressed = new Set<Key>();
+		this._released = new Set<Key>();
 	}
 
 	override ready() : boolean { return this.entity().hasClientId(); }
-	override initialize() : void {
-		super.initialize();
 
-		this._keys = new Set<Key>();
-		this._lastKeys = new Set<Key>();
-		this._seqNum = 0;
-	}
-
-	keyDown(key : Key) : boolean { return this._keys.has(key); }
-	keyPressed(key : Key) : boolean { return this._keys.has(key) && !this._lastKeys.has(key); }
-	keyReleased(key : Key) : boolean { return this._lastKeys.has(key) && !this._keys.has(key); }
-
-	changed() : boolean {
-		if (this._lastKeys.size !== this._keys.size) {
-			return true;
-		}
-
-		for(let key of this._keys) {
-			if (!this._lastKeys.has(key)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
+	keyDown(key : Key) : boolean { return this._current.has(key); }
+	keyPressed(key : Key) : boolean { return this._pressed.has(key); }
+	keyReleased(key : Key) : boolean { return this._released.has(key); }
 
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
 		// Only update from UI if IDs match
 		if (this.updateKeysLocally()) {
-			this.updateKeys(new Set<Key>(ui.keys()));
+			this.updateKeys(ui.keys());
 		}
 	}
 
@@ -64,7 +49,9 @@ export class Keys extends ComponentBase implements Component {
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
 
-		this.setProp(Prop.KEYS, Data.toObject(this._keys), seqNum);
+		this.setProp(Prop.CURRENT, Data.toObject(this._current), seqNum);
+		this.setProp(Prop.PRESSED, Data.toObject(this._pressed), seqNum);
+		this.setProp(Prop.RELEASED, Data.toObject(this._released), seqNum);
 	}
 
 	override mergeData(data : DataMap, seqNum : number) : void {
@@ -74,9 +61,19 @@ export class Keys extends ComponentBase implements Component {
 			return;
 		}
 
-		this._data.merge(data, seqNum);
-		if (this._data.has(Prop.KEYS)) {
-			this.updateKeys(new Set(<Array<Key>>this._data.get(Prop.KEYS)), seqNum);
+		const changed = this._data.merge(data, seqNum);
+		if (changed.size === 0) {
+			return;
+		}
+
+		if (changed.has(Prop.CURRENT)) {
+			this._current = new Set(<Set<Key>>this._data.get(Prop.CURRENT));
+		}
+		if (changed.has(Prop.PRESSED)) {
+			this._pressed = new Set(<Set<Key>>this._data.get(Prop.PRESSED));
+		}
+		if (changed.has(Prop.RELEASED)) {
+			this._released = new Set(<Set<Key>>this._data.get(Prop.RELEASED));
 		}
 	}
 
@@ -84,15 +81,22 @@ export class Keys extends ComponentBase implements Component {
 		return !this.entity().hasClientId() || this.entity().clientId() === game.id();
 	}
 
-	private updateKeys(keys : Set<number>, seqNum? : number) {
-		if (!defined(seqNum)) {
-			this._lastKeys = new Set(this._keys);
-		} else {
-			if (seqNum > this._seqNum) {
-				this._seqNum = seqNum;
-				this._lastKeys = new Set(this._keys);
+	private updateKeys(keys : Set<Key>) : void {
+		this._pressed.clear();
+		this._released.clear();
+
+		for (let key of keys) {
+			if (!this._current.has(key)) {
+				this._pressed.add(key);
 			}
 		}
-		this._keys = keys;
+
+		for (let key of this._current) {
+			if (!keys.has(key)) {
+				this._released.add(key);
+			}
+		}
+
+		this._current = new Set(keys);
 	}
 }

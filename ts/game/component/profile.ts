@@ -6,6 +6,8 @@ import { Component, ComponentBase, ComponentType } from 'game/component'
 import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity } from 'game/entity'
 
+import { options } from 'options'
+
 import { defined } from 'util/common'
 
 export enum CollisionGroup {
@@ -212,11 +214,11 @@ export class Profile extends ComponentBase implements Component {
 			this.setAngle(this._body.angle);
 		}
 		if (!Data.equals(this._vel, this._body.velocity)) {
-			let vel = this.interpolateVec(this._vel, this._body.velocity, /*limit=*/0.5, /*weight=*/0.1);
-			this.setVel(vel);
+			this.setVel(this._body.velocity);
 		}
-		let pos = this.interpolateVec(this._pos, this._body.position, /*limit=*/0.5, /*weight=*/0.1);
-		this.setPos(pos);
+
+		this._pos.x = this.lerp(this._pos.x, this._body.position.x, options.predictionWeight);
+		this._pos.y = this.lerp(this._pos.y, this._body.position.y, /*weight=*/0);
 	}
 
 	override updateData(seqNum : number) : void {
@@ -279,11 +281,8 @@ export class Profile extends ComponentBase implements Component {
 		return this.pos().y - other.pos().y - (this.dim().y / 2 + other.dim().y / 2) >= -(0.1 * this.dim().y);
 	}
 
-	interpolateVec(current : Vec2, next : Vec2, limit : number, weight : number) : Vec2 {
-		if (!defined(current)) {
-			return next;
-		}
-		if (this.isSource() || this.distanceSquared(current, next) >= limit * limit) {
+	interpolateVec(current : Vec2, next : Vec2, weight : number) : Vec2 {
+		if (!defined(current) || this.isSource()) {
 			return next;
 		}
 
@@ -305,7 +304,6 @@ export class Profile extends ComponentBase implements Component {
 		} else if (!defined(current)) {
 			return next;
 		}
-
 		return current + weight * (next - current);
 	}
 }
