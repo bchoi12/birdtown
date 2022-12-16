@@ -299,10 +299,10 @@ export class Profile extends ComponentBase implements Component {
 	private lerp(current : number, next : number, weight : number) {
 		if (!defined(current) && !defined(next)) {
 			return 0;
+		} else if (!defined(current) || this.isSource()) {
+			return next;
 		} else if (!defined(next)) {
 			return current;
-		} else if (!defined(current)) {
-			return next;
 		}
 		return current + weight * (next - current);
 	}

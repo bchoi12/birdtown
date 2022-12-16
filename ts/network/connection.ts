@@ -57,8 +57,19 @@ export abstract class Connection {
 	peers() : Map<string, ChannelMap> { return this._peers; }
 	ping() : number { return this._pinger.ping(); }
 
+	names() : Set<string> { return this._nameAndId.keys(); }
+	ids() : Set<number> { return this._nameAndId.values(); }
 	setId(name : string, id : number) {
 		this._nameAndId.set(name, id);
+	}
+
+	update(seqNum : number) : void {
+		this.names().forEach((name : string) => {
+			if (this._pinger.timeSincePing(name) >= 10000) {
+				console.error("Connection to " + name + " timed out");
+				this.close(name);
+			}
+		});
 	}
 
 	register(connection : DataConnection) {
@@ -168,7 +179,13 @@ export abstract class Connection {
 			channels.send(type, encode(msg));
 		}
 		return true;
-	} 
+	}
+
+	close(peer : string) : void {
+		this._peers.get(peer).disconnect();
+		this._peers.delete(peer);
+		this._nameAndId.delete(peer);
+	}
 
 	private async handleData(peer : string, data : Object) {
 		let bytes;

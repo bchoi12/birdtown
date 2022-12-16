@@ -58,4 +58,11 @@ export class ChannelMap {
 		this._stats.get(type).add(ChannelStat.BYTES, data.length);
 		this._channels.get(type).send(data);
 	}
+
+	disconnect() : void {
+		this._channels.forEach((connection, type) => {
+			connection.close();
+			this.delete(type);
+		});
+	}
 }

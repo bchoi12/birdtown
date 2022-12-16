@@ -127,6 +127,7 @@ class Game {
 	    	this._camera.update();
 	    	this._entityMap.render(this._scene);
 	    	this._entityMap.updateData(this._seqNum);
+	    	this._connection.update(this._seqNum);
 
 	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {
     			const [message, has] = this.entityMessage(filter, this._seqNum);

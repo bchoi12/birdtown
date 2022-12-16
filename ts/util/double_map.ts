@@ -10,8 +10,26 @@ export class DoubleMap<K, V> {
 	}
 
 	set(key : K, value : V) {
+		if (this._map.has(key)) {
+			this._reverse.delete(this._map.get(key));
+			this._map.delete(key);
+		}
+		if (this._reverse.has(value)) {
+			this._map.delete(this._reverse.get(value));
+			this._reverse.delete(value);
+		}
+
 		this._map.set(key, value);
 		this._reverse.set(value, key);
+	}
+
+	delete(key : K) {
+		this._reverse.delete(this._map.get(key));
+		this._map.delete(key);
+	}
+	deleteReverse(value : V) {
+		this._map.delete(this._reverse.get(value));
+		this._reverse.delete(value);
 	}
 
 	has(key : K) : boolean { return this._map.has(key); }
@@ -19,4 +37,7 @@ export class DoubleMap<K, V> {
 
 	get(key : K) : V { return this._map.get(key); }
 	getReverse(key : V) : K { return this._reverse.get(key); }
+
+	keys() : Set<K> { return new Set(this._map.keys()); }
+	values() : Set<V> { return new Set(this._map.values()); }
 }

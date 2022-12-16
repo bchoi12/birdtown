@@ -83,7 +83,7 @@ export class Settings extends HandlerBase implements Handler{
 			if (options.enableFullscreen) {
 				let elm = document.documentElement;
 				elm.requestFullscreen();
-			} else {
+			} else if (window.innerHeight === screen.height) {
 				document.exitFullscreen();
 			}
 		}		
