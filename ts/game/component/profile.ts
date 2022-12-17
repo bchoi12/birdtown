@@ -19,8 +19,8 @@ export enum CollisionCategory {
 }
 
 type ProfileOptions = {
-	readyFn? : (entity : Entity) => boolean;
-	bodyFn : (entity : Entity) => MATTER.Body;
+	readyFn? : () => boolean;
+	bodyFn : (pos : Vec2, dim : Vec2) => MATTER.Body;
 }
 
 enum Prop {
@@ -38,8 +38,8 @@ export class Profile extends ComponentBase implements Component {
 
 	public static readonly gravity = -0.85;
 
-	private _readyFn : (entity : Entity) => boolean;
-	private _bodyFn : (entity : Entity) => MATTER.Body;
+	private _readyFn : () => boolean;
+	private _bodyFn : (pos : Vec2, dim : Vec2) => MATTER.Body;
 
 	private _pos : MATTER.Vector;
 	private _vel : MATTER.Vector;
@@ -63,13 +63,13 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	override ready() : boolean {
-		return this.hasPos() && this.hasDim() && this.hasEntity() && this._readyFn(this.entity());
+		return this.hasPos() && this.hasDim() && this.hasEntity() && this._readyFn();
 	}
 
 	override initialize() : void {
 		super.initialize();
 
-		this._body = this._bodyFn(this.entity());
+		this._body = this._bodyFn(this.pos(), this.dim());
 		MATTER.Composite.add(game.physics().world, this._body)
 		this._body.label = "" + this.entity().id();
 

@@ -275,3 +275,9 @@ body {
     width: 0px;
     background: transparent; /* make scrollbar transparent */
 }
+
+#scene-explorer-host {
+    z-index: 10;
+    position: absolute! important;
+    left: 0;
+}

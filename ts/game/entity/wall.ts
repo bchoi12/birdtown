@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { Vec2 } from 'game/common'
 import { ComponentType } from 'game/component'
 import { Attribute } from 'game/component/attributes'
 import { Mesh } from 'game/component/mesh'
@@ -18,9 +19,7 @@ export class Wall extends Entity {
 		this.attributes().set(Attribute.SOLID, true);
 
 		let profile = <Profile>this.add(new Profile({
-			bodyFn: (entity : Entity) => {
-				const pos = entity.profile().pos();
-				const dim = entity.profile().dim();
+			bodyFn: (pos : Vec2, dim : Vec2) => {
 				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
 					isStatic: true,
 				});
@@ -34,12 +33,12 @@ export class Wall extends Entity {
 		}
 
 		this.add(new Mesh({
-			readyFn: (entity : Entity) => {
-				return entity.profile().ready();
+			readyFn: () => {
+				return this.profile().ready();
 			},
-			meshFn: (entity : Entity, onLoad : (mesh : BABYLON.Mesh) => void) => {
-				const dim = entity.profile().dim();
-				onLoad(BABYLON.MeshBuilder.CreateBox(this.name(), {
+			meshFn: (component : Mesh) => {
+				const dim = this.profile().dim();
+				component.setMesh(BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: dim.x,
 					height: dim.y,
 					depth: 16,

@@ -3,6 +3,8 @@ import "babylonjs-loaders"
 
 import { game } from 'game'
 
+import { defined } from 'util/common'
+
 export enum Model {
 	UNKNOWN = "",
 	CHICKEN = "CHICKEN",
@@ -36,6 +38,12 @@ export enum Texture {
 	SAND = "SAND",
 }
 
+export interface LoadResult {
+	meshes? : BABYLON.AbstractMesh[];
+	skeletons? : BABYLON.Skeleton[];
+	animationGroups? : BABYLON.AnimationGroup[];
+}
+
 class Loader {
 
 	private readonly _modelPrefix = "model/";
@@ -54,14 +62,18 @@ class Loader {
 
 	}
 
-	load(model : Model, cb : (mesh: BABYLON.Mesh) => void) {
+	load(model : Model, cb : (loadResult : LoadResult) => void) {
 		if (!this._modelFiles.has(model)) {
 			console.error("Error: no file associated with " + model);
 			return;
 		}
 
-		BABYLON.SceneLoader.ImportMesh("", this._modelPrefix, this._modelFiles.get(model), game.scene(), (meshes) => {
-			cb(<BABYLON.Mesh>meshes[0]);
+		BABYLON.SceneLoader.ImportMesh("", this._modelPrefix, this._modelFiles.get(model), game.scene(), (meshes, particleSystems, skeletons, animationGroups) => {
+			cb({
+				meshes: meshes,
+				skeletons: skeletons,
+				animationGroups: animationGroups,
+			});
 		});
 	}
 }

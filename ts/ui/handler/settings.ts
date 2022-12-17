@@ -1,4 +1,6 @@
 
+import { game } from 'game'
+
 import { options } from 'options'
 
 import { HandlerType, Mode } from 'ui'
@@ -37,6 +39,22 @@ export class Settings extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(fullscreen.elm());
 
+		if (isLocalhost()) {
+			let inspector = new SettingWrapper({
+				id: "input-inspector",
+				type: "checkbox",
+				label: "Enable inspector",
+
+				getOption: () => {
+					return options.debugInspector;
+				},
+				setOption: (value: boolean) => {
+					options.debugInspector = value;
+				},
+			});
+			this._settingsElm.appendChild(inspector.elm());	
+		}
+
 		let prediction = new SettingWrapper({
 			id: "input-prediction",
 			type: "range",
@@ -72,7 +90,7 @@ export class Settings extends HandlerBase implements Handler{
 					options.debugDelay = value;
 				},
 			});
-			this._settingsElm.appendChild(debugDelay.elm());
+			this._settingsElm.appendChild(debugDelay.elm());		
 		}
 	}
 
@@ -85,6 +103,12 @@ export class Settings extends HandlerBase implements Handler{
 				elm.requestFullscreen();
 			} else if (window.innerHeight === screen.height) {
 				document.exitFullscreen();
+			}
+
+			if (options.debugInspector) {
+				game.scene().debugLayer.show();
+			} else {
+				game.scene().debugLayer.hide();
 			}
 		}		
 	}

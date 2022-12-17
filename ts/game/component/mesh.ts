@@ -4,22 +4,24 @@ import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
 import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity } from 'game/entity'
+import { AnimationHandler } from 'game/util/animation_handler'
 
 import { defined } from 'util/common'
 
-type MeshFn = (entity : Entity, onLoad : (mesh: BABYLON.Mesh) => void) => void;
+type MeshFn = (component : Mesh) => void;
 
 type MeshOptions = {
-	readyFn : (entity : Entity) => boolean;
+	readyFn : () => boolean;
 	meshFn : MeshFn;
 }
 
 export class Mesh extends ComponentBase implements Component {
 
-	private _readyFn : (entity : Entity) => boolean;
+	private _readyFn : () => boolean;
 	private _meshFn : MeshFn;
 
 	private _mesh : BABYLON.Mesh;
+	private _animationHandler : AnimationHandler
 
 	constructor(options : MeshOptions) {
 		super(ComponentType.MESH);
@@ -29,14 +31,12 @@ export class Mesh extends ComponentBase implements Component {
 	}
 
 	override ready() : boolean {
-		return this._readyFn(this.entity());
+		return this.hasEntity() && this._readyFn();
 	}
 
 	override initialize() : void {
 		super.initialize();
-		this._meshFn(this.entity(), (mesh : BABYLON.Mesh) => {
-			this._mesh = mesh;
-		});
+		this._meshFn(this);
 	}
 
 	override delete() : void {
@@ -46,7 +46,28 @@ export class Mesh extends ComponentBase implements Component {
 	}
 
 	hasMesh() : boolean { return defined(this._mesh); }
+	setMesh(mesh : BABYLON.Mesh) { this._mesh = mesh; }
 	mesh() : BABYLON.Mesh { return this._mesh; }
+
+	registerAnimation(animation : BABYLON.AnimationGroup, group? : number) {
+		if (!defined(this._animationHandler)) {
+			this._animationHandler = new AnimationHandler();
+		}
+
+		this._animationHandler.register(animation, group);
+	}
+
+	playAnimation(name : string, loop? : boolean) : void {
+		if (!defined(this._animationHandler)) {
+			return;
+		}
+
+		this._animationHandler.play(name, loop);
+	}
+
+	stopAllAnimations() : void {
+		this._animationHandler.stopAll();
+	}
 
 	override preRender() : void {
 		super.preRender();
