@@ -1,6 +1,7 @@
-import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
 import { Data, DataFilter, DataMap } from 'game/data'
+
+import { defined } from 'util/common'
 
 enum Prop {
 	UNKNOWN,
@@ -11,20 +12,49 @@ enum Prop {
 
 export class Metadata extends ComponentBase implements Component {
 
+	private _entityInitialized : boolean;
+	private _entityDeleted : boolean;
+	private _clientId : number;
+
 	constructor() {
 		super(ComponentType.METADATA);
+
+		this._entityInitialized = false;
+		this._entityDeleted = false;
 	}
 
+	entityInitialized() : boolean { return this._entityInitialized; }
+	entityDeleted() : boolean { return this._entityDeleted; }
+	clientId() : number { return this._clientId; }
+
+	hasClientId() : boolean { return defined(this._clientId); }
+
+	setEntityInitialized(initialized : boolean) : void { this._entityInitialized = initialized; }
+	setEntityDeleted(deleted : boolean) : void { this._entityDeleted = deleted; }
+	setClientId(id : number) : void { this._clientId = id; }
+
 	override ready() { return true; }
+
+	override initialize() {
+		super.initialize();
+
+		this._entityInitialized = true;
+	}
+
+	override delete() : void {
+		super.delete();
+
+		this._entityDeleted = true;
+	}
 
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
 
-		if (this.entity().hasClientId()) {
-			this.setProp(Prop.CLIENT_ID, this.entity().clientId(), seqNum);
+		if (this.hasClientId()) {
+			this.setProp(Prop.CLIENT_ID, this._clientId, seqNum);
 		}
 
-		if (this.entity().deleted()) {
+		if (this._entityDeleted) {
 			this.setProp(Prop.DELETED, true, seqNum);
 		}
 	}
@@ -39,7 +69,7 @@ export class Metadata extends ComponentBase implements Component {
 		}
 
 		if (changed.has(Prop.CLIENT_ID)) {
-			this.entity().setClientId(<number>this._data.get(Prop.CLIENT_ID));
+			this._clientId = <number>this._data.get(Prop.CLIENT_ID);
 		}
 
 		if (changed.has(Prop.DELETED)) {

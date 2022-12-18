@@ -1,7 +1,6 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { Vec2 } from 'game/common'
 import { Component, ComponentBase, ComponentType } from 'game/component'
 import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity } from 'game/entity'
@@ -9,6 +8,7 @@ import { Entity } from 'game/entity'
 import { options } from 'options'
 
 import { defined } from 'util/common'
+import { Vec2 } from 'util/vec2'
 
 export enum CollisionGroup {
 

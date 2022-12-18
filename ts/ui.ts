@@ -6,6 +6,8 @@ import { Pause } from 'ui/handler/pause'
 import { Settings } from 'ui/handler/settings'
 import { Stats } from 'ui/handler/stats'
 
+import { Vec2 } from 'util/vec2'
+
 export enum Mode {
 	UNKNOWN,
 	DEFAULT,
@@ -32,6 +34,15 @@ export enum Key {
 	RIGHT,
 	JUMP,
 	INTERACT,
+
+	MOUSE_CLICK,
+	ALT_MOUSE_CLICK,
+}
+
+export enum MouseCoordinates {
+	UNKNOWN,
+	PIXEL,
+	SCREEN,
 }
 
 class UI {
@@ -75,6 +86,23 @@ class UI {
 	get(type : HandlerType) : Handler { return this._handlers.get(type); }
 	mode() : Mode { return this._mode; }
 	keys() : Set<Key> { return this._input.keys(); }
+	mouse() : Vec2 {
+		return this._input.mouse();
+
+		/*
+		const mousePixel = this._input.mouse();
+		if (coords === MouseCoordinates.PIXEL) {
+			return { x: mousePixel.x, y: mousePixel.y };
+		} else if (coords === MouseCoordinates.SCREEN) {
+			let mouseScreen = { x: mousePixel.x, y: mousePixel.y };
+			mouseScreen.x -= window.innerWidth / 2;
+			mouseScreen.y -= window.innerHeight / 2;
+			mouseScreen.x /= window.innerWidth / 2;
+			mouseScreen.y /= -window.innerHeight / 2;
+			return mouseScreen;
+		}
+		*/
+	}
 
 	setMode(mode : Mode) {
 		this._mode = mode;

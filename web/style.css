@@ -55,17 +55,12 @@ body {
     margin-bottom: 12px;
 }
 
-#canvas-game {
-    image-rendering: optimizeSpeed;
-    image-rendering: smooth;
-}
-
 #div-overlays {
     position: absolute;
     width: 100%;
     height: 100%;
-  top: 0;
-  left: 0;
+    top: 0;
+    left: 0;
 }
 
 #div-stats {
@@ -276,8 +271,6 @@ body {
     background: transparent; /* make scrollbar transparent */
 }
 
-#scene-explorer-host {
+#scene-explorer-host, #inspector-host {
     z-index: 10;
-    position: absolute! important;
-    left: 0;
 }

@@ -22,6 +22,7 @@ export class Mesh extends ComponentBase implements Component {
 
 	private _mesh : BABYLON.Mesh;
 	private _animationHandler : AnimationHandler
+	private _bones : Map<string, BABYLON.Bone>;
 
 	constructor(options : MeshOptions) {
 		super(ComponentType.MESH);
@@ -67,6 +68,21 @@ export class Mesh extends ComponentBase implements Component {
 
 	stopAllAnimations() : void {
 		this._animationHandler.stopAll();
+	}
+
+	registerBone(bone : BABYLON.Bone) {
+		if (!defined(this._bones)) {
+			this._bones = new Map();
+		}
+
+		this._bones.set(bone.name, bone);
+	}
+
+	getBone(name : string) : BABYLON.Bone {
+		if (!defined(this._bones)) {
+			return null;
+		}
+		return this._bones.get(name);
 	}
 
 	override preRender() : void {

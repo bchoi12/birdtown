@@ -39,6 +39,20 @@ export class Settings extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(fullscreen.elm());
 
+		let pointerLock = new SettingWrapper({
+			id: "input-pointer-lock",
+			type: "checkbox",
+			label: "Enable in-game cursor",
+
+			getOption: () => {
+				return options.enablePointerLock;
+			},
+			setOption: (value: boolean) => {
+				options.enablePointerLock = value;
+			},
+		});
+		this._settingsElm.appendChild(pointerLock.elm());
+
 		if (isLocalhost()) {
 			let inspector = new SettingWrapper({
 				id: "input-inspector",
@@ -99,8 +113,7 @@ export class Settings extends HandlerBase implements Handler{
 	setMode(mode : Mode) : void {
 		if (mode !== Mode.PAUSE) {
 			if (options.enableFullscreen) {
-				let elm = document.documentElement;
-				elm.requestFullscreen();
+				document.documentElement.requestFullscreen();
 			} else if (window.innerHeight === screen.height) {
 				document.exitFullscreen();
 			}

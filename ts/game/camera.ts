@@ -1,6 +1,5 @@
 import * as BABYLON from "babylonjs";
 
-import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Entity } from 'game/entity'
 
@@ -24,8 +23,8 @@ export class Camera {
 	private _anchor : BABYLON.Vector3;
 	private _target : BABYLON.Vector3;
 
-	constructor() {
-		this._camera = new BABYLON.UniversalCamera("camera", Camera._offset, game.scene());
+	constructor(canvas : HTMLCanvasElement, scene : BABYLON.Scene) {
+		this._camera = new BABYLON.UniversalCamera("camera", Camera._offset, scene);
 		this._camera.fov = Camera._horizontalFov;
     	this._camera.fovMode = BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED;
 
@@ -34,6 +33,8 @@ export class Camera {
     	this._target = BABYLON.Vector3.Zero();
 	}
 
+	getProjectionMatrix() : BABYLON.Matrix { return this._camera.getProjectionMatrix(); }
+	getViewMatrix() : BABYLON.Matrix { return this._camera.getViewMatrix(); }
 	anchor() : BABYLON.Vector3 { return this._anchor; }
 	target() : BABYLON.Vector3 { return this._target; }
 

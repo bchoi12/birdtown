@@ -2,13 +2,12 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { Vec2 } from 'game/common'
 import { ComponentType } from 'game/component'
 import { Attribute, Attributes } from 'game/component/attributes'
 import { Keys } from 'game/component/keys'
 import { Mesh } from 'game/component/mesh'
 import { Profile } from 'game/component/profile'
-import { Data } from 'game/data'
+import { Data, DataMap } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { loader, LoadResult, Model } from 'game/loader'
 
@@ -16,12 +15,25 @@ import { Key } from 'ui'
 
 import { ChangeTracker } from 'util/change_tracker'
 import { defined } from 'util/common'
+import { Funcs } from 'util/funcs'
 import { Timer } from 'util/timer'
+import { Vec2, Vec2Math } from 'util/vec2'
 
 enum Animation {
 	IDLE = "Idle",
 	WALK = "Walk",
 	JUMP = "Jump",
+}
+
+enum Bone {
+	ARM = "arm.R",
+	NECK = "neck",
+}
+
+enum CustomProp {
+	UNKNOWN,
+	FACING_SIGN,
+	NECK_DIR,
 }
 
 export class Player extends Entity {
@@ -43,11 +55,17 @@ export class Player extends Entity {
 	private readonly _moveAnimations = new Set<string>([
 		Animation.IDLE, Animation.WALK, Animation.JUMP
 	]);
+	private readonly _controllableBones = new Set<string>([
+		Bone.ARM, Bone.NECK
+	]);
 
 	private _keys : Keys;
 	private _mesh : Mesh;
 	private _playerMesh : BABYLON.Mesh;
 	private _profile : Profile;
+
+	private _facingSign : number;
+	private _neckDir : number;
 
 	private _jumpTimer : Timer;
 	private _deadTracker : ChangeTracker<boolean>;
@@ -81,7 +99,6 @@ export class Player extends Entity {
 			meshFn: (component : Mesh) => {
 				loader.load(Model.CHICKEN, (result : LoadResult) => {
 					const mesh = <BABYLON.Mesh>result.meshes[0];
-					component.setMesh(mesh);
 
 					const dim = this.profile().dim();
 					this._playerMesh = mesh.getChildMeshes<BABYLON.Mesh>(/*direct=*/true)[0];
@@ -95,10 +112,19 @@ export class Player extends Entity {
 					})
 					component.stopAllAnimations();
 
+					result.skeletons[0].bones.forEach((bone : BABYLON.Bone) => {
+						if (this._controllableBones.has(bone.name)) {
+							component.registerBone(bone);
+						}
+					});
+
+					// TODO: this doesn't seem to work
 					let animationProperties = new BABYLON.AnimationPropertiesOverride();
 					animationProperties.enableBlending = true;
-					animationProperties.blendingSpeed = 0.1;
+					animationProperties.blendingSpeed = 0.2;
 					result.skeletons[0].animationPropertiesOverride = animationProperties;
+
+					component.setMesh(mesh);
 				});
 			},
 		}));
@@ -125,13 +151,13 @@ export class Player extends Entity {
 	}
 
 	override ready() : boolean {
-		return super.ready() && this.hasClientId();
+		return super.ready() && this.metadata().hasClientId();
 	}
 
 	override initialize() : void {
 		super.initialize();
 
-		if (this.clientId() === game.id()) {
+		if (this.metadata().clientId() === game.id()) {
 			game.camera().setEntity(this);
 		}
 	}
@@ -168,6 +194,27 @@ export class Player extends Entity {
 			} else {
 				this._profile.setAcc({ x: 0 });
 			}
+
+			// Set direction of player
+			const pos = new BABYLON.Vector3(this._profile.pos().x, this._profile.pos().y, 0);
+			const mouse = this._keys.mouseWorld();
+			const dir = mouse.subtract(pos).normalize();
+			this._facingSign = dir.x >= 0 ? 1 : -1;
+
+			let rotation = Vec2Math.angleRad({x: dir.x, y: dir.y });
+			if (dir.x >= 0) {
+				if (dir.y < 0 && rotation < 7 / 4 * Math.PI) {
+					rotation = 7 / 4 * Math.PI;
+				} else if (dir.y > 0 && rotation > Math.PI / 4) {
+					rotation = Math.PI / 4;
+				}
+
+				rotation *= -1;
+			} else {
+				rotation = Funcs.clamp(3 / 4 * Math.PI, rotation, 5 / 4 * Math.PI);
+				rotation += Math.PI;
+			}
+			this._neckDir = rotation;
 
 			// Turn acceleration
 			const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
@@ -227,6 +274,10 @@ export class Player extends Entity {
 	override preRender() : void {
 		super.preRender();
 
+		if (!this._mesh.hasMesh()) {
+			return;
+		}
+
 		if (!this.attributes().get(Attribute.GROUNDED) || this.attributes().get(Attribute.DEAD)) {
 			this._mesh.playAnimation(Animation.JUMP);
 		} else {
@@ -235,6 +286,28 @@ export class Player extends Entity {
 			} else {
 				this._mesh.playAnimation(Animation.WALK);
 			}
+		}
+
+		this._playerMesh.scaling.z = this._facingSign;
+		let neck = this._mesh.getBone(Bone.NECK);
+		neck.getTransformNode().rotation = new BABYLON.Vector3(this._neckDir, 0, 0);
+	}
+
+	override updateData(seqNum : number) : void {
+		super.updateData(seqNum);
+
+		this.custom().set(CustomProp.FACING_SIGN, this._facingSign);
+		this.custom().set(CustomProp.NECK_DIR, this._neckDir);
+	}
+
+	override mergeData(dataMap : DataMap, seqNum : number) : void {
+		super.mergeData(dataMap, seqNum);
+
+		if (this.custom().has(CustomProp.FACING_SIGN)) {
+			this._facingSign = <number>this.custom().get(CustomProp.FACING_SIGN);
+		}
+		if (this.custom().has(CustomProp.NECK_DIR)) {
+			this._neckDir = <number>this.custom().get(CustomProp.NECK_DIR);
 		}
 	}
 }

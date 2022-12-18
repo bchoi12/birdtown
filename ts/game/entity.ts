@@ -1,12 +1,15 @@
-import { Vec2 } from 'game/common'
+
+import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
 import { Attributes } from 'game/component/attributes'
+import { Custom } from 'game/component/custom'
 import { Metadata } from 'game/component/metadata'
 import { Profile } from 'game/component/profile'
 import { Data, DataFilter, DataMap } from 'game/data'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
+import { Vec2 } from 'util/vec2'
 
 export enum EntityType {
 	UNKNOWN,
@@ -28,27 +31,21 @@ export abstract class Entity {
 	protected _type : EntityType;
 	protected _id : number;
 
-	// TODO: move to metadata?
-	protected _clientId : number;
-	protected _initialized : boolean;
-	protected _deleted : boolean;
-
 	protected _components : Map<ComponentType, Component>;
 	protected _timers : Array<Timer>;
 
 	constructor(type : EntityType, options : EntityOptions) {
 		this._type = type;
 		this._id = options.id;
-		if (defined(options.clientId)) {
-			this._clientId = options.clientId;
-		}
-
-		this._initialized = false;
-		this._deleted = false;
 
 		this._components = new Map();
 		this.add(new Attributes());
+		this.add(new Custom());
 		this.add(new Metadata());
+
+		if (defined(options.clientId)) {
+			this.metadata().setClientId(options.clientId);
+		}
 
 		this._timers = new Array();
 	}
@@ -61,35 +58,30 @@ export abstract class Entity {
 		}
 		return true;
 	}
-	initialized() : boolean { return this._initialized; }
-	deleted() : boolean { return this._deleted; }
+	initialized() : boolean { return this.metadata().entityInitialized(); }
+	deleted() : boolean { return this.metadata().entityDeleted(); }
 
 	initialize() : void {
 		this._components.forEach((component) => {
 			component.initialize();
 		});
-		this._initialized = true;
 	}
 	delete() : void {
-		if (this._deleted) return;
+		if (this.deleted()) return;
 
 		this._components.forEach((component) => {
 			component.delete();
 		});
-		this._deleted = true;
 	}
 
 	type() : EntityType { return this._type; }
 	id() : number { return this._id; }
 	name() : string { return this._type + "," + this._id; }
-
-	hasClientId() : boolean { return defined(this._clientId); }
-	clientId() : number { return this.hasClientId() ? this._clientId : -1; }
-	setClientId(id : number) : void { this._clientId = id; }
+	clientIdMatches() : boolean { return this.metadata().hasClientId() && this.metadata().clientId() === game.id() }
 
 	add(component : Component) : Component {
 		if (this._components.has(component.type())) {
-			console.error("Warning: overwriting component " + component.type() + " for object " + this.name());
+			console.log("Warning: overwriting component " + component.type() + " for object " + this.name());
 		}
 
 		component.setEntity(this);
@@ -100,6 +92,8 @@ export abstract class Entity {
 	has (type : ComponentType) : boolean { return this._components.has(type); }
 	get(type : ComponentType) : Component { return this._components.get(type); }
 	attributes() : Attributes { return <Attributes>this._components.get(ComponentType.ATTRIBUTES); }
+	custom() : Custom { return <Custom>this._components.get(ComponentType.CUSTOM); }
+	metadata() : Metadata { return <Metadata>this._components.get(ComponentType.METADATA); }
 	profile() : Profile { return <Profile>this._components.get(ComponentType.PROFILE); }
 
 	newTimer() : Timer {

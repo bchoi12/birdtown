@@ -11,6 +11,7 @@ import { Connection, ChannelType } from 'network/connection'
 import { Host } from 'network/host'
 import { Message, MessageType } from 'network/message'
 
+import { ui } from 'ui'
 import { Html } from 'ui/html'
 import { defined, isLocalhost } from 'util/common'
 import { StatsTracker } from 'util/stats_tracker'
@@ -66,7 +67,8 @@ class Game {
 		this._scene.useRightHandedSystem = true;
 
 		this._entityMap = new EntityMap();
-		this._camera = new Camera();
+		this._camera = new Camera(this._canvas, this._scene);
+
 		if (options.host) {
 			this._id = 1;
 			this._lastId = 1;
@@ -157,6 +159,21 @@ class Game {
 	camera() : Camera { return this._camera; }
 	entities() : EntityMap { return this._entityMap; }
 	connection() : Connection { return this._connection; }
+
+	mouse() : BABYLON.Vector3 {
+		if (!this.initialized() || !defined(this.scene().getViewMatrix())) {
+			return new BABYLON.Vector3();
+		}
+
+		const mouse = ui.mouse();
+		return BABYLON.Vector3.Unproject(
+			new BABYLON.Vector3(mouse.x, mouse.y, 0.99),
+			window.innerWidth,
+			window.innerHeight,
+			BABYLON.Matrix.Identity(),
+			this.camera().getViewMatrix(),
+			this.camera().getProjectionMatrix());
+	}
 
 	private entityMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
 		const data = this._entityMap.filteredData(filter);

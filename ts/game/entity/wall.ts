@@ -2,7 +2,6 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { Vec2 } from 'game/common'
 import { ComponentType } from 'game/component'
 import { Attribute } from 'game/component/attributes'
 import { Mesh } from 'game/component/mesh'
@@ -10,6 +9,7 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 
 import { defined } from 'util/common'
+import { Vec2 } from 'util/vec2'
 
 export class Wall extends Entity {
 

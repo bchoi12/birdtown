@@ -14,6 +14,7 @@ class Options {
 	public chatKeyCode : number;
 
 	public enableFullscreen : boolean;
+	public enablePointerLock : boolean;
 
 	public predictionWeight : number;
 
@@ -33,6 +34,7 @@ class Options {
 		this.scoreboardKeyCode = 9;
 
 		this.enableFullscreen = false;
+		this.enablePointerLock = false;
 
 		this.predictionWeight = 0.5;
 
