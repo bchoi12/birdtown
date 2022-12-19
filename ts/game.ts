@@ -11,6 +11,8 @@ import { Connection, ChannelType } from 'network/connection'
 import { Host } from 'network/host'
 import { Message, MessageType } from 'network/message'
 
+import { options } from 'options'
+
 import { ui } from 'ui'
 import { Html } from 'ui/html'
 import { defined, isLocalhost } from 'util/common'
@@ -32,6 +34,7 @@ class Game {
 
 	private _initialized : boolean;
 	private _canvas : HTMLCanvasElement;
+	private _seqNum : number;
 
 	private _options : GameOptions;
 	private _id : number;
@@ -44,15 +47,14 @@ class Game {
 	private _camera : Camera;
 	private _connection : Connection;
 
-	private _seqNum : number;
-
 	constructor() {
 		this._initialized = false;
 		this._canvas = Html.canvasElm(Html.canvasGame);
+		this._seqNum = 1;
 	}
 
-	initialize(options : GameOptions) {
-		this._options = options;
+	initialize(gameOptions : GameOptions) {
+		this._options = gameOptions;
 
 		// this._engine = new BABYLON.NullEngine();
 		// TODO: fast anti-alias
@@ -69,16 +71,16 @@ class Game {
 		this._entityMap = new EntityMap();
 		this._camera = new Camera(this._canvas, this._scene);
 
-		if (options.host) {
+		if (this._options.host) {
 			this._id = 1;
 			this._lastId = 1;
 
-			this._connection = new Host(options.name);
+			this._connection = new Host(this._options.name);
 			this._connection.addRegisterCallback((name : string) => {
 				this.registerClient(name);
 			});
 		} else {
-			this._connection = new Client(options.name, options.hostName);
+			this._connection = new Client(this._options.name, this._options.hostName);
 			this._connection.addMessageCallback(MessageType.NEW_CLIENT, (peer : string, msg : Message) => {
 				if (!defined(msg.I) || !defined(msg.N)) {
 					console.error("Invalid message: ", msg);
@@ -104,7 +106,7 @@ class Game {
 				seqNum: msg.S,
 			});
 
-			if (!options.host && msg.S > this._seqNum) {
+			if (!this._options.host && msg.S > this._seqNum) {
 				this._seqNum = msg.S;
 			}
 		});
@@ -112,7 +114,7 @@ class Game {
 
 	    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), this._scene);
 
-	    if (options.host) {
+	    if (this._options.host) {
 	    	this._entityMap.add(EntityType.PLAYER, {
 	    		clientId: this.id(),
 	    		pos: {x: 0, y: 10},
@@ -121,9 +123,16 @@ class Game {
 		    	pos: {x: 0, y: 0},
 		    	dim: {x: 16, y: 1},
 		    });
+		    this._entityMap.add(EntityType.WALL, {
+		    	pos: {x: 3, y: 1},
+		    	dim: {x: 1, y: 1},
+		    });
+		    this._entityMap.add(EntityType.WALL, {
+		    	pos: {x: 6, y: 3},
+		    	dim: {x: 2, y: 1},
+		    });
 	    }
 
-	    this._seqNum = 1;
 	    this._engine.runRenderLoop(() => {
 	    	this._entityMap.update();
 	    	this._camera.update();
@@ -138,7 +147,7 @@ class Game {
 	    		}
 	    	}
 
-	    	if (game.options().host) {
+	    	if (this._options.host) {
 		    	this._seqNum++;
 	    	}
 	    });

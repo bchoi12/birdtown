@@ -18,8 +18,9 @@ class Options {
 
 	public predictionWeight : number;
 
-	public debugDelay : number;
 	public debugInspector : boolean;
+	public debugPhysics : boolean;
+	public debugDelay : number;
 
 	constructor() {
 		this.leftKeyCode = 65;
@@ -39,8 +40,9 @@ class Options {
 		this.predictionWeight = 0.5;
 
 		// Debug properties
-		this.debugDelay = 30;
 		this.debugInspector = false;
+		this.debugPhysics = false;
+		this.debugDelay = 30;
 	}
 }
 

@@ -1,3 +1,4 @@
+import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
@@ -148,7 +149,7 @@ export abstract class Entity {
 		});
 	}
 
-	collide(entity : Entity) : void {}
+	collide(entity : Entity, collision : MATTER.Collision) : void {}
 
 	filteredData(filter : DataFilter) : DataMap {
 		let dataMap : DataMap = {};

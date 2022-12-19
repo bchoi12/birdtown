@@ -138,8 +138,10 @@ export class EntityMap {
 				return;
 			}
 
-			this._initialized.get(idA).collide(this._initialized.get(idB));
-			this._initialized.get(idB).collide(this._initialized.get(idA));		
+			this._initialized.get(idA).collide(this._initialized.get(idB), collision);
+
+			collision.normal = {x: -collision.normal.x, y: -collision.normal.y};
+			this._initialized.get(idB).collide(this._initialized.get(idA), collision);		
 		});
 	}
 

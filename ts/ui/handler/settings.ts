@@ -66,7 +66,7 @@ export class Settings extends HandlerBase implements Handler{
 					options.debugInspector = value;
 				},
 			});
-			this._settingsElm.appendChild(inspector.elm());	
+			this._settingsElm.appendChild(inspector.elm());
 		}
 
 		let prediction = new SettingWrapper({

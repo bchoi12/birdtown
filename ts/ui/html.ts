@@ -3,6 +3,7 @@
 export namespace Html {
 
 	export const canvasGame = "canvas-game";
+
 	export const divLogin = "div-login";
 	export const legendLogin = "legend-login";
 	export const inputName = "input-name";

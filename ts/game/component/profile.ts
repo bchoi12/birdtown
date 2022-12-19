@@ -10,14 +10,6 @@ import { options } from 'options'
 import { defined } from 'util/common'
 import { Vec2 } from 'util/vec2'
 
-export enum CollisionGroup {
-
-}
-
-export enum CollisionCategory {
-	
-}
-
 type ProfileOptions = {
 	readyFn? : () => boolean;
 	bodyFn : (pos : Vec2, dim : Vec2) => MATTER.Body;
@@ -72,6 +64,9 @@ export class Profile extends ComponentBase implements Component {
 		this._body = this._bodyFn(this.pos(), this.dim());
 		MATTER.Composite.add(game.physics().world, this._body)
 		this._body.label = "" + this.entity().id();
+		this._body.parts.forEach((body : MATTER.Body) => {
+			body.label = "" + this.entity().id();
+		})
 
 		this._initialInertia = this._body.inertia;
 	}
@@ -277,6 +272,7 @@ export class Profile extends ComponentBase implements Component {
 		}
 	}
 
+	// currently unused
 	above(other : Profile) : boolean {
 		return this.pos().y - other.pos().y - (this.dim().y / 2 + other.dim().y / 2) >= -(0.1 * this.dim().y);
 	}

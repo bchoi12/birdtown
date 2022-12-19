@@ -63,6 +63,8 @@ export class Player extends Entity {
 	private _mesh : Mesh;
 	private _playerMesh : BABYLON.Mesh;
 	private _profile : Profile;
+	private _mainBody : MATTER.Body;
+	private _headBody : MATTER.Body;
 
 	private _facingSign : number;
 	private _neckDir : number;
@@ -81,9 +83,16 @@ export class Player extends Entity {
 
 		this._profile = <Profile>this.add(new Profile({
 			bodyFn: (pos : Vec2, dim : Vec2) => {
-				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+				this._mainBody = MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y);
+				this._headBody = MATTER.Bodies.rectangle(pos.x, pos.y + 0.22, 0.96, 1.06, {
+					isSensor: true,
+				});
+
+				const body = MATTER.Body.create({
 					friction: 0,
-				})
+				});
+				MATTER.Body.setParts(body, [this._mainBody, this._headBody]);
+				return body;
 			},
 		}));
 		if (defined(options.pos)) {
@@ -208,14 +217,17 @@ export class Player extends Entity {
 				} else if (dir.y > 0 && rotation > Math.PI / 4) {
 					rotation = Math.PI / 4;
 				}
-
-				rotation *= -1;
 			} else {
 				rotation = Funcs.clamp(3 / 4 * Math.PI, rotation, 5 / 4 * Math.PI);
-				rotation += Math.PI;
 			}
-			this._neckDir = rotation;
+			MATTER.Body.setAngle(this._headBody, rotation);
 
+			if (dir.x >= 0) {
+				this._neckDir = -rotation;
+			} else {
+				this._neckDir = rotation + Math.PI;
+			}
+	
 			// Turn acceleration
 			const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
 			if (turning) {
@@ -261,10 +273,10 @@ export class Player extends Entity {
 		this.attributes().set(Attribute.GROUNDED, false);
 	}
 
-	override collide(other : Entity) : void {
-		super.collide(other);
+	override collide(other : Entity, collision : MATTER.Collision) : void {
+		super.collide(other, collision);
 
-		if (other.attributes().getOrDefault(Attribute.SOLID) && this.profile().above(other.profile())) {
+		if (other.attributes().getOrDefault(Attribute.SOLID) && collision.normal.y >= 0.5) {
 			this.attributes().set(Attribute.GROUNDED, true);
 			this.attributes().set(Attribute.CAN_DOUBLE_JUMP, true);
 			this._jumpTimer.start(this._jumpGracePeriod);
