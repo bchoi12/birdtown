@@ -11,6 +11,9 @@ export enum Attribute {
 	DEAD,
 	GROUNDED,
 	SOLID,
+
+	// Integer
+	OWNER,
 }
 
 enum Prop {
@@ -30,6 +33,8 @@ export class Attributes extends ComponentBase implements Component {
 		[Attribute.DEAD, Prop.BOOLEANS],
 		[Attribute.GROUNDED, Prop.BOOLEANS],
 		[Attribute.SOLID, Prop.BOOLEANS],
+
+		[Attribute.OWNER, Prop.INTEGERS],
 	]);
 
 	private _attributes : Map<Prop, Map<Attribute, Value>>;

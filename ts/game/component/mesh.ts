@@ -8,10 +8,11 @@ import { AnimationHandler } from 'game/util/animation_handler'
 
 import { defined } from 'util/common'
 
-type MeshFn = (component : Mesh) => void;
+type MeshFn = (mesh : Mesh) => void;
+type OnLoadFn = (mesh : Mesh) => void;
 
 type MeshOptions = {
-	readyFn : () => boolean;
+	readyFn? : () => boolean;
 	meshFn : MeshFn;
 }
 
@@ -19,6 +20,7 @@ export class Mesh extends ComponentBase implements Component {
 
 	private _readyFn : () => boolean;
 	private _meshFn : MeshFn;
+	private _onLoadFns : Array<OnLoadFn>;
 
 	private _mesh : BABYLON.Mesh;
 	private _animationHandler : AnimationHandler
@@ -27,12 +29,15 @@ export class Mesh extends ComponentBase implements Component {
 	constructor(options : MeshOptions) {
 		super(ComponentType.MESH);
 
-		this._readyFn = options.readyFn;
+		if (defined(options.readyFn)) {
+			this._readyFn = options.readyFn;
+		}
 		this._meshFn = options.meshFn;
+		this._onLoadFns = new Array();
 	}
 
 	override ready() : boolean {
-		return this.hasEntity() && this._readyFn();
+		return this.hasEntity() && (!defined(this._readyFn) || this._readyFn());
 	}
 
 	override initialize() : void {
@@ -47,8 +52,22 @@ export class Mesh extends ComponentBase implements Component {
 	}
 
 	hasMesh() : boolean { return defined(this._mesh); }
-	setMesh(mesh : BABYLON.Mesh) { this._mesh = mesh; }
+	setMesh(mesh : BABYLON.Mesh) {
+		this._mesh = mesh;
+
+		this._onLoadFns.forEach((fn : OnLoadFn) => {
+			fn(this);
+		});
+		this._onLoadFns = [];
+	}
 	mesh() : BABYLON.Mesh { return this._mesh; }
+	onLoad(fn : OnLoadFn) : void {
+		if (this.hasMesh()) {
+			fn(this);
+		} else {
+			this._onLoadFns.push(fn);
+		}
+	}
 
 	registerAnimation(animation : BABYLON.AnimationGroup, group? : number) {
 		if (!defined(this._animationHandler)) {

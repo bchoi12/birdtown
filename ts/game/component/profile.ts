@@ -3,7 +3,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
 import { Data, DataFilter, DataMap } from 'game/data'
-import { Entity } from 'game/entity'
+import { Entity, EntityOptions } from 'game/entity'
 
 import { options } from 'options'
 
@@ -13,6 +13,8 @@ import { Vec2 } from 'util/vec2'
 type ProfileOptions = {
 	readyFn? : () => boolean;
 	bodyFn : (pos : Vec2, dim : Vec2) => MATTER.Body;
+
+	entityOptions? : EntityOptions;
 }
 
 enum Prop {
@@ -52,6 +54,8 @@ export class Profile extends ComponentBase implements Component {
 
 		this._readyFn = defined(options.readyFn) ? options.readyFn : () => { return true; };
 		this._bodyFn = options.bodyFn;
+
+		this.setFromOptions(options.entityOptions);
 	}
 
 	override ready() : boolean {
@@ -78,10 +82,24 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	body() : MATTER.Body { return this._body; }
-
 	stop() : void {
 		this.setVel({x: 0, y: 0});
 		this.setAcc({x: 0, y: 0});
+	}
+
+	private setFromOptions(options : EntityOptions) : void {
+		if (options.pos) {
+			this.setPos(options.pos);
+		}
+		if (options.vel) {
+			this.setVel(options.vel);
+		}
+		if (options.acc) {
+			this.setAcc(options.acc);
+		}
+		if (options.dim) {
+			this.setDim(options.dim);
+		}
 	}
 
 	private hasPos() : boolean { return defined(this._pos) && defined(this._pos.x, this._pos.y); }

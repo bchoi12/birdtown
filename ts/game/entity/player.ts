@@ -9,6 +9,7 @@ import { Mesh } from 'game/component/mesh'
 import { Profile } from 'game/component/profile'
 import { Data, DataMap } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { Equip } from 'game/entity/equip'
 import { loader, LoadResult, Model } from 'game/loader'
 
 import { Key } from 'ui'
@@ -24,7 +25,7 @@ enum Animation {
 	WALK = "Walk",
 	JUMP = "Jump",
 }
-
+ 
 enum Bone {
 	ARM = "arm.R",
 	NECK = "neck",
@@ -39,12 +40,12 @@ enum CustomProp {
 export class Player extends Entity {
 	private readonly _sideAcc = 1.0;
 	private readonly _jumpVel = 0.3;
-	private readonly _maxHorizontalVel = 0.3;
+	private readonly _maxHorizontalVel = 0.25;
 	private readonly _maxVerticalVel = 0.6;
 	private readonly _maxVelMultiplier = 0.9;
 
 	private readonly _turnMultiplier = 3.0;
-	private readonly _fallMultiplier = 0.7;
+	private readonly _fallMultiplier = 1.5;
 
 	private readonly _friction = 0.7;
 	private readonly _airResistance = 0.9;
@@ -65,6 +66,8 @@ export class Player extends Entity {
 	private _profile : Profile;
 	private _mainBody : MATTER.Body;
 	private _headBody : MATTER.Body;
+
+	private _equip : Equip;
 
 	private _facingSign : number;
 	private _neckDir : number;
@@ -94,10 +97,8 @@ export class Player extends Entity {
 				MATTER.Body.setParts(body, [this._mainBody, this._headBody]);
 				return body;
 			},
+			entityOptions: options,
 		}));
-		if (defined(options.pos)) {
-			this._profile.setPos(options.pos);
-		}
 		this._profile.setInertia(Infinity);
 		this._profile.setDim({x: 0.8, y: 1.44 });
 		this._profile.setVel({x: 0, y: 0});
@@ -107,7 +108,8 @@ export class Player extends Entity {
 			readyFn: () => { return this.profile().ready(); },
 			meshFn: (component : Mesh) => {
 				loader.load(Model.CHICKEN, (result : LoadResult) => {
-					const mesh = <BABYLON.Mesh>result.meshes[0];
+					let mesh = <BABYLON.Mesh>result.meshes[0];
+					mesh.name = this.name();
 
 					const dim = this.profile().dim();
 					this._playerMesh = mesh.getChildMeshes<BABYLON.Mesh>(/*direct=*/true)[0];
@@ -145,15 +147,17 @@ export class Player extends Entity {
 		}, (dead : boolean) => {
 			if (dead) {
 				const x = this._profile.vel().x;
-				const sign = x < 0 ? 1 : -1;
+				const sign = x >= 0 ? -1 : 1;
 
 				this._profile.addAngularVelocity(sign * Math.max(0.1, Math.abs(x)));
 				this._profile.setAcc({x: 0, y: 0});
 				this._profile.resetInertia();
+				this._headBody.isSensor = false;
 			} else {
 				this._profile.setAngle(0);
 				this._profile.setAngularVelocity(0);
 				this._profile.setInertia(Infinity);
+				this._headBody.isSensor = true;
 			}
 		});
 
@@ -169,6 +173,24 @@ export class Player extends Entity {
 		if (this.metadata().clientId() === game.id()) {
 			game.camera().setEntity(this);
 		}
+
+		if (game.options().host) {
+			game.entities().add(EntityType.EQUIP, {
+				owner: this.id(),
+			});
+		}
+	}
+
+	override attach(entity : Entity) : void {
+		if (entity.type() === EntityType.EQUIP) {
+			this._mesh.onLoad((mesh : Mesh) => {
+				const arm = this._mesh.getBone(Bone.ARM);
+				entity.mesh().mesh().rotation.y = Math.PI / 2;
+				entity.mesh().mesh().position.y = 0.25;
+				entity.mesh().mesh().position.z = 0.4;
+				entity.mesh().mesh().setParent(arm.getTransformNode());
+			});
+		}
 	}
 
 	override preUpdate(millis : number) : void {
@@ -183,7 +205,7 @@ export class Player extends Entity {
 		// Gravity
 		this._profile.setAcc({ y: Profile.gravity });
 		if (!this.attributes().get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
-			this._profile.addAcc({ y: this._fallMultiplier * Profile.gravity });
+			this._profile.addAcc({ y: (this._fallMultiplier - 1) * Profile.gravity });
 		}
 
 		if (this._keys.keyDown(Key.INTERACT)) {
@@ -235,7 +257,7 @@ export class Player extends Entity {
 			}
 
 			// Jumping
-			if (this._jumpTimer.on()) {
+			if (this._jumpTimer.hasTimeLeft()) {
 				if (this._keys.keyDown(Key.JUMP)) {
 					this._profile.setVel({ y: this._jumpVel });
 					this._jumpTimer.stop();
@@ -264,6 +286,25 @@ export class Player extends Entity {
 		}
 		if (Math.abs(this._profile.vel().y) > this._maxVerticalVel) {
 			this._profile.vel().y *= this._maxVelMultiplier;
+		}
+	}
+
+	override update(millis : number) : void {
+		super.update(millis);
+
+		if (game.options().host) {
+			if (this._keys.keyPressed(Key.ALT_MOUSE_CLICK)) {
+				const projectile = game.entities().add(EntityType.PROJECTILE, {
+					pos: this._profile.pos(),
+					dim: {x: 0.5, y: 0.5},
+					vel: {x: 0.2, y: 0},
+				});
+				projectile.attributes().set(Attribute.OWNER, this.id());
+				let ttl = projectile.newTimer();
+				ttl.start(1000, () => {
+					projectile.delete();
+				});
+			}
 		}
 	}
 

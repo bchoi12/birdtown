@@ -24,13 +24,8 @@ export class Wall extends Entity {
 					isStatic: true,
 				});
 			},
+			entityOptions: options,
 		}));
-		if (defined(options.pos)) {
-			profile.setPos(options.pos);
-		}
-		if (defined(options.dim)) {
-			profile.setDim(options.dim);
-		}
 
 		this.add(new Mesh({
 			readyFn: () => {

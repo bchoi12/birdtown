@@ -2,8 +2,9 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
-import { Attributes } from 'game/component/attributes'
+import { Attribute, Attributes } from 'game/component/attributes'
 import { Custom } from 'game/component/custom'
+import { Mesh } from 'game/component/mesh'
 import { Metadata } from 'game/component/metadata'
 import { Profile } from 'game/component/profile'
 import { Data, DataFilter, DataMap } from 'game/data'
@@ -15,15 +16,25 @@ import { Vec2 } from 'util/vec2'
 export enum EntityType {
 	UNKNOWN,
 
+	EQUIP,
 	PLAYER,
+	PROJECTILE,
 	WALL,
 }
 
 export interface EntityOptions {
 	id? : number;
+
+	// Attributes
+	owner? : number;
+
+	// Metadata
 	clientId? : number;
 
+	// Profile
 	pos? : Vec2;
+	vel? : Vec2;
+	acc? : Vec2;
 	dim? : Vec2;
 }
 
@@ -37,12 +48,20 @@ export abstract class Entity {
 
 	constructor(type : EntityType, options : EntityOptions) {
 		this._type = type;
+
+		if (!defined(options.id)) {
+			console.error("Warning: entity type " + type + " has no id");
+		}
 		this._id = options.id;
 
 		this._components = new Map();
 		this.add(new Attributes());
 		this.add(new Custom());
 		this.add(new Metadata());
+
+		if (defined(options.owner)) {
+			this.attributes().set(Attribute.OWNER, options.owner);
+		}
 
 		if (defined(options.clientId)) {
 			this.metadata().setClientId(options.clientId);
@@ -90,12 +109,17 @@ export abstract class Entity {
 		return component;
 	}
 
-	has (type : ComponentType) : boolean { return this._components.has(type); }
+	has(type : ComponentType) : boolean { return this._components.has(type); }
 	get(type : ComponentType) : Component { return this._components.get(type); }
 	attributes() : Attributes { return <Attributes>this._components.get(ComponentType.ATTRIBUTES); }
 	custom() : Custom { return <Custom>this._components.get(ComponentType.CUSTOM); }
+	hasMesh() : boolean { return this.has(ComponentType.MESH); }
+	mesh() : Mesh { return <Mesh>this._components.get(ComponentType.MESH); }
 	metadata() : Metadata { return <Metadata>this._components.get(ComponentType.METADATA); }
+	hasProfile() : boolean { return this.has(ComponentType.PROFILE); }
 	profile() : Profile { return <Profile>this._components.get(ComponentType.PROFILE); }
+
+	attach(entity : Entity) : void {}
 
 	newTimer() : Timer {
 		let timer = new Timer();
@@ -173,6 +197,11 @@ export abstract class Entity {
 
 	mergeData(dataMap : DataMap, seqNum : number) : void {
 		for (const [stringType, data] of Object.entries(dataMap)) {
+			if (!this.has(Number(stringType))) {
+				console.log("missing " + stringType);
+				console.log(data);
+			}
+
 			let component = this.get(Number(stringType));
 
 			if (!component.isSource()) {

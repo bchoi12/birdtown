@@ -4,7 +4,9 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'	
 import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { Equip } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
+import { Projectile } from 'game/entity/projectile'
 import { Wall } from 'game/entity/wall'
 
 interface DataItem {
@@ -34,7 +36,9 @@ export class EntityMap {
 		this._pendingData = new Array<DataItem>();
 
 		this._factory =  new Map();
+		this._factory.set(EntityType.EQUIP, (options : EntityOptions) => { return new Equip(options); });
 		this._factory.set(EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); });
+		this._factory.set(EntityType.PROJECTILE, (options : EntityOptions) => { return new Projectile(options); });
 		this._factory.set(EntityType.WALL, (options : EntityOptions) => { return new Wall(options); });
 	}
 
@@ -76,11 +80,12 @@ export class EntityMap {
 			for (const [stringSpace, entityMap] of Object.entries(item.dataMap)) {
 				for (const [stringId, dataMap] of Object.entries(entityMap)) {
 					const id = Number(stringId);
-					if (!this.has(id)) {
+					if (!game.options().host && !this.has(id)) {
 						this.add(Number(stringSpace), {id: id});
 					}
-
-					this.get(id).mergeData(<DataMap>dataMap, item.seqNum);
+					if (this.has(id)) {
+						this.get(id).mergeData(<DataMap>dataMap, item.seqNum);
+					}
 				}
 			}
 		}
