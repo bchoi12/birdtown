@@ -7,9 +7,10 @@ import { Attribute } from 'game/component/attributes'
 import { Mesh } from 'game/component/mesh'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { loader, LoadResult, Model } from 'game/loader'
 
 import { defined } from 'util/common'
-import { Vec2 } from 'util/vec2'
+import { Vec2, Vec2Math } from 'util/vec2'
 
 export class Projectile extends Entity {
 
@@ -31,15 +32,32 @@ export class Projectile extends Entity {
 			},
 			meshFn: (component : Mesh) => {
 				const dim = this.profile().dim();
-				component.setMesh(BABYLON.MeshBuilder.CreateSphere(this.name(), {
-					diameter: dim.x,
-				}, game.scene()));
+				loader.load(Model.ROCKET, (result : LoadResult) => {
+					let mesh = <BABYLON.Mesh>result.meshes[0];
+					mesh.name = this.name();
+					mesh.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
+
+					component.setMesh(mesh);
+				});
 			},
 		}));
 	}
 
 	override ready() : boolean {
 		return super.ready() && this.attributes().has(Attribute.OWNER);
+	}
+
+	override preRender() : void {
+		super.preRender();
+
+		if (!this.mesh().hasMesh()) {
+			return;
+		}
+
+		const vel = this.profile().vel();
+		const angle = Vec2Math.angleRad(vel);
+
+		this.mesh().mesh().rotation = new BABYLON.Vector3(-angle, Math.PI / 2, 0);
 	}
 
 	override collide(other : Entity, collision : MATTER.Collision) : void {

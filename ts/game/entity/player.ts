@@ -28,11 +28,14 @@ enum Animation {
  
 enum Bone {
 	ARM = "arm.R",
+	ARMATURE = "Armature",
 	NECK = "neck",
+	SPINE = "spine",
 }
 
 enum CustomProp {
 	UNKNOWN,
+	ARM_DIR,
 	FACING_SIGN,
 	NECK_DIR,
 }
@@ -57,20 +60,21 @@ export class Player extends Entity {
 		Animation.IDLE, Animation.WALK, Animation.JUMP
 	]);
 	private readonly _controllableBones = new Set<string>([
-		Bone.ARM, Bone.NECK
+		Bone.ARM, Bone.ARMATURE, Bone.NECK, Bone.SPINE,
 	]);
 
 	private _keys : Keys;
 	private _mesh : Mesh;
-	private _playerMesh : BABYLON.Mesh;
 	private _profile : Profile;
 	private _mainBody : MATTER.Body;
 	private _headBody : MATTER.Body;
 
 	private _equip : Equip;
 
+	private _armDir : number;
 	private _facingSign : number;
 	private _neckDir : number;
+	private _weaponDir : Vec2;
 
 	private _jumpTimer : Timer;
 	private _deadTracker : ChangeTracker<boolean>;
@@ -111,11 +115,6 @@ export class Player extends Entity {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.name = this.name();
 
-					const dim = this.profile().dim();
-					this._playerMesh = mesh.getChildMeshes<BABYLON.Mesh>(/*direct=*/true)[0];
-					this._playerMesh.rotation.y = Math.PI / 2 + this._rotationOffset;
-					this._playerMesh.position.y -= dim.y / 2;
-
 					result.animationGroups.forEach((animationGroup : BABYLON.AnimationGroup) => {
 						if (this._moveAnimations.has(animationGroup.name)) {
 							component.registerAnimation(animationGroup, 0);
@@ -128,6 +127,10 @@ export class Player extends Entity {
 							component.registerBone(bone);
 						}
 					});
+					let armature = component.getBone(Bone.ARMATURE).getTransformNode();
+					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + this._rotationOffset, 0);
+					const dim = this.profile().dim();
+					armature.position.y -= dim.y / 2;
 
 					// TODO: this doesn't seem to work
 					let animationProperties = new BABYLON.AnimationPropertiesOverride();
@@ -183,12 +186,12 @@ export class Player extends Entity {
 
 	override attach(entity : Entity) : void {
 		if (entity.type() === EntityType.EQUIP) {
+			this._equip = entity;
 			this._mesh.onLoad((mesh : Mesh) => {
 				const arm = this._mesh.getBone(Bone.ARM);
-				entity.mesh().mesh().rotation.y = Math.PI / 2;
-				entity.mesh().mesh().position.y = 0.25;
-				entity.mesh().mesh().position.z = 0.4;
-				entity.mesh().mesh().setParent(arm.getTransformNode());
+				entity.mesh().mesh().attachToBone(arm, this.mesh().mesh());
+				entity.mesh().mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+				entity.mesh().mesh().scaling.z *= -1;
 			});
 		}
 	}
@@ -231,8 +234,8 @@ export class Player extends Entity {
 			const mouse = this._keys.mouseWorld();
 			const dir = mouse.subtract(pos).normalize();
 			this._facingSign = dir.x >= 0 ? 1 : -1;
-
 			let rotation = Vec2Math.angleRad({x: dir.x, y: dir.y });
+
 			if (dir.x >= 0) {
 				if (dir.y < 0 && rotation < 7 / 4 * Math.PI) {
 					rotation = 7 / 4 * Math.PI;
@@ -250,6 +253,20 @@ export class Player extends Entity {
 				this._neckDir = rotation + Math.PI;
 			}
 	
+			// Set direction of arm
+			if (defined(this._equip) && this._equip.mesh().hasMesh()) {
+				const equipPos = this._equip.mesh().mesh().position;
+				const equipDir = mouse.subtract(equipPos).normalize();
+				this._weaponDir = {x: dir.x, y: dir.y};
+				let rotation = Vec2Math.angleRad(this._weaponDir);
+
+				if (dir.x >= 0) {
+					this._armDir = rotation - Math.PI / 2;
+				} else {
+					this._armDir = -rotation + Math.PI / 2;
+				}
+			}
+
 			// Turn acceleration
 			const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
 			if (turning) {
@@ -293,11 +310,12 @@ export class Player extends Entity {
 		super.update(millis);
 
 		if (game.options().host) {
-			if (this._keys.keyPressed(Key.ALT_MOUSE_CLICK)) {
+			if (this._keys.keyPressed(Key.MOUSE_CLICK) && defined(this._weaponDir)) {
 				const projectile = game.entities().add(EntityType.PROJECTILE, {
 					pos: this._profile.pos(),
 					dim: {x: 0.5, y: 0.5},
-					vel: {x: 0.2, y: 0},
+					vel: Vec2Math.scale(this._weaponDir, 0.2),
+					acc: Vec2Math.scale(this._weaponDir, 0.8),
 				});
 				projectile.attributes().set(Attribute.OWNER, this.id());
 				let ttl = projectile.newTimer();
@@ -341,14 +359,24 @@ export class Player extends Entity {
 			}
 		}
 
-		this._playerMesh.scaling.z = this._facingSign;
-		let neck = this._mesh.getBone(Bone.NECK);
-		neck.getTransformNode().rotation = new BABYLON.Vector3(this._neckDir, 0, 0);
+		if (defined(this._armDir)) {
+			let arm = this._mesh.getBone(Bone.ARM);
+			arm.getTransformNode().rotation = new BABYLON.Vector3(this._armDir, Math.PI, 0);
+		}
+		if (defined(this._facingSign)) {
+			let armature = this._mesh.getBone(Bone.ARMATURE).getTransformNode();
+			armature.scaling.z = this._facingSign;
+		}
+		if (defined(this._neckDir)) {
+			let neck = this._mesh.getBone(Bone.NECK);
+			neck.getTransformNode().rotation = new BABYLON.Vector3(this._neckDir, neck.getTransformNode().rotation.y, neck.getTransformNode().rotation.z);
+		}
 	}
 
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
 
+		this.custom().set(CustomProp.ARM_DIR, this._armDir);
 		this.custom().set(CustomProp.FACING_SIGN, this._facingSign);
 		this.custom().set(CustomProp.NECK_DIR, this._neckDir);
 	}
@@ -356,6 +384,9 @@ export class Player extends Entity {
 	override mergeData(dataMap : DataMap, seqNum : number) : void {
 		super.mergeData(dataMap, seqNum);
 
+		if (this.custom().has(CustomProp.ARM_DIR)) {
+			this._armDir = <number>this.custom().get(CustomProp.ARM_DIR);
+		}
 		if (this.custom().has(CustomProp.FACING_SIGN)) {
 			this._facingSign = <number>this.custom().get(CustomProp.FACING_SIGN);
 		}

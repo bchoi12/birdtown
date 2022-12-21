@@ -37,7 +37,11 @@ export namespace Vec2Math {
         return rad
     }
 
-    export function angleDeg(v : Vec2) {
+    export function angleDeg(v : Vec2) : number {
         return angleRad(v) * 180 / Math.PI;
+    }
+
+    export function scale(v : Vec2, n : number) : Vec2 {
+        return { x: n * v.x, y: n * v.y }
     }
 }

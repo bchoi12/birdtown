@@ -112,7 +112,7 @@ export class Mesh extends ComponentBase implements Component {
 		}
 
 		let profile = this.entity().profile();
-		if (defined(this._mesh) && defined(profile)) {
+		if (defined(profile)) {
 			this._mesh.position.x = profile.pos().x;
 			this._mesh.position.y = profile.pos().y;
 
