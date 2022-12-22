@@ -5,6 +5,7 @@ import { game } from 'game'
 import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { Equip } from 'game/entity/equip'
+import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
 import { Projectile } from 'game/entity/projectile'
 import { Wall } from 'game/entity/wall'
@@ -37,6 +38,7 @@ export class EntityMap {
 
 		this._factory =  new Map();
 		this._factory.set(EntityType.EQUIP, (options : EntityOptions) => { return new Equip(options); });
+		this._factory.set(EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); });
 		this._factory.set(EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); });
 		this._factory.set(EntityType.PROJECTILE, (options : EntityOptions) => { return new Projectile(options); });
 		this._factory.set(EntityType.WALL, (options : EntityOptions) => { return new Wall(options); });
@@ -67,9 +69,10 @@ export class EntityMap {
 
 	has(id : number) : boolean { return this._map.has(id); }
 	get(id : number) : Entity { return this._map.get(id); }
-	delete(id : number) : void {
-		this._map.delete(id);
-		this._initialized.delete(id);
+	delete(entity : Entity) : void {
+		entity.dispose();
+		this._map.delete(entity.id());
+		this._initialized.delete(entity.id());
 	}
 	pushData(item : DataItem) : void { this._pendingData.push(item); }
 
@@ -97,7 +100,7 @@ export class EntityMap {
 			}
 
 			if (entity.deleted()) {
-				this.delete(entity.id());
+				this.delete(entity);
 			}
 		});
 

@@ -25,6 +25,7 @@ export interface Component {
 	initialized() : boolean;
 	initialize() : void;
 	delete() : void;
+	dispose() : void;
 
 	preUpdate(millis : number) : void
 	update(millis : number) : void
@@ -63,6 +64,7 @@ export abstract class ComponentBase {
 		this._initialized = true;
 	}
 	delete() : void {}
+	dispose() : void {}
 
 	type() : ComponentType { return this._type; }
 	hasEntity() : boolean { return defined(this._entity); }

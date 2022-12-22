@@ -17,6 +17,7 @@ export enum EntityType {
 	UNKNOWN,
 
 	EQUIP,
+	EXPLOSION,
 	PLAYER,
 	PROJECTILE,
 	WALL,
@@ -94,6 +95,12 @@ export abstract class Entity {
 		});
 	}
 
+	dispose() : void {
+		this._components.forEach((component) => {
+			component.dispose();
+		});
+	}
+
 	type() : EntityType { return this._type; }
 	id() : number { return this._id; }
 	name() : string { return this._type + "," + this._id; }
@@ -119,12 +126,19 @@ export abstract class Entity {
 	hasProfile() : boolean { return this.has(ComponentType.PROFILE); }
 	profile() : Profile { return <Profile>this._components.get(ComponentType.PROFILE); }
 
+	// TODO: remove this
 	attach(entity : Entity) : void {}
 
 	newTimer() : Timer {
 		let timer = new Timer();
 		this._timers.push(timer);
 		return timer;
+	}
+	setTTL(ttl : number) : void {
+		const timer = this.newTimer();
+		timer.start(ttl, () => {
+			this.delete();
+		});
 	}
 
 	preUpdate(millis : number) : void {
@@ -198,8 +212,8 @@ export abstract class Entity {
 	mergeData(dataMap : DataMap, seqNum : number) : void {
 		for (const [stringType, data] of Object.entries(dataMap)) {
 			if (!this.has(Number(stringType))) {
-				console.log("missing " + stringType);
-				console.log(data);
+				console.log("Error: object " + this.name() + " is missing component " + stringType);
+				continue;
 			}
 
 			let component = this.get(Number(stringType));

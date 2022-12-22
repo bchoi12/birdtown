@@ -19,7 +19,7 @@ export class Projectile extends Entity {
 
 		let profile = <Profile>this.add(new Profile({
 			bodyFn: (pos : Vec2, dim : Vec2) => {
-				return MATTER.Bodies.circle(pos.x, pos.y, dim.x, {
+				return MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
 					isSensor: true,
 				});
 			},
@@ -68,6 +68,13 @@ export class Projectile extends Entity {
 		}
 
 		if (other.attributes().getOrDefault(Attribute.SOLID)) {
+			if (game.options().host) {
+				let explosion = game.entities().add(EntityType.EXPLOSION, {
+					pos: this.profile().pos(),
+					dim: {x: 3, y: 3},
+				});
+				explosion.setTTL(200);
+			}
 			this.delete();
 		}
 	}

@@ -1,3 +1,4 @@
+import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
@@ -45,6 +46,7 @@ export class Profile extends ComponentBase implements Component {
 	private _inertia : number;
 	private _scaling : MATTER.Vector;
 
+	private _forces : Array<Vec2>;
 	private _initialInertia : number;
 
 	private _body : MATTER.Body;
@@ -72,10 +74,11 @@ export class Profile extends ComponentBase implements Component {
 			body.label = "" + this.entity().id();
 		})
 
+		this._forces = new Array();
 		this._initialInertia = this._body.inertia;
 	}
 
-	override delete() : void {
+	override dispose() : void {
 		if (defined(this._body)) {
 			MATTER.World.remove(game.physics().world, this._body);
 		}
@@ -104,6 +107,7 @@ export class Profile extends ComponentBase implements Component {
 
 	private hasPos() : boolean { return defined(this._pos) && defined(this._pos.x, this._pos.y); }
 	pos() : MATTER.Vector { return this._pos; }
+	pos3() : BABYLON.Vector3 { return new BABYLON.Vector3(this._pos.x, this._pos.y, 0); }
 	setPos(vec : Vec2) : void {
 		if (!this.hasPos()) { this._pos = {x: 0, y: 0}; }
 		if (defined(vec.x)) { this._pos.x = vec.x; }
@@ -161,6 +165,26 @@ export class Profile extends ComponentBase implements Component {
 	setAngularVelocity(vel : number) : void { MATTER.Body.setAngularVelocity(this._body, vel); }
 	addAngularVelocity(delta : number) : void { MATTER.Body.setAngularVelocity(this._body, this._body.angularVelocity + delta); }
 
+	addForce(force : Vec2) : void { this._forces.push(force); }
+	applyForces() : void {
+		if (this._forces.length === 0) {
+			return;
+		}
+
+		let totalForce = {x: 0, y: 0};
+		this._forces.forEach((force : Vec2) => {
+			if (defined(force.x)) {
+				totalForce.x += force.x;
+			}
+			if (defined(force.y)) {
+				totalForce.y += force.y;
+			}
+		});
+
+		this.addVel(totalForce);
+		this._forces = [];
+	}
+
 	hasInertia() : boolean { return defined(this._inertia); }
 	inertia() : number { return this._inertia; }
 	setInertia(inertia : number) : void { this._inertia = inertia; }
@@ -213,6 +237,8 @@ export class Profile extends ComponentBase implements Component {
 				});
 			}
 		}
+
+		this.applyForces();
 
 		if (this.hasVel()) {
 			MATTER.Body.setVelocity(this._body, this.vel());

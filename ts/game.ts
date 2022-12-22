@@ -175,13 +175,33 @@ class Game {
 		}
 
 		const mouse = ui.mouse();
-		return BABYLON.Vector3.Unproject(
+
+		// Z-coordinate is not necessarily 0
+		let mouseWorld = BABYLON.Vector3.Unproject(
 			new BABYLON.Vector3(mouse.x, mouse.y, 0.99),
 			window.innerWidth,
 			window.innerHeight,
 			BABYLON.Matrix.Identity(),
-			this.camera().getViewMatrix(),
-			this.camera().getProjectionMatrix());
+			this.camera().get().getViewMatrix(),
+			this.camera().get().getProjectionMatrix());
+
+		if (Math.abs(mouseWorld.z) < 1e-3) {
+			return mouseWorld;
+		}
+
+		// Camera to mouse
+		mouseWorld.subtractInPlace(this.camera().get().position);
+
+		// Scale camera to mouse to end at z = 0
+		const scale = Math.abs(this.camera().get().position.z / mouseWorld.z);
+
+		// Camera to mouse at z = 0
+		mouseWorld.scaleInPlace(scale);
+
+		// World coordinates
+		mouseWorld.addInPlace(this.camera().get().position);
+
+		return mouseWorld;
 	}
 
 	private entityMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {

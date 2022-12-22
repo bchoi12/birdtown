@@ -26,6 +26,7 @@ export class Host extends Connection {
 		    })
 
 		    peer.on("error", (error) => {
+		    	// TODO: actually do something
 		    	console.error(error);
 		    });
 		});

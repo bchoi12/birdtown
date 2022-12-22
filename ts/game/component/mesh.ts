@@ -45,7 +45,7 @@ export class Mesh extends ComponentBase implements Component {
 		this._meshFn(this);
 	}
 
-	override delete() : void {
+	override dispose() : void {
 		if (this.hasMesh()) {
 			this._mesh.dispose();
 		}

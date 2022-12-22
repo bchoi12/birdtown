@@ -42,6 +42,7 @@ export interface LoadResult {
 	meshes? : BABYLON.AbstractMesh[];
 	skeletons? : BABYLON.Skeleton[];
 	animationGroups? : BABYLON.AnimationGroup[];
+	transformNodes? : BABYLON.TransformNode[];
 }
 
 class Loader {
@@ -68,11 +69,12 @@ class Loader {
 			return;
 		}
 
-		BABYLON.SceneLoader.ImportMesh("", this._modelPrefix, this._modelFiles.get(model), game.scene(), (meshes, particleSystems, skeletons, animationGroups) => {
+		BABYLON.SceneLoader.ImportMesh("", this._modelPrefix, this._modelFiles.get(model), game.scene(), (meshes, particleSystems, skeletons, animationGroups, transformNodes) => {
 			cb({
 				meshes: meshes,
 				skeletons: skeletons,
 				animationGroups: animationGroups,
+				transformNodes: transformNodes,
 			});
 		});
 	}

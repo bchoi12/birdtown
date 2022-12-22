@@ -33,8 +33,7 @@ export class Camera {
     	this._target = BABYLON.Vector3.Zero();
 	}
 
-	getProjectionMatrix() : BABYLON.Matrix { return this._camera.getProjectionMatrix(); }
-	getViewMatrix() : BABYLON.Matrix { return this._camera.getViewMatrix(); }
+	get() : BABYLON.UniversalCamera { return this._camera; }
 	anchor() : BABYLON.Vector3 { return this._anchor; }
 	target() : BABYLON.Vector3 { return this._target; }
 

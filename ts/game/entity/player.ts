@@ -41,6 +41,7 @@ enum CustomProp {
 }
 
 export class Player extends Entity {
+	// blockdudes3 = 18.0
 	private readonly _sideAcc = 1.0;
 	private readonly _jumpVel = 0.3;
 	private readonly _maxHorizontalVel = 0.25;
@@ -186,7 +187,7 @@ export class Player extends Entity {
 
 	override attach(entity : Entity) : void {
 		if (entity.type() === EntityType.EQUIP) {
-			this._equip = entity;
+			this._equip = <Equip>entity;
 			this._mesh.onLoad((mesh : Mesh) => {
 				const arm = this._mesh.getBone(Bone.ARM);
 				entity.mesh().mesh().attachToBone(arm, this.mesh().mesh());
@@ -230,40 +231,42 @@ export class Player extends Entity {
 			}
 
 			// Set direction of player
-			const pos = new BABYLON.Vector3(this._profile.pos().x, this._profile.pos().y, 0);
-			const mouse = this._keys.mouseWorld();
-			const dir = mouse.subtract(pos).normalize();
-			this._facingSign = dir.x >= 0 ? 1 : -1;
-			let rotation = Vec2Math.angleRad({x: dir.x, y: dir.y });
-
-			if (dir.x >= 0) {
-				if (dir.y < 0 && rotation < 7 / 4 * Math.PI) {
-					rotation = 7 / 4 * Math.PI;
-				} else if (dir.y > 0 && rotation > Math.PI / 4) {
-					rotation = Math.PI / 4;
-				}
-			} else {
-				rotation = Funcs.clamp(3 / 4 * Math.PI, rotation, 5 / 4 * Math.PI);
-			}
-			MATTER.Body.setAngle(this._headBody, rotation);
-
-			if (dir.x >= 0) {
-				this._neckDir = -rotation;
-			} else {
-				this._neckDir = rotation + Math.PI;
-			}
-	
-			// Set direction of arm
-			if (defined(this._equip) && this._equip.mesh().hasMesh()) {
-				const equipPos = this._equip.mesh().mesh().position;
-				const equipDir = mouse.subtract(equipPos).normalize();
-				this._weaponDir = {x: dir.x, y: dir.y};
-				let rotation = Vec2Math.angleRad(this._weaponDir);
+			if (this._mesh.hasMesh()) {
+				const pos = this._profile.pos3();
+				const mouse = this._keys.mouseWorld();
+				const dir = mouse.subtract(pos).normalize();
+				this._facingSign = dir.x >= 0 ? 1 : -1;
+				let rotation = Vec2Math.angleRad({x: dir.x, y: dir.y });
 
 				if (dir.x >= 0) {
-					this._armDir = rotation - Math.PI / 2;
+					if (dir.y < 0 && rotation < 7 / 4 * Math.PI) {
+						rotation = 7 / 4 * Math.PI;
+					} else if (dir.y > 0 && rotation > Math.PI / 4) {
+						rotation = Math.PI / 4;
+					}
 				} else {
-					this._armDir = -rotation + Math.PI / 2;
+					rotation = Funcs.clamp(3 / 4 * Math.PI, rotation, 5 / 4 * Math.PI);
+				}
+				MATTER.Body.setAngle(this._headBody, rotation);
+
+				if (dir.x >= 0) {
+					this._neckDir = -rotation;
+				} else {
+					this._neckDir = rotation + Math.PI;
+				}
+
+				// Set direction of arm
+				if (defined(this._equip) && this._equip.mesh().hasMesh()) {
+					const equipPos = this._equip.mesh().mesh().position;
+					const equipDir = mouse.subtract(equipPos).normalize();
+					this._weaponDir = {x: dir.x, y: dir.y};
+					let rotation = Vec2Math.angleRad(this._weaponDir);
+
+					if (dir.x >= 0) {
+						this._armDir = rotation - Math.PI / 2;
+					} else {
+						this._armDir = -rotation + Math.PI / 2;
+					}
 				}
 			}
 
@@ -311,17 +314,15 @@ export class Player extends Entity {
 
 		if (game.options().host) {
 			if (this._keys.keyPressed(Key.MOUSE_CLICK) && defined(this._weaponDir)) {
+				const pos = this._equip.shootNode().getAbsolutePosition();
 				const projectile = game.entities().add(EntityType.PROJECTILE, {
-					pos: this._profile.pos(),
-					dim: {x: 0.5, y: 0.5},
-					vel: Vec2Math.scale(this._weaponDir, 0.2),
-					acc: Vec2Math.scale(this._weaponDir, 0.8),
+					pos: {x: pos.x, y: pos.y},
+					dim: {x: 0.3, y: 0.3},
+					vel: Vec2Math.scale(this._weaponDir, 0.1),
+					acc: Vec2Math.scale(this._weaponDir, 1.5),
 				});
 				projectile.attributes().set(Attribute.OWNER, this.id());
-				let ttl = projectile.newTimer();
-				ttl.start(1000, () => {
-					projectile.delete();
-				});
+				projectile.setTTL(1000);
 			}
 		}
 	}

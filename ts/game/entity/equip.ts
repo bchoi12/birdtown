@@ -14,26 +14,13 @@ import { Vec2 } from 'util/vec2'
 
 export class Equip extends Entity {
 
+	protected _shoot : BABYLON.TransformNode;
+
 	constructor(options : EntityOptions) {
 		super(EntityType.EQUIP, options);
 
 		this.add(new Mesh({
 			meshFn: (component : Mesh) => {
-
-				/*
-				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {
-					width: 1,
-					height: 1,
-					depth: 1,
-				}, game.scene());
-				let materialSphere = new BABYLON.StandardMaterial("red_sphere", game.scene());
-				materialSphere.diffuseColor = BABYLON.Color3.Red();
-				mesh.material = materialSphere;
-				component.setMesh(mesh);
-				const owner = game.entities().get(<number>this.attributes().get(Attribute.OWNER));
-				owner.attach(this);
-				*/
-
 				loader.load(Model.BAZOOKA, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.name = this.name();
@@ -41,6 +28,12 @@ export class Equip extends Entity {
 
 					const owner = game.entities().get(<number>this.attributes().get(Attribute.OWNER));
 					owner.attach(this);
+
+					result.transformNodes.forEach((node : BABYLON.TransformNode) => {
+						if (node.name === "shoot") {
+							this._shoot = node;
+						}
+					})
 				});
 			},
 		}));
@@ -48,5 +41,9 @@ export class Equip extends Entity {
 
 	override ready() : boolean {
 		return super.ready() && this.attributes().has(Attribute.OWNER);
+	}
+
+	shootNode() : BABYLON.TransformNode {
+		return defined(this._shoot) ? this._shoot : this.mesh().mesh();
 	}
 }
