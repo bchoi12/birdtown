@@ -2,7 +2,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { Mesh } from 'game/component/mesh'
+import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 
@@ -27,13 +27,13 @@ export class Explosion extends Entity {
 			entityOptions: options,
 		}));
 
-		this.add(new Mesh({
+		this.add(new Model({
 			readyFn: () => {
 				return this.profile().ready();
 			},
-			meshFn: (component : Mesh) => {
+			meshFn: (model : Model) => {
 				const dim = this.profile().dim();
-				component.setMesh(BABYLON.MeshBuilder.CreateSphere(this.name(), {
+				model.setMesh(BABYLON.MeshBuilder.CreateSphere(this.name(), {
 					diameter: dim.x,
 				}, game.scene()));
 			},

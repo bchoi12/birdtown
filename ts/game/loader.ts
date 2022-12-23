@@ -5,7 +5,7 @@ import { game } from 'game'
 
 import { defined } from 'util/common'
 
-export enum Model {
+export enum ModelType {
 	UNKNOWN = "",
 	CHICKEN = "CHICKEN",
 	DUCK = "DUCK",
@@ -49,21 +49,21 @@ class Loader {
 
 	private readonly _modelPrefix = "model/";
 
-	private _modelFiles : Map<Model, string>;
+	private _modelFiles : Map<ModelType, string>;
 
 	constructor() {
 		this._modelFiles = new Map();
 
-		for (const model in Model) {
+		for (const model in ModelType) {
 			if (model.length === 0) {
 				continue;
 			}
-			this._modelFiles.set(Model[model], model.toLowerCase() + ".glb");
+			this._modelFiles.set(ModelType[model], model.toLowerCase() + ".glb");
 		}
 
 	}
 
-	load(model : Model, cb : (loadResult : LoadResult) => void) {
+	load(model : ModelType, cb : (loadResult : LoadResult) => void) {
 		if (!this._modelFiles.has(model)) {
 			console.error("Error: no file associated with " + model);
 			return;

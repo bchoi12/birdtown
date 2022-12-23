@@ -4,7 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Attribute } from 'game/component/attributes'
-import { Mesh } from 'game/component/mesh'
+import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 
@@ -27,13 +27,13 @@ export class Wall extends Entity {
 			entityOptions: options,
 		}));
 
-		this.add(new Mesh({
+		this.add(new Model({
 			readyFn: () => {
 				return this.profile().ready();
 			},
-			meshFn: (component : Mesh) => {
+			meshFn: (model : Model) => {
 				const dim = this.profile().dim();
-				component.setMesh(BABYLON.MeshBuilder.CreateBox(this.name(), {
+				model.setMesh(BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: dim.x,
 					height: dim.y,
 					depth: 16,

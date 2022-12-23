@@ -10,6 +10,7 @@ export enum Attribute {
 	CAN_DOUBLE_JUMP,
 	DEAD,
 	GROUNDED,
+	READY,
 	SOLID,
 
 	// Integer
@@ -33,6 +34,7 @@ export class Attributes extends ComponentBase implements Component {
 		[Attribute.DEAD, Prop.BOOLEANS],
 		[Attribute.GROUNDED, Prop.BOOLEANS],
 		[Attribute.SOLID, Prop.BOOLEANS],
+		[Attribute.READY, Prop.BOOLEANS],
 
 		[Attribute.OWNER, Prop.INTEGERS],
 	]);

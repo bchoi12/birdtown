@@ -5,12 +5,12 @@ import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Attribute, Attributes } from 'game/component/attributes'
 import { Keys } from 'game/component/keys'
-import { Mesh } from 'game/component/mesh'
+import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Data, DataMap } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
-import { Equip } from 'game/entity/equip'
-import { loader, LoadResult, Model } from 'game/loader'
+import { Weapon } from 'game/entity/weapon'
+import { loader, LoadResult, ModelType } from 'game/loader'
 
 import { Key } from 'ui'
 
@@ -65,17 +65,16 @@ export class Player extends Entity {
 	]);
 
 	private _keys : Keys;
-	private _mesh : Mesh;
+	private _model : Model;
 	private _profile : Profile;
 	private _mainBody : MATTER.Body;
 	private _headBody : MATTER.Body;
 
-	private _equip : Equip;
+	private _weapon : Weapon;
 
 	private _armDir : number;
 	private _facingSign : number;
 	private _neckDir : number;
-	private _weaponDir : Vec2;
 
 	private _jumpTimer : Timer;
 	private _deadTracker : ChangeTracker<boolean>;
@@ -99,6 +98,7 @@ export class Player extends Entity {
 				const body = MATTER.Body.create({
 					friction: 0,
 				});
+				
 				MATTER.Body.setParts(body, [this._mainBody, this._headBody]);
 				return body;
 			},
@@ -109,26 +109,26 @@ export class Player extends Entity {
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
 
-		this._mesh = <Mesh>this.add(new Mesh({
+		this._model = <Model>this.add(new Model({
 			readyFn: () => { return this.profile().ready(); },
-			meshFn: (component : Mesh) => {
-				loader.load(Model.CHICKEN, (result : LoadResult) => {
+			meshFn: (model : Model) => {
+				loader.load(ModelType.CHICKEN, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.name = this.name();
 
 					result.animationGroups.forEach((animationGroup : BABYLON.AnimationGroup) => {
 						if (this._moveAnimations.has(animationGroup.name)) {
-							component.registerAnimation(animationGroup, 0);
+							model.registerAnimation(animationGroup, 0);
 						}
 					})
-					component.stopAllAnimations();
+					model.stopAllAnimations();
 
 					result.skeletons[0].bones.forEach((bone : BABYLON.Bone) => {
 						if (this._controllableBones.has(bone.name)) {
-							component.registerBone(bone);
+							model.registerBone(bone);
 						}
 					});
-					let armature = component.getBone(Bone.ARMATURE).getTransformNode();
+					let armature = model.getBone(Bone.ARMATURE).getTransformNode();
 					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + this._rotationOffset, 0);
 					const dim = this.profile().dim();
 					armature.position.y -= dim.y / 2;
@@ -139,7 +139,7 @@ export class Player extends Entity {
 					animationProperties.blendingSpeed = 0.2;
 					result.skeletons[0].animationPropertiesOverride = animationProperties;
 
-					component.setMesh(mesh);
+					model.setMesh(mesh);
 				});
 			},
 		}));
@@ -179,22 +179,20 @@ export class Player extends Entity {
 		}
 
 		if (game.options().host) {
-			game.entities().add(EntityType.EQUIP, {
+			game.entities().add(EntityType.BAZOOKA, {
 				owner: this.id(),
 			});
 		}
 	}
 
-	override attach(entity : Entity) : void {
-		if (entity.type() === EntityType.EQUIP) {
-			this._equip = <Equip>entity;
-			this._mesh.onLoad((mesh : Mesh) => {
-				const arm = this._mesh.getBone(Bone.ARM);
-				entity.mesh().mesh().attachToBone(arm, this.mesh().mesh());
-				entity.mesh().mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
-				entity.mesh().mesh().scaling.z *= -1;
-			});
-		}
+	equipWeapon(weapon : Weapon) : void {
+		this._weapon = weapon;
+		this._model.onLoad(() => {
+			const arm = this._model.getBone(Bone.ARM);
+			this._weapon.model().mesh().attachToBone(arm, this.model().mesh());
+			this._weapon.model().mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+			this._weapon.model().mesh().scaling.z *= -1;
+		});
 	}
 
 	override preUpdate(millis : number) : void {
@@ -231,7 +229,7 @@ export class Player extends Entity {
 			}
 
 			// Set direction of player
-			if (this._mesh.hasMesh()) {
+			if (this._model.hasMesh()) {
 				const pos = this._profile.pos3();
 				const mouse = this._keys.mouseWorld();
 				const dir = mouse.subtract(pos).normalize();
@@ -256,17 +254,14 @@ export class Player extends Entity {
 				}
 
 				// Set direction of arm
-				if (defined(this._equip) && this._equip.mesh().hasMesh()) {
-					const equipPos = this._equip.mesh().mesh().position;
-					const equipDir = mouse.subtract(equipPos).normalize();
-					this._weaponDir = {x: dir.x, y: dir.y};
-					let rotation = Vec2Math.angleRad(this._weaponDir);
+				const armPos = this.model().getBone(Bone.ARM).getTransformNode().getAbsolutePosition();
+				const armDir = mouse.subtract(armPos).normalize();
+				let armRotation = Vec2Math.angleRad(armDir);
 
-					if (dir.x >= 0) {
-						this._armDir = rotation - Math.PI / 2;
-					} else {
-						this._armDir = -rotation + Math.PI / 2;
-					}
+				if (dir.x >= 0) {
+					this._armDir = armRotation - Math.PI / 2;
+				} else {
+					this._armDir = -armRotation + Math.PI / 2;
 				}
 			}
 
@@ -312,17 +307,9 @@ export class Player extends Entity {
 	override update(millis : number) : void {
 		super.update(millis);
 
-		if (game.options().host) {
-			if (this._keys.keyPressed(Key.MOUSE_CLICK) && defined(this._weaponDir)) {
-				const pos = this._equip.shootNode().getAbsolutePosition();
-				const projectile = game.entities().add(EntityType.PROJECTILE, {
-					pos: {x: pos.x, y: pos.y},
-					dim: {x: 0.3, y: 0.3},
-					vel: Vec2Math.scale(this._weaponDir, 0.1),
-					acc: Vec2Math.scale(this._weaponDir, 1.5),
-				});
-				projectile.attributes().set(Attribute.OWNER, this.id());
-				projectile.setTTL(1000);
+		if (game.options().host && defined(this._weapon)) {
+			if (this._keys.keyDown(Key.MOUSE_CLICK)) {
+				this._weapon.shoot(this._keys.mouse());
 			}
 		}
 	}
@@ -346,30 +333,30 @@ export class Player extends Entity {
 	override preRender() : void {
 		super.preRender();
 
-		if (!this._mesh.hasMesh()) {
+		if (!this._model.hasMesh()) {
 			return;
 		}
 
 		if (!this.attributes().get(Attribute.GROUNDED) || this.attributes().get(Attribute.DEAD)) {
-			this._mesh.playAnimation(Animation.JUMP);
+			this._model.playAnimation(Animation.JUMP);
 		} else {
 			if (Math.abs(this._profile.acc().x) < 0.01) {
-				this._mesh.playAnimation(Animation.IDLE);
+				this._model.playAnimation(Animation.IDLE);
 			} else {
-				this._mesh.playAnimation(Animation.WALK);
+				this._model.playAnimation(Animation.WALK);
 			}
 		}
 
 		if (defined(this._armDir)) {
-			let arm = this._mesh.getBone(Bone.ARM);
+			let arm = this._model.getBone(Bone.ARM);
 			arm.getTransformNode().rotation = new BABYLON.Vector3(this._armDir, Math.PI, 0);
 		}
 		if (defined(this._facingSign)) {
-			let armature = this._mesh.getBone(Bone.ARMATURE).getTransformNode();
+			let armature = this._model.getBone(Bone.ARMATURE).getTransformNode();
 			armature.scaling.z = this._facingSign;
 		}
 		if (defined(this._neckDir)) {
-			let neck = this._mesh.getBone(Bone.NECK);
+			let neck = this._model.getBone(Bone.NECK);
 			neck.getTransformNode().rotation = new BABYLON.Vector3(this._neckDir, neck.getTransformNode().rotation.y, neck.getTransformNode().rotation.z);
 		}
 	}

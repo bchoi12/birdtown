@@ -4,11 +4,11 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'	
 import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
-import { Equip } from 'game/entity/equip'
 import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
-import { Projectile } from 'game/entity/projectile'
+import { Rocket } from 'game/entity/projectile/rocket'
 import { Wall } from 'game/entity/wall'
+import { Bazooka } from 'game/entity/weapon/bazooka'
 
 interface DataItem {
 	seqNum : number;
@@ -37,10 +37,10 @@ export class EntityMap {
 		this._pendingData = new Array<DataItem>();
 
 		this._factory =  new Map();
-		this._factory.set(EntityType.EQUIP, (options : EntityOptions) => { return new Equip(options); });
+		this._factory.set(EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); });
 		this._factory.set(EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); });
 		this._factory.set(EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); });
-		this._factory.set(EntityType.PROJECTILE, (options : EntityOptions) => { return new Projectile(options); });
+		this._factory.set(EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); });
 		this._factory.set(EntityType.WALL, (options : EntityOptions) => { return new Wall(options); });
 	}
 
@@ -77,7 +77,6 @@ export class EntityMap {
 	pushData(item : DataItem) : void { this._pendingData.push(item); }
 
 	update() : void {
-		const millis = Math.min(this.timestep(), 20);
 		while(this._pendingData.length > 0) {
 			const item = this._pendingData.pop();
 			for (const [stringSpace, entityMap] of Object.entries(item.dataMap)) {
@@ -104,6 +103,8 @@ export class EntityMap {
 			}
 		});
 
+		// TODO: smaller timesteps?
+		const millis = Math.min(this.timestep(), 20);
 		this._initialized.forEach((entity) => {
 			entity.preUpdate(millis);
 		});

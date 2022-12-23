@@ -11,7 +11,7 @@ export enum ComponentType {
 
 	ATTRIBUTES,
 	KEYS,
-	MESH,
+	MODEL,
 	PROFILE,
 }
 

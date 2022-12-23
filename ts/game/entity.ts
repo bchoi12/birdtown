@@ -4,7 +4,7 @@ import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
 import { Attribute, Attributes } from 'game/component/attributes'
 import { Custom } from 'game/component/custom'
-import { Mesh } from 'game/component/mesh'
+import { Model } from 'game/component/model'
 import { Metadata } from 'game/component/metadata'
 import { Profile } from 'game/component/profile'
 import { Data, DataFilter, DataMap } from 'game/data'
@@ -16,10 +16,10 @@ import { Vec2 } from 'util/vec2'
 export enum EntityType {
 	UNKNOWN,
 
-	EQUIP,
+	BAZOOKA,
 	EXPLOSION,
 	PLAYER,
-	PROJECTILE,
+	ROCKET,
 	WALL,
 }
 
@@ -120,14 +120,11 @@ export abstract class Entity {
 	get(type : ComponentType) : Component { return this._components.get(type); }
 	attributes() : Attributes { return <Attributes>this._components.get(ComponentType.ATTRIBUTES); }
 	custom() : Custom { return <Custom>this._components.get(ComponentType.CUSTOM); }
-	hasMesh() : boolean { return this.has(ComponentType.MESH); }
-	mesh() : Mesh { return <Mesh>this._components.get(ComponentType.MESH); }
+	hasModel() : boolean { return this.has(ComponentType.MODEL); }
+	model() : Model { return <Model>this._components.get(ComponentType.MODEL); }
 	metadata() : Metadata { return <Metadata>this._components.get(ComponentType.METADATA); }
 	hasProfile() : boolean { return this.has(ComponentType.PROFILE); }
 	profile() : Profile { return <Profile>this._components.get(ComponentType.PROFILE); }
-
-	// TODO: remove this
-	attach(entity : Entity) : void {}
 
 	newTimer() : Timer {
 		let timer = new Timer();
