@@ -16,8 +16,8 @@ export class ChannelMap {
 	private _stats : Map<ChannelType, StatsTracker>;
 
 	constructor() {
-		this._channels = new Map<ChannelType, DataConnection>();
-		this._stats = new Map<ChannelType, StatsTracker>;
+		this._channels = new Map();
+		this._stats = new Map();
 	}
 
 	disconnected() : boolean { return !this.has(ChannelType.TCP); }

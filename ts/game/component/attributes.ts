@@ -87,6 +87,14 @@ export class Attributes extends ComponentBase implements Component {
 		this._attributes.get(prop).set(attribute, value);
 	}
 
+	setIf(attribute : Attribute, value : Value, set : boolean) : void {
+		if (!set) {
+			return;
+		}
+
+		this.set(attribute, value);
+	}
+
 	negate(attribute : Attribute) : void {
 		const current = this.get(attribute);
 

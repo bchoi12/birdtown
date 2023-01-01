@@ -211,9 +211,9 @@ export class Player extends Entity {
 		}
 
 		if (this._keys.keyDown(Key.INTERACT)) {
-			this.attributes().set(Attribute.DEAD, true);
+			this.attributes().setIf(Attribute.DEAD, true, game.options().host);
 		} else {
-			this.attributes().set(Attribute.DEAD, false);
+			this.attributes().setIf(Attribute.DEAD, false, game.options().host);
 		}
 
 		this._deadTracker.check();
@@ -279,7 +279,7 @@ export class Player extends Entity {
 				}
 			} else if (this.attributes().getOrDefault(Attribute.CAN_DOUBLE_JUMP) && this._keys.keyPressed(Key.JUMP)) {
 				this._profile.setVel({ y: this._jumpVel });
-				this.attributes().set(Attribute.CAN_DOUBLE_JUMP, false);
+				this.attributes().setIf(Attribute.CAN_DOUBLE_JUMP, false, game.options().host);
 			}
 		}
 
@@ -317,15 +317,15 @@ export class Player extends Entity {
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
 
-		this.attributes().set(Attribute.GROUNDED, false);
+		this.attributes().setIf(Attribute.GROUNDED, false, game.options().host);
 	}
 
 	override collide(other : Entity, collision : MATTER.Collision) : void {
 		super.collide(other, collision);
 
 		if (other.attributes().getOrDefault(Attribute.SOLID) && collision.normal.y >= 0.5) {
-			this.attributes().set(Attribute.GROUNDED, true);
-			this.attributes().set(Attribute.CAN_DOUBLE_JUMP, true);
+			this.attributes().setIf(Attribute.GROUNDED, true, game.options().host);
+			this.attributes().setIf(Attribute.CAN_DOUBLE_JUMP, true, game.options().host);
 			this._jumpTimer.start(this._jumpGracePeriod);
 		}
 	}
@@ -347,6 +347,7 @@ export class Player extends Entity {
 			}
 		}
 
+		// TODO: recompute these values
 		if (defined(this._armDir)) {
 			let arm = this._model.getBone(Bone.ARM);
 			arm.getTransformNode().rotation = new BABYLON.Vector3(this._armDir, Math.PI, 0);

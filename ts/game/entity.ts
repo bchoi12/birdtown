@@ -32,6 +32,7 @@ export interface EntityOptions {
 	// Metadata
 	clientId? : number;
 
+	// TODO: move to profile init options
 	// Profile
 	pos? : Vec2;
 	vel? : Vec2;

@@ -6,6 +6,41 @@ export interface Vec2 {
     y? : number;
 }
 
+/*
+export interface Vec {
+    x? : number;
+    y? : number;
+    z? : number;
+}
+*/
+
+/*
+    valid();
+    normalize();
+    negate();
+    lengthSq();
+    length();
+
+    fromBabylon(vec : BABYLON.Vector3);
+    fromMatter(vec : MATTER.Vector);
+    fromObject(obj : Object);
+
+    toBabylon() : BABYLON.Vector3;
+    toMatter() : MATTER.Vector;
+    toObject() : Object;
+*/
+
+/*
+class VecBase {
+
+}
+
+export class Vec2 extends VecBase implements Vec {
+
+}
+*/
+
+
 export namespace Vec2Math {
     export function valid(v : Vec2) : boolean {
         return defined(v.x, v.y);
