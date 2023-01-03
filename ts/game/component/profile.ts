@@ -3,19 +3,30 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
+import { ProfilePart } from 'game/component/profile_part'
 import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity, EntityOptions } from 'game/entity'
 
 import { options } from 'options'
 
 import { defined } from 'util/common'
-import { Vec2 } from 'util/vec2'
+import { Vec, Vec2 } from 'util/vector'
+
+export type ProfileInitOptions = {
+	pos? : Vec;
+	vel? : Vec;
+	acc? : Vec;
+	dim? : Vec;
+}
+
+type ReadyFn = (profile : Profile) => boolean;
+type InitFn = (profile : Profile) => void;
+type OnInitFn = (profile : Profile) => void;
 
 type ProfileOptions = {
-	readyFn? : () => boolean;
-	bodyFn : (pos : Vec2, dim : Vec2) => MATTER.Body;
-
-	entityOptions? : EntityOptions;
+	readyFn? : ReadyFn;
+	initFn : InitFn;
+	initOptions? : ProfileInitOptions;
 }
 
 enum Prop {
@@ -30,44 +41,51 @@ enum Prop {
 }
 
 export class Profile extends ComponentBase implements Component {
+	private _readyFn : ReadyFn;
+	private _initFn : InitFn;
 
-	public static readonly gravity = -0.85;
-
-	private _readyFn : () => boolean;
-	private _bodyFn : (pos : Vec2, dim : Vec2) => MATTER.Body;
-
-	private _pos : MATTER.Vector;
-	private _vel : MATTER.Vector;
-	private _acc : MATTER.Vector;
-	private _dim : MATTER.Vector;
+	private _pos : Vec2;
+	private _vel : Vec2;
+	private _acc : Vec2;
+	private _dim : Vec2;
 	private _angle : number;
 	private _applyScaling : boolean;
-	private _scaleFactor : MATTER.Vector;
+	private _scaleFactor : Vec2;
 	private _inertia : number;
-	private _scaling : MATTER.Vector;
+	private _scaling : Vec2;
 
-	private _forces : Array<Vec2>;
+	private _forces : Array<Vec>;
 	private _initialInertia : number;
 
+	private _composite : MATTER.Composite;
 	private _body : MATTER.Body;
 
 	constructor(options : ProfileOptions) {
 		super(ComponentType.PROFILE);
 
-		this._readyFn = defined(options.readyFn) ? options.readyFn : () => { return true; };
-		this._bodyFn = options.bodyFn;
+		this._readyFn = defined(options.readyFn) ? options.readyFn : (profile : Profile) => { return true; };
+		this._initFn = options.initFn;
 
-		this.setFromOptions(options.entityOptions);
+		if (options.initOptions) {
+			this.initFromOptions(options.initOptions);
+		}
+	}
+
+	initFromOptions(options : ProfileInitOptions) : void {
+		if (options.pos) { this.setPos(options.pos); }
+		if (options.vel) { this.setVel(options.vel); }
+		if (options.acc) { this.setAcc(options.acc); }
+		if (options.dim) { this.setDim(options.dim); }
 	}
 
 	override ready() : boolean {
-		return this.hasPos() && this.hasDim() && this.hasEntity() && this._readyFn();
+		return this.hasPos() && this.hasDim() && this._readyFn(this);
 	}
 
 	override initialize() : void {
 		super.initialize();
 
-		this._body = this._bodyFn(this.pos(), this.dim());
+		this._initFn(this);
 		MATTER.Composite.add(game.physics().world, this._body)
 		this._body.label = "" + this.entity().id();
 		this._body.parts.forEach((body : MATTER.Body) => {
@@ -79,83 +97,70 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	override dispose() : void {
+		super.dispose();
+
 		if (defined(this._body)) {
 			MATTER.World.remove(game.physics().world, this._body);
 		}
 	}
 
+	hasBody() : boolean { return defined(this._body); }
+	setBody(body : MATTER.Body) : void { this._body = body; }
 	body() : MATTER.Body { return this._body; }
+
 	stop() : void {
 		this.setVel({x: 0, y: 0});
 		this.setAcc({x: 0, y: 0});
 	}
 
-	private setFromOptions(options : EntityOptions) : void {
-		if (options.pos) {
-			this.setPos(options.pos);
-		}
-		if (options.vel) {
-			this.setVel(options.vel);
-		}
-		if (options.acc) {
-			this.setAcc(options.acc);
-		}
-		if (options.dim) {
-			this.setDim(options.dim);
-		}
-	}
-
 	private hasPos() : boolean { return defined(this._pos) && defined(this._pos.x, this._pos.y); }
-	pos() : MATTER.Vector { return this._pos; }
-	pos3() : BABYLON.Vector3 { return new BABYLON.Vector3(this._pos.x, this._pos.y, 0); }
-	setPos(vec : Vec2) : void {
-		if (!this.hasPos()) { this._pos = {x: 0, y: 0}; }
-		if (defined(vec.x)) { this._pos.x = vec.x; }
-		if (defined(vec.y)) { this._pos.y = vec.y; }
+	pos() : Vec2 { return this._pos; }
+	setPos(vec : Vec) : void {
+		if (!this.hasPos()) { this._pos = Vec2.zero(); }
+
+		this._pos.copyVec(vec);
 	}
-	addPos(delta : Vec2) : void {
-		if (!this.hasPos()) { this._pos = {x: 0, y: 0}; }
-		if (defined(delta.x)) { this._pos.x += delta.x; }
-		if (defined(delta.y)) { this._pos.y += delta.y; }
+	addPos(delta : Vec) : void {
+		if (!this.hasPos()) { this._pos = Vec2.zero(); }
+
+		this._pos.add(delta);
 	}
 
 	hasVel() : boolean { return defined(this._vel) && defined(this._vel.x, this._vel.y); }
-	vel() : MATTER.Vector { return this._vel; }
-	setVel(vec : Vec2) : void {
-		if (!this.hasVel()) { this._vel = {x: 0, y: 0}; }
-		if (defined(vec.x)) { this._vel.x = vec.x; }
-		if (defined(vec.y)) { this._vel.y = vec.y; }
+	vel() : Vec2 { return this._vel; }
+	setVel(vec : Vec) : void {
+		if (!this.hasVel()) { this._vel = Vec2.zero(); }
+
+		this._vel.copyVec(vec);
 	}
-	addVel(delta : Vec2) : void {
-		if (!this.hasVel()) { this._vel = {x: 0, y: 0}; }
-		if (defined(delta.x)) { this._vel.x += delta.x; }
-		if (defined(delta.y)) { this._vel.y += delta.y; }
+	addVel(delta : Vec) : void {
+		if (!this.hasVel()) { this._vel = Vec2.zero(); }
+
+		this._vel.add(delta);
 	}
 
 	hasAcc() : boolean { return defined(this._acc) && defined(this._acc.x, this._acc.y); }
-	acc() : MATTER.Vector { return this._acc; }
-	setAcc(vec : Vec2) : void {
-		if (!this.hasAcc()) { this._acc = {x: 0, y: 0}; }
-		if (defined(vec.x)) { this._acc.x = vec.x; }
-		if (defined(vec.y)) { this._acc.y = vec.y; }
+	acc() : Vec2 { return this._acc; }
+	setAcc(vec : Vec) : void {
+		if (!this.hasAcc()) { this._acc = Vec2.zero(); }
+
+		this._acc.copyVec(vec);
 	}
-	addAcc(delta : Vec2) : void {
-		if (!this.hasAcc()) { this._acc = {x: 0, y: 0}; }
-		if (defined(delta.x)) { this._acc.x += delta.x; }
-		if (defined(delta.y)) { this._acc.y += delta.y; }
+	addAcc(delta : Vec) : void {
+		if (!this.hasAcc()) { this._acc = Vec2.zero(); }
+
+		this._acc.add(delta);
 	}
 
 	private hasDim() : boolean { return defined(this._dim) && defined(this._dim.x, this._dim.y); }
-	dim() : MATTER.Vector { return this._dim; }
-	setDim(vec : Vec2) : void {
-		if (Data.equals(this._dim, vec)) { return; }
+	dim() : Vec2 { return this._dim; }
+	setDim(vec : Vec) : void {
+		if (defined(this._dim) && Data.equals(this._dim.toVec(), vec)) { return; }
 		if (this.hasDim()) {
-			console.error("Error: dimension is already initialized for " + this.entity().name());
+			console.error("Error: dimension is already initialized for " + name);
 			return;
 		}
-		this._dim = {x: 1, y: 1};
-		if (defined(vec.x)) { this._dim.x = vec.x; }
-		if (defined(vec.y)) { this._dim.y = vec.y; }
+		this._dim = Vec2.fromVec(vec);
 	}
 
 	hasAngle() : boolean { return defined(this._angle); }
@@ -165,20 +170,15 @@ export class Profile extends ComponentBase implements Component {
 	setAngularVelocity(vel : number) : void { MATTER.Body.setAngularVelocity(this._body, vel); }
 	addAngularVelocity(delta : number) : void { MATTER.Body.setAngularVelocity(this._body, this._body.angularVelocity + delta); }
 
-	addForce(force : Vec2) : void { this._forces.push(force); }
-	applyForces() : void {
+	addForce(force : Vec) : void { this._forces.push(force); }
+	private applyForces() : void {
 		if (this._forces.length === 0) {
 			return;
 		}
 
-		let totalForce = {x: 0, y: 0};
-		this._forces.forEach((force : Vec2) => {
-			if (defined(force.x)) {
-				totalForce.x += force.x;
-			}
-			if (defined(force.y)) {
-				totalForce.y += force.y;
-			}
+		let totalForce = Vec2.zero();
+		this._forces.forEach((force : Vec) => {
+			totalForce.add(force);
 		});
 
 		this.addVel(totalForce);
@@ -191,12 +191,17 @@ export class Profile extends ComponentBase implements Component {
 	resetInertia() : void { this._inertia = this._initialInertia; }
 
 	hasScaling() : boolean { return defined(this._scaling) && defined(this._scaling.x, this._scaling.y); }
-	scaling() : MATTER.Vector { return this._scaling; }
-	setScaling(vec : Vec2) {
-		if (!defined(this._scaling)) { this._scaling = { x: 1, y: 1}; }
+	scaling() : Vec2 { return this._scaling; }
+	setScaling(vec : Vec) {
+		if (!defined(this._scaling)) {
+			this._scaling = Vec2.fromVec({x: 1, y: 1});
+		}
+		if (!defined(this._scaleFactor)) {
+			this._scaleFactor = Vec2.fromVec({x: 1, y: 1});
+		}
+
 		if (Data.equals(this._scaling, vec)) { return; }
 
-		this._scaleFactor = {x: 1, y: 1};
 		if (defined(vec.x)) {
 			this._scaleFactor.x = vec.x / this._scaling.x;
 		}
@@ -204,13 +209,12 @@ export class Profile extends ComponentBase implements Component {
 			this._scaleFactor.y = vec.y / this._scaling.y;
 		}
 
-		if (this._scaleFactor.x === 1 && this._scaleFactor.y === 1) {
+		if (Data.equals(this._scaleFactor.x, 1) && Data.equals(this._scaleFactor.y, 1)) {
 			return;
 		}
 
 		this._applyScaling = true;
-		this._scaling.x = vec.x;
-		this._scaling.y = vec.y;
+		this._scaling.copyVec(vec);
 	}
 
 	override prePhysics(millis : number) : void {
@@ -229,7 +233,7 @@ export class Profile extends ComponentBase implements Component {
 
 		if (this.hasAcc()) {
 			const acc = this.acc();
-			if (MATTER.Vector.magnitudeSquared(acc) > 0 && this.hasVel()) {
+			if (acc.lengthSq() > 0 && this.hasVel()) {
 				const ts = millis / 1000;
 				this.addVel({
 					x: acc.x * ts,
@@ -263,16 +267,16 @@ export class Profile extends ComponentBase implements Component {
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
 
-		this.setProp(Prop.POS, MATTER.Vector.clone(this.pos()), seqNum)
+		this.setProp(Prop.POS, this.pos().toVec(), seqNum)
 
 		if (this.hasVel()) {
-			this.setProp(Prop.VEL, MATTER.Vector.clone(this.vel()), seqNum);
+			this.setProp(Prop.VEL, this.vel().toVec(), seqNum);
 		}
 		if (this.hasAcc()) {
-			this.setProp(Prop.ACC, MATTER.Vector.clone(this.acc()), seqNum);
+			this.setProp(Prop.ACC, this.acc().toVec(), seqNum);
 		}
 		if (this.hasDim()) {
-			this.setProp(Prop.DIM, MATTER.Vector.clone(this.dim()), seqNum);
+			this.setProp(Prop.DIM, this.dim().toVec(), seqNum);
 		}
 		if (this.hasAngle()) {
 			this.setProp(Prop.ANGLE, this.angle(), seqNum);
@@ -281,7 +285,7 @@ export class Profile extends ComponentBase implements Component {
 			this.setProp(Prop.INERTIA, this.inertia(), seqNum);
 		}
 		if (this.hasScaling()) {
-			this.setProp(Prop.SCALING, this.scaling(), seqNum);
+			this.setProp(Prop.SCALING, this.scaling().toVec(), seqNum);
 		}
 	}
 
@@ -294,16 +298,16 @@ export class Profile extends ComponentBase implements Component {
 		}
 
 		if (changed.has(Prop.POS)) {
-			this.setPos(<Vec2>this._data.get(Prop.POS));
+			this.setPos(<Vec>this._data.get(Prop.POS));
 		}
 		if (changed.has(Prop.VEL)) {
-			this.setVel(<Vec2>this._data.get(Prop.VEL));
+			this.setVel(<Vec>this._data.get(Prop.VEL));
 		}
 		if (changed.has(Prop.ACC)) {
-			this.setAcc(<Vec2>this._data.get(Prop.ACC));
+			this.setAcc(<Vec>this._data.get(Prop.ACC));
 		}
 		if (changed.has(Prop.DIM)) {
-			this.setDim(<Vec2>this._data.get(Prop.DIM));
+			this.setDim(<Vec>this._data.get(Prop.DIM));
 		}
 		if (changed.has(Prop.ANGLE)) {
 			this.setAngle(<number>this._data.get(Prop.ANGLE));
@@ -312,28 +316,8 @@ export class Profile extends ComponentBase implements Component {
 			this.setInertia(<number>this._data.get(Prop.INERTIA));
 		}
 		if (changed.has(Prop.SCALING)) {
-			this.setScaling(<Vec2>this._data.get(Prop.SCALING));
+			this.setScaling(<Vec>this._data.get(Prop.SCALING));
 		}
-	}
-
-	// currently unused
-	above(other : Profile) : boolean {
-		return this.pos().y - other.pos().y - (this.dim().y / 2 + other.dim().y / 2) >= -(0.1 * this.dim().y);
-	}
-
-	interpolateVec(current : Vec2, next : Vec2, weight : number) : Vec2 {
-		if (!defined(current) || this.isSource()) {
-			return next;
-		}
-
-		return {
-			x: this.lerp(current.x, next.x, weight),
-			y: this.lerp(current.y, next.y, weight),
-		};
-	}
-
-	private distanceSquared(a : Vec2, b : Vec2) {
-		return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
 	}
 
 	private lerp(current : number, next : number, weight : number) {

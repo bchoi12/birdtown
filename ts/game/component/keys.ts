@@ -8,7 +8,7 @@ import { Data, DataFilter, DataMap } from 'game/data'
 import { ui, Key } from 'ui'
 
 import { defined } from 'util/common'
-import { Vec2 } from 'util/vec2'
+import { Vec } from 'util/vector'
 
 enum Prop {
 	UNKNOWN,
@@ -23,7 +23,7 @@ export class Keys extends ComponentBase implements Component {
 	private _current : Set<Key>;
 	private _pressed : Set<Key>;
 	private _released : Set<Key>;
-	private _mouse : Vec2;
+	private _mouse : Vec;
 
 	constructor() {
 		super(ComponentType.KEYS);
@@ -39,7 +39,7 @@ export class Keys extends ComponentBase implements Component {
 	keyDown(key : Key) : boolean { return this._current.has(key); }
 	keyPressed(key : Key) : boolean { return this._pressed.has(key); }
 	keyReleased(key : Key) : boolean { return this._released.has(key); }
-	mouse() : Vec2 { return this._mouse; }
+	mouse() : Vec { return this._mouse; }
 	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }
 
 	override preUpdate(millis : number) : void {
@@ -85,7 +85,7 @@ export class Keys extends ComponentBase implements Component {
 			this._released = new Set(<Set<Key>>this._data.get(Prop.RELEASED));
 		}
 		if (changed.has(Prop.MOUSE)) {
-			this._mouse = <Vec2>this._data.get(Prop.MOUSE);
+			this._mouse = <Vec>this._data.get(Prop.MOUSE);
 		}
 	}
 

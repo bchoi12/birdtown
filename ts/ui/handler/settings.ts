@@ -30,10 +30,10 @@ export class Settings extends HandlerBase implements Handler{
 			type: "checkbox",
 			label: "Enable fullscreen",
 
-			getOption: () => {
+			getSetting: () => {
 				return options.enableFullscreen;
 			},
-			setOption: (value: boolean) => {
+			setSetting: (value: boolean) => {
 				options.enableFullscreen = value;
 			},
 		});
@@ -44,10 +44,10 @@ export class Settings extends HandlerBase implements Handler{
 			type: "checkbox",
 			label: "Enable in-game cursor",
 
-			getOption: () => {
+			getSetting: () => {
 				return options.enablePointerLock;
 			},
-			setOption: (value: boolean) => {
+			setSetting: (value: boolean) => {
 				options.enablePointerLock = value;
 			},
 		});
@@ -55,14 +55,14 @@ export class Settings extends HandlerBase implements Handler{
 
 		if (isLocalhost()) {
 			let inspector = new SettingWrapper({
-				id: "input-inspector",
+				id: "input-debug-inspector",
 				type: "checkbox",
 				label: "Enable inspector",
 
-				getOption: () => {
+				getSetting: () => {
 					return options.debugInspector;
 				},
-				setOption: (value: boolean) => {
+				setSetting: (value: boolean) => {
 					options.debugInspector = value;
 				},
 			});
@@ -78,33 +78,33 @@ export class Settings extends HandlerBase implements Handler{
 			max: 1,
 			step: .01,
 
-			getOption: () => {
+			getSetting: () => {
 				return options.predictionWeight;
 			},
-			setOption: (value : number) => {
+			setSetting: (value : number) => {
 				options.predictionWeight = value;
 			},
 		});
 		this._settingsElm.appendChild(prediction.elm());
 
 		if (isLocalhost()) {
-			let debugDelay = new SettingWrapper({
+			let delay = new SettingWrapper({
 				id: "input-debug-delay",
 				type: "range",
 				label: "Delay",
 
 				min: 0,
-				max: 50,
+				max: 100,
 				step: 1,
 
-				getOption: () => {
+				getSetting: () => {
 					return options.debugDelay;
 				},
-				setOption: (value : number) => {
+				setSetting: (value : number) => {
 					options.debugDelay = value;
 				},
 			});
-			this._settingsElm.appendChild(debugDelay.elm());		
+			this._settingsElm.appendChild(delay.elm());		
 		}
 	}
 

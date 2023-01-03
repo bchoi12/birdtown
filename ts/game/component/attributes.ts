@@ -24,6 +24,10 @@ enum Prop {
 	NUMBERS,
 }
 
+export type AttributesInitOptions = {
+	attributes? : Map<Attribute, Value>;
+}
+
 type Value = boolean|number;
 
 export class Attributes extends ComponentBase implements Component {
@@ -42,11 +46,17 @@ export class Attributes extends ComponentBase implements Component {
 	private _attributes : Map<Prop, Map<Attribute, Value>>;
 	private _attributeData : Map<Prop, Data>;
 
-	constructor() {
+	constructor(options? : AttributesInitOptions) {
 		super(ComponentType.ATTRIBUTES);
 
 		this._attributes = new Map();
 		this._attributeData = new Map();
+
+		if (options && options.attributes) {
+			options.attributes.forEach((value, key) => {
+				this.set(key, value);
+			})
+		}
 	}
 
 	has(attribute : Attribute) : boolean {

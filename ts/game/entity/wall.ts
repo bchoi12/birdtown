@@ -9,7 +9,7 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 
 import { defined } from 'util/common'
-import { Vec2 } from 'util/vec2'
+import { Vec } from 'util/vector'
 
 export class Wall extends Entity {
 
@@ -19,12 +19,14 @@ export class Wall extends Entity {
 		this.attributes().set(Attribute.SOLID, true);
 
 		let profile = <Profile>this.add(new Profile({
-			bodyFn: (pos : Vec2, dim : Vec2) => {
-				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+			initFn: (profile : Profile) => {
+				const pos = profile.pos();
+				const dim = profile.dim();
+				profile.setBody(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
 					isStatic: true,
-				});
+				}));
 			},
-			entityOptions: options,
+			initOptions: options.profileInitOptions,
 		}));
 
 		this.add(new Model({

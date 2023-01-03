@@ -12,20 +12,21 @@ export enum ComponentType {
 	ATTRIBUTES,
 	KEYS,
 	MODEL,
+	MULTI_PROFILE,
 	PROFILE,
 }
 
 export interface Component {
-	type() : ComponentType;
-	hasEntity() : boolean;
-	entity() : Entity;
-	setEntity(entity : Entity) : void;
-
+	type() : ComponentType
 	ready() : boolean;
 	initialized() : boolean;
 	initialize() : void;
 	delete() : void;
 	dispose() : void;
+
+	hasEntity() : boolean;
+	entity() : Entity;
+	setEntity(entity : Entity) : void;
 
 	preUpdate(millis : number) : void
 	update(millis : number) : void
@@ -37,36 +38,36 @@ export interface Component {
 
 	shouldBroadcast() : boolean;
 	isSource() : boolean;
+	allData() : DataMap;
 	filteredData(filter : DataFilter) : DataMap;
 	updateData(seqNum : number) : void;
 	mergeData(data : DataMap, seqNum : number) : void;
-};
+}
 
 export abstract class ComponentBase {
-
-	protected _initialized : boolean;
-	protected _entity : Entity;
 	protected _type : ComponentType;
+	protected _initialized : boolean;
+	protected _deleted : boolean;
+	protected _entity : Entity;
 	protected _data : Data;
 	protected _lastMergeTime : number;
 
 	constructor(type : ComponentType) {
+		this._type = type;
 		this._initialized = false;
 		this._entity = null;
-		this._type = type;
 		this._data = new Data();
 		this._lastMergeTime = Date.now();
 	}
 
-	abstract ready() : boolean;
+	type() : ComponentType { return this._type; }
+	ready() : boolean { return true; };
 	initialized() : boolean { return this._initialized; }
-	initialize() : void {
-		this._initialized = true;
-	}
-	delete() : void {}
+	initialize() : void { this._initialized = true; }
+	delete() : void { this._deleted = true; }
+	deleted() : boolean { return this._deleted; }
 	dispose() : void {}
 
-	type() : ComponentType { return this._type; }
 	hasEntity() : boolean { return defined(this._entity); }
 	entity() : Entity { return this._entity; }
 	setEntity(entity : Entity) : void { this._entity = entity; }
@@ -81,6 +82,7 @@ export abstract class ComponentBase {
 
 	shouldBroadcast() : boolean { return game.options().host; }
 	isSource() : boolean { return game.options().host; }
+	allData() : DataMap { return this._data.filtered(DataFilter.ALL); }
 	filteredData(filter : DataFilter) : DataMap { return this._data.filtered(filter); }
 	updateData(seqNum : number) : void {}
 	mergeData(data : DataMap, seqNum : number) : void {

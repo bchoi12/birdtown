@@ -2,16 +2,16 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
-import { Attribute, Attributes } from 'game/component/attributes'
+import { Attribute, Attributes, AttributesInitOptions } from 'game/component/attributes'
 import { Custom } from 'game/component/custom'
 import { Model } from 'game/component/model'
-import { Metadata } from 'game/component/metadata'
-import { Profile } from 'game/component/profile'
+import { Metadata, MetadataInitOptions } from 'game/component/metadata'
+import { Profile, ProfileInitOptions } from 'game/component/profile'
 import { Data, DataFilter, DataMap } from 'game/data'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
-import { Vec2 } from 'util/vec2'
+import { Vec } from 'util/vector'
 
 export enum EntityType {
 	UNKNOWN,
@@ -26,18 +26,9 @@ export enum EntityType {
 export interface EntityOptions {
 	id? : number;
 
-	// Attributes
-	owner? : number;
-
-	// Metadata
-	clientId? : number;
-
-	// TODO: move to profile init options
-	// Profile
-	pos? : Vec2;
-	vel? : Vec2;
-	acc? : Vec2;
-	dim? : Vec2;
+	attributesInitOptions? : AttributesInitOptions;
+	metadataInitOptions? : MetadataInitOptions;
+	profileInitOptions? : ProfileInitOptions
 }
 
 export abstract class Entity {
@@ -57,17 +48,9 @@ export abstract class Entity {
 		this._id = options.id;
 
 		this._components = new Map();
-		this.add(new Attributes());
+		this.add(new Attributes(options.attributesInitOptions));
 		this.add(new Custom());
-		this.add(new Metadata());
-
-		if (defined(options.owner)) {
-			this.attributes().set(Attribute.OWNER, options.owner);
-		}
-
-		if (defined(options.clientId)) {
-			this.metadata().setClientId(options.clientId);
-		}
+		this.add(new Metadata(options.metadataInitOptions));
 
 		this._timers = new Array();
 	}

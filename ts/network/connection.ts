@@ -203,13 +203,11 @@ export abstract class Connection {
 			return;
 		}
 
-		const time = Date.now();
 		const decoded : Object = decode(bytes);
-		console.log("decode time: ", Date.now() - time);
 		if ('T' in decoded) {
 			const msg = <Message>decoded;
 			if (this._messageCallbacks.has(msg.T)) {
-				this._messageCallbacks.get(msg.T)(peer, msg);				
+				this._messageCallbacks.get(msg.T)(peer, msg);
 			}
 		} else {
 			console.error("Missing payload type from message: ", decoded);

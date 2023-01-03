@@ -6,7 +6,7 @@ import { options } from 'options'
 import { ui, HandlerType, Key, Mode } from 'ui'
 import { Handler, HandlerBase } from 'ui/handler'
 import { Html } from 'ui/html'
-import { Vec2 } from 'util/vec2'
+import { Vec } from 'util/vector'
 
 export class Input extends HandlerBase implements Handler {
 	private readonly _cursorWidth = 20;
@@ -19,7 +19,7 @@ export class Input extends HandlerBase implements Handler {
 	private _keyUpCallbacks : Map<number, (e : any) => void>;
 
 	private _cursorElm : HTMLElement;
-	private _mouse : Vec2;
+	private _mouse : Vec;
 
 	constructor() {
 		super(HandlerType.INPUT);
@@ -94,7 +94,7 @@ export class Input extends HandlerBase implements Handler {
 	}
 
 	keys() : Set<number> { return this._keys; }
-	mouse() : Vec2 { return this._mouse; }
+	mouse() : Vec { return this._mouse; }
 
 	private mapKey(keyCode : number, key : Key) {
 		this._keyMap.set(keyCode, key);

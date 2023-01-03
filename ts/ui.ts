@@ -6,7 +6,7 @@ import { Pause } from 'ui/handler/pause'
 import { Settings } from 'ui/handler/settings'
 import { Stats } from 'ui/handler/stats'
 
-import { Vec2 } from 'util/vec2'
+import { Vec } from 'util/vector'
 
 export enum Mode {
 	UNKNOWN,
@@ -86,7 +86,7 @@ class UI {
 	get(type : HandlerType) : Handler { return this._handlers.get(type); }
 	mode() : Mode { return this._mode; }
 	keys() : Set<Key> { return this._input.keys(); }
-	mouse() : Vec2 {
+	mouse() : Vec {
 		return this._input.mouse();
 
 		/*

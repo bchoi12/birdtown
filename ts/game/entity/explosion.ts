@@ -6,7 +6,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 
-import { Vec2, Vec2Math} from 'util/vec2'
+import { Vec, Vec2 } from 'util/vector'
 
 export class Explosion extends Entity {
 
@@ -18,13 +18,16 @@ export class Explosion extends Entity {
 		this._hit = new Set();
 
 		let profile = <Profile>this.add(new Profile({
-			bodyFn: (pos : Vec2, dim : Vec2) => {
-				return MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
+			initFn: (profile : Profile) => {
+				const pos = profile.pos();
+				const dim = profile.dim();
+				
+				profile.setBody(MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
 					isStatic: true,
 					isSensor: true,
-				});
+				}));
 			},
-			entityOptions: options,
+			initOptions: options.profileInitOptions,
 		}));
 
 		this.add(new Model({
@@ -52,7 +55,8 @@ export class Explosion extends Entity {
 		}
 
 		this._hit.add(other.id());
-		const force = Vec2Math.scale(Vec2Math.normalize(Vec2Math.sub(other.profile().pos(), this.profile().pos())), 0.5);
+		let force = Vec2.fromVec(other.profile().pos()).sub(this.profile().pos());
+		force.normalize().scale(0.5);
 		other.profile().addForce(force);
 	}
 

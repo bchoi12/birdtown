@@ -10,7 +10,7 @@ import { loader, LoadResult, ModelType } from 'game/loader'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
-import { Vec2 } from 'util/vec2'
+import { Vec } from 'util/vector'
 
 export abstract class Weapon extends Entity {
 
@@ -39,7 +39,7 @@ export abstract class Weapon extends Entity {
 	shootNode() : BABYLON.TransformNode { return defined(this._shoot) ? this._shoot : this.model().mesh(); }
 	pivot() : BABYLON.Vector3 {return this.model().mesh().position; }
 
-	abstract shoot(mouse : Vec2) : boolean;
+	abstract shoot(mouse : Vec) : boolean;
 	reload(time : number) : void {
 		this.attributes().set(Attribute.READY, false);
 		this._reloadTimer.start(time, () => {

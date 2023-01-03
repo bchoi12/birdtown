@@ -13,8 +13,8 @@ export class SettingInputOptions {
 	max?: number;
 	step?: number;
 
-	getOption: () => boolean | number;
-	setOption: (value : boolean | number) => void;
+	getSetting: () => boolean | number;
+	setSetting: (value : boolean | number) => void;
 }
 
 export class SettingWrapper extends HtmlWrapper {
@@ -39,22 +39,22 @@ export class SettingWrapper extends HtmlWrapper {
 		}
 
 		if (input.type === "checkbox") {
-			input.checked = <boolean>options.getOption();
+			input.checked = <boolean>options.getSetting();
 		} else if (input.type === "range") {
-			input.value = "" + <number>options.getOption();
+			input.value = "" + <number>options.getSetting();
 		}
 		input.onchange = () => {
 			if (input.type === "checkbox") {
-				if (options.getOption() === input.checked) {
+				if (options.getSetting() === input.checked) {
 					return;
 				}
-				options.setOption(input.checked);
+				options.setSetting(input.checked);
 			} else if (input.type === "range") {
 				const value = Math.min(options.max, Math.max(options.min, Number(input.value)));
-				if (options.getOption() === value) {
+				if (options.getSetting() === value) {
 					return;
 				}
-				options.setOption(value);
+				options.setSetting(value);
 			}
 		}
 

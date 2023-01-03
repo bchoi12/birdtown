@@ -3,6 +3,10 @@ import { Data, DataFilter, DataMap } from 'game/data'
 
 import { defined } from 'util/common'
 
+export type MetadataInitOptions = {
+	clientId? : number;	
+}
+
 enum Prop {
 	UNKNOWN,
 
@@ -16,11 +20,15 @@ export class Metadata extends ComponentBase implements Component {
 	private _entityDeleted : boolean;
 	private _clientId : number;
 
-	constructor() {
+	constructor(options? : MetadataInitOptions) {
 		super(ComponentType.METADATA);
 
 		this._entityInitialized = false;
 		this._entityDeleted = false;
+
+		if (options) {
+			if (options.clientId) { this.setClientId(options.clientId); }
+		}
 	}
 
 	entityInitialized() : boolean { return this._entityInitialized; }

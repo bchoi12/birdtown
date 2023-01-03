@@ -116,20 +116,30 @@ class Game {
 
 	    if (this._options.host) {
 	    	this._entityMap.add(EntityType.PLAYER, {
-	    		clientId: this.id(),
-	    		pos: {x: 0, y: 10},
+	    		metadataInitOptions: {
+		    		clientId: this.id(),
+	    		},
+	    		profileInitOptions: {
+		    		pos: {x: 0, y: 10},
+	    		},
 	    	});
 		    this._entityMap.add(EntityType.WALL, {
-		    	pos: {x: 0, y: 0},
-		    	dim: {x: 16, y: 1},
+	    		profileInitOptions: {
+			    	pos: {x: 0, y: 0},
+			    	dim: {x: 16, y: 1},
+			    },
 		    });
 		    this._entityMap.add(EntityType.WALL, {
-		    	pos: {x: 3, y: 1},
-		    	dim: {x: 1, y: 1},
+	    		profileInitOptions: {
+		    		pos: {x: 3, y: 1},
+		    		dim: {x: 1, y: 1},
+		    	},
 		    });
 		    this._entityMap.add(EntityType.WALL, {
-		    	pos: {x: 6, y: 3},
-		    	dim: {x: 2, y: 1},
+	    		profileInitOptions: {
+			    	pos: {x: 6, y: 3},
+			    	dim: {x: 2, y: 1},
+			    },
 		    });
 	    }
 
@@ -226,8 +236,12 @@ class Game {
 		});
 
     	this._entityMap.add(EntityType.PLAYER, {
-    		clientId: id,
-    		pos: {x: 0, y: 10},
+    		metadataInitOptions: {
+	    		clientId: id,
+    		},
+	 		profileInitOptions: {
+	    		pos: {x: 0, y: 10},
+	    	},
     	});
 
 		const filter = DataFilter.ALL;

@@ -9,7 +9,7 @@ import { Weapon } from 'game/entity/weapon'
 import { loader, LoadResult, ModelType } from 'game/loader'
 
 import { defined } from 'util/common'
-import { Vec2, Vec2Math } from 'util/vec2'
+import { Vec, Vec2 } from 'util/vector'
 
 export class Bazooka extends Weapon {
 
@@ -20,21 +20,21 @@ export class Bazooka extends Weapon {
 	}
 
 	override modelType() : ModelType { return ModelType.BAZOOKA; }
-	override shoot(mouse : Vec2) : boolean {
+	override shoot(mouse : Vec) : boolean {
 		if (!this.model().hasMesh() || !this.attributes().get(Attribute.READY)) {
 			return false;
 		}
 
-		const pos = this.shootNode().getAbsolutePosition();
-		const pos2 = {x: pos.x, y: pos.y};
-
-		const dir = Vec2Math.normalize(Vec2Math.sub(mouse, pos2));
+		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
+		const dir = Vec2.fromVec(mouse).sub(pos).normalize();
 
 		const projectile = game.entities().add(EntityType.ROCKET, {
-			pos: {x: pos2.x, y: pos2.y},
-			dim: {x: 0.3, y: 0.3},
-			vel: Vec2Math.scale(dir, 0.1),
-			acc: Vec2Math.scale(dir, 1.5),
+    		profileInitOptions: {
+				pos: {x: pos.x, y: pos.y},
+				dim: {x: 0.3, y: 0.3},
+				vel: dir.clone().scale(0.1),
+				acc: dir.clone().scale(1.5),
+			},
 		});
 		projectile.attributes().set(Attribute.OWNER, this.attributes().get(Attribute.OWNER));
 		projectile.setTTL(1000);

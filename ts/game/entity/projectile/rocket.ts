@@ -10,7 +10,7 @@ import { Projectile } from 'game/entity/projectile'
 import { loader, LoadResult, ModelType } from 'game/loader'
 
 import { defined } from 'util/common'
-import { Vec2, Vec2Math } from 'util/vec2'
+import { Vec, Vec2 } from 'util/vector'
 
 export class Rocket extends Projectile {
 
@@ -18,12 +18,14 @@ export class Rocket extends Projectile {
 		super(EntityType.ROCKET, options);
 
 		let profile = <Profile>this.add(new Profile({
-			bodyFn: (pos : Vec2, dim : Vec2) => {
-				return MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
+			initFn: (profile : Profile) => {
+				const pos = profile.pos();
+				const dim = profile.dim();
+				profile.setBody(MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
 					isSensor: true,
-				});
+				}));
 			},
-			entityOptions: options,
+			initOptions: options.profileInitOptions,
 		}));
 
 		this.add(new Model({
@@ -51,7 +53,7 @@ export class Rocket extends Projectile {
 		}
 
 		const vel = this.profile().vel();
-		const angle = Vec2Math.angleRad(vel);
+		const angle = Vec2.fromVec(vel).angleRad();
 
 		this.model().mesh().rotation = new BABYLON.Vector3(-angle, Math.PI / 2, 0);
 	}
@@ -66,8 +68,10 @@ export class Rocket extends Projectile {
 		if (other.attributes().getOrDefault(Attribute.SOLID)) {
 			if (game.options().host) {
 				let explosion = game.entities().add(EntityType.EXPLOSION, {
-					pos: this.profile().pos(),
-					dim: {x: 3, y: 3},
+		    		profileInitOptions: {
+						pos: this.profile().pos(),
+						dim: {x: 3, y: 3},
+					},
 				});
 				explosion.setTTL(200);
 			}

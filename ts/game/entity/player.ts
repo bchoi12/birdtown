@@ -7,6 +7,7 @@ import { Attribute, Attributes } from 'game/component/attributes'
 import { Keys } from 'game/component/keys'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
+import { GameConstants } from 'game/constants'
 import { Data, DataMap } from 'game/data'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { Weapon } from 'game/entity/weapon'
@@ -18,7 +19,7 @@ import { ChangeTracker } from 'util/change_tracker'
 import { defined } from 'util/common'
 import { Funcs } from 'util/funcs'
 import { Timer } from 'util/timer'
-import { Vec2, Vec2Math } from 'util/vec2'
+import { Vec, Vec2 } from 'util/vector'
 
 enum Animation {
 	IDLE = "Idle",
@@ -31,6 +32,11 @@ enum Bone {
 	ARMATURE = "Armature",
 	NECK = "neck",
 	SPINE = "spine",
+}
+
+enum Part {
+	UNKNOWN,
+	HEAD,
 }
 
 enum CustomProp {
@@ -89,7 +95,10 @@ export class Player extends Entity {
 		this._keys = <Keys>this.add(new Keys());
 
 		this._profile = <Profile>this.add(new Profile({
-			bodyFn: (pos : Vec2, dim : Vec2) => {
+			initFn: (profile : Profile) => {
+				const pos = profile.pos();
+				const dim = profile.dim();
+
 				this._mainBody = MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y);
 				this._headBody = MATTER.Bodies.rectangle(pos.x, pos.y + 0.22, 0.96, 1.06, {
 					isSensor: true,
@@ -100,9 +109,9 @@ export class Player extends Entity {
 				});
 				
 				MATTER.Body.setParts(body, [this._mainBody, this._headBody]);
-				return body;
+				profile.setBody(body);
 			},
-			entityOptions: options,
+			initOptions: options.profileInitOptions,
 		}));
 		this._profile.setInertia(Infinity);
 		this._profile.setDim({x: 0.8, y: 1.44 });
@@ -180,7 +189,11 @@ export class Player extends Entity {
 
 		if (game.options().host) {
 			game.entities().add(EntityType.BAZOOKA, {
-				owner: this.id(),
+				attributesInitOptions: {
+					attributes: new Map([
+						[Attribute.OWNER, this.id()],
+					]),
+				},
 			});
 		}
 	}
@@ -205,9 +218,9 @@ export class Player extends Entity {
 		}
 
 		// Gravity
-		this._profile.setAcc({ y: Profile.gravity });
+		this._profile.setAcc({ y: GameConstants.gravity });
 		if (!this.attributes().get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
-			this._profile.addAcc({ y: (this._fallMultiplier - 1) * Profile.gravity });
+			this._profile.addAcc({ y: (this._fallMultiplier - 1) * GameConstants.gravity });
 		}
 
 		if (this._keys.keyDown(Key.INTERACT)) {
@@ -230,11 +243,11 @@ export class Player extends Entity {
 
 			// Set direction of player
 			if (this._model.hasMesh()) {
-				const pos = this._profile.pos3();
+				const pos = this._profile.pos().toBabylon3();
 				const mouse = this._keys.mouseWorld();
 				const dir = mouse.subtract(pos).normalize();
 				this._facingSign = dir.x >= 0 ? 1 : -1;
-				let rotation = Vec2Math.angleRad({x: dir.x, y: dir.y });
+				let rotation = Vec2.fromVec(dir).angleRad();
 
 				if (dir.x >= 0) {
 					if (dir.y < 0 && rotation < 7 / 4 * Math.PI) {
@@ -256,7 +269,7 @@ export class Player extends Entity {
 				// Set direction of arm
 				const armPos = this.model().getBone(Bone.ARM).getTransformNode().getAbsolutePosition();
 				const armDir = mouse.subtract(armPos).normalize();
-				let armRotation = Vec2Math.angleRad(armDir);
+				let armRotation = Vec2.fromVec(armDir).angleRad();
 
 				if (dir.x >= 0) {
 					this._armDir = armRotation - Math.PI / 2;
