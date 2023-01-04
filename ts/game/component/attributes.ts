@@ -130,21 +130,6 @@ export class Attributes extends ComponentBase implements Component {
 
 	override ready() { return true; }
 
-	override filteredData(filter : DataFilter) : DataMap {
-		let dataMap = {};
-		Attributes._props.forEach((prop : Prop) => {
-			if (!this._attributeData.has(prop)) {
-				return;
-			}
-
-			const data = this._attributeData.get(prop).filtered(filter);
-			if (Object.keys(data).length > 0) {
-				dataMap[prop] = data;
-			}
-		});
-		return dataMap;
-	}
-
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
 
@@ -155,6 +140,8 @@ export class Attributes extends ComponentBase implements Component {
 			this._attributes.get(prop).forEach((value : Value, attribute : Attribute) => {
 				this._attributeData.get(prop).update(attribute, value, seqNum);
 			});
+
+			this.setProp(prop, this._attributeData.get(prop), seqNum);
 		});
 	}
 

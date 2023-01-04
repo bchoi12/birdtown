@@ -3,6 +3,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
 import { Attribute, Attributes, AttributesInitOptions } from 'game/component/attributes'
+import { Body, BodyInitOptions } from 'game/component/body'
 import { Custom } from 'game/component/custom'
 import { Model } from 'game/component/model'
 import { Metadata, MetadataInitOptions } from 'game/component/metadata'
@@ -27,6 +28,7 @@ export interface EntityOptions {
 	id? : number;
 
 	attributesInitOptions? : AttributesInitOptions;
+	bodyInitOptions? : BodyInitOptions;
 	metadataInitOptions? : MetadataInitOptions;
 	profileInitOptions? : ProfileInitOptions
 }
@@ -170,13 +172,13 @@ export abstract class Entity {
 
 	collide(entity : Entity, collision : MATTER.Collision) : void {}
 
-	filteredData(filter : DataFilter) : DataMap {
+	dataMap(filter : DataFilter) : DataMap {
 		let dataMap : DataMap = {};
 		this._components.forEach((component) => {
 			if (!component.shouldBroadcast()) {
 				return;
 			}
-			const data = component.filteredData(filter);
+			const data = component.dataMap(filter);
 			if (Object.keys(data).length > 0) {
 				dataMap[component.type()] = data;
 			}

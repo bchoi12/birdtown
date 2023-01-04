@@ -4,6 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Attribute } from 'game/component/attributes'
+import { Body } from 'game/component/body'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
@@ -19,12 +20,15 @@ export class Wall extends Entity {
 		this.attributes().set(Attribute.SOLID, true);
 
 		let profile = <Profile>this.add(new Profile({
-			initFn: (profile : Profile) => {
-				const pos = profile.pos();
-				const dim = profile.dim();
-				profile.setBody(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
-					isStatic: true,
-				}));
+			bodyOptions: {
+				initFn: (body : Body) => {
+					const pos = body.pos();
+					const dim = body.dim();
+					body.set(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+						isStatic: true,
+					}));
+				},
+				initOptions: options.bodyInitOptions,
 			},
 			initOptions: options.profileInitOptions,
 		}));

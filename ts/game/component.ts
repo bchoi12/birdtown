@@ -1,5 +1,5 @@
 import { game } from 'game'
-import { Data, DataFilter, DataMap } from 'game/data'
+import { Data, DataFilter, DataMap, DataNode } from 'game/data'
 import { Entity } from 'game/entity'
 
 import { defined } from 'util/common'
@@ -10,9 +10,9 @@ export enum ComponentType {
 	CUSTOM,
 
 	ATTRIBUTES,
+	BODY,
 	KEYS,
 	MODEL,
-	MULTI_PROFILE,
 	PROFILE,
 }
 
@@ -38,10 +38,16 @@ export interface Component {
 
 	shouldBroadcast() : boolean;
 	isSource() : boolean;
-	allData() : DataMap;
-	filteredData(filter : DataFilter) : DataMap;
+	data() : Data;
+	dataMap(filter : DataFilter) : DataMap;
 	updateData(seqNum : number) : void;
 	mergeData(data : DataMap, seqNum : number) : void;
+}
+
+export interface SuperComponent extends Component {
+	add(key : number, component : Component) : void;
+	has(key : number) : boolean;
+	get(key : number) : Component;
 }
 
 export abstract class ComponentBase {
@@ -82,13 +88,11 @@ export abstract class ComponentBase {
 
 	shouldBroadcast() : boolean { return game.options().host; }
 	isSource() : boolean { return game.options().host; }
-	allData() : DataMap { return this._data.filtered(DataFilter.ALL); }
-	filteredData(filter : DataFilter) : DataMap { return this._data.filtered(filter); }
+	data() : Data { return this._data; }
+	dataMap(filter : DataFilter) : DataMap { return this._data.filtered(filter); }
 	updateData(seqNum : number) : void {}
-	mergeData(data : DataMap, seqNum : number) : void {
-		this._lastMergeTime = Date.now();
-	}
-	protected setProp(prop : number, data : Object, seqNum : number, cb? : () => boolean) : boolean {
+	mergeData(data : DataMap, seqNum : number) : void { this._lastMergeTime = Date.now(); }
+	protected setProp(prop : number, data : DataNode, seqNum : number, cb? : () => boolean) : boolean {
 		if (this.isSource()) {
 			return this._data.update(prop, data, seqNum, () => {
 				return defined(cb) ? cb() : true;
@@ -96,5 +100,35 @@ export abstract class ComponentBase {
 		}
 
 		return this._data.set(prop, data);
+	}
+}
+
+export abstract class SuperComponentBase extends ComponentBase {
+	protected _subComponents : Map<number, Component>;
+
+	constructor(type : ComponentType) {
+		super(type);
+
+		this._subComponents = new Map();
+	}
+
+	add(key : number, component : Component) : void {
+		component.setEntity(this.entity());
+		this._subComponents.set(key, component);
+	}
+	has(key : number) : boolean { return this._subComponents.has(key); }
+	get(key : number) : Component { return this._subComponents.get(key); }
+
+	override updateData(seqNum : number) : void {
+		this._subComponents.forEach((component : Component, key : number) => {
+			component.updateData(seqNum);
+			this.setProp(key, component.data(), seqNum);
+		});
+	}
+	override mergeData(data : DataMap, seqNum : number) : void {
+		this._lastMergeTime = Date.now();
+		this._subComponents.forEach((component : Component, key : number) => {
+			component.mergeData(<DataMap>data[key], seqNum);
+		});
 	}
 }

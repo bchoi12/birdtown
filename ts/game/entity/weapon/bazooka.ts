@@ -29,7 +29,7 @@ export class Bazooka extends Weapon {
 		const dir = Vec2.fromVec(mouse).sub(pos).normalize();
 
 		const projectile = game.entities().add(EntityType.ROCKET, {
-    		profileInitOptions: {
+    		bodyInitOptions: {
 				pos: {x: pos.x, y: pos.y},
 				dim: {x: 0.3, y: 0.3},
 				vel: dir.clone().scale(0.1),

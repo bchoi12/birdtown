@@ -38,7 +38,7 @@ export class Camera {
 	target() : BABYLON.Vector3 { return this._target; }
 
 	setEntity(entity : Entity) {
-		if (!entity.has(ComponentType.PROFILE)) {
+		if (!entity.hasProfile()) {
 			console.log("Error: target entity must have profile.");
 			return;
 		}

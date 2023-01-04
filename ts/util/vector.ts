@@ -40,6 +40,19 @@ export class Vec2 implements Vec {
         return this;
     }
 
+    interpolateSeparate(vec : Vec, t : Vec, interpFn : (t : number) => number) : Vec2 {
+        if (defined(vec.x) && defined(t.x)) {
+            this.x += (vec.x - this.x) * interpFn(t.x);
+        }
+        if (defined(vec.y) && defined(t.y)) {
+            this.y += (vec.y - this.y) * interpFn(t.y);
+        }
+        return this;
+    }
+    lerpSeparate(vec : Vec, t : Vec) : Vec2 {
+        return this.interpolateSeparate(vec, t, (t : number) => { return t; });
+    }
+
     interpolate(vec : Vec, t : number, interpFn : (t : number) => number) : Vec2 {
         if (defined(vec.x)) {
             this.x += (vec.x - this.x) * interpFn(t);
@@ -91,6 +104,9 @@ export class Vec2 implements Vec {
     angleDeg() : number { return this.angleRad() * 180 / Math.PI; }
 
     static zero() : Vec2 { return new Vec2({x: 0, y: 0}); }
+    static one() : Vec2 { return new Vec2({x: 1, y: 1}); }
+    static i() : Vec2 { return new Vec2({x: 1, y: 0}); }
+    static j() : Vec2 { return new Vec2({x: 0, y: 1}); }
     static fromBabylon3(vec : BABYLON.Vector3) : Vec2 { return new Vec2({x: vec.x, y: vec.y }); }
     static fromMatter(vec : MATTER.Vector) : Vec2 { return new Vec2(vec); }
     static fromVec(vec : Vec) : Vec2 { return new Vec2(vec); }

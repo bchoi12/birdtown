@@ -119,24 +119,24 @@ class Game {
 	    		metadataInitOptions: {
 		    		clientId: this.id(),
 	    		},
-	    		profileInitOptions: {
+	    		bodyInitOptions: {
 		    		pos: {x: 0, y: 10},
 	    		},
 	    	});
 		    this._entityMap.add(EntityType.WALL, {
-	    		profileInitOptions: {
+	    		bodyInitOptions: {
 			    	pos: {x: 0, y: 0},
 			    	dim: {x: 16, y: 1},
 			    },
 		    });
 		    this._entityMap.add(EntityType.WALL, {
-	    		profileInitOptions: {
+	    		bodyInitOptions: {
 		    		pos: {x: 3, y: 1},
 		    		dim: {x: 1, y: 1},
 		    	},
 		    });
 		    this._entityMap.add(EntityType.WALL, {
-	    		profileInitOptions: {
+	    		bodyInitOptions: {
 			    	pos: {x: 6, y: 3},
 			    	dim: {x: 2, y: 1},
 			    },
@@ -215,7 +215,7 @@ class Game {
 	}
 
 	private entityMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
-		const data = this._entityMap.filteredData(filter);
+		const data = this._entityMap.dataMap(filter);
 		if (Object.keys(data).length === 0) {
 			return [null, false];
 		}
@@ -239,7 +239,7 @@ class Game {
     		metadataInitOptions: {
 	    		clientId: id,
     		},
-	 		profileInitOptions: {
+	 		bodyInitOptions: {
 	    		pos: {x: 0, y: 10},
 	    	},
     	});

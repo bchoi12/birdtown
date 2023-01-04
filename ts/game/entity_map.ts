@@ -62,7 +62,7 @@ export class EntityMap {
 			console.error("Warning: overwriting object type " + type + ", id " + options.id);
 		}
 
-		const entity = this._factory.get(type)(options);
+		let entity = this._factory.get(type)(options);
 		this._map.set(options.id, entity);
 		return entity;
 	}
@@ -170,10 +170,10 @@ export class EntityMap {
 		});
 	}
 
-	filteredData(filter : DataFilter) : DataMap {
+	dataMap(filter : DataFilter) : DataMap {
 		let dataMap : DataMap = {};
 		this._initialized.forEach((entity) => {	
-			const data = entity.filteredData(filter);
+			const data = entity.dataMap(filter);
 			if (Object.keys(data).length > 0) {
 				if (!dataMap.hasOwnProperty(entity.type())) {
 					dataMap[entity.type()] = {};

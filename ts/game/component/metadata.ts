@@ -20,14 +20,14 @@ export class Metadata extends ComponentBase implements Component {
 	private _entityDeleted : boolean;
 	private _clientId : number;
 
-	constructor(options? : MetadataInitOptions) {
+	constructor(initOptions? : MetadataInitOptions) {
 		super(ComponentType.METADATA);
 
 		this._entityInitialized = false;
 		this._entityDeleted = false;
 
-		if (options) {
-			if (options.clientId) { this.setClientId(options.clientId); }
+		if (initOptions) {
+			if (initOptions.clientId) { this.setClientId(initOptions.clientId); }
 		}
 	}
 

@@ -4,6 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Attribute, Attributes } from 'game/component/attributes'
+import { Body } from 'game/component/body'
 import { Keys } from 'game/component/keys'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
@@ -73,8 +74,6 @@ export class Player extends Entity {
 	private _keys : Keys;
 	private _model : Model;
 	private _profile : Profile;
-	private _mainBody : MATTER.Body;
-	private _headBody : MATTER.Body;
 
 	private _weapon : Weapon;
 
@@ -94,26 +93,50 @@ export class Player extends Entity {
 
 		this._keys = <Keys>this.add(new Keys());
 
+		const collisionGroup = MATTER.Body.nextGroup(true);
 		this._profile = <Profile>this.add(new Profile({
+			bodyOptions: {
+				initFn: (body : Body) => {
+					const pos = body.pos();
+					const dim = body.dim();
+
+					body.set(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+						collisionFilter: {
+							group: collisionGroup,
+						},
+						friction: 0,
+					}));
+				},
+				initOptions: options.bodyInitOptions,
+			},
 			initFn: (profile : Profile) => {
 				const pos = profile.pos();
-				const dim = profile.dim();
+				let head = new Body({
+					initFn: (body : Body) => {
+						const pos = body.pos();
+						const dim = body.dim();
 
-				this._mainBody = MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y);
-				this._headBody = MATTER.Bodies.rectangle(pos.x, pos.y + 0.22, 0.96, 1.06, {
-					isSensor: true,
+						body.set(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+							collisionFilter: {
+								group: collisionGroup,
+							},
+						}));
+					},
+					initOptions: {
+						pos: pos.clone().add({y: 0.22}),
+						dim: {x: 0.96, y: 1.06 },
+					},
 				});
+				profile.addBody(Part.HEAD, head);
 
-				const body = MATTER.Body.create({
-					friction: 0,
+				head.setPrePhysicsFn((head : Body, millis : number) => {
+					head.setPos(profile.pos().clone().add({y: 0.22}));
 				});
-				
-				MATTER.Body.setParts(body, [this._mainBody, this._headBody]);
-				profile.setBody(body);
 			},
 			initOptions: options.profileInitOptions,
 		}));
-		this._profile.setInertia(Infinity);
+
+		this._profile.setAngle(0);
 		this._profile.setDim({x: 0.8, y: 1.44 });
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
@@ -162,15 +185,13 @@ export class Player extends Entity {
 				const x = this._profile.vel().x;
 				const sign = x >= 0 ? -1 : 1;
 
-				this._profile.addAngularVelocity(sign * Math.max(0.1, Math.abs(x)));
-				this._profile.setAcc({x: 0, y: 0});
 				this._profile.resetInertia();
-				this._headBody.isSensor = false;
+				this._profile.setAngularVelocity(sign * Math.max(0.1, Math.abs(x)));
+				this._profile.setAcc({x: 0, y: 0});
 			} else {
 				this._profile.setAngle(0);
 				this._profile.setAngularVelocity(0);
 				this._profile.setInertia(Infinity);
-				this._headBody.isSensor = true;
 			}
 		});
 
@@ -182,6 +203,9 @@ export class Player extends Entity {
 
 	override initialize() : void {
 		super.initialize();
+
+		this._profile.setInertia(Infinity);
+		this._profile.body(Part.HEAD).setInertia(Infinity);
 
 		if (this.metadata().clientId() === game.id()) {
 			game.camera().setEntity(this);
@@ -212,7 +236,7 @@ export class Player extends Entity {
 		super.preUpdate(millis);
 
 		// Out of bounds
-		if (this._profile.body().position.y < -8) {
+		if (this._profile.pos().y < -8) {
 			this._profile.setPos({ x: 0, y: 10 });
 			this._profile.setVel({ x: 0, y: 0 });
 		}
@@ -258,7 +282,8 @@ export class Player extends Entity {
 				} else {
 					rotation = Funcs.clamp(3 / 4 * Math.PI, rotation, 5 / 4 * Math.PI);
 				}
-				MATTER.Body.setAngle(this._headBody, rotation);
+
+				this._profile.body(Part.HEAD).setAngle(rotation);
 
 				if (dir.x >= 0) {
 					this._neckDir = -rotation;
@@ -336,6 +361,10 @@ export class Player extends Entity {
 	override collide(other : Entity, collision : MATTER.Collision) : void {
 		super.collide(other, collision);
 
+		if (this.id() === other.id()) {
+			return;
+		}
+
 		if (other.attributes().getOrDefault(Attribute.SOLID) && collision.normal.y >= 0.5) {
 			this.attributes().setIf(Attribute.GROUNDED, true, game.options().host);
 			this.attributes().setIf(Attribute.CAN_DOUBLE_JUMP, true, game.options().host);
@@ -372,28 +401,6 @@ export class Player extends Entity {
 		if (defined(this._neckDir)) {
 			let neck = this._model.getBone(Bone.NECK);
 			neck.getTransformNode().rotation = new BABYLON.Vector3(this._neckDir, neck.getTransformNode().rotation.y, neck.getTransformNode().rotation.z);
-		}
-	}
-
-	override updateData(seqNum : number) : void {
-		super.updateData(seqNum);
-
-		this.custom().set(CustomProp.ARM_DIR, this._armDir);
-		this.custom().set(CustomProp.FACING_SIGN, this._facingSign);
-		this.custom().set(CustomProp.NECK_DIR, this._neckDir);
-	}
-
-	override mergeData(dataMap : DataMap, seqNum : number) : void {
-		super.mergeData(dataMap, seqNum);
-
-		if (this.custom().has(CustomProp.ARM_DIR)) {
-			this._armDir = <number>this.custom().get(CustomProp.ARM_DIR);
-		}
-		if (this.custom().has(CustomProp.FACING_SIGN)) {
-			this._facingSign = <number>this.custom().get(CustomProp.FACING_SIGN);
-		}
-		if (this.custom().has(CustomProp.NECK_DIR)) {
-			this._neckDir = <number>this.custom().get(CustomProp.NECK_DIR);
 		}
 	}
 }
