@@ -10,7 +10,7 @@ import { loader, LoadResult, ModelType } from 'game/loader'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
-import { Vec } from 'util/vector'
+import { Vec2 } from 'util/vector'
 
 export abstract class Weapon extends Entity {
 
@@ -39,7 +39,7 @@ export abstract class Weapon extends Entity {
 	shootNode() : BABYLON.TransformNode { return defined(this._shoot) ? this._shoot : this.model().mesh(); }
 	pivot() : BABYLON.Vector3 {return this.model().mesh().position; }
 
-	abstract shoot(mouse : Vec) : boolean;
+	abstract shoot(dir : Vec2) : boolean;
 	reload(time : number) : void {
 		this.attributes().set(Attribute.READY, false);
 		this._reloadTimer.start(time, () => {
@@ -52,8 +52,10 @@ export abstract class Weapon extends Entity {
 		mesh.name = this.name();
 		model.setMesh(mesh);
 
-		this._player = <Player>game.entities().get(<number>this.attributes().get(Attribute.OWNER));
-		this._player.equipWeapon(this);
+		model.onLoad(() => {
+			this._player = <Player>game.entities().get(<number>this.attributes().get(Attribute.OWNER));
+			this._player.equipWeapon(this);
+		});
 
 		result.transformNodes.forEach((node : BABYLON.TransformNode) => {
 			if (node.name === "shoot") {

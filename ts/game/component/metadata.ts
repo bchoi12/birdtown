@@ -67,10 +67,10 @@ export class Metadata extends ComponentBase implements Component {
 		}
 	}
 
-	override mergeData(data : DataMap, seqNum : number) : void {
-		super.mergeData(data, seqNum);
+	override importData(data : DataMap, seqNum : number) : void {
+		super.importData(data, seqNum);
 
-		const changed = this._data.merge(data, seqNum);
+		const changed = this._data.import(data, seqNum);
 
 		if (changed.size === 0) {
 			return;

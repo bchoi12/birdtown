@@ -130,6 +130,21 @@ export class Attributes extends ComponentBase implements Component {
 
 	override ready() { return true; }
 
+	override dataMap(filter : DataFilter) : DataMap {
+		let dataMap = {};
+		Attributes._props.forEach((prop : Prop) => {
+			if (!this._attributeData.has(prop)) {
+				return;
+			}
+
+			const data = this._attributeData.get(prop).filtered(filter);
+			if (Object.keys(data).length > 0) {
+				dataMap[prop] = data;
+			}
+		});
+		return dataMap;
+	}
+
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
 
@@ -138,17 +153,15 @@ export class Attributes extends ComponentBase implements Component {
 				return;
 			}
 			this._attributes.get(prop).forEach((value : Value, attribute : Attribute) => {
-				this._attributeData.get(prop).update(attribute, value, seqNum);
+				this._attributeData.get(prop).set(attribute, value, seqNum);
 			});
-
-			this.setProp(prop, this._attributeData.get(prop), seqNum);
 		});
 	}
 
-	override mergeData(data : DataMap, seqNum : number) : void {
-		super.mergeData(data, seqNum);
+	override importData(data : DataMap, seqNum : number) : void {
+		super.importData(data, seqNum);
 
-		const changed = this._data.merge(data, seqNum);
+		const changed = this._data.import(data, seqNum);
 		if (changed.size === 0) {
 			return;
 		}

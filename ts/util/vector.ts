@@ -10,12 +10,18 @@ export interface Vec {
 }
 
 export class Vec2 implements Vec {
+    private static readonly _epsilon = 1e-3;
+
     public x : number;
     public y : number;
 
     constructor(vec : Vec) {
         this.x = defined(vec.x) ? vec.x : 0;
         this.y = defined(vec.y) ? vec.y : 0;
+    }
+
+    equals(other : Vec) : boolean {
+        return Math.abs(this.x - other.x) < Vec2._epsilon && Math.abs(this.y - other.y) < Vec2._epsilon;
     }
 
     lengthSq() : number { return this.x * this.x + this.y * this.y; }
@@ -25,6 +31,7 @@ export class Vec2 implements Vec {
         if (len === 0) {
             return;
         }
+
         this.x /= len;
         this.y /= len;
         return this;
@@ -110,6 +117,16 @@ export class Vec2 implements Vec {
     static fromBabylon3(vec : BABYLON.Vector3) : Vec2 { return new Vec2({x: vec.x, y: vec.y }); }
     static fromMatter(vec : MATTER.Vector) : Vec2 { return new Vec2(vec); }
     static fromVec(vec : Vec) : Vec2 { return new Vec2(vec); }
+    
+    static unitFromRad(angle : number) : Vec2 {
+        return new Vec2({
+            x: Math.cos(angle),
+            y: Math.sin(angle),
+        });
+    }
+    static unitFromDeg(angle : number) : Vec2 {
+        return Vec2.unitFromRad(angle * Math.PI / 180);
+    }
 
     copyBabylon3(vec : BABYLON.Vector3) : Vec2 {
         this.x = vec.x;

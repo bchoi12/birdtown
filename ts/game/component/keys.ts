@@ -1,118 +1,108 @@
-
-import * as BABYLON from 'babylonjs'
-
 import { game } from 'game'
-import { Component, ComponentBase, ComponentType } from 'game/component'
+import { SubComponent, SubComponentBase } from 'game/component'
 import { Data, DataFilter, DataMap } from 'game/data'
 
 import { ui, Key } from 'ui'
+import { Vec2 } from 'util/vector'
 
-import { defined } from 'util/common'
-import { Vec } from 'util/vector'
+enum KeyState {
+	UNKNOWN,
+	PRESSED,
+	DOWN,
+	RELEASED,
+	UP,
+}
 
 enum Prop {
 	UNKNOWN,
-	CURRENT,
-	PRESSED,
-	RELEASED,
-	MOUSE,
+	KEY_MAP,
 }
 
-export class Keys extends ComponentBase implements Component {
+export class Keys extends SubComponentBase implements SubComponent {
+	private _clientId : number;
+	private _keys : Map<Key, KeyState>;
+	private _mouse : Vec2;
 
-	private _current : Set<Key>;
-	private _pressed : Set<Key>;
-	private _released : Set<Key>;
-	private _mouse : Vec;
+	// TODO: set entity to follow and compute direction
 
-	constructor() {
-		super(ComponentType.KEYS);
+	constructor(clientId : number) {
+		super();
 
-		this._current = new Set<Key>();
-		this._pressed = new Set<Key>();
-		this._released = new Set<Key>();
-		this._mouse = {x: 0, y: 0};
+		this._clientId = clientId;
+		this._keys = new Map();
+		this._mouse = Vec2.zero();
 	}
 
-	override ready() : boolean { return this.entity().metadata().hasClientId(); }
-
-	keyDown(key : Key) : boolean { return this._current.has(key); }
-	keyPressed(key : Key) : boolean { return this._pressed.has(key); }
-	keyReleased(key : Key) : boolean { return this._released.has(key); }
-	mouse() : Vec { return this._mouse; }
+	keyDown(key : Key) : boolean { return this._keys.has(key) && (this._keys.get(key) === KeyState.DOWN || this.keyPressed(key)); }
+	keyUp(key : Key) : boolean { return !this._keys.has(key) || (this._keys.get(key) === KeyState.UP || this.keyReleased(key)); }
+	keyPressed(key : Key) : boolean { return this._keys.has(key) && this._keys.get(key) === KeyState.PRESSED; }
+	keyReleased(key : Key) : boolean { return this._keys.has(key) && this._keys.get(key) === KeyState.RELEASED; }
+	mouse() : Vec2 { return this._mouse; }
 	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }
 
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
-		// Only update from UI if IDs match
-		if (this.updateKeysLocally()) {
-			this.updateKeys();
+		if (!this.isSource()) {
+			return;
 		}
+
+		const keys = ui.keys();
+		keys.forEach((key : Key) => {
+			this.pressKey(key);
+		});
+
+		this._keys.forEach((keyState : KeyState, key : Key) => {
+			if (!keys.has(key)) {
+				this.releaseKey(key);
+			}
+		});
+
+		const mouseWorld = game.mouse();
+		this._mouse.copyVec({ x: mouseWorld.x, y: mouseWorld.y });
 	}
 
-	override shouldBroadcast() : boolean { return game.options().host || this.updateKeysLocally(); }
-	override isSource() : boolean { return this.updateKeysLocally(); }
+	override isSource() : boolean { return game.id() === this._clientId; }
+	override shouldBroadcast() : boolean { return game.options().host || this.isSource(); }
 
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
 
-		this.setProp(Prop.CURRENT, Data.toObject(this._current), seqNum);
-		this.setProp(Prop.PRESSED, Data.toObject(this._pressed), seqNum);
-		this.setProp(Prop.RELEASED, Data.toObject(this._released), seqNum);
-		this.setProp(Prop.MOUSE, this._mouse, seqNum);
+		this._keys.forEach((keyState : KeyState, key : Key) => {
+			this.setProp(key, keyState, seqNum);
+		});
 	}
 
-	override mergeData(data : DataMap, seqNum : number) : void {
-		super.mergeData(data, seqNum);
+	override importData(data : DataMap, seqNum : number) : void {
+		super.importData(data, seqNum);
 
-		if (this.updateKeysLocally()) {
+		if (this.isSource()) {
 			return;
 		}
 
-		const changed = this._data.merge(data, seqNum);
-		if (changed.size === 0) {
-			return;
-		}
+		const changed = this._data.import(data, seqNum);
+		changed.forEach((key : number) => {
+			if (<KeyState>this._data.get(key) === KeyState.RELEASED || <KeyState>this._data.get(key) === KeyState.UP) {
+				this.releaseKey(<Key>key);
+			} else {
+				this.pressKey(<Key>key);
+			}
+		});
+	}
 
-		if (changed.has(Prop.CURRENT)) {
-			this._current = new Set(<Set<Key>>this._data.get(Prop.CURRENT));
-		}
-		if (changed.has(Prop.PRESSED)) {
-			this._pressed = new Set(<Set<Key>>this._data.get(Prop.PRESSED));
-		}
-		if (changed.has(Prop.RELEASED)) {
-			this._released = new Set(<Set<Key>>this._data.get(Prop.RELEASED));
-		}
-		if (changed.has(Prop.MOUSE)) {
-			this._mouse = <Vec>this._data.get(Prop.MOUSE);
+	protected pressKey(key : Key) : void {
+		if (!this.keyDown(key)) {
+			this._keys.set(key, KeyState.PRESSED);
+		} else {
+			this._keys.set(key, KeyState.DOWN);
 		}
 	}
 
-	private updateKeysLocally() : boolean {
-		return this.entity().clientIdMatches();
-	}
-
-	private updateKeys() : void {
-		this._pressed.clear();
-		this._released.clear();
-
-		const keys = ui.keys();
-
-		for (let key of keys) {
-			if (!this._current.has(key)) {
-				this._pressed.add(key);
-			}
+	protected releaseKey(key : Key) : void {
+		if (this.keyDown(key)) {
+			this._keys.set(key, KeyState.RELEASED);
+		} else {
+			this._keys.set(key, KeyState.UP);
 		}
-
-		for (let key of this._current) {
-			if (!keys.has(key)) {
-				this._released.add(key);
-			}
-		}
-
-		this._current = new Set(keys);
-		const mouseWorld = game.mouse();
-		this._mouse = { x: mouseWorld.x, y: mouseWorld.y };
 	}
 }

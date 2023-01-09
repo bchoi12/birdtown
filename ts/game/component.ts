@@ -6,27 +6,26 @@ import { defined } from 'util/common'
 
 export enum ComponentType {
 	UNKNOWN,
-	METADATA,
-	CUSTOM,
-
 	ATTRIBUTES,
-	BODY,
+	CUSTOM,
+	INPUT,
 	KEYS,
+	LAKITU,
+	METADATA,
 	MODEL,
 	PROFILE,
 }
 
-export interface Component {
-	type() : ComponentType
+interface ComponentCommon {
+	hasEntity() : boolean;
+	entity() : Entity;
+	setEntity(entity : Entity) : void;
+
 	ready() : boolean;
 	initialized() : boolean;
 	initialize() : void;
 	delete() : void;
 	dispose() : void;
-
-	hasEntity() : boolean;
-	entity() : Entity;
-	setEntity(entity : Entity) : void;
 
 	preUpdate(millis : number) : void
 	update(millis : number) : void
@@ -37,36 +36,36 @@ export interface Component {
 	postRender() : void
 
 	shouldBroadcast() : boolean;
-	isSource() : boolean;
+	isSource(prop? : number) : boolean;
 	data() : Data;
 	dataMap(filter : DataFilter) : DataMap;
 	updateData(seqNum : number) : void;
-	mergeData(data : DataMap, seqNum : number) : void;
+	importData(data : DataMap, seqNum : number) : void;
 }
 
-export interface SuperComponent extends Component {
-	add(key : number, component : Component) : void;
-	has(key : number) : boolean;
-	get(key : number) : Component;
+export interface Component extends ComponentCommon {
+	type() : ComponentType;
 }
 
-export abstract class ComponentBase {
-	protected _type : ComponentType;
+export interface SubComponent extends ComponentCommon {
+
+}
+
+abstract class ComponentCommonBase implements ComponentCommon {
 	protected _initialized : boolean;
 	protected _deleted : boolean;
-	protected _entity : Entity;
 	protected _data : Data;
 	protected _lastMergeTime : number;
 
-	constructor(type : ComponentType) {
-		this._type = type;
+	protected _entity : Entity;
+
+	constructor() {
 		this._initialized = false;
-		this._entity = null;
+		this._deleted = false;
 		this._data = new Data();
 		this._lastMergeTime = Date.now();
 	}
 
-	type() : ComponentType { return this._type; }
 	ready() : boolean { return true; };
 	initialized() : boolean { return this._initialized; }
 	initialize() : void { this._initialized = true; }
@@ -87,48 +86,37 @@ export abstract class ComponentBase {
 	postRender() : void {}
 
 	shouldBroadcast() : boolean { return game.options().host; }
-	isSource() : boolean { return game.options().host; }
+	isSource(prop? : number) : boolean { return game.options().host; }
 	data() : Data { return this._data; }
-	dataMap(filter : DataFilter) : DataMap { return this._data.filtered(filter); }
+	dataMap(filter : DataFilter) : DataMap { return this.isSource() ? this._data.filtered(filter) : {}; }
 	updateData(seqNum : number) : void {}
-	mergeData(data : DataMap, seqNum : number) : void { this._lastMergeTime = Date.now(); }
+	importData(data : DataMap, seqNum : number) : void { this._lastMergeTime = Date.now(); }
 	protected setProp(prop : number, data : DataNode, seqNum : number, cb? : () => boolean) : boolean {
-		if (this.isSource()) {
-			return this._data.update(prop, data, seqNum, () => {
+		if (this.isSource(prop)) {
+			return this._data.set(prop, data, seqNum, () => {
 				return defined(cb) ? cb() : true;
 			});
 		}
 
-		return this._data.set(prop, data);
+		return false;
 	}
 }
 
-export abstract class SuperComponentBase extends ComponentBase {
-	protected _subComponents : Map<number, Component>;
+export abstract class ComponentBase extends ComponentCommonBase implements Component {
+	protected _type : ComponentType;
 
 	constructor(type : ComponentType) {
-		super(type);
+		super();
 
-		this._subComponents = new Map();
+		this._type = type;
 	}
 
-	add(key : number, component : Component) : void {
-		component.setEntity(this.entity());
-		this._subComponents.set(key, component);
-	}
-	has(key : number) : boolean { return this._subComponents.has(key); }
-	get(key : number) : Component { return this._subComponents.get(key); }
+	type() : ComponentType { return this._type; }
+}
 
-	override updateData(seqNum : number) : void {
-		this._subComponents.forEach((component : Component, key : number) => {
-			component.updateData(seqNum);
-			this.setProp(key, component.data(), seqNum);
-		});
-	}
-	override mergeData(data : DataMap, seqNum : number) : void {
-		this._lastMergeTime = Date.now();
-		this._subComponents.forEach((component : Component, key : number) => {
-			component.mergeData(<DataMap>data[key], seqNum);
-		});
+export abstract class SubComponentBase extends ComponentCommonBase implements SubComponent {
+
+	constructor() {
+		super();
 	}
 }

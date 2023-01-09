@@ -86,7 +86,7 @@ export class EntityMap {
 						this.add(Number(stringSpace), {id: id});
 					}
 					if (this.has(id)) {
-						this.get(id).mergeData(<DataMap>dataMap, item.seqNum);
+						this.get(id).importData(<DataMap>dataMap, item.seqNum);
 					}
 				}
 			}

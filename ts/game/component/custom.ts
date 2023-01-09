@@ -21,7 +21,7 @@ export class Custom extends ComponentBase implements Component {
 	has(prop : number) : boolean { return this._props.has(prop); }
 	get(prop : number) : any { return this._props.get(prop); }
 
-	override ready() { return true; }
+	override ready() : boolean { return true; }
 
 	override updateData(seqNum : number) : void {
 		super.updateData(seqNum);
@@ -31,10 +31,10 @@ export class Custom extends ComponentBase implements Component {
 		});
 	}
 
-	override mergeData(data : DataMap, seqNum : number) : void {
-		super.mergeData(data, seqNum);
+	override importData(data : DataMap, seqNum : number) : void {
+		super.importData(data, seqNum);
 
-		const changed = this._data.merge(data, seqNum);
+		const changed = this._data.import(data, seqNum);
 
 		if (changed.size === 0) {
 			return;

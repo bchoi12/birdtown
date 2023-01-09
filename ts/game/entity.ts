@@ -3,7 +3,6 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
 import { Attribute, Attributes, AttributesInitOptions } from 'game/component/attributes'
-import { Body, BodyInitOptions } from 'game/component/body'
 import { Custom } from 'game/component/custom'
 import { Model } from 'game/component/model'
 import { Metadata, MetadataInitOptions } from 'game/component/metadata'
@@ -27,10 +26,9 @@ export enum EntityType {
 export interface EntityOptions {
 	id? : number;
 
-	attributesInitOptions? : AttributesInitOptions;
-	bodyInitOptions? : BodyInitOptions;
-	metadataInitOptions? : MetadataInitOptions;
-	profileInitOptions? : ProfileInitOptions
+	attributesInit? : AttributesInitOptions;
+	metadataInit? : MetadataInitOptions;
+	profileInit? : ProfileInitOptions
 }
 
 export abstract class Entity {
@@ -50,9 +48,9 @@ export abstract class Entity {
 		this._id = options.id;
 
 		this._components = new Map();
-		this.add(new Attributes(options.attributesInitOptions));
+		this.add(new Attributes(options.attributesInit));
 		this.add(new Custom());
-		this.add(new Metadata(options.metadataInitOptions));
+		this.add(new Metadata(options.metadataInit));
 
 		this._timers = new Array();
 	}
@@ -188,11 +186,13 @@ export abstract class Entity {
 
 	updateData(seqNum : number) : void {
 		this._components.forEach((component) => {
-			component.updateData(seqNum);
+			if (component.isSource()) {
+				component.updateData(seqNum);
+			}
 		});
 	}
 
-	mergeData(dataMap : DataMap, seqNum : number) : void {
+	importData(dataMap : DataMap, seqNum : number) : void {
 		for (const [stringType, data] of Object.entries(dataMap)) {
 			if (!this.has(Number(stringType))) {
 				console.log("Error: object " + this.name() + " is missing component " + stringType);
@@ -202,7 +202,7 @@ export abstract class Entity {
 			let component = this.get(Number(stringType));
 
 			if (!component.isSource()) {
-				component.mergeData(<DataMap>data, seqNum);
+				component.importData(<DataMap>data, seqNum);
 			}
 		}
 	}

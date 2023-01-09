@@ -4,8 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Attribute, Attributes } from 'game/component/attributes'
-import { Body } from 'game/component/body'
-import { Keys } from 'game/component/keys'
+import { Collider } from 'game/component/collider'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { GameConstants } from 'game/constants'
@@ -42,9 +41,8 @@ enum Part {
 
 enum CustomProp {
 	UNKNOWN,
-	ARM_DIR,
-	FACING_SIGN,
-	NECK_DIR,
+	HEAD_ANGLE,
+	ARM_ANGLE,
 }
 
 export class Player extends Entity {
@@ -71,69 +69,62 @@ export class Player extends Entity {
 		Bone.ARM, Bone.ARMATURE, Bone.NECK, Bone.SPINE,
 	]);
 
-	private _keys : Keys;
 	private _model : Model;
 	private _profile : Profile;
 
 	private _weapon : Weapon;
 
-	private _armDir : number;
+	private _armAngle : number;
 	private _facingSign : number;
-	private _neckDir : number;
+	private _headAngle : number;
 
 	private _jumpTimer : Timer;
 	private _deadTracker : ChangeTracker<boolean>;
 
-	constructor(options : EntityOptions) {
-		super(EntityType.PLAYER, options);
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.PLAYER, entityOptions);
 
 		this.attributes().set(Attribute.DEAD, false);
 		this.attributes().set(Attribute.GROUNDED, false);
 		this.attributes().set(Attribute.SOLID, true);
 
-		this._keys = <Keys>this.add(new Keys());
-
 		const collisionGroup = MATTER.Body.nextGroup(true);
 		this._profile = <Profile>this.add(new Profile({
-			bodyOptions: {
-				initFn: (body : Body) => {
-					const pos = body.pos();
-					const dim = body.dim();
+			mainCollider: {
+				initFn: (collider : Collider) => {
+					const pos = collider.pos();
+					const dim = collider.dim();
 
-					body.set(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+					collider.set(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
 						collisionFilter: {
 							group: collisionGroup,
 						},
 						friction: 0,
 					}));
 				},
-				initOptions: options.bodyInitOptions,
 			},
 			initFn: (profile : Profile) => {
 				const pos = profile.pos();
-				let head = new Body({
-					initFn: (body : Body) => {
-						const pos = body.pos();
-						const dim = body.dim();
+				let head = new Collider({
+					initFn: (collider : Collider) => {
+						const pos = collider.pos();
+						const dim = collider.dim();
 
-						body.set(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+						collider.set(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
 							collisionFilter: {
 								group: collisionGroup,
 							},
 						}));
 					},
-					initOptions: {
-						pos: pos.clone().add({y: 0.22}),
-						dim: {x: 0.96, y: 1.06 },
-					},
 				});
-				profile.addBody(Part.HEAD, head);
-
-				head.setPrePhysicsFn((head : Body, millis : number) => {
-					head.setPos(profile.pos().clone().add({y: 0.22}));
+				head.setPos(pos.clone().add({y: 0.22}));
+				head.setDim({x: 0.96, y: 1.06});
+				head.setPrePhysicsFn((head : Collider, millis : number) => {
+					head.setPos(this._profile.pos().clone().add({y: 0.22}));
 				});
+				profile.addCollider(Part.HEAD, head);
 			},
-			initOptions: options.profileInitOptions,
+			init: entityOptions.profileInit,
 		}));
 
 		this._profile.setAngle(0);
@@ -205,15 +196,15 @@ export class Player extends Entity {
 		super.initialize();
 
 		this._profile.setInertia(Infinity);
-		this._profile.body(Part.HEAD).setInertia(Infinity);
+		this._profile.collider(Part.HEAD).setInertia(Infinity);
 
 		if (this.metadata().clientId() === game.id()) {
-			game.camera().setEntity(this);
+			game.lakitu().setEntity(this);
 		}
 
 		if (game.options().host) {
 			game.entities().add(EntityType.BAZOOKA, {
-				attributesInitOptions: {
+				attributesInit: {
 					attributes: new Map([
 						[Attribute.OWNER, this.id()],
 					]),
@@ -226,6 +217,7 @@ export class Player extends Entity {
 		this._weapon = weapon;
 		this._model.onLoad(() => {
 			const arm = this._model.getBone(Bone.ARM);
+
 			this._weapon.model().mesh().attachToBone(arm, this.model().mesh());
 			this._weapon.model().mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
 			this._weapon.model().mesh().scaling.z *= -1;
@@ -235,19 +227,13 @@ export class Player extends Entity {
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
-		// Out of bounds
-		if (this._profile.pos().y < -8) {
-			this._profile.setPos({ x: 0, y: 10 });
-			this._profile.setVel({ x: 0, y: 0 });
-		}
-
 		// Gravity
 		this._profile.setAcc({ y: GameConstants.gravity });
 		if (!this.attributes().get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
 			this._profile.addAcc({ y: (this._fallMultiplier - 1) * GameConstants.gravity });
 		}
 
-		if (this._keys.keyDown(Key.INTERACT)) {
+		if (game.keys(this.metadata().clientId()).keyDown(Key.INTERACT)) {
 			this.attributes().setIf(Attribute.DEAD, true, game.options().host);
 		} else {
 			this.attributes().setIf(Attribute.DEAD, false, game.options().host);
@@ -257,51 +243,26 @@ export class Player extends Entity {
 
 		if (!this.attributes().getOrDefault(Attribute.DEAD)) {
 			// Keypress acceleration
-			if (this._keys.keyDown(Key.LEFT)) {
+			if (game.keys(this.metadata().clientId()).keyDown(Key.LEFT)) {
 				this._profile.setAcc({ x: -this._sideAcc });
-			} else if (this._keys.keyDown(Key.RIGHT)) {
+			} else if (game.keys(this.metadata().clientId()).keyDown(Key.RIGHT)) {
 				this._profile.setAcc({ x: this._sideAcc });
 			} else {
 				this._profile.setAcc({ x: 0 });
 			}
 
-			// Set direction of player
-			if (this._model.hasMesh()) {
-				const pos = this._profile.pos().toBabylon3();
-				const mouse = this._keys.mouseWorld();
-				const dir = mouse.subtract(pos).normalize();
-				this._facingSign = dir.x >= 0 ? 1 : -1;
-				let rotation = Vec2.fromVec(dir).angleRad();
-
-				if (dir.x >= 0) {
-					if (dir.y < 0 && rotation < 7 / 4 * Math.PI) {
-						rotation = 7 / 4 * Math.PI;
-					} else if (dir.y > 0 && rotation > Math.PI / 4) {
-						rotation = Math.PI / 4;
-					}
-				} else {
-					rotation = Funcs.clamp(3 / 4 * Math.PI, rotation, 5 / 4 * Math.PI);
-				}
-
-				this._profile.body(Part.HEAD).setAngle(rotation);
-
-				if (dir.x >= 0) {
-					this._neckDir = -rotation;
-				} else {
-					this._neckDir = rotation + Math.PI;
-				}
-
-				// Set direction of arm
-				const armPos = this.model().getBone(Bone.ARM).getTransformNode().getAbsolutePosition();
-				const armDir = mouse.subtract(armPos).normalize();
-				let armRotation = Vec2.fromVec(armDir).angleRad();
-
-				if (dir.x >= 0) {
-					this._armDir = armRotation - Math.PI / 2;
-				} else {
-					this._armDir = -armRotation + Math.PI / 2;
+			if (game.options().host) {
+				// Out of bounds
+				if (this._profile.pos().y < -8) {
+					this._profile.setPos({ x: 0, y: 10 });
+					this._profile.setVel({ x: 0, y: 0 });
 				}
 			}
+
+			// Set direction of player
+			this._headAngle = this.computeHeadAngle();
+			this._profile.collider(Part.HEAD).setAngle(this._headAngle);
+			this._armAngle = this.computeArmAngle();
 
 			// Turn acceleration
 			const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
@@ -311,11 +272,11 @@ export class Player extends Entity {
 
 			// Jumping
 			if (this._jumpTimer.hasTimeLeft()) {
-				if (this._keys.keyDown(Key.JUMP)) {
+				if (game.keys(this.metadata().clientId()).keyDown(Key.JUMP)) {
 					this._profile.setVel({ y: this._jumpVel });
 					this._jumpTimer.stop();
 				}
-			} else if (this.attributes().getOrDefault(Attribute.CAN_DOUBLE_JUMP) && this._keys.keyPressed(Key.JUMP)) {
+			} else if (this.attributes().getOrDefault(Attribute.CAN_DOUBLE_JUMP) && game.keys(this.metadata().clientId()).keyPressed(Key.JUMP)) {
 				this._profile.setVel({ y: this._jumpVel });
 				this.attributes().setIf(Attribute.CAN_DOUBLE_JUMP, false, game.options().host);
 			}
@@ -346,8 +307,9 @@ export class Player extends Entity {
 		super.update(millis);
 
 		if (game.options().host && defined(this._weapon)) {
-			if (this._keys.keyDown(Key.MOUSE_CLICK)) {
-				this._weapon.shoot(this._keys.mouse());
+			if (game.keys(this.metadata().clientId()).keyDown(Key.MOUSE_CLICK)) {
+				// TODO: stop recomputing arm angle all the time
+				this._weapon.shoot(Vec2.unitFromRad(this.computeArmAngle()));
 			}
 		}
 	}
@@ -389,18 +351,89 @@ export class Player extends Entity {
 			}
 		}
 
-		// TODO: recompute these values
-		if (defined(this._armDir)) {
+		const dir = this.computeDir(this._profile.pos());
+		let armature = this._model.getBone(Bone.ARMATURE).getTransformNode();
+		armature.scaling.z = dir.x >= 0 ? 1 : -1;
+
+		if (this.clientIdMatches()) {
+			this._armAngle = this.computeArmAngle();
+			this._headAngle = this.computeHeadAngle();
+		}
+
+		if (defined(this._armAngle)) {
 			let arm = this._model.getBone(Bone.ARM);
-			arm.getTransformNode().rotation = new BABYLON.Vector3(this._armDir, Math.PI, 0);
+			let armRotation = this._armAngle;
+			if (dir.x >= 0) {
+				armRotation -= Math.PI / 2;
+			} else {
+				armRotation = -armRotation + Math.PI / 2;
+			}
+
+			arm.getTransformNode().rotation = new BABYLON.Vector3(armRotation, Math.PI, 0);
 		}
-		if (defined(this._facingSign)) {
-			let armature = this._model.getBone(Bone.ARMATURE).getTransformNode();
-			armature.scaling.z = this._facingSign;
-		}
-		if (defined(this._neckDir)) {
+		if (defined(this._headAngle)) {
+			let headRotation = this._headAngle;
+			if (dir.x >= 0) {
+				headRotation *= -1;
+			} else {
+				headRotation += Math.PI;
+			}
+
 			let neck = this._model.getBone(Bone.NECK);
-			neck.getTransformNode().rotation = new BABYLON.Vector3(this._neckDir, neck.getTransformNode().rotation.y, neck.getTransformNode().rotation.z);
+			neck.getTransformNode().rotation = new BABYLON.Vector3(headRotation, neck.getTransformNode().rotation.y, neck.getTransformNode().rotation.z);
+		}
+	}
+
+	private computeDir(origin : Vec2) : Vec2 {
+		return game.keys(this.metadata().clientId()).mouse().clone().sub(origin);
+	}
+
+	private computeHeadAngle() : number {
+		const dir = this.computeDir(this._profile.pos());
+		let rotation = dir.angleRad();
+
+		if (dir.x >= 0) {
+			if (dir.y < 0 && rotation < 7 / 4 * Math.PI) {
+				rotation = 7 / 4 * Math.PI;
+			} else if (dir.y > 0 && rotation > Math.PI / 4) {
+				rotation = Math.PI / 4;
+			}
+		} else {
+			rotation = Funcs.clamp(3 / 4 * Math.PI, rotation, 5 / 4 * Math.PI);
+		}
+		return rotation;
+	}
+
+	private computeArmAngle() : number {
+		if (!this._model.hasMesh()) {
+			return 0;
+		}
+
+		// Set direction of arm
+		const pos = Vec2.fromBabylon3(this.model().getBone(Bone.ARM).getTransformNode().getAbsolutePosition());
+		const dir = this.computeDir(pos);
+		return dir.angleRad();
+	}
+
+	override updateData(seqNum : number) : void {
+		super.updateData(seqNum);
+
+		this.custom().set(CustomProp.ARM_ANGLE, this._armAngle);
+		this.custom().set(CustomProp.HEAD_ANGLE, this._headAngle);
+	}
+
+	override importData(dataMap : DataMap, seqNum : number) : void {
+		super.importData(dataMap, seqNum);
+
+		if (this.clientIdMatches()) {
+			return;
+		}
+
+		if (this.custom().has(CustomProp.ARM_ANGLE)) {
+			this._armAngle = <number>this.custom().get(CustomProp.ARM_ANGLE);
+		}
+		if (this.custom().has(CustomProp.HEAD_ANGLE)) {
+			this._headAngle = <number>this.custom().get(CustomProp.HEAD_ANGLE);
 		}
 	}
 }

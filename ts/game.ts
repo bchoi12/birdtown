@@ -1,7 +1,9 @@
 import * as BABYLON from "babylonjs";
 import * as MATTER from "matter-js"
 
-import { Camera } from 'game/camera'
+import { Input } from 'game/component/input'
+import { Keys } from 'game/component/keys'
+import { Lakitu } from 'game/component/lakitu'
 import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity, EntityType } from 'game/entity'
 import { EntityMap } from 'game/entity_map'
@@ -44,7 +46,8 @@ class Game {
 
 	private _scene : BABYLON.Scene;
 	private _entityMap : EntityMap;
-	private _camera : Camera;
+	private _lakitu : Lakitu;
+	private _input : Input;
 	private _connection : Connection;
 
 	constructor() {
@@ -69,7 +72,8 @@ class Game {
 		this._scene.useRightHandedSystem = true;
 
 		this._entityMap = new EntityMap();
-		this._camera = new Camera(this._canvas, this._scene);
+		this._lakitu = new Lakitu(this._canvas, this._scene);
+		this._input = new Input();
 
 		if (this._options.host) {
 			this._id = 1;
@@ -106,9 +110,20 @@ class Game {
 				seqNum: msg.S,
 			});
 
+			console.log(msg);
 			if (!this._options.host && msg.S > this._seqNum) {
 				this._seqNum = msg.S;
 			}
+		});
+		this._connection.addMessageCallback(MessageType.INPUT, (peer : string, msg : Message) => {
+			if (!defined(msg.D) || !defined(msg.S)) {
+				console.error("Invalid message: ", msg);
+				return;
+			}
+
+			const id = this._connection.idFromName(peer);
+			this._input.importData(<DataMap>msg.D, msg.S);
+			console.log("receive: ", msg);
 		});
 		this._connection.initialize();
 
@@ -116,44 +131,61 @@ class Game {
 
 	    if (this._options.host) {
 	    	this._entityMap.add(EntityType.PLAYER, {
-	    		metadataInitOptions: {
+	    		metadataInit: {
 		    		clientId: this.id(),
 	    		},
-	    		bodyInitOptions: {
+	    		profileInit: {
 		    		pos: {x: 0, y: 10},
 	    		},
 	    	});
 		    this._entityMap.add(EntityType.WALL, {
-	    		bodyInitOptions: {
+		    	profileInit: {
 			    	pos: {x: 0, y: 0},
 			    	dim: {x: 16, y: 1},
-			    },
+		    	},
 		    });
 		    this._entityMap.add(EntityType.WALL, {
-	    		bodyInitOptions: {
+		    	profileInit: {
 		    		pos: {x: 3, y: 1},
 		    		dim: {x: 1, y: 1},
 		    	},
 		    });
 		    this._entityMap.add(EntityType.WALL, {
-	    		bodyInitOptions: {
+		    	profileInit: {
 			    	pos: {x: 6, y: 3},
-			    	dim: {x: 2, y: 1},
-			    },
+		    		dim: {x: 2, y: 1},
+				},
 		    });
 	    }
 
 	    this._engine.runRenderLoop(() => {
-	    	this._entityMap.update();
-	    	this._camera.update();
-	    	this._entityMap.render(this._scene);
-	    	this._entityMap.updateData(this._seqNum);
-	    	this._connection.update(this._seqNum);
+	    	if (this.hasId()) {
+		    	this._input.preUpdate(0);
+		    	this._entityMap.update();
+		    	this._lakitu.postUpdate(0);
+		    	
+		    	this._input.preRender();
+		    	this._entityMap.render(this._scene);
 
+		    	this._input.updateData(this._seqNum);
+		    	this._entityMap.updateData(this._seqNum);
+	    	}
+
+	    	this._connection.update(this._seqNum);
 	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {
-    			const [message, has] = this.entityMessage(filter, this._seqNum);
-    			if (has) {
-    				this._connection.broadcast(Game._channelMapping.get(filter), message);
+	    		{
+	    			const [msg, has] = this.entityMessage(filter, this._seqNum);
+    				if (has) {
+    					this._connection.broadcast(Game._channelMapping.get(filter), msg);
+	    			}
+	    		}
+	    		{
+	    			const [msg, has] = this.inputMessage(filter, this._seqNum);
+    				if (has) {
+    					this._connection.broadcast(Game._channelMapping.get(filter), msg);
+						console.log("broadcast: ", msg);
+
+	    			}
 	    		}
 	    	}
 
@@ -175,12 +207,15 @@ class Game {
 	scene() : BABYLON.Scene { return this._scene; }
 	engine() : BABYLON.Engine { return this._engine; }
 	physics() : MATTER.Engine { return this._physics; }
-	camera() : Camera { return this._camera; }
+	lakitu() : Lakitu { return this._lakitu; }
+	input() : Input { return this._input; }
+	keys(id? : number) : Keys { return this._input.keys(id); }
 	entities() : EntityMap { return this._entityMap; }
 	connection() : Connection { return this._connection; }
 
+	// TODO: move this to input
 	mouse() : BABYLON.Vector3 {
-		if (!this.initialized() || !defined(this.scene().getViewMatrix())) {
+		if (!this.initialized() || !defined(this.lakitu())) {
 			return new BABYLON.Vector3();
 		}
 
@@ -192,24 +227,24 @@ class Game {
 			window.innerWidth,
 			window.innerHeight,
 			BABYLON.Matrix.Identity(),
-			this.camera().get().getViewMatrix(),
-			this.camera().get().getProjectionMatrix());
+			this.lakitu().camera().getViewMatrix(),
+			this.lakitu().camera().getProjectionMatrix());
 
 		if (Math.abs(mouseWorld.z) < 1e-3) {
 			return mouseWorld;
 		}
 
 		// Camera to mouse
-		mouseWorld.subtractInPlace(this.camera().get().position);
+		mouseWorld.subtractInPlace(this.lakitu().camera().position);
 
 		// Scale camera to mouse to end at z = 0
-		const scale = Math.abs(this.camera().get().position.z / mouseWorld.z);
+		const scale = Math.abs(this.lakitu().camera().position.z / mouseWorld.z);
 
 		// Camera to mouse at z = 0
 		mouseWorld.scaleInPlace(scale);
 
 		// World coordinates
-		mouseWorld.addInPlace(this.camera().get().position);
+		mouseWorld.addInPlace(this.lakitu().camera().position);
 
 		return mouseWorld;
 	}
@@ -226,6 +261,18 @@ class Game {
 		}, true];
 	}
 
+	private inputMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
+		const data = this._input.dataMap(filter);
+		if (Object.keys(data).length === 0) {
+			return [null, false];
+		}
+		return [{
+			T: MessageType.INPUT,
+			S: seqNum,
+			D: data,
+		}, true];
+	}
+
 	private registerClient(name : string) : void {
 		const id = this.nextId();
 		this._connection.setId(name, id);
@@ -236,12 +283,12 @@ class Game {
 		});
 
     	this._entityMap.add(EntityType.PLAYER, {
-    		metadataInitOptions: {
+    		metadataInit: {
 	    		clientId: id,
     		},
-	 		bodyInitOptions: {
+    		profileInit: {
 	    		pos: {x: 0, y: 10},
-	    	},
+    		},
     	});
 
 		const filter = DataFilter.ALL;

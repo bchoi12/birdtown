@@ -3,7 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Attribute } from 'game/component/attributes'
-import { Body } from 'game/component/body'
+import { Collider } from 'game/component/collider'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
@@ -19,17 +19,16 @@ export class Rocket extends Projectile {
 		super(EntityType.ROCKET, options);
 
 		let profile = <Profile>this.add(new Profile({
-			bodyOptions: {
-				initFn: (body : Body) => {
-					const pos = body.pos();
-					const dim = body.dim();
-					body.set(MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
+			mainCollider: {
+				initFn: (collider : Collider) => {
+					const pos = collider.pos();
+					const dim = collider.dim();
+					collider.set(MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
 						isSensor: true,
 					}));
 				},
-				initOptions: options.bodyInitOptions,
 			},
-			initOptions: options.profileInitOptions,
+			init: options.profileInit,
 		}));
 
 		this.add(new Model({
@@ -72,7 +71,7 @@ export class Rocket extends Projectile {
 		if (other.attributes().getOrDefault(Attribute.SOLID)) {
 			if (game.options().host) {
 				let explosion = game.entities().add(EntityType.EXPLOSION, {
-		    		bodyInitOptions: {
+					profileInit: {
 						pos: this.profile().pos(),
 						dim: {x: 3, y: 3},
 					},

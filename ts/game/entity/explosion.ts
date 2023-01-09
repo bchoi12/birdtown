@@ -2,7 +2,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { Body } from 'game/component/body'
+import { Collider } from 'game/component/collider'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
@@ -13,25 +13,24 @@ export class Explosion extends Entity {
 
 	private _hit : Set<number>;
 
-	constructor(options : EntityOptions) {
-		super(EntityType.EXPLOSION, options);
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.EXPLOSION, entityOptions);
 
 		this._hit = new Set();
 
 		let profile = <Profile>this.add(new Profile({
-			bodyOptions: {
-				initFn: (body : Body) => {
-					const pos = body.pos();
-					const dim = body.dim();
+			mainCollider: {
+				initFn: (collider : Collider) => {
+					const pos = collider.pos();
+					const dim = collider.dim();
 					
-					body.set(MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
+					collider.set(MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
 						isStatic: true,
 						isSensor: true,
 					}));
 				},
-				initOptions: options.bodyInitOptions,
 			},
-			initOptions: options.profileInitOptions,
+			init: entityOptions.profileInit,
 		}));
 
 		this.add(new Model({

@@ -1,6 +1,6 @@
 
 import { Handler } from 'ui/handler'
-import { Input } from 'ui/handler/input'
+import { InputListener } from 'ui/handler/input_listener'
 import { Login } from 'ui/handler/login'
 import { Pause } from 'ui/handler/pause'
 import { Settings } from 'ui/handler/settings'
@@ -21,7 +21,7 @@ export enum HandlerType {
 	UNKNOWN,
 
 	CHAT,
-	INPUT,
+	INPUT_LISTENER,
 	LOGIN,
 	PAUSE,
 	SETTINGS,
@@ -50,7 +50,7 @@ class UI {
 	private _mode : Mode;
 
 	private _handlers : Map<HandlerType, Handler>;
-	private _input : Input;
+	private _inputListener : InputListener;
 	private _login : Login;
 	private _pause : Pause;
 	private _settings : Settings;
@@ -61,8 +61,8 @@ class UI {
 
 		this._handlers = new Map();		
 
-		this._input = new Input();
-		this._handlers.set(this._input.type(), this._input);
+		this._inputListener = new InputListener();
+		this._handlers.set(this._inputListener.type(), this._inputListener);
 
 		this._login = new Login();
 		this._handlers.set(this._login.type(), this._login);
@@ -85,24 +85,8 @@ class UI {
 
 	get(type : HandlerType) : Handler { return this._handlers.get(type); }
 	mode() : Mode { return this._mode; }
-	keys() : Set<Key> { return this._input.keys(); }
-	mouse() : Vec {
-		return this._input.mouse();
-
-		/*
-		const mousePixel = this._input.mouse();
-		if (coords === MouseCoordinates.PIXEL) {
-			return { x: mousePixel.x, y: mousePixel.y };
-		} else if (coords === MouseCoordinates.SCREEN) {
-			let mouseScreen = { x: mousePixel.x, y: mousePixel.y };
-			mouseScreen.x -= window.innerWidth / 2;
-			mouseScreen.y -= window.innerHeight / 2;
-			mouseScreen.x /= window.innerWidth / 2;
-			mouseScreen.y /= -window.innerHeight / 2;
-			return mouseScreen;
-		}
-		*/
-	}
+	keys() : Set<Key> { return this._inputListener.keys(); }
+	mouse() : Vec { return this._inputListener.mouse(); }
 
 	setMode(mode : Mode) {
 		this._mode = mode;

@@ -59,6 +59,8 @@ export abstract class Connection {
 
 	names() : Set<string> { return this._nameAndId.keys(); }
 	ids() : Set<number> { return this._nameAndId.values(); }
+	idFromName(name : string) { return this._nameAndId.get(name); }
+	nameFromId(id : number) { return this._nameAndId.getReverse(id); }
 	setId(name : string, id : number) {
 		this._nameAndId.set(name, id);
 	}
@@ -184,7 +186,9 @@ export abstract class Connection {
 	close(peer : string) : void {
 		this._peers.get(peer).disconnect();
 		this._peers.delete(peer);
-		this._nameAndId.delete(peer);
+		
+		// Don't clear this
+		// this._nameAndId.delete(peer);
 	}
 
 	private async handleData(peer : string, data : Object) {
