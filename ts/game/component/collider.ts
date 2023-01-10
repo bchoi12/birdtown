@@ -1,8 +1,9 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { SubComponent, SubComponentBase } from 'game/component'
-import { Data, DataFilter, DataMap } from 'game/data'
+import { Component, ComponentBase, ComponentType } from 'game/component'
+
+import { Data, DataFilter, DataMap } from 'network/data'
 
 import { options } from 'options'
 
@@ -29,7 +30,7 @@ enum Prop {
 	SCALING,
 }
 
-export class Collider extends SubComponentBase implements SubComponent {
+export class Collider extends ComponentBase implements Component {
 	private _readyFn : ReadyFn;
 	private _initFn : InitFn;
 	private _prePhysicsFn : UpdateFn;
@@ -51,7 +52,7 @@ export class Collider extends SubComponentBase implements SubComponent {
 	private _body : MATTER.Body;
 
 	constructor(colliderOptions : ColliderOptions) {
-		super();
+		super(ComponentType.COLLIDER);
 
 		this._readyFn = defined(colliderOptions.readyFn) ? colliderOptions.readyFn : () => { return true; };
 		this._initFn = colliderOptions.initFn;

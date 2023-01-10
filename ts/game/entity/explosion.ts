@@ -5,11 +5,11 @@ import { game } from 'game'
 import { Collider } from 'game/component/collider'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 
 import { Vec, Vec2 } from 'util/vector'
 
-export class Explosion extends Entity {
+export class Explosion extends EntityBase {
 
 	private _hit : Set<number>;
 

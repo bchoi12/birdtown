@@ -7,9 +7,9 @@ import { Attribute, Attributes } from 'game/component/attributes'
 import { Collider } from 'game/component/collider'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { GameConstants } from 'game/constants'
-import { Data, DataMap } from 'game/data'
-import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { GameConstants } from 'game/core'
+import { Data, DataMap } from 'network/data'
+import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Weapon } from 'game/entity/weapon'
 import { loader, LoadResult, ModelType } from 'game/loader'
 
@@ -45,7 +45,7 @@ enum CustomProp {
 	ARM_ANGLE,
 }
 
-export class Player extends Entity {
+export class Player extends EntityBase {
 	// blockdudes3 = 18.0
 	private readonly _sideAcc = 1.0;
 	private readonly _jumpVel = 0.3;

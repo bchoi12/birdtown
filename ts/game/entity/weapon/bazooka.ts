@@ -4,7 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { Attribute } from 'game/component/attributes'
 import { Model } from 'game/component/model'
-import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Weapon } from 'game/entity/weapon'
 import { loader, LoadResult, ModelType } from 'game/loader'
 

@@ -4,7 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { Attribute } from 'game/component/attributes'
 import { Model } from 'game/component/model'
-import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Player } from 'game/entity/player'
 import { loader, LoadResult, ModelType } from 'game/loader'
 
@@ -12,7 +12,7 @@ import { defined } from 'util/common'
 import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
-export abstract class Weapon extends Entity {
+export abstract class Weapon extends EntityBase {
 
 	protected _reloadTimer : Timer;
 

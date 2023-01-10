@@ -1,6 +1,5 @@
-
-import { BitMarker } from 'util/bit_marker'
 import { defined } from 'util/common'
+import { BitMarker } from 'util/bit_marker'
 
 export enum DataFilter {
 	UNKNOWN = 0,
@@ -9,83 +8,140 @@ export enum DataFilter {
 	UDP = 3,
 }
 
-export interface DataObject<T> {
-	valid(value : T): boolean;
-	has() : boolean;
-	get() : T;
-	equals(other : T) : boolean;
-	set(value : T) : void;
+export type DataMap = { [k: number]: Object } 
+export type DataTree = Map<number, Object>;
 
-	markChange(seqNum : number) : void;
-	filtered(filter : DataFilter) : [Object, boolean];
-}
+// TODO: move to network
+export class Data {
+	public static readonly numberEpsilon = 1e-3;
 
-export abstract class DataObjectBase<T> implements DataObject<T> {
-
-	protected _hasValue : boolean;
-	protected _changed : boolean;
-	protected _changeMarker : BitMarker;
-
-	protected _value : T;
+	private _data : DataTree;
+	private _change : Map<number, BitMarker>;
+	private _seqNum : Map<number, number>;
 
 	constructor() {
-		this._hasValue = false;
-		this._changed = false;
-		this._changeMarker = new BitMarker(32);
+		this._data = new Map();
+		this._change = new Map();
+		this._seqNum = new Map();
 	}
 
-	protected initialize(t : T) { this._value = t; }
-	protected onSet() : void {
-		this._hasValue = true;
-		this._changed = true;
-	}
-
-	valid(value : T) : boolean { return defined(value); }
-	has() : boolean { return this._hasValue; }
-	get() : T { return this._value; }
-	equals(other : T) : boolean { return this.has() && this.get() === other; }
-	set(value : T) : void {
-		if (!this.valid(value)) {
-			return;
+	static toObject(data : any) : Object {
+		if (data instanceof Map) {
+			return Object.fromEntries(data);
+		} else if (data instanceof Set) {
+			return [...data];
 		}
-
-		if (!this.has() || !this.equals(value)) {
-			this._value = value;
-			this.onSet();
-		}
+		return data;
 	}
 
-	markChange(seqNum : number) : void {
-		this._changeMarker.mark(seqNum, this._changed);
-		this._changed = false;
-	}
-
-	filtered(filter : DataFilter) : [Object, boolean] {
-		if (!this.has()) {
-			return [{}, false];
-		}
-
-		let match = false;
-
-		switch(filter) {
-		case DataFilter.ALL:
-			match = true;
-			break;
-		case DataFilter.TCP:
-			if (this._changeMarker.consecutiveTrue() === 1 || this._changeMarker.consecutiveFalse() === 1) {
-				match = true;
+	static equals(a : Object, b : Object) : boolean {
+		if (a === b) return true;
+		if (!defined(a) || !defined(b)) return false;
+		if (a !== Object(a) && b !== Object(b)) {
+			if (!Number.isNaN(a) && !Number.isNaN(b)) {
+				return Math.abs(<number>a - <number>b) < Data.numberEpsilon;
 			}
-			break;
-		case DataFilter.UDP:
-			if (this._changeMarker.consecutiveTrue() >= 1 || this._changeMarker.consecutiveFalse() <= 2) {
-				match = true;
-			}
-			break;
+			return a === b;
+		};
+		if (Object.keys(a).length !== Object.keys(b).length) return false;
+
+		for (let key in a) {
+			if (!(key in b)) return false;
+			if (!Data.equals(a[key], b[key])) return false;
+		}
+		return true;
+	}
+
+	empty() : boolean { return this._data.size === 0; }
+	tree() : DataTree { return this._data; }
+	has(key : number) : boolean { return this._data.has(key); }
+	get(key : number) : Object { return this._data.get(key); }
+
+	hasSeqNum(key : number) : boolean { return this._seqNum.has(key); }
+	seqNum(key : number) : number { return this._seqNum.get(key); }
+	setSeqNum(key : number, seqNum : number) : void { this._seqNum.set(key, seqNum); }
+
+	merge(data : Data) : boolean {
+		let changed = false;
+		data.tree().forEach((node : Object, key : number) => {
+			changed = changed || this.set(key, node, data.seqNum(key));
+		});
+		return changed;
+	}
+
+	set(key : number, node : Object, seqNum : number, predicate? : () => boolean) : boolean {
+		if (!defined(node)) {
+			return false;
 		}
 
-		if (match) {
-			return [this.get(), true];
+		if (defined(predicate) && !predicate()) {
+			this.recordChange(key, seqNum, false);
+			return false;
 		}
-		return [{}, false];
+
+		let changed = false;
+		if (!this.has(key) || seqNum >= this._seqNum.get(key)) {
+			if (!Data.equals(node, this.get(key))) {
+				this._data.set(key, node);
+				changed = true;
+			}
+		}
+
+		this.recordChange(key, seqNum, changed);
+		return changed;
+	}
+
+	import(data : DataMap, seqNum : number, predicate? : (key : number) => boolean) : Set<number> {
+		let changed = new Set<number>();
+
+		for (const [stringKey, value] of Object.entries(data)) {
+			const key = Number(stringKey);
+			const updatePredicate = () => {
+				return defined(predicate) ? predicate(key) : true;
+			};
+			if (this.set(key, value, seqNum, updatePredicate)) {
+				changed.add(key);
+			}
+		}
+		return changed;
+	}
+
+	filtered(filter : DataFilter) : DataMap {
+		if (this.empty()) {
+			return {};
+		}
+
+		let filtered : DataMap = {};
+		this._data.forEach((data : Object, key : number) => {
+			if (!this._change.has(key)) {
+				return;
+			}
+
+			const change = this._change.get(key);
+			if (filter === DataFilter.ALL) {
+				filtered[key] = data;
+			} else if (filter === DataFilter.TCP) {
+				if (change.consecutiveTrue() === 1 || change.consecutiveFalse() === 1) {
+					filtered[key] = data;
+				}
+			} else if (filter === DataFilter.UDP) {
+				if (change.consecutiveTrue() >= 1 || change.consecutiveFalse() <= 2) {
+					filtered[key] = data;
+				}
+			}	
+		});
+		return filtered;
+	}
+
+	protected recordChange(key : number, seqNum : number, change : boolean) {
+		if (!this._change.has(key)) {
+			this._change.set(key, new BitMarker(32));
+		}
+
+		this._change.get(key).mark(seqNum, change);
+
+		if (change) {
+			this.setSeqNum(key, seqNum);
+		}
 	}
 }

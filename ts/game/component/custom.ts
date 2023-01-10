@@ -1,5 +1,6 @@
 import { Component, ComponentBase, ComponentType } from 'game/component'
-import { Data, DataMap } from 'game/data'
+
+import { Data, DataMap } from 'network/data'
 
 import { defined } from 'util/common'
 

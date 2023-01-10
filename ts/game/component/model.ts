@@ -2,9 +2,10 @@ import * as BABYLON from 'babylonjs'
 
 import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
-import { Data, DataFilter, DataMap } from 'game/data'
 import { Entity } from 'game/entity'
 import { AnimationHandler } from 'game/util/animation_handler'
+
+import { Data, DataFilter, DataMap } from 'network/data'
 
 import { defined } from 'util/common'
 

@@ -1,12 +1,12 @@
 import * as BABYLON from "babylonjs";
 import * as MATTER from "matter-js"
 
-import { Input } from 'game/component/input'
-import { Keys } from 'game/component/keys'
-import { Lakitu } from 'game/component/lakitu'
-import { Data, DataFilter, DataMap } from 'game/data'
-import { Entity, EntityType } from 'game/entity'
+import { Data, DataFilter, DataMap } from 'network/data'
+import { Entity, EntityBase, EntityType } from 'game/entity'
 import { EntityMap } from 'game/entity_map'
+import { Input } from 'game/system/input'
+import { Keys } from 'game/system/keys'
+import { Lakitu } from 'game/system/lakitu'
 
 import { Client } from 'network/client'
 import { Connection, ChannelType } from 'network/connection'
@@ -110,7 +110,6 @@ class Game {
 				seqNum: msg.S,
 			});
 
-			console.log(msg);
 			if (!this._options.host && msg.S > this._seqNum) {
 				this._seqNum = msg.S;
 			}
@@ -123,7 +122,6 @@ class Game {
 
 			const id = this._connection.idFromName(peer);
 			this._input.importData(<DataMap>msg.D, msg.S);
-			console.log("receive: ", msg);
 		});
 		this._connection.initialize();
 
@@ -183,8 +181,6 @@ class Game {
 	    			const [msg, has] = this.inputMessage(filter, this._seqNum);
     				if (has) {
     					this._connection.broadcast(Game._channelMapping.get(filter), msg);
-						console.log("broadcast: ", msg);
-
 	    			}
 	    		}
 	    	}

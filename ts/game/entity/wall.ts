@@ -7,12 +7,12 @@ import { Attribute } from 'game/component/attributes'
 import { Collider } from 'game/component/collider'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 
 import { defined } from 'util/common'
 import { Vec } from 'util/vector'
 
-export class Wall extends Entity {
+export class Wall extends EntityBase {
 
 	constructor(options : EntityOptions) {
 		super(EntityType.WALL, options);

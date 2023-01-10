@@ -6,7 +6,7 @@ import { Attribute } from 'game/component/attributes'
 import { Collider } from 'game/component/collider'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Projectile } from 'game/entity/projectile'
 import { loader, LoadResult, ModelType } from 'game/loader'
 

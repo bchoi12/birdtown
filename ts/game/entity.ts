@@ -2,12 +2,13 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
+import { GameObject, GameObjectBase } from 'game/core'
 import { Attribute, Attributes, AttributesInitOptions } from 'game/component/attributes'
 import { Custom } from 'game/component/custom'
 import { Model } from 'game/component/model'
 import { Metadata, MetadataInitOptions } from 'game/component/metadata'
 import { Profile, ProfileInitOptions } from 'game/component/profile'
-import { Data, DataFilter, DataMap } from 'game/data'
+import { Data, DataFilter, DataMap } from 'network/data'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
@@ -23,7 +24,7 @@ export enum EntityType {
 	WALL,
 }
 
-export interface EntityOptions {
+export type EntityOptions = {
 	id? : number;
 
 	attributesInit? : AttributesInitOptions;
@@ -31,7 +32,30 @@ export interface EntityOptions {
 	profileInit? : ProfileInitOptions
 }
 
-export abstract class Entity {
+export interface Entity extends GameObject {
+	type() : EntityType;
+	id() : number;
+	name() : string;
+
+	add(component : Component) : Component;
+	has(type : ComponentType) : boolean;
+	get(type : ComponentType) : Component;
+
+	// TODO: deprecate
+	attributes() : Attributes;
+	custom() : Custom;
+	hasModel() : boolean;
+	model() : Model;
+	metadata() : Metadata;
+	hasProfile() : boolean;
+	profile() : Profile;
+
+	collide(other : Entity, collision : MATTER.Collision) : void;
+	newTimer() : Timer;
+	setTTL(ttl : number);
+}
+
+export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	protected _type : EntityType;
 	protected _id : number;
@@ -40,6 +64,8 @@ export abstract class Entity {
 	protected _timers : Array<Timer>;
 
 	constructor(type : EntityType, options : EntityOptions) {
+		super();
+
 		this._type = type;
 
 		if (!defined(options.id)) {
@@ -55,7 +81,7 @@ export abstract class Entity {
 		this._timers = new Array();
 	}
 
-	ready() : boolean {
+	override ready() : boolean {
 		for (const [_, component] of this._components) {
 			if (!component.ready()) {
 				return false;
@@ -63,15 +89,15 @@ export abstract class Entity {
 		}
 		return true;
 	}
-	initialized() : boolean { return this.metadata().entityInitialized(); }
-	deleted() : boolean { return this.metadata().entityDeleted(); }
+	override initialized() : boolean { return this.metadata().entityInitialized(); }
+	override deleted() : boolean { return this.metadata().entityDeleted(); }
 
-	initialize() : void {
+	override initialize() : void {
 		this._components.forEach((component) => {
 			component.initialize();
 		});
 	}
-	delete() : void {
+	override delete() : void {
 		if (this.deleted()) return;
 
 		this._components.forEach((component) => {
@@ -79,7 +105,7 @@ export abstract class Entity {
 		});
 	}
 
-	dispose() : void {
+	override dispose() : void {
 		this._components.forEach((component) => {
 			component.dispose();
 		});
@@ -122,7 +148,7 @@ export abstract class Entity {
 		});
 	}
 
-	preUpdate(millis : number) : void {
+	override preUpdate(millis : number) : void {
 		this._timers.forEach((timer) => {
 			timer.elapse(millis);
 		});
@@ -132,37 +158,37 @@ export abstract class Entity {
 		});
 	}
 
-	update(millis : number) : void {
+	override update(millis : number) : void {
 		this._components.forEach((component) => {
 			component.update(millis);
 		});
 	}
 
-	postUpdate(millis : number) : void {
+	override postUpdate(millis : number) : void {
 		this._components.forEach((component) => {
 			component.postUpdate(millis);
 		});
 	}
 
-	prePhysics(millis : number) : void {
+	override prePhysics(millis : number) : void {
 		this._components.forEach((component) => {
 			component.prePhysics(millis);
 		});
 	}
 
-	postPhysics(millis : number) : void {
+	override postPhysics(millis : number) : void {
 		this._components.forEach((component) => {
 			component.postPhysics(millis);
 		});
 	}
 
-	preRender() : void {
+	override preRender() : void {
 		this._components.forEach((component) => {
 			component.preRender();
 		});
 	}
 
-	postRender() : void {
+	override postRender() : void {
 		this._components.forEach((component) => {
 			component.postRender();
 		});
@@ -170,7 +196,7 @@ export abstract class Entity {
 
 	collide(entity : Entity, collision : MATTER.Collision) : void {}
 
-	dataMap(filter : DataFilter) : DataMap {
+	override dataMap(filter : DataFilter) : DataMap {
 		let dataMap : DataMap = {};
 		this._components.forEach((component) => {
 			if (!component.shouldBroadcast()) {
@@ -184,7 +210,7 @@ export abstract class Entity {
 		return dataMap;
 	}
 
-	updateData(seqNum : number) : void {
+	override updateData(seqNum : number) : void {
 		this._components.forEach((component) => {
 			if (component.isSource()) {
 				component.updateData(seqNum);
@@ -192,7 +218,7 @@ export abstract class Entity {
 		});
 	}
 
-	importData(dataMap : DataMap, seqNum : number) : void {
+	override importData(dataMap : DataMap, seqNum : number) : void {
 		for (const [stringType, data] of Object.entries(dataMap)) {
 			if (!this.has(Number(stringType))) {
 				console.log("Error: object " + this.name() + " is missing component " + stringType);

@@ -1,7 +1,7 @@
 import { Attribute } from 'game/component/attributes'
-import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 
-export abstract class Projectile extends Entity {
+export abstract class Projectile extends EntityBase {
 
 	constructor(entityType : EntityType, options : EntityOptions) {
 		super(entityType, options);

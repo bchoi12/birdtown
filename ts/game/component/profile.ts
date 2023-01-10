@@ -4,7 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
 import { Collider, ColliderOptions } from 'game/component/collider'
-import { Data, DataFilter, DataMap } from 'game/data'
+import { Data, DataFilter, DataMap } from 'network/data'
 
 import { options } from 'options'
 

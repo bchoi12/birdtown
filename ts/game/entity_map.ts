@@ -2,13 +2,14 @@ import * as BABYLON from "babylonjs";
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
-import { Data, DataFilter, DataMap } from 'game/data'
-import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Wall } from 'game/entity/wall'
 import { Bazooka } from 'game/entity/weapon/bazooka'
+
+import { Data, DataFilter, DataMap } from 'network/data'
 
 interface DataItem {
 	seqNum : number;

@@ -1,7 +1,8 @@
 
 import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
-import { Data, DataFilter, DataMap } from 'game/data'
+
+import { Data, DataFilter, DataMap } from 'network/data'
 
 export enum Attribute {
 	UNKNOWN,
