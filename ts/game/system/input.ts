@@ -9,17 +9,17 @@ import { ui, Key } from 'ui'
 import { defined } from 'util/common'
 import { Vec2 } from 'util/vector'
 
-enum Prop {
-	UNKNOWN,
-	CLIENT_KEYS,
-}
-
 export class Input extends SystemBase implements System {
 
 	private _keys : Map<number, Keys>;
 
 	constructor() {
 		super(SystemType.INPUT);
+
+		this.setName({
+			base: "input",
+		});
+
 		this._keys = new Map();
 	}
 
@@ -39,9 +39,16 @@ export class Input extends SystemBase implements System {
 		this.keys().preUpdate(millis);
 	}
 
+	override preRender() : void {
+		super.preRender();
+
+		this.keys().preRender();
+	}
+
 	override isSource() : boolean { return true; }
 	override shouldBroadcast() : boolean { return true; }
 
+	// TODO: debug why this doesn't work when removed
 	override dataMap(filter : DataFilter) : DataMap {
 		let dataMap = {};
 		this._keys.forEach((keys : Keys, id : number) => {

@@ -9,11 +9,7 @@ import { defined } from 'util/common'
 export enum ComponentType {
 	UNKNOWN,
 	ATTRIBUTES,
-	COLLIDER,
 	CUSTOM,
-	INPUT,
-	KEYS,
-	LAKITU,
 	METADATA,
 	MODEL,
 	PROFILE,
@@ -31,7 +27,7 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 	protected _type : ComponentType;
 
 	constructor(type : ComponentType) {
-		super();
+		super("component-" + type);
 
 		this._entity = null;
 		this._type = type;
@@ -41,7 +37,13 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 	type() : ComponentType { return this._type; }
 	hasEntity() : boolean { return defined(this._entity); }
 	entity() : Entity { return this._entity; }
-	setEntity(entity : Entity) : void { this._entity = entity; }
+	setEntity(entity : Entity) : void {
+		this.setName({
+			parent: entity,
+			base: this.name(),
+		});
+		this._entity = entity;
+	}
 
 	override shouldBroadcast() : boolean { return game.options().host; }
 	override isSource() : boolean { return game.options().host; }

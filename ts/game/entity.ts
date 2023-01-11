@@ -4,7 +4,6 @@ import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
 import { GameObject, GameObjectBase } from 'game/core'
 import { Attribute, Attributes, AttributesInitOptions } from 'game/component/attributes'
-import { Custom } from 'game/component/custom'
 import { Model } from 'game/component/model'
 import { Metadata, MetadataInitOptions } from 'game/component/metadata'
 import { Profile, ProfileInitOptions } from 'game/component/profile'
@@ -35,19 +34,20 @@ export type EntityOptions = {
 export interface Entity extends GameObject {
 	type() : EntityType;
 	id() : number;
-	name() : string;
 
+	addComponent(component : Component) : Component;
+	hasComponent(type : ComponentType) : boolean;
+	getComponent(type : ComponentType) : Component;
+
+	// TODO: deprecate
 	add(component : Component) : Component;
 	has(type : ComponentType) : boolean;
 	get(type : ComponentType) : Component;
 
 	// TODO: deprecate
 	attributes() : Attributes;
-	custom() : Custom;
-	hasModel() : boolean;
 	model() : Model;
 	metadata() : Metadata;
-	hasProfile() : boolean;
 	profile() : Profile;
 
 	collide(other : Entity, collision : MATTER.Collision) : void;
@@ -56,34 +56,41 @@ export interface Entity extends GameObject {
 }
 
 export abstract class EntityBase extends GameObjectBase implements Entity {
-
 	protected _type : EntityType;
 	protected _id : number;
 
 	protected _components : Map<ComponentType, Component>;
 	protected _timers : Array<Timer>;
 
-	constructor(type : EntityType, options : EntityOptions) {
-		super();
+	private _notReadyCounter : number;
+
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super("entity-" + type + "," + entityOptions.id);
 
 		this._type = type;
 
-		if (!defined(options.id)) {
+		if (!defined(entityOptions.id)) {
 			console.error("Warning: entity type " + type + " has no id");
 		}
-		this._id = options.id;
+		this._id = entityOptions.id;
 
 		this._components = new Map();
-		this.add(new Attributes(options.attributesInit));
-		this.add(new Custom());
-		this.add(new Metadata(options.metadataInit));
+		this.add(new Attributes(entityOptions.attributesInit));
+		this.add(new Metadata(entityOptions.metadataInit));
 
 		this._timers = new Array();
+
+		this._notReadyCounter = 0;
 	}
 
 	override ready() : boolean {
+		if (this._notReadyCounter > 0 && this._notReadyCounter % 60 === 0) {
+			console.error("Warning: %s still not ready", this.name());
+		}
+
 		for (const [_, component] of this._components) {
 			if (!component.ready()) {
+				this._notReadyCounter++;
 				return false;
 			}
 		}
@@ -113,10 +120,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	type() : EntityType { return this._type; }
 	id() : number { return this._id; }
-	name() : string { return this._type + "," + this._id; }
 	clientIdMatches() : boolean { return this.metadata().hasClientId() && this.metadata().clientId() === game.id() }
 
-	add(component : Component) : Component {
+	addComponent(component : Component) : Component {
 		if (this._components.has(component.type())) {
 			console.log("Warning: overwriting component " + component.type() + " for object " + this.name());
 		}
@@ -125,15 +131,16 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this._components.set(component.type(), component);
 		return component;
 	}
+	hasComponent(type : ComponentType) : boolean { return this._components.has(type); }
+	getComponent(type : ComponentType) : Component { return this._components.get(type); }
 
-	has(type : ComponentType) : boolean { return this._components.has(type); }
-	get(type : ComponentType) : Component { return this._components.get(type); }
+	// TODO: deprecate
+	add(component : Component) : Component { return this.addComponent(component); }
+	has(type : ComponentType) : boolean { return this.hasComponent(type); }
+	get(type : ComponentType) : Component { return this.getComponent(type); }
 	attributes() : Attributes { return <Attributes>this._components.get(ComponentType.ATTRIBUTES); }
-	custom() : Custom { return <Custom>this._components.get(ComponentType.CUSTOM); }
-	hasModel() : boolean { return this.has(ComponentType.MODEL); }
 	model() : Model { return <Model>this._components.get(ComponentType.MODEL); }
 	metadata() : Metadata { return <Metadata>this._components.get(ComponentType.METADATA); }
-	hasProfile() : boolean { return this.has(ComponentType.PROFILE); }
 	profile() : Profile { return <Profile>this._components.get(ComponentType.PROFILE); }
 
 	newTimer() : Timer {
@@ -147,6 +154,8 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			this.delete();
 		});
 	}
+
+	collide(entity : Entity, collision : MATTER.Collision) : void {}
 
 	override preUpdate(millis : number) : void {
 		this._timers.forEach((timer) => {
@@ -194,7 +203,8 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		});
 	}
 
-	collide(entity : Entity, collision : MATTER.Collision) : void {}
+	override shouldBroadcast() : boolean { return game.options().host; }
+	override isSource() : boolean { return game.options().host; }
 
 	override dataMap(filter : DataFilter) : DataMap {
 		let dataMap : DataMap = {};

@@ -3,7 +3,7 @@ import * as MATTER from "matter-js"
 
 import { Data, DataFilter, DataMap } from 'network/data'
 import { Entity, EntityBase, EntityType } from 'game/entity'
-import { EntityMap } from 'game/entity_map'
+import { EntityMap } from 'game/system/entity_map'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
@@ -50,10 +50,14 @@ class Game {
 	private _input : Input;
 	private _connection : Connection;
 
+	private _lastUpdateTime : number;
+
 	constructor() {
 		this._initialized = false;
 		this._canvas = Html.canvasElm(Html.canvasGame);
 		this._seqNum = 1;
+
+		this._lastUpdateTime = Date.now();
 	}
 
 	initialize(gameOptions : GameOptions) {
@@ -157,13 +161,24 @@ class Game {
 	    }
 
 	    this._engine.runRenderLoop(() => {
+	    	const millis = Math.max(this._lastUpdateTime - Date.now(), 20);
+
 	    	if (this.hasId()) {
-		    	this._input.preUpdate(0);
-		    	this._entityMap.update();
-		    	this._lakitu.postUpdate(0);
+	    		// TODO: put system into a sorted container
+		    	this._input.preUpdate(millis);
+		    	this._entityMap.preUpdate(millis);
+		    	this._entityMap.update(millis);
+		    	this._entityMap.postUpdate(millis);
+		    	this._lakitu.postUpdate(millis);
 		    	
+		    	this._entityMap.prePhysics(millis);
+    	    	MATTER.Engine.update(this.physics(), millis);
+    	    	this._entityMap.postPhysics(millis);
+
 		    	this._input.preRender();
-		    	this._entityMap.render(this._scene);
+		    	this._entityMap.preRender();
+		    	this._scene.render();
+		    	this._entityMap.postRender();
 
 		    	this._input.updateData(this._seqNum);
 		    	this._entityMap.updateData(this._seqNum);
@@ -188,6 +203,8 @@ class Game {
 	    	if (this._options.host) {
 		    	this._seqNum++;
 	    	}
+
+	    	this._lastUpdateTime = Date.now();
 	    });
 
 	    this._initialized = true;

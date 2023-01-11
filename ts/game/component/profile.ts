@@ -3,7 +3,6 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
-import { Collider, ColliderOptions } from 'game/component/collider'
 import { Data, DataFilter, DataMap } from 'network/data'
 
 import { options } from 'options'
@@ -23,41 +22,89 @@ export type ProfileInitOptions = {
 }
 
 export type ProfileOptions = {
-	mainCollider : ColliderOptions;
+	initFn : InitFn;
+
 	init? : ProfileInitOptions
-	initFn? : InitFn;
+	readyFn? : ReadyFn;
 }
 
 enum Prop {
 	UNKNOWN,
-	MAIN,
+	POS,
+	VEL,
+	ACC,
+	DIM,
+	ANGLE,
+	INERTIA,
+	SCALING,
 }
 
 export class Profile extends ComponentBase implements Component {
-	private readonly _numProps = Object.keys(Prop).length;
-
+	private _readyFn : ReadyFn;
 	private _initFn : InitFn;
 
-	private _collider : Collider;
-	private _colliders : Map<number, Collider>;
+	private _pos : Vec2;
+	private _vel : Vec2;
+	private _acc : Vec2;
+	private _dim : Vec2;
+	private _angle : number;
+	private _applyScaling : boolean;
+	private _scaleFactor : Vec2;
+	private _inertia : number;
+	private _scaling : Vec2;
 
-	private _dataBuffers : Map<number, Data>;
-	private _constraints : Map<number, MATTER.Constraint>;
+	private _forces : Array<Vec>;
+	private _initialInertia : number;
+
+	private _body : MATTER.Body;
 
 	constructor(profileOptions : ProfileOptions) {
 		super(ComponentType.PROFILE);
 
-		this._initFn = defined(profileOptions.initFn) ? profileOptions.initFn : () => {};
-		this._collider = new Collider(profileOptions.mainCollider);
+		this.setName({ base: "profile" });
+
+		this._readyFn = defined(profileOptions.readyFn) ? profileOptions.readyFn : () => { return true; };
+		this._initFn = profileOptions.initFn;
+
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
 		}
 
-		this._colliders = new Map();
-		this._colliders.set(Prop.MAIN, this._collider);
-		this._dataBuffers = new Map();
-
-		this._constraints = new Map();
+		this.registerProp(Prop.POS, {
+			has: () => { return this.hasPos(); },
+			export: () => { return this.pos().toVec(); },
+			import: (obj : Object) => { this.setPos(<Vec>obj); }
+		});
+		this.registerProp(Prop.VEL, {
+			has: () => { return this.hasVel(); },
+			export: () => { return this.vel().toVec(); },
+			import: (obj : Object) => { this.setVel(<Vec>obj); }
+		});
+		this.registerProp(Prop.ACC, {
+			has: () => { return this.hasAcc(); },
+			export: () => { return this.acc().toVec(); },
+			import: (obj : Object) => { this.setAcc(<Vec>obj); }
+		});
+		this.registerProp(Prop.DIM, {
+			has: () => { return this.hasDim(); },
+			export: () => { return this.dim().toVec(); },
+			import: (obj : Object) => { this.setDim(<Vec>obj); }
+		});
+		this.registerProp(Prop.ANGLE, {
+			has: () => { return this.hasAngle(); },
+			export: () => { return this.angle(); },
+			import: (obj : Object) => { this.setAngle(<number>obj); }
+		});
+		this.registerProp(Prop.INERTIA, {
+			has: () => { return this.hasInertia(); },
+			export: () => { return this.inertia(); },
+			import: (obj : Object) => { this.setInertia(<number>obj); }
+		});
+		this.registerProp(Prop.SCALING, {
+			has: () => { return this.hasScaling(); },
+			export: () => { return this.scaling().toVec(); },
+			import: (obj : Object) => { this.setScaling(<Vec>obj); }
+		});
 	}
 
 	initFromOptions(init : ProfileInitOptions) : void {
@@ -67,33 +114,38 @@ export class Profile extends ComponentBase implements Component {
 		if (init.dim) { this.setDim(init.dim); }
 	}
 
-	override ready() : boolean { return this._collider.ready(); }
+	override ready() : boolean {
+		return this.hasPos() && this.hasDim() && this._readyFn(this);
+	}
 
 	override initialize() : void {
 		super.initialize();
 
-		this._collider.setEntity(this.entity());
-		this._collider.initialize();
 		this._initFn(this);
-	}
 
-	override delete() : void {
-		this._colliders.forEach((collider : Collider) => {
-			collider.delete();
-		});
+		MATTER.Composite.add(game.physics().world, this._body)
+		this._body.label = "" + this.entity().id();
+		this._body.parts.forEach((body : MATTER.Body) => {
+			body.label = "" + this.entity().id();
+		})
+
+		this._forces = new Array();
+		this._initialInertia = this._body.inertia;
 	}
 
 	override dispose() : void {
 		super.dispose();
 
-		this._colliders.forEach((collider : Collider) => {
-			collider.dispose();
-		});
-		this._constraints.forEach((constraint : MATTER.Constraint) => {
-			MATTER.World.remove(game.physics().world, constraint);
-		});
+		if (defined(this._body)) {
+			MATTER.World.remove(game.physics().world, this._body);
+		}
 	}
 
+	// TODO: deprecate set()
+	set(body : MATTER.Body) : void { this._body = body; }
+	body() : MATTER.Body { return this._body; }
+
+	/*
 	addCollider(inputKey : number, collider : Collider) : Collider {
 		const key = this._numProps + inputKey;
 
@@ -127,102 +179,161 @@ export class Profile extends ComponentBase implements Component {
 		this._constraints.set(key, constraint);
 		return constraint;
 	}
+	*/
 
-	stop() : void { this._collider.stop(); }
+	private hasPos() : boolean { return defined(this._pos); }
+	pos() : Vec2 { return this._pos; }
+	setPos(vec : Vec) : void {
+		if (!this.hasPos()) { this._pos = Vec2.zero(); }
 
-	pos() : Vec2 { return this._collider.pos(); }
-	setPos(vec : Vec) : void { this._collider.setPos(vec); }
-	addPos(vec : Vec) : void { this._collider.addPos(vec); }
+		this._pos.copyVec(vec);
+	}
+	addPos(delta : Vec) : void {
+		if (!this.hasPos()) { this._pos = Vec2.zero(); }
 
-	hasVel() : boolean { return this._collider.hasVel(); }
-	vel() : Vec2 { return this._collider.vel(); }
-	setVel(vec : Vec) : void { this._collider.setVel(vec); }
-	addVel(vec : Vec) : void { this._collider.addVel(vec); }
+		this._pos.add(delta);
+	}
 
-	hasAcc() : boolean { return this._collider.hasAcc(); }
-	acc() : Vec2 { return this._collider.acc(); }
-	setAcc(vec : Vec) : void { this._collider.setAcc(vec); }
-	addAcc(vec : Vec) : void { this._collider.addAcc(vec); }
+	hasVel() : boolean { return defined(this._vel); }
+	vel() : Vec2 { return this._vel; }
+	setVel(vec : Vec) : void {
+		if (!this.hasVel()) { this._vel = Vec2.zero(); }
 
-	dim() : Vec2 { return this._collider.dim(); }
-	setDim(vec : Vec) : void { this._collider.setDim(vec); }
+		this._vel.copyVec(vec);
+	}
+	addVel(delta : Vec) : void {
+		if (!this.hasVel()) { this._vel = Vec2.zero(); }
 
-	hasAngle() : boolean { return this._collider.hasAngle(); }
-	angle() : number { return this._collider.angle(); }
-	setAngle(angle : number) : void { this._collider.setAngle(angle); }
-	addAngle(angle : number) : void { this._collider.addAngle(angle); }
-	setAngularVelocity(vel : number) : void { this._collider.setAngularVelocity(vel); }
-	addAngularVelocity(vel : number) : void { this._collider.addAngularVelocity(vel); }
+		this._vel.add(delta);
+	}
 
-	addForce(vec : Vec) : void { this._collider.addForce(vec); }
+	hasAcc() : boolean { return defined(this._acc); }
+	acc() : Vec2 { return this._acc; }
+	setAcc(vec : Vec) : void {
+		if (!this.hasAcc()) { this._acc = Vec2.zero(); }
 
-	hasInertia() : boolean { return this._collider.hasInertia(); }
-	inertia() : number { return this._collider.inertia(); }
-	setInertia(inertia : number) : void { this._collider.setInertia(inertia); }
-	resetInertia() : void { this._collider.resetInertia(); }
+		this._acc.copyVec(vec);
+	}
+	addAcc(delta : Vec) : void {
+		if (!this.hasAcc()) { this._acc = Vec2.zero(); }
 
-	hasScaling() : boolean { return this._collider.hasScaling(); }
-	scaling() : Vec2 { return this._collider.scaling(); }
-	setScaling(vec : Vec) : void { this._collider.setScaling(vec); }
+		this._acc.add(delta);
+	}
+
+	private hasDim() : boolean { return defined(this._dim); }
+	dim() : Vec2 { return this._dim; }
+	setDim(vec : Vec) : void {
+		if (defined(this._dim) && Data.equals(this._dim.toVec(), vec)) { return; }
+		if (this.hasDim()) {
+			console.error("Error: dimension is already initialized for " + name);
+			return;
+		}
+		this._dim = Vec2.fromVec(vec);
+	}
+
+	hasAngle() : boolean { return defined(this._angle); }
+	angle() : number { return this._angle; }
+	setAngle(angle : number) : void { this._angle = angle; }
+	addAngle(delta : number) : void { this._angle += delta; }
+	setAngularVelocity(vel : number) : void { MATTER.Body.setAngularVelocity(this._body, vel); }
+	addAngularVelocity(delta : number) : void { MATTER.Body.setAngularVelocity(this._body, this._body.angularVelocity + delta); }
+
+	hasInertia() : boolean { return defined(this._inertia); }
+	inertia() : number { return this._inertia; }
+	setInertia(inertia : number) : void { this._inertia = inertia; }
+	resetInertia() : void { this._inertia = this._initialInertia; }
+
+	hasScaling() : boolean { return defined(this._scaling) && defined(this._scaling.x, this._scaling.y); }
+	scaling() : Vec2 { return this._scaling; }
+	setScaling(vec : Vec) {
+		if (!defined(this._scaling)) {
+			this._scaling = Vec2.one();
+		}
+		if (Data.equals(this._scaling.toVec(), vec)) { return; }
+
+		this._scaleFactor = Vec2.one();
+		if (defined(vec.x)) {
+			this._scaleFactor.x = vec.x / this._scaling.x;
+		}
+		if (defined(vec.y)) {
+			this._scaleFactor.y = vec.y / this._scaling.y;
+		}
+
+		if (Data.equals(this._scaleFactor.x, 1) && Data.equals(this._scaleFactor.y, 1)) {
+			return;
+		}
+
+		this._applyScaling = true;
+		this._scaling.copyVec(vec);
+	}
+
+	stop() : void {
+		this.setVel({x: 0, y: 0});
+		this.setAcc({x: 0, y: 0});
+	}
+	addForce(force : Vec) : void { this._forces.push(force); }
+	private applyForces() : void {
+		if (this._forces.length === 0) {
+			return;
+		}
+
+		let totalForce = Vec2.zero();
+		this._forces.forEach((force : Vec) => {
+			totalForce.add(force);
+		});
+
+		this.addVel(totalForce);
+		this._forces = [];
+	}
 
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
 
-		this._colliders.forEach((collider : Collider) => {
-			collider.prePhysics(millis);
-		});
+		if (this._applyScaling && defined(this._scaleFactor)) {
+			MATTER.Body.scale(this._body, this._scaleFactor.x, this._scaleFactor.y);
+			this._applyScaling = false;
+		}
+		if (this.hasAngle()) {
+			MATTER.Body.setAngle(this._body, this.angle());
+		}
+		if (this.hasInertia()) {
+			MATTER.Body.setInertia(this._body, this.inertia());
+		}
+
+		if (this.hasAcc()) {
+			const acc = this.acc();
+			if (acc.lengthSq() > 0 && this.hasVel()) {
+				const ts = millis / 1000;
+				this.addVel({
+					x: acc.x * ts,
+					y: acc.y * ts,
+				});
+			}
+		}
+
+		this.applyForces();
+
+		if (this.hasVel()) {
+			MATTER.Body.setVelocity(this._body, this.vel());
+		}
+		MATTER.Body.setPosition(this._body, this.pos());
 	}
 
 	override postPhysics(millis : number) : void {
 		super.postPhysics(millis);
 
-		this._colliders.forEach((collider : Collider) => {
-			collider.postPhysics(millis);
-		});
-	}
-
-	override dataMap(filter : DataFilter) : DataMap {
-		let dataMap = {};
-
-		this._colliders.forEach((collider : Collider, id : number) => {
-			const data = collider.dataMap(filter);
-			if (Object.keys(data).length > 0) {
-				dataMap[id] = data;
-			}
-		});
-		return dataMap;
-	}
-
-	override updateData(seqNum : number) : void {
-		super.updateData(seqNum);
-
-		if (!this.shouldBroadcast()) {
-			return;
+		if (this.hasAngle() && !Data.equals(this._angle, this._body.angle)) {
+			this.setAngle(this._body.angle);
+		}
+		if (this.hasVel() && !Data.equals(this._vel.toVec(), this._body.velocity)) {
+			this.setVel(this._body.velocity);
 		}
 
-		this._colliders.forEach((collider : Collider, key : number) => {
-			collider.updateData(seqNum);
-		});
-	}
-
-	override importData(data : DataMap, seqNum : number) : void {
-		super.importData(data, seqNum);
-
-		const changed = this._data.import(data, seqNum);
-		if (changed.size === 0) {
-			return;
+		if (this.isSource()) {
+			this.setPos(this._body.position);
+		} else {
+			// TODO: refine this
+			this._pos.lerpSeparate(this._body.position, {x: options.predictionWeight, y: options.predictionWeight});
 		}
-
-		changed.forEach((key : number) => {
-			if (!this._colliders.has(key)) {
-				if (!this._dataBuffers.has(key)) {
-					this._dataBuffers.set(key, new Data());
-				}
-				this._dataBuffers.get(key).import(<DataMap>data[key], seqNum);
-				return;
-			}
-
-			this._colliders.get(key).importData(<DataMap>data[key], seqNum);
-		});
 	}
 }

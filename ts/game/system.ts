@@ -8,6 +8,7 @@ import { defined } from 'util/common'
 
 export enum SystemType {
 	UNKNOWN,
+	ENTITY_MAP,
 	INPUT,
 	KEYS,
 	LAKITU,
@@ -21,17 +22,20 @@ export interface System extends GameObject {
 	setEntity(entity : Entity) : void;
 }
 
+// TODO: add seqNum
 export abstract class SystemBase extends GameObjectBase implements System {
 	protected _entity : Entity;
 	protected _type : SystemType;
 
 	constructor(type : SystemType) {
-		super();
+		super("system-" + type);
 
 		this._entity = null;
 		this._type = type;
 
 	}
+
+	override ready() : boolean { return true; }
 
 	type() : SystemType { return this._type; }
 	hasEntity() : boolean { return defined(this._entity); }

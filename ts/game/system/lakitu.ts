@@ -1,5 +1,6 @@
 import * as BABYLON from "babylonjs";
 
+import { ComponentType } from 'game/component'
 import { System, SystemBase, SystemType } from 'game/system'
 import { Entity } from 'game/entity'
 
@@ -24,6 +25,8 @@ export class Lakitu extends SystemBase implements System {
 
 	constructor(canvas : HTMLCanvasElement, scene : BABYLON.Scene) {
 		super(SystemType.LAKITU);
+
+		this.setName({ base: "lakitu" });
 
 		this._camera = new BABYLON.UniversalCamera("camera", Lakitu._offset, scene);
 		this._camera.fov = Lakitu._horizontalFov;
@@ -51,10 +54,16 @@ export class Lakitu extends SystemBase implements System {
 	}
 
 	override setEntity(entity : Entity) {
-		if (!entity.hasProfile()) {
-			console.log("Error: target entity must have profile.");
+		if (!entity.has(ComponentType.PROFILE)) {
+			console.log("Error: %s target entity must have profile", this.name());
 			return;
 		}
+
+		this.setName({
+			base: this.name(),
+			target: entity,
+		});
+
 		super.setEntity(entity);
 	}
 

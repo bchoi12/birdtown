@@ -30,6 +30,8 @@ export class Model extends ComponentBase implements Component {
 	constructor(options : MeshOptions) {
 		super(ComponentType.MODEL);
 
+		this.setName({ base: "model" });
+
 		if (defined(options.readyFn)) {
 			this._readyFn = options.readyFn;
 		}

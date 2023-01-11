@@ -3,7 +3,6 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Attribute } from 'game/component/attributes'
-import { Collider } from 'game/component/collider'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
@@ -15,18 +14,23 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Rocket extends Projectile {
 
+	private _profile : Profile;
+
 	constructor(options : EntityOptions) {
 		super(EntityType.ROCKET, options);
 
-		let profile = <Profile>this.add(new Profile({
-			mainCollider: {
-				initFn: (collider : Collider) => {
-					const pos = collider.pos();
-					const dim = collider.dim();
-					collider.set(MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
-						isSensor: true,
-					}));
-				},
+		this.setName({
+			base: "rocket",
+			id: this.id(),
+		});
+
+		this._profile = <Profile>this.add(new Profile({
+			initFn: (profile : Profile) => {
+				const pos = profile.pos();
+				const dim = profile.dim();
+				profile.set(MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
+					isSensor: true,
+				}));
 			},
 			init: options.profileInit,
 		}));
@@ -55,7 +59,7 @@ export class Rocket extends Projectile {
 			return;
 		}
 
-		const vel = this.profile().vel();
+		const vel = this._profile.vel();
 		const angle = Vec2.fromVec(vel).angleRad();
 
 		this.model().mesh().rotation = new BABYLON.Vector3(-angle, Math.PI / 2, 0);
@@ -64,20 +68,22 @@ export class Rocket extends Projectile {
 	override collide(other : Entity, collision : MATTER.Collision) : void {
 		super.collide(other, collision);
 
+		if (!game.options().host) {
+			return;
+		}
+
 		if (this.attributes().get(Attribute.OWNER) === other.id()) {
 			return;
 		}
 
 		if (other.attributes().getOrDefault(Attribute.SOLID)) {
-			if (game.options().host) {
-				let explosion = game.entities().add(EntityType.EXPLOSION, {
-					profileInit: {
-						pos: this.profile().pos(),
-						dim: {x: 3, y: 3},
-					},
-				});
-				explosion.setTTL(200);
-			}
+			let explosion = game.entities().add(EntityType.EXPLOSION, {
+				profileInit: {
+					pos: this._profile.pos(),
+					dim: {x: 3, y: 3},
+				},
+			});
+			explosion.setTTL(200);
 			this.delete();
 		}
 	}

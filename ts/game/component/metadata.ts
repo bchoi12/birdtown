@@ -15,6 +15,7 @@ enum Prop {
 	DELETED,
 }
 
+// TODO: deprecate
 export class Metadata extends ComponentBase implements Component {
 
 	private _entityInitialized : boolean;
@@ -24,12 +25,28 @@ export class Metadata extends ComponentBase implements Component {
 	constructor(initOptions? : MetadataInitOptions) {
 		super(ComponentType.METADATA);
 
+		this.setName({ base: "metadata" });
+
 		this._entityInitialized = false;
 		this._entityDeleted = false;
 
 		if (initOptions) {
 			if (initOptions.clientId) { this.setClientId(initOptions.clientId); }
 		}
+
+		this.registerProp(Prop.CLIENT_ID, {
+			has: () => { return this.hasClientId(); },
+			export: () => { return this.clientId(); },
+			import: (obj : Object) => { this.setClientId(<number>obj); },
+		});
+		this.registerProp(Prop.DELETED, {
+			export: () => { return this._entityDeleted; },
+			import: (obj : Object) => {
+				if (<boolean>obj) {
+					this.entity().delete();
+				}
+			},
+		});
 	}
 
 	entityInitialized() : boolean { return this._entityInitialized; }
@@ -54,37 +71,5 @@ export class Metadata extends ComponentBase implements Component {
 		super.delete();
 
 		this._entityDeleted = true;
-	}
-
-	override updateData(seqNum : number) : void {
-		super.updateData(seqNum);
-
-		if (this.hasClientId()) {
-			this.setProp(Prop.CLIENT_ID, this._clientId, seqNum);
-		}
-
-		if (this._entityDeleted) {
-			this.setProp(Prop.DELETED, true, seqNum);
-		}
-	}
-
-	override importData(data : DataMap, seqNum : number) : void {
-		super.importData(data, seqNum);
-
-		const changed = this._data.import(data, seqNum);
-
-		if (changed.size === 0) {
-			return;
-		}
-
-		if (changed.has(Prop.CLIENT_ID)) {
-			this._clientId = <number>this._data.get(Prop.CLIENT_ID);
-		}
-
-		if (changed.has(Prop.DELETED)) {
-			if (<boolean>this._data.get(Prop.DELETED)) {
-				this.entity().delete();
-			}
-		}
 	}
 }

@@ -8,6 +8,7 @@ export enum DataFilter {
 	UDP = 3,
 }
 
+// TODO: deprecate DataMap?
 export type DataMap = { [k: number]: Object } 
 export type DataTree = Map<number, Object>;
 
@@ -106,6 +107,7 @@ export class Data {
 		return changed;
 	}
 
+	// TODO: return [DataMap, boolean]
 	filtered(filter : DataFilter) : DataMap {
 		if (this.empty()) {
 			return {};
@@ -113,14 +115,17 @@ export class Data {
 
 		let filtered : DataMap = {};
 		this._data.forEach((data : Object, key : number) => {
+			if (filter === DataFilter.ALL) {
+				filtered[key] = data;
+				return;
+			}
+
 			if (!this._change.has(key)) {
 				return;
 			}
 
 			const change = this._change.get(key);
-			if (filter === DataFilter.ALL) {
-				filtered[key] = data;
-			} else if (filter === DataFilter.TCP) {
+			if (filter === DataFilter.TCP) {
 				if (change.consecutiveTrue() === 1 || change.consecutiveFalse() === 1) {
 					filtered[key] = data;
 				}

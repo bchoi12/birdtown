@@ -4,7 +4,6 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Attribute, Attributes } from 'game/component/attributes'
-import { Collider } from 'game/component/collider'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { GameConstants } from 'game/core'
@@ -39,10 +38,11 @@ enum Part {
 	HEAD,
 }
 
-enum CustomProp {
+enum Prop {
 	UNKNOWN,
-	HEAD_ANGLE,
 	ARM_ANGLE,
+	FACING_SIGN,
+	HEAD_ANGLE,
 }
 
 export class Player extends EntityBase {
@@ -69,42 +69,46 @@ export class Player extends EntityBase {
 		Bone.ARM, Bone.ARMATURE, Bone.NECK, Bone.SPINE,
 	]);
 
+	private _attributes : Attributes;
 	private _model : Model;
 	private _profile : Profile;
 
 	private _weapon : Weapon;
 
+	private _jumpTimer : Timer;
+	private _deadTracker : ChangeTracker<boolean>;
+
 	private _armAngle : number;
 	private _facingSign : number;
 	private _headAngle : number;
 
-	private _jumpTimer : Timer;
-	private _deadTracker : ChangeTracker<boolean>;
-
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PLAYER, entityOptions);
 
-		this.attributes().set(Attribute.DEAD, false);
-		this.attributes().set(Attribute.GROUNDED, false);
-		this.attributes().set(Attribute.SOLID, true);
+		this.setName({
+			base: "player",
+			id: this.id(),
+		});
+
+		this._attributes = <Attributes>this.get(ComponentType.ATTRIBUTES);
+		this._attributes.set(Attribute.DEAD, false);
+		this._attributes.set(Attribute.GROUNDED, false);
+		this._attributes.set(Attribute.SOLID, true);
 
 		const collisionGroup = MATTER.Body.nextGroup(true);
 		this._profile = <Profile>this.add(new Profile({
-			mainCollider: {
-				initFn: (collider : Collider) => {
-					const pos = collider.pos();
-					const dim = collider.dim();
-
-					collider.set(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
-						collisionFilter: {
-							group: collisionGroup,
-						},
-						friction: 0,
-					}));
-				},
-			},
 			initFn: (profile : Profile) => {
 				const pos = profile.pos();
+				const dim = profile.dim();
+
+				profile.set(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+					collisionFilter: {
+						group: collisionGroup,
+					},
+					friction: 0,
+				}));
+				// TODO: re-enable
+				/*
 				let head = new Collider({
 					initFn: (collider : Collider) => {
 						const pos = collider.pos();
@@ -123,6 +127,7 @@ export class Player extends EntityBase {
 					head.setPos(this._profile.pos().clone().add({y: 0.22}));
 				});
 				profile.addCollider(Part.HEAD, head);
+				*/
 			},
 			init: entityOptions.profileInit,
 		}));
@@ -133,7 +138,7 @@ export class Player extends EntityBase {
 		this._profile.setAcc({x: 0, y: 0});
 
 		this._model = <Model>this.add(new Model({
-			readyFn: () => { return this.profile().ready(); },
+			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				loader.load(ModelType.CHICKEN, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
@@ -153,7 +158,7 @@ export class Player extends EntityBase {
 					});
 					let armature = model.getBone(Bone.ARMATURE).getTransformNode();
 					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + this._rotationOffset, 0);
-					const dim = this.profile().dim();
+					const dim = this._profile.dim();
 					armature.position.y -= dim.y / 2;
 
 					// TODO: this doesn't seem to work
@@ -170,7 +175,7 @@ export class Player extends EntityBase {
 		this._jumpTimer = this.newTimer();
 
 		this._deadTracker = new ChangeTracker(() => {
-			return <boolean>this.attributes().get(Attribute.DEAD);
+			return <boolean>this._attributes.get(Attribute.DEAD);
 		}, (dead : boolean) => {
 			if (dead) {
 				const x = this._profile.vel().x;
@@ -186,6 +191,24 @@ export class Player extends EntityBase {
 			}
 		});
 
+		/*
+		this.registerProp(Prop.ARM_ANGLE, {
+			has: () => { return defined(this._armAngle); },
+			export: () => { return this._armAngle; },
+			import: (obj : Object) => { this._armAngle = <number>obj; },
+		});
+		this.registerProp(Prop.FACING_SIGN, {
+			has: () => { return defined(this._facingSign); },
+			export: () => { return this._facingSign; },
+			import: (obj : Object) => { this._facingSign = <number>obj; },
+		});
+		this.registerProp(Prop.HEAD_ANGLE, {
+			has: () => { return defined(this._headAngle); },
+			export: () => { return this._headAngle; },
+			import: (obj : Object) => { this._headAngle = <number>obj; },
+		});
+		*/
+
 	}
 
 	override ready() : boolean {
@@ -196,10 +219,12 @@ export class Player extends EntityBase {
 		super.initialize();
 
 		this._profile.setInertia(Infinity);
-		this._profile.collider(Part.HEAD).setInertia(Infinity);
+		// TODO: re-enable
+		// this._profile.collider(Part.HEAD).setInertia(Infinity);
 
 		if (this.metadata().clientId() === game.id()) {
 			game.lakitu().setEntity(this);
+			game.keys().setEntity(this);
 		}
 
 		if (game.options().host) {
@@ -218,9 +243,12 @@ export class Player extends EntityBase {
 		this._model.onLoad(() => {
 			const arm = this._model.getBone(Bone.ARM);
 
-			this._weapon.model().mesh().attachToBone(arm, this.model().mesh());
-			this._weapon.model().mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
-			this._weapon.model().mesh().scaling.z *= -1;
+			let weaponModel = <Model>this._weapon.getComponent(ComponentType.MODEL);
+			weaponModel.onLoad((model) => {
+				model.mesh().attachToBone(arm, this._model.mesh());
+				model.mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+				model.mesh().scaling.z *= -1;
+			});
 		});
 	}
 
@@ -229,19 +257,19 @@ export class Player extends EntityBase {
 
 		// Gravity
 		this._profile.setAcc({ y: GameConstants.gravity });
-		if (!this.attributes().get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
+		if (!this._attributes.get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
 			this._profile.addAcc({ y: (this._fallMultiplier - 1) * GameConstants.gravity });
 		}
 
 		if (game.keys(this.metadata().clientId()).keyDown(Key.INTERACT)) {
-			this.attributes().setIf(Attribute.DEAD, true, game.options().host);
+			this._attributes.setIf(Attribute.DEAD, true, game.options().host);
 		} else {
-			this.attributes().setIf(Attribute.DEAD, false, game.options().host);
+			this._attributes.setIf(Attribute.DEAD, false, game.options().host);
 		}
 
 		this._deadTracker.check();
 
-		if (!this.attributes().getOrDefault(Attribute.DEAD)) {
+		if (!this._attributes.getOrDefault(Attribute.DEAD)) {
 			// Keypress acceleration
 			if (game.keys(this.metadata().clientId()).keyDown(Key.LEFT)) {
 				this._profile.setAcc({ x: -this._sideAcc });
@@ -261,7 +289,8 @@ export class Player extends EntityBase {
 
 			// Set direction of player
 			this._headAngle = this.computeHeadAngle();
-			this._profile.collider(Part.HEAD).setAngle(this._headAngle);
+			// TODO: re-enable
+			// this._profile.collider(Part.HEAD).setAngle(this._headAngle);
 			this._armAngle = this.computeArmAngle();
 
 			// Turn acceleration
@@ -276,15 +305,15 @@ export class Player extends EntityBase {
 					this._profile.setVel({ y: this._jumpVel });
 					this._jumpTimer.stop();
 				}
-			} else if (this.attributes().getOrDefault(Attribute.CAN_DOUBLE_JUMP) && game.keys(this.metadata().clientId()).keyPressed(Key.JUMP)) {
+			} else if (this._attributes.getOrDefault(Attribute.CAN_DOUBLE_JUMP) && game.keys(this.metadata().clientId()).keyPressed(Key.JUMP)) {
 				this._profile.setVel({ y: this._jumpVel });
-				this.attributes().setIf(Attribute.CAN_DOUBLE_JUMP, false, game.options().host);
+				this._attributes.setIf(Attribute.CAN_DOUBLE_JUMP, false, game.options().host);
 			}
 		}
 
 		// Friction and air resistance
 		const slowing = Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x);
-		if (this.attributes().get(Attribute.GROUNDED)) {
+		if (this._attributes.get(Attribute.GROUNDED)) {
 			if (slowing) {
 				this._profile.vel().x *= this._friction;
 			}
@@ -317,7 +346,7 @@ export class Player extends EntityBase {
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
 
-		this.attributes().setIf(Attribute.GROUNDED, false, game.options().host);
+		this._attributes.setIf(Attribute.GROUNDED, false, game.options().host);
 	}
 
 	override collide(other : Entity, collision : MATTER.Collision) : void {
@@ -328,8 +357,8 @@ export class Player extends EntityBase {
 		}
 
 		if (other.attributes().getOrDefault(Attribute.SOLID) && collision.normal.y >= 0.5) {
-			this.attributes().setIf(Attribute.GROUNDED, true, game.options().host);
-			this.attributes().setIf(Attribute.CAN_DOUBLE_JUMP, true, game.options().host);
+			this._attributes.setIf(Attribute.GROUNDED, true, game.options().host);
+			this._attributes.setIf(Attribute.CAN_DOUBLE_JUMP, true, game.options().host);
 			this._jumpTimer.start(this._jumpGracePeriod);
 		}
 	}
@@ -341,7 +370,7 @@ export class Player extends EntityBase {
 			return;
 		}
 
-		if (!this.attributes().get(Attribute.GROUNDED) || this.attributes().get(Attribute.DEAD)) {
+		if (!this._attributes.get(Attribute.GROUNDED) || this._attributes.get(Attribute.DEAD)) {
 			this._model.playAnimation(Animation.JUMP);
 		} else {
 			if (Math.abs(this._profile.acc().x) < 0.01) {
@@ -384,7 +413,11 @@ export class Player extends EntityBase {
 		}
 	}
 
+	// TODO: clean this up
 	private computeDir(origin : Vec2) : Vec2 {
+		if (!this.clientIdMatches()) {
+			return game.keys(this.metadata().clientId()).dir();
+		}
 		return game.keys(this.metadata().clientId()).mouse().clone().sub(origin);
 	}
 
@@ -413,27 +446,5 @@ export class Player extends EntityBase {
 		const pos = Vec2.fromBabylon3(this.model().getBone(Bone.ARM).getTransformNode().getAbsolutePosition());
 		const dir = this.computeDir(pos);
 		return dir.angleRad();
-	}
-
-	override updateData(seqNum : number) : void {
-		super.updateData(seqNum);
-
-		this.custom().set(CustomProp.ARM_ANGLE, this._armAngle);
-		this.custom().set(CustomProp.HEAD_ANGLE, this._headAngle);
-	}
-
-	override importData(dataMap : DataMap, seqNum : number) : void {
-		super.importData(dataMap, seqNum);
-
-		if (this.clientIdMatches()) {
-			return;
-		}
-
-		if (this.custom().has(CustomProp.ARM_ANGLE)) {
-			this._armAngle = <number>this.custom().get(CustomProp.ARM_ANGLE);
-		}
-		if (this.custom().has(CustomProp.HEAD_ANGLE)) {
-			this._headAngle = <number>this.custom().get(CustomProp.HEAD_ANGLE);
-		}
 	}
 }

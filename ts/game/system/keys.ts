@@ -1,9 +1,12 @@
 import { game } from 'game'
+import { ComponentType } from 'game/component'
+import { Profile } from 'game/component/profile'
+import { Entity } from 'game/entity'
 import { System, SystemBase, SystemType } from 'game/system'
 import { Data, DataFilter, DataMap } from 'network/data'
 
 import { ui, Key } from 'ui'
-import { Vec2 } from 'util/vector'
+import { Vec, Vec2 } from 'util/vector'
 
 enum KeyState {
 	UNKNOWN,
@@ -13,31 +16,70 @@ enum KeyState {
 	UP,
 }
 
-enum Prop {
-	UNKNOWN,
-	KEY_MAP,
-}
-
 export class Keys extends SystemBase implements System {
 	private _clientId : number;
 	private _keys : Map<Key, KeyState>;
 	private _mouse : Vec2;
+	private _dir : Vec2;
 
 	// TODO: set entity to follow and compute direction
 	constructor(clientId : number) {
 		super(SystemType.KEYS);
 
+		this.setName({
+			base: "keys",
+			id: clientId,
+		});
+
 		this._clientId = clientId;
 		this._keys = new Map();
 		this._mouse = Vec2.zero();
+		this._dir = Vec2.i();
+
+		for (const stringKey in Key) {
+			const key = Number(Key[stringKey]);
+			if (Number.isNaN(key) || key <= 0) {
+				continue;
+			}
+
+			this.registerProp(key, {
+				has: () => { return this._keys.has(key); },
+				export: () => { return this._keys.get(key); },
+				import: (obj : Object) => { this.updateKey(key, <KeyState>obj); },
+			})
+		}
+
+		this.registerProp(this.numProps() + 1, {
+			export : () => { return this._mouse.toVec(); },
+			import: (obj : Object) => { this._mouse.copyVec(<Vec>obj); }
+		});
+		this.registerProp(this.numProps() + 1, {
+			export : () => { return this._dir.toVec(); },
+			import: (obj : Object) => { this._dir.copyVec(<Vec>obj); }
+		});
 	}
 
 	keyDown(key : Key) : boolean { return this._keys.has(key) && (this._keys.get(key) === KeyState.DOWN || this.keyPressed(key)); }
 	keyUp(key : Key) : boolean { return !this._keys.has(key) || (this._keys.get(key) === KeyState.UP || this.keyReleased(key)); }
 	keyPressed(key : Key) : boolean { return this._keys.has(key) && this._keys.get(key) === KeyState.PRESSED; }
 	keyReleased(key : Key) : boolean { return this._keys.has(key) && this._keys.get(key) === KeyState.RELEASED; }
+	dir() : Vec2 { return this._dir; }
 	mouse() : Vec2 { return this._mouse; }
 	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }
+
+	override setEntity(entity : Entity) {
+		if (!entity.has(ComponentType.PROFILE)) {
+			console.log("Error: %s target entity must have profile", this.name());
+			return;
+		}
+
+		this.setName({
+			base: this.name(),
+			target: entity,
+		});
+
+		super.setEntity(entity);
+	}
 
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
@@ -59,34 +101,31 @@ export class Keys extends SystemBase implements System {
 
 		const mouseWorld = game.mouse();
 		this._mouse.copyVec({ x: mouseWorld.x, y: mouseWorld.y });
+
+		if (this.hasEntity()) {
+			const profile = <Profile>this.entity().getComponent(ComponentType.PROFILE);
+			this._dir = this._mouse.clone().sub(profile.pos()).normalize();
+		}
+	}
+
+	override preRender() : void {
+		super.preRender();
+
+		if (this.hasEntity()) {
+			const profile = <Profile>this.entity().getComponent(ComponentType.PROFILE);
+			this._dir = this._mouse.clone().sub(profile.pos()).normalize();
+		}
 	}
 
 	override isSource() : boolean { return game.id() === this._clientId; }
 	override shouldBroadcast() : boolean { return game.options().host || this.isSource(); }
 
-	override updateData(seqNum : number) : void {
-		super.updateData(seqNum);
-
-		this._keys.forEach((keyState : KeyState, key : Key) => {
-			this.setProp(key, keyState, seqNum);
-		});
-	}
-
-	override importData(data : DataMap, seqNum : number) : void {
-		super.importData(data, seqNum);
-
-		if (this.isSource()) {
-			return;
+	protected updateKey(key : Key, state : KeyState) : void {
+		if (state === KeyState.RELEASED || state === KeyState.UP) {
+			this.releaseKey(<Key>key);
+		} else {
+			this.pressKey(<Key>key);
 		}
-
-		const changed = this._data.import(data, seqNum);
-		changed.forEach((key : number) => {
-			if (<KeyState>this._data.get(key) === KeyState.RELEASED || <KeyState>this._data.get(key) === KeyState.UP) {
-				this.releaseKey(<Key>key);
-			} else {
-				this.pressKey(<Key>key);
-			}
-		});
 	}
 
 	protected pressKey(key : Key) : void {

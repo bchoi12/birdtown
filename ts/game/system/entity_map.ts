@@ -2,12 +2,14 @@ import * as BABYLON from "babylonjs";
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
+import { GameObject, GameObjectBase } from 'game/core'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Wall } from 'game/entity/wall'
 import { Bazooka } from 'game/entity/weapon/bazooka'
+import { System, SystemBase, SystemType } from 'game/system'
 
 import { Data, DataFilter, DataMap } from 'network/data'
 
@@ -16,25 +18,21 @@ interface DataItem {
 	dataMap : DataMap;
 }
 
-export class EntityMap {
+export class EntityMap extends SystemBase implements System {
 	private readonly _invalidId = 0;
-
-	private _updateSpeed : number;
-	private _lastUpdateTime : number;
 
 	private _lastId : number;
 	private _map : Map<number, Entity>;
-	private _initialized : Map<number, Entity>;
+	private _initializedEntities : Map<number, Entity>;
 	private _pendingData : Array<DataItem>;
 	private _factory : Map<EntityType, (options : EntityOptions) => Entity>;
 
 	constructor() {
-		this._updateSpeed = 1;
-		this._lastUpdateTime = Date.now();
+		super(SystemType.ENTITY_MAP);
 
 		this._lastId = 0;
 		this._map = new Map<number, Entity>();
-		this._initialized = new Map<number, Entity>();
+		this._initializedEntities = new Map<number, Entity>();
 		this._pendingData = new Array<DataItem>();
 
 		this._factory =  new Map();
@@ -45,49 +43,51 @@ export class EntityMap {
 		this._factory.set(EntityType.WALL, (options : EntityOptions) => { return new Wall(options); });
 	}
 
-	updateSpeed() : number { return this._updateSpeed; }
-	timestep() : number { return this._updateSpeed * (Date.now() - this._lastUpdateTime); }
-
-	add(type : EntityType, options? : EntityOptions) : Entity {
-		if (!options) {
-			options = {};
+	add(type : EntityType, entityOptions? : EntityOptions) : Entity {
+		if (!entityOptions) {
+			entityOptions = {};
 		}
 
-		if (!options.id) {
-			options.id = this.nextId();
-		} else if (options.id > this._lastId) {
-			this._lastId = options.id;
+		if (!entityOptions.id) {
+			entityOptions.id = this.nextId();
 		}
 
-		if (this._map.has(options.id)) {
-			console.error("Warning: overwriting object type " + type + ", id " + options.id);
+		if (this._map.has(entityOptions.id)) {
+			console.error("Warning: overwriting object type " + type + ", id " + entityOptions.id);
 		}
 
-		let entity = this._factory.get(type)(options);
-		this._map.set(options.id, entity);
+		let entity = this._factory.get(type)(entityOptions);
+		this._map.set(entityOptions.id, entity);
+
+		console.log("Create entity", entity.name());
 		return entity;
 	}
 
-	has(id : number) : boolean { return this._map.has(id); }
-	get(id : number) : Entity { return this._map.get(id); }
-	delete(entity : Entity) : void {
+	hasId(id : number) : boolean { return this._map.has(id); }
+	getId(id : number) : Entity { return this._map.get(id); }
+	deleteId(id : number) : void {
+		if (!this.hasId(id)) {
+			return;
+		}
+
+		let entity = this.getId(id);
 		entity.dispose();
 		this._map.delete(entity.id());
-		this._initialized.delete(entity.id());
+		this._initializedEntities.delete(entity.id());
 	}
 	pushData(item : DataItem) : void { this._pendingData.push(item); }
 
-	update() : void {
+	override preUpdate(millis : number) : void {
 		while(this._pendingData.length > 0) {
 			const item = this._pendingData.pop();
 			for (const [stringSpace, entityMap] of Object.entries(item.dataMap)) {
 				for (const [stringId, dataMap] of Object.entries(entityMap)) {
 					const id = Number(stringId);
-					if (!game.options().host && !this.has(id)) {
+					if (!game.options().host && !this.hasId(id)) {
 						this.add(Number(stringSpace), {id: id});
 					}
-					if (this.has(id)) {
-						this.get(id).importData(<DataMap>dataMap, item.seqNum);
+					if (this.hasId(id)) {
+						this.getId(id).importData(<DataMap>dataMap, item.seqNum);
 					}
 				}
 			}
@@ -96,39 +96,39 @@ export class EntityMap {
 		this._map.forEach((entity) => {
 			if (!entity.initialized() && entity.ready()) {
 				entity.initialize();
-				this._initialized.set(entity.id(), entity);
+				this._initializedEntities.set(entity.id(), entity);
 			}
 
 			if (entity.deleted()) {
-				this.delete(entity);
+				this.deleteId(entity.id());
 			}
 		});
 
-		// TODO: smaller timesteps?
-		const millis = Math.min(this.timestep(), 20);
-		this._initialized.forEach((entity) => {
+		this._initializedEntities.forEach((entity) => {
 			entity.preUpdate(millis);
 		});
-		this._initialized.forEach((entity) => {
-			entity.update(millis);
-		});
-		this._initialized.forEach((entity) => {
-			entity.postUpdate(millis);
-		});
-
-		this._initialized.forEach((entity) => {
-			entity.prePhysics(millis);
-		});
-    	MATTER.Engine.update(game.physics(), millis);
-		this.handleCollisions(MATTER.Detector.collisions(game.physics().detector));
-		this._initialized.forEach((entity) => {
-			entity.postPhysics(millis);
-		});
-
-		this._lastUpdateTime = Date.now();
 	}
 
-	handleCollisions(collisions : Array<MATTER.Collision>) : void {
+	override update(millis : number) : void {
+		this._initializedEntities.forEach((entity) => {
+			entity.update(millis);
+		});
+	}
+
+	override postUpdate(millis : number) : void {
+		this._initializedEntities.forEach((entity) => {
+			entity.postUpdate(millis);
+		});
+	}
+
+	override prePhysics(millis : number) : void {
+		this._initializedEntities.forEach((entity) => {
+			entity.prePhysics(millis);
+		});
+	}
+
+	override postPhysics(millis : number) : void {
+		const collisions = MATTER.Detector.collisions(game.physics().detector);
 		collisions.forEach((collision) => {
 			if (!collision.pair) return;
 
@@ -144,36 +144,42 @@ export class EntityMap {
 				return;
 			}
 
-			if (!this._initialized.has(idA) || !this._initialized.has(idB)) {
+			if (!this._initializedEntities.has(idA) || !this._initializedEntities.has(idB)) {
 				return;
 			}
 
-			this._initialized.get(idA).collide(this._initialized.get(idB), collision);
+			this._initializedEntities.get(idA).collide(this._initializedEntities.get(idB), collision);
 
 			collision.normal = {x: -collision.normal.x, y: -collision.normal.y};
-			this._initialized.get(idB).collide(this._initialized.get(idA), collision);		
+			this._initializedEntities.get(idB).collide(this._initializedEntities.get(idA), collision);		
+		});
+
+		this._initializedEntities.forEach((entity) => {
+			entity.postPhysics(millis);
 		});
 	}
 
-	render(scene : BABYLON.Scene) : void {
-		this._initialized.forEach((entity) => {
+	override preRender() : void {
+		this._initializedEntities.forEach((entity) => {
 			entity.preRender();
 		});
-	    scene.render();
-		this._initialized.forEach((entity) => {
+	}
+
+	override postRender() : void {
+		this._initializedEntities.forEach((entity) => {
 			entity.postRender();
 		});
 	}
 
-	updateData(seqNum : number) : void {
-		this._initialized.forEach((entity) => {
+	override updateData(seqNum : number) : void {
+		this._initializedEntities.forEach((entity) => {
 			entity.updateData(seqNum);
 		});
 	}
 
-	dataMap(filter : DataFilter) : DataMap {
+	override dataMap(filter : DataFilter) : DataMap {
 		let dataMap : DataMap = {};
-		this._initialized.forEach((entity) => {	
+		this._initializedEntities.forEach((entity) => {	
 			const data = entity.dataMap(filter);
 			if (Object.keys(data).length > 0) {
 				if (!dataMap.hasOwnProperty(entity.type())) {

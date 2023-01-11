@@ -18,11 +18,11 @@ export enum Attribute {
 	OWNER,
 }
 
-enum Prop {
+enum Type {
 	UNKNOWN,
-	BOOLEANS,
-	INTEGERS,
-	NUMBERS,
+	BOOLEAN,
+	INTEGER,
+	NUMBER,
 }
 
 export type AttributesInitOptions = {
@@ -33,50 +33,56 @@ type Value = boolean|number;
 
 export class Attributes extends ComponentBase implements Component {
 
-	private static readonly _props = [Prop.BOOLEANS, Prop.INTEGERS, Prop.NUMBERS];
-	private static readonly _attributeMapping = new Map<Attribute, Prop>([
-		[Attribute.CAN_DOUBLE_JUMP, Prop.BOOLEANS],
-		[Attribute.DEAD, Prop.BOOLEANS],
-		[Attribute.GROUNDED, Prop.BOOLEANS],
-		[Attribute.SOLID, Prop.BOOLEANS],
-		[Attribute.READY, Prop.BOOLEANS],
+	private static readonly _attributeTypes = new Map<Attribute, Type>([
+		[Attribute.CAN_DOUBLE_JUMP, Type.BOOLEAN],
+		[Attribute.DEAD, Type.BOOLEAN],
+		[Attribute.GROUNDED, Type.BOOLEAN],
+		[Attribute.SOLID, Type.BOOLEAN],
+		[Attribute.READY, Type.BOOLEAN],
 
-		[Attribute.OWNER, Prop.INTEGERS],
+		[Attribute.OWNER, Type.INTEGER],
 	]);
 
-	private _attributes : Map<Prop, Map<Attribute, Value>>;
-	private _attributeData : Map<Prop, Data>;
+	private _attributes : Map<Attribute, Value>;
 
 	constructor(options? : AttributesInitOptions) {
 		super(ComponentType.ATTRIBUTES);
 
+		this.setName({ base: "attributes" });
+
 		this._attributes = new Map();
-		this._attributeData = new Map();
 
 		if (options && options.attributes) {
 			options.attributes.forEach((value, key) => {
 				this.set(key, value);
 			})
 		}
+
+		for (const stringAttribute in Attribute) {
+			const attribute = Number(Attribute[stringAttribute]);
+			if (Number.isNaN(attribute) || attribute <= 0) {
+				continue;
+			}
+
+			this.registerProp(attribute, {
+				has: () => { return this.has(attribute); },
+				export: () => { return this.get(attribute); },
+				import: (obj : Object) => { this.set(attribute, <Value>obj); },
+			})
+		}
 	}
 
-	has(attribute : Attribute) : boolean {
-		const prop = Attributes._attributeMapping.get(attribute);
-		return this._attributes.has(prop) && this._attributes.get(prop).has(attribute);
-	}
+	override ready() : boolean { return true; }
 
-	get(attribute : Attribute) : Value {
-		const prop = Attributes._attributeMapping.get(attribute);
-		return this._attributes.get(prop).get(attribute);
-	}
-
+	has(attribute : Attribute) : boolean { return this._attributes.has(attribute); }
+	get(attribute : Attribute) : Value { return this._attributes.get(attribute); }
 	getOrDefault(attribute : Attribute) : Value {
 		if (!this.has(attribute)) {
-			switch(Attributes._attributeMapping.get(attribute)) {
-			case Prop.BOOLEANS:
+			switch(Attributes._attributeTypes.get(attribute)) {
+			case Type.BOOLEAN:
 				return false;
-			case Prop.INTEGERS:
-			case Prop.NUMBERS:
+			case Type.INTEGER:
+			case Type.NUMBER:
 				return 0;
 			}
 		}
@@ -89,13 +95,7 @@ export class Attributes extends ComponentBase implements Component {
 			return;
 		}
 
-		const prop = Attributes._attributeMapping.get(attribute);
-		if (!this._attributes.has(prop)) {
-			this._attributes.set(prop, new Map<Attribute, Value>());
-			this._attributeData.set(prop, new Data());
-		}
-
-		this._attributes.get(prop).set(attribute, value);
+		this._attributes.set(attribute, value);
 	}
 
 	setIf(attribute : Attribute, value : Value, set : boolean) : void {
@@ -129,66 +129,19 @@ export class Attributes extends ComponentBase implements Component {
 		this.set(attribute, current + <number>value);
 	}
 
-	override ready() { return true; }
-
-	override dataMap(filter : DataFilter) : DataMap {
-		let dataMap = {};
-		Attributes._props.forEach((prop : Prop) => {
-			if (!this._attributeData.has(prop)) {
-				return;
-			}
-
-			const data = this._attributeData.get(prop).filtered(filter);
-			if (Object.keys(data).length > 0) {
-				dataMap[prop] = data;
-			}
-		});
-		return dataMap;
-	}
-
-	override updateData(seqNum : number) : void {
-		super.updateData(seqNum);
-
-		Attributes._props.forEach((prop : Prop) => {
-			if (!this._attributes.has(prop)) {
-				return;
-			}
-			this._attributes.get(prop).forEach((value : Value, attribute : Attribute) => {
-				this._attributeData.get(prop).set(attribute, value, seqNum);
-			});
-		});
-	}
-
-	override importData(data : DataMap, seqNum : number) : void {
-		super.importData(data, seqNum);
-
-		const changed = this._data.import(data, seqNum);
-		if (changed.size === 0) {
-			return;
-		}
-
-		Attributes._props.forEach((prop : Prop) => {
-			if (changed.has(prop)) {
-				for (const [stringAttribute, value] of Object.entries(this._data.get(prop))) {
-					this.set(Number(stringAttribute), value);
-				}
-			}
-		});
-	}
-
 	private validValue(attribute : Attribute, value : Value) : boolean {
-		if (!Attributes._attributeMapping.has(attribute)) {
+		if (!Attributes._attributeTypes.has(attribute)) {
 			console.error("No attribute mapping for attribute " + attribute);
 			return false;
 		}
 
-		const prop = Attributes._attributeMapping.get(attribute);
+		const prop = Attributes._attributeTypes.get(attribute);
 		switch(prop) {
-		case Prop.BOOLEANS:
+		case Type.BOOLEAN:
 			return typeof(value) === "boolean";
-		case Prop.INTEGERS:
+		case Type.INTEGER:
 			return Number.isInteger(value);
-		case Prop.NUMBERS:
+		case Type.NUMBER:
 			return !Number.isNaN(value);
 		default:
 			return false;
