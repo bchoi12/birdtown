@@ -22,7 +22,6 @@ export class Keys extends SystemBase implements System {
 	private _mouse : Vec2;
 	private _dir : Vec2;
 
-	// TODO: set entity to follow and compute direction
 	constructor(clientId : number) {
 		super(SystemType.KEYS);
 
@@ -67,16 +66,35 @@ export class Keys extends SystemBase implements System {
 	mouse() : Vec2 { return this._mouse; }
 	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }
 
+	protected updateKey(key : Key, state : KeyState) : void {
+		if (state === KeyState.RELEASED || state === KeyState.UP) {
+			this.releaseKey(<Key>key);
+		} else {
+			this.pressKey(<Key>key);
+		}
+	}
+
+	protected pressKey(key : Key) : void {
+		if (!this.keyDown(key)) {
+			this._keys.set(key, KeyState.PRESSED);
+		} else {
+			this._keys.set(key, KeyState.DOWN);
+		}
+	}
+
+	protected releaseKey(key : Key) : void {
+		if (this.keyDown(key)) {
+			this._keys.set(key, KeyState.RELEASED);
+		} else {
+			this._keys.set(key, KeyState.UP);
+		}
+	}
+
 	override setEntity(entity : Entity) {
-		if (!entity.has(ComponentType.PROFILE)) {
+		if (!entity.hasComponent(ComponentType.PROFILE)) {
 			console.log("Error: %s target entity must have profile", this.name());
 			return;
 		}
-
-		this.setName({
-			base: this.name(),
-			target: entity,
-		});
 
 		super.setEntity(entity);
 	}
@@ -84,9 +102,7 @@ export class Keys extends SystemBase implements System {
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
-		if (!this.isSource()) {
-			return;
-		}
+		if (!this.isSource()) { return; }
 
 		const keys = ui.keys();
 		keys.forEach((key : Key) => {
@@ -111,6 +127,11 @@ export class Keys extends SystemBase implements System {
 	override preRender() : void {
 		super.preRender();
 
+		if (!this.isSource()) { return; }
+
+		const mouseWorld = game.mouse();
+		this._mouse.copyVec({ x: mouseWorld.x, y: mouseWorld.y });
+
 		if (this.hasEntity()) {
 			const profile = <Profile>this.entity().getComponent(ComponentType.PROFILE);
 			this._dir = this._mouse.clone().sub(profile.pos()).normalize();
@@ -119,28 +140,4 @@ export class Keys extends SystemBase implements System {
 
 	override isSource() : boolean { return game.id() === this._clientId; }
 	override shouldBroadcast() : boolean { return game.options().host || this.isSource(); }
-
-	protected updateKey(key : Key, state : KeyState) : void {
-		if (state === KeyState.RELEASED || state === KeyState.UP) {
-			this.releaseKey(<Key>key);
-		} else {
-			this.pressKey(<Key>key);
-		}
-	}
-
-	protected pressKey(key : Key) : void {
-		if (!this.keyDown(key)) {
-			this._keys.set(key, KeyState.PRESSED);
-		} else {
-			this._keys.set(key, KeyState.DOWN);
-		}
-	}
-
-	protected releaseKey(key : Key) : void {
-		if (this.keyDown(key)) {
-			this._keys.set(key, KeyState.RELEASED);
-		} else {
-			this._keys.set(key, KeyState.UP);
-		}
-	}
 }

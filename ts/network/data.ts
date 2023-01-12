@@ -9,30 +9,33 @@ export enum DataFilter {
 }
 
 // TODO: deprecate DataMap?
-export type DataMap = { [k: number]: Object } 
+export type DataMap = { [k: number]: Object }
 export type DataTree = Map<number, Object>;
 
-// TODO: move to network
-export class Data {
-	public static readonly numberEpsilon = 1e-3;
+enum NodeType {
+	UNKNOWN,
+	BRANCH,
+	LEAF,
+}
 
+export class Data {
+	private static readonly numberEpsilon = 1e-3;
+
+	private _props : Set<number>;
 	private _data : DataTree;
+	// TODO: include _change and _seqNum in _data
 	private _change : Map<number, BitMarker>;
 	private _seqNum : Map<number, number>;
 
 	constructor() {
 		this._data = new Map();
+		this._props = new Set();
 		this._change = new Map();
 		this._seqNum = new Map();
 	}
 
-	static toObject(data : any) : Object {
-		if (data instanceof Map) {
-			return Object.fromEntries(data);
-		} else if (data instanceof Set) {
-			return [...data];
-		}
-		return data;
+	static numberEquals(a : number, b : number) : boolean {
+		return Math.abs(a - b) < Data.numberEpsilon;
 	}
 
 	static equals(a : Object, b : Object) : boolean {
@@ -40,7 +43,7 @@ export class Data {
 		if (!defined(a) || !defined(b)) return false;
 		if (a !== Object(a) && b !== Object(b)) {
 			if (!Number.isNaN(a) && !Number.isNaN(b)) {
-				return Math.abs(<number>a - <number>b) < Data.numberEpsilon;
+				return Data.numberEquals(<number>a, <number>b);
 			}
 			return a === b;
 		};
@@ -58,17 +61,7 @@ export class Data {
 	has(key : number) : boolean { return this._data.has(key); }
 	get(key : number) : Object { return this._data.get(key); }
 
-	hasSeqNum(key : number) : boolean { return this._seqNum.has(key); }
-	seqNum(key : number) : number { return this._seqNum.get(key); }
-	setSeqNum(key : number, seqNum : number) : void { this._seqNum.set(key, seqNum); }
-
-	merge(data : Data) : boolean {
-		let changed = false;
-		data.tree().forEach((node : Object, key : number) => {
-			changed = changed || this.set(key, node, data.seqNum(key));
-		});
-		return changed;
-	}
+	registerProp(prop : number) : void { this._props.add(prop); }
 
 	set(key : number, node : Object, seqNum : number, predicate? : () => boolean) : boolean {
 		if (!defined(node)) {
@@ -82,7 +75,7 @@ export class Data {
 
 		let changed = false;
 		if (!this.has(key) || seqNum >= this._seqNum.get(key)) {
-			if (!Data.equals(node, this.get(key))) {
+			if (!this._props.has(key) || !Data.equals(node, this.get(key))) {
 				this._data.set(key, node);
 				changed = true;
 			}
@@ -146,7 +139,7 @@ export class Data {
 		this._change.get(key).mark(seqNum, change);
 
 		if (change) {
-			this.setSeqNum(key, seqNum);
+			this._seqNum.set(key, seqNum);
 		}
 	}
 }

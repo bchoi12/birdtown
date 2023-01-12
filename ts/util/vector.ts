@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { defined } from 'util/common'
+import { Data } from 'network/data'
 
 export interface Vec {
     x? : number;
@@ -10,8 +11,6 @@ export interface Vec {
 }
 
 export class Vec2 implements Vec {
-    private static readonly _epsilon = 1e-3;
-
     public x : number;
     public y : number;
 
@@ -20,9 +19,7 @@ export class Vec2 implements Vec {
         this.y = defined(vec.y) ? vec.y : 0;
     }
 
-    equals(other : Vec) : boolean {
-        return Math.abs(this.x - other.x) < Vec2._epsilon && Math.abs(this.y - other.y) < Vec2._epsilon;
-    }
+    equals(other : Vec) : boolean { return Data.numberEquals(this.x, other.x) && Data.numberEquals(this.x, other.y); }
 
     lengthSq() : number { return this.x * this.x + this.y * this.y; }
     length() : number { return Math.sqrt(this.lengthSq()); }

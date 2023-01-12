@@ -90,13 +90,13 @@ export class Player extends EntityBase {
 			id: this.id(),
 		});
 
-		this._attributes = <Attributes>this.get(ComponentType.ATTRIBUTES);
+		this._attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
 		this._attributes.set(Attribute.DEAD, false);
 		this._attributes.set(Attribute.GROUNDED, false);
 		this._attributes.set(Attribute.SOLID, true);
 
 		const collisionGroup = MATTER.Body.nextGroup(true);
-		this._profile = <Profile>this.add(new Profile({
+		this._profile = <Profile>this.addComponent(new Profile({
 			initFn: (profile : Profile) => {
 				const pos = profile.pos();
 				const dim = profile.dim();
@@ -137,7 +137,7 @@ export class Player extends EntityBase {
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
 
-		this._model = <Model>this.add(new Model({
+		this._model = <Model>this.addComponent(new Model({
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				loader.load(ModelType.CHICKEN, (result : LoadResult) => {
@@ -212,7 +212,7 @@ export class Player extends EntityBase {
 	}
 
 	override ready() : boolean {
-		return super.ready() && this.metadata().hasClientId();
+		return super.ready() && this.hasClientId();
 	}
 
 	override initialize() : void {
@@ -222,7 +222,7 @@ export class Player extends EntityBase {
 		// TODO: re-enable
 		// this._profile.collider(Part.HEAD).setInertia(Infinity);
 
-		if (this.metadata().clientId() === game.id()) {
+		if (this.clientId() === game.id()) {
 			game.lakitu().setEntity(this);
 			game.keys().setEntity(this);
 		}
@@ -261,7 +261,7 @@ export class Player extends EntityBase {
 			this._profile.addAcc({ y: (this._fallMultiplier - 1) * GameConstants.gravity });
 		}
 
-		if (game.keys(this.metadata().clientId()).keyDown(Key.INTERACT)) {
+		if (game.keys(this.clientId()).keyDown(Key.INTERACT)) {
 			this._attributes.setIf(Attribute.DEAD, true, game.options().host);
 		} else {
 			this._attributes.setIf(Attribute.DEAD, false, game.options().host);
@@ -271,9 +271,9 @@ export class Player extends EntityBase {
 
 		if (!this._attributes.getOrDefault(Attribute.DEAD)) {
 			// Keypress acceleration
-			if (game.keys(this.metadata().clientId()).keyDown(Key.LEFT)) {
+			if (game.keys(this.clientId()).keyDown(Key.LEFT)) {
 				this._profile.setAcc({ x: -this._sideAcc });
-			} else if (game.keys(this.metadata().clientId()).keyDown(Key.RIGHT)) {
+			} else if (game.keys(this.clientId()).keyDown(Key.RIGHT)) {
 				this._profile.setAcc({ x: this._sideAcc });
 			} else {
 				this._profile.setAcc({ x: 0 });
@@ -301,11 +301,11 @@ export class Player extends EntityBase {
 
 			// Jumping
 			if (this._jumpTimer.hasTimeLeft()) {
-				if (game.keys(this.metadata().clientId()).keyDown(Key.JUMP)) {
+				if (game.keys(this.clientId()).keyDown(Key.JUMP)) {
 					this._profile.setVel({ y: this._jumpVel });
 					this._jumpTimer.stop();
 				}
-			} else if (this._attributes.getOrDefault(Attribute.CAN_DOUBLE_JUMP) && game.keys(this.metadata().clientId()).keyPressed(Key.JUMP)) {
+			} else if (this._attributes.getOrDefault(Attribute.CAN_DOUBLE_JUMP) && game.keys(this.clientId()).keyPressed(Key.JUMP)) {
 				this._profile.setVel({ y: this._jumpVel });
 				this._attributes.setIf(Attribute.CAN_DOUBLE_JUMP, false, game.options().host);
 			}
@@ -336,7 +336,7 @@ export class Player extends EntityBase {
 		super.update(millis);
 
 		if (game.options().host && defined(this._weapon)) {
-			if (game.keys(this.metadata().clientId()).keyDown(Key.MOUSE_CLICK)) {
+			if (game.keys(this.clientId()).keyDown(Key.MOUSE_CLICK)) {
 				// TODO: stop recomputing arm angle all the time
 				this._weapon.shoot(Vec2.unitFromRad(this.computeArmAngle()));
 			}
@@ -356,7 +356,8 @@ export class Player extends EntityBase {
 			return;
 		}
 
-		if (other.attributes().getOrDefault(Attribute.SOLID) && collision.normal.y >= 0.5) {
+		const otherAttributes = <Attributes>other.getComponent(ComponentType.ATTRIBUTES);
+		if (otherAttributes.getOrDefault(Attribute.SOLID) && collision.normal.y >= 0.5) {
 			this._attributes.setIf(Attribute.GROUNDED, true, game.options().host);
 			this._attributes.setIf(Attribute.CAN_DOUBLE_JUMP, true, game.options().host);
 			this._jumpTimer.start(this._jumpGracePeriod);
@@ -416,9 +417,9 @@ export class Player extends EntityBase {
 	// TODO: clean this up
 	private computeDir(origin : Vec2) : Vec2 {
 		if (!this.clientIdMatches()) {
-			return game.keys(this.metadata().clientId()).dir();
+			return game.keys(this.clientId()).dir();
 		}
-		return game.keys(this.metadata().clientId()).mouse().clone().sub(origin);
+		return game.keys(this.clientId()).mouse().clone().sub(origin);
 	}
 
 	private computeHeadAngle() : number {
@@ -443,7 +444,7 @@ export class Player extends EntityBase {
 		}
 
 		// Set direction of arm
-		const pos = Vec2.fromBabylon3(this.model().getBone(Bone.ARM).getTransformNode().getAbsolutePosition());
+		const pos = Vec2.fromBabylon3(this._model.getBone(Bone.ARM).getTransformNode().getAbsolutePosition());
 		const dir = this.computeDir(pos);
 		return dir.angleRad();
 	}

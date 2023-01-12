@@ -3,7 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { ComponentType } from 'game/component'
-import { Attribute } from 'game/component/attributes'
+import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
@@ -13,6 +13,7 @@ import { Vec } from 'util/vector'
 
 export class Wall extends EntityBase {
 
+	private _attributes : Attributes;
 	private _profile : Profile;
 
 	constructor(options : EntityOptions) {
@@ -23,9 +24,10 @@ export class Wall extends EntityBase {
 			id: this.id(),
 		});
 
-		this.attributes().set(Attribute.SOLID, true);
+		this._attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+		this._attributes.set(Attribute.SOLID, true);
 
-		this._profile = <Profile>this.add(new Profile({
+		this._profile = <Profile>this.addComponent(new Profile({
 			initFn: (profile : Profile) => {
 				const pos = profile.pos();
 				const dim = profile.dim();
@@ -36,7 +38,7 @@ export class Wall extends EntityBase {
 			init: options.profileInit,
 		}));
 
-		this.add(new Model({
+		this.addComponent(new Model({
 			readyFn: () => {
 				return this._profile.ready();
 			},

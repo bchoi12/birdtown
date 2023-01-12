@@ -27,9 +27,9 @@ export abstract class Weapon extends EntityBase {
 	constructor(entityType : EntityType, options : EntityOptions) {
 		super(entityType, options);
 
-		this._attributes = <Attributes>this.getComponent(ComponentType.ATTRIBUTES);
+		this._attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
 
-		this._model = <Model>this.add(new Model({
+		this._model = <Model>this.addComponent(new Model({
 			meshFn: (model : Model) => {
 				loader.load(this.modelType(), (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
@@ -48,12 +48,12 @@ export abstract class Weapon extends EntityBase {
 		this._reloadTimer = this.newTimer();
 	}
 
-	override ready() : boolean { return super.ready() && this.attributes().has(Attribute.OWNER); }
+	override ready() : boolean { return super.ready() && this._attributes.has(Attribute.OWNER); }
 
 	override initialize() : void {
 		super.initialize();
 
-		this._owner = <number>this.attributes().get(Attribute.OWNER);
+		this._owner = <number>this._attributes.get(Attribute.OWNER);
 	}
 
 	override preUpdate(millis : number) : void {
@@ -72,14 +72,14 @@ export abstract class Weapon extends EntityBase {
 	}
 
 	abstract modelType() : ModelType;
-	shootNode() : BABYLON.TransformNode { return defined(this._shoot) ? this._shoot : this.model().mesh(); }
-	pivot() : BABYLON.Vector3 {return this.model().mesh().position; }
+	shootNode() : BABYLON.TransformNode { return defined(this._shoot) ? this._shoot : this._model.mesh(); }
+	pivot() : BABYLON.Vector3 {return this._model.mesh().position; }
 
 	abstract shoot(dir : Vec2) : boolean;
 	reload(time : number) : void {
-		this.attributes().set(Attribute.READY, false);
+		this._attributes.set(Attribute.READY, false);
 		this._reloadTimer.start(time, () => {
-			this.attributes().set(Attribute.READY, true);
+			this._attributes.set(Attribute.READY, true);
 		});
 	}
 }

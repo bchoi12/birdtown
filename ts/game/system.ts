@@ -32,7 +32,6 @@ export abstract class SystemBase extends GameObjectBase implements System {
 
 		this._entity = null;
 		this._type = type;
-
 	}
 
 	override ready() : boolean { return true; }
@@ -40,7 +39,13 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	type() : SystemType { return this._type; }
 	hasEntity() : boolean { return defined(this._entity); }
 	entity() : Entity { return this._entity; }
-	setEntity(entity : Entity) : void { this._entity = entity; }
+	setEntity(entity : Entity) : void {
+		this._entity = entity;
+		this.setName({
+			base: this.name(),
+			target: entity,
+		});
+	}
 
 	override shouldBroadcast() : boolean { return game.options().host; }
 	override isSource() : boolean { return game.options().host; }

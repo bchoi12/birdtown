@@ -2,7 +2,8 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { Attribute } from 'game/component/attributes'
+import { ComponentType } from 'game/component'
+import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
@@ -14,6 +15,7 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Rocket extends Projectile {
 
+	private _model : Model;
 	private _profile : Profile;
 
 	constructor(options : EntityOptions) {
@@ -24,7 +26,7 @@ export class Rocket extends Projectile {
 			id: this.id(),
 		});
 
-		this._profile = <Profile>this.add(new Profile({
+		this._profile = <Profile>this.addComponent(new Profile({
 			initFn: (profile : Profile) => {
 				const pos = profile.pos();
 				const dim = profile.dim();
@@ -35,12 +37,12 @@ export class Rocket extends Projectile {
 			init: options.profileInit,
 		}));
 
-		this.add(new Model({
+		this._model = <Model>this.addComponent(new Model({
 			readyFn: () => {
-				return this.profile().ready();
+				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				const dim = this.profile().dim();
+				const dim = this._profile.dim();
 				loader.load(ModelType.ROCKET, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.name = this.name();
@@ -55,14 +57,14 @@ export class Rocket extends Projectile {
 	override preRender() : void {
 		super.preRender();
 
-		if (!this.model().hasMesh()) {
+		if (!this._model.hasMesh()) {
 			return;
 		}
 
 		const vel = this._profile.vel();
 		const angle = Vec2.fromVec(vel).angleRad();
 
-		this.model().mesh().rotation = new BABYLON.Vector3(-angle, Math.PI / 2, 0);
+		this._model.mesh().rotation = new BABYLON.Vector3(-angle, Math.PI / 2, 0);
 	}
 
 	override collide(other : Entity, collision : MATTER.Collision) : void {
@@ -72,11 +74,11 @@ export class Rocket extends Projectile {
 			return;
 		}
 
-		if (this.attributes().get(Attribute.OWNER) === other.id()) {
+		if (this._attributes.get(Attribute.OWNER) === other.id()) {
 			return;
 		}
 
-		if (other.attributes().getOrDefault(Attribute.SOLID)) {
+		if (other.getComponent<Attributes>(ComponentType.ATTRIBUTES).getOrDefault(Attribute.SOLID)) {
 			let explosion = game.entities().add(EntityType.EXPLOSION, {
 				profileInit: {
 					pos: this._profile.pos(),

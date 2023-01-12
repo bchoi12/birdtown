@@ -133,9 +133,7 @@ class Game {
 
 	    if (this._options.host) {
 	    	this._entityMap.add(EntityType.PLAYER, {
-	    		metadataInit: {
-		    		clientId: this.id(),
-	    		},
+	    		clientId: this.id(),
 	    		profileInit: {
 		    		pos: {x: 0, y: 10},
 	    		},
@@ -296,9 +294,7 @@ class Game {
 		});
 
     	this._entityMap.add(EntityType.PLAYER, {
-    		metadataInit: {
-	    		clientId: id,
-    		},
+    		clientId: id,
     		profileInit: {
 	    		pos: {x: 0, y: 10},
     		},

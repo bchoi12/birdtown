@@ -28,6 +28,7 @@ export class Input extends SystemBase implements System {
 
 		if (!this._keys.has(id)) {
 			this._keys.set(id, new Keys(id));
+			this.addChild(id, this._keys.get(id))
 		}
 
 		return this._keys.get(id);
@@ -49,6 +50,7 @@ export class Input extends SystemBase implements System {
 	override shouldBroadcast() : boolean { return true; }
 
 	// TODO: debug why this doesn't work when removed
+	/*
 	override dataMap(filter : DataFilter) : DataMap {
 		let dataMap = {};
 		this._keys.forEach((keys : Keys, id : number) => {
@@ -77,4 +79,5 @@ export class Input extends SystemBase implements System {
 			this.keys(id).importData(<DataMap>data[id], seqNum);
 		});
 	}
+*/
 }

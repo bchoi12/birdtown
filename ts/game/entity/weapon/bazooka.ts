@@ -2,7 +2,8 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { Attribute } from 'game/component/attributes'
+import { ComponentType } from 'game/component'
+import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Weapon } from 'game/entity/weapon'
@@ -21,12 +22,12 @@ export class Bazooka extends Weapon {
 			id: this.id(),
 		});
 
-		this.attributes().set(Attribute.READY, true);
+		this._attributes.set(Attribute.READY, true);
 	}
 
 	override modelType() : ModelType { return ModelType.BAZOOKA; }
 	override shoot(dir : Vec2) : boolean {
-		if (!this.model().hasMesh() || !this.attributes().get(Attribute.READY)) {
+		if (!this._model.hasMesh() || !this._attributes.get(Attribute.READY)) {
 			return false;
 		}
 
@@ -41,7 +42,7 @@ export class Bazooka extends Weapon {
 				acc: unitDir.clone().scale(1.5),
 			},
 		});
-		projectile.attributes().set(Attribute.OWNER, this.attributes().get(Attribute.OWNER));
+		projectile.getComponent<Attributes>(ComponentType.ATTRIBUTES).set(Attribute.OWNER, this._attributes.get(Attribute.OWNER));
 		projectile.setTTL(1000);
 
 		this.reload(250);

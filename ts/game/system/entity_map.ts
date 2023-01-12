@@ -58,8 +58,6 @@ export class EntityMap extends SystemBase implements System {
 
 		let entity = this._factory.get(type)(entityOptions);
 		this._map.set(entityOptions.id, entity);
-
-		console.log("Create entity", entity.name());
 		return entity;
 	}
 

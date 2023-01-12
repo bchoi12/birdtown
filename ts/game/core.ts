@@ -45,7 +45,10 @@ export interface GameObject {
 	postRender() : void
 
 	registerProp(prop : number, propFns : PropFns);
-	registerChild(id : number, child : GameObject) : GameObject;
+	addChild<T extends GameObject>(id : number, child : T) : T;
+	hasChild(id : number) : boolean;
+	getChild<T extends GameObject>(id : number) : T;
+	children() : Map<number, GameObject>;
 
 	shouldBroadcast() : boolean;
 	isSource() : boolean;
@@ -103,7 +106,7 @@ export abstract class GameObjectBase {
 	initialized() : boolean {return this._initialized; }
 	delete() : void {
 		this._childObjects.forEach((child : GameObject) => {
-			child.initialize();
+			child.delete();
 		});
 		this._deleted = true;
 	}
@@ -163,9 +166,11 @@ export abstract class GameObjectBase {
 			console.error("Error: all props must be registered before any child objects are added to %s", this.name());
 			return;
 		}
+
+		this._data.registerProp(prop);
 		this._propFns.set(prop, propFns);
 	}
-	registerChild(id : number, child : GameObject) : GameObject {
+	addChild<T extends GameObject>(id : number, child : T) : T {
 		if (id <= 0) {
 			console.error("Error: invalid child object ID %d for %s", id, this.name());
 			return;
@@ -178,62 +183,67 @@ export abstract class GameObjectBase {
 		this._childObjects.set(id, child);
 		return child;
 	}
+	hasChild(id : number) : boolean { return this._childObjects.has(id); }
+	getChild<T extends GameObject>(id : number) : T { return <T>this._childObjects.get(id); }
+	children() : Map<number, GameObject> { return this._childObjects; }
 
 	abstract shouldBroadcast() : boolean;
 	abstract isSource() : boolean;
 	data() : Data { return this._data; }
 
 	dataMap(filter : DataFilter) : DataMap {
-		if (!this.isSource()) {
+		if (!this.shouldBroadcast()) {
 			return {};
 		}
 
 		let data = this._data.filtered(filter);
 		this._childObjects.forEach((child : GameObject, id : number) => {
-			const exportedId = this.toExportedId(id);
+			const prop = this.idToProp(id);
 
-			const data = child.dataMap(filter);
-			if (Object.keys(data).length > 0) {
-				data[exportedId] = data;
+			const childData = child.dataMap(filter);
+			if (Object.keys(childData).length > 0) {
+				data[prop] = childData;
 			}
 		});
 		return data;
 	}
 
 	updateData(seqNum : number) : void {
-		if (this.isSource()) {
-			this._propFns.forEach((fns : PropFns, prop : number) => {
-				if (!defined(fns.has) || fns.has()) {
-					this.setProp(prop, fns.export(), seqNum);
-				}
-			});
-
-			this._childObjects.forEach((child : GameObject, id : number) => {
-				child.updateData(seqNum);
-			})
+		if (!this.shouldBroadcast()) {
+			return;
 		}
+
+		this._propFns.forEach((fns : PropFns, prop : number) => {
+			if (!defined(fns.has) || fns.has()) {
+				this.setProp(prop, fns.export(), seqNum);
+			}
+		});
+
+		this._childObjects.forEach((child : GameObject, id : number) => {
+			child.updateData(seqNum);
+		});
 	}
 
 	importData(data : DataMap, seqNum : number) : void {
-		if (!this.isSource()) {
-			const changed = this._data.import(data, seqNum);
-			changed.forEach((prop : number) => {
-				if (this._propFns.has(prop)) {
-					this._propFns.get(prop).import(this._data.get(prop));
+		// TODO: this is pretty messy, but update if it's child object data or if we're not the source
+		const changed = this._data.import(data, seqNum, (prop : number) => { return (prop > this.numProps()) || !this.isSource(); });
+
+		changed.forEach((prop : number) => {
+			if (this._propFns.has(prop)) {
+				this._propFns.get(prop).import(this._data.get(prop));
+			} else {
+				const id = this.propToId(prop);
+				if (this._childObjects.has(id)) {
+					this._childObjects.get(id).importData(<DataMap>this._data.get(prop), seqNum);
 				} else {
-					const id = this.fromImportedId(prop);
-					if (this._childObjects.has(id)) {
-						this._childObjects.get(id).importData(<DataMap>this._data.get(id), seqNum);
-					} else {
-						console.error("Warning: missing handler for prop %d (or id %d) for %s", prop, id, this.name());
-					}
+					console.error("Warning: missing handler for prop %d (or id %d) for %s", prop, id, this.name());
 				}
-			});
-		}
+			}
+		});
 	}
 
-	protected toExportedId(prop : number) : number { return this.numProps() + prop; }
-	protected fromImportedId(id : number) : number { return id - this.numProps(); }
+	protected idToProp(id : number) : number { return id + this.numProps(); }
+	protected propToId(prop : number) : number { return prop - this.numProps(); }
 
 	protected numProps() : number { return this._propFns.size; }
 	protected setProp(prop : number, data : Object, seqNum : number, cb? : () => boolean) : boolean {

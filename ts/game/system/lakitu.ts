@@ -1,6 +1,7 @@
 import * as BABYLON from "babylonjs";
 
 import { ComponentType } from 'game/component'
+import { Profile } from 'game/component/profile'
 import { System, SystemBase, SystemType } from 'game/system'
 import { Entity } from 'game/entity'
 
@@ -54,16 +55,10 @@ export class Lakitu extends SystemBase implements System {
 	}
 
 	override setEntity(entity : Entity) {
-		if (!entity.has(ComponentType.PROFILE)) {
+		if (!entity.hasComponent(ComponentType.PROFILE)) {
 			console.log("Error: %s target entity must have profile", this.name());
 			return;
 		}
-
-		this.setName({
-			base: this.name(),
-			target: entity,
-		});
-
 		super.setEntity(entity);
 	}
 
@@ -72,8 +67,9 @@ export class Lakitu extends SystemBase implements System {
 
 		if (this.hasEntity()) {
 			let target = BABYLON.Vector3.Zero();
-			target.x = this.entity().profile().pos().x;
-			target.y = this.entity().profile().pos().y;
+			const profile = this.entity().getComponent<Profile>(ComponentType.PROFILE);
+			target.x = profile.pos().x;
+			target.y = profile.pos().y;
 
 			this.setAnchor(target);
 		}

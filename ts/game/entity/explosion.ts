@@ -25,7 +25,7 @@ export class Explosion extends EntityBase {
 
 		this._hit = new Set();
 
-		this._profile = <Profile>this.add(new Profile({
+		this._profile = <Profile>this.addComponent(new Profile({
 			initFn: (profile : Profile) => {
 				const pos = profile.pos();
 				const dim = profile.dim();
@@ -38,7 +38,7 @@ export class Explosion extends EntityBase {
 			init: entityOptions.profileInit,
 		}));
 
-		this.add(new Model({
+		this.addComponent(new Model({
 			readyFn: () => {
 				return this._profile.ready();
 			},
@@ -65,9 +65,9 @@ export class Explosion extends EntityBase {
 		const otherProfile = <Profile>other.getComponent(ComponentType.PROFILE);
 
 		this._hit.add(other.id());
-		let force = Vec2.fromVec(otherProfile.pos()).sub(this.profile().pos());
+		let force = Vec2.fromVec(otherProfile.pos()).sub(this._profile.pos());
 		force.normalize().scale(0.5);
-		other.profile().addForce(force);
+		otherProfile.addForce(force);
 	}
 
 }

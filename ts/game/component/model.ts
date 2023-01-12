@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs'
 
 import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
+import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { AnimationHandler } from 'game/util/animation_handler'
 
@@ -115,7 +116,7 @@ export class Model extends ComponentBase implements Component {
 			return;
 		}
 
-		let profile = this.entity().profile();
+		let profile = this.entity().getChild<Profile>(ComponentType.PROFILE);
 		if (defined(profile)) {
 			this._mesh.position.x = profile.pos().x;
 			this._mesh.position.y = profile.pos().y;
