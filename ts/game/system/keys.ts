@@ -90,13 +90,23 @@ export class Keys extends SystemBase implements System {
 		}
 	}
 
-	override setEntity(entity : Entity) {
+	protected updateMouse() : void {
+		const mouseWorld = game.mouse();
+		this._mouse.copyVec({ x: mouseWorld.x, y: mouseWorld.y });
+
+		if (this.hasTargetEntity()) {
+			const profile = <Profile>this.targetEntity().getComponent(ComponentType.PROFILE);
+			this._dir = this._mouse.clone().sub(profile.pos()).normalize();
+		}
+	}
+
+	override setTargetEntity(entity : Entity) {
 		if (!entity.hasComponent(ComponentType.PROFILE)) {
 			console.log("Error: %s target entity must have profile", this.name());
 			return;
 		}
 
-		super.setEntity(entity);
+		super.setTargetEntity(entity);
 	}
 
 	override preUpdate(millis : number) : void {
@@ -115,13 +125,7 @@ export class Keys extends SystemBase implements System {
 			}
 		});
 
-		const mouseWorld = game.mouse();
-		this._mouse.copyVec({ x: mouseWorld.x, y: mouseWorld.y });
-
-		if (this.hasEntity()) {
-			const profile = <Profile>this.entity().getComponent(ComponentType.PROFILE);
-			this._dir = this._mouse.clone().sub(profile.pos()).normalize();
-		}
+		this.updateMouse();
 	}
 
 	override preRender() : void {
@@ -129,13 +133,7 @@ export class Keys extends SystemBase implements System {
 
 		if (!this.isSource()) { return; }
 
-		const mouseWorld = game.mouse();
-		this._mouse.copyVec({ x: mouseWorld.x, y: mouseWorld.y });
-
-		if (this.hasEntity()) {
-			const profile = <Profile>this.entity().getComponent(ComponentType.PROFILE);
-			this._dir = this._mouse.clone().sub(profile.pos()).normalize();
-		}
+		this.updateMouse();
 	}
 
 	override isSource() : boolean { return game.id() === this._clientId; }

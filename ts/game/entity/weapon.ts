@@ -64,8 +64,8 @@ export abstract class Weapon extends EntityBase {
 		}
 
 		if (!defined(this._player)) {
-			if (game.entities().hasId(this._owner)) {
-				this._player = <Player>game.entities().getId(this._owner);
+			if (game.entities().hasEntity(this._owner)) {
+				this._player = <Player>game.entities().getEntity(this._owner);
 				this._player.equipWeapon(this);
 			}
 		}

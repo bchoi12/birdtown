@@ -123,7 +123,7 @@ export class Profile extends ComponentBase implements Component {
 
 		this._initFn(this);
 
-		MATTER.Composite.add(game.physics().world, this._body)
+		MATTER.Composite.add(game.physics().world(), this._body)
 		this._body.label = "" + this.entity().id();
 		this._body.parts.forEach((body : MATTER.Body) => {
 			body.label = "" + this.entity().id();
@@ -137,7 +137,7 @@ export class Profile extends ComponentBase implements Component {
 		super.dispose();
 
 		if (defined(this._body)) {
-			MATTER.World.remove(game.physics().world, this._body);
+			MATTER.World.remove(game.physics().world(), this._body);
 		}
 	}
 

@@ -48,36 +48,4 @@ export class Input extends SystemBase implements System {
 
 	override isSource() : boolean { return true; }
 	override shouldBroadcast() : boolean { return true; }
-
-	// TODO: debug why this doesn't work when removed
-	/*
-	override dataMap(filter : DataFilter) : DataMap {
-		let dataMap = {};
-		this._keys.forEach((keys : Keys, id : number) => {
-			const data = keys.dataMap(filter);
-			if (Object.keys(data).length > 0) {
-				dataMap[id] = data;
-			}
-		});
-		return dataMap;
-	}
-
-	override updateData(seqNum : number) : void {
-		super.updateData(seqNum);
-
-		this._keys.forEach((keys : Keys) => {
-			keys.updateData(seqNum);
-		})
-	}
-
-	override importData(data : DataMap, seqNum : number) : void {
-		super.importData(data, seqNum);
-
-		const changed = this._data.import(data, seqNum);
-
-		changed.forEach((id : number) => {
-			this.keys(id).importData(<DataMap>data[id], seqNum);
-		});
-	}
-*/
 }

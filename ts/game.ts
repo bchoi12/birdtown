@@ -3,10 +3,13 @@ import * as MATTER from "matter-js"
 
 import { Data, DataFilter, DataMap } from 'network/data'
 import { Entity, EntityBase, EntityType } from 'game/entity'
+import { Entities } from 'game/system/entities'
 import { EntityMap } from 'game/system/entity_map'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
+import { Physics } from 'game/system/physics'
+import { World } from 'game/system/world'
 
 import { Client } from 'network/client'
 import { Connection, ChannelType } from 'network/connection'
@@ -42,13 +45,13 @@ class Game {
 	private _id : number;
 	private _lastId : number;
 	private _engine : BABYLON.Engine|BABYLON.NullEngine;
-	private _physics : MATTER.Engine;
-
-	private _scene : BABYLON.Scene;
-	private _entityMap : EntityMap;
-	private _lakitu : Lakitu;
-	private _input : Input;
 	private _connection : Connection;
+
+	private _entities : Entities;
+	private _input : Input;
+	private _lakitu : Lakitu;
+	private _physics : Physics;
+	private _world : World;
 
 	private _lastUpdateTime : number;
 
@@ -67,17 +70,6 @@ class Game {
 		// TODO: fast anti-alias
 		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false);
 		window.onresize = () => { this.resize(); };
-
-		this._physics = MATTER.Engine.create({
-			gravity: { y: 0 }
-		});
-
-		this._scene = new BABYLON.Scene(this._engine);
-		this._scene.useRightHandedSystem = true;
-
-		this._entityMap = new EntityMap();
-		this._lakitu = new Lakitu(this._canvas, this._scene);
-		this._input = new Input();
 
 		if (this._options.host) {
 			this._id = 1;
@@ -109,14 +101,8 @@ class Game {
 				console.error("Invalid message: ", msg);
 				return;
 			}
-			this._entityMap.pushData({
-				dataMap: <DataMap>msg.D,
-				seqNum: msg.S,
-			});
 
-			if (!this._options.host && msg.S > this._seqNum) {
-				this._seqNum = msg.S;
-			}
+			this._entities.importData(<DataMap>msg.D, msg.S);
 		});
 		this._connection.addMessageCallback(MessageType.INPUT, (peer : string, msg : Message) => {
 			if (!defined(msg.D) || !defined(msg.S)) {
@@ -129,28 +115,32 @@ class Game {
 		});
 		this._connection.initialize();
 
-	    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), this._scene);
+		this._entities = new Entities();
+		this._input = new Input();
+		this._world = new World(this._engine);
+		this._lakitu = new Lakitu(this._canvas, this._world.scene());
+		this._physics = new Physics();
 
 	    if (this._options.host) {
-	    	this._entityMap.add(EntityType.PLAYER, {
+	    	this._entities.addEntity(EntityType.PLAYER, {
 	    		clientId: this.id(),
 	    		profileInit: {
 		    		pos: {x: 0, y: 10},
 	    		},
 	    	});
-		    this._entityMap.add(EntityType.WALL, {
+		    this._entities.addEntity(EntityType.WALL, {
 		    	profileInit: {
 			    	pos: {x: 0, y: 0},
 			    	dim: {x: 16, y: 1},
 		    	},
 		    });
-		    this._entityMap.add(EntityType.WALL, {
+		    this._entities.addEntity(EntityType.WALL, {
 		    	profileInit: {
 		    		pos: {x: 3, y: 1},
 		    		dim: {x: 1, y: 1},
 		    	},
 		    });
-		    this._entityMap.add(EntityType.WALL, {
+		    this._entities.addEntity(EntityType.WALL, {
 		    	profileInit: {
 			    	pos: {x: 6, y: 3},
 		    		dim: {x: 2, y: 1},
@@ -164,22 +154,22 @@ class Game {
 	    	if (this.hasId()) {
 	    		// TODO: put system into a sorted container
 		    	this._input.preUpdate(millis);
-		    	this._entityMap.preUpdate(millis);
-		    	this._entityMap.update(millis);
-		    	this._entityMap.postUpdate(millis);
+		    	this._entities.preUpdate(millis);
+		    	this._entities.update(millis);
+		    	this._entities.postUpdate(millis);
 		    	this._lakitu.postUpdate(millis);
 		    	
-		    	this._entityMap.prePhysics(millis);
-    	    	MATTER.Engine.update(this.physics(), millis);
-    	    	this._entityMap.postPhysics(millis);
+		    	this._entities.prePhysics(millis);
+		    	this._physics.physics(millis);
+    	    	this._entities.postPhysics(millis);
 
 		    	this._input.preRender();
-		    	this._entityMap.preRender();
-		    	this._scene.render();
-		    	this._entityMap.postRender();
+		    	this._entities.preRender();
+		    	this._world.render();
+		    	this._entities.postRender();
 
 		    	this._input.updateData(this._seqNum);
-		    	this._entityMap.updateData(this._seqNum);
+		    	this._entities.updateData(this._seqNum);
 	    	}
 
 	    	this._connection.update(this._seqNum);
@@ -215,13 +205,13 @@ class Game {
 	hasId() : boolean { return defined(this._id); }
 	id() : number { return this.hasId() ? this._id : -1; }
 	options() : GameOptions { return this._options; }
-	scene() : BABYLON.Scene { return this._scene; }
+	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
-	physics() : MATTER.Engine { return this._physics; }
+	physics() : Physics { return this._physics; }
 	lakitu() : Lakitu { return this._lakitu; }
 	input() : Input { return this._input; }
 	keys(id? : number) : Keys { return this._input.keys(id); }
-	entities() : EntityMap { return this._entityMap; }
+	entities() : Entities { return this._entities; }
 	connection() : Connection { return this._connection; }
 
 	// TODO: move this to input
@@ -261,7 +251,7 @@ class Game {
 	}
 
 	private entityMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
-		const data = this._entityMap.dataMap(filter);
+		const data = this._entities.dataMap(filter);
 		if (Object.keys(data).length === 0) {
 			return [null, false];
 		}
@@ -293,7 +283,7 @@ class Game {
 			I: id,
 		});
 
-    	this._entityMap.add(EntityType.PLAYER, {
+    	this._entities.addEntity(EntityType.PLAYER, {
     		clientId: id,
     		profileInit: {
 	    		pos: {x: 0, y: 10},

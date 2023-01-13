@@ -34,7 +34,7 @@ export class Bazooka extends Weapon {
 		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = dir.clone().normalize();
 
-		const projectile = game.entities().add(EntityType.ROCKET, {
+		const projectile = game.entities().addEntity(EntityType.ROCKET, {
 			profileInit: {
 				pos: {x: pos.x, y: pos.y},
 				dim: {x: 0.3, y: 0.3},

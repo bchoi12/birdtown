@@ -54,20 +54,20 @@ export class Lakitu extends SystemBase implements System {
 		this._camera.setTarget(this._target);
 	}
 
-	override setEntity(entity : Entity) {
+	override setTargetEntity(entity : Entity) {
 		if (!entity.hasComponent(ComponentType.PROFILE)) {
 			console.log("Error: %s target entity must have profile", this.name());
 			return;
 		}
-		super.setEntity(entity);
+		super.setTargetEntity(entity);
 	}
 
 	override postUpdate(millis : number) : void {
 		super.postUpdate(millis);
 
-		if (this.hasEntity()) {
+		if (this.hasTargetEntity()) {
 			let target = BABYLON.Vector3.Zero();
-			const profile = this.entity().getComponent<Profile>(ComponentType.PROFILE);
+			const profile = this.targetEntity().getComponent<Profile>(ComponentType.PROFILE);
 			target.x = profile.pos().x;
 			target.y = profile.pos().y;
 

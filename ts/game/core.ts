@@ -25,6 +25,13 @@ export type NameParams = {
 	id? : number;
 }
 
+export type FactoryFn = (id : number) => GameObject
+
+type DataBuffer = {
+	seqNum : number;
+	dataMap : DataMap;
+}
+
 export interface GameObject {
 	name() : string;
 	setName(params : NameParams) : void;
@@ -40,11 +47,14 @@ export interface GameObject {
 	update(millis : number) : void
 	postUpdate(millis : number) : void
 	prePhysics(millis : number) : void
+	physics(millis : number) : void
 	postPhysics(millis : number) : void
 	preRender() : void
+	render() : void
 	postRender() : void
 
 	registerProp(prop : number, propFns : PropFns);
+	setFactoryFn(factoryFn : FactoryFn) : void;
 	addChild<T extends GameObject>(id : number, child : T) : T;
 	hasChild(id : number) : boolean;
 	getChild<T extends GameObject>(id : number) : T;
@@ -66,6 +76,9 @@ export abstract class GameObjectBase {
 	protected _propFns : Map<number, PropFns>;
 	protected _childObjects : Map<number, GameObject>;
 
+	protected _dataBuffers : Map<number, Array<DataBuffer>>;
+	protected _factoryFn : FactoryFn;
+
 	constructor(name : string) {
 		this._name = name;
 		this._initialized = false;
@@ -73,6 +86,8 @@ export abstract class GameObjectBase {
 		this._data = new Data();
 		this._propFns = new Map();
 		this._childObjects = new Map();
+
+		this._dataBuffers = new Map();
 	}
 
 	name() : string { return this._name; }
@@ -119,37 +134,73 @@ export abstract class GameObjectBase {
 
 	preUpdate(millis : number) : void {
 		this._childObjects.forEach((child : GameObject) => {
-			child.preUpdate(millis);
+			if (!child.initialized() && child.ready()) {
+				child.initialize();
+			}
+
+			if (child.deleted()) {
+				child.dispose();
+			}
+
+			if (child.initialized()) {
+				child.preUpdate(millis);
+			}
 		});
 	}
 	update(millis : number) : void {
 		this._childObjects.forEach((child : GameObject) => {
-			child.update(millis);
+			if (child.initialized()) {
+				child.update(millis);
+			}
 		});
 	}
 	postUpdate(millis : number) : void {
 		this._childObjects.forEach((child : GameObject) => {
-			child.postUpdate(millis);
+			if (child.initialized()) {
+				child.postUpdate(millis);
+			}
 		});
 	}
 	prePhysics(millis : number) : void {
 		this._childObjects.forEach((child : GameObject) => {
-			child.prePhysics(millis);
+			if (child.initialized()) {
+				child.prePhysics(millis);
+			}
+		});
+	}
+	physics(millis : number) : void {
+		this._childObjects.forEach((child : GameObject) => {
+			if (child.initialized()) {
+				child.physics(millis);
+			}
 		});
 	}
 	postPhysics(millis : number) : void {
 		this._childObjects.forEach((child : GameObject) => {
-			child.postPhysics(millis);
+			if (child.initialized()) {
+				child.postPhysics(millis);
+			}
 		});
 	}
 	preRender() : void {
 		this._childObjects.forEach((child : GameObject) => {
-			child.preRender();
+			if (child.initialized()) {
+				child.preRender();
+			}
+		});
+	}
+	render() : void {
+		this._childObjects.forEach((child : GameObject) => {
+			if (child.initialized()) {
+				child.render();
+			}
 		});
 	}
 	postRender() : void {
 		this._childObjects.forEach((child : GameObject) => {
-			child.postRender();
+			if (child.initialized()) {
+				child.postRender();
+			}
 		});
 	}
 
@@ -170,6 +221,8 @@ export abstract class GameObjectBase {
 		this._data.registerProp(prop);
 		this._propFns.set(prop, propFns);
 	}
+
+	setFactoryFn(factoryFn : FactoryFn) : void { this._factoryFn = factoryFn; }
 	addChild<T extends GameObject>(id : number, child : T) : T {
 		if (id <= 0) {
 			console.error("Error: invalid child object ID %d for %s", id, this.name());
@@ -180,23 +233,34 @@ export abstract class GameObjectBase {
 			return;
 		}
 
+		if (this._dataBuffers.has(id)) {
+			this._dataBuffers.get(id).forEach((buffer) => {
+				child.importData(buffer.dataMap, buffer.seqNum);
+			});
+			this._dataBuffers.delete(id);
+		}
+
 		this._childObjects.set(id, child);
 		return child;
 	}
 	hasChild(id : number) : boolean { return this._childObjects.has(id); }
 	getChild<T extends GameObject>(id : number) : T { return <T>this._childObjects.get(id); }
+	unregisterChild(id : number) : void {
+		if (!this.hasChild(id)) {
+			return;
+		}
+		this._childObjects.delete(id);
+	}
 	children() : Map<number, GameObject> { return this._childObjects; }
 
+	// TODO: replace with default NetworkBehavior (SOURCE, RELAY, COPY)
+	// can replace default network behavior on a prop level
 	abstract shouldBroadcast() : boolean;
 	abstract isSource() : boolean;
 	data() : Data { return this._data; }
 
 	dataMap(filter : DataFilter) : DataMap {
-		if (!this.shouldBroadcast()) {
-			return {};
-		}
-
-		let data = this._data.filtered(filter);
+		let data = this.shouldBroadcast() ? this._data.filtered(filter) : {};
 		this._childObjects.forEach((child : GameObject, id : number) => {
 			const prop = this.idToProp(id);
 
@@ -209,15 +273,13 @@ export abstract class GameObjectBase {
 	}
 
 	updateData(seqNum : number) : void {
-		if (!this.shouldBroadcast()) {
-			return;
+		if (this.shouldBroadcast()) {
+			this._propFns.forEach((fns : PropFns, prop : number) => {
+				if (!defined(fns.has) || fns.has()) {
+					this.setProp(prop, fns.export(), seqNum);
+				}
+			});
 		}
-
-		this._propFns.forEach((fns : PropFns, prop : number) => {
-			if (!defined(fns.has) || fns.has()) {
-				this.setProp(prop, fns.export(), seqNum);
-			}
-		});
 
 		this._childObjects.forEach((child : GameObject, id : number) => {
 			child.updateData(seqNum);
@@ -233,10 +295,22 @@ export abstract class GameObjectBase {
 				this._propFns.get(prop).import(this._data.get(prop));
 			} else {
 				const id = this.propToId(prop);
+				if (!this._childObjects.has(id)) {
+					if (defined(this._factoryFn)) {
+						this.addChild(id, this._factoryFn(id));
+					} else {
+						if (!this._dataBuffers.has(id)) {
+							this._dataBuffers.set(id, new Array());
+						}
+						this._dataBuffers.get(id).push({
+							dataMap: data,
+							seqNum: seqNum,
+						});
+					}
+				}
+
 				if (this._childObjects.has(id)) {
-					this._childObjects.get(id).importData(<DataMap>this._data.get(prop), seqNum);
-				} else {
-					console.error("Warning: missing handler for prop %d (or id %d) for %s", prop, id, this.name());
+					this._childObjects.get(id).importData(<DataMap>this._data.get(prop), seqNum);				
 				}
 			}
 		});

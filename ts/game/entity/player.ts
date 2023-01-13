@@ -223,12 +223,12 @@ export class Player extends EntityBase {
 		// this._profile.collider(Part.HEAD).setInertia(Infinity);
 
 		if (this.clientId() === game.id()) {
-			game.lakitu().setEntity(this);
-			game.keys().setEntity(this);
+			game.lakitu().setTargetEntity(this);
+			game.keys().setTargetEntity(this);
 		}
 
 		if (game.options().host) {
-			game.entities().add(EntityType.BAZOOKA, {
+			game.entities().addEntity(EntityType.BAZOOKA, {
 				attributesInit: {
 					attributes: new Map([
 						[Attribute.OWNER, this.id()],
@@ -324,6 +324,7 @@ export class Player extends EntityBase {
 		}
 
 		// Max speed
+		// TODO: set this in profile
 		if (Math.abs(this._profile.vel().x) > this._maxHorizontalVel) {
 			this._profile.vel().x *= this._maxVelMultiplier;
 		}

@@ -109,6 +109,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		return true;
 	}
 
+	override dispose() : void {
+		super.dispose();
+
+		game.entities().unregisterEntity(this.id());
+	}
+
 	type() : EntityType { return this._type; }
 	id() : number { return this._id; }
 

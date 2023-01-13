@@ -54,6 +54,18 @@ export class Rocket extends Projectile {
 		}));
 	}
 
+	override delete() : void {
+		super.delete();
+
+		let explosion = game.entities().addEntity(EntityType.EXPLOSION, {
+			profileInit: {
+				pos: this._profile.pos(),
+				dim: {x: 3, y: 3},
+			},
+		});
+		explosion.setTTL(200);
+	}
+
 	override preRender() : void {
 		super.preRender();
 
@@ -79,13 +91,6 @@ export class Rocket extends Projectile {
 		}
 
 		if (other.getComponent<Attributes>(ComponentType.ATTRIBUTES).getOrDefault(Attribute.SOLID)) {
-			let explosion = game.entities().add(EntityType.EXPLOSION, {
-				profileInit: {
-					pos: this._profile.pos(),
-					dim: {x: 3, y: 3},
-				},
-			});
-			explosion.setTTL(200);
 			this.delete();
 		}
 	}
