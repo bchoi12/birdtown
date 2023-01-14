@@ -10,7 +10,7 @@ export enum DataFilter {
 
 // TODO: deprecate DataMap?
 export type DataMap = { [k: number]: Object }
-export type DataTree = Map<number, Object>;
+type DataTree = Map<number, PropData>;
 
 enum NodeType {
 	UNKNOWN,
@@ -18,20 +18,31 @@ enum NodeType {
 	LEAF,
 }
 
+type PropData = {
+	data : Object;
+	change : BitMarker;
+	seqNum : number;
+	params : PropParams;
+}
+
+export type PropParams = {
+	leaf: boolean;
+	filters: Set<DataFilter>;
+}
+
 export class Data {
+	public static readonly allFilters = new Set<DataFilter>([DataFilter.ALL, DataFilter.TCP, DataFilter.UDP]);
+	public static readonly udp = new Set<DataFilter>([DataFilter.ALL, DataFilter.UDP]);
+	public static readonly tcp = new Set<DataFilter>([DataFilter.ALL, DataFilter.TCP]);
+
 	private static readonly numberEpsilon = 1e-3;
 
-	private _props : Set<number>;
-	private _data : DataTree;
-	// TODO: include _change and _seqNum in _data
-	private _change : Map<number, BitMarker>;
-	private _seqNum : Map<number, number>;
+	private _propData : DataTree;
+	private _propParams : Map<number, PropParams>;
 
 	constructor() {
-		this._data = new Map();
-		this._props = new Set();
-		this._change = new Map();
-		this._seqNum = new Map();
+		this._propData = new Map();
+		this._propParams = new Map();
 	}
 
 	static numberEquals(a : number, b : number) : boolean {
@@ -56,12 +67,12 @@ export class Data {
 		return true;
 	}
 
-	empty() : boolean { return this._data.size === 0; }
-	tree() : DataTree { return this._data; }
-	has(key : number) : boolean { return this._data.has(key); }
-	get(key : number) : Object { return this._data.get(key); }
+	empty() : boolean { return this._propData.size === 0; }
+	tree() : DataTree { return this._propData; }
+	has(key : number) : boolean { return this._propData.has(key); }
+	get(key : number) : PropData { return this._propData.get(key); }
 
-	registerProp(prop : number) : void { this._props.add(prop); }
+	registerProp(prop : number, params : PropParams) : void { this._propParams.set(prop, params); }
 
 	set(key : number, node : Object, seqNum : number, predicate? : () => boolean) : boolean {
 		if (!defined(node)) {
@@ -74,9 +85,17 @@ export class Data {
 		}
 
 		let changed = false;
-		if (!this.has(key) || seqNum >= this._seqNum.get(key)) {
-			if (!this._props.has(key) || !Data.equals(node, this.get(key))) {
-				this._data.set(key, node);
+		if (!this.has(key)) {
+			this._propData.set(key, {
+				data: node,
+				change: new BitMarker(32),
+				seqNum: seqNum,
+				params: this._propParams.has(key) ? this._propParams.get(key) : { leaf: false, filters: Data.allFilters },
+			});
+			changed = true;
+		} else if (seqNum >= this.get(key).seqNum) {
+			if (!this.get(key).params.leaf || !Data.equals(node, this.get(key).data)) {
+				this.get(key).data = node;
 				changed = true;
 			}
 		}
@@ -100,46 +119,44 @@ export class Data {
 		return changed;
 	}
 
-	// TODO: return [DataMap, boolean]
-	filtered(filter : DataFilter) : DataMap {
+	filtered(filter : DataFilter) : [DataMap, boolean] {
 		if (this.empty()) {
-			return {};
+			return [{}, false];
 		}
 
 		let filtered : DataMap = {};
-		this._data.forEach((data : Object, key : number) => {
+		let hasData = false;
+		this._propData.forEach((prop : PropData, key : number) => {
+			if (!this.get(key).params.filters.has(filter)) {
+				return;
+			}
+
 			if (filter === DataFilter.ALL) {
-				filtered[key] = data;
+				filtered[key] = prop.data;
+				hasData = true;
 				return;
 			}
 
-			if (!this._change.has(key)) {
-				return;
-			}
-
-			const change = this._change.get(key);
 			if (filter === DataFilter.TCP) {
-				if (change.consecutiveTrue() === 1 || change.consecutiveFalse() === 1) {
-					filtered[key] = data;
+				if (prop.change.consecutiveTrue() === 1 || prop.change.consecutiveFalse() === 1) {
+					filtered[key] = prop.data;
+					hasData = true;
 				}
 			} else if (filter === DataFilter.UDP) {
-				if (change.consecutiveTrue() >= 1 || change.consecutiveFalse() <= 2) {
-					filtered[key] = data;
+				if (prop.change.consecutiveTrue() >= 1 || prop.change.consecutiveFalse() <= 2) {
+					filtered[key] = prop.data;
+					hasData = true;
 				}
 			}	
 		});
-		return filtered;
+		return [filtered, hasData];
 	}
 
 	protected recordChange(key : number, seqNum : number, change : boolean) {
-		if (!this._change.has(key)) {
-			this._change.set(key, new BitMarker(32));
-		}
-
-		this._change.get(key).mark(seqNum, change);
+		this.get(key).change.mark(seqNum, change);
 
 		if (change) {
-			this._seqNum.set(key, seqNum);
+			this.get(key).seqNum = seqNum;
 		}
 	}
 }

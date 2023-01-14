@@ -30,18 +30,6 @@ export class Input extends SystemBase implements System {
 		return this._keys.get(id);
 	}
 
-	override preUpdate(millis : number) : void {
-		super.preUpdate(millis);
-
-		this.keys().preUpdate(millis);
-	}
-
-	override preRender() : void {
-		super.preRender();
-
-		this.keys().preRender();
-	}
-
 	override isSource() : boolean { return true; }
 	override shouldBroadcast() : boolean { return true; }
 }

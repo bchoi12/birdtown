@@ -298,9 +298,6 @@ export class Player extends EntityBase {
 			}
 
 			// Jumping
-			if (game.keys(this.clientId()).keyDown(Key.JUMP)) {
-				console.log("YAY", this.clientId(), this.name());
-			}
 			if (this._jumpTimer.hasTimeLeft()) {
 				if (game.keys(this.clientId()).keyDown(Key.JUMP)) {
 					this._profile.setVel({ y: this._jumpVel });

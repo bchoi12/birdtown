@@ -184,8 +184,10 @@ export abstract class Connection {
 	}
 
 	close(peer : string) : void {
-		this._peers.get(peer).disconnect();
-		this._peers.delete(peer);
+		if (this._peers.has(peer)) {
+			this._peers.get(peer).disconnect();
+			this._peers.delete(peer);
+		}
 		
 		// Don't clear this
 		// this._nameAndId.delete(peer);

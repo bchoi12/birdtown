@@ -245,8 +245,8 @@ class Game {
 
 	// TODO: move to system runner
 	private entityMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
-		const data = this._entities.dataMap(filter);
-		if (Object.keys(data).length === 0) {
+		const [data, hasData] = this._entities.dataMap(filter);
+		if (!hasData) {
 			return [null, false];
 		}
 		return [{
@@ -257,8 +257,8 @@ class Game {
 	}
 
 	private inputMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
-		const data = this._input.dataMap(filter);
-		if (Object.keys(data).length === 0) {
+		const [data, hasData] = this._input.dataMap(filter);
+		if (!hasData) {
 			return [null, false];
 		}
 		return [{

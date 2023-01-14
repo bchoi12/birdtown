@@ -1,5 +1,5 @@
 
-import { Data, DataFilter, DataMap } from 'network/data'
+import { Data, DataFilter, DataMap, PropParams } from 'network/data'
 
 import { defined } from 'util/common'
 
@@ -11,10 +11,11 @@ type HasFn = () => boolean;
 type ExportFn = () => Object;
 type ImportFn = (object : Object) => void;
 
-export type PropFns = {
+export type PropHandler = {
 	has? : HasFn;
 	export : ExportFn;
 	import : ImportFn;
+	filters? : Set<DataFilter>;
 }
 
 export type NameParams = {
@@ -53,7 +54,7 @@ export interface GameObject {
 	render() : void
 	postRender() : void
 
-	registerProp(prop : number, propFns : PropFns);
+	registerProp(prop : number, params : PropHandler);
 	setFactoryFn(factoryFn : FactoryFn) : void;
 	addChild<T extends GameObject>(id : number, child : T) : T;
 	hasChild(id : number) : boolean;
@@ -63,7 +64,7 @@ export interface GameObject {
 	shouldBroadcast() : boolean;
 	isSource() : boolean;
 	data() : Data;
-	dataMap(filter : DataFilter) : DataMap;
+	dataMap(filter : DataFilter) : [DataMap, boolean];
 	updateData(seqNum : number) : void;
 	importData(data : DataMap, seqNum : number) : void;
 }
@@ -73,7 +74,7 @@ export abstract class GameObjectBase {
 	protected _initialized : boolean;
 	protected _deleted : boolean;
 	protected _data : Data;
-	protected _propFns : Map<number, PropFns>;
+	protected _propHandlers : Map<number, PropHandler>;
 	protected _childObjects : Map<number, GameObject>;
 
 	protected _dataBuffers : Map<number, Array<DataBuffer>>;
@@ -84,7 +85,7 @@ export abstract class GameObjectBase {
 		this._initialized = false;
 		this._deleted = false;
 		this._data = new Data();
-		this._propFns = new Map();
+		this._propHandlers = new Map();
 		this._childObjects = new Map();
 
 		this._dataBuffers = new Map();
@@ -107,7 +108,7 @@ export abstract class GameObjectBase {
 		}
 
 		if (params.target) {
-			this._name += "/" + params.target.name();
+			this._name += ":" + params.target.name();
 		}
 	}
 
@@ -212,12 +213,12 @@ export abstract class GameObjectBase {
 		});
 	}
 
-	registerProp(prop : number, propFns : PropFns) : void {
+	registerProp(prop : number, propHandler : PropHandler) : void {
 		if (prop <= 0) {
 			console.error("Error: invalid prop number %d for %s", prop, this.name());
 			return;
 		}
-		if (this._propFns.has(prop)) {
+		if (this._propHandlers.has(prop)) {
 			console.error("Error: skipping registration of duplicate prop %d for %s", prop, this.name());
 			return;
 		}
@@ -226,8 +227,11 @@ export abstract class GameObjectBase {
 			return;
 		}
 
-		this._data.registerProp(prop);
-		this._propFns.set(prop, propFns);
+		this._data.registerProp(prop, {
+			leaf: true,
+			filters: defined(propHandler.filters) ? propHandler.filters : Data.allFilters,
+		});
+		this._propHandlers.set(prop, propHandler);
 	}
 
 	setFactoryFn(factoryFn : FactoryFn) : void { this._factoryFn = factoryFn; }
@@ -267,22 +271,25 @@ export abstract class GameObjectBase {
 	abstract isSource() : boolean;
 	data() : Data { return this._data; }
 
-	dataMap(filter : DataFilter) : DataMap {
-		let data = this.shouldBroadcast() ? this._data.filtered(filter) : {};
+	dataMap(filter : DataFilter) : [DataMap, boolean] {
+		let [data, hasData] = this.shouldBroadcast() ? this._data.filtered(filter) : [{}, false];
+
 		this._childObjects.forEach((child : GameObject, id : number) => {
 			const prop = this.idToProp(id);
 
-			const childData = child.dataMap(filter);
-			if (Object.keys(childData).length > 0) {
+			const [childData, childHasData] = child.dataMap(filter);
+			if (childHasData) {
 				data[prop] = childData;
+				hasData = true;
 			}
 		});
-		return data;
+
+		return [data, hasData];
 	}
 
 	updateData(seqNum : number) : void {
 		if (this.isSource()) {
-			this._propFns.forEach((fns : PropFns, prop : number) => {
+			this._propHandlers.forEach((fns : PropHandler, prop : number) => {
 				if (!defined(fns.has) || fns.has()) {
 					this.setProp(prop, fns.export(), seqNum);
 				}
@@ -299,8 +306,8 @@ export abstract class GameObjectBase {
 		const changed = this._data.import(data, seqNum, (prop : number) => { return (prop > this.numProps()) || !this.isSource(); });
 
 		changed.forEach((prop : number) => {
-			if (this._propFns.has(prop)) {
-				this._propFns.get(prop).import(this._data.get(prop));
+			if (this._propHandlers.has(prop)) {
+				this._propHandlers.get(prop).import(this._data.get(prop).data);
 			} else {
 				const id = this.propToId(prop);
 				if (!this._childObjects.has(id)) {
@@ -318,7 +325,7 @@ export abstract class GameObjectBase {
 				}
 
 				if (this._childObjects.has(id)) {
-					this._childObjects.get(id).importData(<DataMap>this._data.get(prop), seqNum);				
+					this._childObjects.get(id).importData(<DataMap>this._data.get(prop).data, seqNum);				
 				}
 			}
 		});
@@ -327,7 +334,7 @@ export abstract class GameObjectBase {
 	protected idToProp(id : number) : number { return id + this.numProps(); }
 	protected propToId(prop : number) : number { return prop - this.numProps(); }
 
-	protected numProps() : number { return this._propFns.size; }
+	protected numProps() : number { return this._propHandlers.size; }
 	protected numChildren() : number { return this._childObjects.size; }
 	protected setProp(prop : number, data : Object, seqNum : number, cb? : () => boolean) : boolean {
 		if (this.isSource()) {

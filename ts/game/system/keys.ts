@@ -4,6 +4,8 @@ import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { System, SystemBase, SystemType } from 'game/system'
 
+import { Data } from 'network/data'
+
 import { ui, Key } from 'ui'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -40,6 +42,7 @@ export class Keys extends SystemBase implements System {
 				continue;
 			}
 
+			// TODO: only export true/false - key down or not
 			this.registerProp(key, {
 				has: () => { return this._keys.has(key); },
 				export: () => { return this._keys.get(key); },
@@ -48,12 +51,14 @@ export class Keys extends SystemBase implements System {
 		}
 
 		this.registerProp(this.numProps() + 1, {
-			export : () => { return this._mouse.toVec(); },
-			import: (obj : Object) => { this._mouse.copyVec(<Vec>obj); }
+			export: () => { return this._mouse.toVec(); },
+			import: (obj : Object) => { this._mouse.copyVec(<Vec>obj); },
+			filters: Data.udp,
 		});
 		this.registerProp(this.numProps() + 1, {
-			export : () => { return this._dir.toVec(); },
-			import: (obj : Object) => { this._dir.copyVec(<Vec>obj); }
+			export: () => { return this._dir.toVec(); },
+			import: (obj : Object) => { this._dir.copyVec(<Vec>obj); },
+			filters: Data.udp,
 		});
 	}
 
@@ -76,7 +81,6 @@ export class Keys extends SystemBase implements System {
 	protected pressKey(key : Key) : void {
 		if (!this.keyDown(key)) {
 			this._keys.set(key, KeyState.PRESSED);
-			console.log("PRESS ", key, this.keyPressed(key), this.name());
 		} else {
 			this._keys.set(key, KeyState.DOWN);
 		}
