@@ -1,5 +1,4 @@
 import * as BABYLON from 'babylonjs'
-import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { ComponentType } from 'game/component'
@@ -29,7 +28,7 @@ export abstract class Weapon extends EntityBase {
 
 		this._attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
 
-		this._model = <Model>this.addComponent(new Model({
+		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
 				loader.load(this.modelType(), (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];

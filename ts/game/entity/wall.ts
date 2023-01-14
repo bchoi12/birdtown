@@ -27,13 +27,13 @@ export class Wall extends EntityBase {
 		this._attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
 		this._attributes.set(Attribute.SOLID, true);
 
-		this._profile = <Profile>this.addComponent(new Profile({
-			initFn: (profile : Profile) => {
+		this._profile = this.addComponent<Profile>(new Profile({
+			bodyFn: (profile : Profile) => {
 				const pos = profile.pos();
 				const dim = profile.dim();
-				profile.set(MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
 					isStatic: true,
-				}));
+				});
 			},
 			init: options.profileInit,
 		}));

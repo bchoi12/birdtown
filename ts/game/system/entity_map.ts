@@ -10,12 +10,19 @@ export class EntityMap extends SystemBase implements System {
 
 		this._entityType = entityType;
 
-		this.setFactoryFn((id : number) => { return game.entities().addEntity(this._entityType, {id: id}) });
+		this.setName({
+			base: "entity_map",
+			type: entityType,
+		})
+
+		this.setFactoryFn((id : number) => { game.entities().addEntity(this._entityType, {id: id}) });
 	}
 
 	entityType() : EntityType { return this._entityType; }
 
-	addEntity(entity : Entity) : Entity { return this.addChild<Entity>(entity.id(), entity); }
+	addEntity(entity : Entity) : Entity {
+		return this.addChild<Entity>(entity.id(), entity);
+	}
 	hasEntity(id : number) : boolean { return this.hasChild(id); }
 	getEntity(id : number) : Entity { return this.getChild<Entity>(id); }
 	unregisterEntity(id : number) : void { this.unregisterChild(id); }

@@ -106,6 +106,10 @@ export class Attributes extends ComponentBase implements Component {
 		this.set(attribute, value);
 	}
 
+	setIfHost(attribute : Attribute, value : Value) : void {
+		this.setIf(attribute, value, game.options().host);
+	}
+
 	negate(attribute : Attribute) : void {
 		const current = this.get(attribute);
 

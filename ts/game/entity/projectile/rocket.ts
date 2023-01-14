@@ -7,6 +7,7 @@ import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
+import { Explosion } from 'game/entity/explosion'
 import { Projectile } from 'game/entity/projectile'
 import { loader, LoadResult, ModelType } from 'game/loader'
 
@@ -26,18 +27,18 @@ export class Rocket extends Projectile {
 			id: this.id(),
 		});
 
-		this._profile = <Profile>this.addComponent(new Profile({
-			initFn: (profile : Profile) => {
+		this._profile = this.addComponent<Profile>(new Profile({
+			bodyFn: (profile : Profile) => {
 				const pos = profile.pos();
 				const dim = profile.dim();
-				profile.set(MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
+				return MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
 					isSensor: true,
-				}));
+				});
 			},
 			init: options.profileInit,
 		}));
 
-		this._model = <Model>this.addComponent(new Model({
+		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => {
 				return this._profile.ready();
 			},
@@ -57,13 +58,13 @@ export class Rocket extends Projectile {
 	override delete() : void {
 		super.delete();
 
-		let explosion = game.entities().addEntity(EntityType.EXPLOSION, {
+		game.entities().addEntity(EntityType.EXPLOSION, {
 			profileInit: {
 				pos: this._profile.pos(),
 				dim: {x: 3, y: 3},
 			},
+			onCreateFn: (explosion : Explosion) => { explosion.setTTL(200); },
 		});
-		explosion.setTTL(200);
 	}
 
 	override preRender() : void {
@@ -82,7 +83,7 @@ export class Rocket extends Projectile {
 	override collide(other : Entity, collision : MATTER.Collision) : void {
 		super.collide(other, collision);
 
-		if (!game.options().host) {
+		if (!this.isSource()) {
 			return;
 		}
 

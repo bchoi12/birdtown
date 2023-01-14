@@ -53,3 +53,72 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	override shouldBroadcast() : boolean { return game.options().host; }
 	override isSource() : boolean { return game.options().host; }
 }
+
+// TODO: system runner
+export class SystemRunner {
+
+	private _order : Array<SystemType>;
+	private _systems : Map<SystemType, System>;
+
+	constructor() {
+		this._order = new Array();
+		this._systems = new Map();
+	}
+
+	push<T extends System>(system : T) : T {
+		if (this._systems.has(system.type())) {
+			console.error("Error: skipping duplicate system with type %d, name %s", system.type(), system.name());
+			return;
+		}
+
+		this._order.push(system.type());
+		this._systems.set(system.type(), system);
+		return system;
+	}
+
+	getSystem<T extends System>(type : SystemType) : T { return <T>this._systems.get(type); }
+
+	update(millis : number) : void {
+		for (let i = 0; i < this._order.length; ++i) {
+			this._systems.get(this._order[i]).preUpdate(millis);
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this._systems.get(this._order[i]).update(millis);
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this._systems.get(this._order[i]).postUpdate(millis);
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this._systems.get(this._order[i]).prePhysics(millis);
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this._systems.get(this._order[i]).physics(millis);
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this._systems.get(this._order[i]).postPhysics(millis);
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this._systems.get(this._order[i]).preRender();
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this._systems.get(this._order[i]).render();
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this._systems.get(this._order[i]).postRender();
+		}
+	}
+
+	updateData(seqNum : number) : void {
+		for (let i = 0; i < this._order.length; ++i) {
+			this._systems.get(this._order[i]).updateData(seqNum);
+		}
+	}
+}

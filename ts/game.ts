@@ -2,7 +2,8 @@ import * as BABYLON from "babylonjs";
 import * as MATTER from "matter-js"
 
 import { Data, DataFilter, DataMap } from 'network/data'
-import { Entity, EntityBase, EntityType } from 'game/entity'
+import { EntityType } from 'game/entity'
+import { SystemRunner } from 'game/system'
 import { Entities } from 'game/system/entities'
 import { EntityMap } from 'game/system/entity_map'
 import { Input } from 'game/system/input'
@@ -47,6 +48,7 @@ class Game {
 	private _engine : BABYLON.Engine|BABYLON.NullEngine;
 	private _connection : Connection;
 
+	private _systemRunner : SystemRunner;
 	private _entities : Entities;
 	private _input : Input;
 	private _lakitu : Lakitu;
@@ -115,12 +117,21 @@ class Game {
 		});
 		this._connection.initialize();
 
+		this._systemRunner = new SystemRunner();
 		this._entities = new Entities();
 		this._input = new Input();
 		this._world = new World(this._engine);
 		this._lakitu = new Lakitu(this._canvas, this._world.scene());
 		this._physics = new Physics();
 
+		// Order matters
+		this._systemRunner.push(this._input);
+		this._systemRunner.push(this._entities);
+		this._systemRunner.push(this._physics);
+		this._systemRunner.push(this._lakitu);
+		this._systemRunner.push(this._world);
+
+		// TODO: level system
 	    if (this._options.host) {
 	    	this._entities.addEntity(EntityType.PLAYER, {
 	    		clientId: this.id(),
@@ -149,27 +160,11 @@ class Game {
 	    }
 
 	    this._engine.runRenderLoop(() => {
-	    	const millis = Math.max(this._lastUpdateTime - Date.now(), 20);
+	    	const millis = Math.min(Date.now() - this._lastUpdateTime, 32);
 
 	    	if (this.hasId()) {
-	    		// TODO: put system into a sorted container
-		    	this._input.preUpdate(millis);
-		    	this._entities.preUpdate(millis);
-		    	this._entities.update(millis);
-		    	this._entities.postUpdate(millis);
-		    	this._lakitu.postUpdate(millis);
-		    	
-		    	this._entities.prePhysics(millis);
-		    	this._physics.physics(millis);
-    	    	this._entities.postPhysics(millis);
-
-		    	this._input.preRender();
-		    	this._entities.preRender();
-		    	this._world.render();
-		    	this._entities.postRender();
-
-		    	this._input.updateData(this._seqNum);
-		    	this._entities.updateData(this._seqNum);
+	    		this._systemRunner.update(millis);
+	    		this._systemRunner.updateData(this._seqNum);
 	    	}
 
 	    	this._connection.update(this._seqNum);
@@ -199,7 +194,6 @@ class Game {
 	}
 
 	resize() : void { this._engine.resize(); }
-
 	initialized() : boolean { return this._initialized; }
 	canvas() : HTMLCanvasElement { return this._canvas; }
 	hasId() : boolean { return defined(this._id); }
@@ -209,7 +203,6 @@ class Game {
 	engine() : BABYLON.Engine { return this._engine; }
 	physics() : Physics { return this._physics; }
 	lakitu() : Lakitu { return this._lakitu; }
-	input() : Input { return this._input; }
 	keys(id? : number) : Keys { return this._input.keys(id); }
 	entities() : Entities { return this._entities; }
 	connection() : Connection { return this._connection; }
@@ -250,6 +243,7 @@ class Game {
 		return mouseWorld;
 	}
 
+	// TODO: move to system runner
 	private entityMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
 		const data = this._entities.dataMap(filter);
 		if (Object.keys(data).length === 0) {
@@ -274,6 +268,7 @@ class Game {
 		}, true];
 	}
 
+	// TODO: client system
 	private registerClient(name : string) : void {
 		const id = this.nextId();
 		this._connection.setId(name, id);

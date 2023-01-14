@@ -3,7 +3,6 @@ import { ComponentType } from 'game/component'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { System, SystemBase, SystemType } from 'game/system'
-import { Data, DataFilter, DataMap } from 'network/data'
 
 import { ui, Key } from 'ui'
 import { Vec, Vec2 } from 'util/vector'
@@ -77,6 +76,7 @@ export class Keys extends SystemBase implements System {
 	protected pressKey(key : Key) : void {
 		if (!this.keyDown(key)) {
 			this._keys.set(key, KeyState.PRESSED);
+			console.log("PRESS ", key, this.keyPressed(key), this.name());
 		} else {
 			this._keys.set(key, KeyState.DOWN);
 		}

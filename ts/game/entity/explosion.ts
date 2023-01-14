@@ -25,15 +25,15 @@ export class Explosion extends EntityBase {
 
 		this._hit = new Set();
 
-		this._profile = <Profile>this.addComponent(new Profile({
-			initFn: (profile : Profile) => {
+		this._profile = this.addComponent<Profile>(new Profile({
+			bodyFn: (profile : Profile) => {
 				const pos = profile.pos();
 				const dim = profile.dim();
 				
-				profile.set(MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
+				return MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {
 					isStatic: true,
 					isSensor: true,
-				}));
+				});
 			},
 			init: entityOptions.profileInit,
 		}));
@@ -66,7 +66,7 @@ export class Explosion extends EntityBase {
 
 		this._hit.add(other.id());
 		let force = Vec2.fromVec(otherProfile.pos()).sub(this._profile.pos());
-		force.normalize().scale(0.5);
+		force.normalize().scale(0.48);
 		otherProfile.addForce(force);
 	}
 

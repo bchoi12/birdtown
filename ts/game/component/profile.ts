@@ -1,9 +1,8 @@
-import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
-import { Data, DataFilter, DataMap } from 'network/data'
+import { Data } from 'network/data'
 
 import { options } from 'options'
 
@@ -11,8 +10,9 @@ import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
 
 type ReadyFn = (profile : Profile) => boolean;
-type InitFn = (profile : Profile) => void;
+type BodyFn = (profile : Profile) => MATTER.Body;
 type OnInitFn = (profile : Profile) => void;
+type PhysicsFn = (profile : Profile) => void;
 
 export type ProfileInitOptions = {
 	pos? : Vec;
@@ -22,10 +22,19 @@ export type ProfileInitOptions = {
 }
 
 export type ProfileOptions = {
-	initFn : InitFn;
+	bodyFn : BodyFn;
+
+	readyFn? : ReadyFn;
+	onInitFn? : OnInitFn;
+	prePhysicsFn? : PhysicsFn;
+	postPhysicsFn? : PhysicsFn;
 
 	init? : ProfileInitOptions
-	readyFn? : ReadyFn;
+}
+
+export type MaxSpeedParams = {
+	maxSpeed : Vec;
+	multiplier : Vec;
 }
 
 enum Prop {
@@ -41,7 +50,13 @@ enum Prop {
 
 export class Profile extends ComponentBase implements Component {
 	private _readyFn : ReadyFn;
-	private _initFn : InitFn;
+	private _bodyFn : BodyFn;
+	private _onInitFn : OnInitFn;
+	private _prePhysicsFn : PhysicsFn;
+	private _postPhysicsFn : PhysicsFn;
+
+	private _forces : Array<Vec>;
+	private _constraints : Map<number, MATTER.Constraint>;
 
 	private _pos : Vec2;
 	private _vel : Vec2;
@@ -51,10 +66,10 @@ export class Profile extends ComponentBase implements Component {
 	private _applyScaling : boolean;
 	private _scaleFactor : Vec2;
 	private _inertia : number;
+	private _initialInertia : number;
 	private _scaling : Vec2;
 
-	private _forces : Array<Vec>;
-	private _initialInertia : number;
+	private _maxSpeedParams : MaxSpeedParams;
 
 	private _body : MATTER.Body;
 
@@ -63,8 +78,15 @@ export class Profile extends ComponentBase implements Component {
 
 		this.setName({ base: "profile" });
 
-		this._readyFn = defined(profileOptions.readyFn) ? profileOptions.readyFn : () => { return true; };
-		this._initFn = profileOptions.initFn;
+		this._bodyFn = profileOptions.bodyFn;
+
+		if (defined(profileOptions.readyFn)) { this._readyFn = profileOptions.readyFn; }
+		if (defined(profileOptions.onInitFn)) { this._onInitFn = profileOptions.onInitFn; }
+		if (defined(profileOptions.prePhysicsFn)) { this._prePhysicsFn = profileOptions.prePhysicsFn; }
+		if (defined(profileOptions.postPhysicsFn)) { this._postPhysicsFn = profileOptions.postPhysicsFn; }
+
+		this._constraints = new Map();
+		this._forces = new Array();
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -115,13 +137,13 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	override ready() : boolean {
-		return this.hasPos() && this.hasDim() && this._readyFn(this);
+		return this.hasPos() && this.hasDim() && (!defined(this._readyFn) || this._readyFn(this));
 	}
 
 	override initialize() : void {
 		super.initialize();
 
-		this._initFn(this);
+		this._body = this._bodyFn(this);
 
 		MATTER.Composite.add(game.physics().world(), this._body)
 		this._body.label = "" + this.entity().id();
@@ -129,8 +151,11 @@ export class Profile extends ComponentBase implements Component {
 			body.label = "" + this.entity().id();
 		})
 
-		this._forces = new Array();
 		this._initialInertia = this._body.inertia;
+
+		if (defined(this._onInitFn)) {
+			this._onInitFn(this);
+		}
 	}
 
 	override dispose() : void {
@@ -139,47 +164,33 @@ export class Profile extends ComponentBase implements Component {
 		if (defined(this._body)) {
 			MATTER.World.remove(game.physics().world(), this._body);
 		}
+		this._constraints.forEach((constraint : MATTER.Constraint) => {
+			MATTER.World.remove(game.physics().world(), constraint);
+		});
 	}
 
-	// TODO: deprecate set()
-	set(body : MATTER.Body) : void { this._body = body; }
 	body() : MATTER.Body { return this._body; }
-
-	/*
-	addCollider(inputKey : number, collider : Collider) : Collider {
-		const key = this._numProps + inputKey;
-
-		if (this._colliders.has(key)) {
-			console.error("Error: trying to add collider with duplicate key", inputKey, collider);
-			return;
-		}
-
-		collider.setEntity(this.entity());
-		if (this._dataBuffers.has(key)) {
-			collider.data().merge(this._dataBuffers.get(key));
-		}
-		collider.initialize();
-		this._colliders.set(key, collider);
-		return collider;
+	addSubProfile(id : number, subProfile : Profile) : Profile {
+		subProfile.setEntity(this.entity());
+		subProfile.setName({
+			parent: this,
+			base: subProfile.name(),
+			id: id,
+		});
+		return this.addChild<Profile>(id, subProfile);
 	}
-	collider(key? : number) : Collider {
-		if (!defined(key)) { 
-			return this._collider;
-		}
-
-		return this._colliders.get(this._numProps + key);
-	}
-	addConstraint(key : number, constraint : MATTER.Constraint) : MATTER.Constraint {
-		if (this._constraints.has(key)) {
-			console.error("Error: trying to add constraint with duplicate key", key, constraint);
-			return;
-		}
-
-		MATTER.Composite.add(game.physics().world, constraint);
-		this._constraints.set(key, constraint);
+	getSubProfile(id : number) : Profile { return this.getChild<Profile>(id); }
+	addConstraint(id : number, constraint : MATTER.Constraint) : MATTER.Constraint {
+		MATTER.Composite.add(game.physics().world(), constraint);
+		this._constraints.set(id, constraint);
 		return constraint;
 	}
-	*/
+	deleteConstraint(id : number) : void {
+		if (!this._constraints.has(id)) {
+			return;
+		}
+		MATTER.World.remove(game.physics().world(), this._constraints.get(id));
+	}
 
 	private hasPos() : boolean { return defined(this._pos); }
 	pos() : Vec2 { return this._pos; }
@@ -286,8 +297,27 @@ export class Profile extends ComponentBase implements Component {
 		this._forces = [];
 	}
 
+	setMaxSpeed(params : MaxSpeedParams) { this._maxSpeedParams = params; }
+	private clampSpeed() : void {
+		if (!defined(this._maxSpeedParams)) { return; }
+
+		let vel = this.vel();
+		const maxSpeed = this._maxSpeedParams.maxSpeed;
+
+		if (Math.abs(vel.x) > maxSpeed.x) {
+			vel.x = Math.sign(vel.x) * (maxSpeed.x + this._maxSpeedParams.multiplier.x * (Math.abs(vel.x) - maxSpeed.x));
+		}
+		if (Math.abs(vel.y) > maxSpeed.y) {
+			vel.y = Math.sign(vel.y) * (maxSpeed.y + this._maxSpeedParams.multiplier.y * (Math.abs(vel.y) - maxSpeed.y));
+		}
+	}
+
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
+
+		if (this._prePhysicsFn) {
+			this._prePhysicsFn(this);
+		}
 
 		if (this._applyScaling && defined(this._scaleFactor)) {
 			MATTER.Body.scale(this._body, this._scaleFactor.x, this._scaleFactor.y);
@@ -314,6 +344,8 @@ export class Profile extends ComponentBase implements Component {
 		this.applyForces();
 
 		if (this.hasVel()) {
+			this.clampSpeed();
+
 			MATTER.Body.setVelocity(this._body, this.vel());
 		}
 		MATTER.Body.setPosition(this._body, this.pos());
@@ -334,6 +366,10 @@ export class Profile extends ComponentBase implements Component {
 		} else {
 			// TODO: refine this
 			this._pos.lerpSeparate(this._body.position, {x: options.predictionWeight, y: options.predictionWeight});
+		}
+
+		if (this._postPhysicsFn) {
+			this._postPhysicsFn(this);
 		}
 	}
 }

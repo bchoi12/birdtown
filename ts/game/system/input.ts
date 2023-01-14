@@ -3,11 +3,7 @@ import { game } from 'game'
 import { System, SystemBase, SystemType } from 'game/system'
 import { Keys } from 'game/system/keys'
 
-import { Data, DataFilter, DataMap } from 'network/data'
-
-import { ui, Key } from 'ui'
 import { defined } from 'util/common'
-import { Vec2 } from 'util/vector'
 
 export class Input extends SystemBase implements System {
 

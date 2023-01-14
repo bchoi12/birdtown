@@ -18,6 +18,10 @@ export class Entities extends SystemBase implements System {
 	constructor() {
 		super(SystemType.ENTITIES);
 
+		this.setName({
+			base: "entities",
+		})
+
 		this._lastId = 0;
 		this._idToType = new Map();
 		this._entityFactory = new Map();
@@ -27,24 +31,26 @@ export class Entities extends SystemBase implements System {
 		this._entityFactory.set(EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); });
 		this._entityFactory.set(EntityType.WALL, (options : EntityOptions) => { return new Wall(options); });
 
-		this.setFactoryFn((entityType : EntityType) => { return new EntityMap(entityType); })
+		this.setFactoryFn((entityType : EntityType) => { this.addMap(new EntityMap(entityType)); })
 	}
 
 	addMap(map : EntityMap) { this.addChild<EntityMap>(map.entityType(), map); }
 	hasMap(type : EntityType) { return this.hasChild(type); }
 	getMap(type : EntityType) : EntityMap { return this.getChild<EntityMap>(type); }
 
-	addEntity(type : EntityType, entityOptions? : EntityOptions) : Entity {
-		if (!entityOptions) {
-			entityOptions = {};
-		}
-
+	addEntity(type : EntityType, entityOptions : EntityOptions) : void {
 		if (!entityOptions.id) {
+			// Only allow source to create new objects. Other objects are from data import
+			if (!this.isSource()) {
+				return;
+			}
 			entityOptions.id = this.nextId();
+		} else {
+			this._lastId = Math.max(this._lastId, entityOptions.id);
 		}
 
 		if (this._idToType.has(entityOptions.id)) {
-			console.error("Warning: overwriting object type " + type + ", id " + entityOptions.id);
+			console.error("Warning: overwriting object type %d (previous: %d), id %d", type, this._idToType.get(entityOptions.id), entityOptions.id);
 		}
 
 		let entity = this._entityFactory.get(type)(entityOptions);
@@ -55,7 +61,10 @@ export class Entities extends SystemBase implements System {
 		}
 
 		this.getMap(type).addEntity(entity);
-		return entity;
+		
+		if (entityOptions.onCreateFn) {
+			entityOptions.onCreateFn(entity);
+		}
 	}
 
 	hasEntity(id : number) : boolean { return this._idToType.has(id); }

@@ -29,6 +29,8 @@ export type EntityOptions = {
 
 	attributesInit? : AttributesInitOptions;
 	profileInit? : ProfileInitOptions
+
+	onCreateFn? : (entity : Entity) => void;
 }
 
 export interface Entity extends GameObject {

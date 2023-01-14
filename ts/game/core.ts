@@ -25,7 +25,7 @@ export type NameParams = {
 	id? : number;
 }
 
-export type FactoryFn = (id : number) => GameObject
+export type FactoryFn = (id : number) => void
 
 type DataBuffer = {
 	seqNum : number;
@@ -103,7 +103,7 @@ export abstract class GameObjectBase {
 		}
 
 		if (params.id) {
-			this._name += "," + params.id;
+			this._name += "[" + params.id + "]";
 		}
 
 		if (params.target) {
@@ -113,6 +113,10 @@ export abstract class GameObjectBase {
 
 	abstract ready() : boolean;
 	initialize() : void {
+		if (this._initialized) {
+			return;
+		}
+
 		this._childObjects.forEach((child : GameObject) => {
 			child.initialize();
 		});
@@ -120,6 +124,10 @@ export abstract class GameObjectBase {
 	}
 	initialized() : boolean {return this._initialized; }
 	delete() : void {
+		if (this._deleted) {
+			return;
+		}
+
 		this._childObjects.forEach((child : GameObject) => {
 			child.delete();
 		});
@@ -273,7 +281,7 @@ export abstract class GameObjectBase {
 	}
 
 	updateData(seqNum : number) : void {
-		if (this.shouldBroadcast()) {
+		if (this.isSource()) {
 			this._propFns.forEach((fns : PropFns, prop : number) => {
 				if (!defined(fns.has) || fns.has()) {
 					this.setProp(prop, fns.export(), seqNum);
@@ -297,7 +305,7 @@ export abstract class GameObjectBase {
 				const id = this.propToId(prop);
 				if (!this._childObjects.has(id)) {
 					if (defined(this._factoryFn)) {
-						this.addChild(id, this._factoryFn(id));
+						this._factoryFn(id);
 					} else {
 						if (!this._dataBuffers.has(id)) {
 							this._dataBuffers.set(id, new Array());
@@ -320,6 +328,7 @@ export abstract class GameObjectBase {
 	protected propToId(prop : number) : number { return prop - this.numProps(); }
 
 	protected numProps() : number { return this._propFns.size; }
+	protected numChildren() : number { return this._childObjects.size; }
 	protected setProp(prop : number, data : Object, seqNum : number, cb? : () => boolean) : boolean {
 		if (this.isSource()) {
 			return this._data.set(prop, data, seqNum, () => {

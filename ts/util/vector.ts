@@ -125,6 +125,11 @@ export class Vec2 implements Vec {
         return Vec2.unitFromRad(angle * Math.PI / 180);
     }
 
+    copy(vec : Vec2) : Vec2 {
+        this.x = vec.x;
+        this.y = vec.y;
+        return this;
+    }
     copyBabylon3(vec : BABYLON.Vector3) : Vec2 {
         this.x = vec.x;
         this.y = vec.y;
@@ -135,7 +140,7 @@ export class Vec2 implements Vec {
         this.y = vec.y;
         return this;
     }
-    copyVec(vec : Vec) {
+    copyVec(vec : Vec) : Vec2 {
         this.x = defined(vec.x) ? vec.x : (defined(this.x) ? this.x : 0);
         this.y = defined(vec.y) ? vec.y : (defined(this.y) ? this.y : 0);
         return this;

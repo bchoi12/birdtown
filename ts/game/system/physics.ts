@@ -5,6 +5,8 @@ import { System, SystemBase, SystemType } from 'game/system'
 
 export class Physics extends SystemBase implements System {
 
+	private readonly _step : number = 8;
+
 	private _engine : MATTER.Engine;
 
 	constructor() {
@@ -20,10 +22,13 @@ export class Physics extends SystemBase implements System {
 	override physics(millis : number) : void {
 		super.physics(millis);
 
-		MATTER.Engine.update(this._engine, millis);
+		while(millis > 0) {
+			const step = Math.max(millis, this._step);
+			MATTER.Engine.update(this._engine, step);
+			millis -= step;
+		}
 
 		const entities = game.entities();
-
 		const collisions = MATTER.Detector.collisions(this._engine.detector);
 		collisions.forEach((collision) => {
 			if (!collision.pair) return;

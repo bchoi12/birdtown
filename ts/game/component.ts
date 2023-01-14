@@ -9,8 +9,6 @@ import { defined } from 'util/common'
 export enum ComponentType {
 	UNKNOWN,
 	ATTRIBUTES,
-	CUSTOM,
-	METADATA,
 	MODEL,
 	PROFILE,
 }
@@ -31,7 +29,6 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 
 		this._entity = null;
 		this._type = type;
-
 	}
 
 	type() : ComponentType { return this._type; }

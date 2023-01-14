@@ -12,18 +12,23 @@ import { defined } from 'util/common'
 
 type MeshFn = (model : Model) => void;
 type OnLoadFn = (model : Model) => void;
+type PreRenderFn = (model : Model) => void;
 
 type MeshOptions = {
-	readyFn? : () => boolean;
 	meshFn : MeshFn;
+
+	readyFn? : () => boolean;
+	preRenderFn? : PreRenderFn;
 }
 
 export class Model extends ComponentBase implements Component {
 
 	private _readyFn : () => boolean;
 	private _meshFn : MeshFn;
+	private _preRenderFn : PreRenderFn;
 	private _onLoadFns : Array<OnLoadFn>;
 
+	// TODO: multi mesh support
 	private _mesh : BABYLON.Mesh;
 	private _animationHandler : AnimationHandler
 	private _bones : Map<string, BABYLON.Bone>;
@@ -33,10 +38,9 @@ export class Model extends ComponentBase implements Component {
 
 		this.setName({ base: "model" });
 
-		if (defined(options.readyFn)) {
-			this._readyFn = options.readyFn;
-		}
 		this._meshFn = options.meshFn;
+		if (defined(options.readyFn)) { this._readyFn = options.readyFn; }
+		if (defined(options.preRenderFn)) { this._preRenderFn = options.preRenderFn; }
 		this._onLoadFns = new Array();
 	}
 
@@ -111,6 +115,20 @@ export class Model extends ComponentBase implements Component {
 		return this._bones.get(name);
 	}
 
+	copyProfile(profile : Profile) : void {
+		this._mesh.position.x = profile.pos().x;
+		this._mesh.position.y = profile.pos().y;
+
+		if (profile.hasAngle()) {
+			this._mesh.rotation.z = profile.angle();
+		}
+
+		if (profile.hasScaling()) {
+			this._mesh.scaling.x = profile.scaling().x;
+			this._mesh.scaling.y = profile.scaling().y;
+		}
+	}
+
 	override preRender() : void {
 		super.preRender();
 
@@ -118,19 +136,12 @@ export class Model extends ComponentBase implements Component {
 			return;
 		}
 
-		let profile = this.entity().getChild<Profile>(ComponentType.PROFILE);
-		if (defined(profile)) {
-			this._mesh.position.x = profile.pos().x;
-			this._mesh.position.y = profile.pos().y;
+		if (this.entity().hasComponent(ComponentType.PROFILE)) {
+			this.copyProfile(this.entity().getComponent<Profile>(ComponentType.PROFILE));
+		}
 
-			if (profile.hasAngle()) {
-				this._mesh.rotation.z = profile.angle();
-			}
-
-			if (profile.hasScaling()) {
-				this._mesh.scaling.x = profile.scaling().x;
-				this._mesh.scaling.y = profile.scaling().y;
-			}
+		if (defined(this._preRenderFn)) {
+			this._preRenderFn(this);
 		}
 	}
 }
