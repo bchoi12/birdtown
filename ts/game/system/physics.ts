@@ -5,6 +5,7 @@ import { System, SystemBase, SystemType } from 'game/system'
 
 export class Physics extends SystemBase implements System {
 
+	// TODO: try 9?
 	private readonly _step : number = 8;
 
 	private _engine : MATTER.Engine;

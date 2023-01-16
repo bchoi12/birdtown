@@ -61,7 +61,7 @@ export abstract class Connection {
 	names() : Set<string> { return this._nameAndId.keys(); }
 	gameIds() : Set<number> { return this._nameAndId.values(); }
 	gameIdFromName(name : string) { return this._nameAndId.get(name); }
-	setGameId(name : string, id : number) { this._nameAndId.set(name, id); }
+	setClientId(name : string, id : number) { this._nameAndId.set(name, id); }
 
 	update() : void {
 		this.names().forEach((name : string) => {

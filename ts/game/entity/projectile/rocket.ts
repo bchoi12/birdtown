@@ -91,6 +91,10 @@ export class Rocket extends Projectile {
 			return;
 		}
 
+		if (!other.hasComponent(ComponentType.ATTRIBUTES)) {
+			return;
+		}
+
 		if (other.getComponent<Attributes>(ComponentType.ATTRIBUTES).getOrDefault(Attribute.SOLID)) {
 			this.delete();
 		}

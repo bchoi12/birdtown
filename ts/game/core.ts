@@ -229,8 +229,8 @@ export abstract class GameObjectBase {
 			console.error("Error: skipping registration of duplicate prop %d for %s", prop, this.name());
 			return;
 		}
-		if (this._childObjects.size > 0) {
-			console.error("Error: all props must be registered before any child objects are added to %s", this.name());
+		if (this.initialized()) {
+			console.error("Error: all props must be registered during construction for %s", this.name());
 			return;
 		}
 

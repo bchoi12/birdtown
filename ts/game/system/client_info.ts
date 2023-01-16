@@ -40,14 +40,4 @@ export class ClientInfo extends SystemBase implements System {
 	id() : number { return this._id; }
 	setDisplayName(name : string) : void { this._displayName = name; }
 	displayName() : string { return this._displayName; }
-
-	private addPlayer() : void {
-		const entities = game.entities();
-    	entities.addEntity(EntityType.PLAYER, {
-    		clientId: this._id,
-    		profileInit: {
-	    		pos: {x: 0, y: 10},
-    		},
-    	});
-	}
 }

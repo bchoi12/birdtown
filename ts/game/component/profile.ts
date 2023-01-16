@@ -313,8 +313,6 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	override prePhysics(millis : number) : void {
-		super.prePhysics(millis);
-
 		if (this._prePhysicsFn) {
 			this._prePhysicsFn(this);
 		}
@@ -349,11 +347,12 @@ export class Profile extends ComponentBase implements Component {
 			MATTER.Body.setVelocity(this._body, this.vel());
 		}
 		MATTER.Body.setPosition(this._body, this.pos());
+
+		// Update child objects afterwards
+		super.prePhysics(millis);
 	}
 
 	override postPhysics(millis : number) : void {
-		super.postPhysics(millis);
-
 		if (this.hasAngle() && !Data.equals(this._angle, this._body.angle)) {
 			this.setAngle(this._body.angle);
 		}
@@ -371,5 +370,8 @@ export class Profile extends ComponentBase implements Component {
 		if (this._postPhysicsFn) {
 			this._postPhysicsFn(this);
 		}
+
+		// Update child objects afterwards.
+		super.postPhysics(millis);
 	}
 }

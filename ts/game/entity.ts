@@ -3,15 +3,11 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
 import { GameObject, GameObjectBase } from 'game/core'
-import { Attribute, Attributes, AttributesInitOptions } from 'game/component/attributes'
-import { Model } from 'game/component/model'
-import { Profile, ProfileInitOptions } from 'game/component/profile'
-
-import { Data, DataFilter, DataMap } from 'network/data'
+import { AttributesInitOptions } from 'game/component/attributes'
+import { ProfileInitOptions } from 'game/component/profile'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
-import { Vec } from 'util/vector'
 
 export enum EntityType {
 	UNKNOWN,
@@ -92,9 +88,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 				}
 			},
 		});
-
-		// TODO: delete this
-		this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 	}
 
 	override ready() : boolean {

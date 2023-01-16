@@ -42,12 +42,6 @@ enum Constraint {
 	NECK,
 }
 
-enum Prop {
-	UNKNOWN,
-	ARM_ANGLE,
-	HEAD_ANGLE,
-}
-
 export class Player extends EntityBase {
 	// blockdudes3 = 18.0
 	private readonly _sideAcc = 1.0;
@@ -72,15 +66,16 @@ export class Player extends EntityBase {
 		Bone.ARM, Bone.ARMATURE, Bone.NECK, Bone.SPINE,
 	]);
 
+	private _jumpTimer : Timer;
+	private _canDoubleJump : boolean;
+	private _deadTracker : ChangeTracker<boolean>;
+	private _armDir : Vec2;
+	private _headDir : Vec2;
+
 	private _attributes : Attributes;
 	private _model : Model;
 	private _profile : Profile;
 	private _headSubProfile : Profile;
-
-	private _jumpTimer : Timer;
-	private _deadTracker : ChangeTracker<boolean>;
-	private _armDir : Vec2;
-	private _headDir : Vec2;
 
 	private _weapon : Weapon;
 
@@ -92,7 +87,34 @@ export class Player extends EntityBase {
 			id: this.id(),
 		});
 
-		this._attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+		this._armDir = Vec2.i();
+		this._headDir = Vec2.i();
+
+		this._jumpTimer = this.newTimer();
+		this._canDoubleJump = true;
+		this._deadTracker = new ChangeTracker(() => {
+			return <boolean>this._attributes.get(Attribute.DEAD);
+		}, (dead : boolean) => {
+			if (dead) {
+				const x = this._profile.vel().x;
+				const sign = x >= 0 ? -1 : 1;
+
+				this._profile.resetInertia();
+				this._profile.setAngularVelocity(sign * Math.max(0.1, Math.abs(x)));
+				this._profile.setAcc({x: 0, y: 0});
+			} else {
+				this._profile.setAngle(0);
+				this._profile.setAngularVelocity(0);
+				this._profile.setInertia(Infinity);
+			}
+		});
+
+		this.registerProp(this.numProps() + 1, {
+			export: () => { return this._canDoubleJump; },
+			import: (obj : Object) => { this._canDoubleJump = <boolean>obj; },
+		});
+
+		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.set(Attribute.DEAD, false);
 		this._attributes.set(Attribute.GROUNDED, false);
 		this._attributes.set(Attribute.SOLID, true);
@@ -110,23 +132,7 @@ export class Player extends EntityBase {
 					friction: 0,
 				});
 			},
-			/*
-			onInitFn: (head : Profile) => {
-				this._profile.addConstraint(Constraint.NECK, MATTER.Constraint.create({
-					bodyA: this._profile.body(),
-					pointA: {x: 0, y: 0.22},
-					bodyB: this._headSubProfile.body(),
-					length: 0,
-				}));
-			},
-			*/
 			init: entityOptions.profileInit,
-			prePhysicsFn: (profile : Profile) => {
-				this._headSubProfile.setPos(profile.pos().clone().add({y: 0.22}));
-			},
-			postPhysicsFn: (profile : Profile) => {
-				this._headSubProfile.setPos(profile.pos().clone().add({y: 0.22}));
-			},
 		}));
 		this._profile.setDim({x: 0.8, y: 1.44 });
 		this._profile.setAngle(0);
@@ -153,7 +159,13 @@ export class Player extends EntityBase {
 			init: {
 				pos: {x: 0, y: 0},
 				dim: {x: 0.96, y: 1.06},
-			}
+			},
+			prePhysicsFn: (head : Profile) => {
+				head.setPos(this._profile.pos().clone().add({y: 0.22}));
+			},
+			postPhysicsFn: (head : Profile) => {
+				head.setPos(this._profile.pos().clone().add({y: 0.22}));
+			},
 		}));
 		this._headSubProfile.setAngle(0);
 
@@ -191,27 +203,6 @@ export class Player extends EntityBase {
 				});
 			},
 		}));
-
-		this._armDir = Vec2.i();
-		this._headDir = Vec2.i();
-
-		this._jumpTimer = this.newTimer();
-		this._deadTracker = new ChangeTracker(() => {
-			return <boolean>this._attributes.get(Attribute.DEAD);
-		}, (dead : boolean) => {
-			if (dead) {
-				const x = this._profile.vel().x;
-				const sign = x >= 0 ? -1 : 1;
-
-				this._profile.resetInertia();
-				this._profile.setAngularVelocity(sign * Math.max(0.1, Math.abs(x)));
-				this._profile.setAcc({x: 0, y: 0});
-			} else {
-				this._profile.setAngle(0);
-				this._profile.setAngularVelocity(0);
-				this._profile.setInertia(Infinity);
-			}
-		});
 	}
 
 	override ready() : boolean {
@@ -303,10 +294,10 @@ export class Player extends EntityBase {
 					this._profile.setVel({ y: this._jumpVel });
 					this._jumpTimer.stop();
 				}
-			} else if (this._attributes.getOrDefault(Attribute.CAN_DOUBLE_JUMP)) {
+			} else if (this._canDoubleJump) {
 				if (game.keys(this.clientId()).keyPressed(Key.JUMP)) {
 					this._profile.setVel({ y: this._jumpVel });
-					this._attributes.set(Attribute.CAN_DOUBLE_JUMP, false);
+					this._canDoubleJump = false;
 				}
 			}
 		}
@@ -348,10 +339,14 @@ export class Player extends EntityBase {
 			return;
 		}
 
-		const otherAttributes = <Attributes>other.getComponent(ComponentType.ATTRIBUTES);
+		if (!other.hasComponent(ComponentType.ATTRIBUTES)) {
+			return;
+		}
+
+		const otherAttributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
 		if (otherAttributes.getOrDefault(Attribute.SOLID) && collision.normal.y >= 0.5) {
 			this._attributes.setIfHost(Attribute.GROUNDED, true);
-			this._attributes.setIfHost(Attribute.CAN_DOUBLE_JUMP, true);
+			this._canDoubleJump = true;
 			this._jumpTimer.start(this._jumpGracePeriod);
 		}
 	}

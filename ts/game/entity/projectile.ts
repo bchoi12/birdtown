@@ -7,10 +7,10 @@ export abstract class Projectile extends EntityBase {
 
 	protected _attributes : Attributes;
 
-	constructor(entityType : EntityType, options : EntityOptions) {
-		super(entityType, options);
+	constructor(entityType : EntityType, entityOptions : EntityOptions) {
+		super(entityType, entityOptions);
 
-		this._attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 	}
 
 	override ready() : boolean {

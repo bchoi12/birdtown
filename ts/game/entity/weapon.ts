@@ -23,10 +23,10 @@ export abstract class Weapon extends EntityBase {
 
 	protected _player : Player;
 
-	constructor(entityType : EntityType, options : EntityOptions) {
-		super(entityType, options);
+	constructor(entityType : EntityType, entityOptions : EntityOptions) {
+		super(entityType, entityOptions);
 
-		this._attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {

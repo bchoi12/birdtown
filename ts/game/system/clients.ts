@@ -17,33 +17,7 @@ export class Clients extends SystemBase implements System {
 		this.setFactoryFn((id : number) => { this.addClient(new ClientInfo(id)); })
 	}
 
-	// TODO: also register the host here
-	register(name : string, gameId : number) : void {
-		if (!this.isSource()) { return; }
-
-		let connection = game.connection();
-		connection.setGameId(name, gameId);
-
-		connection.send(name, ChannelType.TCP, {
-			T: MessageType.INIT_CLIENT,
-			I: gameId,
-		});
-
-		let client = this.addClient(new ClientInfo(gameId));
-
-		let entities = game.entities();
-    	entities.addEntity(EntityType.PLAYER, {
-    		clientId: gameId,
-    		profileInit: {
-	    		pos: {x: 0, y: 10},
-    		},
-    	});
-
-		const [message, has] = game.systemRunner().message(DataFilter.ALL);
-		if (has) {
-			connection.send(name, ChannelType.TCP, message);
-		}
-	}
+	override onNewClient(name : string, gameId : number) : void { this.addClient(new ClientInfo(gameId)); }
 
 	addClient(info : ClientInfo) : ClientInfo { return this.addChild<ClientInfo>(info.id(), info); }
 	hasClient(id : number) : boolean { return this.hasChild(id); }

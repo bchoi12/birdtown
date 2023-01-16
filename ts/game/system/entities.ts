@@ -43,6 +43,15 @@ export class Entities extends SystemBase implements System {
 		});
 	}
 
+	override onNewClient(name : string, clientId : number) : void {
+    	this.addEntity(EntityType.PLAYER, {
+    		clientId: clientId,
+    		profileInit: {
+	    		pos: {x: 0, y: 10},
+    		},
+    	});
+	}
+
 	addMap(map : EntityMap) : EntityMap { return this.addChild<EntityMap>(map.entityType(), map); }
 	hasMap(type : EntityType) : boolean { return this.hasChild(type); }
 	getMap(type : EntityType) : EntityMap { return this.getChild<EntityMap>(type); }

@@ -16,15 +16,15 @@ export class Wall extends EntityBase {
 	private _attributes : Attributes;
 	private _profile : Profile;
 
-	constructor(options : EntityOptions) {
-		super(EntityType.WALL, options);
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.WALL, entityOptions);
 
 		this.setName({
 			base: "wall",
 			id: this.id(),
 		});
 
-		this._attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.set(Attribute.SOLID, true);
 
 		this._profile = this.addComponent<Profile>(new Profile({
@@ -35,7 +35,7 @@ export class Wall extends EntityBase {
 					isStatic: true,
 				});
 			},
-			init: options.profileInit,
+			init: entityOptions.profileInit,
 		}));
 
 		this.addComponent(new Model({

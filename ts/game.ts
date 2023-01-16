@@ -76,12 +76,15 @@ class Game {
 		window.onresize = () => { this.resize(); };
 
 		if (this._options.host) {
-			this._id = 1;
-			this._lastId = 1;
-
 			this._connection = new Host(this._options.name);
 			this._connection.addRegisterCallback((name : string) => {
-				this._clients.register(name, game.nextId());
+				const clientId = game.nextId();
+				this._connection.setClientId(name, clientId);
+				this._connection.send(name, ChannelType.TCP, {
+					T: MessageType.INIT_CLIENT,
+					I: clientId,
+				});
+				this._systemRunner.onNewClient(name, clientId);
 			});
 		} else {
 			this._connection = new Client(this._options.name, this._options.hostName);
@@ -112,8 +115,8 @@ class Game {
 		this._input = new Input();
 		this._level = new Level();
 		this._physics = new Physics();
-		this._world = new World(this._engine);
 
+		this._world = new World(this._engine);
 		this._lakitu = new Lakitu(this._world.scene());
 
 		// Order matters
@@ -144,14 +147,9 @@ class Game {
 	    });
 
 	    this._level.setLevel(LevelType.TEST, 1);
-	    // TODO: client system adds players to level, need to register the host too
 	    if (this._options.host) {
-	    	this._entities.addEntity(EntityType.PLAYER, {
-	    		clientId: this.id(),
-	    		profileInit: {
-		    		pos: {x: 0, y: 10},
-	    		},
-	    	});
+	    	this.setId(1);
+	    	this._systemRunner.onNewClient(this._options.name, this.id());
 	    }
 
 	    this._initialized = true;
@@ -210,9 +208,12 @@ class Game {
 		return mouseWorld;
 	}
 
-	// TODO: set ID using this method, use callbacks to initialize systems
 	private setId(id : number) : void {
+		this._id = id;
 
+		if (this.options().host) {
+			this._lastId = id;
+		}
 	}
 
 	private nextId() : number {

@@ -2,6 +2,7 @@ import { game } from 'game'
 import { GameObject, GameObjectBase } from 'game/core'
 import { Entity } from 'game/entity'
 
+import { ChannelType } from 'network/connection'
 import { Data, DataFilter, DataMap } from 'network/data'
 import { Message, MessageType } from 'network/message'
 
@@ -27,6 +28,9 @@ export interface System extends GameObject {
 	hasTargetEntity() : boolean;
 	targetEntity() : Entity;
 	setTargetEntity(entity : Entity) : void;
+
+	onSetGameId(gameId : number) : void;
+	onNewClient(name : string, clientId : number) : void;
 }
 
 export abstract class SystemBase extends GameObjectBase implements System {
@@ -52,6 +56,9 @@ export abstract class SystemBase extends GameObjectBase implements System {
 			target: entity,
 		});
 	}
+
+	onSetGameId(gameId : number) : void {}
+	onNewClient(name : string, clientId : number) : void {}
 
 	override shouldBroadcast() : boolean { return game.options().host; }
 	override isSource() : boolean { return game.options().host; }
@@ -142,6 +149,24 @@ export class SystemRunner {
 			}
 
 			system.importData(<DataMap>data[system.type()], seqNum);
+		}
+	}
+
+	onSetGameId(gameId : number) : void {
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).onSetGameId(gameId);
+		}
+	}
+
+	onNewClient(name : string, clientId : number) : void {
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).onNewClient(name, clientId);
+		}
+
+		const connection = game.connection();
+		const [message, has] = this.message(DataFilter.ALL);
+		if (has) {
+			connection.send(name, ChannelType.TCP, message);
 		}
 	}
 
