@@ -19,10 +19,10 @@ export class Client extends Connection {
 	}
 
 	initialize() : void {
-		let peer = this.peer();
-		peer.on("open", () => {
+		let self = this.self();
+		self.on("open", () => {
 			if (isLocalhost()) {
-				console.log("Opened client connection for " + peer.id);
+				console.log("Opened client connection for " + self.id);
 			}
 
 			this._pinger.initializeForClient(this, this.hostName());
@@ -33,9 +33,9 @@ export class Client extends Connection {
 	hostName() : string { return this._hostName; }
 
 	private initTCP() : void {
-		let peer = this.peer();
+		let self = this.self();
 
-		this._tcp = peer.connect(this._hostName, {
+		this._tcp = self.connect(this._hostName, {
 			reliable: true,
 			label: ChannelType.TCP,
 			serialization: "none",
@@ -55,12 +55,14 @@ export class Client extends Connection {
 
 			this.unregister(this._tcp);
 			this.unregister(this._udp);
+
+			// TODO: only call if peer connection is still valid
 			this.initTCP();
 		});
 	}
 
 	private initUDP() : void {
-		let peer = this.peer();
+		let peer = this.self();
 
 		this._udp = peer.connect(this._hostName, {
 			reliable: false,
@@ -80,6 +82,8 @@ export class Client extends Connection {
 			console.error("UDP closed!");
 
 			this.unregister(this._udp);
+
+			// TODO: only call this if the TCP connection is still valid
 			this.initUDP();
 		});
 	}

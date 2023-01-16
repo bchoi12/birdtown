@@ -3,12 +3,14 @@ import * as MATTER from "matter-js"
 
 import { Data, DataFilter, DataMap } from 'network/data'
 import { EntityType } from 'game/entity'
-import { SystemRunner } from 'game/system'
+import { System, SystemRunner, SystemType } from 'game/system'
+import { Clients } from 'game/system/clients'
 import { Entities } from 'game/system/entities'
 import { EntityMap } from 'game/system/entity_map'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
+import { Level, LevelType } from 'game/system/level'
 import { Physics } from 'game/system/physics'
 import { World } from 'game/system/world'
 
@@ -22,7 +24,6 @@ import { options } from 'options'
 import { ui } from 'ui'
 import { Html } from 'ui/html'
 import { defined, isLocalhost } from 'util/common'
-import { StatsTracker } from 'util/stats_tracker'
 
 interface GameOptions {
 	name : string;
@@ -49,9 +50,11 @@ class Game {
 	private _connection : Connection;
 
 	private _systemRunner : SystemRunner;
+	private _clients : Clients;
 	private _entities : Entities;
 	private _input : Input;
 	private _lakitu : Lakitu;
+	private _level : Level;
 	private _physics : Physics;
 	private _world : World;
 
@@ -60,7 +63,6 @@ class Game {
 	constructor() {
 		this._initialized = false;
 		this._canvas = Html.canvasElm(Html.canvasGame);
-		this._seqNum = 1;
 
 		this._lastUpdateTime = Date.now();
 	}
@@ -79,59 +81,70 @@ class Game {
 
 			this._connection = new Host(this._options.name);
 			this._connection.addRegisterCallback((name : string) => {
-				this.registerClient(name);
+				this._clients.register(name, game.nextId());
 			});
 		} else {
 			this._connection = new Client(this._options.name, this._options.hostName);
-			this._connection.addMessageCallback(MessageType.NEW_CLIENT, (peer : string, msg : Message) => {
-				if (!defined(msg.I) || !defined(msg.N)) {
+			this._connection.addMessageCallback(MessageType.INIT_CLIENT, (peer : string, msg : Message) => {
+				if (!defined(msg.I)) {
 					console.error("Invalid message: ", msg);
 					return;
 				}
-
-				if (msg.N === this._connection.peer().id) {
-					this._id = msg.I;
-
-					if (isLocalhost()) {
-						console.log("Got client id: " + this._id);
-					}
+				this._id = msg.I;
+				if (isLocalhost()) {
+					console.log("Got client id: " + this._id);
 				}
 			});
 		}
-		this._connection.addMessageCallback(MessageType.ENTITY, (peer : string, msg : Message) => {
+		this._connection.addMessageCallback(MessageType.GAME, (peer : string, msg : Message) => {
 			if (!defined(msg.D) || !defined(msg.S)) {
 				console.error("Invalid message: ", msg);
 				return;
 			}
 
-			this._entities.importData(<DataMap>msg.D, msg.S);
-		});
-		this._connection.addMessageCallback(MessageType.INPUT, (peer : string, msg : Message) => {
-			if (!defined(msg.D) || !defined(msg.S)) {
-				console.error("Invalid message: ", msg);
-				return;
-			}
-
-			const id = this._connection.idFromName(peer);
-			this._input.importData(<DataMap>msg.D, msg.S);
+			this._systemRunner.importData(<DataMap>msg.D, msg.S);
 		});
 		this._connection.initialize();
 
 		this._systemRunner = new SystemRunner();
+		this._clients = new Clients();
 		this._entities = new Entities();
 		this._input = new Input();
-		this._world = new World(this._engine);
-		this._lakitu = new Lakitu(this._canvas, this._world.scene());
+		this._level = new Level();
 		this._physics = new Physics();
+		this._world = new World(this._engine);
+
+		this._lakitu = new Lakitu(this._world.scene());
 
 		// Order matters
+		this._systemRunner.push(this._clients);
+		this._systemRunner.push(this._level);
 		this._systemRunner.push(this._input);
 		this._systemRunner.push(this._entities);
 		this._systemRunner.push(this._physics);
 		this._systemRunner.push(this._lakitu);
 		this._systemRunner.push(this._world);
 
-		// TODO: level system
+	    this._engine.runRenderLoop(() => {
+	    	const millis = Math.min(Date.now() - this._lastUpdateTime, 32);
+
+	    	if (this.hasId()) {
+	    		this._systemRunner.update(millis);
+	    	}
+
+	    	this._connection.update();
+	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {
+    			const [msg, has] = this._systemRunner.message(filter);
+				if (has) {
+					this._connection.broadcast(Game._channelMapping.get(filter), msg);
+    			}
+	    	}
+
+	    	this._lastUpdateTime = Date.now();
+	    });
+
+	    this._level.setLevel(LevelType.TEST, 1);
+	    // TODO: client system adds players to level, need to register the host too
 	    if (this._options.host) {
 	    	this._entities.addEntity(EntityType.PLAYER, {
 	    		clientId: this.id(),
@@ -139,56 +152,7 @@ class Game {
 		    		pos: {x: 0, y: 10},
 	    		},
 	    	});
-		    this._entities.addEntity(EntityType.WALL, {
-		    	profileInit: {
-			    	pos: {x: 0, y: 0},
-			    	dim: {x: 16, y: 1},
-		    	},
-		    });
-		    this._entities.addEntity(EntityType.WALL, {
-		    	profileInit: {
-		    		pos: {x: 3, y: 1},
-		    		dim: {x: 1, y: 1},
-		    	},
-		    });
-		    this._entities.addEntity(EntityType.WALL, {
-		    	profileInit: {
-			    	pos: {x: 6, y: 3},
-		    		dim: {x: 2, y: 1},
-				},
-		    });
 	    }
-
-	    this._engine.runRenderLoop(() => {
-	    	const millis = Math.min(Date.now() - this._lastUpdateTime, 32);
-
-	    	if (this.hasId()) {
-	    		this._systemRunner.update(millis);
-	    		this._systemRunner.updateData(this._seqNum);
-	    	}
-
-	    	this._connection.update(this._seqNum);
-	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {
-	    		{
-	    			const [msg, has] = this.entityMessage(filter, this._seqNum);
-    				if (has) {
-    					this._connection.broadcast(Game._channelMapping.get(filter), msg);
-	    			}
-	    		}
-	    		{
-	    			const [msg, has] = this.inputMessage(filter, this._seqNum);
-    				if (has) {
-    					this._connection.broadcast(Game._channelMapping.get(filter), msg);
-	    			}
-	    		}
-	    	}
-
-	    	if (this._options.host) {
-		    	this._seqNum++;
-	    	}
-
-	    	this._lastUpdateTime = Date.now();
-	    });
 
 	    this._initialized = true;
 	}
@@ -199,15 +163,18 @@ class Game {
 	hasId() : boolean { return defined(this._id); }
 	id() : number { return this.hasId() ? this._id : -1; }
 	options() : GameOptions { return this._options; }
+
+	systemRunner() : SystemRunner { return this._systemRunner; }
+	getSystem<T extends System>(type : SystemType) : T { return this._systemRunner.getSystem<T>(type); }
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
 	physics() : Physics { return this._physics; }
 	lakitu() : Lakitu { return this._lakitu; }
-	keys(id? : number) : Keys { return this._input.keys(id); }
+	keys(id? : number) : Keys { return this._input.getKeys(id); }
 	entities() : Entities { return this._entities; }
 	connection() : Connection { return this._connection; }
 
-	// TODO: move this to input
+	// For some reason this has to be here for typescript
 	mouse() : BABYLON.Vector3 {
 		if (!this.initialized() || !defined(this.lakitu())) {
 			return new BABYLON.Vector3();
@@ -243,52 +210,9 @@ class Game {
 		return mouseWorld;
 	}
 
-	// TODO: move to system runner
-	private entityMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
-		const [data, hasData] = this._entities.dataMap(filter);
-		if (!hasData) {
-			return [null, false];
-		}
-		return [{
-			T: MessageType.ENTITY,
-			S: seqNum,
-			D: data,
-		}, true];
-	}
+	// TODO: set ID using this method, use callbacks to initialize systems
+	private setId(id : number) : void {
 
-	private inputMessage(filter : DataFilter, seqNum : number) : [Message, boolean] {
-		const [data, hasData] = this._input.dataMap(filter);
-		if (!hasData) {
-			return [null, false];
-		}
-		return [{
-			T: MessageType.INPUT,
-			S: seqNum,
-			D: data,
-		}, true];
-	}
-
-	// TODO: client system
-	private registerClient(name : string) : void {
-		const id = this.nextId();
-		this._connection.setId(name, id);
-		this._connection.broadcast(ChannelType.TCP, {
-			T: MessageType.NEW_CLIENT,
-			N: name,
-			I: id,
-		});
-
-    	this._entities.addEntity(EntityType.PLAYER, {
-    		clientId: id,
-    		profileInit: {
-	    		pos: {x: 0, y: 10},
-    		},
-    	});
-
-		const filter = DataFilter.ALL;
-		const [message, has] = this.entityMessage(filter, this._seqNum);
-		if (!has) return;
-		this._connection.send(name, Game._channelMapping.get(filter), message);
 	}
 
 	private nextId() : number {

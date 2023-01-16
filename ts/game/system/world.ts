@@ -24,4 +24,3 @@ export class World extends SystemBase implements System {
 		this._scene.render();
 	}
 }
-		

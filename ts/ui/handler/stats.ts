@@ -33,12 +33,12 @@ export class Stats extends HandlerBase implements Handler {
 		if (game.initialized()) {
 			const ping = game.connection().ping();
 			const fps = game.engine().getFps().toFixed();
-			const peers = game.connection().peers();
+			const channelMaps = game.connection().channelMaps();
 
 			let tcp = 0;
 			let udp = 0;
 			let bytes = 0;
-			peers.forEach((channelMap : ChannelMap) => {
+			channelMaps.forEach((channelMap : ChannelMap) => {
 				tcp += channelMap.flushStat(ChannelType.TCP, ChannelStat.PACKETS);
 				udp += channelMap.flushStat(ChannelType.UDP, ChannelStat.PACKETS);
 				bytes += channelMap.flushStat(ChannelType.TCP, ChannelStat.BYTES);

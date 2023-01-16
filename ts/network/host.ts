@@ -8,24 +8,24 @@ export class Host extends Connection {
 	}
 
 	initialize() : void {
-		let peer = this.peer();
+		let self = this.self();
 
-		peer.on("open", () => {
-			console.log("Opened host connection for " + peer.id);
+		self.on("open", () => {
+			console.log("Opened host connection for " + self.id);
 
 			this._pinger.initializeForHost(this);
 
-		    peer.on("connection", (connection) => {
+		    self.on("connection", (connection) => {
 		    	connection.on("open", () => {
 			    	this.register(connection);
 		    	});
 		    });
 
-		    peer.on("close", () => {
+		    self.on("close", () => {
 		    	console.error("Server closed!");
 		    })
 
-		    peer.on("error", (error) => {
+		    self.on("error", (error) => {
 		    	// TODO: actually do something
 		    	console.error(error);
 		    });

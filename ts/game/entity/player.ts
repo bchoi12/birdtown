@@ -54,7 +54,7 @@ export class Player extends EntityBase {
 	private readonly _jumpVel = 0.3;
 	private readonly _maxHorizontalVel = 0.25;
 	private readonly _maxVerticalVel = 0.6;
-	private readonly _maxVelMultiplier = 0.5;
+	private readonly _maxVelMultiplier = 0.2;
 
 	private readonly _turnMultiplier = 3.0;
 	private readonly _fallMultiplier = 1.5;
@@ -421,7 +421,7 @@ export class Player extends EntityBase {
 			return Vec2.i();
 		}
 
-		if (this.clientIdMatches()) { return game.keys().dir().clone(); }
+		if (!this.clientIdMatches()) { return game.keys(this.clientId()).dir().clone(); }
 
 		const pos = Vec2.fromBabylon3(this._model.getBone(Bone.ARM).getTransformNode().getAbsolutePosition());
 		return game.keys(this.clientId()).mouse().clone().sub(pos).normalize();

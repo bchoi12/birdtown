@@ -3,16 +3,20 @@ import { GameObject, GameObjectBase } from 'game/core'
 import { Entity } from 'game/entity'
 
 import { Data, DataFilter, DataMap } from 'network/data'
+import { Message, MessageType } from 'network/message'
 
 import { defined } from 'util/common'
 
 export enum SystemType {
 	UNKNOWN,
+	CLIENT_INFO,
+	CLIENTS,
 	ENTITIES,
 	ENTITY_MAP,
 	INPUT,
 	KEYS,
 	LAKITU,
+	LEVEL,
 	PHYSICS,
 	WORLD,
 }
@@ -25,7 +29,6 @@ export interface System extends GameObject {
 	setTargetEntity(entity : Entity) : void;
 }
 
-// TODO: add seqNum
 export abstract class SystemBase extends GameObjectBase implements System {
 	protected _targetEntity : Entity;
 	protected _type : SystemType;
@@ -54,15 +57,17 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	override isSource() : boolean { return game.options().host; }
 }
 
-// TODO: system runner
 export class SystemRunner {
 
+	// TODO: add iteration order to GameObject?
 	private _order : Array<SystemType>;
 	private _systems : Map<SystemType, System>;
+	private _seqNum : number;
 
 	constructor() {
 		this._order = new Array();
 		this._systems = new Map();
+		this._seqNum = 0;
 	}
 
 	push<T extends System>(system : T) : T {
@@ -78,47 +83,86 @@ export class SystemRunner {
 
 	getSystem<T extends System>(type : SystemType) : T { return <T>this._systems.get(type); }
 
-	update(millis : number) : void {
+	initialize() : void {
 		for (let i = 0; i < this._order.length; ++i) {
-			this._systems.get(this._order[i]).preUpdate(millis);
-		}
-
-		for (let i = 0; i < this._order.length; ++i) {
-			this._systems.get(this._order[i]).update(millis);
-		}
-
-		for (let i = 0; i < this._order.length; ++i) {
-			this._systems.get(this._order[i]).postUpdate(millis);
-		}
-
-		for (let i = 0; i < this._order.length; ++i) {
-			this._systems.get(this._order[i]).prePhysics(millis);
-		}
-
-		for (let i = 0; i < this._order.length; ++i) {
-			this._systems.get(this._order[i]).physics(millis);
-		}
-
-		for (let i = 0; i < this._order.length; ++i) {
-			this._systems.get(this._order[i]).postPhysics(millis);
-		}
-
-		for (let i = 0; i < this._order.length; ++i) {
-			this._systems.get(this._order[i]).preRender();
-		}
-
-		for (let i = 0; i < this._order.length; ++i) {
-			this._systems.get(this._order[i]).render();
-		}
-
-		for (let i = 0; i < this._order.length; ++i) {
-			this._systems.get(this._order[i]).postRender();
+			this.getSystem(this._order[i]).initialize();
 		}
 	}
 
-	updateData(seqNum : number) : void {
+	update(millis : number) : void {
+		this._seqNum++;
+
 		for (let i = 0; i < this._order.length; ++i) {
-			this._systems.get(this._order[i]).updateData(seqNum);
+			this.getSystem(this._order[i]).preUpdate(millis);
 		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).update(millis);
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).postUpdate(millis);
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).prePhysics(millis);
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).physics(millis);
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).postPhysics(millis);
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).preRender();
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).render();
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).postRender();
+		}
+
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).updateData(this._seqNum);
+		}
+	}
+
+	importData(data : DataMap, seqNum : number) : void {
+		for (let i = 0; i < this._order.length; ++i) {
+			let system = this.getSystem(this._order[i]);
+
+			if (!data.hasOwnProperty(system.type())) {
+				continue;
+			}
+
+			system.importData(<DataMap>data[system.type()], seqNum);
+		}
+	}
+
+	message(filter : DataFilter) : [Message, boolean] {
+		let msg = {
+			T: MessageType.GAME,
+			S: this._seqNum,
+			D: {},
+		}
+
+		let hasMessage = false;
+		for (let i = 0; i < this._order.length; ++i) {
+			const system = this.getSystem(this._order[i]);
+			const [data, has] = system.dataMap(filter);
+
+			if (has) {
+				msg.D[system.type()] = data;
+				hasMessage = true;
+			}
+		}
+
+		return [msg, hasMessage];
 	}
 }

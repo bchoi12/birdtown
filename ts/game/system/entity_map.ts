@@ -18,6 +18,14 @@ export class EntityMap extends SystemBase implements System {
 		this.setFactoryFn((id : number) => { game.entities().addEntity(this._entityType, {id: id}) });
 	}
 
+	override reset() : void {
+		super.reset();
+
+		this.children().forEach((_, id : number) => {
+			this.unregisterEntity(id);
+		});
+	}
+
 	entityType() : EntityType { return this._entityType; }
 
 	addEntity(entity : Entity) : Entity {

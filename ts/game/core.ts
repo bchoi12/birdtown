@@ -40,6 +40,7 @@ export interface GameObject {
 	ready() : boolean;
 	initialized() : boolean;
 	initialize() : void;
+	reset() : void;
 	delete() : void;
 	deleted() : boolean;
 	dispose() : void;
@@ -59,6 +60,7 @@ export interface GameObject {
 	addChild<T extends GameObject>(id : number, child : T) : T;
 	hasChild(id : number) : boolean;
 	getChild<T extends GameObject>(id : number) : T;
+	unregisterChild(id : number) : void;
 	children() : Map<number, GameObject>;
 
 	shouldBroadcast() : boolean;
@@ -124,6 +126,11 @@ export abstract class GameObjectBase {
 		this._initialized = true;
 	}
 	initialized() : boolean {return this._initialized; }
+	reset() : void {
+		this._childObjects.forEach((child : GameObject) => {
+			child.reset();
+		});
+	}
 	delete() : void {
 		if (this._deleted) {
 			return;

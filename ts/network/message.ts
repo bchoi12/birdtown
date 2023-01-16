@@ -1,9 +1,8 @@
 
 export enum MessageType {
 	UNKNOWN,
-	ENTITY,
-	INPUT,
-	NEW_CLIENT,
+	GAME,
+	INIT_CLIENT,
 	PING,
 }
 

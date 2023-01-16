@@ -16,18 +16,27 @@ export class Input extends SystemBase implements System {
 			base: "input",
 		});
 
+		this.setFactoryFn((clientId : number) => { this.addKeys(new Keys(clientId)); })
+
 		this._keys = new Map();
 	}
 
-	keys(id? : number) : Keys {
-		id = defined(id) ? id : game.id();
+	override initialize() : void {
+		super.initialize();
 
-		if (!this._keys.has(id)) {
-			this._keys.set(id, new Keys(id));
-			this.addChild(id, this._keys.get(id))
+		this.addKeys(new Keys(game.id()));
+	}
+
+	addKeys(keys : Keys) : void { this.addChild(keys.clientId(), keys); }
+	getKeys(clientId? : number) : Keys {
+		clientId = defined(clientId) ? clientId : game.id();
+
+		// TODO: Keys should be created upon initializing game ID
+		if (!this.hasChild(clientId)) {
+			this.addKeys(new Keys(clientId));
 		}
 
-		return this._keys.get(id);
+		return this.getChild<Keys>(clientId);
 	}
 
 	override isSource() : boolean { return true; }

@@ -7,6 +7,7 @@ import { System, SystemBase, SystemType } from 'game/system'
 import { Data } from 'network/data'
 
 import { ui, Key } from 'ui'
+import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
 
 enum KeyState {
@@ -42,7 +43,7 @@ export class Keys extends SystemBase implements System {
 				continue;
 			}
 
-			// TODO: only export true/false - key down or not
+			// TODO: consider reducing number of states being exported if TCP channel has problems
 			this.registerProp(key, {
 				has: () => { return this._keys.has(key); },
 				export: () => { return this._keys.get(key); },
@@ -61,6 +62,8 @@ export class Keys extends SystemBase implements System {
 			filters: Data.udp,
 		});
 	}
+
+	clientId() : number { return this._clientId; }
 
 	keyDown(key : Key) : boolean { return this._keys.has(key) && (this._keys.get(key) === KeyState.DOWN || this.keyPressed(key)); }
 	keyUp(key : Key) : boolean { return !this._keys.has(key) || (this._keys.get(key) === KeyState.UP || this.keyReleased(key)); }

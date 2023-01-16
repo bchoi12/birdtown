@@ -34,6 +34,7 @@ export class Data {
 	public static readonly allFilters = new Set<DataFilter>([DataFilter.ALL, DataFilter.TCP, DataFilter.UDP]);
 	public static readonly udp = new Set<DataFilter>([DataFilter.ALL, DataFilter.UDP]);
 	public static readonly tcp = new Set<DataFilter>([DataFilter.ALL, DataFilter.TCP]);
+	public static readonly init = new Set<DataFilter>([DataFilter.ALL]);
 
 	private static readonly numberEpsilon = 1e-3;
 

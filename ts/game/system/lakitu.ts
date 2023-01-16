@@ -24,7 +24,7 @@ export class Lakitu extends SystemBase implements System {
 	private _anchor : BABYLON.Vector3;
 	private _target : BABYLON.Vector3;
 
-	constructor(canvas : HTMLCanvasElement, scene : BABYLON.Scene) {
+	constructor(scene : BABYLON.Scene) {
 		super(SystemType.LAKITU);
 
 		this.setName({ base: "lakitu" });

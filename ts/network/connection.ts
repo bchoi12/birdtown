@@ -53,19 +53,17 @@ export abstract class Connection {
 
 	abstract initialize() : void;
 
-	peer() : Peer { return this._peer; }
-	peers() : Map<string, ChannelMap> { return this._peers; }
+	self() : Peer { return this._peer; }
+	getChannelMap(name : string) : ChannelMap { return this._peers.get(name); }
+	channelMaps() : Map<string, ChannelMap> { return this._peers; }
 	ping() : number { return this._pinger.ping(); }
 
 	names() : Set<string> { return this._nameAndId.keys(); }
-	ids() : Set<number> { return this._nameAndId.values(); }
-	idFromName(name : string) { return this._nameAndId.get(name); }
-	nameFromId(id : number) { return this._nameAndId.getReverse(id); }
-	setId(name : string, id : number) {
-		this._nameAndId.set(name, id);
-	}
+	gameIds() : Set<number> { return this._nameAndId.values(); }
+	gameIdFromName(name : string) { return this._nameAndId.get(name); }
+	setGameId(name : string, id : number) { this._nameAndId.set(name, id); }
 
-	update(seqNum : number) : void {
+	update() : void {
 		this.names().forEach((name : string) => {
 			if (this._pinger.timeSincePing(name) >= 10000) {
 				console.error("Connection to " + name + " timed out");
@@ -148,18 +146,7 @@ export abstract class Connection {
 		});
 	}
 
-	send(peer : string|number, type : ChannelType, msg : Message) : boolean {
-		let name;
-		if (typeof(peer) === 'string') {
-			name = peer;
-		} else {
-			if (!this._nameAndId.hasReverse(peer)) {
-				console.error("Error: could not find name for id " + peer);
-				return false;
-			}
-			name = this._nameAndId.getReverse(peer);
-		}
-
+	send(name : string, type : ChannelType, msg : Message) : boolean {
 		if (!this._peers.has(name)) {
 			return false;
 		}

@@ -22,8 +22,7 @@ export class Entities extends SystemBase implements System {
 			base: "entities",
 		})
 
-		this._lastId = 0;
-		this._idToType = new Map();
+		this.reset();
 		this._entityFactory = new Map();
 		this._entityFactory.set(EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); });
 		this._entityFactory.set(EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); });
@@ -34,9 +33,20 @@ export class Entities extends SystemBase implements System {
 		this.setFactoryFn((entityType : EntityType) => { this.addMap(new EntityMap(entityType)); })
 	}
 
-	addMap(map : EntityMap) { this.addChild<EntityMap>(map.entityType(), map); }
-	hasMap(type : EntityType) { return this.hasChild(type); }
+	override reset() : void {
+		super.reset();
+		this._lastId = 0;
+		this._idToType = new Map();
+
+		this.children().forEach((_, id : number) => {
+			this.unregisterMap(id);
+		});
+	}
+
+	addMap(map : EntityMap) : EntityMap { return this.addChild<EntityMap>(map.entityType(), map); }
+	hasMap(type : EntityType) : boolean { return this.hasChild(type); }
 	getMap(type : EntityType) : EntityMap { return this.getChild<EntityMap>(type); }
+	unregisterMap(type : EntityType) : void { this.unregisterChild(type); }
 
 	addEntity(type : EntityType, entityOptions : EntityOptions) : void {
 		if (!entityOptions.id) {

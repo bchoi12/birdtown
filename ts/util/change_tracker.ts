@@ -17,6 +17,11 @@ export class ChangeTracker<T> {
 
 	check() : boolean {
 		const value = this._getValue();
+
+		if (!defined(value)) {
+			return false;
+		}
+
 		if (!defined(this._value)) {
 			this._value = value;
 			return false;
