@@ -75,6 +75,7 @@ export class Level extends SystemBase implements System {
 		    	dim: {x: 16, y: 1},
 	    	},
 	    });
+
 	    entities.addEntity(EntityType.WALL, {
 	    	profileInit: {
 	    		pos: {x: 3, y: 1},
@@ -87,6 +88,26 @@ export class Level extends SystemBase implements System {
 	    		dim: {x: 2, y: 1},
 			},
 	    });
+
+	    entities.addEntity(EntityType.CRATE, {
+	    	profileInit: {
+		    	pos: {x: 1, y: 4},
+		    	dim: {x: 1, y: 1},
+	    	},
+	    });
+	    entities.addEntity(EntityType.CRATE, {
+	    	profileInit: {
+		    	pos: {x: 1.5, y: 6},
+		    	dim: {x: 2, y: 1},
+	    	},
+	    });
+	    entities.addEntity(EntityType.CRATE, {
+	    	profileInit: {
+		    	pos: {x: 2, y: 8},
+		    	dim: {x: 0.5, y: 1},
+	    	},
+	    });
+
 	}
 }
 		

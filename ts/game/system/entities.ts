@@ -1,5 +1,7 @@
 import { game } from 'game'	
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
+import { Building } from 'game/entity/building'
+import { Crate } from 'game/entity/crate'
 import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
 import { Rocket } from 'game/entity/projectile/rocket'
@@ -25,6 +27,8 @@ export class Entities extends SystemBase implements System {
 		this.reset();
 		this._entityFactory = new Map();
 		this._entityFactory.set(EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); });
+		this._entityFactory.set(EntityType.BUILDING, (options : EntityOptions) => { return new Building(options); });
+		this._entityFactory.set(EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); });
 		this._entityFactory.set(EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); });
 		this._entityFactory.set(EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); });
 		this._entityFactory.set(EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); });
@@ -87,12 +91,12 @@ export class Entities extends SystemBase implements System {
 	}
 
 	hasEntity(id : number) : boolean { return this._idToType.has(id); }
-	getEntity(id : number) : Entity {
+	getEntity<T extends Entity>(id : number) : T {
 		if (!this._idToType.has(id)) {
 			console.error("Warning: queried for nonexistent ID", id);
 			return null;
 		}
-		return this.getMap(this._idToType.get(id)).getEntity(id);
+		return this.getMap(this._idToType.get(id)).getEntity<T>(id);
 	}
 	unregisterEntity(id : number) : void {
 		if (!this._idToType.has(id)) {

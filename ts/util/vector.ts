@@ -26,7 +26,9 @@ export class Vec2 implements Vec {
     normalize() : Vec2 {
         const len = this.length();
         if (len === 0) {
-            return;
+            this.x = 1;
+            this.y = 0;
+            return this;
         }
 
         this.x /= len;

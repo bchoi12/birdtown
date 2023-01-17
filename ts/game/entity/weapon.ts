@@ -25,6 +25,7 @@ export abstract class Weapon extends EntityBase {
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
+		this._allTypes.add(EntityType.WEAPON);
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 
@@ -47,7 +48,7 @@ export abstract class Weapon extends EntityBase {
 		this._reloadTimer = this.newTimer();
 	}
 
-	override ready() : boolean { return super.ready() && this._attributes.has(Attribute.OWNER); }
+	override ready() : boolean { return super.ready() && this._attributes.getOrDefault(Attribute.OWNER) > 0; }
 
 	override initialize() : void {
 		super.initialize();
@@ -64,7 +65,7 @@ export abstract class Weapon extends EntityBase {
 
 		if (!defined(this._player)) {
 			if (game.entities().hasEntity(this._owner)) {
-				this._player = <Player>game.entities().getEntity(this._owner);
+				this._player = game.entities().getEntity<Player>(this._owner);
 				this._player.equipWeapon(this);
 			}
 		}

@@ -144,6 +144,7 @@ export class Profile extends ComponentBase implements Component {
 		super.initialize();
 
 		this._body = this._bodyFn(this);
+		MATTER.Body.setPosition(this._body, this.pos());
 
 		MATTER.Composite.add(game.physics().world(), this._body)
 		this._body.label = "" + this.entity().id();
@@ -330,7 +331,7 @@ export class Profile extends ComponentBase implements Component {
 
 		if (this.hasAcc()) {
 			const acc = this.acc();
-			if (acc.lengthSq() > 0 && this.hasVel()) {
+			if (acc.lengthSq() > 0) {
 				const ts = millis / 1000;
 				this.addVel({
 					x: acc.x * ts,

@@ -12,7 +12,12 @@ import { Timer } from 'util/timer'
 export enum EntityType {
 	UNKNOWN,
 
+	PROJECTILE,
+	WEAPON,
+
 	BAZOOKA,
+	BUILDING,
+	CRATE,
 	EXPLOSION,
 	PLAYER,
 	ROCKET,
@@ -31,6 +36,7 @@ export type EntityOptions = {
 
 export interface Entity extends GameObject {
 	type() : EntityType;
+	allTypes() : Set<EntityType>;
 	id() : number;
 
 	hasClientId() : boolean;
@@ -53,6 +59,7 @@ enum Prop {
 
 export abstract class EntityBase extends GameObjectBase implements Entity {
 	protected _type : EntityType;
+	protected _allTypes : Set<EntityType>;
 	protected _id : number;
 	protected _clientId : number;
 
@@ -63,6 +70,8 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		super("entity-" + type + "," + entityOptions.id);
 
 		this._type = type;
+		this._allTypes = new Set();
+		this._allTypes.add(type);
 
 		if (!defined(entityOptions.id)) {
 			console.error("Warning: entity type " + type + " has no id");
@@ -82,11 +91,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		});
 		this.registerProp(Prop.DELETED, {
 			export: () => { return this.deleted(); },
-			import: (obj : Object) => {
-				if (<boolean>obj) {
-					this.delete();
-				}
-			},
+			import: (obj : Object) => { if (<boolean>obj) { this.delete(); } },
 		});
 	}
 
@@ -111,6 +116,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 
 	type() : EntityType { return this._type; }
+	allTypes() : Set<EntityType> { return this._allTypes; }
 	id() : number { return this._id; }
 
 	hasClientId() : boolean { return defined(this._clientId); }
@@ -118,13 +124,8 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	clientIdMatches() : boolean { return this.hasClientId() && this.clientId() === game.id() }
 
 	addComponent<T extends Component>(component : T) : T {
-		if (this.hasComponent(component.type())) {
-			console.log("Warning: overwriting component " + component.type() + " for object " + this.name());
-		}
-
 		component.setEntity(this);
-		this.addChild<T>(component.type(), component);
-		return component;
+		return this.addChild<T>(component.type(), component);
 	}
 	hasComponent(type : ComponentType) : boolean { return this.hasChild(type); }
 	getComponent<T extends Component>(type : ComponentType) : T { return this.getChild<T>(type); }
@@ -136,9 +137,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 	setTTL(ttl : number) : void {
 		const timer = this.newTimer();
-		timer.start(ttl, () => {
-			this.delete();
-		});
+		timer.start(ttl, () => { this.delete(); });
 	}
 
 	collide(entity : Entity, collision : MATTER.Collision) : void {}

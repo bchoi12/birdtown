@@ -3,6 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { ComponentType } from 'game/component'
+import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
@@ -54,20 +55,25 @@ export class Explosion extends EntityBase {
 	override collide(other : Entity, collision : MATTER.Collision) : void {
 		super.collide(other, collision);
 
-		if (other.type() !== EntityType.PLAYER || !other.hasComponent(ComponentType.PROFILE)) {
-			return;
-		}
-
 		if (this._hit.has(other.id())) {
 			return;
 		}
 
+		if (!other.hasComponent(ComponentType.ATTRIBUTES) || !other.hasComponent(ComponentType.PROFILE)) {
+			return;
+		}
+
+		const otherAttributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+		if (!otherAttributes.getOrDefault(Attribute.SOLID)) {
+			return;
+		}
+
 		const otherProfile = <Profile>other.getComponent(ComponentType.PROFILE);
+		let force = otherProfile.pos().clone().sub(this._profile.pos()).normalize().scale(0.48);
+		otherProfile.addForce(force);
 
 		this._hit.add(other.id());
-		let force = Vec2.fromVec(otherProfile.pos()).sub(this._profile.pos());
-		force.normalize().scale(0.48);
-		otherProfile.addForce(force);
+		console.log("HIT", other.name());
 	}
 
 }

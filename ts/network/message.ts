@@ -12,9 +12,6 @@ export interface Message {
 
 	// Id
 	I? : number;
-	
-	// Name
-	N? : string;
 
 	// Sequence number
 	S? : number;

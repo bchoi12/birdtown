@@ -8,7 +8,6 @@ export enum Attribute {
 	UNKNOWN,
 
 	// Boolean
-	CAN_DOUBLE_JUMP,
 	DEAD,
 	GROUNDED,
 	READY,
@@ -34,7 +33,6 @@ type Value = boolean|number;
 export class Attributes extends ComponentBase implements Component {
 
 	private static readonly _attributeTypes = new Map<Attribute, Type>([
-		[Attribute.CAN_DOUBLE_JUMP, Type.BOOLEAN],
 		[Attribute.DEAD, Type.BOOLEAN],
 		[Attribute.GROUNDED, Type.BOOLEAN],
 		[Attribute.SOLID, Type.BOOLEAN],
@@ -124,7 +122,7 @@ export class Attributes extends ComponentBase implements Component {
 	}
 
 	add(attribute : Attribute, value : Value) : void {
-		if (Number.isNaN(value) || !this.validValue(attribute, value)) {
+		if (Number.isNaN(value) || !this.isNumerical(attribute)) {
 			console.error("Error: attribute cannot be incremented by value", attribute, value);
 			return;
 		}
@@ -150,6 +148,9 @@ export class Attributes extends ComponentBase implements Component {
 		default:
 			return false;
 		}
+	}
 
+	private isNumerical(attribute : Attribute) : boolean {
+		return Attributes._attributeTypes.get(attribute) === Type.INTEGER || Attributes._attributeTypes.get(attribute) === Type.NUMBER;
 	}
 }

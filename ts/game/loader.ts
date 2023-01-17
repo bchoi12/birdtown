@@ -40,6 +40,7 @@ export enum Texture {
 
 export interface LoadResult {
 	meshes? : BABYLON.AbstractMesh[];
+	particleSystems? : BABYLON.IParticleSystem[];
 	skeletons? : BABYLON.Skeleton[];
 	animationGroups? : BABYLON.AnimationGroup[];
 	transformNodes? : BABYLON.TransformNode[];
@@ -69,9 +70,11 @@ class Loader {
 			return;
 		}
 
-		BABYLON.SceneLoader.ImportMesh("", this._modelPrefix, this._modelFiles.get(model), game.scene(), (meshes, particleSystems, skeletons, animationGroups, transformNodes) => {
+		BABYLON.SceneLoader.ImportMesh("", this._modelPrefix, this._modelFiles.get(model), game.scene(),
+			(meshes, particleSystems, skeletons, animationGroups, transformNodes) => {
 			cb({
 				meshes: meshes,
+				particleSystems: particleSystems,
 				skeletons: skeletons,
 				animationGroups: animationGroups,
 				transformNodes: transformNodes,

@@ -93,9 +93,10 @@ class Game {
 					console.error("Invalid message: ", msg);
 					return;
 				}
-				this._id = msg.I;
+
+				this.setId(msg.I);
 				if (isLocalhost()) {
-					console.log("Got client id: " + this._id);
+					console.log("Got client id: " + this.id());
 				}
 			});
 		}
@@ -128,6 +129,12 @@ class Game {
 		this._systemRunner.push(this._lakitu);
 		this._systemRunner.push(this._world);
 
+	    this._level.setLevel(LevelType.TEST, 1);
+	    if (this._options.host) {
+	    	this.setId(1);
+	    	this._systemRunner.onNewClient(this._options.name, this.id());
+	    }
+
 	    this._engine.runRenderLoop(() => {
 	    	const millis = Math.min(Date.now() - this._lastUpdateTime, 32);
 
@@ -146,12 +153,6 @@ class Game {
 	    	this._lastUpdateTime = Date.now();
 	    });
 
-	    this._level.setLevel(LevelType.TEST, 1);
-	    if (this._options.host) {
-	    	this.setId(1);
-	    	this._systemRunner.onNewClient(this._options.name, this.id());
-	    }
-
 	    this._initialized = true;
 	}
 
@@ -159,11 +160,13 @@ class Game {
 	initialized() : boolean { return this._initialized; }
 	canvas() : HTMLCanvasElement { return this._canvas; }
 	hasId() : boolean { return defined(this._id); }
-	id() : number { return this.hasId() ? this._id : -1; }
+	id() : number { return this._id; }
 	options() : GameOptions { return this._options; }
 
 	systemRunner() : SystemRunner { return this._systemRunner; }
 	getSystem<T extends System>(type : SystemType) : T { return this._systemRunner.getSystem<T>(type); }
+
+	// TODO: consider trimming
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
 	physics() : Physics { return this._physics; }
