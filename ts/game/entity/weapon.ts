@@ -13,6 +13,7 @@ import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
 export abstract class Weapon extends EntityBase {
+	private static readonly _shootNodeName;
 
 	protected _attributes : Attributes;
 	protected _model : Model;
@@ -37,7 +38,7 @@ export abstract class Weapon extends EntityBase {
 					model.setMesh(mesh);
 
 					result.transformNodes.forEach((node : BABYLON.TransformNode) => {
-						if (node.name === "shoot") {
+						if (node.name === Weapon._shootNodeName) {
 							this._shoot = node;
 						}
 					});

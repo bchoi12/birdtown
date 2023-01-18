@@ -9,6 +9,15 @@ export class DoubleMap<K, V> {
 		this._reverse = new Map();
 	}
 
+	static fromEntries<K, V>(entries : [K, V][]) : DoubleMap<K, V> {
+		let dm = new DoubleMap<K, V>();
+
+		for (let i = 0; i < entries.length; ++i) {
+			dm.set(entries[i][0], entries[i][1]);
+		}
+		return dm;
+	}
+
 	set(key : K, value : V) {
 		if (this._map.has(key)) {
 			this._reverse.delete(this._map.get(key));

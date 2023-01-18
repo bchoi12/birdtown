@@ -397,10 +397,6 @@ export class Player extends EntityBase {
 	private computeHeadDir() : Vec2 {
 		const dir = game.keys(this.clientId()).dir();
 
-		if (!this.clientIdMatches()) {
-			console.log(dir, this.name());
-		}
-
 		if (Math.sign(dir.x) !== Math.sign(this._headDir.x)) {
 			if (Math.abs(dir.x) > 0.2) {
 				this._headDir.copy(dir);

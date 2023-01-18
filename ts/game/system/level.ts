@@ -47,6 +47,10 @@ export class Level extends SystemBase implements System {
 		this._levelTracker = new ChangeTracker<LevelType>(() => {
 			return this._level;
 		}, (level : LevelType) => {
+			if (level === LevelType.UNKNOWN) {
+				console.error("Error: attempted to load unknown level.")
+				return;
+			}
 			this.loadLevel(level);
 		});
 		this._levelTracker.set(LevelType.UNKNOWN);
@@ -88,6 +92,12 @@ export class Level extends SystemBase implements System {
 	    		dim: {x: 2, y: 1},
 			},
 	    });
+
+	    entities.addEntity(EntityType.BUILDING, {
+	    	profileInit: {
+	    		pos: {x: -3, y: 3},
+	    	},
+	    })
 
 	    entities.addEntity(EntityType.CRATE, {
 	    	profileInit: {

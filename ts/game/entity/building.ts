@@ -27,7 +27,6 @@ export class Building extends EntityBase {
 		});
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._attributes.set(Attribute.SOLID, true);
 
 		const collisionGroup = MATTER.Body.nextGroup(true);
 		this._profile = this.addComponent<Profile>(new Profile({
@@ -46,28 +45,6 @@ export class Building extends EntityBase {
 		}));
 		this._profile.setDim({x: 12, y: 6});
 
-		this._profile.addSubProfile(this.numChildren() + 1, new Profile({
-			readyFn: (wall : Profile) => { return this._profile.initialized(); },
-			bodyFn: (wall : Profile) => {
-				let pos = this._profile.pos().clone();
-				pos.sub({x: this._profile.dim().x / 2});
-				const dim = wall.dim();
-
-				console.log(this._profile.pos(), pos);
-
-				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
-					isStatic: true,
-					collisionFilter: {
-						group: collisionGroup,
-					},
-				});
-			},
-			init: {
-				pos: {x: 0, y: 0},
-				dim: {x: 0.5, y: this._profile.dim().y },
-			},
-		}));
-
 		this.addComponent(new Model({
 			readyFn: () => {
 				return this._profile.ready();
@@ -77,7 +54,14 @@ export class Building extends EntityBase {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.name = this.name();
 
+					console.log(result);
 					console.log(mesh);
+					console.log(mesh.subMeshes);
+
+					let mat = new BABYLON.StandardMaterial("asdf", game.scene());
+					mat.diffuseColor = new BABYLON.Color3(0, 0, 1);
+					result.meshes[5].material = mat;
+					console.log(result.meshes[5].material);
 
 					model.setMesh(mesh);
 				});
