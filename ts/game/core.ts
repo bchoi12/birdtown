@@ -55,6 +55,9 @@ export interface GameObject {
 	render() : void
 	postRender() : void
 
+	millisSinceUpdate() : number;
+	millisSinceImport() : number;
+
 	registerProp(prop : number, params : PropHandler);
 	setFactoryFn(factoryFn : FactoryFn) : void;
 	addChild<T extends GameObject>(id : number, child : T) : T;
@@ -75,17 +78,24 @@ export abstract class GameObjectBase {
 	protected _name : string;
 	protected _initialized : boolean;
 	protected _deleted : boolean;
+	protected _lastUpdateTime : number;
+	protected _lastImportTime : number;
+
 	protected _data : Data;
 	protected _propHandlers : Map<number, PropHandler>;
 	protected _childObjects : Map<number, GameObject>;
-
 	protected _dataBuffers : Map<number, Array<DataBuffer>>;
+
 	protected _factoryFn : FactoryFn;
+
 
 	constructor(name : string) {
 		this._name = name;
 		this._initialized = false;
 		this._deleted = false;
+		this._lastUpdateTime = Date.now();
+		this._lastImportTime = Date.now();
+
 		this._data = new Data();
 		this._propHandlers = new Map();
 		this._childObjects = new Map();
@@ -149,6 +159,8 @@ export abstract class GameObjectBase {
 	}
 
 	preUpdate(millis : number) : void {
+		this._lastUpdateTime = Date.now();
+
 		this._childObjects.forEach((child : GameObject) => {
 			if (!child.initialized() && child.ready()) {
 				child.initialize();
@@ -219,6 +231,9 @@ export abstract class GameObjectBase {
 			}
 		});
 	}
+
+	millisSinceUpdate() : number { return Date.now() - this._lastUpdateTime; }
+	millisSinceImport() : number { return Date.now() - this._lastImportTime; }
 
 	registerProp(prop : number, propHandler : PropHandler) : void {
 		if (prop <= 0) {
@@ -309,6 +324,8 @@ export abstract class GameObjectBase {
 	}
 
 	importData(data : DataMap, seqNum : number) : void {
+		this._lastImportTime = Date.now();
+
 		// TODO: this is pretty messy, but update if it's child object data or if we're not the source
 		const changed = this._data.import(data, seqNum, (prop : number) => { return (prop > this.numProps()) || !this.isSource(); });
 

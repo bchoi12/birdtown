@@ -217,7 +217,7 @@ export class Player extends EntityBase {
 
 		if (this.clientIdMatches()) {
 			game.lakitu().setTargetEntity(this);
-			game.keys().setTargetEntity(this);
+			game.keys(this.clientId()).setTargetEntity(this);
 		}
 
 		game.entities().addEntity(EntityType.BAZOOKA, {
@@ -368,8 +368,10 @@ export class Player extends EntityBase {
 			}
 		}
 
-		this._armDir = this.computeArmDir();
-		this._headDir = this.computeHeadDir();
+		if (this.clientIdMatches()) {
+			this._armDir = this.computeArmDir();
+			this._headDir = this.computeHeadDir();
+		}
 		const armature = this._model.getBone(Bone.ARMATURE).getTransformNode();
 		armature.scaling.z = Math.sign(this._headDir.x);
 
@@ -394,6 +396,10 @@ export class Player extends EntityBase {
 
 	private computeHeadDir() : Vec2 {
 		const dir = game.keys(this.clientId()).dir();
+
+		if (!this.clientIdMatches()) {
+			console.log(dir, this.name());
+		}
 
 		if (Math.sign(dir.x) !== Math.sign(this._headDir.x)) {
 			if (Math.abs(dir.x) > 0.2) {

@@ -73,7 +73,6 @@ export class Explosion extends EntityBase {
 		otherProfile.addForce(force);
 
 		this._hit.add(other.id());
-		console.log("HIT", other.name());
 	}
 
 }

@@ -62,16 +62,12 @@ export class Lakitu extends SystemBase implements System {
 		super.setTargetEntity(entity);
 	}
 
-	override postUpdate(millis : number) : void {
-		super.postUpdate(millis);
+	override postPhysics(millis : number) : void {
+		super.postPhysics(millis);
 
 		if (this.hasTargetEntity()) {
-			let target = BABYLON.Vector3.Zero();
 			const profile = this.targetEntity().getComponent<Profile>(ComponentType.PROFILE);
-			target.x = profile.pos().x;
-			target.y = profile.pos().y;
-
-			this.setAnchor(target);
+			this.setAnchor(profile.pos().toBabylon3());
 		}
 	}
 }

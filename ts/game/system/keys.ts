@@ -1,4 +1,4 @@
-import { game } from 'game'
+ import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'

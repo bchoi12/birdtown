@@ -17,6 +17,7 @@ class Options {
 	public enablePointerLock : boolean;
 
 	public predictionWeight : number;
+	public maxPredictionMillis : number;
 
 	public debugInspector : boolean;
 	public debugPhysics : boolean;
@@ -37,7 +38,8 @@ class Options {
 		this.enableFullscreen = false;
 		this.enablePointerLock = false;
 
-		this.predictionWeight = 0.5;
+		this.predictionWeight = 1.0;
+		this.maxPredictionMillis = 250;
 
 		// Debug properties
 		this.debugInspector = false;
