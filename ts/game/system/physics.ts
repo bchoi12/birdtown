@@ -5,8 +5,7 @@ import { System, SystemBase, SystemType } from 'game/system'
 
 export class Physics extends SystemBase implements System {
 
-	// TODO: try 9?
-	private readonly _step : number = 8;
+	private static readonly _maxStep : number = 10;
 
 	private _engine : MATTER.Engine;
 
@@ -24,7 +23,7 @@ export class Physics extends SystemBase implements System {
 		super.physics(millis);
 
 		while(millis > 0) {
-			const step = Math.max(millis, this._step);
+			const step = Math.max(millis, Physics._maxStep);
 			MATTER.Engine.update(this._engine, step);
 			millis -= step;
 		}

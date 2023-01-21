@@ -12,11 +12,11 @@ import { Timer } from 'util/timer'
 export enum EntityType {
 	UNKNOWN,
 
+	BLOCK,
 	PROJECTILE,
 	WEAPON,
 
 	BAZOOKA,
-	BUILDING,
 	CRATE,
 	EXPLOSION,
 	PLAYER,

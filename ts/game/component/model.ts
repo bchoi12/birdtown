@@ -129,8 +129,8 @@ export class Model extends ComponentBase implements Component {
 		}
 	}
 
-	override preRender() : void {
-		super.preRender();
+	override preRender(millis : number) : void {
+		super.preRender(millis);
 
 		if (!this.hasMesh()) {
 			return;

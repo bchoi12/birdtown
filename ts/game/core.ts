@@ -51,9 +51,9 @@ export interface GameObject {
 	prePhysics(millis : number) : void
 	physics(millis : number) : void
 	postPhysics(millis : number) : void
-	preRender() : void
-	render() : void
-	postRender() : void
+	preRender(millis : number) : void
+	render(millis : number) : void
+	postRender(millis : number) : void
 
 	millisSinceUpdate() : number;
 	millisSinceImport() : number;
@@ -210,24 +210,24 @@ export abstract class GameObjectBase {
 			}
 		});
 	}
-	preRender() : void {
+	preRender(millis : number) : void {
 		this._childObjects.forEach((child : GameObject) => {
 			if (child.initialized()) {
-				child.preRender();
+				child.preRender(millis);
 			}
 		});
 	}
-	render() : void {
+	render(millis : number) : void {
 		this._childObjects.forEach((child : GameObject) => {
 			if (child.initialized()) {
-				child.render();
+				child.render(millis);
 			}
 		});
 	}
-	postRender() : void {
+	postRender(millis : number) : void {
 		this._childObjects.forEach((child : GameObject) => {
 			if (child.initialized()) {
-				child.postRender();
+				child.postRender(millis);
 			}
 		});
 	}

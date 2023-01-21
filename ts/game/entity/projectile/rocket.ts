@@ -67,8 +67,8 @@ export class Rocket extends Projectile {
 		});
 	}
 
-	override preRender() : void {
-		super.preRender();
+	override preRender(millis : number) : void {
+		super.preRender(millis);
 
 		if (!this._model.hasMesh()) {
 			return;

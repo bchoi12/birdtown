@@ -135,8 +135,8 @@ export class Keys extends SystemBase implements System {
 		this.updateMouse();
 	}
 
-	override preRender() : void {
-		super.preRender();
+	override preRender(millis : number) : void {
+		super.preRender(millis);
 
 		if (!this.isSource()) { return; }
 

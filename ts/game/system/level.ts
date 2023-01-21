@@ -73,31 +73,34 @@ export class Level extends SystemBase implements System {
 	private loadLevel(type : LevelType) : void {
 		let entities = game.entities();
 
-	    entities.addEntity(EntityType.WALL, {
+	    entities.addEntity(EntityType.BLOCK, {
 	    	profileInit: {
-		    	pos: {x: 0, y: 0},
-		    	dim: {x: 16, y: 1},
+	    		pos: {x: -12, y: 2},
+	    	},
+	    });
+	    entities.addEntity(EntityType.BLOCK, {
+	    	profileInit: {
+	    		pos: {x: 0, y: 2},
 	    	},
 	    });
 
-	    entities.addEntity(EntityType.WALL, {
+	    entities.addEntity(EntityType.BLOCK, {
 	    	profileInit: {
-	    		pos: {x: 3, y: 1},
-	    		dim: {x: 1, y: 1},
+	    		pos: {x: -12, y: 8},
 	    	},
 	    });
-	    entities.addEntity(EntityType.WALL, {
+	    entities.addEntity(EntityType.BLOCK, {
 	    	profileInit: {
-		    	pos: {x: 6, y: 3},
-	    		dim: {x: 2, y: 1},
-			},
+	    		pos: {x: 0, y: 8},
+	    	},
 	    });
 
-	    entities.addEntity(EntityType.BUILDING, {
+	    entities.addEntity(EntityType.BLOCK, {
 	    	profileInit: {
-	    		pos: {x: -3, y: 3},
+	    		pos: {x: 0, y: 14},
 	    	},
-	    })
+	    });
+
 
 	    entities.addEntity(EntityType.CRATE, {
 	    	profileInit: {

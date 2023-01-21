@@ -1,6 +1,6 @@
 import { game } from 'game'	
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
-import { Building } from 'game/entity/building'
+import { Block } from 'game/entity/block'
 import { Crate } from 'game/entity/crate'
 import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
@@ -27,7 +27,7 @@ export class Entities extends SystemBase implements System {
 		this.reset();
 		this._entityFactory = new Map();
 		this._entityFactory.set(EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); });
-		this._entityFactory.set(EntityType.BUILDING, (options : EntityOptions) => { return new Building(options); });
+		this._entityFactory.set(EntityType.BLOCK, (options : EntityOptions) => { return new Block(options); });
 		this._entityFactory.set(EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); });
 		this._entityFactory.set(EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); });
 		this._entityFactory.set(EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); });

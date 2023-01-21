@@ -3,6 +3,7 @@
     "@msgpack/msgpack": "^2.8.0",
     "babylonjs": "^5.31.0",
     "babylonjs-loaders": "^5.35.1",
+    "babylonjs-materials": "^5.43.0",
     "matter-js": "^0.18.0",
     "normalize.css": "^8.0.1",
     "peerjs": "^1.4.7"

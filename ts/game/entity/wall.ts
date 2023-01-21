@@ -38,6 +38,7 @@ export class Wall extends EntityBase {
 			init: entityOptions.profileInit,
 		}));
 
+		/*
 		this.addComponent(new Model({
 			readyFn: () => {
 				return this._profile.ready();
@@ -51,5 +52,6 @@ export class Wall extends EntityBase {
 				}, game.scene()));
 			},
 		}));
+		*/
 	}
 }

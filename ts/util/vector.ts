@@ -127,7 +127,7 @@ export class Vec2 implements Vec {
         return Vec2.unitFromRad(angle * Math.PI / 180);
     }
 
-    copy(vec : Vec2) : Vec2 {
+    copy(vec : Vec2) : Vec2 { 
         this.x = vec.x;
         this.y = vec.y;
         return this;
@@ -143,8 +143,8 @@ export class Vec2 implements Vec {
         return this;
     }
     copyVec(vec : Vec) : Vec2 {
-        this.x = defined(vec.x) ? vec.x : (defined(this.x) ? this.x : 0);
-        this.y = defined(vec.y) ? vec.y : (defined(this.y) ? this.y : 0);
+        if (defined(vec.x)) { this.x = vec.x; }
+        if (defined(vec.y)) { this.y = vec.y; }
         return this;
     }
 

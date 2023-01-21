@@ -25,6 +25,16 @@ export class Cardinal {
 		[CardinalType.BOTTOM_RIGHT, "bottomright"],
 	]);
 
+	private static readonly _cardinalOrder = new Array<CardinalType>(
+		CardinalType.LEFT,
+		CardinalType.RIGHT,
+		CardinalType.TOP,
+		CardinalType.BOTTOM,
+		CardinalType.BOTTOM_LEFT,
+		CardinalType.BOTTOM_RIGHT,
+		CardinalType.TOP_LEFT,
+		CardinalType.TOP_RIGHT)
+
 	private static readonly _allLeft = new Set<CardinalType>([
 		CardinalType.LEFT, CardinalType.TOP_LEFT, CardinalType.BOTTOM_LEFT]);
 
@@ -39,7 +49,12 @@ export class Cardinal {
 
 	private _cardinals : Set<CardinalType>;
 
-	private constructor() { this._cardinals = new Set(); }
+	constructor() { this._cardinals = new Set(); }
+
+	static isLeft(type : CardinalType) : boolean { return Cardinal._allLeft.has(type); }
+	static isRight(type : CardinalType) : boolean { return Cardinal._allRight.has(type); }
+	static isTop(type : CardinalType) : boolean { return Cardinal._allTop.has(type); }
+	static isBottom(type : CardinalType) : boolean { return Cardinal._allBottom.has(type); }
 
 	static fromTypes(types : CardinalType[]) : Cardinal { 
 		let cardinal = new Cardinal();
@@ -57,7 +72,11 @@ export class Cardinal {
 		return cardinal;
 	}
 
-	addType(type : CardinalType) : void { this._cardinals.add(type); }
+	addType(type : CardinalType) : void {
+		if (Cardinal._cardinalToName.has(type)) {
+			this._cardinals.add(type);
+		}
+	}
 	addName(name : string) : void {
 		if (!Cardinal._cardinalToName.hasReverse(name)) {
 			console.error("Error: skipping invalid cardinal name", name);
@@ -66,39 +85,56 @@ export class Cardinal {
 		this.addType(Cardinal._cardinalToName.getReverse(name));
 	}
 
+	hasType(type : CardinalType) : boolean { return this._cardinals.has(type); }
+	hasName(name : string) : boolean {
+		if (!Cardinal._cardinalToName.hasReverse(name)) {
+			return false;
+		}
+		return this._cardinals.has(Cardinal._cardinalToName.getReverse(name));
+	}
+
 	anyLeft() : boolean {
-		this._cardinals.forEach((type) => {
-			if (Cardinal._allLeft.has(type)) {
-				return true;
-			}
-		});
-		return false;
+		return this.hasType(CardinalType.LEFT) || this.hasType(CardinalType.TOP_LEFT) || this.hasType(CardinalType.BOTTOM_LEFT);
 	}
-
 	anyRight() : boolean {
-		this._cardinals.forEach((type) => {
-			if (Cardinal._allRight.has(type)) {
-				return true;
-			}
-		});
-		return false;
+		return this.hasType(CardinalType.RIGHT) || this.hasType(CardinalType.TOP_RIGHT) || this.hasType(CardinalType.BOTTOM_RIGHT);
 	}
-
 	anyTop() : boolean {
-		this._cardinals.forEach((type) => {
-			if (Cardinal._allTop.has(type)) {
-				return true;
-			}
-		});
-		return false;
+		return this.hasType(CardinalType.TOP) || this.hasType(CardinalType.TOP_LEFT) || this.hasType(CardinalType.TOP_RIGHT);
+	}
+	anyBottom() : boolean {
+		return this.hasType(CardinalType.BOTTOM) || this.hasType(CardinalType.BOTTOM_LEFT) || this.hasType(CardinalType.BOTTOM_RIGHT);
 	}
 
-	anyBottom() : boolean {
-		this._cardinals.forEach((type) => {
-			if (Cardinal._allBottom.has(type)) {
-				return true;
+	nameMatches(names : Set<string>) : Set<string> {
+		let matches = new Set<string>();
+
+		names.forEach((name : string) => {
+			if (this.hasName(name)) {
+				matches.add(name);
 			}
 		});
-		return false;
+		return matches;
+	}
+
+	toBitMask() : number {
+		let mask = 0;
+		for (let i = 0; i < Cardinal._cardinalOrder.length; ++i) {
+			if (this.hasType(Cardinal._cardinalOrder[i])) {
+				mask = mask | 0b1;
+			}
+			mask << 0b1;
+		}
+		mask >> 0b1;
+		return mask;
+	}
+
+	copyBitMask(mask : number) : void {
+		for (let i = Cardinal._cardinalOrder.length - 1; i >= 0; ++i) {
+			if ((mask & 0b1) > 0) {
+				this.addType(Cardinal._cardinalOrder[i]);
+			}
+			mask >> 0b1;
+		}	
 	}
 }

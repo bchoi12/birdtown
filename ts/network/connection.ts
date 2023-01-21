@@ -125,10 +125,12 @@ export abstract class Connection {
 		}
 	}
 
+	// TODO: apply register callbacks on update or preUpdate
 	addRegisterCallback(cb : RegisterCallback) {
 		this._registerCallbacks.push(cb);
 	}
 
+	// TODO: apply message callbacks before game loop
 	addMessageCallback(type : MessageType, cb : MessageCallback) {
 		if (this._messageCallbacks.has(type)) {
 			console.error("Warning: overwriting callback for message type " + type);

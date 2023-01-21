@@ -34,6 +34,8 @@ export class Login extends HandlerBase implements Handler {
 		this._buttonJoinElm.style.display = "block";
 		this._buttonHostElm.style.display = "block";
 
+		this._roomInputElm.focus();
+
 		this._buttonHostElm.onclick = () => {
 			if (!this._enabled) {
 				return;

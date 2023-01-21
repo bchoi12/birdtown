@@ -124,15 +124,15 @@ export class SystemRunner {
 		}
 
 		for (let i = 0; i < this._order.length; ++i) {
-			this.getSystem(this._order[i]).preRender();
+			this.getSystem(this._order[i]).preRender(millis);
 		}
 
 		for (let i = 0; i < this._order.length; ++i) {
-			this.getSystem(this._order[i]).render();
+			this.getSystem(this._order[i]).render(millis);
 		}
 
 		for (let i = 0; i < this._order.length; ++i) {
-			this.getSystem(this._order[i]).postRender();
+			this.getSystem(this._order[i]).postRender(millis);
 		}
 
 		for (let i = 0; i < this._order.length; ++i) {

@@ -6,6 +6,7 @@ import { Data } from 'network/data'
 
 import { options } from 'options'
 
+import { Cardinal, CardinalType } from 'util/cardinal'
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -169,6 +170,29 @@ export class Profile extends ComponentBase implements Component {
 			MATTER.World.remove(game.physics().world(), constraint);
 		});
 	}
+
+	createRelativeInit(cardinal : CardinalType, objectDim : Vec) : ProfileInitOptions {
+		let adjustedPos = this.pos().clone();
+		const dim = this.dim();
+
+		if (Cardinal.isLeft(cardinal)) {
+			adjustedPos.add({ x: -dim.x / 2 + objectDim.x / 2});
+		} else if (Cardinal.isRight(cardinal)) {
+			adjustedPos.add({ x: dim.x / 2 - objectDim.x / 2});
+		}
+
+		if (Cardinal.isTop(cardinal)) {
+			adjustedPos.add({ y: dim.y / 2 - objectDim.y / 2});
+		} else if (Cardinal.isBottom(cardinal)) {
+			adjustedPos.add({ y: -dim.y / 2 + objectDim.y / 2});
+		}
+
+		return {
+			pos: adjustedPos,
+			dim: Vec2.fromVec(objectDim),
+		}
+	}
+
 
 	body() : MATTER.Body { return this._body; }
 	addSubProfile(id : number, subProfile : Profile) : Profile {

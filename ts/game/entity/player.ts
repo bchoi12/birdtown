@@ -126,10 +126,11 @@ export class Player extends EntityBase {
 				const dim = profile.dim();
 
 				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+					friction: 0,
+					slop: 0,
 					collisionFilter: {
 						group: collisionGroup,
 					},
-					friction: 0,
 				});
 			},
 			init: entityOptions.profileInit,
@@ -259,6 +260,7 @@ export class Player extends EntityBase {
 		}
 
 		this._deadTracker.check();
+		this._attributes.setIfHost(Attribute.GROUNDED, this._jumpTimer.hasTimeLeft());
 
 		if (!this._attributes.getOrDefault(Attribute.DEAD)) {
 			// Keypress acceleration
@@ -328,7 +330,6 @@ export class Player extends EntityBase {
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
 
-		this._attributes.setIfHost(Attribute.GROUNDED, false);
 		this._headSubProfile.setAngle(this._headDir.angleRad());
 	}
 
@@ -345,14 +346,13 @@ export class Player extends EntityBase {
 
 		const otherAttributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
 		if (otherAttributes.getOrDefault(Attribute.SOLID) && collision.normal.y >= 0.5) {
-			this._attributes.setIfHost(Attribute.GROUNDED, true);
 			this._canDoubleJump = true;
 			this._jumpTimer.start(this._jumpGracePeriod);
 		}
 	}
 
-	override preRender() : void {
-		super.preRender();
+	override preRender(millis : number) : void {
+		super.preRender(millis);
 
 		if (!this._model.hasMesh()) {
 			return;
@@ -368,7 +368,7 @@ export class Player extends EntityBase {
 			}
 		}
 
-		if (this.clientIdMatches()) {
+		if (this.clientIdMatches() && !this._attributes.get(Attribute.DEAD)) {
 			this._armDir = this.computeArmDir();
 			this._headDir = this.computeHeadDir();
 		}
