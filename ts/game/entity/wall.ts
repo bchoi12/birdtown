@@ -1,5 +1,4 @@
 import * as BABYLON from 'babylonjs'
-import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { ComponentType } from 'game/component'
@@ -7,6 +6,7 @@ import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
+import { BodyCreator } from 'game/util/body_creator'
 
 import { defined } from 'util/common'
 import { Vec } from 'util/vector'
@@ -29,10 +29,11 @@ export class Wall extends EntityBase {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				const pos = profile.pos();
-				const dim = profile.dim();
-				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+				return BodyCreator.rectangle(profile.pos(), profile.dim(), {
 					isStatic: true,
+					collisionFilter: {
+						group: BodyCreator.ignoreWallGroup,
+					},
 				});
 			},
 			init: entityOptions.profileInit,

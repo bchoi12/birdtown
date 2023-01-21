@@ -3,7 +3,8 @@ import * as MATTER from "matter-js"
 
 import { Data, DataFilter, DataMap } from 'network/data'
 import { EntityType } from 'game/entity'
-import { System, SystemRunner, SystemType } from 'game/system'
+import { System, SystemType } from 'game/system'
+import { SystemRunner } from 'game/system_runner'
 import { Clients } from 'game/system/clients'
 import { Entities } from 'game/system/entities'
 import { EntityMap } from 'game/system/entity_map'
@@ -17,7 +18,7 @@ import { World } from 'game/system/world'
 import { Client } from 'network/client'
 import { Connection, ChannelType } from 'network/connection'
 import { Host } from 'network/host'
-import { Message, MessageType } from 'network/message'
+import { IncomingMessage, Message, MessageType } from 'network/message'
 
 import { options } from 'options'
 
@@ -41,7 +42,6 @@ class Game {
 
 	private _initialized : boolean;
 	private _canvas : HTMLCanvasElement;
-	private _seqNum : number;
 
 	private _options : GameOptions;
 	private _id : number;
@@ -58,13 +58,9 @@ class Game {
 	private _physics : Physics;
 	private _world : World;
 
-	private _lastUpdateTime : number;
-
 	constructor() {
 		this._initialized = false;
 		this._canvas = Html.canvasElm(Html.canvasGame);
-
-		this._lastUpdateTime = Date.now();
 	}
 
 	initialize(gameOptions : GameOptions) {
@@ -88,25 +84,25 @@ class Game {
 			});
 		} else {
 			this._connection = new Client(this._options.name, this._options.hostName);
-			this._connection.addMessageCallback(MessageType.INIT_CLIENT, (peer : string, msg : Message) => {
-				if (!defined(msg.I)) {
-					console.error("Invalid message: ", msg);
+			this._connection.addMessageCallback(MessageType.INIT_CLIENT, (incoming : IncomingMessage) => {
+				if (!defined(incoming.msg.I)) {
+					console.error("Invalid message: ", incoming);
 					return;
 				}
 
-				this.setId(msg.I);
+				this.setId(incoming.msg.I);
 				if (isLocalhost()) {
 					console.log("Got client id: " + this.id());
 				}
 			});
 		}
-		this._connection.addMessageCallback(MessageType.GAME, (peer : string, msg : Message) => {
-			if (!defined(msg.D) || !defined(msg.S)) {
-				console.error("Invalid message: ", msg);
+		this._connection.addMessageCallback(MessageType.GAME, (incoming : IncomingMessage) => {
+			if (!defined(incoming.msg.D) || !defined(incoming.msg.S)) {
+				console.error("Invalid message: ", incoming);
 				return;
 			}
 
-			this._systemRunner.importData(<DataMap>msg.D, msg.S);
+			this._systemRunner.importData(<DataMap>incoming.msg.D, incoming.msg.S);
 		});
 		this._connection.initialize();
 
@@ -120,7 +116,7 @@ class Game {
 		this._world = new World(this._engine);
 		this._lakitu = new Lakitu(this._world.scene());
 
-		// Order matters
+		// Order of insertion becomes order of execution
 		this._systemRunner.push(this._clients);
 		this._systemRunner.push(this._level);
 		this._systemRunner.push(this._input);
@@ -136,21 +132,18 @@ class Game {
 	    }
 
 	    this._engine.runRenderLoop(() => {
-	    	const millis = Math.min(Date.now() - this._lastUpdateTime, 32);
-
+	    	this._connection.preUpdate();
 	    	if (this.hasId()) {
-	    		this._systemRunner.update(millis);
+	    		this._systemRunner.update();
 	    	}
+	    	this._connection.postUpdate();
 
-	    	this._connection.update();
 	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {
     			const [msg, has] = this._systemRunner.message(filter);
 				if (has) {
 					this._connection.broadcast(Game._channelMapping.get(filter), msg);
     			}
 	    	}
-
-	    	this._lastUpdateTime = Date.now();
 	    });
 
 	    this._initialized = true;

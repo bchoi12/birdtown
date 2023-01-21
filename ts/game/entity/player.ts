@@ -10,6 +10,7 @@ import { GameConstants } from 'game/core'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Weapon } from 'game/entity/weapon'
 import { loader, LoadResult, ModelType } from 'game/loader'
+import { BodyCreator } from 'game/util/body_creator'
 
 import { Key } from 'ui'
 
@@ -66,11 +67,14 @@ export class Player extends EntityBase {
 		Bone.ARM, Bone.ARMATURE, Bone.NECK, Bone.SPINE,
 	]);
 
+	private _armDir : Vec2;
+	private _headDir : Vec2;
+	private _totalPenetration : Vec2;
+	private _maxNormal : Vec2;
+
 	private _jumpTimer : Timer;
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
-	private _armDir : Vec2;
-	private _headDir : Vec2;
 
 	private _attributes : Attributes;
 	private _model : Model;
@@ -89,6 +93,8 @@ export class Player extends EntityBase {
 
 		this._armDir = Vec2.i();
 		this._headDir = Vec2.i();
+		this._totalPenetration = Vec2.zero();
+		this._maxNormal = Vec2.zero();
 
 		this._jumpTimer = this.newTimer();
 		this._canDoubleJump = true;
@@ -125,9 +131,8 @@ export class Player extends EntityBase {
 				const pos = profile.pos();
 				const dim = profile.dim();
 
-				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+				return BodyCreator.rectangle(profile.pos(), profile.dim(), {
 					friction: 0,
-					slop: 0,
 					collisionFilter: {
 						group: collisionGroup,
 					},
@@ -147,10 +152,7 @@ export class Player extends EntityBase {
 		this._headSubProfile = this._profile.addSubProfile(SubProfile.HEAD, new Profile({
 			readyFn: (head : Profile) => { return this._profile.initialized(); },
 			bodyFn: (head : Profile) => {
-				const pos = head.pos();
-				const dim = head.dim();
-
-				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+				return BodyCreator.rectangle(head.pos(), head.dim(), {
 					isSensor: true,
 					collisionFilter: {
 						group: collisionGroup,
@@ -331,6 +333,8 @@ export class Player extends EntityBase {
 		super.prePhysics(millis);
 
 		this._headSubProfile.setAngle(this._headDir.angleRad());
+		this._totalPenetration.scale(0);
+		this._maxNormal.scale(0);
 	}
 
 	override collide(other : Entity, collision : MATTER.Collision) : void {
@@ -340,14 +344,68 @@ export class Player extends EntityBase {
 			return;
 		}
 
-		if (!other.hasComponent(ComponentType.ATTRIBUTES)) {
+		if (!other.hasComponent(ComponentType.ATTRIBUTES) || !other.hasComponent(ComponentType.PROFILE)) {
 			return;
 		}
 
 		const otherAttributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-		if (otherAttributes.getOrDefault(Attribute.SOLID) && collision.normal.y >= 0.5) {
+		if (!otherAttributes.getOrDefault(Attribute.SOLID)) {
+			return;
+		}
+
+		const otherProfile = other.getComponent<Profile>(ComponentType.PROFILE);
+
+		const pos = this._profile.pos();
+		const dim = this._profile.dim();
+		const vel = this._profile.vel();
+		const normal = collision.normal;
+
+		let pen = Vec2.fromVec(collision.penetration);
+		if (Math.abs(normal.x) > 0.99 || Math.abs(normal.y) > 0.99) {
+			let overlap = pos.clone().sub(otherProfile.pos()).abs();
+			overlap.sub({
+				x: dim.x / 2 + otherProfile.dim().x / 2,
+				y: dim.y / 2 + otherProfile.dim().y / 2,
+			});
+			overlap.negate();
+
+			const xCollision = Math.abs(overlap.x * vel.y) < Math.abs(overlap.y * vel.x);
+			if (xCollision) {
+				// Either overlap in other dimension is too small or collision direction is in disagreement.
+				if (Math.abs(overlap.y) < 1e-3 || Math.abs(normal.y) > 0.99) {
+					pen.scale(0);
+				}
+			} else {
+				if (Math.abs(overlap.x) < 1e-3 || Math.abs(normal.x) > 0.99) {
+					pen.scale(0);
+				}
+			}
+		}
+
+		pen.abs();
+		if (pen.lengthSq() > 0) {
+			this._totalPenetration.add(pen)
+			this._maxNormal.x = Math.max(this._maxNormal.x, Math.abs(normal.x));
+			this._maxNormal.y = Math.max(this._maxNormal.y, normal.y);
+		}
+	}
+
+	override postPhysics(millis : number) : void {
+		super.postPhysics(millis);
+
+		if (this._totalPenetration.lengthSq() > 0) {
+			if (this._totalPenetration.x > 1e-6) {
+				this._profile.setVel({ y: this._profile.body().velocity.y });
+			}
+			if (this._totalPenetration.y > 1e-6) {
+				this._profile.setVel({ x: this._profile.body().velocity.x });
+			}
+			MATTER.Body.setVelocity(this._profile.body(), this._profile.vel());
+		}
+
+		if (this._maxNormal.y > 0.5) {
 			this._canDoubleJump = true;
-			this._jumpTimer.start(this._jumpGracePeriod);
+			this._jumpTimer.start(this._jumpGracePeriod);			
 		}
 	}
 

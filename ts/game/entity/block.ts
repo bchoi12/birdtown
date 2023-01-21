@@ -9,6 +9,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { loader, LoadResult, ModelType } from 'game/loader'
+import { BodyCreator } from 'game/util/body_creator'
 
 import { Cardinal, CardinalType } from 'util/cardinal'
 import { defined } from 'util/common'
@@ -74,13 +75,11 @@ export class Block extends EntityBase {
 		const collisionGroup = MATTER.Body.nextGroup(true);
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				const pos = profile.pos();
-				const dim = profile.dim();
-				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {
+				return BodyCreator.rectangle(profile.pos(), profile.dim(), {
 					isSensor: true,
 					isStatic: true,
 					collisionFilter: {
-						group: collisionGroup,
+						group: BodyCreator.ignoreWallGroup,
 					},
 				});
 			},
@@ -231,7 +230,7 @@ export class Block extends EntityBase {
 
 		let newMaterial = new BABYLON.StandardMaterial(mesh.material.name, game.scene());
 		newMaterial.sideOrientation = mesh.material.sideOrientation;
-		newMaterial.backFaceCulling = mesh.material.backFaceCulling;
+		newMaterial.backFaceCulling = true;
 
 		if (materialProps.has(MaterialProp.BASE)) {
 			newMaterial.diffuseColor = this._baseColor.toBabylonColor3();			

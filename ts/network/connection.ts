@@ -2,11 +2,12 @@ import { encode, decode } from '@msgpack/msgpack'
 import { DataConnection, Peer } from 'peerjs'
 
 import { ChannelMap } from 'network/channel_map'
-import { Message, MessageType } from 'network/message'
+import { IncomingMessage, Message, MessageType } from 'network/message'
 import { Pinger } from 'network/pinger'
 
 import { options } from 'options'
 
+import { Buffer } from 'util/buffer'
 import { isLocalhost } from 'util/common'
 import { DoubleMap } from 'util/double_map'
 
@@ -18,7 +19,7 @@ export enum ChannelType {
 
 type PeerMap = Map<string, ChannelMap>;
 type RegisterCallback = (name : string) => void;
-type MessageCallback = (name : string, msg : Message) => void;
+type MessageCallback = (incoming : IncomingMessage) => void;
 
 export abstract class Connection {
 	private static readonly _validChannels : Set<string> = new Set([
@@ -30,7 +31,11 @@ export abstract class Connection {
 	protected _peers : Map<string, ChannelMap>;
 	protected _nameAndId : DoubleMap<string, number>;
 	protected _pinger : Pinger;
+
+	protected _registerBuffer : Buffer<string>;
 	protected _registerCallbacks : Array<RegisterCallback>;
+
+	protected _messageBuffer : Buffer<IncomingMessage>;
 	protected _messageCallbacks : Map<MessageType, MessageCallback>;
 
 	constructor(name : string) {
@@ -43,7 +48,9 @@ export abstract class Connection {
 
 		this._pinger = new Pinger();
 
+		this._registerBuffer = new Buffer();
 		this._registerCallbacks = new Array();
+		this._messageBuffer = new Buffer();
 		this._messageCallbacks = new Map();
 
 		if (isLocalhost()) {
@@ -63,13 +70,32 @@ export abstract class Connection {
 	gameIdFromName(name : string) { return this._nameAndId.get(name); }
 	setClientId(name : string, id : number) { this._nameAndId.set(name, id); }
 
-	update() : void {
+	preUpdate() : void {
+		for (let i = 0; i < this._registerBuffer.size(); ++i) {
+			for (let j = 0; j < this._registerCallbacks.length; ++j) {
+				this._registerCallbacks[j](this._registerBuffer.get(i));
+			}
+		}
+		this._registerBuffer.clear();
+
 		this.names().forEach((name : string) => {
 			if (this._pinger.timeSincePing(name) >= 10000) {
 				console.error("Connection to " + name + " timed out");
 				this.close(name);
 			}
 		});
+
+		for (let i = 0; i < this._messageBuffer.size(); ++i) {
+			const incoming = this._messageBuffer.get(i);
+			if (this._messageCallbacks.has(incoming.msg.T)) {
+				this._messageCallbacks.get(incoming.msg.T)(incoming);
+			}
+		}
+		this._messageBuffer.clear();
+	}
+
+	postUpdate() : void {
+
 	}
 
 	register(connection : DataConnection) {
@@ -102,9 +128,7 @@ export abstract class Connection {
 		});
 
 		if (channels.ready()) {
-			this._registerCallbacks.forEach((cb) => {
-				cb(connection.peer);
-			});
+			this._registerBuffer.push(connection.peer);
 		}
 	}
 
@@ -125,12 +149,10 @@ export abstract class Connection {
 		}
 	}
 
-	// TODO: apply register callbacks on update or preUpdate
 	addRegisterCallback(cb : RegisterCallback) {
 		this._registerCallbacks.push(cb);
 	}
 
-	// TODO: apply message callbacks before game loop
 	addMessageCallback(type : MessageType, cb : MessageCallback) {
 		if (this._messageCallbacks.has(type)) {
 			console.error("Warning: overwriting callback for message type " + type);
@@ -154,11 +176,7 @@ export abstract class Connection {
 		}
 
 		const channels = this._peers.get(name);
-		if (!channels.ready()) {
-			return false;
-		}
-
-		if (!channels.has(type)) {
+		if (!channels.ready() || !channels.has(type)) {
 			return false;
 		}
 
@@ -202,7 +220,21 @@ export abstract class Connection {
 		if ('T' in decoded) {
 			const msg = <Message>decoded;
 			if (this._messageCallbacks.has(msg.T)) {
-				this._messageCallbacks.get(msg.T)(peer, msg);
+				const incoming = {
+					name: peer,
+					id: this._nameAndId.get(peer),
+					msg: msg,
+				};
+
+				if (msg.T === MessageType.GAME) {
+					this._messageBuffer.push({
+						name: peer,
+						id: this._nameAndId.get(peer),
+						msg: msg,
+					});
+				} else {
+					this._messageCallbacks.get(incoming.msg.T)(incoming);
+				}
 			}
 		} else {
 			console.error("Missing payload type from message: ", decoded);

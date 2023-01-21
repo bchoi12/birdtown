@@ -12,6 +12,7 @@ type ExportFn = () => Object;
 type ImportFn = (object : Object) => void;
 
 export type PropHandler = {
+	preImport? : ImportFn;
 	has? : HasFn;
 	export : ExportFn;
 	import : ImportFn;
@@ -83,6 +84,7 @@ export abstract class GameObjectBase {
 
 	protected _data : Data;
 	protected _propHandlers : Map<number, PropHandler>;
+	protected _preImportFns : Map<number, ImportFn>;
 	protected _childObjects : Map<number, GameObject>;
 	protected _dataBuffers : Map<number, Array<DataBuffer>>;
 
@@ -97,6 +99,7 @@ export abstract class GameObjectBase {
 		this._lastImportTime = Date.now();
 
 		this._data = new Data();
+		this._preImportFns = new Map();
 		this._propHandlers = new Map();
 		this._childObjects = new Map();
 
@@ -253,6 +256,9 @@ export abstract class GameObjectBase {
 			leaf: true,
 			filters: defined(propHandler.filters) ? propHandler.filters : Data.allFilters,
 		});
+		if (propHandler.preImport) {
+			this._preImportFns.set(prop, propHandler.preImport);
+		}
 		this._propHandlers.set(prop, propHandler);
 	}
 
@@ -325,6 +331,12 @@ export abstract class GameObjectBase {
 
 	importData(data : DataMap, seqNum : number) : void {
 		this._lastImportTime = Date.now();
+
+		this._preImportFns.forEach((fn : ImportFn, prop : number) => {
+			if (data.hasOwnProperty(prop)) {
+				fn(data[prop]);
+			}
+		});
 
 		// TODO: this is pretty messy, but update if it's child object data or if we're not the source
 		const changed = this._data.import(data, seqNum, (prop : number) => { return (prop > this.numProps()) || !this.isSource(); });

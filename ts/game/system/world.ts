@@ -21,10 +21,11 @@ export class World extends SystemBase implements System {
 	    this._hemisphericLight.diffuse = new BABYLON.Color3(0.8, 0.8, 0.8);
 	    this._hemisphericLight.specular = new BABYLON.Color3(1, 1, 1);
 	    this._hemisphericLight.groundColor = new BABYLON.Color3(0.3, 0.3, 0.3);
-	    this._hemisphericLight.intensity = 0.7;
+	    this._hemisphericLight.intensity = 0.6;
 
 	    this._directionalLight = new BABYLON.DirectionalLight("directionalLight", new BABYLON.Vector3(1, -1, -1), this._scene);
 	    this._directionalLight.diffuse = new BABYLON.Color3(1, 1, 1);
+	    this._directionalLight.intensity = 0.8;
 
 		let shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight);
 		shadowGenerator.useExponentialShadowMap = true;

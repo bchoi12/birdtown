@@ -36,6 +36,17 @@ export class Vec2 implements Vec {
         return this;
     }
 
+    abs() : Vec2 {
+        this.x = Math.abs(this.x);
+        this.y = Math.abs(this.y);
+        return this;
+    }
+    min(min : number) : Vec2 {
+        this.x = Math.max(this.x, min);
+        this.y = Math.max(this.y, min);
+        return this;
+    }
+
     add(vec : Vec) : Vec2 {
         if (defined(vec.x)) {
             this.x += vec.x;
@@ -46,30 +57,14 @@ export class Vec2 implements Vec {
         return this;
     }
 
-    interpolateSeparate(vec : Vec, t : Vec, interpFn : (t : number) => number) : Vec2 {
-        if (defined(vec.x) && defined(t.x)) {
-            this.x += (vec.x - this.x) * interpFn(t.x);
-        }
-        if (defined(vec.y) && defined(t.y)) {
-            this.y += (vec.y - this.y) * interpFn(t.y);
-        }
-        return this;
-    }
-    lerpSeparate(vec : Vec, t : Vec) : Vec2 {
-        return this.interpolateSeparate(vec, t, (t : number) => { return t; });
-    }
-
-    interpolate(vec : Vec, t : number, interpFn : (t : number) => number) : Vec2 {
+    mult(vec : Vec) : Vec2 {
         if (defined(vec.x)) {
-            this.x += (vec.x - this.x) * interpFn(t);
+            this.x *= vec.x;
         }
         if (defined(vec.y)) {
-            this.y += (vec.y - this.y) * interpFn(t);
+            this.y *= vec.y;
         }
         return this;
-    }
-    lerp(vec : Vec, t : number) : Vec2 {
-        return this.interpolate(vec, t, (t : number) => { return t;});
     }
 
     sub(vec : Vec) : Vec2 {
@@ -108,6 +103,32 @@ export class Vec2 implements Vec {
         return rad;
     }
     angleDeg() : number { return this.angleRad() * 180 / Math.PI; }
+
+    interpolateSeparate(vec : Vec, t : Vec, interpFn : (t : number) => number) : Vec2 {
+        if (defined(vec.x) && defined(t.x)) {
+            this.x += (vec.x - this.x) * interpFn(t.x);
+        }
+        if (defined(vec.y) && defined(t.y)) {
+            this.y += (vec.y - this.y) * interpFn(t.y);
+        }
+        return this;
+    }
+    lerpSeparate(vec : Vec, t : Vec) : Vec2 {
+        return this.interpolateSeparate(vec, t, (t : number) => { return t; });
+    }
+
+    interpolate(vec : Vec, t : number, interpFn : (t : number) => number) : Vec2 {
+        if (defined(vec.x)) {
+            this.x += (vec.x - this.x) * interpFn(t);
+        }
+        if (defined(vec.y)) {
+            this.y += (vec.y - this.y) * interpFn(t);
+        }
+        return this;
+    }
+    lerp(vec : Vec, t : number) : Vec2 {
+        return this.interpolate(vec, t, (t : number) => { return t;});
+    }
 
     static zero() : Vec2 { return new Vec2({x: 0, y: 0}); }
     static one() : Vec2 { return new Vec2({x: 1, y: 1}); }

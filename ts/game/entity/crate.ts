@@ -8,14 +8,17 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { GameConstants } from 'game/core'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
+import { BodyCreator } from 'game/util/body_creator'
 
 import { defined } from 'util/common'
-import { Vec } from 'util/vector'
+import { Vec, Vec2 } from 'util/vector'
 
 export class Crate extends EntityBase {
 
 	private _attributes : Attributes;
 	private _profile : Profile;
+
+	private _startingPos : Vec2;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.CRATE, entityOptions);
@@ -30,9 +33,9 @@ export class Crate extends EntityBase {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				const pos = profile.pos();
-				const dim = profile.dim();
-				return MATTER.Bodies.rectangle(pos.x, pos.y, dim.x, dim.y, {});
+				return BodyCreator.rectangle(profile.pos(), profile.dim(), {
+					density: BodyCreator.heavyDensity,
+				});
 			},
 			init: entityOptions.profileInit,
 		}));
@@ -52,5 +55,23 @@ export class Crate extends EntityBase {
 				}, game.scene()));
 			},
 		}));
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		this._startingPos = this._profile.pos().clone();
+	}
+
+	override update(millis : number) : void {
+		super.update(millis);
+
+		if (this._profile.pos().y < -10) {
+			this._profile.setPos(this._startingPos);
+			this._profile.stop();
+
+			this._profile.setAcc({ y: GameConstants.gravity });
+			this._profile.setAngle(0);
+		}
 	}
 }

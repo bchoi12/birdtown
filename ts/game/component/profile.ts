@@ -6,6 +6,7 @@ import { Data } from 'network/data'
 
 import { options } from 'options'
 
+import { Buffer } from 'util/buffer'
 import { Cardinal, CardinalType } from 'util/cardinal'
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
@@ -56,7 +57,7 @@ export class Profile extends ComponentBase implements Component {
 	private _prePhysicsFn : PhysicsFn;
 	private _postPhysicsFn : PhysicsFn;
 
-	private _forces : Array<Vec>;
+	private _forces : Buffer<Vec>;
 	private _constraints : Map<number, MATTER.Constraint>;
 
 	private _pos : Vec2;
@@ -87,7 +88,7 @@ export class Profile extends ComponentBase implements Component {
 		if (defined(profileOptions.postPhysicsFn)) { this._postPhysicsFn = profileOptions.postPhysicsFn; }
 
 		this._constraints = new Map();
-		this._forces = new Array();
+		this._forces = new Buffer();
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -306,20 +307,22 @@ export class Profile extends ComponentBase implements Component {
 	stop() : void {
 		this.setVel({x: 0, y: 0});
 		this.setAcc({x: 0, y: 0});
+		this.setAngularVelocity(0);
+		this._forces.clear();
 	}
 	addForce(force : Vec) : void { this._forces.push(force); }
 	private applyForces() : void {
-		if (this._forces.length === 0) {
+		if (this._forces.empty()) {
 			return;
 		}
 
 		let totalForce = Vec2.zero();
-		this._forces.forEach((force : Vec) => {
+		this._forces.entries().forEach((force : Vec) => {
 			totalForce.add(force);
 		});
 
 		this.addVel(totalForce);
-		this._forces = [];
+		this._forces.clear();
 	}
 
 	setMaxSpeed(params : MaxSpeedParams) { this._maxSpeedParams = params; }
@@ -399,4 +402,4 @@ export class Profile extends ComponentBase implements Component {
 		// Update child objects afterwards.
 		super.postPhysics(millis);
 	}
-}
+} 

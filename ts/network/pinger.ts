@@ -1,5 +1,5 @@
 import { ChannelType, Connection } from 'network/connection'
-import { Message, MessageType } from 'network/message'
+import { IncomingMessage, Message, MessageType } from 'network/message'
 
 import { defined } from 'util/common'
 
@@ -36,13 +36,13 @@ export class Pinger {
 			return;
 		}
 
-		host.addMessageCallback(MessageType.PING, (peer: string, msg : Message) => {
-			if (!defined(msg.S)) {
+		host.addMessageCallback(MessageType.PING, (incoming : IncomingMessage) => {
+			if (!defined(incoming.msg.S)) {
 				return;
 			}
 
-			this._peerPingTimes.set(peer, Date.now());
-			host.send(peer, ChannelType.TCP, msg);
+			this._peerPingTimes.set(incoming.name, Date.now());
+			host.send(incoming.name, ChannelType.TCP, incoming.msg);
 		});
 
 		this._initialized = true;
@@ -54,14 +54,14 @@ export class Pinger {
 			return;
 		}
 
-		client.addMessageCallback(MessageType.PING, (peer : string, msg : Message) => {
-			if (!defined(msg.S)) {
+		client.addMessageCallback(MessageType.PING, (incoming : IncomingMessage) => {
+			if (!defined(incoming.msg.S)) {
 				return;
 			}
 
-			this._peerPingTimes.set(peer, Date.now());
+			this._peerPingTimes.set(incoming.name, Date.now());
 
-			const index = msg.S % Pinger._maxPings;
+			const index = incoming.msg.S % Pinger._maxPings;
 			this._pings[index] = Date.now() - this._pingTimes[index];
 
 			this._ping = 0;
