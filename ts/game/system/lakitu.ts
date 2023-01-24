@@ -16,7 +16,7 @@ export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 25 units
 	private static readonly _horizontalFov = 45.2397 * Math.PI / 180;
 	private static readonly _yMin = 1;
-	private static readonly _offset = new BABYLON.Vector3(0, 3.0, 30.0);
+	private static readonly _offset = new BABYLON.Vector3(0, 5.0, 30.0);
 	private static readonly _lookAtOffset = new BABYLON.Vector3(0, 0.5, 0);
 
 	private _camera : BABYLON.UniversalCamera;

@@ -4,7 +4,6 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { ComponentType } from 'game/component'
-import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
@@ -38,25 +37,25 @@ enum Prop {
 	OPENINGS,
 }
 
-export class Block extends EntityBase {
+export abstract class Block extends EntityBase {
 
-	private _baseColor : HexColor;
-	private _secondaryColor : HexColor;
-	private _openings : Cardinal;
-	private _transparent : boolean;
+	protected _baseColor : HexColor;
+	protected _secondaryColor : HexColor;
+	protected _openings : Cardinal;
+	protected _transparent : boolean;
 
 	// TODO: expand cache value to be struct
-	private _materialCache : Map<string, BABYLON.Material>;
-	private _frontMaterials : Map<BABYLON.Material, number>;
-	private _windows : BABYLON.Mesh;
+	protected _materialCache : Map<string, BABYLON.Material>;
+	protected _frontMaterials : Map<BABYLON.Material, number>;
+	protected _windows : BABYLON.Mesh;
 
-	private _attributes : Attributes;
-	private _profile : Profile;
+	protected _profile : Profile;
 	private _model : Model;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.BLOCK, entityOptions);
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
 
+		this._allTypes.add(EntityType.BLOCK);
 		this.setName({
 			base: "block",
 			id: this.id(),
@@ -64,15 +63,12 @@ export class Block extends EntityBase {
 
 		this._baseColor = new HexColor(0xff0000);
 		this._secondaryColor = new HexColor(0xffffff);
-		this._openings = Cardinal.fromTypes([CardinalType.LEFT, CardinalType.RIGHT]);
+		this._openings = new Cardinal();
 		this._transparent = false;
 
 		this._materialCache = new Map();
 		this._frontMaterials = new Map();
 
-		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-
-		const collisionGroup = MATTER.Body.nextGroup(true);
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyCreator.rectangle(profile.pos(), profile.dim(), {
@@ -85,14 +81,13 @@ export class Block extends EntityBase {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setDim({x: 12, y: 6});
 
 		this.addComponent(new Model({
 			readyFn: () => {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				loader.load(ModelType.ARCH_BASE, (result : LoadResult) => {
+				loader.load(this.modelType(), (result : LoadResult) => {
 					let root = <BABYLON.Mesh>result.meshes[0];
 					root.name = this.name();
 					root.position = this._profile.pos().clone().sub({y: this._profile.dim().y / 2}).toBabylon3();
@@ -104,54 +99,10 @@ export class Block extends EntityBase {
 		}));
 	}
 
-	thickness() : number { return 0.5; }
-
-	override initialize() : void {
-		super.initialize();
-
-		if (!this._openings.anyBottom()) {
-			game.entities().addEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalType.BOTTOM, {x: this._profile.dim().x, y: this.thickness() }),
-			});
-		} else {
-			if (!this._openings.hasType(CardinalType.BOTTOM_LEFT)) {
-				game.entities().addEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalType.BOTTOM_LEFT, {x: this._profile.dim().x / 2, y: this.thickness() }),
-				});
-				game.entities().addEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalType.BOTTOM_LEFT, {x: this.thickness(), y: this.thickness() }),
-				});
-			}
-			if (!this._openings.hasType(CardinalType.BOTTOM_RIGHT)) {
-				game.entities().addEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalType.BOTTOM_RIGHT, {x: this._profile.dim().x / 2, y: this.thickness() }),
-				});
-				game.entities().addEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalType.BOTTOM_RIGHT, {x: this.thickness(), y: this.thickness() }),
-				});
-			}
-		}
-
-		if (this._openings.hasType(CardinalType.RIGHT)) {
-			game.entities().addEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalType.TOP_RIGHT, {x: this.thickness(), y: 1.5 }),
-			});
-		} else {
-			game.entities().addEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalType.RIGHT, {x: this.thickness(), y: this._profile.dim().y }),
-			});
-		}
-
-		if (this._openings.hasType(CardinalType.LEFT)) {
-			game.entities().addEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalType.TOP_LEFT, {x: this.thickness(), y: 1.5 }),
-			});
-		} else {
-			game.entities().addEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalType.LEFT, {x: this.thickness(), y: this._profile.dim().y }),
-			});
-		}
-	}
+	abstract modelType() : ModelType;
+	abstract thickness() : number;
+	openings() : Cardinal { return this._openings; }
+	transparent() : boolean { return this._transparent; }
 
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
@@ -162,7 +113,7 @@ export class Block extends EntityBase {
 	override preRender(millis : number) : void {
 		super.update(millis);
 
-		if (this._transparent) {
+		if (this.transparent()) {
 			this._frontMaterials.forEach((alpha : number, material : BABYLON.Material) => {
 				material.alpha = Math.max(0.1, material.alpha - millis / 300);
 				if (defined(this._windows)) {
@@ -212,7 +163,7 @@ export class Block extends EntityBase {
 		});
 
 		if (meshProps.has("opening")) {
-			if (this._openings.nameMatches(meshProps).size > 0) {
+			if (this.openings().nameMatches(meshProps).size > 0) {
 				mesh.isVisible = false;
 			}
 		}

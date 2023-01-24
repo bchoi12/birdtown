@@ -1,6 +1,7 @@
 import { game } from 'game'	
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
-import { Block } from 'game/entity/block'
+import { ArchBlock } from 'game/entity/block/arch_block'
+import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Crate } from 'game/entity/crate'
 import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
@@ -26,8 +27,9 @@ export class Entities extends SystemBase implements System {
 
 		this.reset();
 		this._entityFactory = new Map();
+		this._entityFactory.set(EntityType.ARCH_BLOCK, (options : EntityOptions) => { return new ArchBlock(options); });
+		this._entityFactory.set(EntityType.ARCH_ROOF, (options : EntityOptions) => { return new ArchRoof(options); });
 		this._entityFactory.set(EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); });
-		this._entityFactory.set(EntityType.BLOCK, (options : EntityOptions) => { return new Block(options); });
 		this._entityFactory.set(EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); });
 		this._entityFactory.set(EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); });
 		this._entityFactory.set(EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); });
@@ -74,6 +76,10 @@ export class Entities extends SystemBase implements System {
 
 		if (this._idToType.has(entityOptions.id)) {
 			console.error("Warning: overwriting object type %d (previous: %d), id %d", type, this._idToType.get(entityOptions.id), entityOptions.id);
+		}
+
+		if (!this._entityFactory.has(type)) {
+			console.error("Error: missing factory function for entity type %d", type);
 		}
 
 		let entity = this._entityFactory.get(type)(entityOptions);

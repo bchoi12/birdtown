@@ -18,6 +18,7 @@ enum KeyState {
 	UP,
 }
 
+// TODO: this class still needs attention, TCP/s is too high, keys are still ignored
 export class Keys extends SystemBase implements System {
 	private _clientId : number;
 	private _keys : Map<Key, KeyState>;

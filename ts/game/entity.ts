@@ -16,6 +16,8 @@ export enum EntityType {
 	PROJECTILE,
 	WEAPON,
 
+	ARCH_BLOCK,
+	ARCH_ROOF,
 	BAZOOKA,
 	CRATE,
 	EXPLOSION,

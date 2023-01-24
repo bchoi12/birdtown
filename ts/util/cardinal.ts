@@ -77,12 +77,23 @@ export class Cardinal {
 			this._cardinals.add(type);
 		}
 	}
+	addTypes(types : CardinalType[]) : void {
+		types.forEach((type : CardinalType) => {
+			this.addType(type);
+		});
+	}
+
 	addName(name : string) : void {
 		if (!Cardinal._cardinalToName.hasReverse(name)) {
 			console.error("Error: skipping invalid cardinal name", name);
 			return;
 		}
 		this.addType(Cardinal._cardinalToName.getReverse(name));
+	}
+	addNames(names : string[]) : void {
+		names.forEach((name : string) => {
+			this.addName(name);
+		});
 	}
 
 	hasType(type : CardinalType) : boolean { return this._cardinals.has(type); }
