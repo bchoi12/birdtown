@@ -56,9 +56,9 @@ export class Model extends ComponentBase implements Component {
 	override dispose() : void {
 		super.dispose();
 
-		if (this.hasMesh()) {
-			this._mesh.dispose();
-		}
+		this.onLoad((model : Model) => {
+			model.mesh().dispose();
+		});
 	}
 
 	hasMesh() : boolean { return defined(this._mesh); }

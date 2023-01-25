@@ -22,8 +22,6 @@ export namespace Html {
 	export const inputMessage = "input-message";
 
 	export const divTooltips = "div-tooltips";
-	export const classTooltip = "tooltip";
-	export const classTooltipShow = "tooltip-show";
 	export const divAnnouncement = "div-announcement";
 	export const divMainAnnouncement = "div-main-announcement";
 	export const divSubAnnouncement = "div-sub-announcement";
@@ -35,8 +33,12 @@ export namespace Html {
 
 	export const fieldsetSettings = "fieldset-settings";
 
-	export const fieldsetKeyBindings = "fieldset-key-bindings";
-	export const classKeyBinding = "key-binding";
+	export const fieldsetKeyBind = "fieldset-key-bind";
+
+	export const classTextButton = "text-button";
+	export const classKeyBind = "key-bind";
+	export const classTooltip = "tooltip";
+	export const classTooltipShow = "tooltip-show";
 
 	export const cursor = "cursor";
 

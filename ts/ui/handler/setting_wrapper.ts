@@ -4,7 +4,7 @@ import { options } from 'options'
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 
-export class SettingInputOptions {
+export type SettingWrapperOptions = {
 	id: string;
 	type: string;
 	label: string;
@@ -19,7 +19,7 @@ export class SettingInputOptions {
 
 export class SettingWrapper extends HtmlWrapper {
 
-	constructor(options : SettingInputOptions) {
+	constructor(options : SettingWrapperOptions) {
 		super(Html.div());
 
 		this.elm().classList.add("setting");
