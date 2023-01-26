@@ -1,13 +1,10 @@
 import * as BABYLON from "babylonjs";
-import * as MATTER from "matter-js"
 
 import { Data, DataFilter, DataMap } from 'network/data'
-import { EntityType } from 'game/entity'
 import { System, SystemType } from 'game/system'
 import { SystemRunner } from 'game/system_runner'
 import { Clients } from 'game/system/clients'
 import { Entities } from 'game/system/entities'
-import { EntityMap } from 'game/system/entity_map'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
@@ -23,8 +20,9 @@ import { IncomingMessage, Message, MessageType } from 'network/message'
 import { options } from 'options'
 
 import { ui } from 'ui'
-import { Html } from 'ui/html'
 import { defined, isLocalhost } from 'util/common'
+import { Html } from 'ui/html'
+import { NumberRingBuffer } from 'util/number_ring_buffer'
 
 interface GameOptions {
 	name : string;
@@ -42,6 +40,7 @@ class Game {
 
 	private _initialized : boolean;
 	private _canvas : HTMLCanvasElement;
+	private _frameTimes : NumberRingBuffer;
 
 	private _options : GameOptions;
 	private _id : number;
@@ -61,6 +60,7 @@ class Game {
 	constructor() {
 		this._initialized = false;
 		this._canvas = Html.canvasElm(Html.canvasGame);
+		this._frameTimes = new NumberRingBuffer(60);
 	}
 
 	initialize(gameOptions : GameOptions) {
@@ -132,6 +132,8 @@ class Game {
 	    }
 
 	    this._engine.runRenderLoop(() => {
+	    	const frameStart = Date.now();
+
 	    	this._connection.preUpdate();
 	    	if (this.hasId()) {
 	    		this._systemRunner.update();
@@ -144,6 +146,8 @@ class Game {
 					this._connection.broadcast(Game._channelMapping.get(filter), msg);
     			}
 	    	}
+
+	    	this._frameTimes.push(Date.now() - frameStart);
 	    });
 
 	    this._initialized = true;
@@ -155,6 +159,7 @@ class Game {
 	hasId() : boolean { return defined(this._id); }
 	id() : number { return this._id; }
 	options() : GameOptions { return this._options; }
+	averageFrameTime() : number { return this._frameTimes.average(); }
 
 	systemRunner() : SystemRunner { return this._systemRunner; }
 	getSystem<T extends System>(type : SystemType) : T { return this._systemRunner.getSystem<T>(type); }

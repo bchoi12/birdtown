@@ -321,6 +321,7 @@ export class Profile extends ComponentBase implements Component {
 			totalForce.add(force);
 		});
 
+		// TODO: factor in weight
 		this.addVel(totalForce);
 		this._forces.clear();
 	}

@@ -18,10 +18,10 @@ enum KeyState {
 	UP,
 }
 
-// TODO: this class still needs attention, TCP/s is too high, keys are still ignored
 export class Keys extends SystemBase implements System {
 	private _clientId : number;
-	private _keys : Map<Key, KeyState>;
+	private _keys : Set<Key>;
+	private _keyStates : Map<Key, KeyState>;
 	private _mouse : Vec2;
 	private _dir : Vec2;
 
@@ -34,7 +34,8 @@ export class Keys extends SystemBase implements System {
 		});
 
 		this._clientId = clientId;
-		this._keys = new Map();
+		this._keys = new Set();
+		this._keyStates = new Map();
 		this._mouse = Vec2.zero();
 		this._dir = Vec2.i();
 
@@ -46,9 +47,15 @@ export class Keys extends SystemBase implements System {
 
 			// TODO: consider reducing number of states being exported if TCP channel has problems
 			this.registerProp(key, {
-				has: () => { return this._keys.has(key); },
-				export: () => { return this._keys.get(key); },
-				import: (obj : Object) => { this.updateKey(key, <KeyState>obj); },
+				has: () => { return this._keyStates.has(key); },
+				export: () => { return this._keys.has(key); },
+				import: (obj : Object) => {
+					if (<boolean>obj) {
+						this._keys.add(key);
+					} else {
+						this._keys.delete(key);
+					}
+				},
 			})
 		}
 
@@ -66,10 +73,10 @@ export class Keys extends SystemBase implements System {
 
 	clientId() : number { return this._clientId; }
 
-	keyDown(key : Key) : boolean { return this._keys.has(key) && (this._keys.get(key) === KeyState.DOWN || this.keyPressed(key)); }
-	keyUp(key : Key) : boolean { return !this._keys.has(key) || (this._keys.get(key) === KeyState.UP || this.keyReleased(key)); }
-	keyPressed(key : Key) : boolean { return this._keys.has(key) && this._keys.get(key) === KeyState.PRESSED; }
-	keyReleased(key : Key) : boolean { return this._keys.has(key) && this._keys.get(key) === KeyState.RELEASED; }
+	keyDown(key : Key) : boolean { return this._keyStates.has(key) && (this._keyStates.get(key) === KeyState.DOWN || this.keyPressed(key)); }
+	keyUp(key : Key) : boolean { return this._keyStates.has(key) && (this._keyStates.get(key) === KeyState.UP || this.keyReleased(key)); }
+	keyPressed(key : Key) : boolean { return this._keyStates.has(key) && this._keyStates.get(key) === KeyState.PRESSED; }
+	keyReleased(key : Key) : boolean { return this._keyStates.has(key) && this._keyStates.get(key) === KeyState.RELEASED; }
 	dir() : Vec2 { return this._dir; }
 	mouse() : Vec2 { return this._mouse; }
 	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }
@@ -83,18 +90,18 @@ export class Keys extends SystemBase implements System {
 	}
 
 	protected pressKey(key : Key) : void {
-		if (!this.keyDown(key)) {
-			this._keys.set(key, KeyState.PRESSED);
+		if (this.keyDown(key)) {
+			this._keyStates.set(key, KeyState.DOWN);
 		} else {
-			this._keys.set(key, KeyState.DOWN);
+			this._keyStates.set(key, KeyState.PRESSED);
 		}
 	}
 
 	protected releaseKey(key : Key) : void {
-		if (this.keyDown(key)) {
-			this._keys.set(key, KeyState.RELEASED);
+		if (this.keyUp(key)) {
+			this._keyStates.set(key, KeyState.UP);
 		} else {
-			this._keys.set(key, KeyState.UP);
+			this._keyStates.set(key, KeyState.RELEASED);
 		}
 	}
 
@@ -120,28 +127,27 @@ export class Keys extends SystemBase implements System {
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
-		if (!this.isSource()) { return; }
+		if (this.isSource()) {
+			this._keys = ui.keys();
+			this.updateMouse();
+		}
 
-		const keys = ui.keys();
-		keys.forEach((key : Key) => {
+		this._keys.forEach((key : Key) => {
 			this.pressKey(key);
 		});
-
-		this._keys.forEach((keyState : KeyState, key : Key) => {
-			if (!keys.has(key)) {
+		this._keyStates.forEach((keyState : KeyState, key : Key) => {
+			if (!this._keys.has(key)) {
 				this.releaseKey(key);
 			}
 		});
-
-		this.updateMouse();
 	}
 
 	override preRender(millis : number) : void {
 		super.preRender(millis);
 
-		if (!this.isSource()) { return; }
-
-		this.updateMouse();
+		if (this.isSource()) {
+			this.updateMouse();
+		}
 	}
 
 	override isSource() : boolean { return game.id() === this._clientId; }

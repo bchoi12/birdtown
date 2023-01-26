@@ -1,5 +1,4 @@
 
-
 export class Buffer<T> {
 	private _buffer : Array<T>;
 	private _size : number;

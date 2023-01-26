@@ -232,6 +232,7 @@ export class Player extends EntityBase {
 		});
 	}
 
+	// TODO: fix race condition where weapon is loaded upside-downa
 	equipWeapon(weapon : Weapon) : void {
 		this._weapon = weapon;
 		this._model.onLoad(() => {
