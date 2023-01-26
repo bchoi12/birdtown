@@ -19,10 +19,10 @@ export class Client extends Netcode {
 	}
 
 	initialize() : void {
-		let self = this.peer();
-		self.on("open", () => {
+		let peer = this.peer();
+		peer.on("open", () => {
 			if (isLocalhost()) {
-				console.log("Opened client connection for " + self.id);
+				console.log("Opened client connection for " + peer.id);
 			}
 
 			this._pinger.initializeForClient(this, this.hostName());
@@ -33,9 +33,9 @@ export class Client extends Netcode {
 	hostName() : string { return this._hostName; }
 
 	private initTCP() : void {
-		let self = this.peer();
+		let peer = this.peer();
 
-		this._tcp = self.connect(this._hostName, {
+		this._tcp = peer.connect(this._hostName, {
 			reliable: true,
 			label: ChannelType.TCP,
 			serialization: "none",

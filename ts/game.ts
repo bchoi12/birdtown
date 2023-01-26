@@ -81,24 +81,28 @@ class Game {
 					D: clientId,
 				});
 				this._systemRunner.onNewClient(name, clientId);
+
+				if (isLocalhost()) {
+					console.log("Registered new client to game:", clientId);
+				}
 			});
 		} else {
 			this._netcode = new Client(this._options.name, this._options.hostName);
 			this._netcode.addMessageCallback(MessageType.INIT_CLIENT, (incoming : IncomingMessage) => {
 				if (!defined(incoming.msg.D)) {
-					console.error("Invalid message: ", incoming);
+					console.error("Error: invalid message ", incoming);
 					return;
 				}
 
 				this.setId(<number>incoming.msg.D);
 				if (isLocalhost()) {
-					console.log("Got client id: " + this.id());
+					console.log("Got client id", this.id());
 				}
 			});
 		}
 		this._netcode.addMessageCallback(MessageType.GAME, (incoming : IncomingMessage) => {
 			if (!defined(incoming.msg.D) || !defined(incoming.msg.S)) {
-				console.error("Invalid message: ", incoming);
+				console.error("Error: invalid message ", incoming);
 				return;
 			}
 

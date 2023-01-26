@@ -74,8 +74,8 @@ export abstract class Netcode {
 		}
 		this._registerBuffer.clear();
 
-		this._connections.forEach((pc : Connection, name : string) => {
-			if (!pc.connected()) {
+		this._connections.forEach((connection : Connection, name : string) => {
+			if (!connection.connected()) {
 				return;
 			}
 
@@ -217,13 +217,9 @@ export abstract class Netcode {
 			const msg = <Message>decoded;
 			if (this._messageCallbacks.has(msg.T)) {
 				const connection = this._connections.get(name);
-				if (!connection.hasGameId()) {
-					return;
-				}
-
 				const incoming = {
 					name: name,
-					id: connection.gameId(),
+					id: connection.hasGameId() ? connection.gameId() : 0,
 					msg: msg,
 				};
 				if (msg.T === MessageType.GAME) {
