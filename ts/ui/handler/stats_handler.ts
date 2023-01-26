@@ -1,7 +1,8 @@
 import { game } from 'game'
 
-import { ChannelType } from 'network/connection'
+import { ChannelType } from 'network/netcode'
 import { ChannelMap, ChannelStat } from 'network/channel_map'
+import { Connection } from 'network/connection'
 
 import { ui, HandlerType, Mode } from 'ui'
 import { Html } from 'ui/html'
@@ -31,18 +32,17 @@ export class StatsHandler extends HandlerBase implements Handler {
 	private updateStats() {
 
 		if (game.initialized()) {
-			const ping = game.connection().ping();
+			const ping = game.netcode().ping();
 			const fps = game.engine().getFps().toFixed();
-			const channelMaps = game.connection().channelMaps();
 
 			let tcp = 0;
 			let udp = 0;
 			let bytes = 0;
-			channelMaps.forEach((channelMap : ChannelMap) => {
-				tcp += channelMap.flushStat(ChannelType.TCP, ChannelStat.PACKETS);
-				udp += channelMap.flushStat(ChannelType.UDP, ChannelStat.PACKETS);
-				bytes += channelMap.flushStat(ChannelType.TCP, ChannelStat.BYTES);
-				bytes += channelMap.flushStat(ChannelType.UDP, ChannelStat.BYTES);
+			game.netcode().connections().forEach((connection : Connection) => {
+				tcp += connection.channels().flushStat(ChannelType.TCP, ChannelStat.PACKETS);
+				udp += connection.channels().flushStat(ChannelType.UDP, ChannelStat.PACKETS);
+				bytes += connection.channels().flushStat(ChannelType.TCP, ChannelStat.BYTES);
+				bytes += connection.channels().flushStat(ChannelType.UDP, ChannelStat.BYTES);
 			});
 
 			let text = [

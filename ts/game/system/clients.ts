@@ -5,7 +5,7 @@ import { EntityType } from 'game/entity'
 import { System, SystemBase, SystemType } from 'game/system'
 import { ClientInfo } from 'game/system/client_info'
 
-import { ChannelType } from 'network/connection'
+import { ChannelType } from 'network/netcode'
 import { DataFilter } from 'network/data'
 import { MessageType } from 'network/message'
 

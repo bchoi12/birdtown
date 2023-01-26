@@ -13,7 +13,7 @@ import { Physics } from 'game/system/physics'
 import { World } from 'game/system/world'
 
 import { Client } from 'network/client'
-import { Connection, ChannelType } from 'network/connection'
+import { Netcode, ChannelType } from 'network/netcode'
 import { Host } from 'network/host'
 import { IncomingMessage, Message, MessageType } from 'network/message'
 
@@ -46,7 +46,7 @@ class Game {
 	private _id : number;
 	private _lastId : number;
 	private _engine : BABYLON.Engine|BABYLON.NullEngine;
-	private _connection : Connection;
+	private _netcode : Netcode;
 
 	private _systemRunner : SystemRunner;
 	private _clients : Clients;
@@ -72,31 +72,31 @@ class Game {
 		window.onresize = () => { this.resize(); };
 
 		if (this._options.host) {
-			this._connection = new Host(this._options.name);
-			this._connection.addRegisterCallback((name : string) => {
+			this._netcode = new Host(this._options.name);
+			this._netcode.addRegisterCallback((name : string) => {
 				const clientId = game.nextId();
-				this._connection.setClientId(name, clientId);
-				this._connection.send(name, ChannelType.TCP, {
+				this._netcode.getConnection(name).setGameId(clientId);
+				this._netcode.send(name, ChannelType.TCP, {
 					T: MessageType.INIT_CLIENT,
-					I: clientId,
+					D: clientId,
 				});
 				this._systemRunner.onNewClient(name, clientId);
 			});
 		} else {
-			this._connection = new Client(this._options.name, this._options.hostName);
-			this._connection.addMessageCallback(MessageType.INIT_CLIENT, (incoming : IncomingMessage) => {
-				if (!defined(incoming.msg.I)) {
+			this._netcode = new Client(this._options.name, this._options.hostName);
+			this._netcode.addMessageCallback(MessageType.INIT_CLIENT, (incoming : IncomingMessage) => {
+				if (!defined(incoming.msg.D)) {
 					console.error("Invalid message: ", incoming);
 					return;
 				}
 
-				this.setId(incoming.msg.I);
+				this.setId(<number>incoming.msg.D);
 				if (isLocalhost()) {
 					console.log("Got client id: " + this.id());
 				}
 			});
 		}
-		this._connection.addMessageCallback(MessageType.GAME, (incoming : IncomingMessage) => {
+		this._netcode.addMessageCallback(MessageType.GAME, (incoming : IncomingMessage) => {
 			if (!defined(incoming.msg.D) || !defined(incoming.msg.S)) {
 				console.error("Invalid message: ", incoming);
 				return;
@@ -104,7 +104,7 @@ class Game {
 
 			this._systemRunner.importData(<DataMap>incoming.msg.D, incoming.msg.S);
 		});
-		this._connection.initialize();
+		this._netcode.initialize();
 
 		this._systemRunner = new SystemRunner();
 		this._clients = new Clients();
@@ -134,16 +134,16 @@ class Game {
 	    this._engine.runRenderLoop(() => {
 	    	const frameStart = Date.now();
 
-	    	this._connection.preUpdate();
+	    	this._netcode.preUpdate();
 	    	if (this.hasId()) {
 	    		this._systemRunner.update();
 	    	}
-	    	this._connection.postUpdate();
+	    	this._netcode.postUpdate();
 
 	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {
     			const [msg, has] = this._systemRunner.message(filter);
 				if (has) {
-					this._connection.broadcast(Game._channelMapping.get(filter), msg);
+					this._netcode.broadcast(Game._channelMapping.get(filter), msg);
     			}
 	    	}
 
@@ -171,7 +171,7 @@ class Game {
 	lakitu() : Lakitu { return this._lakitu; }
 	keys(id? : number) : Keys { return this._input.getKeys(id); }
 	entities() : Entities { return this._entities; }
-	connection() : Connection { return this._connection; }
+	netcode() : Netcode { return this._netcode; }
 
 	// For some reason this has to be here for typescript
 	mouse() : BABYLON.Vector3 {

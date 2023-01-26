@@ -1,243 +1,32 @@
-import { encode, decode } from '@msgpack/msgpack'
-import { DataConnection, Peer } from 'peerjs'
 
 import { ChannelMap } from 'network/channel_map'
-import { IncomingMessage, Message, MessageType } from 'network/message'
-import { Pinger } from 'network/pinger'
+import { defined } from 'util/common'
 
-import { options } from 'options'
+export class Connection {
+	
+	private _displayName : string;
+	private _connected : boolean;
+	private _channels : ChannelMap;
 
-import { Buffer } from 'util/buffer'
-import { isLocalhost } from 'util/common'
-import { DoubleMap } from 'util/double_map'
+	private _gameId : number;
 
-export enum ChannelType {
-	UNKNOWN = "UNKNOWN",
-	TCP = "TCP",
-	UDP = "UDP",
-}
-
-type PeerMap = Map<string, ChannelMap>;
-type RegisterCallback = (name : string) => void;
-type MessageCallback = (incoming : IncomingMessage) => void;
-
-export abstract class Connection {
-	private static readonly _validChannels : Set<string> = new Set([
-		ChannelType.TCP,
-		ChannelType.UDP,
-	]);
-
-	protected _peer : Peer;
-	protected _peers : Map<string, ChannelMap>;
-	protected _nameAndId : DoubleMap<string, number>;
-	protected _pinger : Pinger;
-
-	protected _registerBuffer : Buffer<string>;
-	protected _registerCallbacks : Array<RegisterCallback>;
-
-	protected _messageBuffer : Buffer<IncomingMessage>;
-	protected _messageCallbacks : Map<MessageType, MessageCallback>;
-
-	constructor(name : string) {
-		this._peer = new Peer(name, {
-			debug: 2,
-			pingInterval: 1000,
-		});
-		this._peers = new Map();
-		this._nameAndId = new DoubleMap();
-
-		this._pinger = new Pinger();
-
-		this._registerBuffer = new Buffer();
-		this._registerCallbacks = new Array();
-		this._messageBuffer = new Buffer();
-		this._messageCallbacks = new Map();
-
-		if (isLocalhost()) {
-			console.log("Initializing connection for " + (name.length > 0 ? name : "new client"));
-		}
+	constructor() {
+		this._displayName = "unknown";
+		this._connected = true;
+		this._channels = new ChannelMap();
 	}
 
-	abstract initialize() : void;
+	setGameId(id : number) : void { this._gameId = id; }
+	hasGameId() : boolean { return defined(this._gameId); }
+	gameId() : number { return this._gameId; }
 
-	self() : Peer { return this._peer; }
-	getChannelMap(name : string) : ChannelMap { return this._peers.get(name); }
-	channelMaps() : Map<string, ChannelMap> { return this._peers; }
-	ping() : number { return this._pinger.ping(); }
+	channels() : ChannelMap { return this._channels; }
+	displayName() : string { return this.hasGameId() ? (this._displayName + "#" + this.gameId()) : "unknown"; }
+	connected() : boolean { return this._connected; }
 
-	names() : Set<string> { return this._nameAndId.keys(); }
-	gameIds() : Set<number> { return this._nameAndId.values(); }
-	gameIdFromName(name : string) { return this._nameAndId.get(name); }
-	setClientId(name : string, id : number) { this._nameAndId.set(name, id); }
-
-	preUpdate() : void {
-		for (let i = 0; i < this._registerBuffer.size(); ++i) {
-			for (let j = 0; j < this._registerCallbacks.length; ++j) {
-				this._registerCallbacks[j](this._registerBuffer.get(i));
-			}
-		}
-		this._registerBuffer.clear();
-
-		this.names().forEach((name : string) => {
-			if (this._pinger.timeSincePing(name) >= 10000) {
-				console.error("Connection to " + name + " timed out");
-				this.close(name);
-			}
-		});
-
-		for (let i = 0; i < this._messageBuffer.size(); ++i) {
-			const incoming = this._messageBuffer.get(i);
-			if (this._messageCallbacks.has(incoming.msg.T)) {
-				this._messageCallbacks.get(incoming.msg.T)(incoming);
-			}
-		}
-		this._messageBuffer.clear();
+	disconnect() : void {
+		this._channels.disconnect();
+		this._connected = false;
 	}
 
-	postUpdate() : void {
-
-	}
-
-	register(connection : DataConnection) {
-		if (!Connection._validChannels.has(connection.label)) {
-			console.error("Error: invalid channel type: " + connection.label);
-			return;
-		}
-		const channelType = <ChannelType>connection.label;
-		if (!connection.open) {
-			console.error("Warning: registering unopen " + channelType + " channel for " + connection.peer);
-		}
-
-		if (!this._peers.has(connection.peer)) {
-			this._peers.set(connection.peer, new ChannelMap());
-		}
-
-		let channels = this._peers.get(connection.peer);
-		channels.register(channelType, connection);
-
-		connection.on("data", (data : Object) => {
-			this.handleData(connection.peer, data);
-		});
-
-		connection.on("close", () => {
-			channels.delete(channelType);
-		});
-
-		connection.on("error", (error) => {
-			console.error(error);
-		});
-
-		if (channels.ready()) {
-			this._registerBuffer.push(connection.peer);
-		}
-	}
-
-	unregister(connection : DataConnection) {
-		let channels = this._peers.get(connection.peer);
-		const channelType = <ChannelType>connection.label;
-
-		if (connection.open) {
-			connection.close();
-			channels.delete(channelType);
-		}
-
-		console.log("Closed " + connection.label + " connection to " + connection.peer);
-
-		if (channels.disconnected()) {
-			console.log("Client " + connection.peer + " disconnected.");
-			this._peers.delete(connection.peer);
-		}
-	}
-
-	addRegisterCallback(cb : RegisterCallback) {
-		this._registerCallbacks.push(cb);
-	}
-
-	addMessageCallback(type : MessageType, cb : MessageCallback) {
-		if (this._messageCallbacks.has(type)) {
-			console.error("Warning: overwriting callback for message type " + type);
-		}
-		this._messageCallbacks.set(type, cb);
-	}
-
-	broadcast(type : ChannelType, msg : Message) : void {
-		this._peers.forEach((channels, name) => {
-			if (!channels.ready()) {
-				return;
-			}
-
-			this.send(name, type, msg);
-		});
-	}
-
-	send(name : string, type : ChannelType, msg : Message) : boolean {
-		if (!this._peers.has(name)) {
-			return false;
-		}
-
-		const channels = this._peers.get(name);
-		if (!channels.ready() || !channels.has(type)) {
-			return false;
-		}
-
-		if (isLocalhost() && options.debugDelay > 0) {
-			setTimeout(() => {
-				channels.send(type, encode(msg));
-			}, options.debugDelay);
-		} else {
-			channels.send(type, encode(msg));
-		}
-		return true;
-	}
-
-	close(peer : string) : void {
-		if (this._peers.has(peer)) {
-			this._peers.get(peer).disconnect();
-			this._peers.delete(peer);
-		}
-		
-		// Don't clear this
-		// this._nameAndId.delete(peer);
-	}
-
-	private async handleData(peer : string, data : Object) {
-		let bytes;
-		if (data instanceof ArrayBuffer) {
-			bytes = new Uint8Array(data);
-		} else if (data instanceof Blob) {
-			bytes = new Uint8Array(await data.arrayBuffer());
-		} else {
-			console.error("Unknown data type: " + (typeof data));
-			return;
-		}
-
-		if (bytes.length === 0) {
-			console.error("Decoded empty payload");
-			return;
-		}
-
-		const decoded : Object = decode(bytes);
-		if ('T' in decoded) {
-			const msg = <Message>decoded;
-			if (this._messageCallbacks.has(msg.T)) {
-				const incoming = {
-					name: peer,
-					id: this._nameAndId.get(peer),
-					msg: msg,
-				};
-
-				if (msg.T === MessageType.GAME) {
-					this._messageBuffer.push({
-						name: peer,
-						id: this._nameAndId.get(peer),
-						msg: msg,
-					});
-				} else {
-					this._messageCallbacks.get(incoming.msg.T)(incoming);
-				}
-			}
-		} else {
-			console.error("Missing payload type from message: ", decoded);
-		}
-	}
 }

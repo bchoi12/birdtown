@@ -1,7 +1,7 @@
 import { game } from 'game'
 import { System, SystemType } from 'game/system'
 
-import { ChannelType } from 'network/connection'
+import { ChannelType } from 'network/netcode'
 import { Data, DataFilter, DataMap } from 'network/data'
 import { Message, MessageType } from 'network/message'
 
@@ -110,7 +110,7 @@ export class SystemRunner {
 			this.getSystem(this._order[i]).onNewClient(name, clientId);
 		}
 
-		const connection = game.connection();
+		const connection = game.netcode();
 		const [message, has] = this.message(DataFilter.ALL);
 		if (has) {
 			connection.send(name, ChannelType.TCP, message);

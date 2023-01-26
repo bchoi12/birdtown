@@ -392,7 +392,7 @@ export class Profile extends ComponentBase implements Component {
 		if (this.isSource()) {
 			this.setPos(this._body.position);
 		} else {
-			const weight = Math.min(Math.max(this.millisSinceImport() - game.connection().ping() / 2, 0) / options.maxPredictionMillis, 1);
+			const weight = Math.min(Math.max(this.millisSinceImport() - game.netcode().ping() / 2, 0) / options.maxPredictionMillis, 1);
 			this._pos.lerp(this._body.position, weight * options.predictionWeight);
 		}
 

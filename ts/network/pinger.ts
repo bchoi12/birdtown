@@ -1,4 +1,4 @@
-import { ChannelType, Connection } from 'network/connection'
+import { Netcode, ChannelType } from 'network/netcode'
 import { IncomingMessage, Message, MessageType } from 'network/message'
 
 import { defined } from 'util/common'
@@ -30,7 +30,7 @@ export class Pinger {
 	ping() : number { return this._ping; }
 	timeSincePing(peer : string) : number { return this._peerPingTimes.has(peer) ? Math.max(0, Date.now() - this._peerPingTimes.get(peer)) : 0; }
 
-	initializeForHost(host : Connection) {
+	initializeForHost(host : Netcode) {
 		if (this._initialized) {
 			console.log("Warning: skipping initialization of pinger");
 			return;
@@ -48,7 +48,7 @@ export class Pinger {
 		this._initialized = true;
 	}
 
-	initializeForClient(client : Connection, hostName : string) {
+	initializeForClient(client : Netcode, hostName : string) {
 		if (this._initialized) {
 			console.log("Warning: skipping initialization of pinger");
 			return;
@@ -75,7 +75,7 @@ export class Pinger {
 		this._initialized = true;
 	}
 
-	private pingLoop(connection : Connection, hostName : string, interval : number) : void {
+	private pingLoop(connection : Netcode, hostName : string, interval : number) : void {
 		const success = connection.send(hostName, ChannelType.TCP, {
 			T: MessageType.PING,
 			S: this._lastPingNumber,

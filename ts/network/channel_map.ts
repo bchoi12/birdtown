@@ -1,6 +1,6 @@
 import { DataConnection } from 'peerjs'
 
-import { ChannelType } from 'network/connection'
+import { ChannelType } from 'network/netcode'
 
 import { isLocalhost } from 'util/common'
 import { StatsTracker } from 'util/stats_tracker'
@@ -33,6 +33,7 @@ export class ChannelMap {
 		}
 
 		this._channels.delete(type);
+		this._stats.delete(type);
 	}
 
 	register(type : ChannelType, connection : DataConnection) {

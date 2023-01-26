@@ -1,11 +1,11 @@
 import { DataConnection } from 'peerjs'
 
-import { Connection } from 'network/connection'
-import { ChannelType } from 'network/connection'
+import { Netcode } from 'network/netcode'
+import { ChannelType } from 'network/netcode'
 
 import { defined, isLocalhost } from 'util/common'
 
-export class Client extends Connection {
+export class Client extends Netcode {
 
 	private _hostName : string;
 
@@ -19,7 +19,7 @@ export class Client extends Connection {
 	}
 
 	initialize() : void {
-		let self = this.self();
+		let self = this.peer();
 		self.on("open", () => {
 			if (isLocalhost()) {
 				console.log("Opened client connection for " + self.id);
@@ -33,7 +33,7 @@ export class Client extends Connection {
 	hostName() : string { return this._hostName; }
 
 	private initTCP() : void {
-		let self = this.self();
+		let self = this.peer();
 
 		this._tcp = self.connect(this._hostName, {
 			reliable: true,
@@ -54,7 +54,10 @@ export class Client extends Connection {
 			console.error("TCP closed! Reconnecting...");
 
 			this.unregister(this._tcp);
-			this.unregister(this._udp);
+
+			if (defined(this._udp)) {
+				this.unregister(this._udp);
+			}
 
 			// TODO: only call if peer connection is still valid
 			this.initTCP();
@@ -62,7 +65,7 @@ export class Client extends Connection {
 	}
 
 	private initUDP() : void {
-		let peer = this.self();
+		let peer = this.peer();
 
 		this._udp = peer.connect(this._hostName, {
 			reliable: false,

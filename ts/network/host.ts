@@ -1,14 +1,14 @@
 
-import { Connection } from 'network/connection'
+import { Netcode } from 'network/netcode'
 
-export class Host extends Connection {
+export class Host extends Netcode {
 
 	constructor(name : string) {
 		super(name);
 	}
 
 	initialize() : void {
-		let self = this.self();
+		let self = this.peer();
 
 		self.on("open", () => {
 			console.log("Opened host connection for " + self.id);

@@ -1,5 +1,6 @@
 export enum MessageType {
 	UNKNOWN,
+	CHAT,
 	GAME,
 	INIT_CLIENT,
 	PING,
@@ -14,9 +15,6 @@ export type IncomingMessage = {
 // TODO: actual message class
 export interface Message {
 	T : number;
-
-	// Id
-	I? : number;
 
 	// Sequence number
 	S? : number;
