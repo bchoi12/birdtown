@@ -35,6 +35,9 @@ export namespace Html {
 
 	export const fieldsetKeyBind = "fieldset-key-bind";
 
+	export const classSlightlyTransparent = "slightly-transparent";
+	export const classNoSelect = "no-select";
+
 	export const classTextButton = "text-button";
 	export const classKeyBind = "key-bind";
 	export const classTooltip = "tooltip";

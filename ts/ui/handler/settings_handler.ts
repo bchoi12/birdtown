@@ -5,7 +5,7 @@ import { options } from 'options'
 
 import { HandlerType, Mode } from 'ui'
 import { Handler, HandlerBase } from 'ui/handler'
-import { SettingWrapper } from 'ui/handler/setting_wrapper'
+import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
 import { Html } from 'ui/html'
 
 import { isLocalhost } from 'util/common'

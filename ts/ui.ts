@@ -1,5 +1,6 @@
 
 import { Handler } from 'ui/handler'
+import { ChatHandler } from 'ui/handler/chat_handler'
 import { InputHandler } from 'ui/handler/input_handler'
 import { KeyBindHandler } from 'ui/handler/key_bind_handler'
 import { LoginHandler } from 'ui/handler/login_handler'
@@ -53,6 +54,7 @@ class UI {
 
 	private _handlers : Map<HandlerType, Handler>;
 
+	private _chatHandler : ChatHandler;
 	private _inputHandler : InputHandler;
 	private _keyBindHandler : KeyBindHandler;
 	private _loginHandler : LoginHandler;
@@ -65,6 +67,7 @@ class UI {
 
 		this._handlers = new Map();		
 
+		this._chatHandler = this.add<ChatHandler>(new ChatHandler());
 		this._inputHandler = this.add<InputHandler>(new InputHandler());
 		this._keyBindHandler = this.add<KeyBindHandler>(new KeyBindHandler());
 		this._loginHandler = this.add<LoginHandler>(new LoginHandler());

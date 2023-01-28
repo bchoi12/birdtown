@@ -4,7 +4,7 @@ import { options } from 'options'
 import { ui, HandlerType, Mode } from 'ui'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
-import { KeyBindWrapper, KeyBindWrapperOptions } from 'ui/handler/key_bind_wrapper'
+import { KeyBindWrapper, KeyBindWrapperOptions } from 'ui/wrapper/key_bind_wrapper'
 
 export class KeyBindHandler extends HandlerBase implements Handler {
 	private _keyBindElm : HTMLElement;
