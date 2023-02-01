@@ -268,7 +268,7 @@ export class Player extends EntityBase {
 		if (game.options().host) {
 			// Out of bounds
 			if (this._profile.pos().y < -8) {
-				this._health.damage(1000);
+				this.takeDamage(1000);
 			}
 		}
 		this._attributes.setIfHost(Attribute.GROUNDED, this._jumpTimer.hasTimeLeft());

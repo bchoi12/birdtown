@@ -68,7 +68,7 @@ export class Rocket extends Projectile {
 		});
 	}
 
-	override damage() { return 20; }
+	override damage() : number { return 20; }
 
 	override preRender(millis : number) : void {
 		super.preRender(millis);
@@ -86,7 +86,7 @@ export class Rocket extends Projectile {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (!this.isSource()) {
+		if (!this.isSource() || this.deleted()) {
 			return;
 		}
 
@@ -98,8 +98,7 @@ export class Rocket extends Projectile {
 			return;
 		}
 
-		other.damage(this.damage(), this);
-
+		other.takeDamage(this.damage(), this);
 		if (other.getComponent<Attributes>(ComponentType.ATTRIBUTES).getOrDefault(Attribute.SOLID)) {
 			this.delete();
 		}

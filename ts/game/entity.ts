@@ -49,7 +49,7 @@ export interface Entity extends GameObject {
 	hasComponent(type : ComponentType) : boolean;
 	getComponent<T extends Component>(type : ComponentType) : T;
 
-	damage(amount : number, from? : Entity) : void;
+	takeDamage(amount : number, from? : Entity) : void;
 	collide(collision : MATTER.Collision, other : Entity) : void;
 	newTimer() : Timer;
 	setTTL(ttl : number);
@@ -144,7 +144,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		timer.start(ttl, () => { this.delete(); });
 	}
 
-	damage(amount : number, from? : Entity) : void {
+	takeDamage(amount : number, from? : Entity) : void {
 		if (!this.hasComponent(ComponentType.HEALTH)) { return; }
 
 		this.getComponent<Health>(ComponentType.HEALTH).damage(amount, from);
