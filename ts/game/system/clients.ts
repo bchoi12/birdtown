@@ -9,6 +9,7 @@ import { ChannelType } from 'network/netcode'
 import { DataFilter } from 'network/data'
 import { MessageType } from 'network/message'
 
+// TODO: deprecate along with ClientInfo?
 export class Clients extends SystemBase implements System {
 
 	constructor() {

@@ -27,7 +27,10 @@ export abstract class Netcode {
 		ChannelType.UDP,
 	]);
 
-	protected _peer : Peer;
+	protected _displayName : string;
+	protected _hostName : string;
+	protected _gameId : number;
+
 	protected _connections : Map<string, Connection>;
 	protected _pinger : Pinger;
 
@@ -37,14 +40,12 @@ export abstract class Netcode {
 	protected _messageBuffer : Buffer<IncomingMessage>;
 	protected _messageCallbacks : Map<MessageType, MessageCallback>;
 
-	constructor(name : string) {
-		this._peer = new Peer(name, {
-			debug: 2,
-			pingInterval: 5000,
-		});
-		this._peer.on("disconnected", () => {
-			this._peer.reconnect();
-		});
+	protected _peer : Peer;
+
+	constructor(displayName : string, hostName : string) {
+		this._displayName = displayName;
+		this._hostName = hostName;
+		this._gameId = 0;
 
 		this._connections = new Map();
 		this._pinger = new Pinger();
@@ -53,13 +54,22 @@ export abstract class Netcode {
 		this._registerCallbacks = new Array();
 		this._messageBuffer = new Buffer();
 		this._messageCallbacks = new Map();
-
-		if (isLocalhost()) {
-			console.log("Initializing connection for " + (name.length > 0 ? name : "new client"));
-		}
 	}
 
+	abstract isHost() : boolean;
 	abstract initialize() : void;
+	abstract initialized() : boolean;
+	abstract ready() : boolean;
+
+	abstract sendChat(message : string) : void;
+	abstract receiveChat(from : string, message : string) : void;
+
+	name() : string { return this._peer.id; }
+	displayName() : string { return this.hasGameId() ? (this._displayName + " #" + this.gameId()) : this._displayName; }
+	hostName() : string { return this._hostName; }
+	hasGameId() : boolean { return this._gameId > 0; }
+	setGameId(id : number) { this._gameId = id; }
+	gameId() : number { return this._gameId; }
 
 	peer() : Peer { return this._peer; }
 	ping() : number { return this._pinger.ping(); }
@@ -109,7 +119,15 @@ export abstract class Netcode {
 		}
 
 		if (!this._connections.has(connection.peer)) {
-			this._connections.set(connection.peer, new Connection());
+			let wrapper = new Connection();
+			if (connection.metadata) {
+				const meta = connection.metadata;
+
+				if (meta.name) {
+					wrapper.setDisplayName(meta.name);
+				}
+			}
+			this._connections.set(connection.peer, wrapper);
 		}
 
 		let channels = this._connections.get(connection.peer).channels();
@@ -171,7 +189,7 @@ export abstract class Netcode {
 	}
 
 	send(name : string, type : ChannelType, msg : Message) : boolean {
-		if (!this._connections.has(name)) {
+		if (!this._connections.has(name) || !this._connections.get(name).connected()) {
 			return false;
 		}
 

@@ -88,9 +88,6 @@ class UI {
 	}
 	get<T extends Handler>(type : HandlerType) : T { return <T>this._handlers.get(type); }
 	mode() : Mode { return this._mode; }
-	keys() : Set<Key> { return this._inputHandler.keys(); }
-	mouse() : Vec { return this._inputHandler.mouse(); }
-
 	setMode(mode : Mode) {
 		this._mode = mode;
 		this._handlers.forEach((handler) => {
@@ -98,6 +95,10 @@ class UI {
 		});	
 	}
 
+	chat(msg : string) : void { this._chatHandler.chat(msg); }
+
+	keys() : Set<Key> { return this._inputHandler.keys(); }
+	mouse() : Vec { return this._inputHandler.mouse(); }
 	resetKeyBinds() : void { this._inputHandler.reset(); }
 }
 

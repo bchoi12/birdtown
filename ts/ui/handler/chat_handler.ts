@@ -1,4 +1,6 @@
 
+import { game } from 'game'
+
 import { options } from 'options'
 
 import { ui, HandlerType, Mode } from 'ui'
@@ -17,6 +19,15 @@ export class ChatHandler extends HandlerBase implements Handler {
 		this._chatElm = Html.elm(Html.divChat);
 		this._messageElm = Html.elm(Html.divMessage);
 		this._messageInputElm = Html.inputElm(Html.inputMessage);
+	}
+
+	chat(msg : string) : void {
+		const messageSpan = Html.span();
+		messageSpan.textContent = msg;
+
+		this._chatElm.append(messageSpan);
+		this._chatElm.append(Html.br());
+		this._chatElm.scrollTop = this._chatElm.scrollHeight;
 	}
 
 	setup() : void {
@@ -72,12 +83,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		if (message.startsWith("/")) {
 			this.command(message);
 		} else {
-			const messageSpan = Html.span();
-			messageSpan.textContent = message;
-
-			this._chatElm.append(messageSpan);
-			this._chatElm.append(Html.br());
-			this._chatElm.scrollTop = this._chatElm.scrollHeight;
+			game.netcode().sendChat(message);
 		}
 
 		ui.setMode(Mode.GAME);

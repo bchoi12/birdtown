@@ -21,12 +21,12 @@ export class Connection {
 	gameId() : number { return this._gameId; }
 
 	channels() : ChannelMap { return this._channels; }
-	displayName() : string { return this.hasGameId() ? (this._displayName + "#" + this.gameId()) : "unknown"; }
+	setDisplayName(name : string) : void { this._displayName = name; }
+	displayName() : string { return this.hasGameId() ? (this._displayName + " #" + this.gameId()) : this._displayName; }
 	connected() : boolean { return this._connected; }
 
 	disconnect() : void {
 		this._channels.disconnect();
 		this._connected = false;
 	}
-
 }

@@ -1,34 +1,74 @@
+import { Peer } from 'peerjs'
 
-import { Netcode } from 'network/netcode'
+import { MessageType } from 'network/message'
+import { Netcode, ChannelType } from 'network/netcode'
+
+import { ui } from 'ui'
 
 export class Host extends Netcode {
 
-	constructor(name : string) {
-		super(name);
+	private _initialized : boolean;
+
+	constructor(displayName : string, hostName : string) {
+		super(displayName, hostName);
+
+		this._peer = new Peer(hostName, {
+			debug: 2,
+			pingInterval: 5000,
+		});
+
+		this._initialized = false;
 	}
 
-	initialize() : void {
-		let self = this.peer();
+	override isHost() : boolean { return true; }
 
-		self.on("open", () => {
-			console.log("Opened host connection for " + self.id);
+	override initialized() : boolean { return this._initialized; }
+	override ready() : boolean { return this.initialized() && this.peer().open; }
+	override initialize() : void {
+		let peer = this.peer();
 
-			this._pinger.initializeForHost(this);
+		peer.on("open", () => {
+			console.log("Opened host connection for " + peer.id);
 
-		    self.on("connection", (connection) => {
+		    peer.on("connection", (connection) => {
 		    	connection.on("open", () => {
 			    	this.register(connection);
 		    	});
 		    });
 
-		    self.on("close", () => {
+		    peer.on("close", () => {
 		    	console.error("Server closed!");
 		    })
 
-		    self.on("error", (error) => {
+		    peer.on("error", (error) => {
 		    	// TODO: actually do something
 		    	console.error(error);
 		    });
+
+			this._pinger.initializeForHost(this);
+			this._initialized = true;
+		});
+
+		peer.on("disconnected", () => {
+			peer.reconnect();
+		});
+	}
+
+	override sendChat(message : string) : void {
+		this.receiveChat(this.name(), message);
+	}
+
+	override receiveChat(from : string, message : string) : void {
+		if (message.length <= 0) {
+			return;
+		}
+
+		const fullMessage = (from === this.name() ? this.displayName() : this.getConnection(from).displayName()) + ": " + message;
+		ui.chat(fullMessage);
+
+		this.broadcast(ChannelType.TCP, {
+			T: MessageType.CHAT,
+			D: fullMessage,
 		});
 	}
 }

@@ -3,7 +3,6 @@ import * as BABYLON from "babylonjs";
 import { Data, DataFilter, DataMap } from 'network/data'
 import { System, SystemType } from 'game/system'
 import { SystemRunner } from 'game/system_runner'
-import { Clients } from 'game/system/clients'
 import { Entities } from 'game/system/entities'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
@@ -49,7 +48,6 @@ class Game {
 	private _netcode : Netcode;
 
 	private _systemRunner : SystemRunner;
-	private _clients : Clients;
 	private _entities : Entities;
 	private _input : Input;
 	private _lakitu : Lakitu;
@@ -72,18 +70,18 @@ class Game {
 		window.onresize = () => { this.resize(); };
 
 		if (this._options.host) {
-			this._netcode = new Host(this._options.name);
+			this._netcode = new Host(this._options.name, this._options.hostName);
 			this._netcode.addRegisterCallback((name : string) => {
-				const clientId = game.nextId();
-				this._netcode.getConnection(name).setGameId(clientId);
+				const gameId = game.nextId();
+				this._netcode.getConnection(name).setGameId(gameId);
 				this._netcode.send(name, ChannelType.TCP, {
 					T: MessageType.INIT_CLIENT,
-					D: clientId,
+					D: gameId,
 				});
-				this._systemRunner.onNewClient(name, clientId);
+				this._systemRunner.onNewClient(name, gameId);
 
 				if (isLocalhost()) {
-					console.log("Registered new client to game:", clientId);
+					console.log("Registered new client to game:", gameId);
 				}
 			});
 		} else {
@@ -108,10 +106,17 @@ class Game {
 
 			this._systemRunner.importData(<DataMap>incoming.msg.D, incoming.msg.S);
 		});
+		this._netcode.addMessageCallback(MessageType.CHAT, (incoming : IncomingMessage) => {
+			if (!defined(incoming.msg.D)) {
+				console.error("Error: invalid message ", incoming);
+				return;
+			}
+
+			this._netcode.receiveChat(incoming.name, <string>incoming.msg.D);
+		});
 		this._netcode.initialize();
 
 		this._systemRunner = new SystemRunner();
-		this._clients = new Clients();
 		this._entities = new Entities();
 		this._input = new Input();
 		this._level = new Level();
@@ -121,7 +126,6 @@ class Game {
 		this._lakitu = new Lakitu(this._world.scene());
 
 		// Order of insertion becomes order of execution
-		this._systemRunner.push(this._clients);
 		this._systemRunner.push(this._level);
 		this._systemRunner.push(this._input);
 		this._systemRunner.push(this._entities);
@@ -215,6 +219,7 @@ class Game {
 
 	private setId(id : number) : void {
 		this._id = id;
+		this._netcode.setGameId(this._id);
 
 		if (this.options().host) {
 			this._lastId = id;

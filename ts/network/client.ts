@@ -1,24 +1,35 @@
-import { DataConnection } from 'peerjs'
+import { Peer, DataConnection } from 'peerjs'
 
-import { Netcode } from 'network/netcode'
-import { ChannelType } from 'network/netcode'
+import { MessageType } from 'network/message'
+import { Netcode, ChannelType } from 'network/netcode'
+
+import { ui } from 'ui'
 
 import { defined, isLocalhost } from 'util/common'
 
 export class Client extends Netcode {
 
-	private _hostName : string;
+	private _initialized : boolean;
 
 	private _tcp : DataConnection;
 	private _udp : DataConnection;
 
-	constructor(name : string, hostName : string) {
-		super(name);
+	constructor(displayName : string, hostName : string) {
+		super(displayName, hostName);
 
-		this._hostName = hostName;
+		this._peer = new Peer("", {
+			debug: 2,
+			pingInterval: 5000,
+		});
+
+		this._initialized = false;
 	}
 
-	initialize() : void {
+	override isHost() : boolean { return false; }
+
+	override initialized() : boolean { return this._initialized; }
+	override ready() : boolean { return this.initialized() && this._tcp.open && this._udp.open; }
+	override initialize() : void {
 		let peer = this.peer();
 		peer.on("open", () => {
 			if (isLocalhost()) {
@@ -28,14 +39,38 @@ export class Client extends Netcode {
 			this._pinger.initializeForClient(this, this.hostName());
 			this.initTCP();
 		});
+
+		peer.on("disconnected", () => {
+			peer.reconnect();
+		});
 	}
 
-	hostName() : string { return this._hostName; }
+	override sendChat(message : string) : void {
+		if (message.length <= 0) {
+			return;
+		}
+
+		this.send(this.hostName(), ChannelType.TCP, {
+			T: MessageType.CHAT,
+			D: message,
+		});
+	}
+
+	override receiveChat(from : string, message : string) : void {
+		if (from !== this._hostName) {
+			return;
+		}
+
+		ui.chat(message);
+	}
 
 	private initTCP() : void {
 		let peer = this.peer();
 
-		this._tcp = peer.connect(this._hostName, {
+		this._tcp = peer.connect(this.hostName(), {
+			metadata: {
+				name: this.displayName(),
+			},
 			reliable: true,
 			label: ChannelType.TCP,
 			serialization: "none",
@@ -67,7 +102,7 @@ export class Client extends Netcode {
 	private initUDP() : void {
 		let peer = this.peer();
 
-		this._udp = peer.connect(this._hostName, {
+		this._udp = peer.connect(this.hostName(), {
 			reliable: false,
 			label: ChannelType.UDP,
 			serialization: "none",
@@ -75,6 +110,7 @@ export class Client extends Netcode {
 
 		this._udp.on("open", () => {
 			this.register(this._udp);
+			this._initialized = true;
 		});
 
 		this._udp.on("error", (error) => {
