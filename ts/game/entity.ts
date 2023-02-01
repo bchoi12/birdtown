@@ -4,6 +4,7 @@ import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
 import { GameObject, GameObjectBase } from 'game/core'
 import { AttributesInitOptions } from 'game/component/attributes'
+import { Health } from 'game/component/health'
 import { ProfileInitOptions } from 'game/component/profile'
 
 import { defined } from 'util/common'
@@ -48,7 +49,8 @@ export interface Entity extends GameObject {
 	hasComponent(type : ComponentType) : boolean;
 	getComponent<T extends Component>(type : ComponentType) : T;
 
-	collide(other : Entity, collision : MATTER.Collision) : void;
+	damage(amount : number, from? : Entity) : void;
+	collide(collision : MATTER.Collision, other : Entity) : void;
 	newTimer() : Timer;
 	setTTL(ttl : number);
 }
@@ -142,7 +144,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		timer.start(ttl, () => { this.delete(); });
 	}
 
-	collide(entity : Entity, collision : MATTER.Collision) : void {}
+	damage(amount : number, from? : Entity) : void {
+		if (!this.hasComponent(ComponentType.HEALTH)) { return; }
+
+		this.getComponent<Health>(ComponentType.HEALTH).damage(amount, from);
+	}
+	collide(collision : MATTER.Collision, other : Entity) : void {}
 
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);

@@ -317,9 +317,9 @@ export class Profile extends ComponentBase implements Component {
 		}
 
 		let totalForce = Vec2.zero();
-		this._forces.entries().forEach((force : Vec) => {
-			totalForce.add(force);
-		});
+		while(!this._forces.empty()) {
+			totalForce.add(this._forces.pop());
+		}
 
 		// TODO: factor in weight
 		this.addVel(totalForce);

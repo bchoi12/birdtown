@@ -16,4 +16,6 @@ export abstract class Projectile extends EntityBase {
 	override ready() : boolean {
 		return super.ready() && this._attributes.has(Attribute.OWNER);
 	}
+
+	abstract damage() : number;
 }

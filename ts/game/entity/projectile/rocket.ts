@@ -68,6 +68,8 @@ export class Rocket extends Projectile {
 		});
 	}
 
+	override damage() { return 20; }
+
 	override preRender(millis : number) : void {
 		super.preRender(millis);
 
@@ -81,8 +83,8 @@ export class Rocket extends Projectile {
 		this._model.mesh().rotation = new BABYLON.Vector3(-angle, Math.PI / 2, 0);
 	}
 
-	override collide(other : Entity, collision : MATTER.Collision) : void {
-		super.collide(other, collision);
+	override collide(collision : MATTER.Collision, other : Entity) : void {
+		super.collide(collision, other);
 
 		if (!this.isSource()) {
 			return;
@@ -95,6 +97,8 @@ export class Rocket extends Projectile {
 		if (!other.hasComponent(ComponentType.ATTRIBUTES)) {
 			return;
 		}
+
+		other.damage(this.damage(), this);
 
 		if (other.getComponent<Attributes>(ComponentType.ATTRIBUTES).getOrDefault(Attribute.SOLID)) {
 			this.delete();

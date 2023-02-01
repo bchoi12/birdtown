@@ -1,5 +1,5 @@
 
-
+// TODO: rename class to GlobalOptions or something
 class Options {
 	
 	public leftKeyCode : number;

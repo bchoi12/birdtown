@@ -74,6 +74,7 @@ export abstract class Netcode {
 	peer() : Peer { return this._peer; }
 	ping() : number { return this._pinger.ping(); }
 	connections() : Map<string, Connection> { return this._connections; }
+	hasConnection(name : string) : boolean { return this._connections.has(name); }
 	getConnection(name : string) : Connection { return this._connections.get(name); }
 
 	preUpdate() : void {

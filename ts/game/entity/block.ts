@@ -130,8 +130,8 @@ export abstract class Block extends EntityBase {
 		}
 	}
 
-	override collide(other : Entity, collision : MATTER.Collision) : void {
-		super.collide(other, collision);
+	override collide(collision : MATTER.Collision, other : Entity) : void {
+		super.collide(collision, other);
 
 		if (!game.lakitu().hasTargetEntity()) {
 			return;

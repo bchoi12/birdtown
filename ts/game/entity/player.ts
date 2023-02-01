@@ -4,6 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Attribute, Attributes } from 'game/component/attributes'
+import { Health } from 'game/component/health'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { GameConstants } from 'game/core'
@@ -45,20 +46,21 @@ enum Constraint {
 
 export class Player extends EntityBase {
 	// blockdudes3 = 18.0
-	private readonly _sideAcc = 1.0;
-	private readonly _jumpVel = 0.3;
-	private readonly _maxHorizontalVel = 0.25;
-	private readonly _maxVerticalVel = 0.6;
-	private readonly _maxVelMultiplier = 0.2;
+	private static readonly _sideAcc = 1.0;
+	private static readonly _jumpVel = 0.3;
+	private static readonly _maxHorizontalVel = 0.25;
+	private static readonly _maxVerticalVel = 0.6;
+	private static readonly _maxVelMultiplier = 0.2;
 
-	private readonly _turnMultiplier = 3.0;
-	private readonly _fallMultiplier = 1.5;
+	private static readonly _turnMultiplier = 3.0;
+	private static readonly _fallMultiplier = 1.5;
 
-	private readonly _friction = 0.7;
-	private readonly _airResistance = 0.9;
+	private static readonly _friction = 0.7;
+	private static readonly _airResistance = 0.9;
 
-	private readonly _rotationOffset = -0.1;
-	private readonly _jumpGracePeriod = 100;
+	private static readonly _rotationOffset = -0.1;
+	private static readonly _jumpGracePeriod = 100;
+	private static readonly _respawnTime = 2000;
 
 	private readonly _moveAnimations = new Set<string>([
 		Animation.IDLE, Animation.WALK, Animation.JUMP
@@ -75,8 +77,10 @@ export class Player extends EntityBase {
 	private _jumpTimer : Timer;
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
+	private _respawnTimer : Timer;
 
 	private _attributes : Attributes;
+	private _health : Health;
 	private _model : Model;
 	private _profile : Profile;
 	private _headSubProfile : Profile;
@@ -99,7 +103,7 @@ export class Player extends EntityBase {
 		this._jumpTimer = this.newTimer();
 		this._canDoubleJump = true;
 		this._deadTracker = new ChangeTracker(() => {
-			return <boolean>this._attributes.get(Attribute.DEAD);
+			return this._health.dead();
 		}, (dead : boolean) => {
 			if (dead) {
 				const x = this._profile.vel().x;
@@ -108,12 +112,12 @@ export class Player extends EntityBase {
 				this._profile.resetInertia();
 				this._profile.setAngularVelocity(sign * Math.max(0.1, Math.abs(x)));
 				this._profile.setAcc({x: 0, y: 0});
-			} else {
-				this._profile.setAngle(0);
-				this._profile.setAngularVelocity(0);
-				this._profile.setInertia(Infinity);
+				this._respawnTimer.start(Player._respawnTime, () => {
+					this.respawn();
+				});
 			}
 		});
+		this._respawnTimer = this.newTimer();
 
 		this.registerProp(this.numProps() + 1, {
 			export: () => { return this._canDoubleJump; },
@@ -121,9 +125,10 @@ export class Player extends EntityBase {
 		});
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._attributes.set(Attribute.DEAD, false);
 		this._attributes.set(Attribute.GROUNDED, false);
 		this._attributes.set(Attribute.SOLID, true);
+
+		this._health = this.addComponent<Health>(new Health(100));
 
 		const collisionGroup = MATTER.Body.nextGroup(true);
 		this._profile = this.addComponent<Profile>(new Profile({
@@ -145,8 +150,8 @@ export class Player extends EntityBase {
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
 		this._profile.setMaxSpeed({
-			maxSpeed: {x: this._maxHorizontalVel, y: this._maxVerticalVel },
-			multiplier: {x: this._maxVelMultiplier, y: this._maxVelMultiplier },
+			maxSpeed: {x: Player._maxHorizontalVel, y: Player._maxVerticalVel },
+			multiplier: {x: Player._maxVelMultiplier, y: Player._maxVelMultiplier },
 		});
 
 		this._headSubProfile = this._profile.addSubProfile(SubProfile.HEAD, new Profile({
@@ -192,7 +197,7 @@ export class Player extends EntityBase {
 						}
 					});
 					let armature = model.getBone(Bone.ARMATURE).getTransformNode();
-					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + this._rotationOffset, 0);
+					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + Player._rotationOffset, 0);
 					const dim = this._profile.dim();
 					armature.position.y -= dim.y / 2;
 
@@ -232,6 +237,16 @@ export class Player extends EntityBase {
 		});
 	}
 
+	respawn() : void {
+		this._health.reset();
+
+		this._profile.setPos({x: 0, y: 0});
+		this._profile.stop();
+		this._profile.setAngle(0);
+		this._profile.setAngularVelocity(0);
+		this._profile.setInertia(Infinity);
+	}
+
 	// TODO: fix race condition where weapon is loaded upside-downa
 	equipWeapon(weapon : Weapon) : void {
 		this._weapon = weapon;
@@ -250,37 +265,29 @@ export class Player extends EntityBase {
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
+		if (game.options().host) {
+			// Out of bounds
+			if (this._profile.pos().y < -8) {
+				this._health.damage(1000);
+			}
+		}
+		this._attributes.setIfHost(Attribute.GROUNDED, this._jumpTimer.hasTimeLeft());
+		this._deadTracker.check();
+
 		// Gravity
 		this._profile.setAcc({ y: GameConstants.gravity });
 		if (!this._attributes.get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
-			this._profile.addAcc({ y: (this._fallMultiplier - 1) * GameConstants.gravity });
+			this._profile.addAcc({ y: (Player._fallMultiplier - 1) * GameConstants.gravity });
 		}
 
-		if (game.keys(this.clientId()).keyDown(Key.INTERACT)) {
-			this._attributes.setIfHost(Attribute.DEAD, true);
-		} else {
-			this._attributes.setIfHost(Attribute.DEAD, false);
-		}
-
-		this._deadTracker.check();
-		this._attributes.setIfHost(Attribute.GROUNDED, this._jumpTimer.hasTimeLeft());
-
-		if (!this._attributes.getOrDefault(Attribute.DEAD)) {
+		if (!this._health.dead()) {
 			// Keypress acceleration
 			if (game.keys(this.clientId()).keyDown(Key.LEFT)) {
-				this._profile.setAcc({ x: -this._sideAcc });
+				this._profile.setAcc({ x: -Player._sideAcc });
 			} else if (game.keys(this.clientId()).keyDown(Key.RIGHT)) {
-				this._profile.setAcc({ x: this._sideAcc });
+				this._profile.setAcc({ x: Player._sideAcc });
 			} else {
 				this._profile.setAcc({ x: 0 });
-			}
-
-			if (game.options().host) {
-				// Out of bounds
-				if (this._profile.pos().y < -8) {
-					this._profile.setPos({ x: 0, y: 10 });
-					this._profile.setVel({ x: 0, y: 0 });
-				}
 			}
 
 			// Set direction of player
@@ -290,18 +297,18 @@ export class Player extends EntityBase {
 			// Turn acceleration
 			const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
 			if (turning) {
-				this._profile.acc().x *= this._turnMultiplier;
+				this._profile.acc().x *= Player._turnMultiplier;
 			}
 
 			// Jumping
 			if (this._jumpTimer.hasTimeLeft()) {
 				if (game.keys(this.clientId()).keyDown(Key.JUMP)) {
-					this._profile.setVel({ y: this._jumpVel });
+					this._profile.setVel({ y: Player._jumpVel });
 					this._jumpTimer.stop();
 				}
 			} else if (this._canDoubleJump) {
 				if (game.keys(this.clientId()).keyPressed(Key.JUMP)) {
-					this._profile.setVel({ y: this._jumpVel });
+					this._profile.setVel({ y: Player._jumpVel });
 					this._canDoubleJump = false;
 				}
 			}
@@ -311,11 +318,11 @@ export class Player extends EntityBase {
 		const slowing = Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x);
 		if (this._attributes.get(Attribute.GROUNDED)) {
 			if (slowing) {
-				this._profile.vel().x *= this._friction;
+				this._profile.vel().x *= Player._friction;
 			}
 		} else {
 			if (this._profile.acc().x === 0) {
-				this._profile.vel().x *= this._airResistance;
+				this._profile.vel().x *= Player._airResistance;
 			}
 		}
 	}
@@ -338,8 +345,8 @@ export class Player extends EntityBase {
 		this._maxNormal.scale(0);
 	}
 
-	override collide(other : Entity, collision : MATTER.Collision) : void {
-		super.collide(other, collision);
+	override collide(collision : MATTER.Collision, other : Entity) : void {
+		super.collide(collision, other);
 
 		if (this.id() === other.id()) {
 			return;
@@ -406,7 +413,7 @@ export class Player extends EntityBase {
 
 		if (this._maxNormal.y > 0.5) {
 			this._canDoubleJump = true;
-			this._jumpTimer.start(this._jumpGracePeriod);			
+			this._jumpTimer.start(Player._jumpGracePeriod);			
 		}
 	}
 
@@ -417,7 +424,7 @@ export class Player extends EntityBase {
 			return;
 		}
 
-		if (!this._attributes.get(Attribute.GROUNDED) || this._attributes.get(Attribute.DEAD)) {
+		if (!this._attributes.get(Attribute.GROUNDED) || this._health.dead()) {
 			this._model.playAnimation(Animation.JUMP);
 		} else {
 			if (Math.abs(this._profile.acc().x) < 0.01) {
@@ -427,7 +434,7 @@ export class Player extends EntityBase {
 			}
 		}
 
-		if (this.clientIdMatches() && !this._attributes.get(Attribute.DEAD)) {
+		if (this.clientIdMatches() && !this._health.dead()) {
 			this._armDir = this.computeArmDir();
 			this._headDir = this.computeHeadDir();
 		}

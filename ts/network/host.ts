@@ -63,12 +63,20 @@ export class Host extends Netcode {
 			return;
 		}
 
-		const fullMessage = (from === this.name() ? this.displayName() : this.getConnection(from).displayName()) + ": " + message;
-		ui.chat(fullMessage);
+		let displayName;
+		if (from === this.name()) {
+			displayName = this.displayName();
+		} else if (this.hasConnection(from)) {
+			displayName = this.getConnection(from).displayName();
+		} else {
+			return;
+		}
 
+		const fullMessage = displayName + ": " + message;
 		this.broadcast(ChannelType.TCP, {
 			T: MessageType.CHAT,
 			D: fullMessage,
 		});
+		ui.chat(fullMessage);
 	}
 }

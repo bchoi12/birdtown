@@ -57,10 +57,10 @@ export class Physics extends SystemBase implements System {
 				return;
 			}
 
-			entityA.collide(entityB, collision);
+			entityA.collide(collision, entityB);
 
 			collision.normal = {x: -collision.normal.x, y: -collision.normal.y};
-			entityB.collide(entityA, collision);		
+			entityB.collide(collision, entityA);		
 		});
 	}
 }

@@ -9,6 +9,7 @@ import { defined } from 'util/common'
 export enum ComponentType {
 	UNKNOWN,
 	ATTRIBUTES,
+	HEALTH,
 	MODEL,
 	PROFILE,
 }

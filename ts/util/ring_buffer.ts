@@ -16,13 +16,26 @@ export class RingBuffer<T> {
 	empty() : boolean { return this._size === 0; }
 	full() : boolean { return this._size === this._buffer.length; }
 
-	peek() : T { return this._buffer[this._index]; }
+	clear() : void {
+		this._size = 0;
+		this._index = 0;
+	}
+
+	peek() : T {
+		if (this.empty()) {
+			return null;
+		}
+		return this._buffer[this._index];
+	}
 
 	pop() : T {
-		this._index = this.wrapIndex(this._index - 1);
+		if (this.empty()) {
+			return null;
+		}
 
+		this._index = this.wrapIndex(this._index - 1);
 		const obj = this._buffer[this._index];
-		this._size = Math.max(this._size - 1, 0);
+		this._size--;
 
 		return obj;
 	}
