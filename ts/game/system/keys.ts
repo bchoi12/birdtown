@@ -45,7 +45,6 @@ export class Keys extends SystemBase implements System {
 				continue;
 			}
 
-			// TODO: consider reducing number of states being exported if TCP channel has problems
 			this.registerProp(key, {
 				has: () => { return this._keyStates.has(key); },
 				export: () => { return this._keys.has(key); },

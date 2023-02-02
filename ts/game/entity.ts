@@ -5,6 +5,7 @@ import { Component, ComponentType } from 'game/component'
 import { GameObject, GameObjectBase } from 'game/core'
 import { AttributesInitOptions } from 'game/component/attributes'
 import { Health } from 'game/component/health'
+import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { ProfileInitOptions } from 'game/component/profile'
 
 import { defined } from 'util/common'
@@ -17,7 +18,8 @@ export enum EntityType {
 	PROJECTILE,
 	WEAPON,
 
-	ARCH_BLOCK,
+	ARCH_BASE,
+	ARCH_ROOM,
 	ARCH_ROOF,
 	BAZOOKA,
 	CRATE,
@@ -32,6 +34,7 @@ export type EntityOptions = {
 	clientId? : number;
 
 	attributesInit? : AttributesInitOptions;
+	hexColorsInit? : HexColorsInitOptions;
 	profileInit? : ProfileInitOptions
 
 	onCreateFn? : (entity : Entity) => void;
@@ -159,6 +162,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		});
 	}
 
-	override shouldBroadcast() : boolean { return game.options().host; }
+	override shouldBroadcast() : boolean { return game.options().host }
 	override isSource() : boolean { return game.options().host; }
 }

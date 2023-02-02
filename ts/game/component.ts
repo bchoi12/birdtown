@@ -10,7 +10,9 @@ export enum ComponentType {
 	UNKNOWN,
 	ATTRIBUTES,
 	HEALTH,
+	HEX_COLORS,
 	MODEL,
+	OPENINGS,
 	PROFILE,
 }
 

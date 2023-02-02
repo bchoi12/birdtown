@@ -241,6 +241,7 @@ export abstract class Netcode {
 					id: connection.hasGameId() ? connection.gameId() : 0,
 					msg: msg,
 				};
+
 				if (msg.T === MessageType.GAME) {
 					this._messageBuffer.push(incoming);
 				} else {

@@ -3,7 +3,9 @@ import 'babylonjs-materials'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { ColorType } from 'game/color_repository'
 import { ComponentType } from 'game/component'
+import { HexColors } from 'game/component/hex_colors'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
@@ -32,15 +34,9 @@ enum MeshProp {
 
 type MaterialFn = (material : BABYLON.StandardMaterial) => void;
 
-enum Prop {
-	UNKNOWN,
-	OPENINGS,
-}
-
 export abstract class Block extends EntityBase {
 
-	protected _baseColor : HexColor;
-	protected _secondaryColor : HexColor;
+	// TODO: openings should be Component (Cardinals?)
 	protected _openings : Cardinal;
 	protected _transparent : boolean;
 
@@ -49,8 +45,9 @@ export abstract class Block extends EntityBase {
 	protected _frontMaterials : Map<BABYLON.Material, number>;
 	protected _windows : BABYLON.Mesh;
 
+	protected _hexColors : HexColors;
 	protected _profile : Profile;
-	private _model : Model;
+	protected _model : Model;
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
@@ -61,13 +58,13 @@ export abstract class Block extends EntityBase {
 			id: this.id(),
 		});
 
-		this._baseColor = new HexColor(0xff0000);
-		this._secondaryColor = new HexColor(0xffffff);
 		this._openings = new Cardinal();
 		this._transparent = false;
 
 		this._materialCache = new Map();
 		this._frontMaterials = new Map();
+
+		this._hexColors = this.addComponent<HexColors>(new HexColors(entityOptions.hexColorsInit));
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -101,6 +98,7 @@ export abstract class Block extends EntityBase {
 
 	abstract modelType() : ModelType;
 	abstract thickness() : number;
+
 	openings() : Cardinal { return this._openings; }
 	transparent() : boolean { return this._transparent; }
 
@@ -184,9 +182,17 @@ export abstract class Block extends EntityBase {
 		newMaterial.backFaceCulling = true;
 
 		if (materialProps.has(MaterialProp.BASE)) {
-			newMaterial.diffuseColor = this._baseColor.toBabylonColor3();			
+			if (!this._hexColors.hasColor(ColorType.BASE)) {
+				console.error("Warning: missing base color for %s", this.name());
+			} else {
+				newMaterial.diffuseColor = this._hexColors.getColor(ColorType.BASE).toBabylonColor3();			
+			}
 		} else if (materialProps.has(MaterialProp.SECONDARY)) {
-			newMaterial.diffuseColor = this._secondaryColor.toBabylonColor3();
+			if (!this._hexColors.hasColor(ColorType.SECONDARY)) {
+				console.error("Warning: missing secondary color for %s", this.name());
+			} else {
+				newMaterial.diffuseColor = this._hexColors.getColor(ColorType.SECONDARY).toBabylonColor3();			
+			}
 		}
 
 		if (materialProps.has(MaterialProp.TRANSPARENT)) {

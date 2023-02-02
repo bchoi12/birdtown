@@ -8,7 +8,7 @@ export class ChangeTracker<T> {
 	private _value : T;
 	private _onChange : (value : T, oldValue? : T) => void;
 
-	constructor(getValue : () => T, onChange : (value : T, oldValue? : T) => void) {
+	constructor(getValue : () => T, onChange? : (value : T, oldValue? : T) => void) {
 		this._getValue = getValue;
 		if (defined(onChange)) {
 			this._onChange = onChange;
@@ -28,7 +28,9 @@ export class ChangeTracker<T> {
 		}
 
 		if (this._value !== value) {
-			this._onChange(value, this._value);
+			if (defined(this._onChange)) {
+				this._onChange(value, this._value);
+			}
 			this._value = value;
 			return true;
 		}

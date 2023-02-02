@@ -128,7 +128,7 @@ export class Player extends EntityBase {
 		this._attributes.set(Attribute.GROUNDED, false);
 		this._attributes.set(Attribute.SOLID, true);
 
-		this._health = this.addComponent<Health>(new Health(100));
+		this._health = this.addComponent<Health>(new Health({ health: 100 }));
 
 		const collisionGroup = MATTER.Body.nextGroup(true);
 		this._profile = this.addComponent<Profile>(new Profile({
@@ -240,14 +240,14 @@ export class Player extends EntityBase {
 	respawn() : void {
 		this._health.reset();
 
-		this._profile.setPos({x: 0, y: 0});
+		this._profile.setPos({x: 0, y: 10});
 		this._profile.stop();
 		this._profile.setAngle(0);
 		this._profile.setAngularVelocity(0);
 		this._profile.setInertia(Infinity);
 	}
 
-	// TODO: fix race condition where weapon is loaded upside-downa
+	// TODO: fix race condition where weapon is loaded upside-down
 	equipWeapon(weapon : Weapon) : void {
 		this._weapon = weapon;
 		this._model.onLoad(() => {

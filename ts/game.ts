@@ -133,8 +133,9 @@ class Game {
 		this._systemRunner.push(this._lakitu);
 		this._systemRunner.push(this._world);
 
-	    this._level.setLevel(LevelType.TEST, 1);
 	    if (this._options.host) {
+		    this._level.setLevel(LevelType.TEST);	
+		    this._level.setSeed(Math.floor(1000 * Math.random()) + 1);
 	    	this.setId(1);
 	    	this._systemRunner.onNewClient(this._options.name, this.id());
 	    }

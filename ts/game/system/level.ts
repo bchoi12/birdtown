@@ -1,13 +1,15 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
+import { ColorRepository } from 'game/color_repository'
 import { EntityType } from 'game/entity'
 import { System, SystemBase, SystemType } from 'game/system'
 
 import { Data } from 'network/data'
 
-import { defined } from 'util/common'
+import { defined, isLocalhost } from 'util/common'
 import { ChangeTracker } from 'util/change_tracker'
+import { HexColor } from 'util/hex_color'
 
 enum Prop {
 	UNKNOWN,
@@ -22,93 +24,118 @@ export enum LevelType {
 
 export class Level extends SystemBase implements System {
 
-	private _levelTracker : ChangeTracker<LevelType>;
-
 	private _level : LevelType;
 	private _seed : number;
+	private _reloadLevel : boolean;
 
 	constructor() {
 		super(SystemType.LEVEL);
 
+		this._level = LevelType.UNKNOWN;
+		this._seed = 0;
+		this._reloadLevel = false;
+
 		this.registerProp(Prop.LEVEL, {
 			has: () => { return this._level > 0; },
 			export: () => { return this._level; },
-			import: (obj : Object) => { this._level = <number>obj; },
+			import: (obj : Object) => { this.setLevel(<number>obj); },
 			filters: Data.tcp,
 		});
-
 		this.registerProp(Prop.SEED, {
 			has: () => { return this._seed > 0; },
 			export: () => { return this._seed; },
-			import: (obj : Object) => { this._seed = <number>obj; },
+			import: (obj : Object) => { this.setSeed(<number>obj); },
 			filters: Data.tcp,
 		});
-
-		this._levelTracker = new ChangeTracker<LevelType>(() => {
-			return this._level;
-		}, (level : LevelType) => {
-			if (level === LevelType.UNKNOWN) {
-				console.error("Error: attempted to load unknown level.")
-				return;
-			}
-			this.loadLevel(level);
-		});
-		this._levelTracker.set(LevelType.UNKNOWN);
 	}
 
-	setLevel(type : LevelType, seed : number) : void {
-		this._level = type;
-		this._seed = seed;
-
-		let entities = game.entities();
-		entities.reset();
+	setLevel(level : LevelType) : void {
+		if (level !== LevelType.UNKNOWN && this._level !== level) {
+			this._level = level;
+			this._reloadLevel = true;
+		}
+	}
+	setSeed(seed : number) : void {
+		if (seed > 0 && this._seed !== seed) {
+			this._seed = seed;
+			this._reloadLevel = true;
+		}
 	}
 
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
-		this._levelTracker.check();
+		if (this._reloadLevel) {
+			this.loadLevel();
+		}
 	}
 
-	private loadLevel(type : LevelType) : void {
-		let entities = game.entities();
+	// TODO: allow client to load the level themselves? Race conditions could be nasty
+	private loadLevel() : void {
+		if (isLocalhost()) {
+			console.log("Loading level %d with seed %d", this._level, this._seed);
+		}
 
-	    entities.addEntity(EntityType.ARCH_BLOCK, {
+		this._reloadLevel = false;
+
+		let entities = game.entities();
+		let colors = ColorRepository.generateColorMap(EntityType.ARCH_ROOM, this._seed);
+	    entities.addEntity(EntityType.ARCH_ROOM, {
 	    	profileInit: {
 	    		pos: {x: -12, y: 2},
 	    	},
+	    	hexColorsInit: {
+	    		colors: colors,
+	    	},
 	    });
-
-	    entities.addEntity(EntityType.ARCH_BLOCK, {
+	    entities.addEntity(EntityType.ARCH_ROOM, {
 	    	profileInit: {
 	    		pos: {x: -12, y: 8},
+	    	},
+	    	hexColorsInit: {
+	    		colors: colors,
 	    	},
 	    });
 	    entities.addEntity(EntityType.ARCH_ROOF, {
 	    	profileInit: {
 	    		pos: {x: -12, y: 11.5},
 	    	},
+	    	hexColorsInit: {
+	    		colors: colors,
+	    	},
 	    });
 
-
-	    entities.addEntity(EntityType.ARCH_BLOCK, {
+		colors = ColorRepository.generateColorMap(EntityType.ARCH_ROOM, this._seed * 2);
+	    entities.addEntity(EntityType.ARCH_ROOM, {
 	    	profileInit: {
 	    		pos: {x: 0, y: 2},
 	    	},
+	    	hexColorsInit: {
+	    		colors: colors,
+	    	},
 	    });
-	    entities.addEntity(EntityType.ARCH_BLOCK, {
+	    entities.addEntity(EntityType.ARCH_ROOM, {
 	    	profileInit: {
 	    		pos: {x: 0, y: 8},
 	    	},
+	    	hexColorsInit: {
+	    		colors: colors,
+	    	},
 	    });
-	    entities.addEntity(EntityType.ARCH_BLOCK, {
+	    entities.addEntity(EntityType.ARCH_ROOM, {
 	    	profileInit: {
 	    		pos: {x: 0, y: 14},
+	    	},
+	    	hexColorsInit: {
+	    		colors: colors,
 	    	},
 	    });
 	    entities.addEntity(EntityType.ARCH_ROOF, {
 	    	profileInit: {
 	    		pos: {x: 0, y: 17.5},
+	    	},
+	    	hexColorsInit: {
+	    		colors: colors,
 	    	},
 	    });
 
@@ -131,6 +158,8 @@ export class Level extends SystemBase implements System {
 		    	dim: {x: 0.5, y: 1},
 	    	},
 	    });
+
+	    game.systemRunner().onLevelLoad(this._level, this._seed);
 
 	}
 }

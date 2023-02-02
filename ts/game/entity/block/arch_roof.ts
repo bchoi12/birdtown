@@ -1,21 +1,14 @@
-import * as MATTER from 'matter-js'
-
 import { game } from 'game'
+import { ColorType } from 'game/color_repository'
 import { ComponentType } from 'game/component'
-import { Attribute, Attributes } from 'game/component/attributes'
-import { Model } from 'game/component/model'
-import { Profile } from 'game/component/profile'
 import { EntityOptions, EntityType } from 'game/entity'
-import { Block } from 'game/entity/block'
-import { loader, LoadResult, ModelType } from 'game/loader'
-import { BodyCreator } from 'game/util/body_creator'
+import { ArchBase } from 'game/entity/block/arch_base'
+import { ModelType } from 'game/loader'
 
 import { Cardinal, CardinalType } from 'util/cardinal'
 import { defined } from 'util/common'
-import { HexColor } from 'util/hex_color'
-import { Vec, Vec2 } from 'util/vector'
 
-export class ArchRoof extends Block {
+export class ArchRoof extends ArchBase {
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.ARCH_ROOF, entityOptions);
@@ -23,9 +16,7 @@ export class ArchRoof extends Block {
 		this._profile.setDim({x: 12, y: 1});
 	}
 
-	modelType() : ModelType { return ModelType.ARCH_ROOF; }
-	thickness() : number { return 0.5; }
-
+	override modelType() : ModelType { return ModelType.ARCH_ROOF; }
 	override initialize() : void {
 		super.initialize();
 

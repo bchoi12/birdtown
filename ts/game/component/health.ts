@@ -12,6 +12,10 @@ enum Prop {
 	HEALTH,
 }
 
+export type HealthInitOptions = {
+	health : number;
+}
+
 type Tick = {
 	fromId : number;
 	amount : number;
@@ -24,13 +28,13 @@ export class Health extends ComponentBase implements Component {
 	private _health : number;
 	private _damageBuffer : RingBuffer<Tick>;
 
-	constructor(health : number) {
+	constructor(init : HealthInitOptions) {
 		super(ComponentType.HEALTH);
 
 		this.setName({ base: "health" });
 
-		this._initialHealth = health;
-		this._health = health;
+		this._initialHealth = init.health;
+		this._health = init.health;
 		this._damageBuffer = new RingBuffer(20);
 
 		this.registerProp(Prop.HEALTH, {

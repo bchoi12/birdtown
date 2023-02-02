@@ -1,6 +1,6 @@
 import { game } from 'game'	
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
-import { ArchBlock } from 'game/entity/block/arch_block'
+import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Crate } from 'game/entity/crate'
 import { Explosion } from 'game/entity/explosion'
@@ -27,7 +27,7 @@ export class Entities extends SystemBase implements System {
 
 		this.reset();
 		this._entityFactory = new Map();
-		this._entityFactory.set(EntityType.ARCH_BLOCK, (options : EntityOptions) => { return new ArchBlock(options); });
+		this._entityFactory.set(EntityType.ARCH_ROOM, (options : EntityOptions) => { return new ArchRoom(options); });
 		this._entityFactory.set(EntityType.ARCH_ROOF, (options : EntityOptions) => { return new ArchRoof(options); });
 		this._entityFactory.set(EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); });
 		this._entityFactory.set(EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); });

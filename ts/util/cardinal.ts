@@ -72,6 +72,8 @@ export class Cardinal {
 		return cardinal;
 	}
 
+	empty() : boolean { return this._cardinals.size === 0; }
+
 	addType(type : CardinalType) : void {
 		if (Cardinal._cardinalToName.has(type)) {
 			this._cardinals.add(type);
@@ -141,7 +143,7 @@ export class Cardinal {
 	}
 
 	copyBitMask(mask : number) : void {
-		for (let i = Cardinal._cardinalOrder.length - 1; i >= 0; ++i) {
+		for (let i = Cardinal._cardinalOrder.length - 1; i >= 0; --i) {
 			if ((mask & 0b1) > 0) {
 				this.addType(Cardinal._cardinalOrder[i]);
 			}

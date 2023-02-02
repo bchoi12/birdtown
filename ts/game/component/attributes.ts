@@ -2,6 +2,8 @@
 import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
 
+import { defined } from 'util/common'
+
 export enum Attribute {
 	UNKNOWN,
 
@@ -41,15 +43,16 @@ export class Attributes extends ComponentBase implements Component {
 
 	private _attributes : Map<Attribute, Value>;
 
-	constructor(options? : AttributesInitOptions) {
+	constructor(init : AttributesInitOptions) {
 		super(ComponentType.ATTRIBUTES);
 
+		if (!defined(init)) { init = {}; }
 		this.setName({ base: "attributes" });
 
 		this._attributes = new Map();
 
-		if (options && options.attributes) {
-			options.attributes.forEach((value, key) => {
+		if (init.attributes) {
+			init.attributes.forEach((value, key) => {
 				this.set(key, value);
 			})
 		}

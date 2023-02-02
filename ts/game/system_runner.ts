@@ -1,5 +1,6 @@
 import { game } from 'game'
 import { System, SystemType } from 'game/system'
+import { LevelType } from 'game/system/level'
 
 import { ChannelType } from 'network/netcode'
 import { Data, DataFilter, DataMap } from 'network/data'
@@ -114,6 +115,12 @@ export class SystemRunner {
 		const [message, has] = this.message(DataFilter.ALL);
 		if (has) {
 			connection.send(name, ChannelType.TCP, message);
+		}
+	}
+
+	onLevelLoad(level : LevelType, seed : number) : void {
+		for (let i = 0; i < this._order.length; ++i) {
+			this.getSystem(this._order[i]).onLevelLoad(level, seed);
 		}
 	}
 
