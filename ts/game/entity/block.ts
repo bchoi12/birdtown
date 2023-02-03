@@ -3,7 +3,7 @@ import 'babylonjs-materials'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { ColorType } from 'game/color_repository'
+import { ColorType } from 'game/color_factory'
 import { ComponentType } from 'game/component'
 import { HexColors } from 'game/component/hex_colors'
 import { Model } from 'game/component/model'

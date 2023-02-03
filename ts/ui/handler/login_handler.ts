@@ -45,6 +45,9 @@ export class LoginHandler extends HandlerBase implements Handler {
 			}
 
 			const [name, room, success] = this.getInputs();
+			if (!success) {
+				return;
+			}
 
 			game.initialize({
 			    name: name,
@@ -63,6 +66,9 @@ export class LoginHandler extends HandlerBase implements Handler {
 			}
 
 			const [name, room, success] = this.getInputs();
+			if (!success) {
+				return;
+			}
 
 			game.initialize({
 			    name: name,

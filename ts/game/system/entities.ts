@@ -1,22 +1,12 @@
 import { game } from 'game'	
-import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
-import { ArchRoom } from 'game/entity/block/arch_room'
-import { ArchRoof } from 'game/entity/block/arch_roof'
-import { Crate } from 'game/entity/crate'
-import { Explosion } from 'game/entity/explosion'
-import { Player } from 'game/entity/player'
-import { Rocket } from 'game/entity/projectile/rocket'
-import { Wall } from 'game/entity/wall'
-import { Bazooka } from 'game/entity/weapon/bazooka'
+import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { EntityFactory } from 'game/entity_factory'
 import { System, SystemBase, SystemType } from 'game/system'
 import { EntityMap } from 'game/system/entity_map'
-
-type EntityFactoryFn = (options : EntityOptions) => Entity;
 
 export class Entities extends SystemBase implements System {
 	private _lastId : number;
 	private _idToType : Map<number, EntityType>;
-	private _entityFactory : Map<EntityType, EntityFactoryFn>;
 
 	constructor() {
 		super(SystemType.ENTITIES);
@@ -26,16 +16,6 @@ export class Entities extends SystemBase implements System {
 		})
 
 		this.reset();
-		this._entityFactory = new Map();
-		this._entityFactory.set(EntityType.ARCH_ROOM, (options : EntityOptions) => { return new ArchRoom(options); });
-		this._entityFactory.set(EntityType.ARCH_ROOF, (options : EntityOptions) => { return new ArchRoof(options); });
-		this._entityFactory.set(EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); });
-		this._entityFactory.set(EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); });
-		this._entityFactory.set(EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); });
-		this._entityFactory.set(EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); });
-		this._entityFactory.set(EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); });
-		this._entityFactory.set(EntityType.WALL, (options : EntityOptions) => { return new Wall(options); });
-
 		this.setFactoryFn((entityType : EntityType) => { this.addMap(new EntityMap(entityType)); })
 	}
 
@@ -78,11 +58,11 @@ export class Entities extends SystemBase implements System {
 			console.error("Warning: overwriting object type %d (previous: %d), id %d", type, this._idToType.get(entityOptions.id), entityOptions.id);
 		}
 
-		if (!this._entityFactory.has(type)) {
+		if (!EntityFactory.hasType(type)) {
 			console.error("Error: missing factory function for entity type %d", type);
 		}
 
-		let entity = this._entityFactory.get(type)(entityOptions);
+		let entity = EntityFactory.create(type, entityOptions);
 		this._idToType.set(entityOptions.id, type);
 
 		if (!this.hasMap(type)) {

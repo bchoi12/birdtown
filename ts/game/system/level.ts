@@ -1,7 +1,7 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
-import { ColorRepository } from 'game/color_repository'
+import { ColorFactory } from 'game/color_factory'
 import { EntityType } from 'game/entity'
 import { System, SystemBase, SystemType } from 'game/system'
 
@@ -79,7 +79,7 @@ export class Level extends SystemBase implements System {
 		this._reloadLevel = false;
 
 		let entities = game.entities();
-		let colors = ColorRepository.generateColorMap(EntityType.ARCH_ROOM, this._seed);
+		let colors = ColorFactory.generateColorMap(EntityType.ARCH_ROOM, this._seed);
 	    entities.addEntity(EntityType.ARCH_ROOM, {
 	    	profileInit: {
 	    		pos: {x: -12, y: 2},
@@ -105,7 +105,7 @@ export class Level extends SystemBase implements System {
 	    	},
 	    });
 
-		colors = ColorRepository.generateColorMap(EntityType.ARCH_ROOM, this._seed * 2);
+		colors = ColorFactory.generateColorMap(EntityType.ARCH_ROOM, this._seed * 2);
 	    entities.addEntity(EntityType.ARCH_ROOM, {
 	    	profileInit: {
 	    		pos: {x: 0, y: 2},

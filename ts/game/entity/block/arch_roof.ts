@@ -1,5 +1,5 @@
 import { game } from 'game'
-import { ColorType } from 'game/color_repository'
+import { ColorType } from 'game/color_factory'
 import { ComponentType } from 'game/component'
 import { EntityOptions, EntityType } from 'game/entity'
 import { ArchBase } from 'game/entity/block/arch_base'
