@@ -132,10 +132,6 @@ export abstract class GameObjectBase {
 		if (this._initialized) {
 			return;
 		}
-
-		this._childObjects.forEach((child : GameObject) => {
-			child.initialize();
-		});
 		this._initialized = true;
 	}
 	initialized() : boolean {return this._initialized; }

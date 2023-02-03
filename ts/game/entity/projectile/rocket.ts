@@ -10,7 +10,7 @@ import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Explosion } from 'game/entity/explosion'
 import { Projectile } from 'game/entity/projectile'
 import { loader, LoadResult, ModelType } from 'game/loader'
-import { BodyCreator } from 'game/util/body_creator'
+import { BodyFactory } from 'game/factory/body_factory'
 
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
@@ -32,7 +32,7 @@ export class Rocket extends Projectile {
 			bodyFn: (profile : Profile) => {
 				const pos = profile.pos();
 				const dim = profile.dim();
-				return BodyCreator.circle(profile.pos(), profile.dim(), {
+				return BodyFactory.circle(profile.pos(), profile.dim(), {
 					isSensor: true,
 				});
 			},

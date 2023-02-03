@@ -1,6 +1,6 @@
 import { game } from 'game'	
 import { Entity, EntityOptions, EntityType } from 'game/entity'
-import { EntityFactory } from 'game/entity_factory'
+import { EntityFactory } from 'game/factory/entity_factory'
 import { System, SystemBase, SystemType } from 'game/system'
 import { EntityMap } from 'game/system/entity_map'
 

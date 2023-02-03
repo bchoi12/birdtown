@@ -4,6 +4,7 @@ import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
 import { GameObject, GameObjectBase } from 'game/core'
 import { AttributesInitOptions } from 'game/component/attributes'
+import { CardinalsInitOptions } from 'game/component/cardinals'
 import { Health } from 'game/component/health'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { ProfileInitOptions } from 'game/component/profile'
@@ -34,6 +35,7 @@ export type EntityOptions = {
 	clientId? : number;
 
 	attributesInit? : AttributesInitOptions;
+	cardinalsInit? : CardinalsInitOptions;
 	hexColorsInit? : HexColorsInitOptions;
 	profileInit? : ProfileInitOptions
 

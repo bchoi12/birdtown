@@ -1,11 +1,11 @@
 import { game } from 'game'
-import { ColorType } from 'game/color_factory'
+import { ColorType } from 'game/factory/color_factory'
 import { ComponentType } from 'game/component'
 import { EntityOptions, EntityType } from 'game/entity'
 import { ArchBase } from 'game/entity/block/arch_base'
 import { ModelType } from 'game/loader'
 
-import { Cardinal, CardinalType } from 'util/cardinal'
+import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
 
 export class ArchRoom extends ArchBase {
@@ -14,7 +14,6 @@ export class ArchRoom extends ArchBase {
 		super(EntityType.ARCH_ROOM, entityOptions);
 
 		this._profile.setDim({x: 12, y: 6});
-		this.openings().addTypes([CardinalType.LEFT, CardinalType.RIGHT]);
 	}
 
 	override modelType() : ModelType { return ModelType.ARCH_ROOM; }
@@ -22,46 +21,46 @@ export class ArchRoom extends ArchBase {
 	override initialize() : void {
 		super.initialize();
 
-		if (!this._openings.anyBottom()) {
+		if (!this.openings().anyBottom()) {
 			game.entities().addEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalType.BOTTOM, {x: this._profile.dim().x, y: this.thickness() }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x, y: this.thickness() }),
 			});
 		} else {
-			if (!this._openings.hasType(CardinalType.BOTTOM_LEFT)) {
+			if (!this.openings().hasDir(CardinalDir.BOTTOM_LEFT)) {
 				game.entities().addEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalType.BOTTOM_LEFT, {x: this._profile.dim().x / 2, y: this.thickness() }),
+					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this._profile.dim().x / 2, y: this.thickness() }),
 				});
 				game.entities().addEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalType.BOTTOM_LEFT, {x: this.thickness(), y: this.thickness() }),
+					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this.thickness(), y: this.thickness() }),
 				});
 			}
-			if (!this._openings.hasType(CardinalType.BOTTOM_RIGHT)) {
+			if (!this.openings().hasDir(CardinalDir.BOTTOM_RIGHT)) {
 				game.entities().addEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalType.BOTTOM_RIGHT, {x: this._profile.dim().x / 2, y: this.thickness() }),
+					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this._profile.dim().x / 2, y: this.thickness() }),
 				});
 				game.entities().addEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalType.BOTTOM_RIGHT, {x: this.thickness(), y: this.thickness() }),
+					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this.thickness(), y: this.thickness() }),
 				});
 			}
 		}
 
-		if (this._openings.hasType(CardinalType.RIGHT)) {
+		if (this.openings().hasDir(CardinalDir.RIGHT)) {
 			game.entities().addEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalType.TOP_RIGHT, {x: this.thickness(), y: 1.5 }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.TOP_RIGHT, {x: this.thickness(), y: 1.5 }),
 			});
 		} else {
 			game.entities().addEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalType.RIGHT, {x: this.thickness(), y: this._profile.dim().y }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.RIGHT, {x: this.thickness(), y: this._profile.dim().y }),
 			});
 		}
 
-		if (this._openings.hasType(CardinalType.LEFT)) {
+		if (this.openings().hasDir(CardinalDir.LEFT)) {
 			game.entities().addEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalType.TOP_LEFT, {x: this.thickness(), y: 1.5 }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.TOP_LEFT, {x: this.thickness(), y: 1.5 }),
 			});
 		} else {
 			game.entities().addEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalType.LEFT, {x: this.thickness(), y: this._profile.dim().y }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.LEFT, {x: this.thickness(), y: this._profile.dim().y }),
 			});
 		}
 	}

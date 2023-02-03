@@ -58,9 +58,10 @@ export class Physics extends SystemBase implements System {
 			}
 
 			entityA.collide(collision, entityB);
-
-			// TODO: need to invert lots of params
-			collision.normal = {x: -collision.normal.x, y: -collision.normal.y};
+			collision.normal.x *= -1;
+			collision.normal.y *= -1;
+			collision.penetration.x *= -1;
+			collision.penetration.y *= -1;
 			entityB.collide(collision, entityA);		
 		});
 	}

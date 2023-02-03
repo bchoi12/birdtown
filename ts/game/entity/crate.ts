@@ -8,7 +8,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { GameConstants } from 'game/core'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
-import { BodyCreator } from 'game/util/body_creator'
+import { BodyFactory } from 'game/factory/body_factory'
 
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
@@ -33,8 +33,8 @@ export class Crate extends EntityBase {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyCreator.rectangle(profile.pos(), profile.dim(), {
-					density: BodyCreator.heavyDensity,
+				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
+					density: BodyFactory.heavyDensity,
 				});
 			},
 			init: entityOptions.profileInit,

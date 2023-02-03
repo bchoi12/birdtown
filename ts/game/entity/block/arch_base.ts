@@ -1,12 +1,6 @@
-import { game } from 'game'
-import { ColorType } from 'game/color_factory'
-import { ComponentType } from 'game/component'
+import { ColorType } from 'game/factory/color_factory'
 import { EntityOptions, EntityType } from 'game/entity'
 import { Block } from 'game/entity/block'
-import { ModelType } from 'game/loader'
-
-import { Cardinal, CardinalType } from 'util/cardinal'
-import { defined } from 'util/common'
 
 export abstract class ArchBase extends Block {
 
@@ -17,5 +11,5 @@ export abstract class ArchBase extends Block {
 	}
 
 	override thickness() : number { return 0.5; }
-	override ready() { return super.ready() && this._hexColors.hasColor(ColorType.BASE) && this._hexColors.hasColor(ColorType.SECONDARY); }
+	override ready() { return super.ready() && this.hasOpenings() && this._hexColors.hasColor(ColorType.BASE) && this._hexColors.hasColor(ColorType.SECONDARY); }
 }

@@ -7,7 +7,7 @@ import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
-import { BodyCreator } from 'game/util/body_creator'
+import { BodyFactory } from 'game/factory/body_factory'
 
 import { Vec, Vec2 } from 'util/vector'
 
@@ -29,7 +29,7 @@ export class Explosion extends EntityBase {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyCreator.circle(profile.pos(), profile.dim(), {
+				return BodyFactory.circle(profile.pos(), profile.dim(), {
 					isStatic: true,
 					isSensor: true,
 				});

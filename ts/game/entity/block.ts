@@ -3,18 +3,21 @@ import 'babylonjs-materials'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { ColorType } from 'game/color_factory'
+import { ColorFactory, ColorType } from 'game/factory/color_factory'
+import { CardinalType } from 'game/factory/cardinal_factory'
 import { ComponentType } from 'game/component'
+import { Cardinals } from 'game/component/cardinals'
 import { HexColors } from 'game/component/hex_colors'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { loader, LoadResult, ModelType } from 'game/loader'
-import { BodyCreator } from 'game/util/body_creator'
+import { BodyFactory } from 'game/factory/body_factory'
 
-import { Cardinal, CardinalType } from 'util/cardinal'
+import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
 import { HexColor } from 'util/hex_color'
+import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
 
 enum MaterialProp {
@@ -28,23 +31,25 @@ enum MaterialProp {
 
 enum MeshProp {
 	UNKNOWN = "",
+	BACK = "back",
 	OPENING = "opening",
 	WINDOWS = "windows",
 }
 
+type CachedMaterial = {
+	material : BABYLON.Material;
+	alpha : number;
+}
 type MaterialFn = (material : BABYLON.StandardMaterial) => void;
 
 export abstract class Block extends EntityBase {
 
-	// TODO: openings should be Component (Cardinals?)
-	protected _openings : Cardinal;
 	protected _transparent : boolean;
+	protected _materialCache : Map<string, CachedMaterial>;
+	protected _frontMaterials : Set<string>
+	protected _transparentFrontMeshes : Array<BABYLON.Mesh>;
 
-	// TODO: expand cache value to be struct
-	protected _materialCache : Map<string, BABYLON.Material>;
-	protected _frontMaterials : Map<BABYLON.Material, number>;
-	protected _windows : BABYLON.Mesh;
-
+	protected _cardinals : Cardinals;
 	protected _hexColors : HexColors;
 	protected _profile : Profile;
 	protected _model : Model;
@@ -58,21 +63,23 @@ export abstract class Block extends EntityBase {
 			id: this.id(),
 		});
 
-		this._openings = new Cardinal();
 		this._transparent = false;
 
 		this._materialCache = new Map();
-		this._frontMaterials = new Map();
+		this._frontMaterials = new Set();
+		this._transparentFrontMeshes = new Array();
+
+		this._cardinals = this.addComponent<Cardinals>(new Cardinals(entityOptions.cardinalsInit));
 
 		this._hexColors = this.addComponent<HexColors>(new HexColors(entityOptions.hexColorsInit));
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyCreator.rectangle(profile.pos(), profile.dim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
 					isSensor: true,
 					isStatic: true,
 					collisionFilter: {
-						group: BodyCreator.ignoreWallGroup,
+						group: BodyFactory.ignoreWallGroup,
 					},
 				});
 			},
@@ -99,7 +106,8 @@ export abstract class Block extends EntityBase {
 	abstract modelType() : ModelType;
 	abstract thickness() : number;
 
-	openings() : Cardinal { return this._openings; }
+	hasOpenings() : boolean { return this._cardinals.hasCardinal(CardinalType.OPENINGS); }
+	openings() : Cardinal { return this._cardinals.getCardinal(CardinalType.OPENINGS); }
 	transparent() : boolean { return this._transparent; }
 
 	override preUpdate(millis : number) : void {
@@ -112,18 +120,20 @@ export abstract class Block extends EntityBase {
 		super.update(millis);
 
 		if (this.transparent()) {
-			this._frontMaterials.forEach((alpha : number, material : BABYLON.Material) => {
-				material.alpha = Math.max(0.1, material.alpha - millis / 300);
-				if (defined(this._windows)) {
-					this._windows.isVisible = false;
-				}
+			this._frontMaterials.forEach((name : string) => {
+				const cached = this._materialCache.get(name);
+				cached.material.alpha = Math.max(0.1, cached.material.alpha - millis / 300);
+			});
+			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
+				mesh.isVisible = false;
 			});
 		} else {
-			this._frontMaterials.forEach((alpha : number, material : BABYLON.Material) => {
-				material.alpha = Math.min(alpha, material.alpha + millis / 300);
-				if (defined(this._windows)) {
-					this._windows.isVisible = true;
-				}
+			this._frontMaterials.forEach((name : string) => {
+				const cached = this._materialCache.get(name);
+				cached.material.alpha = Math.min(cached.alpha, cached.material.alpha + millis / 300);
+			});
+			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
+				mesh.isVisible = true;
 			});
 		}
 	}
@@ -160,18 +170,20 @@ export abstract class Block extends EntityBase {
 			meshProps.add(prop.split("_")[0]);
 		});
 
-		if (meshProps.has("opening")) {
-			if (this.openings().nameMatches(meshProps).size > 0) {
+		if (meshProps.has(MeshProp.OPENING)) {
+			if (!this.hasOpenings()) {
+				console.error("Error: object %s does not have openings cardinal", this.name());
+			} else if (this.openings().nameMatches(meshProps).size > 0) {
 				mesh.isVisible = false;
 			}
 		}
 
-		if (meshProps.has("windows")) {
-			this._windows = mesh;
+		if (meshProps.has(MeshProp.WINDOWS)) {
+			this._transparentFrontMeshes.push(mesh);
 		}
 
 		if (this._materialCache.has(mesh.material.name)) {
-			mesh.material = this._materialCache.get(mesh.material.name);
+			mesh.material = this._materialCache.get(mesh.material.name).material;
 			return;
 		}
 
@@ -181,19 +193,30 @@ export abstract class Block extends EntityBase {
 		newMaterial.sideOrientation = mesh.material.sideOrientation;
 		newMaterial.backFaceCulling = true;
 
+		let diffuse = new Optional<HexColor>();
 		if (materialProps.has(MaterialProp.BASE)) {
 			if (!this._hexColors.hasColor(ColorType.BASE)) {
 				console.error("Warning: missing base color for %s", this.name());
 			} else {
-				newMaterial.diffuseColor = this._hexColors.getColor(ColorType.BASE).toBabylonColor3();			
+				diffuse.set(this._hexColors.getColor(ColorType.BASE));
 			}
 		} else if (materialProps.has(MaterialProp.SECONDARY)) {
 			if (!this._hexColors.hasColor(ColorType.SECONDARY)) {
 				console.error("Warning: missing secondary color for %s", this.name());
 			} else {
-				newMaterial.diffuseColor = this._hexColors.getColor(ColorType.SECONDARY).toBabylonColor3();			
+				diffuse.set(this._hexColors.getColor(ColorType.SECONDARY));
 			}
+		} else if (meshProps.has(MeshProp.WINDOWS)) {
+			diffuse.set(ColorFactory.transparentWindow);
 		}
+
+		if (diffuse.has()) {
+			if (materialProps.has(MaterialProp.BACK)) {
+				diffuse.set(diffuse.get().clone().mult(0.8));
+			}
+			newMaterial.diffuseColor = diffuse.get().toBabylonColor3();
+		}
+
 
 		if (materialProps.has(MaterialProp.TRANSPARENT)) {
 			newMaterial.alpha = 0.5;
@@ -201,11 +224,14 @@ export abstract class Block extends EntityBase {
 		}
 
 		if (materialProps.has(MaterialProp.FRONT)) {
-			this._frontMaterials.set(newMaterial, newMaterial.alpha);
+			this._frontMaterials.add(newMaterial.name);
 			newMaterial.needDepthPrePass = true;
 		}
 
-		this._materialCache.set(mesh.material.name, newMaterial);
+		this._materialCache.set(newMaterial.name, {
+			material: newMaterial,
+			alpha: newMaterial.alpha,
+		});
 		mesh.material = newMaterial;
 	}
 }

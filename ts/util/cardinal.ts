@@ -1,7 +1,7 @@
 
 import { DoubleMap } from 'util/double_map'
 
-export enum CardinalType {
+export enum CardinalDir {
 	UNKNOWN,
 	LEFT,
 	RIGHT,
@@ -14,52 +14,52 @@ export enum CardinalType {
 }
 
 export class Cardinal {
-	private static readonly _cardinalToName = DoubleMap.fromEntries<CardinalType, string>([
-		[CardinalType.LEFT, "left"],
-		[CardinalType.RIGHT, "right"],
-		[CardinalType.TOP, "top"],
-		[CardinalType.BOTTOM, "bottom"],
-		[CardinalType.TOP_LEFT, "topleft"],
-		[CardinalType.TOP_RIGHT, "topright"],
-		[CardinalType.BOTTOM_LEFT, "bottomleft"],
-		[CardinalType.BOTTOM_RIGHT, "bottomright"],
+	private static readonly _cardinalToName = DoubleMap.fromEntries<CardinalDir, string>([
+		[CardinalDir.LEFT, "left"],
+		[CardinalDir.RIGHT, "right"],
+		[CardinalDir.TOP, "top"],
+		[CardinalDir.BOTTOM, "bottom"],
+		[CardinalDir.TOP_LEFT, "topleft"],
+		[CardinalDir.TOP_RIGHT, "topright"],
+		[CardinalDir.BOTTOM_LEFT, "bottomleft"],
+		[CardinalDir.BOTTOM_RIGHT, "bottomright"],
 	]);
 
-	private static readonly _cardinalOrder = new Array<CardinalType>(
-		CardinalType.LEFT,
-		CardinalType.RIGHT,
-		CardinalType.TOP,
-		CardinalType.BOTTOM,
-		CardinalType.BOTTOM_LEFT,
-		CardinalType.BOTTOM_RIGHT,
-		CardinalType.TOP_LEFT,
-		CardinalType.TOP_RIGHT)
+	private static readonly _cardinalOrder = new Array<CardinalDir>(
+		CardinalDir.LEFT,
+		CardinalDir.RIGHT,
+		CardinalDir.TOP,
+		CardinalDir.BOTTOM,
+		CardinalDir.TOP_LEFT,
+		CardinalDir.TOP_RIGHT,
+		CardinalDir.BOTTOM_LEFT,
+		CardinalDir.BOTTOM_RIGHT)
 
-	private static readonly _allLeft = new Set<CardinalType>([
-		CardinalType.LEFT, CardinalType.TOP_LEFT, CardinalType.BOTTOM_LEFT]);
+	private static readonly _allLeft = new Set<CardinalDir>([
+		CardinalDir.LEFT, CardinalDir.TOP_LEFT, CardinalDir.BOTTOM_LEFT]);
 
-	private static readonly _allRight = new Set<CardinalType>([
-		CardinalType.RIGHT, CardinalType.TOP_RIGHT, CardinalType.BOTTOM_RIGHT]);
+	private static readonly _allRight = new Set<CardinalDir>([
+		CardinalDir.RIGHT, CardinalDir.TOP_RIGHT, CardinalDir.BOTTOM_RIGHT]);
 
-	private static readonly _allTop = new Set<CardinalType>([
-		CardinalType.TOP, CardinalType.TOP_LEFT, CardinalType.TOP_RIGHT]);
+	private static readonly _allTop = new Set<CardinalDir>([
+		CardinalDir.TOP, CardinalDir.TOP_LEFT, CardinalDir.TOP_RIGHT]);
 
-	private static readonly _allBottom = new Set<CardinalType>([
-		CardinalType.BOTTOM, CardinalType.BOTTOM_LEFT, CardinalType.BOTTOM_RIGHT]);
+	private static readonly _allBottom = new Set<CardinalDir>([
+		CardinalDir.BOTTOM, CardinalDir.BOTTOM_LEFT, CardinalDir.BOTTOM_RIGHT]);
 
-	private _cardinals : Set<CardinalType>;
+	private _cardinals : Set<CardinalDir>;
 
 	constructor() { this._cardinals = new Set(); }
 
-	static isLeft(type : CardinalType) : boolean { return Cardinal._allLeft.has(type); }
-	static isRight(type : CardinalType) : boolean { return Cardinal._allRight.has(type); }
-	static isTop(type : CardinalType) : boolean { return Cardinal._allTop.has(type); }
-	static isBottom(type : CardinalType) : boolean { return Cardinal._allBottom.has(type); }
+	static isLeft(type : CardinalDir) : boolean { return Cardinal._allLeft.has(type); }
+	static isRight(type : CardinalDir) : boolean { return Cardinal._allRight.has(type); }
+	static isTop(type : CardinalDir) : boolean { return Cardinal._allTop.has(type); }
+	static isBottom(type : CardinalDir) : boolean { return Cardinal._allBottom.has(type); }
 
-	static fromTypes(types : CardinalType[]) : Cardinal { 
+	static fromDirs(types : CardinalDir[]) : Cardinal { 
 		let cardinal = new Cardinal();
 		types.forEach((type) => {
-			cardinal.addType(type);
+			cardinal.addDir(type);
 		});
 		return cardinal;
 	}
@@ -74,14 +74,14 @@ export class Cardinal {
 
 	empty() : boolean { return this._cardinals.size === 0; }
 
-	addType(type : CardinalType) : void {
+	addDir(type : CardinalDir) : void {
 		if (Cardinal._cardinalToName.has(type)) {
 			this._cardinals.add(type);
 		}
 	}
-	addTypes(types : CardinalType[]) : void {
-		types.forEach((type : CardinalType) => {
-			this.addType(type);
+	addDirs(types : CardinalDir[]) : void {
+		types.forEach((type : CardinalDir) => {
+			this.addDir(type);
 		});
 	}
 
@@ -90,7 +90,7 @@ export class Cardinal {
 			console.error("Error: skipping invalid cardinal name", name);
 			return;
 		}
-		this.addType(Cardinal._cardinalToName.getReverse(name));
+		this.addDir(Cardinal._cardinalToName.getReverse(name));
 	}
 	addNames(names : string[]) : void {
 		names.forEach((name : string) => {
@@ -98,7 +98,7 @@ export class Cardinal {
 		});
 	}
 
-	hasType(type : CardinalType) : boolean { return this._cardinals.has(type); }
+	hasDir(type : CardinalDir) : boolean { return this._cardinals.has(type); }
 	hasName(name : string) : boolean {
 		if (!Cardinal._cardinalToName.hasReverse(name)) {
 			return false;
@@ -107,16 +107,16 @@ export class Cardinal {
 	}
 
 	anyLeft() : boolean {
-		return this.hasType(CardinalType.LEFT) || this.hasType(CardinalType.TOP_LEFT) || this.hasType(CardinalType.BOTTOM_LEFT);
+		return this.hasDir(CardinalDir.LEFT) || this.hasDir(CardinalDir.TOP_LEFT) || this.hasDir(CardinalDir.BOTTOM_LEFT);
 	}
 	anyRight() : boolean {
-		return this.hasType(CardinalType.RIGHT) || this.hasType(CardinalType.TOP_RIGHT) || this.hasType(CardinalType.BOTTOM_RIGHT);
+		return this.hasDir(CardinalDir.RIGHT) || this.hasDir(CardinalDir.TOP_RIGHT) || this.hasDir(CardinalDir.BOTTOM_RIGHT);
 	}
 	anyTop() : boolean {
-		return this.hasType(CardinalType.TOP) || this.hasType(CardinalType.TOP_LEFT) || this.hasType(CardinalType.TOP_RIGHT);
+		return this.hasDir(CardinalDir.TOP) || this.hasDir(CardinalDir.TOP_LEFT) || this.hasDir(CardinalDir.TOP_RIGHT);
 	}
 	anyBottom() : boolean {
-		return this.hasType(CardinalType.BOTTOM) || this.hasType(CardinalType.BOTTOM_LEFT) || this.hasType(CardinalType.BOTTOM_RIGHT);
+		return this.hasDir(CardinalDir.BOTTOM) || this.hasDir(CardinalDir.BOTTOM_LEFT) || this.hasDir(CardinalDir.BOTTOM_RIGHT);
 	}
 
 	nameMatches(names : Set<string>) : Set<string> {
@@ -133,21 +133,21 @@ export class Cardinal {
 	toBitMask() : number {
 		let mask = 0;
 		for (let i = 0; i < Cardinal._cardinalOrder.length; ++i) {
-			if (this.hasType(Cardinal._cardinalOrder[i])) {
+			if (this.hasDir(Cardinal._cardinalOrder[i])) {
 				mask = mask | 0b1;
 			}
-			mask << 0b1;
+			mask = (mask << 0b1);
 		}
-		mask >> 0b1;
+		mask = (mask >> 0b1);
 		return mask;
 	}
 
 	copyBitMask(mask : number) : void {
 		for (let i = Cardinal._cardinalOrder.length - 1; i >= 0; --i) {
 			if ((mask & 0b1) > 0) {
-				this.addType(Cardinal._cardinalOrder[i]);
+				this.addDir(Cardinal._cardinalOrder[i]);
 			}
-			mask >> 0b1;
+			mask = (mask >> 0b1);
 		}	
 	}
 }

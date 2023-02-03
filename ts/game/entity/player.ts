@@ -11,7 +11,7 @@ import { GameConstants } from 'game/core'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Weapon } from 'game/entity/weapon'
 import { loader, LoadResult, ModelType } from 'game/loader'
-import { BodyCreator } from 'game/util/body_creator'
+import { BodyFactory } from 'game/factory/body_factory'
 
 import { Key } from 'ui'
 
@@ -136,7 +136,7 @@ export class Player extends EntityBase {
 				const pos = profile.pos();
 				const dim = profile.dim();
 
-				return BodyCreator.rectangle(profile.pos(), profile.dim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
 					friction: 0,
 					collisionFilter: {
 						group: collisionGroup,
@@ -157,7 +157,7 @@ export class Player extends EntityBase {
 		this._headSubProfile = this._profile.addSubProfile(SubProfile.HEAD, new Profile({
 			readyFn: (head : Profile) => { return this._profile.initialized(); },
 			bodyFn: (head : Profile) => {
-				return BodyCreator.rectangle(head.pos(), head.dim(), {
+				return BodyFactory.rectangle(head.pos(), head.dim(), {
 					isSensor: true,
 					collisionFilter: {
 						group: collisionGroup,

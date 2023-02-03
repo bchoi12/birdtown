@@ -3,6 +3,7 @@ import * as BABYLON from "babylonjs";
 import { Data, DataFilter, DataMap } from 'network/data'
 import { System, SystemType } from 'game/system'
 import { SystemRunner } from 'game/system_runner'
+import { ClientInfos } from 'game/system/client_infos'
 import { Entities } from 'game/system/entities'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
@@ -48,6 +49,7 @@ class Game {
 	private _netcode : Netcode;
 
 	private _systemRunner : SystemRunner;
+	private _clientInfos : ClientInfos;
 	private _entities : Entities;
 	private _input : Input;
 	private _lakitu : Lakitu;
@@ -69,6 +71,7 @@ class Game {
 		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false);
 		window.onresize = () => { this.resize(); };
 
+		// TODO: move most of this stuff to network code
 		if (this._options.host) {
 			this._netcode = new Host(this._options.name, this._options.hostName);
 			this._netcode.addRegisterCallback((name : string) => {
@@ -117,6 +120,7 @@ class Game {
 		this._netcode.initialize();
 
 		this._systemRunner = new SystemRunner();
+		this._clientInfos = new ClientInfos();
 		this._entities = new Entities();
 		this._input = new Input();
 		this._level = new Level();
@@ -126,6 +130,7 @@ class Game {
 		this._lakitu = new Lakitu(this._world.scene());
 
 		// Order of insertion becomes order of execution
+		this._systemRunner.push(this._clientInfos);
 		this._systemRunner.push(this._level);
 		this._systemRunner.push(this._input);
 		this._systemRunner.push(this._entities);
@@ -134,9 +139,9 @@ class Game {
 		this._systemRunner.push(this._world);
 
 	    if (this._options.host) {
+	    	this.setId(1);
 		    this._level.setLevel(LevelType.TEST);	
 		    this._level.setSeed(Math.floor(1000 * Math.random()) + 1);
-	    	this.setId(1);
 	    	this._systemRunner.onNewClient(this._options.name, this.id());
 	    }
 
@@ -156,7 +161,9 @@ class Game {
     			}
 	    	}
 
-	    	this._frameTimes.push(Date.now() - frameStart);
+	    	if (this.hasId()) {
+		    	this._frameTimes.push(Date.now() - frameStart);
+	    	}
 	    });
 
 	    this._initialized = true;
@@ -173,7 +180,7 @@ class Game {
 	systemRunner() : SystemRunner { return this._systemRunner; }
 	getSystem<T extends System>(type : SystemType) : T { return this._systemRunner.getSystem<T>(type); }
 
-	// TODO: consider trimming
+	// Easy access for commonly used systems
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
 	physics() : Physics { return this._physics; }

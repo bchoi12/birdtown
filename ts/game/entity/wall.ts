@@ -6,7 +6,7 @@ import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
-import { BodyCreator } from 'game/util/body_creator'
+import { BodyFactory } from 'game/factory/body_factory'
 
 import { defined } from 'util/common'
 import { Vec } from 'util/vector'
@@ -29,10 +29,10 @@ export class Wall extends EntityBase {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyCreator.rectangle(profile.pos(), profile.dim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
 					isStatic: true,
 					collisionFilter: {
-						group: BodyCreator.ignoreWallGroup,
+						group: BodyFactory.ignoreWallGroup,
 					},
 				});
 			},

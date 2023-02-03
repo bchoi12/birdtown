@@ -7,7 +7,7 @@ import { Data } from 'network/data'
 import { options } from 'options'
 
 import { Buffer } from 'util/buffer'
-import { Cardinal, CardinalType } from 'util/cardinal'
+import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -172,7 +172,7 @@ export class Profile extends ComponentBase implements Component {
 		});
 	}
 
-	createRelativeInit(cardinal : CardinalType, objectDim : Vec) : ProfileInitOptions {
+	createRelativeInit(cardinal : CardinalDir, objectDim : Vec) : ProfileInitOptions {
 		let adjustedPos = this.pos().clone();
 		const dim = this.dim();
 

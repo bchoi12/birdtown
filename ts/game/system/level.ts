@@ -1,7 +1,8 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
-import { ColorFactory } from 'game/color_factory'
+import { CardinalFactory } from 'game/factory/cardinal_factory'
+import { ColorFactory } from 'game/factory/color_factory'
 import { EntityType } from 'game/entity'
 import { System, SystemBase, SystemType } from 'game/system'
 
@@ -84,6 +85,9 @@ export class Level extends SystemBase implements System {
 	    	profileInit: {
 	    		pos: {x: -12, y: 2},
 	    	},
+	    	cardinalsInit: {
+	    		cardinals: CardinalFactory.generateOpenings(),
+	    	},
 	    	hexColorsInit: {
 	    		colors: colors,
 	    	},
@@ -91,6 +95,9 @@ export class Level extends SystemBase implements System {
 	    entities.addEntity(EntityType.ARCH_ROOM, {
 	    	profileInit: {
 	    		pos: {x: -12, y: 8},
+	    	},
+	    	cardinalsInit: {
+	    		cardinals: CardinalFactory.generateOpenings(),
 	    	},
 	    	hexColorsInit: {
 	    		colors: colors,
@@ -100,15 +107,21 @@ export class Level extends SystemBase implements System {
 	    	profileInit: {
 	    		pos: {x: -12, y: 11.5},
 	    	},
+	    	cardinalsInit: {
+	    		cardinals: CardinalFactory.generateOpenings(),
+	    	},
 	    	hexColorsInit: {
 	    		colors: colors,
 	    	},
 	    });
 
-		colors = ColorFactory.generateColorMap(EntityType.ARCH_ROOM, this._seed * 2);
+		colors = ColorFactory.generateColorMap(EntityType.ARCH_ROOM, this._seed % 13);
 	    entities.addEntity(EntityType.ARCH_ROOM, {
 	    	profileInit: {
 	    		pos: {x: 0, y: 2},
+	    	},
+	    	cardinalsInit: {
+	    		cardinals: CardinalFactory.generateOpenings(),
 	    	},
 	    	hexColorsInit: {
 	    		colors: colors,
@@ -118,6 +131,9 @@ export class Level extends SystemBase implements System {
 	    	profileInit: {
 	    		pos: {x: 0, y: 8},
 	    	},
+	    	cardinalsInit: {
+	    		cardinals: CardinalFactory.generateOpenings(),
+	    	},
 	    	hexColorsInit: {
 	    		colors: colors,
 	    	},
@@ -126,6 +142,9 @@ export class Level extends SystemBase implements System {
 	    	profileInit: {
 	    		pos: {x: 0, y: 14},
 	    	},
+	    	cardinalsInit: {
+	    		cardinals: CardinalFactory.generateOpenings(),
+	    	},
 	    	hexColorsInit: {
 	    		colors: colors,
 	    	},
@@ -133,6 +152,55 @@ export class Level extends SystemBase implements System {
 	    entities.addEntity(EntityType.ARCH_ROOF, {
 	    	profileInit: {
 	    		pos: {x: 0, y: 17.5},
+	    	},
+	    	cardinalsInit: {
+	    		cardinals: CardinalFactory.generateOpenings(),
+	    	},
+	    	hexColorsInit: {
+	    		colors: colors,
+	    	},
+	    });
+
+		colors = ColorFactory.generateColorMap(EntityType.ARCH_ROOM, this._seed % 17);
+	    entities.addEntity(EntityType.ARCH_ROOM, {
+	    	profileInit: {
+	    		pos: {x: 12, y: 2},
+	    	},
+	    	cardinalsInit: {
+	    		cardinals: CardinalFactory.generateOpenings(),
+	    	},
+	    	hexColorsInit: {
+	    		colors: colors,
+	    	},
+	    });
+	    entities.addEntity(EntityType.ARCH_ROOM, {
+	    	profileInit: {
+	    		pos: {x: 12, y: 8},
+	    	},
+	    	cardinalsInit: {
+	    		cardinals: CardinalFactory.generateOpenings(),
+	    	},
+	    	hexColorsInit: {
+	    		colors: colors,
+	    	},
+	    });
+	    entities.addEntity(EntityType.ARCH_ROOM, {
+	    	profileInit: {
+	    		pos: {x: 12, y: 14},
+	    	},
+	    	cardinalsInit: {
+	    		cardinals: CardinalFactory.generateOpenings(),
+	    	},
+	    	hexColorsInit: {
+	    		colors: colors,
+	    	},
+	    });
+	    entities.addEntity(EntityType.ARCH_ROOF, {
+	    	profileInit: {
+	    		pos: {x: 12, y: 17.5},
+	    	},
+	    	cardinalsInit: {
+	    		cardinals: CardinalFactory.generateOpenings(),
 	    	},
 	    	hexColorsInit: {
 	    		colors: colors,
