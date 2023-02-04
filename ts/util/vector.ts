@@ -115,16 +115,6 @@ export class Vec2 implements Vec {
         return this;
     }
 
-    subsume(other : Vec) : Vec2 {
-        if (Math.sign(this.x) === Math.sign(other.x)) {
-            this.x = Math.sign(this.x) * Math.max(Math.abs(this.x), Math.abs(other.x));
-        }
-        if (Math.sign(this.y) === Math.sign(other.y)) {
-            this.y = Math.sign(this.y) * Math.max(Math.abs(this.y), Math.abs(other.y));
-        }
-        return this;
-    }
-
     angleRad() : number {
         if (this.x === 0) {
             return Math.PI - Math.sign(this.y) * Math.PI / 2.0;

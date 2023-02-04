@@ -38,12 +38,6 @@ export class Bazooka extends Weapon {
 
 		let vel = unitDir.clone().scale(0.1);
 		let acc = unitDir.clone().scale(1.5);
-		if (defined(this._player)) {
-			let playerProfile = this._player.getComponent<Profile>(ComponentType.PROFILE);
-			vel.subsume(playerProfile.vel());
-			acc.subsume(playerProfile.acc());
-		}
-
 		let projectile = game.entities().addEntity(EntityType.ROCKET, {
 			profileInit: {
 				pos: {x: pos.x, y: pos.y},

@@ -315,7 +315,7 @@ export class Player extends EntityBase {
 		}
 
 		// Friction and air resistance
-		const slowing = !this._attributes.get(Attribute.DEAD) && aaMath.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x);
+		const slowing = !this._attributes.get(Attribute.DEAD) && Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x);
 		if (this._attributes.get(Attribute.GROUNDED)) {
 			if (slowing) {
 				this._profile.vel().x *= Player._friction;

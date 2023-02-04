@@ -141,7 +141,7 @@ class Game {
 	    if (this._options.host) {
 	    	this.setId(1);
 		    this._level.setLevel(LevelType.BIRDTOWN);	
-		    this._level.setSeed(333);
+		    this._level.setSeed(Math.floor(Math.random() * 10000) + 1);
 	    	this._systemRunner.onNewClient(this._options.name, this.id());
 	    }
 
