@@ -1,8 +1,10 @@
 import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
-import { defined } from 'util/common'
 import { Data } from 'network/data'
+
+import { defined } from 'util/common'
+import { SeededRandom } from 'util/seeded_random'
 
 export interface Vec {
     x? : number;
@@ -17,6 +19,24 @@ export class Vec2 implements Vec {
     constructor(vec : Vec) {
         this.x = defined(vec.x) ? vec.x : 0;
         this.y = defined(vec.y) ? vec.y : 0;
+    }
+
+    static zero() : Vec2 { return new Vec2({x: 0, y: 0}); }
+    static one() : Vec2 { return new Vec2({x: 1, y: 1}); }
+    static i() : Vec2 { return new Vec2({x: 1, y: 0}); }
+    static j() : Vec2 { return new Vec2({x: 0, y: 1}); }
+    static fromBabylon3(vec : BABYLON.Vector3) : Vec2 { return new Vec2({x: vec.x, y: vec.y }); }
+    static fromMatter(vec : MATTER.Vector) : Vec2 { return new Vec2(vec); }
+    static fromVec(vec : Vec) : Vec2 { return new Vec2(vec); }
+    
+    static unitFromRad(angle : number) : Vec2 {
+        return new Vec2({
+            x: Math.cos(angle),
+            y: Math.sin(angle),
+        });
+    }
+    static unitFromDeg(angle : number) : Vec2 {
+        return Vec2.unitFromRad(angle * Math.PI / 180);
     }
 
     equals(other : Vec) : boolean { return Data.numberEquals(this.x, other.x) && Data.numberEquals(this.x, other.y); }
@@ -89,6 +109,22 @@ export class Vec2 implements Vec {
         return this;
     }
 
+    addRandomOffset(maxOffset : Vec, rng? : SeededRandom) : Vec2 {
+        this.x += ((defined(rng) ? rng.next() : Math.random()) < 0.5 ? -1 : 1) * (defined(rng) ? rng.next() : Math.random()) * maxOffset.x;
+        this.y += ((defined(rng) ? rng.next() : Math.random()) < 0.5 ? -1 : 1) * (defined(rng) ? rng.next() : Math.random()) * maxOffset.y;
+        return this;
+    }
+
+    subsume(other : Vec) : Vec2 {
+        if (Math.sign(this.x) === Math.sign(other.x)) {
+            this.x = Math.sign(this.x) * Math.max(Math.abs(this.x), Math.abs(other.x));
+        }
+        if (Math.sign(this.y) === Math.sign(other.y)) {
+            this.y = Math.sign(this.y) * Math.max(Math.abs(this.y), Math.abs(other.y));
+        }
+        return this;
+    }
+
     angleRad() : number {
         if (this.x === 0) {
             return Math.PI - Math.sign(this.y) * Math.PI / 2.0;
@@ -128,24 +164,6 @@ export class Vec2 implements Vec {
     }
     lerp(vec : Vec, t : number) : Vec2 {
         return this.interpolate(vec, t, (t : number) => { return t;});
-    }
-
-    static zero() : Vec2 { return new Vec2({x: 0, y: 0}); }
-    static one() : Vec2 { return new Vec2({x: 1, y: 1}); }
-    static i() : Vec2 { return new Vec2({x: 1, y: 0}); }
-    static j() : Vec2 { return new Vec2({x: 0, y: 1}); }
-    static fromBabylon3(vec : BABYLON.Vector3) : Vec2 { return new Vec2({x: vec.x, y: vec.y }); }
-    static fromMatter(vec : MATTER.Vector) : Vec2 { return new Vec2(vec); }
-    static fromVec(vec : Vec) : Vec2 { return new Vec2(vec); }
-    
-    static unitFromRad(angle : number) : Vec2 {
-        return new Vec2({
-            x: Math.cos(angle),
-            y: Math.sin(angle),
-        });
-    }
-    static unitFromDeg(angle : number) : Vec2 {
-        return Vec2.unitFromRad(angle * Math.PI / 180);
     }
 
     copy(vec : Vec2) : Vec2 { 

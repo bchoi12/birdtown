@@ -44,6 +44,7 @@ export interface LoadResult {
 	transformNodes? : BABYLON.TransformNode[];
 }
 
+// TODO: MeshFactory?
 class Loader {
 
 	private readonly _meshPrefix = "mesh/";

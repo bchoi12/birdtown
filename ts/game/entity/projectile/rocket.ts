@@ -59,13 +59,13 @@ export class Rocket extends Projectile {
 	override delete() : void {
 		super.delete();
 
-		game.entities().addEntity(EntityType.EXPLOSION, {
+		let explosion = game.entities().addEntity(EntityType.EXPLOSION, {
 			profileInit: {
 				pos: this._profile.pos(),
 				dim: {x: 3, y: 3},
 			},
-			onCreateFn: (explosion : Explosion) => { explosion.setTTL(200); },
 		});
+		explosion.runIf((e : Explosion) => { e.setTTL(200) });
 	}
 
 	override damage() : number { return 20; }

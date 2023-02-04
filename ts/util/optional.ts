@@ -17,4 +17,13 @@ export class Optional<T> {
 	}
 	has() : boolean { return this._has; }
 	get() : T { return this._value; }
+
+	runIf(fn : (value : T) => void) : boolean {
+		if (!this.has()) {
+			return false;
+		}
+
+		fn(this.get());
+		return true;
+	}
 }

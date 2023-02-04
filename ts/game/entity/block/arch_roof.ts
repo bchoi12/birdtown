@@ -12,8 +12,6 @@ export class ArchRoof extends ArchBase {
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.ARCH_ROOF, entityOptions);
-
-		this._profile.setDim({x: 12, y: 1});
 	}
 
 	override meshType() : MeshType { return MeshType.ARCH_ROOF; }

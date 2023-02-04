@@ -21,7 +21,7 @@ export class EntityMap extends SystemBase implements System {
 	override reset() : void {
 		super.reset();
 
-		this.children().forEach((_, id : number) => {
+		this.getChildren().forEach((_, id : number) => {
 			this.unregisterEntity(id);
 		});
 	}

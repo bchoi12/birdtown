@@ -4,6 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Attribute, Attributes } from 'game/component/attributes'
+import { Profile } from 'game/component/profile'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { Projectile } from 'game/entity/projectile'
@@ -35,17 +36,26 @@ export class Bazooka extends Weapon {
 		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = dir.clone().normalize();
 
-		game.entities().addEntity(EntityType.ROCKET, {
+		let vel = unitDir.clone().scale(0.1);
+		let acc = unitDir.clone().scale(1.5);
+		if (defined(this._player)) {
+			let playerProfile = this._player.getComponent<Profile>(ComponentType.PROFILE);
+			vel.subsume(playerProfile.vel());
+			acc.subsume(playerProfile.acc());
+		}
+
+		let projectile = game.entities().addEntity(EntityType.ROCKET, {
 			profileInit: {
 				pos: {x: pos.x, y: pos.y},
 				dim: {x: 0.3, y: 0.3},
-				vel: unitDir.clone().scale(0.1),
-				acc: unitDir.clone().scale(1.5),
+				vel: vel,
+				acc: acc,
 			},
-			onCreateFn: (projectile : Projectile) => {
-				projectile.getComponent<Attributes>(ComponentType.ATTRIBUTES).set(Attribute.OWNER, this._attributes.get(Attribute.OWNER));
-				projectile.setTTL(1000);
-			},
+		});
+
+		projectile.runIf((p : Projectile) => {
+			p.getComponent<Attributes>(ComponentType.ATTRIBUTES).set(Attribute.OWNER, this._attributes.get(Attribute.OWNER));
+			p.setTTL(1000);
 		});
 
 		this.reload(250);

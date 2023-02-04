@@ -14,6 +14,6 @@ export class ClientInfos extends SystemBase implements System {
 
 	addClientInfo(info : ClientInfo) : ClientInfo { return this.addChild<ClientInfo>(info.gameId(), info); }
 	hasClientInfo(gameId : number) : boolean { return this.hasChild(gameId); }
-	clientInfos() : Map<number, ClientInfo> { return <Map<number, ClientInfo>>this.children(); }
+	clientInfos() : Map<number, ClientInfo> { return <Map<number, ClientInfo>>this.getChildren(); }
 	unregisterClient(gameId : number) : void { this.unregisterChild(gameId); }
 }

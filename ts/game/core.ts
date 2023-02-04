@@ -65,7 +65,7 @@ export interface GameObject {
 	hasChild(id : number) : boolean;
 	getChild<T extends GameObject>(id : number) : T;
 	unregisterChild(id : number) : void;
-	children() : Map<number, GameObject>;
+	getChildren() : Map<number, GameObject>;
 
 	shouldBroadcast() : boolean;
 	isSource() : boolean;
@@ -287,7 +287,7 @@ export abstract class GameObjectBase {
 		}
 		this._childObjects.delete(id);
 	}
-	children() : Map<number, GameObject> { return this._childObjects; }
+	getChildren() : Map<number, GameObject> { return this._childObjects; }
 
 	// TODO: replace with default NetworkBehavior (SOURCE, RELAY, COPY)
 	// can replace default network behavior on a prop level

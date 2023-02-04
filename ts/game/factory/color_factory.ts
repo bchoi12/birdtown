@@ -1,7 +1,9 @@
 
 import { EntityType } from 'game/entity'
 
+import { Buffer } from 'util/buffer'
 import { HexColor } from 'util/hex_color'
+import { SeededRandom } from 'util/seeded_random'
 
 export enum ColorType {
 	UNKNOWN,
@@ -24,18 +26,24 @@ export namespace ColorFactory {
 	export const archPurple = HexColor.fromHex(0x910ffc);
 	export const archWhite = HexColor.fromHex(0xfbfbfb);
 
-	export const baseColors = new Map<EntityType, Array<HexColor>>([
-		[EntityType.ARCH_BASE, new Array(archRed, archOrange, archYellow, archGreen, archBlue, archPurple)],
+	export const baseColors = new Map<EntityType, Buffer<HexColor>>([
+		[EntityType.ARCH_BASE, Buffer.from(archRed, archOrange, archYellow, archGreen, archBlue, archPurple)],
 	]);
 
-	export function generateColorMap(type : EntityType, seed? : number) : Map<number, HexColor> {
-		if (!seed || seed <= 0) { seed = 0; }
+	export function shuffleColors(type : EntityType, rng? : SeededRandom) : void {
+		if (!baseColors.has(type)) {
+			return;
+		}
+		baseColors.get(type).shuffle(rng);
+	}
+
+	export function generateColorMap(type : EntityType, index? : number) : Map<number, HexColor> {
+		if (!index || index < 0 ) { index = 0; }
 
 		switch (type) {
-		case EntityType.ARCH_ROOM:
-		case EntityType.ARCH_ROOF:
+		case EntityType.ARCH_BASE:
 			return new Map([
-				[ColorType.BASE, getColor(EntityType.ARCH_BASE, seed)],
+				[ColorType.BASE, getColor(EntityType.ARCH_BASE, index)],
 				[ColorType.SECONDARY, archWhite],
 			]);
 		default:
@@ -44,12 +52,12 @@ export namespace ColorFactory {
 		}
 	}
 
-	function getColor(type : EntityType, seed : number) : HexColor {
+	function getColor(type : EntityType, index : number) : HexColor {
 		if (!baseColors.has(type)) {
 			console.error("Warning: missing colors for type %d", type);
 			return black;
 		}
 		const colors = baseColors.get(type);
-		return colors[seed % colors.length];
+		return colors.get(index % colors.size());
 	}
 }

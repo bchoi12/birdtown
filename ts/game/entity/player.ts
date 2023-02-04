@@ -10,6 +10,7 @@ import { Profile } from 'game/component/profile'
 import { GameConstants } from 'game/core'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Weapon } from 'game/entity/weapon'
+import { EntityFactory } from 'game/factory/entity_factory'
 import { loader, LoadResult, MeshType } from 'game/loader'
 import { BodyFactory } from 'game/factory/body_factory'
 
@@ -145,7 +146,6 @@ export class Player extends EntityBase {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setDim({x: 0.8, y: 1.44 });
 		this._profile.setAngle(0);
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
@@ -315,7 +315,7 @@ export class Player extends EntityBase {
 		}
 
 		// Friction and air resistance
-		const slowing = Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x);
+		const slowing = !this._attributes.get(Attribute.DEAD) && aaMath.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x);
 		if (this._attributes.get(Attribute.GROUNDED)) {
 			if (slowing) {
 				this._profile.vel().x *= Player._friction;

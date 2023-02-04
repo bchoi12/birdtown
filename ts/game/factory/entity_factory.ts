@@ -8,6 +8,8 @@ import { Rocket } from 'game/entity/projectile/rocket'
 import { Wall } from 'game/entity/wall'
 import { Bazooka } from 'game/entity/weapon/bazooka'
 
+import { Vec } from 'util/vector'
+
 export namespace EntityFactory {
 	type EntityFactoryFn = (options : EntityOptions) => Entity;
 
@@ -22,9 +24,23 @@ export namespace EntityFactory {
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 	]);
 
-	export function hasType(type : EntityType) : boolean { return createFns.has(type); }
+	export const dimensions = new Map<EntityType, Vec>([
+		[EntityType.ARCH_ROOM, { x: 12, y: 6 }],
+		[EntityType.ARCH_ROOF, { x: 12, y: 1 }],
+		[EntityType.PLAYER, {x: 0.8, y: 1.44 }],
+	]);
 
+	export function hasCreateFn(type : EntityType) : boolean { return createFns.has(type); }
 	export function create<T extends Entity>(type : EntityType, options : EntityOptions) : T {
+		if (hasDimension(type)) {
+			if (!options.profileInit) {
+				options.profileInit = {};
+			}
+			options.profileInit.dim = getDimension(type);
+		}
 		return <T>createFns.get(type)(options);
 	}
+
+	export function hasDimension(type : EntityType) : boolean { return dimensions.has(type); }
+	export function getDimension(type : EntityType) : Vec { return dimensions.get(type); }
 }

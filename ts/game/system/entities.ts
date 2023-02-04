@@ -4,6 +4,8 @@ import { EntityFactory } from 'game/factory/entity_factory'
 import { System, SystemBase, SystemType } from 'game/system'
 import { EntityMap } from 'game/system/entity_map'
 
+import { Optional } from 'util/optional'
+
 export class Entities extends SystemBase implements System {
 	private _lastId : number;
 	private _idToType : Map<number, EntityType>;
@@ -24,7 +26,7 @@ export class Entities extends SystemBase implements System {
 		this._lastId = 0;
 		this._idToType = new Map();
 
-		this.children().forEach((_, id : number) => {
+		this.getChildren().forEach((_, id : number) => {
 			this.unregisterMap(id);
 		});
 	}
@@ -43,11 +45,11 @@ export class Entities extends SystemBase implements System {
 	getMap(type : EntityType) : EntityMap { return this.getChild<EntityMap>(type); }
 	unregisterMap(type : EntityType) : void { this.unregisterChild(type); }
 
-	addEntity(type : EntityType, entityOptions : EntityOptions) : void {
+	addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : Optional<T> {
 		if (!entityOptions.id) {
 			// Only allow source to create new objects. Other objects are from data import
 			if (!this.isSource()) {
-				return;
+				return new Optional<T>();
 			}
 			entityOptions.id = this.nextId();
 		} else {
@@ -58,7 +60,7 @@ export class Entities extends SystemBase implements System {
 			console.error("Warning: overwriting object type %d (previous: %d), id %d", type, this._idToType.get(entityOptions.id), entityOptions.id);
 		}
 
-		if (!EntityFactory.hasType(type)) {
+		if (!EntityFactory.hasCreateFn(type)) {
 			console.error("Error: missing factory function for entity type %d", type);
 		}
 
@@ -68,12 +70,9 @@ export class Entities extends SystemBase implements System {
 		if (!this.hasMap(type)) {
 			this.addMap(new EntityMap(type));
 		}
-
 		this.getMap(type).addEntity(entity);
 		
-		if (entityOptions.onCreateFn) {
-			entityOptions.onCreateFn(entity);
-		}
+		return new Optional<T>(<T>entity);
 	}
 
 	hasEntity(id : number) : boolean { return this._idToType.has(id); }

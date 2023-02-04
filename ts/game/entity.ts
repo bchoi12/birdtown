@@ -38,8 +38,6 @@ export type EntityOptions = {
 	cardinalsInit? : CardinalsInitOptions;
 	hexColorsInit? : HexColorsInitOptions;
 	profileInit? : ProfileInitOptions
-
-	onCreateFn? : (entity : Entity) => void;
 }
 
 export interface Entity extends GameObject {
@@ -109,7 +107,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			console.error("Warning: %s still not ready", this.name());
 		}
 
-		for (const [_, component] of this.children()) {
+		for (const [_, component] of this.getChildren()) {
 			if (!component.ready()) {
 				this._notReadyCounter++;
 				return false;

@@ -19,6 +19,7 @@ export class Crate extends EntityBase {
 	private _profile : Profile;
 
 	private _startingPos : Vec2;
+	private _startingAngle : number;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.CRATE, entityOptions);
@@ -40,7 +41,9 @@ export class Crate extends EntityBase {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setAcc({ y: GameConstants.gravity });
-		this._profile.setAngle(0);
+		if (!this._profile.hasAngle()) {
+			this._profile.setAngle(0);
+		}
 
 		this.addComponent(new Model({
 			readyFn: () => {
@@ -61,6 +64,7 @@ export class Crate extends EntityBase {
 		super.initialize();
 
 		this._startingPos = this._profile.pos().clone();
+		this._startingAngle = this._profile.angle();
 	}
 
 	override update(millis : number) : void {
@@ -69,9 +73,8 @@ export class Crate extends EntityBase {
 		if (this._profile.pos().y < -10) {
 			this._profile.setPos(this._startingPos);
 			this._profile.stop();
-
 			this._profile.setAcc({ y: GameConstants.gravity });
-			this._profile.setAngle(0);
+			this._profile.setAngle(this._startingAngle);
 		}
 	}
 }

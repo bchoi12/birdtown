@@ -21,6 +21,7 @@ export type ProfileInitOptions = {
 	vel? : Vec;
 	acc? : Vec;
 	dim? : Vec;
+	angle? : number;
 }
 
 export type ProfileOptions = {
@@ -136,6 +137,7 @@ export class Profile extends ComponentBase implements Component {
 		if (init.vel) { this.setVel(init.vel); }
 		if (init.acc) { this.setAcc(init.acc); }
 		if (init.dim) { this.setDim(init.dim); }
+		if (init.angle) { this.setAngle(init.angle); }
 	}
 
 	override ready() : boolean {
@@ -172,7 +174,7 @@ export class Profile extends ComponentBase implements Component {
 		});
 	}
 
-	createRelativeInit(cardinal : CardinalDir, objectDim : Vec) : ProfileInitOptions {
+	relativePos(cardinal : CardinalDir, objectDim : Vec) : Vec2 {
 		let adjustedPos = this.pos().clone();
 		const dim = this.dim();
 
@@ -187,9 +189,11 @@ export class Profile extends ComponentBase implements Component {
 		} else if (Cardinal.isBottom(cardinal)) {
 			adjustedPos.add({ y: -dim.y / 2 + objectDim.y / 2});
 		}
-
+		return adjustedPos;
+	}
+	createRelativeInit(cardinal : CardinalDir, objectDim : Vec) : ProfileInitOptions {
 		return {
-			pos: adjustedPos,
+			pos: this.relativePos(cardinal, objectDim),
 			dim: Vec2.fromVec(objectDim),
 		}
 	}
