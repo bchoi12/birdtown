@@ -10,7 +10,7 @@ import { Profile } from 'game/component/profile'
 import { GameConstants } from 'game/core'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Weapon } from 'game/entity/weapon'
-import { loader, LoadResult, ModelType } from 'game/loader'
+import { loader, LoadResult, MeshType } from 'game/loader'
 import { BodyFactory } from 'game/factory/body_factory'
 
 import { Key } from 'ui'
@@ -180,7 +180,7 @@ export class Player extends EntityBase {
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
-				loader.load(ModelType.CHICKEN, (result : LoadResult) => {
+				loader.load(MeshType.CHICKEN, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.name = this.name();
 

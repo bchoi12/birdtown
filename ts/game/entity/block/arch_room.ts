@@ -3,7 +3,7 @@ import { ColorType } from 'game/factory/color_factory'
 import { ComponentType } from 'game/component'
 import { EntityOptions, EntityType } from 'game/entity'
 import { ArchBase } from 'game/entity/block/arch_base'
-import { ModelType } from 'game/loader'
+import { MeshType } from 'game/loader'
 
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
@@ -16,7 +16,7 @@ export class ArchRoom extends ArchBase {
 		this._profile.setDim({x: 12, y: 6});
 	}
 
-	override modelType() : ModelType { return ModelType.ARCH_ROOM; }
+	override meshType() : MeshType { return MeshType.ARCH_ROOM; }
 
 	override initialize() : void {
 		super.initialize();

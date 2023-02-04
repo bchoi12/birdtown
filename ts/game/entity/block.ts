@@ -11,7 +11,7 @@ import { HexColors } from 'game/component/hex_colors'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
-import { loader, LoadResult, ModelType } from 'game/loader'
+import { loader, LoadResult, MeshType } from 'game/loader'
 import { BodyFactory } from 'game/factory/body_factory'
 
 import { Cardinal, CardinalDir } from 'util/cardinal'
@@ -91,7 +91,7 @@ export abstract class Block extends EntityBase {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				loader.load(this.modelType(), (result : LoadResult) => {
+				loader.load(this.meshType(), (result : LoadResult) => {
 					let root = <BABYLON.Mesh>result.meshes[0];
 					root.name = this.name();
 					root.position = this._profile.pos().clone().sub({y: this._profile.dim().y / 2}).toBabylon3();
@@ -103,7 +103,7 @@ export abstract class Block extends EntityBase {
 		}));
 	}
 
-	abstract modelType() : ModelType;
+	abstract meshType() : MeshType;
 	abstract thickness() : number;
 
 	hasOpenings() : boolean { return this._cardinals.hasCardinal(CardinalType.OPENINGS); }

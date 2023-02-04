@@ -3,9 +3,7 @@ import "babylonjs-loaders"
 
 import { game } from 'game'
 
-import { defined } from 'util/common'
-
-export enum ModelType {
+export enum MeshType {
 	UNKNOWN = "",
 	CHICKEN = "CHICKEN",
 	DUCK = "DUCK",
@@ -48,29 +46,29 @@ export interface LoadResult {
 
 class Loader {
 
-	private readonly _modelPrefix = "model/";
+	private readonly _meshPrefix = "mesh/";
 
-	private _modelFiles : Map<ModelType, string>;
+	private _meshFiles : Map<MeshType, string>;
 
 	constructor() {
-		this._modelFiles = new Map();
+		this._meshFiles = new Map();
 
-		for (const model in ModelType) {
-			if (model.length === 0) {
+		for (const mesh in MeshType) {
+			if (mesh.length === 0) {
 				continue;
 			}
-			this._modelFiles.set(ModelType[model], model.toLowerCase() + ".glb");
+			this._meshFiles.set(MeshType[mesh], mesh.toLowerCase() + ".glb");
 		}
 
 	}
 
-	load(model : ModelType, cb : (loadResult : LoadResult) => void) {
-		if (!this._modelFiles.has(model)) {
-			console.error("Error: no file associated with " + model);
+	load(type : MeshType, cb : (loadResult : LoadResult) => void) {
+		if (!this._meshFiles.has(type)) {
+			console.error("Error: no file associated with type", type);
 			return;
 		}
 
-		BABYLON.SceneLoader.ImportMesh("", this._modelPrefix, this._modelFiles.get(model), game.scene(),
+		BABYLON.SceneLoader.ImportMesh("", this._meshPrefix, this._meshFiles.get(type), game.scene(),
 			(meshes, particleSystems, skeletons, animationGroups, transformNodes) => {
 			cb({
 				meshes: meshes,

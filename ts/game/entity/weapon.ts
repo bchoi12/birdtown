@@ -6,7 +6,7 @@ import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Player } from 'game/entity/player'
-import { loader, LoadResult, ModelType } from 'game/loader'
+import { loader, LoadResult, MeshType } from 'game/loader'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
@@ -32,7 +32,7 @@ export abstract class Weapon extends EntityBase {
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
-				loader.load(this.modelType(), (result : LoadResult) => {
+				loader.load(this.meshType(), (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.name = this.name();
 					model.setMesh(mesh);
@@ -72,7 +72,7 @@ export abstract class Weapon extends EntityBase {
 		}
 	}
 
-	abstract modelType() : ModelType;
+	abstract meshType() : MeshType;
 	shootNode() : BABYLON.TransformNode { return defined(this._shoot) ? this._shoot : this._model.mesh(); }
 	pivot() : BABYLON.Vector3 {return this._model.mesh().position; }
 

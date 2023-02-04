@@ -9,7 +9,7 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { Explosion } from 'game/entity/explosion'
 import { Projectile } from 'game/entity/projectile'
-import { loader, LoadResult, ModelType } from 'game/loader'
+import { loader, LoadResult, MeshType } from 'game/loader'
 import { BodyFactory } from 'game/factory/body_factory'
 
 import { defined } from 'util/common'
@@ -45,7 +45,7 @@ export class Rocket extends Projectile {
 			},
 			meshFn: (model : Model) => {
 				const dim = this._profile.dim();
-				loader.load(ModelType.ROCKET, (result : LoadResult) => {
+				loader.load(MeshType.ROCKET, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.name = this.name();
 					mesh.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);

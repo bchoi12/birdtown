@@ -8,7 +8,7 @@ import { Model } from 'game/component/model'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { Projectile } from 'game/entity/projectile'
 import { Weapon } from 'game/entity/weapon'
-import { ModelType } from 'game/loader'
+import { MeshType } from 'game/loader'
 
 import { defined } from 'util/common'
 import { Vec2 } from 'util/vector'
@@ -26,7 +26,7 @@ export class Bazooka extends Weapon {
 		this._attributes.set(Attribute.READY, true);
 	}
 
-	override modelType() : ModelType { return ModelType.BAZOOKA; }
+	override meshType() : MeshType { return MeshType.BAZOOKA; }
 	override shoot(dir : Vec2) : boolean {
 		if (!this._model.hasMesh() || !this._attributes.get(Attribute.READY)) {
 			return false;
