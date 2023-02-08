@@ -37,7 +37,6 @@ export type ProfileOptions = {
 
 export type MaxSpeedParams = {
 	maxSpeed : Vec;
-	multiplier : Vec;
 }
 
 enum Prop {
@@ -229,11 +228,6 @@ export class Profile extends ComponentBase implements Component {
 
 		this._pos.copyVec(vec);
 	}
-	addPos(delta : Vec) : void {
-		if (!this.hasPos()) { this._pos = Vec2.zero(); }
-
-		this._pos.add(delta);
-	}
 
 	hasVel() : boolean { return defined(this._vel); }
 	vel() : Vec2 { return this._vel; }
@@ -242,7 +236,7 @@ export class Profile extends ComponentBase implements Component {
 
 		this._vel.copyVec(vec);
 	}
-	addVel(delta : Vec) : void {
+	private addVel(delta : Vec) : void {
 		if (!this.hasVel()) { this._vel = Vec2.zero(); }
 
 		this._vel.add(delta);
@@ -254,11 +248,6 @@ export class Profile extends ComponentBase implements Component {
 		if (!this.hasAcc()) { this._acc = Vec2.zero(); }
 
 		this._acc.copyVec(vec);
-	}
-	addAcc(delta : Vec) : void {
-		if (!this.hasAcc()) { this._acc = Vec2.zero(); }
-
-		this._acc.add(delta);
 	}
 
 	private hasDim() : boolean { return defined(this._dim); }
@@ -275,7 +264,6 @@ export class Profile extends ComponentBase implements Component {
 	hasAngle() : boolean { return defined(this._angle); }
 	angle() : number { return this._angle; }
 	setAngle(angle : number) : void { this._angle = angle; }
-	addAngle(delta : number) : void { this._angle += delta; }
 	setAngularVelocity(vel : number) : void { MATTER.Body.setAngularVelocity(this._body, vel); }
 	addAngularVelocity(delta : number) : void { MATTER.Body.setAngularVelocity(this._body, this._body.angularVelocity + delta); }
 
@@ -311,7 +299,11 @@ export class Profile extends ComponentBase implements Component {
 	stop() : void {
 		this.setVel({x: 0, y: 0});
 		this.setAcc({x: 0, y: 0});
-		this.setAngularVelocity(0);
+
+		if (this.hasAngle()) {
+			this.setAngle(0);
+			this.setAngularVelocity(0);
+		}
 		this._forces.clear();
 	}
 	addForce(force : Vec) : void { this._forces.push(force); }
@@ -331,17 +323,17 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	setMaxSpeed(params : MaxSpeedParams) { this._maxSpeedParams = params; }
-	private clampSpeed() : void {
-		if (!defined(this._maxSpeedParams)) { return; }
+	private clampSpeed(millis : number) : void {
+		if (defined(this._maxSpeedParams)) {
+			let vel = this.vel();
+			const maxSpeed = this._maxSpeedParams.maxSpeed;
 
-		let vel = this.vel();
-		const maxSpeed = this._maxSpeedParams.maxSpeed;
-
-		if (Math.abs(vel.x) > maxSpeed.x) {
-			vel.x = Math.sign(vel.x) * (maxSpeed.x + this._maxSpeedParams.multiplier.x * (Math.abs(vel.x) - maxSpeed.x));
-		}
-		if (Math.abs(vel.y) > maxSpeed.y) {
-			vel.y = Math.sign(vel.y) * (maxSpeed.y + this._maxSpeedParams.multiplier.y * (Math.abs(vel.y) - maxSpeed.y));
+			if (Math.abs(vel.x) > maxSpeed.x) {
+				vel.x = Math.sign(vel.x) * maxSpeed.x;
+			}
+			if (Math.abs(vel.y) > maxSpeed.y) {
+				vel.y = Math.sign(vel.y) * maxSpeed.y;
+			}
 		}
 	}
 
@@ -375,7 +367,7 @@ export class Profile extends ComponentBase implements Component {
 		this.applyForces();
 
 		if (this.hasVel()) {
-			this.clampSpeed();
+			this.clampSpeed(millis);
 
 			MATTER.Body.setVelocity(this._body, this.vel());
 		}

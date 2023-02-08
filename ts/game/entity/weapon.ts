@@ -13,7 +13,7 @@ import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
 export abstract class Weapon extends EntityBase {
-	private static readonly _shootNodeName;
+	private static readonly _shootNodeName = "shoot";
 
 	protected _attributes : Attributes;
 	protected _model : Model;
@@ -34,14 +34,14 @@ export abstract class Weapon extends EntityBase {
 			meshFn: (model : Model) => {
 				loader.load(this.meshType(), (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
-					mesh.name = this.name();
-					model.setMesh(mesh);
 
 					result.transformNodes.forEach((node : BABYLON.TransformNode) => {
 						if (node.name === Weapon._shootNodeName) {
 							this._shoot = node;
 						}
 					});
+
+					model.setMesh(mesh);
 				});
 			},
 		}));
@@ -74,7 +74,6 @@ export abstract class Weapon extends EntityBase {
 
 	abstract meshType() : MeshType;
 	shootNode() : BABYLON.TransformNode { return defined(this._shoot) ? this._shoot : this._model.mesh(); }
-	pivot() : BABYLON.Vector3 {return this._model.mesh().position; }
 
 	abstract shoot(dir : Vec2) : boolean;
 	reload(time : number) : void {

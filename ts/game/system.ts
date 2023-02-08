@@ -11,6 +11,7 @@ export enum SystemType {
 	CLIENTS,
 	ENTITIES,
 	ENTITY_MAP,
+	GAME_MODE_DUEL,
 	INPUT,
 	KEYS,
 	LAKITU,

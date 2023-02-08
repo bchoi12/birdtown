@@ -8,7 +8,6 @@ export enum Attribute {
 	UNKNOWN,
 
 	// Boolean
-	DEAD,
 	GROUNDED,
 	READY,
 	SOLID,
@@ -33,7 +32,6 @@ type Value = boolean|number;
 export class Attributes extends ComponentBase implements Component {
 
 	private static readonly _attributeTypes = new Map<Attribute, Type>([
-		[Attribute.DEAD, Type.BOOLEAN],
 		[Attribute.GROUNDED, Type.BOOLEAN],
 		[Attribute.SOLID, Type.BOOLEAN],
 		[Attribute.READY, Type.BOOLEAN],

@@ -51,13 +51,13 @@ export class Player extends EntityBase {
 	private static readonly _jumpVel = 0.3;
 	private static readonly _maxHorizontalVel = 0.25;
 	private static readonly _maxVerticalVel = 0.6;
-	private static readonly _maxVelMultiplier = 0.2;
+	private static readonly _minSpeed = 0.01;
 
 	private static readonly _turnMultiplier = 3.0;
 	private static readonly _fallMultiplier = 1.5;
 
-	private static readonly _friction = 0.7;
-	private static readonly _airResistance = 0.9;
+	private static readonly _friction = 0.4;
+	private static readonly _airResistance = 0.1;
 
 	private static readonly _rotationOffset = -0.1;
 	private static readonly _jumpGracePeriod = 100;
@@ -114,7 +114,10 @@ export class Player extends EntityBase {
 				this._profile.setAngularVelocity(sign * Math.max(0.1, Math.abs(x)));
 				this._profile.setAcc({x: 0, y: 0});
 				this._respawnTimer.start(Player._respawnTime, () => {
-					this.respawn();
+					this._health.reset();
+					this._profile.setPos({x: 0, y: 10});
+					this._profile.stop();
+					this._profile.setInertia(Infinity);
 				});
 			}
 		});
@@ -151,7 +154,6 @@ export class Player extends EntityBase {
 		this._profile.setAcc({x: 0, y: 0});
 		this._profile.setMaxSpeed({
 			maxSpeed: {x: Player._maxHorizontalVel, y: Player._maxVerticalVel },
-			multiplier: {x: Player._maxVelMultiplier, y: Player._maxVelMultiplier },
 		});
 
 		this._headSubProfile = this._profile.addSubProfile(SubProfile.HEAD, new Profile({
@@ -182,8 +184,6 @@ export class Player extends EntityBase {
 			meshFn: (model : Model) => {
 				loader.load(MeshType.CHICKEN, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
-					mesh.name = this.name();
-
 					result.animationGroups.forEach((animationGroup : BABYLON.AnimationGroup) => {
 						if (this._moveAnimations.has(animationGroup.name)) {
 							model.registerAnimation(animationGroup, 0);
@@ -204,7 +204,7 @@ export class Player extends EntityBase {
 					// TODO: this doesn't seem to work
 					let animationProperties = new BABYLON.AnimationPropertiesOverride();
 					animationProperties.enableBlending = true;
-					animationProperties.blendingSpeed = 0.2;
+					animationProperties.blendingSpeed = 2;
 					result.skeletons[0].animationPropertiesOverride = animationProperties;
 
 					model.setMesh(mesh);
@@ -237,27 +237,17 @@ export class Player extends EntityBase {
 		});
 	}
 
-	respawn() : void {
-		this._health.reset();
-
-		this._profile.setPos({x: 0, y: 10});
-		this._profile.stop();
-		this._profile.setAngle(0);
-		this._profile.setAngularVelocity(0);
-		this._profile.setInertia(Infinity);
-	}
-
 	// TODO: fix race condition where weapon is loaded upside-down
 	equipWeapon(weapon : Weapon) : void {
 		this._weapon = weapon;
-		this._model.onLoad(() => {
-			const arm = this._model.getBone(Bone.ARM);
+		this._model.onLoad((m : Model) => {
+			const arm = m.getBone(Bone.ARM);
 
-			let weaponModel = <Model>this._weapon.getComponent(ComponentType.MODEL);
-			weaponModel.onLoad((model) => {
-				model.mesh().attachToBone(arm, this._model.mesh());
-				model.mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
-				model.mesh().scaling.z *= -1;
+			let weaponModel = this._weapon.getComponent<Model>(ComponentType.MODEL);
+			weaponModel.onLoad((wm : Model) => {
+				wm.mesh().attachToBone(arm, m.mesh());
+				wm.mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+				wm.mesh().scaling.z *= -1;
 			});
 		});
 	}
@@ -265,20 +255,26 @@ export class Player extends EntityBase {
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
-		if (game.options().host) {
+		if (this.isSource()) {
 			// Out of bounds
 			if (this._profile.pos().y < -8) {
 				this.takeDamage(1000);
 			}
+			this._attributes.set(Attribute.GROUNDED, this._jumpTimer.hasTimeLeft());
 		}
-		this._attributes.setIfHost(Attribute.GROUNDED, this._jumpTimer.hasTimeLeft());
+
 		this._deadTracker.check();
+	}
+
+	override update(millis : number) : void {
+		super.update(millis);
 
 		// Gravity
-		this._profile.setAcc({ y: GameConstants.gravity });
+		let gravity = GameConstants.gravity;
 		if (!this._attributes.get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
-			this._profile.addAcc({ y: (Player._fallMultiplier - 1) * GameConstants.gravity });
+			gravity += (Player._fallMultiplier - 1) * GameConstants.gravity;
 		}
+		this._profile.setAcc({ y: gravity });
 
 		if (!this._health.dead()) {
 			// Keypress acceleration
@@ -290,15 +286,15 @@ export class Player extends EntityBase {
 				this._profile.setAcc({ x: 0 });
 			}
 
-			// Set direction of player
-			this._headDir = this.computeHeadDir();
-			this._armDir = this.computeArmDir();
-
 			// Turn acceleration
 			const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
 			if (turning) {
 				this._profile.acc().x *= Player._turnMultiplier;
 			}
+
+			// Set direction of player
+			this._headDir = this.computeHeadDir();
+			this._armDir = this.computeArmDir();
 
 			// Jumping
 			if (this._jumpTimer.hasTimeLeft()) {
@@ -315,22 +311,20 @@ export class Player extends EntityBase {
 		}
 
 		// Friction and air resistance
-		const slowing = !this._attributes.get(Attribute.DEAD) && Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x);
+		const slowing = !this._health.dead() && Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x);
 		if (this._attributes.get(Attribute.GROUNDED)) {
-			if (slowing) {
-				this._profile.vel().x *= Player._friction;
+			if (Math.abs(this._profile.vel().x) < Player._minSpeed) {
+				this._profile.setVel({x: 0});
+			} else if (slowing) {
+				this._profile.addForce({ x: -this._profile.vel().x * Player._friction });
 			}
 		} else {
 			if (this._profile.acc().x === 0) {
-				this._profile.vel().x *= Player._airResistance;
+				this._profile.addForce({x: -this._profile.vel().x * Player._airResistance })
 			}
 		}
-	}
 
-	override update(millis : number) : void {
-		super.update(millis);
-
-		if (game.options().host && defined(this._weapon)) {
+		if (this.isSource() && defined(this._weapon)) {
 			if (game.keys(this.clientId()).keyDown(Key.MOUSE_CLICK)) {
 				this._weapon.shoot(this._armDir);
 			}
@@ -393,9 +387,9 @@ export class Player extends EntityBase {
 		pen.abs();
 		if (pen.lengthSq() > 0) {
 			this._totalPenetration.add(pen)
-			this._maxNormal.x = Math.max(this._maxNormal.x, Math.abs(normal.x));
-			this._maxNormal.y = Math.max(this._maxNormal.y, normal.y);
 		}
+		this._maxNormal.x = Math.max(this._maxNormal.x, Math.abs(normal.x));
+		this._maxNormal.y = Math.max(this._maxNormal.y, normal.y);
 	}
 
 	override postPhysics(millis : number) : void {

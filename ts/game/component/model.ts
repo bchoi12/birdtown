@@ -64,6 +64,7 @@ export class Model extends ComponentBase implements Component {
 	hasMesh() : boolean { return defined(this._mesh); }
 	setMesh(mesh : BABYLON.Mesh) {
 		this._mesh = mesh;
+		this._mesh.name = this.entity().name();
 
 		this._onLoadFns.forEach((fn : OnLoadFn) => {
 			fn(this);

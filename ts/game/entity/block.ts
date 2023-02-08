@@ -92,12 +92,11 @@ export abstract class Block extends EntityBase {
 			},
 			meshFn: (model : Model) => {
 				loader.load(this.meshType(), (result : LoadResult) => {
-					let root = <BABYLON.Mesh>result.meshes[0];
-					root.name = this.name();
-					root.position = this._profile.pos().clone().sub({y: this._profile.dim().y / 2}).toBabylon3();
+					let mesh = <BABYLON.Mesh>result.meshes[0];
+					mesh.position = this._profile.pos().clone().sub({y: this._profile.dim().y / 2}).toBabylon3();
 
-					this.processMesh(root);
-					model.setMesh(root);
+					this.processMesh(mesh);
+					model.setMesh(mesh);
 				});
 			},
 		}));
