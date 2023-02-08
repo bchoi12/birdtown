@@ -148,7 +148,7 @@ export abstract class Block extends EntityBase {
 			return;
 		}
 
-		if (Vec2.fromVec(collision.penetration).lengthSq() < 0.1) {
+		if (Vec2.fromVec(collision.penetration).lengthSq() < 0.01) {
 			return;
 		}
 

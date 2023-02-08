@@ -91,7 +91,7 @@ export class Level extends SystemBase implements System {
 		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
 		for (let i = 0; i < 4; ++i) {
 			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BASE, i);
-			let floors = 3 + Math.floor(3 * this._rng.next());
+			let floors = 2 + Math.floor(3 * this._rng.next());
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 			pos.y = -3;

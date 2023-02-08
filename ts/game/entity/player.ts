@@ -363,8 +363,8 @@ export class Player extends EntityBase {
 		const normal = collision.normal;
 
 		let pen = Vec2.fromVec(collision.penetration);
+		let overlap = pos.clone().sub(otherProfile.pos()).abs();
 		if (Math.abs(normal.x) > 0.99 || Math.abs(normal.y) > 0.99) {
-			let overlap = pos.clone().sub(otherProfile.pos()).abs();
 			overlap.sub({
 				x: dim.x / 2 + otherProfile.dim().x / 2,
 				y: dim.y / 2 + otherProfile.dim().y / 2,
@@ -385,11 +385,15 @@ export class Player extends EntityBase {
 		}
 
 		pen.abs();
-		if (pen.lengthSq() > 0) {
-			this._totalPenetration.add(pen)
+		this._totalPenetration.add(pen)
+
+		if (pen.x > 0 || pen.lengthSq() === 0) {
+			this._maxNormal.x = Math.max(this._maxNormal.x, Math.abs(normal.x));
 		}
-		this._maxNormal.x = Math.max(this._maxNormal.x, Math.abs(normal.x));
-		this._maxNormal.y = Math.max(this._maxNormal.y, normal.y);
+
+		if (pen.y > 0 || pen.lengthSq() === 0) {
+			this._maxNormal.y = Math.max(this._maxNormal.y, normal.y);
+		}
 	}
 
 	override postPhysics(millis : number) : void {
