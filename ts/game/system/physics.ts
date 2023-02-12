@@ -7,11 +7,13 @@ export class Physics extends SystemBase implements System {
 
 	private static readonly _maxStep : number = 10;
 
+	private _lastStep : number;
 	private _engine : MATTER.Engine;
 
 	constructor() {
 		super(SystemType.PHYSICS);
 
+		this._lastStep = 0;
 		this._engine = MATTER.Engine.create({
 			gravity: { y: 0 }
 		});
@@ -22,11 +24,7 @@ export class Physics extends SystemBase implements System {
 	override physics(millis : number) : void {
 		super.physics(millis);
 
-		while(millis > 0) {
-			const step = Math.max(millis, Physics._maxStep);
-			MATTER.Engine.update(this._engine, step);
-			millis -= step;
-		}
+		MATTER.Engine.update(this._engine, millis);
 
 		const entities = game.entities();
 		const collisions = MATTER.Detector.collisions(this._engine.detector);
