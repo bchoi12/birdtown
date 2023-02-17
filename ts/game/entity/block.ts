@@ -81,6 +81,9 @@ export abstract class Block extends EntityBase {
 					collisionFilter: {
 						group: BodyFactory.ignoreWallGroup,
 					},
+					render: {
+						visible: false,
+					},
 				});
 			},
 			init: entityOptions.profileInit,

@@ -21,6 +21,9 @@ export namespace Html {
 	export const divMessage = "div-message";
 	export const inputMessage = "input-message";
 
+	export const divMinimap = "div-minimap";
+	export const canvasPhysics = "canvas-physics";
+
 	export const divTooltips = "div-tooltips";
 	export const divAnnouncement = "div-announcement";
 	export const divMainAnnouncement = "div-main-announcement";

@@ -34,6 +34,9 @@ export class Wall extends EntityBase {
 					collisionFilter: {
 						group: BodyFactory.ignoreWallGroup,
 					},
+					render: {
+						lineWidth: 0,
+					}
 				});
 			},
 			init: entityOptions.profileInit,

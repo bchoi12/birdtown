@@ -137,6 +137,7 @@ class Game {
 		this._systemRunner.push(this._physics);
 		this._systemRunner.push(this._lakitu);
 		this._systemRunner.push(this._world);
+		this._systemRunner.initialize();
 
 	    if (this._options.host) {
 	    	this.setId(1);

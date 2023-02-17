@@ -29,7 +29,7 @@ export class Lakitu extends SystemBase implements System {
 
 		this.setName({ base: "lakitu" });
 
-		this._camera = new BABYLON.UniversalCamera("camera", Lakitu._offset, scene);
+		this._camera = new BABYLON.UniversalCamera(this.name(), Lakitu._offset, scene);
 		this._camera.fov = Lakitu._horizontalFov;
     	this._camera.fovMode = BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED;
 

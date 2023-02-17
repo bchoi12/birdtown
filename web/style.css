@@ -94,6 +94,23 @@ body {
     bottom: 0;
 }
 
+#div-minimap {
+    position:  absolute;
+
+    right: 0;
+    bottom: 0;
+    width: 15em;
+    height: 9em;
+
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+#canvas-physics {
+    display: block;
+
+    transform: scale(1, -1);
+}
+
 #div-tooltips {
     position: absolute;
     display: block;

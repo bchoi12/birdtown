@@ -148,12 +148,6 @@ export class Player extends EntityBase {
 				});
 			},
 			init: entityOptions.profileInit,
-			prePhysicsFn: (profile : Profile) => {
-				this._headSubProfile.setPos(profile.pos().clone().add({y: 0.22}));
-			},
-			postPhysicsFn: (profile : Profile) => {
-				this._headSubProfile.setPos(profile.pos().clone().add({y: 0.22}));
-			},
 		}));
 		this._profile.setAngle(0);
 		this._profile.setVel({x: 0, y: 0});
@@ -175,6 +169,12 @@ export class Player extends EntityBase {
 			init: {
 				pos: {x: 0, y: 0},
 				dim: {x: 0.96, y: 1.06},
+			},
+			prePhysicsFn: (head : Profile) => {
+				head.setPos(this._profile.pos().clone().add({y: 0.22}));
+			},
+			postPhysicsFn: (head : Profile) => {
+				MATTER.Body.setPosition(head.body(), this._profile.pos().clone().add({y: 0.22}));
 			},
 		}));
 		this._headSubProfile.setAngle(0);
@@ -295,6 +295,7 @@ export class Player extends EntityBase {
 			// Compute head and arm directions
 			this.recomputeHeadDir();
 			this.recomputeArmDir();
+			this._headSubProfile.setAngle(this._headDir.angleRad());
 
 			// Jumping
 			if (this._jumpTimer.hasTimeLeft()) {
@@ -336,7 +337,6 @@ export class Player extends EntityBase {
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
 
-		this._headSubProfile.setAngle(this._headDir.angleRad());
 		this._totalPenetration.scale(0);
 		this._maxNormal.scale(0);
 	}

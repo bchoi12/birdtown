@@ -375,6 +375,10 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	override postPhysics(millis : number) : void {
+		if (this._postPhysicsFn) {
+			this._postPhysicsFn(this);
+		}
+		
 		if (this.hasAngle()) {
 			this.setAngle(this._body.angle);
 		}
@@ -387,10 +391,6 @@ export class Profile extends ComponentBase implements Component {
 		} else {
 			const weight = Math.min(Math.max(this.millisSinceImport() - game.netcode().ping() / 2, 0) / options.maxPredictionMillis, 1);
 			this._pos.lerp(this._body.position, weight * options.predictionWeight);
-		}
-
-		if (this._postPhysicsFn) {
-			this._postPhysicsFn(this);
 		}
 
 		// Update child objects afterwards.
