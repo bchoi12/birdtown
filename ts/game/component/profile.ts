@@ -375,10 +375,10 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	override postPhysics(millis : number) : void {
-		if (this.hasAngle() && !Data.equals(this._angle, this._body.angle)) {
+		if (this.hasAngle()) {
 			this.setAngle(this._body.angle);
 		}
-		if (this.hasVel() && !Data.equals(this._vel.toVec(), this._body.velocity)) {
+		if (this.hasVel()) {
 			this.setVel(this._body.velocity);
 		}
 

@@ -16,7 +16,6 @@ export class World extends SystemBase implements System {
 		this._scene = new BABYLON.Scene(engine);
 		this._scene.useRightHandedSystem = true;
 
-
 	    this._hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", new BABYLON.Vector3(0, 1, 0), this._scene);
 	    this._hemisphericLight.diffuse = new BABYLON.Color3(0.8, 0.8, 0.8);
 	    this._hemisphericLight.specular = new BABYLON.Color3(1, 1, 1);

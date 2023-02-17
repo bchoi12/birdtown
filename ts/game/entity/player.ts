@@ -148,6 +148,12 @@ export class Player extends EntityBase {
 				});
 			},
 			init: entityOptions.profileInit,
+			prePhysicsFn: (profile : Profile) => {
+				this._headSubProfile.setPos(profile.pos().clone().add({y: 0.22}));
+			},
+			postPhysicsFn: (profile : Profile) => {
+				this._headSubProfile.setPos(profile.pos().clone().add({y: 0.22}));
+			},
 		}));
 		this._profile.setAngle(0);
 		this._profile.setVel({x: 0, y: 0});
@@ -169,12 +175,6 @@ export class Player extends EntityBase {
 			init: {
 				pos: {x: 0, y: 0},
 				dim: {x: 0.96, y: 1.06},
-			},
-			prePhysicsFn: (head : Profile) => {
-				head.setPos(this._profile.pos().clone().add({y: 0.22}));
-			},
-			postPhysicsFn: (head : Profile) => {
-				head.setPos(this._profile.pos().clone().add({y: 0.22}));
 			},
 		}));
 		this._headSubProfile.setAngle(0);
