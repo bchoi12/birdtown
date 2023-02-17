@@ -5,15 +5,11 @@ import { System, SystemBase, SystemType } from 'game/system'
 
 export class Physics extends SystemBase implements System {
 
-	private static readonly _maxStep : number = 10;
-
-	private _lastStep : number;
 	private _engine : MATTER.Engine;
 
 	constructor() {
 		super(SystemType.PHYSICS);
 
-		this._lastStep = 0;
 		this._engine = MATTER.Engine.create({
 			gravity: { y: 0 }
 		});
@@ -51,7 +47,7 @@ export class Physics extends SystemBase implements System {
 			const entityB = entities.getEntity(idB);
 
 			if (!entityA.initialized() || !entityB.initialized()) {
-				console.error("Warning: collision between uninitialized entities", entityA.name(), entityB.name());
+				console.error("Error: skipping collision between uninitialized entities", entityA.name(), entityB.name());
 				return;
 			}
 

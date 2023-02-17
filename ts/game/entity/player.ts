@@ -56,8 +56,8 @@ export class Player extends EntityBase {
 	private static readonly _turnMultiplier = 3.0;
 	private static readonly _fallMultiplier = 1.5;
 
-	private static readonly _friction = 0.4;
-	private static readonly _airResistance = 0.1;
+	private static readonly _friction = 24;
+	private static readonly _airResistance = 6;
 
 	private static readonly _rotationOffset = -0.1;
 	private static readonly _jumpGracePeriod = 100;
@@ -292,9 +292,9 @@ export class Player extends EntityBase {
 				this._profile.acc().x *= Player._turnMultiplier;
 			}
 
-			// Set direction of player
-			this._headDir = this.computeHeadDir();
-			this._armDir = this.computeArmDir();
+			// Compute head and arm directions
+			this.recomputeHeadDir();
+			this.recomputeArmDir();
 
 			// Jumping
 			if (this._jumpTimer.hasTimeLeft()) {
@@ -312,17 +312,19 @@ export class Player extends EntityBase {
 
 		// Friction and air resistance
 		const slowing = !this._health.dead() && Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x);
+		let resistance = this._profile.acc().x;
 		if (this._attributes.get(Attribute.GROUNDED)) {
 			if (Math.abs(this._profile.vel().x) < Player._minSpeed) {
 				this._profile.setVel({x: 0});
 			} else if (slowing) {
-				this._profile.addForce({ x: -this._profile.vel().x * Player._friction });
+				resistance += -this._profile.vel().x * Player._friction;
 			}
 		} else {
 			if (this._profile.acc().x === 0) {
-				this._profile.addForce({x: -this._profile.vel().x * Player._airResistance })
+				resistance += -this._profile.vel().x * Player._airResistance;
 			}
 		}
+		this._profile.setAcc({x: resistance });
 
 		if (this.isSource() && defined(this._weapon)) {
 			if (game.keys(this.clientId()).keyDown(Key.MOUSE_CLICK)) {
@@ -433,8 +435,8 @@ export class Player extends EntityBase {
 		}
 
 		if (this.clientIdMatches() && !this._health.dead()) {
-			this._armDir = this.computeArmDir();
-			this._headDir = this.computeHeadDir();
+			this.recomputeArmDir();
+			this.recomputeHeadDir();
 		}
 		const armature = this._model.getBone(Bone.ARMATURE).getTransformNode();
 		armature.scaling.z = Math.sign(this._headDir.x);
@@ -458,7 +460,7 @@ export class Player extends EntityBase {
 		arm.rotation = new BABYLON.Vector3(armRotation, Math.PI, 0);
 	}
 
-	private computeHeadDir() : Vec2 {
+	private recomputeHeadDir() : void {
 		const dir = game.keys(this.clientId()).dir();
 
 		if (Math.sign(dir.x) !== Math.sign(this._headDir.x)) {
@@ -473,18 +475,12 @@ export class Player extends EntityBase {
 			this._headDir.x = Math.sign(this._headDir.x);
 			this._headDir.y = Math.sign(this._headDir.y);
 		}
-
-		return this._headDir.normalize();
+		this._headDir.normalize();
 	}
 
-	private computeArmDir() : Vec2 {
-		if (!this._model.hasMesh()) {
-			return Vec2.i();
-		}
+	private recomputeArmDir() : void {
+		const dir = game.keys(this.clientId()).dir();
 
-		if (!this.clientIdMatches()) { return game.keys(this.clientId()).dir().clone(); }
-
-		const pos = Vec2.fromBabylon3(this._model.getBone(Bone.ARM).getTransformNode().getAbsolutePosition());
-		return game.keys(this.clientId()).mouse().clone().sub(pos).normalize();
+		this._armDir.copy(dir).normalize();
 	}
 }

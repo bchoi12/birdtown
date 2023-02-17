@@ -156,7 +156,6 @@ export class Profile extends ComponentBase implements Component {
 		})
 
 		this._initialInertia = this._body.inertia;
-
 		if (defined(this._onInitFn)) {
 			this._onInitFn(this);
 		}
@@ -255,7 +254,7 @@ export class Profile extends ComponentBase implements Component {
 	setDim(vec : Vec) : void {
 		if (defined(this._dim) && Data.equals(this._dim.toVec(), vec)) { return; }
 		if (this.hasDim()) {
-			console.error("Error: dimension is already initialized for " + name);
+			console.error("Error: dimension is already initialized for", this.name());
 			return;
 		}
 		this._dim = Vec2.fromVec(vec);
@@ -356,19 +355,17 @@ export class Profile extends ComponentBase implements Component {
 		if (this.hasAcc()) {
 			const acc = this.acc();
 			if (acc.lengthSq() > 0) {
-				const ts = millis / 1000;
+				const scale = millis / 1000;
 				this.addVel({
-					x: acc.x * ts,
-					y: acc.y * ts,
+					x: acc.x * scale,
+					y: acc.y * scale,
 				});
 			}
 		}
 
 		this.applyForces();
-
 		if (this.hasVel()) {
 			this.clampSpeed(millis);
-
 			MATTER.Body.setVelocity(this._body, this.vel());
 		}
 		MATTER.Body.setPosition(this._body, this.pos());
