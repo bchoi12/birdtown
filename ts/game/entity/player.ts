@@ -51,7 +51,7 @@ export class Player extends EntityBase {
 	private static readonly _jumpVel = 0.3;
 	private static readonly _maxHorizontalVel = 0.25;
 	private static readonly _maxVerticalVel = 0.6;
-	private static readonly _minSpeed = 0.01;
+	private static readonly _minSpeed = 0.001;
 
 	private static readonly _turnMultiplier = 3.0;
 	private static readonly _fallMultiplier = 1.5;
@@ -112,7 +112,7 @@ export class Player extends EntityBase {
 
 				this._profile.resetInertia();
 				this._profile.setAngularVelocity(sign * Math.max(0.1, Math.abs(x)));
-				this._profile.setAcc({x: 0, y: 0});
+				this._profile.setAcc({x: 0});
 				this._respawnTimer.start(Player._respawnTime, () => {
 					this._health.reset();
 					this._profile.setPos({x: 0, y: 10});
@@ -312,20 +312,17 @@ export class Player extends EntityBase {
 		}
 
 		// Friction and air resistance
-		const slowing = !this._health.dead() && Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x);
-		let resistance = this._profile.acc().x;
-		if (this._attributes.get(Attribute.GROUNDED)) {
-			if (Math.abs(this._profile.vel().x) < Player._minSpeed) {
-				this._profile.setVel({x: 0});
-			} else if (slowing) {
-				resistance += -this._profile.vel().x * Player._friction;
+		if (Math.abs(this._profile.vel().x) < Player._minSpeed) {
+			this._profile.setVel({x: 0});
+		} else if (Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x)) {
+			let sideVel = this._profile.vel().x;
+			if (this._attributes.get(Attribute.GROUNDED)) {
+				sideVel *= 1 / (1 + Player._friction * millis / 1000);
+			} else {
+				sideVel *= 1 / (1 + Player._airResistance * millis / 1000);
 			}
-		} else {
-			if (this._profile.acc().x === 0) {
-				resistance += -this._profile.vel().x * Player._airResistance;
-			}
+			this._profile.setVel({x: sideVel });
 		}
-		this._profile.setAcc({x: resistance });
 
 		if (this.isSource() && defined(this._weapon)) {
 			if (game.keys(this.clientId()).keyDown(Key.MOUSE_CLICK)) {

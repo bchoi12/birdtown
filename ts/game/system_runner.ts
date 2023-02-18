@@ -44,10 +44,10 @@ export class SystemRunner {
 
 	setUpdateSpeed(speed : number) : void { this._updateSpeed = speed; }
 	update() : void {
-    	const millis = Math.min(Date.now() - this._lastUpdateTime, SystemRunner._maxFrameMillis) * this._updateSpeed;
-		this._lastUpdateTime = Date.now();
 		this._seqNum++;
 
+    	const millis = Math.min(Date.now() - this._lastUpdateTime, SystemRunner._maxFrameMillis) * this._updateSpeed;
+		this._lastUpdateTime = Date.now();
 		for (let i = 0; i < this._order.length; ++i) {
 			this.getSystem(this._order[i]).preUpdate(millis);
 		}

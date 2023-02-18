@@ -377,7 +377,7 @@ export class Profile extends ComponentBase implements Component {
 	override postPhysics(millis : number) : void {
 		if (this._postPhysicsFn) {
 			this._postPhysicsFn(this);
-		}
+		} 
 		
 		if (this.hasAngle()) {
 			this.setAngle(this._body.angle);
