@@ -45,8 +45,6 @@ export class HexColors extends ComponentBase implements Component {
 		}
 	}
 
-	override ready() : boolean { return true; }
-
 	setColor(id : number, color : HexColor) : void { this._colors.set(id, color); }
 	hasColor(id : number) : boolean { return this._colors.has(id); }
 	getColor(id : number) : HexColor { return this._colors.get(id); }

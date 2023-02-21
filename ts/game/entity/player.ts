@@ -51,7 +51,7 @@ export class Player extends EntityBase {
 	private static readonly _jumpVel = 0.3;
 	private static readonly _maxHorizontalVel = 0.25;
 	private static readonly _maxVerticalVel = 0.6;
-	private static readonly _minSpeed = 0.001;
+	private static readonly _minSpeed = 1e-3;
 
 	private static readonly _turnMultiplier = 3.0;
 	private static readonly _fallMultiplier = 1.5;

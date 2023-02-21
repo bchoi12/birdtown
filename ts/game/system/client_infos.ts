@@ -5,7 +5,11 @@ import { ClientInfo } from 'game/system/client_info'
 export class ClientInfos extends SystemBase implements System {
 
 	constructor() {
-		super(SystemType.CLIENTS);
+		super(SystemType.CLIENT_INFOS);
+
+		this.setName({
+			base: "client_infos",
+		});
 
 		this.setFactoryFn((gameId : number) => { this.addClientInfo(new ClientInfo(gameId)); })
 	}

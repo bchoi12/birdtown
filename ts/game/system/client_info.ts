@@ -11,6 +11,10 @@ export class ClientInfo extends SystemBase implements System {
 	constructor(gameId : number) {
 		super(SystemType.CLIENT_INFO);
 
+		this.setName({
+			base: "client_info",
+		});
+
 		this._gameId = gameId;
 	}
 

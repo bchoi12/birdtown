@@ -45,28 +45,38 @@ export class Keys extends SystemBase implements System {
 				continue;
 			}
 
-			this.registerProp(key, {
+			this.registerProp<boolean>(key, {
 				has: () => { return this._keyStates.has(key); },
 				export: () => { return this._keys.has(key); },
-				import: (obj : Object) => {
+				import: (obj : boolean) => {
 					if (<boolean>obj) {
 						this._keys.add(key);
 					} else {
 						this._keys.delete(key);
 					}
 				},
+				options: {
+					filters: Data.udp,
+					refreshInterval: 50,
+				},
 			})
 		}
 
-		this.registerProp(this.numProps() + 1, {
+		this.registerProp<Vec>(this.numProps() + 1, {
 			export: () => { return this._mouse.toVec(); },
-			import: (obj : Object) => { this._mouse.copyVec(<Vec>obj); },
-			filters: Data.udp,
+			import: (obj : Vec) => { this._mouse.copyVec(obj); },
+			options: {
+				filters: Data.udp,
+				refreshInterval: 50,
+			},
 		});
-		this.registerProp(this.numProps() + 1, {
+		this.registerProp<Vec>(this.numProps() + 1, {
 			export: () => { return this._dir.toVec(); },
-			import: (obj : Object) => { this._dir.copyVec(<Vec>obj); },
-			filters: Data.udp,
+			import: (obj : Vec) => { this._dir.copyVec(obj); },
+			options: {
+				filters: Data.udp,
+				refreshInterval: 50,
+			},
 		});
 	}
 

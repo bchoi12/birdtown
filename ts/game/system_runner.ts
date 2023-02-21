@@ -96,6 +96,7 @@ export class SystemRunner {
 			if (!data.hasOwnProperty(system.type())) {
 				continue;
 			}
+
 			system.importData(<DataMap>data[system.type()], seqNum);
 		}
 	}
@@ -111,10 +112,13 @@ export class SystemRunner {
 			this.getSystem(this._order[i]).onNewClient(name, clientId);
 		}
 
-		const connection = game.netcode();
-		const [message, has] = this.message(DataFilter.ALL);
-		if (has) {
-			connection.send(name, ChannelType.TCP, message);
+		if (game.options().host) {
+			const connection = game.netcode();
+			const [message, has] = this.message(DataFilter.INIT);
+			if (has) {
+				connection.broadcast(ChannelType.TCP, message);
+			}
+
 		}
 	}
 
@@ -134,7 +138,7 @@ export class SystemRunner {
 		let hasMessage = false;
 		for (let i = 0; i < this._order.length; ++i) {
 			const system = this.getSystem(this._order[i]);
-			const [data, has] = system.dataMap(filter);
+			const [data, has] = system.dataMap(filter, this._seqNum);
 
 			if (has) {
 				msg.D[system.type()] = data;

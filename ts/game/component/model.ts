@@ -45,7 +45,7 @@ export class Model extends ComponentBase implements Component {
 	}
 
 	override ready() : boolean {
-		return this.hasEntity() && (!defined(this._readyFn) || this._readyFn());
+		return super.ready() && this.hasEntity() && (!defined(this._readyFn) || this._readyFn());
 	}
 
 	override initialize() : void {

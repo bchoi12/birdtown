@@ -69,8 +69,6 @@ export class Attributes extends ComponentBase implements Component {
 		}
 	}
 
-	override ready() : boolean { return true; }
-
 	has(attribute : Attribute) : boolean { return this._attributes.has(attribute); }
 	get(attribute : Attribute) : Value { return this._attributes.get(attribute); }
 	getOrDefault(attribute : Attribute) : Value {

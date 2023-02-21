@@ -22,11 +22,11 @@ export class BitMarker {
 		this._size = bits;
 		this._marks = 0;
 		this._total = 0;
-
 		this._consecutiveTrue = 0;
 		this._consecutiveFalse = 0;
 	}
 
+	marks() : number { return this._marks; }
 	total() : number { return this._total; }
 	consecutiveTrue() : number { return this._consecutiveTrue; }
 	consecutiveFalse() : number { return this._consecutiveFalse; }

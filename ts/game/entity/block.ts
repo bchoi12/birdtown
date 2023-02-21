@@ -44,6 +44,12 @@ type MaterialFn = (material : BABYLON.StandardMaterial) => void;
 
 export abstract class Block extends EntityBase {
 
+	protected static readonly _minOpacity = 0.1;
+	protected static readonly _transitionMillis = 300;
+	protected static readonly _minPenetrationSq = 0.1;
+	protected static readonly _backColorScale = 0.7;
+	protected static readonly _transparentAlpha = 0.5;
+
 	protected _transparent : boolean;
 	protected _materialCache : Map<string, CachedMaterial>;
 	protected _frontMaterials : Set<string>
@@ -124,7 +130,7 @@ export abstract class Block extends EntityBase {
 		if (this.transparent()) {
 			this._frontMaterials.forEach((name : string) => {
 				const cached = this._materialCache.get(name);
-				cached.material.alpha = Math.max(0.1, cached.material.alpha - millis / 300);
+				cached.material.alpha = Math.max(Block._minOpacity, cached.material.alpha - millis / Block._transitionMillis);
 			});
 			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
 				mesh.isVisible = false;
@@ -132,7 +138,7 @@ export abstract class Block extends EntityBase {
 		} else {
 			this._frontMaterials.forEach((name : string) => {
 				const cached = this._materialCache.get(name);
-				cached.material.alpha = Math.min(cached.alpha, cached.material.alpha + millis / 300);
+				cached.material.alpha = Math.min(cached.alpha, cached.material.alpha + millis / Block._transitionMillis);
 			});
 			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
 				mesh.isVisible = true;
@@ -151,7 +157,7 @@ export abstract class Block extends EntityBase {
 			return;
 		}
 
-		if (Vec2.fromVec(collision.penetration).lengthSq() < 0.01) {
+		if (Vec2.fromVec(collision.penetration).lengthSq() < Block._minPenetrationSq) {
 			return;
 		}
 
@@ -214,14 +220,14 @@ export abstract class Block extends EntityBase {
 
 		if (diffuse.has()) {
 			if (materialProps.has(MaterialProp.BACK)) {
-				diffuse.set(diffuse.get().clone().mult(0.8));
+				diffuse.set(diffuse.get().clone().mult(Block._backColorScale));
 			}
 			newMaterial.diffuseColor = diffuse.get().toBabylonColor3();
 		}
 
 
 		if (materialProps.has(MaterialProp.TRANSPARENT)) {
-			newMaterial.alpha = 0.5;
+			newMaterial.alpha = Block._transparentAlpha;
 			newMaterial.needDepthPrePass = true;
 		}
 

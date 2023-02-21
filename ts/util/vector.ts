@@ -1,8 +1,6 @@
 import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
-import { Data } from 'network/data'
-
 import { defined } from 'util/common'
 import { SeededRandom } from 'util/seeded_random'
 
@@ -13,6 +11,9 @@ export interface Vec {
 }
 
 export class Vec2 implements Vec {
+
+    public static readonly defaultEpsilon = 1e-3;
+
     public x : number;
     public y : number;
 
@@ -39,7 +40,22 @@ export class Vec2 implements Vec {
         return Vec2.unitFromRad(angle * Math.PI / 180);
     }
 
-    equals(other : Vec) : boolean { return Data.numberEquals(this.x, other.x) && Data.numberEquals(this.x, other.y); }
+    static approxEquals(a : Vec, b : Vec, epsilon : number) : boolean {
+        if (Math.abs(a.x - b.x) >= epsilon || Math.abs(a.y - b.y) >= epsilon) {
+            return false;
+        }
+        if (Vec2.isZero(a) !== Vec2.isZero(b)) {
+            return false;
+        }
+        return true;
+    }
+    static equals(a : Vec, b : Vec) : boolean { return Vec2.approxEquals(a, b, Vec2.defaultEpsilon); }
+
+    approxEquals(other : Vec, epsilon : number) : boolean { return Vec2.approxEquals(this, other, epsilon); }
+    equals(other : Vec) : boolean { return Vec2.equals(this, other); }
+
+    static isZero(vec : Vec) : boolean { return vec.x === 0 && vec.y === 0; }
+    isZero() : boolean { return Vec2.isZero(this); }
 
     lengthSq() : number { return this.x * this.x + this.y * this.y; }
     length() : number { return Math.sqrt(this.lengthSq()); }
@@ -61,9 +77,9 @@ export class Vec2 implements Vec {
         this.y = Math.abs(this.y);
         return this;
     }
-    min(min : number) : Vec2 {
-        this.x = Math.max(this.x, min);
-        this.y = Math.max(this.y, min);
+    clamp(min : number, max : number) : Vec2 {
+        this.x = Math.max(min, Math.min(max, this.x));
+        this.y = Math.max(min, Math.min(max, this.y));
         return this;
     }
 

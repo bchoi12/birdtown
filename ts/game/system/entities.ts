@@ -15,7 +15,7 @@ export class Entities extends SystemBase implements System {
 
 		this.setName({
 			base: "entities",
-		})
+		});
 
 		this.reset();
 		this.setFactoryFn((entityType : EntityType) => { this.addMap(new EntityMap(entityType)); })

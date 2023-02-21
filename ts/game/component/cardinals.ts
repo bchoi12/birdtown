@@ -47,8 +47,6 @@ export class Cardinals extends ComponentBase implements Component {
 		}
 	}
 
-	override ready() : boolean { return true; }
-
 	hasCardinal(type : CardinalType) : boolean { return this._cardinals.has(type); }
 	getCardinal(type : CardinalType) : Cardinal { return this._cardinals.get(type); }
 	setCardinal(type : CardinalType, cardinal : Cardinal) : void { this._cardinals.set(type, cardinal); }

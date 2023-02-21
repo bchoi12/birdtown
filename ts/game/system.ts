@@ -8,7 +8,7 @@ import { defined } from 'util/common'
 export enum SystemType {
 	UNKNOWN,
 	CLIENT_INFO,
-	CLIENTS,
+	CLIENT_INFOS,
 	ENTITIES,
 	ENTITY_MAP,
 	GAME_MODE_DUEL,
@@ -42,8 +42,6 @@ export abstract class SystemBase extends GameObjectBase implements System {
 		this._targetEntity = null;
 		this._type = type;
 	}
-
-	override ready() : boolean { return true; }
 
 	type() : SystemType { return this._type; }
 	hasTargetEntity() : boolean { return defined(this._targetEntity); }

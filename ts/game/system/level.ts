@@ -36,6 +36,10 @@ export class Level extends SystemBase implements System {
 	constructor() {
 		super(SystemType.LEVEL);
 
+		this.setName({
+			base: "level",
+		});
+
 		this._level = LevelType.UNKNOWN;
 		this._rng = new SeededRandom(0);
 		this._reloadLevel = false;
@@ -44,13 +48,17 @@ export class Level extends SystemBase implements System {
 			has: () => { return this._level > 0; },
 			export: () => { return this._level; },
 			import: (obj : Object) => { this.setLevel(<number>obj); },
-			filters: Data.tcp,
+			options: {
+				filters: Data.tcp,
+			},
 		});
 		this.registerProp(Prop.SEED, {
 			has: () => { return this._rng.getSeed() > 0; },
 			export: () => { return this._rng.getSeed(); },
 			import: (obj : Object) => { this._rng.seed(<number>obj); },
-			filters: Data.tcp,
+			options: {
+				filters: Data.tcp,
+			},
 		});
 	}
 

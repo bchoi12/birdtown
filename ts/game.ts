@@ -33,7 +33,7 @@ interface GameOptions {
 
 class Game {
 	private static readonly _channelMapping = new Map<DataFilter, ChannelType>([
-		[DataFilter.ALL, ChannelType.TCP],
+		[DataFilter.INIT, ChannelType.TCP],
 		[DataFilter.TCP, ChannelType.TCP],
 		[DataFilter.UDP, ChannelType.UDP],
 	]);

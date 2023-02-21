@@ -2,7 +2,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
-import { Data } from 'network/data'
+import { SmoothVec2 } from 'game/util/smooth_vec2'
 
 import { options } from 'options'
 
@@ -51,6 +51,10 @@ enum Prop {
 }
 
 export class Profile extends ComponentBase implements Component {
+
+	private static readonly _minAccel = 1e-3;
+	private static readonly _minSpeed = 1e-3;
+
 	private _readyFn : ReadyFn;
 	private _bodyFn : BodyFn;
 	private _onInitFn : OnInitFn;
@@ -60,7 +64,7 @@ export class Profile extends ComponentBase implements Component {
 	private _forces : Buffer<Vec>;
 	private _constraints : Map<number, MATTER.Constraint>;
 
-	private _pos : Vec2;
+	private _pos : SmoothVec2;
 	private _vel : Vec2;
 	private _acc : Vec2;
 	private _dim : Vec2;
@@ -94,40 +98,68 @@ export class Profile extends ComponentBase implements Component {
 			this.initFromOptions(profileOptions.init);
 		}
 
-		this.registerProp(Prop.POS, {
+		this.registerProp<Vec>(Prop.POS, {
 			has: () => { return this.hasPos(); },
 			export: () => { return this.pos().toVec(); },
-			import: (obj : Object) => { this.setPos(<Vec>obj); }
+			import: (obj : Vec) => { this.setPosBase(obj); },
+			options: {
+				equals: (a : Vec, b : Vec) => {
+					return Vec2.approxEquals(a, b, 1e-3);
+				},
+			},
 		});
-		this.registerProp(Prop.VEL, {
+		this.registerProp<Vec>(Prop.VEL, {
 			has: () => { return this.hasVel(); },
 			export: () => { return this.vel().toVec(); },
-			import: (obj : Object) => { this.setVel(<Vec>obj); }
+			import: (obj : Vec) => {
+				this._pos.setDirection(obj);
+				this.setVel(obj);
+			},
+			options: {
+				equals: (a : Vec, b : Vec) => {
+					return Vec2.approxEquals(a, b, 1e-3);
+				},
+			},
 		});
-		this.registerProp(Prop.ACC, {
+		this.registerProp<Vec>(Prop.ACC, {
 			has: () => { return this.hasAcc(); },
 			export: () => { return this.acc().toVec(); },
-			import: (obj : Object) => { this.setAcc(<Vec>obj); }
+			import: (obj : Vec) => { this.setAcc(obj); },
+			options: {
+				equals: (a : Vec, b : Vec) => {
+					return Vec2.approxEquals(a, b, 1e-2);
+				},
+			},
 		});
-		this.registerProp(Prop.DIM, {
+		this.registerProp<Vec>(Prop.DIM, {
 			has: () => { return this.hasDim(); },
 			export: () => { return this.dim().toVec(); },
-			import: (obj : Object) => { this.setDim(<Vec>obj); }
+			import: (obj : Vec) => { this.setDim(obj); },
 		});
-		this.registerProp(Prop.ANGLE, {
+		this.registerProp<number>(Prop.ANGLE, {
 			has: () => { return this.hasAngle(); },
 			export: () => { return this.angle(); },
-			import: (obj : Object) => { this.setAngle(<number>obj); }
+			import: (obj : number) => { this.setAngle(obj); },
+			options: {
+				equals: (a : number, b : number) => {
+					return Math.abs(a - b) < 0.1;
+				},
+			},
 		});
-		this.registerProp(Prop.INERTIA, {
+		this.registerProp<number>(Prop.INERTIA, {
 			has: () => { return this.hasInertia(); },
 			export: () => { return this.inertia(); },
-			import: (obj : Object) => { this.setInertia(<number>obj); }
+			import: (obj : number) => { this.setInertia(obj); },
 		});
-		this.registerProp(Prop.SCALING, {
+		this.registerProp<Vec>(Prop.SCALING, {
 			has: () => { return this.hasScaling(); },
 			export: () => { return this.scaling().toVec(); },
-			import: (obj : Object) => { this.setScaling(<Vec>obj); }
+			import: (obj : Vec) => { this.setScaling(obj); },
+			options: {
+				equals: (a : Vec, b : Vec) => {
+					return Vec2.approxEquals(a, b, 1e-1);
+				},
+			},
 		});
 	}
 
@@ -140,7 +172,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	override ready() : boolean {
-		return this.hasPos() && this.hasDim() && (!defined(this._readyFn) || this._readyFn(this));
+		return super.ready() && this.hasPos() && this.hasDim() && (!defined(this._readyFn) || this._readyFn(this));
 	}
 
 	override initialize() : void {
@@ -221,11 +253,19 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	private hasPos() : boolean { return defined(this._pos); }
-	pos() : Vec2 { return this._pos; }
-	setPos(vec : Vec) : void {
-		if (!this.hasPos()) { this._pos = Vec2.zero(); }
+	pos() : Vec2 { return this._pos.getVec2(); }
+	private setPosBase(vec : Vec) : void {
+		if (!this.hasPos()) { this._pos = new SmoothVec2(); }
 
-		this._pos.copyVec(vec);
+		this._pos.setBase(vec);
+	}
+	setPos(vec : Vec) : void {
+		if (!this.hasPos()) { this._pos = new SmoothVec2(); }
+
+		if (this.isSource()) {
+			this._pos.setBase(vec);
+		}
+		this._pos.setPrediction(vec);
 	}
 
 	hasVel() : boolean { return defined(this._vel); }
@@ -252,7 +292,7 @@ export class Profile extends ComponentBase implements Component {
 	private hasDim() : boolean { return defined(this._dim); }
 	dim() : Vec2 { return this._dim; }
 	setDim(vec : Vec) : void {
-		if (defined(this._dim) && Data.equals(this._dim.toVec(), vec)) { return; }
+		if (defined(this._dim) && Vec2.approxEquals(this._dim.toVec(), vec, 1e-2)) { return; }
 		if (this.hasDim()) {
 			console.error("Error: dimension is already initialized for", this.name());
 			return;
@@ -277,7 +317,7 @@ export class Profile extends ComponentBase implements Component {
 		if (!defined(this._scaling)) {
 			this._scaling = Vec2.one();
 		}
-		if (Data.equals(this._scaling.toVec(), vec)) { return; }
+		if (Vec2.approxEquals(this._scaling.toVec(), vec, 1e-2)) { return; }
 
 		this._scaleFactor = Vec2.one();
 		if (defined(vec.x)) {
@@ -287,7 +327,7 @@ export class Profile extends ComponentBase implements Component {
 			this._scaleFactor.y = vec.y / this._scaling.y;
 		}
 
-		if (Data.equals(this._scaleFactor.x, 1) && Data.equals(this._scaleFactor.y, 1)) {
+		if (this._scaleFactor.x === 1 && this._scaleFactor.y === 1) {
 			return;
 		}
 
@@ -323,8 +363,17 @@ export class Profile extends ComponentBase implements Component {
 
 	setMaxSpeed(params : MaxSpeedParams) { this._maxSpeedParams = params; }
 	private clampSpeed(millis : number) : void {
+		let acc = this.acc();
+		let vel = this.vel();
+		if (Math.abs(acc.x) < Profile._minAccel && Math.abs(vel.x) < Profile._minSpeed) {
+			acc.x = 0;
+			vel.x = 0;
+		}
+		if (Math.abs(vel.y) < Profile._minSpeed) {
+			vel.y = 0;
+		}
+
 		if (defined(this._maxSpeedParams)) {
-			let vel = this.vel();
 			const maxSpeed = this._maxSpeedParams.maxSpeed;
 
 			if (Math.abs(vel.x) > maxSpeed.x) {
@@ -379,19 +428,16 @@ export class Profile extends ComponentBase implements Component {
 			this._postPhysicsFn(this);
 		} 
 		
-		if (this.hasAngle()) {
+		// TODO: remove approxEqual checks?
+		if (this.hasAngle() && Math.abs(this._angle - this._body.angle) > 1e-2) {
 			this.setAngle(this._body.angle);
 		}
-		if (this.hasVel()) {
+		if (this.hasVel() && !Vec2.approxEquals(this._vel.toVec(), this._body.velocity, 1e-3)) {
 			this.setVel(this._body.velocity);
 		}
 
-		if (this.isSource()) {
-			this.setPos(this._body.position);
-		} else {
-			const weight = Math.min(Math.max(this.millisSinceImport() - game.netcode().ping() / 2, 0) / options.maxPredictionMillis, 1);
-			this._pos.lerp(this._body.position, weight * options.predictionWeight);
-		}
+		this.setPos(this._body.position);
+		this._pos.updateWeight();
 
 		// Update child objects afterwards.
 		super.postPhysics(millis);

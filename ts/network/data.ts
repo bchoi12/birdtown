@@ -1,49 +1,31 @@
+
+import { DataProp, DataPropOptions } from 'network/data_prop'
+
 import { defined } from 'util/common'
 import { BitMarker } from 'util/bit_marker'
 
 export enum DataFilter {
-	UNKNOWN = 0,
-	ALL = 1,
-	TCP = 2,
-	UDP = 3,
+	UNKNOWN,
+	INIT,
+	TCP,
+	UDP,
 }
 
 // TODO: deprecate DataMap?
 export type DataMap = { [k: number]: Object }
-type DataTree = Map<number, PropData>;
-
-enum NodeType {
-	UNKNOWN,
-	BRANCH,
-	LEAF,
-}
-
-type PropData = {
-	data : Object;
-	change : BitMarker;
-	seqNum : number;
-	params : PropParams;
-}
-
-export type PropParams = {
-	leaf: boolean;
-	filters: Set<DataFilter>;
-}
 
 export class Data {
-	public static readonly allFilters = new Set<DataFilter>([DataFilter.ALL, DataFilter.TCP, DataFilter.UDP]);
-	public static readonly udp = new Set<DataFilter>([DataFilter.ALL, DataFilter.UDP]);
-	public static readonly tcp = new Set<DataFilter>([DataFilter.ALL, DataFilter.TCP]);
-	public static readonly init = new Set<DataFilter>([DataFilter.ALL]);
+	public static readonly allFilters = new Set<DataFilter>([DataFilter.INIT, DataFilter.TCP, DataFilter.UDP]);
+	public static readonly init = new Set<DataFilter>([DataFilter.INIT]);
+	public static readonly udp = new Set<DataFilter>([DataFilter.INIT, DataFilter.UDP]);
+	public static readonly tcp = new Set<DataFilter>([DataFilter.INIT, DataFilter.TCP]);
 
-	private static readonly numberEpsilon = 1e-3;
+	private static readonly numberEpsilon = 1e-2;
 
-	private _propData : DataTree;
-	private _propParams : Map<number, PropParams>;
+	private _propData : Map<number, DataProp<Object>>;
 
 	constructor() {
 		this._propData = new Map();
-		this._propParams = new Map();
 	}
 
 	static numberEquals(a : number, b : number) : boolean {
@@ -69,95 +51,45 @@ export class Data {
 	}
 
 	empty() : boolean { return this._propData.size === 0; }
-	tree() : DataTree { return this._propData; }
+	tree() : Map<number, DataProp<Object>> { return this._propData; }
 	has(key : number) : boolean { return this._propData.has(key); }
-	get(key : number) : PropData { return this._propData.get(key); }
+	getProp<T extends Object>(key : number) : DataProp<T> { return <DataProp<T>>this._propData.get(key); }
+	getValue<T extends Object>(key : number) : T { return <T>this._propData.get(key).get(); }
 
-	registerProp(prop : number, params : PropParams) : void { this._propParams.set(prop, params); }
+	registerProp<T extends Object>(prop : number, propOptions : DataPropOptions<T>) : void {
+		this._propData.set(prop, new DataProp<T>(propOptions));
+	}
 
-	set(key : number, node : Object, seqNum : number, predicate? : () => boolean) : boolean {
-		if (!defined(node)) {
+	set(key : number, value : Object, seqNum : number, predicate? : () => boolean) : boolean {
+		if (!defined(value)) {
 			return false;
 		}
 
 		if (defined(predicate) && !predicate()) {
-			this.recordChange(key, seqNum, false);
 			return false;
 		}
 
-		let changed = false;
 		if (!this.has(key)) {
-			this._propData.set(key, {
-				data: node,
-				change: new BitMarker(32),
-				seqNum: seqNum,
-				params: this._propParams.has(key) ? this._propParams.get(key) : { leaf: false, filters: Data.allFilters },
-			});
-			changed = true;
-		} else if (seqNum >= this.get(key).seqNum) {
-			if (!this.get(key).params.leaf || !Data.equals(node, this.get(key).data)) {
-				this.get(key).data = node;
-				changed = true;
-			}
+			return false;
 		}
 
-		this.recordChange(key, seqNum, changed);
-		return changed;
+		return this._propData.get(key).set(value, seqNum);
 	}
 
-	import(data : DataMap, seqNum : number, predicate? : (key : number) => boolean) : Set<number> {
-		let changed = new Set<number>();
-
-		for (const [stringKey, value] of Object.entries(data)) {
-			const key = Number(stringKey);
-			const updatePredicate = () => {
-				return defined(predicate) ? predicate(key) : true;
-			};
-			if (this.set(key, value, seqNum, updatePredicate)) {
-				changed.add(key);
-			}
-		}
-		return changed;
-	}
-
-	filtered(filter : DataFilter) : [DataMap, boolean] {
+	filtered(filter : DataFilter, seqNum : number) : [DataMap, boolean] {
 		if (this.empty()) {
 			return [{}, false];
 		}
 
 		let filtered : DataMap = {};
 		let hasData = false;
-		this._propData.forEach((prop : PropData, key : number) => {
-			if (!this.get(key).params.filters.has(filter)) {
-				return;
-			}
-
-			if (filter === DataFilter.ALL) {
-				filtered[key] = prop.data;
+		this._propData.forEach((prop : DataProp<Object>, key : number) => {
+			const [value, shouldPublish] = prop.publish(filter, seqNum);
+			if (shouldPublish) {
+				filtered[key] = value;
 				hasData = true;
-				return;
 			}
-
-			if (filter === DataFilter.TCP) {
-				if (prop.change.consecutiveTrue() === 1 || prop.change.consecutiveFalse() === 1) {
-					filtered[key] = prop.data;
-					hasData = true;
-				}
-			} else if (filter === DataFilter.UDP) {
-				if (prop.change.consecutiveTrue() >= 1 || prop.change.consecutiveFalse() <= 2) {
-					filtered[key] = prop.data;
-					hasData = true;
-				}
-			}	
 		});
 		return [filtered, hasData];
-	}
-
-	protected recordChange(key : number, seqNum : number, change : boolean) {
-		this.get(key).change.mark(seqNum, change);
-
-		if (change) {
-			this.get(key).seqNum = seqNum;
-		}
 	}
 }

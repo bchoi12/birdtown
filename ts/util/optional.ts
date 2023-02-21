@@ -10,13 +10,21 @@ export class Optional<T> {
 
 	clear() : void { this._has = false; }
 	set(value : T) : void {
-		if (defined(value)) {
+		this._has = defined(value);
+		if (this._has) {
 			this._value = value;
-			this._has = true;
 		}
 	}
 	has() : boolean { return this._has; }
 	get() : T { return this._value; }
+
+	condIf(fn : (value : T) => boolean) : boolean {
+		if (!this.has()) {
+			return false;
+		}
+
+		return fn(this.get());
+	}
 
 	runIf(fn : (value : T) => void) : boolean {
 		if (!this.has()) {

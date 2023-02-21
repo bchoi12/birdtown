@@ -43,8 +43,6 @@ export class Health extends ComponentBase implements Component {
 		});
 	}
 
-	override ready() : boolean { return true; }
-
 	reset() : void {
 		this._health = this._initialHealth;
 		this._damageBuffer.clear();

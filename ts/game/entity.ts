@@ -71,7 +71,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	protected _clientId : number;
 
 	protected _timers : Array<Timer>;
-	protected _notReadyCounter : number;
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super("entity-" + type + "," + entityOptions.id);
@@ -103,13 +102,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 
 	override ready() : boolean {
-		if (this._notReadyCounter > 0 && this._notReadyCounter % 60 === 0) {
-			console.error("Warning: %s still not ready", this.name());
-		}
+		super.ready();
 
 		for (const [_, component] of this.getChildren()) {
 			if (!component.ready()) {
-				this._notReadyCounter++;
 				return false;
 			}
 		}
