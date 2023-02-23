@@ -45,6 +45,7 @@ export class Entities extends SystemBase implements System {
 	getMap(type : EntityType) : EntityMap { return this.getChild<EntityMap>(type); }
 	unregisterMap(type : EntityType) : void { this.unregisterChild(type); }
 
+	// TODO: don't return optional
 	addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : Optional<T> {
 		if (!entityOptions.id) {
 			// Only allow source to create new objects. Other objects are from data import

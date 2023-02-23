@@ -148,7 +148,7 @@ export class Level extends SystemBase implements System {
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 		}
 
-	    game.systemRunner().onLevelLoad(this._level, this._rng.getSeed());
+	    game.runner().onLevelLoad(this._level, this._rng.getSeed());
 	}
 }
 		

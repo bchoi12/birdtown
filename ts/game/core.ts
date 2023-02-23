@@ -29,6 +29,7 @@ export type NameParams = {
 }
 
 export type FactoryFn = (id : number) => void
+export type ChildCallback<T extends GameObject> = (child : T) => void;
 
 type DataBuffer = {
 	seqNum : number;
@@ -66,6 +67,8 @@ export interface GameObject {
 	hasChild(id : number) : boolean;
 	getChild<T extends GameObject>(id : number) : T;
 	unregisterChild(id : number) : void;
+	childOrder() : Array<number>;
+	executeCallback<T extends GameObject>(cb : ChildCallback<T>) : void;
 	getChildren() : Map<number, GameObject>;
 
 	shouldBroadcast() : boolean;
@@ -86,11 +89,11 @@ export abstract class GameObjectBase {
 
 	protected _data : Data;
 	protected _propHandlers : Map<number, PropHandler<Object>>;
+	protected _childOrder : Array<number>;
 	protected _childObjects : Map<number, GameObject>;
 	protected _dataBuffers : Map<number, Array<DataBuffer>>;
 
 	protected _factoryFn : FactoryFn;
-
 
 	constructor(name : string) {
 		this._name = name;
@@ -102,8 +105,8 @@ export abstract class GameObjectBase {
 
 		this._data = new Data();
 		this._propHandlers = new Map();
+		this._childOrder = new Array();
 		this._childObjects = new Map();
-
 		this._dataBuffers = new Map();
 	}
 
@@ -130,7 +133,7 @@ export abstract class GameObjectBase {
 
 	ready() : boolean {
 		this._notReadyCounter++;
-		if (this._notReadyCounter % 60 === 0 && this.numChildren() === 0) {
+		if (this._notReadyCounter % 60 === 0) {
 			console.error("Warning: %s still not ready", this.name());
 		}
 		return true;
@@ -143,31 +146,32 @@ export abstract class GameObjectBase {
 	}
 	initialized() : boolean {return this._initialized; }
 	reset() : void {
-		this._childObjects.forEach((child : GameObject) => {
-			child.reset();
-		});
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			this.getChild(this._childOrder[i]).reset();
+		}
 	}
 	delete() : void {
 		if (this._deleted) {
 			return;
 		}
 
-		this._childObjects.forEach((child : GameObject) => {
-			child.delete();
-		});
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			this.getChild(this._childOrder[i]).delete();
+		};
 		this._deleted = true;
 	}
 	deleted() : boolean { return this._deleted; }
 	dispose() : void {
-		this._childObjects.forEach((child : GameObject) => {
-			child.dispose();
-		});
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			this.getChild(this._childOrder[i]).dispose();
+		};
 	}
 
 	preUpdate(millis : number) : void {
 		this._lastUpdateTime = Date.now();
 
-		this._childObjects.forEach((child : GameObject) => {
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let child = this.getChild(this._childOrder[i]);
 			if (!child.initialized() && child.ready()) {
 				child.initialize();
 			}
@@ -179,63 +183,71 @@ export abstract class GameObjectBase {
 			if (child.initialized()) {
 				child.preUpdate(millis);
 			}
-		});
+		};
 	}
 	update(millis : number) : void {
-		this._childObjects.forEach((child : GameObject) => {
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let child = this.getChild(this._childOrder[i]);
 			if (child.initialized()) {
 				child.update(millis);
 			}
-		});
+		};
 	}
 	postUpdate(millis : number) : void {
-		this._childObjects.forEach((child : GameObject) => {
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let child = this.getChild(this._childOrder[i]);
 			if (child.initialized()) {
 				child.postUpdate(millis);
 			}
-		});
+		};
 	}
 	prePhysics(millis : number) : void {
-		this._childObjects.forEach((child : GameObject) => {
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let child = this.getChild(this._childOrder[i]);
 			if (child.initialized()) {
 				child.prePhysics(millis);
 			}
-		});
+		};
 	}
 	physics(millis : number) : void {
-		this._childObjects.forEach((child : GameObject) => {
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let child = this.getChild(this._childOrder[i]);
 			if (child.initialized()) {
 				child.physics(millis);
 			}
-		});
+		};
 	}
 	postPhysics(millis : number) : void {
-		this._childObjects.forEach((child : GameObject) => {
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let child = this.getChild(this._childOrder[i]);
 			if (child.initialized()) {
 				child.postPhysics(millis);
 			}
-		});
+		};
 	}
 	preRender(millis : number) : void {
-		this._childObjects.forEach((child : GameObject) => {
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let child = this.getChild(this._childOrder[i]);
 			if (child.initialized()) {
 				child.preRender(millis);
 			}
-		});
+		};
 	}
 	render(millis : number) : void {
-		this._childObjects.forEach((child : GameObject) => {
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let child = this.getChild(this._childOrder[i]);
 			if (child.initialized()) {
 				child.render(millis);
 			}
-		});
+		};
 	}
 	postRender(millis : number) : void {
-		this._childObjects.forEach((child : GameObject) => {
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let child = this.getChild(this._childOrder[i]);
 			if (child.initialized()) {
 				child.postRender(millis);
 			}
-		});
+		};
 	}
 
 	millisSinceUpdate() : number { return Date.now() - this._lastUpdateTime; }
@@ -278,6 +290,7 @@ export abstract class GameObjectBase {
 		}
 
 		this._childObjects.set(id, child);
+		this._childOrder.push(id);
 		return child;
 	}
 	hasChild(id : number) : boolean { return this._childObjects.has(id); }
@@ -286,9 +299,18 @@ export abstract class GameObjectBase {
 		if (!this.hasChild(id)) {
 			return;
 		}
+
+		this._childOrder = this._childOrder.filter((value : number) => { return value !== id});
 		this._childObjects.delete(id);
 	}
 	getChildren() : Map<number, GameObject> { return this._childObjects; }
+
+	childOrder() : Array<number> { return this._childOrder; }
+	executeCallback<T extends GameObject>(cb : ChildCallback<T>) : void {
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			cb(this.getChild<T>(this._childOrder[i]));
+		}
+	}
 
 	// TODO: replace with default NetworkBehavior (SOURCE, RELAY, COPY)
 	// can replace default network behavior on a prop level
@@ -299,15 +321,17 @@ export abstract class GameObjectBase {
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean] {
 		let [data, hasData] = this.shouldBroadcast() ? this._data.filtered(filter, seqNum) : [{}, false];
 
-		this._childObjects.forEach((child : GameObject, id : number) => {
-			const prop = this.idToProp(id);
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let id = this._childOrder[i];
+			let child = this.getChild(this._childOrder[i]);
 
+			const prop = this.idToProp(id);
 			const [childData, childHasData] = child.dataMap(filter, seqNum);
 			if (childHasData) {
 				data[prop] = childData;
 				hasData = true;
 			}
-		});
+		};
 
 		return [data, hasData];
 	}
@@ -321,9 +345,9 @@ export abstract class GameObjectBase {
 			});
 		}
 
-		this._childObjects.forEach((child : GameObject, id : number) => {
-			child.updateData(seqNum);
-		});
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			this.getChild(this._childOrder[i]).updateData(seqNum);
+		};
 	}
 
 	importData(data : DataMap, seqNum : number) : void {

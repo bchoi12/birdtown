@@ -17,6 +17,7 @@ export enum SystemType {
 	LAKITU,
 	LEVEL,
 	PHYSICS,
+	RUNNER,
 	WORLD,
 }
 

@@ -309,6 +309,12 @@ export class Player extends EntityBase {
 					this._canDoubleJump = false;
 				}
 			}
+
+			if (this.isSource() && defined(this._weapon)) {
+				if (game.keys(this.clientId()).keyDown(Key.MOUSE_CLICK)) {
+					this._weapon.shoot(this._armDir);
+				}
+			}
 		}
 
 		// Friction and air resistance
@@ -323,12 +329,6 @@ export class Player extends EntityBase {
 			}
 			this._profile.setVel({x: sideVel });
 		}
-
-		if (this.isSource() && defined(this._weapon)) {
-			if (game.keys(this.clientId()).keyDown(Key.MOUSE_CLICK)) {
-				this._weapon.shoot(this._armDir);
-			}
-		}
 	}
 
 	override prePhysics(millis : number) : void {
@@ -340,6 +340,8 @@ export class Player extends EntityBase {
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
+
+		// TODO: ignore collision if other body is sensor
 
 		if (this.id() === other.id()) {
 			return;

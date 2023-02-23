@@ -2,7 +2,6 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component, ComponentBase, ComponentType } from 'game/component'
-import { SmoothVec2 } from 'game/util/smooth_vec2'
 
 import { options } from 'options'
 
@@ -64,7 +63,7 @@ export class Profile extends ComponentBase implements Component {
 	private _forces : Buffer<Vec>;
 	private _constraints : Map<number, MATTER.Constraint>;
 
-	private _pos : SmoothVec2;
+	private _pos : Vec2;
 	private _vel : Vec2;
 	private _acc : Vec2;
 	private _dim : Vec2;
@@ -101,7 +100,7 @@ export class Profile extends ComponentBase implements Component {
 		this.registerProp<Vec>(Prop.POS, {
 			has: () => { return this.hasPos(); },
 			export: () => { return this.pos().toVec(); },
-			import: (obj : Vec) => { this.setPosBase(obj); },
+			import: (obj : Vec) => { this.setPos(obj); },
 			options: {
 				equals: (a : Vec, b : Vec) => {
 					return Vec2.approxEquals(a, b, 1e-3);
@@ -111,10 +110,7 @@ export class Profile extends ComponentBase implements Component {
 		this.registerProp<Vec>(Prop.VEL, {
 			has: () => { return this.hasVel(); },
 			export: () => { return this.vel().toVec(); },
-			import: (obj : Vec) => {
-				this._pos.setDirection(obj);
-				this.setVel(obj);
-			},
+			import: (obj : Vec) => { this.setVel(obj); },
 			options: {
 				equals: (a : Vec, b : Vec) => {
 					return Vec2.approxEquals(a, b, 1e-3);
@@ -253,19 +249,11 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	private hasPos() : boolean { return defined(this._pos); }
-	pos() : Vec2 { return this._pos.getVec2(); }
-	private setPosBase(vec : Vec) : void {
-		if (!this.hasPos()) { this._pos = new SmoothVec2(); }
-
-		this._pos.setBase(vec);
-	}
+	pos() : Vec2 { return this._pos; }
 	setPos(vec : Vec) : void {
-		if (!this.hasPos()) { this._pos = new SmoothVec2(); }
+		if (!this.hasPos()) { this._pos = Vec2.zero(); }
 
-		if (this.isSource()) {
-			this._pos.setBase(vec);
-		}
-		this._pos.setPrediction(vec);
+		this._pos.copyVec(vec);
 	}
 
 	hasVel() : boolean { return defined(this._vel); }
@@ -274,11 +262,13 @@ export class Profile extends ComponentBase implements Component {
 		if (!this.hasVel()) { this._vel = Vec2.zero(); }
 
 		this._vel.copyVec(vec);
+		this._vel.zeroEpsilon(Profile._minSpeed);
 	}
 	private addVel(delta : Vec) : void {
 		if (!this.hasVel()) { this._vel = Vec2.zero(); }
 
 		this._vel.add(delta);
+		this._vel.zeroEpsilon(Profile._minSpeed);
 	}
 
 	hasAcc() : boolean { return defined(this._acc); }
@@ -287,6 +277,7 @@ export class Profile extends ComponentBase implements Component {
 		if (!this.hasAcc()) { this._acc = Vec2.zero(); }
 
 		this._acc.copyVec(vec);
+		this._acc.zeroEpsilon(Profile._minAccel);
 	}
 
 	private hasDim() : boolean { return defined(this._dim); }
@@ -362,7 +353,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	setMaxSpeed(params : MaxSpeedParams) { this._maxSpeedParams = params; }
-	private clampSpeed(millis : number) : void {
+	private clampSpeed() : void {
 		let acc = this.acc();
 		let vel = this.vel();
 		if (Math.abs(acc.x) < Profile._minAccel && Math.abs(vel.x) < Profile._minSpeed) {
@@ -414,7 +405,7 @@ export class Profile extends ComponentBase implements Component {
 
 		this.applyForces();
 		if (this.hasVel()) {
-			this.clampSpeed(millis);
+			this.clampSpeed();
 			MATTER.Body.setVelocity(this._body, this.vel());
 		}
 		MATTER.Body.setPosition(this._body, this.pos());
@@ -436,8 +427,12 @@ export class Profile extends ComponentBase implements Component {
 			this.setVel(this._body.velocity);
 		}
 
-		this.setPos(this._body.position);
-		this._pos.updateWeight();
+		if (this.isSource()) {
+			this.setPos(this._body.position);
+		} else {
+			const weight = Math.min(Math.max(this.millisSinceImport() - game.netcode().ping() / 2, 0) / options.maxPredictionMillis, 1);
+			this._pos.lerp(this._body.position, weight * options.predictionWeight);
+		}
 
 		// Update child objects afterwards.
 		super.postPhysics(millis);

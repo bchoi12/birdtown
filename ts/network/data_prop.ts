@@ -9,6 +9,8 @@ export type DataPropOptions<T extends Object> = {
 	refreshInterval? : number;
 	filters? : Set<DataFilter>;
 	equals? : (oldValue : T, newValue : T) => boolean;
+
+	redundancies? : Map<DataFilter, number>;
 }
 
 type PublishInfo<T extends Object> = {
@@ -29,6 +31,7 @@ export class DataProp<T extends Object> {
 	private _refreshInterval : Optional<number>;
 	private _filters : Set<DataFilter>;
 	private _equals : (oldValue : T, newValue : T) => boolean;
+	private _redundancies : Map<DataFilter, number>;
 
 	constructor(propOptions : DataPropOptions<T>) {
 		this._value = new Optional();
@@ -41,6 +44,7 @@ export class DataProp<T extends Object> {
 		this._refreshInterval = propOptions.refreshInterval > 0 ? new Optional(propOptions.refreshInterval) : new Optional();
 		this._filters = defined(propOptions.filters) ? propOptions.filters : Data.allFilters;
 		this._equals = propOptions.equals ? propOptions.equals : (oldValue : T, newValue : T) => { return Data.equals(oldValue, newValue); };
+		this._redundancies = defined(propOptions.redundancies) ? propOptions.redundancies : new Map([[DataFilter.UDP, 2]]);
 	}
 
 	has() : boolean { return this._value.has(); }
@@ -91,7 +95,8 @@ export class DataProp<T extends Object> {
 		if (seqNum < this._lastPublished.get(filter).seqNum) {
 			return false;
 		}
-		if (!this.changed(filter)) {
+		let redundancies = this._redundancies.has(filter) ? this._redundancies.get(filter) : 0;
+		if (seqNum - this._lastPublished.get(filter).seqNum > redundancies && !this.changed(filter)) {
 			return false;
 		}
 		return true;

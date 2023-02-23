@@ -47,6 +47,7 @@ export interface Entity extends GameObject {
 
 	hasClientId() : boolean;
 	clientId() : number;
+	clientIdMatches() : boolean;
 
 	addComponent<T extends Component>(component : T) : T;
 	hasComponent(type : ComponentType) : boolean;

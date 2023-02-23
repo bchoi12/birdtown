@@ -44,7 +44,7 @@ class Options {
 		// Debug properties
 		this.debugInspector = false;
 		this.debugPhysics = false;
-		this.debugDelay = 100;
+		this.debugDelay = 30;
 	}
 }
 

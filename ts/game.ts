@@ -2,7 +2,7 @@ import * as BABYLON from "babylonjs";
 
 import { Data, DataFilter, DataMap } from 'network/data'
 import { System, SystemType } from 'game/system'
-import { SystemRunner } from 'game/system_runner'
+import { Runner } from 'game/system/runner'
 import { ClientInfos } from 'game/system/client_infos'
 import { Entities } from 'game/system/entities'
 import { Input } from 'game/system/input'
@@ -20,9 +20,11 @@ import { IncomingMessage, Message, MessageType } from 'network/message'
 import { options } from 'options'
 
 import { ui } from 'ui'
+
 import { defined, isLocalhost } from 'util/common'
 import { Html } from 'ui/html'
 import { NumberRingBuffer } from 'util/number_ring_buffer'
+import { Optional } from 'util/optional'
 
 interface GameOptions {
 	name : string;
@@ -39,16 +41,16 @@ class Game {
 	]);
 
 	private _initialized : boolean;
+	private _id : Optional<number>;
 	private _canvas : HTMLCanvasElement;
 	private _frameTimes : NumberRingBuffer;
 
 	private _options : GameOptions;
-	private _id : number;
 	private _lastId : number;
 	private _engine : BABYLON.Engine|BABYLON.NullEngine;
 	private _netcode : Netcode;
 
-	private _systemRunner : SystemRunner;
+	private _runner : Runner;
 	private _clientInfos : ClientInfos;
 	private _entities : Entities;
 	private _input : Input;
@@ -59,6 +61,7 @@ class Game {
 
 	constructor() {
 		this._initialized = false;
+		this._id = Optional.emptyWithDefault(-1);
 		this._canvas = Html.canvasElm(Html.canvasGame);
 		this._frameTimes = new NumberRingBuffer(60);
 	}
@@ -81,7 +84,7 @@ class Game {
 					T: MessageType.INIT_CLIENT,
 					D: gameId,
 				});
-				this._systemRunner.onNewClient(name, gameId);
+				this._runner.onNewClient(name, gameId);
 
 				if (isLocalhost()) {
 					console.log("Registered new client to game:", gameId);
@@ -107,7 +110,7 @@ class Game {
 				return;
 			}
 
-			this._systemRunner.importData(<DataMap>incoming.msg.D, incoming.msg.S);
+			this._runner.importData(<DataMap>incoming.msg.D, incoming.msg.S);
 		});
 		this._netcode.addMessageCallback(MessageType.CHAT, (incoming : IncomingMessage) => {
 			if (!defined(incoming.msg.D)) {
@@ -119,7 +122,7 @@ class Game {
 		});
 		this._netcode.initialize();
 
-		this._systemRunner = new SystemRunner();
+		this._runner = new Runner();
 		this._clientInfos = new ClientInfos();
 		this._entities = new Entities();
 		this._input = new Input();
@@ -130,33 +133,30 @@ class Game {
 		this._lakitu = new Lakitu(this._world.scene());
 
 		// Order of insertion becomes order of execution
-		this._systemRunner.push(this._clientInfos);
-		this._systemRunner.push(this._level);
-		this._systemRunner.push(this._input);
-		this._systemRunner.push(this._entities);
-		this._systemRunner.push(this._physics);
-		this._systemRunner.push(this._lakitu);
-		this._systemRunner.push(this._world);
-		this._systemRunner.initialize();
+		this._runner.push(this._clientInfos);
+		this._runner.push(this._level);
+		this._runner.push(this._input);
+		this._runner.push(this._entities);
+		this._runner.push(this._physics);
+		this._runner.push(this._lakitu);
+		this._runner.push(this._world);
 
 	    if (this._options.host) {
 	    	this.setId(1);
 		    this._level.setLevel(LevelType.BIRDTOWN);	
 		    this._level.setSeed(Math.floor(Math.random() * 10000) + 1);
-	    	this._systemRunner.onNewClient(this._options.name, this.id());
+	    	this._runner.onNewClient(this._options.name, this.id());
 	    }
 
 	    this._engine.runRenderLoop(() => {
 	    	const frameStart = Date.now();
 
 	    	this._netcode.preUpdate();
-	    	if (this.hasId()) {
-	    		this._systemRunner.update();
-	    	}
+    		this._runner.run();
 	    	this._netcode.postUpdate();
 
 	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {
-    			const [msg, has] = this._systemRunner.message(filter);
+    			const [msg, has] = this._runner.message(filter);
 				if (has) {
 					this._netcode.broadcast(Game._channelMapping.get(filter), msg);
     			}
@@ -173,13 +173,13 @@ class Game {
 	resize() : void { this._engine.resize(); }
 	initialized() : boolean { return this._initialized; }
 	canvas() : HTMLCanvasElement { return this._canvas; }
-	hasId() : boolean { return defined(this._id); }
-	id() : number { return this._id; }
+	hasId() : boolean { return this._id.has(); }
+	id() : number { return this._id.get(); }
 	options() : GameOptions { return this._options; }
 	averageFrameTime() : number { return this._frameTimes.average(); }
 
-	systemRunner() : SystemRunner { return this._systemRunner; }
-	getSystem<T extends System>(type : SystemType) : T { return this._systemRunner.getSystem<T>(type); }
+	runner() : Runner { return this._runner; }
+	getSystem<T extends System>(type : SystemType) : T { return this._runner.getSystem<T>(type); }
 
 	// Easy access for commonly used systems
 	scene() : BABYLON.Scene { return this._world.scene(); }
@@ -227,8 +227,8 @@ class Game {
 	}
 
 	private setId(id : number) : void {
-		this._id = id;
-		this._netcode.setGameId(this._id);
+		this._id.set(id);
+		this._netcode.setGameId(id);
 
 		if (this.options().host) {
 			this._lastId = id;

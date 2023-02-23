@@ -8,6 +8,12 @@ export class Optional<T> {
 
 	constructor(value? : T) { this.set(value); }
 
+	static emptyWithDefault<T>(value : T) : Optional<T> {
+		let empty = new Optional<T>();
+		empty._value = value;
+		return empty;
+	}
+
 	clear() : void { this._has = false; }
 	set(value : T) : void {
 		this._has = defined(value);

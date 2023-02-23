@@ -55,7 +55,14 @@ export class Vec2 implements Vec {
     equals(other : Vec) : boolean { return Vec2.equals(this, other); }
 
     static isZero(vec : Vec) : boolean { return vec.x === 0 && vec.y === 0; }
+    static approxZero(vec : Vec, epsilon : number) : boolean { return Math.abs(vec.x) < epsilon && Math.abs(vec.y) < epsilon; }
     isZero() : boolean { return Vec2.isZero(this); }
+    approxZero(epsilon : number) : boolean { return Vec2.approxZero(this, epsilon); }
+    zeroEpsilon(epsilon : number) : Vec2 {
+        if (Math.abs(this.x) < epsilon) { this.x = 0; }
+        if (Math.abs(this.y) < epsilon) { this.y = 0; }
+        return this;
+    }
 
     lengthSq() : number { return this.x * this.x + this.y * this.y; }
     length() : number { return Math.sqrt(this.lengthSq()); }
@@ -112,6 +119,8 @@ export class Vec2 implements Vec {
         }
         return this;
     }
+
+    dot(vec : Vec) : number { return this.x * vec.x + this.y * vec.y; }
 
     negate() : Vec2 {
         this.x = -this.x;
