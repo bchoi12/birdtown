@@ -3,6 +3,7 @@ import { Data, DataFilter, DataMap } from 'network/data'
 import { DataPropOptions } from 'network/data_prop'
 
 import { defined } from 'util/common'
+import { Timer } from 'util/timer'
 
 export namespace GameConstants {
 	export const gravity = -0.85;
@@ -61,6 +62,8 @@ export interface GameObject {
 	millisSinceUpdate() : number;
 	millisSinceImport() : number;
 
+	addProp<T extends Object>(handler : PropHandler<T>);
+	// Deprecated
 	registerProp<T extends Object>(prop : number, handler : PropHandler<T>);
 	setFactoryFn(factoryFn : FactoryFn) : void;
 	addChild<T extends GameObject>(id : number, child : T) : T;
@@ -70,6 +73,8 @@ export interface GameObject {
 	childOrder() : Array<number>;
 	executeCallback<T extends GameObject>(cb : ChildCallback<T>) : void;
 	getChildren() : Map<number, GameObject>;
+
+	newTimer() : Timer;
 
 	shouldBroadcast() : boolean;
 	isSource() : boolean;
@@ -93,6 +98,8 @@ export abstract class GameObjectBase {
 	protected _childObjects : Map<number, GameObject>;
 	protected _dataBuffers : Map<number, Array<DataBuffer>>;
 
+	protected _timers : Array<Timer>;
+
 	protected _factoryFn : FactoryFn;
 
 	constructor(name : string) {
@@ -108,6 +115,8 @@ export abstract class GameObjectBase {
 		this._childOrder = new Array();
 		this._childObjects = new Map();
 		this._dataBuffers = new Map();
+
+		this._timers = new Array();
 	}
 
 	name() : string { return this._name; }
@@ -169,6 +178,10 @@ export abstract class GameObjectBase {
 
 	preUpdate(millis : number) : void {
 		this._lastUpdateTime = Date.now();
+
+		this._timers.forEach((timer) => {
+			timer.elapse(millis);
+		});
 
 		for (let i = 0; i < this._childOrder.length; ++i) {
 			let child = this.getChild(this._childOrder[i]);
@@ -253,6 +266,9 @@ export abstract class GameObjectBase {
 	millisSinceUpdate() : number { return Date.now() - this._lastUpdateTime; }
 	millisSinceImport() : number { return Date.now() - this._lastImportTime; }
 
+	addProp<T extends Object>(handler : PropHandler<T>) : void {
+		this.registerProp(this.numProps() + 1, handler);
+	}
 	registerProp<T extends Object>(prop : number, handler : PropHandler<T>) : void {
 		if (prop <= 0) {
 			console.error("Error: invalid prop number %d for %s", prop, this.name());
@@ -300,16 +316,25 @@ export abstract class GameObjectBase {
 			return;
 		}
 
-		this._childOrder = this._childOrder.filter((value : number) => { return value !== id});
+		const index = this._childOrder.indexOf(id);
+		if (index !== -1) {
+			this._childOrder.splice(index, 1);
+		}
 		this._childObjects.delete(id);
 	}
-	getChildren() : Map<number, GameObject> { return this._childObjects; }
 
 	childOrder() : Array<number> { return this._childOrder; }
 	executeCallback<T extends GameObject>(cb : ChildCallback<T>) : void {
 		for (let i = 0; i < this._childOrder.length; ++i) {
 			cb(this.getChild<T>(this._childOrder[i]));
 		}
+	}
+	getChildren() : Map<number, GameObject> { return this._childObjects; }
+
+	newTimer() : Timer {
+		let timer = new Timer();
+		this._timers.push(timer);
+		return timer;
 	}
 
 	// TODO: replace with default NetworkBehavior (SOURCE, RELAY, COPY)
@@ -319,8 +344,11 @@ export abstract class GameObjectBase {
 	data() : Data { return this._data; }
 
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean] {
-		let [data, hasData] = this.shouldBroadcast() ? this._data.filtered(filter, seqNum) : [{}, false];
+		if (!this.initialized()) {
+			return [{}, false];
+		}
 
+		let [data, hasData] = this.shouldBroadcast() ? this._data.filtered(filter, seqNum) : [{}, false];
 		for (let i = 0; i < this._childOrder.length; ++i) {
 			let id = this._childOrder[i];
 			let child = this.getChild(this._childOrder[i]);
@@ -337,6 +365,10 @@ export abstract class GameObjectBase {
 	}
 
 	updateData(seqNum : number) : void {
+		if (!this.initialized()) {
+			return;
+		}
+
 		if (this.isSource()) {
 			this._propHandlers.forEach((fns : PropHandler<Object>, prop : number) => {
 				if (!defined(fns.has) || fns.has()) {
@@ -352,7 +384,6 @@ export abstract class GameObjectBase {
 
 	importData(data : DataMap, seqNum : number) : void {
 		this._lastImportTime = Date.now();
-
 		for (const [stringProp, value] of Object.entries(data)) {
 			const prop = Number(stringProp);
 

@@ -62,7 +62,7 @@ export class Keys extends SystemBase implements System {
 			})
 		}
 
-		this.registerProp<Vec>(this.numProps() + 1, {
+		this.addProp<Vec>({
 			export: () => { return this._mouse.toVec(); },
 			import: (obj : Vec) => { this._mouse.copyVec(obj); },
 			options: {
@@ -70,7 +70,7 @@ export class Keys extends SystemBase implements System {
 				refreshInterval: 50,
 			},
 		});
-		this.registerProp<Vec>(this.numProps() + 1, {
+		this.addProp<Vec>({
 			export: () => { return this._dir.toVec(); },
 			import: (obj : Vec) => { this._dir.copyVec(obj); },
 			options: {

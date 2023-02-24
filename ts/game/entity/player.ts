@@ -123,7 +123,7 @@ export class Player extends EntityBase {
 		});
 		this._respawnTimer = this.newTimer();
 
-		this.registerProp(this.numProps() + 1, {
+		this.addProp({
 			export: () => { return this._canDoubleJump; },
 			import: (obj : Object) => { this._canDoubleJump = <boolean>obj; },
 		});
@@ -237,6 +237,8 @@ export class Player extends EntityBase {
 		});
 	}
 
+	dead() : boolean { return this._health.dead(); }
+
 	// TODO: fix race condition where weapon is loaded upside-down
 	equipWeapon(weapon : Weapon) : void {
 		this._weapon = weapon;
@@ -271,7 +273,7 @@ export class Player extends EntityBase {
 
 		// Gravity
 		let gravity = GameConstants.gravity;
-		if (!this._attributes.get(Attribute.GROUNDED) && this._profile.vel().y < 0) {
+		if (!this._attributes.getAttribute(Attribute.GROUNDED) && this._profile.vel().y < 0) {
 			gravity += (Player._fallMultiplier - 1) * GameConstants.gravity;
 		}
 		this._profile.setAcc({ y: gravity });
@@ -322,7 +324,7 @@ export class Player extends EntityBase {
 			this._profile.setVel({x: 0});
 		} else if (Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x)) {
 			let sideVel = this._profile.vel().x;
-			if (this._attributes.get(Attribute.GROUNDED)) {
+			if (this._attributes.getAttribute(Attribute.GROUNDED)) {
 				sideVel *= 1 / (1 + Player._friction * millis / 1000);
 			} else {
 				sideVel *= 1 / (1 + Player._airResistance * millis / 1000);
@@ -352,7 +354,7 @@ export class Player extends EntityBase {
 		}
 
 		const otherAttributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-		if (!otherAttributes.getOrDefault(Attribute.SOLID)) {
+		if (!otherAttributes.getAttribute(Attribute.SOLID)) {
 			return;
 		}
 
@@ -423,7 +425,7 @@ export class Player extends EntityBase {
 			return;
 		}
 
-		if (!this._attributes.get(Attribute.GROUNDED) || this._health.dead()) {
+		if (!this._attributes.getAttribute(Attribute.GROUNDED) || this._health.dead()) {
 			this._model.playAnimation(Animation.JUMP);
 		} else {
 			if (Math.abs(this._profile.acc().x) < 0.01) {

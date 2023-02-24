@@ -2,9 +2,12 @@ import { game } from 'game'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { System, SystemBase, SystemType } from 'game/system'
-import { EntityMap } from 'game/system/entity_map'
+import { EntityMap, EntityMapQuery } from 'game/system/entity_map'
 
-import { Optional } from 'util/optional'
+export type EntitiesQuery<T extends Entity> = {
+	type : EntityType;
+	mapQuery : EntityMapQuery<T>;
+}
 
 export class Entities extends SystemBase implements System {
 	private _lastId : number;
@@ -31,26 +34,16 @@ export class Entities extends SystemBase implements System {
 		});
 	}
 
-	override onNewClient(name : string, clientId : number) : void {
-    	this.addEntity(EntityType.PLAYER, {
-    		clientId: clientId,
-    		profileInit: {
-	    		pos: {x: 0, y: 10},
-    		},
-    	});
-	}
-
 	addMap(map : EntityMap) : EntityMap { return this.addChild<EntityMap>(map.entityType(), map); }
 	hasMap(type : EntityType) : boolean { return this.hasChild(type); }
 	getMap(type : EntityType) : EntityMap { return this.getChild<EntityMap>(type); }
 	unregisterMap(type : EntityType) : void { this.unregisterChild(type); }
 
-	// TODO: don't return optional
-	addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : Optional<T> {
+	addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : [Entity, boolean] {
 		if (!entityOptions.id) {
 			// Only allow source to create new objects. Other objects are from data import
 			if (!this.isSource()) {
-				return new Optional<T>();
+				return [null, false];
 			}
 			entityOptions.id = this.nextId();
 		} else {
@@ -73,7 +66,7 @@ export class Entities extends SystemBase implements System {
 		}
 		this.getMap(type).addEntity(entity);
 		
-		return new Optional<T>(<T>entity);
+		return [entity, true];
 	}
 
 	hasEntity(id : number) : boolean { return this._idToType.has(id); }
@@ -83,6 +76,13 @@ export class Entities extends SystemBase implements System {
 			return null;
 		}
 		return this.getMap(this._idToType.get(id)).getEntity<T>(id);
+	}
+	queryEntities<T extends Entity>(query : EntitiesQuery<T>) : T[] {
+		if (!this.hasMap(query.type)) {
+			return [];
+		}
+
+		return this.getMap(query.type).queryEntities(query.mapQuery);
 	}
 	unregisterEntity(id : number) : void {
 		if (!this._idToType.has(id)) {

@@ -1,9 +1,5 @@
 import { System, SystemBase, SystemType } from 'game/system'
 
-enum Prop {
-	UNKNOWN,
-}
-
 export class ClientInfo extends SystemBase implements System {
 
 	private _gameId;

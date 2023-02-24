@@ -49,12 +49,12 @@ export abstract class Weapon extends EntityBase {
 		this._reloadTimer = this.newTimer();
 	}
 
-	override ready() : boolean { return super.ready() && this._attributes.getOrDefault(Attribute.OWNER) > 0; }
+	override ready() : boolean { return super.ready() && this._attributes.getAttribute(Attribute.OWNER) > 0; }
 
 	override initialize() : void {
 		super.initialize();
 
-		this._owner = <number>this._attributes.get(Attribute.OWNER);
+		this._owner = <number>this._attributes.getAttribute(Attribute.OWNER);
 	}
 
 	override preUpdate(millis : number) : void {

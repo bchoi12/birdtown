@@ -38,17 +38,6 @@ export type MaxSpeedParams = {
 	maxSpeed : Vec;
 }
 
-enum Prop {
-	UNKNOWN,
-	POS,
-	VEL,
-	ACC,
-	DIM,
-	ANGLE,
-	INERTIA,
-	SCALING,
-}
-
 export class Profile extends ComponentBase implements Component {
 
 	private static readonly _minAccel = 1e-3;
@@ -97,7 +86,7 @@ export class Profile extends ComponentBase implements Component {
 			this.initFromOptions(profileOptions.init);
 		}
 
-		this.registerProp<Vec>(Prop.POS, {
+		this.addProp<Vec>({
 			has: () => { return this.hasPos(); },
 			export: () => { return this.pos().toVec(); },
 			import: (obj : Vec) => { this.setPos(obj); },
@@ -107,7 +96,7 @@ export class Profile extends ComponentBase implements Component {
 				},
 			},
 		});
-		this.registerProp<Vec>(Prop.VEL, {
+		this.addProp<Vec>({
 			has: () => { return this.hasVel(); },
 			export: () => { return this.vel().toVec(); },
 			import: (obj : Vec) => { this.setVel(obj); },
@@ -117,7 +106,7 @@ export class Profile extends ComponentBase implements Component {
 				},
 			},
 		});
-		this.registerProp<Vec>(Prop.ACC, {
+		this.addProp<Vec>({
 			has: () => { return this.hasAcc(); },
 			export: () => { return this.acc().toVec(); },
 			import: (obj : Vec) => { this.setAcc(obj); },
@@ -127,12 +116,12 @@ export class Profile extends ComponentBase implements Component {
 				},
 			},
 		});
-		this.registerProp<Vec>(Prop.DIM, {
+		this.addProp<Vec>({
 			has: () => { return this.hasDim(); },
 			export: () => { return this.dim().toVec(); },
 			import: (obj : Vec) => { this.setDim(obj); },
 		});
-		this.registerProp<number>(Prop.ANGLE, {
+		this.addProp<number>({
 			has: () => { return this.hasAngle(); },
 			export: () => { return this.angle(); },
 			import: (obj : number) => { this.setAngle(obj); },
@@ -142,12 +131,12 @@ export class Profile extends ComponentBase implements Component {
 				},
 			},
 		});
-		this.registerProp<number>(Prop.INERTIA, {
+		this.addProp<number>({
 			has: () => { return this.hasInertia(); },
 			export: () => { return this.inertia(); },
 			import: (obj : number) => { this.setInertia(obj); },
 		});
-		this.registerProp<Vec>(Prop.SCALING, {
+		this.addProp<Vec>({
 			has: () => { return this.hasScaling(); },
 			export: () => { return this.scaling().toVec(); },
 			import: (obj : Vec) => { this.setScaling(obj); },

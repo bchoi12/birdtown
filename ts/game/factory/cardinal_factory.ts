@@ -9,6 +9,10 @@ export namespace CardinalFactory {
 
 	export const sides = Cardinal.fromDirs([CardinalDir.LEFT, CardinalDir.RIGHT]);
 
+	export const noOpenings = new Map([
+		[CardinalType.OPENINGS, Cardinal.empty()]
+	]);
+
 	export const openSides = new Map([
 		[CardinalType.OPENINGS, sides],
 	]);

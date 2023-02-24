@@ -10,7 +10,6 @@ import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { ProfileInitOptions } from 'game/component/profile'
 
 import { defined } from 'util/common'
-import { Timer } from 'util/timer'
 
 export enum EntityType {
 	UNKNOWN,
@@ -55,14 +54,7 @@ export interface Entity extends GameObject {
 
 	takeDamage(amount : number, from? : Entity) : void;
 	collide(collision : MATTER.Collision, other : Entity) : void;
-	newTimer() : Timer;
 	setTTL(ttl : number);
-}
-
-enum Prop {
-	UNKNOWN,
-	CLIENT_ID,
-	DELETED,
 }
 
 export abstract class EntityBase extends GameObjectBase implements Entity {
@@ -70,8 +62,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	protected _allTypes : Set<EntityType>;
 	protected _id : number;
 	protected _clientId : number;
-
-	protected _timers : Array<Timer>;
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super("entity-" + type + "," + entityOptions.id);
@@ -88,15 +78,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			this._clientId = entityOptions.clientId;
 		}
 
-		this._timers = new Array();
-		this._notReadyCounter = 0;
-
-		this.registerProp(Prop.CLIENT_ID, {
+		this.addProp({
 			has: () => { return this.hasClientId(); },
 			export: () => { return this.clientId(); },
 			import: (obj : Object) => { this._clientId = <number>obj; },
 		});
-		this.registerProp(Prop.DELETED, {
+		this.addProp({
 			export: () => { return this.deleted(); },
 			import: (obj : Object) => { if (<boolean>obj) { this.delete(); } },
 		});
@@ -134,11 +121,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	hasComponent(type : ComponentType) : boolean { return this.hasChild(type); }
 	getComponent<T extends Component>(type : ComponentType) : T { return this.getChild<T>(type); }
 
-	newTimer() : Timer {
-		let timer = new Timer();
-		this._timers.push(timer);
-		return timer;
-	}
 	setTTL(ttl : number) : void {
 		const timer = this.newTimer();
 		timer.start(ttl, () => { this.delete(); });
@@ -150,14 +132,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this.getComponent<Health>(ComponentType.HEALTH).damage(amount, from);
 	}
 	collide(collision : MATTER.Collision, other : Entity) : void {}
-
-	override preUpdate(millis : number) : void {
-		super.preUpdate(millis);
-
-		this._timers.forEach((timer) => {
-			timer.elapse(millis);
-		});
-	}
 
 	override shouldBroadcast() : boolean { return game.options().host }
 	override isSource() : boolean { return game.options().host; }

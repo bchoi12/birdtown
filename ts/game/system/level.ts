@@ -4,7 +4,7 @@ import { game } from 'game'
 import { CardinalFactory } from 'game/factory/cardinal_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
-import { EntityType } from 'game/entity'
+import { Entity, EntityType } from 'game/entity'
 import { System, SystemBase, SystemType } from 'game/system'
 
 import { Data } from 'network/data'
@@ -16,15 +16,10 @@ import { HexColor } from 'util/hex_color'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
 
-enum Prop {
-	UNKNOWN,
-	LEVEL,
-	SEED,
-}
-
 export enum LevelType {
 	UNKNOWN,
 	BIRDTOWN,
+	LOBBY,
 }
 
 export class Level extends SystemBase implements System {
@@ -44,7 +39,7 @@ export class Level extends SystemBase implements System {
 		this._rng = new SeededRandom(0);
 		this._reloadLevel = false;
 
-		this.registerProp(Prop.LEVEL, {
+		this.addProp({
 			has: () => { return this._level > 0; },
 			export: () => { return this._level; },
 			import: (obj : Object) => { this.setLevel(<number>obj); },
@@ -52,7 +47,7 @@ export class Level extends SystemBase implements System {
 				filters: Data.tcp,
 			},
 		});
-		this.registerProp(Prop.SEED, {
+		this.addProp({
 			has: () => { return this._rng.getSeed() > 0; },
 			export: () => { return this._rng.getSeed(); },
 			import: (obj : Object) => { this._rng.seed(<number>obj); },
@@ -79,19 +74,116 @@ export class Level extends SystemBase implements System {
 		super.preUpdate(millis);
 
 		if (this._reloadLevel) {
-			this.loadLevel();
+			if (isLocalhost()) {
+				console.log("Loading level %d with seed %d", this._level, this._rng.getSeed());
+			}
+
+			this._rng.reset();
+
+			// TODO: this sucks
+			game.entities().queryEntities<Entity>({
+				type: EntityType.CRATE,
+				mapQuery: {},
+			}).forEach((entity : Entity) => {
+				entity.delete();
+			});
+			game.entities().queryEntities<Entity>({
+				type: EntityType.WALL,
+				mapQuery: {},
+			}).forEach((entity : Entity) => {
+				entity.delete();
+			});
+			game.entities().queryEntities<Entity>({
+				type: EntityType.ARCH_ROOM,
+				mapQuery: {},
+			}).forEach((entity : Entity) => {
+				entity.delete();
+			});
+			game.entities().queryEntities<Entity>({
+				type: EntityType.ARCH_ROOF,
+				mapQuery: {},
+			}).forEach((entity : Entity) => {
+				entity.delete();
+			});
+
+
+			switch (this._level) {
+			case LevelType.LOBBY:
+				this.loadLobby();
+				break;
+			case LevelType.BIRDTOWN:
+				this.loadBirdtown();
+				break;
+			}
+			this._reloadLevel = false;
+
+	    	game.runner().onLevelLoad(this._level, this._rng.getSeed());
+		}
+	}
+
+	private loadLobby() : void {
+		let entities = game.entities();
+
+		let pos = new Vec2({ x: -2 * EntityFactory.getDimension(EntityType.ARCH_ROOM).x, y: -6 });
+		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 1, y: 2}, {x: 2, y: 2 });
+
+		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
+		for (let i = 0; i < 4; ++i) {
+			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BASE, i);
+			let floors = (i % 3) === 0 ? 2 : 1;
+
+			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
+			pos.y = -6;
+			for (let j = 0; j < floors; ++j) {
+				pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
+				entities.addEntity(EntityType.ARCH_ROOM, {
+					profileInit: {
+						pos: pos,
+					},
+					cardinalsInit: {
+						cardinals: j == 0 ? CardinalFactory.noOpenings : CardinalFactory.openSides,
+					},
+					hexColorsInit: {
+						colors: colors,
+					},
+				});
+
+				pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
+			}
+
+			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOF).y / 2;
+			entities.addEntity(EntityType.ARCH_ROOF, {
+				profileInit: {
+					pos: pos,
+				},
+				cardinalsInit: {
+					cardinals: (i % 3) === 0 ? CardinalFactory.noOpenings : CardinalFactory.openSides,
+				},
+				hexColorsInit: {
+					colors: colors,
+				},
+			});
+			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOF).y / 2;
+
+			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
+			let chance = (i % 3) === 0 ? 0 : 1
+			while (this._rng.next() < chance) {
+				entities.addEntity(EntityType.CRATE, {
+					profileInit: {
+						pos: pos.clone().addRandomOffset({x: 4, y: 2}, this._rng),
+						dim: crateSizes.getRandom(this._rng),
+						angle: this._rng.next() * 360,
+					},
+				});
+				chance -= 0.15;
+			}
+
+			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 		}
 	}
 
 	// TODO: allow client to load the level themselves? Race conditions could be nasty
-	private loadLevel() : void {
-		if (isLocalhost()) {
-			console.log("Loading level %d with seed %d", this._level, this._rng.getSeed());
-		}
-
-		this._reloadLevel = false;
-		this._rng.reset();
-
+	private loadBirdtown() : void {
 		let entities = game.entities();
 		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 1, y: 2}, {x: 2, y: 2 });
 		let pos = new Vec2({ x: -6, y: -3 });
@@ -147,8 +239,6 @@ export class Level extends SystemBase implements System {
 			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOF).y / 2;
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 		}
-
-	    game.runner().onLevelLoad(this._level, this._rng.getSeed());
 	}
 }
 		

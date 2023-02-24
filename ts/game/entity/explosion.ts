@@ -62,7 +62,7 @@ export class Explosion extends EntityBase {
 		}
 
 		const otherAttributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-		if (!otherAttributes.getOrDefault(Attribute.SOLID)) {
+		if (!otherAttributes.getAttribute(Attribute.SOLID)) {
 			return;
 		}
 

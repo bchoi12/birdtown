@@ -7,11 +7,6 @@ import { Entity } from 'game/entity'
 import { RingBuffer } from 'util/ring_buffer'
 import { defined } from 'util/common'
 
-enum Prop {
-	UNKNOWN,
-	HEALTH,
-}
-
 export type HealthInitOptions = {
 	health : number;
 }
@@ -37,7 +32,7 @@ export class Health extends ComponentBase implements Component {
 		this._health = init.health;
 		this._damageBuffer = new RingBuffer(20);
 
-		this.registerProp(Prop.HEALTH, {
+		this.addProp({
 			export: () => { return this._health; },
 			import: (obj : Object) => { this._health = <number>obj; }
 		});

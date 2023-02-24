@@ -29,7 +29,7 @@ export class Bazooka extends Weapon {
 
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
 	override shoot(dir : Vec2) : boolean {
-		if (!this._model.hasMesh() || !this._attributes.get(Attribute.READY)) {
+		if (!this._model.hasMesh() || !this._attributes.getAttribute(Attribute.READY)) {
 			return false;
 		}
 
@@ -38,7 +38,7 @@ export class Bazooka extends Weapon {
 
 		let vel = unitDir.clone().scale(0.1);
 		let acc = unitDir.clone().scale(1.5);
-		let projectile = game.entities().addEntity(EntityType.ROCKET, {
+		let [rocket, hasRocket] = game.entities().addEntity(EntityType.ROCKET, {
 			profileInit: {
 				pos: {x: pos.x, y: pos.y},
 				dim: {x: 0.3, y: 0.3},
@@ -47,10 +47,10 @@ export class Bazooka extends Weapon {
 			},
 		});
 
-		projectile.runIf((p : Projectile) => {
-			p.getComponent<Attributes>(ComponentType.ATTRIBUTES).set(Attribute.OWNER, this._attributes.get(Attribute.OWNER));
-			p.setTTL(1000);
-		});
+		if (hasRocket) {
+			rocket.getComponent<Attributes>(ComponentType.ATTRIBUTES).set(Attribute.OWNER, this._attributes.getAttribute(Attribute.OWNER));
+			rocket.setTTL(1000);
+		}
 
 		this.reload(250);
 		return true;

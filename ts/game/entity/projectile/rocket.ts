@@ -60,13 +60,15 @@ export class Rocket extends Projectile {
 		super.delete();
 
 		if (this._profile.initialized()) {
-			let explosion = game.entities().addEntity(EntityType.EXPLOSION, {
+			let [explosion, hasExplosion] = game.entities().addEntity(EntityType.EXPLOSION, {
 				profileInit: {
 					pos: this._profile.pos(),
 					dim: {x: 3, y: 3},
 				},
 			});
-			explosion.runIf((e : Explosion) => { e.setTTL(200) });
+			if (hasExplosion) {
+				explosion.setTTL(200);
+			}
 		}
 	}
 
@@ -92,7 +94,7 @@ export class Rocket extends Projectile {
 			return;
 		}
 
-		if (this._attributes.get(Attribute.OWNER) === other.id()) {
+		if (this._attributes.getAttribute(Attribute.OWNER) === other.id()) {
 			return;
 		}
 
@@ -101,7 +103,7 @@ export class Rocket extends Projectile {
 		}
 
 		other.takeDamage(this.damage(), this);
-		if (other.getComponent<Attributes>(ComponentType.ATTRIBUTES).getOrDefault(Attribute.SOLID)) {
+		if (other.getComponent<Attributes>(ComponentType.ATTRIBUTES).getAttribute(Attribute.SOLID)) {
 			this.delete();
 		}
 	}

@@ -5,6 +5,7 @@ import { System, SystemType } from 'game/system'
 import { Runner } from 'game/system/runner'
 import { ClientInfos } from 'game/system/client_infos'
 import { Entities } from 'game/system/entities'
+import { GameModeDuel } from 'game/system/game_mode_duel'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
@@ -134,6 +135,7 @@ class Game {
 
 		// Order of insertion becomes order of execution
 		this._runner.push(this._clientInfos);
+		this._runner.push(new GameModeDuel());
 		this._runner.push(this._level);
 		this._runner.push(this._input);
 		this._runner.push(this._entities);
@@ -143,7 +145,7 @@ class Game {
 
 	    if (this._options.host) {
 	    	this.setId(1);
-		    this._level.setLevel(LevelType.BIRDTOWN);	
+		    this._level.setLevel(LevelType.LOBBY);	
 		    this._level.setSeed(Math.floor(Math.random() * 10000) + 1);
 	    	this._runner.onNewClient(this._options.name, this.id());
 	    }
@@ -184,6 +186,7 @@ class Game {
 	// Easy access for commonly used systems
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
+	level() : Level { return this._level; }
 	physics() : Physics { return this._physics; }
 	lakitu() : Lakitu { return this._lakitu; }
 	keys(id? : number) : Keys { return this._input.getKeys(id); }

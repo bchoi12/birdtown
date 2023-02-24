@@ -2,7 +2,7 @@
 import { DoubleMap } from 'util/double_map'
 
 export enum CardinalDir {
-	UNKNOWN,
+	NONE,
 	LEFT,
 	RIGHT,
 	TOP,
@@ -56,6 +56,9 @@ export class Cardinal {
 	static isTop(type : CardinalDir) : boolean { return Cardinal._allTop.has(type); }
 	static isBottom(type : CardinalDir) : boolean { return Cardinal._allBottom.has(type); }
 
+	static empty() : Cardinal {
+		return new Cardinal();
+	}
 	static fromDirs(types : CardinalDir[]) : Cardinal { 
 		let cardinal = new Cardinal();
 		types.forEach((type) => {

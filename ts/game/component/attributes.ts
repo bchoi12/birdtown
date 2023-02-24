@@ -14,6 +14,7 @@ export enum Attribute {
 
 	// Integer
 	OWNER,
+	TEAM,
 }
 
 enum Type {
@@ -37,6 +38,7 @@ export class Attributes extends ComponentBase implements Component {
 		[Attribute.READY, Type.BOOLEAN],
 
 		[Attribute.OWNER, Type.INTEGER],
+		[Attribute.TEAM, Type.INTEGER],
 	]);
 
 	private _attributes : Map<Attribute, Value>;
@@ -62,17 +64,16 @@ export class Attributes extends ComponentBase implements Component {
 			}
 
 			this.registerProp(attribute, {
-				has: () => { return this.has(attribute); },
-				export: () => { return this.get(attribute); },
+				has: () => { return this.hasAttribute(attribute); },
+				export: () => { return this.getAttribute(attribute); },
 				import: (obj : Object) => { this.set(attribute, <Value>obj); },
 			})
 		}
 	}
 
-	has(attribute : Attribute) : boolean { return this._attributes.has(attribute); }
-	get(attribute : Attribute) : Value { return this._attributes.get(attribute); }
-	getOrDefault(attribute : Attribute) : Value {
-		if (!this.has(attribute)) {
+	hasAttribute(attribute : Attribute) : boolean { return this._attributes.has(attribute); }
+	getAttribute(attribute : Attribute) : Value {
+		if (!this.hasAttribute(attribute)) {
 			switch(Attributes._attributeTypes.get(attribute)) {
 			case Type.BOOLEAN:
 				return false;
@@ -81,7 +82,7 @@ export class Attributes extends ComponentBase implements Component {
 				return 0;
 			}
 		}
-		return this.get(attribute);
+		return this._attributes.get(attribute);
 	}
 
 	set(attribute : Attribute, value : Value) : void {
@@ -106,7 +107,7 @@ export class Attributes extends ComponentBase implements Component {
 	}
 
 	negate(attribute : Attribute) : void {
-		const current = this.get(attribute);
+		const current = this.getAttribute(attribute);
 
 		if (typeof current === 'boolean') {
 			this.set(attribute, !current);
@@ -124,7 +125,7 @@ export class Attributes extends ComponentBase implements Component {
 			return;
 		}
 
-		const current = <number>this.get(attribute);
+		const current = <number>this.getAttribute(attribute);
 		this.set(attribute, current + <number>value);
 	}
 

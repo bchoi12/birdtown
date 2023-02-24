@@ -5,13 +5,6 @@ import { Profile } from 'game/component/profile'
 import { System, SystemBase, SystemType } from 'game/system'
 import { Entity } from 'game/entity'
 
-import { defined } from 'util/common'
-
-// TODO: camera modes
-enum Mode {
-	UNKNOWN,
-}
-
 export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 25 units
 	private static readonly _horizontalFov = 45.2397 * Math.PI / 180;
@@ -56,7 +49,7 @@ export class Lakitu extends SystemBase implements System {
 
 	override setTargetEntity(entity : Entity) {
 		if (!entity.hasComponent(ComponentType.PROFILE)) {
-			console.log("Error: %s target entity must have profile", this.name());
+			console.log("Error: target entity %s must have profile", this.name());
 			return;
 		}
 		super.setTargetEntity(entity);

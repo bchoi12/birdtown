@@ -24,6 +24,16 @@ export class ArchRoom extends ArchBase {
 	override initialize() : void {
 		super.initialize();
 
+		if (this.openings().empty()) {
+			game.entities().addEntity(EntityType.WALL, {
+				profileInit: {
+					pos: this._profile.pos().clone(),
+					dim: this._profile.dim().clone(),
+				}
+			});
+			return;
+		}
+
 		if (!this.openings().anyBottom()) {
 			game.entities().addEntity(EntityType.WALL, {
 				profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x, y: this.thickness() }),

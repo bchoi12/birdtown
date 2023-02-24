@@ -1,16 +1,11 @@
 import { game } from 'game'
 import { System, SystemBase, SystemType } from 'game/system'
 import { LevelType } from 'game/system/level'
+import { GameModeDuel } from 'game/system/game_mode_duel'
 
 import { ChannelType } from 'network/netcode'
 import { Data, DataFilter, DataMap } from 'network/data'
 import { Message, MessageType } from 'network/message'
-
-enum Prop {
-	UNKNOWN,
-	SEQ_NUM,
-	UPDATE_SPEED,
-}
 
 export class Runner extends SystemBase implements System  {
 	private static readonly _maxFrameMillis = 32;
@@ -28,14 +23,20 @@ export class Runner extends SystemBase implements System  {
 		this._seqNum = 0;
 		this._updateSpeed = 1.0;
 
-		this.registerProp<number>(Prop.SEQ_NUM, {
+		this.addProp<number>({
 			export: () => { return this._seqNum; },
 			import: (obj : number) => { this._seqNum = obj; },
 		});
-		this.registerProp<number>(Prop.UPDATE_SPEED, {
+		this.addProp<number>({
 			export: () => { return this._updateSpeed; },
 			import: (obj : number) => { this._updateSpeed = obj; },
 		});
+
+		this.setFactoryFn((type : number) => {
+			if (type === SystemType.GAME_MODE_DUEL) {
+				return new GameModeDuel();
+			}
+		})
 	}
 
 	override ready() : boolean { return super.ready() && game.hasId(); }
