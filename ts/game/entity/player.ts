@@ -78,6 +78,7 @@ export class Player extends EntityBase {
 	private _jumpTimer : Timer;
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
+	private _spawn : Vec;
 	private _respawnTimer : Timer;
 
 	private _attributes : Attributes;
@@ -113,14 +114,12 @@ export class Player extends EntityBase {
 				this._profile.resetInertia();
 				this._profile.setAngularVelocity(sign * Math.max(0.1, Math.abs(x)));
 				this._profile.setAcc({x: 0});
-				this._respawnTimer.start(Player._respawnTime, () => {
-					this._health.reset();
-					this._profile.setPos({x: 0, y: 10});
-					this._profile.stop();
-					this._profile.setInertia(Infinity);
-				});
+			} else {
+				this._profile.setInertia(Infinity);
+				this._profile.setAngularVelocity(0);
 			}
 		});
+		this._spawn = {x: 0, y: 0};
 		this._respawnTimer = this.newTimer();
 
 		this.addProp({
@@ -228,7 +227,7 @@ export class Player extends EntityBase {
 			game.keys(this.clientId()).setTargetEntity(this);
 		}
 
-		game.entities().addEntity(EntityType.BAZOOKA, {
+		this.addTrackedEntity(EntityType.BAZOOKA, {
 			attributesInit: {
 				attributes: new Map([
 					[Attribute.OWNER, this.id()],
@@ -237,6 +236,27 @@ export class Player extends EntityBase {
 		});
 	}
 
+	setSpawn(spawn : Vec) : void { this._spawn = spawn; }
+	respawn(delay? : number) : void {
+		const respawnFn = () => {
+			this._health.reset();
+			this._profile.setPos(this._spawn);
+			this._profile.stop();
+			this._profile.setInertia(Infinity);
+		}
+
+		if (!defined(delay)) {
+			respawnFn();
+			return;
+		}
+
+		if (this._respawnTimer.hasTimeLeft()) {
+			return;
+		}
+		this._respawnTimer.start(delay, () => {
+			respawnFn();
+		});
+	}
 	dead() : boolean { return this._health.dead(); }
 
 	// TODO: fix race condition where weapon is loaded upside-down

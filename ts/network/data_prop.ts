@@ -1,20 +1,22 @@
 
 import { Data, DataFilter } from 'network/data'
 
-import { defined } from 'util/common'
+import { defined, assignOr } from 'util/common'
 import { Optional } from 'util/optional'
 
 export type DataPropOptions<T extends Object> = {
+	optional? : boolean;
 	minInterval? : number;
 	refreshInterval? : number;
-	filters? : Set<DataFilter>;
+	udpRedundancies? : number;
 	equals? : (oldValue : T, newValue : T) => boolean;
 
-	redundancies? : Map<DataFilter, number>;
+	filters? : Set<DataFilter>;
 }
 
+type EqualsFn<T extends Object> = (a : T, b : T) => boolean;
+
 type PublishInfo<T extends Object> = {
-	value : T;
 	seqNum : number;
 	millis : number;
 }
@@ -25,38 +27,44 @@ export class DataProp<T extends Object> {
 	private _lastPublished : Map<DataFilter, PublishInfo<T>>;
 
 	private _seqNum : number;
-	private _changed : boolean;
+	private _lastChanged : number;
 
+	private _optional : boolean;
 	private _minInterval : number;
 	private _refreshInterval : Optional<number>;
+	private _udpRedundancies : number;
+	private _equals : EqualsFn<T>;
+
 	private _filters : Set<DataFilter>;
-	private _equals : (oldValue : T, newValue : T) => boolean;
-	private _redundancies : Map<DataFilter, number>;
 
 	constructor(propOptions : DataPropOptions<T>) {
 		this._value = new Optional();
 		this._lastPublished = new Map();
 
 		this._seqNum = 0;
-		this._changed = false;
+		this._lastChanged = 0;
 
-		this._minInterval = propOptions.minInterval > 0 ? propOptions.minInterval : 0;
-		this._refreshInterval = propOptions.refreshInterval > 0 ? new Optional(propOptions.refreshInterval) : new Optional();
-		this._filters = defined(propOptions.filters) ? propOptions.filters : Data.allFilters;
-		this._equals = propOptions.equals ? propOptions.equals : (oldValue : T, newValue : T) => { return Data.equals(oldValue, newValue); };
-		this._redundancies = defined(propOptions.redundancies) ? propOptions.redundancies : new Map([[DataFilter.UDP, 2]]);
+		this._optional = assignOr(propOptions.optional, false);
+		this._minInterval = assignOr(propOptions.minInterval, 0);
+		this._refreshInterval = new Optional(assignOr(propOptions.refreshInterval, null));
+		this._udpRedundancies = assignOr(propOptions.udpRedundancies, 2); 
+		this._equals = assignOr(propOptions.equals, (a : T, b : T) => { return Data.equals(a, b); });
+		this._filters = assignOr(propOptions.filters, Data.allFilters);
 	}
 
 	has() : boolean { return this._value.has(); }
-	changed(filter : DataFilter) : boolean {
+	changed(filter : DataFilter, seqNum : number) : boolean {
 		if (!this.has()) {
 			return false;
 		}
 		if (!this._lastPublished.has(filter)) {
 			return true;
 		}
+		if (this._lastPublished.get(filter).seqNum >= this._lastChanged) {
+			return false;
+		}
 
-		return !this._equals(this._lastPublished.get(filter).value, this.get());
+		return seqNum >= this._lastChanged;
 	}
 	get() : T { return this._value.get(); }
 
@@ -71,8 +79,11 @@ export class DataProp<T extends Object> {
 
 		this._value.set(value);
 		this._seqNum = seqNum;
+		this._lastChanged = Math.max(this._lastChanged, this._seqNum);
 		return true;
 	}
+
+	optional() : boolean { return this._optional; }
 
 	shouldPublish(filter : DataFilter, seqNum : number) : boolean {
 		if (!this.has()) {
@@ -85,6 +96,10 @@ export class DataProp<T extends Object> {
 			return true;
 		}
 
+		if (filter === DataFilter.UDP && seqNum - this._lastChanged <= this._udpRedundancies) {
+			return true;
+		}
+
 		const elapsed = Date.now() - this._lastPublished.get(filter).millis;
 		if (elapsed < this._minInterval) {
 			return false;
@@ -92,14 +107,7 @@ export class DataProp<T extends Object> {
 			return true;
 		}
 
-		if (seqNum < this._lastPublished.get(filter).seqNum) {
-			return false;
-		}
-		let redundancies = this._redundancies.has(filter) ? this._redundancies.get(filter) : 0;
-		if (seqNum - this._lastPublished.get(filter).seqNum > redundancies && !this.changed(filter)) {
-			return false;
-		}
-		return true;
+		return this.changed(filter, seqNum);
 	}
 
 	publish(filter : DataFilter, seqNum : number) : [T, boolean] {
@@ -110,13 +118,11 @@ export class DataProp<T extends Object> {
 		const value = this.get();
 		if (!this._lastPublished.has(filter)) {
 			this._lastPublished.set(filter, {
-				value: value,
 				seqNum: seqNum,
 				millis: Date.now(),
 			});	
 		} else {
 			let publishInfo = this._lastPublished.get(filter);
-			publishInfo.value = value;
 			publishInfo.seqNum = Math.max(publishInfo.seqNum, seqNum);
 			publishInfo.millis = Date.now();
 		}

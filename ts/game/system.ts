@@ -1,6 +1,6 @@
 import { game } from 'game'
-import { GameObject, GameObjectBase } from 'game/core'
-import { Entity } from 'game/entity'
+import { GameObject, GameObjectBase, NetworkBehavior } from 'game/core'
+import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { LevelType } from 'game/system/level'
 
 import { defined } from 'util/common'
@@ -9,13 +9,14 @@ export enum SystemType {
 	UNKNOWN,
 	CLIENT_INFO,
 	CLIENT_INFOS,
+	DUEL_MODE,
 	ENTITIES,
 	ENTITY_MAP,
-	GAME_MODE_DUEL,
 	INPUT,
 	KEYS,
 	LAKITU,
 	LEVEL,
+	OFFLINE_ENTITIES,
 	PHYSICS,
 	RUNNER,
 	WORLD,
@@ -58,7 +59,4 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	onSetGameId(gameId : number) : void {}
 	onNewClient(name : string, clientId : number) : void {}
 	onLevelLoad(level : LevelType, seed : number) : void {}
-
-	override shouldBroadcast() : boolean { return game.options().host; }
-	override isSource() : boolean { return game.options().host; }
 }

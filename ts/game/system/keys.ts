@@ -1,10 +1,11 @@
  import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Profile } from 'game/component/profile'
+import { NetworkBehavior } from 'game/core'
 import { Entity } from 'game/entity'
 import { System, SystemBase, SystemType } from 'game/system'
 
-import { Data } from 'network/data'
+import { Data, DataFilter } from 'network/data'
 
 import { ui, Key } from 'ui'
 import { defined } from 'util/common'
@@ -56,8 +57,8 @@ export class Keys extends SystemBase implements System {
 					}
 				},
 				options: {
-					filters: Data.udp,
-					refreshInterval: 50,
+					refreshInterval: 100,
+					filters: Data.udpFilters,
 				},
 			})
 		}
@@ -66,16 +67,16 @@ export class Keys extends SystemBase implements System {
 			export: () => { return this._mouse.toVec(); },
 			import: (obj : Vec) => { this._mouse.copyVec(obj); },
 			options: {
-				filters: Data.udp,
-				refreshInterval: 50,
+				refreshInterval: 100,
+				filters: Data.udpFilters,
 			},
 		});
 		this.addProp<Vec>({
 			export: () => { return this._dir.toVec(); },
 			import: (obj : Vec) => { this._dir.copyVec(obj); },
 			options: {
-				filters: Data.udp,
-				refreshInterval: 50,
+				refreshInterval: 100,
+				filters: Data.udpFilters,
 			},
 		});
 	}
@@ -159,6 +160,13 @@ export class Keys extends SystemBase implements System {
 		}
 	}
 
-	override isSource() : boolean { return game.id() === this._clientId; }
-	override shouldBroadcast() : boolean { return game.options().host || this.isSource(); }
+	override networkBehavior() : NetworkBehavior {
+		if (game.id() === this._clientId) {
+			return NetworkBehavior.SOURCE;
+		} else if (game.options().host) {
+			return NetworkBehavior.RELAY;
+		} else {
+			return NetworkBehavior.COPY;
+		}
+	}
 }

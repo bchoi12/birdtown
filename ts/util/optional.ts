@@ -24,7 +24,7 @@ export class Optional<T> {
 	has() : boolean { return this._has; }
 	get() : T { return this._value; }
 
-	condIf(fn : (value : T) => boolean) : boolean {
+	hasAnd(fn : (value : T) => boolean) : boolean {
 		if (!this.has()) {
 			return false;
 		}

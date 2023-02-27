@@ -1,4 +1,6 @@
 
+import { game } from 'game'
+
 import { Data, DataFilter, DataMap } from 'network/data'
 import { DataPropOptions } from 'network/data_prop'
 
@@ -27,6 +29,14 @@ export type NameParams = {
 	target? : GameObject;
 	type? : number;
 	id? : number;
+}
+
+export enum NetworkBehavior {
+	UNKNOWN,
+	SOURCE,
+	COPY,
+	RELAY,
+	OFFLINE,
 }
 
 export type FactoryFn = (id : number) => void
@@ -78,6 +88,7 @@ export interface GameObject {
 
 	shouldBroadcast() : boolean;
 	isSource() : boolean;
+	isOffline() : boolean;
 	data() : Data;
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean];
 	updateData(seqNum : number) : void;
@@ -337,14 +348,16 @@ export abstract class GameObjectBase {
 		return timer;
 	}
 
-	// TODO: replace with default NetworkBehavior (SOURCE, RELAY, COPY)
-	// can replace default network behavior on a prop level
-	abstract shouldBroadcast() : boolean;
-	abstract isSource() : boolean;
+	networkBehavior() : NetworkBehavior { return game.options().host ? NetworkBehavior.SOURCE : NetworkBehavior.COPY }
+	shouldBroadcast() : boolean {
+		return this.networkBehavior() === NetworkBehavior.SOURCE || this.networkBehavior() === NetworkBehavior.RELAY;
+	}
+	isSource() : boolean { return this.networkBehavior() === NetworkBehavior.SOURCE; }
+	isOffline() : boolean { return this.networkBehavior() === NetworkBehavior.OFFLINE; }
 	data() : Data { return this._data; }
 
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean] {
-		if (!this.initialized()) {
+		if (!this.initialized() || this.isOffline()) {
 			return [{}, false];
 		}
 
@@ -365,7 +378,7 @@ export abstract class GameObjectBase {
 	}
 
 	updateData(seqNum : number) : void {
-		if (!this.initialized()) {
+		if (!this.initialized() || this.isOffline()) {
 			return;
 		}
 
@@ -384,6 +397,11 @@ export abstract class GameObjectBase {
 
 	importData(data : DataMap, seqNum : number) : void {
 		this._lastImportTime = Date.now();
+
+		if (this.isOffline()) {
+			return;
+		}
+
 		for (const [stringProp, value] of Object.entries(data)) {
 			const prop = Number(stringProp);
 

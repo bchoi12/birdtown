@@ -14,14 +14,14 @@ export abstract class GameModeBase extends SystemBase implements System {
 			export: () => { return this._active; },
 			import: (obj : boolean) => { this._active = obj; },
 			options: {
-				filters: Data.tcp,
+				filters: Data.tcpFilters,
 			},
 		})
 		this.addProp<number>({
 			export: () => { return this.state(); },
 			import: (obj : number) => { this.setState(obj); },
 			options: {
-				filters: Data.tcp,
+				filters: Data.tcpFilters,
 			},
 		})
 	}

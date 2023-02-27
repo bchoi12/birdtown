@@ -1,7 +1,7 @@
 import { game } from 'game'
 import { System, SystemBase, SystemType } from 'game/system'
 import { LevelType } from 'game/system/level'
-import { GameModeDuel } from 'game/system/game_mode_duel'
+import { DuelMode } from 'game/system/game_mode/duel_mode'
 
 import { ChannelType } from 'network/netcode'
 import { Data, DataFilter, DataMap } from 'network/data'
@@ -26,6 +26,9 @@ export class Runner extends SystemBase implements System  {
 		this.addProp<number>({
 			export: () => { return this._seqNum; },
 			import: (obj : number) => { this._seqNum = obj; },
+			options: {
+				optional: true,
+			},
 		});
 		this.addProp<number>({
 			export: () => { return this._updateSpeed; },
@@ -33,8 +36,8 @@ export class Runner extends SystemBase implements System  {
 		});
 
 		this.setFactoryFn((type : number) => {
-			if (type === SystemType.GAME_MODE_DUEL) {
-				return new GameModeDuel();
+			if (type === SystemType.DUEL_MODE) {
+				return new DuelMode();
 			}
 		})
 	}

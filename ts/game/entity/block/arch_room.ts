@@ -25,7 +25,7 @@ export class ArchRoom extends ArchBase {
 		super.initialize();
 
 		if (this.openings().empty()) {
-			game.entities().addEntity(EntityType.WALL, {
+			this.addTrackedEntity(EntityType.WALL, {
 				profileInit: {
 					pos: this._profile.pos().clone(),
 					dim: this._profile.dim().clone(),
@@ -35,44 +35,44 @@ export class ArchRoom extends ArchBase {
 		}
 
 		if (!this.openings().anyBottom()) {
-			game.entities().addEntity(EntityType.WALL, {
+			this.addTrackedEntity(EntityType.WALL, {
 				profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x, y: this.thickness() }),
 			});
 		} else {
 			if (!this.openings().hasDir(CardinalDir.BOTTOM_LEFT)) {
-				game.entities().addEntity(EntityType.WALL, {
+				this.addTrackedEntity(EntityType.WALL, {
 					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this._profile.dim().x / 2, y: this.thickness() }),
 				});
-				game.entities().addEntity(EntityType.WALL, {
+				this.addTrackedEntity(EntityType.WALL, {
 					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this.thickness(), y: this.thickness() }),
 				});
 			}
 			if (!this.openings().hasDir(CardinalDir.BOTTOM_RIGHT)) {
-				game.entities().addEntity(EntityType.WALL, {
+				this.addTrackedEntity(EntityType.WALL, {
 					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this._profile.dim().x / 2, y: this.thickness() }),
 				});
-				game.entities().addEntity(EntityType.WALL, {
+				this.addTrackedEntity(EntityType.WALL, {
 					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this.thickness(), y: this.thickness() }),
 				});
 			}
 		}
 
 		if (this.openings().hasDir(CardinalDir.RIGHT)) {
-			game.entities().addEntity(EntityType.WALL, {
+			this.addTrackedEntity(EntityType.WALL, {
 				profileInit: this._profile.createRelativeInit(CardinalDir.TOP_RIGHT, {x: this.thickness(), y: 1.5 }),
 			});
 		} else {
-			game.entities().addEntity(EntityType.WALL, {
+			this.addTrackedEntity(EntityType.WALL, {
 				profileInit: this._profile.createRelativeInit(CardinalDir.RIGHT, {x: this.thickness(), y: this._profile.dim().y }),
 			});
 		}
 
 		if (this.openings().hasDir(CardinalDir.LEFT)) {
-			game.entities().addEntity(EntityType.WALL, {
+			this.addTrackedEntity(EntityType.WALL, {
 				profileInit: this._profile.createRelativeInit(CardinalDir.TOP_LEFT, {x: this.thickness(), y: 1.5 }),
 			});
 		} else {
-			game.entities().addEntity(EntityType.WALL, {
+			this.addTrackedEntity(EntityType.WALL, {
 				profileInit: this._profile.createRelativeInit(CardinalDir.LEFT, {x: this.thickness(), y: this._profile.dim().y }),
 			});
 		}

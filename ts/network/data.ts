@@ -16,9 +16,12 @@ export type DataMap = { [k: number]: Object }
 
 export class Data {
 	public static readonly allFilters = new Set<DataFilter>([DataFilter.INIT, DataFilter.TCP, DataFilter.UDP]);
-	public static readonly init = new Set<DataFilter>([DataFilter.INIT]);
-	public static readonly udp = new Set<DataFilter>([DataFilter.INIT, DataFilter.UDP]);
-	public static readonly tcp = new Set<DataFilter>([DataFilter.INIT, DataFilter.TCP]);
+	public static readonly initFilters = new Set<DataFilter>([DataFilter.INIT]);
+	public static readonly udpFilters = new Set<DataFilter>([DataFilter.INIT, DataFilter.UDP]);
+	public static readonly tcpFilters = new Set<DataFilter>([DataFilter.INIT, DataFilter.TCP]);
+
+	public static readonly udp = DataFilter.UDP;
+	public static readonly tcp = DataFilter.TCP;
 
 	private static readonly numberEpsilon = 1e-2;
 
@@ -60,15 +63,10 @@ export class Data {
 		this._propData.set(prop, new DataProp<T>(propOptions));
 	}
 
-	set(key : number, value : Object, seqNum : number, predicate? : () => boolean) : boolean {
+	set(key : number, value : Object, seqNum : number) : boolean {
 		if (!defined(value)) {
 			return false;
 		}
-
-		if (defined(predicate) && !predicate()) {
-			return false;
-		}
-
 		if (!this.has(key)) {
 			return false;
 		}
@@ -87,7 +85,7 @@ export class Data {
 			const [value, shouldPublish] = prop.publish(filter, seqNum);
 			if (shouldPublish) {
 				filtered[key] = value;
-				hasData = true;
+				hasData = hasData || !prop.optional();
 			}
 		});
 		return [filtered, hasData];

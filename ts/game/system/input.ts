@@ -24,21 +24,23 @@ export class Input extends SystemBase implements System {
 	override initialize() : void {
 		super.initialize();
 
-		this.addKeys(new Keys(game.id()));
+		if (!this.hasKeys(game.id())) {
+			this.addKeys(new Keys(game.id()));
+		}
 	}
 
+	hasKeys(clientId : number) : boolean { return this.hasChild(clientId); }
 	addKeys(keys : Keys) : void { this.addChild(keys.clientId(), keys); }
 	getKeys(clientId? : number) : Keys {
 		clientId = defined(clientId) ? clientId : game.id();
-
-		// TODO: Keys should be created upon initializing game ID
-		if (!this.hasChild(clientId)) {
-			this.addKeys(new Keys(clientId));
-		}
-
 		return this.getChild<Keys>(clientId);
 	}
 
-	override isSource() : boolean { return true; }
-	override shouldBroadcast() : boolean { return true; }
+	override onNewClient(name : string, clientId : number) {
+		super.onNewClient(name, clientId);
+
+		if (!this.hasKeys(clientId)) {
+			this.addKeys(new Keys(clientId));
+		}
+	}
 }

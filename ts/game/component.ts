@@ -1,5 +1,5 @@
 import { game } from 'game'
-import { GameObject, GameObjectBase } from 'game/core'
+import { GameObject, GameObjectBase, NetworkBehavior} from 'game/core'
 import { Entity } from 'game/entity'
 
 import { Data, DataFilter, DataMap } from 'network/data'
@@ -25,6 +25,7 @@ export interface Component extends GameObject {
 }
 
 export abstract class ComponentBase extends GameObjectBase implements Component {
+
 	protected _entity : Entity;
 	protected _type : ComponentType;
 
@@ -45,7 +46,4 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 		});
 		this._entity = entity;
 	}
-
-	override shouldBroadcast() : boolean { return game.options().host; }
-	override isSource() : boolean { return game.options().host; }
 }

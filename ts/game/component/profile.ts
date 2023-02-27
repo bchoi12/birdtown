@@ -40,8 +40,11 @@ export type MaxSpeedParams = {
 
 export class Profile extends ComponentBase implements Component {
 
+	private static readonly _posEpsilon = 1e-3;
 	private static readonly _minAccel = 1e-3;
 	private static readonly _minSpeed = 1e-3;
+	private static readonly _angleEpsilon = 1e-1;
+	private static readonly _sizeEpsilon = 1e-2;
 
 	private _readyFn : ReadyFn;
 	private _bodyFn : BodyFn;
@@ -88,11 +91,11 @@ export class Profile extends ComponentBase implements Component {
 
 		this.addProp<Vec>({
 			has: () => { return this.hasPos(); },
-			export: () => { return this.pos().toVec(); },
-			import: (obj : Vec) => { this.setPos(obj); },
+			export: () => {return this.pos().toVec(); },
+			import: (obj : Vec) => {this.setPos(obj); },
 			options: {
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, 1e-3);
+					return Vec2.approxEquals(a, b, Profile._posEpsilon);
 				},
 			},
 		});
@@ -102,7 +105,7 @@ export class Profile extends ComponentBase implements Component {
 			import: (obj : Vec) => { this.setVel(obj); },
 			options: {
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, 1e-3);
+					return Vec2.approxEquals(a, b, Profile._minSpeed);
 				},
 			},
 		});
@@ -112,7 +115,7 @@ export class Profile extends ComponentBase implements Component {
 			import: (obj : Vec) => { this.setAcc(obj); },
 			options: {
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, 1e-2);
+					return Vec2.approxEquals(a, b, Profile._minAccel);
 				},
 			},
 		});
@@ -127,7 +130,7 @@ export class Profile extends ComponentBase implements Component {
 			import: (obj : number) => { this.setAngle(obj); },
 			options: {
 				equals: (a : number, b : number) => {
-					return Math.abs(a - b) < 0.1;
+					return Math.abs(a - b) < Profile._angleEpsilon;
 				},
 			},
 		});
@@ -142,7 +145,7 @@ export class Profile extends ComponentBase implements Component {
 			import: (obj : Vec) => { this.setScaling(obj); },
 			options: {
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, 1e-1);
+					return Vec2.approxEquals(a, b, Profile._sizeEpsilon);
 				},
 			},
 		});
@@ -272,7 +275,7 @@ export class Profile extends ComponentBase implements Component {
 	private hasDim() : boolean { return defined(this._dim); }
 	dim() : Vec2 { return this._dim; }
 	setDim(vec : Vec) : void {
-		if (defined(this._dim) && Vec2.approxEquals(this._dim.toVec(), vec, 1e-2)) { return; }
+		if (defined(this._dim) && Vec2.approxEquals(this._dim.toVec(), vec, Profile._sizeEpsilon)) { return; }
 		if (this.hasDim()) {
 			console.error("Error: dimension is already initialized for", this.name());
 			return;
@@ -409,10 +412,10 @@ export class Profile extends ComponentBase implements Component {
 		} 
 		
 		// TODO: remove approxEqual checks?
-		if (this.hasAngle() && Math.abs(this._angle - this._body.angle) > 1e-2) {
+		if (this.hasAngle()) {
 			this.setAngle(this._body.angle);
 		}
-		if (this.hasVel() && !Vec2.approxEquals(this._vel.toVec(), this._body.velocity, 1e-3)) {
+		if (this.hasVel()) {
 			this.setVel(this._body.velocity);
 		}
 

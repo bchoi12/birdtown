@@ -38,7 +38,7 @@ export class Bazooka extends Weapon {
 
 		let vel = unitDir.clone().scale(0.1);
 		let acc = unitDir.clone().scale(1.5);
-		let [rocket, hasRocket] = game.entities().addEntity(EntityType.ROCKET, {
+		let [rocket, hasRocket] = this.addEntity(EntityType.ROCKET, {
 			profileInit: {
 				pos: {x: pos.x, y: pos.y},
 				dim: {x: 0.3, y: 0.3},

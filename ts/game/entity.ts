@@ -32,6 +32,7 @@ export enum EntityType {
 export type EntityOptions = {
 	id? : number;
 	clientId? : number;
+	levelVersion? : number;
 
 	attributesInit? : AttributesInitOptions;
 	cardinalsInit? : CardinalsInitOptions;
@@ -48,6 +49,12 @@ export interface Entity extends GameObject {
 	clientId() : number;
 	clientIdMatches() : boolean;
 
+	hasLevelVersion() : boolean;
+	levelVersion() : number;
+
+	addEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [Entity, boolean];
+	addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [Entity, boolean];
+
 	addComponent<T extends Component>(component : T) : T;
 	hasComponent(type : ComponentType) : boolean;
 	getComponent<T extends Component>(type : ComponentType) : T;
@@ -62,6 +69,8 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	protected _allTypes : Set<EntityType>;
 	protected _id : number;
 	protected _clientId : number;
+	protected _levelVersion : number;
+	protected _trackedEntities : Array<number>;
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super("entity-" + type + "," + entityOptions.id);
@@ -69,6 +78,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this._type = type;
 		this._allTypes = new Set();
 		this._allTypes.add(type);
+
+		if (entityOptions.levelVersion) {
+			this._levelVersion = entityOptions.levelVersion;
+		}
+		this._trackedEntities = [];
 
 		if (!defined(entityOptions.id)) {
 			console.error("Warning: entity type " + type + " has no id");
@@ -78,15 +92,21 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			this._clientId = entityOptions.clientId;
 		}
 
-		this.addProp({
+		this.addProp<number>({
 			has: () => { return this.hasClientId(); },
 			export: () => { return this.clientId(); },
-			import: (obj : Object) => { this._clientId = <number>obj; },
+			import: (obj : number) => { this._clientId = <number>obj; },
 		});
-		this.addProp({
+		this.addProp<boolean>({
+			has: () => { return this.deleted(); },
 			export: () => { return this.deleted(); },
-			import: (obj : Object) => { if (<boolean>obj) { this.delete(); } },
+			import: (obj : boolean) => { if (obj) { this.delete(); } },
 		});
+		this.addProp<number>({
+			export: () => { return this._levelVersion; },
+			import: (obj : number) => { this._levelVersion = obj; },
+		});
+		// TODO: add tracked entities?
 	}
 
 	override ready() : boolean {
@@ -98,6 +118,14 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			}
 		}
 		return true;
+	}
+
+	override delete() : void {
+		super.delete();
+
+		this._trackedEntities.forEach((id : number) => {
+			game.entities().deleteEntity(id);
+		});
 	}
 
 	override dispose() : void {
@@ -113,6 +141,20 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	hasClientId() : boolean { return defined(this._clientId); }
 	clientId() : number { return this._clientId; }
 	clientIdMatches() : boolean { return this.hasClientId() && this.clientId() === game.id() }
+
+	hasLevelVersion() : boolean { return defined(this._levelVersion); }
+	levelVersion() : number { return this._levelVersion; }
+
+	addEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [Entity, boolean] {
+		return game.entities().addEntity(type, options);
+	}
+	addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [Entity, boolean] {
+		const [entity, hasEntity] = this.addEntity<T>(type, options);
+		if (hasEntity) {
+			this._trackedEntities.push(entity.id());
+		}
+		return [entity, hasEntity];
+	}
 
 	addComponent<T extends Component>(component : T) : T {
 		component.setEntity(this);
@@ -132,7 +174,4 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this.getComponent<Health>(ComponentType.HEALTH).damage(amount, from);
 	}
 	collide(collision : MATTER.Collision, other : Entity) : void {}
-
-	override shouldBroadcast() : boolean { return game.options().host }
-	override isSource() : boolean { return game.options().host; }
 }
