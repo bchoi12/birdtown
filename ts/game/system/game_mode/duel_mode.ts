@@ -3,7 +3,7 @@ import { game } from 'game'
 
 import { EntityType } from 'game/entity'
 import { Player } from 'game/entity/player'
-import { SystemType } from 'game/system'
+import { NewClientMsg, SystemType } from 'game/system'
 import { GameModeBase } from 'game/system/game_mode'
 import { LevelType } from 'game/system/level'
 
@@ -39,30 +39,45 @@ export class DuelMode extends GameModeBase {
 			return;
 		}
 
+		this._state = state;
+
+		if (!this.isSource()){
+			return;
+		}
+
 		switch(state) {
 		case DuelState.SETUP:
-			break;
-		case DuelState.GAME:
 			game.level().setLevel(LevelType.BIRDTOWN);
 			game.level().setSeed(Math.floor(1000 * Math.random()));
 			this._players.forEach((player : Player) => {
+				player.setDeactivated(true);
+			});
+			break;
+		case DuelState.GAME:
+			this._players.forEach((player : Player) => {
 				player.respawn();
-			})
+				player.setDeactivated(false);
+			});
+			game.level().finishLoad();
 			break;
 		case DuelState.VICTORY:
 			this._resetTimer.start(1000, () => {
-				this.setState(DuelState.GAME);
+				this.setState(DuelState.SETUP);
 			});
 			break;
 		}
-
-		this._state = state;
 	}
 
-	override onNewClient(name : string, clientId : number) : void {
+	override onNewClient(msg : NewClientMsg) : void {
+		super.onNewClient(msg);
+
+		if (!this.isSource()) {
+			return;
+		}
+
 		if (this._state === DuelState.FREE) {
     		let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
-    			clientId: clientId,
+    			clientId: msg.gameId,
     			profileInit: {
 	    			pos: {x: 1, y: 10},
     			},
@@ -76,18 +91,16 @@ export class DuelMode extends GameModeBase {
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
-		if (this._state === DuelState.FREE) {
-			this._players = game.entities().queryEntities<Player>({
-				type: EntityType.PLAYER,
-				mapQuery: {},
-			});
-		}
-
 		if (!this.isSource()) {
 			return;
 		}
 
 		if (this._state === DuelState.FREE) {
+			this._players = game.entities().queryEntities<Player>({
+				type: EntityType.PLAYER,
+				mapQuery: {},
+			});
+
 			let initialized = 0;
 			for (const player of this._players) {
 				if (player.initialized() && !player.dead()) {
@@ -95,9 +108,13 @@ export class DuelMode extends GameModeBase {
 				}
 
 				if (initialized >= 2) {
-					this.setState(DuelState.GAME);
+					this.setState(DuelState.SETUP);
 					break;
 				}
+			}
+		} else if (this._state === DuelState.SETUP) {
+			if (game.clientStates().allLoaded()) {
+				this.setState(DuelState.GAME);
 			}
 		} else if (this._state === DuelState.GAME) {
 			let alive = 0;

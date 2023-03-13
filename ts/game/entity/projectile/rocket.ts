@@ -1,7 +1,6 @@
 import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
-import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -60,7 +59,7 @@ export class Rocket extends Projectile {
 		super.delete();
 
 		if (this._profile.initialized()) {
-			let [explosion, hasExplosion] = game.entities().addEntity(EntityType.EXPLOSION, {
+			let [explosion, hasExplosion] = this.addEntity(EntityType.EXPLOSION, {
 				profileInit: {
 					pos: this._profile.pos(),
 					dim: {x: 3, y: 3},
@@ -90,7 +89,7 @@ export class Rocket extends Projectile {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (!this.isSource() || this.deleted()) {
+		if (!this.isSource()) {
 			return;
 		}
 

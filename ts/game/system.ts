@@ -9,6 +9,8 @@ export enum SystemType {
 	UNKNOWN,
 	CLIENT_INFO,
 	CLIENT_INFOS,
+	CLIENT_STATE,
+	CLIENT_STATES,
 	DUEL_MODE,
 	ENTITIES,
 	ENTITY_MAP,
@@ -16,7 +18,6 @@ export enum SystemType {
 	KEYS,
 	LAKITU,
 	LEVEL,
-	OFFLINE_ENTITIES,
 	PHYSICS,
 	RUNNER,
 	WORLD,
@@ -30,8 +31,19 @@ export interface System extends GameObject {
 	setTargetEntity(entity : Entity) : void;
 
 	onSetGameId(gameId : number) : void;
-	onNewClient(name : string, clientId : number) : void;
-	onLevelLoad(level : LevelType, seed : number) : void;
+	onNewClient(msg : NewClientMsg) : void;
+	onLevelLoad(msg : LevelLoadMsg) : void;
+}
+
+export type NewClientMsg = {
+	name : string;
+	gameId : number;
+}
+
+export type LevelLoadMsg = {
+	level : LevelType;
+	version : number;
+	seed : number;
 }
 
 export abstract class SystemBase extends GameObjectBase implements System {
@@ -56,7 +68,51 @@ export abstract class SystemBase extends GameObjectBase implements System {
 		});
 	}
 
-	onSetGameId(gameId : number) : void {}
-	onNewClient(name : string, clientId : number) : void {}
-	onLevelLoad(level : LevelType, seed : number) : void {}
+	onSetGameId(gameId : number) : void {
+		this.executeCallback<System>((system : System) => {
+			if (defined(system.onSetGameId)) {
+				system.onSetGameId(gameId);
+			}
+		});
+	}
+	onNewClient(msg : NewClientMsg) : void {
+		this.executeCallback<System>((system : System) => {
+			if (defined(system.onNewClient)) {
+				system.onNewClient(msg);
+			}
+		});
+	}
+	onLevelLoad(msg : LevelLoadMsg) : void {
+		this.executeCallback<System>((system : System) => {
+			if (defined(system.onLevelLoad)) {
+				system.onLevelLoad(msg);
+			}
+		});
+	}
+}
+
+export abstract class ClientSystem extends SystemBase implements System {
+	protected _gameId : number;
+
+	constructor(type : SystemType, gameId : number) {
+		super(type);
+
+		this._gameId = gameId;
+
+		this.setName({
+			base: "client_system",
+		});
+	}
+
+	gameId() : number { return this._gameId; }
+
+	override networkBehavior() : NetworkBehavior {
+		if (game.id() === this.gameId()) {
+			return NetworkBehavior.SOURCE;
+		} else if (this.isHost()) {
+			return NetworkBehavior.RELAY;
+		} else {
+			return NetworkBehavior.COPY;
+		}
+	}
 }

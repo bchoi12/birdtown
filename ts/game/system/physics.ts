@@ -66,15 +66,20 @@ export class Physics extends SystemBase implements System {
 				return;
 			}
 
-			if (!entities.hasEntity(idA) || !entities.hasEntity(idB)) {
+			const [entityA, hasEntityA] = entities.getEntity(idA);
+			const [entityB, hasEntityB] = entities.getEntity(idB);
+
+			if (!hasEntityA || !hasEntityB) {
+				console.error("Error: skipping collision with missing entity", idA, hasEntityA, idB, hasEntityB);
 				return;
 			}
 
-			const entityA = entities.getEntity(idA);
-			const entityB = entities.getEntity(idB);
-
 			if (!entityA.initialized() || !entityB.initialized()) {
 				console.error("Error: skipping collision between uninitialized entities", entityA.name(), entityB.name());
+				return;
+			}
+
+			if (entityA.deleted() || entityB.deleted()) {
 				return;
 			}
 

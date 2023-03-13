@@ -3,7 +3,7 @@ import { ComponentType } from 'game/component'
 import { Profile } from 'game/component/profile'
 import { NetworkBehavior } from 'game/core'
 import { Entity } from 'game/entity'
-import { System, SystemBase, SystemType } from 'game/system'
+import { ClientSystem, System, SystemType } from 'game/system'
 
 import { Data, DataFilter } from 'network/data'
 
@@ -19,22 +19,20 @@ enum KeyState {
 	UP,
 }
 
-export class Keys extends SystemBase implements System {
-	private _clientId : number;
+export class Keys extends ClientSystem implements System {
 	private _keys : Set<Key>;
 	private _keyStates : Map<Key, KeyState>;
 	private _mouse : Vec2;
 	private _dir : Vec2;
 
-	constructor(clientId : number) {
-		super(SystemType.KEYS);
+	constructor(gameId : number) {
+		super(SystemType.KEYS, gameId);
 
 		this.setName({
 			base: "keys",
-			id: clientId,
+			id: this.gameId(),
 		});
 
-		this._clientId = clientId;
 		this._keys = new Set();
 		this._keyStates = new Map();
 		this._mouse = Vec2.zero();
@@ -80,8 +78,6 @@ export class Keys extends SystemBase implements System {
 			},
 		});
 	}
-
-	clientId() : number { return this._clientId; }
 
 	keyDown(key : Key) : boolean { return this._keyStates.has(key) && (this._keyStates.get(key) === KeyState.DOWN || this.keyPressed(key)); }
 	keyUp(key : Key) : boolean { return this._keyStates.has(key) && (this._keyStates.get(key) === KeyState.UP || this.keyReleased(key)); }
@@ -157,16 +153,6 @@ export class Keys extends SystemBase implements System {
 
 		if (this.isSource()) {
 			this.updateMouse();
-		}
-	}
-
-	override networkBehavior() : NetworkBehavior {
-		if (game.id() === this._clientId) {
-			return NetworkBehavior.SOURCE;
-		} else if (game.options().host) {
-			return NetworkBehavior.RELAY;
-		} else {
-			return NetworkBehavior.COPY;
 		}
 	}
 }

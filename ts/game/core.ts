@@ -73,9 +73,9 @@ export interface GameObject {
 	millisSinceImport() : number;
 
 	addProp<T extends Object>(handler : PropHandler<T>);
-	// Deprecated
 	registerProp<T extends Object>(prop : number, handler : PropHandler<T>);
 	setFactoryFn(factoryFn : FactoryFn) : void;
+	getFactoryFn() : FactoryFn;
 	addChild<T extends GameObject>(id : number, child : T) : T;
 	hasChild(id : number) : boolean;
 	getChild<T extends GameObject>(id : number) : T;
@@ -87,7 +87,9 @@ export interface GameObject {
 	newTimer() : Timer;
 
 	shouldBroadcast() : boolean;
+	isHost() : boolean;
 	isSource() : boolean;
+	setOffline(offline : boolean) : void;
 	isOffline() : boolean;
 	data() : Data;
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean];
@@ -98,6 +100,7 @@ export interface GameObject {
 export abstract class GameObjectBase {
 	protected _name : string;
 	protected _initialized : boolean;
+	protected _offline : boolean;
 	protected _deleted : boolean;
 	protected _notReadyCounter : number;
 	protected _lastUpdateTime : number;
@@ -116,6 +119,7 @@ export abstract class GameObjectBase {
 	constructor(name : string) {
 		this._name = name;
 		this._initialized = false;
+		this._offline = false;
 		this._deleted = false;
 		this._notReadyCounter = 0;
 		this._lastUpdateTime = Date.now();
@@ -299,6 +303,7 @@ export abstract class GameObjectBase {
 	}
 
 	setFactoryFn(factoryFn : FactoryFn) : void { this._factoryFn = factoryFn; }
+	getFactoryFn() : FactoryFn { return this._factoryFn; }
 	addChild<T extends GameObject>(id : number, child : T) : T {
 		if (id <= 0) {
 			console.error("Error: invalid child object ID %d for %s", id, this.name());
@@ -348,12 +353,19 @@ export abstract class GameObjectBase {
 		return timer;
 	}
 
-	networkBehavior() : NetworkBehavior { return game.options().host ? NetworkBehavior.SOURCE : NetworkBehavior.COPY }
+	networkBehavior() : NetworkBehavior {
+		if (this._offline) {
+			return NetworkBehavior.OFFLINE;
+		}
+		return this.isHost() ? NetworkBehavior.SOURCE : NetworkBehavior.COPY
+	}
 	shouldBroadcast() : boolean {
 		return this.networkBehavior() === NetworkBehavior.SOURCE || this.networkBehavior() === NetworkBehavior.RELAY;
 	}
+	isHost() : boolean { return game.options().host; }
 	isSource() : boolean { return this.networkBehavior() === NetworkBehavior.SOURCE; }
-	isOffline() : boolean { return this.networkBehavior() === NetworkBehavior.OFFLINE; }
+	setOffline(offline : boolean) : void { this._offline = offline; }
+	isOffline() : boolean { return this._offline; }
 	data() : Data { return this._data; }
 
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean] {

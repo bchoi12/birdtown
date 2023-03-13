@@ -32,6 +32,7 @@ export enum EntityType {
 export type EntityOptions = {
 	id? : number;
 	clientId? : number;
+	offline? : boolean;
 	levelVersion? : number;
 
 	attributesInit? : AttributesInitOptions;
@@ -92,10 +93,14 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			this._clientId = entityOptions.clientId;
 		}
 
+		if (entityOptions.offline) {
+			this.setOffline(entityOptions.offline);
+		}
+
 		this.addProp<number>({
 			has: () => { return this.hasClientId(); },
 			export: () => { return this.clientId(); },
-			import: (obj : number) => { this._clientId = <number>obj; },
+			import: (obj : number) => { this._clientId = obj; },
 		});
 		this.addProp<boolean>({
 			has: () => { return this.deleted(); },
@@ -103,10 +108,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			import: (obj : boolean) => { if (obj) { this.delete(); } },
 		});
 		this.addProp<number>({
+			has: () => { return this.hasLevelVersion(); },
 			export: () => { return this._levelVersion; },
 			import: (obj : number) => { this._levelVersion = obj; },
 		});
-		// TODO: add tracked entities?
 	}
 
 	override ready() : boolean {

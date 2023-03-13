@@ -6,6 +6,7 @@ import { Optional } from 'util/optional'
 
 export type DataPropOptions<T extends Object> = {
 	optional? : boolean;
+	conditionalInterval? : IntervalFn<T>;
 	minInterval? : number;
 	refreshInterval? : number;
 	udpRedundancies? : number;
@@ -14,8 +15,8 @@ export type DataPropOptions<T extends Object> = {
 	filters? : Set<DataFilter>;
 }
 
+type IntervalFn<T extends Object> = (t : T, elapsed : number) => boolean;
 type EqualsFn<T extends Object> = (a : T, b : T) => boolean;
-
 type PublishInfo<T extends Object> = {
 	seqNum : number;
 	millis : number;
@@ -31,6 +32,7 @@ export class DataProp<T extends Object> {
 
 	private _optional : boolean;
 	private _minInterval : number;
+	private _conditionalInterval : Optional<IntervalFn<T>>;
 	private _refreshInterval : Optional<number>;
 	private _udpRedundancies : number;
 	private _equals : EqualsFn<T>;
@@ -47,6 +49,7 @@ export class DataProp<T extends Object> {
 		this._optional = assignOr(propOptions.optional, false);
 		this._minInterval = assignOr(propOptions.minInterval, 0);
 		this._refreshInterval = new Optional(assignOr(propOptions.refreshInterval, null));
+		this._conditionalInterval = new Optional(assignOr(propOptions.conditionalInterval, null));
 		this._udpRedundancies = assignOr(propOptions.udpRedundancies, 2); 
 		this._equals = assignOr(propOptions.equals, (a : T, b : T) => { return Data.equals(a, b); });
 		this._filters = assignOr(propOptions.filters, Data.allFilters);
@@ -104,6 +107,9 @@ export class DataProp<T extends Object> {
 		if (elapsed < this._minInterval) {
 			return false;
 		} else if (this._refreshInterval.has() && elapsed > this._refreshInterval.get()) {
+			return true;
+		} else if (this._conditionalInterval.has() && this._conditionalInterval.get()(this.get(), elapsed)) {
+			console.log("INTERVAL OVERRIDE");
 			return true;
 		}
 

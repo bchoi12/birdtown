@@ -75,6 +75,7 @@ export class Player extends EntityBase {
 	private _totalPenetration : Vec2;
 	private _maxNormal : Vec2;
 
+	private _deactivated : boolean;
 	private _jumpTimer : Timer;
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
@@ -102,6 +103,7 @@ export class Player extends EntityBase {
 		this._totalPenetration = Vec2.zero();
 		this._maxNormal = Vec2.zero();
 
+		this._deactivated = false;
 		this._jumpTimer = this.newTimer();
 		this._canDoubleJump = true;
 		this._deadTracker = new ChangeTracker(() => {
@@ -227,13 +229,15 @@ export class Player extends EntityBase {
 			game.keys(this.clientId()).setTargetEntity(this);
 		}
 
-		this.addTrackedEntity(EntityType.BAZOOKA, {
-			attributesInit: {
-				attributes: new Map([
-					[Attribute.OWNER, this.id()],
-				]),
-			},
-		});
+		this._model.onLoad(() => {
+			this.addTrackedEntity(EntityType.BAZOOKA, {
+				attributesInit: {
+					attributes: new Map([
+						[Attribute.OWNER, this.id()],
+					]),
+				},
+			});
+		})
 	}
 
 	setSpawn(spawn : Vec) : void { this._spawn = spawn; }
@@ -257,6 +261,7 @@ export class Player extends EntityBase {
 			respawnFn();
 		});
 	}
+	setDeactivated(deactivated : boolean) : void { this._deactivated = deactivated; }
 	dead() : boolean { return this._health.dead(); }
 
 	// TODO: fix race condition where weapon is loaded upside-down
@@ -298,7 +303,7 @@ export class Player extends EntityBase {
 		}
 		this._profile.setAcc({ y: gravity });
 
-		if (!this._health.dead()) {
+		if (!this._health.dead() && !this._deactivated) {
 			// Keypress acceleration
 			if (game.keys(this.clientId()).keyDown(Key.LEFT)) {
 				this._profile.setAcc({ x: -Player._sideAcc });

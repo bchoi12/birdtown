@@ -3,14 +3,13 @@ import * as BABYLON from "babylonjs";
 import { Data, DataFilter, DataMap } from 'network/data'
 import { System, SystemType } from 'game/system'
 import { Runner } from 'game/system/runner'
-import { ClientInfos } from 'game/system/client_infos'
+import { ClientStates } from 'game/system/client_states'
 import { Entities } from 'game/system/entities'
 import { DuelMode } from 'game/system/game_mode/duel_mode'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
 import { Level, LevelType } from 'game/system/level'
-import { OfflineEntities } from 'game/system/offline_entities'
 import { Physics } from 'game/system/physics'
 import { World } from 'game/system/world'
 
@@ -53,9 +52,8 @@ class Game {
 	private _netcode : Netcode;
 
 	private _runner : Runner;
-	private _clientInfos : ClientInfos;
+	private _clientStates : ClientStates;
 	private _entities : Entities;
-	private _offlineEntities : OfflineEntities;
 	private _input : Input;
 	private _lakitu : Lakitu;
 	private _level : Level;
@@ -64,7 +62,7 @@ class Game {
 
 	constructor() {
 		this._initialized = false;
-		this._id = Optional.emptyWithDefault(-1);
+		this._id = Optional.empty(-1);
 		this._canvas = Html.canvasElm(Html.canvasGame);
 		this._frameTimes = new NumberRingBuffer(60);
 	}
@@ -87,7 +85,10 @@ class Game {
 					T: MessageType.INIT_CLIENT,
 					D: gameId,
 				});
-				this._runner.onNewClient(name, gameId);
+				this._runner.onNewClient({
+					name: name,
+					gameId: gameId,
+				});
 
 				if (isLocalhost()) {
 					console.log("Registered new client to game:", gameId);
@@ -126,9 +127,8 @@ class Game {
 		this._netcode.initialize();
 
 		this._runner = new Runner();
-		this._clientInfos = new ClientInfos();
+		this._clientStates = new ClientStates();
 		this._entities = new Entities();
-		this._offlineEntities = new OfflineEntities();
 		this._input = new Input();
 		this._level = new Level();
 		this._physics = new Physics();
@@ -137,12 +137,11 @@ class Game {
 		this._lakitu = new Lakitu(this._world.scene());
 
 		// Order of insertion becomes order of execution
-		this._runner.push(this._clientInfos);
+		this._runner.push(this._clientStates);
 		this._runner.push(new DuelMode());
 		this._runner.push(this._level);
 		this._runner.push(this._input);
 		this._runner.push(this._entities);
-		this._runner.push(this._offlineEntities);
 		this._runner.push(this._physics);
 		this._runner.push(this._lakitu);
 		this._runner.push(this._world);
@@ -151,7 +150,6 @@ class Game {
 	    	this.setId(1);
 		    this._level.setLevel(LevelType.LOBBY);	
 		    this._level.setSeed(Math.floor(Math.random() * 10000) + 1);
-	    	this._runner.onNewClient(this._options.name, this.id());
 	    }
 
 	    this._engine.runRenderLoop(() => {
@@ -190,12 +188,12 @@ class Game {
 	// Easy access for commonly used systems
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
+	clientStates() : ClientStates { return this._clientStates; }
 	level() : Level { return this._level; }
 	physics() : Physics { return this._physics; }
 	lakitu() : Lakitu { return this._lakitu; }
 	keys(id? : number) : Keys { return this._input.getKeys(id); }
 	entities() : Entities { return this._entities; }
-	offlineEntities() : OfflineEntities { return this._offlineEntities; }
 	netcode() : Netcode { return this._netcode; }
 
 	// For some reason this has to be here for typescript
@@ -237,6 +235,11 @@ class Game {
 	private setId(id : number) : void {
 		this._id.set(id);
 		this._netcode.setGameId(id);
+
+    	this._runner.onNewClient({
+    		name: this._options.name,
+    		gameId: id,
+    	});
 
 		if (this.options().host) {
 			this._lastId = id;

@@ -1,5 +1,3 @@
-import * as MATTER from 'matter-js'
-
 import { game } from 'game'	
 import { CardinalFactory } from 'game/factory/cardinal_factory'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -24,8 +22,9 @@ export enum LevelType {
 
 enum State {
 	UNKNOWN,
-	WAITING,
+	READY,
 	UNLOAD,
+	SYNC_CLIENTS,
 	LOAD,
 }
 
@@ -47,37 +46,63 @@ export class Level extends SystemBase implements System {
 		this._level = LevelType.UNKNOWN;
 		this._rng = new SeededRandom(0);
 		this._version = 0;
-		this._state = State.WAITING;
+		this._state = State.READY;
 
 		this.addProp<number>({
 			has: () => { return this._level > 0; },
 			export: () => { return this._level; },
 			import: (obj : number) => { this.setLevel(obj); },
+			options: {
+				conditionalInterval: (obj : number, elapsed : number) => {
+					return this._state === State.SYNC_CLIENTS && elapsed >= 1000;
+				},
+			},
 		});
 		this.addProp<number>({
 			has: () => { return this._rng.getSeed() > 0; },
 			export: () => { return this._rng.getSeed(); },
-			import: (obj : number) => { this._rng.seed(obj); },
+			import: (obj : number) => { this.setSeed(obj); },
+			options: {
+				conditionalInterval: (obj : number, elapsed : number) => {
+					return this._state === State.SYNC_CLIENTS && elapsed >= 1000;
+				},
+			},
 		});
 		this.addProp<number>({
 			has: () => { return this._version > 0; },
 			export: () => { return this._version; },
 			import: (obj : number) => { this._version = obj; },
+			options: {
+				conditionalInterval: (obj : number, elapsed : number) => {
+					return this._state === State.SYNC_CLIENTS && elapsed >= 1000;
+				},
+			},
 		})
 	}
+
+	version() : number { return this._version; }
 
 	setLevel(level : LevelType) : void {
 		if (level !== LevelType.UNKNOWN && this._level !== level) {
 			this._level = level;
+
+			if (this._state === State.READY) {
+				this._version++;
+			}
 			this._state = State.UNLOAD;
 		}
 	}
 	setSeed(seed : number) : void {
 		if (seed > 0 && this._rng.getSeed() !== seed) {
 			this._rng.seed(seed);
+
+			if (this._state === State.READY) {
+				this._version++;
+			}
 			this._state = State.UNLOAD;
 		}
 	}
+	finishLoad() : void { this._state = State.READY; }
 
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
@@ -88,8 +113,6 @@ export class Level extends SystemBase implements System {
 			}
 
 			this._rng.reset();
-			this._version++;
-
 			// TODO: allow client to load the level themselves? Race conditions could be nasty
 			switch (this._level) {
 			case LevelType.LOBBY:
@@ -100,8 +123,12 @@ export class Level extends SystemBase implements System {
 				break;
 			}
 
-	    	game.runner().onLevelLoad(this._level, this._rng.getSeed());
-			this._state = State.WAITING;
+	    	game.runner().onLevelLoad({
+	    		level: this._level,
+	    		seed: this._rng.getSeed(),
+	    		version: this._version,
+	    	});
+			this._state = State.READY;
 		}
 	}
 
@@ -109,17 +136,11 @@ export class Level extends SystemBase implements System {
 		super.postRender(millis);
 
 		if (this._state === State.UNLOAD) {
-			game.offlineEntities().queryEntities<Entity>({
-				mapQuery: {
-					filter: (entity : Entity) => { return entity.hasLevelVersion() && entity.levelVersion() <= this._version; },
-				},
-			}).forEach((entity : Entity) => {
-				entity.delete();
-			});
-
 			game.entities().queryEntities<Entity>({
 				mapQuery: {
-					filter: (entity : Entity) => { return entity.hasLevelVersion() && entity.levelVersion() <= this._version; },
+					filter: (entity : Entity) => {
+						return !entity.initialized() || entity.hasLevelVersion() && entity.levelVersion() <= this._version;
+					},
 				},
 			}).forEach((entity : Entity) => {
 				entity.delete();
@@ -243,11 +264,6 @@ export class Level extends SystemBase implements System {
 			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOF).y / 2;
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 		}
-	}
-
-	private addOfflineEntity(type : EntityType, entityOptions : EntityOptions) : [Entity, boolean] {
-		entityOptions.levelVersion = this._version;
-		return game.offlineEntities().addEntity(type, entityOptions);
 	}
 
 	private addEntity(type : EntityType, entityOptions : EntityOptions) : [Entity, boolean] {

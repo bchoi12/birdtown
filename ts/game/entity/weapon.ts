@@ -65,8 +65,9 @@ export abstract class Weapon extends EntityBase {
 		}
 
 		if (!defined(this._player)) {
-			if (game.entities().hasEntity(this._owner)) {
-				this._player = game.entities().getEntity<Player>(this._owner);
+			const [player, hasPlayer] = game.entities().getEntity<Player>(this._owner);
+			if (hasPlayer) {
+				this._player = player;
 				this._player.equipWeapon(this);
 			}
 		}

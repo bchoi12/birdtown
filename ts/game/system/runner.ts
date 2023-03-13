@@ -1,5 +1,5 @@
 import { game } from 'game'
-import { System, SystemBase, SystemType } from 'game/system'
+import { LevelLoadMsg, NewClientMsg, System, SystemBase, SystemType } from 'game/system'
 import { LevelType } from 'game/system/level'
 import { DuelMode } from 'game/system/game_mode/duel_mode'
 
@@ -85,31 +85,28 @@ export class Runner extends SystemBase implements System  {
     	this.updateData(this._seqNum);
 	}
 
-	override onSetGameId(gameId : number) : void {
-		this.executeCallback<System>((system : System) => {
-			system.onSetGameId(gameId);
-		});
-	}
+	override onNewClient(msg : NewClientMsg) : void {
+		super.onNewClient(msg);
 
-	override onNewClient(name : string, clientId : number) : void {
-		this.executeCallback<System>((system : System) => {
-			system.onNewClient(name, clientId);
-		});
-
-		if (game.options().host) {
+		if (this.isSource()) {
 			const connection = game.netcode();
 			const [message, has] = this.message(DataFilter.INIT);
 			if (has) {
 				connection.broadcast(ChannelType.TCP, message);
 			}
-
 		}
 	}
 
-	override onLevelLoad(level : LevelType, seed : number) : void {
-		this.executeCallback<System>((system : System) => {
-			system.onLevelLoad(level, seed);
-		});
+	override onLevelLoad(msg : LevelLoadMsg) : void {
+		super.onLevelLoad(msg);
+
+		if (this.isSource()) {
+			const connection = game.netcode();
+			const [message, has] = this.message(DataFilter.INIT);
+			if (has) {
+				connection.broadcast(ChannelType.TCP, message);
+			}
+		}
 	}
 
 	message(filter : DataFilter) : [Message, boolean] {
