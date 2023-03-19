@@ -1,6 +1,7 @@
 
 import { Handler } from 'ui/handler'
 import { ChatHandler } from 'ui/handler/chat_handler'
+import { DialogHandler } from 'ui/handler/dialog_handler'
 import { InputHandler } from 'ui/handler/input_handler'
 import { KeyBindHandler } from 'ui/handler/key_bind_handler'
 import { LoginHandler } from 'ui/handler/login_handler'
@@ -23,6 +24,7 @@ export enum HandlerType {
 	UNKNOWN,
 
 	CHAT,
+	DIALOGS,
 	INPUT,
 	KEY_BIND,
 	LOGIN,
@@ -55,6 +57,7 @@ class UI {
 	private _handlers : Map<HandlerType, Handler>;
 
 	private _chatHandler : ChatHandler;
+	private _dialogHandler : DialogHandler;
 	private _inputHandler : InputHandler;
 	private _keyBindHandler : KeyBindHandler;
 	private _loginHandler : LoginHandler;
@@ -68,6 +71,7 @@ class UI {
 		this._handlers = new Map();		
 
 		this._chatHandler = this.add<ChatHandler>(new ChatHandler());
+		this._dialogHandler = this.add<DialogHandler>(new DialogHandler());
 		this._inputHandler = this.add<InputHandler>(new InputHandler());
 		this._keyBindHandler = this.add<KeyBindHandler>(new KeyBindHandler());
 		this._loginHandler = this.add<LoginHandler>(new LoginHandler());
@@ -100,6 +104,14 @@ class UI {
 	keys() : Set<Key> { return this._inputHandler.keys(); }
 	mouse() : Vec { return this._inputHandler.mouse(); }
 	resetKeyBinds() : void { this._inputHandler.reset(); }
+
+	pushDialog(onSubmit : () => void) : void {
+		this._dialogHandler.pushDialog({
+			titleHtml: "hello",
+			textHtml: "dialog",
+			onSubmit: [onSubmit],
+		});
+	}
 }
 
 export const ui = new UI();

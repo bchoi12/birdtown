@@ -4,10 +4,13 @@ import { game } from 'game'
 import { EntityType } from 'game/entity'
 import { Player } from 'game/entity/player'
 import { NewClientMsg, SystemType } from 'game/system'
+import { ClientState } from 'game/system/client_state'
 import { GameModeBase } from 'game/system/game_mode'
 import { LevelType } from 'game/system/level'
 
 import { Data } from 'network/data'
+
+import { ui } from 'ui'
 
 import { Timer } from 'util/timer'
 
@@ -41,11 +44,19 @@ export class DuelMode extends GameModeBase {
 
 		this._state = state;
 
+		if (this._state === DuelState.SETUP) {
+			game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
+				if (clientState.gameId() === game.id()) {
+					clientState.requestReadyState();
+				}
+			});
+		}
+
 		if (!this.isSource()){
 			return;
 		}
 
-		switch(state) {
+		switch(this._state) {
 		case DuelState.SETUP:
 			game.level().setLevel(LevelType.BIRDTOWN);
 			game.level().setSeed(Math.floor(1000 * Math.random()));

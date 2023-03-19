@@ -28,12 +28,10 @@ export class ClientStates extends SystemBase implements System {
 		const order = this.childOrder();
 		for (let i = 0; i < order.length; ++i) {
 			const state = this.getClientState(order[i]);
-			if (state.levelVersion() !== levelVersion) {
+			if (!state.prepared() || state.levelVersion() !== levelVersion) {
 				return false;
 			}
 		}
-
-		console.log("All %d loaded on %d", order.length, levelVersion);
 		return true;
 	}
 

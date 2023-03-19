@@ -44,6 +44,7 @@ export class KeyBindWrapper extends HtmlWrapper {
 		this.elm().onclick = (e) => {
 			this.setActive(!this._active);
 		};
+
 		document.addEventListener("keydown", (e) => {
 			if (!this._active || !defined(e.keyCode)) {
 				return;

@@ -1,8 +1,19 @@
+
+import { game } from 'game'
 import { LevelLoadMsg, ClientSystem, System, SystemType } from 'game/system'
+
+import { ui } from 'ui'
+
+enum ReadyState {
+	UNKNOWN,
+	WAITING,
+	READY,
+}
 
 export class ClientState extends ClientSystem implements System {
 
 	private _displayName : string;
+	private _readyState : ReadyState;
 	private _levelVersion : number;
 
 	constructor(gameId : number) {
@@ -14,12 +25,18 @@ export class ClientState extends ClientSystem implements System {
 		});
 
 		this._displayName = "";
+		this._readyState = ReadyState.UNKNOWN;
 		this._levelVersion = 0;
 
 		this.addProp<string>({
 			has: () => { return this._displayName.length > 0; },
 			export: () => { return this._displayName; },
 			import: (obj: string) => { this._displayName = obj; },
+		});
+		this.addProp<ReadyState>({
+			has: () => { return this.readyState() !== ReadyState.UNKNOWN; },
+			export: () => { return this.readyState(); },
+			import: (obj : ReadyState) => { this.setReadyState(obj); },
 		});
 		this.addProp<number>({
 			has: () => { return this._levelVersion > 0; },
@@ -30,6 +47,29 @@ export class ClientState extends ClientSystem implements System {
 
 	setDisplayName(name : string) : void { this._displayName = name; }
 	levelVersion() : number { return this._levelVersion; }
+
+	prepared() : boolean { return this._readyState === ReadyState.READY; }
+	readyState() : ReadyState { return this._readyState; }
+	requestReadyState() : void { this.setReadyState(ReadyState.WAITING); }
+	setReadyState(readyState : ReadyState) : void {
+		if (this._readyState === readyState) {
+			return;
+		}
+
+		this._readyState = readyState;
+
+		if (!this.isSource()) {
+			return;
+		}
+
+		switch(this._readyState) {
+		case ReadyState.WAITING:
+			ui.pushDialog(() => {
+				this.setReadyState(ReadyState.READY);
+			});
+			break;
+		}
+	}
 
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);

@@ -109,7 +109,6 @@ export class DataProp<T extends Object> {
 		} else if (this._refreshInterval.has() && elapsed > this._refreshInterval.get()) {
 			return true;
 		} else if (this._conditionalInterval.has() && this._conditionalInterval.get()(this.get(), elapsed)) {
-			console.log("INTERVAL OVERRIDE");
 			return true;
 		}
 
