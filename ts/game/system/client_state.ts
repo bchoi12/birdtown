@@ -29,7 +29,7 @@ export class ClientState extends ClientSystem implements System {
 		this._levelVersion = 0;
 
 		this.addProp<string>({
-			has: () => { return this._displayName.length > 0; },
+			has: () => { return this.hasDisplayName(); },
 			export: () => { return this._displayName; },
 			import: (obj: string) => { this._displayName = obj; },
 		});
@@ -45,7 +45,16 @@ export class ClientState extends ClientSystem implements System {
 		});
 	}
 
+	override ready() : boolean { return super.ready() && this.hasDisplayName(); }
+	override initialize() : void {
+		super.initialize();
+
+		ui.onNewClient(this.displayName());
+	}
+
+	hasDisplayName() : boolean { return this._displayName.length > 0; }
 	setDisplayName(name : string) : void { this._displayName = name; }
+	displayName() : string { return this._displayName; }
 	levelVersion() : number { return this._levelVersion; }
 
 	prepared() : boolean { return this._readyState === ReadyState.READY; }

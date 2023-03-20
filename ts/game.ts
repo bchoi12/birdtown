@@ -86,7 +86,7 @@ class Game {
 					D: gameId,
 				});
 				this._runner.onNewClient({
-					name: name,
+					displayName: this._netcode.getConnection(name).displayName(),
 					gameId: gameId,
 				});
 
@@ -237,7 +237,7 @@ class Game {
 		this._netcode.setGameId(id);
 
     	this._runner.onNewClient({
-    		name: this._options.name,
+    		displayName: this._netcode.displayName(),
     		gameId: id,
     	});
 

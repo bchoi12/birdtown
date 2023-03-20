@@ -368,9 +368,11 @@ export class Player extends EntityBase {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		// TODO: ignore collision if other body is sensor
-
 		if (this.id() === other.id()) {
+			return;
+		}
+
+		if (collision.pair.bodyA.isSensor || collision.pair.bodyB.isSensor) {
 			return;
 		}
 

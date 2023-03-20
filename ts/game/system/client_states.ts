@@ -11,12 +11,14 @@ export class ClientStates extends SystemBase implements System {
 			base: "client_states",
 		});
 
-		this.setFactoryFn((gameId : number) => { this.addClientState(new ClientState(gameId)); })
+		this.setFactoryFn((gameId : number) => { return this.addClientState(new ClientState(gameId)); })
 	}
 
 	override onNewClient(msg : NewClientMsg) : void {
 		super.onNewClient(msg);
-		this.getFactoryFn()(msg.gameId);
+
+		const clientState = <ClientState>this.getFactoryFn()(msg.gameId);
+		clientState.setDisplayName(msg.displayName);
 	}
 
 	allLoaded() : boolean {

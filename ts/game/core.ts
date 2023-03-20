@@ -39,7 +39,7 @@ export enum NetworkBehavior {
 	OFFLINE,
 }
 
-export type FactoryFn = (id : number) => void
+export type FactoryFn = (id : number) => GameObject
 export type ChildCallback<T extends GameObject> = (child : T) => void;
 
 type DataBuffer = {

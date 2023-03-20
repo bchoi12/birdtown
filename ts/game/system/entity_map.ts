@@ -21,7 +21,10 @@ export class EntityMap extends SystemBase implements System {
 			type: entityType,
 		})
 
-		this.setFactoryFn((id : number) => { game.entities().addEntity(this._entityType, {id: id}) });
+		this.setFactoryFn((id : number) => {
+			const [entity, _] = game.entities().addEntity(this._entityType, {id: id});
+			return entity;
+		});
 	}
 
 	override reset() : void {

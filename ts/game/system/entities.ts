@@ -26,7 +26,7 @@ export class Entities extends SystemBase implements System {
 		this._idToType = new Map();
 		this._deletedIds = new Set();
 
-		this.setFactoryFn((entityType : EntityType) => { this.addMap(new EntityMap(entityType)); })
+		this.setFactoryFn((entityType : EntityType) => { return this.addMap(new EntityMap(entityType)); })
 	}
 
 	addMap(map : EntityMap) : EntityMap { return this.addChild<EntityMap>(map.entityType(), map); }

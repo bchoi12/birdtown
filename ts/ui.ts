@@ -1,5 +1,6 @@
 
 import { Handler } from 'ui/handler'
+import { ClientsHandler } from 'ui/handler/clients_handler'
 import { ChatHandler } from 'ui/handler/chat_handler'
 import { DialogHandler } from 'ui/handler/dialog_handler'
 import { InputHandler } from 'ui/handler/input_handler'
@@ -24,6 +25,7 @@ export enum HandlerType {
 	UNKNOWN,
 
 	CHAT,
+	CLIENTS,
 	DIALOGS,
 	INPUT,
 	KEY_BIND,
@@ -57,6 +59,7 @@ class UI {
 	private _handlers : Map<HandlerType, Handler>;
 
 	private _chatHandler : ChatHandler;
+	private _clientsHandler : ClientsHandler;
 	private _dialogHandler : DialogHandler;
 	private _inputHandler : InputHandler;
 	private _keyBindHandler : KeyBindHandler;
@@ -71,6 +74,7 @@ class UI {
 		this._handlers = new Map();		
 
 		this._chatHandler = this.add<ChatHandler>(new ChatHandler());
+		this._clientsHandler = this.add<ClientsHandler>(new ClientsHandler());
 		this._dialogHandler = this.add<DialogHandler>(new DialogHandler());
 		this._inputHandler = this.add<InputHandler>(new InputHandler());
 		this._keyBindHandler = this.add<KeyBindHandler>(new KeyBindHandler());
@@ -105,6 +109,9 @@ class UI {
 	mouse() : Vec { return this._inputHandler.mouse(); }
 	resetKeyBinds() : void { this._inputHandler.reset(); }
 
+	onNewClient(displayName : string) : void {
+		this._clientsHandler.onNewClient(displayName);
+	}
 	pushDialog(onSubmit : () => void) : void {
 		this._dialogHandler.pushDialog({
 			titleHtml: "hello",

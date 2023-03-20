@@ -25,7 +25,7 @@ export class ArchRoof extends ArchBase {
 
 		if (!this.openings().anyBottom()) {
 			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x, y: this.thickness() }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x - 1e-2, y: this.thickness() }),
 			});
 		} else {
 			if (!this.openings().hasDir(CardinalDir.BOTTOM_LEFT)) {

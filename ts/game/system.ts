@@ -36,7 +36,7 @@ export interface System extends GameObject {
 }
 
 export type NewClientMsg = {
-	name : string;
+	displayName : string;
 	gameId : number;
 }
 

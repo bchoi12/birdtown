@@ -16,7 +16,7 @@ export class Input extends SystemBase implements System {
 			base: "input",
 		});
 
-		this.setFactoryFn((clientId : number) => { this.addKeys(new Keys(clientId)); })
+		this.setFactoryFn((clientId : number) => { return this.addKeys(new Keys(clientId)); })
 
 		this._keys = new Map();
 	}
@@ -26,7 +26,7 @@ export class Input extends SystemBase implements System {
 		this.getFactoryFn()(msg.gameId);
 	}
 
-	addKeys(keys : Keys) : void { this.addChild(keys.gameId(), keys); }
+	addKeys(keys : Keys) : Keys { return this.addChild(keys.gameId(), keys); }
 	hasKeys(clientId : number) : boolean { return this.hasChild(clientId); }
 	getKeys(clientId? : number) : Keys {
 		clientId = defined(clientId) ? clientId : game.id();
