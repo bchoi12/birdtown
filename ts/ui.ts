@@ -52,6 +52,11 @@ export enum MouseCoordinates {
 	SCREEN,
 }
 
+export type NewClientMsg = {
+	displayName : string;
+	isSelf : boolean;
+}
+
 class UI {
 
 	private _mode : Mode;
@@ -109,8 +114,8 @@ class UI {
 	mouse() : Vec { return this._inputHandler.mouse(); }
 	resetKeyBinds() : void { this._inputHandler.reset(); }
 
-	onNewClient(displayName : string) : void {
-		this._clientsHandler.onNewClient(displayName);
+	onNewClient(msg : NewClientMsg) : void {
+		this._clientsHandler.onNewClient(msg);
 	}
 	pushDialog(onSubmit : () => void) : void {
 		this._dialogHandler.pushDialog({
@@ -119,6 +124,9 @@ class UI {
 			onSubmit: [onSubmit],
 		});
 	}
+
+	setVoiceEnabled(enabled : boolean) : void { this._clientsHandler.setVoiceEnabled(enabled); }
+	voiceEnabled() : boolean { return this._clientsHandler.voiceEnabled(); }
 }
 
 export const ui = new UI();

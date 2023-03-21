@@ -3,6 +3,7 @@ import * as BABYLON from "babylonjs";
 import { Data, DataFilter, DataMap } from 'network/data'
 import { System, SystemType } from 'game/system'
 import { Runner } from 'game/system/runner'
+import { ClientState } from 'game/system/client_state'
 import { ClientStates } from 'game/system/client_states'
 import { Entities } from 'game/system/entities'
 import { DuelMode } from 'game/system/game_mode/duel_mode'
@@ -86,6 +87,7 @@ class Game {
 					D: gameId,
 				});
 				this._runner.onNewClient({
+					connectionName: name,
 					displayName: this._netcode.getConnection(name).displayName(),
 					gameId: gameId,
 				});
@@ -189,6 +191,7 @@ class Game {
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
 	clientStates() : ClientStates { return this._clientStates; }
+	clientState(id? : number) : ClientState { return this._clientStates.getClientState(id)}
 	level() : Level { return this._level; }
 	physics() : Physics { return this._physics; }
 	lakitu() : Lakitu { return this._lakitu; }
@@ -237,6 +240,7 @@ class Game {
 		this._netcode.setGameId(id);
 
     	this._runner.onNewClient({
+    		connectionName: this._netcode.name(),
     		displayName: this._netcode.displayName(),
     		gameId: id,
     	});

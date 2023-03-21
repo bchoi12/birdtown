@@ -2,6 +2,8 @@ import { game } from 'game'
 import { NewClientMsg, System, SystemBase, SystemType } from 'game/system'
 import { ClientState } from 'game/system/client_state'
 
+import { defined } from 'util/common'
+
 export class ClientStates extends SystemBase implements System {
 
 	constructor() {
@@ -19,6 +21,7 @@ export class ClientStates extends SystemBase implements System {
 
 		const clientState = <ClientState>this.getFactoryFn()(msg.gameId);
 		clientState.setDisplayName(msg.displayName);
+		clientState.setConnectionName(msg.connectionName);
 	}
 
 	allLoaded() : boolean {
@@ -39,7 +42,7 @@ export class ClientStates extends SystemBase implements System {
 
 	addClientState(info : ClientState) : ClientState { return this.addChild<ClientState>(info.gameId(), info); }
 	hasClientState(gameId : number) : boolean { return this.hasChild(gameId); }
-	getClientState(gameId : number) : ClientState { return this.getChild<ClientState>(gameId); }
+	getClientState(gameId? : number) : ClientState { return this.getChild<ClientState>(defined(gameId) ? gameId : game.id()); }
 	clientStates() : Map<number, ClientState> { return <Map<number, ClientState>>this.getChildren(); }
 	unregisterClientState(gameId : number) : void { this.unregisterChild(gameId); }
 }

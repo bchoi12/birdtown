@@ -12,9 +12,11 @@ enum ReadyState {
 
 export class ClientState extends ClientSystem implements System {
 
+	private _connectionName : string;
 	private _displayName : string;
 	private _readyState : ReadyState;
 	private _levelVersion : number;
+	private _voiceEnabled : boolean;
 
 	constructor(gameId : number) {
 		super(SystemType.CLIENT_STATE, gameId);
@@ -24,10 +26,17 @@ export class ClientState extends ClientSystem implements System {
 			id: gameId,
 		});
 
+		this._connectionName = "";
 		this._displayName = "";
 		this._readyState = ReadyState.UNKNOWN;
 		this._levelVersion = 0;
+		this._voiceEnabled = false;
 
+		this.addProp<string>({
+			has: () => { return this.hasConnectionName(); },
+			export: () => { return this._connectionName; },
+			import: (obj: string) => { this._connectionName = obj; },
+		});
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
 			export: () => { return this._displayName; },
@@ -43,20 +52,33 @@ export class ClientState extends ClientSystem implements System {
 			export: () => { return this._levelVersion; },
 			import: (obj: number) => { this._levelVersion = obj; },
 		});
+		this.addProp<boolean>({
+			export: () => { return this._voiceEnabled; },
+			import: (obj : boolean) => { this.setVoiceEnabled(obj); },
+		})
 	}
 
 	override ready() : boolean { return super.ready() && this.hasDisplayName(); }
 	override initialize() : void {
 		super.initialize();
 
-		ui.onNewClient(this.displayName());
+		ui.onNewClient({
+			isSelf: game.id() === this.gameId(),
+			displayName: this.displayName(),
+		});
 	}
 
-	hasDisplayName() : boolean { return this._displayName.length > 0; }
+	private hasConnectionName() : boolean { return this._connectionName.length > 0; }
+	setConnectionName(name : string) : void { this._connectionName = name; }
+	connectionName() : string { return this._connectionName; }
+
+	private hasDisplayName() : boolean { return this._displayName.length > 0; }
 	setDisplayName(name : string) : void { this._displayName = name; }
 	displayName() : string { return this._displayName; }
+
 	levelVersion() : number { return this._levelVersion; }
 
+	// TODO: rename or remove prepared() method
 	prepared() : boolean { return this._readyState === ReadyState.READY; }
 	readyState() : ReadyState { return this._readyState; }
 	requestReadyState() : void { this.setReadyState(ReadyState.WAITING); }
@@ -78,6 +100,21 @@ export class ClientState extends ClientSystem implements System {
 			});
 			break;
 		}
+	}
+
+	voiceEnabled() : boolean { return this._voiceEnabled; }
+	setVoiceEnabled(enabled : boolean) : void {
+		if (this._voiceEnabled === enabled) {
+			return;
+		}
+
+		this._voiceEnabled = enabled;
+
+		if (this.isSource()) {
+			ui.setVoiceEnabled(this._voiceEnabled);
+		}
+
+		// TODO: game.id() is larger than ID, call peer
 	}
 
 	override preUpdate(millis : number) : void {

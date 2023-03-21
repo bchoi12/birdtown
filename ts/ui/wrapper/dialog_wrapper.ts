@@ -1,6 +1,4 @@
 
-import { options } from 'options'
-
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 

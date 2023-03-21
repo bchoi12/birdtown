@@ -36,6 +36,7 @@ export interface System extends GameObject {
 }
 
 export type NewClientMsg = {
+	connectionName : string;
 	displayName : string;
 	gameId : number;
 }
