@@ -53,6 +53,7 @@ export enum MouseCoordinates {
 }
 
 export type NewClientMsg = {
+	gameId : number;
 	displayName : string;
 	isSelf : boolean;
 }
@@ -125,6 +126,7 @@ class UI {
 		});
 	}
 
+	addStream(id : number, stream : MediaStream) { this._clientsHandler.addStream(id, stream); }
 	setVoiceEnabled(enabled : boolean) : void { this._clientsHandler.setVoiceEnabled(enabled); }
 	voiceEnabled() : boolean { return this._clientsHandler.voiceEnabled(); }
 }

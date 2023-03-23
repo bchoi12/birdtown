@@ -2,8 +2,9 @@
 import { game } from 'game'
 
 import { ui, HandlerType, Mode, NewClientMsg } from 'ui'
-import { Html } from 'ui/html'
+import { Html, HtmlWrapper } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
+import { Icon } from 'ui/util/icon'
 import { ClientWrapper } from 'ui/wrapper/client_wrapper'
 import { VoiceWrapper } from 'ui/wrapper/voice_wrapper'
 
@@ -29,12 +30,55 @@ export class ClientsHandler extends HandlerBase implements Handler {
 
 	setMode(mode : Mode) {}
 
+	addStream(id : number, stream : MediaStream) : void {
+		let audio = Html.audio();
+		audio.autoplay = true;
+		audio.srcObject = stream;
+		audio.style.display = "none";
+
+		let volumeRange = Html.range();
+		volumeRange.min = "0";
+		volumeRange.max = "100";
+		volumeRange.value = "" + audio.volume * 100;
+		volumeRange.onchange = () => {
+			audio.volume = Number(volumeRange.value) / 100;
+		};
+
+		let muteButton = new HtmlWrapper(Html.span());
+		if (audio.muted) {
+			muteButton.elm().append(Icon.volumeX());
+		} else {
+			muteButton.elm().append(Icon.volumeHigh());
+		}
+		muteButton.elm().onclick = (e) => {
+			audio.muted = !audio.muted;
+
+			muteButton.removeChildren();
+			if (audio.muted) {
+				muteButton.elm().append(Icon.volumeX());
+				volumeRange.style.visibility = "hidden";
+			} else {
+				muteButton.elm().append(Icon.volumeHigh());
+				volumeRange.style.visibility = "visible";
+			}
+		}
+		muteButton.elm().classList.add(Html.classTextButton);
+
+		this._clientsElm.append(audio);
+		this._clientsElm.append(muteButton.elm());
+		this._clientsElm.append(volumeRange);
+	}
+
+
 	voiceEnabled() : boolean { return game.clientState().voiceEnabled(); }
 	setVoiceEnabled(enabled : boolean) : void {
 		if (this.voiceEnabled() === enabled) {
 			return;
 		}
 
+		game.clientState().setVoiceEnabled(true);
+
+		/*
 		if (enabled) {
 			navigator.mediaDevices.getUserMedia({
 				audio: true,
@@ -65,6 +109,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 
 			game.clientState().setVoiceEnabled(false);
 		}
+		*/
 	}
 
 	onNewClient(msg : NewClientMsg) : void {

@@ -58,11 +58,12 @@ export class ClientState extends ClientSystem implements System {
 		})
 	}
 
-	override ready() : boolean { return super.ready() && this.hasDisplayName(); }
+	override ready() : boolean { return super.ready() && this.hasDisplayName() && this.hasConnectionName(); }
 	override initialize() : void {
 		super.initialize();
 
 		ui.onNewClient({
+			gameId: this.gameId(),
 			isSelf: game.id() === this.gameId(),
 			displayName: this.displayName(),
 		});
@@ -110,11 +111,16 @@ export class ClientState extends ClientSystem implements System {
 
 		this._voiceEnabled = enabled;
 
-		if (this.isSource()) {
-			ui.setVoiceEnabled(this._voiceEnabled);
+		if (!game.clientState().voiceEnabled()) {
+			return;
 		}
 
-		// TODO: game.id() is larger than ID, call peer
+		game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
+			if (game.id() > clientState.gameId()) {
+				game.netcode().call(clientState.connectionName());
+				console.log("%d calls %d", game.id(), clientState.gameId());
+			}
+		});
 	}
 
 	override preUpdate(millis : number) : void {

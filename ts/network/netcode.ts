@@ -1,5 +1,5 @@
 import { encode, decode } from '@msgpack/msgpack'
-import { DataConnection, Peer } from 'peerjs'
+import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
 import { ChannelMap } from 'network/channel_map'
 import { IncomingMessage, Message, MessageType } from 'network/message'
@@ -7,6 +7,8 @@ import { Connection } from 'network/connection'
 import { Pinger } from 'network/pinger'
 
 import { options } from 'options'
+
+import { ui } from 'ui'
 
 import { Buffer } from 'util/buffer'
 import { isLocalhost } from 'util/common'
@@ -57,7 +59,34 @@ export abstract class Netcode {
 	}
 
 	abstract isHost() : boolean;
-	abstract initialize() : void;
+	initialize() : void {
+		this._peer.on("call", (incoming : MediaConnection) => {
+			// TODO: ignore calls if voice is disabled
+			console.log("Incoming call from", incoming.peer);
+
+			if (!this._connections.has(incoming.peer)) {
+				console.error("Received call from unknown peer:", incoming.peer);
+				return;
+			}
+
+			navigator.mediaDevices.getUserMedia({
+				audio: true,
+			    video: false,
+		    }).then((stream) => {
+		      	stream.getTracks().forEach((track) => { track.enabled = true; });
+
+				incoming.answer(stream);
+				incoming.on("stream", (stream : MediaStream) => {
+					console.log("Incoming stream from", incoming.peer);
+					this._connections.get(incoming.peer).setStream(stream);
+
+		      		ui.addStream(this._connections.get(incoming.peer).gameId(), stream);
+				});
+		    }).catch((e) => {
+		    	console.error("Failed to enable voice chat:", e);
+		    });
+		});
+	}
 	abstract initialized() : boolean;
 	abstract ready() : boolean;
 
@@ -105,9 +134,7 @@ export abstract class Netcode {
 		this._messageBuffer.clear();
 	}
 
-	postUpdate() : void {
-
-	}
+	postUpdate() : void {}
 
 	register(connection : DataConnection) {
 		if (!Netcode._validChannels.has(connection.label)) {
@@ -207,6 +234,34 @@ export abstract class Netcode {
 			channels.send(type, encode(msg));
 		}
 		return true;
+	}
+
+	call(name : string) : void {
+		if (!this._connections.has(name) || !this._connections.get(name).connected()) {
+			console.error("Attempting to call invalid peer:", name);
+			return;
+		}
+
+		if (this._connections.get(name).hasStream()) {
+			console.error("Already have stream to peer:", name);
+			return;
+		}
+
+		navigator.mediaDevices.getUserMedia({
+			audio: true,
+		    video: false,
+	    }).then((stream) => {
+	      	stream.getTracks().forEach((track) => { track.enabled = true; });
+
+	      	const outgoing = this._peer.call(name, stream);
+	      	outgoing.on("stream", (stream : MediaStream) => {
+	      		console.log("Outgoing stream to", name);
+	      		this._connections.get(name).setStream(stream);
+	      		ui.addStream(this._connections.get(name).gameId(), stream);
+	      	});
+	    }).catch((e) => {
+	    	console.error("Failed to enable voice chat:", e);
+	    });
 	}
 
 	disconnect(name : string) : void {

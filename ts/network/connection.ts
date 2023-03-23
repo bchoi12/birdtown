@@ -9,7 +9,7 @@ export class Connection {
 	private _connected : boolean;
 	private _channels : ChannelMap;
 
-	private _voiceEnabled : boolean;
+	private _stream : MediaStream;
 
 	private _gameId : number;
 
@@ -17,8 +17,6 @@ export class Connection {
 		this._displayName = "unknown";
 		this._connected = true;
 		this._channels = new ChannelMap();
-
-		this._voiceEnabled = false;
 	}
 
 	setGameId(id : number) : void { this._gameId = id; }
@@ -30,7 +28,9 @@ export class Connection {
 	displayName() : string { return this.hasGameId() ? (this._displayName + " #" + this.gameId()) : this._displayName; }
 	connected() : boolean { return this._connected; }
 
-	setVoiceEnabled(enabled : boolean) : void { this._voiceEnabled = enabled; }
+	setStream(stream : MediaStream) : void { this._stream = stream; }
+	hasStream() : boolean { return defined(this._stream); }
+	stream() : MediaStream { return this._stream; }
 
 	disconnect() : void {
 		this._channels.disconnect();
