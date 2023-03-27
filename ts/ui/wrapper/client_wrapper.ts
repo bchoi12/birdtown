@@ -4,7 +4,7 @@ import { options } from 'options'
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 
-export type ClientWrapperOptions = {
+type ClientWrapperOptions = {
 	displayName : string
 }
 

@@ -3,10 +3,10 @@ import { game } from 'game'
 
 import { EntityType } from 'game/entity'
 import { Player } from 'game/entity/player'
-import { NewClientMsg, SystemType } from 'game/system'
+import { SystemType } from 'game/system'
+import { LevelType, NewClientMsg } from 'game/system/api'
 import { ClientState } from 'game/system/client_state'
 import { GameModeBase } from 'game/system/game_mode'
-import { LevelType } from 'game/system/level'
 
 import { Data } from 'network/data'
 

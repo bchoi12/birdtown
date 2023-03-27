@@ -1,28 +1,17 @@
 import { Peer } from 'peerjs'
 
-import { MessageType } from 'network/message'
+import { MessageType, Payload } from 'network/api'
 import { Netcode, ChannelType } from 'network/netcode'
 
 import { ui } from 'ui'
 
 export class Host extends Netcode {
 
-	private _initialized : boolean;
-
-	constructor(displayName : string, hostName : string) {
-		super(displayName, hostName);
-
-		this._peer = new Peer(hostName, {
-			debug: 2,
-			pingInterval: 5000,
-		});
-
-		this._initialized = false;
+	constructor(hostName : string, displayName : string) {
+		super(hostName, hostName, displayName);
 	}
 
 	override isHost() : boolean { return true; }
-
-	override initialized() : boolean { return this._initialized; }
 	override ready() : boolean { return this.initialized() && this.peer().open; }
 	override initialize() : void {
 		super.initialize();
@@ -47,6 +36,7 @@ export class Host extends Netcode {
 		    	console.error(error);
 		    });
 
+		    this.registerCallbacks();
 			this._pinger.initializeForHost(this);
 			this._initialized = true;
 		});
@@ -56,11 +46,39 @@ export class Host extends Netcode {
 		});
 	}
 
-	override sendChat(message : string) : void {
-		this.receiveChat(this.name(), message);
+	private registerCallbacks() : void {
+		this.addMessageCallback(MessageType.CHAT, (payload : Payload) => {
+			this.handleChat(payload.name, <string>payload.msg.D);
+		});
+
+		this.addMessageCallback(MessageType.VOICE, (payload : Payload) => {
+			const voiceEnabled = <boolean>payload.msg.D;
+
+			this.getConnection(payload.name).setVoiceEnabled(voiceEnabled);
+
+			if (voiceEnabled) {
+				this.send(payload.name, ChannelType.TCP, {
+					T: MessageType.VOICE_MAP,
+					D: Object.fromEntries(this.getVoiceMap()),
+				});
+			}
+		});
 	}
 
-	override receiveChat(from : string, message : string) : void {
+	override sendChat(message : string) : void { this.handleChat(this.name(), message); }
+	override setVoiceEnabled(enabled : boolean) : void {
+		if (this._voiceEnabled === enabled) {
+			return;
+		}
+
+		this._voiceEnabled = enabled;
+
+		if (this._voiceEnabled) {
+			this.callAll(this.getVoiceMap());
+		}
+	}
+
+	private handleChat(from : string, message : string) : void {
 		if (message.length <= 0) {
 			return;
 		}

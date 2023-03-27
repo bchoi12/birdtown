@@ -1,9 +1,11 @@
 
 import { game } from 'game'
-import { LevelLoadMsg, ClientSystem, System, SystemType } from 'game/system'
+import { ClientSystem, System, SystemType } from 'game/system'
+import { LevelLoadMsg } from 'game/system/api'
 
 import { ui } from 'ui'
 
+// TODO: change to SetupState
 enum ReadyState {
 	UNKNOWN,
 	WAITING,
@@ -12,11 +14,9 @@ enum ReadyState {
 
 export class ClientState extends ClientSystem implements System {
 
-	private _connectionName : string;
 	private _displayName : string;
 	private _readyState : ReadyState;
 	private _levelVersion : number;
-	private _voiceEnabled : boolean;
 
 	constructor(gameId : number) {
 		super(SystemType.CLIENT_STATE, gameId);
@@ -26,17 +26,10 @@ export class ClientState extends ClientSystem implements System {
 			id: gameId,
 		});
 
-		this._connectionName = "";
 		this._displayName = "";
 		this._readyState = ReadyState.UNKNOWN;
 		this._levelVersion = 0;
-		this._voiceEnabled = false;
 
-		this.addProp<string>({
-			has: () => { return this.hasConnectionName(); },
-			export: () => { return this._connectionName; },
-			import: (obj: string) => { this._connectionName = obj; },
-		});
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
 			export: () => { return this._displayName; },
@@ -52,13 +45,9 @@ export class ClientState extends ClientSystem implements System {
 			export: () => { return this._levelVersion; },
 			import: (obj: number) => { this._levelVersion = obj; },
 		});
-		this.addProp<boolean>({
-			export: () => { return this._voiceEnabled; },
-			import: (obj : boolean) => { this.setVoiceEnabled(obj); },
-		})
 	}
 
-	override ready() : boolean { return super.ready() && this.hasDisplayName() && this.hasConnectionName(); }
+	override ready() : boolean { return super.ready() && this.hasDisplayName(); }
 	override initialize() : void {
 		super.initialize();
 
@@ -68,10 +57,6 @@ export class ClientState extends ClientSystem implements System {
 			displayName: this.displayName(),
 		});
 	}
-
-	private hasConnectionName() : boolean { return this._connectionName.length > 0; }
-	setConnectionName(name : string) : void { this._connectionName = name; }
-	connectionName() : string { return this._connectionName; }
 
 	private hasDisplayName() : boolean { return this._displayName.length > 0; }
 	setDisplayName(name : string) : void { this._displayName = name; }
@@ -101,26 +86,6 @@ export class ClientState extends ClientSystem implements System {
 			});
 			break;
 		}
-	}
-
-	voiceEnabled() : boolean { return this._voiceEnabled; }
-	setVoiceEnabled(enabled : boolean) : void {
-		if (this._voiceEnabled === enabled) {
-			return;
-		}
-
-		this._voiceEnabled = enabled;
-
-		if (!game.clientState().voiceEnabled()) {
-			return;
-		}
-
-		game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
-			if (game.id() > clientState.gameId()) {
-				game.netcode().call(clientState.connectionName());
-				console.log("%d calls %d", game.id(), clientState.gameId());
-			}
-		});
 	}
 
 	override preUpdate(millis : number) : void {

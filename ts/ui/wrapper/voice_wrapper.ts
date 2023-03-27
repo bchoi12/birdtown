@@ -1,5 +1,6 @@
 
-import { ui, NewClientMsg } from 'ui'
+import { ui } from 'ui'
+import { NewClientMsg } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon } from 'ui/util/icon'
 
@@ -19,15 +20,20 @@ export class VoiceWrapper extends HtmlWrapper {
 			this.elm().onclick = (e) => {
 				e.stopPropagation();
 
-				ui.setVoiceEnabled(!ui.voiceEnabled());
+				// TODO: toggle
+				ui.setVoiceEnabled(true);
 				while(this._micButton.firstChild) {
 					this._micButton.removeChild(this._micButton.firstChild);
 				}
+				this._micButton.append(Icon.microphone());
+
+				/*
 				if (ui.voiceEnabled()) {
 					this._micButton.append(Icon.microphone());
 				} else {
 					this._micButton.append(Icon.mutedMicrophone());
 				}
+				*/
 			};
 			this.elm().append(this._micButton);
 		}

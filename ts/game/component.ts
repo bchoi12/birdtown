@@ -1,5 +1,5 @@
 import { game } from 'game'
-import { GameObject, GameObjectBase, NetworkBehavior} from 'game/core'
+import { GameObject, GameObjectBase, NetworkBehavior} from 'game/game_object'
 import { Entity } from 'game/entity'
 
 import { Data, DataFilter, DataMap } from 'network/data'

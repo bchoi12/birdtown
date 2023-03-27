@@ -1,4 +1,6 @@
 
+import { HandlerType, Key, UiMode, NewClientMsg } from 'ui/api'
+
 import { Handler } from 'ui/handler'
 import { ClientsHandler } from 'ui/handler/clients_handler'
 import { ChatHandler } from 'ui/handler/chat_handler'
@@ -12,55 +14,9 @@ import { StatsHandler } from 'ui/handler/stats_handler'
 
 import { Vec } from 'util/vector'
 
-export enum Mode {
-	UNKNOWN,
-	DEFAULT,
-
-	CHAT,
-	GAME,
-	PAUSE,
-}
-
-export enum HandlerType {
-	UNKNOWN,
-
-	CHAT,
-	CLIENTS,
-	DIALOGS,
-	INPUT,
-	KEY_BIND,
-	LOGIN,
-	PAUSE,
-	SETTINGS,
-	STATS,
-}
-
-export enum Key {
-	UNKNOWN,
-	LEFT,
-	RIGHT,
-	JUMP,
-	INTERACT,
-
-	MOUSE_CLICK,
-	ALT_MOUSE_CLICK,
-}
-
-export enum MouseCoordinates {
-	UNKNOWN,
-	PIXEL,
-	SCREEN,
-}
-
-export type NewClientMsg = {
-	gameId : number;
-	displayName : string;
-	isSelf : boolean;
-}
-
 class UI {
 
-	private _mode : Mode;
+	private _mode : UiMode;
 
 	private _handlers : Map<HandlerType, Handler>;
 
@@ -75,7 +31,7 @@ class UI {
 	private _statsHandler : StatsHandler;
 
 	constructor() {
-		this._mode = Mode.DEFAULT;
+		this._mode = UiMode.DEFAULT;
 
 		this._handlers = new Map();		
 
@@ -101,8 +57,8 @@ class UI {
 		return handler;
 	}
 	get<T extends Handler>(type : HandlerType) : T { return <T>this._handlers.get(type); }
-	mode() : Mode { return this._mode; }
-	setMode(mode : Mode) {
+	mode() : UiMode { return this._mode; }
+	setMode(mode : UiMode) {
 		this._mode = mode;
 		this._handlers.forEach((handler) => {
 			handler.setMode(mode);
@@ -120,15 +76,14 @@ class UI {
 	}
 	pushDialog(onSubmit : () => void) : void {
 		this._dialogHandler.pushDialog({
-			titleHtml: "hello",
-			textHtml: "dialog",
+			titleHtml: "TITLE",
+			textHtml: "click when ready",
 			onSubmit: [onSubmit],
 		});
 	}
 
-	addStream(id : number, stream : MediaStream) { this._clientsHandler.addStream(id, stream); }
+	addStream(gameId : number, stream : MediaStream) { this._clientsHandler.addStream(gameId, stream); }
 	setVoiceEnabled(enabled : boolean) : void { this._clientsHandler.setVoiceEnabled(enabled); }
-	voiceEnabled() : boolean { return this._clientsHandler.voiceEnabled(); }
 }
 
 export const ui = new UI();

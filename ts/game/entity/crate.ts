@@ -6,7 +6,7 @@ import { ComponentType } from 'game/component'
 import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { GameConstants } from 'game/core'
+import { GameConstants } from 'game/game_object'
 import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
 import { BodyFactory } from 'game/factory/body_factory'
 

@@ -2,7 +2,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component, ComponentType } from 'game/component'
-import { GameObject, GameObjectBase } from 'game/core'
+import { GameObject, GameObjectBase } from 'game/game_object'
 import { AttributesInitOptions } from 'game/component/attributes'
 import { CardinalsInitOptions } from 'game/component/cardinals'
 import { Health } from 'game/component/health'

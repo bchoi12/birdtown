@@ -3,7 +3,8 @@ import { game } from 'game'
 
 import { options } from 'options'
 
-import { ui, HandlerType, Mode } from 'ui'
+import { ui } from 'ui'
+import { HandlerType, UiMode } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 
@@ -44,8 +45,8 @@ export class ChatHandler extends HandlerBase implements Handler {
 
 	reset() : void {}
 
-	setMode(mode : Mode) {
-		if (mode === Mode.CHAT) {
+	setMode(mode : UiMode) {
+		if (mode === UiMode.CHAT) {
 			this._chatElm.style.display = "block";
 			this._chatElm.classList.remove(Html.classSlightlyTransparent);
 			this._chatElm.classList.remove(Html.classNoSelect);
@@ -64,18 +65,18 @@ export class ChatHandler extends HandlerBase implements Handler {
 	}
 
 	private chatKeyPressed() : void {
-		if (ui.mode() === Mode.GAME) {
-			ui.setMode(Mode.CHAT);
+		if (ui.mode() === UiMode.GAME) {
+			ui.setMode(UiMode.CHAT);
 			return;
 		}
 
-		if (ui.mode() !== Mode.CHAT) {
+		if (ui.mode() !== UiMode.CHAT) {
 			return;
 		}
 
 		const message = Html.trimmedValue(this._messageInputElm);
 		if (message.length == 0) {
-			ui.setMode(Mode.GAME);
+			ui.setMode(UiMode.GAME);
 			return;
 		}
 		this._messageInputElm.value = "";
@@ -86,7 +87,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			game.netcode().sendChat(message);
 		}
 
-		ui.setMode(Mode.GAME);
+		ui.setMode(UiMode.GAME);
 	}
 
 	private command(message : string) {

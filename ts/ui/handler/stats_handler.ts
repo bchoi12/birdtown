@@ -4,7 +4,8 @@ import { ChannelType } from 'network/netcode'
 import { ChannelMap, ChannelStat } from 'network/channel_map'
 import { Connection } from 'network/connection'
 
-import { ui, HandlerType, Mode } from 'ui'
+import { ui } from 'ui'
+import { HandlerType, UiMode } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 
@@ -27,7 +28,7 @@ export class StatsHandler extends HandlerBase implements Handler {
 	}
 
 	reset() : void {}
-	setMode(mode : Mode) : void {}
+	setMode(mode : UiMode) : void {}
 
 	private updateStats() {
 

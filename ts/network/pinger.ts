@@ -1,5 +1,5 @@
 import { Netcode, ChannelType } from 'network/netcode'
-import { IncomingMessage, Message, MessageType } from 'network/message'
+import { Payload, Message, MessageType } from 'network/api'
 
 import { defined } from 'util/common'
 
@@ -36,7 +36,7 @@ export class Pinger {
 			return;
 		}
 
-		host.addMessageCallback(MessageType.PING, (incoming : IncomingMessage) => {
+		host.addMessageCallback(MessageType.PING, (incoming : Payload) => {
 			if (!defined(incoming.msg.S)) {
 				return;
 			}
@@ -54,7 +54,7 @@ export class Pinger {
 			return;
 		}
 
-		client.addMessageCallback(MessageType.PING, (incoming : IncomingMessage) => {
+		client.addMessageCallback(MessageType.PING, (incoming : Payload) => {
 			if (!defined(incoming.msg.S)) {
 				return;
 			}

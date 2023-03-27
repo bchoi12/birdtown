@@ -3,7 +3,8 @@ import { game } from 'game'
 
 import { options } from 'options'
 
-import { ui, HandlerType, Key, Mode } from 'ui'
+import { ui } from 'ui'
+import { HandlerType, Key, UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { Html } from 'ui/html'
 import { Vec } from 'util/vector'
@@ -36,14 +37,14 @@ export class InputHandler extends HandlerBase implements Handler {
 
 	setup() : void {
 		document.addEventListener("keydown", (e : any) => {
-			if (e.repeat || ui.mode() !== Mode.GAME) return;
+			if (e.repeat || ui.mode() !== UiMode.GAME) return;
 
 			if (this._keyDownCallbacks.has(e.keyCode)) {
 				this._keyDownCallbacks.get(e.keyCode)(e);
 			}
 		});
 		document.addEventListener("keyup", (e : any) => {
-			if (e.repeat || ui.mode() !== Mode.GAME) return;
+			if (e.repeat || ui.mode() !== UiMode.GAME) return;
 
 			if (this._keyUpCallbacks.has(e.keyCode)) {
 				this._keyUpCallbacks.get(e.keyCode)(e);
@@ -57,16 +58,16 @@ export class InputHandler extends HandlerBase implements Handler {
     	document.addEventListener("mousedown", (e : any) => { this.mouseDown(e); });
     	document.addEventListener("mouseup", (e : any) => { this.mouseUp(e); });
 		document.addEventListener("pointerlockchange", (e : any) => {
-			if (options.enablePointerLock && !this.pointerLocked() && ui.mode() === Mode.GAME) {
-				ui.setMode(Mode.PAUSE);
+			if (options.enablePointerLock && !this.pointerLocked() && ui.mode() === UiMode.GAME) {
+				ui.setMode(UiMode.PAUSE);
 			}
 		});
 		document.addEventListener("pointerlockerror", (e : any) => {
-			if (ui.mode() !== Mode.GAME) {
+			if (ui.mode() !== UiMode.GAME) {
 				return;
 			}
 			setTimeout(() => {
-				if (ui.mode() === Mode.GAME) {
+				if (ui.mode() === UiMode.GAME) {
 					this.pointerLock();
 				}
 			}, 1000);
@@ -88,8 +89,8 @@ export class InputHandler extends HandlerBase implements Handler {
 		this.mapKey(options.altMouseClickKeyCode, Key.ALT_MOUSE_CLICK);
 	}
 
-	setMode(mode : Mode) : void {
-		if (mode === Mode.GAME) {
+	setMode(mode : UiMode) : void {
+		if (mode === UiMode.GAME) {
 			this.pointerLock();
 		} else {
 			this._keys.clear();
@@ -126,7 +127,7 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	private mouseDown(e : any) : void {
-		if (ui.mode() !== Mode.GAME) {
+		if (ui.mode() !== UiMode.GAME) {
 			return;
 		}
 
@@ -141,7 +142,7 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	private mouseUp(e : any) : void {
-		if (ui.mode() != Mode.GAME) {
+		if (ui.mode() != UiMode.GAME) {
 			return;
 		}
 

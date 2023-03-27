@@ -3,7 +3,7 @@ import { game } from 'game'
 
 import { options } from 'options'
 
-import { HandlerType, Mode } from 'ui'
+import { HandlerType, UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
 import { Html } from 'ui/html'
@@ -110,8 +110,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 	reset() : void {}
 
-	setMode(mode : Mode) : void {
-		if (mode !== Mode.PAUSE) {
+	setMode(mode : UiMode) : void {
+		if (mode !== UiMode.PAUSE) {
 			if (options.enableFullscreen) {
 				document.documentElement.requestFullscreen();
 			} else if (window.innerHeight === screen.height) {

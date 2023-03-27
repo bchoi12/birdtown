@@ -1,7 +1,8 @@
 
 import { game } from 'game'
 
-import { ui, HandlerType, Mode } from 'ui'
+import { ui } from 'ui'
+import { HandlerType, UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { Html } from 'ui/html'
 
@@ -40,52 +41,38 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._roomInputElm.focus();
 
 		this._buttonHostElm.onclick = () => {
-			if (!this._enabled) {
-				return;
-			}
-
-			const [name, room, success] = this.getInputs();
-			if (!success) {
-				return;
-			}
-
-			game.initialize({
-			    name: name,
-			    hostName: "birdtown2-" + room,
-			    host: true,
-			});
-
-			ui.setMode(Mode.GAME);
-			this._loginElm.style.display = "none";
-			this._enabled = false;
+			this.createRoom(/*host=*/true);
 		};
-
 		this._buttonJoinElm.onclick = () => {
-			if (!this._enabled) {
-				return;
-			}
-
-			const [name, room, success] = this.getInputs();
-			if (!success) {
-				return;
-			}
-
-			game.initialize({
-			    name: name,
-			    hostName: "birdtown2-" + room,
-			    host: false,
-			});
-
-			ui.setMode(Mode.GAME);
-			this._loginElm.style.display = "none";
-			this._enabled = false;
+			this.createRoom(/*host=*/false);
 		};
 
 	}
 
 	reset() : void {}
 
-	setMode(mode : Mode) : void {}
+	setMode(mode : UiMode) : void {}
+
+	private createRoom(host : boolean) : void {
+			if (!this._enabled) {
+				return;
+			}
+
+			const [displayName, room, success] = this.getInputs();
+			if (!success) {
+				return;
+			}
+
+			game.initialize({
+			    displayName: displayName,
+			    hostName: "birdtown2-" + room,
+			    host: host,
+			});
+
+			ui.setMode(UiMode.GAME);
+			this._loginElm.style.display = "none";
+			this._enabled = false;
+	}
 
 	private getInputs() : [string, string, boolean] {
 		const name = Html.trimmedValue(this._nameInputElm);

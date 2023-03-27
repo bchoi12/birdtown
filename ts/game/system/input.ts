@@ -1,6 +1,7 @@
 
 import { game } from 'game'
-import { NewClientMsg, System, SystemBase, SystemType } from 'game/system'
+import { System, SystemBase, SystemType } from 'game/system'
+import { NewClientMsg } from 'game/system/api'
 import { Keys } from 'game/system/keys'
 
 import { defined } from 'util/common'

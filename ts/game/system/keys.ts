@@ -1,13 +1,15 @@
  import { game } from 'game'
 import { ComponentType } from 'game/component'
 import { Profile } from 'game/component/profile'
-import { NetworkBehavior } from 'game/core'
+import { NetworkBehavior } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { ClientSystem, System, SystemType } from 'game/system'
 
 import { Data, DataFilter } from 'network/data'
 
-import { ui, Key } from 'ui'
+import { ui } from 'ui'
+import { Key } from 'ui/api'
+
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
 

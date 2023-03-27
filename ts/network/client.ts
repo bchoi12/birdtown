@@ -1,6 +1,6 @@
 import { Peer, DataConnection } from 'peerjs'
 
-import { MessageType } from 'network/message'
+import { MessageType, Payload } from 'network/api'
 import { Netcode, ChannelType } from 'network/netcode'
 
 import { ui } from 'ui'
@@ -9,25 +9,15 @@ import { defined, isLocalhost } from 'util/common'
 
 export class Client extends Netcode {
 
-	private _initialized : boolean;
-
 	private _tcp : DataConnection;
 	private _udp : DataConnection;
 
-	constructor(displayName : string, hostName : string) {
-		super(displayName, hostName);
-
-		this._peer = new Peer("", {
-			debug: 2,
-			pingInterval: 5000,
-		});
-
-		this._initialized = false;
+	constructor(hostName : string, displayName : string) {
+		super("", hostName, displayName);
 	}
 
 	override isHost() : boolean { return false; }
 
-	override initialized() : boolean { return this._initialized; }
 	override ready() : boolean { return this.initialized() && this._tcp.open && this._udp.open; }
 	override initialize() : void {
 		super.initialize();
@@ -38,6 +28,7 @@ export class Client extends Netcode {
 				console.log("Opened client connection for " + peer.id);
 			}
 
+			this.registerCallbacks();
 			this._pinger.initializeForClient(this, this.hostName());
 			this.initTCP();
 		});
@@ -58,12 +49,35 @@ export class Client extends Netcode {
 		});
 	}
 
-	override receiveChat(from : string, message : string) : void {
-		if (from !== this._hostName) {
+	override setVoiceEnabled(enabled : boolean) : void {
+		if (this._voiceEnabled === enabled) {
 			return;
 		}
 
-		ui.chat(message);
+		const sent = this.send(this.hostName(), ChannelType.TCP, {
+			T: MessageType.VOICE,
+			D: enabled,
+		});
+
+		if (sent) {
+			this._voiceEnabled = enabled;
+		}
+	}
+
+	private registerCallbacks() : void {
+		this.addMessageCallback(MessageType.CHAT, (payload : Payload) => {
+			ui.chat(<string>payload.msg.D);
+		});
+
+		this.addMessageCallback(MessageType.VOICE_MAP, (payload : Payload) => {
+			if (!this._voiceEnabled) { return; }
+
+			const clients = new Map<number, string>();
+			Object.entries(payload.msg.D).forEach(([gameId, name] : [string, string]) => {
+				clients.set(Number(gameId), name);
+			});
+			this.callAll(clients);
+		});
 	}
 
 	private initTCP() : void {

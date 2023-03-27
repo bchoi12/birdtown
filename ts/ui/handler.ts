@@ -1,11 +1,11 @@
 
-import { HandlerType, Mode } from 'ui'
+import { HandlerType, UiMode } from 'ui/api'
 
 export interface Handler {
 	type() : HandlerType;
 	setup() : void;
 	reset() : void;
-	setMode(mode : Mode) : void;
+	setMode(mode : UiMode) : void;
 }
 
 export class HandlerBase {

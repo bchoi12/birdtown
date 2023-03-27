@@ -1,7 +1,8 @@
 
 import { game } from 'game'
 
-import { ui, HandlerType, Mode, NewClientMsg } from 'ui'
+import { ui } from 'ui'
+import { HandlerType, UiMode, NewClientMsg } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { Icon } from 'ui/util/icon'
@@ -28,7 +29,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 
 	reset() : void {}
 
-	setMode(mode : Mode) {}
+	setMode(mode : UiMode) {}
 
 	addStream(id : number, stream : MediaStream) : void {
 		let audio = Html.audio();
@@ -69,14 +70,8 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._clientsElm.append(volumeRange);
 	}
 
-
-	voiceEnabled() : boolean { return game.clientState().voiceEnabled(); }
 	setVoiceEnabled(enabled : boolean) : void {
-		if (this.voiceEnabled() === enabled) {
-			return;
-		}
-
-		game.clientState().setVoiceEnabled(true);
+		game.netcode().setVoiceEnabled(enabled);
 
 		/*
 		if (enabled) {

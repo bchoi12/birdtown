@@ -1,7 +1,7 @@
 import { game } from 'game'
-import { GameObject, GameObjectBase, NetworkBehavior } from 'game/core'
+import { GameObject, GameObjectBase, NetworkBehavior } from 'game/game_object'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
-import { LevelType } from 'game/system/level'
+import { LevelLoadMsg, LevelType, NewClientMsg } from 'game/system/api'
 
 import { defined } from 'util/common'
 
@@ -33,18 +33,6 @@ export interface System extends GameObject {
 	onSetGameId(gameId : number) : void;
 	onNewClient(msg : NewClientMsg) : void;
 	onLevelLoad(msg : LevelLoadMsg) : void;
-}
-
-export type NewClientMsg = {
-	connectionName : string;
-	displayName : string;
-	gameId : number;
-}
-
-export type LevelLoadMsg = {
-	level : LevelType;
-	version : number;
-	seed : number;
 }
 
 export abstract class SystemBase extends GameObjectBase implements System {

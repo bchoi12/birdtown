@@ -2,6 +2,7 @@ import * as BABYLON from "babylonjs";
 
 import { Data, DataFilter, DataMap } from 'network/data'
 import { System, SystemType } from 'game/system'
+import { LevelType } from 'game/system/api'
 import { Runner } from 'game/system/runner'
 import { ClientState } from 'game/system/client_state'
 import { ClientStates } from 'game/system/client_states'
@@ -10,14 +11,14 @@ import { DuelMode } from 'game/system/game_mode/duel_mode'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
-import { Level, LevelType } from 'game/system/level'
+import { Level } from 'game/system/level'
 import { Physics } from 'game/system/physics'
 import { World } from 'game/system/world'
 
 import { Client } from 'network/client'
 import { Netcode, ChannelType } from 'network/netcode'
 import { Host } from 'network/host'
-import { IncomingMessage, Message, MessageType } from 'network/message'
+import { Payload, Message, MessageType } from 'network/api'
 
 import { options } from 'options'
 
@@ -26,10 +27,9 @@ import { ui } from 'ui'
 import { defined, isLocalhost } from 'util/common'
 import { Html } from 'ui/html'
 import { NumberRingBuffer } from 'util/number_ring_buffer'
-import { Optional } from 'util/optional'
 
 interface GameOptions {
-	name : string;
+	displayName : string;
 	hostName : string;
 
 	host : boolean;
@@ -43,7 +43,7 @@ class Game {
 	]);
 
 	private _initialized : boolean;
-	private _id : Optional<number>;
+	private _id : number;
 	private _canvas : HTMLCanvasElement;
 	private _frameTimes : NumberRingBuffer;
 
@@ -63,7 +63,7 @@ class Game {
 
 	constructor() {
 		this._initialized = false;
-		this._id = Optional.empty(-1);
+		this._id = 0;
 		this._canvas = Html.canvasElm(Html.canvasGame);
 		this._frameTimes = new NumberRingBuffer(60);
 	}
@@ -78,7 +78,7 @@ class Game {
 
 		// TODO: move most of this stuff to network code
 		if (this._options.host) {
-			this._netcode = new Host(this._options.name, this._options.hostName);
+			this._netcode = new Host(this._options.hostName, this._options.displayName);
 			this._netcode.addRegisterCallback((name : string) => {
 				const gameId = game.nextId();
 				this._netcode.getConnection(name).setGameId(gameId);
@@ -87,7 +87,6 @@ class Game {
 					D: gameId,
 				});
 				this._runner.onNewClient({
-					connectionName: name,
 					displayName: this._netcode.getConnection(name).displayName(),
 					gameId: gameId,
 				});
@@ -97,34 +96,26 @@ class Game {
 				}
 			});
 		} else {
-			this._netcode = new Client(this._options.name, this._options.hostName);
-			this._netcode.addMessageCallback(MessageType.INIT_CLIENT, (incoming : IncomingMessage) => {
-				if (!defined(incoming.msg.D)) {
-					console.error("Error: invalid message ", incoming);
+			this._netcode = new Client(this._options.hostName, this._options.displayName);
+			this._netcode.addMessageCallback(MessageType.INIT_CLIENT, (payload : Payload) => {
+				if (!defined(payload.msg.D)) {
+					console.error("Error: invalid message ", payload);
 					return;
 				}
 
-				this.setId(<number>incoming.msg.D);
+				this.setId(<number>payload.msg.D);
 				if (isLocalhost()) {
 					console.log("Got client id", this.id());
 				}
 			});
 		}
-		this._netcode.addMessageCallback(MessageType.GAME, (incoming : IncomingMessage) => {
-			if (!defined(incoming.msg.D) || !defined(incoming.msg.S)) {
-				console.error("Error: invalid message ", incoming);
+		this._netcode.addMessageCallback(MessageType.GAME, (payload : Payload) => {
+			if (!defined(payload.msg.D) || !defined(payload.msg.S)) {
+				console.error("Error: invalid message ", payload);
 				return;
 			}
 
-			this._runner.importData(<DataMap>incoming.msg.D, incoming.msg.S);
-		});
-		this._netcode.addMessageCallback(MessageType.CHAT, (incoming : IncomingMessage) => {
-			if (!defined(incoming.msg.D)) {
-				console.error("Error: invalid message ", incoming);
-				return;
-			}
-
-			this._netcode.receiveChat(incoming.name, <string>incoming.msg.D);
+			this._runner.importData(<DataMap>payload.msg.D, payload.msg.S);
 		});
 		this._netcode.initialize();
 
@@ -179,8 +170,8 @@ class Game {
 	resize() : void { this._engine.resize(); }
 	initialized() : boolean { return this._initialized; }
 	canvas() : HTMLCanvasElement { return this._canvas; }
-	hasId() : boolean { return this._id.has(); }
-	id() : number { return this._id.get(); }
+	hasId() : boolean { return this._id > 0; }
+	id() : number { return this._id; }
 	options() : GameOptions { return this._options; }
 	averageFrameTime() : number { return this._frameTimes.average(); }
 
@@ -236,11 +227,10 @@ class Game {
 	}
 
 	private setId(id : number) : void {
-		this._id.set(id);
+		this._id = id;
 		this._netcode.setGameId(id);
 
     	this._runner.onNewClient({
-    		connectionName: this._netcode.name(),
     		displayName: this._netcode.displayName(),
     		gameId: id,
     	});

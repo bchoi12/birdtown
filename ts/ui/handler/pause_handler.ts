@@ -1,7 +1,8 @@
 
 import { options } from 'options'
 
-import { ui, HandlerType, Mode } from 'ui'
+import { ui } from 'ui'
+import { HandlerType, UiMode } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 
@@ -30,27 +31,27 @@ export class PauseHandler extends HandlerBase implements Handler {
 		document.addEventListener("keydown", (e : any) => {
 			if (!this._canPause || e.keyCode !== options.pauseKeyCode) return;
 
-			if (ui.mode() === Mode.CHAT) {
-				ui.setMode(Mode.GAME);
-			} else if (ui.mode() === Mode.GAME) {
-				ui.setMode(Mode.PAUSE);
-			} else if (ui.mode() === Mode.PAUSE) {
-				ui.setMode(Mode.GAME);
+			if (ui.mode() === UiMode.CHAT) {
+				ui.setMode(UiMode.GAME);
+			} else if (ui.mode() === UiMode.GAME) {
+				ui.setMode(UiMode.PAUSE);
+			} else if (ui.mode() === UiMode.PAUSE) {
+				ui.setMode(UiMode.GAME);
 			}
 		})
 
 		this._continueElm.onclick = (e : any) => {
-			if (ui.mode() !== Mode.PAUSE) {
+			if (ui.mode() !== UiMode.PAUSE) {
 				return;
 			}
-			ui.setMode(Mode.GAME);
+			ui.setMode(UiMode.GAME);
 		}
 	}
 
 	reset() : void {}
 
-	setMode(mode : Mode) : void {
-		if (mode === Mode.PAUSE) {
+	setMode(mode : UiMode) : void {
+		if (mode === UiMode.PAUSE) {
 			this._pauseElm.style.display = "block";
 			this._canPause = false;
 		} else {

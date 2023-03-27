@@ -2,7 +2,7 @@ import { encode, decode } from '@msgpack/msgpack'
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
 import { ChannelMap } from 'network/channel_map'
-import { IncomingMessage, Message, MessageType } from 'network/message'
+import { Payload, Message, MessageType } from 'network/api'
 import { Connection } from 'network/connection'
 import { Pinger } from 'network/pinger'
 
@@ -21,7 +21,7 @@ export enum ChannelType {
 
 type PeerMap = Map<string, ChannelMap>;
 type RegisterCallback = (name : string) => void;
-type MessageCallback = (incoming : IncomingMessage) => void;
+type MessageCallback = (incoming : Payload) => void;
 
 export abstract class Netcode {
 	private static readonly _validChannels : Set<string> = new Set([
@@ -32,6 +32,8 @@ export abstract class Netcode {
 	protected _displayName : string;
 	protected _hostName : string;
 	protected _gameId : number;
+	protected _initialized : boolean;
+	protected _peer : Peer;
 
 	protected _connections : Map<string, Connection>;
 	protected _pinger : Pinger;
@@ -39,15 +41,20 @@ export abstract class Netcode {
 	protected _registerBuffer : Buffer<string>;
 	protected _registerCallbacks : Array<RegisterCallback>;
 
-	protected _messageBuffer : Buffer<IncomingMessage>;
+	protected _messageBuffer : Buffer<Payload>;
 	protected _messageCallbacks : Map<MessageType, MessageCallback>;
 
-	protected _peer : Peer;
+	protected _voiceEnabled : boolean;
 
-	constructor(displayName : string, hostName : string) {
+	constructor(name : string, hostName : string, displayName : string) {
 		this._displayName = displayName;
 		this._hostName = hostName;
 		this._gameId = 0;
+		this._initialized = false;
+		this._peer = new Peer(name, {
+			debug: 2,
+			pingInterval: 5000,
+		});
 
 		this._connections = new Map();
 		this._pinger = new Pinger();
@@ -56,18 +63,13 @@ export abstract class Netcode {
 		this._registerCallbacks = new Array();
 		this._messageBuffer = new Buffer();
 		this._messageCallbacks = new Map();
+
+		this._voiceEnabled = false;
 	}
 
-	abstract isHost() : boolean;
 	initialize() : void {
 		this._peer.on("call", (incoming : MediaConnection) => {
 			// TODO: ignore calls if voice is disabled
-			console.log("Incoming call from", incoming.peer);
-
-			if (!this._connections.has(incoming.peer)) {
-				console.error("Received call from unknown peer:", incoming.peer);
-				return;
-			}
 
 			navigator.mediaDevices.getUserMedia({
 				audio: true,
@@ -77,9 +79,6 @@ export abstract class Netcode {
 
 				incoming.answer(stream);
 				incoming.on("stream", (stream : MediaStream) => {
-					console.log("Incoming stream from", incoming.peer);
-					this._connections.get(incoming.peer).setStream(stream);
-
 		      		ui.addStream(this._connections.get(incoming.peer).gameId(), stream);
 				});
 		    }).catch((e) => {
@@ -87,11 +86,13 @@ export abstract class Netcode {
 		    });
 		});
 	}
-	abstract initialized() : boolean;
-	abstract ready() : boolean;
+	initialized() : boolean { return this._initialized; }
 
+	abstract ready() : boolean;
+	abstract isHost() : boolean;
+
+	abstract setVoiceEnabled(enabled : boolean) : void;
 	abstract sendChat(message : string) : void;
-	abstract receiveChat(from : string, message : string) : void;
 
 	name() : string { return this._peer.id; }
 	displayName() : string { return this.hasGameId() ? (this._displayName + " #" + this.gameId()) : this._displayName; }
@@ -103,8 +104,35 @@ export abstract class Netcode {
 	peer() : Peer { return this._peer; }
 	ping() : number { return this._pinger.ping(); }
 	connections() : Map<string, Connection> { return this._connections; }
+	getOrAddConnection(name : string) : Connection {
+		if (this.hasConnection(name)) {
+			return this.getConnection(name);
+		}
+		let connection = new Connection();
+		this._connections.set(name, connection);
+		return connection;
+	}
 	hasConnection(name : string) : boolean { return this._connections.has(name); }
 	getConnection(name : string) : Connection { return this._connections.get(name); }
+	getVoiceMap() : Map<number, string> {
+		if (!this.isHost()) {
+			console.error("Error: client queried voice map");
+			return new Map();
+		}
+
+		const voiceMap = new Map<number, string>();
+		if (this._voiceEnabled) {
+			voiceMap.set(this.gameId(), this.name());
+		}
+		this._connections.forEach((connection : Connection, name : string) => {
+			if (!connection.hasGameId() || !connection.voiceEnabled()) {
+				return;
+			}
+
+			voiceMap.set(connection.gameId(), name);
+		});
+		return voiceMap;
+	}
 
 	preUpdate() : void {
 		for (let i = 0; i < this._registerBuffer.size(); ++i) {
@@ -136,45 +164,42 @@ export abstract class Netcode {
 
 	postUpdate() : void {}
 
-	register(connection : DataConnection) {
-		if (!Netcode._validChannels.has(connection.label)) {
-			console.error("Error: invalid channel type: " + connection.label);
+	register(dataConnection : DataConnection) {
+		if (!Netcode._validChannels.has(dataConnection.label)) {
+			console.error("Error: invalid channel type: " + dataConnection.label);
 			return;
 		}
-		const channelType = <ChannelType>connection.label;
-		if (!connection.open) {
-			console.error("Warning: registering unopen " + channelType + " channel for " + connection.peer);
+		const channelType = <ChannelType>dataConnection.label;
+		if (!dataConnection.open) {
+			console.error("Warning: registering unopen " + channelType + " channel for " + dataConnection.peer);
 		}
 
-		if (!this._connections.has(connection.peer)) {
-			let wrapper = new Connection();
-			if (connection.metadata) {
-				const meta = connection.metadata;
-
-				if (meta.name) {
-					wrapper.setDisplayName(meta.name);
-				}
-			}
-			this._connections.set(connection.peer, wrapper);
+		if (dataConnection.metadata && dataConnection.metadata.name) {
+			let connection = this.getConnection(dataConnection.peer);
 		}
 
-		let channels = this._connections.get(connection.peer).channels();
-		channels.register(channelType, connection);
+		let connection = this.getOrAddConnection(dataConnection.peer);
+		if (!connection.hasDisplayName() && dataConnection.metadata && dataConnection.metadata.name) {
+			connection.setDisplayName(dataConnection.metadata.name);
+		}
 
-		connection.on("data", (data : Object) => {
-			this.handleData(connection.peer, data);
+		let channels = this._connections.get(dataConnection.peer).channels();
+		channels.register(channelType, dataConnection);
+
+		dataConnection.on("data", (data : Object) => {
+			this.handleData(dataConnection.peer, data);
 		});
 
-		connection.on("close", () => {
+		dataConnection.on("close", () => {
 			channels.delete(channelType);
 		});
 
-		connection.on("error", (error) => {
+		dataConnection.on("error", (error) => {
 			console.error(error);
 		});
 
 		if (channels.ready()) {
-			this._registerBuffer.push(connection.peer);
+			this._registerBuffer.push(dataConnection.peer);
 		}
 	}
 
@@ -236,14 +261,8 @@ export abstract class Netcode {
 		return true;
 	}
 
-	call(name : string) : void {
-		if (!this._connections.has(name) || !this._connections.get(name).connected()) {
-			console.error("Attempting to call invalid peer:", name);
-			return;
-		}
-
-		if (this._connections.get(name).hasStream()) {
-			console.error("Already have stream to peer:", name);
+	call(name : string, gameId : number) : void {
+		if (name === this.name()) {
 			return;
 		}
 
@@ -255,19 +274,36 @@ export abstract class Netcode {
 
 	      	const outgoing = this._peer.call(name, stream);
 	      	outgoing.on("stream", (stream : MediaStream) => {
-	      		console.log("Outgoing stream to", name);
-	      		this._connections.get(name).setStream(stream);
-	      		ui.addStream(this._connections.get(name).gameId(), stream);
+	      		ui.addStream(gameId, stream);
 	      	});
 	    }).catch((e) => {
 	    	console.error("Failed to enable voice chat:", e);
 	    });
 	}
 
+	callAll(clients : Map<number, string>) : void {
+		console.log("Call", clients);
+
+		if (clients.size === 0) { return; }
+
+		clients.forEach((name : string, gameId : number) => {
+			this.call(name, gameId);
+		});
+	}
+
 	disconnect(name : string) : void {
 		if (this._connections.has(name)) {
 			this._connections.get(name).disconnect();
 		}
+	}
+
+	validatePayload(payload : Payload) : boolean {
+		if (!this._connections.has(payload.name)) {
+			console.error("Error: received payload from unknown source:", payload)
+			return false;
+		}
+
+		return true;
 	}
 
 	private async handleData(name : string, data : Object) {
@@ -291,16 +327,20 @@ export abstract class Netcode {
 			const msg = <Message>decoded;
 			if (this._messageCallbacks.has(msg.T)) {
 				const connection = this._connections.get(name);
-				const incoming = {
+				const payload = {
 					name: name,
 					id: connection.hasGameId() ? connection.gameId() : 0,
 					msg: msg,
 				};
 
+				if (!this.validatePayload(payload)) {
+					return;
+				}
+
 				if (msg.T === MessageType.GAME) {
-					this._messageBuffer.push(incoming);
+					this._messageBuffer.push(payload);
 				} else {
-					this._messageCallbacks.get(incoming.msg.T)(incoming);
+					this._messageCallbacks.get(payload.msg.T)(payload);
 				}
 			}
 		} else {

@@ -1,7 +1,8 @@
 
 import { options } from 'options'
 
-import { ui, HandlerType, Mode } from 'ui'
+import { ui } from 'ui'
+import { HandlerType, UiMode } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { KeyBindWrapper, KeyBindWrapperOptions } from 'ui/wrapper/key_bind_wrapper'
@@ -77,8 +78,8 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 
 	reset() : void {}
 
-	setMode(mode : Mode) : void {
-		if (mode === Mode.PAUSE) {
+	setMode(mode : UiMode) : void {
+		if (mode === UiMode.PAUSE) {
 			this._keyBindWrappers.forEach((wrapper) => {
 				wrapper.setActive(false);
 			})

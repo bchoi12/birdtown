@@ -4,6 +4,7 @@ import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { Entity, EntityOptions, EntityType } from 'game/entity'
 import { System, SystemBase, SystemType } from 'game/system'
+import { LevelType } from 'game/system/api'
 
 import { Data } from 'network/data'
 
@@ -13,12 +14,6 @@ import { ChangeTracker } from 'util/change_tracker'
 import { HexColor } from 'util/hex_color'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
-
-export enum LevelType {
-	UNKNOWN,
-	BIRDTOWN,
-	LOBBY,
-}
 
 enum State {
 	UNKNOWN,

@@ -1,11 +1,12 @@
 import { game } from 'game'
-import { LevelLoadMsg, NewClientMsg, System, SystemBase, SystemType } from 'game/system'
-import { LevelType } from 'game/system/level'
+import { System, SystemBase, SystemType } from 'game/system'
+import { LevelLoadMsg, LevelType, NewClientMsg } from 'game/system/api'
 import { DuelMode } from 'game/system/game_mode/duel_mode'
+
+import { Message, MessageType } from 'network/api'
 
 import { ChannelType } from 'network/netcode'
 import { Data, DataFilter, DataMap } from 'network/data'
-import { Message, MessageType } from 'network/message'
 
 export class Runner extends SystemBase implements System  {
 	private static readonly _maxFrameMillis = 32;
@@ -67,7 +68,7 @@ export class Runner extends SystemBase implements System  {
 			this.initialize();
 		}
 
-		if (game.options().host) {
+		if (this.isSource()) {
 			this._seqNum++;
 		}
 
@@ -90,9 +91,9 @@ export class Runner extends SystemBase implements System  {
 
 		if (this.isSource()) {
 			const connection = game.netcode();
-			const [message, has] = this.message(DataFilter.INIT);
+			const [msg, has] = this.message(DataFilter.INIT);
 			if (has) {
-				connection.broadcast(ChannelType.TCP, message);
+				connection.broadcast(ChannelType.TCP, msg);
 			}
 		}
 	}
@@ -102,20 +103,14 @@ export class Runner extends SystemBase implements System  {
 
 		if (this.isSource()) {
 			const connection = game.netcode();
-			const [message, has] = this.message(DataFilter.INIT);
+			const [msg, has] = this.message(DataFilter.INIT);
 			if (has) {
-				connection.broadcast(ChannelType.TCP, message);
+				connection.broadcast(ChannelType.TCP, msg);
 			}
 		}
 	}
 
 	message(filter : DataFilter) : [Message, boolean] {
-		let msg = {
-			T: MessageType.GAME,
-			S: this._seqNum,
-			D: {},
-		}
-
 		const [data, has] = this.dataMap(filter, this._seqNum);
 		if (!has) {
 			return [null, false];

@@ -1,5 +1,6 @@
 import { game } from 'game'
-import { NewClientMsg, System, SystemBase, SystemType } from 'game/system'
+import { System, SystemBase, SystemType } from 'game/system'
+import { NewClientMsg } from 'game/system/api'
 import { ClientState } from 'game/system/client_state'
 
 import { defined } from 'util/common'
@@ -21,7 +22,6 @@ export class ClientStates extends SystemBase implements System {
 
 		const clientState = <ClientState>this.getFactoryFn()(msg.gameId);
 		clientState.setDisplayName(msg.displayName);
-		clientState.setConnectionName(msg.connectionName);
 	}
 
 	allLoaded() : boolean {
