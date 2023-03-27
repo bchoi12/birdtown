@@ -83,6 +83,7 @@ class UI {
 	}
 
 	addStream(gameId : number, stream : MediaStream) : void { this._clientsHandler.addStream(gameId, stream); }
+	removeStream(gameId : number) : void { this._clientsHandler.removeStream(gameId); }
 	removeStreams() : void { this._clientsHandler.removeStreams(); }
 }
 

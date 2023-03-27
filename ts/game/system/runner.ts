@@ -3,7 +3,7 @@ import { System, SystemBase, SystemType } from 'game/system'
 import { LevelLoadMsg, LevelType, NewClientMsg } from 'game/system/api'
 import { DuelMode } from 'game/system/game_mode/duel_mode'
 
-import { Message, MessageType } from 'network/api'
+import { Message, MessageType } from 'network/message'
 
 import { ChannelType } from 'network/netcode'
 import { Data, DataFilter, DataMap } from 'network/data'

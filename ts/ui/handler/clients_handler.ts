@@ -30,12 +30,25 @@ export class ClientsHandler extends HandlerBase implements Handler {
 
 	setMode(mode : UiMode) {}
 
-	addStream(id : number, stream : MediaStream) : void {
+	addStream(gameId : number, stream : MediaStream) : void {
 		if (!game.netcode().voiceEnabled()) {
 			return;
 		}
 
-		this._clients.get(id).addStream(stream);
+		if (!this._clients.has(gameId)) {
+			console.error("Error: UI missing client %d", gameId);
+			return;
+		}
+
+		this._clients.get(gameId).addStream(stream);
+	}
+
+	removeStream(gameId : number) : void {
+		if (!this._clients.has(gameId)) {
+			return;
+		}
+
+		this._clients.get(gameId).removeStream();
 	}
 
 	removeStreams() : void {

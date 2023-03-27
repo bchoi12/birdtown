@@ -2,7 +2,7 @@ import { encode, decode } from '@msgpack/msgpack'
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
 import { ChannelMap } from 'network/channel_map'
-import { Payload, Message, MessageType } from 'network/api'
+import { Payload, Message, MessageType } from 'network/message'
 import { Connection } from 'network/connection'
 import { Pinger } from 'network/pinger'
 
@@ -48,6 +48,7 @@ export abstract class Netcode {
 	protected _messageBuffer : Buffer<Payload>;
 	protected _messageCallbacks : Map<MessageType, MessageCallback>;
 
+	protected _mediaConnections : Map<number, MediaConnection>;
 	protected _micEnabled : boolean;
 	protected _voiceEnabled : boolean;
 
@@ -69,6 +70,7 @@ export abstract class Netcode {
 		this._messageBuffer = new Buffer();
 		this._messageCallbacks = new Map();
 
+		this._mediaConnections = new Map();
 		this._micEnabled = false;
 		this._voiceEnabled = false;
 	}
@@ -84,9 +86,7 @@ export abstract class Netcode {
 
 			this.queryMic((stream : MediaStream) => {
 				incoming.answer(stream);
-				incoming.on("stream", (stream : MediaStream) => {
-		      		ui.addStream(incoming.metadata.gameId, stream);
-				});
+				this.addMediaConnection(incoming.metadata.gameId, incoming);
 			}, (e) => {
 				ui.chat("Failed to answer incoming call");
 			});
@@ -112,6 +112,7 @@ export abstract class Netcode {
 
 	peer() : Peer { return this._peer; }
 	ping() : number { return this._pinger.ping(); }
+	// TODO: deprecate, replace with stats()
 	connections() : Map<string, Connection> { return this._connections; }
 	getOrAddConnection(name : string) : Connection {
 		if (this.hasConnection(name)) {
@@ -313,9 +314,40 @@ export abstract class Netcode {
       			gameId: this.gameId(),
       		},
       	});
-      	outgoing.on("stream", (stream : MediaStream) => {
+      	this.addMediaConnection(gameId, outgoing);
+	}
+
+	protected addMediaConnection(gameId : number, mc : MediaConnection) {
+		if (this._mediaConnections.has(gameId)) {
+			console.error("Error: skipping adding duplicate MediaConnection for", gameId);
+			return;
+		}
+
+      	mc.on("stream", (stream : MediaStream) => {
       		ui.addStream(gameId, stream);
       	});
+      	mc.on("close", () => {
+      		ui.removeStream(gameId);
+      		this._mediaConnections.delete(gameId);
+      	});
+      	mc.on("error", (e) => {
+      		mc.close();
+      	});
+		this._mediaConnections.set(gameId, mc);
+	}
+
+	protected closeMediaConnection(gameId : number) : void {
+		this._mediaConnections.get(gameId).close();
+		this._mediaConnections.delete(gameId);
+		ui.removeStream(gameId);
+	}
+	protected closeMediaConnections() {
+		this._mediaConnections.forEach((mc : MediaConnection, gameId : number) => {
+			mc.close();
+		});
+
+		ui.removeStreams();
+		this._mediaConnections.clear();
 	}
 
 	disconnect(name : string) : void {
@@ -356,7 +388,7 @@ export abstract class Netcode {
 				const connection = this._connections.get(name);
 				const payload = {
 					name: name,
-					id: connection.hasGameId() ? connection.gameId() : 0,
+					gameId: connection.gameId(),
 					msg: msg,
 				};
 

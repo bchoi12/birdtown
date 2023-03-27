@@ -18,7 +18,7 @@ import { World } from 'game/system/world'
 import { Client } from 'network/client'
 import { Netcode, ChannelType } from 'network/netcode'
 import { Host } from 'network/host'
-import { Payload, Message, MessageType } from 'network/api'
+import { Payload, Message, MessageType } from 'network/message'
 
 import { options } from 'options'
 

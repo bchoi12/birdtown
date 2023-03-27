@@ -1,6 +1,7 @@
 import { Peer, DataConnection } from 'peerjs'
 
-import { MessageType, Payload } from 'network/api'
+import { MessageType, Payload } from 'network/message'
+import { VoiceMessage } from 'network/message/voice_message'
 import { Netcode, ChannelType } from 'network/netcode'
 
 import { ui } from 'ui'
@@ -54,18 +55,19 @@ export class Client extends Netcode {
 			return this._voiceEnabled;
 		}
 
-		const sent = this.send(this.hostName(), ChannelType.TCP, {
-			T: MessageType.VOICE,
-			D: enabled,
-		});
+		const sent = this.send(this.hostName(), ChannelType.TCP,
+			VoiceMessage.builder()
+				.setGameId(this.gameId())
+				.setEnabled(enabled)
+				.toMessage());
 
 		if (sent) {
 			this._voiceEnabled = enabled;
-
-			if (!this._voiceEnabled) {
-				ui.removeStreams();
-			}
 		}
+
+		if (!this._voiceEnabled) {
+			this.closeMediaConnections();
+		} 
 
 		return this._voiceEnabled;
 	}
@@ -73,6 +75,15 @@ export class Client extends Netcode {
 	private registerCallbacks() : void {
 		this.addMessageCallback(MessageType.CHAT, (payload : Payload) => {
 			ui.chat(<string>payload.msg.D);
+		});
+
+		this.addMessageCallback(MessageType.VOICE, (payload : Payload) => {
+			const [voiceMessage, ok] = VoiceMessage.parse(payload.msg);
+			if (!ok) { return; }
+
+			if (!voiceMessage.enabled()) {
+				this.closeMediaConnection(voiceMessage.gameId());
+			}
 		});
 
 		this.addMessageCallback(MessageType.VOICE_MAP, (payload : Payload) => {
