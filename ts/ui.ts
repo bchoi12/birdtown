@@ -82,8 +82,8 @@ class UI {
 		});
 	}
 
-	addStream(gameId : number, stream : MediaStream) { this._clientsHandler.addStream(gameId, stream); }
-	setVoiceEnabled(enabled : boolean) : void { this._clientsHandler.setVoiceEnabled(enabled); }
+	addStream(gameId : number, stream : MediaStream) : void { this._clientsHandler.addStream(gameId, stream); }
+	removeStreams() : void { this._clientsHandler.removeStreams(); }
 }
 
 export const ui = new UI();

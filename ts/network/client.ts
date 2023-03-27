@@ -49,9 +49,9 @@ export class Client extends Netcode {
 		});
 	}
 
-	override setVoiceEnabled(enabled : boolean) : void {
+	override setVoiceEnabled(enabled : boolean) : boolean {
 		if (this._voiceEnabled === enabled) {
-			return;
+			return this._voiceEnabled;
 		}
 
 		const sent = this.send(this.hostName(), ChannelType.TCP, {
@@ -61,7 +61,13 @@ export class Client extends Netcode {
 
 		if (sent) {
 			this._voiceEnabled = enabled;
+
+			if (!this._voiceEnabled) {
+				ui.removeStreams();
+			}
 		}
+
+		return this._voiceEnabled;
 	}
 
 	private registerCallbacks() : void {

@@ -28,6 +28,10 @@ export abstract class Netcode {
 		ChannelType.TCP,
 		ChannelType.UDP,
 	]);
+	private static readonly _mediaOptions = {
+		audio: true,
+	    video: false,
+    };
 
 	protected _displayName : string;
 	protected _hostName : string;
@@ -44,6 +48,7 @@ export abstract class Netcode {
 	protected _messageBuffer : Buffer<Payload>;
 	protected _messageCallbacks : Map<MessageType, MessageCallback>;
 
+	protected _micEnabled : boolean;
 	protected _voiceEnabled : boolean;
 
 	constructor(name : string, hostName : string, displayName : string) {
@@ -64,26 +69,27 @@ export abstract class Netcode {
 		this._messageBuffer = new Buffer();
 		this._messageCallbacks = new Map();
 
+		this._micEnabled = false;
 		this._voiceEnabled = false;
 	}
 
 	initialize() : void {
 		this._peer.on("call", (incoming : MediaConnection) => {
-			// TODO: ignore calls if voice is disabled
+			if (!this._voiceEnabled) {
+				return;
+			}
+			if (!incoming.metadata || incoming.metadata.gameId <= 0) {
+				return;
+			}
 
-			navigator.mediaDevices.getUserMedia({
-				audio: true,
-			    video: false,
-		    }).then((stream) => {
-		      	stream.getTracks().forEach((track) => { track.enabled = true; });
-
+			this.queryMic((stream : MediaStream) => {
 				incoming.answer(stream);
 				incoming.on("stream", (stream : MediaStream) => {
-		      		ui.addStream(this._connections.get(incoming.peer).gameId(), stream);
+		      		ui.addStream(incoming.metadata.gameId, stream);
 				});
-		    }).catch((e) => {
-		    	console.error("Failed to enable voice chat:", e);
-		    });
+			}, (e) => {
+				ui.chat("Failed to answer incoming call");
+			});
 		});
 	}
 	initialized() : boolean { return this._initialized; }
@@ -91,7 +97,7 @@ export abstract class Netcode {
 	abstract ready() : boolean;
 	abstract isHost() : boolean;
 
-	abstract setVoiceEnabled(enabled : boolean) : void;
+	abstract setVoiceEnabled(enabled : boolean) : boolean;
 	abstract sendChat(message : string) : void;
 
 	name() : string { return this._peer.id; }
@@ -100,6 +106,9 @@ export abstract class Netcode {
 	hasGameId() : boolean { return this._gameId > 0; }
 	setGameId(id : number) { this._gameId = id; }
 	gameId() : number { return this._gameId; }
+	toggleVoice() : boolean { return this.setVoiceEnabled(!this._voiceEnabled); }
+	micEnabled() : boolean { return this._micEnabled; }
+	voiceEnabled() : boolean { return this._voiceEnabled; }
 
 	peer() : Peer { return this._peer; }
 	ping() : number { return this._pinger.ping(); }
@@ -261,34 +270,52 @@ export abstract class Netcode {
 		return true;
 	}
 
-	call(name : string, gameId : number) : void {
+	callAll(clients : Map<number, string>) : void {
+		const callFn = () => {
+			clients.delete(this.gameId());
+			clients.forEach((name : string, gameId : number) => {
+				this.queryMic((stream : MediaStream) => {
+					this.call(name, gameId, stream);
+				}, (e) => {
+					ui.chat("Failed to call peer: " + e);
+				});
+			});
+		}
+
+		if (!this._micEnabled) {
+			this.queryMic((stream : MediaStream) => {
+				stream = null;
+				callFn();
+			}, (e) => {
+				ui.chat("Failed to get microphone permissions: " + e);
+			});
+		} else {
+			callFn();
+		}
+	}
+
+	protected queryMic(successCb : (stream : MediaStream) => void, failureCb : (e) => void) : void {
+		navigator.mediaDevices.getUserMedia(Netcode._mediaOptions).then((stream : MediaStream) => {
+			this._micEnabled = true;
+			successCb(stream);
+		}).catch((e) => {
+			failureCb(e);
+		});
+	}
+
+	protected call(name : string, gameId : number, stream : MediaStream) : void {
 		if (name === this.name()) {
 			return;
 		}
 
-		navigator.mediaDevices.getUserMedia({
-			audio: true,
-		    video: false,
-	    }).then((stream) => {
-	      	stream.getTracks().forEach((track) => { track.enabled = true; });
-
-	      	const outgoing = this._peer.call(name, stream);
-	      	outgoing.on("stream", (stream : MediaStream) => {
-	      		ui.addStream(gameId, stream);
-	      	});
-	    }).catch((e) => {
-	    	console.error("Failed to enable voice chat:", e);
-	    });
-	}
-
-	callAll(clients : Map<number, string>) : void {
-		console.log("Call", clients);
-
-		if (clients.size === 0) { return; }
-
-		clients.forEach((name : string, gameId : number) => {
-			this.call(name, gameId);
-		});
+      	const outgoing = this._peer.call(name, stream, {
+      		metadata: {
+      			gameId: this.gameId(),
+      		},
+      	});
+      	outgoing.on("stream", (stream : MediaStream) => {
+      		ui.addStream(gameId, stream);
+      	});
 	}
 
 	disconnect(name : string) : void {

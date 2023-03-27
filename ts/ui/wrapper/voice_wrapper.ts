@@ -1,13 +1,19 @@
 
+import { game } from 'game'
+
 import { ui } from 'ui'
 import { NewClientMsg } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon } from 'ui/util/icon'
 
+import { defined } from 'util/common'
+
 export class VoiceWrapper extends HtmlWrapper {
 
 	private _micButton : HTMLElement;
 	private _audioControls : Array<HTMLElement>;
+
+	private _stream : MediaStream;
 
 	constructor(msg : NewClientMsg) {
 		super(Html.span());
@@ -20,20 +26,16 @@ export class VoiceWrapper extends HtmlWrapper {
 			this.elm().onclick = (e) => {
 				e.stopPropagation();
 
-				// TODO: toggle
-				ui.setVoiceEnabled(true);
+				const enabled = game.netcode().toggleVoice();
 				while(this._micButton.firstChild) {
 					this._micButton.removeChild(this._micButton.firstChild);
 				}
-				this._micButton.append(Icon.microphone());
 
-				/*
-				if (ui.voiceEnabled()) {
+				if (enabled) {
 					this._micButton.append(Icon.microphone());
 				} else {
 					this._micButton.append(Icon.mutedMicrophone());
 				}
-				*/
 			};
 			this.elm().append(this._micButton);
 		}
@@ -45,6 +47,9 @@ export class VoiceWrapper extends HtmlWrapper {
 		if (this._audioControls.length > 0) {
 			return;
 		}
+
+		this._stream = stream;
+      	this._stream.getTracks().forEach((track) => { track.enabled = true; });
 
 		let audio = Html.audio();
 		audio.autoplay = true;
@@ -88,6 +93,9 @@ export class VoiceWrapper extends HtmlWrapper {
 	}
 
 	disable() : void {
+		if (defined(this._stream)) {
+			this._stream.getTracks().forEach(track => track.stop());
+		}
 		this._audioControls.forEach((elm) => {
 			this.elm().removeChild(elm);
 		});

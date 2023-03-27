@@ -54,21 +54,23 @@ export class Host extends Netcode {
 		this.addMessageCallback(MessageType.VOICE, (payload : Payload) => {
 			const voiceEnabled = <boolean>payload.msg.D;
 
-			this.getConnection(payload.name).setVoiceEnabled(voiceEnabled);
+			let connection = this.getConnection(payload.name);
+			connection.setVoiceEnabled(voiceEnabled);
 
 			if (voiceEnabled) {
 				this.send(payload.name, ChannelType.TCP, {
 					T: MessageType.VOICE_MAP,
 					D: Object.fromEntries(this.getVoiceMap()),
 				});
+				this.sendMessage(connection.displayName() + " joined voice chat");
 			}
 		});
 	}
 
 	override sendChat(message : string) : void { this.handleChat(this.name(), message); }
-	override setVoiceEnabled(enabled : boolean) : void {
+	override setVoiceEnabled(enabled : boolean) : boolean {
 		if (this._voiceEnabled === enabled) {
-			return;
+			return this._voiceEnabled;
 		}
 
 		this._voiceEnabled = enabled;
@@ -76,8 +78,8 @@ export class Host extends Netcode {
 		if (this._voiceEnabled) {
 			this.callAll(this.getVoiceMap());
 		}
+		return this._voiceEnabled;
 	}
-
 	private handleChat(from : string, message : string) : void {
 		if (message.length <= 0) {
 			return;
@@ -93,10 +95,13 @@ export class Host extends Netcode {
 		}
 
 		const fullMessage = displayName + ": " + message;
+		this.sendMessage(fullMessage);
+	}
+	private sendMessage(fullMessage : string) : void {
 		this.broadcast(ChannelType.TCP, {
 			T: MessageType.CHAT,
 			D: fullMessage,
 		});
-		ui.chat(fullMessage);
+		ui.chat(fullMessage);	
 	}
 }
