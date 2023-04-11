@@ -76,7 +76,8 @@ export interface GameObject {
 	registerProp<T extends Object>(prop : number, handler : PropHandler<T>);
 	setFactoryFn(factoryFn : FactoryFn) : void;
 	getFactoryFn() : FactoryFn;
-	addChild<T extends GameObject>(id : number, child : T) : T;
+	addChild<T extends GameObject>(child : T) : T;
+	registerChild<T extends GameObject>(id : number, child : T) : T;
 	hasChild(id : number) : boolean;
 	getChild<T extends GameObject>(id : number) : T;
 	unregisterChild(id : number) : void;
@@ -304,7 +305,10 @@ export abstract class GameObjectBase {
 
 	setFactoryFn(factoryFn : FactoryFn) : void { this._factoryFn = factoryFn; }
 	getFactoryFn() : FactoryFn { return this._factoryFn; }
-	addChild<T extends GameObject>(id : number, child : T) : T {
+	addChild<T extends GameObject>(child : T) : T {
+		return this.registerChild(this.numChildren() + 1, child);
+	}
+	registerChild<T extends GameObject>(id : number, child : T) : T {
 		if (id <= 0) {
 			console.error("Error: invalid child object ID %d for %s", id, this.name());
 			return;

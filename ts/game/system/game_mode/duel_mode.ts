@@ -6,34 +6,36 @@ import { Player } from 'game/entity/player'
 import { SystemType } from 'game/system'
 import { LevelType, NewClientMsg } from 'game/system/api'
 import { ClientState } from 'game/system/client_state'
+import { DuelMaker } from 'game/system/game_mode/duel_maker'
 import { GameModeBase } from 'game/system/game_mode'
 
 import { Data } from 'network/data'
-
-import { ui } from 'ui'
 
 import { Timer } from 'util/timer'
 
 export enum DuelState {
 	UNKNOWN,
-	FREE,
+	WAITING,
 	SETUP,
-	GAME,
-	VICTORY,
+	STARTED,
+	FINISH,
 }
 
+// TODO: change to GameMode
 export class DuelMode extends GameModeBase {
 
 	private _state : DuelState;
-	private _players : Player[];
 	private _resetTimer : Timer;
 
-	constructor() {
-		super(SystemType.DUEL_MODE);
+	private _duelMaker : DuelMaker; 
 
-		this._state = DuelState.FREE;
-		this._players = [];
+	constructor() {
+		super(SystemType.DUEL_MAKER);
+
+		this._state = DuelState.WAITING;
 		this._resetTimer = this.newTimer();
+
+		this._duelMaker = new DuelMaker();
 	}
 
 	override state() : number { return this._state; }
@@ -43,6 +45,7 @@ export class DuelMode extends GameModeBase {
 		}
 
 		this._state = state;
+		console.log(this._state);
 
 		if (this._state === DuelState.SETUP) {
 			game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
@@ -50,32 +53,6 @@ export class DuelMode extends GameModeBase {
 					clientState.requestReadyState();
 				}
 			});
-		}
-
-		if (!this.isSource()){
-			return;
-		}
-
-		switch(this._state) {
-		case DuelState.SETUP:
-			game.level().setLevel(LevelType.BIRDTOWN);
-			game.level().setSeed(Math.floor(1000 * Math.random()));
-			this._players.forEach((player : Player) => {
-				player.setDeactivated(true);
-			});
-			break;
-		case DuelState.GAME:
-			this._players.forEach((player : Player) => {
-				player.respawn();
-				player.setDeactivated(false);
-			});
-			game.level().finishLoad();
-			break;
-		case DuelState.VICTORY:
-			this._resetTimer.start(1000, () => {
-				this.setState(DuelState.SETUP);
-			});
-			break;
 		}
 	}
 
@@ -86,7 +63,7 @@ export class DuelMode extends GameModeBase {
 			return;
 		}
 
-		if (this._state === DuelState.FREE) {
+		if (this._state === DuelState.WAITING) {
     		let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
     			clientId: msg.gameId,
     			profileInit: {
@@ -106,37 +83,27 @@ export class DuelMode extends GameModeBase {
 			return;
 		}
 
-		if (this._state === DuelState.FREE) {
-			this._players = game.entities().queryEntities<Player>({
-				type: EntityType.PLAYER,
-				mapQuery: {},
-			});
-
-			let initialized = 0;
-			for (const player of this._players) {
-				if (player.initialized() && !player.dead()) {
-					initialized++;
-				}
-
-				if (initialized >= 2) {
-					this.setState(DuelState.SETUP);
-					break;
-				}
+		if (this._state === DuelState.WAITING) {
+			if (this._duelMaker.querySetup()) {
+				this._duelMaker.setup();
+				this.setState(DuelState.SETUP);
 			}
 		} else if (this._state === DuelState.SETUP) {
-			if (game.clientStates().allLoaded()) {
-				this.setState(DuelState.GAME);
+			if (this._duelMaker.queryStart()) {
+				this._duelMaker.start();
+				this.setState(DuelState.STARTED);
 			}
-		} else if (this._state === DuelState.GAME) {
-			let alive = 0;
-			for (const player of this._players) {
-				if (!player.dead()) {
-					alive++;
-				}
+		} else if (this._state === DuelState.STARTED) {
+			if (this._duelMaker.queryFinish()) {
+				this._duelMaker.finish();
+				this.setState(DuelState.FINISH);
 			}
-
-			if (alive <= 1) {
-				this.setState(DuelState.VICTORY);
+		} else if (this._state === DuelState.FINISH) {
+			if (!this._resetTimer.hasTimeLeft()) {
+				this._resetTimer.start(1000, () => {
+					this._duelMaker.setup();
+					this.setState(DuelState.SETUP);
+				});
 			}
 		}
 	}

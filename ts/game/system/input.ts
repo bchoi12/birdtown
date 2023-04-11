@@ -27,7 +27,7 @@ export class Input extends SystemBase implements System {
 		this.getFactoryFn()(msg.gameId);
 	}
 
-	addKeys(keys : Keys) : Keys { return this.addChild(keys.gameId(), keys); }
+	addKeys(keys : Keys) : Keys { return this.registerChild(keys.gameId(), keys); }
 	hasKeys(clientId : number) : boolean { return this.hasChild(clientId); }
 	getKeys(clientId? : number) : Keys {
 		clientId = defined(clientId) ? clientId : game.id();

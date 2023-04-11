@@ -5,6 +5,7 @@ import { Crate } from 'game/entity/crate'
 import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
 import { Rocket } from 'game/entity/projectile/rocket'
+import { SpawnPoint } from 'game/entity/spawn_point'
 import { Wall } from 'game/entity/wall'
 import { Bazooka } from 'game/entity/weapon/bazooka'
 
@@ -21,6 +22,7 @@ export namespace EntityFactory {
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
+		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 	]);
 
@@ -28,6 +30,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOM, { x: 12, y: 6 }],
 		[EntityType.ARCH_ROOF, { x: 12, y: 1 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44 }],
+		[EntityType.SPAWN_POINT, {x: 1, y: 1}],
 	]);
 
 	export function hasCreateFn(type : EntityType) : boolean { return createFns.has(type); }

@@ -40,7 +40,7 @@ export class ClientStates extends SystemBase implements System {
 		return true;
 	}
 
-	addClientState(info : ClientState) : ClientState { return this.addChild<ClientState>(info.gameId(), info); }
+	addClientState(info : ClientState) : ClientState { return this.registerChild<ClientState>(info.gameId(), info); }
 	hasClientState(gameId : number) : boolean { return this.hasChild(gameId); }
 	getClientState(gameId? : number) : ClientState { return this.getChild<ClientState>(defined(gameId) ? gameId : game.id()); }
 	clientStates() : Map<number, ClientState> { return <Map<number, ClientState>>this.getChildren(); }

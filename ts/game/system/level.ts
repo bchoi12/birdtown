@@ -209,7 +209,8 @@ export class Level extends SystemBase implements System {
 		let pos = new Vec2({ x: -6, y: -3 });
 
 		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
-		for (let i = 0; i < 4; ++i) {
+		const numBuildings = 3 + Math.floor(3 * this._rng.next());
+		for (let i = 0; i < numBuildings; ++i) {
 			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BASE, i);
 			let floors = 1 + Math.floor(3 * this._rng.next());
 
@@ -257,6 +258,15 @@ export class Level extends SystemBase implements System {
 				},
 			});
 			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOF).y / 2;
+
+			if (i == 0 || i == numBuildings - 1) {
+				this.addEntity(EntityType.SPAWN_POINT, {
+					profileInit: {
+						pos: pos.clone().add({y: 2}),
+					},
+				});
+			}
+
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 		}
 	}

@@ -225,7 +225,7 @@ export class Profile extends ComponentBase implements Component {
 			base: subProfile.name(),
 			id: id,
 		});
-		return this.addChild<Profile>(id, subProfile);
+		return this.registerChild<Profile>(id, subProfile);
 	}
 	getSubProfile(id : number) : Profile { return this.getChild<Profile>(id); }
 	addConstraint(id : number, constraint : MATTER.Constraint) : MATTER.Constraint {

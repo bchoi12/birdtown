@@ -29,7 +29,7 @@ export class Entities extends SystemBase implements System {
 		this.setFactoryFn((entityType : EntityType) => { return this.addMap(new EntityMap(entityType)); })
 	}
 
-	addMap(map : EntityMap) : EntityMap { return this.addChild<EntityMap>(map.entityType(), map); }
+	addMap(map : EntityMap) : EntityMap { return this.registerChild<EntityMap>(map.entityType(), map); }
 	hasMap(type : EntityType) : boolean { return this.hasChild(type); }
 	getMap(type : EntityType) : EntityMap { return this.getChild<EntityMap>(type); }
 	unregisterMap(type : EntityType) : void { this.unregisterChild(type); }

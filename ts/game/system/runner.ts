@@ -51,7 +51,7 @@ export class Runner extends SystemBase implements System  {
 			return;
 		}
 
-		this.addChild(system.type(), system);
+		this.registerChild(system.type(), system);
 		return system;
 	}
 

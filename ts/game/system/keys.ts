@@ -46,7 +46,7 @@ export class Keys extends ClientSystem implements System {
 				continue;
 			}
 
-			this.registerProp<boolean>(key, {
+			this.addProp<boolean>({
 				has: () => { return this._keyStates.has(key); },
 				export: () => { return this._keys.has(key); },
 				import: (obj : boolean) => {

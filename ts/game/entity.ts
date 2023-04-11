@@ -26,6 +26,7 @@ export enum EntityType {
 	EXPLOSION,
 	PLAYER,
 	ROCKET,
+	SPAWN_POINT,
 	WALL,
 }
 
@@ -163,7 +164,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	addComponent<T extends Component>(component : T) : T {
 		component.setEntity(this);
-		return this.addChild<T>(component.type(), component);
+		return this.registerChild<T>(component.type(), component);
 	}
 	hasComponent(type : ComponentType) : boolean { return this.hasChild(type); }
 	getComponent<T extends Component>(type : ComponentType) : T { return this.getChild<T>(type); }

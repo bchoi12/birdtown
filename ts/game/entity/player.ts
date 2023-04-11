@@ -124,10 +124,14 @@ export class Player extends EntityBase {
 		this._spawn = {x: 0, y: 0};
 		this._respawnTimer = this.newTimer();
 
-		this.addProp({
+		this.addProp<boolean>({
 			export: () => { return this._canDoubleJump; },
-			import: (obj : Object) => { this._canDoubleJump = <boolean>obj; },
+			import: (obj : boolean) => { this._canDoubleJump = obj; },
 		});
+		this.addProp<boolean>({
+			export: () => { return this._deactivated; },
+			import: (obj : boolean) => { this._deactivated = obj; },
+		})
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.set(Attribute.GROUNDED, false);
@@ -241,25 +245,11 @@ export class Player extends EntityBase {
 	}
 
 	setSpawn(spawn : Vec) : void { this._spawn = spawn; }
-	respawn(delay? : number) : void {
-		const respawnFn = () => {
-			this._health.reset();
-			this._profile.setPos(this._spawn);
-			this._profile.stop();
-			this._profile.setInertia(Infinity);
-		}
-
-		if (!defined(delay)) {
-			respawnFn();
-			return;
-		}
-
-		if (this._respawnTimer.hasTimeLeft()) {
-			return;
-		}
-		this._respawnTimer.start(delay, () => {
-			respawnFn();
-		});
+	respawn() : void {
+		this._health.reset();
+		this._profile.setPos(this._spawn);
+		this._profile.stop();
+		this._profile.setInertia(Infinity);
 	}
 	setDeactivated(deactivated : boolean) : void { this._deactivated = deactivated; }
 	dead() : boolean { return this._health.dead(); }
@@ -296,6 +286,11 @@ export class Player extends EntityBase {
 	override update(millis : number) : void {
 		super.update(millis);
 
+		if (this._deactivated) {
+			this._profile.stop();
+			return;
+		}
+
 		// Gravity
 		let gravity = GameConstants.gravity;
 		if (!this._attributes.getAttribute(Attribute.GROUNDED) && this._profile.vel().y < 0) {
@@ -303,7 +298,7 @@ export class Player extends EntityBase {
 		}
 		this._profile.setAcc({ y: gravity });
 
-		if (!this._health.dead() && !this._deactivated) {
+		if (!this._health.dead()) {
 			// Keypress acceleration
 			if (game.keys(this.clientId()).keyDown(Key.LEFT)) {
 				this._profile.setAcc({ x: -Player._sideAcc });
