@@ -5,8 +5,7 @@ import { LevelLoadMsg } from 'game/system/api'
 
 import { ui } from 'ui'
 
-// TODO: change to SetupState
-enum ReadyState {
+enum SetupState {
 	UNKNOWN,
 	WAITING,
 	READY,
@@ -15,7 +14,7 @@ enum ReadyState {
 export class ClientState extends ClientSystem implements System {
 
 	private _displayName : string;
-	private _readyState : ReadyState;
+	private _setupState : SetupState;
 	private _levelVersion : number;
 
 	constructor(gameId : number) {
@@ -27,7 +26,7 @@ export class ClientState extends ClientSystem implements System {
 		});
 
 		this._displayName = "";
-		this._readyState = ReadyState.UNKNOWN;
+		this._setupState = SetupState.UNKNOWN;
 		this._levelVersion = 0;
 
 		this.addProp<string>({
@@ -35,10 +34,10 @@ export class ClientState extends ClientSystem implements System {
 			export: () => { return this._displayName; },
 			import: (obj: string) => { this._displayName = obj; },
 		});
-		this.addProp<ReadyState>({
-			has: () => { return this.readyState() !== ReadyState.UNKNOWN; },
-			export: () => { return this.readyState(); },
-			import: (obj : ReadyState) => { this.setReadyState(obj); },
+		this.addProp<SetupState>({
+			has: () => { return this.setupState() !== SetupState.UNKNOWN; },
+			export: () => { return this.setupState(); },
+			import: (obj : SetupState) => { this.setSetupState(obj); },
 		});
 		this.addProp<number>({
 			has: () => { return this._levelVersion > 0; },
@@ -64,25 +63,24 @@ export class ClientState extends ClientSystem implements System {
 
 	levelVersion() : number { return this._levelVersion; }
 
-	// TODO: rename or remove prepared() method
-	prepared() : boolean { return this._readyState === ReadyState.READY; }
-	readyState() : ReadyState { return this._readyState; }
-	requestReadyState() : void { this.setReadyState(ReadyState.WAITING); }
-	setReadyState(readyState : ReadyState) : void {
-		if (this._readyState === readyState) {
+	setup() : boolean { return this._setupState === SetupState.READY; }
+	setupState() : SetupState { return this._setupState; }
+	requestSetupState() : void { this.setSetupState(SetupState.WAITING); }
+	setSetupState(setupState : SetupState) : void {
+		if (this._setupState === setupState) {
 			return;
 		}
 
-		this._readyState = readyState;
+		this._setupState = setupState;
 
 		if (!this.isSource()) {
 			return;
 		}
 
-		switch(this._readyState) {
-		case ReadyState.WAITING:
+		switch(this._setupState) {
+		case SetupState.WAITING:
 			ui.pushDialog(() => {
-				this.setReadyState(ReadyState.READY);
+				this.setSetupState(SetupState.READY);
 			});
 			break;
 		}

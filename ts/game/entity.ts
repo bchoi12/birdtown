@@ -22,6 +22,7 @@ export enum EntityType {
 	ARCH_ROOM,
 	ARCH_ROOF,
 	BAZOOKA,
+	CONSOLE,
 	CRATE,
 	EXPLOSION,
 	PLAYER,

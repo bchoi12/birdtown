@@ -10,15 +10,15 @@ import { DialogWrapper, DialogWrapperOptions } from 'ui/wrapper/dialog_wrapper'
 export class DialogHandler extends HandlerBase implements Handler {
 
 	private _dialogsElm : HTMLElement;
-
-	// TODO: map?
 	private _dialogs : Array<DialogWrapper>;
+	private _dialogCounter : number;
 
 	constructor() {
 		super(HandlerType.DIALOGS);
 
 		this._dialogsElm = Html.elm(Html.divDialogs);
 		this._dialogs = new Array();
+		this._dialogCounter = 0;
 	}
 
 	setup() : void {}
@@ -27,7 +27,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 	setMode(mode : UiMode) : void {}
 
-	pushDialog(dialogOptions : DialogWrapperOptions) : DialogWrapper {
+	pushDialog(dialogOptions : DialogWrapperOptions) : number {
 		dialogOptions.onSubmit.push((dialog : DialogWrapper) => {
 			this.popDialog(dialog);
 		});
@@ -39,7 +39,14 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 		this.showDialog();
 
-		return dialog;
+		this._dialogCounter++;
+		return this._dialogCounter;
+	}
+
+	popAll() : void {
+		while(this._dialogs.length > 0) {
+			this.popDialog(this._dialogs.pop());
+		}
 	}
 
 	popDialog(dialog : DialogWrapper) : void {

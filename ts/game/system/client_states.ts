@@ -33,7 +33,7 @@ export class ClientStates extends SystemBase implements System {
 		const order = this.childOrder();
 		for (let i = 0; i < order.length; ++i) {
 			const state = this.getClientState(order[i]);
-			if (!state.prepared() || state.levelVersion() !== levelVersion) {
+			if (!state.setup() || state.levelVersion() !== levelVersion) {
 				return false;
 			}
 		}
@@ -45,4 +45,6 @@ export class ClientStates extends SystemBase implements System {
 	getClientState(gameId? : number) : ClientState { return this.getChild<ClientState>(defined(gameId) ? gameId : game.id()); }
 	clientStates() : Map<number, ClientState> { return <Map<number, ClientState>>this.getChildren(); }
 	unregisterClientState(gameId : number) : void { this.unregisterChild(gameId); }
+
+	
 }

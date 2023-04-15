@@ -74,8 +74,8 @@ class UI {
 	onNewClient(msg : NewClientMsg) : void {
 		this._clientsHandler.onNewClient(msg);
 	}
-	pushDialog(onSubmit : () => void) : void {
-		this._dialogHandler.pushDialog({
+	pushDialog(onSubmit : () => void) : number {
+		return this._dialogHandler.pushDialog({
 			titleHtml: "TITLE",
 			textHtml: "click when ready",
 			onSubmit: [onSubmit],

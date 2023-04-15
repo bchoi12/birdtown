@@ -150,9 +150,9 @@ export class Level extends SystemBase implements System {
 		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 1, y: 2}, {x: 2, y: 2 });
 
 		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
-		for (let i = 0; i < 4; ++i) {
+		for (let i = 0; i < 5; ++i) {
 			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BASE, i);
-			let floors = (i % 3) === 0 ? 2 : 1;
+			let floors = (i % 4) === 0 ? 2 : 1;
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 			pos.y = -6;
@@ -179,7 +179,7 @@ export class Level extends SystemBase implements System {
 					pos: pos,
 				},
 				cardinalsInit: {
-					cardinals: (i % 3) === 0 ? CardinalFactory.noOpenings : CardinalFactory.openSides,
+					cardinals: (i % 4) === 0 ? CardinalFactory.noOpenings : CardinalFactory.openSides,
 				},
 				hexColorsInit: {
 					colors: colors,
@@ -187,8 +187,18 @@ export class Level extends SystemBase implements System {
 			});
 			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOF).y / 2;
 
+			if (i === 2) {
+				this.addEntity(EntityType.CONSOLE, {
+					profileInit: {
+						pos: pos.clone().add({ y: 1}),
+						dim: {x: 3, y: 1.5},
+					},
+				})
+			}
+
+
 			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
-			let chance = (i % 3) === 0 ? 0 : 1
+			let chance = (i % 2) === 0 ? 0 : 1
 			while (this._rng.next() < chance) {
 				this.addEntity(EntityType.CRATE, {
 					profileInit: {

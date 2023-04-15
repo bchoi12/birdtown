@@ -45,12 +45,11 @@ export class DuelMode extends GameModeBase {
 		}
 
 		this._state = state;
-		console.log(this._state);
 
 		if (this._state === DuelState.SETUP) {
 			game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
 				if (clientState.gameId() === game.id()) {
-					clientState.requestReadyState();
+					clientState.requestSetupState();
 				}
 			});
 		}
