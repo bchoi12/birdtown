@@ -6,7 +6,7 @@ import { DuelMode } from 'game/system/game_mode/duel_mode'
 
 import { Message, MessageType } from 'network/message'
 
-import { ChannelType } from 'network/netcode'
+import { ChannelType } from 'network/api'
 import { Data, DataFilter, DataMap } from 'network/data'
 
 export class Runner extends SystemBase implements System  {

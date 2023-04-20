@@ -1,6 +1,6 @@
 import { game } from 'game'
 
-import { ChannelType } from 'network/netcode'
+import { ChannelType } from 'network/api'
 import { ChannelMap, ChannelStat } from 'network/channel_map'
 import { Connection } from 'network/connection'
 

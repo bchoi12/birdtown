@@ -1,8 +1,8 @@
 import * as BABYLON from 'babylonjs'
 
 import { game } from 'game'
-import { ComponentType } from 'game/component/api'
-import { Attribute, Attributes } from 'game/component/attributes'
+import { AttributeType, ComponentType } from 'game/component/api'
+import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
@@ -26,7 +26,7 @@ export class Wall extends EntityBase {
 		});
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._attributes.set(Attribute.SOLID, true);
+		this._attributes.set(AttributeType.SOLID, true);
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {

@@ -1,4 +1,6 @@
-import { Netcode, ChannelType } from 'network/netcode'
+
+import { ChannelType } from 'network/api'
+import { Netcode } from 'network/netcode'
 import { Payload, Message, MessageType } from 'network/message'
 
 import { defined } from 'util/common'

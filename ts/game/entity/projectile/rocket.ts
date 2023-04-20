@@ -1,16 +1,17 @@
 import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
-import { ComponentType } from 'game/component/api'
-import { Attribute, Attributes } from 'game/component/attributes'
+import { AttributeType, ComponentType } from 'game/component/api'
+import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Explosion } from 'game/entity/explosion'
 import { Projectile } from 'game/entity/projectile'
-import { loader, LoadResult, MeshType } from 'game/loader'
+import { MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
@@ -45,7 +46,7 @@ export class Rocket extends Projectile {
 			},
 			meshFn: (model : Model) => {
 				const dim = this._profile.dim();
-				loader.load(MeshType.ROCKET, (result : LoadResult) => {
+				MeshFactory.load(MeshType.ROCKET, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.name = this.name();
 					mesh.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
@@ -94,7 +95,7 @@ export class Rocket extends Projectile {
 			return;
 		}
 
-		if (this._attributes.getAttribute(Attribute.OWNER) === other.id()) {
+		if (this._attributes.getAttribute(AttributeType.OWNER) === other.id()) {
 			return;
 		}
 
@@ -103,7 +104,7 @@ export class Rocket extends Projectile {
 		}
 
 		other.takeDamage(this.damage(), this);
-		if (other.getComponent<Attributes>(ComponentType.ATTRIBUTES).getAttribute(Attribute.SOLID)) {
+		if (other.getComponent<Attributes>(ComponentType.ATTRIBUTES).getAttribute(AttributeType.SOLID)) {
 			this.delete();
 		}
 	}

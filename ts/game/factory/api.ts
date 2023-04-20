@@ -1,0 +1,32 @@
+export enum MeshType {
+	UNKNOWN,
+	CHICKEN,
+	DUCK,
+
+	UZI,
+	BAZOOKA,
+	SNIPER,
+	STAR_GUN,
+
+	ROCKET,
+
+	COWBOY_HAT,
+	JETPACK,
+	HEADBAND,
+	SCOUTER,
+
+	ARCH_ROOM,
+	ARCH_ROOF,
+	ARCH_BALCONY,
+	TABLE,
+
+	BEACH_BALL,
+	TRASH_CAN,
+	POTTED_TREE,
+}
+
+export enum Texture {
+	UNKNOWN,
+	WATER_NORMALS,
+	SAND,
+}

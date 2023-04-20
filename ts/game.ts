@@ -15,8 +15,9 @@ import { Level } from 'game/system/level'
 import { Physics } from 'game/system/physics'
 import { World } from 'game/system/world'
 
+import { ChannelType } from 'network/api'
 import { Client } from 'network/client'
-import { Netcode, ChannelType } from 'network/netcode'
+import { Netcode } from 'network/netcode'
 import { Host } from 'network/host'
 import { Payload, Message, MessageType } from 'network/message'
 

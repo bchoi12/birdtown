@@ -1,6 +1,6 @@
 import { DataConnection } from 'peerjs'
 
-import { ChannelType } from 'network/netcode'
+import { ChannelType } from 'network/api'
 
 import { isLocalhost } from 'util/common'
 import { StatsTracker } from 'util/stats_tracker'

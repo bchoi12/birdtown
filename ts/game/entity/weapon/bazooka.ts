@@ -2,15 +2,15 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { ComponentType } from 'game/component/api'
-import { Attribute, Attributes } from 'game/component/attributes'
+import { AttributeType, ComponentType } from 'game/component/api'
+import { Attributes } from 'game/component/attributes'
 import { Profile } from 'game/component/profile'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Projectile } from 'game/entity/projectile'
 import { Weapon } from 'game/entity/weapon'
-import { MeshType } from 'game/loader'
+import { MeshType } from 'game/factory/api'
 
 import { defined } from 'util/common'
 import { Vec2 } from 'util/vector'
@@ -25,12 +25,12 @@ export class Bazooka extends Weapon {
 			id: this.id(),
 		});
 
-		this._attributes.set(Attribute.READY, true);
+		this._attributes.set(AttributeType.READY, true);
 	}
 
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
 	override shoot(dir : Vec2) : boolean {
-		if (!this._model.hasMesh() || !this._attributes.getAttribute(Attribute.READY)) {
+		if (!this._model.hasMesh() || !this._attributes.getAttribute(AttributeType.READY)) {
 			return false;
 		}
 
@@ -49,7 +49,7 @@ export class Bazooka extends Weapon {
 		});
 
 		if (hasRocket) {
-			rocket.getComponent<Attributes>(ComponentType.ATTRIBUTES).set(Attribute.OWNER, this._attributes.getAttribute(Attribute.OWNER));
+			rocket.getComponent<Attributes>(ComponentType.ATTRIBUTES).set(AttributeType.OWNER, this._attributes.getAttribute(AttributeType.OWNER));
 			rocket.setTTL(1000);
 		}
 

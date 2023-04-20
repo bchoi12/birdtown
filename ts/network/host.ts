@@ -1,8 +1,9 @@
 import { Peer } from 'peerjs'
 
+import { ChannelType } from 'network/api'
 import { MessageType, Payload } from 'network/message'
 import { VoiceMessage } from 'network/message/voice_message'
-import { Netcode, ChannelType } from 'network/netcode'
+import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
 

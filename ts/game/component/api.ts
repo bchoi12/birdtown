@@ -1,3 +1,4 @@
+
 export enum ComponentType {
 	UNKNOWN,
 	ATTRIBUTES,
@@ -7,4 +8,17 @@ export enum ComponentType {
 	MODEL,
 	OPENINGS,
 	PROFILE,
+}
+
+export enum AttributeType {
+	UNKNOWN,
+
+	// Boolean
+	GROUNDED,
+	READY,
+	SOLID,
+
+	// Integer
+	OWNER,
+	TEAM,
 }

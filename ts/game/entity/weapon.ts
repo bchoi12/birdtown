@@ -1,13 +1,14 @@
 import * as BABYLON from 'babylonjs'
 
 import { game } from 'game'
-import { ComponentType } from 'game/component/api'
-import { Attribute, Attributes } from 'game/component/attributes'
+import { AttributeType, ComponentType } from 'game/component/api'
+import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
-import { loader, LoadResult, MeshType } from 'game/loader'
+import { MeshType } from 'game/factory/api'
+import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
@@ -33,7 +34,7 @@ export abstract class Weapon extends EntityBase {
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
-				loader.load(this.meshType(), (result : LoadResult) => {
+				MeshFactory.load(this.meshType(), (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 
 					result.transformNodes.forEach((node : BABYLON.TransformNode) => {
@@ -50,12 +51,12 @@ export abstract class Weapon extends EntityBase {
 		this._reloadTimer = this.newTimer();
 	}
 
-	override ready() : boolean { return super.ready() && this._attributes.getAttribute(Attribute.OWNER) > 0; }
+	override ready() : boolean { return super.ready() && this._attributes.getAttribute(AttributeType.OWNER) > 0; }
 
 	override initialize() : void {
 		super.initialize();
 
-		this._owner = <number>this._attributes.getAttribute(Attribute.OWNER);
+		this._owner = <number>this._attributes.getAttribute(AttributeType.OWNER);
 	}
 
 	override preUpdate(millis : number) : void {
@@ -79,9 +80,9 @@ export abstract class Weapon extends EntityBase {
 
 	abstract shoot(dir : Vec2) : boolean;
 	reload(time : number) : void {
-		this._attributes.set(Attribute.READY, false);
+		this._attributes.set(AttributeType.READY, false);
 		this._reloadTimer.start(time, () => {
-			this._attributes.set(Attribute.READY, true);
+			this._attributes.set(AttributeType.READY, true);
 		});
 	}
 }

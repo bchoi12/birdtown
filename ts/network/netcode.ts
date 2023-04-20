@@ -1,6 +1,7 @@
 import { encode, decode } from '@msgpack/msgpack'
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
+import { ChannelType } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
 import { Payload, Message, MessageType } from 'network/message'
 import { Connection } from 'network/connection'
@@ -12,21 +13,16 @@ import { ui } from 'ui'
 
 import { Buffer } from 'util/buffer'
 import { isLocalhost } from 'util/common'
-
-export enum ChannelType {
-	UNKNOWN = "UNKNOWN",
-	TCP = "TCP",
-	UDP = "UDP",
-}
+import { DoubleMap } from 'util/double_map'
 
 type PeerMap = Map<string, ChannelMap>;
 type RegisterCallback = (name : string) => void;
 type MessageCallback = (incoming : Payload) => void;
 
 export abstract class Netcode {
-	private static readonly _validChannels : Set<string> = new Set([
-		ChannelType.TCP,
-		ChannelType.UDP,
+	private static readonly _validChannels : DoubleMap<ChannelType, string> = DoubleMap.fromEntries([
+		[ChannelType.TCP, "TCP"],
+		[ChannelType.UDP, "UDP"],
 	]);
 	private static readonly _mediaOptions = {
 		audio: true,
@@ -112,6 +108,11 @@ export abstract class Netcode {
 
 	peer() : Peer { return this._peer; }
 	ping() : number { return this._pinger.ping(); }
+
+	channelTypeToLabel(type : ChannelType) : string { return Netcode._validChannels.get(type); }
+	isLabelValid(label : string) : boolean { return Netcode._validChannels.hasReverse(label); }
+	labelToChannelType(label : string) : ChannelType { return Netcode._validChannels.getReverse(label); }
+
 	// TODO: deprecate, replace with stats()
 	connections() : Map<string, Connection> { return this._connections; }
 	getOrAddConnection(name : string) : Connection {
@@ -175,11 +176,11 @@ export abstract class Netcode {
 	postUpdate() : void {}
 
 	register(dataConnection : DataConnection) {
-		if (!Netcode._validChannels.has(dataConnection.label)) {
+		if (!this.isLabelValid(dataConnection.label)) {
 			console.error("Error: invalid channel type: " + dataConnection.label);
 			return;
 		}
-		const channelType = <ChannelType>dataConnection.label;
+		const channelType = this.labelToChannelType(dataConnection.label);
 		if (!dataConnection.open) {
 			console.error("Warning: registering unopen " + channelType + " channel for " + dataConnection.peer);
 		}
@@ -215,7 +216,7 @@ export abstract class Netcode {
 
 	unregister(connection : DataConnection) {
 		let channels = this._connections.get(connection.peer).channels();
-		const channelType = <ChannelType>connection.label;
+		const channelType = this.labelToChannelType(connection.label);
 
 		if (connection.open) {
 			connection.close();

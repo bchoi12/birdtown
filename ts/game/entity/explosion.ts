@@ -2,8 +2,8 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { ComponentType } from 'game/component/api'
-import { Attribute, Attributes } from 'game/component/attributes'
+import { AttributeType, ComponentType } from 'game/component/api'
+import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
@@ -63,7 +63,7 @@ export class Explosion extends EntityBase {
 		}
 
 		const otherAttributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-		if (!otherAttributes.getAttribute(Attribute.SOLID)) {
+		if (!otherAttributes.getAttribute(AttributeType.SOLID)) {
 			return;
 		}
 

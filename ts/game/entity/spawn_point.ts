@@ -1,5 +1,6 @@
 
-import { Attribute, Attributes } from 'game/component/attributes'
+import { AttributeType } from 'game/component/api'
+import { Attributes } from 'game/component/attributes'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'

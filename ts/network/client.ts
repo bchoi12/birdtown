@@ -1,8 +1,9 @@
 import { Peer, DataConnection } from 'peerjs'
 
+import { ChannelType } from 'network/api'
 import { MessageType, Payload } from 'network/message'
 import { VoiceMessage } from 'network/message/voice_message'
-import { Netcode, ChannelType } from 'network/netcode'
+import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
 
@@ -105,7 +106,7 @@ export class Client extends Netcode {
 				name: this.displayName(),
 			},
 			reliable: true,
-			label: ChannelType.TCP,
+			label: this.channelTypeToLabel(ChannelType.TCP),
 			serialization: "none",
 		});
 
@@ -137,7 +138,7 @@ export class Client extends Netcode {
 
 		this._udp = peer.connect(this.hostName(), {
 			reliable: false,
-			label: ChannelType.UDP,
+			label: this.channelTypeToLabel(ChannelType.UDP),
 			serialization: "none",
 		});
 

@@ -2,8 +2,8 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { ComponentType } from 'game/component/api'
-import { Attribute, Attributes } from 'game/component/attributes'
+import { AttributeType, ComponentType } from 'game/component/api'
+import { Attributes } from 'game/component/attributes'
 import { Health } from 'game/component/health'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
@@ -11,8 +11,8 @@ import { GameConstants } from 'game/game_object'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Weapon } from 'game/entity/weapon'
-import { EntityFactory } from 'game/factory/entity_factory'
-import { loader, LoadResult, MeshType } from 'game/loader'
+import { MeshType } from 'game/factory/api'
+import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { BodyFactory } from 'game/factory/body_factory'
 
 import { Key } from 'ui/api'
@@ -135,8 +135,8 @@ export class Player extends EntityBase {
 		})
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._attributes.set(Attribute.GROUNDED, false);
-		this._attributes.set(Attribute.SOLID, true);
+		this._attributes.set(AttributeType.GROUNDED, false);
+		this._attributes.set(AttributeType.SOLID, true);
 
 		this._health = this.addComponent<Health>(new Health({ health: 100 }));
 
@@ -188,7 +188,7 @@ export class Player extends EntityBase {
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
-				loader.load(MeshType.CHICKEN, (result : LoadResult) => {
+				MeshFactory.load(MeshType.CHICKEN, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					result.animationGroups.forEach((animationGroup : BABYLON.AnimationGroup) => {
 						if (this._moveAnimations.has(animationGroup.name)) {
@@ -238,7 +238,7 @@ export class Player extends EntityBase {
 			this.addTrackedEntity(EntityType.BAZOOKA, {
 				attributesInit: {
 					attributes: new Map([
-						[Attribute.OWNER, this.id()],
+						[AttributeType.OWNER, this.id()],
 					]),
 				},
 			});
@@ -278,7 +278,7 @@ export class Player extends EntityBase {
 			if (this._profile.pos().y < -8) {
 				this.takeDamage(1000);
 			}
-			this._attributes.set(Attribute.GROUNDED, this._jumpTimer.hasTimeLeft());
+			this._attributes.set(AttributeType.GROUNDED, this._jumpTimer.hasTimeLeft());
 		}
 
 		this._deadTracker.check();
@@ -294,7 +294,7 @@ export class Player extends EntityBase {
 
 		// Gravity
 		let gravity = GameConstants.gravity;
-		if (!this._attributes.getAttribute(Attribute.GROUNDED) && this._profile.vel().y < 0) {
+		if (!this._attributes.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0) {
 			gravity += (Player._fallMultiplier - 1) * GameConstants.gravity;
 		}
 		this._profile.setAcc({ y: gravity });
@@ -345,7 +345,7 @@ export class Player extends EntityBase {
 			this._profile.setVel({x: 0});
 		} else if (Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x)) {
 			let sideVel = this._profile.vel().x;
-			if (this._attributes.getAttribute(Attribute.GROUNDED)) {
+			if (this._attributes.getAttribute(AttributeType.GROUNDED)) {
 				sideVel *= 1 / (1 + Player._friction * millis / 1000);
 			} else {
 				sideVel *= 1 / (1 + Player._airResistance * millis / 1000);
@@ -377,7 +377,7 @@ export class Player extends EntityBase {
 		}
 
 		const otherAttributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-		if (!otherAttributes.getAttribute(Attribute.SOLID)) {
+		if (!otherAttributes.getAttribute(AttributeType.SOLID)) {
 			return;
 		}
 
@@ -448,7 +448,7 @@ export class Player extends EntityBase {
 			return;
 		}
 
-		if (!this._attributes.getAttribute(Attribute.GROUNDED) || this._health.dead()) {
+		if (!this._attributes.getAttribute(AttributeType.GROUNDED) || this._health.dead()) {
 			this._model.playAnimation(Animation.JUMP);
 		} else {
 			if (Math.abs(this._profile.acc().x) < 0.01) {

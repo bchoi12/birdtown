@@ -12,8 +12,9 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { loader, LoadResult, MeshType } from 'game/loader'
+import { MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
@@ -101,7 +102,7 @@ export abstract class Block extends EntityBase {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				loader.load(this.meshType(), (result : LoadResult) => {
+				MeshFactory.load(this.meshType(), (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.position = this._profile.pos().clone().sub({y: this._profile.dim().y / 2}).toBabylon3();
 

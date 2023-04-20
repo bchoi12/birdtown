@@ -1,7 +1,7 @@
 import { game } from 'game'
 import { GameObject, GameObjectBase, NetworkBehavior } from 'game/game_object'
 import { Entity, EntityOptions } from 'game/entity'
-import { LevelLoadMsg, LevelType, SystemType, NewClientMsg } from 'game/system/api'
+import { LevelType, SystemType, LevelLoadMsg, NewClientMsg } from 'game/system/api'
 
 import { defined } from 'util/common'
 

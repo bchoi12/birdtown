@@ -5,8 +5,7 @@ import { EntityFactory } from 'game/factory/entity_factory'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { System, SystemBase } from 'game/system'
-import { SystemType } from 'game/system/api'
-import { LevelType } from 'game/system/api'
+import { LevelType, SystemType } from 'game/system/api'
 
 import { Data } from 'network/data'
 
