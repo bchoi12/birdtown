@@ -1,5 +1,5 @@
 
-import { EntityType } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 
 import { Buffer } from 'util/buffer'
 import { HexColor } from 'util/hex_color'

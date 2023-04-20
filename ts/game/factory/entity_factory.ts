@@ -1,4 +1,5 @@
-import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { Entity, EntityOptions } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Console } from 'game/entity/console'

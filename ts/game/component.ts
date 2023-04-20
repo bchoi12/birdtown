@@ -1,21 +1,11 @@
 import { game } from 'game'
-import { GameObject, GameObjectBase, NetworkBehavior} from 'game/game_object'
+import { ComponentType } from 'game/component/api'
 import { Entity } from 'game/entity'
+import { GameObject, GameObjectBase, NetworkBehavior} from 'game/game_object'
 
 import { Data, DataFilter, DataMap } from 'network/data'
 
 import { defined } from 'util/common'
-
-export enum ComponentType {
-	UNKNOWN,
-	ATTRIBUTES,
-	CARDINALS,
-	HEALTH,
-	HEX_COLORS,
-	MODEL,
-	OPENINGS,
-	PROFILE,
-}
 
 export interface Component extends GameObject {
 	type() : ComponentType;

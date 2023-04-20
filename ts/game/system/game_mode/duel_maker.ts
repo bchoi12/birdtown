@@ -1,13 +1,12 @@
 
 import { game } from 'game'
-import { ComponentType } from 'game/component'
+import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
-import { EntityType } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { SpawnPoint } from 'game/entity/spawn_point'
 
-import { SystemType } from 'game/system'
-import { LevelType } from 'game/system/api'
+import { LevelType, SystemType } from 'game/system/api'
 import { GameMaker, GameMakerBase } from 'game/system/game_mode/game_maker'
 
 export class DuelMaker extends GameMakerBase implements GameMaker {

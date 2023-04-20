@@ -1,7 +1,8 @@
 import * as BABYLON from 'babylonjs'
 
 import { game } from 'game'	
-import { System, SystemBase, SystemType } from 'game/system'
+import { System, SystemBase } from 'game/system'
+import { SystemType } from 'game/system/api'
 
 export class World extends SystemBase implements System {
 

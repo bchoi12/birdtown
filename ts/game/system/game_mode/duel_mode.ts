@@ -1,10 +1,9 @@
 
 import { game } from 'game'
 
-import { EntityType } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
-import { SystemType } from 'game/system'
-import { LevelType, NewClientMsg } from 'game/system/api'
+import { LevelType, SystemType, NewClientMsg } from 'game/system/api'
 import { ClientState } from 'game/system/client_state'
 import { DuelMaker } from 'game/system/game_mode/duel_maker'
 import { GameModeBase } from 'game/system/game_mode'

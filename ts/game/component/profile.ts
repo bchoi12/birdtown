@@ -1,7 +1,8 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { Component, ComponentBase, ComponentType } from 'game/component'
+import { Component, ComponentBase } from 'game/component'
+import { ComponentType } from 'game/component/api'
 
 import { options } from 'options'
 

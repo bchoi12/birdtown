@@ -1,5 +1,6 @@
 
-import { System, SystemBase, SystemType } from 'game/system'
+import { System, SystemBase } from 'game/system'
+import { SystemType } from 'game/system/api'
 
 import { Data } from 'network/data'
 

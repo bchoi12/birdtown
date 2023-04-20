@@ -1,6 +1,8 @@
 import { game } from 'game'	
-import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
-import { System, SystemBase, SystemType } from 'game/system'
+import { Entity, EntityBase, EntityOptions } from 'game/entity'
+import { EntityType } from 'game/entity/api'
+import { System, SystemBase } from 'game/system'
+import { SystemType } from 'game/system/api'
 
 export type EntityFilter<T extends Entity> = (entity : T) => boolean;
 export type EntityMapQuery<T extends Entity> = {

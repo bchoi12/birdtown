@@ -3,10 +3,9 @@ import * as BABYLON from 'babylonjs'
 import { game } from 'game'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
+import { Entity, EntityBase, EntityOptions } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
-
-import { Vec, Vec2 } from 'util/vector'
 
 export class Console extends EntityBase {
 
@@ -46,4 +45,6 @@ export class Console extends EntityBase {
 			init: entityOptions.profileInit,
 		}));
 	}
+
+
 }

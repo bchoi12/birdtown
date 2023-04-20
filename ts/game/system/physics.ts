@@ -1,7 +1,8 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
-import { System, SystemBase, SystemType } from 'game/system'
+import { System, SystemBase } from 'game/system'
+import { SystemType } from 'game/system/api'
 
 import { Html } from 'ui/html'
 

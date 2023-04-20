@@ -1,10 +1,11 @@
 import * as BABYLON from 'babylonjs'
 
 import { game } from 'game'
-import { ComponentType } from 'game/component'
+import { ComponentType } from 'game/component/api'
 import { Attribute, Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
-import { Entity, EntityBase, EntityOptions, EntityType } from 'game/entity'
+import { Entity, EntityBase, EntityOptions } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { loader, LoadResult, MeshType } from 'game/loader'
 

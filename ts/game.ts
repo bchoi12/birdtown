@@ -1,8 +1,8 @@
 import * as BABYLON from "babylonjs";
 
 import { Data, DataFilter, DataMap } from 'network/data'
-import { System, SystemType } from 'game/system'
-import { LevelType } from 'game/system/api'
+import { System } from 'game/system'
+import { LevelType, SystemType } from 'game/system/api'
 import { Runner } from 'game/system/runner'
 import { ClientState } from 'game/system/client_state'
 import { ClientStates } from 'game/system/client_states'

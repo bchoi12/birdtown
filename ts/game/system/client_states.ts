@@ -1,5 +1,6 @@
 import { game } from 'game'
-import { System, SystemBase, SystemType } from 'game/system'
+import { System, SystemBase } from 'game/system'
+import { SystemType } from 'game/system/api'
 import { NewClientMsg } from 'game/system/api'
 import { ClientState } from 'game/system/client_state'
 

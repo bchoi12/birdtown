@@ -1,5 +1,6 @@
 import { game } from 'game'
-import { System, SystemBase, SystemType } from 'game/system'
+import { System, SystemBase } from 'game/system'
+import { SystemType } from 'game/system/api'
 import { LevelLoadMsg, LevelType, NewClientMsg } from 'game/system/api'
 import { DuelMode } from 'game/system/game_mode/duel_mode'
 

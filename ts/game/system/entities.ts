@@ -1,7 +1,9 @@
 import { game } from 'game'	
-import { Entity, EntityOptions, EntityType } from 'game/entity'
+import { Entity, EntityOptions } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { EntityFactory } from 'game/factory/entity_factory'
-import { System, SystemBase, SystemType } from 'game/system'
+import { System, SystemBase } from 'game/system'
+import { SystemType } from 'game/system/api'
 import { EntityMap, EntityMapQuery } from 'game/system/entity_map'
 
 export type EntitiesQuery<T extends Entity> = {

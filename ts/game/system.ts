@@ -1,28 +1,9 @@
 import { game } from 'game'
 import { GameObject, GameObjectBase, NetworkBehavior } from 'game/game_object'
-import { Entity, EntityOptions, EntityType } from 'game/entity'
-import { LevelLoadMsg, LevelType, NewClientMsg } from 'game/system/api'
+import { Entity, EntityOptions } from 'game/entity'
+import { LevelLoadMsg, LevelType, SystemType, NewClientMsg } from 'game/system/api'
 
 import { defined } from 'util/common'
-
-export enum SystemType {
-	UNKNOWN,
-	CLIENT_INFO,
-	CLIENT_INFOS,
-	CLIENT_STATE,
-	CLIENT_STATES,
-	DUEL_MAKER,
-	DUEL_MODE,
-	ENTITIES,
-	ENTITY_MAP,
-	INPUT,
-	KEYS,
-	LAKITU,
-	LEVEL,
-	PHYSICS,
-	RUNNER,
-	WORLD,
-}
 
 export interface System extends GameObject {
 	type() : SystemType;

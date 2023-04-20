@@ -1,7 +1,8 @@
 import * as BABYLON from 'babylonjs'
 
 import { game } from 'game'
-import { Component, ComponentBase, ComponentType } from 'game/component'
+import { Component, ComponentBase } from 'game/component'
+import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { AnimationHandler } from 'game/util/animation_handler'

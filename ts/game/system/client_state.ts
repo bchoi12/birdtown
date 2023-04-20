@@ -1,7 +1,7 @@
 
 import { game } from 'game'
-import { ClientSystem, System, SystemType } from 'game/system'
-import { LevelLoadMsg } from 'game/system/api'
+import { ClientSystem, System } from 'game/system'
+import { SystemType, LevelLoadMsg } from 'game/system/api'
 
 import { ui } from 'ui'
 

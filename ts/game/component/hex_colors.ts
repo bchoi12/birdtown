@@ -1,6 +1,7 @@
 
 import { ColorType } from 'game/factory/color_factory'
-import { Component, ComponentBase, ComponentType } from 'game/component'
+import { Component, ComponentBase } from 'game/component'
+import { ComponentType } from 'game/component/api'
 
 import { defined } from 'util/common'
 import { HexColor } from 'util/hex_color'

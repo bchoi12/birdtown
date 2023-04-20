@@ -1,35 +1,17 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { Component, ComponentType } from 'game/component'
+import { Component } from 'game/component'
+import { ComponentType } from 'game/component/api'
 import { GameObject, GameObjectBase } from 'game/game_object'
 import { AttributesInitOptions } from 'game/component/attributes'
 import { CardinalsInitOptions } from 'game/component/cardinals'
 import { Health } from 'game/component/health'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { ProfileInitOptions } from 'game/component/profile'
+import { EntityType } from 'game/entity/api'
 
 import { defined } from 'util/common'
-
-export enum EntityType {
-	UNKNOWN,
-
-	BLOCK,
-	PROJECTILE,
-	WEAPON,
-
-	ARCH_BASE,
-	ARCH_ROOM,
-	ARCH_ROOF,
-	BAZOOKA,
-	CONSOLE,
-	CRATE,
-	EXPLOSION,
-	PLAYER,
-	ROCKET,
-	SPAWN_POINT,
-	WALL,
-}
 
 export type EntityOptions = {
 	id? : number;

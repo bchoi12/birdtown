@@ -1,0 +1,10 @@
+export enum ComponentType {
+	UNKNOWN,
+	ATTRIBUTES,
+	CARDINALS,
+	HEALTH,
+	HEX_COLORS,
+	MODEL,
+	OPENINGS,
+	PROFILE,
+}

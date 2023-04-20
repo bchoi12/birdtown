@@ -1,5 +1,6 @@
 import { ColorType } from 'game/factory/color_factory'
-import { EntityOptions, EntityType } from 'game/entity'
+import { EntityOptions } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { Block } from 'game/entity/block'
 
 export abstract class ArchBase extends Block {

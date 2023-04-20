@@ -1,8 +1,9 @@
 import * as BABYLON from "babylonjs";
 
-import { ComponentType } from 'game/component'
+import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
-import { System, SystemBase, SystemType } from 'game/system'
+import { System, SystemBase } from 'game/system'
+import { SystemType } from 'game/system/api'
 import { Entity } from 'game/entity'
 
 export class Lakitu extends SystemBase implements System {
