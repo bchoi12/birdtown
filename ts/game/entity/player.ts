@@ -15,7 +15,7 @@ import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { BodyFactory } from 'game/factory/body_factory'
 
-import { Key } from 'ui/api'
+import { KeyType } from 'ui/api'
 
 import { ChangeTracker } from 'util/change_tracker'
 import { defined } from 'util/common'
@@ -301,9 +301,9 @@ export class Player extends EntityBase {
 
 		if (!this._health.dead()) {
 			// Keypress acceleration
-			if (game.keys(this.clientId()).keyDown(Key.LEFT)) {
+			if (game.keys(this.clientId()).keyDown(KeyType.LEFT)) {
 				this._profile.setAcc({ x: -Player._sideAcc });
-			} else if (game.keys(this.clientId()).keyDown(Key.RIGHT)) {
+			} else if (game.keys(this.clientId()).keyDown(KeyType.RIGHT)) {
 				this._profile.setAcc({ x: Player._sideAcc });
 			} else {
 				this._profile.setAcc({ x: 0 });
@@ -322,19 +322,19 @@ export class Player extends EntityBase {
 
 			// Jumping
 			if (this._jumpTimer.hasTimeLeft()) {
-				if (game.keys(this.clientId()).keyDown(Key.JUMP)) {
+				if (game.keys(this.clientId()).keyDown(KeyType.JUMP)) {
 					this._profile.setVel({ y: Player._jumpVel });
 					this._jumpTimer.stop();
 				}
 			} else if (this._canDoubleJump) {
-				if (game.keys(this.clientId()).keyPressed(Key.JUMP)) {
+				if (game.keys(this.clientId()).keyPressed(KeyType.JUMP)) {
 					this._profile.setVel({ y: Player._jumpVel });
 					this._canDoubleJump = false;
 				}
 			}
 
 			if (this.isSource() && defined(this._weapon)) {
-				if (game.keys(this.clientId()).keyDown(Key.MOUSE_CLICK)) {
+				if (game.keys(this.clientId()).keyDown(KeyType.MOUSE_CLICK)) {
 					this._weapon.shoot(this._armDir);
 				}
 			}

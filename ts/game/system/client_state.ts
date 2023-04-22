@@ -4,6 +4,7 @@ import { ClientSystem, System } from 'game/system'
 import { SystemType, LevelLoadMsg } from 'game/system/api'
 
 import { ui } from 'ui'
+import { DialogType } from 'ui/api'
 
 enum SetupState {
 	UNKNOWN,
@@ -79,8 +80,11 @@ export class ClientState extends ClientSystem implements System {
 
 		switch(this._setupState) {
 		case SetupState.WAITING:
-			ui.pushDialog(() => {
-				this.setSetupState(SetupState.READY);
+			ui.pushDialog({
+				type: DialogType.CHECK_READY,
+				onSubmit: () => {
+					this.setSetupState(SetupState.READY);
+				},
 			});
 			break;
 		}

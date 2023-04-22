@@ -2,23 +2,21 @@
 import { options } from 'options'
 
 import { ui } from 'ui'
-import { HandlerType, UiMode } from 'ui/api'
+import { HandlerType, UiMode, DialogMsg } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
-import { DialogWrapper, DialogWrapperOptions } from 'ui/wrapper/dialog_wrapper'
+import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 
 export class DialogHandler extends HandlerBase implements Handler {
 
 	private _dialogsElm : HTMLElement;
 	private _dialogs : Array<DialogWrapper>;
-	private _dialogCounter : number;
 
 	constructor() {
 		super(HandlerType.DIALOGS);
 
 		this._dialogsElm = Html.elm(Html.divDialogs);
 		this._dialogs = new Array();
-		this._dialogCounter = 0;
 	}
 
 	setup() : void {}
@@ -27,20 +25,26 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 	setMode(mode : UiMode) : void {}
 
-	pushDialog(dialogOptions : DialogWrapperOptions) : number {
-		dialogOptions.onSubmit.push((dialog : DialogWrapper) => {
+	pushDialog(msg : DialogMsg) : void {
+		const dialog = new DialogWrapper();
+
+		dialog.setTitle("TITLE");
+		dialog.setText("testing " + Math.floor(Math.random() * 999));
+
+		if (msg.onSubmit) {
+			dialog.onSubmit(msg.onSubmit);
+		}
+
+		dialog.onSubmit(() => {
 			this.popDialog(dialog);
 		});
 
-		const dialog = new DialogWrapper(dialogOptions);
-
-		this._dialogs = [];
 		this._dialogs.push(dialog);
 
-		this.showDialog();
+		dialog.hide();
+		this._dialogsElm.appendChild(dialog.elm());
 
-		this._dialogCounter++;
-		return this._dialogCounter;
+		this.showDialog();
 	}
 
 	popAll() : void {
@@ -51,6 +55,9 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 	popDialog(dialog : DialogWrapper) : void {
 		this._dialogsElm.removeChild(dialog.elm());
+		this._dialogs.pop();
+
+		this.showDialog();
 	}
 
 	showDialog() : void {
@@ -58,7 +65,6 @@ export class DialogHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		this._dialogs[0].show();
-		this._dialogsElm.appendChild(this._dialogs[0].elm());
+		this._dialogs[this._dialogs.length - 1].show();
 	}
 }

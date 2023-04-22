@@ -1,4 +1,5 @@
 import * as BABYLON from 'babylonjs'
+import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Model } from 'game/component/model'
@@ -6,6 +7,9 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
+
+import { ui } from 'ui'
+import { TooltipType, TooltipMsg } from 'ui/api'
 
 export class Console extends EntityBase {
 
@@ -46,5 +50,20 @@ export class Console extends EntityBase {
 		}));
 	}
 
+	override collide(collision : MATTER.Collision, other : Entity) : void {
+		super.collide(collision, other);
 
+		if (other.type() !== EntityType.PLAYER) {
+			return;
+		}
+
+		if (!other.clientIdMatches()) {
+			return;
+		}
+
+		ui.showTooltip({
+			type: TooltipType.TEST,
+			ttl: 3000,
+		});
+	}
 }

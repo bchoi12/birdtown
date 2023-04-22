@@ -4,7 +4,7 @@ import { game } from 'game'
 import { options } from 'options'
 
 import { ui } from 'ui'
-import { HandlerType, Key, UiMode } from 'ui/api'
+import { HandlerType, KeyType, UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { Html } from 'ui/html'
 import { Vec } from 'util/vector'
@@ -13,8 +13,8 @@ export class InputHandler extends HandlerBase implements Handler {
 	private readonly _cursorWidth = 20;
 	private readonly _cursorHeight = 20;
 
-	private _keys : Set<Key>;
-	private _keyMap : Map<number, Key>;
+	private _keys : Set<KeyType>;
+	private _keyMap : Map<number, KeyType>;
 
 	private _keyDownCallbacks : Map<number, (e : any) => void>;
 	private _keyUpCallbacks : Map<number, (e : any) => void>;
@@ -81,12 +81,12 @@ export class InputHandler extends HandlerBase implements Handler {
 		this._keyDownCallbacks.clear();
 		this._keyUpCallbacks.clear();
 
-		this.mapKey(options.leftKeyCode, Key.LEFT);
-		this.mapKey(options.rightKeyCode, Key.RIGHT);
-		this.mapKey(options.jumpKeyCode, Key.JUMP);
-		this.mapKey(options.interactKeyCode, Key.INTERACT);
-		this.mapKey(options.mouseClickKeyCode, Key.MOUSE_CLICK);
-		this.mapKey(options.altMouseClickKeyCode, Key.ALT_MOUSE_CLICK);
+		this.mapKey(options.leftKeyCode, KeyType.LEFT);
+		this.mapKey(options.rightKeyCode, KeyType.RIGHT);
+		this.mapKey(options.jumpKeyCode, KeyType.JUMP);
+		this.mapKey(options.interactKeyCode, KeyType.INTERACT);
+		this.mapKey(options.mouseClickKeyCode, KeyType.MOUSE_CLICK);
+		this.mapKey(options.altMouseClickKeyCode, KeyType.ALT_MOUSE_CLICK);
 	}
 
 	setMode(mode : UiMode) : void {
@@ -101,7 +101,7 @@ export class InputHandler extends HandlerBase implements Handler {
 	keys() : Set<number> { return this._keys; }
 	mouse() : Vec { return this._mouse; }
 
-	private mapKey(keyCode : number, key : Key) {
+	private mapKey(keyCode : number, key : KeyType) {
 		this._keyMap.set(keyCode, key);
 
 		this._keyDownCallbacks.set(keyCode, (e : any) => { this.recordKeyDown(e); });
@@ -131,9 +131,9 @@ export class InputHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		let button = Key.MOUSE_CLICK;
+		let button = KeyType.MOUSE_CLICK;
 	    if ("which" in e && e.which == 3 || "button" in e && e.button == 2) {
-	        button = Key.ALT_MOUSE_CLICK;
+	        button = KeyType.ALT_MOUSE_CLICK;
 	    }
 
 		if (!this._keys.has(button)) {
@@ -146,9 +146,9 @@ export class InputHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		let button = Key.MOUSE_CLICK;
+		let button = KeyType.MOUSE_CLICK;
 	    if ("which" in e && e.which == 3 || "button" in e && e.button == 2) {
-	        button = Key.ALT_MOUSE_CLICK;
+	        button = KeyType.ALT_MOUSE_CLICK;
 	    }
 
 		this._keys.delete(button);

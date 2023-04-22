@@ -9,7 +9,7 @@ import { SystemType } from 'game/system/api'
 import { Data, DataFilter } from 'network/data'
 
 import { ui } from 'ui'
-import { Key } from 'ui/api'
+import { KeyType } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
@@ -23,8 +23,8 @@ enum KeyState {
 }
 
 export class Keys extends ClientSystem implements System {
-	private _keys : Set<Key>;
-	private _keyStates : Map<Key, KeyState>;
+	private _keys : Set<KeyType>;
+	private _keyStates : Map<KeyType, KeyState>;
 	private _mouse : Vec2;
 	private _dir : Vec2;
 
@@ -41,8 +41,8 @@ export class Keys extends ClientSystem implements System {
 		this._mouse = Vec2.zero();
 		this._dir = Vec2.i();
 
-		for (const stringKey in Key) {
-			const key = Number(Key[stringKey]);
+		for (const stringKey in KeyType) {
+			const key = Number(KeyType[stringKey]);
 			if (Number.isNaN(key) || key <= 0) {
 				continue;
 			}
@@ -82,23 +82,23 @@ export class Keys extends ClientSystem implements System {
 		});
 	}
 
-	keyDown(key : Key) : boolean { return this._keyStates.has(key) && (this._keyStates.get(key) === KeyState.DOWN || this.keyPressed(key)); }
-	keyUp(key : Key) : boolean { return this._keyStates.has(key) && (this._keyStates.get(key) === KeyState.UP || this.keyReleased(key)); }
-	keyPressed(key : Key) : boolean { return this._keyStates.has(key) && this._keyStates.get(key) === KeyState.PRESSED; }
-	keyReleased(key : Key) : boolean { return this._keyStates.has(key) && this._keyStates.get(key) === KeyState.RELEASED; }
+	keyDown(key : KeyType) : boolean { return this._keyStates.has(key) && (this._keyStates.get(key) === KeyState.DOWN || this.keyPressed(key)); }
+	keyUp(key : KeyType) : boolean { return this._keyStates.has(key) && (this._keyStates.get(key) === KeyState.UP || this.keyReleased(key)); }
+	keyPressed(key : KeyType) : boolean { return this._keyStates.has(key) && this._keyStates.get(key) === KeyState.PRESSED; }
+	keyReleased(key : KeyType) : boolean { return this._keyStates.has(key) && this._keyStates.get(key) === KeyState.RELEASED; }
 	dir() : Vec2 { return this._dir; }
 	mouse() : Vec2 { return this._mouse; }
 	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }
 
-	protected updateKey(key : Key, state : KeyState) : void {
+	protected updateKey(key : KeyType, state : KeyState) : void {
 		if (state === KeyState.RELEASED || state === KeyState.UP) {
-			this.releaseKey(<Key>key);
+			this.releaseKey(<KeyType>key);
 		} else {
-			this.pressKey(<Key>key);
+			this.pressKey(<KeyType>key);
 		}
 	}
 
-	protected pressKey(key : Key) : void {
+	protected pressKey(key : KeyType) : void {
 		if (this.keyDown(key)) {
 			this._keyStates.set(key, KeyState.DOWN);
 		} else {
@@ -106,7 +106,7 @@ export class Keys extends ClientSystem implements System {
 		}
 	}
 
-	protected releaseKey(key : Key) : void {
+	protected releaseKey(key : KeyType) : void {
 		if (this.keyUp(key)) {
 			this._keyStates.set(key, KeyState.UP);
 		} else {
@@ -141,10 +141,10 @@ export class Keys extends ClientSystem implements System {
 			this.updateMouse();
 		}
 
-		this._keys.forEach((key : Key) => {
+		this._keys.forEach((key : KeyType) => {
 			this.pressKey(key);
 		});
-		this._keyStates.forEach((keyState : KeyState, key : Key) => {
+		this._keyStates.forEach((keyState : KeyState, key : KeyType) => {
 			if (!this._keys.has(key)) {
 				this.releaseKey(key);
 			}

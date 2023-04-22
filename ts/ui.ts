@@ -1,7 +1,9 @@
 
-import { HandlerType, Key, UiMode, NewClientMsg } from 'ui/api'
+import { HandlerType, KeyType, UiMode, AnnouncementMsg, DialogMsg, NewClientMsg, TooltipMsg } from 'ui/api'
 
 import { Handler } from 'ui/handler'
+
+import { AnnouncementHandler } from 'ui/handler/announcement_handler'
 import { ClientsHandler } from 'ui/handler/clients_handler'
 import { ChatHandler } from 'ui/handler/chat_handler'
 import { DialogHandler } from 'ui/handler/dialog_handler'
@@ -11,6 +13,7 @@ import { LoginHandler } from 'ui/handler/login_handler'
 import { PauseHandler } from 'ui/handler/pause_handler'
 import { SettingsHandler } from 'ui/handler/settings_handler'
 import { StatsHandler } from 'ui/handler/stats_handler'
+import { TooltipHandler } from 'ui/handler/tooltip_handler'
 
 import { Vec } from 'util/vector'
 
@@ -20,6 +23,7 @@ class UI {
 
 	private _handlers : Map<HandlerType, Handler>;
 
+	private _announcementHandler : AnnouncementHandler;
 	private _chatHandler : ChatHandler;
 	private _clientsHandler : ClientsHandler;
 	private _dialogHandler : DialogHandler;
@@ -29,21 +33,24 @@ class UI {
 	private _pauseHandler : PauseHandler;
 	private _settingsHandler : SettingsHandler;
 	private _statsHandler : StatsHandler;
+	private _tooltipHandler : TooltipHandler;
 
 	constructor() {
 		this._mode = UiMode.DEFAULT;
 
 		this._handlers = new Map();		
 
-		this._chatHandler = this.add<ChatHandler>(new ChatHandler());
-		this._clientsHandler = this.add<ClientsHandler>(new ClientsHandler());
-		this._dialogHandler = this.add<DialogHandler>(new DialogHandler());
-		this._inputHandler = this.add<InputHandler>(new InputHandler());
+		this._announcementHandler = this.add(new AnnouncementHandler());
+		this._chatHandler = this.add(new ChatHandler());
+		this._clientsHandler = this.add(new ClientsHandler());
+		this._dialogHandler = this.add(new DialogHandler());
+		this._inputHandler = this.add(new InputHandler());
 		this._keyBindHandler = this.add<KeyBindHandler>(new KeyBindHandler());
 		this._loginHandler = this.add<LoginHandler>(new LoginHandler());
 		this._pauseHandler = this.add<PauseHandler>(new PauseHandler());
 		this._settingsHandler = this.add<SettingsHandler>(new SettingsHandler());
 		this._statsHandler = this.add<StatsHandler>(new StatsHandler());
+		this._tooltipHandler = this.add<TooltipHandler>(new TooltipHandler());
 	}
 
 	setup() : void {
@@ -67,20 +74,14 @@ class UI {
 
 	chat(msg : string) : void { this._chatHandler.chat(msg); }
 
-	keys() : Set<Key> { return this._inputHandler.keys(); }
+	keys() : Set<KeyType> { return this._inputHandler.keys(); }
 	mouse() : Vec { return this._inputHandler.mouse(); }
 	resetKeyBinds() : void { this._inputHandler.reset(); }
 
-	onNewClient(msg : NewClientMsg) : void {
-		this._clientsHandler.onNewClient(msg);
-	}
-	pushDialog(onSubmit : () => void) : number {
-		return this._dialogHandler.pushDialog({
-			titleHtml: "TITLE",
-			textHtml: "click when ready",
-			onSubmit: [onSubmit],
-		});
-	}
+	onNewClient(msg : NewClientMsg) : void { this._clientsHandler.onNewClient(msg); }
+	pushDialog(msg : DialogMsg) : void { this._dialogHandler.pushDialog(msg); }
+	showAnnouncement(msg : AnnouncementMsg) : void { this._announcementHandler.showAnnouncement(msg); }
+	showTooltip(msg : TooltipMsg) : void { this._tooltipHandler.showTooltip(msg); }
 
 	addStream(gameId : number, stream : MediaStream) : void { this._clientsHandler.addStream(gameId, stream); }
 	removeStream(gameId : number) : void { this._clientsHandler.removeStream(gameId); }

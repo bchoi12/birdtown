@@ -86,6 +86,12 @@ export class HtmlWrapper {
 
 	elm() : HTMLElement { return this._elm; }
 
+	show() : void { this.elm().style.display = "block"; }
+	hide() : void { this.elm().style.display = "none"; }
+	hidden() : boolean { return this.elm().style.display === "none"; }
+
+	setHtml(html : string) : void { this.elm().innerHTML = html; }
+
 	removeChildren() : void {
 		while (this._elm.firstChild) {
 			this._elm.removeChild(this._elm.firstChild);

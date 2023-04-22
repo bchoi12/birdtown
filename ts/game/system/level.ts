@@ -9,6 +9,9 @@ import { LevelType, SystemType } from 'game/system/api'
 
 import { Data } from 'network/data'
 
+import { ui } from 'ui'
+import { AnnouncementType } from 'ui/api'
+
 import { Buffer } from 'util/buffer'
 import { defined, isLocalhost } from 'util/common'
 import { ChangeTracker } from 'util/change_tracker'
@@ -124,6 +127,10 @@ export class Level extends SystemBase implements System {
 	    		seed: this._rng.getSeed(),
 	    		version: this._version,
 	    	});
+
+	    	ui.showAnnouncement({
+	    		type: AnnouncementType.TEST,
+	    	})
 			this._state = State.READY;
 		}
 	}

@@ -1,42 +1,43 @@
 
 import { ui } from 'ui'
+import { DialogSubmitMsg } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 
-export type DialogWrapperOptions = {
-	titleHtml : string;
-	textHtml : string;
-
-	onSubmit: Array<(dialog : DialogWrapper) => void>;
-}
+type OnSubmitFn = (msg : DialogSubmitMsg) => void;
 
 export class DialogWrapper extends HtmlWrapper {
 
 	private _titleElm : HTMLElement;
 	private _textElm : HTMLElement;
 
-	constructor(options : DialogWrapperOptions) {
+	private _onSubmitFns : Array<OnSubmitFn>;
+
+	constructor() {
 		super(Html.div());
 
 		this.elm().classList.add("dialog");
 
 		this._titleElm = Html.div();
 		this._titleElm.classList.add("dialog-title");
-		this._titleElm.innerHTML = options.titleHtml;
 		this.elm().appendChild(this._titleElm);
 
 		this._textElm = Html.div();
 		this._textElm.classList.add("dialog-text");
-		this._textElm.innerHTML = options.textHtml;
 		this.elm().appendChild(this._textElm);
 
+		this._onSubmitFns = new Array();
+
 		this.elm().onclick = (e) => {
-			options.onSubmit.forEach((fn) => {
-				fn(this);
+			this._onSubmitFns.forEach((fn) => {
+				fn({
+					data: new Map(),
+				});
 			});
 		};
 	}
 
-	show() : void {
-		this.elm().style.display = "block";
-	}
+	setTitle(title : string) : void { this._titleElm.innerHTML = title; }
+	setText(text : string) : void { this._textElm.innerHTML = text; }
+
+	onSubmit(fn : OnSubmitFn) : void { this._onSubmitFns.push(fn); }
 }
