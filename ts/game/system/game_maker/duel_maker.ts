@@ -7,7 +7,7 @@ import { Player } from 'game/entity/player'
 import { SpawnPoint } from 'game/entity/spawn_point'
 
 import { LevelType, SystemType } from 'game/system/api'
-import { GameMaker, GameMakerBase } from 'game/system/game_mode/game_maker'
+import { GameMaker, GameMakerBase } from 'game/system/game_maker/game_maker'
 
 export class DuelMaker extends GameMakerBase implements GameMaker {
 	

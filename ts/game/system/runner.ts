@@ -2,7 +2,6 @@ import { game } from 'game'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { LevelLoadMsg, LevelType, NewClientMsg } from 'game/system/api'
-import { DuelMode } from 'game/system/game_mode/duel_mode'
 
 import { Message, MessageType } from 'network/message'
 
@@ -36,12 +35,6 @@ export class Runner extends SystemBase implements System  {
 			export: () => { return this._updateSpeed; },
 			import: (obj : number) => { this._updateSpeed = obj; },
 		});
-
-		this.setFactoryFn((type : number) => {
-			if (type === SystemType.DUEL_MODE) {
-				return new DuelMode();
-			}
-		})
 	}
 
 	override ready() : boolean { return super.ready() && game.hasId(); }

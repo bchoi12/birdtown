@@ -7,7 +7,7 @@ import { Runner } from 'game/system/runner'
 import { ClientState } from 'game/system/client_state'
 import { ClientStates } from 'game/system/client_states'
 import { Entities } from 'game/system/entities'
-import { DuelMode } from 'game/system/game_mode/duel_mode'
+import { GameMode } from 'game/system/game_mode'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
@@ -56,6 +56,7 @@ class Game {
 	private _runner : Runner;
 	private _clientStates : ClientStates;
 	private _entities : Entities;
+	private _gameMode : GameMode;
 	private _input : Input;
 	private _lakitu : Lakitu;
 	private _level : Level;
@@ -123,6 +124,7 @@ class Game {
 		this._runner = new Runner();
 		this._clientStates = new ClientStates();
 		this._entities = new Entities();
+		this._gameMode = new GameMode();
 		this._input = new Input();
 		this._level = new Level();
 		this._physics = new Physics();
@@ -132,7 +134,7 @@ class Game {
 
 		// Order of insertion becomes order of execution
 		this._runner.push(this._clientStates);
-		this._runner.push(new DuelMode());
+		this._runner.push(this._gameMode);
 		this._runner.push(this._level);
 		this._runner.push(this._input);
 		this._runner.push(this._entities);
@@ -184,6 +186,7 @@ class Game {
 	engine() : BABYLON.Engine { return this._engine; }
 	clientStates() : ClientStates { return this._clientStates; }
 	clientState(id? : number) : ClientState { return this._clientStates.getClientState(id)}
+	gameMode() : GameMode { return this._gameMode; }
 	level() : Level { return this._level; }
 	physics() : Physics { return this._physics; }
 	lakitu() : Lakitu { return this._lakitu; }

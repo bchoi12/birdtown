@@ -9,9 +9,11 @@ import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
 
 import { ui } from 'ui'
-import { TooltipType, TooltipMsg } from 'ui/api'
+import { KeyType, TooltipType, TooltipMsg } from 'ui/api'
 
 export class Console extends EntityBase {
+
+	private _active : boolean;
 
 	private _model : Model;
 	private _profile : Profile;
@@ -22,6 +24,13 @@ export class Console extends EntityBase {
 		this.setName({
 			base: "console",
 			id: this.id(),
+		});
+
+		this._active = false;
+
+		this.addProp<boolean>({
+			export: () => { return this._active; },
+			import: (obj : boolean) => { this._active = obj; },
 		});
 
 		this._model = this.addComponent<Model>(new Model({
@@ -50,6 +59,12 @@ export class Console extends EntityBase {
 		}));
 	}
 
+	override prePhysics(millis : number) : void {
+		super.prePhysics(millis);
+
+		this._active = false;
+	}
+
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
@@ -61,9 +76,25 @@ export class Console extends EntityBase {
 			return;
 		}
 
-		ui.showTooltip({
-			type: TooltipType.TEST,
-			ttl: 3000,
-		});
+		this._active = true;
+	}
+
+	override preRender(millis : number) : void {
+		super.preRender(millis);
+
+		if (!this._active) {
+			return;
+		}
+
+		if (this.isSource()) {
+			ui.showTooltip({
+				type: TooltipType.TEST,
+				ttl: 3000,
+			});
+
+			if (game.keys().keyDown(KeyType.INTERACT)) {
+				game.gameMode().trySetup();
+			}
+		}
 	}
 }
