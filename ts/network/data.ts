@@ -11,9 +11,7 @@ export enum DataFilter {
 	UDP,
 }
 
-// TODO: deprecate DataMap?
 export type DataMap = { [k: number]: Object }
-
 export class Data {
 	public static readonly allFilters = new Set<DataFilter>([DataFilter.INIT, DataFilter.TCP, DataFilter.UDP]);
 	public static readonly initFilters = new Set<DataFilter>([DataFilter.INIT]);
@@ -23,40 +21,14 @@ export class Data {
 	public static readonly udp = DataFilter.UDP;
 	public static readonly tcp = DataFilter.TCP;
 
-	private static readonly numberEpsilon = 1e-2;
-
 	private _propData : Map<number, DataProp<Object>>;
 
 	constructor() {
 		this._propData = new Map();
 	}
 
-	static numberEquals(a : number, b : number) : boolean {
-		return Math.abs(a - b) < Data.numberEpsilon;
-	}
-
-	static equals(a : Object, b : Object) : boolean {
-		if (a === b) return true;
-		if (!defined(a) || !defined(b)) return false;
-		if (a !== Object(a) && b !== Object(b)) {
-			if (!Number.isNaN(a) && !Number.isNaN(b)) {
-				return Data.numberEquals(<number>a, <number>b);
-			}
-			return a === b;
-		};
-		if (Object.keys(a).length !== Object.keys(b).length) return false;
-
-		for (let key in a) {
-			if (!(key in b)) return false;
-			if (!Data.equals(a[key], b[key])) return false;
-		}
-		return true;
-	}
-
 	empty() : boolean { return this._propData.size === 0; }
-	tree() : Map<number, DataProp<Object>> { return this._propData; }
 	has(key : number) : boolean { return this._propData.has(key); }
-	getProp<T extends Object>(key : number) : DataProp<T> { return <DataProp<T>>this._propData.get(key); }
 	getValue<T extends Object>(key : number) : T { return <T>this._propData.get(key).get(); }
 
 	registerProp<T extends Object>(prop : number, propOptions : DataPropOptions<T>) : void {

@@ -24,6 +24,8 @@ type PublishInfo<T extends Object> = {
 
 export class DataProp<T extends Object> {
 
+	private static readonly numberEpsilon = 1e-2;
+
 	private _value : Optional<T>;
 	private _lastPublished : Map<DataFilter, PublishInfo<T>>;
 
@@ -51,8 +53,30 @@ export class DataProp<T extends Object> {
 		this._refreshInterval = new Optional(assignOr(propOptions.refreshInterval, null));
 		this._conditionalInterval = new Optional(assignOr(propOptions.conditionalInterval, null));
 		this._udpRedundancies = assignOr(propOptions.udpRedundancies, 2); 
-		this._equals = assignOr(propOptions.equals, (a : T, b : T) => { return Data.equals(a, b); });
+		this._equals = assignOr(propOptions.equals, (a : T, b : T) => { return DataProp.equals(a, b); });
 		this._filters = assignOr(propOptions.filters, Data.allFilters);
+	}
+
+	private static numberEquals(a : number, b : number) : boolean {
+		return Math.abs(a - b) < DataProp.numberEpsilon;
+	}
+
+	private static equals(a : Object, b : Object) : boolean {
+		if (a === b) return true;
+		if (!defined(a) || !defined(b)) return false;
+		if (a !== Object(a) && b !== Object(b)) {
+			if (!Number.isNaN(a) && !Number.isNaN(b)) {
+				return DataProp.numberEquals(<number>a, <number>b);
+			}
+			return a === b;
+		};
+		if (Object.keys(a).length !== Object.keys(b).length) return false;
+
+		for (let key in a) {
+			if (!(key in b)) return false;
+			if (!DataProp.equals(a[key], b[key])) return false;
+		}
+		return true;
 	}
 
 	has() : boolean { return this._value.has(); }

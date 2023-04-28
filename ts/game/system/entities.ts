@@ -14,6 +14,7 @@ export type EntitiesQuery<T extends Entity> = {
 export class Entities extends SystemBase implements System {
 
 	private _lastId : number;
+	private _lastOfflineId : number;
 	private _idToType : Map<number, EntityType>;
 	private _deletedIds : Set<number>;
 
@@ -25,6 +26,7 @@ export class Entities extends SystemBase implements System {
 		});
 
 		this._lastId = 0;
+		this._lastOfflineId = 0;
 		this._idToType = new Map();
 		this._deletedIds = new Set();
 
@@ -37,6 +39,16 @@ export class Entities extends SystemBase implements System {
 	unregisterMap(type : EntityType) : void { this.unregisterChild(type); }
 
 	addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : [T, boolean] {
+		if (!EntityFactory.hasCreateFn(type)) {
+			console.error("Error: missing factory function for entity type %d", type);
+			return [null, false];
+		}
+
+		if (entityOptions.offline) {
+			entityOptions.id = this.nextOfflineId();
+			return [this.addLocalObject<T>(EntityFactory.create<T>(type, entityOptions)), true];
+		}
+
 		if (!entityOptions.id) {
 			// Only allow source to create new objects
 			if (!this.isSource()) {
@@ -55,10 +67,6 @@ export class Entities extends SystemBase implements System {
 			console.error("Warning: overwriting object type %d (previous: %d), id %d", type, this._idToType.get(entityOptions.id), entityOptions.id);
 		}
 
-		if (!EntityFactory.hasCreateFn(type)) {
-			console.error("Error: missing factory function for entity type %d", type);
-		}
-
 		let entity = EntityFactory.create<T>(type, entityOptions);
 		this._idToType.set(entityOptions.id, type);
 
@@ -66,7 +74,6 @@ export class Entities extends SystemBase implements System {
 			this.addMap(new EntityMap(type));
 		}
 		this.getMap(type).addEntity(entity);
-		
 		return [entity, true];
 	}
 
@@ -114,5 +121,6 @@ export class Entities extends SystemBase implements System {
 		this._idToType.delete(id);
 	}
 
-	protected nextId() : number { return ++this._lastId; }
+	private nextId() : number { return ++this._lastId; }
+	private nextOfflineId() : number { return ++this._lastOfflineId; }
 }

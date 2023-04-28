@@ -51,7 +51,6 @@ export class GameMode extends SystemBase implements System {
 		}
 
 		this._state = state;
-
 		if (this._state === GameState.SETUP) {
 			game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
 				if (clientState.gameId() === game.id()) {

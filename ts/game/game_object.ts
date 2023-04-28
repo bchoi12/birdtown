@@ -7,10 +7,6 @@ import { DataPropOptions } from 'network/data_prop'
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
 
-export namespace GameConstants {
-	export const gravity = -0.85;
-}
-
 type HasFn = () => boolean;
 type ExportFn<T extends Object> = () => T;
 type ImportFn<T extends Object> = (object : T) => void;
@@ -72,6 +68,7 @@ export interface GameObject {
 	millisSinceUpdate() : number;
 	millisSinceImport() : number;
 
+	addLocalObject<T extends GameObject>(local : T) : T;
 	addProp<T extends Object>(handler : PropHandler<T>);
 	registerProp<T extends Object>(prop : number, handler : PropHandler<T>);
 	setFactoryFn(factoryFn : FactoryFn) : void;
@@ -90,8 +87,8 @@ export interface GameObject {
 	shouldBroadcast() : boolean;
 	isHost() : boolean;
 	isSource() : boolean;
-	setOffline(offline : boolean) : void;
 	isOffline() : boolean;
+	setOffline(offline : boolean) : void;
 	data() : Data;
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean];
 	updateData(seqNum : number) : void;
@@ -107,6 +104,7 @@ export abstract class GameObjectBase {
 	protected _lastUpdateTime : number;
 	protected _lastImportTime : number;
 
+	protected _localObjects : Array<GameObject>;
 	protected _data : Data;
 	protected _propHandlers : Map<number, PropHandler<Object>>;
 	protected _childOrder : Array<number>;
@@ -126,6 +124,7 @@ export abstract class GameObjectBase {
 		this._lastUpdateTime = Date.now();
 		this._lastImportTime = Date.now();
 
+		this._localObjects = new Array();
 		this._data = new Data();
 		this._propHandlers = new Map();
 		this._childOrder = new Array();
@@ -171,25 +170,24 @@ export abstract class GameObjectBase {
 	}
 	initialized() : boolean {return this._initialized; }
 	reset() : void {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			this.getChild(this._childOrder[i]).reset();
-		}
+		this.updateObjects((obj : GameObject) => {
+			obj.reset();
+		});
 	}
 	delete() : void {
 		if (this._deleted) {
 			return;
 		}
-
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			this.getChild(this._childOrder[i]).delete();
-		};
+		this.updateObjects((obj : GameObject) => {
+			obj.delete();
+		});
 		this._deleted = true;
 	}
 	deleted() : boolean { return this._deleted; }
 	dispose() : void {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			this.getChild(this._childOrder[i]).dispose();
-		};
+		this.updateObjects((obj : GameObject) => {
+			obj.dispose();
+		});
 	}
 
 	preUpdate(millis : number) : void {
@@ -199,88 +197,85 @@ export abstract class GameObjectBase {
 			timer.elapse(millis);
 		});
 
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let child = this.getChild(this._childOrder[i]);
-			if (!child.initialized() && child.ready()) {
-				child.initialize();
+		this.updateObjects((obj : GameObject) => {
+			if (!obj.initialized() && obj.ready()) {
+				obj.initialize();
 			}
 
-			if (child.deleted()) {
-				child.dispose();
+			if (obj.deleted()) {
+				obj.dispose();
 			}
 
-			if (child.initialized()) {
-				child.preUpdate(millis);
+			if (obj.initialized()) {
+				obj.preUpdate(millis);
 			}
-		};
+		});
 	}
 	update(millis : number) : void {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let child = this.getChild(this._childOrder[i]);
-			if (child.initialized()) {
-				child.update(millis);
+		this.updateObjects((obj : GameObject) => {
+			if (obj.initialized()) {
+				obj.update(millis);
 			}
-		};
+		});
 	}
 	postUpdate(millis : number) : void {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let child = this.getChild(this._childOrder[i]);
-			if (child.initialized()) {
-				child.postUpdate(millis);
+		this.updateObjects((obj : GameObject) => {
+			if (obj.initialized()) {
+				obj.postUpdate(millis);
 			}
-		};
+		});
 	}
 	prePhysics(millis : number) : void {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let child = this.getChild(this._childOrder[i]);
-			if (child.initialized()) {
-				child.prePhysics(millis);
+		this.updateObjects((obj : GameObject) => {
+			if (obj.initialized()) {
+				obj.prePhysics(millis);
 			}
-		};
+		});
 	}
 	physics(millis : number) : void {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let child = this.getChild(this._childOrder[i]);
-			if (child.initialized()) {
-				child.physics(millis);
+		this.updateObjects((obj : GameObject) => {
+			if (obj.initialized()) {
+				obj.physics(millis);
 			}
-		};
+		});
 	}
 	postPhysics(millis : number) : void {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let child = this.getChild(this._childOrder[i]);
-			if (child.initialized()) {
-				child.postPhysics(millis);
+		this.updateObjects((obj : GameObject) => {
+			if (obj.initialized()) {
+				obj.postPhysics(millis);
 			}
-		};
+		});
 	}
 	preRender(millis : number) : void {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let child = this.getChild(this._childOrder[i]);
-			if (child.initialized()) {
-				child.preRender(millis);
+		this.updateObjects((obj : GameObject) => {
+			if (obj.initialized()) {
+				obj.preRender(millis);
 			}
-		};
+		});
 	}
 	render(millis : number) : void {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let child = this.getChild(this._childOrder[i]);
-			if (child.initialized()) {
-				child.render(millis);
+		this.updateObjects((obj : GameObject) => {
+			if (obj.initialized()) {
+				obj.render(millis);
 			}
-		};
+		});
 	}
 	postRender(millis : number) : void {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let child = this.getChild(this._childOrder[i]);
-			if (child.initialized()) {
-				child.postRender(millis);
+		this.updateObjects((obj : GameObject) => {
+			if (obj.initialized()) {
+				obj.postRender(millis);
 			}
-		};
+		});
 	}
 
 	millisSinceUpdate() : number { return Date.now() - this._lastUpdateTime; }
 	millisSinceImport() : number { return Date.now() - this._lastImportTime; }
+
+	addLocalObject<T extends GameObject>(local : T) : T {
+		this._localObjects.push(local);
+		local.setOffline(true);
+		return local;
+	}
 
 	addProp<T extends Object>(handler : PropHandler<T>) : void {
 		this.registerProp(this.numProps() + 1, handler);
@@ -305,6 +300,7 @@ export abstract class GameObjectBase {
 
 	setFactoryFn(factoryFn : FactoryFn) : void { this._factoryFn = factoryFn; }
 	getFactoryFn() : FactoryFn { return this._factoryFn; }
+
 	addChild<T extends GameObject>(child : T) : T {
 		return this.registerChild(this.numChildren() + 1, child);
 	}
@@ -368,12 +364,12 @@ export abstract class GameObjectBase {
 	}
 	isHost() : boolean { return game.options().host; }
 	isSource() : boolean { return this.networkBehavior() === NetworkBehavior.SOURCE; }
-	setOffline(offline : boolean) : void { this._offline = offline; }
 	isOffline() : boolean { return this._offline; }
+	setOffline(offline : boolean) : void { this._offline = offline; }
 	data() : Data { return this._data; }
 
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean] {
-		if (!this.initialized() || this.isOffline()) {
+		if (!this.initialized()) {
 			return [{}, false];
 		}
 
@@ -394,7 +390,7 @@ export abstract class GameObjectBase {
 	}
 
 	updateData(seqNum : number) : void {
-		if (!this.initialized() || this.isOffline()) {
+		if (!this.initialized()) {
 			return;
 		}
 
@@ -413,10 +409,6 @@ export abstract class GameObjectBase {
 
 	importData(data : DataMap, seqNum : number) : void {
 		this._lastImportTime = Date.now();
-
-		if (this.isOffline()) {
-			return;
-		}
 
 		for (const [stringProp, value] of Object.entries(data)) {
 			const prop = Number(stringProp);
@@ -458,4 +450,15 @@ export abstract class GameObjectBase {
 	protected isProp(key : number) : boolean { return key <= this.numProps(); }
 	protected numProps() : number { return this._propHandlers.size; }
 	protected numChildren() : number { return this._childObjects.size; }
+
+	private updateObjects(update : (obj : GameObject) => void) : void {
+		for (let i = 0; i < this._localObjects.length; ++i) {
+			let obj = this._localObjects[i];
+			update(obj);
+		}
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let obj = this.getChild(this._childOrder[i]);
+			update(obj);
+		}
+	}
 }

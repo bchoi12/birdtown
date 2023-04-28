@@ -77,19 +77,15 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			this._clientId = entityOptions.clientId;
 		}
 
-		if (entityOptions.offline) {
-			this.setOffline(entityOptions.offline);
-		}
-
-		this.addProp<number>({
-			has: () => { return this.hasClientId(); },
-			export: () => { return this.clientId(); },
-			import: (obj : number) => { this._clientId = obj; },
-		});
 		this.addProp<boolean>({
 			has: () => { return this.deleted(); },
 			export: () => { return this.deleted(); },
 			import: (obj : boolean) => { if (obj) { this.delete(); } },
+		});
+		this.addProp<number>({
+			has: () => { return this.hasClientId(); },
+			export: () => { return this.clientId(); },
+			import: (obj : number) => { this._clientId = obj; },
 		});
 		this.addProp<number>({
 			has: () => { return this.hasLevelVersion(); },
@@ -109,18 +105,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		return true;
 	}
 
-	override delete() : void {
-		super.delete();
-
-		this._trackedEntities.forEach((id : number) => {
-			game.entities().deleteEntity(id);
-		});
-	}
-
 	override dispose() : void {
 		super.dispose();
 
-		game.entities().unregisterEntity(this.id());
+		if (!this.isOffline()) {
+			game.entities().unregisterEntity(this.id());
+		}
 	}
 
 	type() : EntityType { return this._type; }
