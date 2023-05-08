@@ -1,6 +1,6 @@
 import * as BABYLON from "babylonjs";
 
-import { Data, DataFilter, DataMap } from 'network/data'
+import { GameData, DataFilter, DataMap } from 'game/game_data'
 import { System } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 import { Runner } from 'game/system/runner'
@@ -19,7 +19,8 @@ import { ChannelType } from 'network/api'
 import { Client } from 'network/client'
 import { Netcode } from 'network/netcode'
 import { Host } from 'network/host'
-import { Payload, Message, MessageType } from 'network/message'
+import { MessageType } from 'network/message/api'
+import { NetworkMessage, NetworkProp } from 'network/message/network_message'
 
 import { options } from 'options'
 
@@ -84,10 +85,11 @@ class Game {
 			this._netcode.addRegisterCallback((name : string) => {
 				const gameId = game.nextId();
 				this._netcode.getConnection(name).setGameId(gameId);
-				this._netcode.send(name, ChannelType.TCP, {
-					T: MessageType.INIT_CLIENT,
-					D: gameId,
-				});
+				
+				let msg = new NetworkMessage(MessageType.INIT_CLIENT);
+				msg.setProp<number>(NetworkProp.CLIENT_ID, gameId);
+				this._netcode.send(name, ChannelType.TCP, msg);
+
 				this._runner.onNewClient({
 					displayName: this._netcode.getConnection(name).displayName(),
 					gameId: gameId,
@@ -99,25 +101,15 @@ class Game {
 			});
 		} else {
 			this._netcode = new Client(this._options.hostName, this._options.displayName);
-			this._netcode.addMessageCallback(MessageType.INIT_CLIENT, (payload : Payload) => {
-				if (!defined(payload.msg.D)) {
-					console.error("Error: invalid message ", payload);
-					return;
-				}
-
-				this.setId(<number>payload.msg.D);
+			this._netcode.addMessageCallback(MessageType.INIT_CLIENT, (msg : NetworkMessage) => {
+				this.setId(msg.getProp<number>(NetworkProp.CLIENT_ID));
 				if (isLocalhost()) {
 					console.log("Got client id", this.id());
 				}
 			});
 		}
-		this._netcode.addMessageCallback(MessageType.GAME, (payload : Payload) => {
-			if (!defined(payload.msg.D) || !defined(payload.msg.S)) {
-				console.error("Error: invalid message ", payload);
-				return;
-			}
-
-			this._runner.importData(<DataMap>payload.msg.D, payload.msg.S);
+		this._netcode.addMessageCallback(MessageType.GAME, (msg : NetworkMessage) => {
+			this._runner.importData(msg.getProp<DataMap>(NetworkProp.DATA), msg.getProp<number>(NetworkProp.SEQ_NUM));
 		});
 		this._netcode.initialize();
 

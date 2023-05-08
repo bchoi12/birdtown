@@ -7,7 +7,7 @@ import { EntityType } from 'game/entity/api'
 import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 
-import { Data } from 'network/data'
+import { GameData } from 'game/game_data'
 
 import { ui } from 'ui'
 import { AnnouncementType } from 'ui/api'
@@ -80,6 +80,9 @@ export class Level extends SystemBase implements System {
 	}
 
 	version() : number { return this._version; }
+	setVersion(version : number) : void {
+
+	}
 
 	setLevel(level : LevelType) : void {
 		if (level !== LevelType.UNKNOWN && this._level !== level) {
@@ -112,7 +115,6 @@ export class Level extends SystemBase implements System {
 			}
 
 			this._rng.reset();
-			// TODO: allow client to load the level themselves? Race conditions could be nasty
 			switch (this._level) {
 			case LevelType.LOBBY:
 				this.loadLobby();
@@ -130,7 +132,7 @@ export class Level extends SystemBase implements System {
 
 	    	ui.showAnnouncement({
 	    		type: AnnouncementType.TEST,
-	    	})
+	    	});
 			this._state = State.READY;
 		}
 	}

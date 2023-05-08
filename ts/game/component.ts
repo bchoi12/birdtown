@@ -3,7 +3,7 @@ import { ComponentType } from 'game/component/api'
 import { Entity } from 'game/entity'
 import { GameObject, GameObjectBase, NetworkBehavior} from 'game/game_object'
 
-import { Data, DataFilter, DataMap } from 'network/data'
+import { GameData, DataFilter, DataMap } from 'game/game_data'
 
 import { defined } from 'util/common'
 

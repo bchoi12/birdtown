@@ -3,10 +3,12 @@ import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { LevelLoadMsg, LevelType, NewClientMsg } from 'game/system/api'
 
-import { Message, MessageType } from 'network/message'
+import { Message } from 'network/message'
+import { MessageType } from 'network/message/api'
+import { NetworkMessage, NetworkProp } from 'network/message/network_message'
 
 import { ChannelType } from 'network/api'
-import { Data, DataFilter, DataMap } from 'network/data'
+import { GameData, DataFilter, DataMap } from 'game/game_data'
 
 export class Runner extends SystemBase implements System  {
 	private static readonly _maxFrameMillis = 32;
@@ -24,13 +26,6 @@ export class Runner extends SystemBase implements System  {
 		this._seqNum = 0;
 		this._updateSpeed = 1.0;
 
-		this.addProp<number>({
-			export: () => { return this._seqNum; },
-			import: (obj : number) => { this._seqNum = obj; },
-			options: {
-				optional: true,
-			},
-		});
 		this.addProp<number>({
 			export: () => { return this._updateSpeed; },
 			import: (obj : number) => { this._updateSpeed = obj; },
@@ -80,6 +75,11 @@ export class Runner extends SystemBase implements System  {
     	this.updateData(this._seqNum);
 	}
 
+	override importData(data : DataMap, seqNum : number) : void {
+		super.importData(data, seqNum);
+		this._seqNum = seqNum;
+	}
+
 	override onNewClient(msg : NewClientMsg) : void {
 		super.onNewClient(msg);
 
@@ -88,6 +88,7 @@ export class Runner extends SystemBase implements System  {
 			const [msg, has] = this.message(DataFilter.INIT);
 			if (has) {
 				connection.broadcast(ChannelType.TCP, msg);
+				console.log(msg);
 			}
 		}
 	}
@@ -110,10 +111,9 @@ export class Runner extends SystemBase implements System  {
 			return [null, false];
 		}
 
-		return [{
-			T: MessageType.GAME,
-			S: this._seqNum,
-			D: data,
-		}, true];
+		let msg = new NetworkMessage(MessageType.GAME);
+		msg.setProp<number>(NetworkProp.SEQ_NUM, this._seqNum)
+			.setProp<Object>(NetworkProp.DATA, data);
+		return [msg, true];
 	}
 }

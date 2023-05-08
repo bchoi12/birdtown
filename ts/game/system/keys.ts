@@ -6,7 +6,7 @@ import { Entity } from 'game/entity'
 import { ClientSystem, System } from 'game/system'
 import { SystemType } from 'game/system/api'
 
-import { Data, DataFilter } from 'network/data'
+import { GameData, DataFilter } from 'game/game_data'
 
 import { ui } from 'ui'
 import { KeyType } from 'ui/api'
@@ -59,7 +59,7 @@ export class Keys extends ClientSystem implements System {
 				},
 				options: {
 					refreshInterval: 100,
-					filters: Data.udpFilters,
+					filters: GameData.udpFilters,
 				},
 			})
 		}
@@ -69,7 +69,7 @@ export class Keys extends ClientSystem implements System {
 			import: (obj : Vec) => { this._mouse.copyVec(obj); },
 			options: {
 				refreshInterval: 100,
-				filters: Data.udpFilters,
+				filters: GameData.udpFilters,
 			},
 		});
 		this.addProp<Vec>({
@@ -77,7 +77,7 @@ export class Keys extends ClientSystem implements System {
 			import: (obj : Vec) => { this._dir.copyVec(obj); },
 			options: {
 				refreshInterval: 100,
-				filters: Data.udpFilters,
+				filters: GameData.udpFilters,
 			},
 		});
 	}

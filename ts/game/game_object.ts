@@ -1,8 +1,8 @@
 
 import { game } from 'game'
 
-import { Data, DataFilter, DataMap } from 'network/data'
-import { DataPropOptions } from 'network/data_prop'
+import { GameData, DataFilter, DataMap } from 'game/game_data'
+import { GamePropOptions } from 'game/game_prop'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
@@ -16,7 +16,7 @@ export type PropHandler<T extends Object> = {
 	export : ExportFn<T>;
 	import : ImportFn<T>;
 
-	options? : DataPropOptions<T>;
+	options? : GamePropOptions<T>;
 }
 
 export type NameParams = {
@@ -89,7 +89,7 @@ export interface GameObject {
 	isSource() : boolean;
 	isOffline() : boolean;
 	setOffline(offline : boolean) : void;
-	data() : Data;
+	data() : GameData;
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean];
 	updateData(seqNum : number) : void;
 	importData(data : DataMap, seqNum : number) : void;
@@ -105,7 +105,7 @@ export abstract class GameObjectBase {
 	protected _lastImportTime : number;
 
 	protected _localObjects : Array<GameObject>;
-	protected _data : Data;
+	protected _data : GameData;
 	protected _propHandlers : Map<number, PropHandler<Object>>;
 	protected _childOrder : Array<number>;
 	protected _childObjects : Map<number, GameObject>;
@@ -125,7 +125,7 @@ export abstract class GameObjectBase {
 		this._lastImportTime = Date.now();
 
 		this._localObjects = new Array();
-		this._data = new Data();
+		this._data = new GameData();
 		this._propHandlers = new Map();
 		this._childOrder = new Array();
 		this._childObjects = new Map();
@@ -366,7 +366,7 @@ export abstract class GameObjectBase {
 	isSource() : boolean { return this.networkBehavior() === NetworkBehavior.SOURCE; }
 	isOffline() : boolean { return this._offline; }
 	setOffline(offline : boolean) : void { this._offline = offline; }
-	data() : Data { return this._data; }
+	data() : GameData { return this._data; }
 
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean] {
 		if (!this.initialized()) {

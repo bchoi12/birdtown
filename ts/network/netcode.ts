@@ -3,7 +3,9 @@ import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
 import { ChannelType } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
-import { Payload, Message, MessageType } from 'network/message'
+import { Message } from 'network/message'
+import { MessageType } from 'network/message/api'
+import { NetworkMessage } from 'network/message/network_message'
 import { Connection } from 'network/connection'
 import { Pinger } from 'network/pinger'
 
@@ -17,7 +19,7 @@ import { DoubleMap } from 'util/double_map'
 
 type PeerMap = Map<string, ChannelMap>;
 type RegisterCallback = (name : string) => void;
-type MessageCallback = (incoming : Payload) => void;
+type MessageCallback = (message : NetworkMessage) => void;
 
 export abstract class Netcode {
 	private static readonly _validChannels : DoubleMap<ChannelType, string> = DoubleMap.fromEntries([
@@ -41,7 +43,7 @@ export abstract class Netcode {
 	protected _registerBuffer : Buffer<string>;
 	protected _registerCallbacks : Array<RegisterCallback>;
 
-	protected _messageBuffer : Buffer<Payload>;
+	protected _messageBuffer : Buffer<NetworkMessage>;
 	protected _messageCallbacks : Map<MessageType, MessageCallback>;
 
 	protected _mediaConnections : Map<number, MediaConnection>;
@@ -63,6 +65,7 @@ export abstract class Netcode {
 
 		this._registerBuffer = new Buffer();
 		this._registerCallbacks = new Array();
+
 		this._messageBuffer = new Buffer();
 		this._messageCallbacks = new Map();
 
@@ -166,8 +169,8 @@ export abstract class Netcode {
 
 		for (let i = 0; i < this._messageBuffer.size(); ++i) {
 			const incoming = this._messageBuffer.get(i);
-			if (this._messageCallbacks.has(incoming.msg.T)) {
-				this._messageCallbacks.get(incoming.msg.T)(incoming);
+			if (this._messageCallbacks.has(incoming.type())) {
+				this._messageCallbacks.get(incoming.type())(incoming);
 			}
 		}
 		this._messageBuffer.clear();
@@ -264,10 +267,10 @@ export abstract class Netcode {
 
 		if (isLocalhost() && options.debugDelay > 0) {
 			setTimeout(() => {
-				channels.send(type, encode(msg));
+				channels.send(type, encode(msg.toObject()));
 			}, options.debugDelay);
 		} else {
-			channels.send(type, encode(msg));
+			channels.send(type, encode(msg.toObject()));
 		}
 		return true;
 	}
@@ -357,15 +360,6 @@ export abstract class Netcode {
 		}
 	}
 
-	validatePayload(payload : Payload) : boolean {
-		if (!this._connections.has(payload.name)) {
-			console.error("Error: received payload from unknown source:", payload)
-			return false;
-		}
-
-		return true;
-	}
-
 	private async handleData(name : string, data : Object) {
 		let bytes;
 		if (data instanceof ArrayBuffer) {
@@ -373,38 +367,38 @@ export abstract class Netcode {
 		} else if (data instanceof Blob) {
 			bytes = new Uint8Array(await data.arrayBuffer());
 		} else {
-			console.error("Unknown data type: " + (typeof data));
+			console.error("Error: unknown data type: " + (typeof data));
 			return;
 		}
 
 		if (bytes.length === 0) {
-			console.error("Decoded empty payload");
+			console.error("Error: decoded empty payload");
 			return;
 		}
 
-		const decoded : Object = decode(bytes);
-		if ('T' in decoded) {
-			const msg = <Message>decoded;
-			if (this._messageCallbacks.has(msg.T)) {
-				const connection = this._connections.get(name);
-				const payload = {
-					name: name,
-					gameId: connection.gameId(),
-					msg: msg,
-				};
-
-				if (!this.validatePayload(payload)) {
-					return;
-				}
-
-				if (msg.T === MessageType.GAME) {
-					this._messageBuffer.push(payload);
-				} else {
-					this._messageCallbacks.get(payload.msg.T)(payload);
-				}
-			}
-		} else {
-			console.error("Missing payload type from message: ", decoded);
+		if (!this._connections.has(name)) {
+			console.error("Error: received message from unknown source", name);
+			return;
 		}
+
+		let msg = new NetworkMessage(MessageType.UNKNOWN);
+		msg.parseObject(decode(bytes));
+
+		const connection = this._connections.get(name);
+		msg.setName(name);
+
+		if (!msg.valid()) {
+			console.error("Error: invalid network message", msg);
+			return;
+		}
+
+		if (this._messageCallbacks.has(msg.type())) {
+			if (msg.type() === MessageType.GAME) {
+				this._messageBuffer.push(msg);
+			} else {
+				this._messageCallbacks.get(msg.type())(msg);
+			}
+		}
+
 	}
 }

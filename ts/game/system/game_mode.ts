@@ -8,11 +8,11 @@ import { LevelType, SystemType, NewClientMsg } from 'game/system/api'
 import { ClientState } from 'game/system/client_state'
 import { DuelMaker } from 'game/system/game_maker/duel_maker'
 
-import { Data } from 'network/data'
+import { GameData } from 'game/game_data'
 
 import { Timer } from 'util/timer'
 
-export enum GameState {
+enum GameState {
 	UNKNOWN,
 	WAITING,
 	SETUP,
@@ -25,6 +25,7 @@ export class GameMode extends SystemBase implements System {
 	private _state : GameState;
 	private _resetTimer : Timer;
 
+	// TODO: Optional<GameMaker>
 	private _duelMaker : DuelMaker; 
 
 	constructor() {
@@ -39,7 +40,7 @@ export class GameMode extends SystemBase implements System {
 			export: () => { return this.state(); },
 			import: (obj : number) => { this.setState(obj); },
 			options: {
-				filters: Data.tcpFilters,
+				filters: GameData.tcpFilters,
 			},
 		})
 	}

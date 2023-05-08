@@ -1,8 +1,8 @@
 import { Peer, DataConnection } from 'peerjs'
 
 import { ChannelType } from 'network/api'
-import { MessageType, Payload } from 'network/message'
-import { VoiceMessage } from 'network/message/voice_message'
+import { MessageType } from 'network/message/api'
+import { NetworkMessage, NetworkProp } from 'network/message/network_message'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
@@ -45,10 +45,9 @@ export class Client extends Netcode {
 			return;
 		}
 
-		this.send(this.hostName(), ChannelType.TCP, {
-			T: MessageType.CHAT,
-			D: message,
-		});
+		let msg = new NetworkMessage(MessageType.CHAT);
+		msg.setProp(NetworkProp.STRING, message);
+		this.send(this.hostName(), ChannelType.TCP, msg);
 	}
 
 	override setVoiceEnabled(enabled : boolean) : boolean {
@@ -56,12 +55,12 @@ export class Client extends Netcode {
 			return this._voiceEnabled;
 		}
 
-		const sent = this.send(this.hostName(), ChannelType.TCP,
-			VoiceMessage.builder()
-				.setGameId(this.gameId())
-				.setEnabled(enabled)
-				.toMessage());
+		let outgoing = new NetworkMessage(MessageType.VOICE);
+		outgoing
+			.setProp<number>(NetworkProp.CLIENT_ID, this.gameId())
+			.setProp<boolean>(NetworkProp.ENABLED, enabled);
 
+		const sent = this.send(this.hostName(), ChannelType.TCP, outgoing);
 		if (sent) {
 			this._voiceEnabled = enabled;
 		}
@@ -74,24 +73,21 @@ export class Client extends Netcode {
 	}
 
 	private registerCallbacks() : void {
-		this.addMessageCallback(MessageType.CHAT, (payload : Payload) => {
-			ui.chat(<string>payload.msg.D);
+		this.addMessageCallback(MessageType.CHAT, (msg : NetworkMessage) => {
+			ui.chat(msg.getProp<string>(NetworkProp.STRING));
 		});
 
-		this.addMessageCallback(MessageType.VOICE, (payload : Payload) => {
-			const [voiceMessage, ok] = VoiceMessage.parse(payload.msg);
-			if (!ok) { return; }
-
-			if (!voiceMessage.enabled()) {
-				this.closeMediaConnection(voiceMessage.gameId());
+		this.addMessageCallback(MessageType.VOICE, (msg : NetworkMessage) => {
+			if (!msg.getProp<boolean>(NetworkProp.ENABLED)) {
+				this.closeMediaConnection(msg.getProp<number>(NetworkProp.CLIENT_ID));
 			}
 		});
 
-		this.addMessageCallback(MessageType.VOICE_MAP, (payload : Payload) => {
+		this.addMessageCallback(MessageType.VOICE_MAP, (msg : NetworkMessage) => {
 			if (!this._voiceEnabled) { return; }
 
 			const clients = new Map<number, string>();
-			Object.entries(payload.msg.D).forEach(([gameId, name] : [string, string]) => {
+			Object.entries(msg.getProp<Object>(NetworkProp.CLIENT_MAP)).forEach(([gameId, name] : [string, string]) => {
 				clients.set(Number(gameId), name);
 			});
 			this.callAll(clients);

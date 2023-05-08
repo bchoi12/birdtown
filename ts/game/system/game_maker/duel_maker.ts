@@ -6,7 +6,7 @@ import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { SpawnPoint } from 'game/entity/spawn_point'
 
-import { LevelType, SystemType } from 'game/system/api'
+import { LevelType } from 'game/system/api'
 import { GameMaker, GameMakerBase } from 'game/system/game_maker/game_maker'
 
 export class DuelMaker extends GameMakerBase implements GameMaker {
@@ -15,7 +15,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 	private _spawnPoints : Array<SpawnPoint>;
 
 	constructor() {
-		super(SystemType.DUEL_MAKER);
+		super();
 
 		this._players = new Array();
 		this._spawnPoints = new Array();

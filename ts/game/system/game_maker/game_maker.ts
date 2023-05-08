@@ -1,7 +1,4 @@
 
-import { System, SystemBase } from 'game/system'
-import { SystemType } from 'game/system/api'
-
 export interface GameMaker {
 	canSetup() : boolean;
 	querySetup() : boolean;
@@ -16,13 +13,7 @@ export interface GameMaker {
 	finish() : void;
 }
 
-// TODO: probably doesn't have to be a system
-export abstract class GameMakerBase extends SystemBase implements GameMaker {
-	
-	constructor(type : SystemType) {
-		super(type);
-	}
-
+export abstract class GameMakerBase implements GameMaker {
 	abstract canSetup() : boolean;
 	abstract querySetup() : boolean;
 	setup() : void {}

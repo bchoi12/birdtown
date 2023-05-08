@@ -1,8 +1,8 @@
 import { Peer } from 'peerjs'
 
 import { ChannelType } from 'network/api'
-import { MessageType, Payload } from 'network/message'
-import { VoiceMessage } from 'network/message/voice_message'
+import { MessageType } from 'network/message/api'
+import { NetworkMessage, NetworkProp } from 'network/message/network_message'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
@@ -49,27 +49,27 @@ export class Host extends Netcode {
 	}
 
 	private registerCallbacks() : void {
-		this.addMessageCallback(MessageType.CHAT, (payload : Payload) => {
-			this.handleChat(payload.name, <string>payload.msg.D);
+		this.addMessageCallback(MessageType.CHAT, (msg : NetworkMessage) => {
+			this.handleChat(msg.name(), msg.getProp<string>(NetworkProp.STRING));
 		});
 
-		this.addMessageCallback(MessageType.VOICE, (payload : Payload) => {
-			const [voiceMessage, ok] = VoiceMessage.parse(payload.msg);
-			if (!ok) { return; }
+		this.addMessageCallback(MessageType.VOICE, (msg : NetworkMessage) => {
+			let connection = this.getConnection(msg.name());
+			connection.setVoiceEnabled(msg.getProp<boolean>(NetworkProp.ENABLED));
 
-			let connection = this.getConnection(payload.name);
-			connection.setVoiceEnabled(voiceMessage.enabled());
-			voiceMessage.setGameId(payload.gameId);
-			this.broadcast(ChannelType.TCP, voiceMessage.toMessage());
+			let outgoingMsg = new NetworkMessage(MessageType.VOICE);
+			outgoingMsg.setProp<boolean>(NetworkProp.ENABLED, msg.getProp<boolean>(NetworkProp.ENABLED));
+			outgoingMsg.setProp<number>(NetworkProp.CLIENT_ID, msg.getProp<number>(NetworkProp.CLIENT_ID));
 
-			if (voiceMessage.enabled()) {
-				this.send(payload.name, ChannelType.TCP, {
-					T: MessageType.VOICE_MAP,
-					D: Object.fromEntries(this.getVoiceMap()),
-				});
+			this.broadcast(ChannelType.TCP, outgoingMsg);
+
+			if (outgoingMsg.getProp<boolean>(NetworkProp.ENABLED)) {
+				let msg = new NetworkMessage(MessageType.VOICE_MAP);
+				msg.setProp<Object>(NetworkProp.CLIENT_MAP, Object.fromEntries(this.getVoiceMap()));
+				this.send(msg.name(), ChannelType.TCP, msg);
 				this.sendMessage(connection.displayName() + " joined voice chat");
 			} else {
-				this.closeMediaConnection(payload.gameId);
+				this.closeMediaConnection(msg.getProp<number>(NetworkProp.CLIENT_ID));
 			}
 		});
 	}
@@ -84,10 +84,10 @@ export class Host extends Netcode {
 
 		this._voiceEnabled = enabled;
 
-		this.broadcast(ChannelType.TCP, VoiceMessage.builder()
-			.setGameId(this.gameId())
-			.setEnabled(enabled)
-			.toMessage());
+		let outgoing = new NetworkMessage(MessageType.VOICE);
+		outgoing.setProp<number>(NetworkProp.CLIENT_ID, this.gameId())
+			.setProp<boolean>(NetworkProp.ENABLED, enabled);
+		this.broadcast(ChannelType.TCP, outgoing);
 
 		if (this._voiceEnabled) {
 			this.sendMessage(this.displayName() + " joined voice chat");
@@ -117,10 +117,9 @@ export class Host extends Netcode {
 	}
 
 	private sendMessage(fullMessage : string) : void {
-		this.broadcast(ChannelType.TCP, {
-			T: MessageType.CHAT,
-			D: fullMessage,
-		});
-		ui.chat(fullMessage);	
+		let msg = new NetworkMessage(MessageType.CHAT);
+		msg.setProp<string>(NetworkProp.STRING, fullMessage);
+		this.broadcast(ChannelType.TCP, msg);
+		ui.chat(fullMessage);
 	}
 }

@@ -7,7 +7,7 @@ import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { AnimationHandler } from 'game/util/animation_handler'
 
-import { Data, DataFilter, DataMap } from 'network/data'
+import { GameData, DataFilter, DataMap } from 'game/game_data'
 
 import { defined } from 'util/common'
 
