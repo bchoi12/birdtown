@@ -136,8 +136,10 @@ class Game {
 
 	    if (this._options.host) {
 	    	this.setId(1);
-		    this._level.setLevel(LevelType.LOBBY);	
-		    this._level.setSeed(Math.floor(Math.random() * 10000) + 1);
+		    this._level.setLevel({
+		    	level: LevelType.LOBBY,
+		    	seed: Math.floor(Math.random() * 10000) + 1,
+		    });	
 	    }
 
 	    this._engine.runRenderLoop(() => {

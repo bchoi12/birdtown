@@ -53,7 +53,6 @@ export class Runner extends SystemBase implements System  {
 			if (!this.ready()) {
 				return;
 			}
-
 			this.initialize();
 		}
 
@@ -77,7 +76,10 @@ export class Runner extends SystemBase implements System  {
 
 	override importData(data : DataMap, seqNum : number) : void {
 		super.importData(data, seqNum);
-		this._seqNum = seqNum;
+
+		if (!this.isSource()) {
+			this._seqNum = Math.max(this._seqNum, seqNum);
+		}
 	}
 
 	override onNewClient(msg : NewClientMsg) : void {
@@ -87,8 +89,8 @@ export class Runner extends SystemBase implements System  {
 			const connection = game.netcode();
 			const [msg, has] = this.message(DataFilter.INIT);
 			if (has) {
+				console.log("INIT", msg);
 				connection.broadcast(ChannelType.TCP, msg);
-				console.log(msg);
 			}
 		}
 	}
@@ -105,7 +107,7 @@ export class Runner extends SystemBase implements System  {
 		}
 	}
 
-	message(filter : DataFilter) : [Message, boolean] {
+	message(filter : DataFilter) : [NetworkMessage, boolean] {
 		const [data, has] = this.dataMap(filter, this._seqNum);
 		if (!has) {
 			return [null, false];

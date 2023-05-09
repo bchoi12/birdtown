@@ -105,6 +105,14 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		return true;
 	}
 
+	override delete() : void {
+		super.delete();
+
+		this._trackedEntities.forEach((id : number) => {
+			game.entities().deleteEntity(id);
+		});
+	}
+
 	override dispose() : void {
 		super.dispose();
 

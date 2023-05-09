@@ -37,8 +37,10 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 	override setup() : void {
 		super.setup();
 
-		game.level().setLevel(LevelType.BIRDTOWN);
-		game.level().setSeed(Math.floor(1000 * Math.random()));
+		game.level().setLevel({
+			level: LevelType.BIRDTOWN,
+			seed: Math.floor(1000 * Math.random()),
+		});
 		this._players.forEach((player : Player) => {
 			player.respawn();
 			player.setDeactivated(true);

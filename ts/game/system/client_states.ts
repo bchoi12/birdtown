@@ -30,11 +30,11 @@ export class ClientStates extends SystemBase implements System {
 			return false;
 		}
 
-		const levelVersion = game.level().version();
+		// TODO: verify correct level for all clients?
 		const order = this.childOrder();
 		for (let i = 0; i < order.length; ++i) {
 			const state = this.getClientState(order[i]);
-			if (!state.setup() || state.levelVersion() !== levelVersion) {
+			if (!state.setup()) {
 				return false;
 			}
 		}

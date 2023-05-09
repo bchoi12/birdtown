@@ -27,11 +27,16 @@ enum State {
 	LOAD,
 }
 
+type LevelOptions = {
+	level : LevelType;
+	seed : number;
+}
+
 export class Level extends SystemBase implements System {
 
-	private _level : LevelType;
-	private _rng : SeededRandom;
+	private _options : LevelOptions;
 	private _version : number;
+	private _rng : SeededRandom;
 
 	private _state : State;
 
@@ -42,67 +47,41 @@ export class Level extends SystemBase implements System {
 			base: "level",
 		});
 
-		this._level = LevelType.UNKNOWN;
-		this._rng = new SeededRandom(0);
+		this._options = {
+			level: LevelType.UNKNOWN,
+			seed: 0,
+		};
 		this._version = 0;
+		this._rng = new SeededRandom(0);
 		this._state = State.READY;
 
-		this.addProp<number>({
-			has: () => { return this._level > 0; },
-			export: () => { return this._level; },
-			import: (obj : number) => { this.setLevel(obj); },
-			options: {
-				conditionalInterval: (obj : number, elapsed : number) => {
-					return this._state === State.SYNC_CLIENTS && elapsed >= 1000;
-				},
-			},
+		this.addProp<LevelOptions>({
+			export: () => { return this._options; },
+			import: (obj : LevelOptions) => { this.setLevel(obj); },
 		});
 		this.addProp<number>({
-			has: () => { return this._rng.getSeed() > 0; },
-			export: () => { return this._rng.getSeed(); },
-			import: (obj : number) => { this.setSeed(obj); },
-			options: {
-				conditionalInterval: (obj : number, elapsed : number) => {
-					return this._state === State.SYNC_CLIENTS && elapsed >= 1000;
-				},
-			},
-		});
-		this.addProp<number>({
-			has: () => { return this._version > 0; },
 			export: () => { return this._version; },
 			import: (obj : number) => { this._version = obj; },
-			options: {
-				conditionalInterval: (obj : number, elapsed : number) => {
-					return this._state === State.SYNC_CLIENTS && elapsed >= 1000;
-				},
-			},
-		})
+		});
 	}
+
+	override ready() : boolean { return super.ready() && this._options.level !== LevelType.UNKNOWN && this._options.seed > 0 && this._version > 0; }
 
 	version() : number { return this._version; }
-	setVersion(version : number) : void {
 
-	}
-
-	setLevel(level : LevelType) : void {
-		if (level !== LevelType.UNKNOWN && this._level !== level) {
-			this._level = level;
-
-			if (this._state === State.READY) {
-				this._version++;
-			}
-			this._state = State.UNLOAD;
+	setLevel(options : LevelOptions) : void {
+		if (options.level === LevelType.UNKNOWN || options.seed <= 0) {
+			console.error("Error: skipping invalid level options", options);
+			return;
 		}
-	}
-	setSeed(seed : number) : void {
-		if (seed > 0 && this._rng.getSeed() !== seed) {
-			this._rng.seed(seed);
 
-			if (this._state === State.READY) {
-				this._version++;
-			}
-			this._state = State.UNLOAD;
+		this._options = options;
+		this._rng.seed(this._options.seed);
+
+		if (this.isSource()) {
+			this._version++;
 		}
+		this._state = State.UNLOAD;
 	}
 	finishLoad() : void { this._state = State.READY; }
 
@@ -111,11 +90,11 @@ export class Level extends SystemBase implements System {
 
 		if (this._state === State.LOAD) {
 			if (isLocalhost()) {
-				console.log("Loading level %d with seed %d", this._level, this._rng.getSeed());
+				console.log("Loading level with options", this._options);
 			}
 
 			this._rng.reset();
-			switch (this._level) {
+			switch (this._options.level) {
 			case LevelType.LOBBY:
 				this.loadLobby();
 				break;
@@ -125,7 +104,7 @@ export class Level extends SystemBase implements System {
 			}
 
 	    	game.runner().onLevelLoad({
-	    		level: this._level,
+	    		level: this._options.level,
 	    		seed: this._rng.getSeed(),
 	    		version: this._version,
 	    	});
@@ -144,12 +123,16 @@ export class Level extends SystemBase implements System {
 			game.entities().queryEntities<Entity>({
 				mapQuery: {
 					filter: (entity : Entity) => {
-						return !entity.initialized() || entity.hasLevelVersion() && entity.levelVersion() <= this._version;
+						return entity.hasLevelVersion() && entity.levelVersion() < this._version;
 					},
 				},
 			}).forEach((entity : Entity) => {
 				entity.delete();
 			});
+
+			if (isLocalhost()) {
+				console.log("Unloading level: deleted all entities with version up to", this._version);
+			}
 
 			this._state = State.LOAD;
 		}
