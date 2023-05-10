@@ -60,13 +60,12 @@ export class Host extends Netcode {
 			let outgoingMsg = new NetworkMessage(MessageType.VOICE);
 			outgoingMsg.setProp<boolean>(NetworkProp.ENABLED, msg.getProp<boolean>(NetworkProp.ENABLED));
 			outgoingMsg.setProp<number>(NetworkProp.CLIENT_ID, msg.getProp<number>(NetworkProp.CLIENT_ID));
-
 			this.broadcast(ChannelType.TCP, outgoingMsg);
 
 			if (outgoingMsg.getProp<boolean>(NetworkProp.ENABLED)) {
-				let msg = new NetworkMessage(MessageType.VOICE_MAP);
-				msg.setProp<Object>(NetworkProp.CLIENT_MAP, Object.fromEntries(this.getVoiceMap()));
-				this.send(msg.name(), ChannelType.TCP, msg);
+				let voiceMapMsg = new NetworkMessage(MessageType.VOICE_MAP);
+				voiceMapMsg.setProp<Object>(NetworkProp.CLIENT_MAP, Object.fromEntries(this.getVoiceMap()));
+				this.send(msg.name(), ChannelType.TCP, voiceMapMsg);
 				this.sendMessage(connection.displayName() + " joined voice chat");
 			} else {
 				this.closeMediaConnection(msg.getProp<number>(NetworkProp.CLIENT_ID));

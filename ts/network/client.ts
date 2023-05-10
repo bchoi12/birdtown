@@ -87,6 +87,7 @@ export class Client extends Netcode {
 			if (!this._voiceEnabled) { return; }
 
 			const clients = new Map<number, string>();
+			console.log("Receive voice map", msg);
 			Object.entries(msg.getProp<Object>(NetworkProp.CLIENT_MAP)).forEach(([gameId, name] : [string, string]) => {
 				clients.set(Number(gameId), name);
 			});

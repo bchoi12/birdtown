@@ -89,7 +89,6 @@ export class Runner extends SystemBase implements System  {
 			const connection = game.netcode();
 			const [msg, has] = this.message(DataFilter.INIT);
 			if (has) {
-				console.log("INIT", msg);
 				connection.broadcast(ChannelType.TCP, msg);
 			}
 		}

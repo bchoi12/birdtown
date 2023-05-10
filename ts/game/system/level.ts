@@ -131,7 +131,7 @@ export class Level extends SystemBase implements System {
 			});
 
 			if (isLocalhost()) {
-				console.log("Unloading level: deleted all entities with version up to", this._version);
+				console.log("Unloading level: deleted all entities below current version", this._version);
 			}
 
 			this._state = State.LOAD;

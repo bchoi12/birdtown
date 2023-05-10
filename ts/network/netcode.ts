@@ -80,12 +80,17 @@ export abstract class Netcode {
 				return;
 			}
 			if (!incoming.metadata || incoming.metadata.gameId <= 0) {
+				console.log("Error: incoming media connection missing metadata or gameId", incoming);
 				return;
 			}
 
 			this.queryMic((stream : MediaStream) => {
 				incoming.answer(stream);
 				this.addMediaConnection(incoming.metadata.gameId, incoming);
+
+				if (isLocalhost()) {
+					console.log("Answered incoming call", incoming);
+				}
 			}, (e) => {
 				ui.chat("Failed to answer incoming call");
 			});
@@ -281,6 +286,9 @@ export abstract class Netcode {
 			clients.forEach((name : string, gameId : number) => {
 				this.queryMic((stream : MediaStream) => {
 					this.call(name, gameId, stream);
+					if (isLocalhost()) {
+						console.log("Calling", name, gameId);
+					}
 				}, (e) => {
 					ui.chat("Failed to call peer: " + e);
 				});
