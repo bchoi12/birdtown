@@ -3,7 +3,6 @@ import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
 import { ChannelType } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
-import { Message } from 'network/message'
 import { MessageType } from 'network/message/api'
 import { NetworkMessage } from 'network/message/network_message'
 import { Connection } from 'network/connection'
@@ -250,7 +249,7 @@ export abstract class Netcode {
 		this._messageCallbacks.set(type, cb);
 	}
 
-	broadcast(type : ChannelType, msg : Message) : void {
+	broadcast(type : ChannelType, msg : NetworkMessage) : void {
 		this._connections.forEach((outgoing, name) => {
 			if (!outgoing.channels().ready()) {
 				return;
@@ -260,8 +259,19 @@ export abstract class Netcode {
 		});
 	}
 
-	send(name : string, type : ChannelType, msg : Message) : boolean {
-		if (!this._connections.has(name) || !this._connections.get(name).connected()) {
+	send(name : string, type : ChannelType, msg : NetworkMessage) : boolean {
+		msg.setName(name);
+		if (!msg.valid()) {
+			console.error("Error: attempting to send invalid message", msg);
+			return false;
+		}
+
+		if (!this._connections.has(name)) {
+			console.error("Error: trying to send message to missing connection", name);
+			return false;
+		}
+
+		if (!this._connections.get(name).connected()) {
 			return false;
 		}
 
@@ -396,7 +406,7 @@ export abstract class Netcode {
 		msg.setName(name);
 
 		if (!msg.valid()) {
-			console.error("Error: invalid network message", msg);
+			console.error("Error: received invalid message over network", msg);
 			return;
 		}
 

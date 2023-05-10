@@ -38,8 +38,18 @@ export class NetworkMessage extends MessageBase implements Message {
 		this._name = "";
 	}
 
-	// TODO: also validate props
-	override valid() { return super.valid() && NetworkMessage._messageProps.has(this._type) && this._name.length > 0; }
+	override valid() {
+		if (!super.valid() || this._name.length === 0 || !NetworkMessage._messageProps.has(this._type)) {
+			return false;
+		}
+
+		for (let prop of NetworkMessage._messageProps.get(this._type)) {
+			if (!this.hasProp(prop)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	override parseObject(obj : Object) : NetworkMessage {
 		super.parseObject(obj);
 		return this;
