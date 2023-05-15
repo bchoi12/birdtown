@@ -13,6 +13,7 @@ export enum HandlerType {
 	UNKNOWN,
 	ANNOUNCEMENT,
 	CHAT,
+	COUNTERS,
 	CLIENTS,
 	DIALOGS,
 	INPUT,
@@ -27,6 +28,11 @@ export enum HandlerType {
 export enum AnnouncementType {
 	UNKNOWN,
 	TEST,
+}
+
+export enum CounterType {
+	UNKOWN,
+	HEALTH,
 }
 
 export enum DialogType {

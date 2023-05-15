@@ -5,63 +5,22 @@ export namespace Icon {
 		return html;
 	}
 
-	export function person() : HTMLElement {
+	function makeIcon(iconClass : string) : HTMLElement {
 		let html = baseIcon();
-		html.classList.add("fa-user");
+		html.classList.add(iconClass);
 		return html;
 	}
 
-	export function plus() : HTMLElement {
-		let html = baseIcon();
-		html.classList.add("fa-plus");
-		return html;
-	}
-
-	export function minus() : HTMLElement {
-		let html = baseIcon();
-		html.classList.add("fa-minus");
-		return html;
-	}
-
-	export function volumeOff() : HTMLElement {
-		let html = baseIcon();
-		html.classList.add("fa-volume-off");
-		return html;
-	}
-
-	export function volumeLow() : HTMLElement {
-		let html = baseIcon();
-		html.classList.add("fa-volume-low");
-		return html;
-	}
-
-	export function volumeHigh() : HTMLElement {
-		let html = baseIcon();
-		html.classList.add("fa-volume-high");
-		return html;
-	}
-
-	export function volumeX() : HTMLElement {
-		let html = baseIcon();
-		html.classList.add("fa-volume-xmark");
-		return html;
-	}
-
-	export function microphone() : HTMLElement {
-		let html = baseIcon();
-		html.classList.add("fa-microphone");
-		return html;
-	}
-
-	export function mutedMicrophone() : HTMLElement {
-		let html = baseIcon();
-		html.classList.add("fa-microphone-slash");
-		return html;
-	}
-
-	export function mouse() : HTMLElement {
-		let html = baseIcon();
-		html.classList.add("fa-computer-mouse");
-		return html;
-	}
+	// TODO: this can just be map?
+	export function person() : HTMLElement { return makeIcon("fa-user"); }
+	export function plus() : HTMLElement { return makeIcon("fa-plus"); }
+	export function minus() : HTMLElement { return makeIcon("fa-minus"); }
+	export function volumeOff() : HTMLElement { return makeIcon("fa-volume-off"); }
+	export function volumeLow() : HTMLElement { return makeIcon("fa-volume-low"); }
+	export function volumeHigh() : HTMLElement { return makeIcon("fa-volume-high"); }
+	export function volumeX() : HTMLElement { return makeIcon("fa-volume-xmark"); }
+	export function microphone() : HTMLElement { return makeIcon("fa-microphone"); }
+	export function mutedMicrophone() : HTMLElement { return makeIcon("fa-microphone-slash"); }
+	export function mouse() : HTMLElement { return makeIcon("fa-computer-mouse"); }
+	export function heart() : HTMLElement { return makeIcon("fa-heart"); }
 }

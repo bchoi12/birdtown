@@ -44,6 +44,7 @@ export class Health extends ComponentBase implements Component {
 		this._damageBuffer.clear();
 	}
 
+	health() : number { return this._health; }
 	dead() : boolean { return this._health <= 0; }
 
 	heal(amount : number, from? : Entity) : void { this.damage(-amount, from); }

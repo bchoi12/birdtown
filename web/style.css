@@ -111,6 +111,29 @@ body {
     transform: scale(1, -1);
 }
 
+#div-counters {
+    position:  absolute;
+
+    right: 0;
+    top: 25%;
+
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-left: 0.5em;
+
+    border-top-left-radius: 0.3em;
+    border-bottom-left-radius: 0.3em;
+
+    background: linear-gradient(to right, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
+}
+
+.counter {
+    font-size: 1.5em;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    color: #f2f2f2;
+}
+
 #div-tooltips {
     position: absolute;
     display: block;
@@ -120,7 +143,7 @@ body {
     bottom: 5%;
     left: 20%;
 
-  color: #f2f2f2;
+    color: #f2f2f2;
 }
 
 .tooltip {
@@ -166,8 +189,7 @@ body {
     padding-top: 0.75em;
     padding-bottom: 0.75em;
 
-  color: #f2f2f2;
-
+    color: #f2f2f2;
     background: linear-gradient(to left, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7) 40%, rgba(0, 0, 0, 0.7) 60%, rgba(200, 200, 200, 0.1));
 }
 

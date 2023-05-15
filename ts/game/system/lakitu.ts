@@ -1,10 +1,14 @@
 import * as BABYLON from "babylonjs";
 
 import { ComponentType } from 'game/component/api'
+import { Health } from 'game/component/health'
 import { Profile } from 'game/component/profile'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { Entity } from 'game/entity'
+
+import { ui } from 'ui'
+import { CounterType } from 'ui/api'
 
 export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 25 units
@@ -62,6 +66,19 @@ export class Lakitu extends SystemBase implements System {
 		if (this.hasTargetEntity()) {
 			const profile = this.targetEntity().getComponent<Profile>(ComponentType.PROFILE);
 			this.setAnchor(profile.pos().toBabylon3());
+		}
+	}
+
+	override preRender(millis : number) : void {
+		super.preRender(millis);
+
+		if (!this.hasTargetEntity()) {
+			return;
+		}
+
+		if (this.targetEntity().hasComponent(ComponentType.HEALTH)) {
+			const health = this.targetEntity().getComponent<Health>(ComponentType.HEALTH);
+			ui.updateCounter(CounterType.HEALTH, health.health());
 		}
 	}
 }

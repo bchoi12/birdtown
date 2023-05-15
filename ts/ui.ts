@@ -1,11 +1,12 @@
 
-import { HandlerType, KeyType, UiMode, AnnouncementMsg, DialogMsg, NewClientMsg, TooltipMsg } from 'ui/api'
+import { CounterType, HandlerType, KeyType, UiMode, AnnouncementMsg, DialogMsg, NewClientMsg, TooltipMsg } from 'ui/api'
 
 import { Handler } from 'ui/handler'
 
 import { AnnouncementHandler } from 'ui/handler/announcement_handler'
-import { ClientsHandler } from 'ui/handler/clients_handler'
 import { ChatHandler } from 'ui/handler/chat_handler'
+import { ClientsHandler } from 'ui/handler/clients_handler'
+import { CountersHandler } from 'ui/handler/counters_handler'
 import { DialogHandler } from 'ui/handler/dialog_handler'
 import { InputHandler } from 'ui/handler/input_handler'
 import { KeyBindHandler } from 'ui/handler/key_bind_handler'
@@ -26,6 +27,7 @@ class UI {
 	private _announcementHandler : AnnouncementHandler;
 	private _chatHandler : ChatHandler;
 	private _clientsHandler : ClientsHandler;
+	private _countersHandler : CountersHandler;
 	private _dialogHandler : DialogHandler;
 	private _inputHandler : InputHandler;
 	private _keyBindHandler : KeyBindHandler;
@@ -43,6 +45,7 @@ class UI {
 		this._announcementHandler = this.add(new AnnouncementHandler());
 		this._chatHandler = this.add(new ChatHandler());
 		this._clientsHandler = this.add(new ClientsHandler());
+		this._countersHandler = this.add(new CountersHandler());
 		this._dialogHandler = this.add(new DialogHandler());
 		this._inputHandler = this.add(new InputHandler());
 		this._keyBindHandler = this.add<KeyBindHandler>(new KeyBindHandler());
@@ -77,6 +80,8 @@ class UI {
 	keys() : Set<KeyType> { return this._inputHandler.keys(); }
 	mouse() : Vec { return this._inputHandler.mouse(); }
 	resetKeyBinds() : void { this._inputHandler.reset(); }
+
+	updateCounter(type : CounterType, count : number) : void { this._countersHandler.updateCounter(type, count); }
 
 	onNewClient(msg : NewClientMsg) : void { this._clientsHandler.onNewClient(msg); }
 	pushDialog(msg : DialogMsg) : void { this._dialogHandler.pushDialog(msg); }

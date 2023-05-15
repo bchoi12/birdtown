@@ -24,6 +24,8 @@ export namespace Html {
 	export const divMinimap = "div-minimap";
 	export const canvasPhysics = "canvas-physics";
 
+	export const divCounters = "div-counters";
+
 	export const divTooltips = "div-tooltips";
 	export const divAnnouncement = "div-announcement";
 	export const divMainAnnouncement = "div-main-announcement";
@@ -40,10 +42,12 @@ export namespace Html {
 	export const fieldsetKeyBind = "fieldset-key-bind";
 
 	export const classSlightlyTransparent = "slightly-transparent";
+	export const classSpaced = "spaced";
 	export const classNoSelect = "no-select";
 
 	export const classTextButton = "text-button";
 	export const classKeyBind = "key-bind";
+	export const classCounter = "counter";
 	export const classTooltip = "tooltip";
 	export const classTooltipShow = "tooltip-show";
 

@@ -23,7 +23,13 @@ export class TooltipHandler extends HandlerBase implements Handler {
 	}
 
 	setup() : void {}
-	reset() : void {}
+	reset() : void {
+		this._tooltips.forEach((wrapper : TooltipWrapper, type : TooltipType) => {
+			wrapper.delete(() => {
+				this._tooltips.delete(type);
+			});
+		});
+	}
 	setMode(mode : UiMode) : void {}
 
 	showTooltip(tooltip : TooltipMsg) : void {
