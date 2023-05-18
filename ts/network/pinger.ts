@@ -1,8 +1,8 @@
 
 import { ChannelType } from 'network/api'
 import { Netcode } from 'network/netcode'
-import { MessageType } from 'network/message/api'
-import { NetworkMessage, NetworkProp } from 'network/message/network_message'
+import { MessageType } from 'message/api'
+import { NetworkMessage, NetworkProp } from 'message/network_message'
 
 import { defined } from 'util/common'
 

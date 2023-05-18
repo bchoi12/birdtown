@@ -4,7 +4,7 @@ import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType } from 'game/component/api'
 
-import { options } from 'options'
+import { settings } from 'settings'
 
 import { Buffer } from 'util/buffer'
 import { Cardinal, CardinalDir } from 'util/cardinal'
@@ -423,8 +423,8 @@ export class Profile extends ComponentBase implements Component {
 		if (this.isSource()) {
 			this.setPos(this._body.position);
 		} else {
-			const weight = Math.min(Math.max(this.millisSinceImport() - game.netcode().ping() / 2, 0) / options.maxPredictionMillis, 1);
-			this._pos.lerp(this._body.position, weight * options.predictionWeight);
+			const weight = Math.min(Math.max(this.millisSinceImport() - game.netcode().ping() / 2, 0) / settings.maxPredictionMillis, 1);
+			this._pos.lerp(this._body.position, weight * settings.predictionWeight);
 		}
 
 		// Update child objects afterwards.

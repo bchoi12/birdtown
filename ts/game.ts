@@ -1,6 +1,6 @@
 import * as BABYLON from "babylonjs";
 
-import { GameData, DataFilter, DataMap } from 'game/game_data'
+import { GameData, DataFilter } from 'game/game_data'
 import { System } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 import { Runner } from 'game/system/runner'
@@ -19,10 +19,11 @@ import { ChannelType } from 'network/api'
 import { Client } from 'network/client'
 import { Netcode } from 'network/netcode'
 import { Host } from 'network/host'
-import { MessageType } from 'network/message/api'
-import { NetworkMessage, NetworkProp } from 'network/message/network_message'
 
-import { options } from 'options'
+import { MessageType } from 'message/api'
+import { NetworkMessage, NetworkProp } from 'message/network_message'
+
+import { settings } from 'settings'
 
 import { ui } from 'ui'
 
@@ -109,7 +110,7 @@ class Game {
 			});
 		}
 		this._netcode.addMessageCallback(MessageType.GAME, (msg : NetworkMessage) => {
-			this._runner.importData(msg.getProp<DataMap>(NetworkProp.DATA), msg.getProp<number>(NetworkProp.SEQ_NUM));
+			this._runner.importData(msg.getProp(NetworkProp.DATA), msg.getProp<number>(NetworkProp.SEQ_NUM));
 		});
 		this._netcode.initialize();
 

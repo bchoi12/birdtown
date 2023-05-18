@@ -1,5 +1,5 @@
 
-import { options } from 'options'
+import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'
@@ -20,54 +20,54 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 
 		this.addKeyBind({
 			name: "Move left",
-			get: () => { return options.leftKeyCode; },
-			update: (keyCode : number) => { options.leftKeyCode = keyCode; },
+			get: () => { return settings.leftKeyCode; },
+			update: (keyCode : number) => { settings.leftKeyCode = keyCode; },
 		});
 
 		this.addKeyBind({
 			name: "Move right",
-			get: () => { return options.rightKeyCode; },
-			update: (keyCode : number) => { options.rightKeyCode = keyCode; },
+			get: () => { return settings.rightKeyCode; },
+			update: (keyCode : number) => { settings.rightKeyCode = keyCode; },
 		});
 
 		this.addKeyBind({
 			name: "Jump / double jump",
-			get: () => { return options.jumpKeyCode; },
-			update: (keyCode : number) => { options.jumpKeyCode = keyCode; },
+			get: () => { return settings.jumpKeyCode; },
+			update: (keyCode : number) => { settings.jumpKeyCode = keyCode; },
 		});
 
 		this.addKeyBind({
 			name: "Interact",
-			get: () => { return options.interactKeyCode; },
-			update: (keyCode : number) => { options.interactKeyCode = keyCode; },
+			get: () => { return settings.interactKeyCode; },
+			update: (keyCode : number) => { settings.interactKeyCode = keyCode; },
 		});
 
 		this.addKeyBind({
 			name: "Shoot (LMB)",
-			get: () => { return options.mouseClickKeyCode; },
-			update: (keyCode : number) => { options.mouseClickKeyCode = keyCode; },
+			get: () => { return settings.mouseClickKeyCode; },
+			update: (keyCode : number) => { settings.mouseClickKeyCode = keyCode; },
 		});
 
 		this.addKeyBind({
 			name: "Use equip (RMB)",
-			get: () => { return options.altMouseClickKeyCode; },
-			update: (keyCode : number) => { options.altMouseClickKeyCode = keyCode; },
+			get: () => { return settings.altMouseClickKeyCode; },
+			update: (keyCode : number) => { settings.altMouseClickKeyCode = keyCode; },
 		});
 
 		this.addKeyBind({
 			name: "Pause",
-			get: () => { return options.pauseKeyCode; },
-			update: (keyCode : number) => { options.pauseKeyCode = keyCode; },
+			get: () => { return settings.pauseKeyCode; },
+			update: (keyCode : number) => { settings.pauseKeyCode = keyCode; },
 		});
 		this.addKeyBind({
 			name: "Chat",
-			get: () => { return options.chatKeyCode; },
-			update: (keyCode : number) => { options.chatKeyCode = keyCode; },
+			get: () => { return settings.chatKeyCode; },
+			update: (keyCode : number) => { settings.chatKeyCode = keyCode; },
 		});
 		this.addKeyBind({
 			name: "Show scoreboard",
-			get: () => { return options.scoreboardKeyCode; },
-			update: (keyCode : number) => { options.scoreboardKeyCode = keyCode; },
+			get: () => { return settings.scoreboardKeyCode; },
+			update: (keyCode : number) => { settings.scoreboardKeyCode = keyCode; },
 		});
 	}
 

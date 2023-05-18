@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 
-import { options } from 'options'
+import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { KeyType, UiMode } from 'ui/api'
@@ -59,7 +59,7 @@ export class InputHandler extends HandlerBase implements Handler {
     	document.addEventListener("mousedown", (e : any) => { this.mouseDown(e); });
     	document.addEventListener("mouseup", (e : any) => { this.mouseUp(e); });
 		document.addEventListener("pointerlockchange", (e : any) => {
-			if (options.enablePointerLock && !this.pointerLocked() && ui.mode() === UiMode.GAME) {
+			if (settings.enablePointerLock && !this.pointerLocked() && ui.mode() === UiMode.GAME) {
 				ui.setMode(UiMode.PAUSE);
 			}
 		});
@@ -82,12 +82,12 @@ export class InputHandler extends HandlerBase implements Handler {
 		this._keyDownCallbacks.clear();
 		this._keyUpCallbacks.clear();
 
-		this.mapKey(options.leftKeyCode, KeyType.LEFT);
-		this.mapKey(options.rightKeyCode, KeyType.RIGHT);
-		this.mapKey(options.jumpKeyCode, KeyType.JUMP);
-		this.mapKey(options.interactKeyCode, KeyType.INTERACT);
-		this.mapKey(options.mouseClickKeyCode, KeyType.MOUSE_CLICK);
-		this.mapKey(options.altMouseClickKeyCode, KeyType.ALT_MOUSE_CLICK);
+		this.mapKey(settings.leftKeyCode, KeyType.LEFT);
+		this.mapKey(settings.rightKeyCode, KeyType.RIGHT);
+		this.mapKey(settings.jumpKeyCode, KeyType.JUMP);
+		this.mapKey(settings.interactKeyCode, KeyType.INTERACT);
+		this.mapKey(settings.mouseClickKeyCode, KeyType.MOUSE_CLICK);
+		this.mapKey(settings.altMouseClickKeyCode, KeyType.ALT_MOUSE_CLICK);
 	}
 
 	setMode(mode : UiMode) : void {
@@ -156,7 +156,7 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	private pointerLock() : void {
-		if (options.enablePointerLock) {
+		if (settings.enablePointerLock) {
 			game.canvas().requestPointerLock();
 		}
 	}

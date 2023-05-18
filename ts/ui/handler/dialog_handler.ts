@@ -1,5 +1,5 @@
 
-import { options } from 'options'
+import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { UiMode, DialogMsg } from 'ui/api'

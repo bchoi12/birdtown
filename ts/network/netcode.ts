@@ -3,12 +3,12 @@ import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
 import { ChannelType } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
-import { MessageType } from 'network/message/api'
-import { NetworkMessage } from 'network/message/network_message'
+import { MessageType } from 'message/api'
+import { NetworkMessage } from 'message/network_message'
 import { Connection } from 'network/connection'
 import { Pinger } from 'network/pinger'
 
-import { options } from 'options'
+import { settings } from 'settings'
 
 import { ui } from 'ui'
 
@@ -280,10 +280,10 @@ export abstract class Netcode {
 			return false;
 		}
 
-		if (isLocalhost() && options.debugDelay > 0) {
+		if (isLocalhost() && settings.debugDelay > 0) {
 			setTimeout(() => {
 				channels.send(type, encode(msg.toObject()));
-			}, options.debugDelay);
+			}, settings.debugDelay);
 		} else {
 			channels.send(type, encode(msg.toObject()));
 		}

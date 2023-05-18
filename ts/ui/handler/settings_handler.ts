@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 
-import { options } from 'options'
+import { settings } from 'settings'
 
 import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -31,12 +31,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			type: "checkbox",
 			label: "Enable fullscreen",
 
-			getSetting: () => {
-				return options.enableFullscreen;
-			},
-			setSetting: (value: boolean) => {
-				options.enableFullscreen = value;
-			},
+			getSetting: () => { return settings.enableFullscreen; },
+			setSetting: (value: boolean) => { settings.enableFullscreen = value; },
 		});
 		this._settingsElm.appendChild(fullscreen.elm());
 
@@ -45,12 +41,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			type: "checkbox",
 			label: "Enable in-game cursor",
 
-			getSetting: () => {
-				return options.enablePointerLock;
-			},
-			setSetting: (value: boolean) => {
-				options.enablePointerLock = value;
-			},
+			getSetting: () => { return settings.enablePointerLock; },
+			setSetting: (value: boolean) => { settings.enablePointerLock = value; },
 		});
 		this._settingsElm.appendChild(pointerLock.elm());
 
@@ -61,10 +53,10 @@ export class SettingsHandler extends HandlerBase implements Handler{
 				label: "Enable inspector",
 
 				getSetting: () => {
-					return options.debugInspector;
+					return settings.debugInspector;
 				},
 				setSetting: (value: boolean) => {
-					options.debugInspector = value;
+					settings.debugInspector = value;
 				},
 			});
 			this._settingsElm.appendChild(inspector.elm());
@@ -79,12 +71,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			max: 1,
 			step: .01,
 
-			getSetting: () => {
-				return options.predictionWeight;
-			},
-			setSetting: (value : number) => {
-				options.predictionWeight = value;
-			},
+			getSetting: () => { return settings.predictionWeight; },
+			setSetting: (value : number) => { settings.predictionWeight = value; },
 		});
 		this._settingsElm.appendChild(prediction.elm());
 
@@ -98,12 +86,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 				max: 100,
 				step: 1,
 
-				getSetting: () => {
-					return options.debugDelay;
-				},
-				setSetting: (value : number) => {
-					options.debugDelay = value;
-				},
+				getSetting: () => { return settings.debugDelay; },
+				setSetting: (value : number) => { settings.debugDelay = value; },
 			});
 			this._settingsElm.appendChild(delay.elm());		
 		}
@@ -113,13 +97,13 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 	setMode(mode : UiMode) : void {
 		if (mode !== UiMode.PAUSE) {
-			if (options.enableFullscreen) {
+			if (settings.enableFullscreen) {
 				document.documentElement.requestFullscreen();
 			} else if (window.innerHeight === screen.height) {
 				document.exitFullscreen();
 			}
 
-			if (options.debugInspector) {
+			if (settings.debugInspector) {
 				game.scene().debugLayer.show();
 			} else {
 				game.scene().debugLayer.hide();

@@ -16,7 +16,6 @@ export class ClientState extends ClientSystem implements System {
 
 	private _displayName : string;
 	private _setupState : SetupState;
-	private _levelVersion : number;
 
 	constructor(gameId : number) {
 		super(SystemType.CLIENT_STATE, gameId);
@@ -28,7 +27,6 @@ export class ClientState extends ClientSystem implements System {
 
 		this._displayName = "";
 		this._setupState = SetupState.UNKNOWN;
-		this._levelVersion = 0;
 
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
@@ -39,11 +37,6 @@ export class ClientState extends ClientSystem implements System {
 			has: () => { return this.setupState() !== SetupState.UNKNOWN; },
 			export: () => { return this.setupState(); },
 			import: (obj : SetupState) => { this.setSetupState(obj); },
-		});
-		this.addProp<number>({
-			has: () => { return this._levelVersion > 0; },
-			export: () => { return this._levelVersion; },
-			import: (obj: number) => { this._levelVersion = obj; },
 		});
 	}
 
@@ -61,8 +54,6 @@ export class ClientState extends ClientSystem implements System {
 	private hasDisplayName() : boolean { return this._displayName.length > 0; }
 	setDisplayName(name : string) : void { this._displayName = name; }
 	displayName() : string { return this._displayName; }
-
-	levelVersion() : number { return this._levelVersion; }
 
 	setup() : boolean { return this._setupState === SetupState.READY; }
 	setupState() : SetupState { return this._setupState; }
@@ -88,22 +79,5 @@ export class ClientState extends ClientSystem implements System {
 			});
 			break;
 		}
-	}
-
-	override preUpdate(millis : number) : void {
-		super.preUpdate(millis);
-
-		if (!this.isHost()) {
-			return;
-		}
-	}
-
-	override onLevelLoad(msg : LevelLoadMsg) : void {
-		super.onLevelLoad(msg);
-
-		if (!this.isSource()) {
-			return;
-		}
-		this._levelVersion = msg.version;
 	}
 }

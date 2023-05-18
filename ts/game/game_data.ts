@@ -1,6 +1,8 @@
 
 import { GameProp, GamePropOptions } from 'game/game_prop'
 
+import { DataMap } from 'message'
+
 import { defined } from 'util/common'
 import { BitMarker } from 'util/bit_marker'
 
@@ -11,7 +13,6 @@ export enum DataFilter {
 	UDP,
 }
 
-export type DataMap = { [k: number]: Object }
 export class GameData {
 	public static readonly allFilters = new Set<DataFilter>([DataFilter.INIT, DataFilter.TCP, DataFilter.UDP]);
 	public static readonly initFilters = new Set<DataFilter>([DataFilter.INIT]);

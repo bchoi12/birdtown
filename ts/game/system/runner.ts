@@ -1,14 +1,14 @@
 import { game } from 'game'
+import { GameData, DataFilter } from 'game/game_data'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { LevelLoadMsg, LevelType, NewClientMsg } from 'game/system/api'
 
-import { Message } from 'network/message'
-import { MessageType } from 'network/message/api'
-import { NetworkMessage, NetworkProp } from 'network/message/network_message'
+import { Message, DataMap } from 'message'
+import { MessageType } from 'message/api'
+import { NetworkMessage, NetworkProp } from 'message/network_message'
 
 import { ChannelType } from 'network/api'
-import { GameData, DataFilter, DataMap } from 'game/game_data'
 
 export class Runner extends SystemBase implements System  {
 	private static readonly _maxFrameMillis = 32;

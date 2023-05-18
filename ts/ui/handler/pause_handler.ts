@@ -1,5 +1,5 @@
 
-import { options } from 'options'
+import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'
@@ -24,13 +24,13 @@ export class PauseHandler extends HandlerBase implements Handler {
 
 	setup() : void {
 		document.addEventListener("keyup", (e : any) => {
-			if (e.keyCode !== options.pauseKeyCode) return;
+			if (e.keyCode !== settings.pauseKeyCode) return;
 
 			this._canPause = true;
 		});
 
 		document.addEventListener("keydown", (e : any) => {
-			if (!this._canPause || e.keyCode !== options.pauseKeyCode) return;
+			if (!this._canPause || e.keyCode !== settings.pauseKeyCode) return;
 
 			if (ui.mode() === UiMode.CHAT) {
 				ui.setMode(UiMode.GAME);

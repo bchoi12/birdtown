@@ -1,8 +1,10 @@
 
 import { game } from 'game'
 
-import { GameData, DataFilter, DataMap } from 'game/game_data'
+import { GameData, DataFilter } from 'game/game_data'
 import { GamePropOptions } from 'game/game_prop'
+
+import { DataMap } from 'message'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'

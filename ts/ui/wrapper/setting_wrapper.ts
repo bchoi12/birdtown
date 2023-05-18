@@ -1,5 +1,5 @@
 
-import { options } from 'options'
+import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'

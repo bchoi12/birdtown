@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 
-import { options } from 'options'
+import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'
@@ -38,7 +38,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		document.addEventListener("keydown", (e : any) => {
 			if (e.repeat) return;
 
-			if (e.keyCode === options.chatKeyCode) {
+			if (e.keyCode === settings.chatKeyCode) {
 				this.chatKeyPressed();
 			}
 		});		

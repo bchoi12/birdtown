@@ -12,7 +12,7 @@ import { GameData } from 'game/game_data'
 
 import { Timer } from 'util/timer'
 
-enum GameState {
+export enum GameState {
 	UNKNOWN,
 	WAITING,
 	SETUP,

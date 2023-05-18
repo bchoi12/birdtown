@@ -1,8 +1,8 @@
 import { Peer, DataConnection } from 'peerjs'
 
 import { ChannelType } from 'network/api'
-import { MessageType } from 'network/message/api'
-import { NetworkMessage, NetworkProp } from 'network/message/network_message'
+import { MessageType } from 'message/api'
+import { NetworkMessage, NetworkProp } from 'message/network_message'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
