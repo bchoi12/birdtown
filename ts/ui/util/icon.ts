@@ -1,26 +1,50 @@
+
+export enum IconType {
+	UNKNOWN,
+
+	HEART,
+	PERSON,
+
+	MIC,
+	MUTED_MIC,
+	MOUSE,
+
+	PLUS,
+	MINUS,
+	VOLUME_X,
+	VOLUME_NONE,
+	VOLUME_LOW,
+	VOLUME_HIGH,
+}
+
 export namespace Icon {
-	function baseIcon() : HTMLElement {
+
+	const classMap = new Map<IconType, string>([
+		[IconType.HEART, "fa-heart"],
+		[IconType.PERSON, "fa-user"],
+		[IconType.MIC, "fa-microphone"],
+		[IconType.MUTED_MIC, "fa-microphone-slash"],
+		[IconType.MOUSE, "fa-computer-mouse"],
+		[IconType.PLUS, "fa-plus"],
+		[IconType.MINUS, "fa-minus"],
+		[IconType.VOLUME_X, "fa-volume-xmark"],
+		[IconType.VOLUME_NONE, "fa-volume-off"],
+		[IconType.VOLUME_LOW, "fa-volume-low"],
+		[IconType.VOLUME_HIGH, "fa-volume-high"],
+
+	]);
+
+	function baseElement() : HTMLElement {
 		let html = document.createElement("i");
 		html.classList.add("fa-solid");
 		return html;
 	}
 
-	function makeIcon(iconClass : string) : HTMLElement {
-		let html = baseIcon();
-		html.classList.add(iconClass);
+	export function create(type : IconType) : HTMLElement {
+		let html = baseElement();
+		if (classMap.has(type)) {
+			html.classList.add(classMap.get(type));
+		}
 		return html;
 	}
-
-	// TODO: this can just be map?
-	export function person() : HTMLElement { return makeIcon("fa-user"); }
-	export function plus() : HTMLElement { return makeIcon("fa-plus"); }
-	export function minus() : HTMLElement { return makeIcon("fa-minus"); }
-	export function volumeOff() : HTMLElement { return makeIcon("fa-volume-off"); }
-	export function volumeLow() : HTMLElement { return makeIcon("fa-volume-low"); }
-	export function volumeHigh() : HTMLElement { return makeIcon("fa-volume-high"); }
-	export function volumeX() : HTMLElement { return makeIcon("fa-volume-xmark"); }
-	export function microphone() : HTMLElement { return makeIcon("fa-microphone"); }
-	export function mutedMicrophone() : HTMLElement { return makeIcon("fa-microphone-slash"); }
-	export function mouse() : HTMLElement { return makeIcon("fa-computer-mouse"); }
-	export function heart() : HTMLElement { return makeIcon("fa-heart"); }
 }

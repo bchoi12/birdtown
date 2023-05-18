@@ -1,7 +1,8 @@
 import { game } from 'game'
 
 import { ui } from 'ui'
-import { CounterType, HandlerType, UiMode } from 'ui/api'
+import { CounterType, UiMode } from 'ui/api'
+import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { CounterWrapper } from 'ui/wrapper/counter_wrapper'

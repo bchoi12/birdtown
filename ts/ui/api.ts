@@ -9,22 +9,6 @@ export enum UiMode {
 	PAUSE,
 }
 
-export enum HandlerType {
-	UNKNOWN,
-	ANNOUNCEMENT,
-	CHAT,
-	COUNTERS,
-	CLIENTS,
-	DIALOGS,
-	INPUT,
-	KEY_BIND,
-	LOGIN,
-	PAUSE,
-	SETTINGS,
-	STATS,
-	TOOLTIPS,
-}
-
 export enum AnnouncementType {
 	UNKNOWN,
 	TEST,

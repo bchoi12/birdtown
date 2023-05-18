@@ -25,9 +25,10 @@ type MeshOptions = {
 export class Model extends ComponentBase implements Component {
 
 	private _readyFn : () => boolean;
+	private _onLoadFns : Array<OnLoadFn>;
+
 	private _meshFn : MeshFn;
 	private _preRenderFn : PreRenderFn;
-	private _onLoadFns : Array<OnLoadFn>;
 
 	// TODO: multi mesh support
 	private _mesh : BABYLON.Mesh;
@@ -40,9 +41,10 @@ export class Model extends ComponentBase implements Component {
 		this.setName({ base: "model" });
 
 		this._meshFn = options.meshFn;
+		this._onLoadFns = new Array();
+
 		if (defined(options.readyFn)) { this._readyFn = options.readyFn; }
 		if (defined(options.preRenderFn)) { this._preRenderFn = options.preRenderFn; }
-		this._onLoadFns = new Array();
 	}
 
 	override ready() : boolean {
@@ -92,6 +94,7 @@ export class Model extends ComponentBase implements Component {
 
 	playAnimation(name : string, loop? : boolean) : void {
 		if (!defined(this._animationHandler)) {
+			console.error("Error: tried to play animation before handler was initialized")
 			return;
 		}
 

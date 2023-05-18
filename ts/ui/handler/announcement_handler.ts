@@ -1,6 +1,7 @@
 
 import { ui } from 'ui'
-import { HandlerType, AnnouncementType, UiMode, AnnouncementMsg } from 'ui/api'
+import { AnnouncementType, UiMode, AnnouncementMsg } from 'ui/api'
+import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 

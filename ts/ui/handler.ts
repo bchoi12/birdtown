@@ -1,5 +1,6 @@
 
-import { HandlerType, UiMode } from 'ui/api'
+import { UiMode } from 'ui/api'
+import { HandlerType } from 'ui/handler/api'
 
 export interface Handler {
 	type() : HandlerType;

@@ -1,6 +1,7 @@
 
 import { ui } from 'ui'
-import { HandlerType, TooltipType, UiMode, TooltipMsg } from 'ui/api'
+import { TooltipType, UiMode, TooltipMsg } from 'ui/api'
+import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { TooltipWrapper } from 'ui/wrapper/tooltip_wrapper'

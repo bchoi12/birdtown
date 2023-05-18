@@ -1,7 +1,8 @@
 
-import { CounterType, HandlerType, KeyType, UiMode, AnnouncementMsg, DialogMsg, NewClientMsg, TooltipMsg } from 'ui/api'
+import { CounterType, KeyType, UiMode, AnnouncementMsg, DialogMsg, NewClientMsg, TooltipMsg } from 'ui/api'
 
 import { Handler } from 'ui/handler'
+import { HandlerType } from 'ui/handler/api'
 
 import { AnnouncementHandler } from 'ui/handler/announcement_handler'
 import { ChatHandler } from 'ui/handler/chat_handler'

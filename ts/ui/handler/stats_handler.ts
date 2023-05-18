@@ -5,7 +5,8 @@ import { ChannelMap, ChannelStat } from 'network/channel_map'
 import { Connection } from 'network/connection'
 
 import { ui } from 'ui'
-import { HandlerType, UiMode } from 'ui/api'
+import { UiMode } from 'ui/api'
+import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 

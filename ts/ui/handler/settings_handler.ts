@@ -3,8 +3,9 @@ import { game } from 'game'
 
 import { options } from 'options'
 
-import { HandlerType, UiMode } from 'ui/api'
+import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
+import { HandlerType } from 'ui/handler/api'
 import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
 import { Html } from 'ui/html'
 

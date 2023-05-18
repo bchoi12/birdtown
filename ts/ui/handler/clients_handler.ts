@@ -2,10 +2,11 @@
 import { game } from 'game'
 
 import { ui } from 'ui'
-import { HandlerType, UiMode, NewClientMsg } from 'ui/api'
+import { UiMode, NewClientMsg } from 'ui/api'
+import { HandlerType } from 'ui/handler/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
-import { Icon } from 'ui/util/icon'
+import { Icon, IconType } from 'ui/util/icon'
 import { ClientWrapper } from 'ui/wrapper/client_wrapper'
 import { VoiceWrapper } from 'ui/wrapper/voice_wrapper'
 

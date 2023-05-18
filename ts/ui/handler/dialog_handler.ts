@@ -2,7 +2,8 @@
 import { options } from 'options'
 
 import { ui } from 'ui'
-import { HandlerType, UiMode, DialogMsg } from 'ui/api'
+import { UiMode, DialogMsg } from 'ui/api'
+import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'

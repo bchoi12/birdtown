@@ -4,8 +4,9 @@ import { game } from 'game'
 import { options } from 'options'
 
 import { ui } from 'ui'
-import { HandlerType, KeyType, UiMode } from 'ui/api'
+import { KeyType, UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
+import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Vec } from 'util/vector'
 

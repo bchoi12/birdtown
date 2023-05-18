@@ -2,14 +2,14 @@
 import { ui } from 'ui'
 import { CounterType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
-import { Icon } from 'ui/util/icon'
+import { Icon, IconType } from 'ui/util/icon'
 
 import { defined } from 'util/common'
 
 export class CounterWrapper extends HtmlWrapper {
 
-	private static readonly _iconMapping = new Map<CounterType, () => HTMLElement>([
-		[CounterType.HEALTH, () => { return Icon.heart(); }],
+	private static readonly _iconMapping = new Map<CounterType, IconType>([
+		[CounterType.HEALTH, IconType.HEART],
 	])
 
 	private _type : CounterType;
@@ -27,7 +27,7 @@ export class CounterWrapper extends HtmlWrapper {
 		this._counterElm = Html.span();
 		this._counterElm.classList.add(Html.classSpaced);
 		this._counterElm.textContent = "?";
-		this._iconElm = CounterWrapper._iconMapping.get(this._type)();
+		this._iconElm = Icon.create(CounterWrapper._iconMapping.get(this._type));
 		this._iconElm.classList.add(Html.classSpaced);
 
 		this.elm().classList.add(Html.classCounter);

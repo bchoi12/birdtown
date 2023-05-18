@@ -4,7 +4,7 @@ import { game } from 'game'
 import { ui } from 'ui'
 import { NewClientMsg } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
-import { Icon } from 'ui/util/icon'
+import { Icon, IconType } from 'ui/util/icon'
 
 import { defined } from 'util/common'
 
@@ -20,7 +20,7 @@ export class VoiceWrapper extends HtmlWrapper {
 
 		if (msg.isSelf) {
 			this._micButton = Html.span();
-			this._micButton.append(Icon.mutedMicrophone());
+			this._micButton.append(Icon.create(IconType.MUTED_MIC));
 			this._micButton.classList.add(Html.classTextButton);
 
 			this.elm().onclick = (e) => {
@@ -32,9 +32,9 @@ export class VoiceWrapper extends HtmlWrapper {
 				}
 
 				if (enabled) {
-					this._micButton.append(Icon.microphone());
+					this._micButton.append(Icon.create(IconType.MIC));
 				} else {
-					this._micButton.append(Icon.mutedMicrophone());
+					this._micButton.append(Icon.create(IconType.MUTED_MIC));
 				}
 			};
 			this.elm().append(this._micButton);
@@ -66,19 +66,19 @@ export class VoiceWrapper extends HtmlWrapper {
 
 		let muteButton = new HtmlWrapper(Html.span());
 		if (audio.muted) {
-			muteButton.elm().append(Icon.volumeX());
+			muteButton.elm().append(Icon.create(IconType.VOLUME_X));
 		} else {
-			muteButton.elm().append(Icon.volumeHigh());
+			muteButton.elm().append(Icon.create(IconType.VOLUME_HIGH));
 		}
 		muteButton.elm().onclick = (e) => {
 			audio.muted = !audio.muted;
 
 			muteButton.removeChildren();
 			if (audio.muted) {
-				muteButton.elm().append(Icon.volumeX());
+				muteButton.elm().append(Icon.create(IconType.VOLUME_X));
 				volumeRange.style.visibility = "hidden";
 			} else {
-				muteButton.elm().append(Icon.volumeHigh());
+				muteButton.elm().append(Icon.create(IconType.VOLUME_HIGH));
 				volumeRange.style.visibility = "visible";
 			}
 		}

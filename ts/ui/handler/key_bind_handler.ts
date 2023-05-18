@@ -2,9 +2,10 @@
 import { options } from 'options'
 
 import { ui } from 'ui'
-import { HandlerType, UiMode } from 'ui/api'
+import { UiMode } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
+import { HandlerType } from 'ui/handler/api'
 import { KeyBindWrapper, KeyBindWrapperOptions } from 'ui/wrapper/key_bind_wrapper'
 
 export class KeyBindHandler extends HandlerBase implements Handler {

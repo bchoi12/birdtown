@@ -4,7 +4,8 @@ import { game } from 'game'
 import { options } from 'options'
 
 import { ui } from 'ui'
-import { HandlerType, UiMode } from 'ui/api'
+import { UiMode } from 'ui/api'
+import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 
