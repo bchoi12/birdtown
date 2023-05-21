@@ -18,5 +18,6 @@ export class UiMessage extends MessageBase<UiProp> implements Message<UiProp> {
 	constructor(type : MessageType) {
 		super(type);
 	}
+
 	override descriptor() : Map<MessageType, Set<UiProp>> { return UiMessage._descriptor; }
 }

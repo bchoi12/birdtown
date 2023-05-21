@@ -77,7 +77,9 @@ class Game {
 
 		// this._engine = new BABYLON.NullEngine();
 		// TODO: fast anti-alias
-		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false);
+		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/true, {
+			stencil: true,
+		});
 		window.onresize = () => { this.resize(); };
 
 		// TODO: move most of this stuff to network code
@@ -188,6 +190,7 @@ class Game {
 	keys(id? : number) : Keys { return this._input.getKeys(id); }
 	entities() : Entities { return this._entities; }
 	netcode() : Netcode { return this._netcode; }
+	world() : World { return this._world; }
 
 	// For some reason this has to be here for typescript
 	mouse() : BABYLON.Vector3 {

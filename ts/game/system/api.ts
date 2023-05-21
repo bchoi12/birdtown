@@ -20,6 +20,11 @@ export enum LevelType {
 	LOBBY,
 }
 
+export enum LayerType {
+	UNKNOWN,
+	HIGHLIGHT,
+}
+
 export type NewClientMsg = {
 	displayName : string;
 	gameId : number;

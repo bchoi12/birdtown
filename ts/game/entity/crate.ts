@@ -10,6 +10,7 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { LayerType } from 'game/system/api'
 
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
@@ -57,6 +58,8 @@ export class Crate extends EntityBase {
 					height: dim.y,
 					depth: (dim.x + dim.y) / 2,
 				}, game.scene()));
+
+				game.world().getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT).addMesh(model.mesh(), BABYLON.Color3.Red());
 			},
 		}));
 	}

@@ -7,6 +7,7 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { LayerType } from 'game/system/api'
 
 import { ui } from 'ui'
 import { KeyType, TooltipType, TooltipMsg } from 'ui/api'
@@ -44,13 +45,14 @@ export class Console extends EntityBase {
 					height: dim.y,
 					depth: 0.5,
 				}, game.scene()));
+
 				model.mesh().position.z = -1;
 			},
 		}));
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.circle(profile.pos(), profile.dim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
 					isStatic: true,
 					isSensor: true,
 				});
@@ -83,8 +85,11 @@ export class Console extends EntityBase {
 		super.preRender(millis);
 
 		if (!this._active) {
+			game.world().getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT).removeMesh(this._model.mesh());
 			return;
 		}
+
+		game.world().getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT).addMesh(this._model.mesh(), BABYLON.Color3.Red());
 
 		if (this.isSource()) {
 			ui.showTooltip({

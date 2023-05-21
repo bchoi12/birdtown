@@ -15,6 +15,7 @@ import { EntityType } from 'game/entity/api'
 import { MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
+import { LayerType } from 'game/system/api'
 
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
@@ -190,6 +191,7 @@ export abstract class Block extends EntityBase {
 
 		if (meshProps.has(MeshProp.WINDOWS)) {
 			this._transparentFrontMeshes.push(mesh);
+			game.world().getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT).addExcludedMesh(mesh);
 		}
 
 		if (this._materialCache.has(mesh.material.name)) {

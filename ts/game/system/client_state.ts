@@ -15,6 +15,8 @@ enum SetupState {
 export class ClientState extends ClientSystem implements System {
 
 	private _displayName : string;
+
+	// TODO: change this to a counter / version?
 	private _setupState : SetupState;
 
 	constructor(gameId : number) {
