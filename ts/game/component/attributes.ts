@@ -22,6 +22,8 @@ export class Attributes extends ComponentBase implements Component {
 
 	private static readonly _attributeTypes = new Map<AttributeType, Type>([
 		[AttributeType.GROUNDED, Type.BOOLEAN],
+		[AttributeType.PICKABLE, Type.BOOLEAN],
+		[AttributeType.PICKED, Type.BOOLEAN],
 		[AttributeType.SOLID, Type.BOOLEAN],
 		[AttributeType.READY, Type.BOOLEAN],
 
@@ -41,7 +43,7 @@ export class Attributes extends ComponentBase implements Component {
 
 		if (init.attributes) {
 			init.attributes.forEach((value, key) => {
-				this.set(key, value);
+				this.setAttribute(key, value);
 			})
 		}
 
@@ -54,7 +56,7 @@ export class Attributes extends ComponentBase implements Component {
 			this.registerProp(attribute, {
 				has: () => { return this.hasAttribute(attribute); },
 				export: () => { return this.getAttribute(attribute); },
-				import: (obj : Object) => { this.set(attribute, <Value>obj); },
+				import: (obj : Object) => { this.setAttribute(attribute, <Value>obj); },
 			})
 		}
 	}
@@ -73,7 +75,7 @@ export class Attributes extends ComponentBase implements Component {
 		return this._attributes.get(attribute);
 	}
 
-	set(attribute : AttributeType, value : Value) : void {
+	setAttribute(attribute : AttributeType, value : Value) : void {
 		if (!this.validValue(attribute, value)) {
 			console.error("Error: invalid attribute and value", attribute, value);
 			return;
@@ -86,9 +88,9 @@ export class Attributes extends ComponentBase implements Component {
 		const current = this.getAttribute(attribute);
 
 		if (typeof current === 'boolean') {
-			this.set(attribute, !current);
+			this.setAttribute(attribute, !current);
 		} else if (!Number.isNaN(current)) {
-			this.set(attribute, -<number>current);
+			this.setAttribute(attribute, -<number>current);
 		} else {
 			console.error("Error: could not negate " + attribute);
 			return;
@@ -102,7 +104,7 @@ export class Attributes extends ComponentBase implements Component {
 		}
 
 		const current = <number>this.getAttribute(attribute);
-		this.set(attribute, current + <number>value);
+		this.setAttribute(attribute, current + <number>value);
 	}
 
 	private validValue(attribute : AttributeType, value : Value) : boolean {

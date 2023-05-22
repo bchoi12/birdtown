@@ -8,7 +8,6 @@ import { defined } from 'util/common'
 
 export interface Component extends GameObject {
 	type() : ComponentType;
-	hasEntity() : boolean;
 	entity() : Entity;
 	setEntity(entity : Entity) : void;
 }
@@ -25,8 +24,9 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 		this._type = type;
 	}
 
+	override ready() : boolean { return defined(this._entity); }
+
 	type() : ComponentType { return this._type; }
-	hasEntity() : boolean { return defined(this._entity); }
 	entity() : Entity { return this._entity; }
 	setEntity(entity : Entity) : void {
 		this.setName({

@@ -135,8 +135,8 @@ export class Player extends EntityBase {
 		})
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._attributes.set(AttributeType.GROUNDED, false);
-		this._attributes.set(AttributeType.SOLID, true);
+		this._attributes.setAttribute(AttributeType.GROUNDED, false);
+		this._attributes.setAttribute(AttributeType.SOLID, true);
 
 		this._health = this.addComponent<Health>(new Health({ health: 100 }));
 
@@ -278,7 +278,7 @@ export class Player extends EntityBase {
 			if (this._profile.pos().y < -8) {
 				this.takeDamage(1000);
 			}
-			this._attributes.set(AttributeType.GROUNDED, this._jumpTimer.hasTimeLeft());
+			this._attributes.setAttribute(AttributeType.GROUNDED, this._jumpTimer.hasTimeLeft());
 		}
 
 		this._deadTracker.check();
@@ -333,9 +333,30 @@ export class Player extends EntityBase {
 				}
 			}
 
-			if (this.isSource() && defined(this._weapon)) {
-				if (game.keys(this.clientId()).keyDown(KeyType.MOUSE_CLICK)) {
+			if (this.isSource()) {
+				if (defined(this._weapon) && game.keys(this.clientId()).keyDown(KeyType.MOUSE_CLICK)) {
 					this._weapon.shoot(this._armDir);
+				}
+
+				// TODO: fix this, it kinda sucks
+				if (game.keys(this.clientId()).keyDown(KeyType.ALT_MOUSE_CLICK)) {
+					const scene = game.world().scene();
+					const mouse = game.mouse();
+					const ray = new BABYLON.Ray(game.lakitu().camera().position, new BABYLON.Vector3(mouse.x, mouse.y, 0).subtractInPlace(game.lakitu().camera().position));
+					const rayHelper = new BABYLON.RayHelper(ray);
+					rayHelper.show(scene);
+					const raycast = scene.pickWithRay(ray);
+
+					if (raycast.hit && raycast.pickedMesh.metadata && raycast.pickedMesh.metadata.entityId) {
+						let [other, found] = game.entities().getEntity(raycast.pickedMesh.metadata.entityId);
+
+						if (found && other.hasComponent(ComponentType.ATTRIBUTES)) {
+							let attributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+							if (attributes.getAttribute(AttributeType.PICKABLE)) {
+								attributes.setAttribute(AttributeType.PICKED, true);
+							}
+						}
+					}
 				}
 			}
 		}

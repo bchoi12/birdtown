@@ -38,6 +38,7 @@ export class Lakitu extends SystemBase implements System {
 	camera() : BABYLON.UniversalCamera { return this._camera; }
 	anchor() : BABYLON.Vector3 { return this._anchor; }
 	target() : BABYLON.Vector3 { return this._target; }
+	direction() : BABYLON.Vector3 { return this._target.subtract(this._camera.position).normalize(); }
 
 	setAnchor(anchor : BABYLON.Vector3) {
 		this._anchor = anchor.clone();

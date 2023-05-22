@@ -19,6 +19,7 @@ export class Crate extends EntityBase {
 
 	private _attributes : Attributes;
 	private _profile : Profile;
+	private _model : Model;
 
 	private _startingPos : Vec2;
 	private _startingAngle : number;
@@ -32,7 +33,8 @@ export class Crate extends EntityBase {
 		});
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._attributes.set(AttributeType.SOLID, true);
+		this._attributes.setAttribute(AttributeType.SOLID, true);
+		this._attributes.setAttribute(AttributeType.PICKABLE, true);
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -47,7 +49,7 @@ export class Crate extends EntityBase {
 			this._profile.setAngle(0);
 		}
 
-		this.addComponent(new Model({
+		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => {
 				return this._profile.ready();
 			},
@@ -58,8 +60,6 @@ export class Crate extends EntityBase {
 					height: dim.y,
 					depth: (dim.x + dim.y) / 2,
 				}, game.scene()));
-
-				game.world().getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT).addMesh(model.mesh(), BABYLON.Color3.Red());
 			},
 		}));
 	}
@@ -79,6 +79,14 @@ export class Crate extends EntityBase {
 			this._profile.stop();
 			this._profile.setAcc({ y: GameConstants.gravity });
 			this._profile.setAngle(this._startingAngle);
+		}
+	}
+
+	override preRender(millis : number) : void {
+		super.preRender(millis);
+
+		if (this._attributes.getAttribute(AttributeType.PICKED)) {
+			game.world().getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT).addMesh(this._model.mesh(), BABYLON.Color3.Red());
 		}
 	}
 }

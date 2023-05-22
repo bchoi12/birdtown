@@ -85,11 +85,8 @@ export class Console extends EntityBase {
 		super.preRender(millis);
 
 		if (!this._active) {
-			game.world().getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT).removeMesh(this._model.mesh());
 			return;
 		}
-
-		game.world().getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT).addMesh(this._model.mesh(), BABYLON.Color3.Red());
 
 		if (this.isSource()) {
 			ui.showTooltip({

@@ -20,6 +20,7 @@ export enum GameState {
 	FINISH,
 }
 
+// TODO: rename controller?
 export class GameMode extends SystemBase implements System {
 
 	private _state : GameState;

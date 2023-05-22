@@ -48,7 +48,7 @@ export class Model extends ComponentBase implements Component {
 	}
 
 	override ready() : boolean {
-		return super.ready() && this.hasEntity() && (!defined(this._readyFn) || this._readyFn());
+		return super.ready() && (!defined(this._readyFn) || this._readyFn());
 	}
 
 	override initialize() : void {
@@ -68,6 +68,9 @@ export class Model extends ComponentBase implements Component {
 	setMesh(mesh : BABYLON.Mesh) {
 		this._mesh = mesh;
 		this._mesh.name = this.entity().name();
+		this._mesh.metadata = {
+			entityId: this.entity().id(),
+		};
 
 		this._onLoadFns.forEach((fn : OnLoadFn) => {
 			fn(this);

@@ -15,6 +15,8 @@ export enum AttributeType {
 
 	// Boolean
 	GROUNDED,
+	PICKABLE,
+	PICKED,
 	READY,
 	SOLID,
 

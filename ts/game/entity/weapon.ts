@@ -80,9 +80,9 @@ export abstract class Weapon extends EntityBase {
 
 	abstract shoot(dir : Vec2) : boolean;
 	reload(time : number) : void {
-		this._attributes.set(AttributeType.READY, false);
+		this._attributes.setAttribute(AttributeType.READY, false);
 		this._reloadTimer.start(time, () => {
-			this._attributes.set(AttributeType.READY, true);
+			this._attributes.setAttribute(AttributeType.READY, true);
 		});
 	}
 }

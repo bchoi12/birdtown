@@ -25,7 +25,7 @@ export class Bazooka extends Weapon {
 			id: this.id(),
 		});
 
-		this._attributes.set(AttributeType.READY, true);
+		this._attributes.setAttribute(AttributeType.READY, true);
 	}
 
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
@@ -49,7 +49,7 @@ export class Bazooka extends Weapon {
 		});
 
 		if (hasRocket) {
-			rocket.getComponent<Attributes>(ComponentType.ATTRIBUTES).set(AttributeType.OWNER, this._attributes.getAttribute(AttributeType.OWNER));
+			rocket.getComponent<Attributes>(ComponentType.ATTRIBUTES).setAttribute(AttributeType.OWNER, this._attributes.getAttribute(AttributeType.OWNER));
 			rocket.setTTL(1000);
 		}
 

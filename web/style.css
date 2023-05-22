@@ -121,8 +121,8 @@ body {
     padding-bottom: 0.5em;
     padding-left: 0.5em;
 
-    border-top-left-radius: 0.3em;
-    border-bottom-left-radius: 0.3em;
+    border-top-left-radius: 0.1em;
+    border-bottom-left-radius: 0.1em;
 
     background: linear-gradient(to right, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
 }

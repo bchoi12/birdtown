@@ -26,7 +26,7 @@ export class Wall extends EntityBase {
 		});
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._attributes.set(AttributeType.SOLID, true);
+		this._attributes.setAttribute(AttributeType.SOLID, true);
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
