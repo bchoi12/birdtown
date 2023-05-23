@@ -12,7 +12,7 @@ import { GameData } from 'game/game_data'
 
 import { Timer } from 'util/timer'
 
-export enum GameState {
+enum State {
 	UNKNOWN,
 	WAITING,
 	SETUP,
@@ -20,10 +20,9 @@ export enum GameState {
 	FINISH,
 }
 
-// TODO: rename controller?
-export class GameMode extends SystemBase implements System {
+export class Controller extends SystemBase implements System {
 
-	private _state : GameState;
+	private _state : State;
 	private _resetTimer : Timer;
 
 	// TODO: Optional<GameMaker>
@@ -32,7 +31,7 @@ export class GameMode extends SystemBase implements System {
 	constructor() {
 		super(SystemType.GAME_MODE);
 
-		this._state = GameState.WAITING;
+		this._state = State.WAITING;
 		this._resetTimer = this.newTimer();
 
 		this._duelMaker = new DuelMaker();
@@ -53,7 +52,7 @@ export class GameMode extends SystemBase implements System {
 		}
 
 		this._state = state;
-		if (this._state === GameState.SETUP) {
+		if (this._state === State.SETUP) {
 			game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
 				if (clientState.gameId() === game.id()) {
 					clientState.requestSetupState();
@@ -63,10 +62,10 @@ export class GameMode extends SystemBase implements System {
 	}
 
 	trySetup() : void {
-		if (this._state === GameState.WAITING) {
+		if (this._state === State.WAITING) {
 			if (this._duelMaker.querySetup()) {
 				this._duelMaker.setup();
-				this.setState(GameState.SETUP);
+				this.setState(State.SETUP);
 			}
 		}
 	}
@@ -78,7 +77,7 @@ export class GameMode extends SystemBase implements System {
 			return;
 		}
 
-		if (this._state === GameState.WAITING) {
+		if (this._state === State.WAITING) {
     		let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
     			clientId: msg.gameId,
     			profileInit: {
@@ -98,21 +97,21 @@ export class GameMode extends SystemBase implements System {
 			return;
 		}
 
-		if (this._state === GameState.SETUP) {
+		if (this._state === State.SETUP) {
 			if (this._duelMaker.queryStart()) {
 				this._duelMaker.start();
-				this.setState(GameState.STARTED);
+				this.setState(State.STARTED);
 			}
-		} else if (this._state === GameState.STARTED) {
+		} else if (this._state === State.STARTED) {
 			if (this._duelMaker.queryFinish()) {
 				this._duelMaker.finish();
-				this.setState(GameState.FINISH);
+				this.setState(State.FINISH);
 			}
-		} else if (this._state === GameState.FINISH) {
+		} else if (this._state === State.FINISH) {
 			if (!this._resetTimer.hasTimeLeft()) {
 				this._resetTimer.start(1000, () => {
 					this._duelMaker.setup();
-					this.setState(GameState.SETUP);
+					this.setState(State.SETUP);
 				});
 			}
 		}

@@ -95,7 +95,7 @@ export class Console extends EntityBase {
 			});
 
 			if (game.keys().keyDown(KeyType.INTERACT)) {
-				game.gameMode().trySetup();
+				game.controller().trySetup();
 			}
 		}
 	}
