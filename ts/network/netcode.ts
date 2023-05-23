@@ -3,7 +3,7 @@ import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
 import { ChannelType } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
-import { MessageType } from 'message/api'
+import { NetworkMessageType } from 'message/api'
 import { NetworkMessage } from 'message/network_message'
 import { Connection } from 'network/connection'
 import { Pinger } from 'network/pinger'
@@ -43,7 +43,7 @@ export abstract class Netcode {
 	protected _registerCallbacks : Array<RegisterCallback>;
 
 	protected _messageBuffer : Buffer<NetworkMessage>;
-	protected _messageCallbacks : Map<MessageType, MessageCallback>;
+	protected _messageCallbacks : Map<NetworkMessageType, MessageCallback>;
 
 	protected _mediaConnections : Map<number, MediaConnection>;
 	protected _micEnabled : boolean;
@@ -242,7 +242,7 @@ export abstract class Netcode {
 		this._registerCallbacks.push(cb);
 	}
 
-	addMessageCallback(type : MessageType, cb : MessageCallback) {
+	addMessageCallback(type : NetworkMessageType, cb : MessageCallback) {
 		if (this._messageCallbacks.has(type)) {
 			console.error("Warning: overwriting callback for message type " + type);
 		}
@@ -399,7 +399,7 @@ export abstract class Netcode {
 			return;
 		}
 
-		let msg = new NetworkMessage(MessageType.UNKNOWN);
+		let msg = new NetworkMessage(NetworkMessageType.UNKNOWN);
 		msg.parseObject(decode(bytes));
 
 		const connection = this._connections.get(name);
@@ -411,7 +411,7 @@ export abstract class Netcode {
 		}
 
 		if (this._messageCallbacks.has(msg.type())) {
-			if (msg.type() === MessageType.GAME) {
+			if (msg.type() === NetworkMessageType.GAME) {
 				this._messageBuffer.push(msg);
 			} else {
 				this._messageCallbacks.get(msg.type())(msg);

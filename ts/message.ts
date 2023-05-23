@@ -1,15 +1,15 @@
 
-import { MessageType } from 'message/api'
+import { NetworkMessageType } from 'message/api'
 
-export interface Message<T extends number> {
-	type() : MessageType;
+export interface Message<T extends number, P extends number> {
+	type() : T;
 	valid() : boolean;
 
-	hasProp(prop : number);
-	getProp<O extends Object>(prop : number) : O;
-	setProp<O extends Object>(prop : number, obj : O) : void;
+	hasProp(prop : P);
+	getProp<O extends Object>(prop : P) : O;
+	setProp<O extends Object>(prop : P, obj : O) : void;
 
-	parseObject(obj : Object) : Message<T>;
+	parseObject(obj : Object) : Message<T, P>;
 	toObject() : Object;
 }
 
@@ -19,50 +19,55 @@ enum Prop {
 	DATA,
 }
 
+export type Descriptor = {
+	optional? : boolean;
+};
+export type FieldDescriptor = Map<number, Descriptor>;
 export type DataMap = { [k: number]: Object }
-export abstract class MessageBase<T extends number> {
-	protected _type : MessageType;
+
+export abstract class MessageBase<T extends number, P extends number> {
+	protected _type : T;
 	protected _data : DataMap;
 
-	constructor(type : MessageType) {
+	constructor(type : T) {
 		this._type = type;
 		this._data = {};
 	}
 
-	abstract descriptor() : Map<MessageType, Set<T>>;
+	abstract messageDescriptor() : Map<T, FieldDescriptor>;
 
-	type() : MessageType { return this._type; }
+	type() : T { return this._type; }
 	valid() : boolean {
-		if (this._type === MessageType.UNKNOWN) {
+		if (this._type === 0) {
 			return false;
 		}
 		if (Object.keys(this._data).length === 0) {
 			return false;
 		}
 
-		for (let prop of this.descriptor().get(this._type)) {
-			if (!this.hasProp(prop)) {
+		for (let [prop, descriptor] of this.messageDescriptor().get(this._type)) {
+			if (!this.hasProp(<P>prop) && !descriptor.optional) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	hasProp(prop : T) : boolean {
-		if (!this.descriptor().has(prop)) {
+	hasProp(prop : P) : boolean {
+		if (!this.messageDescriptor().get(this._type).has(prop)) {
 			return false;
 		}
 		return this._data.hasOwnProperty(prop);
 	}
-	getProp<O extends Object>(prop : T) : O {
-		if (!this.descriptor().has(prop)) {
+	getProp<O extends Object>(prop : P) : O {
+		if (!this.messageDescriptor().get(this._type).has(prop)) {
 			console.error("Error: trying to get invalid prop %d for type %d", prop, this._type);
 			return null;
 		}
 		return <O>this._data[prop];
 	}
-	setProp<O extends Object>(prop : T, obj : O) : Message<T> {
-		if (!this.descriptor().has(prop)) {
+	setProp<O extends Object>(prop : P, obj : O) : Message<T, P> {
+		if (!this.messageDescriptor().get(this._type).has(prop)) {
 			console.error("Error: skipping setting invalid prop %d for type %d", prop, this._type);
 			return this;
 		}
@@ -71,9 +76,9 @@ export abstract class MessageBase<T extends number> {
 		return this;
 	}
 
-	parseObject(obj : Object) : Message<T> {
+	parseObject(obj : Object) : Message<T, P> {
 		if (obj.hasOwnProperty(Prop.TYPE)) {
-			this._type = <MessageType>obj[Prop.TYPE];
+			this._type = <T>obj[Prop.TYPE];
 		}
 		if (obj.hasOwnProperty(Prop.DATA)) {
 			this._data = <DataMap>obj[Prop.DATA];
@@ -87,5 +92,19 @@ export abstract class MessageBase<T extends number> {
 		return obj;
 	}
 
-	protected static setOf(...props : number[]) : Set<number> { return new Set(props); }
+	protected static fieldDescriptor(...fields : [number, Descriptor][]) : FieldDescriptor {
+		let fieldDescriptor = new Map<number, Descriptor>();
+		fields.forEach(([prop, descriptor] : [number, Descriptor]) => {
+			fieldDescriptor.set(prop, descriptor);
+		});
+		return fieldDescriptor;
+	}
+
+	protected static fields(...fields : number[]) : FieldDescriptor {
+		let fieldDescriptor = new Map<number, Descriptor>();
+		fields.forEach((prop : number) => {
+			fieldDescriptor.set(prop, {});
+		});
+		return fieldDescriptor;
+	}
 }

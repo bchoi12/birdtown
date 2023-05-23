@@ -1,6 +1,6 @@
 
-import { Message, MessageBase } from 'message'
-import { MessageType } from 'message/api'
+import { Message, MessageBase, FieldDescriptor } from 'message'
+import { NetworkMessageType } from 'message/api'
 
 export enum NetworkProp {
 	UNKNOWN,
@@ -12,33 +12,33 @@ export enum NetworkProp {
 	STRING,
 }
 
-export class NetworkMessage extends MessageBase<NetworkProp> implements Message<NetworkProp> {
+export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp> implements Message<NetworkMessageType, NetworkProp> {
 
-	private static readonly _descriptor = new Map<MessageType, Set<NetworkProp>>([
-		[MessageType.CHAT, MessageBase.setOf(
+	private static readonly _messageDescriptor = new Map<NetworkMessageType, FieldDescriptor>([
+		[NetworkMessageType.CHAT, MessageBase.fields(
 			NetworkProp.STRING)],
-		[MessageType.GAME, MessageBase.setOf(
+		[NetworkMessageType.GAME, MessageBase.fields(
 			NetworkProp.SEQ_NUM,
 			NetworkProp.DATA)],
-		[MessageType.INIT_CLIENT, MessageBase.setOf(
+		[NetworkMessageType.INIT_CLIENT, MessageBase.fields(
 			NetworkProp.CLIENT_ID)],
-		[MessageType.PING, MessageBase.setOf(
+		[NetworkMessageType.PING, MessageBase.fields(
 			NetworkProp.SEQ_NUM)],
-		[MessageType.VOICE, MessageBase.setOf(
+		[NetworkMessageType.VOICE, MessageBase.fields(
 			NetworkProp.CLIENT_ID,
 			NetworkProp.ENABLED)],
-		[MessageType.VOICE_MAP, MessageBase.setOf(
+		[NetworkMessageType.VOICE_MAP, MessageBase.fields(
 			NetworkProp.CLIENT_MAP)],
 	]);
 
 	private _name : string;
 
-	constructor(type : MessageType) {
+	constructor(type : NetworkMessageType) {
 		super(type);
 		this._name = "";
 	}
 
-	override descriptor() : Map<MessageType, Set<NetworkProp>> { return NetworkMessage._descriptor; }
+	override messageDescriptor() : Map<NetworkMessageType, FieldDescriptor> { return NetworkMessage._messageDescriptor; }
 	override valid() { return super.valid() && this._name.length > 0; }
 
 	name() : string { return this._name; }

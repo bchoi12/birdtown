@@ -5,7 +5,7 @@ import { SystemType } from 'game/system/api'
 import { LevelLoadMsg, LevelType, NewClientMsg } from 'game/system/api'
 
 import { Message, DataMap } from 'message'
-import { MessageType } from 'message/api'
+import { NetworkMessageType } from 'message/api'
 import { NetworkMessage, NetworkProp } from 'message/network_message'
 
 import { ChannelType } from 'network/api'
@@ -112,7 +112,7 @@ export class Runner extends SystemBase implements System  {
 			return [null, false];
 		}
 
-		let msg = new NetworkMessage(MessageType.GAME);
+		let msg = new NetworkMessage(NetworkMessageType.GAME);
 		msg.setProp<number>(NetworkProp.SEQ_NUM, this._seqNum)
 			.setProp<Object>(NetworkProp.DATA, data);
 		return [msg, true];

@@ -1,16 +1,17 @@
 
-export enum MessageType {
+export enum NetworkMessageType {
 	UNKNOWN,
-
-	// Network
 	CHAT,
 	GAME,
 	INIT_CLIENT,
 	PING,
 	VOICE,
 	VOICE_MAP,
+}
 
-	// UI
+export enum UiMessageType {
+	UNKNOWN,
+
 	ANNOUNCEMENT,
 	DIALOG,
 	TOOLTIP,

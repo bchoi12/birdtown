@@ -1,7 +1,7 @@
 import { Peer } from 'peerjs'
 
 import { ChannelType } from 'network/api'
-import { MessageType } from 'message/api'
+import { NetworkMessageType } from 'message/api'
 import { NetworkMessage, NetworkProp } from 'message/network_message'
 import { Netcode } from 'network/netcode'
 
@@ -49,21 +49,21 @@ export class Host extends Netcode {
 	}
 
 	private registerCallbacks() : void {
-		this.addMessageCallback(MessageType.CHAT, (msg : NetworkMessage) => {
+		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
 			this.handleChat(msg.name(), msg.getProp<string>(NetworkProp.STRING));
 		});
 
-		this.addMessageCallback(MessageType.VOICE, (msg : NetworkMessage) => {
+		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
 			let connection = this.getConnection(msg.name());
 			connection.setVoiceEnabled(msg.getProp<boolean>(NetworkProp.ENABLED));
 
-			let outgoingMsg = new NetworkMessage(MessageType.VOICE);
+			let outgoingMsg = new NetworkMessage(NetworkMessageType.VOICE);
 			outgoingMsg.setProp<boolean>(NetworkProp.ENABLED, msg.getProp<boolean>(NetworkProp.ENABLED));
 			outgoingMsg.setProp<number>(NetworkProp.CLIENT_ID, msg.getProp<number>(NetworkProp.CLIENT_ID));
 			this.broadcast(ChannelType.TCP, outgoingMsg);
 
 			if (outgoingMsg.getProp<boolean>(NetworkProp.ENABLED)) {
-				let voiceMapMsg = new NetworkMessage(MessageType.VOICE_MAP);
+				let voiceMapMsg = new NetworkMessage(NetworkMessageType.VOICE_MAP);
 				voiceMapMsg.setProp<Object>(NetworkProp.CLIENT_MAP, Object.fromEntries(this.getVoiceMap()));
 				this.send(msg.name(), ChannelType.TCP, voiceMapMsg);
 				this.sendMessage(connection.displayName() + " joined voice chat");
@@ -83,7 +83,7 @@ export class Host extends Netcode {
 
 		this._voiceEnabled = enabled;
 
-		let outgoing = new NetworkMessage(MessageType.VOICE);
+		let outgoing = new NetworkMessage(NetworkMessageType.VOICE);
 		outgoing.setProp<number>(NetworkProp.CLIENT_ID, this.gameId())
 			.setProp<boolean>(NetworkProp.ENABLED, enabled);
 		this.broadcast(ChannelType.TCP, outgoing);
@@ -116,7 +116,7 @@ export class Host extends Netcode {
 	}
 
 	private sendMessage(fullMessage : string) : void {
-		let msg = new NetworkMessage(MessageType.CHAT);
+		let msg = new NetworkMessage(NetworkMessageType.CHAT);
 		msg.setProp<string>(NetworkProp.STRING, fullMessage);
 		this.broadcast(ChannelType.TCP, msg);
 		ui.chat(fullMessage);

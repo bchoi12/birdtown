@@ -1,7 +1,7 @@
 import { Peer, DataConnection } from 'peerjs'
 
 import { ChannelType } from 'network/api'
-import { MessageType } from 'message/api'
+import { NetworkMessageType } from 'message/api'
 import { NetworkMessage, NetworkProp } from 'message/network_message'
 import { Netcode } from 'network/netcode'
 
@@ -45,7 +45,7 @@ export class Client extends Netcode {
 			return;
 		}
 
-		let msg = new NetworkMessage(MessageType.CHAT);
+		let msg = new NetworkMessage(NetworkMessageType.CHAT);
 		msg.setProp(NetworkProp.STRING, message);
 		this.send(this.hostName(), ChannelType.TCP, msg);
 	}
@@ -55,7 +55,7 @@ export class Client extends Netcode {
 			return this._voiceEnabled;
 		}
 
-		let outgoing = new NetworkMessage(MessageType.VOICE);
+		let outgoing = new NetworkMessage(NetworkMessageType.VOICE);
 		outgoing
 			.setProp<number>(NetworkProp.CLIENT_ID, this.gameId())
 			.setProp<boolean>(NetworkProp.ENABLED, enabled);
@@ -73,17 +73,17 @@ export class Client extends Netcode {
 	}
 
 	private registerCallbacks() : void {
-		this.addMessageCallback(MessageType.CHAT, (msg : NetworkMessage) => {
+		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
 			ui.chat(msg.getProp<string>(NetworkProp.STRING));
 		});
 
-		this.addMessageCallback(MessageType.VOICE, (msg : NetworkMessage) => {
+		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
 			if (!msg.getProp<boolean>(NetworkProp.ENABLED)) {
 				this.closeMediaConnection(msg.getProp<number>(NetworkProp.CLIENT_ID));
 			}
 		});
 
-		this.addMessageCallback(MessageType.VOICE_MAP, (msg : NetworkMessage) => {
+		this.addMessageCallback(NetworkMessageType.VOICE_MAP, (msg : NetworkMessage) => {
 			if (!this._voiceEnabled) { return; }
 
 			const clients = new Map<number, string>();

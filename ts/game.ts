@@ -20,7 +20,7 @@ import { Client } from 'network/client'
 import { Netcode } from 'network/netcode'
 import { Host } from 'network/host'
 
-import { MessageType } from 'message/api'
+import { NetworkMessageType } from 'message/api'
 import { NetworkMessage, NetworkProp } from 'message/network_message'
 
 import { settings } from 'settings'
@@ -89,7 +89,7 @@ class Game {
 				const gameId = game.nextId();
 				this._netcode.getConnection(name).setGameId(gameId);
 				
-				let msg = new NetworkMessage(MessageType.INIT_CLIENT);
+				let msg = new NetworkMessage(NetworkMessageType.INIT_CLIENT);
 				msg.setProp<number>(NetworkProp.CLIENT_ID, gameId);
 				this._netcode.send(name, ChannelType.TCP, msg);
 
@@ -104,14 +104,14 @@ class Game {
 			});
 		} else {
 			this._netcode = new Client(this._options.hostName, this._options.displayName);
-			this._netcode.addMessageCallback(MessageType.INIT_CLIENT, (msg : NetworkMessage) => {
+			this._netcode.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
 				this.setId(msg.getProp<number>(NetworkProp.CLIENT_ID));
 				if (isLocalhost()) {
 					console.log("Got client id", this.id());
 				}
 			});
 		}
-		this._netcode.addMessageCallback(MessageType.GAME, (msg : NetworkMessage) => {
+		this._netcode.addMessageCallback(NetworkMessageType.GAME, (msg : NetworkMessage) => {
 			this._runner.importData(msg.getProp(NetworkProp.DATA), msg.getProp<number>(NetworkProp.SEQ_NUM));
 		});
 		this._netcode.initialize();
