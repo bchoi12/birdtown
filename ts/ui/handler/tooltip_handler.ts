@@ -2,7 +2,7 @@
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
-import { TooltipType, UiMode, TooltipMsg } from 'ui/api'
+import { TooltipType, UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -34,12 +34,17 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		});
 	}
 	setMode(mode : UiMode) : void {}
-	handleMessage(msg : UiMessage) : void {}
+	handleMessage(msg : UiMessage) : void {
+		if (msg.type() !== UiMessageType.TOOLTIP) {
+			return;
+		}
 
-	showTooltip(tooltip : TooltipMsg) : void {
+		const type = msg.getProp<TooltipType>(UiProp.TYPE);
+		const ttl = msg.getPropOr<number>(UiProp.TTL, TooltipHandler._defaultTTL);
+
 		let wrapper;
-		if (this._tooltips.has(tooltip.type)) {
-			wrapper = this._tooltips.get(tooltip.type);
+		if (this._tooltips.has(type)) {
+			wrapper = this._tooltips.get(type);
 		} else {
 			for (let [type, activeWrapper] of this._tooltips) {
 				if (this._tooltips.size < TooltipHandler._maxTooltips) {
@@ -52,18 +57,18 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			}
 
 			wrapper = new TooltipWrapper();
-			this._tooltips.set(tooltip.type, wrapper);
+			this._tooltips.set(type, wrapper);
 			this._tooltipsElm.appendChild(wrapper.elm());
 		}
 
-		wrapper.setHtml(this.getHtml(tooltip));
-		wrapper.setTTL(defined(tooltip.ttl) ? tooltip.ttl : TooltipHandler._defaultTTL, () => {
-			this._tooltips.delete(tooltip.type);
+		wrapper.setHtml(this.getHtml(msg));
+		wrapper.setTTL(ttl, () => {
+			this._tooltips.delete(type);
 		});
 	}
 
-	private getHtml(tooltip : TooltipMsg) : string{
-		switch (tooltip.type) {
+	private getHtml(msg : UiMessage) : string{
+		switch (msg.getProp<TooltipType>(UiProp.TYPE)) {
 		default:
 			return "testing 123";
 		}

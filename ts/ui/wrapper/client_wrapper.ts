@@ -1,5 +1,5 @@
 
-import { NewClientMsg } from 'ui/api'
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
@@ -9,10 +9,10 @@ export class ClientWrapper extends HtmlWrapper {
 
 	private _voiceWrapper : VoiceWrapper;
 
-	constructor(msg : NewClientMsg) {
+	constructor(msg : UiMessage) {
 		super(Html.div());
 
-		this.elm().textContent = msg.displayName;
+		this.elm().textContent = msg.getProp<string>(UiProp.DISPLAY_NAME);
 
 		this._voiceWrapper = new VoiceWrapper(msg);
 		this.elm().appendChild(this._voiceWrapper.elm());

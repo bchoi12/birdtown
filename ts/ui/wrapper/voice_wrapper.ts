@@ -1,8 +1,9 @@
 
 import { game } from 'game'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ui } from 'ui'
-import { NewClientMsg } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon, IconType } from 'ui/util/icon'
 
@@ -15,10 +16,10 @@ export class VoiceWrapper extends HtmlWrapper {
 
 	private _stream : MediaStream;
 
-	constructor(msg : NewClientMsg) {
+	constructor(msg : UiMessage) {
 		super(Html.span());
 
-		if (msg.isSelf) {
+		if (msg.getProp<number>(UiProp.CLIENT_ID) === game.id()) {
 			this._micButton = Html.span();
 			this._micButton.append(Icon.create(IconType.MUTED_MIC));
 			this._micButton.classList.add(Html.classTextButton);

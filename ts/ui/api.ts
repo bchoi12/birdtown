@@ -47,9 +47,3 @@ export type DialogMsg = {
 export type DialogSubmitMsg = {
 	data : Map<number, DialogValue>;
 }
-
-export type TooltipMsg = {
-	type : TooltipType;
-	ttl? : number;
-	names? : Array<SpecialName>
-}

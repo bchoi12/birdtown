@@ -7,6 +7,7 @@ export interface Message<T extends number, P extends number> {
 
 	hasProp(prop : P);
 	getProp<O extends Object>(prop : P) : O;
+	getPropOr<O extends Object>(prop : P, obj : O) : O;
 	setProp<O extends Object>(prop : P, obj : O) : void;
 
 	parseObject(obj : Object) : Message<T, P>;
@@ -32,6 +33,10 @@ export abstract class MessageBase<T extends number, P extends number> {
 	constructor(type : T) {
 		this._type = type;
 		this._data = {};
+
+		if (this._type > 0 && !this.messageDescriptor().has(this._type)) {
+			console.error("Error: messageDescriptor is missing type %d", this._type, this.messageDescriptor());
+		}
 	}
 
 	abstract messageDescriptor() : Map<T, FieldDescriptor>;
@@ -65,6 +70,12 @@ export abstract class MessageBase<T extends number, P extends number> {
 			return null;
 		}
 		return <O>this._data[prop];
+	}
+	getPropOr<O extends Object>(prop : P, or : O) : O {
+		if (!this.hasProp(prop)) {
+			return or;
+		}
+		return this.getProp<O>(prop);
 	}
 	setProp<O extends Object>(prop : P, obj : O) : Message<T, P> {
 		if (!this.messageDescriptor().get(this._type).has(prop)) {

@@ -9,8 +9,10 @@ import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { LayerType } from 'game/system/api'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ui } from 'ui'
-import { KeyType, TooltipType, TooltipMsg } from 'ui/api'
+import { KeyType, TooltipType } from 'ui/api'
 
 export class Console extends EntityBase {
 
@@ -89,10 +91,10 @@ export class Console extends EntityBase {
 		}
 
 		if (this.isSource()) {
-			ui.showTooltip({
-				type: TooltipType.TEST,
-				ttl: 3000,
-			});
+			let msg = new UiMessage(UiMessageType.TOOLTIP);
+			msg.setProp(UiProp.TYPE, TooltipType.TEST);
+			msg.setProp(UiProp.TTL, 3000);
+			ui.handleMessage(msg);
 
 			if (game.keys().keyDown(KeyType.INTERACT)) {
 				game.controller().trySetup();

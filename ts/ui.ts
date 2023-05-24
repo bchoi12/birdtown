@@ -1,7 +1,7 @@
 
 import { UiMessage } from 'message/ui_message'
 
-import { CounterType, KeyType, UiMode, DialogMsg, NewClientMsg, TooltipMsg } from 'ui/api'
+import { CounterType, KeyType, UiMode, DialogMsg } from 'ui/api'
 import { Handler } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 
@@ -91,9 +91,7 @@ class UI {
 		});
 	}
 
-	onNewClient(msg : NewClientMsg) : void { this._clientsHandler.onNewClient(msg); }
 	pushDialog(msg : DialogMsg) : void { this._dialogHandler.pushDialog(msg); }
-	showTooltip(msg : TooltipMsg) : void { this._tooltipHandler.showTooltip(msg); }
 
 	addStream(gameId : number, stream : MediaStream) : void { this._clientsHandler.addStream(gameId, stream); }
 	removeStream(gameId : number) : void { this._clientsHandler.removeStream(gameId); }

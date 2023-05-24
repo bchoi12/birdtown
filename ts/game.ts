@@ -170,6 +170,8 @@ class Game {
 	resize() : void { this._engine.resize(); }
 	initialized() : boolean { return this._initialized; }
 	canvas() : HTMLCanvasElement { return this._canvas; }
+
+	// TODO: rename id to clientId
 	hasId() : boolean { return this._id > 0; }
 	id() : number { return this._id; }
 	options() : GameOptions { return this._options; }

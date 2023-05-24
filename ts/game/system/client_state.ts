@@ -3,6 +3,8 @@ import { game } from 'game'
 import { ClientSystem, System } from 'game/system'
 import { SystemType, LevelLoadMsg } from 'game/system/api'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 
@@ -46,11 +48,10 @@ export class ClientState extends ClientSystem implements System {
 	override initialize() : void {
 		super.initialize();
 
-		ui.onNewClient({
-			gameId: this.gameId(),
-			isSelf: game.id() === this.gameId(),
-			displayName: this.displayName(),
-		});
+		const msg = new UiMessage(UiMessageType.CLIENT);
+		msg.setProp(UiProp.CLIENT_ID, this.gameId());
+		msg.setProp(UiProp.DISPLAY_NAME, this.displayName());
+		ui.handleMessage(msg);
 	}
 
 	private hasDisplayName() : boolean { return this._displayName.length > 0; }

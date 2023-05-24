@@ -5,13 +5,16 @@ export enum UiMessageType {
 	UNKNOWN,
 
 	ANNOUNCEMENT,
+	CLIENT,
 	DIALOG,
 	TOOLTIP,
 }
 
 export enum UiProp {
 	UNKNOWN,
+	CLIENT_ID,
 	DATA,
+	DISPLAY_NAME,
 	NAMES,
 	TYPE,
 	TTL,
@@ -24,6 +27,10 @@ export class UiMessage extends MessageBase<UiMessageType, UiProp> implements Mes
 			[UiProp.TYPE, {}],
 			[UiProp.TTL, {optional: true}],
 			[UiProp.NAMES, {optional: true}],
+		)],
+		[UiMessageType.CLIENT, MessageBase.fieldDescriptor(
+			[UiProp.CLIENT_ID, {}],
+			[UiProp.DISPLAY_NAME, {}],
 		)],
 		[UiMessageType.DIALOG, MessageBase.fieldDescriptor(
 			[UiProp.TYPE, {}],

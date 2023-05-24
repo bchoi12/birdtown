@@ -4,7 +4,7 @@ import { game } from 'game'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
-import { UiMode, NewClientMsg } from 'ui/api'
+import { UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -31,7 +31,22 @@ export class ClientsHandler extends HandlerBase implements Handler {
 
 	reset() : void {}
 
-	handleMessage(msg : UiMessage) : void {}
+	handleMessage(msg : UiMessage) : void {
+		if (msg.type() !== UiMessageType.CLIENT) {
+			return;
+		}
+
+		const clientId = msg.getProp<number>(UiProp.CLIENT_ID);
+
+		if (this._clients.has(clientId)) {
+			console.error("Error: skipping duplicate client in UI");
+			return;
+		}
+
+		const clientWrapper = new ClientWrapper(msg);
+		this._clients.set(clientId, clientWrapper)
+		this._clientsElm.appendChild(clientWrapper.elm());
+	}
 
 	setMode(mode : UiMode) {}
 
@@ -60,16 +75,5 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._clients.forEach((client : ClientWrapper) => {
 			client.removeStream();
 		});
-	}
-
-	onNewClient(msg : NewClientMsg) : void {
-		if (this._clients.has(msg.gameId)) {
-			console.error("Error: skipping duplicate client in UI");
-			return;
-		}
-
-		const clientWrapper = new ClientWrapper(msg);
-		this._clients.set(msg.gameId, clientWrapper)
-		this._clientsElm.appendChild(clientWrapper.elm());
 	}
 }
