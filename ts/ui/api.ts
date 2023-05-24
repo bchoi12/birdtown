@@ -38,12 +38,3 @@ export enum TooltipType {
 	UNKNOWN,
 	TEST,
 }
-
-export type DialogValue = number|string;
-export type DialogMsg = {
-	type : DialogType;
-	onSubmit? : (submitMsg : DialogSubmitMsg) => void;
-}
-export type DialogSubmitMsg = {
-	data : Map<number, DialogValue>;
-}

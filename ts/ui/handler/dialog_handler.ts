@@ -4,7 +4,7 @@ import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { UiMode, DialogMsg } from 'ui/api'
+import { UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -24,17 +24,18 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 	setup() : void {}
 	reset() : void {}
-	handleMessage(msg : UiMessage) : void {}
-	setMode(mode : UiMode) : void {}
+	handleMessage(msg : UiMessage) : void {
+		if (msg.type() !== UiMessageType.DIALOG) {
+			return;
+		}
 
-	pushDialog(msg : DialogMsg) : void {
 		const dialog = new DialogWrapper();
 
-		dialog.setTitle("TITLE");
+		dialog.setTitle("Title");
 		dialog.setText("testing " + Math.floor(Math.random() * 999));
 
-		if (msg.onSubmit) {
-			dialog.onSubmit(msg.onSubmit);
+		if (msg.hasProp(UiProp.ON_SUBMIT)) {
+			dialog.onSubmit(msg.getProp(UiProp.ON_SUBMIT));
 		}
 
 		dialog.onSubmit(() => {
@@ -48,6 +49,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 		this.showDialog();
 	}
+	setMode(mode : UiMode) : void {}
 
 	popAll() : void {
 		while(this._dialogs.length > 0) {

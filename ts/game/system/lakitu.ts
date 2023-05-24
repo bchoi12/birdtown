@@ -7,6 +7,8 @@ import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { Entity } from 'game/entity'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ui } from 'ui'
 import { CounterType } from 'ui/api'
 
@@ -79,7 +81,10 @@ export class Lakitu extends SystemBase implements System {
 
 		if (this.targetEntity().hasComponent(ComponentType.HEALTH)) {
 			const health = this.targetEntity().getComponent<Health>(ComponentType.HEALTH);
-			ui.updateCounter(CounterType.HEALTH, health.health());
+			const healthMsg = new UiMessage(UiMessageType.COUNTER);
+			healthMsg.setProp(UiProp.TYPE, CounterType.HEALTH);
+			healthMsg.setProp(UiProp.COUNT, health.health());
+			ui.handleMessage(healthMsg);
 		}
 	}
 }

@@ -28,7 +28,16 @@ export class CountersHandler extends HandlerBase implements Handler {
 			});
 		});
 	}
-	handleMessage(msg : UiMessage) : void {}
+	handleMessage(msg : UiMessage) : void {
+		if (msg.type() !== UiMessageType.COUNTER) {
+			return;
+		}
+
+		const type = msg.getProp<CounterType>(UiProp.TYPE);
+		const count = msg.getProp<number>(UiProp.COUNT);
+		let counter = this.getOrAddCounter(type);
+		counter.updateCounter(count);
+	}
 	setMode(mode : UiMode) : void {}
 
 	setCounter(type : CounterType, count : number) : void {

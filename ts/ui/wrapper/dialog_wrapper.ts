@@ -1,9 +1,8 @@
 
 import { ui } from 'ui'
-import { DialogSubmitMsg } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 
-type OnSubmitFn = (msg : DialogSubmitMsg) => void;
+type OnSubmitFn = () => void;
 
 export class DialogWrapper extends HtmlWrapper {
 
@@ -28,10 +27,8 @@ export class DialogWrapper extends HtmlWrapper {
 		this._onSubmitFns = new Array();
 
 		this.elm().onclick = (e) => {
-			this._onSubmitFns.forEach((fn) => {
-				fn({
-					data: new Map(),
-				});
+			this._onSubmitFns.forEach((onSubmit) => {
+				onSubmit();
 			});
 		};
 	}

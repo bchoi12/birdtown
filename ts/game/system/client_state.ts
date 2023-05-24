@@ -74,12 +74,12 @@ export class ClientState extends ClientSystem implements System {
 
 		switch(this._setupState) {
 		case SetupState.WAITING:
-			ui.pushDialog({
-				type: DialogType.CHECK_READY,
-				onSubmit: () => {
-					this.setSetupState(SetupState.READY);
-				},
+			let msg = new UiMessage(UiMessageType.DIALOG);
+			msg.setProp(UiProp.TYPE, DialogType.CHECK_READY);
+			msg.setProp(UiProp.ON_SUBMIT, () => {
+				this.setSetupState(SetupState.READY);
 			});
+			ui.handleMessage(msg);
 			break;
 		}
 	}

@@ -1,6 +1,4 @@
 
-import { NetworkMessageType } from 'message/api'
-
 export interface Message<T extends number, P extends number> {
 	type() : T;
 	valid() : boolean;
