@@ -1,4 +1,6 @@
 
+import { UiMessage } from 'message/ui_message'
+
 import { UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 
@@ -6,6 +8,7 @@ export interface Handler {
 	type() : HandlerType;
 	setup() : void;
 	reset() : void;
+	handleMessage(msg : UiMessage) : void;
 	setMode(mode : UiMode) : void;
 }
 
@@ -17,7 +20,5 @@ export class HandlerBase {
 		this._type = type;
 	}
 
-	type() : HandlerType {
-		return this._type;
-	}
+	type() : HandlerType { return this._type; }
 }

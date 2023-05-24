@@ -39,12 +39,6 @@ export enum TooltipType {
 	TEST,
 }
 
-export type AnnouncementMsg = {
-	type : AnnouncementType;
-	ttl? : number;
-	names? : Array<SpecialName>
-}
-
 export type DialogValue = number|string;
 export type DialogMsg = {
 	type : DialogType;
@@ -52,12 +46,6 @@ export type DialogMsg = {
 }
 export type DialogSubmitMsg = {
 	data : Map<number, DialogValue>;
-}
-
-export type NewClientMsg = {
-	gameId : number;
-	displayName : string;
-	isSelf : boolean;
 }
 
 export type TooltipMsg = {

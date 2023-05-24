@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ui } from 'ui'
 import { UiMode, NewClientMsg } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
@@ -28,6 +30,8 @@ export class ClientsHandler extends HandlerBase implements Handler {
 	setup() : void {}
 
 	reset() : void {}
+
+	handleMessage(msg : UiMessage) : void {}
 
 	setMode(mode : UiMode) {}
 

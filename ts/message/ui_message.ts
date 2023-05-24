@@ -1,6 +1,13 @@
 
 import { Message, MessageBase, FieldDescriptor } from 'message'
-import { UiMessageType } from 'message/api'
+
+export enum UiMessageType {
+	UNKNOWN,
+
+	ANNOUNCEMENT,
+	DIALOG,
+	TOOLTIP,
+}
 
 export enum UiProp {
 	UNKNOWN,
@@ -20,6 +27,7 @@ export class UiMessage extends MessageBase<UiMessageType, UiProp> implements Mes
 		)],
 		[UiMessageType.DIALOG, MessageBase.fieldDescriptor(
 			[UiProp.TYPE, {}],
+			[UiProp.DATA, {optional: true}],
 		)],
 		[UiMessageType.TOOLTIP, MessageBase.fieldDescriptor(
 			[UiProp.TYPE, {}],

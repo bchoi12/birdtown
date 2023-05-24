@@ -1,5 +1,7 @@
 import { game } from 'game'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ChannelType } from 'network/api'
 import { ChannelMap, ChannelStat } from 'network/channel_map'
 import { Connection } from 'network/connection'
@@ -29,6 +31,7 @@ export class StatsHandler extends HandlerBase implements Handler {
 	}
 
 	reset() : void {}
+	handleMessage(msg : UiMessage) : void {}
 	setMode(mode : UiMode) : void {}
 
 	private updateStats() {

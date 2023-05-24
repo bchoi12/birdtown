@@ -1,4 +1,6 @@
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -78,6 +80,8 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 	}
 
 	reset() : void {}
+
+	handleMessage(msg : UiMessage) : void {}
 
 	setMode(mode : UiMode) : void {
 		if (mode === UiMode.PAUSE) {

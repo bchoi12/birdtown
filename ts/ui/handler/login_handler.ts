@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -51,6 +53,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 	}
 
 	reset() : void {}
+
+	handleMessage(msg : UiMessage) : void {}
 
 	setMode(mode : UiMode) : void {}
 

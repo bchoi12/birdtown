@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -46,7 +48,9 @@ export class ChatHandler extends HandlerBase implements Handler {
 
 	reset() : void {}
 
-	setMode(mode : UiMode) {
+	handleMessage(msg : UiMessage) : void {}
+
+	setMode(mode : UiMode) : void {
 		if (mode === UiMode.CHAT) {
 			this._chatElm.style.display = "block";
 			this._chatElm.classList.remove(Html.classSlightlyTransparent);

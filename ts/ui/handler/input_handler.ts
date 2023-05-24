@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -89,6 +91,8 @@ export class InputHandler extends HandlerBase implements Handler {
 		this.mapKey(settings.mouseClickKeyCode, KeyType.MOUSE_CLICK);
 		this.mapKey(settings.altMouseClickKeyCode, KeyType.ALT_MOUSE_CLICK);
 	}
+
+	handleMessage(msg : UiMessage) : void {}
 
 	setMode(mode : UiMode) : void {
 		if (mode === UiMode.GAME) {

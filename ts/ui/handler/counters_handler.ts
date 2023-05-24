@@ -1,5 +1,7 @@
 import { game } from 'game'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ui } from 'ui'
 import { CounterType, UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
@@ -26,6 +28,7 @@ export class CountersHandler extends HandlerBase implements Handler {
 			});
 		});
 	}
+	handleMessage(msg : UiMessage) : void {}
 	setMode(mode : UiMode) : void {}
 
 	setCounter(type : CounterType, count : number) : void {

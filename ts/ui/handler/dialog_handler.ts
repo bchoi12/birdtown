@@ -1,4 +1,6 @@
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -21,9 +23,8 @@ export class DialogHandler extends HandlerBase implements Handler {
 	}
 
 	setup() : void {}
-
 	reset() : void {}
-
+	handleMessage(msg : UiMessage) : void {}
 	setMode(mode : UiMode) : void {}
 
 	pushDialog(msg : DialogMsg) : void {

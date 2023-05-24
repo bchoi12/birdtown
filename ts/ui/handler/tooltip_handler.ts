@@ -1,4 +1,6 @@
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ui } from 'ui'
 import { TooltipType, UiMode, TooltipMsg } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
@@ -32,6 +34,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		});
 	}
 	setMode(mode : UiMode) : void {}
+	handleMessage(msg : UiMessage) : void {}
 
 	showTooltip(tooltip : TooltipMsg) : void {
 		let wrapper;

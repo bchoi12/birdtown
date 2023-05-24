@@ -1,6 +1,8 @@
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ui } from 'ui'
-import { AnnouncementType, UiMode, AnnouncementMsg } from 'ui/api'
+import { AnnouncementType, UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -15,7 +17,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 	private _announcementElm : HTMLElement;
 	private _mainAnnouncementElm : HTMLElement;
 	private _subAnnouncementElm : HTMLElement;
-	private _announcements : Array<AnnouncementMsg>;
+	private _announcements : Array<UiMessage>;
 
 	constructor() {
 		super(HandlerType.ANNOUNCEMENT);
@@ -24,15 +26,19 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		this._announcementElm = Html.elm(Html.divAnnouncement);
 		this._mainAnnouncementElm = Html.elm(Html.divMainAnnouncement);
 		this._subAnnouncementElm = Html.elm(Html.divSubAnnouncement);
-		this._announcements = new Array<AnnouncementMsg>();
+		this._announcements = new Array<UiMessage>();
 	}
 
 	setup() : void {}
 	reset() : void { this._announcementElm.style.display = "none"; }
 	setMode(mode : UiMode) : void {}
 
-	showAnnouncement(announcement : AnnouncementMsg) : void {
-		this._announcements.push(announcement);
+	handleMessage(msg : UiMessage) : void {
+		if (msg.type() !== UiMessageType.ANNOUNCEMENT) {
+			return;
+		}
+
+		this._announcements.push(msg);
 		if (!this._active) {
 			this.popAnnouncement();
 		}
@@ -52,13 +58,20 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		this._announcementElm.style.display = "block";
 		this._active = true;
 
+		let timeout;
+		if (announcement.hasProp(UiProp.TTL)) {
+			timeout = announcement.getProp<number>(UiProp.TTL);
+		} else {
+			timeout = AnnouncementHandler._defaultTTL;
+		}
+
 		setTimeout(() => {
 			this.popAnnouncement();
-		}, defined(announcement.ttl) ? announcement.ttl : AnnouncementHandler._defaultTTL);
+		}, timeout);
 	}
 
-	private getHtmls(announcement : AnnouncementMsg) : Array<string> {
-		switch (announcement.type) {
+	private getHtmls(announcement : UiMessage) : Array<string> {
+		switch (announcement.getProp<AnnouncementType>(UiProp.TYPE)) {
 		default:
 			return ["Welcome to birdtown", "This is a test announcement"];
 		}

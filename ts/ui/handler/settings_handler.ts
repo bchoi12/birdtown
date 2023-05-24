@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { settings } from 'settings'
 
 import { UiMode } from 'ui/api'
@@ -94,6 +96,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 	}
 
 	reset() : void {}
+
+	handleMessage(msg : UiMessage) : void {}
 
 	setMode(mode : UiMode) : void {
 		if (mode !== UiMode.PAUSE) {

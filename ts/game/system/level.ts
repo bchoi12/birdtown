@@ -4,10 +4,11 @@ import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { GameData } from 'game/game_data'
 import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 
-import { GameData } from 'game/game_data'
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { AnnouncementType } from 'ui/api'
@@ -109,9 +110,9 @@ export class Level extends SystemBase implements System {
 	    		version: this._version,
 	    	});
 
-	    	ui.showAnnouncement({
-	    		type: AnnouncementType.TEST,
-	    	});
+	    	const uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+	    	uiMsg.setProp(UiProp.TYPE, AnnouncementType.TEST);
+	    	ui.handleMessage(uiMsg);
 			this._state = State.READY;
 		}
 	}
