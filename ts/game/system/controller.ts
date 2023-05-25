@@ -4,11 +4,12 @@ import { game } from 'game'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
-import { LevelType, SystemType, NewClientMsg } from 'game/system/api'
+import { LevelType, SystemType } from 'game/system/api'
 import { ClientState } from 'game/system/client_state'
 import { DuelMaker } from 'game/system/game_maker/duel_maker'
-
 import { GameData } from 'game/game_data'
+
+import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
 import { Timer } from 'util/timer'
 
@@ -54,7 +55,7 @@ export class Controller extends SystemBase implements System {
 		this._state = state;
 		if (this._state === State.SETUP) {
 			game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
-				if (clientState.gameId() === game.id()) {
+				if (clientState.clientId() === game.clientId()) {
 					clientState.requestSetupState();
 				}
 			});
@@ -70,16 +71,22 @@ export class Controller extends SystemBase implements System {
 		}
 	}
 
-	override onNewClient(msg : NewClientMsg) : void {
-		super.onNewClient(msg);
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
 
 		if (!this.isSource()) {
 			return;
 		}
 
+		if (msg.type() !== GameMessageType.NEW_CLIENT) {
+			return;
+		}
+
+		const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
+
 		if (this._state === State.WAITING) {
     		let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
-    			clientId: msg.gameId,
+    			clientId: clientId,
     			profileInit: {
 	    			pos: {x: 1, y: 10},
     			},

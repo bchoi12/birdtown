@@ -19,7 +19,7 @@ export class VoiceWrapper extends HtmlWrapper {
 	constructor(msg : UiMessage) {
 		super(Html.span());
 
-		if (msg.getProp<number>(UiProp.CLIENT_ID) === game.id()) {
+		if (msg.getProp<number>(UiProp.CLIENT_ID) === game.clientId()) {
 			this._micButton = Html.span();
 			this._micButton.append(Icon.create(IconType.MUTED_MIC));
 			this._micButton.classList.add(Html.classTextButton);

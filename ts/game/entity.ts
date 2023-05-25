@@ -131,7 +131,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	hasClientId() : boolean { return defined(this._clientId); }
 	clientId() : number { return this._clientId; }
-	clientIdMatches() : boolean { return this.hasClientId() && this.clientId() === game.id() }
+	clientIdMatches() : boolean { return this.hasClientId() && this.clientId() === game.clientId() }
 
 	hasLevelVersion() : boolean { return defined(this._levelVersion); }
 	levelVersion() : number { return this._levelVersion; }

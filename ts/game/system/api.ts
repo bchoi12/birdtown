@@ -25,13 +25,9 @@ export enum LayerType {
 	HIGHLIGHT,
 }
 
+/*
 export type NewClientMsg = {
 	displayName : string;
 	gameId : number;
 }
-
-export type LevelLoadMsg = {
-	level : LevelType;
-	version : number;
-	seed : number;
-}
+*/

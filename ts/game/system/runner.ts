@@ -2,9 +2,10 @@ import { game } from 'game'
 import { GameData, DataFilter } from 'game/game_data'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
-import { LevelLoadMsg, LevelType, NewClientMsg } from 'game/system/api'
+import { LevelType } from 'game/system/api'
 
 import { Message, DataMap } from 'message'
+import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 import { NetworkMessageType } from 'message/api'
 import { NetworkMessage, NetworkProp } from 'message/network_message'
 
@@ -32,7 +33,7 @@ export class Runner extends SystemBase implements System  {
 		});
 	}
 
-	override ready() : boolean { return super.ready() && game.hasId(); }
+	override ready() : boolean { return super.ready() && game.hasClientId(); }
 
 	push<T extends System>(system : T) : T {
 		if (this.hasChild(system.type())) {
@@ -74,35 +75,30 @@ export class Runner extends SystemBase implements System  {
     	this.updateData(this._seqNum);
 	}
 
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		if (!this.isSource()) {
+			return;
+		}
+
+		switch(msg.type()) {
+		case GameMessageType.NEW_CLIENT:
+		case GameMessageType.LEVEL_LOAD:
+			const connection = game.netcode();
+			const [msg, has] = this.message(DataFilter.INIT);
+			if (has) {
+				connection.broadcast(ChannelType.TCP, msg);
+			}
+			break;
+		}
+	}
+
 	override importData(data : DataMap, seqNum : number) : void {
 		super.importData(data, seqNum);
 
 		if (!this.isSource()) {
 			this._seqNum = Math.max(this._seqNum, seqNum);
-		}
-	}
-
-	override onNewClient(msg : NewClientMsg) : void {
-		super.onNewClient(msg);
-
-		if (this.isSource()) {
-			const connection = game.netcode();
-			const [msg, has] = this.message(DataFilter.INIT);
-			if (has) {
-				connection.broadcast(ChannelType.TCP, msg);
-			}
-		}
-	}
-
-	override onLevelLoad(msg : LevelLoadMsg) : void {
-		super.onLevelLoad(msg);
-
-		if (this.isSource()) {
-			const connection = game.netcode();
-			const [msg, has] = this.message(DataFilter.INIT);
-			if (has) {
-				connection.broadcast(ChannelType.TCP, msg);
-			}
 		}
 	}
 

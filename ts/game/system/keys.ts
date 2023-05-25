@@ -28,12 +28,12 @@ export class Keys extends ClientSystem implements System {
 	private _mouse : Vec2;
 	private _dir : Vec2;
 
-	constructor(gameId : number) {
-		super(SystemType.KEYS, gameId);
+	constructor(clientId : number) {
+		super(SystemType.KEYS, clientId);
 
 		this.setName({
 			base: "keys",
-			id: this.gameId(),
+			id: this.clientId(),
 		});
 
 		this._keys = new Set();

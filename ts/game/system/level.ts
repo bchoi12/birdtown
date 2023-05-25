@@ -8,6 +8,7 @@ import { GameData } from 'game/game_data'
 import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 
+import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
@@ -104,11 +105,11 @@ export class Level extends SystemBase implements System {
 				break;
 			}
 
-	    	game.runner().onLevelLoad({
-	    		level: this._options.level,
-	    		seed: this._rng.getSeed(),
-	    		version: this._version,
-	    	});
+			let msg = new GameMessage(GameMessageType.LEVEL_LOAD);
+			msg.setProp(GameProp.TYPE, this._options.level);
+			msg.setProp(GameProp.SEED, this._rng.getSeed());
+			msg.setProp(GameProp.VERSION, this._version);
+	    	game.runner().handleMessage(msg);
 
 	    	const uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
 	    	uiMsg.setProp(UiProp.TYPE, AnnouncementType.TEST);

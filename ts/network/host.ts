@@ -84,7 +84,7 @@ export class Host extends Netcode {
 		this._voiceEnabled = enabled;
 
 		let outgoing = new NetworkMessage(NetworkMessageType.VOICE);
-		outgoing.setProp<number>(NetworkProp.CLIENT_ID, this.gameId())
+		outgoing.setProp<number>(NetworkProp.CLIENT_ID, this.clientId())
 			.setProp<boolean>(NetworkProp.ENABLED, enabled);
 		this.broadcast(ChannelType.TCP, outgoing);
 

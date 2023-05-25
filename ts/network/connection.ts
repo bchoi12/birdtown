@@ -8,20 +8,20 @@ export class Connection {
 	private _connected : boolean;
 	private _channels : ChannelMap;
 	private _voiceEnabled : boolean;
-	private _gameId : number;
+	private _clientId : number;
 
 	constructor() {
 		this._displayName = "";
 		this._connected = true;
 		this._channels = new ChannelMap();
 		this._voiceEnabled = false;
-		this._gameId = 0;
+		this._clientId = 0;
 	}
 
 	channels() : ChannelMap { return this._channels; }
 	setDisplayName(name : string) : void { this._displayName = name; }
 	hasDisplayName() : boolean { return this._displayName.length > 0; }
-	displayName() : string { return (this.hasDisplayName() ? this._displayName : "unknown") + " #" + (this.hasGameId() ? this.gameId() : "?"); }
+	displayName() : string { return (this.hasDisplayName() ? this._displayName : "unknown") + " #" + (this.hasClientId() ? this.clientId() : "?"); }
 	connected() : boolean { return this._connected; }
 	disconnect() : void {
 		this._channels.disconnect();
@@ -31,7 +31,7 @@ export class Connection {
 	voiceEnabled() : boolean { return this._voiceEnabled; }
 	setVoiceEnabled(enabled : boolean) { this._voiceEnabled = enabled; }
 
-	setGameId(id : number) : void { this._gameId = id; }
-	hasGameId() : boolean { return this._gameId > 0; }
-	gameId() : number { return this._gameId; }
+	setClientId(id : number) : void { this._clientId = id; }
+	hasClientId() : boolean { return this._clientId > 0; }
+	clientId() : number { return this._clientId; }
 }

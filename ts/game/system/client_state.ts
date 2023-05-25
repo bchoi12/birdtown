@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 import { ClientSystem, System } from 'game/system'
-import { SystemType, LevelLoadMsg } from 'game/system/api'
+import { SystemType } from 'game/system/api'
 
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
@@ -21,12 +21,12 @@ export class ClientState extends ClientSystem implements System {
 	// TODO: change this to a counter / version?
 	private _setupState : SetupState;
 
-	constructor(gameId : number) {
-		super(SystemType.CLIENT_STATE, gameId);
+	constructor(clientId : number) {
+		super(SystemType.CLIENT_STATE, clientId);
 
 		this.setName({
 			base: "client_state",
-			id: gameId,
+			id: clientId,
 		});
 
 		this._displayName = "";
@@ -49,7 +49,7 @@ export class ClientState extends ClientSystem implements System {
 		super.initialize();
 
 		const msg = new UiMessage(UiMessageType.CLIENT);
-		msg.setProp(UiProp.CLIENT_ID, this.gameId());
+		msg.setProp(UiProp.CLIENT_ID, this.clientId());
 		msg.setProp(UiProp.DISPLAY_NAME, this.displayName());
 		ui.handleMessage(msg);
 	}

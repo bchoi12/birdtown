@@ -1,7 +1,9 @@
 import { game } from 'game'
 import { GameObject, GameObjectBase, NetworkBehavior } from 'game/game_object'
 import { Entity, EntityOptions } from 'game/entity'
-import { LevelType, SystemType, LevelLoadMsg, NewClientMsg } from 'game/system/api'
+import { LevelType, SystemType } from 'game/system/api'
+
+import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
 import { defined } from 'util/common'
 
@@ -12,14 +14,14 @@ export interface System extends GameObject {
 	targetEntity() : Entity;
 	setTargetEntity(entity : Entity) : void;
 
-	onSetGameId(gameId : number) : void;
-	onNewClient(msg : NewClientMsg) : void;
-	onLevelLoad(msg : LevelLoadMsg) : void;
+	handleMessage(msg : GameMessage) : void;
 }
 
 export abstract class SystemBase extends GameObjectBase implements System {
-	protected _targetEntity : Entity;
+
 	protected _type : SystemType;
+
+	protected _targetEntity : Entity;
 
 	constructor(type : SystemType) {
 		super("system-" + type);
@@ -39,46 +41,32 @@ export abstract class SystemBase extends GameObjectBase implements System {
 		});
 	}
 
-	onSetGameId(gameId : number) : void {
+	handleMessage(msg : GameMessage) : void {
 		this.executeCallback<System>((system : System) => {
-			if (defined(system.onSetGameId)) {
-				system.onSetGameId(gameId);
-			}
-		});
-	}
-	onNewClient(msg : NewClientMsg) : void {
-		this.executeCallback<System>((system : System) => {
-			if (defined(system.onNewClient)) {
-				system.onNewClient(msg);
-			}
-		});
-	}
-	onLevelLoad(msg : LevelLoadMsg) : void {
-		this.executeCallback<System>((system : System) => {
-			if (defined(system.onLevelLoad)) {
-				system.onLevelLoad(msg);
+			if (defined(system.handleMessage)) {
+				system.handleMessage(msg);			
 			}
 		});
 	}
 }
 
 export abstract class ClientSystem extends SystemBase implements System {
-	protected _gameId : number;
+	protected _clientId : number;
 
-	constructor(type : SystemType, gameId : number) {
+	constructor(type : SystemType, clientId : number) {
 		super(type);
 
-		this._gameId = gameId;
+		this._clientId = clientId;
 
 		this.setName({
 			base: "client_system",
 		});
 	}
 
-	gameId() : number { return this._gameId; }
+	clientId() : number { return this._clientId; }
 
 	override networkBehavior() : NetworkBehavior {
-		if (game.id() === this.gameId()) {
+		if (game.clientId() === this.clientId()) {
 			return NetworkBehavior.SOURCE;
 		} else if (this.isHost()) {
 			return NetworkBehavior.RELAY;

@@ -21,6 +21,7 @@ import { Netcode } from 'network/netcode'
 import { Host } from 'network/host'
 
 import { NetworkMessageType } from 'message/api'
+import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 import { NetworkMessage, NetworkProp } from 'message/network_message'
 
 import { settings } from 'settings'
@@ -46,12 +47,12 @@ class Game {
 	]);
 
 	private _initialized : boolean;
-	private _id : number;
+	private _clientId : number;
 	private _canvas : HTMLCanvasElement;
 	private _frameTimes : NumberRingBuffer;
 
 	private _options : GameOptions;
-	private _lastId : number;
+	private _lastClientId : number;
 	private _engine : BABYLON.Engine|BABYLON.NullEngine;
 	private _netcode : Netcode;
 
@@ -67,7 +68,7 @@ class Game {
 
 	constructor() {
 		this._initialized = false;
-		this._id = 0;
+		this._clientId = 0;
 		this._canvas = Html.canvasElm(Html.canvasGame);
 		this._frameTimes = new NumberRingBuffer(60);
 	}
@@ -86,28 +87,28 @@ class Game {
 		if (this._options.host) {
 			this._netcode = new Host(this._options.hostName, this._options.displayName);
 			this._netcode.addRegisterCallback((name : string) => {
-				const gameId = game.nextId();
-				this._netcode.getConnection(name).setGameId(gameId);
+				const clientId = game.nextClientId();
+				this._netcode.getConnection(name).setClientId(clientId);
 				
-				let msg = new NetworkMessage(NetworkMessageType.INIT_CLIENT);
-				msg.setProp<number>(NetworkProp.CLIENT_ID, gameId);
-				this._netcode.send(name, ChannelType.TCP, msg);
+				let networkMsg = new NetworkMessage(NetworkMessageType.INIT_CLIENT);
+				networkMsg.setProp<number>(NetworkProp.CLIENT_ID, clientId);
+				this._netcode.send(name, ChannelType.TCP, networkMsg);
 
-				this._runner.onNewClient({
-					displayName: this._netcode.getConnection(name).displayName(),
-					gameId: gameId,
-				});
+				let gameMsg = new GameMessage(GameMessageType.NEW_CLIENT);
+				gameMsg.setProp(GameProp.CLIENT_ID, clientId);
+				gameMsg.setProp(GameProp.DISPLAY_NAME, this._netcode.getConnection(name).displayName());
+				this._runner.handleMessage(gameMsg);
 
 				if (isLocalhost()) {
-					console.log("Registered new client to game:", gameId);
+					console.log("Registered new client to game:", clientId);
 				}
 			});
 		} else {
 			this._netcode = new Client(this._options.hostName, this._options.displayName);
 			this._netcode.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
-				this.setId(msg.getProp<number>(NetworkProp.CLIENT_ID));
+				this.setClientId(msg.getProp<number>(NetworkProp.CLIENT_ID));
 				if (isLocalhost()) {
-					console.log("Got client id", this.id());
+					console.log("Got client id", this.clientId());
 				}
 			});
 		}
@@ -138,7 +139,7 @@ class Game {
 		this._runner.push(this._world);
 
 	    if (this._options.host) {
-	    	this.setId(1);
+	    	this.setClientId(1);
 		    this._level.setLevel({
 		    	level: LevelType.LOBBY,
 		    	seed: Math.floor(Math.random() * 10000) + 1,
@@ -159,7 +160,7 @@ class Game {
     			}
 	    	}
 
-	    	if (this.hasId()) {
+	    	if (this.hasClientId()) {
 		    	this._frameTimes.push(Date.now() - frameStart);
 	    	}
 	    });
@@ -172,8 +173,8 @@ class Game {
 	canvas() : HTMLCanvasElement { return this._canvas; }
 
 	// TODO: rename id to clientId
-	hasId() : boolean { return this._id > 0; }
-	id() : number { return this._id; }
+	hasClientId() : boolean { return this._clientId > 0; }
+	clientId() : number { return this._clientId; }
 	options() : GameOptions { return this._options; }
 	averageFrameTime() : number { return this._frameTimes.average(); }
 
@@ -230,27 +231,27 @@ class Game {
 		return mouseWorld;
 	}
 
-	private setId(id : number) : void {
-		this._id = id;
-		this._netcode.setGameId(id);
+	private setClientId(clientId : number) : void {
+		this._clientId = clientId;
+		this._netcode.setClientId(clientId);
 
-    	this._runner.onNewClient({
-    		displayName: this._netcode.displayName(),
-    		gameId: id,
-    	});
+		let gameMsg = new GameMessage(GameMessageType.NEW_CLIENT);
+		gameMsg.setProp(GameProp.CLIENT_ID, clientId);
+		gameMsg.setProp(GameProp.DISPLAY_NAME, this._netcode.displayName());
+    	this._runner.handleMessage(gameMsg);
 
 		if (this.options().host) {
-			this._lastId = id;
+			this._lastClientId = clientId;
 		}
 	}
 
-	private nextId() : number {
+	private nextClientId() : number {
 		if (!this.options().host) {
-			console.error("Error: client called nextId()");
+			console.error("Error: client called nextClientId()");
 			return -1;
 		}
 
-		return ++this._lastId;
+		return ++this._lastClientId;
 	}
 }
 

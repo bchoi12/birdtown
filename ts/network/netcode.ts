@@ -32,7 +32,7 @@ export abstract class Netcode {
 
 	protected _displayName : string;
 	protected _hostName : string;
-	protected _gameId : number;
+	protected _clientId : number;
 	protected _initialized : boolean;
 	protected _peer : Peer;
 
@@ -52,7 +52,7 @@ export abstract class Netcode {
 	constructor(name : string, hostName : string, displayName : string) {
 		this._displayName = displayName;
 		this._hostName = hostName;
-		this._gameId = 0;
+		this._clientId = 0;
 		this._initialized = false;
 		this._peer = new Peer(name, {
 			debug: 2,
@@ -78,14 +78,14 @@ export abstract class Netcode {
 			if (!this._voiceEnabled) {
 				return;
 			}
-			if (!incoming.metadata || incoming.metadata.gameId <= 0) {
-				console.log("Error: incoming media connection missing metadata or gameId", incoming);
+			if (!incoming.metadata || incoming.metadata.clientId <= 0) {
+				console.log("Error: incoming media connection missing metadata or clientId", incoming);
 				return;
 			}
 
 			this.queryMic((stream : MediaStream) => {
 				incoming.answer(stream);
-				this.addMediaConnection(incoming.metadata.gameId, incoming);
+				this.addMediaConnection(incoming.metadata.clientId, incoming);
 
 				if (isLocalhost()) {
 					console.log("Answered incoming call", incoming);
@@ -104,11 +104,11 @@ export abstract class Netcode {
 	abstract sendChat(message : string) : void;
 
 	name() : string { return this._peer.id; }
-	displayName() : string { return this.hasGameId() ? (this._displayName + " #" + this.gameId()) : this._displayName; }
+	displayName() : string { return this.hasClientId() ? (this._displayName + " #" + this.clientId()) : this._displayName; }
 	hostName() : string { return this._hostName; }
-	hasGameId() : boolean { return this._gameId > 0; }
-	setGameId(id : number) { this._gameId = id; }
-	gameId() : number { return this._gameId; }
+	hasClientId() : boolean { return this._clientId > 0; }
+	setClientId(id : number) { this._clientId = id; }
+	clientId() : number { return this._clientId; }
 	toggleVoice() : boolean { return this.setVoiceEnabled(!this._voiceEnabled); }
 	micEnabled() : boolean { return this._micEnabled; }
 	voiceEnabled() : boolean { return this._voiceEnabled; }
@@ -140,14 +140,14 @@ export abstract class Netcode {
 
 		const voiceMap = new Map<number, string>();
 		if (this._voiceEnabled) {
-			voiceMap.set(this.gameId(), this.name());
+			voiceMap.set(this.clientId(), this.name());
 		}
 		this._connections.forEach((connection : Connection, name : string) => {
-			if (!connection.hasGameId() || !connection.voiceEnabled()) {
+			if (!connection.hasClientId() || !connection.voiceEnabled()) {
 				return;
 			}
 
-			voiceMap.set(connection.gameId(), name);
+			voiceMap.set(connection.clientId(), name);
 		});
 		return voiceMap;
 	}
@@ -292,12 +292,12 @@ export abstract class Netcode {
 
 	callAll(clients : Map<number, string>) : void {
 		const callFn = () => {
-			clients.delete(this.gameId());
-			clients.forEach((name : string, gameId : number) => {
+			clients.delete(this.clientId());
+			clients.forEach((name : string, clientId : number) => {
 				this.queryMic((stream : MediaStream) => {
-					this.call(name, gameId, stream);
+					this.call(name, clientId, stream);
 					if (isLocalhost()) {
-						console.log("Calling", name, gameId);
+						console.log("Calling", name, clientId);
 					}
 				}, (e) => {
 					ui.chat("Failed to call peer: " + e);
@@ -326,45 +326,45 @@ export abstract class Netcode {
 		});
 	}
 
-	protected call(name : string, gameId : number, stream : MediaStream) : void {
+	protected call(name : string, clientId : number, stream : MediaStream) : void {
 		if (name === this.name()) {
 			return;
 		}
 
       	const outgoing = this._peer.call(name, stream, {
       		metadata: {
-      			gameId: this.gameId(),
+      			clientId: this.clientId(),
       		},
       	});
-      	this.addMediaConnection(gameId, outgoing);
+      	this.addMediaConnection(clientId, outgoing);
 	}
 
-	protected addMediaConnection(gameId : number, mc : MediaConnection) {
-		if (this._mediaConnections.has(gameId)) {
-			console.error("Error: skipping adding duplicate MediaConnection for", gameId);
+	protected addMediaConnection(clientId : number, mc : MediaConnection) {
+		if (this._mediaConnections.has(clientId)) {
+			console.error("Error: skipping adding duplicate MediaConnection for", clientId);
 			return;
 		}
 
       	mc.on("stream", (stream : MediaStream) => {
-      		ui.addStream(gameId, stream);
+      		ui.addStream(clientId, stream);
       	});
       	mc.on("close", () => {
-      		ui.removeStream(gameId);
-      		this._mediaConnections.delete(gameId);
+      		ui.removeStream(clientId);
+      		this._mediaConnections.delete(clientId);
       	});
       	mc.on("error", (e) => {
       		mc.close();
       	});
-		this._mediaConnections.set(gameId, mc);
+		this._mediaConnections.set(clientId, mc);
 	}
 
-	protected closeMediaConnection(gameId : number) : void {
-		this._mediaConnections.get(gameId).close();
-		this._mediaConnections.delete(gameId);
-		ui.removeStream(gameId);
+	protected closeMediaConnection(clientId : number) : void {
+		this._mediaConnections.get(clientId).close();
+		this._mediaConnections.delete(clientId);
+		ui.removeStream(clientId);
 	}
 	protected closeMediaConnections() {
-		this._mediaConnections.forEach((mc : MediaConnection, gameId : number) => {
+		this._mediaConnections.forEach((mc : MediaConnection, clientId : number) => {
 			mc.close();
 		});
 

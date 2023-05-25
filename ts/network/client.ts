@@ -57,7 +57,7 @@ export class Client extends Netcode {
 
 		let outgoing = new NetworkMessage(NetworkMessageType.VOICE);
 		outgoing
-			.setProp<number>(NetworkProp.CLIENT_ID, this.gameId())
+			.setProp<number>(NetworkProp.CLIENT_ID, this.clientId())
 			.setProp<boolean>(NetworkProp.ENABLED, enabled);
 
 		const sent = this.send(this.hostName(), ChannelType.TCP, outgoing);
