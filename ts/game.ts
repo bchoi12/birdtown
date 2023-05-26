@@ -172,9 +172,35 @@ class Game {
 	initialized() : boolean { return this._initialized; }
 	canvas() : HTMLCanvasElement { return this._canvas; }
 
-	// TODO: rename id to clientId
 	hasClientId() : boolean { return this._clientId > 0; }
 	clientId() : number { return this._clientId; }
+	setClientId(clientId : number) : void {
+		if (this.hasClientId()) {
+			console.error("Error: skipping setting clientId twice, current=%d, requested=%d", this.clientId(), clientId);
+			return;
+		}
+
+		this._clientId = clientId;
+		this._netcode.setClientId(clientId);
+
+		let gameMsg = new GameMessage(GameMessageType.NEW_CLIENT);
+		gameMsg.setProp(GameProp.CLIENT_ID, clientId);
+		gameMsg.setProp(GameProp.DISPLAY_NAME, this._netcode.displayName());
+    	this._runner.handleMessage(gameMsg);
+
+		if (this.options().host) {
+			this._lastClientId = clientId;
+		}
+	}
+
+	nextClientId() : number {
+		if (!this.options().host) {
+			console.error("Error: client called nextClientId()");
+			return -1;
+		}
+
+		return ++this._lastClientId;
+	}	
 	options() : GameOptions { return this._options; }
 	averageFrameTime() : number { return this._frameTimes.average(); }
 
@@ -229,29 +255,6 @@ class Game {
 		mouseWorld.addInPlace(this.lakitu().camera().position);
 
 		return mouseWorld;
-	}
-
-	private setClientId(clientId : number) : void {
-		this._clientId = clientId;
-		this._netcode.setClientId(clientId);
-
-		let gameMsg = new GameMessage(GameMessageType.NEW_CLIENT);
-		gameMsg.setProp(GameProp.CLIENT_ID, clientId);
-		gameMsg.setProp(GameProp.DISPLAY_NAME, this._netcode.displayName());
-    	this._runner.handleMessage(gameMsg);
-
-		if (this.options().host) {
-			this._lastClientId = clientId;
-		}
-	}
-
-	private nextClientId() : number {
-		if (!this.options().host) {
-			console.error("Error: client called nextClientId()");
-			return -1;
-		}
-
-		return ++this._lastClientId;
 	}
 }
 

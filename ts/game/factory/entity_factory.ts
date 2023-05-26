@@ -4,6 +4,7 @@ import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Console } from 'game/entity/console'
 import { Crate } from 'game/entity/crate'
+import { BirdBrain } from 'game/entity/equip/bird_brain'
 import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
 import { Rocket } from 'game/entity/projectile/rocket'
@@ -20,6 +21,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOM, (options : EntityOptions) => { return new ArchRoom(options); }],
 		[EntityType.ARCH_ROOF, (options : EntityOptions) => { return new ArchRoof(options); }],
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
+		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
 		[EntityType.CONSOLE, (options : EntityOptions) => { return new Console(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],

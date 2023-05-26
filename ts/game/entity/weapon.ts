@@ -4,24 +4,25 @@ import { game } from 'game'
 import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
-import { Entity, EntityBase, EntityOptions } from 'game/entity'
+import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { Equip } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
+
+import { KeyType } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
-export abstract class Weapon extends EntityBase {
+export abstract class Weapon extends Equip {
 	private static readonly _shootNodeName = "shoot";
 
-	protected _attributes : Attributes;
 	protected _model : Model;
 	protected _reloadTimer : Timer;
 
-	protected _owner : number;
 	protected _shoot : BABYLON.TransformNode;
 
 	protected _player : Player;
@@ -29,8 +30,6 @@ export abstract class Weapon extends EntityBase {
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
 		this._allTypes.add(EntityType.WEAPON);
-
-		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
@@ -55,8 +54,6 @@ export abstract class Weapon extends EntityBase {
 
 	override initialize() : void {
 		super.initialize();
-
-		this._owner = <number>this._attributes.getAttribute(AttributeType.OWNER);
 	}
 
 	override preUpdate(millis : number) : void {
@@ -70,7 +67,7 @@ export abstract class Weapon extends EntityBase {
 			const [player, hasPlayer] = game.entities().getEntity<Player>(this._owner);
 			if (hasPlayer) {
 				this._player = player;
-				this._player.equipWeapon(this);
+				this._player.equip(KeyType.MOUSE_CLICK, this);
 			}
 		}
 	}
@@ -78,7 +75,6 @@ export abstract class Weapon extends EntityBase {
 	abstract meshType() : MeshType;
 	shootNode() : BABYLON.TransformNode { return defined(this._shoot) ? this._shoot : this._model.mesh(); }
 
-	abstract shoot(dir : Vec2) : boolean;
 	reload(time : number) : void {
 		this._attributes.setAttribute(AttributeType.READY, false);
 		this._reloadTimer.start(time, () => {

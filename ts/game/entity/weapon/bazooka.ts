@@ -29,7 +29,7 @@ export class Bazooka extends Weapon {
 	}
 
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
-	override shoot(dir : Vec2) : boolean {
+	override use(dir : Vec2) : boolean {
 		if (!this._model.hasMesh() || !this._attributes.getAttribute(AttributeType.READY)) {
 			return false;
 		}
@@ -56,4 +56,5 @@ export class Bazooka extends Weapon {
 		this.reload(250);
 		return true;
 	}
+	override release(dir : Vec2) : boolean { return true; }
 }

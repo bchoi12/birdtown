@@ -37,8 +37,8 @@ export interface Entity extends GameObject {
 	hasLevelVersion() : boolean;
 	levelVersion() : number;
 
-	addEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [Entity, boolean];
-	addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [Entity, boolean];
+	addEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean];
+	addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean];
 
 	addComponent<T extends Component>(component : T) : T;
 	hasComponent(type : ComponentType) : boolean;
@@ -136,10 +136,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	hasLevelVersion() : boolean { return defined(this._levelVersion); }
 	levelVersion() : number { return this._levelVersion; }
 
-	addEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [Entity, boolean] {
+	addEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {
 		return game.entities().addEntity(type, options);
 	}
-	addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [Entity, boolean] {
+	addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {
 		const [entity, hasEntity] = this.addEntity<T>(type, options);
 		if (hasEntity) {
 			this._trackedEntities.push(entity.id());

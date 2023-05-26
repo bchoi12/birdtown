@@ -10,6 +10,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { Equip } from 'game/entity/equip'
 import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -82,6 +83,7 @@ export class Player extends EntityBase {
 	private _deadTracker : ChangeTracker<boolean>;
 	private _spawn : Vec;
 	private _respawnTimer : Timer;
+	private _equips : Map<KeyType, Equip>;
 
 	private _attributes : Attributes;
 	private _health : Health;
@@ -89,7 +91,6 @@ export class Player extends EntityBase {
 	private _profile : Profile;
 	private _headSubProfile : Profile;
 
-	private _weapon : Weapon;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PLAYER, entityOptions);
@@ -124,6 +125,7 @@ export class Player extends EntityBase {
 		});
 		this._spawn = {x: 0, y: 0};
 		this._respawnTimer = this.newTimer();
+		this._equips = new Map();
 
 		this.addProp<boolean>({
 			export: () => { return this._canDoubleJump; },
@@ -140,7 +142,7 @@ export class Player extends EntityBase {
 
 		this._health = this.addComponent<Health>(new Health({ health: 100 }));
 
-		const collisionGroup = MATTER.Body.nextGroup(true);
+		const collisionGroup = MATTER.Body.nextGroup(/*ignoreCollisions=*/true);
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				const pos = profile.pos();
@@ -256,18 +258,31 @@ export class Player extends EntityBase {
 	dead() : boolean { return this._health.dead(); }
 
 	// TODO: fix race condition where weapon is loaded upside-down
-	equipWeapon(weapon : Weapon) : void {
-		this._weapon = weapon;
+	equip(key : KeyType, weapon : Weapon) : void {
+		this._equips.set(key, weapon);
 		this._model.onLoad((m : Model) => {
 			const arm = m.getBone(Bone.ARM);
 
-			let weaponModel = this._weapon.getComponent<Model>(ComponentType.MODEL);
+			let weaponModel = weapon.getComponent<Model>(ComponentType.MODEL);
 			weaponModel.onLoad((wm : Model) => {
 				wm.mesh().attachToBone(arm, m.mesh());
 				wm.mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
 				wm.mesh().scaling.z *= -1;
 			});
 		});
+
+		// TODO: put this somewhere that makes sense
+		const [brain, hasBrain] = this.addTrackedEntity<Equip>(EntityType.BIRD_BRAIN, {
+			attributesInit: {
+				attributes: new Map([
+					[AttributeType.OWNER, this.id()],
+				]),
+			},
+		});
+		if (hasBrain) {
+			this._equips.set(KeyType.ALT_MOUSE_CLICK, brain)
+			console.log("equip brain");
+		}
 	}
 
 	override preUpdate(millis : number) : void {
@@ -334,30 +349,13 @@ export class Player extends EntityBase {
 			}
 
 			if (this.isSource()) {
-				if (defined(this._weapon) && game.keys(this.clientId()).keyDown(KeyType.MOUSE_CLICK)) {
-					this._weapon.shoot(this._armDir);
-				}
-
-				// TODO: fix this, it kinda sucks
-				if (game.keys(this.clientId()).keyDown(KeyType.ALT_MOUSE_CLICK)) {
-					const scene = game.world().scene();
-					const mouse = game.mouse();
-					const ray = new BABYLON.Ray(game.lakitu().camera().position, new BABYLON.Vector3(mouse.x, mouse.y, 0).subtractInPlace(game.lakitu().camera().position));
-					const rayHelper = new BABYLON.RayHelper(ray);
-					rayHelper.show(scene);
-					const raycast = scene.pickWithRay(ray);
-
-					if (raycast.hit && raycast.pickedMesh.metadata && raycast.pickedMesh.metadata.entityId) {
-						let [other, found] = game.entities().getEntity(raycast.pickedMesh.metadata.entityId);
-
-						if (found && other.hasComponent(ComponentType.ATTRIBUTES)) {
-							let attributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-							if (attributes.getAttribute(AttributeType.PICKABLE)) {
-								attributes.setAttribute(AttributeType.PICKED, true);
-							}
-						}
+				this._equips.forEach((equip : Equip, key : KeyType) => {
+					if (game.keys(this.clientId()).keyDown(key)) {
+						equip.use(this._armDir);
+					} else {
+						equip.release(this._armDir);
 					}
-				}
+				});
 			}
 		}
 
