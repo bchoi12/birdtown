@@ -10,6 +10,7 @@ export class CounterWrapper extends HtmlWrapper {
 
 	private static readonly _iconMapping = new Map<CounterType, IconType>([
 		[CounterType.HEALTH, IconType.HEART],
+		[CounterType.JUICE, IconType.TRUCK_FAST],
 	])
 
 	private _type : CounterType;

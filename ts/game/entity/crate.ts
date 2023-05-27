@@ -81,12 +81,4 @@ export class Crate extends EntityBase {
 			this._profile.setAngle(this._startingAngle);
 		}
 	}
-
-	override preRender(millis : number) : void {
-		super.preRender(millis);
-
-		if (this._attributes.getAttribute(AttributeType.PICKED)) {
-			game.world().getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT).addMesh(this._model.mesh(), BABYLON.Color3.Red());
-		}
-	}
 }

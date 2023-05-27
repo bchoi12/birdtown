@@ -10,6 +10,9 @@ import { Vec2 } from 'util/vector'
 export abstract class Equip extends EntityBase {
 
 	protected _attributes : Attributes;
+
+	// TODO: juice needs to be over network
+	protected _juice : number;
 	protected _owner : number;
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
@@ -17,6 +20,7 @@ export abstract class Equip extends EntityBase {
 		this._allTypes.add(EntityType.EQUIP);
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
+		this._juice = 100;
 		this._owner = 0;
 	}
 
@@ -27,6 +31,8 @@ export abstract class Equip extends EntityBase {
 
 		this._owner = <number>this._attributes.getAttribute(AttributeType.OWNER);
 	}
+
+	juice() : number { return this._juice; }
 
 	abstract use(dir : Vec2) : boolean;
 	abstract release(dir : Vec2) : boolean;

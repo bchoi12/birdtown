@@ -17,6 +17,7 @@ export enum AnnouncementType {
 export enum CounterType {
 	UNKOWN,
 	HEALTH,
+	JUICE,
 }
 
 export enum DialogType {

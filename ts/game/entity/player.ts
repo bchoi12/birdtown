@@ -16,7 +16,9 @@ import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { BodyFactory } from 'game/factory/body_factory'
 
-import { KeyType } from 'ui/api'
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
+import { KeyType, CounterType } from 'ui/api'
 
 import { ChangeTracker } from 'util/change_tracker'
 import { defined } from 'util/common'
@@ -281,7 +283,6 @@ export class Player extends EntityBase {
 		});
 		if (hasBrain) {
 			this._equips.set(KeyType.ALT_MOUSE_CLICK, brain)
-			console.log("equip brain");
 		}
 	}
 
@@ -501,6 +502,22 @@ export class Player extends EntityBase {
 		}
 		let arm = this._model.getBone(Bone.ARM).getTransformNode();
 		arm.rotation = new BABYLON.Vector3(armRotation, Math.PI, 0);
+	}
+
+	override getCounts() : Array<UiMessage> {
+		const healthMsg = new UiMessage(UiMessageType.COUNTER);
+		healthMsg.setProp(UiProp.TYPE, CounterType.HEALTH);
+		healthMsg.setProp(UiProp.COUNT, this._health.health());
+
+		const juiceMsg = new UiMessage(UiMessageType.COUNTER);
+		juiceMsg.setProp(UiProp.TYPE, CounterType.JUICE);
+
+		if (this._equips.has(KeyType.ALT_MOUSE_CLICK)) {
+			juiceMsg.setProp(UiProp.COUNT, this._equips.get(KeyType.ALT_MOUSE_CLICK).juice());
+		} else {
+			juiceMsg.setProp(UiProp.COUNT, 100);
+		}
+		return [healthMsg, juiceMsg];
 	}
 
 	private recomputeHeadDir() : void {

@@ -116,22 +116,27 @@ body {
 
     right: 0;
     top: 25%;
-
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-    padding-left: 0.5em;
-
-    border-top-left-radius: 0.1em;
-    border-bottom-left-radius: 0.1em;
-
-    background: linear-gradient(to right, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
 }
 
 .counter {
     font-size: 1.5em;
     font-weight: bold;
+    text-align: right;
+    margin-bottom: 0.2em;
     letter-spacing: 0.1em;
     color: #f2f2f2;
+
+    border-top-left-radius: 0.1em;
+    border-bottom-left-radius: 0.1em;
+
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+    padding-left: 0.3em;
+    min-width: 5.5em;
+
+    overflow: hidden;
+
+    background: linear-gradient(to right, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
 }
 
 #div-tooltips {

@@ -229,13 +229,15 @@ export class Profile extends ComponentBase implements Component {
 		return this.registerChild<Profile>(id, subProfile);
 	}
 	getSubProfile(id : number) : Profile { return this.getChild<Profile>(id); }
-	addConstraint(id : number, constraint : MATTER.Constraint) : MATTER.Constraint {
+	addConstraint(constraint : MATTER.Constraint) : [MATTER.Constraint, number] {
+		const id = this._constraints.size + 1;
 		MATTER.Composite.add(game.physics().world(), constraint);
 		this._constraints.set(id, constraint);
-		return constraint;
+		return [constraint, id];
 	}
 	deleteConstraint(id : number) : void {
 		if (!this._constraints.has(id)) {
+			console.error("Error: trying to delete nonexistent constraint", id);
 			return;
 		}
 		MATTER.World.remove(game.physics().world(), this._constraints.get(id));
