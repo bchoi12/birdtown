@@ -8,6 +8,7 @@ import { Profile } from 'game/component/profile'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { EquipInput } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
@@ -29,13 +30,11 @@ export class Bazooka extends Weapon {
 	}
 
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
-	override use(dir : Vec2) : boolean {
-		if (!this._model.hasMesh() || !this._attributes.getAttribute(AttributeType.READY)) {
-			return false;
-		}
+	override updateInput(input : EquipInput) : void {
+		if (!this._model.hasMesh() || !input.enabled || !this._attributes.getAttribute(AttributeType.READY)) { return; }
 
 		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
-		const unitDir = dir.clone().normalize();
+		const unitDir = input.dir.clone().normalize();
 
 		let vel = unitDir.clone().scale(0.1);
 		let acc = unitDir.clone().scale(1.5);
@@ -54,7 +53,5 @@ export class Bazooka extends Weapon {
 		}
 
 		this.reload(250);
-		return true;
 	}
-	override release(dir : Vec2) : boolean { return true; }
 }

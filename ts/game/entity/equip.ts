@@ -7,21 +7,26 @@ import { EntityType } from 'game/entity/api'
 
 import { Vec2 } from 'util/vector'
 
-export abstract class Equip extends EntityBase {
+export type EquipInput = {
+	enabled : boolean;
+	millis : number;
+	mouse : Vec2;
+	dir : Vec2;
+}
+
+export abstract class Equip<E extends Entity> extends EntityBase {
 
 	protected _attributes : Attributes;
-
-	// TODO: juice needs to be over network
-	protected _juice : number;
-	protected _owner : number;
+	protected _ownerId : number;
+	protected _owner : E;
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
 		this._allTypes.add(EntityType.EQUIP);
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._juice = 100;
-		this._owner = 0;
+		this._ownerId = 0;
+		this._owner = null;
 	}
 
 	override ready() : boolean { return super.ready() && this._attributes.getAttribute(AttributeType.OWNER) > 0; }
@@ -29,11 +34,18 @@ export abstract class Equip extends EntityBase {
 	override initialize() : void {
 		super.initialize();
 
-		this._owner = <number>this._attributes.getAttribute(AttributeType.OWNER);
+		this._ownerId = <number>this._attributes.getAttribute(AttributeType.OWNER);
+		
+		let foundOwner;
+		[this._owner, foundOwner] = game.entities().getEntity<E>(this._ownerId);
+
+		if (!foundOwner) {
+			console.error("Error: could not find owner %d for equip", this._ownerId, this.name());
+		}
 	}
 
-	juice() : number { return this._juice; }
+	owner() : E { return this._owner; }
+	ownerId() : number { return this._ownerId; }
 
-	abstract use(dir : Vec2) : boolean;
-	abstract release(dir : Vec2) : boolean;
+	abstract updateInput(input : EquipInput) : void;
 }

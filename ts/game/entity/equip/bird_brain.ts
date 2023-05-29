@@ -3,130 +3,156 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { GameConstants } from 'game/api'
 import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
-import { Equip } from 'game/entity/equip'
+import { Equip, EquipInput } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 import { LayerType } from 'game/system/api'
 
+import { CounterType } from 'ui/api'
+
 import { defined } from 'util/common'
+import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
-export class BirdBrain extends Equip {
+export class BirdBrain extends Equip<Player> {
 
-	private _target : Entity;
-	private _constraint : MATTER.Constraint;
-	private _constraintId : number;
+	private static readonly _densityAdjustment = 0.1;
+	private static readonly _pickableTypes = new Set<EntityType>([
+		EntityType.CRATE,
+	]);
+
+	private _targetId : Optional<number>;
+
 	private _usageTimer : Timer;
 	private _canCharge : boolean;
-	private _player : Player;
+	private _juice : number;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.BIRD_BRAIN, options);
 
-		this._target = null;
-		this._constraint = null;
-		this._constraintId = 0;
+		this._targetId = new Optional();
 		this._usageTimer = this.newTimer();
 		this._canCharge = false;
-		this._player = null;
+		this._juice = 100;
+
+		this.addProp<number>({
+			export: () => { return this._juice; },
+			import: (obj : number) => { this._juice = obj; },
+		});
 	}
 
-	override initialize() : void {
-		super.initialize();
-
-		let has;
-		[this._player, has] = game.entities().getEntity<Player>(this._owner);
-
-		if (!has) {
-			console.error("Error: owner (%d) of %s is not a player!", this._owner, this.name());
-		}
-	}
-
-	override use(dir : Vec2) : boolean {
-		if (this._juice <= 0) {
+	override updateInput(input : EquipInput) : void {
+		if (this._juice <= 0 || !input.enabled) {
 			this.resetTarget();
 			return;
 		}
 
-		if (defined(this._target)) {
-			const mouse = game.keys(this._player.clientId()).mouse();
-			const dist = 2 + (Math.abs(mouse.x - this._constraint.pointA.x) + Math.abs(mouse.y - this._constraint.pointA.y));
-			this._juice = Math.floor(Math.max(0, this._juice - dist))
-			this._constraint.pointA = {x: mouse.x, y: mouse.y};
-
-			this._canCharge = false;
+		// Move current target, reset if invalid
+		if (this._targetId.has()) {
+			let [target, hasTarget] = game.entities().getEntity(this._targetId.get());
+			if (hasTarget) {
+				target.getComponent<Profile>(ComponentType.PROFILE).moveTo(input.mouse, {
+					millis: input.millis,
+					posEpsilon: 0.5,
+					maxAccel: 3,
+				});
+				this._juice = Math.max(0, this._juice - 0.83);
+				this._canCharge = false;
+			} else {
+				this.resetTarget();
+			}
 			return;
 		}
 
+		// Try to pick a new target
 		const scene = game.world().scene();
-		const mouse = game.keys(this._player.clientId()).mouse();
-		const ray = new BABYLON.Ray(game.lakitu().camera().position, new BABYLON.Vector3(mouse.x, mouse.y, 0).subtractInPlace(game.lakitu().camera().position));
+		const mouse = input.mouse;
+		const ray = game.lakitu().rayTo(new BABYLON.Vector3(mouse.x, mouse.y, 0));
 		const raycasts = scene.multiPickWithRay(ray);
 
 		for (let raycast of raycasts) {
 			if (raycast.hit && raycast.pickedMesh.metadata && raycast.pickedMesh.metadata.entityId) {
-				let [other, found] = game.entities().getEntity(raycast.pickedMesh.metadata.entityId);
+				let [target, found] = game.entities().getEntity(raycast.pickedMesh.metadata.entityId);
 
-				if (found && other.hasComponent(ComponentType.PROFILE) && other.hasComponent(ComponentType.ATTRIBUTES)) {
-					let attributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-					if (attributes.getAttribute(AttributeType.PICKABLE)) {
-						let profile = other.getComponent<Profile>(ComponentType.PROFILE);
-						this.resetTarget();
-						this._target = other;
+				if (!found) { continue; }
 
-						const mouse = game.keys(this._player.clientId()).mouse();
-						[this._constraint, this._constraintId] = profile.addConstraint(MATTER.Constraint.create({
-							pointA: {x: mouse.x, y: mouse.y },
-							bodyB: profile.body(),
-							damping: 0.1,
-							stiffness: 0.5,
-							length: 0,
-							render: {
-								visible: false,
-							},
-						}));
-						game.world().getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT).addMesh(other.getComponent<Model>(ComponentType.MODEL).mesh(), BABYLON.Color3.Red());
-						MATTER.Body.setDensity(profile.body(), 0.01 * profile.body().density);
+				let valid = false;
+				for (let type of target.allTypes()) {
+					if (BirdBrain._pickableTypes.has(type)) {
+						valid = true;
 						break;
 					}
 				}
+
+				if (!valid) { continue; }
+
+				// Should be guaranteed to have correct components.
+				let attributes = target.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+				if (attributes.getAttribute(AttributeType.BRAINED)) {
+					continue;
+				}
+
+				this.resetTarget(target.id());
 			}
 		}
-
-		return true;
-	}
-
-	override release(dir : Vec2) : boolean {
-		this.resetTarget();
-		return true;
 	}
 
 	override update(millis : number) : void {
 		super.update(millis);
 
 		if (this._canCharge) {
-			this._juice = Math.min(100, this._juice + 1);
+			this._juice = Math.min(100, this._juice + 1.6);
 		}	
 	}
 
-	private resetTarget() : void {
-		if (defined(this._target)) {
-			let profile = this._target.getComponent<Profile>(ComponentType.PROFILE);
-			profile.deleteConstraint(this._constraintId);
-			MATTER.Body.setDensity(profile.body(), 100 * profile.body().density);
+	override getCounts() : Map<CounterType, number> {
+		return new Map([
+			[CounterType.JUICE, this._juice],
+		]);
+	}
 
-			game.world().getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT).removeMesh(this._target.getComponent<Model>(ComponentType.MODEL).mesh());
-			this._target = null;
+	private resetTarget(id? : number) : void {
+		if (this._targetId.has()) {
+			let [target, hasTarget] = game.entities().getEntity(this._targetId.get());
+
+			if (hasTarget) {
+				let profile = target.getComponent<Profile>(ComponentType.PROFILE);
+				profile.setAcc({x: 0, y: GameConstants.gravity });
+				profile.clearMaxSpeed();
+				MATTER.Body.setDensity(profile.body(), profile.body().density / BirdBrain._densityAdjustment);
+
+				let attributes = target.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+				attributes.setAttribute(AttributeType.BRAINED, false);
+			}
+		}
+
+		if (id) {
+			let [target, hasTarget] = game.entities().getEntity(id);
+			if (hasTarget) {
+				let profile = target.getComponent<Profile>(ComponentType.PROFILE);
+				profile.setMaxSpeed({
+					maxSpeed: { x: 5, y: 5},
+				});
+				MATTER.Body.setDensity(profile.body(), BirdBrain._densityAdjustment * profile.body().density);
+
+				let attributes = target.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+				attributes.setAttribute(AttributeType.BRAINED, true);
+
+				this._targetId.set(id);
+			}
+		} else {
+			this._targetId.clear();
 		}
 
 		if (!this._usageTimer.hasTimeLeft()) {
-			this._usageTimer.start(2000, () => {
+			this._usageTimer.start(500, () => {
 				this._canCharge = true;
 			});
 		}

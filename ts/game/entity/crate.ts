@@ -34,7 +34,6 @@ export class Crate extends EntityBase {
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.setAttribute(AttributeType.SOLID, true);
-		this._attributes.setAttribute(AttributeType.PICKABLE, true);
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -79,6 +78,12 @@ export class Crate extends EntityBase {
 			this._profile.stop();
 			this._profile.setAcc({ y: GameConstants.gravity });
 			this._profile.setAngle(this._startingAngle);
+		}
+
+		if (this._attributes.getAttribute(AttributeType.BRAINED)) {
+			game.world().highlight(this.id(), true);
+		} else {
+			game.world().highlight(this.id(), false);
 		}
 	}
 }

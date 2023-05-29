@@ -7,7 +7,7 @@ import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { Entity } from 'game/entity'
 
-import { UiMessage } from 'message/ui_message'
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { CounterType } from 'ui/api'
@@ -41,6 +41,9 @@ export class Lakitu extends SystemBase implements System {
 	anchor() : BABYLON.Vector3 { return this._anchor; }
 	target() : BABYLON.Vector3 { return this._target; }
 	direction() : BABYLON.Vector3 { return this._target.subtract(this._camera.position).normalize(); }
+	rayTo(point : BABYLON.Vector3) : BABYLON.Ray {
+		return new BABYLON.Ray(this._camera.position, point.subtract(this._camera.position));
+	} 
 
 	setAnchor(anchor : BABYLON.Vector3) {
 		this._anchor = anchor.clone();
@@ -79,8 +82,12 @@ export class Lakitu extends SystemBase implements System {
 			return;
 		}
 
+		// TODO: remove counts that are missing
 		const counts = this.targetEntity().getCounts();
-		counts.forEach((countMsg : UiMessage) => {
+		counts.forEach((count : number, type : CounterType) => {
+			let countMsg = new UiMessage(UiMessageType.COUNTER);
+			countMsg.setProp(UiProp.TYPE, type);
+			countMsg.setProp(UiProp.COUNT, count);
 			ui.handleMessage(countMsg);
 		});
 	}

@@ -16,8 +16,6 @@ import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { BodyFactory } from 'game/factory/body_factory'
 
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
-
 import { KeyType, CounterType } from 'ui/api'
 
 import { ChangeTracker } from 'util/change_tracker'
@@ -85,14 +83,13 @@ export class Player extends EntityBase {
 	private _deadTracker : ChangeTracker<boolean>;
 	private _spawn : Vec;
 	private _respawnTimer : Timer;
-	private _equips : Map<KeyType, Equip>;
+	private _equips : Map<KeyType, Equip<Player>>;
 
 	private _attributes : Attributes;
 	private _health : Health;
 	private _model : Model;
 	private _profile : Profile;
 	private _headSubProfile : Profile;
-
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PLAYER, entityOptions);
@@ -136,7 +133,8 @@ export class Player extends EntityBase {
 		this.addProp<boolean>({
 			export: () => { return this._deactivated; },
 			import: (obj : boolean) => { this._deactivated = obj; },
-		})
+		});
+
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.setAttribute(AttributeType.GROUNDED, false);
@@ -274,7 +272,7 @@ export class Player extends EntityBase {
 		});
 
 		// TODO: put this somewhere that makes sense
-		const [brain, hasBrain] = this.addTrackedEntity<Equip>(EntityType.BIRD_BRAIN, {
+		const [brain, hasBrain] = this.addTrackedEntity<Equip<Player>>(EntityType.BIRD_BRAIN, {
 			attributesInit: {
 				attributes: new Map([
 					[AttributeType.OWNER, this.id()],
@@ -315,11 +313,12 @@ export class Player extends EntityBase {
 		}
 		this._profile.setAcc({ y: gravity });
 
+		const keys = game.keys(this.clientId());
 		if (!this._health.dead()) {
 			// Keypress acceleration
-			if (game.keys(this.clientId()).keyDown(KeyType.LEFT)) {
+			if (keys.keyDown(KeyType.LEFT)) {
 				this._profile.setAcc({ x: -Player._sideAcc });
-			} else if (game.keys(this.clientId()).keyDown(KeyType.RIGHT)) {
+			} else if (keys.keyDown(KeyType.RIGHT)) {
 				this._profile.setAcc({ x: Player._sideAcc });
 			} else {
 				this._profile.setAcc({ x: 0 });
@@ -338,24 +337,36 @@ export class Player extends EntityBase {
 
 			// Jumping
 			if (this._jumpTimer.hasTimeLeft()) {
-				if (game.keys(this.clientId()).keyDown(KeyType.JUMP)) {
+				if (keys.keyDown(KeyType.JUMP)) {
 					this._profile.setVel({ y: Player._jumpVel });
 					this._jumpTimer.stop();
 				}
 			} else if (this._canDoubleJump) {
-				if (game.keys(this.clientId()).keyPressed(KeyType.JUMP)) {
+				if (keys.keyPressed(KeyType.JUMP)) {
 					this._profile.setVel({ y: Player._jumpVel });
 					this._canDoubleJump = false;
 				}
 			}
 
 			if (this.isSource()) {
-				this._equips.forEach((equip : Equip, key : KeyType) => {
-					if (game.keys(this.clientId()).keyDown(key)) {
-						equip.use(this._armDir);
-					} else {
-						equip.release(this._armDir);
-					}
+				this._equips.forEach((equip : Equip<Player>, key : KeyType) => {
+					equip.updateInput({
+						enabled: keys.keyDown(key),
+						millis: millis,
+						mouse: keys.mouse(),
+						dir: this._armDir,
+					});
+				});
+			}
+		} else {
+			if (this.isSource()) {
+				this._equips.forEach((equip : Equip<Player>, key : KeyType) => {
+					equip.updateInput({
+						enabled: false,
+						millis: millis,
+						mouse: keys.mouse(),
+						dir: this._armDir,
+					});
 				});
 			}
 		}
@@ -504,20 +515,16 @@ export class Player extends EntityBase {
 		arm.rotation = new BABYLON.Vector3(armRotation, Math.PI, 0);
 	}
 
-	override getCounts() : Array<UiMessage> {
-		const healthMsg = new UiMessage(UiMessageType.COUNTER);
-		healthMsg.setProp(UiProp.TYPE, CounterType.HEALTH);
-		healthMsg.setProp(UiProp.COUNT, this._health.health());
+	override getCounts() : Map<CounterType, number> {
+		let counts = new Map<CounterType, number>();
+		counts.set(CounterType.HEALTH, this._health.health());
 
-		const juiceMsg = new UiMessage(UiMessageType.COUNTER);
-		juiceMsg.setProp(UiProp.TYPE, CounterType.JUICE);
-
-		if (this._equips.has(KeyType.ALT_MOUSE_CLICK)) {
-			juiceMsg.setProp(UiProp.COUNT, this._equips.get(KeyType.ALT_MOUSE_CLICK).juice());
-		} else {
-			juiceMsg.setProp(UiProp.COUNT, 100);
-		}
-		return [healthMsg, juiceMsg];
+		this._equips.forEach((equip : Equip<Player>) => {
+			equip.getCounts().forEach((count : number, type : CounterType) => {
+				counts.set(type, count);
+			});
+		});
+		return counts;
 	}
 
 	private recomputeHeadDir() : void {

@@ -9,6 +9,7 @@ import { settings } from 'settings'
 import { Buffer } from 'util/buffer'
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
+import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
 
 type ReadyFn = (profile : Profile) => boolean;
@@ -35,6 +36,12 @@ export type ProfileOptions = {
 	init? : ProfileInitOptions
 }
 
+export type MoveToParams = {
+	millis : number;
+	posEpsilon : number;
+	maxAccel : number;
+}
+
 export type MaxSpeedParams = {
 	maxSpeed : Vec;
 }
@@ -54,6 +61,7 @@ export class Profile extends ComponentBase implements Component {
 	private _postPhysicsFn : PhysicsFn;
 
 	private _forces : Buffer<Vec>;
+	private _maxSpeed : Optional<MaxSpeedParams>;
 	private _constraints : Map<number, MATTER.Constraint>;
 
 	private _pos : Vec2;
@@ -66,8 +74,6 @@ export class Profile extends ComponentBase implements Component {
 	private _inertia : number;
 	private _initialInertia : number;
 	private _scaling : Vec2;
-
-	private _maxSpeedParams : MaxSpeedParams;
 
 	private _body : MATTER.Body;
 
@@ -85,6 +91,7 @@ export class Profile extends ComponentBase implements Component {
 
 		this._constraints = new Map();
 		this._forces = new Buffer();
+		this._maxSpeed = new Optional<MaxSpeedParams>();
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -321,12 +328,35 @@ export class Profile extends ComponentBase implements Component {
 		this._scaling.copyVec(vec);
 	}
 
+	moveTo(point : Vec, params : MoveToParams) : void {
+		if (params.millis <= 0) { return; }
+
+		const dt = params.millis / 1000;
+		const distVec = this._pos.clone().sub(point).negate();
+		if (this._vel.length() * dt >= distVec.length() || distVec.length() < params.posEpsilon) {
+			this.setPos(point);
+			this.stop();
+			return;
+		}
+
+		// Turn to point
+		this._vel.setAngleRad(distVec.angleRad());
+
+		// Accelerate or deccelerate
+		const acc = Vec2.fromVec(distVec);
+		const slowDist = this._vel.lengthSq() / (2 * params.maxAccel);
+		if (distVec.lengthSq() > slowDist * slowDist) {
+			acc.normalize(params.maxAccel);
+		} else {
+			acc.normalize(-params.maxAccel);
+		}
+		this.setAcc(acc);
+	} 
 	stop() : void {
 		this.setVel({x: 0, y: 0});
 		this.setAcc({x: 0, y: 0});
 
 		if (this.hasAngle()) {
-			this.setAngle(0);
 			this.setAngularVelocity(0);
 		}
 		this._forces.clear();
@@ -347,7 +377,8 @@ export class Profile extends ComponentBase implements Component {
 		this._forces.clear();
 	}
 
-	setMaxSpeed(params : MaxSpeedParams) { this._maxSpeedParams = params; }
+	setMaxSpeed(params : MaxSpeedParams) { this._maxSpeed.set(params); }
+	clearMaxSpeed() : void { this._maxSpeed.clear(); }
 	private clampSpeed() : void {
 		let acc = this.acc();
 		let vel = this.vel();
@@ -359,8 +390,8 @@ export class Profile extends ComponentBase implements Component {
 			vel.y = 0;
 		}
 
-		if (defined(this._maxSpeedParams)) {
-			const maxSpeed = this._maxSpeedParams.maxSpeed;
+		if (this._maxSpeed.has()) {
+			const maxSpeed = this._maxSpeed.get().maxSpeed;
 
 			if (Math.abs(vel.x) > maxSpeed.x) {
 				vel.x = Math.sign(vel.x) * maxSpeed.x;

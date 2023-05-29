@@ -1,8 +1,15 @@
 import * as BABYLON from 'babylonjs'
 
 import { game } from 'game'	
+import { ComponentType } from 'game/component/api'
+import { Model } from 'game/component/model'
 import { System, SystemBase } from 'game/system'
 import { LayerType, SystemType } from 'game/system/api'
+
+export type HighlightParams = {
+	enabled : boolean;
+	color? : BABYLON.Color3;
+}
 
 export class World extends SystemBase implements System {
 
@@ -24,7 +31,6 @@ export class World extends SystemBase implements System {
         	mainTextureRatio: 2,
 		}));
 
-
 	    this._hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", new BABYLON.Vector3(0, 1, 0), this._scene);
 	    this._hemisphericLight.diffuse = new BABYLON.Color3(0.8, 0.8, 0.8);
 	    this._hemisphericLight.specular = new BABYLON.Color3(1, 1, 1);
@@ -37,11 +43,28 @@ export class World extends SystemBase implements System {
 
 		let shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight);
 		shadowGenerator.useExponentialShadowMap = true;
-
 	}
 
 	scene() : BABYLON.Scene { return this._scene; }
 
+	highlight(id : number, enabled : boolean) : void {
+		let [entity, has] = game.entities().getEntity(id);
+
+		if (!has || !entity.hasComponent(ComponentType.MODEL)) { return; }
+
+		const model = entity.getComponent<Model>(ComponentType.MODEL);
+		if (!model.initialized() || !model.hasMesh()) {
+			return;
+		}
+
+		let layer = this.getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT);
+		if (enabled) {
+			let color = BABYLON.Color3.Red();
+			layer.addMesh(model.mesh(), color);
+		} else {
+			layer.removeMesh(model.mesh());
+		}
+	}
 	getLayer<T extends BABYLON.EffectLayer>(type : LayerType) : T { return <T>this._layers.get(type); }
 
 	override render(millis : number) : void {

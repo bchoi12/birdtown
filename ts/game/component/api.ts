@@ -14,9 +14,8 @@ export enum AttributeType {
 	UNKNOWN,
 
 	// Boolean
+	BRAINED,
 	GROUNDED,
-	PICKABLE,
-	PICKED,
 	READY,
 	SOLID,
 

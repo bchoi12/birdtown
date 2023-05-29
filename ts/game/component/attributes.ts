@@ -21,8 +21,8 @@ type Value = boolean|number;
 export class Attributes extends ComponentBase implements Component {
 
 	private static readonly _attributeTypes = new Map<AttributeType, Type>([
+		[AttributeType.BRAINED, Type.BOOLEAN],
 		[AttributeType.GROUNDED, Type.BOOLEAN],
-		[AttributeType.PICKABLE, Type.BOOLEAN],
 		[AttributeType.SOLID, Type.BOOLEAN],
 		[AttributeType.READY, Type.BOOLEAN],
 

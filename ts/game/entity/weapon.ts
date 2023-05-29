@@ -17,15 +17,14 @@ import { defined } from 'util/common'
 import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
-export abstract class Weapon extends Equip {
+export abstract class Weapon extends Equip<Player> {
 	private static readonly _shootNodeName = "shoot";
 
 	protected _model : Model;
+	protected _equipped : boolean;
 	protected _reloadTimer : Timer;
 
 	protected _shoot : BABYLON.TransformNode;
-
-	protected _player : Player;
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
@@ -47,13 +46,13 @@ export abstract class Weapon extends Equip {
 			},
 		}));
 
+		this._equipped = false;
 		this._reloadTimer = this.newTimer();
 	}
 
-	override ready() : boolean { return super.ready() && this._attributes.getAttribute(AttributeType.OWNER) > 0; }
-
-	override initialize() : void {
-		super.initialize();
+	override ready() : boolean {
+		return super.ready()
+			&& this._attributes.getAttribute(AttributeType.OWNER) > 0;
 	}
 
 	override preUpdate(millis : number) : void {
@@ -63,12 +62,9 @@ export abstract class Weapon extends Equip {
 			return;
 		}
 
-		if (!defined(this._player)) {
-			const [player, hasPlayer] = game.entities().getEntity<Player>(this._owner);
-			if (hasPlayer) {
-				this._player = player;
-				this._player.equip(KeyType.MOUSE_CLICK, this);
-			}
+		if (!this._equipped) {
+			this.owner().equip(KeyType.MOUSE_CLICK, this);
+			this._equipped = true;
 		}
 	}
 

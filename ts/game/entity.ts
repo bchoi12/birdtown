@@ -11,7 +11,7 @@ import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { ProfileInitOptions } from 'game/component/profile'
 import { EntityType } from 'game/entity/api'
 
-import { UiMessage } from 'message/ui_message'
+import { CounterType } from 'ui/api'
 
 import { defined } from 'util/common'
 
@@ -46,7 +46,7 @@ export interface Entity extends GameObject {
 	hasComponent(type : ComponentType) : boolean;
 	getComponent<T extends Component>(type : ComponentType) : T;
 
-	getCounts() : Array<UiMessage>;
+	getCounts() : Map<CounterType, number>;
 	takeDamage(amount : number, from? : Entity) : void;
 	collide(collision : MATTER.Collision, other : Entity) : void;
 	setTTL(ttl : number);
@@ -162,7 +162,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		timer.start(ttl, () => { this.delete(); });
 	}
 
-	getCounts() : Array<UiMessage> { return []; }
+	getCounts() : Map<CounterType, number> { return new Map(); }
 	takeDamage(amount : number, from? : Entity) : void {
 		if (!this.hasComponent(ComponentType.HEALTH)) { return; }
 

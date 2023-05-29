@@ -64,9 +64,15 @@ export class Vec2 implements Vec {
         return this;
     }
 
+    distSq(other : Vec) : number {
+        const xDist = this.x - other.x;
+        const yDist = this.y - other.y;
+        return xDist * xDist + yDist * yDist;
+    }
+    dist(other : Vec) : number { return Math.sqrt(this.distSq(other)); }
     lengthSq() : number { return this.x * this.x + this.y * this.y; }
     length() : number { return Math.sqrt(this.lengthSq()); }
-    normalize() : Vec2 {
+    normalize(magnitude? : number) : Vec2 {
         const len = this.length();
         if (len === 0) {
             this.x = 1;
@@ -76,12 +82,24 @@ export class Vec2 implements Vec {
 
         this.x /= len;
         this.y /= len;
+
+        if (magnitude) {
+            let sqrt = Math.sqrt(magnitude);
+            this.x *= sqrt;
+            this.y *= sqrt;
+        }
+
         return this;
     }
 
     abs() : Vec2 {
         this.x = Math.abs(this.x);
         this.y = Math.abs(this.y);
+        return this;
+    }
+    square() : Vec2 {
+        this.x *= this.x;
+        this.y *= this.y;
         return this;
     }
     clamp(min : number, max : number) : Vec2 {
@@ -140,6 +158,15 @@ export class Vec2 implements Vec {
         return this;
     }
 
+    setAngleRad(rad : number) : Vec2 {
+        const len = this.length();
+        this.x = Math.cos(rad) * len;
+        this.y = Math.sin(rad) * len;
+        return this;
+    }
+    setAngleDeg(deg : number) : Vec2 {
+        return this.setAngleRad(deg * Math.PI / 180)
+    }
     angleRad() : number {
         if (this.x === 0) {
             return Math.PI - Math.sign(this.y) * Math.PI / 2.0;
