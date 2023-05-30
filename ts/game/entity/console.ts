@@ -7,14 +7,13 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
-import { LayerType } from 'game/system/api'
 
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { KeyType, TooltipType } from 'ui/api'
 
-export class Console extends EntityBase {
+export class Console extends EntityBase implements Entity {
 
 	private _active : boolean;
 

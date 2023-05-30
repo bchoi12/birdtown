@@ -12,7 +12,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { defined } from 'util/common'
 import { Vec } from 'util/vector'
 
-export class Wall extends EntityBase {
+export class Wall extends EntityBase implements Entity {
 
 	private _attributes : Attributes;
 	private _profile : Profile;

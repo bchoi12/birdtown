@@ -8,13 +8,14 @@ import { Attributes } from 'game/component/attributes'
 import { Health } from 'game/component/health'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EntityBase, EntityOptions } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { Equip } from 'game/entity/equip'
+import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { BodyFactory } from 'game/factory/body_factory'
+import { ControllerState } from 'game/system/api'
 
 import { KeyType, CounterType } from 'ui/api'
 
@@ -47,7 +48,7 @@ enum Constraint {
 	NECK,
 }
 
-export class Player extends EntityBase {
+export class Player extends EntityBase implements Entity, EquipEntity {
 	// blockdudes3 = 18.0
 	private static readonly _sideAcc = 1.0;
 	private static readonly _jumpVel = 0.3;
@@ -83,7 +84,7 @@ export class Player extends EntityBase {
 	private _deadTracker : ChangeTracker<boolean>;
 	private _spawn : Vec;
 	private _respawnTimer : Timer;
-	private _equips : Map<KeyType, Equip<Player>>;
+	private _equips : Array<number>;
 
 	private _attributes : Attributes;
 	private _health : Health;
@@ -117,6 +118,12 @@ export class Player extends EntityBase {
 				this._profile.resetInertia();
 				this._profile.setAngularVelocity(sign * Math.max(0.1, Math.abs(x)));
 				this._profile.setAcc({x: 0});
+
+				if (game.controller().state() === ControllerState.WAITING) {
+					this._respawnTimer.start(Player._respawnTime, () => {
+						this.respawn();
+					});
+				}
 			} else {
 				this._profile.setInertia(Infinity);
 				this._profile.setAngularVelocity(0);
@@ -124,7 +131,7 @@ export class Player extends EntityBase {
 		});
 		this._spawn = {x: 0, y: 0};
 		this._respawnTimer = this.newTimer();
-		this._equips = new Map();
+		this._equips = new Array();
 
 		this.addProp<boolean>({
 			export: () => { return this._canDoubleJump; },
@@ -134,7 +141,10 @@ export class Player extends EntityBase {
 			export: () => { return this._deactivated; },
 			import: (obj : boolean) => { this._deactivated = obj; },
 		});
-
+		this.addProp<Array<number>>({
+			export: () => { return this._equips; },
+			import: (obj : Array<number>) => { this._equips = obj; },
+		});
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.setAttribute(AttributeType.GROUNDED, false);
@@ -237,13 +247,27 @@ export class Player extends EntityBase {
 		}
 
 		this._model.onLoad(() => {
-			this.addTrackedEntity(EntityType.BAZOOKA, {
+			const [weapon, hasWeapon] = this.addTrackedEntity<Equip<Player>>(EntityType.BAZOOKA, {
 				attributesInit: {
 					attributes: new Map([
 						[AttributeType.OWNER, this.id()],
 					]),
 				},
 			});
+			if (hasWeapon) {
+				weapon.addKey(KeyType.MOUSE_CLICK);
+			}
+
+			const [brain, hasBrain] = this.addTrackedEntity<Equip<Player>>(EntityType.BIRD_BRAIN, {
+				attributesInit: {
+					attributes: new Map([
+						[AttributeType.OWNER, this.id()],
+					]),
+				},
+			});		
+			if (hasBrain) {
+				brain.addKey(KeyType.ALT_MOUSE_CLICK);
+			}
 		})
 	}
 
@@ -251,37 +275,28 @@ export class Player extends EntityBase {
 	respawn() : void {
 		this._health.reset();
 		this._profile.setPos(this._spawn);
-		this._profile.stop();
+		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
 	}
 	setDeactivated(deactivated : boolean) : void { this._deactivated = deactivated; }
 	dead() : boolean { return this._health.dead(); }
 
 	// TODO: fix race condition where weapon is loaded upside-down
-	equip(key : KeyType, weapon : Weapon) : void {
-		this._equips.set(key, weapon);
+	equip(equip : Equip<Player>) : void {
+		this._equips.push(equip.id());
 		this._model.onLoad((m : Model) => {
-			const arm = m.getBone(Bone.ARM);
-
-			let weaponModel = weapon.getComponent<Model>(ComponentType.MODEL);
-			weaponModel.onLoad((wm : Model) => {
-				wm.mesh().attachToBone(arm, m.mesh());
-				wm.mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
-				wm.mesh().scaling.z *= -1;
-			});
+			switch(equip.attachType()) {
+			case AttachType.ARM:
+				const arm = m.getBone(Bone.ARM);
+				let equipModel = equip.getComponent<Model>(ComponentType.MODEL);
+				equipModel.onLoad((wm : Model) => {
+					wm.mesh().attachToBone(arm, m.mesh());
+					wm.mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+					wm.mesh().scaling.z *= -1;
+				});
+				break;
+			}
 		});
-
-		// TODO: put this somewhere that makes sense
-		const [brain, hasBrain] = this.addTrackedEntity<Equip<Player>>(EntityType.BIRD_BRAIN, {
-			attributesInit: {
-				attributes: new Map([
-					[AttributeType.OWNER, this.id()],
-				]),
-			},
-		});
-		if (hasBrain) {
-			this._equips.set(KeyType.ALT_MOUSE_CLICK, brain)
-		}
 	}
 
 	override preUpdate(millis : number) : void {
@@ -302,7 +317,7 @@ export class Player extends EntityBase {
 		super.update(millis);
 
 		if (this._deactivated) {
-			this._profile.stop();
+			this._profile.uprightStop();
 			return;
 		}
 
@@ -347,28 +362,20 @@ export class Player extends EntityBase {
 					this._canDoubleJump = false;
 				}
 			}
+		}
 
-			if (this.isSource()) {
-				this._equips.forEach((equip : Equip<Player>, key : KeyType) => {
+		if (this.isSource()) {
+			this._equips.forEach((id : number) => {
+				const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
+				if (hasEquip) {
 					equip.updateInput({
-						enabled: keys.keyDown(key),
+						keys: keys.keys(),
 						millis: millis,
 						mouse: keys.mouse(),
 						dir: this._armDir,
 					});
-				});
-			}
-		} else {
-			if (this.isSource()) {
-				this._equips.forEach((equip : Equip<Player>, key : KeyType) => {
-					equip.updateInput({
-						enabled: false,
-						millis: millis,
-						mouse: keys.mouse(),
-						dir: this._armDir,
-					});
-				});
-			}
+				}
+			});
 		}
 
 		// Friction and air resistance
@@ -518,11 +525,13 @@ export class Player extends EntityBase {
 	override getCounts() : Map<CounterType, number> {
 		let counts = new Map<CounterType, number>();
 		counts.set(CounterType.HEALTH, this._health.health());
-
-		this._equips.forEach((equip : Equip<Player>) => {
-			equip.getCounts().forEach((count : number, type : CounterType) => {
-				counts.set(type, count);
-			});
+		this._equips.forEach((id : number) => {
+				const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
+				if (hasEquip) {
+					equip.getCounts().forEach((count : number, type : CounterType) => {
+						counts.set(type, count);
+					});
+				}
 		});
 		return counts;
 	}

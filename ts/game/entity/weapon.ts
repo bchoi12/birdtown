@@ -21,7 +21,6 @@ export abstract class Weapon extends Equip<Player> {
 	private static readonly _shootNodeName = "shoot";
 
 	protected _model : Model;
-	protected _equipped : boolean;
 	protected _reloadTimer : Timer;
 
 	protected _shoot : BABYLON.TransformNode;
@@ -46,26 +45,12 @@ export abstract class Weapon extends Equip<Player> {
 			},
 		}));
 
-		this._equipped = false;
 		this._reloadTimer = this.newTimer();
 	}
 
 	override ready() : boolean {
 		return super.ready()
 			&& this._attributes.getAttribute(AttributeType.OWNER) > 0;
-	}
-
-	override preUpdate(millis : number) : void {
-		super.preUpdate(millis);
-
-		if (!this._model.hasMesh()) {
-			return;
-		}
-
-		if (!this._equipped) {
-			this.owner().equip(KeyType.MOUSE_CLICK, this);
-			this._equipped = true;
-		}
 	}
 
 	abstract meshType() : MeshType;

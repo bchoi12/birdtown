@@ -1,3 +1,12 @@
+
+export enum ControllerState {
+	UNKNOWN,
+	WAITING,
+	SETUP,
+	STARTED,
+	FINISH,
+}
+
 export enum SystemType {
 	UNKNOWN,
 	CLIENT_STATE,
@@ -24,10 +33,3 @@ export enum LayerType {
 	UNKNOWN,
 	HIGHLIGHT,
 }
-
-/*
-export type NewClientMsg = {
-	displayName : string;
-	gameId : number;
-}
-*/

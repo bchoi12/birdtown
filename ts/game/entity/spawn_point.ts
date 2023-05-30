@@ -8,7 +8,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 
 import { Vec, Vec2 } from 'util/vector'
 
-export class SpawnPoint extends EntityBase {
+export class SpawnPoint extends EntityBase implements Entity {
 
 	private _attributes : Attributes;
 	private _profile : Profile;
@@ -27,6 +27,9 @@ export class SpawnPoint extends EntityBase {
 				return BodyFactory.circle(profile.pos(), profile.dim(), {
 					isStatic: true,
 					isSensor: true,
+					render: {
+						visible: false,
+					},
 				});
 			},
 			init: entityOptions.profileInit,

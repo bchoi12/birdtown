@@ -10,6 +10,7 @@ import { Health } from 'game/component/health'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { ProfileInitOptions } from 'game/component/profile'
 import { EntityType } from 'game/entity/api'
+import { Equip } from 'game/entity/equip'
 
 import { CounterType } from 'ui/api'
 
@@ -50,6 +51,10 @@ export interface Entity extends GameObject {
 	takeDamage(amount : number, from? : Entity) : void;
 	collide(collision : MATTER.Collision, other : Entity) : void;
 	setTTL(ttl : number);
+}
+
+export interface EquipEntity {
+	equip(equip : Equip<Entity & EquipEntity>);
 }
 
 export abstract class EntityBase extends GameObjectBase implements Entity {

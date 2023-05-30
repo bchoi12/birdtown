@@ -80,7 +80,6 @@ export class Entities extends SystemBase implements System {
 	hasEntity(id : number) : boolean { return this._idToType.has(id); }
 	getEntity<T extends Entity>(id : number) : [T, boolean] {
 		if (!this._idToType.has(id)) {
-			console.error("Warning: queried for nonexistent ID", id);
 			return [null, false];
 		}
 		return [this.getMap(this._idToType.get(id)).getEntity<T>(id), true];

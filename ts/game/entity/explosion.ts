@@ -12,7 +12,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 
 import { Vec, Vec2 } from 'util/vector'
 
-export class Explosion extends EntityBase {
+export class Explosion extends EntityBase implements Entity {
 
 	private _profile : Profile;
 

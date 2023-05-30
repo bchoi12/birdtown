@@ -1,7 +1,7 @@
 import { game } from 'game'
 import { ColorType } from 'game/factory/color_factory'
 import { ComponentType } from 'game/component/api'
-import { EntityOptions } from 'game/entity'
+import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { ArchBase } from 'game/entity/block/arch_base'
 import { MeshType } from 'game/factory/api'
@@ -9,7 +9,7 @@ import { MeshType } from 'game/factory/api'
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
 
-export class ArchRoom extends ArchBase {
+export class ArchRoom extends ArchBase implements Entity {
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.ARCH_ROOM, entityOptions);

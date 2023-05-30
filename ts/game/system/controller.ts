@@ -4,7 +4,7 @@ import { game } from 'game'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
-import { LevelType, SystemType } from 'game/system/api'
+import { ControllerState, LevelType, SystemType } from 'game/system/api'
 import { ClientState } from 'game/system/client_state'
 import { DuelMaker } from 'game/system/game_maker/duel_maker'
 import { GameData } from 'game/game_data'
@@ -13,17 +13,9 @@ import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
 import { Timer } from 'util/timer'
 
-enum State {
-	UNKNOWN,
-	WAITING,
-	SETUP,
-	STARTED,
-	FINISH,
-}
-
 export class Controller extends SystemBase implements System {
 
-	private _state : State;
+	private _state : ControllerState;
 	private _resetTimer : Timer;
 
 	// TODO: Optional<GameMaker>
@@ -32,7 +24,7 @@ export class Controller extends SystemBase implements System {
 	constructor() {
 		super(SystemType.GAME_MODE);
 
-		this._state = State.WAITING;
+		this._state = ControllerState.WAITING;
 		this._resetTimer = this.newTimer();
 
 		this._duelMaker = new DuelMaker();
@@ -53,7 +45,7 @@ export class Controller extends SystemBase implements System {
 		}
 
 		this._state = state;
-		if (this._state === State.SETUP) {
+		if (this._state === ControllerState.SETUP) {
 			game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
 				if (clientState.clientId() === game.clientId()) {
 					clientState.requestSetupState();
@@ -63,10 +55,10 @@ export class Controller extends SystemBase implements System {
 	}
 
 	trySetup() : void {
-		if (this._state === State.WAITING) {
+		if (this._state === ControllerState.WAITING) {
 			if (this._duelMaker.querySetup()) {
 				this._duelMaker.setup();
-				this.setState(State.SETUP);
+				this.setState(ControllerState.SETUP);
 			}
 		}
 	}
@@ -84,7 +76,7 @@ export class Controller extends SystemBase implements System {
 
 		const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
 
-		if (this._state === State.WAITING) {
+		if (this._state === ControllerState.WAITING) {
     		let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
     			clientId: clientId,
     			profileInit: {
@@ -104,21 +96,21 @@ export class Controller extends SystemBase implements System {
 			return;
 		}
 
-		if (this._state === State.SETUP) {
+		if (this._state === ControllerState.SETUP) {
 			if (this._duelMaker.queryStart()) {
 				this._duelMaker.start();
-				this.setState(State.STARTED);
+				this.setState(ControllerState.STARTED);
 			}
-		} else if (this._state === State.STARTED) {
+		} else if (this._state === ControllerState.STARTED) {
 			if (this._duelMaker.queryFinish()) {
 				this._duelMaker.finish();
-				this.setState(State.FINISH);
+				this.setState(ControllerState.FINISH);
 			}
-		} else if (this._state === State.FINISH) {
+		} else if (this._state === ControllerState.FINISH) {
 			if (!this._resetTimer.hasTimeLeft()) {
 				this._resetTimer.start(1000, () => {
 					this._duelMaker.setup();
-					this.setState(State.SETUP);
+					this.setState(ControllerState.SETUP);
 				});
 			}
 		}

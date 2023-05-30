@@ -10,7 +10,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
-import { Equip, EquipInput } from 'game/entity/equip'
+import { Equip, EquipInput, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 import { LayerType } from 'game/system/api'
 
@@ -48,8 +48,9 @@ export class BirdBrain extends Equip<Player> {
 		});
 	}
 
+	override attachType() : AttachType { return AttachType.NONE; }
 	override updateInput(input : EquipInput) : void {
-		if (this._juice <= 0 || !input.enabled) {
+		if (this._juice <= 0 || !this.keysIntersect(input.keys)) {
 			this.resetTarget();
 			return;
 		}

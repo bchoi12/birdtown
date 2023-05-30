@@ -1,5 +1,5 @@
 import { ColorType } from 'game/factory/color_factory'
-import { EntityOptions } from 'game/entity'
+import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Block } from 'game/entity/block'
 

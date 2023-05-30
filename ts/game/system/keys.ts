@@ -86,6 +86,7 @@ export class Keys extends ClientSystem implements System {
 	keyUp(key : KeyType) : boolean { return this._keyStates.has(key) && (this._keyStates.get(key) === KeyState.UP || this.keyReleased(key)); }
 	keyPressed(key : KeyType) : boolean { return this._keyStates.has(key) && this._keyStates.get(key) === KeyState.PRESSED; }
 	keyReleased(key : KeyType) : boolean { return this._keyStates.has(key) && this._keyStates.get(key) === KeyState.RELEASED; }
+	keys() : Set<KeyType> { return this._keys; }
 	dir() : Vec2 { return this._dir; }
 	mouse() : Vec2 { return this._mouse; }
 	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }

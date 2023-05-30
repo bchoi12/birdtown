@@ -361,6 +361,12 @@ export class Profile extends ComponentBase implements Component {
 		}
 		this._forces.clear();
 	}
+	uprightStop() : void {
+		this.stop();
+		if (this.hasAngle()) {
+			this.setAngle(0);
+		}
+	}
 	addForce(force : Vec) : void { this._forces.push(force); }
 	private applyForces() : void {
 		if (this._forces.empty()) {
