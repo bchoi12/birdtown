@@ -369,7 +369,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
 				if (hasEquip) {
 					equip.updateInput({
-						keys: keys.keys(),
+						keys: this._health.dead() ? new Set() : keys.keys(),
 						millis: millis,
 						mouse: keys.mouse(),
 						dir: this._armDir,
