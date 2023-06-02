@@ -27,6 +27,8 @@ export class Keys extends ClientSystem implements System {
 	private _keyStates : Map<KeyType, KeyState>;
 	private _mouse : Vec2;
 	private _dir : Vec2;
+	private _changeNum : number;
+	private _hostChangeNum : number;
 
 	constructor(clientId : number) {
 		super(SystemType.KEYS, clientId);
@@ -40,6 +42,8 @@ export class Keys extends ClientSystem implements System {
 		this._keyStates = new Map();
 		this._mouse = Vec2.zero();
 		this._dir = Vec2.i();
+		this._changeNum = 0;
+		this._hostChangeNum = 0;
 
 		for (const stringKey in KeyType) {
 			const key = Number(KeyType[stringKey]);
@@ -47,6 +51,7 @@ export class Keys extends ClientSystem implements System {
 				continue;
 			}
 
+			// TODO: turn into single set of keys
 			this.addProp<boolean>({
 				has: () => { return this._keyStates.has(key); },
 				export: () => { return this._keys.has(key); },
@@ -80,6 +85,12 @@ export class Keys extends ClientSystem implements System {
 				filters: GameData.udpFilters,
 			},
 		});
+		this.addProp<number>({
+			has: () => { return this._changeNum > 0 },
+			export: () => { return this._changeNum; },
+			import: (obj : number) => { this._changeNum = obj; },
+			validate: (obj : number) => { this._hostChangeNum = obj; },
+		});
 	}
 
 	keyDown(key : KeyType) : boolean { return this._keyStates.has(key) && (this._keyStates.get(key) === KeyState.DOWN || this.keyPressed(key)); }
@@ -91,28 +102,34 @@ export class Keys extends ClientSystem implements System {
 	mouse() : Vec2 { return this._mouse; }
 	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }
 
-	protected updateKey(key : KeyType, state : KeyState) : void {
+	protected updateKey(key : KeyType, state : KeyState) : boolean {
 		if (state === KeyState.RELEASED || state === KeyState.UP) {
-			this.releaseKey(<KeyType>key);
+			return this.releaseKey(<KeyType>key);
 		} else {
-			this.pressKey(<KeyType>key);
+			return this.pressKey(<KeyType>key);
 		}
 	}
 
-	protected pressKey(key : KeyType) : void {
-		if (this.keyDown(key)) {
-			this._keyStates.set(key, KeyState.DOWN);
-		} else {
+	protected pressKey(key : KeyType) : boolean {
+		if (!this.keyDown(key)) {
 			this._keyStates.set(key, KeyState.PRESSED);
+			return true;
+		} else if (this.keyPressed(key)) {
+			this._keyStates.set(key, KeyState.DOWN);
+			return true;
 		}
+		return false;
 	}
 
-	protected releaseKey(key : KeyType) : void {
-		if (this.keyUp(key)) {
-			this._keyStates.set(key, KeyState.UP);
-		} else {
+	protected releaseKey(key : KeyType) : boolean {
+		if (!this.keyUp(key)) {
 			this._keyStates.set(key, KeyState.RELEASED);
+			return true;
+		} else if (this.keyReleased(key)) {
+			this._keyStates.set(key, KeyState.UP);
+			return true;
 		}
+		return false;
 	}
 
 	protected updateMouse() : void {
@@ -142,14 +159,23 @@ export class Keys extends ClientSystem implements System {
 			this.updateMouse();
 		}
 
+		let changed = false;
+
 		this._keys.forEach((key : KeyType) => {
-			this.pressKey(key);
+			changed = changed || this.pressKey(key);
 		});
 		this._keyStates.forEach((keyState : KeyState, key : KeyType) => {
 			if (!this._keys.has(key)) {
-				this.releaseKey(key);
+				changed = changed || this.releaseKey(key);
 			}
 		});
+
+		if (changed) {
+			this._changeNum++;
+		}
+		if (this.isHost()) {
+			this._hostChangeNum = this._changeNum;
+		}
 	}
 
 	override preRender(millis : number) : void {

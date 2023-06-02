@@ -37,7 +37,7 @@ export class Bazooka extends Weapon {
 		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = input.dir.clone().normalize();
 
-		let vel = unitDir.clone().scale(0.1);
+		let vel = unitDir.clone().scale(0.05);
 		let acc = unitDir.clone().scale(1.5);
 		let [rocket, hasRocket] = this.addEntity(EntityType.ROCKET, {
 			profileInit: {
@@ -53,6 +53,6 @@ export class Bazooka extends Weapon {
 			rocket.setTTL(1000);
 		}
 
-		this.reload(250);
+		this.reload(1000);
 	}
 }

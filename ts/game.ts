@@ -150,7 +150,7 @@ class Game {
 	    	const frameStart = Date.now();
 
 	    	this._netcode.preUpdate();
-    		this._runner.run();
+    		this._runner.step();
 	    	this._netcode.postUpdate();
 
 	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {

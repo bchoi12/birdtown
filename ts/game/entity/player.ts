@@ -16,9 +16,11 @@ import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ControllerState } from 'game/system/api'
+import { CollisionInfo } from 'game/util/collision_info'
 
 import { KeyType, CounterType } from 'ui/api'
 
+import { Buffer } from 'util/buffer'
 import { ChangeTracker } from 'util/change_tracker'
 import { defined } from 'util/common'
 import { Funcs } from 'util/funcs'
@@ -50,7 +52,7 @@ enum Constraint {
 
 export class Player extends EntityBase implements Entity, EquipEntity {
 	// blockdudes3 = 18.0
-	private static readonly _sideAcc = 1.0;
+	private static readonly _sideAcc = 0.6;
 	private static readonly _jumpVel = 0.3;
 	private static readonly _maxHorizontalVel = 0.25;
 	private static readonly _maxVerticalVel = 0.6;
@@ -73,11 +75,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		Bone.ARM, Bone.ARMATURE, Bone.NECK, Bone.SPINE,
 	]);
 
+	// TODO: package in struct
 	private _armDir : Vec2;
 	private _headDir : Vec2;
-	private _totalPenetration : Vec2;
-	private _maxNormal : Vec2;
+	private _collisionInfo : CollisionInfo
 
+	// TODO: create state machine with mutually exclusive set of states?
 	private _deactivated : boolean;
 	private _jumpTimer : Timer;
 	private _canDoubleJump : boolean;
@@ -102,8 +105,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		this._armDir = Vec2.i();
 		this._headDir = Vec2.i();
-		this._totalPenetration = Vec2.zero();
-		this._maxNormal = Vec2.zero();
+		this._collisionInfo = new CollisionInfo();
 
 		this._deactivated = false;
 		this._jumpTimer = this.newTimer();
@@ -395,8 +397,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override prePhysics(millis : number) : void {
 		super.prePhysics(millis);
 
-		this._totalPenetration.scale(0);
-		this._maxNormal.scale(0);
+		this._collisionInfo.resetAndSnapshot(this._profile);
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {
@@ -419,16 +420,16 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			return;
 		}
 
-		const otherProfile = other.getComponent<Profile>(ComponentType.PROFILE);
-
 		const pos = this._profile.pos();
 		const dim = this._profile.dim();
 		const vel = this._profile.vel();
-		const normal = collision.normal;
+		const normal = Vec2.fromVec(collision.normal);
 
 		let pen = Vec2.fromVec(collision.penetration);
-		let overlap = pos.clone().sub(otherProfile.pos()).abs();
 		if (Math.abs(normal.x) > 0.99 || Math.abs(normal.y) > 0.99) {
+			// Find overlap of rectangle bounding boxes.
+			const otherProfile = other.getComponent<Profile>(ComponentType.PROFILE);
+			let overlap = pos.clone().sub(otherProfile.pos()).abs();
 			overlap.sub({
 				x: dim.x / 2 + otherProfile.dim().x / 2,
 				y: dim.y / 2 + otherProfile.dim().y / 2,
@@ -438,45 +439,50 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			const xCollision = Math.abs(overlap.x * vel.y) < Math.abs(overlap.y * vel.x);
 			if (xCollision) {
 				// Either overlap in other dimension is too small or collision direction is in disagreement.
-				if (Math.abs(overlap.y) < 1e-3 || Math.abs(normal.y) > 0.99) {
+				if (Math.abs(overlap.y) < 1e-2 || Math.abs(normal.y) > 0.99) {
 					pen.scale(0);
 				}
+				pen.y = 0;
 			} else {
-				if (Math.abs(overlap.x) < 1e-3 || Math.abs(normal.x) > 0.99) {
+				if (Math.abs(overlap.x) < 1e-2 || Math.abs(normal.x) > 0.99) {
 					pen.scale(0);
 				}
+				pen.x = 0;
 			}
 		}
 
-		pen.abs();
-		this._totalPenetration.add(pen)
-
-		if (pen.x > 0 || pen.lengthSq() === 0) {
-			this._maxNormal.x = Math.max(this._maxNormal.x, Math.abs(normal.x));
-		}
-
-		if (pen.y > 0 || pen.lengthSq() === 0) {
-			this._maxNormal.y = Math.max(this._maxNormal.y, normal.y);
-		}
+		this._collisionInfo.pushRecord({
+			penetration: pen,
+			normal: normal,
+		});
 	}
 
 	override postPhysics(millis : number) : void {
 		super.postPhysics(millis);
 
-		if (this._totalPenetration.lengthSq() > 0) {
-			if (this._totalPenetration.x > 1e-6) {
-				this._profile.setVel({ y: this._profile.body().velocity.y });
-			}
-			if (this._totalPenetration.y > 1e-6) {
-				this._profile.setVel({ x: this._profile.body().velocity.x });
-			}
-			MATTER.Body.setVelocity(this._profile.body(), this._profile.vel());
-		}
+		let resolvedVel = Vec2.fromVec(this._collisionInfo.vel());
+		while (this._collisionInfo.hasRecord()) {
+			const record = this._collisionInfo.popRecord();
+			const pen = record.penetration;
+			const normal = record.normal;
 
-		if (this._maxNormal.y > 0.5) {
-			this._canDoubleJump = true;
-			this._jumpTimer.start(Player._jumpGracePeriod);			
+			if (pen.lengthSq() > 0) {
+				// Check if we should use updated velocity.
+				if (Math.abs(pen.x) > 1e-6) {
+					resolvedVel.x = this._profile.vel().x;
+				}
+				if (Math.abs(pen.y) > 1e-6) {
+					resolvedVel.y = this._profile.vel().y;
+				}
+			}
+
+			if (normal.y > 0.5) {
+				this._canDoubleJump = true;
+				this._jumpTimer.start(Player._jumpGracePeriod);
+			}
 		}
+		this._profile.setVel(resolvedVel);
+		MATTER.Body.setVelocity(this._profile.body(), this._profile.vel());
 	}
 
 	override preRender(millis : number) : void {

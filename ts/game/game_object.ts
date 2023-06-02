@@ -17,6 +17,7 @@ export type PropHandler<T extends Object> = {
 	has? : HasFn;
 	export : ExportFn<T>;
 	import : ImportFn<T>;
+	validate? : ImportFn<T>
 
 	options? : GamePropOptions<T>;
 }
@@ -416,9 +417,19 @@ export abstract class GameObjectBase {
 			const prop = Number(stringProp);
 
 			if (this.isProp(prop)) {
-				if (!this.isSource() && this._data.set(prop, value, seqNum)) {
-					if (this._propHandlers.has(prop)) {
-						this._propHandlers.get(prop).import(this._data.getValue(prop));
+				if (!this._propHandlers.has(prop)) {
+					console.error("Error: %s missing prop handler for %d", this.name(), prop);
+					continue;
+				}
+
+				const handler = this._propHandlers.get(prop);
+				if (this.isSource()) {
+					if (defined(handler.validate)) {
+						handler.validate(value);
+					}
+				} else {
+					if (this._data.set(prop, value, seqNum)) {
+						handler.import(this._data.getValue(prop));
 					}
 				}
 			} else {

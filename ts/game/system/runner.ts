@@ -49,7 +49,7 @@ export class Runner extends SystemBase implements System  {
 
 	setUpdateSpeed(speed : number) : void { this._updateSpeed = speed; }
 
-	run() : void {
+	step() : void {
 		if (!this.initialized()) {
 			if (!this.ready()) {
 				return;
