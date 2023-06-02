@@ -49,10 +49,10 @@ export class BirdBrain extends Equip<Player> {
 	}
 
 	override attachType() : AttachType { return AttachType.NONE; }
-	override updateInput(input : EquipInput) : void {
+	override updateInput(input : EquipInput) : boolean {
 		if (this._juice <= 0 || !this.keysIntersect(input.keys)) {
 			this.resetTarget();
-			return;
+			return false;
 		}
 
 		// Move current target, reset if invalid
@@ -69,7 +69,7 @@ export class BirdBrain extends Equip<Player> {
 			} else {
 				this.resetTarget();
 			}
-			return;
+			return true;
 		}
 
 		// Try to pick a new target
@@ -101,8 +101,11 @@ export class BirdBrain extends Equip<Player> {
 				}
 
 				this.resetTarget(target.id());
+				return true;
 			}
 		}
+
+		return false;
 	}
 
 	override update(millis : number) : void {

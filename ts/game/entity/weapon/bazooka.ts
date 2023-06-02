@@ -8,7 +8,7 @@ import { Profile } from 'game/component/profile'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { EquipInput, AttachType } from 'game/entity/equip'
+import { EquipInput, AttachType, RecoilType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
@@ -30,9 +30,10 @@ export class Bazooka extends Weapon {
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
+	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
-	override updateInput(input : EquipInput) : void {
-		if (!this._model.hasMesh() || !this.keysIntersect(input.keys) || !this._attributes.getAttribute(AttributeType.READY)) { return; }
+	override updateInput(input : EquipInput) : boolean {
+		if (!this._model.hasMesh() || !this.keysIntersect(input.keys) || !this._attributes.getAttribute(AttributeType.READY)) { return false; }
 
 		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = input.dir.clone().normalize();
@@ -49,10 +50,12 @@ export class Bazooka extends Weapon {
 		});
 
 		if (hasRocket) {
+			this.recordUse();
 			rocket.getComponent<Attributes>(ComponentType.ATTRIBUTES).setAttribute(AttributeType.OWNER, this._attributes.getAttribute(AttributeType.OWNER));
 			rocket.setTTL(1000);
 		}
 
 		this.reload(1000);
+		return true;
 	}
 }

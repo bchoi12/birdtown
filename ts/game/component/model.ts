@@ -116,6 +116,13 @@ export class Model extends ComponentBase implements Component {
 		this._bones.set(bone.name, bone);
 	}
 
+	hasBone(name : string) : boolean {
+		if (!defined(this._bones)) {
+			return false;
+		}
+
+		return this._bones.has(name);
+	}
 	getBone(name : string) : BABYLON.Bone {
 		if (!defined(this._bones)) {
 			return null;

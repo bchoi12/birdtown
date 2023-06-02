@@ -68,6 +68,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _jumpGracePeriod = 100;
 	private static readonly _respawnTime = 2000;
 
+	private static readonly _armRecoveryTime = 500;
+
 	private readonly _moveAnimations = new Set<string>([
 		Animation.IDLE, Animation.WALK, Animation.JUMP
 	]);
@@ -77,7 +79,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	// TODO: package in struct
 	private _armDir : Vec2;
+	private _armRecoil : number;
 	private _headDir : Vec2;
+	private _boneOrigins : Map<Bone, BABYLON.Vector3>;
 	private _collisionInfo : CollisionInfo
 
 	// TODO: create state machine with mutually exclusive set of states?
@@ -104,7 +108,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 
 		this._armDir = Vec2.i();
+		this._armRecoil = 0;
 		this._headDir = Vec2.i();
+		this._boneOrigins = new Map();
 		this._collisionInfo = new CollisionInfo();
 
 		this._deactivated = false;
@@ -220,6 +226,15 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + Player._rotationOffset, 0);
 					const dim = this._profile.dim();
 					armature.position.y -= dim.y / 2;
+
+					this._controllableBones.forEach((name : string) => {
+						if (!model.hasBone(name)) {
+							console.error("Error: missing bone %s for %s", name, this.name());
+							return;
+						}
+						const bone = <Bone>name;
+						this._boneOrigins.set(bone, model.getBone(bone).getTransformNode().position);
+					})
 
 					// TODO: this doesn't seem to work
 					let animationProperties = new BABYLON.AnimationPropertiesOverride();
@@ -366,20 +381,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 		}
 
-		if (this.isSource()) {
-			this._equips.forEach((id : number) => {
-				const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
-				if (hasEquip) {
-					equip.updateInput({
-						keys: this._health.dead() ? new Set() : keys.keys(),
-						millis: millis,
-						mouse: keys.mouse(),
-						dir: this._armDir,
-					});
-				}
-			});
-		}
-
 		// Friction and air resistance
 		if (Math.abs(this._profile.vel().x) < Player._minSpeed) {
 			this._profile.setVel({x: 0});
@@ -391,6 +392,22 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				sideVel *= 1 / (1 + Player._airResistance * millis / 1000);
 			}
 			this._profile.setVel({x: sideVel });
+		}
+
+		if (this._model.hasMesh()) {
+			if (this.isSource()) {
+				this._equips.forEach((id : number) => {
+					const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
+					if (hasEquip) {
+						equip.updateInput({
+							keys: this._health.dead() ? new Set() : keys.keys(),
+							millis: millis,
+							mouse: keys.mouse(),
+							dir: this._armDir,
+						});
+					}
+				});
+			}
 		}
 	}
 
@@ -492,6 +509,19 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			return;
 		}
 
+		// Perform any required actions when using equips
+		this._equips.forEach((id : number) => {
+			const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
+			if (hasEquip && equip.hasUse()) {
+				switch(equip.attachType()) {
+				case AttachType.ARM:
+					this._armRecoil = equip.recoilType();
+					break;
+				}
+				equip.consumeUses();
+			}
+		});
+
 		if (!this._attributes.getAttribute(AttributeType.GROUNDED) || this._health.dead()) {
 			this._model.playAnimation(Animation.JUMP);
 		} else {
@@ -506,7 +536,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this.recomputeArmDir();
 			this.recomputeHeadDir();
 		}
-		const armature = this._model.getBone(Bone.ARMATURE).getTransformNode();
+		let armature = this._model.getBone(Bone.ARMATURE).getTransformNode();
 		armature.scaling.z = Math.sign(this._headDir.x);
 
 		let neckAngle = this._headDir.angleRad();
@@ -518,14 +548,25 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		let neck = this._model.getBone(Bone.NECK).getTransformNode();
 		neck.rotation = new BABYLON.Vector3(neckAngle, neck.rotation.y, neck.rotation.z);
 
+		// Compute arm rotation
+		let arm = this._model.getBone(Bone.ARM).getTransformNode();
 		let armRotation = this._armDir.angleRad();
 		if (armature.scaling.z > 0) {
 			armRotation -= Math.PI / 2;
 		} else {
 			armRotation = -armRotation + Math.PI / 2;
 		}
-		let arm = this._model.getBone(Bone.ARM).getTransformNode();
 		arm.rotation = new BABYLON.Vector3(armRotation, Math.PI, 0);
+
+		// Compute arm position
+		if (this._armRecoil > 0) {
+			this._armRecoil -= Math.abs(millis / Player._armRecoveryTime);
+			if (this._armRecoil < 0) {
+				this._armRecoil = 0;
+			}
+		}
+		let rotatedOffset = new BABYLON.Vector3(0, -Math.cos(armRotation) * this._armRecoil, Math.sin(armRotation) * this._armRecoil);
+		arm.position = this._boneOrigins.get(Bone.ARM).add(rotatedOffset);
 	}
 
 	override getCounts() : Map<CounterType, number> {

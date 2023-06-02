@@ -23,12 +23,25 @@ export enum AttachType {
 	ARM,
 }
 
+export enum RecoilType {
+	UNKNOWN = 0,
+
+	NONE = 0,
+	SMALL = 0.1,
+	MEDIUM = 0.2,
+	LARGE = 0.3,
+}
+
 export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 	protected _attributes : Attributes;
 	protected _ownerId : number;
 	protected _owner : E;
 	protected _keys : Set<KeyType>;
+	// Networked counter for uses
+	protected _useCounter : number;
+	// Local copy for uses
+	protected _consumedUseCounter : number;
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
@@ -38,6 +51,15 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this._ownerId = 0;
 		this._owner = null;
 		this._keys = new Set();
+
+		this._useCounter = 0;
+		this._consumedUseCounter = 0;
+
+		this.addProp<number>({
+			has: () => { return this._useCounter > 0; },
+			export: () => { return this._useCounter; },
+			import: (obj : number) => { this._useCounter = obj; },
+		})
 	}
 
 	override ready() : boolean { return super.ready() && this._attributes.getAttribute(AttributeType.OWNER) > 0; }
@@ -77,6 +99,12 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		return false;
 	}
 
+	// Record instance of equip use. Only needed if some action is performed on use (e.g. recoil)
+	protected recordUse() : void { this._useCounter++; }
+	hasUse() : boolean { return this._useCounter > this._consumedUseCounter; }
+	consumeUses() : void { this._consumedUseCounter = this._useCounter; }
+	recoilType() : number { return RecoilType.NONE; }
+
 	abstract attachType() : AttachType;
-	abstract updateInput(input : EquipInput) : void;
+	abstract updateInput(input : EquipInput) : boolean;
 }
