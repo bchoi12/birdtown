@@ -77,7 +77,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		Bone.ARM, Bone.ARMATURE, Bone.NECK, Bone.SPINE,
 	]);
 
-	// TODO: package in struct
+	// TODO: package in struct, Pose, PlayerPose?
 	private _armDir : Vec2;
 	private _armRecoil : number;
 	private _headDir : Vec2;
@@ -260,8 +260,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		if (this.clientIdMatches()) {
 			game.lakitu().setTargetEntity(this);
-			game.keys(this.clientId()).setTargetEntity(this);
 		}
+		game.keys(this.clientId()).setTargetEntity(this);
 
 		this._model.onLoad(() => {
 			const [weapon, hasWeapon] = this.addTrackedEntity<Equip<Player>>(EntityType.BAZOOKA, {
@@ -322,7 +322,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		if (this.isSource()) {
 			// Out of bounds
 			if (this._profile.pos().y < -8) {
-				this.takeDamage(1000);
+				this._health.die();
 			}
 			this._attributes.setAttribute(AttributeType.GROUNDED, this._jumpTimer.hasTimeLeft());
 		}
@@ -483,7 +483,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			const pen = record.penetration;
 			const normal = record.normal;
 
-			if (pen.lengthSq() > 0) {
+			if (!pen.isZero()) {
 				// Check if we should use updated velocity.
 				if (Math.abs(pen.x) > 1e-6) {
 					resolvedVel.x = this._profile.vel().x;

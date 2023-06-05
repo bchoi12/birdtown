@@ -8,6 +8,8 @@ import { SystemType } from 'game/system/api'
 
 import { GameData, DataFilter } from 'game/game_data'
 
+import { settings } from 'settings'
+
 import { ui } from 'ui'
 import { KeyType } from 'ui/api'
 
@@ -23,12 +25,22 @@ enum KeyState {
 }
 
 export class Keys extends ClientSystem implements System {
+
+	private static readonly _maxPredict : number = 0.3;
+	private static readonly _minPredict : number = 0.1;
+	// Millis to go from 0 to 1
+	private static readonly _predictResetTime : number = 1000;
+
 	private _keys : Set<KeyType>;
 	private _keyStates : Map<KeyType, KeyState>;
 	private _mouse : Vec2;
 	private _dir : Vec2;
+
+	private _predictWeight : number;
 	private _changeNum : number;
+	private _seqNum : number;
 	private _hostChangeNum : number;
+	private _hostSeqNum : number;
 
 	constructor(clientId : number) {
 		super(SystemType.KEYS, clientId);
@@ -42,32 +54,32 @@ export class Keys extends ClientSystem implements System {
 		this._keyStates = new Map();
 		this._mouse = Vec2.zero();
 		this._dir = Vec2.i();
+
+		this._predictWeight = Keys._minPredict;
 		this._changeNum = 0;
+		this._seqNum = 0;
 		this._hostChangeNum = 0;
+		this._hostSeqNum = 0;
 
-		for (const stringKey in KeyType) {
-			const key = Number(KeyType[stringKey]);
-			if (Number.isNaN(key) || key <= 0) {
-				continue;
-			}
+		this.addProp<Array<KeyType>>({
+			export: () => { return Array.from(this._keys); },
+			import: (obj : Array<KeyType>) => { this._keys = new Set(obj); },
+			options: {
+				refreshInterval: 100,
+				filters: GameData.udpFilters,
+				equals: (a : Array<KeyType>, b : Array<KeyType>) => {
+					if (a.length !== b.length) { return false; }
 
-			// TODO: turn into single set of keys
-			this.addProp<boolean>({
-				has: () => { return this._keyStates.has(key); },
-				export: () => { return this._keys.has(key); },
-				import: (obj : boolean) => {
-					if (<boolean>obj) {
-						this._keys.add(key);
-					} else {
-						this._keys.delete(key);
+					const keySet = new Set(a);
+					for (let key of b) {
+						if (!keySet.has(key)) {
+							return false;
+						}
 					}
+					return true;
 				},
-				options: {
-					refreshInterval: 100,
-					filters: GameData.udpFilters,
-				},
-			})
-		}
+			},
+		})
 
 		this.addProp<Vec>({
 			export: () => { return this._mouse.toVec(); },
@@ -85,11 +97,23 @@ export class Keys extends ClientSystem implements System {
 				filters: GameData.udpFilters,
 			},
 		});
+
 		this.addProp<number>({
-			has: () => { return this._changeNum > 0 },
+			has: () => { return this._changeNum > 0; },
 			export: () => { return this._changeNum; },
-			import: (obj : number) => { this._changeNum = obj; },
-			validate: (obj : number) => { this._hostChangeNum = obj; },
+			import: (obj : number) => { this._changeNum = Math.max(this._changeNum, obj); },
+			validate: (obj : number) => { this._hostChangeNum = Math.max(this._hostChangeNum, obj); },
+			options: {
+				filters: GameData.udpFilters,
+			},
+		});
+		this.addProp<number>({
+			export: () => { return this._seqNum; },
+			import: (obj : number) => { this._seqNum = Math.max(this._seqNum, obj); },
+			validate: (obj : number) => { this._hostSeqNum = Math.max(this._hostSeqNum, obj); },
+			options: {
+				filters: GameData.udpFilters,
+			},
 		});
 	}
 
@@ -102,6 +126,13 @@ export class Keys extends ClientSystem implements System {
 	mouse() : Vec2 { return this._mouse; }
 	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }
 
+	predictWeight() : number {
+		if (!this.isSource() || !settings.enablePrediction) {
+			return 0;
+		}
+		return this._predictWeight;
+	}
+
 	protected updateKey(key : KeyType, state : KeyState) : boolean {
 		if (state === KeyState.RELEASED || state === KeyState.UP) {
 			return this.releaseKey(<KeyType>key);
@@ -110,24 +141,24 @@ export class Keys extends ClientSystem implements System {
 		}
 	}
 
+	// Return true if new key is pressed
 	protected pressKey(key : KeyType) : boolean {
 		if (!this.keyDown(key)) {
 			this._keyStates.set(key, KeyState.PRESSED);
 			return true;
 		} else if (this.keyPressed(key)) {
 			this._keyStates.set(key, KeyState.DOWN);
-			return true;
 		}
 		return false;
 	}
 
+	// Return true if new key is released
 	protected releaseKey(key : KeyType) : boolean {
 		if (!this.keyUp(key)) {
 			this._keyStates.set(key, KeyState.RELEASED);
 			return true;
 		} else if (this.keyReleased(key)) {
 			this._keyStates.set(key, KeyState.UP);
-			return true;
 		}
 		return false;
 	}
@@ -144,7 +175,7 @@ export class Keys extends ClientSystem implements System {
 
 	override setTargetEntity(entity : Entity) {
 		if (!entity.hasComponent(ComponentType.PROFILE)) {
-			console.log("Error: %s target entity must have profile", this.name());
+			console.error("Error: %s target entity must have profile", this.name());
 			return;
 		}
 
@@ -170,11 +201,27 @@ export class Keys extends ClientSystem implements System {
 			}
 		});
 
-		if (changed) {
-			this._changeNum++;
-		}
-		if (this.isHost()) {
-			this._hostChangeNum = this._changeNum;
+		if (this.isSource()) {
+			this._seqNum++;
+
+			if (changed) {
+				this._changeNum++;
+			}
+
+			if (!this.isHost()) {
+				const delay = this._seqNum - this._hostSeqNum;
+				const changeDelay = this._changeNum - this._hostChangeNum;
+
+				let target = changeDelay >= 1 ? Keys._minPredict : Keys._maxPredict;
+
+				if (this._predictWeight > target) {
+					this._predictWeight -= millis / Keys._predictResetTime;
+					this._predictWeight = Math.max(this._predictWeight, target);
+				} else {
+					this._predictWeight += millis / Keys._predictResetTime;
+					this._predictWeight = Math.min(this._predictWeight, target);
+				}
+			}
 		}
 	}
 

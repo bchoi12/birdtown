@@ -10,6 +10,7 @@ import { Buffer } from 'util/buffer'
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
+import { SmoothVec2 } from 'util/smooth_vector'
 import { Vec, Vec2 } from 'util/vector'
 
 type ReadyFn = (profile : Profile) => boolean;
@@ -63,8 +64,9 @@ export class Profile extends ComponentBase implements Component {
 	private _forces : Buffer<Vec>;
 	private _maxSpeed : Optional<MaxSpeedParams>;
 	private _constraints : Map<number, MATTER.Constraint>;
+	private _predictWeight : number;
 
-	private _pos : Vec2;
+	private _pos : SmoothVec2;
 	private _vel : Vec2;
 	private _acc : Vec2;
 	private _dim : Vec2;
@@ -92,6 +94,7 @@ export class Profile extends ComponentBase implements Component {
 		this._constraints = new Map();
 		this._forces = new Buffer();
 		this._maxSpeed = new Optional<MaxSpeedParams>();
+		this._predictWeight = 0;
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -100,10 +103,10 @@ export class Profile extends ComponentBase implements Component {
 		this.addProp<Vec>({
 			has: () => { return this.hasPos(); },
 			export: () => {return this.pos().toVec(); },
-			import: (obj : Vec) => {this.setPos(obj); },
+			import: (obj : Vec) => { this.setPos(obj); },
 			options: {
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, Profile._posEpsilon);
+					return Vec2.approxEquals(a, b, 1e-3);
 				},
 			},
 		});
@@ -113,7 +116,7 @@ export class Profile extends ComponentBase implements Component {
 			import: (obj : Vec) => { this.setVel(obj); },
 			options: {
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, Profile._minSpeed);
+					return Vec2.approxEquals(a, b, 1e-3);
 				},
 			},
 		});
@@ -253,9 +256,25 @@ export class Profile extends ComponentBase implements Component {
 	private hasPos() : boolean { return defined(this._pos); }
 	pos() : Vec2 { return this._pos; }
 	setPos(vec : Vec) : void {
-		if (!this.hasPos()) { this._pos = Vec2.zero(); }
+		if (!this.hasPos()) { this._pos = SmoothVec2.zero(); }
 
 		this._pos.copyVec(vec);
+	}
+	predictPos(vec : Vec) : void {
+		if (!this.hasPos()) {
+			this.setPos(vec);
+			return;
+		}
+
+		const entity = this.entity();
+		if (!entity.clientIdMatches()) {
+			this.setPos(vec);
+			return;
+		}
+
+		this._pos.setOffset(this._pos.clone().sub(vec).negate());
+		const keys = game.keys(entity.clientId());
+		this._pos.snap(keys.predictWeight());
 	}
 
 	hasVel() : boolean { return defined(this._vel); }
@@ -426,7 +445,7 @@ export class Profile extends ComponentBase implements Component {
 
 		if (this.hasAcc()) {
 			const acc = this.acc();
-			if (acc.lengthSq() > 0) {
+			if (!acc.isZero()) {
 				const scale = millis / 1000;
 				this.addVel({
 					x: acc.x * scale,
@@ -462,8 +481,7 @@ export class Profile extends ComponentBase implements Component {
 		if (this.isSource()) {
 			this.setPos(this._body.position);
 		} else {
-			const weight = Math.min(Math.max(this.millisSinceImport() - game.netcode().ping() / 2, 0) / settings.maxPredictionMillis, 1);
-			this._pos.lerp(this._body.position, weight * settings.predictionWeight);
+			this.predictPos(this._body.position);
 		}
 
 		// Update child objects afterwards.

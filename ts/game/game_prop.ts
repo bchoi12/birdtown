@@ -30,6 +30,7 @@ export class GameProp<T extends Object> {
 	private _lastPublished : Map<DataFilter, PublishInfo<T>>;
 
 	private _seqNum : number;
+	private _consecutiveChanges : number;
 	private _lastChanged : number;
 
 	private _optional : boolean;
@@ -46,6 +47,7 @@ export class GameProp<T extends Object> {
 		this._lastPublished = new Map();
 
 		this._seqNum = 0;
+		this._consecutiveChanges = 0;
 		this._lastChanged = 0;
 
 		this._optional = assignOr(propOptions.optional, false);
@@ -91,6 +93,10 @@ export class GameProp<T extends Object> {
 			return false;
 		}
 
+		if (filter === DataFilter.TCP) {
+			// Only send TCP packet when change stabilizes
+			return seqNum >= this._lastChanged && Math.abs(this._consecutiveChanges) === 1;
+		}
 		return seqNum >= this._lastChanged;
 	}
 	get() : T { return this._value.get(); }
@@ -101,11 +107,13 @@ export class GameProp<T extends Object> {
 		}
 
 		if (this._value.has() && this._equals(value, this._value.get())) {
+			this._consecutiveChanges = Math.min(-1, this._consecutiveChanges - 1);
 			return false;
 		}
 
 		this._value.set(value);
 		this._seqNum = seqNum;
+		this._consecutiveChanges = Math.max(1, this._consecutiveChanges + 1);
 		this._lastChanged = Math.max(this._lastChanged, this._seqNum);
 		return true;
 	}

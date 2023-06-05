@@ -47,6 +47,7 @@ export class Runner extends SystemBase implements System  {
 
 	getSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
 
+	seqNum() : number { return this._seqNum; }
 	setUpdateSpeed(speed : number) : void { this._updateSpeed = speed; }
 
 	step() : void {

@@ -20,7 +20,6 @@ export class Input extends SystemBase implements System {
 		});
 
 		this.setFactoryFn((clientId : number) => { return this.addKeys(new Keys(clientId)); })
-
 		this._keys = new Map();
 	}
 

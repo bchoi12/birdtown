@@ -66,15 +66,11 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 		let prediction = new SettingWrapper({
 			id: "input-prediction",
-			type: "range",
+			type: "checkbox",
 			label: "Client-side prediction",
 
-			min: 0,
-			max: 1,
-			step: .01,
-
-			getSetting: () => { return settings.predictionWeight; },
-			setSetting: (value : number) => { settings.predictionWeight = value; },
+			getSetting: () => { return settings.enablePrediction; },
+			setSetting: (value : boolean) => { settings.enablePrediction = value; },
 		});
 		this._settingsElm.appendChild(prediction.elm());
 

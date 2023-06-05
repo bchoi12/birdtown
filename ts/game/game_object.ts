@@ -207,6 +207,7 @@ export abstract class GameObjectBase {
 
 			if (obj.deleted()) {
 				obj.dispose();
+				return;
 			}
 
 			if (obj.initialized()) {
@@ -397,7 +398,7 @@ export abstract class GameObjectBase {
 			return;
 		}
 
-		if (this.isSource()) {
+		if (this.shouldBroadcast()) {
 			this._propHandlers.forEach((fns : PropHandler<Object>, prop : number) => {
 				if (!defined(fns.has) || fns.has()) {
 					this._data.set(prop, fns.export(), seqNum)

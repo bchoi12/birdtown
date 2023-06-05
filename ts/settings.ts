@@ -15,8 +15,7 @@ class Settings {
 	public enableFullscreen : boolean;
 	public enablePointerLock : boolean;
 
-	public predictionWeight : number;
-	public maxPredictionMillis : number;
+	public enablePrediction : boolean;
 
 	public debugInspector : boolean;
 	public debugPhysics : boolean;
@@ -36,9 +35,7 @@ class Settings {
 
 		this.enableFullscreen = false;
 		this.enablePointerLock = false;
-
-		this.predictionWeight = 1.0;
-		this.maxPredictionMillis = 250;
+		this.enablePrediction = true;
 
 		// Debug properties
 		this.debugInspector = false;
