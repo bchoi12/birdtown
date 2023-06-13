@@ -5,9 +5,9 @@ import { game } from 'game'
 import { GameConstants } from 'game/api'
 import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
-import { Health } from 'game/component/health'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
+import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
@@ -94,9 +94,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _equips : Array<number>;
 
 	private _attributes : Attributes;
-	private _health : Health;
 	private _model : Model;
 	private _profile : Profile;
+	private _stats : Stats;
 	private _headSubProfile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
@@ -117,7 +117,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._jumpTimer = this.newTimer();
 		this._canDoubleJump = true;
 		this._deadTracker = new ChangeTracker(() => {
-			return this._health.dead();
+			return this._stats.dead();
 		}, (dead : boolean) => {
 			if (dead) {
 				const x = this._profile.vel().x;
@@ -157,8 +157,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.setAttribute(AttributeType.GROUNDED, false);
 		this._attributes.setAttribute(AttributeType.SOLID, true);
-
-		this._health = this.addComponent<Health>(new Health({ health: 100 }));
 
 		const collisionGroup = MATTER.Body.nextGroup(/*ignoreCollisions=*/true);
 		this._profile = this.addComponent<Profile>(new Profile({
@@ -246,6 +244,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				});
 			},
 		}));
+
+		this._stats = this.addComponent<Stats>(new Stats({ health: 100 }));
 	}
 
 	override ready() : boolean {
@@ -290,13 +290,13 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	setSpawn(spawn : Vec) : void { this._spawn = spawn; }
 	respawn() : void {
-		this._health.reset();
+		this._stats.reset();
 		this._profile.setPos(this._spawn);
 		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
 	}
 	setDeactivated(deactivated : boolean) : void { this._deactivated = deactivated; }
-	dead() : boolean { return this._health.dead(); }
+	dead() : boolean { return this._stats.dead(); }
 
 	// TODO: fix race condition where weapon is loaded upside-down
 	equip(equip : Equip<Player>) : void {
@@ -322,7 +322,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		if (this.isSource()) {
 			// Out of bounds
 			if (this._profile.pos().y < -8) {
-				this._health.die();
+				this._stats.die();
 			}
 			this._attributes.setAttribute(AttributeType.GROUNDED, this._jumpTimer.hasTimeLeft());
 		}
@@ -346,7 +346,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.setAcc({ y: gravity });
 
 		const keys = game.keys(this.clientId());
-		if (!this._health.dead()) {
+		if (!this._stats.dead()) {
 			// Keypress acceleration
 			if (keys.keyDown(KeyType.LEFT)) {
 				this._profile.setAcc({ x: -Player._sideAcc });
@@ -400,7 +400,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
 					if (hasEquip) {
 						equip.updateInput({
-							keys: this._health.dead() ? new Set() : keys.keys(),
+							keys: this._stats.dead() ? new Set() : keys.keys(),
 							millis: millis,
 							mouse: keys.mouse(),
 							dir: this._armDir,
@@ -522,7 +522,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 		});
 
-		if (!this._attributes.getAttribute(AttributeType.GROUNDED) || this._health.dead()) {
+		if (!this._attributes.getAttribute(AttributeType.GROUNDED) || this._stats.dead()) {
 			this._model.playAnimation(Animation.JUMP);
 		} else {
 			if (Math.abs(this._profile.acc().x) < 0.01) {
@@ -532,7 +532,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 		}
 
-		if (this.clientIdMatches() && !this._health.dead()) {
+		if (this.clientIdMatches() && !this._stats.dead()) {
 			this.recomputeArmDir();
 			this.recomputeHeadDir();
 		}
@@ -571,7 +571,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	override getCounts() : Map<CounterType, number> {
 		let counts = new Map<CounterType, number>();
-		counts.set(CounterType.HEALTH, this._health.health());
+		counts.set(CounterType.HEALTH, this._stats.health());
 		this._equips.forEach((id : number) => {
 				const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
 				if (hasEquip) {

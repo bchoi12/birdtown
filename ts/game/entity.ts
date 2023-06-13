@@ -2,13 +2,13 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component } from 'game/component'
-import { ComponentType } from 'game/component/api'
+import { AttributeType, ComponentType } from 'game/component/api'
 import { GameObject, GameObjectBase } from 'game/game_object'
-import { AttributesInitOptions } from 'game/component/attributes'
+import { Attributes, AttributesInitOptions } from 'game/component/attributes'
 import { CardinalsInitOptions } from 'game/component/cardinals'
-import { Health } from 'game/component/health'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { ProfileInitOptions } from 'game/component/profile'
+import { Stats } from 'game/component/stats'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 
@@ -47,10 +47,18 @@ export interface Entity extends GameObject {
 	hasComponent(type : ComponentType) : boolean;
 	getComponent<T extends Component>(type : ComponentType) : T;
 
+	// Methods spanning components
 	getCounts() : Map<CounterType, number>;
-	takeDamage(amount : number, from? : Entity) : void;
-	collide(collision : MATTER.Collision, other : Entity) : void;
 	setTTL(ttl : number);
+
+	// Attribute methods
+	hasAttribute(type : AttributeType) : boolean;
+
+	// Stats methods
+	takeDamage(amount : number, from? : Entity) : void;
+
+	// Profile methods
+	collide(collision : MATTER.Collision, other : Entity) : void;
 }
 
 export interface EquipEntity {
@@ -162,16 +170,22 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	hasComponent(type : ComponentType) : boolean { return this.hasChild(type); }
 	getComponent<T extends Component>(type : ComponentType) : T { return this.getChild<T>(type); }
 
+	getCounts() : Map<CounterType, number> { return new Map(); }
 	setTTL(ttl : number) : void {
 		const timer = this.newTimer();
 		timer.start(ttl, () => { this.delete(); });
 	}
 
-	getCounts() : Map<CounterType, number> { return new Map(); }
-	takeDamage(amount : number, from? : Entity) : void {
-		if (!this.hasComponent(ComponentType.HEALTH)) { return; }
+	hasAttribute(type : AttributeType) : boolean {
+		if (!this.hasComponent(ComponentType.ATTRIBUTES)) { return false; }
 
-		this.getComponent<Health>(ComponentType.HEALTH).damage(amount, from);
+		return this.getComponent<Attributes>(ComponentType.ATTRIBUTES).hasAttribute(type);
+	}
+
+	takeDamage(amount : number, from? : Entity) : void {
+		if (!this.hasComponent(ComponentType.STATS)) { return; }
+
+		this.getComponent<Stats>(ComponentType.STATS).damage(amount, from);
 	}
 	collide(collision : MATTER.Collision, other : Entity) : void {}
 }

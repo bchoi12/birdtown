@@ -1,7 +1,6 @@
 import * as BABYLON from "babylonjs";
 
 import { ComponentType } from 'game/component/api'
-import { Health } from 'game/component/health'
 import { Profile } from 'game/component/profile'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'

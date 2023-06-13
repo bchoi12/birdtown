@@ -8,24 +8,27 @@ import { Entity } from 'game/entity'
 import { RingBuffer } from 'util/ring_buffer'
 import { defined } from 'util/common'
 
-export type HealthInitOptions = {
+export type StatsInitOptions = {
 	health : number;
 }
 
+// TODO: rework as StatChange
 type Tick = {
+	// TODO: optional
 	fromId : number;
+
 	amount : number;
 	ts : number;
 };
 
-export class Health extends ComponentBase implements Component {
+export class Stats extends ComponentBase implements Component {
 
 	private _initialHealth : number;
 	private _health : number;
 	private _damageBuffer : RingBuffer<Tick>;
 
-	constructor(init : HealthInitOptions) {
-		super(ComponentType.HEALTH);
+	constructor(init : StatsInitOptions) {
+		super(ComponentType.STATS);
 
 		this.setName({ base: "health" });
 

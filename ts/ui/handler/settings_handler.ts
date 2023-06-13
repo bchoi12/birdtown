@@ -64,6 +64,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			this._settingsElm.appendChild(inspector.elm());
 		}
 
+		// TODO: hide on game start
 		let prediction = new SettingWrapper({
 			id: "input-prediction",
 			type: "checkbox",

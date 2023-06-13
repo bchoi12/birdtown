@@ -16,6 +16,7 @@ enum Type {
 	NUMBER,
 }
 
+// TODO: split boolean, int, number
 type Value = boolean|number;
 
 export class Attributes extends ComponentBase implements Component {
