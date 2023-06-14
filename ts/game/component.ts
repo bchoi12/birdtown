@@ -26,6 +26,13 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 
 	override ready() : boolean { return defined(this._entity); }
 
+	addSubComponent<T extends Component>(id : number, component : T) : T {
+		return this.registerChild(id, this.populateSubComponent<T>(id, component));
+	}
+	getSubComponent<T extends Component>(id : number) : T {
+		return this.getChild<T>(id);
+	}
+
 	type() : ComponentType { return this._type; }
 	entity() : Entity { return this._entity; }
 	setEntity(entity : Entity) : void {
@@ -34,5 +41,22 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 			base: this.name(),
 		});
 		this._entity = entity;
+
+		this.executeCallback<Component>((subComponent : Component, id : number) => {
+			this.populateSubComponent(id, subComponent);
+		})
+	}
+
+	// Transfer some metadata to the SubComponent
+	private populateSubComponent<T extends Component>(id : number, component : T) : T {
+		if (defined(this._entity)) {
+			component.setEntity(this.entity());
+			component.setName({
+				parent: this,
+				base: component.name(),
+				id: id,
+			});
+		}
+		return component;
 	}
 }

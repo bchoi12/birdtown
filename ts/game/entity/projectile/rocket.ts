@@ -73,7 +73,7 @@ export class Rocket extends Projectile {
 		}
 	}
 
-	override damage() : number { return 20; }
+	override damage() : number { return 50; }
 
 	override preRender(millis : number) : void {
 		super.preRender(millis);

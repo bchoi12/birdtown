@@ -1,92 +1,66 @@
 
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
-import { ComponentType } from 'game/component/api'
+import { ComponentType, StatType } from 'game/component/api'
+import { Stat, StatLog, StatUpdate, StatInitOptions } from 'game/component/stat'
 
 import { Entity } from 'game/entity'
 
 import { RingBuffer } from 'util/ring_buffer'
 import { defined } from 'util/common'
+import { Optional } from 'util/optional'
 
 export type StatsInitOptions = {
-	health : number;
+	stats : Map<StatType, StatInitOptions>;
 }
 
-// TODO: rework as StatChange
-type Tick = {
-	// TODO: optional
-	fromId : number;
-
-	amount : number;
-	ts : number;
-};
-
 export class Stats extends ComponentBase implements Component {
-
-	private _initialHealth : number;
-	private _health : number;
-	private _damageBuffer : RingBuffer<Tick>;
 
 	constructor(init : StatsInitOptions) {
 		super(ComponentType.STATS);
 
-		this.setName({ base: "health" });
+		this.setName({ base: "stats" });
 
-		this._initialHealth = init.health;
-		this._health = init.health;
-		this._damageBuffer = new RingBuffer(20);
-
-		this.addProp({
-			export: () => { return this._health; },
-			import: (obj : Object) => { this._health = <number>obj; }
+		init.stats.forEach((init : StatInitOptions, type : StatType) => {
+			this.addSubComponent(type, new Stat(init));
 		});
 	}
 
 	reset() : void {
-		this._health = this._initialHealth;
-		this._damageBuffer.clear();
+		this.executeCallback<Stat>((stat : Stat) => {
+			stat.reset();
+		});
 	}
 
-	health() : number { return this._health; }
-	dead() : boolean { return this._health <= 0; }
+	// Convenience methods
+	health() : number { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).getCurrent(); }
+	dead() : boolean { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).atMin(); }
 
-	heal(amount : number, from? : Entity) : void { this.damage(-amount, from); }
-	die() : void { this.damage(this.health()); }
-	damage(amount : number, from? : Entity) : void {
-		if (!this.isSource()) {
+	hasStat(type : StatType) : boolean { return this.hasChild(type); }
+	getStat(type : StatType) : Stat {
+		if (!this.hasStat(type)) {
+			console.error("Error: queried nonexistent stat %d for %s", type, this.name());
+			return null;
+		}
+
+		return this.getSubComponent<Stat>(type);
+	}
+
+	updateStat(type : StatType, update : StatUpdate) : void {
+		if (!this.hasStat(type)) {
+			console.error("Error: attempting to update nonexistent stat %d for %s", type, this.name());
 			return;
 		}
 
-		if (this.dead() && amount >= 0) {
-			return;
-		}
-
-		amount = Math.min(amount, this._health);
-		this._health -= amount;
-
-		if (from && amount > 0) {
-			this._damageBuffer.push({
-				fromId: from.id(),
-				amount: amount,
-				ts: Date.now(),
-			});
-		}
+		this.getSubComponent<Stat>(type).updateCurrent(update);
 	}
 
-	lastDamageId(millis : number) : [number, boolean] {
-		while(!this._damageBuffer.empty()) {
-			const tick = this._damageBuffer.pop();
-			if (Date.now() - tick.ts > millis) {
-				break;
-			}
-
-			if (tick.amount <= 0) {
-				continue;
-			}
-
-			return [tick.fromId, true];
+	flushStat(type : StatType, skip : (log : StatLog) => boolean, stop : (log : StatLog) => boolean) : [StatLog, boolean] {
+		if (!this.hasStat(type)) {
+			console.error("Error: attempting to flush nonexistent stat %d for %s", type, this.name());
+			return [null, false];
 		}
 
-		return [0, false];
+		return this.getSubComponent<Stat>(type).flush(skip, stop);
 	}
 }

@@ -7,6 +7,7 @@ export enum ComponentType {
 	MODEL,
 	OPENINGS,
 	PROFILE,
+	STAT,
 	STATS,
 }
 
@@ -22,4 +23,10 @@ export enum AttributeType {
 	// Integer
 	OWNER,
 	TEAM,
+}
+
+export enum StatType {
+	UNKNOWN,
+
+	HEALTH,
 }

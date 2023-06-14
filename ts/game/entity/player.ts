@@ -3,10 +3,11 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { GameConstants } from 'game/api'
-import { AttributeType, ComponentType } from 'game/component/api'
+import { AttributeType, ComponentType, StatType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
+import { StatInitOptions } from 'game/component/stat'
 import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -180,7 +181,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			maxSpeed: {x: Player._maxHorizontalVel, y: Player._maxVerticalVel },
 		});
 
-		this._headSubProfile = this._profile.addSubProfile(SubProfile.HEAD, new Profile({
+		this._headSubProfile = this._profile.addSubComponent<Profile>(SubProfile.HEAD, new Profile({
 			readyFn: (head : Profile) => { return this._profile.initialized(); },
 			bodyFn: (head : Profile) => {
 				return BodyFactory.rectangle(head.pos(), head.dim(), {
@@ -245,7 +246,14 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			},
 		}));
 
-		this._stats = this.addComponent<Stats>(new Stats({ health: 100 }));
+		this._stats = this.addComponent<Stats>(new Stats({ stats: new Map<StatType, StatInitOptions>([
+			[StatType.HEALTH, {
+				initial: 100,
+				current: 100,
+				min: 0,
+				max: 100,
+			}]
+		])}));
 	}
 
 	override ready() : boolean {
@@ -322,7 +330,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		if (this.isSource()) {
 			// Out of bounds
 			if (this._profile.pos().y < -8) {
-				this._stats.die();
+				this.takeDamage(this._stats.health(), this);
 			}
 			this._attributes.setAttribute(AttributeType.GROUNDED, this._jumpTimer.hasTimeLeft());
 		}
@@ -571,7 +579,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	override getCounts() : Map<CounterType, number> {
 		let counts = new Map<CounterType, number>();
-		counts.set(CounterType.HEALTH, this._stats.health());
+		counts.set(CounterType.HEALTH, this._stats.getStat(StatType.HEALTH).getCurrent());
 		this._equips.forEach((id : number) => {
 				const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
 				if (hasEquip) {

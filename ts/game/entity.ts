@@ -2,7 +2,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component } from 'game/component'
-import { AttributeType, ComponentType } from 'game/component/api'
+import { AttributeType, ComponentType, StatType } from 'game/component/api'
 import { GameObject, GameObjectBase } from 'game/game_object'
 import { Attributes, AttributesInitOptions } from 'game/component/attributes'
 import { CardinalsInitOptions } from 'game/component/cardinals'
@@ -182,10 +182,13 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		return this.getComponent<Attributes>(ComponentType.ATTRIBUTES).hasAttribute(type);
 	}
 
+	// TODO: from.id() is projectile, not owner
 	takeDamage(amount : number, from? : Entity) : void {
 		if (!this.hasComponent(ComponentType.STATS)) { return; }
-
-		this.getComponent<Stats>(ComponentType.STATS).damage(amount, from);
+		this.getComponent<Stats>(ComponentType.STATS).updateStat(StatType.HEALTH, {
+			amount: -amount,
+			...from && { fromId: from.id() },
+		});
 	}
 	collide(collision : MATTER.Collision, other : Entity) : void {}
 }

@@ -227,18 +227,7 @@ export class Profile extends ComponentBase implements Component {
 		}
 	}
 
-
 	body() : MATTER.Body { return this._body; }
-	addSubProfile(id : number, subProfile : Profile) : Profile {
-		subProfile.setEntity(this.entity());
-		subProfile.setName({
-			parent: this,
-			base: subProfile.name(),
-			id: id,
-		});
-		return this.registerChild<Profile>(id, subProfile);
-	}
-	getSubProfile(id : number) : Profile { return this.getChild<Profile>(id); }
 	addConstraint(constraint : MATTER.Constraint) : [MATTER.Constraint, number] {
 		const id = this._constraints.size + 1;
 		MATTER.Composite.add(game.physics().world(), constraint);

@@ -39,7 +39,7 @@ export enum NetworkBehavior {
 }
 
 export type FactoryFn = (id : number) => GameObject
-export type ChildCallback<T extends GameObject> = (child : T) => void;
+export type ChildCallback<T extends GameObject> = (child : T, id : number) => void;
 
 type DataBuffer = {
 	seqNum : number;
@@ -83,7 +83,7 @@ export interface GameObject {
 	unregisterChild(id : number) : void;
 	childOrder() : Array<number>;
 	executeCallback<T extends GameObject>(cb : ChildCallback<T>) : void;
-	getChildren() : Map<number, GameObject>;
+	getChildren<T extends GameObject>() : Map<number, GameObject>;
 
 	newTimer() : Timer;
 
@@ -346,7 +346,7 @@ export abstract class GameObjectBase {
 	childOrder() : Array<number> { return this._childOrder; }
 	executeCallback<T extends GameObject>(cb : ChildCallback<T>) : void {
 		for (let i = 0; i < this._childOrder.length; ++i) {
-			cb(this.getChild<T>(this._childOrder[i]));
+			cb(this.getChild<T>(this._childOrder[i]), this._childOrder[i]);
 		}
 	}
 	getChildren() : Map<number, GameObject> { return this._childObjects; }
