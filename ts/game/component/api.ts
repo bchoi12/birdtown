@@ -1,6 +1,7 @@
 
 export enum ComponentType {
 	UNKNOWN,
+	ASSOCIATION,
 	ATTRIBUTES,
 	CARDINALS,
 	HEX_COLORS,
@@ -11,18 +12,20 @@ export enum ComponentType {
 	STATS,
 }
 
+export enum AssociationType {
+	UNKNOWN,
+
+	OWNER,
+	TEAM,
+}
+
 export enum AttributeType {
 	UNKNOWN,
 
-	// Boolean
 	BRAINED,
 	GROUNDED,
 	READY,
 	SOLID,
-
-	// Integer
-	OWNER,
-	TEAM,
 }
 
 export enum StatType {

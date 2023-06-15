@@ -1,7 +1,7 @@
 import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
-import { AttributeType, ComponentType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
@@ -95,16 +95,13 @@ export class Rocket extends Projectile {
 			return;
 		}
 
-		if (this._attributes.getAttribute(AttributeType.OWNER) === other.id()) {
+		const [owner, hasOwner] = this.getAssociation(AssociationType.OWNER);
+		if (hasOwner && owner === other.id()) {
 			return;
 		}
 
-		if (!other.hasComponent(ComponentType.ATTRIBUTES)) {
-			return;
-		}
-
-		other.takeDamage(this.damage(), this);
-		if (other.getComponent<Attributes>(ComponentType.ATTRIBUTES).getAttribute(AttributeType.SOLID)) {
+		if (other.getAttribute(AttributeType.SOLID)) {
+			other.takeDamage(this.damage(), this);
 			this.delete();
 		}
 	}

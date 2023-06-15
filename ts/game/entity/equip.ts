@@ -1,6 +1,7 @@
 
 import { game } from 'game'
-import { AttributeType, ComponentType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
+import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -34,6 +35,7 @@ export enum RecoilType {
 
 export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
+	protected _association : Association;
 	protected _attributes : Attributes;
 	protected _ownerId : number;
 	protected _owner : E;
@@ -47,6 +49,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		super(entityType, entityOptions);
 		this._allTypes.add(EntityType.EQUIP);
 
+		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._ownerId = 0;
 		this._owner = null;
@@ -62,18 +65,19 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		})
 	}
 
-	override ready() : boolean { return super.ready() && this._attributes.getAttribute(AttributeType.OWNER) > 0; }
+	override ready() : boolean { return super.ready() && this._association.hasAssociation(AssociationType.OWNER); }
 
 	override initialize() : void {
 		super.initialize();
 
-		this._ownerId = <number>this._attributes.getAttribute(AttributeType.OWNER);
+		this._ownerId = this._association.getAssociation(AssociationType.OWNER);
 		
 		let foundOwner;
 		[this._owner, foundOwner] = game.entities().getEntity<E>(this._ownerId);
 
 		if (!foundOwner) {
 			console.error("Error: could not find owner %d for equip", this._ownerId, this.name());
+			this.delete();
 			return;
 		}
 

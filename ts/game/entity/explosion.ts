@@ -58,17 +58,12 @@ export class Explosion extends EntityBase implements Entity {
 			return;
 		}
 
-		if (!other.hasComponent(ComponentType.ATTRIBUTES) || !other.hasComponent(ComponentType.PROFILE)) {
-			return;
-		}
-
-		const otherAttributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-		if (!otherAttributes.getAttribute(AttributeType.SOLID)) {
+		if (!other.getAttribute(AttributeType.SOLID)) {
 			return;
 		}
 
 		// TODO: adjust force to be based on distance to center, smooth it out a bit
-		const otherProfile = <Profile>other.getComponent(ComponentType.PROFILE);
+		const otherProfile = other.getComponent<Profile>(ComponentType.PROFILE);
 		let force = otherProfile.pos().clone().sub(this._profile.pos()).normalize().scale(0.48);
 		otherProfile.addForce(force);
 

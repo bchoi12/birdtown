@@ -3,7 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { GameConstants } from 'game/api'
-import { AttributeType, ComponentType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
@@ -273,9 +273,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		this._model.onLoad(() => {
 			const [weapon, hasWeapon] = this.addTrackedEntity<Equip<Player>>(EntityType.BAZOOKA, {
-				attributesInit: {
-					attributes: new Map([
-						[AttributeType.OWNER, this.id()],
+				associationInit: {
+					associations: new Map([
+						[AssociationType.OWNER, this.id()],
 					]),
 				},
 			});
@@ -284,9 +284,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			const [brain, hasBrain] = this.addTrackedEntity<Equip<Player>>(EntityType.BIRD_BRAIN, {
-				attributesInit: {
-					attributes: new Map([
-						[AttributeType.OWNER, this.id()],
+				associationInit: {
+					associations: new Map([
+						[AssociationType.OWNER, this.id()],
 					]),
 				},
 			});		
@@ -436,12 +436,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			return;
 		}
 
-		if (!other.hasComponent(ComponentType.ATTRIBUTES) || !other.hasComponent(ComponentType.PROFILE)) {
-			return;
-		}
-
-		const otherAttributes = other.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-		if (!otherAttributes.getAttribute(AttributeType.SOLID)) {
+		if (!other.getAttribute(AttributeType.SOLID)) {
 			return;
 		}
 

@@ -94,9 +94,7 @@ export class BirdBrain extends Equip<Player> {
 
 				if (!valid) { continue; }
 
-				// Should be guaranteed to have correct components.
-				let attributes = target.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-				if (attributes.getAttribute(AttributeType.BRAINED)) {
+				if (target.getAttribute(AttributeType.BRAINED)) {
 					continue;
 				}
 
@@ -131,9 +129,7 @@ export class BirdBrain extends Equip<Player> {
 				profile.setAcc({x: 0, y: GameConstants.gravity });
 				profile.clearMaxSpeed();
 				MATTER.Body.setDensity(profile.body(), profile.body().density / BirdBrain._densityAdjustment);
-
-				let attributes = target.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-				attributes.setAttribute(AttributeType.BRAINED, false);
+				target.setAttribute(AttributeType.BRAINED, false);
 			}
 		}
 
@@ -146,8 +142,7 @@ export class BirdBrain extends Equip<Player> {
 				});
 				MATTER.Body.setDensity(profile.body(), BirdBrain._densityAdjustment * profile.body().density);
 
-				let attributes = target.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-				attributes.setAttribute(AttributeType.BRAINED, true);
+				target.setAttribute(AttributeType.BRAINED, true);
 
 				this._targetId.set(id);
 			}

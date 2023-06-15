@@ -2,8 +2,9 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component } from 'game/component'
-import { AttributeType, ComponentType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
 import { GameObject, GameObjectBase } from 'game/game_object'
+import { Association, AssociationInitOptions } from 'game/component/association'
 import { Attributes, AttributesInitOptions } from 'game/component/attributes'
 import { CardinalsInitOptions } from 'game/component/cardinals'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
@@ -22,6 +23,7 @@ export type EntityOptions = {
 	offline? : boolean;
 	levelVersion? : number;
 
+	associationInit? : AssociationInitOptions;
 	attributesInit? : AttributesInitOptions;
 	cardinalsInit? : CardinalsInitOptions;
 	hexColorsInit? : HexColorsInitOptions;
@@ -51,8 +53,11 @@ export interface Entity extends GameObject {
 	getCounts() : Map<CounterType, number>;
 	setTTL(ttl : number);
 
-	// Attribute methods
-	hasAttribute(type : AttributeType) : boolean;
+	// Convenience getters/setters
+	getAssociation(type : AssociationType) : [number, boolean];
+	setAssociation(type : AssociationType, value : number) : void;
+	getAttribute(type : AttributeType) : boolean;
+	setAttribute(type : AttributeType, value : boolean) : void;
 
 	// Stats methods
 	takeDamage(amount : number, from? : Entity) : void;
@@ -176,10 +181,33 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		timer.start(ttl, () => { this.delete(); });
 	}
 
-	hasAttribute(type : AttributeType) : boolean {
+	getAssociation(type : AssociationType) : [number, boolean] {
+		if (!this.hasComponent(ComponentType.ASSOCIATION)) { return [0, false]; }
+
+		const association = this.getComponent<Association>(ComponentType.ASSOCIATION);
+		if (!association.hasAssociation(type)) {
+			return [0, false];
+		}
+		return [association.getAssociation(type), true];
+	}
+	setAssociation(type : AssociationType, value : number) : void {
+		if (!this.hasComponent(ComponentType.ASSOCIATION)) { return; }
+
+		let association = this.getComponent<Association>(ComponentType.ASSOCIATION);
+		association.setAssociation(type, value);
+	}
+
+	getAttribute(type : AttributeType) : boolean {
 		if (!this.hasComponent(ComponentType.ATTRIBUTES)) { return false; }
 
-		return this.getComponent<Attributes>(ComponentType.ATTRIBUTES).hasAttribute(type);
+		const attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+		return attributes.hasAttribute(type) && attributes.getAttribute(type);
+	}
+	setAttribute(type : AttributeType, value : boolean) : void {
+		if (!this.hasComponent(ComponentType.ATTRIBUTES)) { return; }
+
+		let attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
+		attributes.setAttribute(type, value);
 	}
 
 	// TODO: from.id() is projectile, not owner

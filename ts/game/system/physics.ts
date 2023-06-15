@@ -1,6 +1,7 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
+import { ComponentType } from 'game/component/api'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 
@@ -81,6 +82,10 @@ export class Physics extends SystemBase implements System {
 			}
 
 			if (entityA.deleted() || entityB.deleted()) {
+				return;
+			}
+
+			if (!entityA.hasComponent(ComponentType.PROFILE) || !entityB.hasComponent(ComponentType.PROFILE)) {
 				return;
 			}
 

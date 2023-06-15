@@ -19,6 +19,7 @@ export class Cardinals extends ComponentBase implements Component {
 		super(ComponentType.CARDINALS);
 
 		if (!defined(init)) { init = {}; }
+
 		this.setName({ base: "cardinals" });
 
 		this._cardinals = new Map();

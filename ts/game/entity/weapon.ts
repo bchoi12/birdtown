@@ -48,11 +48,6 @@ export abstract class Weapon extends Equip<Player> {
 		this._reloadTimer = this.newTimer();
 	}
 
-	override ready() : boolean {
-		return super.ready()
-			&& this._attributes.getAttribute(AttributeType.OWNER) > 0;
-	}
-
 	abstract meshType() : MeshType;
 	shootNode() : BABYLON.TransformNode { return defined(this._shoot) ? this._shoot : this._model.mesh(); }
 
