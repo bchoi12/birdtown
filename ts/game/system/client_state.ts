@@ -3,23 +3,24 @@ import { game } from 'game'
 import { ClientSystem, System } from 'game/system'
 import { SystemType } from 'game/system/api'
 
+import { GameMessage, GameMessageType } from 'message/game_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 
-enum SetupState {
+export enum LoadState {
 	UNKNOWN,
 	WAITING,
+	LOADED,
+	CHECK_READY,
 	READY,
 }
 
 export class ClientState extends ClientSystem implements System {
 
 	private _displayName : string;
-
-	// TODO: change this to a counter / version?
-	private _setupState : SetupState;
+	private _loadState : LoadState;
 
 	constructor(clientId : number) {
 		super(SystemType.CLIENT_STATE, clientId);
@@ -30,21 +31,24 @@ export class ClientState extends ClientSystem implements System {
 		});
 
 		this._displayName = "";
-		this._setupState = SetupState.UNKNOWN;
+		this._loadState = LoadState.WAITING;
 
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
 			export: () => { return this._displayName; },
 			import: (obj: string) => { this._displayName = obj; },
 		});
-		this.addProp<SetupState>({
-			has: () => { return this.setupState() !== SetupState.UNKNOWN; },
-			export: () => { return this.setupState(); },
-			import: (obj : SetupState) => { this.setSetupState(obj); },
+		this.addProp<LoadState>({
+			has: () => { return this.loadState() !== LoadState.UNKNOWN; },
+			export: () => { return this.loadState(); },
+			import: (obj : LoadState) => { this.setLoadState(obj); },
 		});
 	}
 
-	override ready() : boolean { return super.ready() && this.hasDisplayName(); }
+	override ready() : boolean {
+		return super.ready() && this.hasDisplayName();
+	}
+
 	override initialize() : void {
 		super.initialize();
 
@@ -54,30 +58,38 @@ export class ClientState extends ClientSystem implements System {
 		ui.handleMessage(msg);
 	}
 
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		switch(msg.type()) {
+		case GameMessageType.LEVEL_LOAD:
+			this.setLoadState(LoadState.LOADED);
+			break;
+		}
+	}
+
 	private hasDisplayName() : boolean { return this._displayName.length > 0; }
 	setDisplayName(name : string) : void { this._displayName = name; }
 	displayName() : string { return this._displayName; }
 
-	setup() : boolean { return this._setupState === SetupState.READY; }
-	setupState() : SetupState { return this._setupState; }
-	requestSetupState() : void { this.setSetupState(SetupState.WAITING); }
-	setSetupState(setupState : SetupState) : void {
-		if (this._setupState === setupState) {
+	loadState() : LoadState { return this._loadState; }
+	setLoadState(state : LoadState) : void {
+		if (this._loadState === state) {
 			return;
 		}
 
-		this._setupState = setupState;
+		this._loadState = state;
 
 		if (!this.isSource()) {
 			return;
 		}
 
-		switch(this._setupState) {
-		case SetupState.WAITING:
+		switch(this._loadState) {		
+		case LoadState.CHECK_READY:
 			let msg = new UiMessage(UiMessageType.DIALOG);
 			msg.setProp(UiProp.TYPE, DialogType.CHECK_READY);
 			msg.setProp(UiProp.ON_SUBMIT, () => {
-				this.setSetupState(SetupState.READY);
+				this.setLoadState(LoadState.READY);
 			});
 			ui.handleMessage(msg);
 			break;

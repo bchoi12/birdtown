@@ -17,7 +17,7 @@ import { isLocalhost } from 'util/common'
 import { DoubleMap } from 'util/double_map'
 
 type PeerMap = Map<string, ChannelMap>;
-type RegisterCallback = (name : string) => void;
+type RegisterCallback = (connection : Connection) => void;
 type MessageCallback = (message : NetworkMessage) => void;
 
 export abstract class Netcode {
@@ -39,7 +39,7 @@ export abstract class Netcode {
 	protected _connections : Map<string, Connection>;
 	protected _pinger : Pinger;
 
-	protected _registerBuffer : Buffer<string>;
+	protected _registerBuffer : Buffer<Connection>;
 	protected _registerCallbacks : Array<RegisterCallback>;
 
 	protected _messageBuffer : Buffer<NetworkMessage>;
@@ -126,7 +126,8 @@ export abstract class Netcode {
 		if (this.hasConnection(name)) {
 			return this.getConnection(name);
 		}
-		let connection = new Connection();
+
+		let connection = new Connection(name);
 		this._connections.set(name, connection);
 		return connection;
 	}
@@ -192,12 +193,9 @@ export abstract class Netcode {
 			console.error("Warning: registering unopen " + channelType + " channel for " + dataConnection.peer);
 		}
 
-		if (dataConnection.metadata && dataConnection.metadata.name) {
-			let connection = this.getConnection(dataConnection.peer);
-		}
-
+		// TODO: not sure why, but need to keep getOrAdd instead of add
 		let connection = this.getOrAddConnection(dataConnection.peer);
-		if (!connection.hasDisplayName() && dataConnection.metadata && dataConnection.metadata.name) {
+		if (dataConnection.metadata && dataConnection.metadata.name) {
 			connection.setDisplayName(dataConnection.metadata.name);
 		}
 
@@ -217,7 +215,7 @@ export abstract class Netcode {
 		});
 
 		if (channels.ready()) {
-			this._registerBuffer.push(dataConnection.peer);
+			this._registerBuffer.push(connection);
 		}
 	}
 
@@ -267,7 +265,7 @@ export abstract class Netcode {
 		}
 
 		if (!this._connections.has(name)) {
-			console.error("Error: trying to send message to missing connection", name);
+			console.error("Error: trying to send message to missing connection", name, msg);
 			return false;
 		}
 

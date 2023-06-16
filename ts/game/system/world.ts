@@ -3,8 +3,14 @@ import * as BABYLON from 'babylonjs'
 import { game } from 'game'	
 import { ComponentType } from 'game/component/api'
 import { Model } from 'game/component/model'
+import { Entity } from 'game/entity'
 import { System, SystemBase } from 'game/system'
-import { LayerType, SystemType } from 'game/system/api'
+import { SystemType } from 'game/system/api'
+
+enum LayerType {
+	UNKNOWN,
+	HIGHLIGHT,
+}
 
 export type HighlightParams = {
 	enabled : boolean;
@@ -47,24 +53,24 @@ export class World extends SystemBase implements System {
 
 	scene() : BABYLON.Scene { return this._scene; }
 
-	highlight(id : number, enabled : boolean) : void {
-		let [entity, has] = game.entities().getEntity(id);
-
-		if (!has || !entity.hasComponent(ComponentType.MODEL)) { return; }
-
-		const model = entity.getComponent<Model>(ComponentType.MODEL);
-		if (!model.initialized() || !model.hasMesh()) {
-			return;
-		}
-
+	highlight(mesh : BABYLON.Mesh, params : HighlightParams) : void {
 		let layer = this.getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT);
-		if (enabled) {
-			let color = BABYLON.Color3.Red();
-			layer.addMesh(model.mesh(), color);
+		if (params.enabled) {
+			let color = params.color ? params.color : BABYLON.Color3.Red();
+			layer.addMesh(mesh, color);
 		} else {
-			layer.removeMesh(model.mesh());
+			layer.removeMesh(mesh);
 		}
 	}
+	excludeHighlight(mesh : BABYLON.Mesh, excluded : boolean) : void {
+		let layer = this.getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT);
+		if (excluded) {
+			layer.addExcludedMesh(mesh)
+		} else {
+			layer.removeExcludedMesh(mesh);
+		}
+	}
+
 	getLayer<T extends BABYLON.EffectLayer>(type : LayerType) : T { return <T>this._layers.get(type); }
 
 	override render(millis : number) : void {

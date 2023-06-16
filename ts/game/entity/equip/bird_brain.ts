@@ -12,7 +12,6 @@ import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, EquipInput, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { LayerType } from 'game/system/api'
 
 import { CounterType } from 'ui/api'
 

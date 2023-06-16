@@ -4,13 +4,15 @@ import { defined } from 'util/common'
 
 export class Connection {
 	
+	private _name : string;
 	private _displayName : string;
 	private _connected : boolean;
 	private _channels : ChannelMap;
 	private _voiceEnabled : boolean;
 	private _clientId : number;
 
-	constructor() {
+	constructor(name : string) {
+		this._name = name;
 		this._displayName = "";
 		this._connected = true;
 		this._channels = new ChannelMap();
@@ -18,6 +20,7 @@ export class Connection {
 		this._clientId = 0;
 	}
 
+	name() : string { return this._name; }
 	channels() : ChannelMap { return this._channels; }
 	setDisplayName(name : string) : void { this._displayName = name; }
 	hasDisplayName() : boolean { return this._displayName.length > 0; }

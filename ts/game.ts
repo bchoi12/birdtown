@@ -17,6 +17,7 @@ import { World } from 'game/system/world'
 
 import { ChannelType } from 'network/api'
 import { Client } from 'network/client'
+import { Connection } from 'network/connection'
 import { Netcode } from 'network/netcode'
 import { Host } from 'network/host'
 
@@ -86,17 +87,18 @@ class Game {
 		// TODO: move most of this stuff to network code
 		if (this._options.host) {
 			this._netcode = new Host(this._options.hostName, this._options.displayName);
-			this._netcode.addRegisterCallback((name : string) => {
+			this._netcode.addRegisterCallback((connection : Connection) => {
 				const clientId = game.nextClientId();
-				this._netcode.getConnection(name).setClientId(clientId);
+				connection.setClientId(clientId);
 				
 				let networkMsg = new NetworkMessage(NetworkMessageType.INIT_CLIENT);
 				networkMsg.setProp<number>(NetworkProp.CLIENT_ID, clientId);
-				this._netcode.send(name, ChannelType.TCP, networkMsg);
+				this._netcode.send(connection.name(), ChannelType.TCP, networkMsg);
+				console.log(connection);
 
 				let gameMsg = new GameMessage(GameMessageType.NEW_CLIENT);
 				gameMsg.setProp(GameProp.CLIENT_ID, clientId);
-				gameMsg.setProp(GameProp.DISPLAY_NAME, this._netcode.getConnection(name).displayName());
+				gameMsg.setProp(GameProp.DISPLAY_NAME, connection.displayName());
 				this._runner.handleMessage(gameMsg);
 
 				if (isLocalhost()) {

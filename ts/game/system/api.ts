@@ -28,8 +28,3 @@ export enum LevelType {
 	BIRDTOWN,
 	LOBBY,
 }
-
-export enum LayerType {
-	UNKNOWN,
-	HIGHLIGHT,
-}

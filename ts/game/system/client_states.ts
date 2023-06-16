@@ -32,16 +32,15 @@ export class ClientStates extends SystemBase implements System {
 		clientState.setDisplayName(displayName);
 	}
 
-	allLoaded() : boolean {
+	queryClientStates(predicate : (state : ClientState) => boolean) : boolean {
 		if (!this.isSource()) {
 			return false;
 		}
 
-		// TODO: verify correct level for all clients?
 		const order = this.childOrder();
 		for (let i = 0; i < order.length; ++i) {
 			const state = this.getClientState(order[i]);
-			if (!state.setup()) {
+			if (!predicate(state)) {
 				return false;
 			}
 		}

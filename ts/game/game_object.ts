@@ -107,6 +107,7 @@ export abstract class GameObjectBase {
 	protected _lastUpdateTime : number;
 	protected _lastImportTime : number;
 
+	// TODO: unused? deprecate?
 	protected _localObjects : Array<GameObject>;
 	protected _data : GameData;
 	protected _propHandlers : Map<number, PropHandler<Object>>;
@@ -161,7 +162,7 @@ export abstract class GameObjectBase {
 	ready() : boolean {
 		this._notReadyCounter++;
 		if (this._notReadyCounter % 60 === 0) {
-			console.error("Warning: %s still not ready", this.name());
+			console.error("Warning: still not ready", this.name());
 		}
 		return true;
 	}
@@ -465,13 +466,13 @@ export abstract class GameObjectBase {
 	protected numProps() : number { return this._propHandlers.size; }
 	protected numChildren() : number { return this._childObjects.size; }
 
-	private updateObjects(update : (obj : GameObject) => void) : void {
+	private updateObjects<T extends GameObject>(update : (obj : T) => void) : void {
 		for (let i = 0; i < this._localObjects.length; ++i) {
-			let obj = this._localObjects[i];
+			let obj = <T>this._localObjects[i];
 			update(obj);
 		}
 		for (let i = 0; i < this._childOrder.length; ++i) {
-			let obj = this.getChild(this._childOrder[i]);
+			let obj = this.getChild<T>(this._childOrder[i]);
 			update(obj);
 		}
 	}

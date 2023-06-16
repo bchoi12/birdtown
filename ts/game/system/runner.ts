@@ -87,9 +87,9 @@ export class Runner extends SystemBase implements System  {
 		case GameMessageType.NEW_CLIENT:
 		case GameMessageType.LEVEL_LOAD:
 			const connection = game.netcode();
-			const [msg, has] = this.message(DataFilter.INIT);
+			const [initMessage, has] = this.message(DataFilter.INIT);
 			if (has) {
-				connection.broadcast(ChannelType.TCP, msg);
+				connection.broadcast(ChannelType.TCP, initMessage);
 			}
 			break;
 		}

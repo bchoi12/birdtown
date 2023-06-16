@@ -125,7 +125,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				const sign = x >= 0 ? -1 : 1;
 
 				this._profile.resetInertia();
-				this._profile.setAngularVelocity(sign * Math.max(0.1, Math.abs(x)));
+				this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
 				this._profile.setAcc({x: 0});
 
 				if (game.controller().state() === ControllerState.WAITING) {

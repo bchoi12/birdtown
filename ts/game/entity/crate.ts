@@ -79,10 +79,19 @@ export class Crate extends EntityBase implements Entity {
 			this._profile.setAngle(this._startingAngle);
 		}
 
-		if (this._attributes.getAttribute(AttributeType.BRAINED)) {
-			game.world().highlight(this.id(), true);
+		if (!this._model.hasMesh()) {
+			return;
+		}
+
+		if (this.getAttribute(AttributeType.BRAINED)) {
+			game.world().highlight(this._model.mesh(), {
+				enabled: true,
+				color: BABYLON.Color3.Red(),
+			});
 		} else {
-			game.world().highlight(this.id(), false);
+			game.world().highlight(this._model.mesh(), {
+				enabled: false
+			});
 		}
 	}
 }

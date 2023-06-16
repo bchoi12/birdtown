@@ -7,6 +7,7 @@ import { Player } from 'game/entity/player'
 import { SpawnPoint } from 'game/entity/spawn_point'
 
 import { LevelType } from 'game/system/api'
+import { ClientState, LoadState } from 'game/system/client_state'
 import { GameMaker, GameMakerBase } from 'game/system/game_maker/game_maker'
 
 export class DuelMaker extends GameMakerBase implements GameMaker {
@@ -24,7 +25,15 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 	players() : Array<Player> { return this._players; }
 	spawnPoints() : Array<SpawnPoint> { return this._spawnPoints; }
 
-	override canSetup() : boolean { return this._players.length >= 2; }
+	override canSetup() : boolean {
+		if (this._players.length < 2) {
+			return false;
+		}
+
+		return game.clientStates().queryClientStates((state : ClientState) => {
+			return state.loadState() >= LoadState.LOADED;
+		});
+	}
 	override querySetup() : boolean {
 		this._players = game.entities().queryEntities<Player>({
 			type: EntityType.PLAYER,
@@ -47,12 +56,17 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 		});
 	}
 
-	override canStart() : boolean { return game.clientStates().allLoaded() && this._players.length >= 2 && this._spawnPoints.length >= 2; }
-	override queryStart() : boolean {
-		if (!game.clientStates().allLoaded()) {
+	override canStart() : boolean {
+		if (this._players.length < 2 && this._spawnPoints.length < 2) {
 			return false;
 		}
 
+		return game.clientStates().queryClientStates((state : ClientState) => {
+			return state.loadState() >= LoadState.READY;
+		});
+	}
+
+	override queryStart() : boolean {
 		this._players = game.entities().queryEntities<Player>({
 			type: EntityType.PLAYER,
 			mapQuery: {
