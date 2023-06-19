@@ -336,6 +336,18 @@ export class Profile extends ComponentBase implements Component {
 		this._scaling.copyVec(vec);
 	}
 
+	contains(point : Vec, buffer? : number) : boolean {
+		if (!buffer) {
+			buffer = 0;
+		}
+
+		if (point.x > this._pos.x + this._dim.x / 2 + buffer) { return false; }
+		if (point.x < this._pos.x - this._dim.x / 2 - buffer) { return false; }
+		if (point.y > this._pos.y + this._dim.y / 2 + buffer) { return false; }
+		if (point.y < this._pos.y - this._dim.y / 2 - buffer) { return false; }
+
+		return true;
+	}
 	moveTo(point : Vec, params : MoveToParams) : void {
 		if (params.millis <= 0) { return; }
 

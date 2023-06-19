@@ -155,11 +155,12 @@ export abstract class Block extends EntityBase {
 			return;
 		}
 
-		if (game.lakitu().targetEntity().id() !== other.id()) {
+		const target = game.lakitu().targetEntity();
+		if (target.id() !== other.id()) {
 			return;
 		}
 
-		if (Vec2.fromVec(collision.penetration).lengthSq() < Block._minPenetrationSq) {
+		if (!this._profile.contains(target.getComponent<Profile>(ComponentType.PROFILE).pos())) {
 			return;
 		}
 
