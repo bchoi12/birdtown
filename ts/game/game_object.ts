@@ -6,6 +6,8 @@ import { GamePropOptions } from 'game/game_prop'
 
 import { DataMap } from 'message'
 
+import { NetworkBehavior } from 'network/api'
+
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
 
@@ -28,14 +30,6 @@ export type NameParams = {
 	target? : GameObject;
 	type? : number;
 	id? : number;
-}
-
-export enum NetworkBehavior {
-	UNKNOWN,
-	SOURCE,
-	COPY,
-	RELAY,
-	OFFLINE,
 }
 
 export type FactoryFn = (id : number) => GameObject

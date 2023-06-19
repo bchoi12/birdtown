@@ -1,7 +1,6 @@
  import { game } from 'game'
 import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
-import { NetworkBehavior } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { ClientSystem, System } from 'game/system'
 import { SystemType } from 'game/system/api'

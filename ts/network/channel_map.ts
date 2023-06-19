@@ -5,6 +5,7 @@ import { ChannelType } from 'network/api'
 import { isLocalhost } from 'util/common'
 import { StatsTracker } from 'util/stats_tracker'
 
+// TODO: move to API
 export enum ChannelStat {
 	UNKNOWN,
 	PACKETS,
@@ -51,7 +52,7 @@ export class ChannelMap {
 
 	send(type : ChannelType, data : Uint8Array) {
 		if (!this._channels.has(type)) {
-			console.error("Error: missing " + type + " channel");
+			console.error("Error: missing channel with type %d", type);
 			return;
 		}
 

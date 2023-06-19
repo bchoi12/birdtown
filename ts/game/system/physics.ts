@@ -2,10 +2,13 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
 import { ComponentType } from 'game/component/api'
+import { Profile } from 'game/component/profile'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 
 import { Html } from 'ui/html'
+
+import { Vec2 } from 'util/vector'
 
 export class Physics extends SystemBase implements System {
 
@@ -85,9 +88,54 @@ export class Physics extends SystemBase implements System {
 				return;
 			}
 
+			if (entityA.id() === entityB.id()) {
+				return;
+			}
+
 			if (!entityA.hasComponent(ComponentType.PROFILE) || !entityB.hasComponent(ComponentType.PROFILE)) {
 				return;
 			}
+
+			const profileA = entityA.getComponent<Profile>(ComponentType.PROFILE);
+			const profileB = entityB.getComponent<Profile>(ComponentType.PROFILE);
+
+			// Smooth out normals that are nearly axis-aligned
+			// Ignore "pixel collisions"
+			let normal = Vec2.fromVec(collision.normal);
+			let pen = Vec2.fromVec(collision.penetration);
+			if (Math.abs(normal.x) > 0.99 || Math.abs(normal.y) > 0.99) {
+				// Find overlap of rectangle bounding boxes.
+				let overlap = profileA.pos().clone().sub(profileB.pos()).abs();
+				overlap.sub({
+					x: profileA.dim().x / 2 + profileB.dim().x / 2,
+					y: profileA.dim().y / 2 + profileB.dim().y / 2,
+				});
+				overlap.negate();
+
+				// Calculate relative vel to determine collision direction
+				let relativeVel = profileA.vel().clone().sub(profileB.vel());
+				const xCollision = Math.abs(overlap.x * relativeVel.y) < Math.abs(overlap.y * relativeVel.x);
+				if (xCollision) {
+					// Either overlap in other dimension is too small or collision direction is in disagreement.
+					if (Math.abs(overlap.y) < 1e-2 || Math.abs(normal.y) > 0.99) {
+						pen.scale(0);
+					}
+					pen.y = 0;
+					normal.x = Math.sign(normal.x);
+					normal.y = 0;
+				} else {
+					if (Math.abs(overlap.x) < 1e-2 || Math.abs(normal.x) > 0.99) {
+						pen.scale(0);
+					}
+					pen.x = 0;
+					normal.x = 0;
+					normal.y = Math.sign(normal.y);
+				}
+			}
+			collision.normal.x = normal.x;
+			collision.normal.y = normal.y;
+			collision.penetration.x = pen.x;
+			collision.penetration.y = pen.y;
 
 			entityA.collide(collision, entityB);
 			collision.normal.x *= -1;

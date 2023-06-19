@@ -3,12 +3,14 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
-import { Profile } from 'game/component/profile'
+import { Association } from 'game/component/association'
 import { Model } from 'game/component/model'
+import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { EquipInput, AttachType, RecoilType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
+import { Rocket } from 'game/entity/projectile/rocket'
 import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
 
@@ -39,11 +41,9 @@ export class Bazooka extends Weapon {
 
 		let vel = unitDir.clone().scale(0.05);
 		let acc = unitDir.clone().scale(1.5);
-		let [rocket, hasRocket] = this.addEntity(EntityType.ROCKET, {
+		let [rocket, hasRocket] = this.addEntity<Rocket>(EntityType.ROCKET, {
 			associationInit: {
-				associations: new Map([
-					[AssociationType.OWNER, this._association.getAssociation(AssociationType.OWNER)],
-				]),
+				owner: this,
 			},
 			profileInit: {
 				pos: {x: pos.x, y: pos.y},
@@ -55,7 +55,9 @@ export class Bazooka extends Weapon {
 
 		if (hasRocket) {
 			this.recordUse();
-			rocket.setTTL(1000);
+			rocket.setTTL(1000, () => {
+				rocket.explode();
+			});
 		}
 
 		this.reload(1000);

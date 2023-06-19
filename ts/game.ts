@@ -94,7 +94,6 @@ class Game {
 				let networkMsg = new NetworkMessage(NetworkMessageType.INIT_CLIENT);
 				networkMsg.setProp<number>(NetworkProp.CLIENT_ID, clientId);
 				this._netcode.send(connection.name(), ChannelType.TCP, networkMsg);
-				console.log(connection);
 
 				let gameMsg = new GameMessage(GameMessageType.NEW_CLIENT);
 				gameMsg.setProp(GameProp.CLIENT_ID, clientId);

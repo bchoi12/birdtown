@@ -1,4 +1,10 @@
 
+export enum ClientConnectionState {
+	UNKNOWN,
+	CONNECTED,
+	DISCONNECTED,
+}
+
 export enum ControllerState {
 	UNKNOWN,
 	WAITING,

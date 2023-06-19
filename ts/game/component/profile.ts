@@ -267,7 +267,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	hasVel() : boolean { return defined(this._vel); }
-	vel() : Vec2 { return this._vel; }
+	vel() : Vec2 { return this.hasVel() ? this._vel : Vec2.zero(); }
 	setVel(vec : Vec) : void {
 		if (!this.hasVel()) { this._vel = Vec2.zero(); }
 
@@ -282,7 +282,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	hasAcc() : boolean { return defined(this._acc); }
-	acc() : Vec2 { return this._acc; }
+	acc() : Vec2 { return this.hasAcc() ? this._acc : Vec2.zero(); }
 	setAcc(vec : Vec) : void {
 		if (!this.hasAcc()) { this._acc = Vec2.zero(); }
 
@@ -302,7 +302,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	hasAngle() : boolean { return defined(this._angle); }
-	angle() : number { return this._angle; }
+	angle() : number { return this.hasAngle() ? this._angle : 0; }
 	setAngle(angle : number) : void { this._angle = angle; }
 	setAngularVelocity(vel : number) : void { MATTER.Body.setAngularVelocity(this._body, vel); }
 	addAngularVelocity(delta : number) : void { MATTER.Body.setAngularVelocity(this._body, this._body.angularVelocity + delta); }
@@ -313,7 +313,7 @@ export class Profile extends ComponentBase implements Component {
 	resetInertia() : void { this._inertia = this._initialInertia; }
 
 	hasScaling() : boolean { return defined(this._scaling) && defined(this._scaling.x, this._scaling.y); }
-	scaling() : Vec2 { return this._scaling; }
+	scaling() : Vec2 { return this.hasScaling() ? this._scaling : Vec2.one(); }
 	setScaling(vec : Vec) {
 		if (!defined(this._scaling)) {
 			this._scaling = Vec2.one();

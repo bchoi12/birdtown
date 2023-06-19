@@ -5,6 +5,8 @@ export enum GameMessageType {
 	UNKNOWN,
 
 	NEW_CLIENT,
+	DISCONNECT_CLIENT,
+
 	LEVEL_LOAD,
 }
 
@@ -23,6 +25,9 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 		[GameMessageType.NEW_CLIENT, MessageBase.fieldDescriptor(
 			[GameProp.CLIENT_ID, {}],
 			[GameProp.DISPLAY_NAME, {}],
+		)],
+		[GameMessageType.DISCONNECT_CLIENT, MessageBase.fieldDescriptor(
+			[GameProp.CLIENT_ID, {}],
 		)],
 		[GameMessageType.LEVEL_LOAD, MessageBase.fieldDescriptor(
 			[GameProp.TYPE, {}],

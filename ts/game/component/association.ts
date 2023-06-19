@@ -2,16 +2,21 @@
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
 import { AssociationType, ComponentType } from 'game/component/api'
+import { Entity } from 'game/entity'
 
 import { defined } from 'util/common'
+import { Optional } from 'util/optional'
 
 export type AssociationInitOptions = {
+	// Query map first before checking owner
 	associations? : Map<AssociationType, number>;
+	owner? : Entity;
 }
 
 export class Association extends ComponentBase implements Component {
 
 	private _associations : Map<AssociationType, number>;
+	private _owner : Optional<Entity>;
 
 	constructor(init : AssociationInitOptions) {
 		super(ComponentType.ASSOCIATION);
@@ -19,12 +24,22 @@ export class Association extends ComponentBase implements Component {
 		if (!defined(init)) { init = {}; }
 		this.setName({ base: "associations" });
 
-		this._associations = new Map();
-
 		if (init.associations) {
-			init.associations.forEach((value, key) => {
-				this.setAssociation(key, value);
-			});
+			this._associations = init.associations;
+		} else {
+			this._associations = new Map();
+		}
+
+		if (init.owner) {
+			this._owner = new Optional(init.owner);
+		} else {
+			this._owner = new Optional();
+		}
+
+		if (!this.hasAssociation(AssociationType.OWNER)) {
+			if (this._owner.get()) {
+				this._associations.set(AssociationType.OWNER, this._owner.get().id());
+			}
 		}
 
 		for (const stringAssociation in AssociationType) {
@@ -41,13 +56,65 @@ export class Association extends ComponentBase implements Component {
 		}
 	}
 
-	hasAssociation(type : AssociationType) : boolean { return this._associations.has(type); }
-	getAssociation(type : AssociationType) : number {
-		if (!this.hasAssociation(type)) {
-			console.error("Warning: retrieving unset association %d, defaulting to 0", type);
-			return 0;
+	toMap() : Map<AssociationType, number> {
+		let associations = new Map<AssociationType, number>();
+		this._associations.forEach((value : number, type : AssociationType) => {
+			associations.set(type, value);
+		});
+
+		if (this._owner.has() && this._owner.get().hasComponent(ComponentType.ASSOCIATION)) {
+			const ownerAssociations = this._owner.get().getComponent<Association>(ComponentType.ASSOCIATION);
+			ownerAssociations.toMap().forEach((value : number, type : AssociationType) => {
+				associations.set(type, value);
+			});
 		}
-		return this._associations.get(type);
+		return associations;
 	}
-	setAssociation(type : AssociationType, value : number) : void { this._associations.set(type, value); }
+
+	hasAssociation(type : AssociationType) : boolean {
+		if (this._associations.has(type)) {
+			return true;
+		}
+
+		if (this._owner.has() && this._owner.get().hasComponent(ComponentType.ASSOCIATION)) {
+			const ownerAssociations = this._owner.get().getComponent<Association>(ComponentType.ASSOCIATION);
+			if (ownerAssociations.hasAssociation(type)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+	getAssociation(type : AssociationType) : number {
+		if (this._associations.has(type)) { return this._associations.get(type); }
+
+		if (this._owner.has() && this._owner.get().hasComponent(ComponentType.ASSOCIATION)) {
+			const ownerAssociations = this._owner.get().getComponent<Association>(ComponentType.ASSOCIATION);
+			return ownerAssociations.getAssociation(type); 
+		}
+
+		console.error("Warning: retrieving unset association %d, defaulting to 0", type);
+		return 0;
+	}
+	setAssociation(type : AssociationType, value : number) : void {
+		if (value <= 0) {
+			console.error("Warning: skipping setting invalid association", type, value, this.name());
+			return;
+		}
+
+		this._associations.set(type, value);
+	}
+
+	private isDerived(type : AssociationType) : boolean {
+		if (this._associations.has(type)) {
+			return false;
+		}
+
+		if (this._owner.has() && this._owner.get().hasComponent(ComponentType.ASSOCIATION)) {
+			const ownerAssociations = this._owner.get().getComponent<Association>(ComponentType.ASSOCIATION);
+			return ownerAssociations.hasAssociation(type); 
+		}
+
+		return false;
+	}
 }

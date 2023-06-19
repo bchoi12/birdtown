@@ -34,6 +34,13 @@ export class Optional<T> {
 		return fn(this.get());
 	}
 
+	executeOr<U>(fn : (value : T) => U, u : U) : U {
+		if (!this.has()) {
+			return u;
+		}
+		return fn(this.get());
+	}
+
 	runIf(fn : (value : T) => void) : boolean {
 		if (!this.has()) {
 			return false;

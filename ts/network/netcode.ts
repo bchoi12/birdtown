@@ -1,6 +1,9 @@
 import { encode, decode } from '@msgpack/msgpack'
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
+import { game } from 'game'
+import { ClientConnectionState } from 'game/system/api'
+
 import { ChannelType } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
 import { NetworkMessageType } from 'message/api'
@@ -371,8 +374,13 @@ export abstract class Netcode {
 	}
 
 	disconnect(name : string) : void {
-		if (this._connections.has(name)) {
-			this._connections.get(name).disconnect();
+		if (this.hasConnection(name)) {
+			let connection = this.getConnection(name);
+			connection.disconnect();
+
+			if (connection.hasClientId()) {
+				game.clientState(connection.clientId()).setConnectionState(ClientConnectionState.DISCONNECTED);
+			}
 		}
 	}
 

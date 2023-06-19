@@ -4,3 +4,11 @@ export enum ChannelType {
 	TCP,
 	UDP,
 }
+
+export enum NetworkBehavior {
+	UNKNOWN,
+	SOURCE,
+	COPY,
+	RELAY,
+	OFFLINE,
+}

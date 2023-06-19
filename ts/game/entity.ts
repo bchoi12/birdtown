@@ -51,13 +51,15 @@ export interface Entity extends GameObject {
 
 	// Methods spanning components
 	getCounts() : Map<CounterType, number>;
-	setTTL(ttl : number);
+	setTTL(ttl : number, onDelete? : () => void);
 
 	// Convenience getters/setters
-	getAssociation(type : AssociationType) : [number, boolean];
-	setAssociation(type : AssociationType, value : number) : void;
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
+
+	// Match associations
+	getAssociations() : Map<AssociationType, number>;
+	matchAssociations(types : AssociationType[], other : Entity) : boolean;
 
 	// Stats methods
 	takeDamage(amount : number, from? : Entity) : void;
@@ -176,25 +178,38 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	getComponent<T extends Component>(type : ComponentType) : T { return this.getChild<T>(type); }
 
 	getCounts() : Map<CounterType, number> { return new Map(); }
-	setTTL(ttl : number) : void {
+	setTTL(ttl : number, onDelete? : () => void) : void {
 		const timer = this.newTimer();
-		timer.start(ttl, () => { this.delete(); });
+		timer.start(ttl, () => {
+			if (onDelete) {
+				onDelete();
+			}
+			this.delete();
+		});
 	}
 
-	getAssociation(type : AssociationType) : [number, boolean] {
-		if (!this.hasComponent(ComponentType.ASSOCIATION)) { return [0, false]; }
-
-		const association = this.getComponent<Association>(ComponentType.ASSOCIATION);
-		if (!association.hasAssociation(type)) {
-			return [0, false];
+	getAssociations() : Map<AssociationType, number> {
+		let associations : Map<AssociationType, number>;
+		if (this.hasComponent(ComponentType.ASSOCIATION)) {
+			associations = this.getComponent<Association>(ComponentType.ASSOCIATION).toMap();
+		} else {
+			associations = new Map();
+			associations.set(AssociationType.OWNER, this.id());
 		}
-		return [association.getAssociation(type), true];
+		return associations;
 	}
-	setAssociation(type : AssociationType, value : number) : void {
-		if (!this.hasComponent(ComponentType.ASSOCIATION)) { return; }
+	// TODO: make this more flexible than match any
+	matchAssociations(types : AssociationType[], other : Entity) : boolean {
+		const association = this.getAssociations();
+		const otherAssociation = other.getAssociations();
 
-		let association = this.getComponent<Association>(ComponentType.ASSOCIATION);
-		association.setAssociation(type, value);
+		for (let type of types) {
+			if (!association.has(type) || !otherAssociation.has(type)) { continue; }
+
+			if (association.get(type) === otherAssociation.get(type)) { return true; }
+		}
+
+		return false;
 	}
 
 	getAttribute(type : AttributeType) : boolean {

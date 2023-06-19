@@ -1,9 +1,11 @@
 import { game } from 'game'
-import { GameObject, GameObjectBase, NetworkBehavior } from 'game/game_object'
+import { GameObject, GameObjectBase } from 'game/game_object'
 import { Entity, EntityOptions } from 'game/entity'
 import { LevelType, SystemType } from 'game/system/api'
 
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
+
+import { NetworkBehavior } from 'network/api'
 
 import { defined } from 'util/common'
 

@@ -24,7 +24,7 @@ export namespace ColorFactory {
 	export const archGreen = HexColor.fromHex(0x0ffc89);
 	export const archBlue = HexColor.fromHex(0x0fdcfc);
 	export const archPurple = HexColor.fromHex(0x910ffc);
-	export const archWhite = HexColor.fromHex(0xfbfbfb);
+	export const archWhite = HexColor.fromHex(0xeeeeee);
 
 	export const baseColors = new Map<EntityType, Buffer<HexColor>>([
 		[EntityType.ARCH_BASE, Buffer.from(archRed, archOrange, archYellow, archGreen, archBlue, archPurple)],

@@ -189,6 +189,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					collisionFilter: {
 						group: collisionGroup,
 					},
+					render: {
+						visible: false,
+					},
 				});
 			},
 			init: {
@@ -274,9 +277,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._model.onLoad(() => {
 			const [weapon, hasWeapon] = this.addTrackedEntity<Equip<Player>>(EntityType.BAZOOKA, {
 				associationInit: {
-					associations: new Map([
-						[AssociationType.OWNER, this.id()],
-					]),
+					owner: this,
 				},
 			});
 			if (hasWeapon) {
@@ -285,9 +286,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			const [brain, hasBrain] = this.addTrackedEntity<Equip<Player>>(EntityType.BIRD_BRAIN, {
 				associationInit: {
-					associations: new Map([
-						[AssociationType.OWNER, this.id()],
-					]),
+					owner: this,
 				},
 			});		
 			if (hasBrain) {
@@ -428,10 +427,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (this.id() === other.id()) {
-			return;
-		}
-
 		if (collision.pair.bodyA.isSensor || collision.pair.bodyB.isSensor) {
 			return;
 		}
@@ -440,40 +435,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			return;
 		}
 
-		const pos = this._profile.pos();
-		const dim = this._profile.dim();
-		const vel = this._profile.vel();
-		const normal = Vec2.fromVec(collision.normal);
-
-		let pen = Vec2.fromVec(collision.penetration);
-		if (Math.abs(normal.x) > 0.99 || Math.abs(normal.y) > 0.99) {
-			// Find overlap of rectangle bounding boxes.
-			const otherProfile = other.getComponent<Profile>(ComponentType.PROFILE);
-			let overlap = pos.clone().sub(otherProfile.pos()).abs();
-			overlap.sub({
-				x: dim.x / 2 + otherProfile.dim().x / 2,
-				y: dim.y / 2 + otherProfile.dim().y / 2,
-			});
-			overlap.negate();
-
-			const xCollision = Math.abs(overlap.x * vel.y) < Math.abs(overlap.y * vel.x);
-			if (xCollision) {
-				// Either overlap in other dimension is too small or collision direction is in disagreement.
-				if (Math.abs(overlap.y) < 1e-2 || Math.abs(normal.y) > 0.99) {
-					pen.scale(0);
-				}
-				pen.y = 0;
-			} else {
-				if (Math.abs(overlap.x) < 1e-2 || Math.abs(normal.x) > 0.99) {
-					pen.scale(0);
-				}
-				pen.x = 0;
-			}
-		}
-
 		this._collisionInfo.pushRecord({
-			penetration: pen,
-			normal: normal,
+			penetration: Vec2.fromVec(collision.penetration),
+			normal: Vec2.fromVec(collision.normal),
 		});
 	}
 

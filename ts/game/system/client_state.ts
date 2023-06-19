@@ -1,13 +1,21 @@
 
 import { game } from 'game'
 import { ClientSystem, System } from 'game/system'
-import { SystemType } from 'game/system/api'
+import { ClientConnectionState, SystemType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
+import { NetworkBehavior } from 'network/api'
+
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
+
+export enum ClientGameState {
+	UNKNOWN,
+	SPECTATING,
+	GAMING,
+}
 
 export enum LoadState {
 	UNKNOWN,
@@ -20,6 +28,7 @@ export enum LoadState {
 export class ClientState extends ClientSystem implements System {
 
 	private _displayName : string;
+	private _connectionState : ClientConnectionState;
 	private _loadState : LoadState;
 
 	constructor(clientId : number) {
@@ -31,12 +40,18 @@ export class ClientState extends ClientSystem implements System {
 		});
 
 		this._displayName = "";
+		this._connectionState = ClientConnectionState.CONNECTED;
 		this._loadState = LoadState.WAITING;
 
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
 			export: () => { return this._displayName; },
 			import: (obj: string) => { this._displayName = obj; },
+		});
+		this.addProp<ClientConnectionState>({
+			has: () => { return this.connectionState() !== ClientConnectionState.UNKNOWN; },
+			export: () => { return this.connectionState(); },
+			import: (obj : ClientConnectionState) => { this.setConnectionState(obj); },
 		});
 		this.addProp<LoadState>({
 			has: () => { return this.loadState() !== LoadState.UNKNOWN; },
@@ -72,6 +87,23 @@ export class ClientState extends ClientSystem implements System {
 	setDisplayName(name : string) : void { this._displayName = name; }
 	displayName() : string { return this._displayName; }
 
+	connectionState() : ClientConnectionState { return this._connectionState }
+	setConnectionState(state : ClientConnectionState) : void {
+		if (this._connectionState === state) {
+			return;
+		}
+
+		this._connectionState = state;
+
+		switch(this._connectionState) {
+		case ClientConnectionState.DISCONNECTED:
+			if (this.isHost()) {
+				game.netcode().sendChat(this.displayName() + " lost connection");
+			}
+			break;
+		}
+	}
+
 	loadState() : LoadState { return this._loadState; }
 	setLoadState(state : LoadState) : void {
 		if (this._loadState === state) {
@@ -94,5 +126,13 @@ export class ClientState extends ClientSystem implements System {
 			ui.handleMessage(msg);
 			break;
 		}
+	}
+
+	override networkBehavior() : NetworkBehavior {
+		if (this.connectionState() === ClientConnectionState.DISCONNECTED) {
+			return this.isHost() ? NetworkBehavior.SOURCE : NetworkBehavior.COPY;
+		}
+
+		return super.networkBehavior();
 	}
 }

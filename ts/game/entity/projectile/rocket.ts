@@ -57,22 +57,6 @@ export class Rocket extends Projectile {
 		}));
 	}
 
-	override delete() : void {
-		super.delete();
-
-		if (this._profile.initialized()) {
-			let [explosion, hasExplosion] = this.addEntity(EntityType.EXPLOSION, {
-				profileInit: {
-					pos: this._profile.pos(),
-					dim: {x: 3, y: 3},
-				},
-			});
-			if (hasExplosion) {
-				explosion.setTTL(200);
-			}
-		}
-	}
-
 	override damage() : number { return 50; }
 
 	override preRender(millis : number) : void {
@@ -95,13 +79,13 @@ export class Rocket extends Projectile {
 			return;
 		}
 
-		const [owner, hasOwner] = this.getAssociation(AssociationType.OWNER);
-		if (hasOwner && owner === other.id()) {
+		if (this.matchAssociations([AssociationType.OWNER], other)) {
 			return;
 		}
 
 		if (other.getAttribute(AttributeType.SOLID)) {
 			other.takeDamage(this.damage(), this);
+			this.explode();
 			this.delete();
 		}
 	}

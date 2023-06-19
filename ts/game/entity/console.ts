@@ -56,6 +56,9 @@ export class Console extends EntityBase implements Entity {
 				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
 					isStatic: true,
 					isSensor: true,
+					render: {
+						visible: false,
+					},
 				});
 			},
 			init: entityOptions.profileInit,
