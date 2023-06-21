@@ -205,10 +205,10 @@ class Game {
 	options() : GameOptions { return this._options; }
 	averageFrameTime() : number { return this._frameTimes.average(); }
 
-	runner() : Runner { return this._runner; }
 	getSystem<T extends System>(type : SystemType) : T { return this._runner.getSystem<T>(type); }
 
 	// Easy access for commonly used systems
+	runner() : Runner { return this._runner; }
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
 	clientStates() : ClientStates { return this._clientStates; }

@@ -4,8 +4,8 @@ import { game } from 'game'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
-import { ControllerState, LevelType, SystemType } from 'game/system/api'
-import { ClientState, LoadState } from 'game/system/client_state'
+import { ClientLoadState, ControllerState, LevelType, SystemType } from 'game/system/api'
+import { ClientState } from 'game/system/client_state'
 import { DuelMaker } from 'game/system/game_maker/duel_maker'
 import { GameData } from 'game/game_data'
 
@@ -48,7 +48,7 @@ export class Controller extends SystemBase implements System {
 		if (this._state === ControllerState.SETUP) {
 			game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
 				if (clientState.clientIdMatches()) {
-					clientState.setLoadState(LoadState.CHECK_READY);
+					clientState.setLoadState(ClientLoadState.CHECK_READY);
 				}
 			});
 		}
@@ -74,9 +74,8 @@ export class Controller extends SystemBase implements System {
 			return;
 		}
 
-		const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
-
 		if (this._state === ControllerState.WAITING) {
+			const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
     		let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
     			clientId: clientId,
     			profileInit: {

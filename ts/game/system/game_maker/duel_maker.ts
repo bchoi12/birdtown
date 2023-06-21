@@ -6,8 +6,8 @@ import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { SpawnPoint } from 'game/entity/spawn_point'
 
-import { LevelType } from 'game/system/api'
-import { ClientState, LoadState } from 'game/system/client_state'
+import { ClientLoadState, LevelType } from 'game/system/api'
+import { ClientState } from 'game/system/client_state'
 import { GameMaker, GameMakerBase } from 'game/system/game_maker/game_maker'
 
 export class DuelMaker extends GameMakerBase implements GameMaker {
@@ -31,7 +31,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 		}
 
 		return game.clientStates().queryClientStates((state : ClientState) => {
-			return state.loadState() >= LoadState.LOADED;
+			return state.loadState() >= ClientLoadState.LOADED;
 		});
 	}
 	override querySetup() : boolean {
@@ -62,7 +62,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 		}
 
 		return game.clientStates().queryClientStates((state : ClientState) => {
-			return state.loadState() >= LoadState.READY;
+			return state.loadState() >= ClientLoadState.READY;
 		});
 	}
 

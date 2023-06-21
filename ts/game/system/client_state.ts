@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 import { ClientSystem, System } from 'game/system'
-import { ClientConnectionState, SystemType } from 'game/system/api'
+import { ClientConnectionState, ClientLoadState, SystemType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
@@ -11,25 +11,11 @@ import { NetworkBehavior } from 'network/api'
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 
-export enum ClientGameState {
-	UNKNOWN,
-	SPECTATING,
-	GAMING,
-}
-
-export enum LoadState {
-	UNKNOWN,
-	WAITING,
-	LOADED,
-	CHECK_READY,
-	READY,
-}
-
 export class ClientState extends ClientSystem implements System {
 
 	private _displayName : string;
 	private _connectionState : ClientConnectionState;
-	private _loadState : LoadState;
+	private _loadState : ClientLoadState;
 
 	constructor(clientId : number) {
 		super(SystemType.CLIENT_STATE, clientId);
@@ -41,7 +27,7 @@ export class ClientState extends ClientSystem implements System {
 
 		this._displayName = "";
 		this._connectionState = ClientConnectionState.CONNECTED;
-		this._loadState = LoadState.WAITING;
+		this._loadState = ClientLoadState.WAITING;
 
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
@@ -53,10 +39,10 @@ export class ClientState extends ClientSystem implements System {
 			export: () => { return this.connectionState(); },
 			import: (obj : ClientConnectionState) => { this.setConnectionState(obj); },
 		});
-		this.addProp<LoadState>({
-			has: () => { return this.loadState() !== LoadState.UNKNOWN; },
+		this.addProp<ClientLoadState>({
+			has: () => { return this.loadState() !== ClientLoadState.UNKNOWN; },
 			export: () => { return this.loadState(); },
-			import: (obj : LoadState) => { this.setLoadState(obj); },
+			import: (obj : ClientLoadState) => { this.setLoadState(obj); },
 		});
 	}
 
@@ -78,7 +64,7 @@ export class ClientState extends ClientSystem implements System {
 
 		switch(msg.type()) {
 		case GameMessageType.LEVEL_LOAD:
-			this.setLoadState(LoadState.LOADED);
+			this.setLoadState(ClientLoadState.LOADED);
 			break;
 		}
 	}
@@ -104,8 +90,8 @@ export class ClientState extends ClientSystem implements System {
 		}
 	}
 
-	loadState() : LoadState { return this._loadState; }
-	setLoadState(state : LoadState) : void {
+	loadState() : ClientLoadState { return this._loadState; }
+	setLoadState(state : ClientLoadState) : void {
 		if (this._loadState === state) {
 			return;
 		}
@@ -117,11 +103,11 @@ export class ClientState extends ClientSystem implements System {
 		}
 
 		switch(this._loadState) {		
-		case LoadState.CHECK_READY:
+		case ClientLoadState.CHECK_READY:
 			let msg = new UiMessage(UiMessageType.DIALOG);
 			msg.setProp(UiProp.TYPE, DialogType.CHECK_READY);
 			msg.setProp(UiProp.ON_SUBMIT, () => {
-				this.setLoadState(LoadState.READY);
+				this.setLoadState(ClientLoadState.READY);
 			});
 			ui.handleMessage(msg);
 			break;

@@ -5,6 +5,20 @@ export enum ClientConnectionState {
 	DISCONNECTED,
 }
 
+export enum ClientGameState {
+	UNKNOWN,
+	SPECTATING,
+	GAMING,
+}
+
+export enum ClientLoadState {
+	UNKNOWN,
+	WAITING,
+	LOADED,
+	CHECK_READY,
+	READY,
+}
+
 export enum ControllerState {
 	UNKNOWN,
 	WAITING,
