@@ -51,6 +51,9 @@ export class EntityMap extends SystemBase implements System {
 		for (let i = 0; i < order.length; ++i) {
 			const entity = this.getChild<T>(order[i]);
 
+			if (entity.deleted() || !entity.initialized()) {
+				continue;
+			}
 			if (query.filter && !query.filter(entity)) {
 				continue;
 			}

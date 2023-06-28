@@ -20,15 +20,14 @@ export class CountersHandler extends HandlerBase implements Handler {
 		this._counters = new Map();
 	}
 
-	setup() : void {}
-	reset() : void {
+	override reset() : void {
 		this._counters.forEach((wrapper : CounterWrapper, type : CounterType) => {
 			wrapper.delete(() => {
 				this._counters.delete(type);
 			});
 		});
 	}
-	handleMessage(msg : UiMessage) : void {
+	override handleMessage(msg : UiMessage) : void {
 		if (msg.type() !== UiMessageType.COUNTER) {
 			return;
 		}
@@ -38,7 +37,6 @@ export class CountersHandler extends HandlerBase implements Handler {
 		let counter = this.getOrAddCounter(type);
 		counter.updateCounter(count);
 	}
-	setMode(mode : UiMode) : void {}
 
 	setCounter(type : CounterType, count : number) : void {
 		let counter = this.getOrAddCounter(type);

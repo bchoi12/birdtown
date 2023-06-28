@@ -35,7 +35,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._enabled = true;
 	}
 
-	setup() : void {
+	override setup() : void {
 		this._loginInfoElm.style.display = "none";
 		this._buttonJoinElm.style.display = "block";
 		this._buttonHostElm.style.display = "block";
@@ -51,12 +51,6 @@ export class LoginHandler extends HandlerBase implements Handler {
 		};
 
 	}
-
-	reset() : void {}
-
-	handleMessage(msg : UiMessage) : void {}
-
-	setMode(mode : UiMode) : void {}
 
 	private createRoom(host : boolean) : void {
 			if (!this._enabled) {

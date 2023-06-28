@@ -25,16 +25,14 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		this._tooltips = new Map();
 	}
 
-	setup() : void {}
-	reset() : void {
+	override reset() : void {
 		this._tooltips.forEach((wrapper : TooltipWrapper, type : TooltipType) => {
 			wrapper.delete(() => {
 				this._tooltips.delete(type);
 			});
 		});
 	}
-	setMode(mode : UiMode) : void {}
-	handleMessage(msg : UiMessage) : void {
+	override handleMessage(msg : UiMessage) : void {
 		if (msg.type() !== UiMessageType.TOOLTIP) {
 			return;
 		}

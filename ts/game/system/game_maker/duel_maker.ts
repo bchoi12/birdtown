@@ -7,7 +7,7 @@ import { Player } from 'game/entity/player'
 import { SpawnPoint } from 'game/entity/spawn_point'
 
 import { ClientLoadState, LevelType } from 'game/system/api'
-import { ClientState } from 'game/system/client_state'
+import { ClientSideState } from 'game/system/client_side_state'
 import { GameMaker, GameMakerBase } from 'game/system/game_maker/game_maker'
 
 export class DuelMaker extends GameMakerBase implements GameMaker {
@@ -30,7 +30,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 			return false;
 		}
 
-		return game.clientStates().queryClientStates((state : ClientState) => {
+		return game.clientSideStates().queryClientStates((state : ClientSideState) => {
 			return state.loadState() >= ClientLoadState.LOADED;
 		});
 	}
@@ -61,7 +61,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 			return false;
 		}
 
-		return game.clientStates().queryClientStates((state : ClientState) => {
+		return game.clientSideStates().queryClientStates((state : ClientSideState) => {
 			return state.loadState() >= ClientLoadState.READY;
 		});
 	}

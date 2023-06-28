@@ -22,9 +22,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 		this._dialogs = new Array();
 	}
 
-	setup() : void {}
-	reset() : void {}
-	handleMessage(msg : UiMessage) : void {
+	override handleMessage(msg : UiMessage) : void {
 		if (msg.type() !== UiMessageType.DIALOG) {
 			return;
 		}
@@ -49,7 +47,6 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 		this.showDialog();
 	}
-	setMode(mode : UiMode) : void {}
 
 	popAll() : void {
 		while(this._dialogs.length > 0) {

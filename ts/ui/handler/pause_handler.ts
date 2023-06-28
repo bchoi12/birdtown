@@ -24,7 +24,7 @@ export class PauseHandler extends HandlerBase implements Handler {
 		this._canPause = true;
 	}
 
-	setup() : void {
+	override setup() : void {
 		document.addEventListener("keyup", (e : any) => {
 			if (e.keyCode !== settings.pauseKeyCode) return;
 
@@ -51,11 +51,7 @@ export class PauseHandler extends HandlerBase implements Handler {
 		}
 	}
 
-	reset() : void {}
-
-	handleMessage(msg : UiMessage) : void {}
-
-	setMode(mode : UiMode) : void {
+	override setMode(mode : UiMode) : void {
 		if (mode === UiMode.PAUSE) {
 			this._pauseElm.style.display = "block";
 			this._canPause = false;

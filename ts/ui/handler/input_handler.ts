@@ -38,7 +38,7 @@ export class InputHandler extends HandlerBase implements Handler {
 		this._mouse = {x: 0, y: 0};
 	}
 
-	setup() : void {
+	override setup() : void {
 		document.addEventListener("keydown", (e : any) => {
 			if (e.repeat || ui.mode() !== UiMode.GAME) return;
 
@@ -79,7 +79,7 @@ export class InputHandler extends HandlerBase implements Handler {
 		this.reset();
 	}
 
-	reset() : void {
+	override reset() : void {
 		this._keyMap.clear();
 		this._keyDownCallbacks.clear();
 		this._keyUpCallbacks.clear();
@@ -92,9 +92,7 @@ export class InputHandler extends HandlerBase implements Handler {
 		this.mapKey(settings.altMouseClickKeyCode, KeyType.ALT_MOUSE_CLICK);
 	}
 
-	handleMessage(msg : UiMessage) : void {}
-
-	setMode(mode : UiMode) : void {
+	override setMode(mode : UiMode) : void {
 		if (mode === UiMode.GAME) {
 			this.pointerLock();
 		} else {

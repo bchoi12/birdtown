@@ -26,13 +26,9 @@ export class StatsHandler extends HandlerBase implements Handler {
 		this._statsElm.append(this._customStats);
 	}
 
-	setup() : void {
+	override setup() : void {
 		this.updateStats();
 	}
-
-	reset() : void {}
-	handleMessage(msg : UiMessage) : void {}
-	setMode(mode : UiMode) : void {}
 
 	private updateStats() {
 

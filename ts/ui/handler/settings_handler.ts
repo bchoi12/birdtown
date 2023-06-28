@@ -23,7 +23,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm = Html.elm(Html.fieldsetSettings);
 	}
 
-	setup() : void {
+	override setup() : void {
 		this._settingsElm.onclick = (e) => {
 			e.stopPropagation();
 		};
@@ -92,11 +92,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		}
 	}
 
-	reset() : void {}
-
-	handleMessage(msg : UiMessage) : void {}
-
-	setMode(mode : UiMode) : void {
+	override setMode(mode : UiMode) : void {
 		if (mode !== UiMode.PAUSE) {
 			if (settings.enableFullscreen) {
 				document.documentElement.requestFullscreen();

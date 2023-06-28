@@ -67,9 +67,19 @@ export abstract class ClientSystem extends SystemBase implements System {
 
 	clientId() : number { return this._clientId; }
 	clientIdMatches() : boolean { return this._clientId === game.clientId(); }
+}
+
+export abstract class ClientSideSystem extends ClientSystem implements System {
+	constructor(type : SystemType, clientId : number) {
+		super(type, clientId);
+
+		this.setName({
+			base: "client_side_system",
+		});
+	}
 
 	override networkBehavior() : NetworkBehavior {
-		if (game.clientId() === this.clientId()) {
+		if (this.clientIdMatches()) {
 			return NetworkBehavior.SOURCE;
 		} else if (this.isHost()) {
 			return NetworkBehavior.RELAY;

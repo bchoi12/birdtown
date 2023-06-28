@@ -27,11 +27,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._clients = new Map();
 	}
 
-	setup() : void {}
-
-	reset() : void {}
-
-	handleMessage(msg : UiMessage) : void {
+	override handleMessage(msg : UiMessage) : void {
 		if (msg.type() !== UiMessageType.CLIENT) {
 			return;
 		}
@@ -48,7 +44,8 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._clientsElm.appendChild(clientWrapper.elm());
 	}
 
-	setMode(mode : UiMode) {}
+	hasClient(id : number) : boolean { return this._clients.has(id); }
+	getClient(id : number) : ClientWrapper { return this._clients.get(id); }
 
 	addStream(gameId : number, stream : MediaStream) : void {
 		if (!game.netcode().voiceEnabled()) {

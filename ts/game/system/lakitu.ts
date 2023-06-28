@@ -1,10 +1,12 @@
 import * as BABYLON from "babylonjs";
 
+import { game } from 'game'
 import { ComponentType } from 'game/component/api'
-import { Profile } from 'game/component/profile'
+import { Entity } from 'game/entity'
+import { EntityType } from 'game/entity/api'
+import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
-import { Entity } from 'game/entity'
 
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
@@ -69,8 +71,7 @@ export class Lakitu extends SystemBase implements System {
 		super.postPhysics(millis);
 
 		if (this.hasTargetEntity()) {
-			const profile = this.targetEntity().getComponent<Profile>(ComponentType.PROFILE);
-			this.setAnchor(profile.pos().toBabylon3());
+			this.setAnchor(this.targetEntity().getProfile().pos().toBabylon3());
 		}
 	}
 
@@ -89,5 +90,15 @@ export class Lakitu extends SystemBase implements System {
 			countMsg.setProp(UiProp.COUNT, count);
 			ui.handleMessage(countMsg);
 		});
+
+		// TODO: move elsewhere
+		game.entities().queryEntities<Player>({
+			type: EntityType.PLAYER,
+			mapQuery: {},
+		}).forEach((player : Player) => {
+			ui.updatePos(player.clientId(), player.getProfile().pos());
+		});
+
+		ui.updatePos(game.clientId(), this.targetEntity().getProfile().pos())
 	}
 }

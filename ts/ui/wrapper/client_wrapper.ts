@@ -5,6 +5,8 @@ import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 import { VoiceWrapper } from 'ui/wrapper/voice_wrapper'
 
+import { Vec } from 'util/vector'
+
 export class ClientWrapper extends HtmlWrapper {
 
 	private _voiceWrapper : VoiceWrapper;
@@ -24,5 +26,9 @@ export class ClientWrapper extends HtmlWrapper {
 
 	removeStream() : void {
 		this._voiceWrapper.disable();
+	}
+
+	updatePos(pos : Vec) : void {
+		this._voiceWrapper.updatePos(pos);
 	}
 }

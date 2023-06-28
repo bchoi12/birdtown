@@ -34,7 +34,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		this._chatElm.scrollTop = this._chatElm.scrollHeight;
 	}
 
-	setup() : void {
+	override setup() : void {
 		this._messageInputElm.style.width = this._chatElm.offsetWidth + "px";
 
 		document.addEventListener("keydown", (e : any) => {
@@ -45,10 +45,6 @@ export class ChatHandler extends HandlerBase implements Handler {
 			}
 		});		
 	}
-
-	reset() : void {}
-
-	handleMessage(msg : UiMessage) : void {}
 
 	setMode(mode : UiMode) : void {
 		if (mode === UiMode.CHAT) {

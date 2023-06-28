@@ -2,7 +2,7 @@
 import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
-import { ClientSystem, System } from 'game/system'
+import { ClientSideSystem, System } from 'game/system'
 import { SystemType } from 'game/system/api'
 
 import { GameData, DataFilter } from 'game/game_data'
@@ -23,7 +23,7 @@ enum KeyState {
 	UP,
 }
 
-export class Keys extends ClientSystem implements System {
+export class Keys extends ClientSideSystem implements System {
 
 	private static readonly _maxPredict : number = 0.3;
 	private static readonly _minPredict : number = 0.1;

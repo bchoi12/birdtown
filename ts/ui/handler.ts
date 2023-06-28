@@ -21,4 +21,9 @@ export class HandlerBase {
 	}
 
 	type() : HandlerType { return this._type; }
+
+	setup() : void {}
+	reset() : void {}
+	handleMessage(msg : UiMessage) : void {}
+	setMode(mode : UiMode) : void {}
 }

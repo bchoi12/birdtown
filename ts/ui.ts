@@ -1,4 +1,7 @@
 
+import { game } from 'game'
+import { Profile } from 'game/component/profile'
+
 import { UiMessage } from 'message/ui_message'
 
 import { CounterType, KeyType, UiMode } from 'ui/api'
@@ -18,11 +21,14 @@ import { SettingsHandler } from 'ui/handler/settings_handler'
 import { StatsHandler } from 'ui/handler/stats_handler'
 import { TooltipHandler } from 'ui/handler/tooltip_handler'
 
+import { defined } from 'util/common'
+import { Optional } from 'util/optional'
 import { Vec } from 'util/vector'
 
 class UI {
 
 	private _mode : UiMode;
+	private _audioContext : Optional<AudioContext>;
 
 	private _handlers : Map<HandlerType, Handler>;
 
@@ -41,6 +47,7 @@ class UI {
 
 	constructor() {
 		this._mode = UiMode.DEFAULT;
+		this._audioContext = new Optional();
 
 		this._handlers = new Map();		
 
@@ -64,6 +71,14 @@ class UI {
 		});
 	}
 
+	audioContext() : AudioContext {
+		// Lazy initialize since I think browser needs user input beforehand
+		if (!this._audioContext.has()) {
+			this._audioContext.set(new AudioContext());
+		}
+		return this._audioContext.get();
+	}
+
 	add<T extends Handler>(handler : T) {
 		this._handlers.set(handler.type(), handler);
 		return handler;
@@ -75,6 +90,23 @@ class UI {
 		this._handlers.forEach((handler) => {
 			handler.setMode(mode);
 		});	
+	}
+	updatePos(clientId : number, pos : Vec) : void {
+		let context = this.audioContext();
+		if (clientId === game.clientId()) {
+			let listener = context.listener;
+			listener.positionX.setValueAtTime(pos.x, context.currentTime);
+			listener.positionY.setValueAtTime(pos.y, context.currentTime);
+
+			if (defined(pos.z)) {
+				listener.positionZ.setValueAtTime(pos.z, context.currentTime);
+			}
+			return;
+		}
+
+		if (this._clientsHandler.hasClient(clientId)) {
+			this._clientsHandler.getClient(clientId).updatePos(pos);
+		}
 	}
 
 	chat(msg : string) : void { this._chatHandler.chat(msg); }

@@ -5,8 +5,8 @@ import { System } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 import { Runner } from 'game/system/runner'
 import { Controller } from 'game/system/controller'
-import { ClientState } from 'game/system/client_state'
-import { ClientStates } from 'game/system/client_states'
+import { ClientSideState } from 'game/system/client_side_state'
+import { ClientSideStates } from 'game/system/client_side_states'
 import { Entities } from 'game/system/entities'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
@@ -58,7 +58,7 @@ class Game {
 	private _netcode : Netcode;
 
 	private _runner : Runner;
-	private _clientStates : ClientStates;
+	private _clientSideStates : ClientSideStates;
 	private _entities : Entities;
 	private _controller : Controller;
 	private _input : Input;
@@ -82,7 +82,28 @@ class Game {
 		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/true, {
 			stencil: true,
 		});
-		window.onresize = () => { this.resize(); };
+		window.onresize = () => { this._engine.resize(); };
+
+		this._runner = new Runner();
+		this._clientSideStates = new ClientSideStates();
+		this._entities = new Entities();
+		this._controller = new Controller();
+		this._input = new Input();
+		this._level = new Level();
+		this._physics = new Physics();
+
+		this._world = new World(this._engine);
+		this._lakitu = new Lakitu(this._world.scene());
+
+		// Order of insertion becomes order of execution
+		this._runner.push(this._clientSideStates);
+		this._runner.push(this._controller);
+		this._runner.push(this._level);
+		this._runner.push(this._input);
+		this._runner.push(this._entities);
+		this._runner.push(this._physics);
+		this._runner.push(this._lakitu);
+		this._runner.push(this._world);
 
 		// TODO: move most of this stuff to network code
 		if (this._options.host) {
@@ -118,27 +139,6 @@ class Game {
 		});
 		this._netcode.initialize();
 
-		this._runner = new Runner();
-		this._clientStates = new ClientStates();
-		this._entities = new Entities();
-		this._controller = new Controller();
-		this._input = new Input();
-		this._level = new Level();
-		this._physics = new Physics();
-
-		this._world = new World(this._engine);
-		this._lakitu = new Lakitu(this._world.scene());
-
-		// Order of insertion becomes order of execution
-		this._runner.push(this._clientStates);
-		this._runner.push(this._controller);
-		this._runner.push(this._level);
-		this._runner.push(this._input);
-		this._runner.push(this._entities);
-		this._runner.push(this._physics);
-		this._runner.push(this._lakitu);
-		this._runner.push(this._world);
-
 	    if (this._options.host) {
 	    	this.setClientId(1);
 		    this._level.setLevel({
@@ -169,7 +169,6 @@ class Game {
 	    this._initialized = true;
 	}
 
-	resize() : void { this._engine.resize(); }
 	initialized() : boolean { return this._initialized; }
 	canvas() : HTMLCanvasElement { return this._canvas; }
 
@@ -211,8 +210,8 @@ class Game {
 	runner() : Runner { return this._runner; }
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
-	clientStates() : ClientStates { return this._clientStates; }
-	clientState(id? : number) : ClientState { return this._clientStates.getClientState(id)}
+	clientSideStates() : ClientSideStates { return this._clientSideStates; }
+	clientSideState(id? : number) : ClientSideState { return this._clientSideStates.getClientState(id)}
 	controller() : Controller { return this._controller; }
 	level() : Level { return this._level; }
 	physics() : Physics { return this._physics; }

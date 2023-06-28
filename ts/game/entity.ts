@@ -3,6 +3,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { Component } from 'game/component'
 import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
+import { Profile } from 'game/component/profile'
 import { GameObject, GameObjectBase } from 'game/game_object'
 import { Association, AssociationInitOptions } from 'game/component/association'
 import { Attributes, AttributesInitOptions } from 'game/component/attributes'
@@ -20,6 +21,7 @@ import { defined } from 'util/common'
 export type EntityOptions = {
 	id? : number;
 	clientId? : number;
+	// TODO: delete? unused
 	offline? : boolean;
 	levelVersion? : number;
 
@@ -54,6 +56,8 @@ export interface Entity extends GameObject {
 	setTTL(ttl : number, onDelete? : () => void);
 
 	// Convenience getters/setters
+	hasProfile() : boolean;
+	getProfile() : Profile;
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
 
@@ -211,6 +215,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		return false;
 	}
+
+	hasProfile() : boolean { return this.hasComponent(ComponentType.PROFILE); }
+	getProfile() : Profile { return this.getComponent<Profile>(ComponentType.PROFILE); }
 
 	getAttribute(type : AttributeType) : boolean {
 		if (!this.hasComponent(ComponentType.ATTRIBUTES)) { return false; }

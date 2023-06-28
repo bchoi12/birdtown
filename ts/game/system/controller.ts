@@ -5,7 +5,7 @@ import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
 import { ClientLoadState, ControllerState, LevelType, SystemType } from 'game/system/api'
-import { ClientState } from 'game/system/client_state'
+import { ClientSideState } from 'game/system/client_side_state'
 import { DuelMaker } from 'game/system/game_maker/duel_maker'
 import { GameData } from 'game/game_data'
 
@@ -46,9 +46,9 @@ export class Controller extends SystemBase implements System {
 
 		this._state = state;
 		if (this._state === ControllerState.SETUP) {
-			game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
-				if (clientState.clientIdMatches()) {
-					clientState.setLoadState(ClientLoadState.CHECK_READY);
+			game.clientSideStates().executeCallback<ClientSideState>((clientSideState : ClientSideState) => {
+				if (clientSideState.clientIdMatches()) {
+					clientSideState.setLoadState(ClientLoadState.CHECK_READY);
 				}
 			});
 		}

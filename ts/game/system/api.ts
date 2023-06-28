@@ -29,8 +29,8 @@ export enum ControllerState {
 
 export enum SystemType {
 	UNKNOWN,
-	CLIENT_STATE,
-	CLIENT_STATES,
+	CLIENT_SIDE_STATE,
+	CLIENT_SIDE_STATES,
 	ENTITIES,
 	ENTITY_MAP,
 	GAME_MODE,

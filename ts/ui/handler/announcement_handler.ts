@@ -29,11 +29,9 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		this._announcements = new Array<UiMessage>();
 	}
 
-	setup() : void {}
-	reset() : void { this._announcementElm.style.display = "none"; }
-	setMode(mode : UiMode) : void {}
+	override reset() : void { this._announcementElm.style.display = "none"; }
 
-	handleMessage(msg : UiMessage) : void {
+	override handleMessage(msg : UiMessage) : void {
 		if (msg.type() !== UiMessageType.ANNOUNCEMENT) {
 			return;
 		}

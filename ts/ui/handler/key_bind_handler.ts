@@ -73,17 +73,13 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		});
 	}
 
-	setup() : void {
+	override setup() : void {
 		this._keyBindElm.onclick = (e) => {
 			e.stopPropagation();
 		};
 	}
 
-	reset() : void {}
-
-	handleMessage(msg : UiMessage) : void {}
-
-	setMode(mode : UiMode) : void {
+	override setMode(mode : UiMode) : void {
 		if (mode === UiMode.PAUSE) {
 			this._keyBindWrappers.forEach((wrapper) => {
 				wrapper.setActive(false);

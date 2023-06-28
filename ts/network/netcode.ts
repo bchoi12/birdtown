@@ -18,6 +18,7 @@ import { ui } from 'ui'
 import { Buffer } from 'util/buffer'
 import { isLocalhost } from 'util/common'
 import { DoubleMap } from 'util/double_map'
+import { Optional } from 'util/optional'
 
 type PeerMap = Map<string, ChannelMap>;
 type RegisterCallback = (connection : Connection) => void;
@@ -28,8 +29,12 @@ export abstract class Netcode {
 		[ChannelType.TCP, "TCP"],
 		[ChannelType.UDP, "UDP"],
 	]);
-	private static readonly _mediaOptions = {
-		audio: true,
+	private static readonly _mediaOptions : MediaStreamConstraints = {
+		audio: {
+			autoGainControl: true,
+			echoCancellation: true,
+			noiseSuppression: true,
+		},
 	    video: false,
     };
 
@@ -49,8 +54,8 @@ export abstract class Netcode {
 	protected _messageCallbacks : Map<NetworkMessageType, MessageCallback>;
 
 	protected _mediaConnections : Map<number, MediaConnection>;
-	protected _micEnabled : boolean;
 	protected _voiceEnabled : boolean;
+	protected _audioContext : Optional<AudioContext>;
 
 	constructor(name : string, hostName : string, displayName : string) {
 		this._displayName = displayName;
@@ -72,8 +77,8 @@ export abstract class Netcode {
 		this._messageCallbacks = new Map();
 
 		this._mediaConnections = new Map();
-		this._micEnabled = false;
 		this._voiceEnabled = false;
+		this._audioContext = new Optional();
 	}
 
 	initialize() : void {
@@ -113,7 +118,6 @@ export abstract class Netcode {
 	setClientId(id : number) { this._clientId = id; }
 	clientId() : number { return this._clientId; }
 	toggleVoice() : boolean { return this.setVoiceEnabled(!this._voiceEnabled); }
-	micEnabled() : boolean { return this._micEnabled; }
 	voiceEnabled() : boolean { return this._voiceEnabled; }
 
 	peer() : Peer { return this._peer; }
@@ -306,7 +310,7 @@ export abstract class Netcode {
 			});
 		}
 
-		if (!this._micEnabled) {
+		if (!this._audioContext.has()) {
 			this.queryMic((stream : MediaStream) => {
 				stream = null;
 				callFn();
@@ -320,7 +324,7 @@ export abstract class Netcode {
 
 	protected queryMic(successCb : (stream : MediaStream) => void, failureCb : (e) => void) : void {
 		navigator.mediaDevices.getUserMedia(Netcode._mediaOptions).then((stream : MediaStream) => {
-			this._micEnabled = true;
+			this._audioContext.set(new AudioContext());
 			successCb(stream);
 		}).catch((e) => {
 			failureCb(e);
@@ -379,7 +383,7 @@ export abstract class Netcode {
 			connection.disconnect();
 
 			if (connection.hasClientId()) {
-				game.clientState(connection.clientId()).setConnectionState(ClientConnectionState.DISCONNECTED);
+				game.clientSideState(connection.clientId()).setConnectionState(ClientConnectionState.DISCONNECTED);
 			}
 		}
 	}
