@@ -2,7 +2,6 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { GameConstants } from 'game/api'
 import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -18,6 +17,8 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ControllerState } from 'game/system/api'
 import { CollisionInfo } from 'game/util/collision_info'
+
+import { GameGlobals } from 'global/game_globals'
 
 import { KeyType, CounterType } from 'ui/api'
 
@@ -346,9 +347,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 
 		// Gravity
-		let gravity = GameConstants.gravity;
+		let gravity = GameGlobals.gravity;
 		if (!this._attributes.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0) {
-			gravity += (Player._fallMultiplier - 1) * GameConstants.gravity;
+			gravity += (Player._fallMultiplier - 1) * GameGlobals.gravity;
 		}
 		this._profile.setAcc({ y: gravity });
 

@@ -3,7 +3,6 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { GameConstants } from 'game/api'
 import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -12,6 +11,8 @@ import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, EquipInput, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
+
+import { GameGlobals } from 'global/game_globals'
 
 import { CounterType } from 'ui/api'
 
@@ -125,7 +126,7 @@ export class BirdBrain extends Equip<Player> {
 
 			if (hasTarget) {
 				let profile = target.getComponent<Profile>(ComponentType.PROFILE);
-				profile.setAcc({x: 0, y: GameConstants.gravity });
+				profile.setAcc({x: 0, y: GameGlobals.gravity });
 				profile.clearMaxSpeed();
 				MATTER.Body.setDensity(profile.body(), profile.body().density / BirdBrain._densityAdjustment);
 				target.setAttribute(AttributeType.BRAINED, false);

@@ -2,7 +2,6 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { GameConstants } from 'game/api'
 import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -10,6 +9,8 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
+
+import { GameGlobals } from 'global/game_globals'
 
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
@@ -42,7 +43,7 @@ export class Crate extends EntityBase implements Entity {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setAcc({ y: GameConstants.gravity });
+		this._profile.setAcc({ y: GameGlobals.gravity });
 		if (!this._profile.hasAngle()) {
 			this._profile.setAngle(0);
 		}
@@ -75,7 +76,7 @@ export class Crate extends EntityBase implements Entity {
 		if (this._profile.pos().y < -10) {
 			this._profile.setPos(this._startingPos);
 			this._profile.stop();
-			this._profile.setAcc({ y: GameConstants.gravity });
+			this._profile.setAcc({ y: GameGlobals.gravity });
 			this._profile.setAngle(this._startingAngle);
 		}
 

@@ -29,6 +29,7 @@ export enum ControllerState {
 
 export enum SystemType {
 	UNKNOWN,
+	AUDIO,
 	CLIENT_SIDE_STATE,
 	CLIENT_SIDE_STATES,
 	ENTITIES,
@@ -47,4 +48,14 @@ export enum LevelType {
 	UNKNOWN,
 	BIRDTOWN,
 	LOBBY,
+}
+
+export enum MusicType {
+	UNKNOWN,
+}
+
+export enum SoundType {
+	UNKNOWN,
+
+	EXPLOSION,
 }
