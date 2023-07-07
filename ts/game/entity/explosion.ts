@@ -9,6 +9,7 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { SoundType } from 'game/system/api'
 
 import { Vec, Vec2 } from 'util/vector'
 
@@ -49,6 +50,15 @@ export class Explosion extends EntityBase implements Entity {
 				}, game.scene()));
 			},
 		}));
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		game.audio().loadSound(SoundType.EXPLOSION, (sound : BABYLON.Sound) => {
+			sound.setPosition(this._profile.pos().toBabylon3());
+			sound.play();
+		});
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {

@@ -71,13 +71,15 @@ export class Pinger {
 	}
 
 	private pingLoop(connection : Netcode, hostName : string, interval : number) : void {
-		let msg = new NetworkMessage(NetworkMessageType.PING);
-		msg.setProp<number>(NetworkProp.SEQ_NUM, this._lastPingNumber);
-		const success = connection.send(hostName, ChannelType.TCP, msg);
+		if (connection.ready()) {
+			let msg = new NetworkMessage(NetworkMessageType.PING);
+			msg.setProp<number>(NetworkProp.SEQ_NUM, this._lastPingNumber);
+			const success = connection.send(hostName, ChannelType.TCP, msg);
 
-		if (success) {
-			this._pingTimes[this._lastPingNumber % Pinger._maxPings] = Date.now();
-			this._lastPingNumber++;
+			if (success) {
+				this._pingTimes[this._lastPingNumber % Pinger._maxPings] = Date.now();
+				this._lastPingNumber++;
+			}
 		}
 
 		setTimeout(() => {

@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { AudioGlobals } from 'global/audio_globals'
+
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
@@ -81,19 +83,7 @@ export class VoiceWrapper extends HtmlWrapper {
 		let context = ui.audioContext();
 		let source = context.createMediaStreamSource(this._stream);
 		let dest = context.createMediaStreamDestination();
-		this._panner = new PannerNode(context, {
-		    panningModel: "HRTF",
-		    distanceModel: "inverse",
-		    refDistance: 3,
-		    maxDistance: 30,
-		    rolloffFactor: 1.2,
-		    coneInnerAngle: 360,
-		    coneOuterAngle: 0,
-		    coneOuterGain: 0,
-		    orientationX: 1,
-		    orientationY: 0,
-		    orientationZ: 0,
-		});
+		this._panner = new PannerNode(context, AudioGlobals.spatialVoiceOptions);
 
 		source.connect(this._panner);
 		this._panner.connect(dest);

@@ -3,7 +3,7 @@ import * as BABYLON from "babylonjs";
 import { GameData, DataFilter } from 'game/game_data'
 import { System } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
-import { Runner } from 'game/system/runner'
+import { Audio } from 'game/system/audio'
 import { Controller } from 'game/system/controller'
 import { ClientSideState } from 'game/system/client_side_state'
 import { ClientSideStates } from 'game/system/client_side_states'
@@ -13,6 +13,7 @@ import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
 import { Level } from 'game/system/level'
 import { Physics } from 'game/system/physics'
+import { Runner } from 'game/system/runner'
 import { World } from 'game/system/world'
 
 import { ChannelType } from 'network/api'
@@ -58,6 +59,7 @@ class Game {
 	private _netcode : Netcode;
 
 	private _runner : Runner;
+	private _audio : Audio;
 	private _clientSideStates : ClientSideStates;
 	private _entities : Entities;
 	private _controller : Controller;
@@ -85,6 +87,7 @@ class Game {
 		window.onresize = () => { this._engine.resize(); };
 
 		this._runner = new Runner();
+		this._audio = new Audio();
 		this._clientSideStates = new ClientSideStates();
 		this._entities = new Entities();
 		this._controller = new Controller();
@@ -104,6 +107,7 @@ class Game {
 		this._runner.push(this._physics);
 		this._runner.push(this._lakitu);
 		this._runner.push(this._world);
+		this._runner.push(this._audio);
 
 		// TODO: move most of this stuff to network code
 		if (this._options.host) {
@@ -210,6 +214,7 @@ class Game {
 	runner() : Runner { return this._runner; }
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
+	audio() : Audio { return this._audio; }
 	clientSideStates() : ClientSideStates { return this._clientSideStates; }
 	clientSideState(id? : number) : ClientSideState { return this._clientSideStates.getClientState(id)}
 	controller() : Controller { return this._controller; }

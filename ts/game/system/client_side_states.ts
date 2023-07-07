@@ -7,6 +7,7 @@ import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
 import { defined } from 'util/common'
 
+// TODO: rename ClientStates
 export class ClientSideStates extends SystemBase implements System {
 
 	constructor() {

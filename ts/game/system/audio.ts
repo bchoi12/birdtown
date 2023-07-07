@@ -5,10 +5,14 @@ import { AudioFactory } from 'game/factory/audio_factory'
 import { System, SystemBase } from 'game/system'
 import { SystemType, MusicType, SoundType } from 'game/system/api'
 
-type SoundFn = () => BABYLON.Sound;
+import { defined } from 'util/common'
+import { ObjectCache } from 'util/object_cache'
+
+type SoundFn = () => AudioType;
 
 export class Audio extends SystemBase implements System {
 
+	private _audioCache : Map<AudioType, ObjectCache<BABYLON.Sound>>; 
 	private _sounds : Map<SoundType, SoundFn>;
 
 	constructor() {
@@ -18,28 +22,43 @@ export class Audio extends SystemBase implements System {
 			base: "audio",
 		});
 
-		this._sounds = new Map([
-			[SoundType.EXPLOSION, () => {
-				return AudioFactory.load(AudioType.EXPLOSION);
-			}],
-		]);
+		this._audioCache = new Map();
+		for (const stringType in AudioType) {
+			const type = Number(AudioType[stringType]);
+			if (Number.isNaN(type) || type <= 0) {
+				continue;
+			}
 
-		// TODO: preload sounds?
-	}
-
-	playSound(type : SoundType) : BABYLON.Sound {
-		if (!this._sounds.has(type)) {
-			console.error("Error: attempting to play unregistered sound %d", type);
-			return null;
+			this._audioCache.set(type, new ObjectCache<BABYLON.Sound>({
+				createFn: (onLoad? : (sound : BABYLON.Sound) => void) => {
+					return AudioFactory.load(type, onLoad);
+				},
+			}));
 		}
 
-		let sound = this._sounds.get(type)();
-		sound.play();
-		return sound;
+		this._sounds = new Map([
+			[SoundType.EXPLOSION, () => {
+				return AudioType.EXPLOSION;
+			}],
+		]);
 	}
 
-	playMusic(type : MusicType) : BABYLON.Sound {
-		console.error("Error: playMusic() is unimplemented");
-		return null;
+	loadSound(type : SoundType, onLoad? : (sound : BABYLON.Sound) => void) : void {
+		if (!this._sounds.has(type)) {
+			console.error("Error: attempting to play unregistered sound %d", type);
+			return;
+		}
+
+		let cache = this._audioCache.get(this._sounds.get(type)());
+		if (!defined(cache)) {
+			console.error("Error: audio cache is not initialized for type %d", type);
+			return;
+		}
+
+		// TODO: set volume and other global settings
+		let sound = cache.borrow(onLoad);
+		sound.onEndedObservable.addOnce(() => {
+			cache.return(sound);
+		});
 	}
 }
