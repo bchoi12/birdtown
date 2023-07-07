@@ -104,17 +104,4 @@ export class Association extends ComponentBase implements Component {
 
 		this._associations.set(type, value);
 	}
-
-	private isDerived(type : AssociationType) : boolean {
-		if (this._associations.has(type)) {
-			return false;
-		}
-
-		if (this._owner.has() && this._owner.get().hasComponent(ComponentType.ASSOCIATION)) {
-			const ownerAssociations = this._owner.get().getComponent<Association>(ComponentType.ASSOCIATION);
-			return ownerAssociations.hasAssociation(type); 
-		}
-
-		return false;
-	}
 }

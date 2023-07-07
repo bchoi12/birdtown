@@ -65,6 +65,10 @@ export class Lakitu extends SystemBase implements System {
 			return;
 		}
 		super.setTargetEntity(entity);
+
+		game.world().scene().audioListenerPositionProvider = () => {
+		  return entity.getProfile().pos().toBabylon3();
+		};
 	}
 
 	override postPhysics(millis : number) : void {

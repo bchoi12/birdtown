@@ -4,9 +4,9 @@ export namespace AudioGlobals {
 
 	export const panningModel = "HRTF";
 	export const distanceModel = "inverse";
-	export const refDistance = 3;
+	export const refDistance = 4;
 	export const maxDistance = 30;
-	export const rolloffFactor = 1.5;
+	export const rolloffFactor = 1;
 
 	export const spatialGameOptions : BABYLON.ISoundOptions = {
 	    distanceModel: distanceModel,

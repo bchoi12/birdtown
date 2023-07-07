@@ -7,11 +7,13 @@ import { SystemType, MusicType, SoundType } from 'game/system/api'
 
 import { defined } from 'util/common'
 import { ObjectCache } from 'util/object_cache'
+import { SeededRandom } from 'util/seeded_random'
 
 type SoundFn = () => AudioType;
 
 export class Audio extends SystemBase implements System {
 
+	private _rng : SeededRandom;
 	private _audioCache : Map<AudioType, ObjectCache<BABYLON.Sound>>; 
 	private _sounds : Map<SoundType, SoundFn>;
 
@@ -21,6 +23,8 @@ export class Audio extends SystemBase implements System {
 		this.setName({
 			base: "audio",
 		});
+
+		this._rng = new SeededRandom(333);
 
 		this._audioCache = new Map();
 		for (const stringType in AudioType) {
@@ -38,7 +42,7 @@ export class Audio extends SystemBase implements System {
 
 		this._sounds = new Map([
 			[SoundType.EXPLOSION, () => {
-				return AudioType.EXPLOSION;
+				return AudioType.EXPLOSION_2;
 			}],
 		]);
 	}
