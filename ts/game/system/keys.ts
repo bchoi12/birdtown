@@ -1,4 +1,6 @@
- import { game } from 'game'
+import * as BABYLON from "babylonjs";
+
+import { game } from 'game'
 import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
@@ -132,46 +134,6 @@ export class Keys extends ClientSideSystem implements System {
 		return this._predictWeight;
 	}
 
-	protected updateKey(key : KeyType, state : KeyState) : boolean {
-		if (state === KeyState.RELEASED || state === KeyState.UP) {
-			return this.releaseKey(<KeyType>key);
-		} else {
-			return this.pressKey(<KeyType>key);
-		}
-	}
-
-	// Return true if new key is pressed
-	protected pressKey(key : KeyType) : boolean {
-		if (!this.keyDown(key)) {
-			this._keyStates.set(key, KeyState.PRESSED);
-			return true;
-		} else if (this.keyPressed(key)) {
-			this._keyStates.set(key, KeyState.DOWN);
-		}
-		return false;
-	}
-
-	// Return true if new key is released
-	protected releaseKey(key : KeyType) : boolean {
-		if (!this.keyUp(key)) {
-			this._keyStates.set(key, KeyState.RELEASED);
-			return true;
-		} else if (this.keyReleased(key)) {
-			this._keyStates.set(key, KeyState.UP);
-		}
-		return false;
-	}
-
-	protected updateMouse() : void {
-		const mouseWorld = game.mouse();
-		this._mouse.copyVec({ x: mouseWorld.x, y: mouseWorld.y });
-
-		if (this.hasTargetEntity()) {
-			const profile = <Profile>this.targetEntity().getComponent(ComponentType.PROFILE);
-			this._dir = this._mouse.clone().sub(profile.pos()).normalize();
-		}
-	}
-
 	override setTargetEntity(entity : Entity) {
 		if (!entity.hasComponent(ComponentType.PROFILE)) {
 			console.error("Error: %s target entity must have profile", this.name());
@@ -230,5 +192,76 @@ export class Keys extends ClientSideSystem implements System {
 		if (this.isSource()) {
 			this.updateMouse();
 		}
+	}
+
+	private updateKey(key : KeyType, state : KeyState) : boolean {
+		if (state === KeyState.RELEASED || state === KeyState.UP) {
+			return this.releaseKey(<KeyType>key);
+		} else {
+			return this.pressKey(<KeyType>key);
+		}
+	}
+
+	// Return true if new key is pressed
+	private pressKey(key : KeyType) : boolean {
+		if (!this.keyDown(key)) {
+			this._keyStates.set(key, KeyState.PRESSED);
+			return true;
+		} else if (this.keyPressed(key)) {
+			this._keyStates.set(key, KeyState.DOWN);
+		}
+		return false;
+	}
+
+	// Return true if new key is released
+	private releaseKey(key : KeyType) : boolean {
+		if (!this.keyUp(key)) {
+			this._keyStates.set(key, KeyState.RELEASED);
+			return true;
+		} else if (this.keyReleased(key)) {
+			this._keyStates.set(key, KeyState.UP);
+		}
+		return false;
+	}
+
+	private updateMouse() : void {
+		const mouseWorld = this.computeMouseWorld();
+		this._mouse.copyVec({ x: mouseWorld.x, y: mouseWorld.y });
+
+		if (this.hasTargetEntity()) {
+			const profile = <Profile>this.targetEntity().getComponent(ComponentType.PROFILE);
+			this._dir = this._mouse.clone().sub(profile.pos()).normalize();
+		}
+	}
+
+	private computeMouseWorld() : BABYLON.Vector3 {
+		const mouse = ui.mouse();
+
+		// Z-coordinate is not necessarily 0
+		let mouseWorld = BABYLON.Vector3.Unproject(
+			new BABYLON.Vector3(mouse.x, mouse.y, 0.99),
+			window.innerWidth,
+			window.innerHeight,
+			BABYLON.Matrix.Identity(),
+			game.lakitu().camera().getViewMatrix(),
+			game.lakitu().camera().getProjectionMatrix());
+
+		if (Math.abs(mouseWorld.z) < 1e-3) {
+			return mouseWorld;
+		}
+
+		// Camera to mouse
+		mouseWorld.subtractInPlace(game.lakitu().camera().position);
+
+		// Scale camera to mouse to end at z = 0
+		const scale = Math.abs(game.lakitu().camera().position.z / mouseWorld.z);
+
+		// Camera to mouse at z = 0
+		mouseWorld.scaleInPlace(scale);
+
+		// World coordinates
+		mouseWorld.addInPlace(game.lakitu().camera().position);
+
+		return mouseWorld;
 	}
 }

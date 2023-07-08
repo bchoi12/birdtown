@@ -15,6 +15,7 @@ import { ui } from 'ui'
 import { AnnouncementType } from 'ui/api'
 
 import { Buffer } from 'util/buffer'
+import { CardinalDir } from 'util/cardinal'
 import { defined, isLocalhost } from 'util/common'
 import { ChangeTracker } from 'util/change_tracker'
 import { HexColor } from 'util/hex_color'
@@ -85,7 +86,6 @@ export class Level extends SystemBase implements System {
 		}
 		this._state = State.UNLOAD;
 	}
-	finishLoad() : void { this._state = State.READY; }
 
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
@@ -215,20 +215,25 @@ export class Level extends SystemBase implements System {
 
 		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
 		const numBuildings = 3 + Math.floor(3 * this._rng.next());
+
+		let heights = new Array<number>();
+		for (let i = 0; i < numBuildings; ++i) {
+			heights.push(1 + Math.floor(3 * this._rng.next()));
+		}
+
 		for (let i = 0; i < numBuildings; ++i) {
 			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BASE, i);
-			let floors = 1 + Math.floor(3 * this._rng.next());
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 			pos.y = -3;
-			for (let j = 0; j < floors; ++j) {
+			for (let j = 0; j < heights[i]; ++j) {
 				pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
 				this.addEntity(EntityType.ARCH_ROOM, {
 					profileInit: {
 						pos: pos,
 					},
 					cardinalsInit: {
-						cardinals: CardinalFactory.generateOpenings(),
+						cardinals: CardinalFactory.openSides,
 					},
 					hexColorsInit: {
 						colors: colors,
@@ -251,12 +256,20 @@ export class Level extends SystemBase implements System {
 			}
 
 			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOF).y / 2;
+
+			let openings = new Array<CardinalDir>();
+			if (i > 0 && heights[i] < heights[i-1]) {
+				openings.push(CardinalDir.LEFT);
+			}
+			if (i < heights.length - 1 && heights[i] < heights[i+1]) {
+				openings.push(CardinalDir.RIGHT);
+			}
 			this.addEntity(EntityType.ARCH_ROOF, {
 				profileInit: {
 					pos: pos,
 				},
 				cardinalsInit: {
-					cardinals: CardinalFactory.generateOpenings(),
+					cardinals: CardinalFactory.generateOpenings(openings),
 				},
 				hexColorsInit: {
 					colors: colors,

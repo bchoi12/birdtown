@@ -1,6 +1,6 @@
 
 import { game } from 'game'
-import { ClientSystem, System } from 'game/system'
+import { ClientSideSystem, System } from 'game/system'
 import { ClientConnectionState, ClientLoadState, SystemType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -11,14 +11,14 @@ import { NetworkBehavior } from 'network/api'
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 
-export class ClientSideState extends ClientSystem implements System {
+export class ClientState extends ClientSideSystem implements System {
 
 	private _displayName : string;
 	private _connectionState : ClientConnectionState;
 	private _loadState : ClientLoadState;
 
 	constructor(clientId : number) {
-		super(SystemType.CLIENT_SIDE_STATE, clientId);
+		super(SystemType.CLIENT_STATE, clientId);
 
 		this.setName({
 			base: "client_state",
@@ -42,7 +42,7 @@ export class ClientSideState extends ClientSystem implements System {
 		this.addProp<ClientLoadState>({
 			has: () => { return this.loadState() !== ClientLoadState.UNKNOWN; },
 			export: () => { return this.loadState(); },
-			import: (obj : ClientLoadState) => { this.setLoadState(obj); },
+			import: (obj : ClientLoadState) => { this.setLoadState(obj); console.log("import", obj); },
 		});
 	}
 

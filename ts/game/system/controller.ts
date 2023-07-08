@@ -5,29 +5,28 @@ import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
 import { ClientLoadState, ControllerState, LevelType, SystemType } from 'game/system/api'
-import { ClientSideState } from 'game/system/client_side_state'
+import { ClientState } from 'game/system/client_state'
+import { GameMaker } from 'game/system/game_maker'
 import { DuelMaker } from 'game/system/game_maker/duel_maker'
 import { GameData } from 'game/game_data'
 
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
+import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
 
 export class Controller extends SystemBase implements System {
 
 	private _state : ControllerState;
 	private _resetTimer : Timer;
-
-	// TODO: Optional<GameMaker>
-	private _duelMaker : DuelMaker; 
+	private _gameMaker : Optional<GameMaker>; 
 
 	constructor() {
 		super(SystemType.GAME_MODE);
 
 		this._state = ControllerState.WAITING;
 		this._resetTimer = this.newTimer();
-
-		this._duelMaker = new DuelMaker();
+		this._gameMaker = new Optional();
 
 		this.addProp<number>({
 			export: () => { return this.state(); },
@@ -38,6 +37,14 @@ export class Controller extends SystemBase implements System {
 		})
 	}
 
+	override initialize() : void {
+		super.initialize();
+
+		if (this.isHost()) {
+			this._gameMaker.set(new DuelMaker());
+		}
+	}
+
 	state() : number { return this._state; }
 	setState(state : number) : void {
 		if (this._state === state) {
@@ -46,7 +53,7 @@ export class Controller extends SystemBase implements System {
 
 		this._state = state;
 		if (this._state === ControllerState.SETUP) {
-			game.clientSideStates().executeCallback<ClientSideState>((clientSideState : ClientSideState) => {
+			game.clientSideStates().executeCallback<ClientState>((clientSideState : ClientState) => {
 				if (clientSideState.clientIdMatches()) {
 					clientSideState.setLoadState(ClientLoadState.CHECK_READY);
 				}
@@ -55,9 +62,11 @@ export class Controller extends SystemBase implements System {
 	}
 
 	trySetup() : void {
+		if (!this._gameMaker.has()) { return; }
+
 		if (this._state === ControllerState.WAITING) {
-			if (this._duelMaker.querySetup()) {
-				this._duelMaker.setup();
+			if (this._gameMaker.get().querySetup()) {
+				this._gameMaker.get().setup();
 				this.setState(ControllerState.SETUP);
 			}
 		}
@@ -91,24 +100,22 @@ export class Controller extends SystemBase implements System {
 	override preUpdate(millis : number) : void {
 		super.preUpdate(millis);
 
-		if (!this.isSource()) {
-			return;
-		}
+		if (!this._gameMaker.has()) { return; }
 
 		if (this._state === ControllerState.SETUP) {
-			if (this._duelMaker.queryStart()) {
-				this._duelMaker.start();
+			if (this._gameMaker.get().queryStart()) {
+				this._gameMaker.get().start();
 				this.setState(ControllerState.STARTED);
 			}
 		} else if (this._state === ControllerState.STARTED) {
-			if (this._duelMaker.queryFinish()) {
-				this._duelMaker.finish();
+			if (this._gameMaker.get().queryFinish()) {
+				this._gameMaker.get().finish();
 				this.setState(ControllerState.FINISH);
 			}
 		} else if (this._state === ControllerState.FINISH) {
 			if (!this._resetTimer.hasTimeLeft()) {
 				this._resetTimer.start(1000, () => {
-					this._duelMaker.setup();
+					this._gameMaker.get().setup();
 					this.setState(ControllerState.SETUP);
 				});
 			}

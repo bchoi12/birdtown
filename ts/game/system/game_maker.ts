@@ -14,6 +14,7 @@ export interface GameMaker {
 }
 
 export abstract class GameMakerBase implements GameMaker {
+
 	abstract canSetup() : boolean;
 	abstract querySetup() : boolean;
 	setup() : void {}

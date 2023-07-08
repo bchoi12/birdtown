@@ -30,8 +30,8 @@ export enum ControllerState {
 export enum SystemType {
 	UNKNOWN,
 	AUDIO,
-	CLIENT_SIDE_STATE,
-	CLIENT_SIDE_STATES,
+	CLIENT_STATE,
+	CLIENT_STATES,
 	ENTITIES,
 	ENTITY_MAP,
 	GAME_MODE,

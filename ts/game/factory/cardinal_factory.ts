@@ -7,18 +7,26 @@ export enum CardinalType {
 
 export namespace CardinalFactory {
 
-	export const sides = Cardinal.fromDirs([CardinalDir.LEFT, CardinalDir.RIGHT]);
-
 	export const noOpenings = new Map([
 		[CardinalType.OPENINGS, Cardinal.empty()]
 	]);
 
 	export const openSides = new Map([
-		[CardinalType.OPENINGS, sides],
+		[CardinalType.OPENINGS, Cardinal.fromDirs([CardinalDir.LEFT, CardinalDir.RIGHT])],
 	]);
 
-	export function generateOpenings() : Map<CardinalType, Cardinal> {
-		return openSides;
+	export const openLeft = new Map([
+		[CardinalType.OPENINGS, Cardinal.fromDirs([CardinalDir.LEFT])],
+	]);
+
+	export const openRight = new Map([
+		[CardinalType.OPENINGS, Cardinal.fromDirs([CardinalDir.RIGHT])],
+	]);
+
+	export function generateOpenings(dirs : CardinalDir[]) {
+		return new Map([
+			[CardinalType.OPENINGS, Cardinal.fromDirs(dirs)],
+		]);
 	}
 
 }

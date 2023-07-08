@@ -98,7 +98,7 @@ export class Console extends EntityBase implements Entity {
 			msg.setProp(UiProp.TTL, 3000);
 			ui.handleMessage(msg);
 
-			if (game.keys().keyDown(KeyType.INTERACT)) {
+			if (game.keys().keyPressed(KeyType.INTERACT)) {
 				game.controller().trySetup();
 			}
 		}

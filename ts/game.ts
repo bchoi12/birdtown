@@ -5,8 +5,8 @@ import { System } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 import { Audio } from 'game/system/audio'
 import { Controller } from 'game/system/controller'
-import { ClientSideState } from 'game/system/client_side_state'
-import { ClientSideStates } from 'game/system/client_side_states'
+import { ClientState } from 'game/system/client_state'
+import { ClientStates } from 'game/system/client_states'
 import { Entities } from 'game/system/entities'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
@@ -60,7 +60,7 @@ class Game {
 
 	private _runner : Runner;
 	private _audio : Audio;
-	private _clientSideStates : ClientSideStates;
+	private _clientSideStates : ClientStates;
 	private _entities : Entities;
 	private _controller : Controller;
 	private _input : Input;
@@ -88,7 +88,7 @@ class Game {
 
 		this._runner = new Runner();
 		this._audio = new Audio();
-		this._clientSideStates = new ClientSideStates();
+		this._clientSideStates = new ClientStates();
 		this._entities = new Entities();
 		this._controller = new Controller();
 		this._input = new Input();
@@ -215,8 +215,8 @@ class Game {
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
 	audio() : Audio { return this._audio; }
-	clientSideStates() : ClientSideStates { return this._clientSideStates; }
-	clientSideState(id? : number) : ClientSideState { return this._clientSideStates.getClientState(id)}
+	clientSideStates() : ClientStates { return this._clientSideStates; }
+	clientSideState(id? : number) : ClientState { return this._clientSideStates.getClientState(id)}
 	controller() : Controller { return this._controller; }
 	level() : Level { return this._level; }
 	physics() : Physics { return this._physics; }
@@ -225,42 +225,6 @@ class Game {
 	entities() : Entities { return this._entities; }
 	netcode() : Netcode { return this._netcode; }
 	world() : World { return this._world; }
-
-	// For some reason this has to be here for typescript
-	mouse() : BABYLON.Vector3 {
-		if (!this.initialized() || !defined(this.lakitu())) {
-			return new BABYLON.Vector3();
-		}
-
-		const mouse = ui.mouse();
-
-		// Z-coordinate is not necessarily 0
-		let mouseWorld = BABYLON.Vector3.Unproject(
-			new BABYLON.Vector3(mouse.x, mouse.y, 0.99),
-			window.innerWidth,
-			window.innerHeight,
-			BABYLON.Matrix.Identity(),
-			this.lakitu().camera().getViewMatrix(),
-			this.lakitu().camera().getProjectionMatrix());
-
-		if (Math.abs(mouseWorld.z) < 1e-3) {
-			return mouseWorld;
-		}
-
-		// Camera to mouse
-		mouseWorld.subtractInPlace(this.lakitu().camera().position);
-
-		// Scale camera to mouse to end at z = 0
-		const scale = Math.abs(this.lakitu().camera().position.z / mouseWorld.z);
-
-		// Camera to mouse at z = 0
-		mouseWorld.scaleInPlace(scale);
-
-		// World coordinates
-		mouseWorld.addInPlace(this.lakitu().camera().position);
-
-		return mouseWorld;
-	}
 }
 
 export const game = new Game();

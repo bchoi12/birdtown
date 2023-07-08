@@ -1,23 +1,22 @@
 import { game } from 'game'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
-import { ClientSideState } from 'game/system/client_side_state'
+import { ClientState } from 'game/system/client_state'
 
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
 import { defined } from 'util/common'
 
-// TODO: rename ClientStates
-export class ClientSideStates extends SystemBase implements System {
+export class ClientStates extends SystemBase implements System {
 
 	constructor() {
-		super(SystemType.CLIENT_SIDE_STATES);
+		super(SystemType.CLIENT_STATES);
 
 		this.setName({
 			base: "client_states",
 		});
 
-		this.setFactoryFn((clientId : number) => { return this.addClientState(new ClientSideState(clientId)); })
+		this.setFactoryFn((clientId : number) => { return this.addClientState(new ClientState(clientId)); })
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -29,11 +28,11 @@ export class ClientSideStates extends SystemBase implements System {
 
 		const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
 		const displayName = msg.getProp<string>(GameProp.DISPLAY_NAME);
-		let clientState = <ClientSideState>this.getFactoryFn()(clientId);
+		let clientState = <ClientState>this.getFactoryFn()(clientId);
 		clientState.setDisplayName(displayName);
 	}
 
-	queryClientStates(predicate : (state : ClientSideState) => boolean) : boolean {
+	queryClientStates(predicate : (state : ClientState) => boolean) : boolean {
 		if (!this.isSource()) {
 			return false;
 		}
@@ -48,10 +47,10 @@ export class ClientSideStates extends SystemBase implements System {
 		return true;
 	}
 
-	addClientState(info : ClientSideState) : ClientSideState { return this.registerChild<ClientSideState>(info.clientId(), info); }
+	addClientState(info : ClientState) : ClientState { return this.registerChild<ClientState>(info.clientId(), info); }
 	hasClientState(clientId : number) : boolean { return this.hasChild(clientId); }
-	getClientState(clientId? : number) : ClientSideState { return this.getChild<ClientSideState>(defined(clientId) ? clientId : game.clientId()); }
-	clientStates() : Map<number, ClientSideState> { return <Map<number, ClientSideState>>this.getChildren(); }
+	getClientState(clientId? : number) : ClientState { return this.getChild<ClientState>(defined(clientId) ? clientId : game.clientId()); }
+	clientStates() : Map<number, ClientState> { return <Map<number, ClientState>>this.getChildren(); }
 	unregisterClientState(clientId : number) : void { this.unregisterChild(clientId); }
 
 	
