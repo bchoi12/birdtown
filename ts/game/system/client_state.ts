@@ -42,7 +42,7 @@ export class ClientState extends ClientSideSystem implements System {
 		this.addProp<ClientLoadState>({
 			has: () => { return this.loadState() !== ClientLoadState.UNKNOWN; },
 			export: () => { return this.loadState(); },
-			import: (obj : ClientLoadState) => { this.setLoadState(obj); console.log("import", obj); },
+			import: (obj : ClientLoadState) => { this.setLoadState(obj); },
 		});
 	}
 
