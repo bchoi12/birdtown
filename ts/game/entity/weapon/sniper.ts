@@ -17,13 +17,13 @@ import { MeshType } from 'game/factory/api'
 import { defined } from 'util/common'
 import { Vec2 } from 'util/vector'
 
-export class Bazooka extends Weapon {
+export class Sniper extends Weapon {
 
 	constructor(options : EntityOptions) {
-		super(EntityType.BAZOOKA, options);
+		super(EntityType.SNIPER, options);
 
 		this.setName({
-			base: "bazooka",
+			base: "sniper",
 			id: this.id(),
 		});
 
@@ -31,16 +31,15 @@ export class Bazooka extends Weapon {
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
-	override recoilType() : RecoilType { return RecoilType.LARGE; }
-	override meshType() : MeshType { return MeshType.BAZOOKA; }
+	override recoilType() : RecoilType { return RecoilType.SMALL; }
+	override meshType() : MeshType { return MeshType.SNIPER; }
 	override updateInput(input : EquipInput) : boolean {
 		if (!this.initialized() || !this.keysIntersect(input.keys) || !this._attributes.getAttribute(AttributeType.READY)) { return false; }
 
 		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = input.dir.clone().normalize();
 
-		let vel = unitDir.clone().scale(0.05);
-		let acc = unitDir.clone().scale(1.5);
+		let vel = unitDir.clone().scale(0.7);
 		let [rocket, hasRocket] = this.addEntity<Rocket>(EntityType.ROCKET, {
 			associationInit: {
 				owner: this,
@@ -49,7 +48,6 @@ export class Bazooka extends Weapon {
 				pos: {x: pos.x, y: pos.y},
 				dim: {x: 0.3, y: 0.3},
 				vel: vel,
-				acc: acc,
 			},
 		});
 
@@ -60,7 +58,7 @@ export class Bazooka extends Weapon {
 			});
 		}
 
-		this.reload(1000);
+		this.reload(500);
 		return true;
 	}
 }

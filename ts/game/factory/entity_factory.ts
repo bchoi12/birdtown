@@ -11,6 +11,7 @@ import { Rocket } from 'game/entity/projectile/rocket'
 import { SpawnPoint } from 'game/entity/spawn_point'
 import { Wall } from 'game/entity/wall'
 import { Bazooka } from 'game/entity/weapon/bazooka'
+import { Sniper } from 'game/entity/weapon/sniper'
 
 import { Vec } from 'util/vector'
 
@@ -27,6 +28,7 @@ export namespace EntityFactory {
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
+		[EntityType.SNIPER, (options : EntityOptions) => { return new Sniper(options); }],
 		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 	]);

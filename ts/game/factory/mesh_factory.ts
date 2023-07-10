@@ -4,7 +4,7 @@ import "babylonjs-loaders"
 import { game } from 'game'
 import { MeshType } from 'game/factory/api'
 
-export interface LoadResult {
+export type LoadResult = {
 	meshes? : BABYLON.AbstractMesh[];
 	particleSystems? : BABYLON.IParticleSystem[];
 	skeletons? : BABYLON.Skeleton[];
@@ -19,7 +19,7 @@ export namespace MeshFactory {
 
 	export function load(type : MeshType, cb : (loadResult : LoadResult) => void) {
 		const fileName = getFileName(type);
-		BABYLON.SceneLoader.ImportMesh("", pathPrefix, fileName, game.scene(),
+		BABYLON.SceneLoader.ImportMesh("mesh-" + type, pathPrefix, fileName, game.scene(),
 			(meshes, particleSystems, skeletons, animationGroups, transformNodes) => {
 			cb({
 				meshes: meshes,

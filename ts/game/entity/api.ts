@@ -17,6 +17,7 @@ export enum EntityType {
 	EXPLOSION,
 	PLAYER,
 	ROCKET,
+	SNIPER,
 	SPAWN_POINT,
 	WALL,
 }

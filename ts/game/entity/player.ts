@@ -276,7 +276,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		game.keys(this.clientId()).setTargetEntity(this);
 
 		this._model.onLoad(() => {
-			const [weapon, hasWeapon] = this.addTrackedEntity<Equip<Player>>(EntityType.BAZOOKA, {
+			const [weapon, hasWeapon] = this.addTrackedEntity<Equip<Player>>(EntityType.SNIPER, {
 				associationInit: {
 					owner: this,
 				},
