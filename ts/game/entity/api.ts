@@ -11,6 +11,7 @@ export enum EntityType {
 	ARCH_ROOF,
 	BAZOOKA,
 	BIRD_BRAIN,
+	BOLT,
 	CONSOLE,
 	CRATE,
 	EQUIP,

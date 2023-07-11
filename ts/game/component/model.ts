@@ -73,7 +73,13 @@ export class Model extends ComponentBase implements Component {
 		};
 
 		this._onLoadFns.forEach((fn : OnLoadFn) => {
-			fn(this);
+			if (this._mesh.isReady()) {
+				fn(this);
+			} else {
+				this._mesh.onMeshReadyObservable.addOnce(() => {
+					fn(this);
+				});
+			}
 		});
 		this._onLoadFns = [];
 	}
@@ -81,7 +87,13 @@ export class Model extends ComponentBase implements Component {
 
 	onLoad(fn : OnLoadFn) : void {
 		if (this.hasMesh()) {
-			fn(this);
+			if (this._mesh.isReady()) {
+				fn(this);
+			} else {
+				this._mesh.onMeshReadyObservable.addOnce(() => {
+					fn(this);
+				});
+			}
 		} else {
 			this._onLoadFns.push(fn);
 		}

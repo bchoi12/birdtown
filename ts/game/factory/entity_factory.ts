@@ -7,6 +7,7 @@ import { Crate } from 'game/entity/crate'
 import { BirdBrain } from 'game/entity/equip/bird_brain'
 import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
+import { Bolt } from 'game/entity/projectile/bolt'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { SpawnPoint } from 'game/entity/spawn_point'
 import { Wall } from 'game/entity/wall'
@@ -23,6 +24,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOF, (options : EntityOptions) => { return new ArchRoof(options); }],
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
 		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
+		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
 		[EntityType.CONSOLE, (options : EntityOptions) => { return new Console(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],

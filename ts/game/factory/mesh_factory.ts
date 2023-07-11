@@ -17,9 +17,13 @@ export namespace MeshFactory {
 	export const pathPrefix = "mesh/";
 	export const fileExtension = ".glb";
 
-	export function load(type : MeshType, cb : (loadResult : LoadResult) => void) {
+	export function preload(type : MeshType) : void {
+		load(type, () => {});
+	}
+
+	export function load(type : MeshType, cb : (loadResult : LoadResult) => void) : void {
 		const fileName = getFileName(type);
-		BABYLON.SceneLoader.ImportMesh("mesh-" + type, pathPrefix, fileName, game.scene(),
+		BABYLON.SceneLoader.ImportMesh("", pathPrefix, fileName, game.scene(),
 			(meshes, particleSystems, skeletons, animationGroups, transformNodes) => {
 			cb({
 				meshes: meshes,

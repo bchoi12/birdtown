@@ -10,7 +10,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { EquipInput, AttachType, RecoilType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
-import { Rocket } from 'game/entity/projectile/rocket'
+import { Bolt } from 'game/entity/projectile/bolt'
 import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
 
@@ -34,31 +34,30 @@ export class Sniper extends Weapon {
 	override recoilType() : RecoilType { return RecoilType.SMALL; }
 	override meshType() : MeshType { return MeshType.SNIPER; }
 	override updateInput(input : EquipInput) : boolean {
-		if (!this.initialized() || !this.keysIntersect(input.keys) || !this._attributes.getAttribute(AttributeType.READY)) { return false; }
+		if (!this._model.hasMesh() || !this.keysIntersect(input.keys) || !this._attributes.getAttribute(AttributeType.READY)) { return false; }
 
 		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = input.dir.clone().normalize();
 
 		let vel = unitDir.clone().scale(0.7);
-		let [rocket, hasRocket] = this.addEntity<Rocket>(EntityType.ROCKET, {
+		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, {
 			associationInit: {
 				owner: this,
 			},
 			profileInit: {
 				pos: {x: pos.x, y: pos.y},
-				dim: {x: 0.3, y: 0.3},
+				dim: {x: 0.2, y: 0.1},
 				vel: vel,
+				angle: vel.angleRad(),
 			},
 		});
 
-		if (hasRocket) {
+		if (hasBolt) {
 			this.recordUse();
-			rocket.setTTL(1000, () => {
-				rocket.explode();
-			});
+			bolt.setTTL(1000);
 		}
 
-		this.reload(500);
+		this.reload(125);
 		return true;
 	}
 }

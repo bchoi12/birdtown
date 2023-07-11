@@ -293,7 +293,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			if (hasBrain) {
 				brain.addKey(KeyType.ALT_MOUSE_CLICK);
 			}
-		})
+		});
 	}
 
 	setSpawn(spawn : Vec) : void { this._spawn = spawn; }
@@ -316,8 +316,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				let equipModel = equip.getComponent<Model>(ComponentType.MODEL);
 				equipModel.onLoad((wm : Model) => {
 					wm.mesh().attachToBone(arm, m.mesh());
-					wm.mesh().rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
-					wm.mesh().scaling.z *= -1;
+					wm.mesh().rotation = new BABYLON.Vector3(3 * Math.PI / 2, 0, Math.PI);
+					wm.mesh().scaling.y *= Math.sign(this._headDir.x);
+					wm.mesh().scaling.z *= Math.sign(this._headDir.x);
 				});
 				break;
 			}

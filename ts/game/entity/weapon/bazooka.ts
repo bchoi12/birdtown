@@ -34,7 +34,7 @@ export class Bazooka extends Weapon {
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
 	override updateInput(input : EquipInput) : boolean {
-		if (!this.initialized() || !this.keysIntersect(input.keys) || !this._attributes.getAttribute(AttributeType.READY)) { return false; }
+		if (!this._model.hasMesh() || !this.keysIntersect(input.keys) || !this._attributes.getAttribute(AttributeType.READY)) { return false; }
 
 		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = input.dir.clone().normalize();
