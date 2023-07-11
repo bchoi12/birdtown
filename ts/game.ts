@@ -13,6 +13,7 @@ import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
 import { Level } from 'game/system/level'
 import { Physics } from 'game/system/physics'
+import { PlayerStates } from 'game/system/player_states'
 import { Runner } from 'game/system/runner'
 import { World } from 'game/system/world'
 
@@ -60,13 +61,14 @@ class Game {
 
 	private _runner : Runner;
 	private _audio : Audio;
-	private _clientSideStates : ClientStates;
+	private _clientStates : ClientStates;
 	private _entities : Entities;
 	private _controller : Controller;
 	private _input : Input;
 	private _lakitu : Lakitu;
 	private _level : Level;
 	private _physics : Physics;
+	private _playerStates : PlayerStates;
 	private _world : World;
 
 	constructor() {
@@ -88,18 +90,20 @@ class Game {
 
 		this._runner = new Runner();
 		this._audio = new Audio();
-		this._clientSideStates = new ClientStates();
+		this._clientStates = new ClientStates();
 		this._entities = new Entities();
 		this._controller = new Controller();
 		this._input = new Input();
 		this._level = new Level();
 		this._physics = new Physics();
+		this._playerStates = new PlayerStates();
 
 		this._world = new World(this._engine);
 		this._lakitu = new Lakitu(this._world.scene());
 
 		// Order of insertion becomes order of execution
-		this._runner.push(this._clientSideStates);
+		this._runner.push(this._clientStates);
+		this._runner.push(this._playerStates);
 		this._runner.push(this._controller);
 		this._runner.push(this._level);
 		this._runner.push(this._input);
@@ -164,10 +168,7 @@ class Game {
 					this._netcode.broadcast(Game._channelMapping.get(filter), msg);
     			}
 	    	}
-
-	    	if (this.hasClientId()) {
-		    	this._frameTimes.push(Date.now() - frameStart);
-	    	}
+	    	this._frameTimes.push(Date.now() - frameStart);
 	    });
 
 	    this._initialized = true;
@@ -215,8 +216,8 @@ class Game {
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
 	audio() : Audio { return this._audio; }
-	clientSideStates() : ClientStates { return this._clientSideStates; }
-	clientSideState(id? : number) : ClientState { return this._clientSideStates.getClientState(id)}
+	clientStates() : ClientStates { return this._clientStates; }
+	clientState(id? : number) : ClientState { return this._clientStates.getClientState(id); }
 	controller() : Controller { return this._controller; }
 	level() : Level { return this._level; }
 	physics() : Physics { return this._physics; }

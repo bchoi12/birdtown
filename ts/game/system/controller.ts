@@ -53,7 +53,7 @@ export class Controller extends SystemBase implements System {
 
 		this._state = state;
 		if (this._state === ControllerState.SETUP) {
-			game.clientSideStates().executeCallback<ClientState>((clientSideState : ClientState) => {
+			game.clientStates().executeCallback<ClientState>((clientSideState : ClientState) => {
 				if (clientSideState.clientIdMatches()) {
 					clientSideState.setLoadState(ClientLoadState.CHECK_READY);
 				}

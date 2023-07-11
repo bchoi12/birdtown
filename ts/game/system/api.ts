@@ -40,6 +40,8 @@ export enum SystemType {
 	LAKITU,
 	LEVEL,
 	PHYSICS,
+	PLAYER_STATE,
+	PLAYER_STATES,
 	RUNNER,
 	WORLD,
 }

@@ -32,26 +32,10 @@ export class ClientStates extends SystemBase implements System {
 		clientState.setDisplayName(displayName);
 	}
 
-	queryClientStates(predicate : (state : ClientState) => boolean) : boolean {
-		if (!this.isSource()) {
-			return false;
-		}
-
-		const order = this.childOrder();
-		for (let i = 0; i < order.length; ++i) {
-			const state = this.getClientState(order[i]);
-			if (!predicate(state)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	addClientState(info : ClientState) : ClientState { return this.registerChild<ClientState>(info.clientId(), info); }
 	hasClientState(clientId : number) : boolean { return this.hasChild(clientId); }
 	getClientState(clientId? : number) : ClientState { return this.getChild<ClientState>(defined(clientId) ? clientId : game.clientId()); }
+	queryClientStates(predicate : (state : ClientState) => boolean) : boolean { return this.queryChildren<ClientState>(predicate); }
 	clientStates() : Map<number, ClientState> { return <Map<number, ClientState>>this.getChildren(); }
 	unregisterClientState(clientId : number) : void { this.unregisterChild(clientId); }
-
-	
 }

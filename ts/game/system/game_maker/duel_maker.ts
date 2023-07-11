@@ -30,7 +30,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 			return false;
 		}
 
-		return game.clientSideStates().queryClientStates((state : ClientState) => {
+		return game.clientStates().queryClientStates((state : ClientState) => {
 			return state.loadState() >= ClientLoadState.LOADED;
 		});
 	}
@@ -61,7 +61,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 			return false;
 		}
 
-		return game.clientSideStates().queryClientStates((state : ClientState) => {
+		return game.clientStates().queryClientStates((state : ClientState) => {
 			return state.loadState() >= ClientLoadState.READY;
 		});
 	}

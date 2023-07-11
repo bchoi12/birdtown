@@ -74,6 +74,7 @@ export interface GameObject {
 	registerChild<T extends GameObject>(id : number, child : T) : T;
 	hasChild(id : number) : boolean;
 	getChild<T extends GameObject>(id : number) : T;
+	queryChildren<T extends GameObject>(predicate : (t : T) => boolean) : boolean;
 	unregisterChild(id : number) : void;
 	childOrder() : Array<number>;
 	executeCallback<T extends GameObject>(cb : ChildCallback<T>) : void;
@@ -326,6 +327,15 @@ export abstract class GameObjectBase {
 	}
 	hasChild(id : number) : boolean { return this._childObjects.has(id); }
 	getChild<T extends GameObject>(id : number) : T { return <T>this._childObjects.get(id); }
+	queryChildren<T extends GameObject>(predicate : (t : T) => boolean) : boolean {
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			const child = this.getChild<T>(this._childOrder[i]);
+			if (!predicate(child)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	unregisterChild(id : number) : void {
 		if (!this.hasChild(id)) {
 			return;

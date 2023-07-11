@@ -383,7 +383,7 @@ export abstract class Netcode {
 			connection.disconnect();
 
 			if (connection.hasClientId()) {
-				game.clientSideState(connection.clientId()).setConnectionState(ClientConnectionState.DISCONNECTED);
+				game.clientState(connection.clientId()).setConnectionState(ClientConnectionState.DISCONNECTED);
 			}
 		}
 	}
