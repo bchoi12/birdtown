@@ -23,9 +23,8 @@ import { Connection } from 'network/connection'
 import { Netcode } from 'network/netcode'
 import { Host } from 'network/host'
 
-import { NetworkMessageType } from 'message/api'
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
-import { NetworkMessage, NetworkProp } from 'message/network_message'
+import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
 
 import { settings } from 'settings'
 

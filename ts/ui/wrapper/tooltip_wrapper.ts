@@ -5,7 +5,7 @@ import { Html, HtmlWrapper } from 'ui/html'
 
 import { defined } from 'util/common'
 
-export class TooltipWrapper extends HtmlWrapper {
+export class TooltipWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _timeoutId : number;
 

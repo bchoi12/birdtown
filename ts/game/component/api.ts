@@ -6,6 +6,7 @@ export enum ComponentType {
 	CARDINALS,
 	HEX_COLORS,
 	MODEL,
+	MODIFIERS,
 	OPENINGS,
 	PROFILE,
 	STAT,
@@ -26,6 +27,21 @@ export enum AttributeType {
 	GROUNDED,
 	READY,
 	SOLID,
+}
+
+export enum ModifierType {
+	UNKNOWN,
+
+	CLASS,
+}
+
+export enum ModifierClassType {
+	UNKNOWN,
+
+	NONE,
+	BIG,
+	FAST,
+	SHARP,
 }
 
 export enum StatType {

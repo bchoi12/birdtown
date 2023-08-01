@@ -6,8 +6,7 @@ import { LevelType } from 'game/system/api'
 
 import { Message, DataMap } from 'message'
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
-import { NetworkMessageType } from 'message/api'
-import { NetworkMessage, NetworkProp } from 'message/network_message'
+import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
 
 import { ChannelType } from 'network/api'
 

@@ -83,6 +83,7 @@ export class Rocket extends Projectile {
 			return;
 		}
 
+		// TODO: collide with multiple objects?
 		if (other.getAttribute(AttributeType.SOLID)) {
 			other.takeDamage(this.damage(), this);
 			this.explode();

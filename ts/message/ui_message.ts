@@ -17,8 +17,9 @@ export enum UiProp {
 	COUNT,
 	DATA,
 	DISPLAY_NAME,
-	ON_SUBMIT,
 	NAMES,
+	ON_SUBMIT,
+	PAGES,
 	TYPE,
 	TTL,
 }
@@ -41,6 +42,7 @@ export class UiMessage extends MessageBase<UiMessageType, UiProp> implements Mes
 		)],
 		[UiMessageType.DIALOG, MessageBase.fieldDescriptor(
 			[UiProp.TYPE, {}],
+			[UiProp.PAGES, {optional: true}],
 			[UiProp.ON_SUBMIT, {optional: true}],
 		)],
 		[UiMessageType.TOOLTIP, MessageBase.fieldDescriptor(

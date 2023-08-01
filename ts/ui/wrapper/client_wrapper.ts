@@ -1,4 +1,5 @@
 
+
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
@@ -7,7 +8,7 @@ import { VoiceWrapper } from 'ui/wrapper/voice_wrapper'
 
 import { Vec } from 'util/vector'
 
-export class ClientWrapper extends HtmlWrapper {
+export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _voiceWrapper : VoiceWrapper;
 

@@ -63,7 +63,7 @@ export namespace Html {
 	export function input() : HTMLInputElement { return <HTMLInputElement>document.createElement("input"); }
 	export function label() : HTMLElement { return document.createElement("label"); }
 	export function audio() : HTMLAudioElement { return <HTMLAudioElement>document.createElement("audio"); }
-	export function button() : HTMLElement { return document.createElement("button"); }
+	export function button() : HTMLButtonElement { return document.createElement("button"); }
 	export function icon() : HTMLElement { return document.createElement("i"); }
 	export function range() : HTMLInputElement {
 		let range = <HTMLInputElement>document.createElement("input");
@@ -81,14 +81,14 @@ export namespace Html {
 	}
 }
 
-export class HtmlWrapper {
-	private _elm : HTMLElement;
+export class HtmlWrapper<T extends HTMLElement> {
+	private _elm : T;
 
-	constructor(elm : HTMLElement) {
+	constructor(elm : T) {
 		this._elm = elm;
 	}
 
-	elm() : HTMLElement { return this._elm; }
+	elm() : T { return this._elm; }
 
 	show() : void { this.elm().style.display = "block"; }
 	hide() : void { this.elm().style.display = "none"; }

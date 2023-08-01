@@ -1,6 +1,17 @@
 
 import { Message, MessageBase, FieldDescriptor } from 'message'
-import { NetworkMessageType } from 'message/api'
+
+export enum NetworkMessageType {
+	UNKNOWN,
+
+	CHAT,
+	GAME,
+	INCOMING,
+	INIT_CLIENT,
+	PING,
+	VOICE,
+	VOICE_MAP,
+}
 
 export enum NetworkProp {
 	UNKNOWN,

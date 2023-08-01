@@ -6,8 +6,7 @@ import { ClientConnectionState } from 'game/system/api'
 
 import { ChannelType } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
-import { NetworkMessageType } from 'message/api'
-import { NetworkMessage } from 'message/network_message'
+import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 import { Connection } from 'network/connection'
 import { Pinger } from 'network/pinger'
 

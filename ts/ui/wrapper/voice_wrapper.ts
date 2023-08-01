@@ -3,6 +3,7 @@ import { game } from 'game'
 
 import { AudioGlobals } from 'global/audio_globals'
 
+
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
@@ -12,7 +13,7 @@ import { Icon, IconType } from 'ui/util/icon'
 import { defined } from 'util/common'
 import { Vec } from 'util/vector'
 
-export class VoiceWrapper extends HtmlWrapper {
+export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _clientId : number;
 	private _micButton : HTMLElement;

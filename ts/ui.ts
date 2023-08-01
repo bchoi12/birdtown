@@ -2,7 +2,7 @@
 import { game } from 'game'
 import { Profile } from 'game/component/profile'
 
-import { UiMessage } from 'message/ui_message'
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { CounterType, KeyType, UiMode } from 'ui/api'
 import { Handler } from 'ui/handler'

@@ -1,5 +1,4 @@
-
-import { UiMessage } from 'message/ui_message'
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'

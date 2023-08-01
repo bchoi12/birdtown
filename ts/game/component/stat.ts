@@ -67,6 +67,21 @@ export class Stat extends ComponentBase implements Component {
 
 	atMin() : boolean { return this._min.has() && this._current <= this._min.get(); }
 	atMax() : boolean { return this._max.has() && this._current >= this._max.get(); }
+	getMin() : Optional<number> { return this._min; }
+	setMin(min : number) : void { this._min.set(min); }
+	addMin(delta : number) : void {
+		if (!this._min.has()) { this._min.set(0); }
+
+		this.setMin(this._min.get() + delta);
+	}
+
+	getMax() : Optional<number> { return this._max; }
+	setMax(max : number) : void { this._max.set(max); }
+	addMax(delta : number) : void {
+		if (!this._max.has()) { this._max.set(0); }
+
+		this.setMax(this._max.get() + delta);
+	}
 
 	getInitial() : number { return this._initial; }
 	setInitial(def : number) : void { this._initial = def; }

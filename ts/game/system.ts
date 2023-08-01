@@ -67,6 +67,16 @@ export abstract class ClientSystem extends SystemBase implements System {
 
 	clientId() : number { return this._clientId; }
 	clientIdMatches() : boolean { return this._clientId === game.clientId(); }
+
+	override networkBehavior() : NetworkBehavior {
+		if (this.isHost()) {
+			return NetworkBehavior.SOURCE;
+		} else if (this.clientIdMatches()) {
+			return NetworkBehavior.RELAY;
+		}
+
+		return NetworkBehavior.COPY;
+	}
 }
 
 export abstract class ClientSideSystem extends ClientSystem implements System {
@@ -83,8 +93,8 @@ export abstract class ClientSideSystem extends ClientSystem implements System {
 			return NetworkBehavior.SOURCE;
 		} else if (this.isHost()) {
 			return NetworkBehavior.RELAY;
-		} else {
-			return NetworkBehavior.COPY;
 		}
+		
+		return NetworkBehavior.COPY;
 	}
 }

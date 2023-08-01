@@ -25,6 +25,25 @@ export enum DialogType {
 	CHECK_READY,
 }
 
+export type DialogPage = {
+	buttons : Array<DialogButton>;
+}
+
+export enum DialogButtonType {
+	UNKNOWN,
+
+	BACK,
+	IMAGE,
+	NEXT,
+	SUBMIT,
+}
+
+export type DialogButton = {
+	type : DialogButtonType;
+	onSelect? : () => void;
+	onUnselect? : () => void;
+}
+
 export enum KeyType {
 	UNKNOWN,
 	LEFT,

@@ -2,12 +2,15 @@
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 
+import { PageWrapper } from 'ui/wrapper/page_wrapper'
+
 type OnSubmitFn = () => void;
 
-export class DialogWrapper extends HtmlWrapper {
+export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _titleElm : HTMLElement;
 	private _textElm : HTMLElement;
+	private _pages : Array<PageWrapper>;
 
 	private _onSubmitFns : Array<OnSubmitFn>;
 
@@ -24,17 +27,23 @@ export class DialogWrapper extends HtmlWrapper {
 		this._textElm.classList.add("dialog-text");
 		this.elm().appendChild(this._textElm);
 
-		this._onSubmitFns = new Array();
+		this._pages = new Array();
 
-		this.elm().onclick = (e) => {
-			this._onSubmitFns.forEach((onSubmit) => {
-				onSubmit();
-			});
-		};
+		this._onSubmitFns = new Array();
+	}
+
+	addPage(page : PageWrapper) : void {
+		this._pages.push(page);
+		this.elm().appendChild(page.elm());
 	}
 
 	setTitle(title : string) : void { this._titleElm.innerHTML = title; }
 	setText(text : string) : void { this._textElm.innerHTML = text; }
 
-	onSubmit(fn : OnSubmitFn) : void { this._onSubmitFns.push(fn); }
+	addOnSubmit(fn : OnSubmitFn) : void { this._onSubmitFns.push(fn); }
+	submit() : void {
+		this._onSubmitFns.forEach((onSubmit) => {
+			onSubmit();
+		});
+	}
 }

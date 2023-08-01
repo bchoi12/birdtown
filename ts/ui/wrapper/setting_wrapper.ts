@@ -17,7 +17,7 @@ export type SettingWrapperOptions = {
 	setSetting: (value : boolean | number) => void;
 }
 
-export class SettingWrapper extends HtmlWrapper {
+export class SettingWrapper extends HtmlWrapper<HTMLElement> {
 
 	constructor(options : SettingWrapperOptions) {
 		super(Html.div());

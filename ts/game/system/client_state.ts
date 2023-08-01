@@ -9,7 +9,7 @@ import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 import { NetworkBehavior } from 'network/api'
 
 import { ui } from 'ui'
-import { DialogType } from 'ui/api'
+import { DialogType, DialogButtonType } from 'ui/api'
 
 export class ClientState extends ClientSideSystem implements System {
 
@@ -106,8 +106,22 @@ export class ClientState extends ClientSideSystem implements System {
 		case ClientLoadState.CHECK_READY:
 			let msg = new UiMessage(UiMessageType.DIALOG);
 			msg.setProp(UiProp.TYPE, DialogType.CHECK_READY);
+			msg.setProp(UiProp.PAGES, [{
+				buttons: [{
+					type: DialogButtonType.IMAGE,
+					onSelect: () => {
+						alert("hi1");
+					},
+				}, {
+					type: DialogButtonType.IMAGE,
+					onSelect: () => {
+						alert("hi2");
+					},
+				}],
+			},
+			]);
 			msg.setProp(UiProp.ON_SUBMIT, () => {
-				this.setLoadState(ClientLoadState.READY);
+				alert("submitted");
 			});
 			ui.handleMessage(msg);
 			break;

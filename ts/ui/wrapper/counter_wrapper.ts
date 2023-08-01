@@ -6,7 +6,7 @@ import { Icon, IconType } from 'ui/util/icon'
 
 import { defined } from 'util/common'
 
-export class CounterWrapper extends HtmlWrapper {
+export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 
 	private static readonly _iconMapping = new Map<CounterType, IconType>([
 		[CounterType.HEALTH, IconType.HEART],

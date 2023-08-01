@@ -2,9 +2,10 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierClassType, StatType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
+import { Modifiers } from 'game/component/modifiers'
 import { Profile } from 'game/component/profile'
 import { StatInitOptions } from 'game/component/stat'
 import { Stats } from 'game/component/stats'
@@ -97,6 +98,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	private _attributes : Attributes;
 	private _model : Model;
+	private _modifiers : Modifiers;
 	private _profile : Profile;
 	private _stats : Stats;
 	private _headSubProfile : Profile;
@@ -250,6 +252,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			},
 		}));
 
+		this._modifiers = new Modifiers();
+		this._modifiers.setModifier(ModifierType.CLASS, ModifierClassType.BIG);
+
 		this._stats = this.addComponent<Stats>(new Stats({ stats: new Map<StatType, StatInitOptions>([
 			[StatType.HEALTH, {
 				initial: 100,
@@ -258,6 +263,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				max: 100,
 			}]
 		])}));
+		this._stats.reset(this._modifiers);
 	}
 
 	override ready() : boolean {
@@ -298,7 +304,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	setSpawn(spawn : Vec) : void { this._spawn = spawn; }
 	respawn() : void {
-		this._stats.reset();
+		this._stats.reset(this._modifiers);
 		this._profile.setPos(this._spawn);
 		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
@@ -306,7 +312,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	setDeactivated(deactivated : boolean) : void { this._deactivated = deactivated; }
 	dead() : boolean { return this._stats.dead(); }
 
-	// TODO: fix race condition where weapon is loaded upside-down
 	equip(equip : Equip<Player>) : void {
 		this._equips.push(equip.id());
 		this._model.onLoad((m : Model) => {

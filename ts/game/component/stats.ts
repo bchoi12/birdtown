@@ -2,6 +2,7 @@
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType, StatType } from 'game/component/api'
+import { Modifiers } from 'game/component/modifiers'
 import { Stat, StatLog, StatUpdate, StatInitOptions } from 'game/component/stat'
 
 import { Entity } from 'game/entity'
@@ -26,9 +27,12 @@ export class Stats extends ComponentBase implements Component {
 		});
 	}
 
-	reset() : void {
-		this.executeCallback<Stat>((stat : Stat) => {
+	reset(modifiers? : Modifiers) : void {
+		this.executeCallback<Stat>((stat : Stat, type : StatType) => {
 			stat.reset();
+			if (defined(modifiers)) {
+				modifiers.apply(type, stat);	
+			}
 		});
 	}
 

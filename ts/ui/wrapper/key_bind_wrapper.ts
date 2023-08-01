@@ -13,7 +13,7 @@ export type KeyBindWrapperOptions = {
 }
 
 
-export class KeyBindWrapper extends HtmlWrapper {
+export class KeyBindWrapper extends HtmlWrapper<HTMLElement> {
 	private _name : string;
 	private _active : boolean;
 	private _update : (keyCode : number) => void;
