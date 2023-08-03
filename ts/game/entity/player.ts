@@ -2,7 +2,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierClassType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Modifiers } from 'game/component/modifiers'
@@ -253,12 +253,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}));
 
 		this._modifiers = new Modifiers();
-		this._modifiers.setModifier(ModifierType.CLASS, ModifierClassType.BIG);
+		this._modifiers.setModifier(ModifierType.CLASS, ModifierPlayerType.BIG);
 
 		this._stats = this.addComponent<Stats>(new Stats({ stats: new Map<StatType, StatInitOptions>([
 			[StatType.HEALTH, {
-				initial: 100,
-				current: 100,
+				stat: 100,
 				min: 0,
 				max: 100,
 			}]
@@ -322,8 +321,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				equipModel.onLoad((wm : Model) => {
 					wm.mesh().attachToBone(arm, m.mesh());
 					wm.mesh().rotation = new BABYLON.Vector3(3 * Math.PI / 2, 0, Math.PI);
-					wm.mesh().scaling.y *= Math.sign(this._headDir.x);
-					wm.mesh().scaling.z *= Math.sign(this._headDir.x);
+
+					let armature = this._model.getBone(Bone.ARMATURE).getTransformNode();
+					wm.mesh().scaling.y *= Math.sign(armature.scaling.z);
+					wm.mesh().scaling.z *= Math.sign(armature.scaling.z);
 				});
 				break;
 			}
@@ -545,7 +546,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	override getCounts() : Map<CounterType, number> {
 		let counts = new Map<CounterType, number>();
-		counts.set(CounterType.HEALTH, this._stats.getStat(StatType.HEALTH).getCurrent());
+		counts.set(CounterType.HEALTH, this._stats.health());
 		this._equips.forEach((id : number) => {
 				const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
 				if (hasEquip) {

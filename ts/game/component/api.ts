@@ -35,7 +35,7 @@ export enum ModifierType {
 	CLASS,
 }
 
-export enum ModifierClassType {
+export enum ModifierPlayerType {
 	UNKNOWN,
 
 	NONE,
@@ -48,4 +48,12 @@ export enum StatType {
 	UNKNOWN,
 
 	HEALTH,
+}
+
+export enum BoostType {
+	UNKNOWN,
+
+	ADD,
+	MULT,
+	FINAL,
 }

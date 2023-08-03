@@ -1,13 +1,14 @@
 
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType, StatType } from 'game/component/api'
+import { StatNumber } from 'game/component/util/stat_number'
 
+import { defined } from 'util/common'
 import { Optional } from 'util/optional'
 import { RingBuffer } from 'util/ring_buffer'
 
 export type StatInitOptions = {
-	initial : number;
-	current : number;
+	stat : number;
 	min? : number;
 	max? : number;
 }
@@ -25,97 +26,120 @@ export class Stat extends ComponentBase implements Component {
 
 	private static readonly _bufferSize : number = 20;
 
-	private _initial : number;
-	private _current : number;
-	private _min : Optional<number>;
-	private _max : Optional<number>;
+	private _stat : StatNumber;
+	private _min : Optional<StatNumber>;
+	private _max : Optional<StatNumber>;
 	private _logBuffer : RingBuffer<StatLog>;
 
 	constructor(init : StatInitOptions) {
 		super(ComponentType.STAT);
 
-		this._initial = init.initial;
-		this._current = init.current;
-		this._min = new Optional(init.min);
-		this._max = new Optional(init.max);
+		this._stat = new StatNumber(init.stat);
+		this._min = new Optional();
+		if (defined(init.min)) {
+			this._min.set(new StatNumber(init.min));
+		}
+		this._max = new Optional();
+		if (defined(init.max)) {
+			this._max.set(new StatNumber(init.max));
+		}
 		this._logBuffer = new RingBuffer(Stat._bufferSize);
 
 		this.addProp<number>({
-			export: () => { return this._initial; },
-			import: (obj : number) => { this._initial = obj; },
-		});
-		this.addProp<number>({
-			export: () => { return this._current; },
-			import: (obj : number) => { this._current = obj; },
+			export: () => { return this._stat.get(); },
+			import: (obj : number) => { this._stat.set(obj); },
 		});
 		this.addProp<number>({
 			has: () => { return this._min.has(); },
-			export: () => { return this._min.get(); },
-			import: (obj : number) => { this._min.set(obj); },
+			export: () => { return this._min.get().get(); },
+			import: (obj : number) => {
+				if (!this._min.has()) {
+					this._min.set(new StatNumber(obj));
+				} else {
+					this._min.get().set(obj);
+				}
+			},
 		});
 		this.addProp<number>({
 			has: () => { return this._max.has(); },
-			export: () => { return this._max.get(); },
-			import: (obj : number) => { this._max.set(obj); },
+			export: () => { return this._max.get().get(); },
+			import: (obj : number) => {
+				if (!this._max.has()) {
+					this._max.set(new StatNumber(obj));
+				} else {
+					this._max.get().set(obj);
+				}
+			},
 		});
 	}
 
 	reset() : void {
-		this._current = this._initial;
+		this._stat.reset();
+		if (this._min.has()) {
+			this._min.get().reset();
+		}
+		if (this._max.has()) {
+			this._max.get().reset();
+		}
 		this._logBuffer.clear();
 	}
-
-	atMin() : boolean { return this._min.has() && this._current <= this._min.get(); }
-	atMax() : boolean { return this._max.has() && this._current >= this._max.get(); }
-	getMin() : Optional<number> { return this._min; }
-	setMin(min : number) : void { this._min.set(min); }
-	addMin(delta : number) : void {
-		if (!this._min.has()) { this._min.set(0); }
-
-		this.setMin(this._min.get() + delta);
+	clearBoosts() : void {
+		this._stat.clearBoosts();
+		if (this._min.has()) {
+			this._min.get().clearBoosts();
+		}
+		if (this._max.has()) {
+			this._max.get().clearBoosts();
+		}
+	}
+	boost() : void {
+		this._stat.boost();
+		if (this._min.has()) {
+			this._min.get().boost();
+		}
+		if (this._max.has()) {
+			this._max.get().boost();
+		}
 	}
 
-	getMax() : Optional<number> { return this._max; }
-	setMax(max : number) : void { this._max.set(max); }
-	addMax(delta : number) : void {
-		if (!this._max.has()) { this._max.set(0); }
+	atMin() : boolean { return this._min.has() && this._stat.get() <= this._min.get().get(); }
+	atMax() : boolean { return this._max.has() && this._stat.get() >= this._max.get().get(); }
+	getMin() : Optional<StatNumber> { return this._min; }
+	getMax() : Optional<StatNumber> { return this._max; }
+	getStat() : StatNumber { return this._stat; }
 
-		this.setMax(this._max.get() + delta);
-	}
-
-	getInitial() : number { return this._initial; }
-	setInitial(def : number) : void { this._initial = def; }
-
-	getCurrent() : number { return this._current; }
-	setCurrent(current : number) : void { this._current = current; }
-	updateCurrent(update : StatUpdate) : void {
+	updateStat(update : StatUpdate) : void {
 		if (!this.isSource()) {
 			return;
 		}
 
 		if (update.amount < 0) {
 			if (this._min.has()) {
-				if (this._current <= this._min.get()) {
+				const min = this._min.get();
+				if (this._stat.get() <= min.get()) {
 					update.amount = 0;
 				}
 
-				update.amount = Math.max(this._min.get() - this._current, update.amount);
+				update.amount = Math.max(min.get() - this._stat.get(), update.amount);
 			}
 		}
 
 		if (update.amount > 0) {
-			if (this._current >= this._max.get()) {
-				update.amount = 0;
-			}
+			if (this._max.has()) {
+				const max = this._max.get();
+				if (this._stat.get() >= max.get()) {
+					update.amount = 0;
+				}
 
-			update.amount = Math.max(this._max.get() - this._current, update.amount);
+				update.amount = Math.max(max.get() - this._stat.get(), update.amount);
+			}
 		}
 
 		if (update.amount === 0) {
 			return;
 		}
 
-		this._current += update.amount;
+		this._stat.add(update.amount);
 		this._logBuffer.push({
 			...update,
 			ts: Date.now(),

@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
-import { ComponentType, ModifierType, ModifierClassType, StatType } from 'game/component/api'
+import { ComponentType, BoostType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
 import { Stat } from 'game/component/stat'
 
 import { Entity } from 'game/entity'
@@ -10,7 +10,7 @@ import { RingBuffer } from 'util/ring_buffer'
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
 
-type ModifierValue = ModifierClassType|number;
+type ModifierValue = ModifierPlayerType|number;
 export type ModifiersInitOptions = {
 	modifiers : Map<ModifierType, ModifierValue>;
 }
@@ -51,7 +51,6 @@ export class Modifiers extends ComponentBase implements Component {
 
 	apply(statType : StatType, stat : Stat) : void {
 		for (let type of Modifiers._order) {
-			console.log(type, stat);
 			if (!this.hasModifier(type)) {
 				continue;
 			}
@@ -64,22 +63,25 @@ export class Modifiers extends ComponentBase implements Component {
 		}
 	}
 
-	private applyClass(statType : StatType, stat : Stat, classType : ModifierClassType) : void {
+	private applyClass(statType : StatType, stat : Stat, classType : ModifierPlayerType) : void {
 		switch (classType) {
-		case ModifierClassType.BIG:
+		case ModifierPlayerType.BIG:
 			switch (statType) {
 			case StatType.HEALTH:
 				if (stat.getMax().has()) {
-					// TODO: apply temporary boost
-					stat.addMax(25);
-					stat.setCurrent(stat.getMax().get());
+					stat.getMax().get().addBoost(BoostType.ADD, (value : number) => {
+						return value + 25;
+					});
 				}
+				stat.getStat().addBoost(BoostType.ADD, (value : number) => {
+					return value + 25;
+				});
 				break;
 			}
 			break;
-		case ModifierClassType.FAST:
+		case ModifierPlayerType.FAST:
 			break;
-		case ModifierClassType.SHARP:
+		case ModifierPlayerType.SHARP:
 			break;
 		}
 	}

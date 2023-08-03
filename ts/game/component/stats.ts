@@ -30,14 +30,16 @@ export class Stats extends ComponentBase implements Component {
 	reset(modifiers? : Modifiers) : void {
 		this.executeCallback<Stat>((stat : Stat, type : StatType) => {
 			stat.reset();
+			stat.clearBoosts();
 			if (defined(modifiers)) {
 				modifiers.apply(type, stat);	
 			}
+			stat.boost();
 		});
 	}
 
 	// Convenience methods
-	health() : number { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).getCurrent(); }
+	health() : number { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).getStat().get(); }
 	dead() : boolean { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).atMin(); }
 
 	hasStat(type : StatType) : boolean { return this.hasChild(type); }
@@ -56,7 +58,7 @@ export class Stats extends ComponentBase implements Component {
 			return;
 		}
 
-		this.getSubComponent<Stat>(type).updateCurrent(update);
+		this.getSubComponent<Stat>(type).updateStat(update);
 	}
 
 	flushStat(type : StatType, skip : (log : StatLog) => boolean, stop : (log : StatLog) => boolean) : [StatLog, boolean] {
