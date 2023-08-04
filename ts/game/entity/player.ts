@@ -88,6 +88,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _collisionInfo : CollisionInfo
 
 	// TODO: create state machine with mutually exclusive set of states?
+	// TODO: deactivated to GameObject
 	private _deactivated : boolean;
 	private _jumpTimer : Timer;
 	private _canDoubleJump : boolean;
