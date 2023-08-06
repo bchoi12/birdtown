@@ -40,6 +40,7 @@ export enum DialogButtonType {
 
 export type DialogButton = {
 	type : DialogButtonType;
+	title : string;
 	onSelect? : () => void;
 	onUnselect? : () => void;
 }

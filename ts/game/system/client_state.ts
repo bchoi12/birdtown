@@ -1,9 +1,11 @@
 
 import { game } from 'game'
+import { EntityType } from 'game/entity/api'
 import { ClientSideSystem, System } from 'game/system'
 import { ClientConnectionState, ClientLoadState, SystemType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
+import { PlayerMessage, PlayerMessageType, PlayerProp } from 'message/player_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { NetworkBehavior } from 'network/api'
@@ -16,6 +18,7 @@ export class ClientState extends ClientSideSystem implements System {
 	private _displayName : string;
 	private _connectionState : ClientConnectionState;
 	private _loadState : ClientLoadState;
+	private _playerMsg : PlayerMessage;
 
 	constructor(clientId : number) {
 		super(SystemType.CLIENT_STATE, clientId);
@@ -28,6 +31,9 @@ export class ClientState extends ClientSideSystem implements System {
 		this._displayName = "";
 		this._connectionState = ClientConnectionState.CONNECTED;
 		this._loadState = ClientLoadState.WAITING;
+		this._playerMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
+		this._playerMsg.setProp<number>(PlayerProp.SEQ_NUM, 0);
+		this._playerMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
 
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
@@ -44,6 +50,30 @@ export class ClientState extends ClientSideSystem implements System {
 			export: () => { return this.loadState(); },
 			import: (obj : ClientLoadState) => { this.setLoadState(obj); },
 		});
+
+		// TODO: set equals() method based on seq num
+		this.addProp<Object>({
+			has: () => {
+				const seqNum = this._playerMsg.getProp<number>(PlayerProp.SEQ_NUM);
+				return seqNum > 0 && (
+					!this._playerMsg.hasProp(PlayerProp.HOST_SEQ_NUM) ||
+					seqNum > this._playerMsg.getProp<number>(PlayerProp.HOST_SEQ_NUM)
+				);
+			},
+			validate: (obj : Object) => {
+				this._playerMsg.parseObject(obj);
+				this.setLoadState(ClientLoadState.READY);
+			},
+			export: () => {
+				if (this.isHost()) {
+					this._playerMsg.setProp<number>(PlayerProp.HOST_SEQ_NUM, this._playerMsg.getProp<number>(PlayerProp.SEQ_NUM));
+				}
+				return this._playerMsg.toObject();
+			},
+			import: (obj : Object) => {
+				this._playerMsg.parseObject(obj);
+			},
+		})
 	}
 
 	override ready() : boolean {
@@ -67,6 +97,10 @@ export class ClientState extends ClientSideSystem implements System {
 			this.setLoadState(ClientLoadState.LOADED);
 			break;
 		}
+	}
+
+	equipType() : EntityType {
+		return this._playerMsg.getProp<EntityType>(PlayerProp.EQUIP_TYPE);
 	}
 
 	private hasDisplayName() : boolean { return this._displayName.length > 0; }
@@ -109,19 +143,25 @@ export class ClientState extends ClientSideSystem implements System {
 			msg.setProp(UiProp.PAGES, [{
 				buttons: [{
 					type: DialogButtonType.IMAGE,
+					title: "bazooka",
 					onSelect: () => {
-						alert("hi1");
+						this._playerMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
 					},
 				}, {
 					type: DialogButtonType.IMAGE,
+					title: "sniper",
 					onSelect: () => {
-						alert("hi2");
+						this._playerMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.SNIPER);
 					},
 				}],
 			},
 			]);
 			msg.setProp(UiProp.ON_SUBMIT, () => {
-				alert("submitted");
+				if (this.isHost()) {
+					this.setLoadState(ClientLoadState.READY);
+				} else {
+					this._playerMsg.setProp<number>(PlayerProp.SEQ_NUM, this._playerMsg.getProp<number>(PlayerProp.SEQ_NUM) + 1);
+				}
 			});
 			ui.handleMessage(msg);
 			break;

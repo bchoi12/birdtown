@@ -80,6 +80,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		Bone.ARM, Bone.ARMATURE, Bone.NECK, Bone.SPINE,
 	]);
 
+	private _equip : Equip<Player>;
+	private _altEquip : Equip<Player>;
+
 	// TODO: package in struct, Pose, PlayerPose?
 	private _armDir : Vec2;
 	private _armRecoil : number;
@@ -281,33 +284,16 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 		game.keys(this.clientId()).setTargetEntity(this);
 
-		this._model.onLoad(() => {
-			const [weapon, hasWeapon] = this.addTrackedEntity<Equip<Player>>(EntityType.SNIPER, {
-				associationInit: {
-					owner: this,
-				},
-			});
-			if (hasWeapon) {
-				weapon.addKey(KeyType.MOUSE_CLICK);
-			}
-
-			const [brain, hasBrain] = this.addTrackedEntity<Equip<Player>>(EntityType.BIRD_BRAIN, {
-				associationInit: {
-					owner: this,
-				},
-			});		
-			if (hasBrain) {
-				brain.addKey(KeyType.ALT_MOUSE_CLICK);
-			}
-		});
+		this.updateLoadout();
 	}
 
 	setSpawn(spawn : Vec) : void { this._spawn = spawn; }
 	respawn() : void {
-		this._stats.reset(this._modifiers);
 		this._profile.setPos(this._spawn);
 		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
+		this.updateLoadout();
+		this._stats.reset(this._modifiers);
 	}
 	setDeactivated(deactivated : boolean) : void { this._deactivated = deactivated; }
 	dead() : boolean { return this._stats.dead(); }
@@ -557,6 +543,37 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				}
 		});
 		return counts;
+	}
+
+	private updateLoadout() : void {
+		this._model.onLoad(() => {
+			if (defined(this._equip)) {
+				this._equip.delete();
+			}
+
+			let hasEquip;
+			[this._equip, hasEquip] = this.addTrackedEntity<Equip<Player>>(game.clientState(this.clientId()).equipType(), {
+				associationInit: {
+					owner: this,
+				},
+			});
+			if (hasEquip) {
+				this._equip.addKey(KeyType.MOUSE_CLICK);
+			}
+
+			if (defined(this._altEquip)) {
+				this._altEquip.delete();
+			}
+			let hasAltEquip;
+			[this._altEquip, hasAltEquip] = this.addTrackedEntity<Equip<Player>>(EntityType.BIRD_BRAIN, {
+				associationInit: {
+					owner: this,
+				},
+			});		
+			if (hasAltEquip) {
+				this._altEquip.addKey(KeyType.ALT_MOUSE_CLICK);
+			}
+		});
 	}
 
 	private recomputeHeadDir() : void {

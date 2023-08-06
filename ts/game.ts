@@ -167,6 +167,7 @@ class Game {
 					this._netcode.broadcast(Game._channelMapping.get(filter), msg);
     			}
 	    	}
+	    	this._runner.cleanup();
 	    	this._frameTimes.push(Date.now() - frameStart);
 	    });
 

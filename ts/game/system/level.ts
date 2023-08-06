@@ -193,7 +193,7 @@ export class Level extends SystemBase implements System {
 
 
 			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
-			let chance = (i % 2) === 0 ? 0 : 1
+			let chance = 0; // (i % 2) === 0 ? 0 : 1
 			while (this._rng.next() < chance) {
 				this.addEntity(EntityType.CRATE, {
 					profileInit: {

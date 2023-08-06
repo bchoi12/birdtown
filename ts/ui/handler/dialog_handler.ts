@@ -40,10 +40,15 @@ export class DialogHandler extends HandlerBase implements Handler {
 				let group = pageWrapper.addGroup();
 				for (let button of page.buttons) {
 					let buttonWrapper = pageWrapper.addButton(group);
-					buttonWrapper.elm().textContent = "button";
+					buttonWrapper.elm().textContent = button.title;
 
 					if (defined(button.onSelect)) {
 						buttonWrapper.addOnSelect(button.onSelect);
+
+						// TODO: testing
+						buttonWrapper.addOnSelect(() => {
+							dialogWrapper.submit();
+						});
 					}
 					if (defined(button.onUnselect)) {
 						buttonWrapper.addOnUnselect(button.onUnselect);

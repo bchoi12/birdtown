@@ -66,7 +66,12 @@ export class EntityMap extends SystemBase implements System {
 
 		return entities;
 	}
-	deleteEntity(id : number) : void { this.getEntity(id).delete(); }
+	deleteEntity(id : number) : void {
+		if (!this.hasEntity(id)) {
+			return;
+		}
+		this.getEntity(id).delete();
+	}
 	unregisterEntity(id : number) : void { this.unregisterChild(id); }
 }
 		

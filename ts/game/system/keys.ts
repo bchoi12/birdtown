@@ -113,6 +113,7 @@ export class Keys extends ClientSideSystem implements System {
 			import: (obj : number) => { this._seqNum = Math.max(this._seqNum, obj); },
 			validate: (obj : number) => { this._hostSeqNum = Math.max(this._hostSeqNum, obj); },
 			options: {
+				optional: true,
 				filters: GameData.udpFilters,
 			},
 		});

@@ -304,8 +304,16 @@ export class Profile extends ComponentBase implements Component {
 	hasAngle() : boolean { return defined(this._angle); }
 	angle() : number { return this.hasAngle() ? this._angle : 0; }
 	setAngle(angle : number) : void { this._angle = angle; }
-	setAngularVelocity(vel : number) : void { MATTER.Body.setAngularVelocity(this._body, vel); }
-	addAngularVelocity(delta : number) : void { MATTER.Body.setAngularVelocity(this._body, this._body.angularVelocity + delta); }
+	setAngularVelocity(vel : number) : void {
+		if (defined(this._body)) {
+			MATTER.Body.setAngularVelocity(this._body, vel);
+		}
+	}
+	addAngularVelocity(delta : number) : void {
+		if (defined(this._body)) {
+			MATTER.Body.setAngularVelocity(this._body, this._body.angularVelocity + delta);
+		}
+	}
 
 	hasInertia() : boolean { return defined(this._inertia); }
 	inertia() : number { return this._inertia; }

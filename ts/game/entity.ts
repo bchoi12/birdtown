@@ -148,10 +148,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 	}
 
-	override preRender(millis : number) : void {
-		super.preRender(millis);
-	}
-
 	type() : EntityType { return this._type; }
 	allTypes() : Set<EntityType> { return this._allTypes; }
 	id() : number { return this._id; }

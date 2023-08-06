@@ -61,6 +61,7 @@ export interface GameObject {
 	preRender(millis : number) : void
 	render(millis : number) : void
 	postRender(millis : number) : void
+	cleanup() : void;
 
 	millisSinceUpdate() : number;
 	millisSinceImport() : number;
@@ -200,12 +201,6 @@ export abstract class GameObjectBase {
 			if (!obj.initialized() && obj.ready()) {
 				obj.initialize();
 			}
-
-			if (obj.deleted()) {
-				obj.dispose();
-				return;
-			}
-
 			if (obj.initialized()) {
 				obj.preUpdate(millis);
 			}
@@ -264,6 +259,17 @@ export abstract class GameObjectBase {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
 				obj.postRender(millis);
+			}
+		});
+	}
+	cleanup() : void {
+		this.updateObjects((obj : GameObject) => {
+			if (obj.initialized()) {
+				obj.cleanup();
+
+				if (obj.deleted()) {
+					obj.dispose();
+				}
 			}
 		});
 	}
