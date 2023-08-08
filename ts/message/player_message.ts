@@ -9,25 +9,33 @@ export enum PlayerMessageType {
 
 export enum PlayerProp {
 	UNKNOWN,
-	ALT_EQUIP_TYPE,
-	CLASS,
+
 	EQUIP_TYPE,
-	HOST_SEQ_NUM,
-	SEQ_NUM,
+	ALT_EQUIP_TYPE,
+	TYPE,
+	VERSION,
 }
 
 export class PlayerMessage extends MessageBase<PlayerMessageType, PlayerProp> implements Message<PlayerMessageType, PlayerProp> {
 
 	private static readonly _messageDescriptor = new Map<PlayerMessageType, FieldDescriptor>([
 		[PlayerMessageType.LOADOUT, MessageBase.fieldDescriptor(
-			[PlayerProp.SEQ_NUM, {}],
-			[PlayerProp.HOST_SEQ_NUM, {optional: true}],
-			[PlayerProp.CLASS, {optional: true}],
+			[PlayerProp.TYPE, {}],
 			[PlayerProp.EQUIP_TYPE, {optional: true}],
 			[PlayerProp.ALT_EQUIP_TYPE, {optional: true}],
+			[PlayerProp.VERSION, {optional: true}],
 		)],
 	]);
 
-	constructor(type : PlayerMessageType) { super(type); }
+	private _version : number;
+
+	constructor(type : PlayerMessageType) {
+		super(type);
+
+		this._version = 0;
+	}
 	override messageDescriptor() : Map<PlayerMessageType, FieldDescriptor> { return PlayerMessage._messageDescriptor; }
+
+	localVersion() : number { return this._version; }
+	setLocalVersion(version : number) { this._version = version; }
 }

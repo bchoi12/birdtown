@@ -54,7 +54,7 @@ export class Bolt extends Projectile {
 		}));
 	}
 
-	override damage() : number { return 50; }
+	override damage() : number { return 20; }
 
 	override update(millis : number) : void {
 		super.update(millis);

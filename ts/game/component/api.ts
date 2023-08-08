@@ -32,7 +32,7 @@ export enum AttributeType {
 export enum ModifierType {
 	UNKNOWN,
 
-	CLASS,
+	TYPE,
 }
 
 export enum ModifierPlayerType {

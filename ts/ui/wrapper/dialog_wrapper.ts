@@ -11,6 +11,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	private _titleElm : HTMLElement;
 	private _textElm : HTMLElement;
 	private _pages : Array<PageWrapper>;
+	private _pageIndex : number;
 
 	private _onSubmitFns : Array<OnSubmitFn>;
 
@@ -28,6 +29,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().appendChild(this._textElm);
 
 		this._pages = new Array();
+		this._pageIndex = 0;
 
 		this._onSubmitFns = new Array();
 	}
@@ -35,6 +37,22 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	addPage(page : PageWrapper) : void {
 		this._pages.push(page);
 		this.elm().appendChild(page.elm());
+
+		if (this._pages.length > 1) {
+			page.elm().style.display = "none";
+		}
+	}
+	nextPage() : void {
+		if (this._pageIndex >= this._pages.length - 1) {
+			this.submit();
+			return;
+		}
+
+		let currentPage = this._pages[this._pageIndex];
+		currentPage.elm().style.display = "none";
+
+		this._pageIndex++;
+		this._pages[this._pageIndex].elm().style.display = "block";
 	}
 
 	setTitle(title : string) : void { this._titleElm.innerHTML = title; }

@@ -31,18 +31,24 @@ export type DialogPage = {
 
 export enum DialogButtonType {
 	UNKNOWN,
-
-	BACK,
 	IMAGE,
-	NEXT,
+}
+
+export enum DialogButtonAction {
+	UNKNOWN,
+	NONE,
+	UNSELECT_GROUP,
 	SUBMIT,
 }
 
+export type DialogButtonOnSelectFn = () => void
+export type DialogButtonOnUnselectFn = () => void;
 export type DialogButton = {
 	type : DialogButtonType;
 	title : string;
-	onSelect? : () => void;
-	onUnselect? : () => void;
+	action : DialogButtonAction;
+	onSelect? : DialogButtonOnSelectFn;
+	onUnselect? : DialogButtonOnUnselectFn;
 }
 
 export enum KeyType {

@@ -21,6 +21,8 @@ import { CollisionInfo } from 'game/util/collision_info'
 
 import { GameGlobals } from 'global/game_globals'
 
+import { PlayerProp } from 'message/player_message'
+
 import { KeyType, CounterType } from 'ui/api'
 
 import { Buffer } from 'util/buffer'
@@ -80,9 +82,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		Bone.ARM, Bone.ARMATURE, Bone.NECK, Bone.SPINE,
 	]);
 
-	private _equip : Equip<Player>;
-	private _altEquip : Equip<Player>;
-
 	// TODO: package in struct, Pose, PlayerPose?
 	private _armDir : Vec2;
 	private _armRecoil : number;
@@ -98,7 +97,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _deadTracker : ChangeTracker<boolean>;
 	private _spawn : Vec;
 	private _respawnTimer : Timer;
+
 	private _equips : Array<number>;
+	private _equip : Equip<Player>;
+	private _altEquip : Equip<Player>;
 
 	private _attributes : Attributes;
 	private _model : Model;
@@ -257,8 +259,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}));
 
 		this._modifiers = new Modifiers();
-		this._modifiers.setModifier(ModifierType.CLASS, ModifierPlayerType.BIG);
-
 		this._stats = this.addComponent<Stats>(new Stats({ stats: new Map<StatType, StatInitOptions>([
 			[StatType.HEALTH, {
 				stat: 100,
@@ -266,7 +266,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				max: 100,
 			}]
 		])}));
-		this._stats.reset(this._modifiers);
 	}
 
 	override ready() : boolean {
@@ -547,12 +546,17 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	private updateLoadout() : void {
 		this._model.onLoad(() => {
+			const loadout = game.clientState(this.clientId()).loadoutMsg();
+
+			this._modifiers.setModifier(ModifierType.TYPE, loadout.getProp<ModifierPlayerType>(PlayerProp.TYPE));
+
 			if (defined(this._equip)) {
 				this._equip.delete();
 			}
 
+			// TODO: add levelVersion to equips
 			let hasEquip;
-			[this._equip, hasEquip] = this.addTrackedEntity<Equip<Player>>(game.clientState(this.clientId()).equipType(), {
+			[this._equip, hasEquip] = this.addTrackedEntity<Equip<Player>>(loadout.getProp<EntityType>(PlayerProp.EQUIP_TYPE), {
 				associationInit: {
 					owner: this,
 				},
@@ -565,7 +569,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._altEquip.delete();
 			}
 			let hasAltEquip;
-			[this._altEquip, hasAltEquip] = this.addTrackedEntity<Equip<Player>>(EntityType.BIRD_BRAIN, {
+			[this._altEquip, hasAltEquip] = this.addTrackedEntity<Equip<Player>>(loadout.getProp<EntityType>(PlayerProp.ALT_EQUIP_TYPE), {
 				associationInit: {
 					owner: this,
 				},

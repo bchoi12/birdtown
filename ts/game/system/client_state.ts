@@ -1,6 +1,8 @@
 
 import { game } from 'game'
+import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
+import { GameData, DataFilter } from 'game/game_data'
 import { ClientSideSystem, System } from 'game/system'
 import { ClientConnectionState, ClientLoadState, SystemType } from 'game/system/api'
 
@@ -11,14 +13,14 @@ import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 import { NetworkBehavior } from 'network/api'
 
 import { ui } from 'ui'
-import { DialogType, DialogButtonType } from 'ui/api'
+import { DialogButtonAction, DialogType, DialogButtonType } from 'ui/api'
 
 export class ClientState extends ClientSideSystem implements System {
 
 	private _displayName : string;
 	private _connectionState : ClientConnectionState;
 	private _loadState : ClientLoadState;
-	private _playerMsg : PlayerMessage;
+	private _loadoutMsg : PlayerMessage;
 
 	constructor(clientId : number) {
 		super(SystemType.CLIENT_STATE, clientId);
@@ -31,9 +33,10 @@ export class ClientState extends ClientSideSystem implements System {
 		this._displayName = "";
 		this._connectionState = ClientConnectionState.CONNECTED;
 		this._loadState = ClientLoadState.WAITING;
-		this._playerMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
-		this._playerMsg.setProp<number>(PlayerProp.SEQ_NUM, 0);
-		this._playerMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
+		this._loadoutMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
+		this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
+		this._loadoutMsg.setProp<EntityType>(PlayerProp.ALT_EQUIP_TYPE, EntityType.BIRD_BRAIN);
+		this._loadoutMsg.setProp<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.NONE);
 
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
@@ -51,29 +54,33 @@ export class ClientState extends ClientSideSystem implements System {
 			import: (obj : ClientLoadState) => { this.setLoadState(obj); },
 		});
 
-		// TODO: set equals() method based on seq num
 		this.addProp<Object>({
 			has: () => {
-				const seqNum = this._playerMsg.getProp<number>(PlayerProp.SEQ_NUM);
-				return seqNum > 0 && (
-					!this._playerMsg.hasProp(PlayerProp.HOST_SEQ_NUM) ||
-					seqNum > this._playerMsg.getProp<number>(PlayerProp.HOST_SEQ_NUM)
-				);
+				if (this.isHost()) { return this.loadState() === ClientLoadState.CHECK_READY; }
+
+				const version = this._loadoutMsg.getPropOr<number>(PlayerProp.VERSION, 0);
+				return version > this._loadoutMsg.localVersion();
 			},
 			validate: (obj : Object) => {
-				this._playerMsg.parseObject(obj);
-				this.setLoadState(ClientLoadState.READY);
+				this._loadoutMsg.parseObject(obj);
+
+				const version = this._loadoutMsg.getPropOr<number>(PlayerProp.VERSION, 0);
+				if (version > this._loadoutMsg.localVersion()) {
+					this.setLoadState(ClientLoadState.READY);
+					this._loadoutMsg.setLocalVersion(version);
+				}
 			},
 			export: () => {
-				if (this.isHost()) {
-					this._playerMsg.setProp<number>(PlayerProp.HOST_SEQ_NUM, this._playerMsg.getProp<number>(PlayerProp.SEQ_NUM));
-				}
-				return this._playerMsg.toObject();
+				return this._loadoutMsg.toObject();
 			},
 			import: (obj : Object) => {
-				this._playerMsg.parseObject(obj);
+				this._loadoutMsg.parseObject(obj);
 			},
-		})
+			options: {
+				refreshInterval: 250,
+				filters: GameData.tcpFilters,
+			},
+		});
 	}
 
 	override ready() : boolean {
@@ -99,9 +106,7 @@ export class ClientState extends ClientSideSystem implements System {
 		}
 	}
 
-	equipType() : EntityType {
-		return this._playerMsg.getProp<EntityType>(PlayerProp.EQUIP_TYPE);
-	}
+	loadoutMsg() : PlayerMessage { return this._loadoutMsg; }
 
 	private hasDisplayName() : boolean { return this._displayName.length > 0; }
 	setDisplayName(name : string) : void { this._displayName = name; }
@@ -132,7 +137,7 @@ export class ClientState extends ClientSideSystem implements System {
 
 		this._loadState = state;
 
-		if (!this.isSource()) {
+		if (!this.clientIdMatches()) {
 			return;
 		}
 
@@ -144,23 +149,41 @@ export class ClientState extends ClientSideSystem implements System {
 				buttons: [{
 					type: DialogButtonType.IMAGE,
 					title: "bazooka",
+					action: DialogButtonAction.SUBMIT,
 					onSelect: () => {
-						this._playerMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
+						this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
 					},
 				}, {
 					type: DialogButtonType.IMAGE,
 					title: "sniper",
+					action: DialogButtonAction.SUBMIT,
 					onSelect: () => {
-						this._playerMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.SNIPER);
+						this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.SNIPER);
 					},
 				}],
+			}, {
+				buttons: [{
+					type: DialogButtonType.IMAGE,
+					title: "big",
+					action: DialogButtonAction.SUBMIT,
+					onSelect: () => {
+						this._loadoutMsg.setProp<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.BIG);
+					},
+				}, {
+					type: DialogButtonType.IMAGE,
+					title: "none",
+					action: DialogButtonAction.SUBMIT,
+					onSelect: () => {
+						this._loadoutMsg.setProp<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.NONE);
+					},
+				}]
 			},
 			]);
 			msg.setProp(UiProp.ON_SUBMIT, () => {
 				if (this.isHost()) {
 					this.setLoadState(ClientLoadState.READY);
 				} else {
-					this._playerMsg.setProp<number>(PlayerProp.SEQ_NUM, this._playerMsg.getProp<number>(PlayerProp.SEQ_NUM) + 1);
+					this._loadoutMsg.setProp<number>(PlayerProp.VERSION, this._loadoutMsg.localVersion() + 1);
 				}
 			});
 			ui.handleMessage(msg);

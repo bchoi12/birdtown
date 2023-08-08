@@ -1,14 +1,11 @@
 
 import { ui } from 'ui'
-import { DialogButtonType } from 'ui/api'
+import { DialogButtonType, DialogButtonAction, DialogButtonOnSelectFn, DialogButtonOnUnselectFn } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 
 export type ButtonWrapperOptions = {
 	type : DialogButtonType;
 }
-
-type OnSelectFn = () => void;
-type OnUnselectFn = () => void;
 
 enum ButtonState {
 	UNKNOWN,
@@ -21,16 +18,15 @@ enum ButtonState {
 export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 
 	private static readonly _defaultText = new Map<DialogButtonType, string>([
-		[DialogButtonType.BACK, "Back"],
-		[DialogButtonType.NEXT, "Next"],
-		[DialogButtonType.SUBMIT, "Submit"],
+		[DialogButtonType.IMAGE, "Image Button"],
 	]);
 
 	private _type : DialogButtonType;
+	private _group : number;
 	private _id : number;
 	private _state : ButtonState;
-	private _onSelect : Array<OnSelectFn>;
-	private _onUnselect : Array<OnUnselectFn>;
+	private _onSelect : Array<DialogButtonOnSelectFn>;
+	private _onUnselect : Array<DialogButtonOnUnselectFn>;
 
 	constructor(type : DialogButtonType, id : number) {
 		super(Html.button());
@@ -50,13 +46,14 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		};
 	}
 
+	group() : number { return this._group; }
 	id() : number { return this._id; }
 
-	addOnSelect(fn : OnSelectFn) : void {
+	addOnSelect(fn : DialogButtonOnSelectFn) : void {
 		this._onSelect.push(fn);
 	}
 
-	addOnUnselect(fn : OnUnselectFn) : void {
+	addOnUnselect(fn : DialogButtonOnUnselectFn) : void {
 		this._onUnselect.push(fn);
 	}
 
@@ -65,7 +62,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 			return;
 		}
 
-		this._onSelect.forEach((fn : OnSelectFn) => {
+		this._onSelect.forEach((fn : DialogButtonOnSelectFn) => {
 			fn();
 		});
 		this._state = ButtonState.SELECTED;
@@ -76,7 +73,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 			return;
 		}
 
-		this._onUnselect.forEach((fn : OnUnselectFn) => {
+		this._onUnselect.forEach((fn : DialogButtonOnUnselectFn) => {
 			fn();
 		});
 

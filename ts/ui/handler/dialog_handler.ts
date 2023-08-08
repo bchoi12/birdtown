@@ -34,28 +34,29 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 		dialogWrapper.setTitle("Message");
 		if (msg.hasProp(UiProp.PAGES)) {
-			for (let page of msg.getProp<Array<DialogPage>>(UiProp.PAGES)) {
-				let pageWrapper = new PageWrapper();
+			const dialogPages = msg.getProp<Array<DialogPage>>(UiProp.PAGES);
 
-				let group = pageWrapper.addGroup();
+			for (let i = 0; i < dialogPages.length; ++i) {
+				let page = dialogPages[i];
+				let pageWrapper = new PageWrapper();
+				let groupIndex = pageWrapper.addGroup();
 				for (let button of page.buttons) {
-					let buttonWrapper = pageWrapper.addButton(group);
+					let buttonWrapper = pageWrapper.addButton(groupIndex, button);
 					buttonWrapper.elm().textContent = button.title;
 
 					if (defined(button.onSelect)) {
 						buttonWrapper.addOnSelect(button.onSelect);
-
-						// TODO: testing
-						buttonWrapper.addOnSelect(() => {
-							dialogWrapper.submit();
-						});
 					}
 					if (defined(button.onUnselect)) {
 						buttonWrapper.addOnUnselect(button.onUnselect);
 					}
 				}
-
 				dialogWrapper.addPage(pageWrapper);
+
+				// Submit dialog after last page is submitted.
+				pageWrapper.addOnSubmit(() => {
+					dialogWrapper.nextPage();
+				});
 			}
 
 			if (msg.hasProp(UiProp.ON_SUBMIT)) {

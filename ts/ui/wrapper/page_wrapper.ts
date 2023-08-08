@@ -1,10 +1,10 @@
 
 import { ui } from 'ui'
-import { DialogButtonType } from 'ui/api'
+import { DialogButton, DialogButtonType, DialogButtonAction } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 
-type OnSubmitFn = () => {};
+type OnSubmitFn = () => void;
 
 export class PageWrapper extends HtmlWrapper<HTMLElement> {
 
@@ -35,25 +35,32 @@ export class PageWrapper extends HtmlWrapper<HTMLElement> {
 		return this._lastGroupId;
 	}
 
-	addButton(group : number) : ButtonWrapper {
+	addButton(group : number, button : DialogButton) : ButtonWrapper {
 		if (!this._buttonGroups.has(group)) {
 			console.error("Error: skipping attempt to add button to nonexistent group", group);
 			return;
 		}
 
-		let button = new ButtonWrapper(DialogButtonType.SUBMIT, this._buttonGroups.get(group).length + 1);
-		button.addOnSelect(() => {
-			this._buttonGroups.get(group).forEach((otherButton : ButtonWrapper) => {
-				if (button.id() === otherButton.id()) {
-					return;
-				}
-				otherButton.unselect();
+		let buttonWrapper = new ButtonWrapper(button.type, this._buttonGroups.get(group).length + 1);
+
+		if (button.action === DialogButtonAction.UNSELECT_GROUP) {
+			buttonWrapper.addOnSelect(() => {
+				this._buttonGroups.get(group).forEach((otherWrapper : ButtonWrapper) => {
+					if (buttonWrapper.id() === otherWrapper.id()) {
+						return;
+					}
+					otherWrapper.unselect();
+				});
 			});
-		});
+		} else if (button.action === DialogButtonAction.SUBMIT) {
+			buttonWrapper.addOnSelect(() => {
+				this.submit();
+			});
+		}
 
-		this._buttonGroups.get(group).push(button);
-		this.elm().appendChild(button.elm());
+		this._buttonGroups.get(group).push(buttonWrapper);
+		this.elm().appendChild(buttonWrapper.elm());
 
-		return button;
+		return buttonWrapper;
 	}
 }
