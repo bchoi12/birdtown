@@ -48,12 +48,14 @@ export enum StatType {
 	UNKNOWN,
 
 	HEALTH,
+	SCALING,
 }
 
 export enum BoostType {
 	UNKNOWN,
 
-	ADD,
-	MULT,
-	FINAL,
+	ADD_BASE,
+	MULT_BASE,
+	ADD_BONUS,
+	MULT_TOTAL
 }

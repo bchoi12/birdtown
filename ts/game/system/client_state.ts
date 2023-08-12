@@ -1,12 +1,13 @@
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
 import { GameData, DataFilter } from 'game/game_data'
 import { ClientSideSystem, System } from 'game/system'
-import { ClientConnectionState, ClientLoadState, SystemType } from 'game/system/api'
+import { ClientConnectionState, SystemType } from 'game/system/api'
 
-import { GameMessage, GameMessageType } from 'message/game_message'
+import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 import { PlayerMessage, PlayerMessageType, PlayerProp } from 'message/player_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
@@ -19,7 +20,7 @@ export class ClientState extends ClientSideSystem implements System {
 
 	private _displayName : string;
 	private _connectionState : ClientConnectionState;
-	private _loadState : ClientLoadState;
+	private _gameState : GameState;
 	private _loadoutMsg : PlayerMessage;
 
 	constructor(clientId : number) {
@@ -32,7 +33,7 @@ export class ClientState extends ClientSideSystem implements System {
 
 		this._displayName = "";
 		this._connectionState = ClientConnectionState.CONNECTED;
-		this._loadState = ClientLoadState.WAITING;
+		this._gameState = GameState.WAITING;
 		this._loadoutMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
 		this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
 		this._loadoutMsg.setProp<EntityType>(PlayerProp.ALT_EQUIP_TYPE, EntityType.BIRD_BRAIN);
@@ -48,16 +49,20 @@ export class ClientState extends ClientSideSystem implements System {
 			export: () => { return this.connectionState(); },
 			import: (obj : ClientConnectionState) => { this.setConnectionState(obj); },
 		});
-		this.addProp<ClientLoadState>({
-			has: () => { return this.loadState() !== ClientLoadState.UNKNOWN; },
-			export: () => { return this.loadState(); },
-			import: (obj : ClientLoadState) => { this.setLoadState(obj); },
+		this.addProp<GameState>({
+			has: () => { return this.gameState() !== GameState.UNKNOWN; },
+			export: () => { return this.gameState(); },
+			import: (obj : GameState) => { this.setGameState(obj); },
 		});
 
 		this.addProp<Object>({
 			has: () => {
-				if (this.isHost()) { return this.loadState() === ClientLoadState.CHECK_READY; }
-
+				if (this.gameState() !== GameState.SETUP) {
+					return false;
+				}
+				if (this.isHost()) {
+					return true;
+				}
 				const version = this._loadoutMsg.getPropOr<number>(PlayerProp.VERSION, 0);
 				return version > this._loadoutMsg.localVersion();
 			},
@@ -66,15 +71,18 @@ export class ClientState extends ClientSideSystem implements System {
 
 				const version = this._loadoutMsg.getPropOr<number>(PlayerProp.VERSION, 0);
 				if (version > this._loadoutMsg.localVersion()) {
-					this.setLoadState(ClientLoadState.READY);
+					this.setGameState(GameState.GAMING);
 					this._loadoutMsg.setLocalVersion(version);
+					console.log("validate", this.name(), this._loadoutMsg);
 				}
 			},
 			export: () => {
+				console.log("export", this.name(), this._loadoutMsg);
 				return this._loadoutMsg.toObject();
 			},
 			import: (obj : Object) => {
 				this._loadoutMsg.parseObject(obj);
+				console.log("import", this.name(), this._loadoutMsg, obj);
 			},
 			options: {
 				refreshInterval: 250,
@@ -101,7 +109,12 @@ export class ClientState extends ClientSideSystem implements System {
 
 		switch(msg.type()) {
 		case GameMessageType.LEVEL_LOAD:
-			this.setLoadState(ClientLoadState.LOADED);
+			if (this._gameState === GameState.LOADING) {
+				this.setGameState(GameState.SETUP);
+			}
+			break;
+		case GameMessageType.GAME_STATE:
+			this.setGameState(msg.getProp<GameState>(GameProp.STATE));
 			break;
 		}
 	}
@@ -129,22 +142,24 @@ export class ClientState extends ClientSideSystem implements System {
 		}
 	}
 
-	loadState() : ClientLoadState { return this._loadState; }
-	setLoadState(state : ClientLoadState) : void {
-		if (this._loadState === state) {
+	gameState() : GameState { return this._gameState; }
+	setGameState(state : GameState) : void {
+		if (this._gameState === state) {
 			return;
 		}
 
-		this._loadState = state;
+		this._gameState = state;
+		console.log("load", this.name(), state);
 
 		if (!this.clientIdMatches()) {
 			return;
 		}
 
-		switch(this._loadState) {		
-		case ClientLoadState.CHECK_READY:
+		// TODO: stick this in GameMaker?
+		switch(this._gameState) {		
+		case GameState.SETUP:
 			let msg = new UiMessage(UiMessageType.DIALOG);
-			msg.setProp(UiProp.TYPE, DialogType.CHECK_READY);
+			msg.setProp(UiProp.TYPE, DialogType.PICK_LOADOUT);
 			msg.setProp(UiProp.PAGES, [{
 				buttons: [{
 					type: DialogButtonType.IMAGE,
@@ -152,6 +167,7 @@ export class ClientState extends ClientSideSystem implements System {
 					action: DialogButtonAction.SUBMIT,
 					onSelect: () => {
 						this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
+						console.log("bazook", this.name(), this._loadoutMsg);
 					},
 				}, {
 					type: DialogButtonType.IMAGE,
@@ -159,6 +175,7 @@ export class ClientState extends ClientSideSystem implements System {
 					action: DialogButtonAction.SUBMIT,
 					onSelect: () => {
 						this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.SNIPER);
+						console.log("snipe", this.name(), this._loadoutMsg);
 					},
 				}],
 			}, {
@@ -181,9 +198,10 @@ export class ClientState extends ClientSideSystem implements System {
 			]);
 			msg.setProp(UiProp.ON_SUBMIT, () => {
 				if (this.isHost()) {
-					this.setLoadState(ClientLoadState.READY);
+					this.setGameState(GameState.GAMING);
 				} else {
 					this._loadoutMsg.setProp<number>(PlayerProp.VERSION, this._loadoutMsg.localVersion() + 1);
+					console.log("submit", this.name(), this._loadoutMsg);
 				}
 			});
 			ui.handleMessage(msg);

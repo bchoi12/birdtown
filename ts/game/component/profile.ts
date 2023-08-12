@@ -2,7 +2,8 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
-import { ComponentType } from 'game/component/api'
+import { ComponentType, StatType } from 'game/component/api'
+import { Stats } from 'game/component/stats'
 
 import { settings } from 'settings'
 
@@ -201,6 +202,18 @@ export class Profile extends ComponentBase implements Component {
 		this._constraints.forEach((constraint : MATTER.Constraint) => {
 			MATTER.World.remove(game.physics().world(), constraint);
 		});
+	}
+
+	override processComponent<T extends Component>(component : T) : void {
+		if (component.type() !== ComponentType.STATS || !(component instanceof Stats)) {
+			return;
+		}
+
+		let stats = <Stats>component;
+		if (stats.hasStat(StatType.SCALING)) {
+			const scaling = stats.getStat(StatType.SCALING).getCurrent();
+			this.setScaling({x: scaling, y: scaling });
+		}
 	}
 
 	relativePos(cardinal : CardinalDir, objectDim : Vec) : Vec2 {

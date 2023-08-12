@@ -59,7 +59,7 @@ export class BirdBrain extends Equip<Player> {
 		if (this._targetId.has()) {
 			let [target, hasTarget] = game.entities().getEntity(this._targetId.get());
 			if (hasTarget) {
-				target.getComponent<Profile>(ComponentType.PROFILE).moveTo(input.mouse, {
+				target.getProfile().moveTo(input.mouse, {
 					millis: input.millis,
 					posEpsilon: 0.5,
 					maxAccel: 3,
@@ -125,7 +125,7 @@ export class BirdBrain extends Equip<Player> {
 			let [target, hasTarget] = game.entities().getEntity(this._targetId.get());
 
 			if (hasTarget) {
-				let profile = target.getComponent<Profile>(ComponentType.PROFILE);
+				let profile = target.getProfile();
 				profile.setAcc({x: 0, y: GameGlobals.gravity });
 				profile.clearMaxSpeed();
 				MATTER.Body.setDensity(profile.body(), profile.body().density / BirdBrain._densityAdjustment);
@@ -136,7 +136,7 @@ export class BirdBrain extends Equip<Player> {
 		if (id) {
 			let [target, hasTarget] = game.entities().getEntity(id);
 			if (hasTarget) {
-				let profile = target.getComponent<Profile>(ComponentType.PROFILE);
+				let profile = target.getProfile();
 				profile.setMaxSpeed({
 					maxSpeed: { x: 5, y: 5},
 				});

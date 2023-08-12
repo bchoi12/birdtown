@@ -16,6 +16,7 @@ export enum IconType {
 	VOLUME_LOW,
 	VOLUME_HIGH,
 
+	ROCKET,
 	TRUCK_FAST,
 }
 
@@ -33,6 +34,7 @@ export namespace Icon {
 		[IconType.VOLUME_NONE, "fa-volume-off"],
 		[IconType.VOLUME_LOW, "fa-volume-low"],
 		[IconType.VOLUME_HIGH, "fa-volume-high"],
+		[IconType.ROCKET, "fa-rocket"],
 		[IconType.TRUCK_FAST, "fa-truck-fast"],
 	]);
 

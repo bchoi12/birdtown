@@ -51,5 +51,6 @@ export class Timer {
 	}
 
 	hasTimeLeft() : boolean { return this._enabled && this._millisLeft > 0; }
+	timeLeft() : number { return this.hasTimeLeft() ? this._millisLeft : 0; }
 	finished() : boolean { return this._enabled && this._finished; }
 }

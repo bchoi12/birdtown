@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -16,7 +17,6 @@ import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { BodyFactory } from 'game/factory/body_factory'
-import { ControllerState } from 'game/system/api'
 import { CollisionInfo } from 'game/util/collision_info'
 
 import { GameGlobals } from 'global/game_globals'
@@ -137,7 +137,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
 				this._profile.setAcc({x: 0});
 
-				if (game.controller().state() === ControllerState.WAITING) {
+				if (game.controller().state() === GameState.WAITING) {
 					this._respawnTimer.start(Player._respawnTime, () => {
 						this.respawn();
 					});
@@ -292,7 +292,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
 		this.updateLoadout();
-		this._stats.reset(this._modifiers);
+
+		this._stats.reset();
+		this._stats.processComponent<Modifiers>(this._modifiers);
+		this._profile.processComponent<Stats>(this._stats);
 	}
 	setDeactivated(deactivated : boolean) : void { this._deactivated = deactivated; }
 	dead() : boolean { return this._stats.dead(); }

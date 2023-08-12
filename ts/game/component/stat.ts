@@ -8,7 +8,7 @@ import { Optional } from 'util/optional'
 import { RingBuffer } from 'util/ring_buffer'
 
 export type StatInitOptions = {
-	stat : number;
+	stat? : number;
 	min? : number;
 	max? : number;
 }
@@ -34,7 +34,7 @@ export class Stat extends ComponentBase implements Component {
 	constructor(init : StatInitOptions) {
 		super(ComponentType.STAT);
 
-		this._stat = new StatNumber(init.stat);
+		this._stat = new StatNumber(defined(init.stat) ? init.stat : 0);
 		this._min = new Optional();
 		if (defined(init.min)) {
 			this._min.set(new StatNumber(init.min));
@@ -106,7 +106,8 @@ export class Stat extends ComponentBase implements Component {
 	atMax() : boolean { return this._max.has() && this._stat.get() >= this._max.get().get(); }
 	getMin() : Optional<StatNumber> { return this._min; }
 	getMax() : Optional<StatNumber> { return this._max; }
-	getStat() : StatNumber { return this._stat; }
+	getStatNumber() : StatNumber { return this._stat; }
+	getCurrent() : number { return this._stat.get(); }
 
 	updateStat(update : StatUpdate) : void {
 		if (!this.isSource()) {

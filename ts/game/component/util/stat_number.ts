@@ -5,7 +5,7 @@ type BoostFn = (value : number) => number;
 
 export class StatNumber {
 
-	private static readonly _boostOrder = [BoostType.ADD, BoostType.MULT, BoostType.FINAL];
+	private static readonly _boostOrder = [BoostType.ADD_BASE, BoostType.MULT_BASE, BoostType.ADD_BONUS, BoostType.MULT_TOTAL];
 
 	private _default : number;
 	private _current : number;

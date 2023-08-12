@@ -1,10 +1,10 @@
 
 import { game } from 'game'
-
+import { GameState } from 'game/api'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
-import { ClientLoadState, ControllerState, LevelType, SystemType } from 'game/system/api'
+import { LevelType, SystemType } from 'game/system/api'
 import { ClientState } from 'game/system/client_state'
 import { GameMaker } from 'game/system/game_maker'
 import { DuelMaker } from 'game/system/game_maker/duel_maker'
@@ -17,14 +17,16 @@ import { Timer } from 'util/timer'
 
 export class Controller extends SystemBase implements System {
 
-	private _state : ControllerState;
+	private static readonly _clientSideStates = new Set<GameState>([GameState.LOADING, GameState.SETUP]);
+
+	private _gameState : GameState;
 	private _resetTimer : Timer;
 	private _gameMaker : Optional<GameMaker>; 
 
 	constructor() {
 		super(SystemType.GAME_MODE);
 
-		this._state = ControllerState.WAITING;
+		this._gameState = GameState.WAITING;
 		this._resetTimer = this.newTimer();
 		this._gameMaker = new Optional();
 
@@ -45,29 +47,45 @@ export class Controller extends SystemBase implements System {
 		}
 	}
 
-	state() : number { return this._state; }
+	state() : number { return this._gameState; }
+	advanceState() : void {
+		if (this._gameState === GameState.FINISHING) {
+			return;
+		}
+		this.setState(this._gameState + 1);
+	}
 	setState(state : number) : void {
-		if (this._state === state) {
+		if (this._gameState === state) {
 			return;
 		}
 
-		this._state = state;
-		if (this._state === ControllerState.SETUP) {
+		this._gameState = state;
+
+		if (this._gameMaker.has()) {
+			this._gameMaker.get().onStateChange(state);
+		}
+
+		let msg = new GameMessage(GameMessageType.GAME_STATE);
+		msg.setProp<GameState>(GameProp.STATE, this._gameState);
+		game.handleMessage(msg);
+
+		/*
+		if (this._gameState === GameState.SETUP) {
 			game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
 				if (clientState.clientIdMatches()) {
 					clientState.setLoadState(ClientLoadState.CHECK_READY);
 				}
 			});
 		}
+		*/
 	}
 
 	trySetup() : void {
 		if (!this._gameMaker.has()) { return; }
 
-		if (this._state === ControllerState.WAITING) {
-			if (this._gameMaker.get().querySetup()) {
-				this._gameMaker.get().setup();
-				this.setState(ControllerState.SETUP);
+		if (this._gameState === GameState.WAITING) {
+			if (this._gameMaker.get().queryAdvance(this._gameState)) {
+				this.advanceState();
 			}
 		}
 	}
@@ -83,7 +101,7 @@ export class Controller extends SystemBase implements System {
 			return;
 		}
 
-		if (this._state === ControllerState.WAITING) {
+		if (this._gameState === GameState.WAITING) {
 			const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
     		let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
     			clientId: clientId,
@@ -102,23 +120,23 @@ export class Controller extends SystemBase implements System {
 
 		if (!this._gameMaker.has()) { return; }
 
-		if (this._state === ControllerState.SETUP) {
-			if (this._gameMaker.get().queryStart()) {
-				this._gameMaker.get().start();
-				this.setState(ControllerState.STARTED);
-			}
-		} else if (this._state === ControllerState.STARTED) {
-			if (this._gameMaker.get().queryFinish()) {
-				this._gameMaker.get().finish();
-				this.setState(ControllerState.FINISH);
-			}
-		} else if (this._state === ControllerState.FINISH) {
+		// TODO: remove this and generalize better
+		if (this._gameState === GameState.WAITING) {
+			return;
+		}
+
+		// TODO: also generalize reset better
+		if (this._gameState === GameState.FINISHING) {
 			if (!this._resetTimer.hasTimeLeft()) {
 				this._resetTimer.start(1000, () => {
-					this._gameMaker.get().setup();
-					this.setState(ControllerState.SETUP);
+					this.setState(GameState.SETUP);
 				});
 			}
+			return;
+		}
+
+		if (this._gameMaker.get().queryAdvance(this._gameState)) {
+			this.advanceState();
 		}
 	}
 }

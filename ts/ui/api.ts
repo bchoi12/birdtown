@@ -18,11 +18,12 @@ export enum CounterType {
 	UNKOWN,
 	HEALTH,
 	JUICE,
+	ROCKET,
 }
 
 export enum DialogType {
 	UNKNOWN,
-	CHECK_READY,
+	PICK_LOADOUT,
 }
 
 export type DialogPage = {

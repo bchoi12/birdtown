@@ -7,6 +7,7 @@ export enum UiMessageType {
 	ANNOUNCEMENT,
 	CLIENT,
 	COUNTER,
+	COUNTERS,
 	DIALOG,
 	TOOLTIP,
 }
@@ -15,6 +16,7 @@ export enum UiProp {
 	UNKNOWN,
 	CLIENT_ID,
 	COUNT,
+	COUNTERS,
 	DATA,
 	DISPLAY_NAME,
 	NAMES,
@@ -39,6 +41,9 @@ export class UiMessage extends MessageBase<UiMessageType, UiProp> implements Mes
 		[UiMessageType.COUNTER, MessageBase.fieldDescriptor(
 			[UiProp.TYPE, {}],
 			[UiProp.COUNT, {}],
+		)],
+		[UiMessageType.COUNTERS, MessageBase.fieldDescriptor(
+			[UiProp.COUNTERS, {}],
 		)],
 		[UiMessageType.DIALOG, MessageBase.fieldDescriptor(
 			[UiProp.TYPE, {}],

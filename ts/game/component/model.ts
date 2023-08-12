@@ -163,8 +163,8 @@ export class Model extends ComponentBase implements Component {
 			return;
 		}
 
-		if (this.entity().hasComponent(ComponentType.PROFILE)) {
-			this.copyProfile(this.entity().getComponent<Profile>(ComponentType.PROFILE));
+		if (this.entity().hasProfile()) {
+			this.copyProfile(this.entity().getProfile());
 		}
 
 		if (defined(this._preRenderFn)) {

@@ -160,7 +160,7 @@ export abstract class Block extends EntityBase {
 			return;
 		}
 
-		if (!this._profile.contains(target.getComponent<Profile>(ComponentType.PROFILE).pos())) {
+		if (!this._profile.contains(target.getProfile().pos())) {
 			return;
 		}
 

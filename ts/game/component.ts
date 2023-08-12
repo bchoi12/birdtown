@@ -11,7 +11,8 @@ import { defined } from 'util/common'
 export interface Component extends GameObject {
 	type() : ComponentType;
 	entity() : Entity;
-	setEntity(entity : Entity) : void;
+	setEntity<T extends Entity>(entity : T) : void;
+	processComponent<T extends Component>(component : T) : void;
 }
 
 export abstract class ComponentBase extends GameObjectBase implements Component {
@@ -37,7 +38,7 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 
 	type() : ComponentType { return this._type; }
 	entity() : Entity { return this._entity; }
-	setEntity(entity : Entity) : void {
+	setEntity<T extends Entity>(entity : T) : void {
 		this.setName({
 			parent: entity,
 			base: this.name(),
@@ -49,7 +50,9 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 		})
 	}
 
-	// Transfer some metadata to the SubComponent
+	processComponent<T extends Component>(component : T) : void {}
+
+	// Transfer some metadata to SubComponents
 	private populateSubComponent<T extends Component>(id : number, component : T) : T {
 		if (defined(this._entity)) {
 			component.setEntity(this.entity());

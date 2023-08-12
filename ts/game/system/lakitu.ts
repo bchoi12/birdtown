@@ -86,14 +86,18 @@ export class Lakitu extends SystemBase implements System {
 			return;
 		}
 
-		// TODO: remove counts that are missing
 		const counts = this.targetEntity().getCounts();
+		let counters = new Array<UiMessage>;
 		counts.forEach((count : number, type : CounterType) => {
-			let countMsg = new UiMessage(UiMessageType.COUNTER);
-			countMsg.setProp(UiProp.TYPE, type);
-			countMsg.setProp(UiProp.COUNT, count);
-			ui.handleMessage(countMsg);
+			let counterMsg = new UiMessage(UiMessageType.COUNTER);
+			counterMsg.setProp<CounterType>(UiProp.TYPE, type);
+			counterMsg.setProp<number>(UiProp.COUNT, count);
+			counters.push(counterMsg);
 		});
+
+		let countersMsg = new UiMessage(UiMessageType.COUNTERS);
+		countersMsg.setProp<Array<UiMessage>>(UiProp.COUNTERS, counters);
+		ui.handleMessage(countersMsg);
 
 		// TODO: move elsewhere
 		game.entities().queryEntities<Player>({

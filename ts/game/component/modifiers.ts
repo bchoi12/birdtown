@@ -2,6 +2,7 @@
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType, BoostType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
+import { Stats } from 'game/component/stats'
 import { Stat } from 'game/component/stat'
 
 import { Entity } from 'game/entity'
@@ -49,7 +50,7 @@ export class Modifiers extends ComponentBase implements Component {
 	setModifier(type : ModifierType, value : ModifierValue) : void { this._modifiers.set(type, value); }
 	deleteModifier(type : ModifierType) : void { this._modifiers.delete(type); }
 
-	apply(statType : StatType, stat : Stat) : void {
+	applyTo(stats : Stats) : void {
 		for (let type of Modifiers._order) {
 			if (!this.hasModifier(type)) {
 				continue;
@@ -57,27 +58,35 @@ export class Modifiers extends ComponentBase implements Component {
 
 			switch (type) {
 			case ModifierType.TYPE:
-				this.applyType(statType, stat, this.getModifier(type));
+				this.applyType(stats, this.getModifier(type));
 				break;
 			}
 		}
 	}
 
-	private applyType(statType : StatType, stat : Stat, classType : ModifierPlayerType) : void {
+	private applyType(stats : Stats, classType : ModifierPlayerType) : void {
 		switch (classType) {
 		case ModifierPlayerType.BIG:
-			switch (statType) {
-			case StatType.HEALTH:
-				if (stat.getMax().has()) {
-					stat.getMax().get().addBoost(BoostType.ADD, (value : number) => {
-						return value + 25;
-					});
-				}
-				stat.getStat().addBoost(BoostType.ADD, (value : number) => {
+			if (!stats.hasStat(StatType.HEALTH)) {
+				stats.addStat(StatType.HEALTH);
+			}
+			let health = stats.getStat(StatType.HEALTH);
+			if (health.getMax().has()) {
+				health.getMax().get().addBoost(BoostType.ADD_BASE, (value : number) => {
 					return value + 25;
 				});
-				break;
 			}
+			health.getStatNumber().addBoost(BoostType.ADD_BASE, (value : number) => {
+				return value + 25;
+			});
+
+			if (!stats.hasStat(StatType.SCALING)) {
+				stats.addStat(StatType.SCALING, { stat: 1 });
+			}
+			let scaling = stats.getStat(StatType.SCALING);
+			scaling.getStatNumber().addBoost(BoostType.ADD_BASE, (value : number) => {
+				return value + 0.4;
+			});
 			break;
 		case ModifierPlayerType.FAST:
 			break;

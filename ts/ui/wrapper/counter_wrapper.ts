@@ -6,11 +6,36 @@ import { Icon, IconType } from 'ui/util/icon'
 
 import { defined } from 'util/common'
 
+enum DisplayType {
+	UNKNOWN,
+
+	COOLDOWN,
+	INTEGER,
+}
+type IconMetadata = {
+	iconType : IconType;
+	displayType : DisplayType;
+	delay : number;
+}
+
 export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 
-	private static readonly _iconMapping = new Map<CounterType, IconType>([
-		[CounterType.HEALTH, IconType.HEART],
-		[CounterType.JUICE, IconType.TRUCK_FAST],
+	private static readonly _iconMetadata = new Map<CounterType, IconMetadata>([
+		[CounterType.HEALTH, {
+			iconType: IconType.HEART,
+			displayType: DisplayType.INTEGER,
+			delay: 250,
+		}],
+		[CounterType.JUICE, {
+			iconType: IconType.TRUCK_FAST,
+			displayType: DisplayType.INTEGER,
+			delay: 0,
+		}],
+		[CounterType.ROCKET, {
+			iconType: IconType.ROCKET,
+			displayType: DisplayType.COOLDOWN,
+			delay: 0,
+		}],
 	])
 
 	private _type : CounterType;
@@ -28,7 +53,7 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 		this._counterElm = Html.span();
 		this._counterElm.classList.add(Html.classSpaced);
 		this._counterElm.textContent = "?";
-		this._iconElm = Icon.create(CounterWrapper._iconMapping.get(this._type));
+		this._iconElm = Icon.create(this.iconType());
 		this._iconElm.classList.add(Html.classSpaced);
 
 		this.elm().classList.add(Html.classCounter);
@@ -37,12 +62,15 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().appendChild(this._iconElm);
 	}
 
+	iconType() : IconType { return CounterWrapper._iconMetadata.get(this._type).iconType; }
+	private displayType() : DisplayType { return CounterWrapper._iconMetadata.get(this._type).displayType; }
+	private delay() : number { return CounterWrapper._iconMetadata.get(this._type).delay; }
+
 	setCounter(count : number) : void {
 		this._lastCount = count;
 		this._count = count;
 		this._lastUpdateTime = Date.now();
-
-		this._counterElm.textContent = "" + this._count;
+		this._counterElm.textContent = this.getDisplayText(this._count);
 	}
 
 	updateCounter(count : number) : void {
@@ -57,13 +85,35 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 			this._lastUpdateTime = Date.now();
 		}
 
+
+		const delay = this.delay();
 		const elapsed = Date.now() - this._lastUpdateTime;
-		const displayCount = Math.floor(this._lastCount + Math.min(1, elapsed / 250) * (this._count - this._lastCount));
-		this._counterElm.textContent = "" + displayCount;
+		let displayCount = delay > 0 ?
+			Math.floor(this._lastCount + Math.min(1, elapsed / delay) * (this._count - this._lastCount)) :
+			this._count;
+
+		this._counterElm.textContent = this.getDisplayText(displayCount);
 	}
 
 	delete(onDelete : () => void) : void {
 		this.elm().parentNode.removeChild(this.elm());
 		onDelete();
+	}
+
+	private getDisplayText(count : number) : string {
+		switch (this.displayType()) {
+		case DisplayType.COOLDOWN:
+			let disp = Math.ceil(10 * count) / 10;
+			if (disp > 0) {
+				return "" + disp;
+			} else {
+				return "RDY"
+			}
+			break;
+		case DisplayType.INTEGER:
+			return "" + Math.ceil(count);
+			break;
+		}
+		return "";
 	}
 }

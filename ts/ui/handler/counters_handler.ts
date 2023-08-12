@@ -28,14 +28,22 @@ export class CountersHandler extends HandlerBase implements Handler {
 		});
 	}
 	override handleMessage(msg : UiMessage) : void {
-		if (msg.type() !== UiMessageType.COUNTER) {
+		if (msg.type() !== UiMessageType.COUNTERS) {
 			return;
 		}
 
-		const type = msg.getProp<CounterType>(UiProp.TYPE);
-		const count = msg.getProp<number>(UiProp.COUNT);
-		let counter = this.getOrAddCounter(type);
-		counter.updateCounter(count);
+		const counters = msg.getProp<Array<UiMessage>>(UiProp.COUNTERS);
+		let currentTypes = new Set<CounterType>();
+		counters.forEach((counterMsg : UiMessage) => {
+			const type = counterMsg.getProp<CounterType>(UiProp.TYPE);
+			const count = counterMsg.getProp<number>(UiProp.COUNT);
+			let counter = this.getOrAddCounter(type);
+			counter.updateCounter(count);
+
+			currentTypes.add(type);
+		});
+
+		this.removeOthers(currentTypes);
 	}
 
 	setCounter(type : CounterType, count : number) : void {
@@ -57,5 +65,14 @@ export class CountersHandler extends HandlerBase implements Handler {
 		this._counters.set(type, wrapper);
 		this._countersElm.appendChild(wrapper.elm());
 		return wrapper;
+	}
+
+	private removeOthers(types : Set<CounterType>) : void {
+		this._counters.forEach((wrapper : CounterWrapper, type : CounterType) => {
+			if (!types.has(type)) {
+				this._countersElm.removeChild(wrapper.elm());
+				this._counters.delete(type);
+			}
+		});
 	}
 }

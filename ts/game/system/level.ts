@@ -26,7 +26,6 @@ enum State {
 	UNKNOWN,
 	READY,
 	UNLOAD,
-	SYNC_CLIENTS,
 	LOAD,
 }
 
@@ -105,15 +104,18 @@ export class Level extends SystemBase implements System {
 				break;
 			}
 
+			// TODO: send StateMsg instead
 			let msg = new GameMessage(GameMessageType.LEVEL_LOAD);
 			msg.setProp(GameProp.TYPE, this._options.level);
 			msg.setProp(GameProp.SEED, this._rng.getSeed());
 			msg.setProp(GameProp.VERSION, this._version);
 	    	game.runner().handleMessage(msg);
 
+	    	// TODO: send UiMessage elsewhere
 	    	const uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
 	    	uiMsg.setProp(UiProp.TYPE, AnnouncementType.TEST);
 	    	ui.handleMessage(uiMsg);
+
 			this._state = State.READY;
 		}
 	}

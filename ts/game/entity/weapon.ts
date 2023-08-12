@@ -64,4 +64,7 @@ export abstract class Weapon extends Equip<Player> {
 			this._attributes.setAttribute(AttributeType.READY, true);
 		});
 	}
+	reloadTimeLeft() : number {
+		return this._reloadTimer.timeLeft();
+	}
 }

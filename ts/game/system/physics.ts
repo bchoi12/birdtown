@@ -1,8 +1,6 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
-import { ComponentType } from 'game/component/api'
-import { Profile } from 'game/component/profile'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 
@@ -92,12 +90,12 @@ export class Physics extends SystemBase implements System {
 				return;
 			}
 
-			if (!entityA.hasComponent(ComponentType.PROFILE) || !entityB.hasComponent(ComponentType.PROFILE)) {
+			if (!entityA.hasProfile() || !entityB.hasProfile()) {
 				return;
 			}
 
-			const profileA = entityA.getComponent<Profile>(ComponentType.PROFILE);
-			const profileB = entityB.getComponent<Profile>(ComponentType.PROFILE);
+			const profileA = entityA.getProfile();
+			const profileB = entityB.getProfile();
 
 			// Smooth out normals that are nearly axis-aligned
 			// Ignore "pixel collisions"

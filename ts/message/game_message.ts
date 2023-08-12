@@ -8,6 +8,8 @@ export enum GameMessageType {
 	DISCONNECT_CLIENT,
 
 	LEVEL_LOAD,
+
+	GAME_STATE,
 }
 
 export enum GameProp {
@@ -15,6 +17,7 @@ export enum GameProp {
 	CLIENT_ID,
 	DISPLAY_NAME,
 	SEED,
+	STATE,
 	TYPE,
 	VERSION,
 }
@@ -33,6 +36,9 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 			[GameProp.TYPE, {}],
 			[GameProp.SEED, {}],
 			[GameProp.VERSION, {}],
+		)],
+		[GameMessageType.GAME_STATE, MessageBase.fieldDescriptor(
+			[GameProp.STATE, {}],
 		)],
 	]);
 

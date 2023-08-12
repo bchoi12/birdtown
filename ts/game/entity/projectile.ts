@@ -28,11 +28,11 @@ export abstract class Projectile extends EntityBase {
 	}
 
 	explode() : void {
-		if (!this.hasComponent(ComponentType.PROFILE)) {
+		if (!this.hasProfile()) {
 			return;
 		}
 
-		const profile = this.getComponent<Profile>(ComponentType.PROFILE);
+		const profile = this.getProfile();
 		if (profile.initialized()) {
 			let [explosion, hasExplosion] = this.addEntity(EntityType.EXPLOSION, {
 				profileInit: {

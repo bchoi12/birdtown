@@ -23,25 +23,34 @@ export class Stats extends ComponentBase implements Component {
 		this.setName({ base: "stats" });
 
 		init.stats.forEach((init : StatInitOptions, type : StatType) => {
-			this.addSubComponent(type, new Stat(init));
+			this.addStat(type, init);
 		});
 	}
 
-	reset(modifiers? : Modifiers) : void {
+	reset() : void {
 		this.executeCallback<Stat>((stat : Stat, type : StatType) => {
 			stat.reset();
 			stat.clearBoosts();
-			if (defined(modifiers)) {
-				modifiers.apply(type, stat);	
-			}
+		});
+	}
+
+	override processComponent<T extends Component>(component : T) : void {
+		if (component.type() !== ComponentType.MODIFIERS || !(component instanceof Modifiers)) {
+			return;
+		}
+
+		let modifiers = <Modifiers>component;
+		modifiers.applyTo(this);
+		this.executeCallback<Stat>((stat : Stat) => {
 			stat.boost();
 		});
 	}
 
 	// Convenience methods
-	health() : number { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).getStat().get(); }
+	health() : number { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).getCurrent(); }
 	dead() : boolean { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).atMin(); }
 
+	addStat(type : StatType, init? : StatInitOptions) : void { this.addSubComponent(type, new Stat(defined(init) ? init : {})); }
 	hasStat(type : StatType) : boolean { return this.hasChild(type); }
 	getStat(type : StatType) : Stat {
 		if (!this.hasStat(type)) {

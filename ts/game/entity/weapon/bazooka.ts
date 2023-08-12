@@ -14,6 +14,8 @@ import { Rocket } from 'game/entity/projectile/rocket'
 import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
 
+import { CounterType } from 'ui/api'
+
 import { defined } from 'util/common'
 import { Vec2 } from 'util/vector'
 
@@ -63,5 +65,11 @@ export class Bazooka extends Weapon {
 
 		this.reload(1000);
 		return true;
+	}
+
+	override getCounts() : Map<CounterType, number> {
+		return new Map([
+			[CounterType.ROCKET, this.reloadTimeLeft() / 1000],
+		]);
 	}
 }

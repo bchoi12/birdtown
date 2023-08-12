@@ -13,7 +13,6 @@ import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
 import { Level } from 'game/system/level'
 import { Physics } from 'game/system/physics'
-import { PlayerStates } from 'game/system/player_states'
 import { Runner } from 'game/system/runner'
 import { World } from 'game/system/world'
 
@@ -67,7 +66,6 @@ class Game {
 	private _lakitu : Lakitu;
 	private _level : Level;
 	private _physics : Physics;
-	private _playerStates : PlayerStates;
 	private _world : World;
 
 	constructor() {
@@ -95,14 +93,12 @@ class Game {
 		this._input = new Input();
 		this._level = new Level();
 		this._physics = new Physics();
-		this._playerStates = new PlayerStates();
 
 		this._world = new World(this._engine);
 		this._lakitu = new Lakitu(this._world.scene());
 
 		// Order of insertion becomes order of execution
 		this._runner.push(this._clientStates);
-		this._runner.push(this._playerStates);
 		this._runner.push(this._controller);
 		this._runner.push(this._level);
 		this._runner.push(this._input);
@@ -126,7 +122,7 @@ class Game {
 				let gameMsg = new GameMessage(GameMessageType.NEW_CLIENT);
 				gameMsg.setProp(GameProp.CLIENT_ID, clientId);
 				gameMsg.setProp(GameProp.DISPLAY_NAME, connection.displayName());
-				this._runner.handleMessage(gameMsg);
+				this.handleMessage(gameMsg);
 
 				if (isLocalhost()) {
 					console.log("Registered new client to game:", clientId);
@@ -191,7 +187,7 @@ class Game {
 		let gameMsg = new GameMessage(GameMessageType.NEW_CLIENT);
 		gameMsg.setProp(GameProp.CLIENT_ID, clientId);
 		gameMsg.setProp(GameProp.DISPLAY_NAME, this._netcode.displayName());
-    	this._runner.handleMessage(gameMsg);
+    	this.handleMessage(gameMsg);
 
 		if (this.options().host) {
 			this._lastClientId = clientId;
@@ -210,6 +206,7 @@ class Game {
 	averageFrameTime() : number { return this._frameTimes.average(); }
 
 	getSystem<T extends System>(type : SystemType) : T { return this._runner.getSystem<T>(type); }
+	handleMessage(msg : GameMessage) : void { this._runner.handleMessage(msg); }
 
 	// Easy access for commonly used systems
 	runner() : Runner { return this._runner; }
