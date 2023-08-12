@@ -86,14 +86,24 @@ export abstract class MessageBase<T extends number, P extends number> {
 	}
 
 	parseObject(obj : Object) : Message<T, P> {
-		if (obj.hasOwnProperty(Prop.TYPE)) {
-			this._type = <T>obj[Prop.TYPE];
+		if (this._type === 0) {
+			this._type = <T>(obj[Prop.TYPE]);
+		} else if (this._type !== <T>(obj[Prop.TYPE])) {
+			return this;
 		}
 		if (obj.hasOwnProperty(Prop.DATA)) {
-			this._data = <DataMap>obj[Prop.DATA];
+			this._data = <DataMap>(obj[Prop.DATA]);
 		}
 		return this;
 	}
+	parseObjectIf(obj : Object, predicate : (data : DataMap) => boolean) : Message<T, P> {
+		if (!predicate(<DataMap>(obj[Prop.DATA]))) {
+			return this;
+		}
+
+		return this.parseObject(obj);
+	}
+
 	toObject() : Object {
 		let obj = {};
 		obj[Prop.TYPE] = this._type;

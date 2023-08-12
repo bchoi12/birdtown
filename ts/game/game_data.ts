@@ -36,6 +36,10 @@ export class GameData {
 		this._propData.set(prop, new GameProp<T>(propOptions));
 	}
 
+	equals(key : number, value : Object) : boolean {
+		return this._propData.get(key).equals(value);
+	}
+
 	set(key : number, value : Object, seqNum : number) : boolean {
 		if (!defined(value)) {
 			return false;

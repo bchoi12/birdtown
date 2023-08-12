@@ -7,6 +7,7 @@ import { GameData, DataFilter } from 'game/game_data'
 import { ClientSideSystem, System } from 'game/system'
 import { ClientConnectionState, SystemType } from 'game/system/api'
 
+import { DataMap } from 'message'
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 import { PlayerMessage, PlayerMessageType, PlayerProp } from 'message/player_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
@@ -57,35 +58,45 @@ export class ClientState extends ClientSideSystem implements System {
 
 		this.addProp<Object>({
 			has: () => {
-				if (this.gameState() !== GameState.SETUP) {
+				if (game.controller().gameState() !== GameState.SETUP) {
 					return false;
 				}
-				if (this.isHost()) {
-					return true;
-				}
-				const version = this._loadoutMsg.getPropOr<number>(PlayerProp.VERSION, 0);
-				return version > this._loadoutMsg.localVersion();
-			},
-			validate: (obj : Object) => {
-				this._loadoutMsg.parseObject(obj);
 
 				const version = this._loadoutMsg.getPropOr<number>(PlayerProp.VERSION, 0);
-				if (version > this._loadoutMsg.localVersion()) {
+				return version === game.controller().round();
+			},
+			validate: (obj : Object) => {
+				if (this._loadoutMsg.finalized()) {
+					return;
+				}
+
+				const version = this._loadoutMsg.getPropOr<number>(PlayerProp.VERSION, 0);
+				this._loadoutMsg.parseObjectIf(obj, (data : DataMap) => {
+					return data.hasOwnProperty(PlayerProp.VERSION) && data[PlayerProp.VERSION] === version;
+				});
+
+				if (version === game.controller().round()) {
+					this._loadoutMsg.setFinalized(true);
 					this.setGameState(GameState.GAMING);
-					this._loadoutMsg.setLocalVersion(version);
-					console.log("validate", this.name(), this._loadoutMsg);
 				}
 			},
 			export: () => {
-				console.log("export", this.name(), this._loadoutMsg);
 				return this._loadoutMsg.toObject();
 			},
 			import: (obj : Object) => {
-				this._loadoutMsg.parseObject(obj);
-				console.log("import", this.name(), this._loadoutMsg, obj);
+				if (this._loadoutMsg.finalized()) {
+					return;
+				}
+
+				const round = game.controller().round();
+				this._loadoutMsg.parseObjectIf(obj, (data : DataMap) => {
+					return data.hasOwnProperty(PlayerProp.VERSION) && data[PlayerProp.VERSION] === round;
+				});
+
+				this._loadoutMsg.setFinalized(true);
 			},
 			options: {
-				refreshInterval: 250,
+				minInterval: 500,
 				filters: GameData.tcpFilters,
 			},
 		});
@@ -149,7 +160,12 @@ export class ClientState extends ClientSideSystem implements System {
 		}
 
 		this._gameState = state;
-		console.log("load", this.name(), state);
+
+		switch(this._gameState) {		
+		case GameState.SETUP:
+			this._loadoutMsg.setFinalized(false);
+			break;
+		}
 
 		if (!this.clientIdMatches()) {
 			return;
@@ -160,48 +176,38 @@ export class ClientState extends ClientSideSystem implements System {
 		case GameState.SETUP:
 			let msg = new UiMessage(UiMessageType.DIALOG);
 			msg.setProp(UiProp.TYPE, DialogType.PICK_LOADOUT);
+
 			msg.setProp(UiProp.PAGES, [{
 				buttons: [{
 					type: DialogButtonType.IMAGE,
 					title: "bazooka",
 					action: DialogButtonAction.SUBMIT,
-					onSelect: () => {
-						this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
-						console.log("bazook", this.name(), this._loadoutMsg);
-					},
+					onSelect: () => { this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA); },
 				}, {
 					type: DialogButtonType.IMAGE,
 					title: "sniper",
 					action: DialogButtonAction.SUBMIT,
-					onSelect: () => {
-						this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.SNIPER);
-						console.log("snipe", this.name(), this._loadoutMsg);
-					},
+					onSelect: () => { this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.SNIPER); },
 				}],
 			}, {
 				buttons: [{
 					type: DialogButtonType.IMAGE,
 					title: "big",
 					action: DialogButtonAction.SUBMIT,
-					onSelect: () => {
-						this._loadoutMsg.setProp<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.BIG);
-					},
+					onSelect: () => { this._loadoutMsg.setProp<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.BIG) },
 				}, {
 					type: DialogButtonType.IMAGE,
 					title: "none",
 					action: DialogButtonAction.SUBMIT,
-					onSelect: () => {
-						this._loadoutMsg.setProp<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.NONE);
-					},
+					onSelect: () => { this._loadoutMsg.setProp<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.NONE) },
 				}]
 			},
 			]);
 			msg.setProp(UiProp.ON_SUBMIT, () => {
+				this._loadoutMsg.setProp<number>(PlayerProp.VERSION, game.controller().round());
 				if (this.isHost()) {
+					this._loadoutMsg.setFinalized(true);
 					this.setGameState(GameState.GAMING);
-				} else {
-					this._loadoutMsg.setProp<number>(PlayerProp.VERSION, this._loadoutMsg.localVersion() + 1);
-					console.log("submit", this.name(), this._loadoutMsg);
 				}
 			});
 			ui.handleMessage(msg);

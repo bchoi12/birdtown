@@ -101,12 +101,22 @@ export class GameProp<T extends Object> {
 	}
 	get() : T { return this._value.get(); }
 
+	equals(value : T) : boolean {
+		if (this._value.has() && this._equals(value, this._value.get())) {
+			return true;
+		}
+		return false;
+	}
+
 	set(value : T, seqNum : number) : boolean {
 		if (seqNum < this._seqNum) {
 			return false;
 		}
+		if (!defined(value)) {
+			return false;
+		}
 
-		if (this._value.has() && this._equals(value, this._value.get())) {
+		if (this.equals(value)) {
 			this._consecutiveChanges = Math.min(-1, this._consecutiveChanges - 1);
 			return false;
 		}

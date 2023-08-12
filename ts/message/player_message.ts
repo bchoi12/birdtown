@@ -27,15 +27,15 @@ export class PlayerMessage extends MessageBase<PlayerMessageType, PlayerProp> im
 		)],
 	]);
 
-	private _version : number;
+	private _finalized : boolean;
 
 	constructor(type : PlayerMessageType) {
 		super(type);
 
-		this._version = 0;
+		this._finalized = false;
 	}
 	override messageDescriptor() : Map<PlayerMessageType, FieldDescriptor> { return PlayerMessage._messageDescriptor; }
 
-	localVersion() : number { return this._version; }
-	setLocalVersion(version : number) { this._version = version; }
+	finalized() : boolean { return this._finalized; }
+	setFinalized(finalized : boolean) { this._finalized = finalized; }
 }

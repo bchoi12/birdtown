@@ -34,6 +34,7 @@ export class PageWrapper extends HtmlWrapper<HTMLElement> {
 		this._buttonGroups.set(this._lastGroupId, new Array())
 		return this._lastGroupId;
 	}
+	getGroup(group : number) { return this._buttonGroups.get(group); }
 
 	addButton(group : number, button : DialogButton) : ButtonWrapper {
 		if (!this._buttonGroups.has(group)) {
@@ -42,22 +43,6 @@ export class PageWrapper extends HtmlWrapper<HTMLElement> {
 		}
 
 		let buttonWrapper = new ButtonWrapper(button.type, this._buttonGroups.get(group).length + 1);
-
-		if (button.action === DialogButtonAction.UNSELECT_GROUP) {
-			buttonWrapper.addOnSelect(() => {
-				this._buttonGroups.get(group).forEach((otherWrapper : ButtonWrapper) => {
-					if (buttonWrapper.id() === otherWrapper.id()) {
-						return;
-					}
-					otherWrapper.unselect();
-				});
-			});
-		} else if (button.action === DialogButtonAction.SUBMIT) {
-			buttonWrapper.addOnSelect(() => {
-				this.submit();
-			});
-		}
-
 		this._buttonGroups.get(group).push(buttonWrapper);
 		this.elm().appendChild(buttonWrapper.elm());
 

@@ -4,10 +4,11 @@ import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { UiMode, DialogPage } from 'ui/api'
+import { UiMode, DialogButtonAction, DialogPage } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
+import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
@@ -41,6 +42,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 				let pageWrapper = new PageWrapper();
 				let groupIndex = pageWrapper.addGroup();
 				for (let button of page.buttons) {
+
 					let buttonWrapper = pageWrapper.addButton(groupIndex, button);
 					buttonWrapper.elm().textContent = button.title;
 
@@ -49,6 +51,21 @@ export class DialogHandler extends HandlerBase implements Handler {
 					}
 					if (defined(button.onUnselect)) {
 						buttonWrapper.addOnUnselect(button.onUnselect);
+					}
+
+					if (button.action === DialogButtonAction.UNSELECT_GROUP) {
+						buttonWrapper.addOnSelect(() => {
+							pageWrapper.getGroup(groupIndex).forEach((otherWrapper : ButtonWrapper) => {
+								if (buttonWrapper.id() === otherWrapper.id()) {
+									return;
+								}
+								otherWrapper.unselect();
+							});
+						});
+					} else if (button.action === DialogButtonAction.SUBMIT) {
+						buttonWrapper.addOnSelect(() => {
+							pageWrapper.submit();
+						});
 					}
 				}
 				dialogWrapper.addPage(pageWrapper);

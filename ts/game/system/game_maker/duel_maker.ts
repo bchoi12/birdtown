@@ -75,7 +75,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 			});
 			game.level().setLevel({
 				level: LevelType.BIRDTOWN,
-				seed: Math.floor(1000 * Math.random()),
+				seed: 1 + Math.floor(1000 * Math.random()),
 			});
 			break;
 		case GameState.SETUP:

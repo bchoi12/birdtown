@@ -137,7 +137,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
 				this._profile.setAcc({x: 0});
 
-				if (game.controller().state() === GameState.WAITING) {
+				if (game.controller().gameState() === GameState.WAITING) {
 					this._respawnTimer.start(Player._respawnTime, () => {
 						this.respawn();
 					});
