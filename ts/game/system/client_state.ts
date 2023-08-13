@@ -176,7 +176,6 @@ export class ClientState extends ClientSideSystem implements System {
 		case GameState.SETUP:
 			let msg = new UiMessage(UiMessageType.DIALOG);
 			msg.setProp(UiProp.TYPE, DialogType.PICK_LOADOUT);
-
 			msg.setProp(UiProp.PAGES, [{
 				buttons: [{
 					type: DialogButtonType.IMAGE,

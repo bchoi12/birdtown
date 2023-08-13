@@ -24,6 +24,7 @@ export enum CounterType {
 export enum DialogType {
 	UNKNOWN,
 	PICK_LOADOUT,
+	PICK_GAME_MODE,
 }
 
 export type DialogPage = {
@@ -64,5 +65,5 @@ export enum KeyType {
 
 export enum TooltipType {
 	UNKNOWN,
-	TEST,
+	CONSOLE,
 }

@@ -2,11 +2,14 @@
 
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
+import { settings } from 'settings'
+
 import { ui } from 'ui'
 import { TooltipType, UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
+import { KeyNames } from 'ui/util/key_names'
 import { TooltipWrapper } from 'ui/wrapper/tooltip_wrapper'
 
 import { defined } from 'util/common'
@@ -67,9 +70,12 @@ export class TooltipHandler extends HandlerBase implements Handler {
 	}
 
 	private getHtml(msg : UiMessage) : string{
-		switch (msg.getProp<TooltipType>(UiProp.TYPE)) {
+		const type = msg.getProp<TooltipType>(UiProp.TYPE);
+		switch (type) {
+		case TooltipType.CONSOLE:
+			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game.";
 		default:
-			return "testing 123";
+			return "Missing tooltip text for type " + type;
 		}
 	}
 }

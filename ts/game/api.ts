@@ -18,3 +18,9 @@ export enum GameState {
 	// Finishing criteria met, game is over and can be reset
 	FINISHING,
 }
+
+export enum GameMode {
+	UNKNOWN,
+
+	DUEL,
+}

@@ -1,6 +1,6 @@
 
 import { game } from 'game'
-import { GameState } from 'game/api'
+import { GameMode, GameState } from 'game/api'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
@@ -19,6 +19,7 @@ export class Controller extends SystemBase implements System {
 
 	private static readonly _clientSideStates = new Set<GameState>([GameState.LOADING, GameState.SETUP]);
 
+	private _gameMode : GameMode;
 	private _gameState : GameState;
 	private _round : number;
 	private _resetTimer : Timer;
@@ -27,6 +28,7 @@ export class Controller extends SystemBase implements System {
 	constructor() {
 		super(SystemType.GAME_MODE);
 
+		this._gameMode = GameMode.UNKNOWN;
 		this._gameState = GameState.WAITING;
 		this._round = 0;
 		this._resetTimer = this.newTimer();
@@ -58,6 +60,18 @@ export class Controller extends SystemBase implements System {
 	}
 
 	round() : number { return this._round; }
+	gameMode() : GameMode { return this._gameMode; }
+	setGameMode(mode : GameMode) {
+		this._gameMode = mode;
+
+		if (this._gameState === GameState.WAITING) {
+			if (this._gameMaker.get().queryAdvance(this._gameState)) {
+				this.advanceGameState();
+				this._round = 1;
+			}
+		}
+	}
+
 	gameState() : number { return this._gameState; }
 	advanceGameState() : void {
 		if (this._gameState === GameState.FINISHING) {
@@ -79,27 +93,6 @@ export class Controller extends SystemBase implements System {
 		let msg = new GameMessage(GameMessageType.GAME_STATE);
 		msg.setProp<GameState>(GameProp.STATE, this._gameState);
 		game.handleMessage(msg);
-
-		/*
-		if (this._gameState === GameState.SETUP) {
-			game.clientStates().executeCallback<ClientState>((clientState : ClientState) => {
-				if (clientState.clientIdMatches()) {
-					clientState.setLoadState(ClientLoadState.CHECK_READY);
-				}
-			});
-		}
-		*/
-	}
-
-	trySetup() : void {
-		if (!this._gameMaker.has()) { return; }
-
-		if (this._gameState === GameState.WAITING) {
-			if (this._gameMaker.get().queryAdvance(this._gameState)) {
-				this.advanceGameState();
-				this._round = 1;
-			}
-		}
 	}
 
 	override handleMessage(msg : GameMessage) : void {

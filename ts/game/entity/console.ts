@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { GameMode } from 'game/api'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
@@ -11,7 +12,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
-import { KeyType, TooltipType } from 'ui/api'
+import { DialogButtonAction, DialogType, DialogButtonType, KeyType, TooltipType } from 'ui/api'
 
 export class Console extends EntityBase implements Entity {
 
@@ -94,12 +95,26 @@ export class Console extends EntityBase implements Entity {
 
 		if (this.isSource()) {
 			let msg = new UiMessage(UiMessageType.TOOLTIP);
-			msg.setProp(UiProp.TYPE, TooltipType.TEST);
-			msg.setProp(UiProp.TTL, 3000);
+			msg.setProp(UiProp.TYPE, TooltipType.CONSOLE);
+			msg.setProp(UiProp.TTL, 100);
 			ui.handleMessage(msg);
 
 			if (game.keys().keyPressed(KeyType.INTERACT)) {
-				game.controller().trySetup();
+				let msg = new UiMessage(UiMessageType.DIALOG);
+				msg.setProp(UiProp.TYPE, DialogType.PICK_GAME_MODE);
+				msg.setProp(UiProp.PAGES, [{
+					buttons: [{
+						type: DialogButtonType.IMAGE,
+						title: "duel",
+						action: DialogButtonAction.SUBMIT,
+						onSelect: () => { game.controller().setGameMode(GameMode.DUEL) },
+					}, {
+						type: DialogButtonType.IMAGE,
+						title: "cancel",
+						action: DialogButtonAction.SUBMIT,
+					}],
+				}]);
+				ui.handleMessage(msg);
 			}
 		}
 	}

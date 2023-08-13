@@ -270,4 +270,8 @@ export class KeyNames {
 		}
 		return "?";
 	}
+
+	static boxed(keyCode : number) : string {
+		return "[" + KeyNames.get(keyCode) + "]";
+	}
 }
