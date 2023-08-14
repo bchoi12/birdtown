@@ -551,7 +551,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._model.onLoad(() => {
 			const loadout = game.clientState(this.clientId()).loadoutMsg();
 
-			this._modifiers.setModifier(ModifierType.TYPE, loadout.getProp<ModifierPlayerType>(PlayerProp.TYPE));
+			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.getProp<ModifierPlayerType>(PlayerProp.TYPE));
 
 			if (defined(this._equip)) {
 				this._equip.delete();

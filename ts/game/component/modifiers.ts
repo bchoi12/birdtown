@@ -19,7 +19,7 @@ export type ModifiersInitOptions = {
 export class Modifiers extends ComponentBase implements Component {
 
 	private static readonly _order : Array<ModifierType> = [
-		ModifierType.TYPE,
+		ModifierType.PLAYER_TYPE,
 	];
 
 	private _modifiers : Map<ModifierType, ModifierValue>;
@@ -57,7 +57,7 @@ export class Modifiers extends ComponentBase implements Component {
 			}
 
 			switch (type) {
-			case ModifierType.TYPE:
+			case ModifierType.PLAYER_TYPE:
 				this.applyType(stats, this.getModifier(type));
 				break;
 			}

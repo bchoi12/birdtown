@@ -32,7 +32,7 @@ export enum AttributeType {
 export enum ModifierType {
 	UNKNOWN,
 
-	TYPE,
+	PLAYER_TYPE,
 }
 
 export enum ModifierPlayerType {
@@ -57,5 +57,5 @@ export enum BoostType {
 	ADD_BASE,
 	MULT_BASE,
 	ADD_BONUS,
-	MULT_TOTAL
+	MULT_TOTAL,
 }
