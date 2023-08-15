@@ -367,8 +367,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			// Compute head and arm directions
-			this.recomputeHeadDir();
-			this.recomputeArmDir();
+			const dir = keys.dir();
+			this.recomputeDir(dir);
 			this._headSubProfile.setAngle(this._headDir.angleRad());
 
 			// Jumping
@@ -497,8 +497,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 
 		if (this.clientIdMatches() && !this._stats.dead()) {
-			this.recomputeArmDir();
-			this.recomputeHeadDir();
+			this.recomputeDir(game.keys(this.clientId()).dir());
 		}
 		let armature = this._model.getBone(Bone.ARMATURE).getTransformNode();
 		armature.scaling.z = Math.sign(this._headDir.x);
@@ -583,9 +582,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 	}
 
-	private recomputeHeadDir() : void {
-		const dir = game.keys(this.clientId()).dir();
-
+	private recomputeDir(dir : Vec2) : void {
 		if (Math.sign(dir.x) !== Math.sign(this._headDir.x)) {
 			if (Math.abs(dir.x) > 0.2) {
 				this._headDir.copy(dir);
@@ -599,11 +596,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this._headDir.y = Math.sign(this._headDir.y);
 		}
 		this._headDir.normalize();
-	}
-
-	private recomputeArmDir() : void {
-		const dir = game.keys(this.clientId()).dir();
 
 		this._armDir.copy(dir).normalize();
+
 	}
 }

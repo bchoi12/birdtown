@@ -87,7 +87,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 		this._dialogs.push(dialogWrapper);
 
-		dialogWrapper.hide();
+		dialogWrapper.display("none");
 		this._dialogsElm.appendChild(dialogWrapper.elm());
 
 		this.showDialog();
@@ -111,6 +111,6 @@ export class DialogHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		this._dialogs[this._dialogs.length - 1].show();
+		this._dialogs[this._dialogs.length - 1].display("block");
 	}
 }

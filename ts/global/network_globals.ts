@@ -1,4 +1,5 @@
 
 export namespace NetworkGlobals {
-	export const messageDebug = true;
+	// TODO: setting?
+	export const predictionBufferSize : number = 30;
 }

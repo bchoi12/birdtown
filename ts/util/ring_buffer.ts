@@ -1,3 +1,5 @@
+
+
 export class RingBuffer<T> {
 
 	private _buffer : Array<T>;

@@ -49,23 +49,21 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(pointerLock.elm());
 
-		if (isLocalhost()) {
-			let inspector = new SettingWrapper({
-				id: "input-debug-inspector",
-				type: "checkbox",
-				label: "Enable inspector",
+		let inspector = new SettingWrapper({
+			id: "input-debug-inspector",
+			type: "checkbox",
+			label: "Enable inspector",
 
-				getSetting: () => {
-					return settings.debugInspector;
-				},
-				setSetting: (value: boolean) => {
-					settings.debugInspector = value;
-				},
-			});
-			this._settingsElm.appendChild(inspector.elm());
-		}
+			getSetting: () => {
+				return settings.debugInspector;
+			},
+			setSetting: (value: boolean) => {
+				settings.debugInspector = value;
+			},
+		});
+		this._settingsElm.appendChild(inspector.elm());
 
-		// TODO: hide on game start
+		// TODO: hide on game start if hosting
 		let prediction = new SettingWrapper({
 			id: "input-prediction",
 			type: "checkbox",
@@ -76,21 +74,47 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(prediction.elm());
 
-		if (isLocalhost()) {
-			let delay = new SettingWrapper({
-				id: "input-debug-delay",
-				type: "range",
-				label: "Delay",
+		let delay = new SettingWrapper({
+			id: "input-debug-delay",
+			type: "range",
+			label: "Delay",
 
-				min: 0,
-				max: 100,
-				step: 1,
+			min: 0,
+			max: 100,
+			step: 1,
 
-				getSetting: () => { return settings.debugDelay; },
-				setSetting: (value : number) => { settings.debugDelay = value; },
-			});
-			this._settingsElm.appendChild(delay.elm());		
-		}
+			getSetting: () => { return settings.debugDelay; },
+			setSetting: (value : number) => { settings.debugDelay = value; },
+		});
+		this._settingsElm.appendChild(delay.elm());	
+
+		let jitter = new SettingWrapper({
+			id: "input-debug-jitter",
+			type: "range",
+			label: "Jitter",
+
+			min: 0,
+			max: 100,
+			step: 1,
+
+			getSetting: () => { return settings.debugJitter; },
+			setSetting: (value : number) => { settings.debugJitter = value; },
+		});
+		this._settingsElm.appendChild(jitter.elm());	
+
+		let packetLoss = new SettingWrapper({
+			id: "input-debug-packet-loss",
+			type: "range",
+			label: "Packet Loss",
+
+			min: 0,
+			max: 0.5,
+			step: .01,
+
+			getSetting: () => { return settings.debugPacketLoss; },
+			setSetting: (value : number) => { settings.debugPacketLoss = value; },
+		});
+		this._settingsElm.appendChild(packetLoss.elm());		
 	}
 
 	override setMode(mode : UiMode) : void {

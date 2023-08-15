@@ -284,12 +284,18 @@ export abstract class Netcode {
 			return false;
 		}
 
-		if (isLocalhost() && settings.debugDelay > 0) {
+		if (settings.debugPacketLoss > 0 && type === ChannelType.UDP && settings.debugPacketLoss > Math.random()) {
+			return true;
+		}
+
+		const payload = encode(msg.toObject());
+		const delay = settings.debugDelay + Math.random() * settings.debugJitter;
+		if (delay > 0) {
 			setTimeout(() => {
-				channels.send(type, encode(msg.toObject()));
+				channels.send(type, payload);
 			}, settings.debugDelay);
 		} else {
-			channels.send(type, encode(msg.toObject()));
+			channels.send(type, payload);
 		}
 		return true;
 	}

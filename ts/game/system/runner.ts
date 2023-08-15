@@ -69,7 +69,10 @@ export class Runner extends SystemBase implements System  {
     	this.physics(millis);
     	this.postPhysics(millis);
     	this.preRender(millis);
+
+    	// TODO: separate render from game loop?
     	this.render(millis);
+
     	this.postRender(millis);
 
     	this.updateData(this._seqNum);

@@ -20,6 +20,8 @@ class Settings {
 	public debugInspector : boolean;
 	public debugPhysics : boolean;
 	public debugDelay : number;
+	public debugJitter : number;
+	public debugPacketLoss : number;
 
 	constructor() {
 		this.leftKeyCode = 65;
@@ -40,7 +42,9 @@ class Settings {
 		// Debug properties
 		this.debugInspector = false;
 		this.debugPhysics = false;
-		this.debugDelay = 30;
+		this.debugDelay = 0;
+		this.debugJitter = 0;
+		this.debugPacketLoss = 0;
 	}
 
 	// TODO: save and load from cookie
