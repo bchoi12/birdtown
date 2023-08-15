@@ -1,6 +1,7 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
+import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 
@@ -47,8 +48,9 @@ export class Physics extends SystemBase implements System {
 
 	world() : MATTER.Composite { return this._engine.world; }
 
-	override physics(millis : number) : void {
-		super.physics(millis);
+	override physics(stepData : StepData) : void {
+		super.physics(stepData);
+		const millis = stepData.millis;
 
 		MATTER.Engine.update(this._engine, millis);
 
@@ -144,8 +146,8 @@ export class Physics extends SystemBase implements System {
 		});
 	}
 
-	override render(millis : number) : void {
-		super.render(millis);
+	override render(stepData : StepData) : void {
+		super.render(stepData);
 
 		if (!game.lakitu().hasTargetEntity()) {
 			return;

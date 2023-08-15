@@ -1,6 +1,7 @@
 import * as BABYLON from 'babylonjs'
 
 import { game } from 'game'
+import { StepData } from 'game/game_object'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
@@ -156,8 +157,8 @@ export class Model extends ComponentBase implements Component {
 		}
 	}
 
-	override preRender(millis : number) : void {
-		super.preRender(millis);
+	override preRender(stepData : StepData) : void {
+		super.preRender(stepData);
 
 		if (!this.hasMesh()) {
 			return;

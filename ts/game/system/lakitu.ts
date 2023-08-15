@@ -1,6 +1,7 @@
 import * as BABYLON from "babylonjs";
 
 import { game } from 'game'
+import { StepData } from 'game/game_object'
 import { ComponentType } from 'game/component/api'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -71,16 +72,16 @@ export class Lakitu extends SystemBase implements System {
 		};
 	}
 
-	override postPhysics(millis : number) : void {
-		super.postPhysics(millis);
+	override postPhysics(stepData : StepData) : void {
+		super.postPhysics(stepData);
 
 		if (this.hasTargetEntity()) {
 			this.setAnchor(this.targetEntity().getProfile().pos().toBabylon3());
 		}
 	}
 
-	override preRender(millis : number) : void {
-		super.preRender(millis);
+	override preRender(stepData : StepData) : void {
+		super.preRender(stepData);
 
 		if (!this.hasTargetEntity()) {
 			return;

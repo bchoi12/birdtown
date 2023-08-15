@@ -71,7 +71,7 @@ export class GameProp<T extends Object> {
 				return GameProp.numberEquals(<number>a, <number>b);
 			}
 			return a === b;
-		};
+		}
 		if (Object.keys(a).length !== Object.keys(b).length) return false;
 
 		for (let key in a) {
@@ -125,6 +125,19 @@ export class GameProp<T extends Object> {
 		this._seqNum = seqNum;
 		this._consecutiveChanges = Math.max(1, this._consecutiveChanges + 1);
 		this._lastChanged = Math.max(this._lastChanged, this._seqNum);
+		return true;
+	}
+
+	rollback(value : T, seqNum : number) : boolean {
+		if (!defined(value)) {
+			return false;
+		}
+
+		this._value.set(value);
+		this._seqNum = seqNum;
+
+		// TODO: do I need to set any other properties?
+
 		return true;
 	}
 

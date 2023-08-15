@@ -1,5 +1,5 @@
 
 export namespace NetworkGlobals {
 	// TODO: setting?
-	export const predictionBufferSize : number = 30;
+	export const rollbackBufferSize : number = 30;
 }

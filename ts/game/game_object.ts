@@ -32,6 +32,11 @@ export type NameParams = {
 	id? : number;
 }
 
+export type StepData = {
+	millis : number;
+	seqNum : number;
+}
+
 export type FactoryFn = (id : number) => GameObject
 export type ChildCallback<T extends GameObject> = (child : T, id : number) => void;
 
@@ -52,15 +57,15 @@ export interface GameObject {
 	deleted() : boolean;
 	dispose() : void;
 
-	preUpdate(millis : number) : void
-	update(millis : number) : void
-	postUpdate(millis : number) : void
-	prePhysics(millis : number) : void
-	physics(millis : number) : void
-	postPhysics(millis : number) : void
-	preRender(millis : number) : void
-	render(millis : number) : void
-	postRender(millis : number) : void
+	preUpdate(stepData : StepData) : void
+	update(stepData : StepData) : void
+	postUpdate(stepData : StepData) : void
+	prePhysics(stepData : StepData) : void
+	physics(stepData : StepData) : void
+	postPhysics(stepData : StepData) : void
+	preRender(stepData : StepData) : void
+	render(stepData : StepData) : void
+	postRender(stepData : StepData) : void
 	cleanup() : void;
 
 	millisSinceUpdate() : number;
@@ -90,7 +95,8 @@ export interface GameObject {
 	setOffline(offline : boolean) : void;
 	data() : GameData;
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean];
-	updateData(seqNum : number) : void;
+	rollback(data : DataMap, seqNum : number) : void;
+	stepData(seqNum : number) : void;
 	importData(data : DataMap, seqNum : number) : void;
 }
 
@@ -190,7 +196,9 @@ export abstract class GameObjectBase {
 		});
 	}
 
-	preUpdate(millis : number) : void {
+	preUpdate(stepData : StepData) : void {
+		const millis = stepData.millis;
+
 		this._lastUpdateTime = Date.now();
 
 		this._timers.forEach((timer) => {
@@ -202,63 +210,63 @@ export abstract class GameObjectBase {
 				obj.initialize();
 			}
 			if (obj.initialized()) {
-				obj.preUpdate(millis);
+				obj.preUpdate(stepData);
 			}
 		});
 	}
-	update(millis : number) : void {
+	update(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
-				obj.update(millis);
+				obj.update(stepData);
 			}
 		});
 	}
-	postUpdate(millis : number) : void {
+	postUpdate(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
-				obj.postUpdate(millis);
+				obj.postUpdate(stepData);
 			}
 		});
 	}
-	prePhysics(millis : number) : void {
+	prePhysics(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
-				obj.prePhysics(millis);
+				obj.prePhysics(stepData);
 			}
 		});
 	}
-	physics(millis : number) : void {
+	physics(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
-				obj.physics(millis);
+				obj.physics(stepData);
 			}
 		});
 	}
-	postPhysics(millis : number) : void {
+	postPhysics(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
-				obj.postPhysics(millis);
+				obj.postPhysics(stepData);
 			}
 		});
 	}
-	preRender(millis : number) : void {
+	preRender(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
-				obj.preRender(millis);
+				obj.preRender(stepData);
 			}
 		});
 	}
-	render(millis : number) : void {
+	render(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
-				obj.render(millis);
+				obj.render(stepData);
 			}
 		});
 	}
-	postRender(millis : number) : void {
+	postRender(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
-				obj.postRender(millis);
+				obj.postRender(stepData);
 			}
 		});
 	}
@@ -404,7 +412,21 @@ export abstract class GameObjectBase {
 		return [data, hasData];
 	}
 
-	updateData(seqNum : number) : void {
+	rollback(data : DataMap, seqNum : number) : void {
+		for (const [stringProp, value] of Object.entries(data)) {
+			const prop = Number(stringProp);
+			if (this.isProp(prop)) {
+				this._data.rollback(prop, value, seqNum);
+			} else {
+				const id = this.propToId(prop);
+				if (this._childObjects.has(id)) {
+					this._childObjects.get(id).rollback(<DataMap>value, seqNum);
+				}
+			}
+		}
+	}
+
+	stepData(seqNum : number) : void {
 		if (!this.initialized()) {
 			return;
 		}
@@ -418,7 +440,7 @@ export abstract class GameObjectBase {
 		}
 
 		for (let i = 0; i < this._childOrder.length; ++i) {
-			this.getChild(this._childOrder[i]).updateData(seqNum);
+			this.getChild(this._childOrder[i]).stepData(seqNum);
 		};
 	}
 

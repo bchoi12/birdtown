@@ -1,4 +1,6 @@
+
 import { game } from 'game'	
+import { StepData } from 'game/game_object'
 import { CardinalFactory } from 'game/factory/cardinal_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -86,8 +88,8 @@ export class Level extends SystemBase implements System {
 		this._state = State.UNLOAD;
 	}
 
-	override preUpdate(millis : number) : void {
-		super.preUpdate(millis);
+	override preUpdate(stepData : StepData) : void {
+		super.preUpdate(stepData);
 
 		if (this._state === State.LOAD) {
 			if (isLocalhost()) {
@@ -120,8 +122,8 @@ export class Level extends SystemBase implements System {
 		}
 	}
 
-	override postRender(millis : number) : void {
-		super.postRender(millis);
+	override postRender(stepData : StepData) : void {
+		super.postRender(stepData);
 
 		if (this._state === State.UNLOAD) {
 			game.entities().queryEntities<Entity>({

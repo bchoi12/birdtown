@@ -3,6 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { GameState } from 'game/api'
+import { StepData } from 'game/game_object'
 import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -320,8 +321,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 	}
 
-	override preUpdate(millis : number) : void {
-		super.preUpdate(millis);
+	override preUpdate(stepData : StepData) : void {
+		super.preUpdate(stepData);
 
 		if (this.isSource()) {
 			// Out of bounds
@@ -334,8 +335,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._deadTracker.check();
 	}
 
-	override update(millis : number) : void {
-		super.update(millis);
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+		const millis = stepData.millis;
 
 		if (this._deactivated) {
 			this._profile.uprightStop();
@@ -415,8 +417,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 	}
 
-	override prePhysics(millis : number) : void {
-		super.prePhysics(millis);
+	override prePhysics(stepData : StepData) : void {
+		super.prePhysics(stepData);
 
 		this._collisionInfo.resetAndSnapshot(this._profile);
 	}
@@ -438,8 +440,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 	}
 
-	override postPhysics(millis : number) : void {
-		super.postPhysics(millis);
+	override postPhysics(stepData : StepData) : void {
+		super.postPhysics(stepData);
 
 		let resolvedVel = Vec2.fromVec(this._collisionInfo.vel());
 		while (this._collisionInfo.hasRecord()) {
@@ -466,8 +468,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		MATTER.Body.setVelocity(this._profile.body(), this._profile.vel());
 	}
 
-	override preRender(millis : number) : void {
-		super.preRender(millis);
+	override preRender(stepData : StepData) : void {
+		super.preRender(stepData);
+		const millis = stepData.millis;
 
 		if (!this._model.hasMesh()) {
 			return;

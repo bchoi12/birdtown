@@ -3,6 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { GameMode } from 'game/api'
+import { StepData } from 'game/game_object'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
@@ -66,8 +67,8 @@ export class Console extends EntityBase implements Entity {
 		}));
 	}
 
-	override prePhysics(millis : number) : void {
-		super.prePhysics(millis);
+	override prePhysics(stepData : StepData) : void {
+		super.prePhysics(stepData);
 
 		this._active = false;
 	}
@@ -86,8 +87,8 @@ export class Console extends EntityBase implements Entity {
 		this._active = true;
 	}
 
-	override preRender(millis : number) : void {
-		super.preRender(millis);
+	override preRender(stepData : StepData) : void {
+		super.preRender(stepData);
 
 		if (!this._active) {
 			return;

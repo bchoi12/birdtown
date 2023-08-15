@@ -1,6 +1,7 @@
 import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
+import { StepData } from 'game/game_object'
 import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -59,8 +60,8 @@ export class Rocket extends Projectile {
 
 	override damage() : number { return 50; }
 
-	override preRender(millis : number) : void {
-		super.preRender(millis);
+	override preRender(stepData : StepData) : void {
+		super.preRender(stepData);
 
 		if (!this._model.hasMesh()) {
 			return;

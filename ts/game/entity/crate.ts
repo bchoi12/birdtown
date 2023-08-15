@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { StepData } from 'game/game_object'
 import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -70,8 +71,8 @@ export class Crate extends EntityBase implements Entity {
 		this._startingAngle = this._profile.angle();
 	}
 
-	override update(millis : number) : void {
-		super.update(millis);
+	override update(stepData : StepData) : void {
+		super.update(stepData);
 
 		if (this._profile.pos().y < -10) {
 			this._profile.setPos(this._startingPos);

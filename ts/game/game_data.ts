@@ -51,6 +51,17 @@ export class GameData {
 		return this._propData.get(key).set(value, seqNum);
 	}
 
+	rollback(key : number, value : Object, seqNum : number) : boolean {
+		if (!defined(value)) {
+			return false;
+		}
+		if (!this.has(key)) {
+			return false;
+		}
+
+		return this._propData.get(key).rollback(value, seqNum);
+	}
+
 	filtered(filter : DataFilter, seqNum : number) : [DataMap, boolean] {
 		if (this.empty()) {
 			return [{}, false];

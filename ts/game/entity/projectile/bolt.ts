@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { StepData } from 'game/game_object'
 import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -56,8 +57,8 @@ export class Bolt extends Projectile {
 
 	override damage() : number { return 20; }
 
-	override update(millis : number) : void {
-		super.update(millis);
+	override update(stepData : StepData) : void {
+		super.update(stepData);
 
 		const vel = this._profile.vel();
 		if (!vel.isZero()) {

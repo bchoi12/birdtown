@@ -1,6 +1,7 @@
 
 import { game } from 'game'
 import { GameMode, GameState } from 'game/api'
+import { StepData } from 'game/game_object'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
@@ -120,8 +121,8 @@ export class Controller extends SystemBase implements System {
 		}
 	}
 
-	override preUpdate(millis : number) : void {
-		super.preUpdate(millis);
+	override preUpdate(stepData : StepData) : void {
+		super.preUpdate(stepData);
 
 		if (!this._gameMaker.has()) { return; }
 

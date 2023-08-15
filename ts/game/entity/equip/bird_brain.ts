@@ -3,6 +3,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { StepData } from 'game/game_object'
 import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -106,8 +107,8 @@ export class BirdBrain extends Equip<Player> {
 		return false;
 	}
 
-	override update(millis : number) : void {
-		super.update(millis);
+	override update(stepData : StepData) : void {
+		super.update(stepData);
 
 		if (this._canCharge) {
 			this._juice = Math.min(100, this._juice + 1.6);

@@ -4,15 +4,20 @@ import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { LevelType } from 'game/system/api'
 
+import { NetworkGlobals } from 'global/network_globals'
+
 import { Message, DataMap } from 'message'
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
 
 import { ChannelType } from 'network/api'
 
+import { SeqMap } from 'util/seq_map'
+
 export class Runner extends SystemBase implements System  {
 	private static readonly _maxFrameMillis = 32;
 
+	private _rollbackBuffer : SeqMap<number, DataMap>;
 	private _seqNum : number;
 	private _updateSpeed : number;
 
@@ -23,6 +28,7 @@ export class Runner extends SystemBase implements System  {
 			base: "runner",
 		});
 
+		this._rollbackBuffer = new SeqMap(NetworkGlobals.rollbackBufferSize);
 		this._seqNum = 0;
 		this._updateSpeed = 1.0;
 
@@ -34,14 +40,12 @@ export class Runner extends SystemBase implements System  {
 
 	override ready() : boolean { return super.ready() && game.hasClientId(); }
 
-	push<T extends System>(system : T) : T {
+	push<T extends System>(system : T) : void {
 		if (this.hasChild(system.type())) {
 			console.error("Error: skipping duplicate system with type %d, name %s", system.type(), system.name());
 			return;
 		}
-
 		this.registerChild(system.type(), system);
-		return system;
 	}
 
 	getSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
@@ -61,21 +65,24 @@ export class Runner extends SystemBase implements System  {
 			this._seqNum++;
 		}
 
-    	const millis = Math.min(this.millisSinceUpdate(), Runner._maxFrameMillis) * this._updateSpeed;
-    	this.preUpdate(millis);
-    	this.update(millis);
-    	this.postUpdate(millis);
-    	this.prePhysics(millis);
-    	this.physics(millis);
-    	this.postPhysics(millis);
-    	this.preRender(millis);
+    	const stepData = {
+    		millis: Math.min(this.millisSinceUpdate(), Runner._maxFrameMillis) * this._updateSpeed,
+    		seqNum: this._seqNum,
+    	}
+    	this.preUpdate(stepData);
+    	this.update(stepData);
+    	this.postUpdate(stepData);
+    	this.prePhysics(stepData);
+    	this.physics(stepData);
+    	this.postPhysics(stepData);
+    	this.preRender(stepData);
 
     	// TODO: separate render from game loop?
-    	this.render(millis);
+    	this.render(stepData);
 
-    	this.postRender(millis);
+    	this.postRender(stepData);
 
-    	this.updateData(this._seqNum);
+    	this.stepData(this._seqNum);
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -100,9 +107,33 @@ export class Runner extends SystemBase implements System  {
 	override importData(data : DataMap, seqNum : number) : void {
 		super.importData(data, seqNum);
 
-		if (!this.isSource()) {
-			this._seqNum = Math.max(this._seqNum, seqNum);
+		if (this.isSource()) {
+			return;
 		}
+
+		let [currentData, ok] = this._rollbackBuffer.get(seqNum);
+		if (ok) {
+			this._rollbackBuffer.insert(seqNum, {...currentData, ...data});
+		} else {
+			let [prev, hasPrev] = this._rollbackBuffer.prev(seqNum);
+			if (hasPrev) {
+				let [prevData, _] = this._rollbackBuffer.get(prev); 
+				this._rollbackBuffer.insert(seqNum, {...prevData, ...data});
+			} else {
+				this._rollbackBuffer.insert(seqNum, data);
+			}
+		}
+
+		let [next, hasNext] = this._rollbackBuffer.next(seqNum);
+		while (hasNext) {
+			let [nextData, _] = this._rollbackBuffer.get(next);
+			this._rollbackBuffer.insert(seqNum, {...data, ...nextData});
+
+			[next, hasNext] = this._rollbackBuffer.next(seqNum);
+		}
+
+		// TODO: needed?
+		this._seqNum = Math.max(this._seqNum, seqNum);
 	}
 
 	message(filter : DataFilter) : [NetworkMessage, boolean] {

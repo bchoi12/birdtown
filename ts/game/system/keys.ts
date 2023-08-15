@@ -1,6 +1,7 @@
 import * as BABYLON from "babylonjs";
 
 import { game } from 'game'
+import { StepData } from 'game/game_object'
 import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
@@ -144,8 +145,10 @@ export class Keys extends ClientSideSystem implements System {
 		super.setTargetEntity(entity);
 	}
 
-	override preUpdate(millis : number) : void {
-		super.preUpdate(millis);
+	override preUpdate(stepData : StepData) : void {
+		super.preUpdate(stepData);
+
+		const millis = stepData.millis;
 
 		if (this.isSource()) {
 			this._keys = ui.keys();
@@ -187,8 +190,8 @@ export class Keys extends ClientSideSystem implements System {
 		}
 	}
 
-	override preRender(millis : number) : void {
-		super.preRender(millis);
+	override preRender(stepData : StepData) : void {
+		super.preRender(stepData);
 
 		if (this.isSource()) {
 			this.updateMouse();

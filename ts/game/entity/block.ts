@@ -3,6 +3,7 @@ import 'babylonjs-materials'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { StepData } from 'game/game_object'
 import { ColorFactory, ColorType } from 'game/factory/color_factory'
 import { CardinalType } from 'game/factory/cardinal_factory'
 import { ComponentType } from 'game/component/api'
@@ -120,14 +121,15 @@ export abstract class Block extends EntityBase {
 	openings() : Cardinal { return this._cardinals.getCardinal(CardinalType.OPENINGS); }
 	transparent() : boolean { return this._transparent; }
 
-	override preUpdate(millis : number) : void {
-		super.preUpdate(millis);
+	override preUpdate(stepData : StepData) : void {
+		super.preUpdate(stepData);
 
 		this._transparent = false;
 	}
 
-	override preRender(millis : number) : void {
-		super.update(millis);
+	override preRender(stepData : StepData) : void {
+		super.update(stepData);
+		const millis = stepData.millis;
 
 		if (this.transparent()) {
 			this._frontMaterials.forEach((name : string) => {

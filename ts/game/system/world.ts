@@ -1,6 +1,7 @@
 import * as BABYLON from 'babylonjs'
 
 import { game } from 'game'	
+import { StepData } from 'game/game_object'
 import { ComponentType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Entity } from 'game/entity'
@@ -73,8 +74,8 @@ export class World extends SystemBase implements System {
 
 	getLayer<T extends BABYLON.EffectLayer>(type : LayerType) : T { return <T>this._layers.get(type); }
 
-	override render(millis : number) : void {
-		super.render(millis);
+	override render(stepData : StepData) : void {
+		super.render(stepData);
 
 		this._scene.render();
 	}

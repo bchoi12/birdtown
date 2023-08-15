@@ -1,6 +1,7 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { StepData } from 'game/game_object'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType, StatType } from 'game/component/api'
 import { Stats } from 'game/component/stats'
@@ -449,7 +450,9 @@ export class Profile extends ComponentBase implements Component {
 		}
 	}
 
-	override prePhysics(millis : number) : void {
+	override prePhysics(stepData : StepData) : void {
+		const millis = stepData.millis;
+
 		if (this._prePhysicsFn) {
 			this._prePhysicsFn(this);
 		}
@@ -484,10 +487,10 @@ export class Profile extends ComponentBase implements Component {
 		MATTER.Body.setPosition(this._body, this.pos());
 
 		// Update child objects afterwards
-		super.prePhysics(millis);
+		super.prePhysics(stepData);
 	}
 
-	override postPhysics(millis : number) : void {
+	override postPhysics(stepData : StepData) : void {
 		if (this._postPhysicsFn) {
 			this._postPhysicsFn(this);
 		} 
@@ -507,6 +510,6 @@ export class Profile extends ComponentBase implements Component {
 		}
 
 		// Update child objects afterwards.
-		super.postPhysics(millis);
+		super.postPhysics(stepData);
 	}
 } 

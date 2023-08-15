@@ -49,6 +49,17 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(pointerLock.elm());
 
+		// TODO: hide on game start if hosting
+		let prediction = new SettingWrapper({
+			id: "input-prediction",
+			type: "checkbox",
+			label: "Client-side prediction",
+
+			getSetting: () => { return settings.enablePrediction; },
+			setSetting: (value : boolean) => { settings.enablePrediction = value; },
+		});
+		this._settingsElm.appendChild(prediction.elm());
+
 		let inspector = new SettingWrapper({
 			id: "input-debug-inspector",
 			type: "checkbox",
@@ -62,17 +73,6 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			},
 		});
 		this._settingsElm.appendChild(inspector.elm());
-
-		// TODO: hide on game start if hosting
-		let prediction = new SettingWrapper({
-			id: "input-prediction",
-			type: "checkbox",
-			label: "Client-side prediction",
-
-			getSetting: () => { return settings.enablePrediction; },
-			setSetting: (value : boolean) => { settings.enablePrediction = value; },
-		});
-		this._settingsElm.appendChild(prediction.elm());
 
 		let delay = new SettingWrapper({
 			id: "input-debug-delay",
