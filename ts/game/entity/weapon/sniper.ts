@@ -50,6 +50,7 @@ export class Sniper extends Weapon {
 				vel: vel,
 				angle: vel.angleRad(),
 			},
+			levelVersion: this.levelVersion(),
 		});
 
 		if (hasBolt) {

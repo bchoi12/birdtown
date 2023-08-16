@@ -153,9 +153,9 @@ class Game {
 	    this._engine.runRenderLoop(() => {
 	    	const frameStart = Date.now();
 
-	    	this._netcode.preUpdate();
+	    	this._netcode.preStep();
     		this._runner.step();
-	    	this._netcode.postUpdate();
+	    	this._netcode.postStep();
 
 	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {
     			const [msg, has] = this._runner.message(filter);

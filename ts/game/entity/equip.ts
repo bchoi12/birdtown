@@ -93,7 +93,6 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	ownerId() : number { return this._ownerId; }
 
 	addKey(type : KeyType) : void { this._keys.add(type); }
-	keys() : Set<KeyType> { return this._keys; }
 	keysIntersect(other : Set<KeyType>) : boolean {
 		if (other.size === 0) { return false; }
 

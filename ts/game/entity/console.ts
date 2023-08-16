@@ -87,8 +87,9 @@ export class Console extends EntityBase implements Entity {
 		this._active = true;
 	}
 
-	override preRender(stepData : StepData) : void {
-		super.preRender(stepData);
+	override postPhysics(stepData : StepData) : void {
+		super.postPhysics(stepData);
+		const seqNum = stepData.seqNum;
 
 		if (!this._active) {
 			return;
@@ -100,7 +101,7 @@ export class Console extends EntityBase implements Entity {
 			msg.setProp(UiProp.TTL, 100);
 			ui.handleMessage(msg);
 
-			if (game.keys().keyPressed(KeyType.INTERACT)) {
+			if (game.keys().keyPressed(KeyType.INTERACT, seqNum)) {
 				let msg = new UiMessage(UiMessageType.DIALOG);
 				msg.setProp(UiProp.TYPE, DialogType.PICK_GAME_MODE);
 				msg.setProp(UiProp.PAGES, [{

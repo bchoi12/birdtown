@@ -22,6 +22,19 @@ export class SeqMap<K extends number, V> {
 		this._entries = new Array(size).fill(null);
 	}
 
+	max() : [K, boolean] {
+		return [this._max.get(), this._max.has()];
+	}
+
+	peek() : [V, boolean] {
+		let [max, hasMax] = this.max();
+
+		if (hasMax) {
+			return this.get(max);
+		}
+		return [null, false];
+	}
+
 	insert(key : K, value : V) : boolean {
 		let [entry, ok] = this.getEntry(key);
 
@@ -30,7 +43,7 @@ export class SeqMap<K extends number, V> {
 			return false;
 		}
 
-		const index = key % this._size;
+		const index = this.index(key);
 		if (ok && entry.key === key) {
 			this._entries[index].value = value;
 		} else {
@@ -51,7 +64,7 @@ export class SeqMap<K extends number, V> {
 	}
 
 	has(key : K) : boolean {
-		const index = key % this._size;
+		const index = this.index(key);
 		if (!defined(this._entries[index])) {
 			return false;
 		}
@@ -67,6 +80,34 @@ export class SeqMap<K extends number, V> {
 			return [entry.value, true];
 		}
 		return [null, false];
+	}
+	getNext(key : K) : [V, boolean] {
+		let [next, hasNext] = this.next(key);
+		if (hasNext) {
+			return this.get(next);
+		}
+		return [null, false];
+	}
+	getOrNext(key : K) : [V, boolean] {
+		let [entry, ok] = this.get(key);
+		if (ok) {
+			return [entry, true];
+		}
+		return this.getNext(key);
+	}
+	getPrev(key : K) : [V, boolean] {
+		let [prev, hasPrev] = this.prev(key);
+		if (hasPrev) {
+			return this.get(prev);
+		}
+		return [null, false];
+	}
+	getOrPrev(key : K) : [V, boolean] {
+		let [entry, ok] = this.get(key);
+		if (ok) {
+			return [entry, true];
+		}
+		return this.getPrev(key);
 	}
 
 	prev(key : K) : [K, boolean] {
@@ -129,11 +170,15 @@ export class SeqMap<K extends number, V> {
 	}
 
 	private getEntry(key : K) : [Entry<K, V>, boolean] {
-		const index = key % this._size;
+		const index = this.index(key);
 		if (this.has(key)) {
 			let entry = this._entries[index];
 			return [entry, true];
 		}
 		return [null, false];
+	}
+
+	private index(key : K) : K {
+		return <K>(((key % this._size) + this._size) % this._size);
 	}
 }

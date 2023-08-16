@@ -338,6 +338,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
+		const seqNum = stepData.seqNum;
 
 		if (this._deactivated) {
 			this._profile.uprightStop();
@@ -354,9 +355,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		const keys = game.keys(this.clientId());
 		if (!this._stats.dead()) {
 			// Keypress acceleration
-			if (keys.keyDown(KeyType.LEFT)) {
+			if (keys.keyDown(KeyType.LEFT, seqNum)) {
 				this._profile.setAcc({ x: -Player._sideAcc });
-			} else if (keys.keyDown(KeyType.RIGHT)) {
+			} else if (keys.keyDown(KeyType.RIGHT, seqNum)) {
 				this._profile.setAcc({ x: Player._sideAcc });
 			} else {
 				this._profile.setAcc({ x: 0 });
@@ -375,12 +376,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			// Jumping
 			if (this._jumpTimer.hasTimeLeft()) {
-				if (keys.keyDown(KeyType.JUMP)) {
+				if (keys.keyDown(KeyType.JUMP, seqNum)) {
 					this._profile.setVel({ y: Player._jumpVel });
 					this._jumpTimer.stop();
 				}
 			} else if (this._canDoubleJump) {
-				if (keys.keyPressed(KeyType.JUMP)) {
+				if (keys.keyPressed(KeyType.JUMP, seqNum)) {
 					this._profile.setVel({ y: Player._jumpVel });
 					this._canDoubleJump = false;
 				}
@@ -406,13 +407,21 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
 					if (hasEquip) {
 						equip.updateInput({
-							keys: this._stats.dead() ? new Set() : keys.keys(),
+							keys: this._stats.dead() ? new Set() : keys.keys(seqNum),
 							millis: millis,
 							mouse: keys.mouse(),
 							dir: this._armDir,
 						});
 					}
 				});
+			}
+		}
+
+		// Cosmetic stuff
+		if (this._armRecoil > 0) {
+			this._armRecoil -= Math.abs(millis / Player._armRecoveryTime);
+			if (this._armRecoil < 0) {
+				this._armRecoil = 0;
 			}
 		}
 	}
@@ -468,9 +477,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		MATTER.Body.setVelocity(this._profile.body(), this._profile.vel());
 	}
 
-	override preRender(stepData : StepData) : void {
-		super.preRender(stepData);
-		const millis = stepData.millis;
+	override preRender() : void {
+		super.preRender();
 
 		if (!this._model.hasMesh()) {
 			return;
@@ -525,12 +533,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		arm.rotation = new BABYLON.Vector3(armRotation, Math.PI, 0);
 
 		// Compute arm position
-		if (this._armRecoil > 0) {
-			this._armRecoil -= Math.abs(millis / Player._armRecoveryTime);
-			if (this._armRecoil < 0) {
-				this._armRecoil = 0;
-			}
-		}
 		let rotatedOffset = new BABYLON.Vector3(0, -Math.cos(armRotation) * this._armRecoil, Math.sin(armRotation) * this._armRecoil);
 		arm.position = this._boneOrigins.get(Bone.ARM).add(rotatedOffset);
 	}
@@ -565,6 +567,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				associationInit: {
 					owner: this,
 				},
+				levelVersion: game.level().version(),
 			});
 			if (hasEquip) {
 				this._equip.addKey(KeyType.MOUSE_CLICK);
@@ -578,6 +581,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				associationInit: {
 					owner: this,
 				},
+				levelVersion: game.level().version(),
 			});		
 			if (hasAltEquip) {
 				this._altEquip.addKey(KeyType.ALT_MOUSE_CLICK);

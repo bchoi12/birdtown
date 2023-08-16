@@ -18,7 +18,6 @@ class Settings {
 	public enablePrediction : boolean;
 
 	public debugInspector : boolean;
-	public debugPhysics : boolean;
 	public debugDelay : number;
 	public debugJitter : number;
 	public debugPacketLoss : number;
@@ -41,10 +40,9 @@ class Settings {
 
 		// Debug properties
 		this.debugInspector = false;
-		this.debugPhysics = false;
-		this.debugDelay = 0;
-		this.debugJitter = 0;
-		this.debugPacketLoss = 0;
+		this.debugDelay = 75;
+		this.debugJitter = 40;
+		this.debugPacketLoss = 0.02;
 	}
 
 	// TODO: save and load from cookie

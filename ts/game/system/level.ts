@@ -122,8 +122,8 @@ export class Level extends SystemBase implements System {
 		}
 	}
 
-	override postRender(stepData : StepData) : void {
-		super.postRender(stepData);
+	override postUpdate(stepData : StepData) : void {
+		super.postUpdate(stepData);
 
 		if (this._state === State.UNLOAD) {
 			game.entities().queryEntities<Entity>({

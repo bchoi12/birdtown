@@ -121,14 +121,33 @@ export abstract class Block extends EntityBase {
 	openings() : Cardinal { return this._cardinals.getCardinal(CardinalType.OPENINGS); }
 	transparent() : boolean { return this._transparent; }
 
-	override preUpdate(stepData : StepData) : void {
-		super.preUpdate(stepData);
+	override prePhysics(stepData : StepData) : void {
+		super.prePhysics(stepData);
 
 		this._transparent = false;
 	}
 
-	override preRender(stepData : StepData) : void {
-		super.update(stepData);
+	override collide(collision : MATTER.Collision, other : Entity) : void {
+		super.collide(collision, other);
+
+		if (!game.lakitu().hasTargetEntity()) {
+			return;
+		}
+
+		const target = game.lakitu().targetEntity();
+		if (target.id() !== other.id() || !target.hasProfile()) {
+			return;
+		}
+
+		if (!this._profile.contains(target.getProfile().pos())) {
+			return;
+		}
+
+		this._transparent = true;
+	}
+
+	override postPhysics(stepData : StepData) : void {
+		super.postPhysics(stepData);
 		const millis = stepData.millis;
 
 		if (this.transparent()) {
@@ -150,24 +169,8 @@ export abstract class Block extends EntityBase {
 		}
 	}
 
-	override collide(collision : MATTER.Collision, other : Entity) : void {
-		super.collide(collision, other);
-
-		if (!game.lakitu().hasTargetEntity()) {
-			return;
-		}
-
-		const target = game.lakitu().targetEntity();
-		if (target.id() !== other.id()) {
-			return;
-		}
-
-		if (!this._profile.contains(target.getProfile().pos())) {
-			return;
-		}
-
-		this._transparent = true;
-	}
+	// TODO: fix this, allow offset for model
+	override preRender() : void {}
 
 	protected processMesh(mesh : BABYLON.Mesh) : void {
 		mesh.getChildMeshes().forEach((child : BABYLON.Mesh) => {

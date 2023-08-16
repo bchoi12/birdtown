@@ -63,13 +63,10 @@ export interface GameObject {
 	prePhysics(stepData : StepData) : void
 	physics(stepData : StepData) : void
 	postPhysics(stepData : StepData) : void
-	preRender(stepData : StepData) : void
-	render(stepData : StepData) : void
-	postRender(stepData : StepData) : void
+	preRender() : void
+	render() : void
+	postRender() : void
 	cleanup() : void;
-
-	millisSinceUpdate() : number;
-	millisSinceImport() : number;
 
 	addLocalObject<T extends GameObject>(local : T) : T;
 	addProp<T extends Object>(handler : PropHandler<T>);
@@ -96,7 +93,7 @@ export interface GameObject {
 	data() : GameData;
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean];
 	rollback(data : DataMap, seqNum : number) : void;
-	stepData(seqNum : number) : void;
+	updateData(seqNum : number) : void;
 	importData(data : DataMap, seqNum : number) : void;
 }
 
@@ -106,8 +103,6 @@ export abstract class GameObjectBase {
 	protected _offline : boolean;
 	protected _deleted : boolean;
 	protected _notReadyCounter : number;
-	protected _lastUpdateTime : number;
-	protected _lastImportTime : number;
 
 	// TODO: unused? deprecate?
 	protected _localObjects : Array<GameObject>;
@@ -127,8 +122,6 @@ export abstract class GameObjectBase {
 		this._offline = false;
 		this._deleted = false;
 		this._notReadyCounter = 0;
-		this._lastUpdateTime = Date.now();
-		this._lastImportTime = Date.now();
 
 		this._localObjects = new Array();
 		this._data = new GameData();
@@ -198,9 +191,6 @@ export abstract class GameObjectBase {
 
 	preUpdate(stepData : StepData) : void {
 		const millis = stepData.millis;
-
-		this._lastUpdateTime = Date.now();
-
 		this._timers.forEach((timer) => {
 			timer.elapse(millis);
 		});
@@ -249,24 +239,24 @@ export abstract class GameObjectBase {
 			}
 		});
 	}
-	preRender(stepData : StepData) : void {
+	preRender() : void {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
-				obj.preRender(stepData);
+				obj.preRender();
 			}
 		});
 	}
-	render(stepData : StepData) : void {
+	render() : void {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
-				obj.render(stepData);
+				obj.render();
 			}
 		});
 	}
-	postRender(stepData : StepData) : void {
+	postRender() : void {
 		this.updateObjects((obj : GameObject) => {
 			if (obj.initialized()) {
-				obj.postRender(stepData);
+				obj.postRender();
 			}
 		});
 	}
@@ -281,9 +271,6 @@ export abstract class GameObjectBase {
 			}
 		});
 	}
-
-	millisSinceUpdate() : number { return Date.now() - this._lastUpdateTime; }
-	millisSinceImport() : number { return Date.now() - this._lastImportTime; }
 
 	addLocalObject<T extends GameObject>(local : T) : T {
 		this._localObjects.push(local);
@@ -415,7 +402,7 @@ export abstract class GameObjectBase {
 	rollback(data : DataMap, seqNum : number) : void {
 		for (const [stringProp, value] of Object.entries(data)) {
 			const prop = Number(stringProp);
-			if (this.isProp(prop)) {
+			if (this.isProp(prop) && !this.isSource()) {
 				this._data.rollback(prop, value, seqNum);
 			} else {
 				const id = this.propToId(prop);
@@ -426,7 +413,7 @@ export abstract class GameObjectBase {
 		}
 	}
 
-	stepData(seqNum : number) : void {
+	updateData(seqNum : number) : void {
 		if (!this.initialized()) {
 			return;
 		}
@@ -440,13 +427,11 @@ export abstract class GameObjectBase {
 		}
 
 		for (let i = 0; i < this._childOrder.length; ++i) {
-			this.getChild(this._childOrder[i]).stepData(seqNum);
+			this.getChild(this._childOrder[i]).updateData(seqNum);
 		};
 	}
 
 	importData(data : DataMap, seqNum : number) : void {
-		this._lastImportTime = Date.now();
-
 		for (const [stringProp, value] of Object.entries(data)) {
 			const prop = Number(stringProp);
 

@@ -157,8 +157,8 @@ export class Model extends ComponentBase implements Component {
 		}
 	}
 
-	override preRender(stepData : StepData) : void {
-		super.preRender(stepData);
+	override preRender() : void {
+		super.preRender();
 
 		if (!this.hasMesh()) {
 			return;

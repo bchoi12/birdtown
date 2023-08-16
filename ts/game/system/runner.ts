@@ -12,14 +12,19 @@ import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network
 
 import { ChannelType } from 'network/api'
 
+import { settings } from 'settings'
+
 import { SeqMap } from 'util/seq_map'
 
 export class Runner extends SystemBase implements System  {
-	private static readonly _maxFrameMillis = 32;
+	private static readonly _maxFrameMillis = 33;
 
 	private _rollbackBuffer : SeqMap<number, DataMap>;
+	private _stepTimes : SeqMap<number, number>;
+	private _hostSeqNum : number;
 	private _seqNum : number;
 	private _updateSpeed : number;
+	private _lastUpdateTime : number;
 
 	constructor() {
 		super(SystemType.RUNNER);
@@ -29,8 +34,11 @@ export class Runner extends SystemBase implements System  {
 		});
 
 		this._rollbackBuffer = new SeqMap(NetworkGlobals.rollbackBufferSize);
+		this._stepTimes = new SeqMap(NetworkGlobals.rollbackBufferSize);
+		this._hostSeqNum = 0;
 		this._seqNum = 0;
 		this._updateSpeed = 1.0;
+		this._lastUpdateTime = Date.now();
 
 		this.addProp<number>({
 			export: () => { return this._updateSpeed; },
@@ -50,9 +58,11 @@ export class Runner extends SystemBase implements System  {
 
 	getSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
 
+	hostSeqNum() : number { return this.isHost() ? this._seqNum : this._hostSeqNum; }
 	seqNum() : number { return this._seqNum; }
 	setUpdateSpeed(speed : number) : void { this._updateSpeed = speed; }
 
+	// TODO: pass in frame rate or expected millis?
 	step() : void {
 		if (!this.initialized()) {
 			if (!this.ready()) {
@@ -61,28 +71,51 @@ export class Runner extends SystemBase implements System  {
 			this.initialize();
 		}
 
-		if (this.isSource()) {
-			this._seqNum++;
+		// TODO: cleanup, add limits
+		let frames = 1, baseSeqNum = this._seqNum;
+
+		if (!this.isHost()) {
+			// TODO: snap to host when diff is too large
+			if (settings.enablePrediction && this._seqNum > this._hostSeqNum) {
+				let [data, ok] = this._rollbackBuffer.get(this._hostSeqNum);
+				if (ok) {
+					baseSeqNum = this._hostSeqNum;
+					frames = Math.min(this._seqNum - baseSeqNum + 1, 10);
+					this.rollback(data, this._hostSeqNum);
+				}
+			}
+		} else {
+			this._hostSeqNum = this._seqNum;
 		}
 
-    	const stepData = {
-    		millis: Math.min(this.millisSinceUpdate(), Runner._maxFrameMillis) * this._updateSpeed,
-    		seqNum: this._seqNum,
-    	}
-    	this.preUpdate(stepData);
-    	this.update(stepData);
-    	this.postUpdate(stepData);
-    	this.prePhysics(stepData);
-    	this.physics(stepData);
-    	this.postPhysics(stepData);
-    	this.preRender(stepData);
+		this._seqNum++;
 
-    	// TODO: separate render from game loop?
-    	this.render(stepData);
+		// TODO: slowdown frames when diff is large
+		let [baseTime, ok] = this._stepTimes.get(baseSeqNum);
+		let totalTime = ok ? (Date.now() - baseTime) : 16 * frames;
 
-    	this.postRender(stepData);
+		for (let seqNum = baseSeqNum + 1; seqNum <= baseSeqNum + frames; ++seqNum) {
+			let millis = this._updateSpeed * Math.min(totalTime / frames, Runner._maxFrameMillis);
+	    	const stepData = {
+	    		millis: millis,
+	    		seqNum: seqNum,
+	    	}
+	    	this.preUpdate(stepData);
+	    	this.update(stepData);
+	    	this.postUpdate(stepData);
+	    	this.prePhysics(stepData);
+	    	this.physics(stepData);
+	    	this.postPhysics(stepData);
+		}
 
-    	this.stepData(this._seqNum);
+		this._lastUpdateTime = Date.now();
+		this._stepTimes.insert(this._seqNum, Date.now());
+
+    	this.preRender();
+    	this.render();
+    	this.postRender();
+
+    	this.updateData(this._seqNum);
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -132,7 +165,7 @@ export class Runner extends SystemBase implements System  {
 			[next, hasNext] = this._rollbackBuffer.next(seqNum);
 		}
 
-		// TODO: needed?
+		this._hostSeqNum = Math.max(this._hostSeqNum, seqNum);
 		this._seqNum = Math.max(this._seqNum, seqNum);
 	}
 

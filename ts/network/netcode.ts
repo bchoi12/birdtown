@@ -159,7 +159,7 @@ export abstract class Netcode {
 		return voiceMap;
 	}
 
-	preUpdate() : void {
+	preStep() : void {
 		for (let i = 0; i < this._registerBuffer.size(); ++i) {
 			for (let j = 0; j < this._registerCallbacks.length; ++j) {
 				this._registerCallbacks[j](this._registerBuffer.get(i));
@@ -187,7 +187,7 @@ export abstract class Netcode {
 		this._messageBuffer.clear();
 	}
 
-	postUpdate() : void {}
+	postStep() : void {}
 
 	register(dataConnection : DataConnection) {
 		if (!this.isLabelValid(dataConnection.label)) {

@@ -80,8 +80,8 @@ export class Lakitu extends SystemBase implements System {
 		}
 	}
 
-	override preRender(stepData : StepData) : void {
-		super.preRender(stepData);
+	override preRender() : void {
+		super.preRender();
 
 		if (!this.hasTargetEntity()) {
 			return;

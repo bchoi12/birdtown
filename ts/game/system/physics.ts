@@ -146,8 +146,8 @@ export class Physics extends SystemBase implements System {
 		});
 	}
 
-	override render(stepData : StepData) : void {
-		super.render(stepData);
+	override render() : void {
+		super.render();
 
 		if (!game.lakitu().hasTargetEntity()) {
 			return;

@@ -54,6 +54,7 @@ export class Bazooka extends Weapon {
 				vel: vel,
 				acc: acc,
 			},
+			levelVersion: this.levelVersion(),
 		});
 
 		if (hasRocket) {

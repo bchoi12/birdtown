@@ -276,8 +276,7 @@ export class Profile extends ComponentBase implements Component {
 		}
 
 		this._pos.setOffset(this._pos.clone().sub(vec).negate());
-		const keys = game.keys(entity.clientId());
-		this._pos.snap(keys.predictWeight());
+		this._pos.snap(0);
 	}
 
 	hasVel() : boolean { return defined(this._vel); }
@@ -495,14 +494,12 @@ export class Profile extends ComponentBase implements Component {
 			this._postPhysicsFn(this);
 		} 
 		
-		// TODO: remove approxEqual checks?
 		if (this.hasAngle()) {
 			this.setAngle(this._body.angle);
 		}
 		if (this.hasVel()) {
 			this.setVel(this._body.velocity);
 		}
-
 		if (this.isSource()) {
 			this.setPos(this._body.position);
 		} else {
