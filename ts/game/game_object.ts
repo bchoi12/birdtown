@@ -14,12 +14,14 @@ import { Timer } from 'util/timer'
 type HasFn = () => boolean;
 type ExportFn<T extends Object> = () => T;
 type ImportFn<T extends Object> = (object : T) => void;
+type RollbackFn<T extends Object> = (object : T, seqNum : number) => void;
 
 export type PropHandler<T extends Object> = {
 	has? : HasFn;
 	export : ExportFn<T>;
 	import : ImportFn<T>;
-	validate? : ImportFn<T>
+	rollback? : RollbackFn<T>;
+	validate? : ImportFn<T>;
 
 	options? : GamePropOptions<T>;
 }
@@ -402,8 +404,19 @@ export abstract class GameObjectBase {
 	rollback(data : DataMap, seqNum : number) : void {
 		for (const [stringProp, value] of Object.entries(data)) {
 			const prop = Number(stringProp);
-			if (this.isProp(prop) && !this.isSource()) {
-				this._data.rollback(prop, value, seqNum);
+			if (this.isProp(prop)) {
+				if (!this._propHandlers.has(prop)) {
+					console.error("Error: %s missing prop handler for rollback of %d", this.name(), prop);
+					continue;
+				}
+				const handler = this._propHandlers.get(prop);
+				if (defined(handler.rollback)) {
+					handler.rollback(value, seqNum);
+				} else if (!this.isSource()) {
+					if (this._data.rollback(prop, value, seqNum)) {
+						handler.import(this._data.getValue(prop));
+					}
+				}
 			} else {
 				const id = this.propToId(prop);
 				if (this._childObjects.has(id)) {

@@ -500,11 +500,15 @@ export class Profile extends ComponentBase implements Component {
 		if (this.hasVel()) {
 			this.setVel(this._body.velocity);
 		}
+
+		this.setPos(this._body.position);
+		/*
 		if (this.isSource()) {
 			this.setPos(this._body.position);
 		} else {
 			this.predictPos(this._body.position);
 		}
+		*/
 
 		// Update child objects afterwards.
 		super.postPhysics(stepData);

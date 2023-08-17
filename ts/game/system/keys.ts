@@ -18,18 +18,11 @@ import { defined } from 'util/common'
 import { SeqMap } from 'util/seq_map'
 import { Vec, Vec2 } from 'util/vector'
 
-enum KeyState {
-	UNKNOWN,
-	PRESSED,
-	DOWN,
-	RELEASED,
-	UP,
-}
-
 export class Keys extends ClientSideSystem implements System {
 
 	private _keys : Set<KeyType>;
-	private _keyStates : Map<KeyType, SeqMap<number, KeyState>>;
+	private _keyStates : Map<KeyType, SeqMap<number, boolean>>;
+	private _changeNum : Map<KeyType, number>;
 	private _mouse : Vec2;
 	private _dir : Vec2;
 
@@ -43,13 +36,16 @@ export class Keys extends ClientSideSystem implements System {
 
 		this._keys = new Set();
 		this._keyStates = new Map();
+		this._changeNum = new Map();
 		this._mouse = Vec2.zero();
 		this._dir = Vec2.i();
 
-		// TODO: figure out how this works with rollback
 		this.addProp<Array<KeyType>>({
 			export: () => { return Array.from(this._keys); },
 			import: (obj : Array<KeyType>) => { this._keys = new Set(obj); },
+			rollback: (obj : Array<KeyType>, seqNum : number) => {
+				this.updateKeys(new Set(obj), seqNum);
+			},
 			options: {
 				refreshInterval: 100,
 				filters: GameData.udpFilters,
@@ -89,31 +85,39 @@ export class Keys extends ClientSideSystem implements System {
 		if (!this._keyStates.has(key)) { return false; }
 
 		const [state, ok] = this._keyStates.get(key).get(seqNum);
-		return ok && (state === KeyState.DOWN || state === KeyState.PRESSED);
+		return ok && state;
 	}
 	keyUp(key : KeyType, seqNum : number) : boolean {
 		if (!this._keyStates.has(key)) { return true; }
 
 		const [state, ok] = this._keyStates.get(key).get(seqNum);
-		return ok && (state === KeyState.UP || state === KeyState.RELEASED);
+		return !ok || !state;
 	}
 	keyPressed(key : KeyType, seqNum : number) : boolean {
 		if (!this._keyStates.has(key)) { return false; }
 
-		const [state, ok] = this._keyStates.get(key).get(seqNum);
-		return ok && state === KeyState.PRESSED;
+		if (this.keyUp(key, seqNum)) {
+			return false;
+		}
+		return this.keyUp(key, seqNum - 1);
 	}
 	keyReleased(key : KeyType, seqNum : number) : boolean {
 		if (!this._keyStates.has(key)) { return true; }
 
-		const [state, ok] = this._keyStates.get(key).get(seqNum);
-		return ok && state === KeyState.RELEASED;
+		if (this.keyDown(key, seqNum)) {
+			return false;
+		}
+		return this.keyDown(key, seqNum - 1);
+	}
+	keyConfirmed(key : KeyType) : boolean {
+		if (!this._changeNum.has(key)) { return true; }
+
+		return this._changeNum.get(key) <= game.runner().importSeqNum();
 	}
 	keys(seqNum : number) : Set<KeyType> {
 		let keys = new Set<KeyType>();
-		this._keyStates.forEach((seqMap : SeqMap<number, KeyState>, keyType : KeyType) => {
-			let [state, ok] = seqMap.get(seqNum);
-			if (ok && (state === KeyState.DOWN || state === KeyState.PRESSED)) {
+		this._keyStates.forEach((seqMap : SeqMap<number, boolean>, keyType : KeyType) => {
+			if (this.keyDown(keyType, seqNum)) {
 				keys.add(keyType);
 			}
 		});
@@ -137,20 +141,16 @@ export class Keys extends ClientSideSystem implements System {
 		const millis = stepData.millis;
 		const seqNum = stepData.seqNum;
 
+		if (seqNum < game.runner().seqNum()) {
+			return;
+		}
+
 		if (this.isSource()) {
 			this._keys = ui.keys();
 			this.updateMouse();
 		}
 
-		this._keys.forEach((keyType : KeyType) => {
-			this.pressKey(keyType, seqNum);
-		});
-
-		this._keyStates.forEach((seqMap : SeqMap<number, KeyState>, keyType : KeyType) => {
-			if (!this._keys.has(keyType)) {
-				this.releaseKey(keyType, seqNum);
-			}
-		});
+		this.updateKeys(this._keys, seqNum);
 	}
 
 	override preRender() : void {
@@ -161,31 +161,43 @@ export class Keys extends ClientSideSystem implements System {
 		}
 	}
 
+	private updateKeys(keys : Set<KeyType>, seqNum : number) : void {
+		keys.forEach((keyType : KeyType) => {
+			this.pressKey(keyType, seqNum);
+		});
+
+		this._keyStates.forEach((seqMap : SeqMap<number, boolean>, keyType : KeyType) => {
+			if (!keys.has(keyType)) {
+				this.releaseKey(keyType, seqNum);
+			}
+		});
+	}
+
 	// Return true if new key is pressed
 	private pressKey(key : KeyType, seqNum : number) : void {
 		if (!this._keyStates.has(key)) {
-			this._keyStates.set(key, new SeqMap<number, KeyState>(NetworkGlobals.rollbackBufferSize));
+			this._keyStates.set(key, new SeqMap<number, boolean>(NetworkGlobals.rollbackBufferSize));
 		}
 
-		let seqMap = this._keyStates.get(key);
-		if (!this.keyDown(key, seqNum - 1)) {
-			seqMap.insert(seqNum, KeyState.PRESSED);
-		} else {
-			seqMap.insert(seqNum, KeyState.DOWN);
+		this._keyStates.get(key).insert(seqNum, true);
+
+		// Mark key state change
+		if (this.keyUp(key, seqNum - 1)) {
+			this._changeNum.set(key, seqNum);
 		}
 	}
 
 	// Return true if new key is released
 	private releaseKey(key : KeyType, seqNum : number) : void {
 		if (!this._keyStates.has(key)) {
-			this._keyStates.set(key, new SeqMap<number, KeyState>(NetworkGlobals.rollbackBufferSize));
+			this._keyStates.set(key, new SeqMap<number, boolean>(NetworkGlobals.rollbackBufferSize));
 		}
 
-		let seqMap = this._keyStates.get(key);
+		this._keyStates.get(key).insert(seqNum, false);
+
+		// Mark key state change
 		if (this.keyDown(key, seqNum - 1)) {
-			seqMap.insert(seqNum, KeyState.RELEASED);
-		} else {
-			seqMap.insert(seqNum, KeyState.UP);
+			this._changeNum.set(key, seqNum);
 		}
 	}
 

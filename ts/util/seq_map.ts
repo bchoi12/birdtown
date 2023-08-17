@@ -25,6 +25,13 @@ export class SeqMap<K extends number, V> {
 	max() : [K, boolean] {
 		return [this._max.get(), this._max.has()];
 	}
+	getMax() : [V, boolean] {
+		let [max, ok] = this.max();
+		if (ok) {
+			return this.get(max);
+		}
+		return [null, false];
+	}
 
 	peek() : [V, boolean] {
 		let [max, hasMax] = this.max();
