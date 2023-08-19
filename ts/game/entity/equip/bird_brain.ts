@@ -128,7 +128,7 @@ export class BirdBrain extends Equip<Player> {
 			if (hasTarget) {
 				let profile = target.getProfile();
 				profile.setAcc({x: 0, y: GameGlobals.gravity });
-				profile.clearMaxSpeed();
+				profile.clearLimits();
 				MATTER.Body.setDensity(profile.body(), profile.body().density / BirdBrain._densityAdjustment);
 				target.setAttribute(AttributeType.BRAINED, false);
 			}
@@ -138,7 +138,7 @@ export class BirdBrain extends Equip<Player> {
 			let [target, hasTarget] = game.entities().getEntity(id);
 			if (hasTarget) {
 				let profile = target.getProfile();
-				profile.setMaxSpeed({
+				profile.setLimits({
 					maxSpeed: { x: 5, y: 5},
 				});
 				MATTER.Body.setDensity(profile.body(), BirdBrain._densityAdjustment * profile.body().density);

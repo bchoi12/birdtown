@@ -8,10 +8,13 @@ import { Stats } from 'game/component/stats'
 
 import { settings } from 'settings'
 
+import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
+import { PredictWeight } from 'util/predict_weight'
+import { SeqMap } from 'util/seq_map'
 import { SmoothVec2 } from 'util/smooth_vector'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -45,8 +48,10 @@ export type MoveToParams = {
 	maxAccel : number;
 }
 
-export type MaxSpeedParams = {
-	maxSpeed : Vec;
+export type ProfileLimits = {
+	disabled? : boolean;
+	posBounds? : Box2;
+	maxSpeed? : Vec;
 }
 
 export class Profile extends ComponentBase implements Component {
@@ -64,12 +69,13 @@ export class Profile extends ComponentBase implements Component {
 	private _postPhysicsFn : PhysicsFn;
 
 	private _forces : Buffer<Vec>;
-	private _maxSpeed : Optional<MaxSpeedParams>;
+	private _limits : ProfileLimits;
 	private _constraints : Map<number, MATTER.Constraint>;
-	private _predictWeight : number;
+	private _predictWeight : PredictWeight;
+	private _posBuffer : SeqMap<number, Vec2>;
 
 	private _pos : SmoothVec2;
-	private _vel : Vec2;
+	private _vel : SmoothVec2;
 	private _acc : Vec2;
 	private _dim : Vec2;
 	private _angle : number;
@@ -95,8 +101,9 @@ export class Profile extends ComponentBase implements Component {
 
 		this._constraints = new Map();
 		this._forces = new Buffer();
-		this._maxSpeed = new Optional<MaxSpeedParams>();
-		this._predictWeight = 0;
+		this._limits = {};
+		this._predictWeight = new PredictWeight();
+		this._posBuffer = new SeqMap(20);
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -105,7 +112,10 @@ export class Profile extends ComponentBase implements Component {
 		this.addProp<Vec>({
 			has: () => { return this.hasPos(); },
 			export: () => {return this.pos().toVec(); },
-			import: (obj : Vec) => { this.setPos(obj); },
+			import: (obj : Vec) => {
+				this.setPos(obj);
+				this.pos().setBase(obj);
+			},
 			options: {
 				equals: (a : Vec, b : Vec) => {
 					return Vec2.approxEquals(a, b, 1e-3);
@@ -115,7 +125,10 @@ export class Profile extends ComponentBase implements Component {
 		this.addProp<Vec>({
 			has: () => { return this.hasVel(); },
 			export: () => { return this.vel().toVec(); },
-			import: (obj : Vec) => { this.setVel(obj); },
+			import: (obj : Vec) => {
+				this.setVel(obj);
+				this.vel().setBase(obj);
+			},
 			options: {
 				equals: (a : Vec, b : Vec) => {
 					return Vec2.approxEquals(a, b, 1e-3);
@@ -257,38 +270,23 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	private hasPos() : boolean { return defined(this._pos); }
-	pos() : Vec2 { return this._pos; }
+	pos() : SmoothVec2 { return this._pos; }
 	setPos(vec : Vec) : void {
 		if (!this.hasPos()) { this._pos = SmoothVec2.zero(); }
 
 		this._pos.copyVec(vec);
 	}
-	predictPos(vec : Vec) : void {
-		if (!this.hasPos()) {
-			this.setPos(vec);
-			return;
-		}
-
-		const entity = this.entity();
-		if (!entity.clientIdMatches()) {
-			this.setPos(vec);
-			return;
-		}
-
-		this._pos.setOffset(this._pos.clone().sub(vec).negate());
-		this._pos.snap(0);
-	}
 
 	hasVel() : boolean { return defined(this._vel); }
-	vel() : Vec2 { return this.hasVel() ? this._vel : Vec2.zero(); }
+	vel() : SmoothVec2 { return this.hasVel() ? this._vel : SmoothVec2.zero(); }
 	setVel(vec : Vec) : void {
-		if (!this.hasVel()) { this._vel = Vec2.zero(); }
+		if (!this.hasVel()) { this._vel = SmoothVec2.zero(); }
 
 		this._vel.copyVec(vec);
 		this._vel.zeroEpsilon(Profile._minSpeed);
 	}
 	private addVel(delta : Vec) : void {
-		if (!this.hasVel()) { this._vel = Vec2.zero(); }
+		if (!this.hasVel()) { this._vel = SmoothVec2.zero(); }
 
 		this._vel.add(delta);
 		this._vel.zeroEpsilon(Profile._minSpeed);
@@ -409,7 +407,7 @@ export class Profile extends ComponentBase implements Component {
 		}
 	}
 	addForce(force : Vec) : void { this._forces.push(force); }
-	private applyForces() : void {
+	private applyForces(pos : Vec2, vel : Vec2) : void {
 		if (this._forces.empty()) {
 			return;
 		}
@@ -420,32 +418,39 @@ export class Profile extends ComponentBase implements Component {
 		}
 
 		// TODO: factor in weight
-		this.addVel(totalForce);
+		vel.x += totalForce.x;
+		vel.y += totalForce.y;
 		this._forces.clear();
 	}
 
-	setMaxSpeed(params : MaxSpeedParams) { this._maxSpeed.set(params); }
-	clearMaxSpeed() : void { this._maxSpeed.clear(); }
-	private clampSpeed() : void {
-		let acc = this.acc();
-		let vel = this.vel();
-		if (Math.abs(acc.x) < Profile._minAccel && Math.abs(vel.x) < Profile._minSpeed) {
-			acc.x = 0;
+	limits() : ProfileLimits { return this._limits; }
+	setLimits(limits : ProfileLimits) : void { this._limits = limits; }
+	mergeLimits(limits : ProfileLimits) { this._limits = {...this._limits, ...limits}; }
+	clearLimits() : void { this._limits = {}; }
+	enableLimits() : void { this._limits.disabled = false; }
+	disableLimits() : void { this._limits.disabled = true; }
+	private applyLimits(pos : Vec2, vel : Vec2) : void {
+		if (Math.abs(vel.x) < Profile._minSpeed) {
 			vel.x = 0;
 		}
 		if (Math.abs(vel.y) < Profile._minSpeed) {
 			vel.y = 0;
 		}
 
-		if (this._maxSpeed.has()) {
-			const maxSpeed = this._maxSpeed.get().maxSpeed;
+		if (this._limits.disabled) { return; }
 
+		if (defined(this._limits.maxSpeed)) {
+			const maxSpeed = this._limits.maxSpeed;
 			if (Math.abs(vel.x) > maxSpeed.x) {
 				vel.x = Math.sign(vel.x) * maxSpeed.x;
 			}
 			if (Math.abs(vel.y) > maxSpeed.y) {
 				vel.y = Math.sign(vel.y) * maxSpeed.y;
 			}
+		}
+
+		if (defined(this._limits.posBounds)) {
+			this._limits.posBounds.clamp(pos);
 		}
 	}
 
@@ -467,6 +472,14 @@ export class Profile extends ComponentBase implements Component {
 			MATTER.Body.setInertia(this._body, this.inertia());
 		}
 
+		let weight = 0;
+		if (settings.enablePrediction) {
+			this._predictWeight.setDiff(game.keys(this.entity().clientId()).framesSinceChange());
+			weight = this._predictWeight.weight();
+		}
+		this.vel().snap(weight);
+		this.pos().snap(weight);
+
 		if (this.hasAcc()) {
 			const acc = this.acc();
 			if (!acc.isZero()) {
@@ -478,9 +491,9 @@ export class Profile extends ComponentBase implements Component {
 			}
 		}
 
-		this.applyForces();
+		this.applyForces(this.pos(), this.vel());
+		this.applyLimits(this.pos(), this.vel());
 		if (this.hasVel()) {
-			this.clampSpeed();
 			MATTER.Body.setVelocity(this._body, this.vel());
 		}
 		MATTER.Body.setPosition(this._body, this.pos());
@@ -490,6 +503,8 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	override postPhysics(stepData : StepData) : void {
+		const seqNum = stepData.seqNum;
+
 		if (this._postPhysicsFn) {
 			this._postPhysicsFn(this);
 		} 
@@ -499,16 +514,16 @@ export class Profile extends ComponentBase implements Component {
 		}
 		if (this.hasVel()) {
 			this.setVel(this._body.velocity);
+
+			if (!this.isSource()) {
+				this._vel.setPredict(this._body.velocity);
+			}
 		}
 
 		this.setPos(this._body.position);
-		/*
-		if (this.isSource()) {
-			this.setPos(this._body.position);
-		} else {
-			this.predictPos(this._body.position);
+		if (!this.isSource()) {
+			this._pos.setPredict(this._body.position);
 		}
-		*/
 
 		// Update child objects afterwards.
 		super.postPhysics(stepData);

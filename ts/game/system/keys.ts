@@ -152,13 +152,13 @@ export class Keys extends ClientSideSystem implements System {
 	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }
 
 	framesAhead() : number {
-		if (!this.isSource()) { return 0; }
+		if (this.isHost() || !this.isSource()) { return 0; }
 
 		return Math.max(0, this._keyNum - this._hostKeyNum);
 	}
 	framesSinceChange() : number {
 		let frames = 0;
-		if (!this.isSource) { return frames; }
+		if (this.isHost() || !this.isSource()) { return frames; }
 
 		this._changeNum.forEach((num : number) => {
 			if (num > this._hostKeyNum) {
