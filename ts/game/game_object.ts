@@ -93,6 +93,7 @@ export interface GameObject {
 	isOffline() : boolean;
 	setOffline(offline : boolean) : void;
 	data() : GameData;
+	toDataMap() : DataMap;
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean];
 	rollback(data : DataMap, seqNum : number) : void;
 	updateData(seqNum : number) : void;
@@ -380,6 +381,22 @@ export abstract class GameObjectBase {
 	setOffline(offline : boolean) : void { this._offline = offline; }
 	data() : GameData { return this._data; }
 
+	toDataMap() : DataMap {
+		if (!this.initialized()) {
+			return {};
+		}
+
+		let data = this._data.toObject();
+		for (let i = 0; i < this._childOrder.length; ++i) {
+			let id = this._childOrder[i];
+			let child = this.getChild(this._childOrder[i]);
+
+			const prop = this.idToProp(id);
+			const childData = child.toDataMap();
+			data[prop] = childData;
+		};
+		return data;
+	}
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean] {
 		if (!this.initialized()) {
 			return [{}, false];

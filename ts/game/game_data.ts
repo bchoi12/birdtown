@@ -78,4 +78,12 @@ export class GameData {
 		});
 		return [filtered, hasData];
 	}
+
+	toObject() : DataMap {
+		let obj = {};
+		this._propData.forEach((prop : GameProp<Object>, key : number) => {
+			obj[key] = prop.get();
+		});
+		return obj;
+	}
 }

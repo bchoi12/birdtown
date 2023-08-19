@@ -1,4 +1,4 @@
 
 export namespace NetworkGlobals {
-	export const rollbackBufferSize : number = 60;
+	export const rollbackBufferSize : number = 20;
 }

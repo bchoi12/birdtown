@@ -25,6 +25,8 @@ export class Keys extends ClientSideSystem implements System {
 	private _changeNum : Map<KeyType, number>;
 	private _mouse : Vec2;
 	private _dir : Vec2;
+	private _keyNum : number;
+	private _hostKeyNum : number;
 
 	constructor(clientId : number) {
 		super(SystemType.KEYS, clientId);
@@ -39,6 +41,8 @@ export class Keys extends ClientSideSystem implements System {
 		this._changeNum = new Map();
 		this._mouse = Vec2.zero();
 		this._dir = Vec2.i();
+		this._keyNum = 0;
+		this._hostKeyNum = 0;
 
 		this.addProp<Array<KeyType>>({
 			export: () => { return Array.from(this._keys); },
@@ -79,40 +83,60 @@ export class Keys extends ClientSideSystem implements System {
 				filters: GameData.udpFilters,
 			},
 		});
+
+		// TODO: only send when keys change
+		this.addProp<number>({
+			has: () => { return this._keyNum > 0; },
+			export: () => { return this._keyNum; },
+			import: (obj : number) => { this._keyNum = Math.max(obj, this._keyNum); },
+			validate: (obj : number) => { this._hostKeyNum = Math.max(obj, this._hostKeyNum); },
+			options: {
+				filters: GameData.udpFilters,
+			},
+		});
 	}
 
-	keyDown(key : KeyType, seqNum : number) : boolean {
+	keyDown(key : KeyType, seqNum? : number) : boolean {
 		if (!this._keyStates.has(key)) { return false; }
 
-		const [state, ok] = this._keyStates.get(key).get(seqNum);
+		const seqMap = this._keyStates.get(key);
+		const [state, ok] = defined(seqNum) ? seqMap.getOrPrev(seqNum) : seqMap.peek();
 		return ok && state;
 	}
-	keyUp(key : KeyType, seqNum : number) : boolean {
+	keyUp(key : KeyType, seqNum? : number) : boolean {
 		if (!this._keyStates.has(key)) { return true; }
 
-		const [state, ok] = this._keyStates.get(key).get(seqNum);
+		const seqMap = this._keyStates.get(key);
+		const [state, ok] = defined(seqNum) ? seqMap.getOrPrev(seqNum) : seqMap.peek();
 		return !ok || !state;
 	}
-	keyPressed(key : KeyType, seqNum : number) : boolean {
+	keyPressed(key : KeyType, seqNum? : number) : boolean {
 		if (!this._keyStates.has(key)) { return false; }
 
-		if (this.keyUp(key, seqNum)) {
-			return false;
+		const seqMap = this._keyStates.get(key);
+		if (!defined(seqNum)) {
+			let hasMax;
+			[seqNum, hasMax] = seqMap.max();
+
+			if (!hasMax) {
+				return false;
+			}
 		}
-		return this.keyUp(key, seqNum - 1);
+		return this.keyDown(key, seqNum) && this.keyUp(key, seqNum - 1);
 	}
-	keyReleased(key : KeyType, seqNum : number) : boolean {
+	keyReleased(key : KeyType, seqNum? : number) : boolean {
 		if (!this._keyStates.has(key)) { return true; }
 
-		if (this.keyDown(key, seqNum)) {
-			return false;
-		}
-		return this.keyDown(key, seqNum - 1);
-	}
-	keyConfirmed(key : KeyType) : boolean {
-		if (!this._changeNum.has(key)) { return true; }
+		const seqMap = this._keyStates.get(key);
+		if (!defined(seqNum)) {
+			let hasMax;
+			[seqNum, hasMax] = seqMap.max();
 
-		return this._changeNum.get(key) <= game.runner().importSeqNum();
+			if (!hasMax) {
+				return false;
+			}
+		}
+		return this.keyUp(key, seqNum) && this.keyDown(key, seqNum - 1);
 	}
 	keys(seqNum : number) : Set<KeyType> {
 		let keys = new Set<KeyType>();
@@ -126,6 +150,23 @@ export class Keys extends ClientSideSystem implements System {
 	dir() : Vec2 { return this._dir; }
 	mouse() : Vec2 { return this._mouse; }
 	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }
+
+	framesAhead() : number {
+		if (!this.isSource()) { return 0; }
+
+		return Math.max(0, this._keyNum - this._hostKeyNum);
+	}
+	framesSinceChange() : number {
+		let frames = 0;
+		if (!this.isSource) { return frames; }
+
+		this._changeNum.forEach((num : number) => {
+			if (num > this._hostKeyNum) {
+				frames = Math.max(frames, this._keyNum - num);
+			}
+		});
+		return frames;
+	}
 
 	override setTargetEntity(entity : Entity) {
 		if (!entity.hasProfile()) {
@@ -141,11 +182,10 @@ export class Keys extends ClientSideSystem implements System {
 		const millis = stepData.millis;
 		const seqNum = stepData.seqNum;
 
-		if (seqNum < game.runner().seqNum()) {
-			return;
-		}
+		if (seqNum < this._keyNum) { return; }
 
 		if (this.isSource()) {
+			this._keyNum++;
 			this._keys = ui.keys();
 			this.updateMouse();
 		}
@@ -183,7 +223,7 @@ export class Keys extends ClientSideSystem implements System {
 
 		// Mark key state change
 		if (this.keyUp(key, seqNum - 1)) {
-			this._changeNum.set(key, seqNum);
+			this._changeNum.set(key, this._keyNum);
 		}
 	}
 
@@ -197,7 +237,7 @@ export class Keys extends ClientSideSystem implements System {
 
 		// Mark key state change
 		if (this.keyDown(key, seqNum - 1)) {
-			this._changeNum.set(key, seqNum);
+			this._changeNum.set(key, this._keyNum);
 		}
 	}
 

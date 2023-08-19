@@ -75,44 +75,41 @@ export class Runner extends SystemBase implements System  {
 			}
 			this.initialize();
 		}
+		this._rollbackBuffer.insert(this._seqNum, this.toDataMap());
 
 		// TODO: cleanup, add limits
-		let frames = 1;
-		let syncAdjustment = 1;
+		let rollbackFrames = 0; // Math.min(2, this._seqNum - 2);
 		if (!this.isHost()) {
 			if (settings.enablePrediction) {
-				frames += Math.max(0, this._seqNum - this._importSeqNum);
-				// TODO: only rollback to last key diff
-				if (frames > 10) {
-					// Snap to host when diff is too large
-					this._seqNum = this._importSeqNum;
-					frames = 1;
-				} else if (frames > 1) {
-					let [data, ok] = this._rollbackBuffer.get(this._importSeqNum);
-					if (ok) {
-						this.rollback(data, this._importSeqNum);
-						// Slow down if ahead of host
-						syncAdjustment -= (frames - 1) / 20;
-					} else {
-						console.error("Warning: failed to rollback to %d frames to %d", frames, this._importSeqNum);
-						this._seqNum = this._importSeqNum;
-						frames = 1;
-					}
-				}
+				rollbackFrames = Math.min(20, game.keys().framesSinceChange());
 			}
 		}
 
-		this._seqNum++;
-		let [baseTime, ok] = this._stepTimes.getOrPrev(this._seqNum - frames);
+		let baseSeqNum = this._seqNum - rollbackFrames;
+		if (rollbackFrames > 0) {
+			let [data, ok] = this._rollbackBuffer.get(baseSeqNum);
+			if (ok) {
+				this.rollback(data, baseSeqNum);
+			} else {
+				console.error("Warning: failed to rollback %d frames to %d", rollbackFrames, baseSeqNum);
+				baseSeqNum = this._seqNum;
+			}	
+		}
+
+
+		const frames = this._seqNum - baseSeqNum;
+		let [baseTime, ok] = this._stepTimes.get(baseSeqNum);
 		if (!ok) {
-			console.error("Warning: missing step time for frame %d", this._seqNum - frames);
+			console.error("Warning: missing step time for frame %d", baseSeqNum);
 		}
 		let totalTime = ok ? (Date.now() - baseTime) : 16 * frames;
-		this._stepTimes.insert(this._seqNum, Date.now());
 
-		console.log("Simulate %d to %d, %d frames", this._seqNum - frames + 1, this._seqNum, frames);
+		if (rollbackFrames > 0) {
+			console.log("Simulate %d to %d, %d frames, %d rb frames, millis: %d", baseSeqNum, this._seqNum, frames, rollbackFrames, totalTime);
+		}
+		for (let seqNum = baseSeqNum + 1; seqNum < this._seqNum; ++seqNum) {
+			let syncAdjustment = 1;
 
-		for (let seqNum = this._seqNum - frames + 1; seqNum <= this._seqNum; ++seqNum) {
 			let millis = syncAdjustment * this._updateSpeed * Math.min(totalTime / frames, Runner._maxFrameMillis);
 	    	const stepData = {
 	    		millis: millis,
@@ -126,6 +123,19 @@ export class Runner extends SystemBase implements System  {
 	    	this.postPhysics(stepData);
 		}
 
+		this._seqNum++;
+		this._stepTimes.insert(this._seqNum, Date.now());
+		let [lastTime, _] = this._stepTimes.get(this._seqNum - 1);
+		const stepData = {
+			millis: Date.now() - lastTime,
+			seqNum: this._seqNum,
+		}
+    	this.preUpdate(stepData);
+    	this.update(stepData);
+    	this.postUpdate(stepData);
+    	this.prePhysics(stepData);
+    	this.physics(stepData);
+    	this.postPhysics(stepData);
     	this.preRender();
     	this.render();
     	this.postRender();
@@ -157,15 +167,19 @@ export class Runner extends SystemBase implements System  {
 		this._seqNum = Math.max(this._seqNum, this._importSeqNum);	
 		super.importData(data, seqNum);
 
+		/*
 		if (this.isSource()) {
 			return;
 		}
+		*/
+
 
 		let [currentData, ok] = this._rollbackBuffer.get(seqNum);
 		if (ok) {
 			// Merge into already existing data
 			this._rollbackBuffer.insert(seqNum, {...currentData, ...data});
 		} else {
+			/*
 			// Find previous data to merge into or add new entry
 			let [prev, hasPrev] = this._rollbackBuffer.prev(seqNum);
 			if (hasPrev) {
@@ -174,9 +188,11 @@ export class Runner extends SystemBase implements System  {
 			} else {
 				this._rollbackBuffer.insert(seqNum, data);
 			}
+			*/
 		}
 
 		// Merge into any future data
+		/*
 		let [next, hasNext] = this._rollbackBuffer.next(seqNum);
 		while (hasNext) {
 			let [nextData, _] = this._rollbackBuffer.get(next);
@@ -184,6 +200,7 @@ export class Runner extends SystemBase implements System  {
 
 			[next, hasNext] = this._rollbackBuffer.next(seqNum);
 		}
+		*/
 	}
 
 	message(filter : DataFilter) : [NetworkMessage, boolean] {

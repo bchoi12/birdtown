@@ -11,7 +11,7 @@ type Entry<K, V> = {
 }
 
 export class SeqMap<K extends number, V> {
-	
+
 	private _max : Optional<K>;
 	private _size : number;
 	private _entries : Array<Entry<K, V>>;
@@ -22,9 +22,8 @@ export class SeqMap<K extends number, V> {
 		this._entries = new Array(size).fill(null);
 	}
 
-	max() : [K, boolean] {
-		return [this._max.get(), this._max.has()];
-	}
+	max() : [K, boolean] { return [this._max.get(), this._max.has()]; }
+	hasMax() : boolean { return this._max.has(); }
 	getMax() : [V, boolean] {
 		let [max, ok] = this.max();
 		if (ok) {
@@ -35,7 +34,6 @@ export class SeqMap<K extends number, V> {
 
 	peek() : [V, boolean] {
 		let [max, hasMax] = this.max();
-
 		if (hasMax) {
 			return this.get(max);
 		}
@@ -61,6 +59,19 @@ export class SeqMap<K extends number, V> {
 				next: new Optional(next),
 				key: key,
 				value : value,
+			}
+
+			if (hasPrev) {
+				let [prevEntry, hasPrevEntry] = this.getEntry(prev);
+				if (hasPrevEntry) {
+					prevEntry.next.set(index);
+				}
+			}
+			if (hasNext) {
+				let [nextEntry, hasNextEntry] = this.getEntry(next);
+				if (hasNextEntry) {
+					nextEntry.prev.set(index);
+				}
 			}
 		}
 
@@ -123,17 +134,19 @@ export class SeqMap<K extends number, V> {
 			return [entry.prev.get(), entry.prev.has()];
 		}
 
-		if (!this._max.has()) {
+		const [max, hasMax] = this.max();
+		if (!hasMax) {
 			return [null, false];
 		}
-
-		const max = this._max.get();
 		if (key > max) {
-			return [max, this.has(max)];
+			return [max, true];
 		}
 
 		let current = max;
-		while (current >= key) {
+		for (let i = 0; i < this._size; ++i) {
+			if (current >= key) {
+				break;
+			}
 			let [entry, ok] = this.getEntry(current);
 
 			if (!ok || !entry.prev.has()) {
@@ -151,26 +164,23 @@ export class SeqMap<K extends number, V> {
 			return [entry.next.get(), entry.next.has()];
 		}
 
-		if (!this._max.has()) {
+		const [max, hasMax] = this.max();
+		if (!hasMax) {
 			return [null, false];
 		}
-
-		const max = this._max.get();
 		if (key >= max) {
 			return [null, false];
 		}
 
 		let current = max;
-		while (current > key) {
-			let [entry, ok] = this.getEntry(current);
-
-			if (!ok || !entry.prev.has()) {
+		for (let i = 0; i < this._size; ++i) {
+			let [prev, hasPrev] = this.prev(current);
+			if (!hasPrev) {
 				return [null, false];
 			}
 
-			current = entry.prev.get();
-			if (current <= key) {
-				return [entry.key, this.has(entry.key)];
+			if (prev <= key) {
+				return [current, true];
 			}
 		}
 		return [null, false];
