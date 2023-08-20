@@ -40,9 +40,9 @@ class Settings {
 
 		// Debug properties
 		this.debugInspector = false;
-		this.debugDelay = 75;
-		this.debugJitter = 40;
-		this.debugPacketLoss = 0.02;
+		this.debugDelay = 0;
+		this.debugJitter = 0;
+		this.debugPacketLoss = 0;
 	}
 
 	// TODO: save and load from cookie
