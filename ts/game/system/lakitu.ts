@@ -11,8 +11,10 @@ import { SystemType } from 'game/system/api'
 
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
+import { settings } from 'settings'
+
 import { ui } from 'ui'
-import { CounterType } from 'ui/api'
+import { CounterType, KeyType } from 'ui/api'
 
 export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 25 units
@@ -49,6 +51,15 @@ export class Lakitu extends SystemBase implements System {
 
 	setAnchor(anchor : BABYLON.Vector3) {
 		this._anchor = anchor.clone();
+
+		if (settings.debugFreezeCamera) {
+			if (game.keys().keyDown(KeyType.LEFT)) {
+				this._camera.position.x -= 0.1;
+			} else if (game.keys().keyDown(KeyType.RIGHT)) {
+				this._camera.position.x += 0.1;
+			}
+			return;
+		}
 
 		this._target = this._anchor.clone();
 		this._target.add(Lakitu._lookAtOffset);

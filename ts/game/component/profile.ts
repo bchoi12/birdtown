@@ -473,7 +473,7 @@ export class Profile extends ComponentBase implements Component {
 		}
 
 		let weight = 0;
-		if (settings.enablePrediction) {
+		if (settings.enablePrediction && this.entity().clientIdMatches()) {
 			this._predictWeight.setDiff(game.keys(this.entity().clientId()).framesSinceChange());
 			weight = this._predictWeight.weight();
 		}

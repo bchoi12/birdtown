@@ -73,7 +73,7 @@ export class Runner extends SystemBase implements System  {
 
 		this._seqNum++;
 		const stepData = {
-			millis: Date.now() - this._lastStepTime,
+			millis: Math.min(Date.now() - this._lastStepTime, Runner._maxFrameMillis),
 			seqNum: this._seqNum,
 		}
 		this._lastStepTime = Date.now();

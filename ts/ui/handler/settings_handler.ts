@@ -74,6 +74,16 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(inspector.elm());
 
+		let freezeCamera = new SettingWrapper({
+			id: "input-debug-freeze-camera",
+			type: "checkbox",
+			label: "Freeze camera",
+
+			getSetting: () => { return settings.debugFreezeCamera; },
+			setSetting: (value: boolean) => { settings.debugFreezeCamera = value; },
+		});
+		this._settingsElm.appendChild(freezeCamera.elm());
+
 		let delay = new SettingWrapper({
 			id: "input-debug-delay",
 			type: "range",

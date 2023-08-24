@@ -18,6 +18,7 @@ class Settings {
 	public enablePrediction : boolean;
 
 	public debugInspector : boolean;
+	public debugFreezeCamera : boolean;
 	public debugDelay : number;
 	public debugJitter : number;
 	public debugPacketLoss : number;
@@ -40,6 +41,7 @@ class Settings {
 
 		// Debug properties
 		this.debugInspector = false;
+		this.debugFreezeCamera = false;
 		this.debugDelay = 0;
 		this.debugJitter = 0;
 		this.debugPacketLoss = 0;

@@ -313,10 +313,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				equipModel.onLoad((wm : Model) => {
 					wm.mesh().attachToBone(arm, m.mesh());
 					wm.mesh().rotation = new BABYLON.Vector3(3 * Math.PI / 2, 0, Math.PI);
-
-					let armature = this._model.getBone(Bone.ARMATURE).getTransformNode();
-					wm.mesh().scaling.y *= Math.sign(armature.scaling.z);
-					wm.mesh().scaling.z *= Math.sign(armature.scaling.z);
 				});
 				break;
 			}
@@ -512,11 +508,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		if (this.clientIdMatches() && !this._stats.dead()) {
 			this.recomputeDir(game.keys(this.clientId()).dir());
 		}
-		let armature = this._model.getBone(Bone.ARMATURE).getTransformNode();
-		armature.scaling.z = Math.sign(this._headDir.x);
+		const headSign = this._headDir.x === 0 ? 1 : Math.sign(this._headDir.x);
+		this._model.mesh().scaling.x = headSign * Math.abs(this._model.mesh().scaling.x);
 
 		let neckAngle = this._headDir.angleRad();
-		if (armature.scaling.z > 0) {
+		if (headSign > 0) {
 			neckAngle *= -1;
 		} else {
 			neckAngle += Math.PI;
@@ -527,7 +523,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		// Compute arm rotation
 		let arm = this._model.getBone(Bone.ARM).getTransformNode();
 		let armRotation = this._armDir.angleRad();
-		if (armature.scaling.z > 0) {
+		if (headSign > 0) {
 			armRotation -= Math.PI / 2;
 		} else {
 			armRotation = -armRotation + Math.PI / 2;

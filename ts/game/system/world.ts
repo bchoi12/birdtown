@@ -24,6 +24,9 @@ export class World extends SystemBase implements System {
 
 	private _hemisphericLight : BABYLON.HemisphericLight;
 	private _directionalLight : BABYLON.DirectionalLight;
+	private _directionalLightOffset : BABYLON.Vector3;
+
+	private _shadowGenerator : BABYLON.ShadowGenerator;
 
 	constructor(engine : BABYLON.Engine) {
 		super(SystemType.WORLD);
@@ -37,18 +40,31 @@ export class World extends SystemBase implements System {
         	mainTextureRatio: 2,
 		}));
 
-	    this._hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", new BABYLON.Vector3(0, 1, 0), this._scene);
+	    const dir = new BABYLON.Vector3(-0.1, -0.3, -0.4);
+	    this._hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", dir.scale(-1), this._scene);
 	    this._hemisphericLight.diffuse = new BABYLON.Color3(0.8, 0.8, 0.8);
 	    this._hemisphericLight.specular = new BABYLON.Color3(1, 1, 1);
 	    this._hemisphericLight.groundColor = new BABYLON.Color3(0.3, 0.3, 0.3);
 	    this._hemisphericLight.intensity = 0.6;
 
-	    this._directionalLight = new BABYLON.DirectionalLight("directionalLight", new BABYLON.Vector3(1, -1, -1), this._scene);
+	    this._directionalLight = new BABYLON.DirectionalLight("directionalLight", dir, this._scene);
+	    this._directionalLightOffset = dir.scale(-50);
+	    this._directionalLight.position = this._directionalLightOffset;
 	    this._directionalLight.diffuse = new BABYLON.Color3(1, 1, 1);
-	    this._directionalLight.intensity = 0.8;
+	    this._directionalLight.intensity = 1.0;
 
-		let shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight);
-		shadowGenerator.useExponentialShadowMap = true;
+		this._shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight);
+		this._shadowGenerator.transparencyShadow = true;
+		this._shadowGenerator.usePercentageCloserFiltering = true;
+		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
+	}
+
+	renderShadows(mesh : BABYLON.AbstractMesh) : void {
+		this._shadowGenerator.addShadowCaster(mesh, true);
+		mesh.receiveShadows = true;
+		mesh.getChildMeshes().forEach((child : BABYLON.AbstractMesh) => {
+			child.receiveShadows = true;
+		});
 	}
 
 	scene() : BABYLON.Scene { return this._scene; }
@@ -73,9 +89,13 @@ export class World extends SystemBase implements System {
 
 	getLayer<T extends BABYLON.EffectLayer>(type : LayerType) : T { return <T>this._layers.get(type); }
 
+	override preRender() : void {
+		this._directionalLight.position.copyFrom(game.lakitu().camera().position);
+		this._directionalLight.position.addInPlace(this._directionalLightOffset);
+	}
+
 	override render() : void {
 		super.render();
-
 		this._scene.render();
 	}
 }

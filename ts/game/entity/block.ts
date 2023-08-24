@@ -6,7 +6,7 @@ import { game } from 'game'
 import { StepData } from 'game/game_object'
 import { ColorFactory, ColorType } from 'game/factory/color_factory'
 import { CardinalType } from 'game/factory/cardinal_factory'
-import { ComponentType } from 'game/component/api'
+import { ComponentType, ShadowType } from 'game/component/api'
 import { Cardinals } from 'game/component/cardinals'
 import { HexColors } from 'game/component/hex_colors'
 import { Model } from 'game/component/model'
@@ -98,7 +98,7 @@ export abstract class Block extends EntityBase {
 			init: entityOptions.profileInit,
 		}));
 
-		this.addComponent(new Model({
+		this._model = this.addComponent(new Model({
 			readyFn: () => {
 				return this._profile.ready();
 			},
@@ -109,6 +109,7 @@ export abstract class Block extends EntityBase {
 
 					this.processMesh(mesh);
 					model.setMesh(mesh);
+					model.setOffset({y: -this._profile.dim().y / 2});
 				});
 			},
 		}));
@@ -168,9 +169,6 @@ export abstract class Block extends EntityBase {
 			});
 		}
 	}
-
-	// TODO: fix this, allow offset for model
-	override preRender() : void {}
 
 	protected processMesh(mesh : BABYLON.Mesh) : void {
 		mesh.getChildMeshes().forEach((child : BABYLON.Mesh) => {

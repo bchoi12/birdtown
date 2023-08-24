@@ -3,7 +3,7 @@ import * as BABYLON from 'babylonjs'
 import { game } from 'game'
 import { StepData } from 'game/game_object'
 import { Component, ComponentBase } from 'game/component'
-import { ComponentType } from 'game/component/api'
+import { ComponentType, ShadowType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { AnimationHandler } from 'game/util/animation_handler'
@@ -11,25 +11,23 @@ import { AnimationHandler } from 'game/util/animation_handler'
 import { GameData, DataFilter } from 'game/game_data'
 
 import { defined } from 'util/common'
+import { Vec, Vec2 } from 'util/vector'
 
 type MeshFn = (model : Model) => void;
 type OnLoadFn = (model : Model) => void;
-type PreRenderFn = (model : Model) => void;
+type ReadyFn = (model : Model) => boolean;
 
 type MeshOptions = {
+	shadowType? : ShadowType;
 	meshFn : MeshFn;
-
-	readyFn? : () => boolean;
-	preRenderFn? : PreRenderFn;
+	readyFn? : ReadyFn;
 }
 
 export class Model extends ComponentBase implements Component {
 
-	private _readyFn : () => boolean;
+	private _options : MeshOptions;
+	private _offset : Vec2;
 	private _onLoadFns : Array<OnLoadFn>;
-
-	private _meshFn : MeshFn;
-	private _preRenderFn : PreRenderFn;
 
 	// TODO: multi mesh support
 	private _mesh : BABYLON.Mesh;
@@ -41,20 +39,25 @@ export class Model extends ComponentBase implements Component {
 
 		this.setName({ base: "model" });
 
-		this._meshFn = options.meshFn;
+		this._options = options;
+		this._offset = Vec2.zero();
 		this._onLoadFns = new Array();
-
-		if (defined(options.readyFn)) { this._readyFn = options.readyFn; }
-		if (defined(options.preRenderFn)) { this._preRenderFn = options.preRenderFn; }
 	}
 
 	override ready() : boolean {
-		return super.ready() && (!defined(this._readyFn) || this._readyFn());
+		return super.ready()
+			&& (!defined(this._options.readyFn) || this._options.readyFn(this));
 	}
 
 	override initialize() : void {
 		super.initialize();
-		this._meshFn(this);
+		this._options.meshFn(this);
+
+		if (this._options.shadowType !== ShadowType.ALL_OFF) {
+			this.onLoad((loaded : Model) => {
+				game.world().renderShadows(loaded.mesh());
+			});
+		}
 	}
 
 	override dispose() : void {
@@ -63,6 +66,10 @@ export class Model extends ComponentBase implements Component {
 		this.onLoad((model : Model) => {
 			model.mesh().dispose();
 		});
+	}
+
+	setOffset(offset : Vec) : void {
+		this._offset.copyVec(offset);
 	}
 
 	hasMesh() : boolean { return defined(this._mesh); }
@@ -144,8 +151,8 @@ export class Model extends ComponentBase implements Component {
 	}
 
 	copyProfile(profile : Profile) : void {
-		this._mesh.position.x = profile.pos().x;
-		this._mesh.position.y = profile.pos().y;
+		this._mesh.position.x = profile.pos().x + this._offset.x;
+		this._mesh.position.y = profile.pos().y + this._offset.y;
 
 		if (profile.hasAngle()) {
 			this._mesh.rotation.z = profile.angle();
@@ -166,10 +173,6 @@ export class Model extends ComponentBase implements Component {
 
 		if (this.entity().hasProfile()) {
 			this.copyProfile(this.entity().getProfile());
-		}
-
-		if (defined(this._preRenderFn)) {
-			this._preRenderFn(this);
 		}
 	}
 }
