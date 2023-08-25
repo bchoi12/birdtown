@@ -1,4 +1,5 @@
 import * as BABYLON from 'babylonjs'
+import { SkyMaterial } from 'babylonjs-materials'
 
 import { game } from 'game'	
 import { ComponentType } from 'game/component/api'
@@ -25,8 +26,9 @@ export class World extends SystemBase implements System {
 	private _hemisphericLight : BABYLON.HemisphericLight;
 	private _directionalLight : BABYLON.DirectionalLight;
 	private _directionalLightOffset : BABYLON.Vector3;
-
 	private _shadowGenerator : BABYLON.ShadowGenerator;
+
+	private _skyBox : BABYLON.Mesh;
 
 	constructor(engine : BABYLON.Engine) {
 		super(SystemType.WORLD);
@@ -58,6 +60,15 @@ export class World extends SystemBase implements System {
 		this._shadowGenerator.usePercentageCloserFiltering = true;
 		// TODO: option for shadow quality
 		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
+
+		this._skyBox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 500.0 }, this._scene);
+		this._skyBox.position.y = -100;
+		let skyMaterial = new SkyMaterial("skyMaterial", this._scene);
+		skyMaterial.backFaceCulling = false;
+		skyMaterial.inclination = 0;
+		skyMaterial.luminance = 1.0;
+		skyMaterial.turbidity = 5;
+		this._skyBox.material = skyMaterial;
 	}
 
 	renderShadows(mesh : BABYLON.AbstractMesh) : void {
@@ -95,6 +106,7 @@ export class World extends SystemBase implements System {
 
 		this._directionalLight.position.copyFrom(game.lakitu().camera().position);
 		this._directionalLight.position.addInPlace(this._directionalLightOffset);
+		this._skyBox.position.x = game.lakitu().camera().position.x;
 	}
 
 	override render() : void {

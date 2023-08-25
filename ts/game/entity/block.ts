@@ -1,5 +1,4 @@
 import * as BABYLON from 'babylonjs'
-import 'babylonjs-materials'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
