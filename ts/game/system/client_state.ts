@@ -36,7 +36,7 @@ export class ClientState extends ClientSideSystem implements System {
 		this._connectionState = ClientConnectionState.CONNECTED;
 		this._gameState = GameState.WAITING;
 		this._loadoutMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
-		this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.SNIPER);
+		this._loadoutMsg.setProp<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
 		this._loadoutMsg.setProp<EntityType>(PlayerProp.ALT_EQUIP_TYPE, EntityType.BIRD_BRAIN);
 		this._loadoutMsg.setProp<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.NONE);
 

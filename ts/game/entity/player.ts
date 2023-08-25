@@ -177,6 +177,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				const dim = profile.dim();
 
 				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
+					density: BodyFactory.playerDensity,
 					friction: 0,
 					collisionFilter: {
 						group: collisionGroup,

@@ -39,7 +39,7 @@ export class Crate extends EntityBase implements Entity {
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
-					density: BodyFactory.heavyDensity,
+					density: BodyFactory.defaultDensity,
 				});
 			},
 			init: entityOptions.profileInit,

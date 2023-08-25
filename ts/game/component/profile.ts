@@ -417,9 +417,8 @@ export class Profile extends ComponentBase implements Component {
 			totalForce.add(this._forces.pop());
 		}
 
-		// TODO: factor in weight
-		vel.x += totalForce.x;
-		vel.y += totalForce.y;
+		vel.x += totalForce.x / this._body.mass;
+		vel.y += totalForce.y / this._body.mass;
 		this._forces.clear();
 	}
 

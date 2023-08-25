@@ -56,6 +56,7 @@ export class World extends SystemBase implements System {
 		this._shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight);
 		this._shadowGenerator.transparencyShadow = true;
 		this._shadowGenerator.usePercentageCloserFiltering = true;
+		// TODO: option for shadow quality
 		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
 	}
 
@@ -90,6 +91,8 @@ export class World extends SystemBase implements System {
 	getLayer<T extends BABYLON.EffectLayer>(type : LayerType) : T { return <T>this._layers.get(type); }
 
 	override preRender() : void {
+		super.preRender();
+
 		this._directionalLight.position.copyFrom(game.lakitu().camera().position);
 		this._directionalLight.position.addInPlace(this._directionalLightOffset);
 	}

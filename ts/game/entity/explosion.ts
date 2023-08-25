@@ -74,7 +74,7 @@ export class Explosion extends EntityBase implements Entity {
 
 		// TODO: adjust force to be based on distance to center, smooth it out a bit
 		const otherProfile = other.getProfile();
-		let force = otherProfile.pos().clone().sub(this._profile.pos()).normalize().scale(0.48);
+		let force = otherProfile.pos().clone().sub(this._profile.pos()).normalize();
 		otherProfile.addForce(force);
 
 		this._hit.add(other.id());
