@@ -14,6 +14,7 @@ export enum SystemType {
 	PHYSICS,
 	PLAYER_STATE,
 	PLAYER_STATES,
+	PIPELINE,
 	RUNNER,
 	WORLD,
 }

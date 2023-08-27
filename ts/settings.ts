@@ -14,7 +14,7 @@ class Settings {
 
 	public enableFullscreen : boolean;
 	public enablePointerLock : boolean;
-
+	public enableAntiAlias : boolean;
 	public enablePrediction : boolean;
 
 	public debugInspector : boolean;
@@ -37,6 +37,7 @@ class Settings {
 
 		this.enableFullscreen = false;
 		this.enablePointerLock = false;
+		this.enableAntiAlias = true;
 		this.enablePrediction = true;
 
 		// Debug properties

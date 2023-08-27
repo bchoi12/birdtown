@@ -139,7 +139,9 @@ export abstract class Block extends EntityBase {
 			return;
 		}
 
-		if (!this._profile.contains(target.getProfile().pos())) {
+		const targetProfile = target.getProfile();
+		const feet = targetProfile.pos().clone().sub({y: targetProfile.dim().y / 2});
+		if (!this._profile.contains(feet)) {
 			return;
 		}
 

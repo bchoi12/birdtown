@@ -20,8 +20,8 @@ export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 25 units
 	private static readonly _horizontalFov = 45.2397 * Math.PI / 180;
 	private static readonly _yMin = 1;
-	private static readonly _offset = new BABYLON.Vector3(0, 5.0, 30.0);
-	private static readonly _lookAtOffset = new BABYLON.Vector3(0, 0.5, 0);
+	private static readonly _targetOffset = new BABYLON.Vector3(0, 0.5, 0);
+	private static readonly _cameraOffset = new BABYLON.Vector3(0, 2.5, 30.0);
 
 	private _camera : BABYLON.UniversalCamera;
 
@@ -33,7 +33,7 @@ export class Lakitu extends SystemBase implements System {
 
 		this.setName({ base: "lakitu" });
 
-		this._camera = new BABYLON.UniversalCamera(this.name(), Lakitu._offset, scene);
+		this._camera = new BABYLON.UniversalCamera(this.name(), Lakitu._cameraOffset, scene);
 		this._camera.fov = Lakitu._horizontalFov;
     	this._camera.fovMode = BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED;
 
@@ -50,7 +50,7 @@ export class Lakitu extends SystemBase implements System {
 	} 
 
 	setAnchor(anchor : BABYLON.Vector3) {
-		this._anchor = anchor.clone();
+		this._anchor.copyFrom(anchor);
 
 		if (settings.debugFreezeCamera) {
 			if (game.keys().keyDown(KeyType.LEFT)) {
@@ -62,12 +62,11 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		this._target = this._anchor.clone();
-		this._target.add(Lakitu._lookAtOffset);
 		this._target.y = Math.max(Lakitu._yMin, this._target.y);
+		this._target.addInPlace(Lakitu._targetOffset);
 
-		this._camera.position.x = this._target.x;
-		this._camera.position.y = this._target.y;
-		this._camera.position.y = Math.max(Lakitu._yMin + Lakitu._offset.y, this._camera.position.y);
+		this._camera.position = this._target.clone();
+		this._camera.position.addInPlace(Lakitu._cameraOffset);
 		this._camera.setTarget(this._target);
 	}
 
@@ -110,15 +109,5 @@ export class Lakitu extends SystemBase implements System {
 		let countersMsg = new UiMessage(UiMessageType.COUNTERS);
 		countersMsg.setProp<Array<UiMessage>>(UiProp.COUNTERS, counters);
 		ui.handleMessage(countersMsg);
-
-		// TODO: move elsewhere
-		game.entities().queryEntities<Player>({
-			type: EntityType.PLAYER,
-			mapQuery: {},
-		}).forEach((player : Player) => {
-			ui.updatePos(player.clientId(), player.getProfile().pos());
-		});
-
-		ui.updatePos(game.clientId(), this.targetEntity().getProfile().pos())
 	}
 }

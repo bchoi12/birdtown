@@ -1,9 +1,14 @@
 import * as BABYLON from "babylonjs";
 
+import { game } from 'game'
+import { EntityType } from 'game/entity/api'
+import { Player } from 'game/entity/player'
 import { AudioType } from 'game/factory/api'
 import { AudioFactory } from 'game/factory/audio_factory'
 import { System, SystemBase } from 'game/system'
 import { SystemType, MusicType, SoundType } from 'game/system/api'
+
+import { ui } from 'ui'
 
 import { defined } from 'util/common'
 import { ObjectCache } from 'util/object_cache'
@@ -64,5 +69,21 @@ export class Audio extends SystemBase implements System {
 		sound.onEndedObservable.addOnce(() => {
 			cache.return(sound);
 		});
+	}
+
+	override preRender() : void {
+		super.preRender();
+
+		// Set sound positions
+		game.entities().queryEntities<Player>({
+			type: EntityType.PLAYER,
+			mapQuery: {},
+		}).forEach((player : Player) => {
+			ui.updatePos(player.clientId(), player.getProfile().pos());
+		});
+
+		if (game.lakitu().hasTargetEntity()) {
+			ui.updatePos(game.clientId(), game.lakitu().targetEntity().getProfile().pos())
+		}
 	}
 }

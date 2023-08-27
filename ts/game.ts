@@ -13,6 +13,7 @@ import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
 import { Level } from 'game/system/level'
 import { Physics } from 'game/system/physics'
+import { Pipeline } from 'game/system/pipeline'
 import { Runner } from 'game/system/runner'
 import { World } from 'game/system/world'
 
@@ -66,6 +67,7 @@ class Game {
 	private _lakitu : Lakitu;
 	private _level : Level;
 	private _physics : Physics;
+	private _pipeline : Pipeline;
 	private _world : World;
 
 	constructor() {
@@ -96,6 +98,7 @@ class Game {
 
 		this._world = new World(this._engine);
 		this._lakitu = new Lakitu(this._world.scene());
+		this._pipeline = new Pipeline(this._engine, this._world.scene(), this._lakitu.camera());
 
 		// Order of insertion becomes order of execution
 		this._runner.push(this._clientStates);
@@ -105,6 +108,7 @@ class Game {
 		this._runner.push(this._entities);
 		this._runner.push(this._physics);
 		this._runner.push(this._lakitu);
+		this._runner.push(this._pipeline);
 		this._runner.push(this._world);
 		this._runner.push(this._audio);
 

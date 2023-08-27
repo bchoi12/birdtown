@@ -49,6 +49,16 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(pointerLock.elm());
 
+		let antiAlias = new SettingWrapper({
+			id: "input-anti-alias",
+			type: "checkbox",
+			label: "Enable anti-aliasing",
+
+			getSetting: () => { return settings.enableAntiAlias; },
+			setSetting: (value: boolean) => { settings.enableAntiAlias = value; },
+		});
+		this._settingsElm.appendChild(antiAlias.elm());
+
 		// TODO: hide on game start if hosting
 		let prediction = new SettingWrapper({
 			id: "input-prediction",

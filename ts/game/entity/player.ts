@@ -414,13 +414,13 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					}
 				});
 			}
-		}
 
-		// Cosmetic stuff
-		if (this._armRecoil > 0) {
-			this._armRecoil -= Math.abs(millis / Player._armRecoveryTime);
-			if (this._armRecoil < 0) {
-				this._armRecoil = 0;
+			// Cosmetic stuff
+			if (this._armRecoil > 0) {
+				this._armRecoil -= Math.abs(millis / Player._armRecoveryTime);
+				if (this._armRecoil < 0) {
+					this._armRecoil = 0;
+				}
 			}
 		}
 	}

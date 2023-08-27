@@ -111,6 +111,7 @@ export class World extends SystemBase implements System {
 
 	override render() : void {
 		super.render();
+
 		this._scene.render();
 	}
 }
