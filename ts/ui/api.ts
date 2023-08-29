@@ -66,4 +66,5 @@ export enum KeyType {
 export enum TooltipType {
 	UNKNOWN,
 	CONSOLE,
+	SPECTATING,
 }

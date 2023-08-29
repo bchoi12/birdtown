@@ -25,7 +25,7 @@ export class Console extends EntityBase implements Entity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.CONSOLE, entityOptions);
 
-		this.setName({
+		this.addNameParams({
 			base: "console",
 			id: this.id(),
 		});

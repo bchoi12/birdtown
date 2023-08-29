@@ -24,7 +24,7 @@ export class Rocket extends Projectile {
 	constructor(options : EntityOptions) {
 		super(EntityType.ROCKET, options);
 
-		this.setName({
+		this.addNameParams({
 			base: "rocket",
 			id: this.id(),
 		});

@@ -24,7 +24,7 @@ export class Bazooka extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.BAZOOKA, options);
 
-		this.setName({
+		this.addNameParams({
 			base: "bazooka",
 			id: this.id(),
 		});

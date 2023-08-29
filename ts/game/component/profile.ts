@@ -90,7 +90,7 @@ export class Profile extends ComponentBase implements Component {
 	constructor(profileOptions : ProfileOptions) {
 		super(ComponentType.PROFILE);
 
-		this.setName({ base: "profile" });
+		this.addNameParams({ base: "profile" });
 
 		this._bodyFn = profileOptions.bodyFn;
 
@@ -204,6 +204,14 @@ export class Profile extends ComponentBase implements Component {
 		this._initialInertia = this._body.inertia;
 		if (defined(this._onInitFn)) {
 			this._onInitFn(this);
+		}
+	}
+
+	override setDeactivated(deactivated : boolean) : void {
+		super.setDeactivated(deactivated);
+
+		if (deactivated) {
+			this.uprightStop();
 		}
 	}
 
@@ -473,6 +481,7 @@ export class Profile extends ComponentBase implements Component {
 
 		let weight = 0;
 		if (settings.enablePrediction && this.entity().clientIdMatches()) {
+			// Diff based on time?
 			this._predictWeight.setDiff(game.keys(this.entity().clientId()).framesSinceChange());
 			weight = this._predictWeight.weight();
 		}

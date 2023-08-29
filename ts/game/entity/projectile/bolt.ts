@@ -24,7 +24,7 @@ export class Bolt extends Projectile {
 	constructor(options : EntityOptions) {
 		super(EntityType.BOLT, options);
 
-		this.setName({
+		this.addNameParams({
 			base: "bolt",
 			id: this.id(),
 		});

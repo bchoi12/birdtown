@@ -22,7 +22,7 @@ export class Explosion extends EntityBase implements Entity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.EXPLOSION, entityOptions);
 
-		this.setName({
+		this.addNameParams({
 			base: "explosion",
 			id: this.id(),
 		});

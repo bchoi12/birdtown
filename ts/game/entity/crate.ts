@@ -28,7 +28,7 @@ export class Crate extends EntityBase implements Entity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.CRATE, entityOptions);
 
-		this.setName({
+		this.addNameParams({
 			base: "crate",
 			id: this.id(),
 		});

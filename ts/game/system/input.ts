@@ -15,7 +15,7 @@ export class Input extends SystemBase implements System {
 	constructor() {
 		super(SystemType.INPUT);
 
-		this.setName({
+		this.addNameParams({
 			base: "input",
 		});
 

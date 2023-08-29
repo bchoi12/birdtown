@@ -47,7 +47,7 @@ export class Level extends SystemBase implements System {
 	constructor() {
 		super(SystemType.LEVEL);
 
-		this.setName({
+		this.addNameParams({
 			base: "level",
 		});
 

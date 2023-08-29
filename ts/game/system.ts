@@ -37,9 +37,14 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	targetEntity() : Entity { return this._targetEntity; }
 	setTargetEntity(entity : Entity) : void {
 		this._targetEntity = entity;
-		this.setName({
-			base: this.name(),
+		this.addNameParams({
 			target: entity,
+		});
+	}
+	clearTargetEntity() : void {
+		this._targetEntity = null;
+		this.addNameParams({
+			target: null,
 		});
 	}
 
@@ -60,7 +65,7 @@ export abstract class ClientSystem extends SystemBase implements System {
 
 		this._clientId = clientId;
 
-		this.setName({
+		this.addNameParams({
 			base: "client_system",
 		});
 	}
@@ -83,7 +88,7 @@ export abstract class ClientSideSystem extends ClientSystem implements System {
 	constructor(type : SystemType, clientId : number) {
 		super(type, clientId);
 
-		this.setName({
+		this.addNameParams({
 			base: "client_side_system",
 		});
 	}

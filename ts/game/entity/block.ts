@@ -66,7 +66,7 @@ export abstract class Block extends EntityBase {
 		super(type, entityOptions);
 
 		this._allTypes.add(EntityType.BLOCK);
-		this.setName({
+		this.addNameParams({
 			base: "block",
 			id: this.id(),
 		});

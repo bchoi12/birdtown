@@ -37,7 +37,7 @@ export class Model extends ComponentBase implements Component {
 	constructor(options : MeshOptions) {
 		super(ComponentType.MODEL);
 
-		this.setName({ base: "model" });
+		this.addNameParams({ base: "model" });
 
 		this._options = options;
 		this._offset = Vec2.zero();

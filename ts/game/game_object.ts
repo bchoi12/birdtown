@@ -27,15 +27,16 @@ export type PropHandler<T extends Object> = {
 }
 
 export type NameParams = {
-	base : string;
+	base? : string;
 	parent? : GameObject;
 	target? : GameObject;
-	type? : number;
+	type? : number|string;
 	id? : number;
 }
 
 export type StepData = {
 	millis : number;
+	realMillis : number;
 	seqNum : number;
 }
 
@@ -49,16 +50,19 @@ type DataBuffer = {
 
 export interface GameObject {
 	name() : string;
-	setName(params : NameParams) : void;
+	addNameParams(params : NameParams) : void;
 
 	ready() : boolean;
 	initialized() : boolean;
 	initialize() : void;
+	deactivated() : boolean;
+	setDeactivated(deactivated : boolean) : void;
 	reset() : void;
 	delete() : void;
 	deleted() : boolean;
 	dispose() : void;
 
+	canStep() : boolean;
 	preUpdate(stepData : StepData) : void
 	update(stepData : StepData) : void
 	postUpdate(stepData : StepData) : void
@@ -83,7 +87,7 @@ export interface GameObject {
 	unregisterChild(id : number) : void;
 	childOrder() : Array<number>;
 	executeCallback<T extends GameObject>(cb : ChildCallback<T>) : void;
-	getChildren<T extends GameObject>() : Map<number, GameObject>;
+	getChildren<T extends GameObject>() : Map<number, T>;
 
 	newTimer() : Timer;
 
@@ -102,7 +106,9 @@ export interface GameObject {
 
 export abstract class GameObjectBase {
 	protected _name : string;
+	protected _nameParams : NameParams;
 	protected _initialized : boolean;
+	protected _deactivated : boolean;
 	protected _offline : boolean;
 	protected _deleted : boolean;
 	protected _notReadyCounter : number;
@@ -121,7 +127,11 @@ export abstract class GameObjectBase {
 
 	constructor(name : string) {
 		this._name = name;
+		this._nameParams = {
+			base: name,
+		};
 		this._initialized = false;
+		this._deactivated = false;
 		this._offline = false;
 		this._deleted = false;
 		this._notReadyCounter = 0;
@@ -137,21 +147,19 @@ export abstract class GameObjectBase {
 	}
 
 	name() : string { return this._name; }
-	setName(params : NameParams) {
-		this._name = params.base;
+	addNameParams(params : NameParams) : void {
+		this._nameParams = {...this._nameParams, ...params};
 
+		this._name = this._nameParams.base;
 		if (params.parent) {
 			this._name = params.parent.name() + "/" + this._name;
 		}
-
 		if (params.type) {
 			this._name += "-" + params.type;
 		}
-
 		if (params.id) {
 			this._name += "[" + params.id + "]";
 		}
-
 		if (params.target) {
 			this._name += ":" + params.target.name();
 		}
@@ -171,6 +179,16 @@ export abstract class GameObjectBase {
 		this._initialized = true;
 	}
 	initialized() : boolean {return this._initialized; }
+	deactivated() : boolean { return this._deactivated; }
+	setDeactivated(deactivated : boolean) : void {
+		if (this._deactivated === deactivated) {
+			return;
+		}
+		this.updateObjects((obj : GameObject) => {
+			obj.setDeactivated(deactivated);
+		});
+		this._deactivated = deactivated;
+	}
 	reset() : void {
 		this.updateObjects((obj : GameObject) => {
 			obj.reset();
@@ -192,6 +210,7 @@ export abstract class GameObjectBase {
 		});
 	}
 
+	canStep() : boolean { return this.initialized() && !this.deactivated() && !this.deleted(); }
 	preUpdate(stepData : StepData) : void {
 		const millis = stepData.millis;
 		this._timers.forEach((timer) => {
@@ -202,63 +221,63 @@ export abstract class GameObjectBase {
 			if (!obj.initialized() && obj.ready()) {
 				obj.initialize();
 			}
-			if (obj.initialized()) {
+			if (obj.canStep()) {
 				obj.preUpdate(stepData);
 			}
 		});
 	}
 	update(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
-			if (obj.initialized()) {
+			if (obj.canStep()) {
 				obj.update(stepData);
 			}
 		});
 	}
 	postUpdate(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
-			if (obj.initialized()) {
+			if (obj.canStep()) {
 				obj.postUpdate(stepData);
 			}
 		});
 	}
 	prePhysics(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
-			if (obj.initialized()) {
+			if (obj.canStep()) {
 				obj.prePhysics(stepData);
 			}
 		});
 	}
 	physics(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
-			if (obj.initialized()) {
+			if (obj.canStep()) {
 				obj.physics(stepData);
 			}
 		});
 	}
 	postPhysics(stepData : StepData) : void {
 		this.updateObjects((obj : GameObject) => {
-			if (obj.initialized()) {
+			if (obj.canStep()) {
 				obj.postPhysics(stepData);
 			}
 		});
 	}
 	preRender() : void {
 		this.updateObjects((obj : GameObject) => {
-			if (obj.initialized()) {
+			if (obj.canStep()) {
 				obj.preRender();
 			}
 		});
 	}
 	render() : void {
 		this.updateObjects((obj : GameObject) => {
-			if (obj.initialized()) {
+			if (obj.canStep()) {
 				obj.render();
 			}
 		});
 	}
 	postRender() : void {
 		this.updateObjects((obj : GameObject) => {
-			if (obj.initialized()) {
+			if (obj.canStep()) {
 				obj.postRender();
 			}
 		});
@@ -358,7 +377,7 @@ export abstract class GameObjectBase {
 			cb(this.getChild<T>(this._childOrder[i]), this._childOrder[i]);
 		}
 	}
-	getChildren() : Map<number, GameObject> { return this._childObjects; }
+	getChildren<T extends GameObject>() : Map<number, T> { return <Map<number, T>>this._childObjects; }
 
 	newTimer() : Timer {
 		let timer = new Timer();

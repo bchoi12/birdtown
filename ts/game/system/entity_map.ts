@@ -18,9 +18,9 @@ export class EntityMap extends SystemBase implements System {
 
 		this._entityType = entityType;
 
-		this.setName({
+		this.addNameParams({
 			base: "entity_map",
-			type: entityType,
+			type: EntityType[entityType],
 		})
 
 		this.setFactoryFn((id : number) => {
@@ -44,6 +44,7 @@ export class EntityMap extends SystemBase implements System {
 	}
 	hasEntity(id : number) : boolean { return this.hasChild(id); }
 	getEntity<T extends Entity>(id : number) : T { return this.getChild<T>(id); }
+	getEntities<T extends Entity>() : Map<number, T> { return this.getChildren<T>(); }
 	queryEntities<T extends Entity>(query : EntityMapQuery<T>) : T[] {
 		let entities = [];
 

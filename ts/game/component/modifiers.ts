@@ -27,7 +27,7 @@ export class Modifiers extends ComponentBase implements Component {
 	constructor(init? : ModifiersInitOptions) {
 		super(ComponentType.MODIFIERS);
 
-		this.setName({ base: "modifiers" });
+		this.addNameParams({ base: "modifiers" });
 
 		this._modifiers = defined(init) ? init.modifiers : new Map();
 

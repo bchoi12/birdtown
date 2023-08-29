@@ -17,7 +17,7 @@ export class Attributes extends ComponentBase implements Component {
 		super(ComponentType.ATTRIBUTES);
 
 		if (!defined(init)) { init = {}; }
-		this.setName({ base: "attributes" });
+		this.addNameParams({ base: "attributes" });
 
 		this._attributes = new Map();
 

@@ -39,9 +39,8 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 	type() : ComponentType { return this._type; }
 	entity() : Entity { return this._entity; }
 	setEntity<T extends Entity>(entity : T) : void {
-		this.setName({
+		this.addNameParams({
 			parent: entity,
-			base: this.name(),
 		});
 		this._entity = entity;
 
@@ -56,9 +55,8 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 	private populateSubComponent<T extends Component>(id : number, component : T) : T {
 		if (defined(this._entity)) {
 			component.setEntity(this.entity());
-			component.setName({
+			component.addNameParams({
 				parent: this,
-				base: component.name(),
 				id: id,
 			});
 		}

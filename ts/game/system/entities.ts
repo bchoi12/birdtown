@@ -21,7 +21,7 @@ export class Entities extends SystemBase implements System {
 	constructor() {
 		super(SystemType.ENTITIES);
 
-		this.setName({
+		this.addNameParams({
 			base: "entities",
 		});
 
@@ -83,6 +83,12 @@ export class Entities extends SystemBase implements System {
 			return [null, false];
 		}
 		return [this.getMap(this._idToType.get(id)).getEntity<T>(id), true];
+	}
+	getEntities<T extends Entity>(type : EntityType) : Map<number, T> {
+		if (!this.hasMap(type)) {
+			return new Map();
+		}
+		return this.getMap(type).getEntities<T>();
 	}
 	queryEntities<T extends Entity>(query : EntitiesQuery<T>) : T[] {
 		if (query.type) {

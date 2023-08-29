@@ -20,7 +20,7 @@ export class Cardinals extends ComponentBase implements Component {
 
 		if (!defined(init)) { init = {}; }
 
-		this.setName({ base: "cardinals" });
+		this.addNameParams({ base: "cardinals" });
 
 		this._cardinals = new Map();
 

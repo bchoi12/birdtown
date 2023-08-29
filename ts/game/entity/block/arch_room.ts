@@ -14,7 +14,7 @@ export class ArchRoom extends ArchBase implements Entity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.ARCH_ROOM, entityOptions);
 
-		this.setName({
+		this.addNameParams({
 			base: "arch_room",
 			id: this.id(),
 		});

@@ -20,7 +20,7 @@ export class Wall extends EntityBase implements Entity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.WALL, entityOptions);
 
-		this.setName({
+		this.addNameParams({
 			base: "wall",
 			id: this.id(),
 		});

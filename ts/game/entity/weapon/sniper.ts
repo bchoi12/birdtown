@@ -22,7 +22,7 @@ export class Sniper extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.SNIPER, options);
 
-		this.setName({
+		this.addNameParams({
 			base: "sniper",
 			id: this.id(),
 		});

@@ -92,8 +92,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _collisionInfo : CollisionInfo
 
 	// TODO: create state machine with mutually exclusive set of states?
-	// TODO: deactivated to GameObject
-	private _deactivated : boolean;
 	private _jumpTimer : Timer;
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
@@ -114,7 +112,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PLAYER, entityOptions);
 
-		this.setName({
+		this.addNameParams({
 			base: "player",
 			id: this.id(),
 		});
@@ -125,7 +123,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._boneOrigins = new Map();
 		this._collisionInfo = new CollisionInfo();
 
-		this._deactivated = false;
 		this._jumpTimer = this.newTimer();
 		this._canDoubleJump = true;
 		this._deadTracker = new ChangeTracker(() => {
@@ -158,8 +155,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			import: (obj : boolean) => { this._canDoubleJump = obj; },
 		});
 		this.addProp<boolean>({
-			export: () => { return this._deactivated; },
-			import: (obj : boolean) => { this._deactivated = obj; },
+			export: () => { return this.deactivated(); },
+			import: (obj : boolean) => { this.setDeactivated(obj); },
 		});
 		this.addProp<Array<number>>({
 			export: () => { return this._equips; },
@@ -301,7 +298,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._stats.processComponent<Modifiers>(this._modifiers);
 		this._profile.processComponent<Stats>(this._stats);
 	}
-	setDeactivated(deactivated : boolean) : void { this._deactivated = deactivated; }
 	dead() : boolean { return this._stats.dead(); }
 
 	equip(equip : Equip<Player>) : void {
@@ -338,11 +334,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		super.update(stepData);
 		const millis = stepData.millis;
 		const seqNum = stepData.seqNum;
-
-		if (this._deactivated) {
-			this._profile.uprightStop();
-			return;
-		}
 
 		// Gravity
 		let gravity = GameGlobals.gravity;

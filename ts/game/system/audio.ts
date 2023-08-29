@@ -25,7 +25,7 @@ export class Audio extends SystemBase implements System {
 	constructor() {
 		super(SystemType.AUDIO);
 
-		this.setName({
+		this.addNameParams({
 			base: "audio",
 		});
 

@@ -16,7 +16,7 @@ export class SpawnPoint extends EntityBase implements Entity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.SPAWN_POINT, entityOptions);
 
-		this.setName({
+		this.addNameParams({
 			base: "spawn_point",
 			id: this.id(),
 		});

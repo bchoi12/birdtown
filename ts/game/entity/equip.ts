@@ -49,7 +49,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		super(entityType, entityOptions);
 		this._allTypes.add(EntityType.EQUIP);
 
-		this.setName({
+		this.addNameParams({
 			base: "equip",
 			id: this.id(),
 		});

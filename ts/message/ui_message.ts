@@ -53,7 +53,7 @@ export class UiMessage extends MessageBase<UiMessageType, UiProp> implements Mes
 		[UiMessageType.TOOLTIP, MessageBase.fieldDescriptor(
 			[UiProp.TYPE, {}],
 			[UiProp.TTL, {optional: true}],
-			[UiProp.NAMES, {optional: true}],
+			[UiProp.NAMES, {optional: true}],  // Array<string>
 		)],
 	]);
 

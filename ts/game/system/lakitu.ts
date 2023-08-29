@@ -14,7 +14,18 @@ import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { CounterType, KeyType } from 'ui/api'
+import { CounterType, KeyType, TooltipType } from 'ui/api'
+
+import { CircleMap } from 'util/circle_map'
+import { RateLimiter } from 'util/rate_limiter'
+
+enum LakituMode {
+	UNKNOWN,
+
+	GAME,
+	LEVEL,
+	SPECTATE,
+}
 
 export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 25 units
@@ -22,8 +33,13 @@ export class Lakitu extends SystemBase implements System {
 	private static readonly _yMin = 1;
 	private static readonly _targetOffset = new BABYLON.Vector3(0, 0.5, 0);
 	private static readonly _cameraOffset = new BABYLON.Vector3(0, 2.5, 30.0);
+	private static readonly _playerRateLimit = 250;
 
+	private _mode : LakituMode;
 	private _camera : BABYLON.UniversalCamera;
+	private _offset : BABYLON.Vector3;
+	private _playerRateLimiter : RateLimiter;
+	private _players : CircleMap<number, Player>;
 
 	private _anchor : BABYLON.Vector3;
 	private _target : BABYLON.Vector3;
@@ -31,11 +47,15 @@ export class Lakitu extends SystemBase implements System {
 	constructor(scene : BABYLON.Scene) {
 		super(SystemType.LAKITU);
 
-		this.setName({ base: "lakitu" });
+		this.addNameParams({ base: "lakitu" });
 
+		this._mode = LakituMode.GAME;
 		this._camera = new BABYLON.UniversalCamera(this.name(), Lakitu._cameraOffset, scene);
 		this._camera.fov = Lakitu._horizontalFov;
     	this._camera.fovMode = BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED;
+    	this._offset = BABYLON.Vector3.Zero();
+    	this._playerRateLimiter = new RateLimiter(Lakitu._playerRateLimit);
+    	this._players = new CircleMap();
 
     	this._anchor = BABYLON.Vector3.Zero();
     	this._target = BABYLON.Vector3.Zero();
@@ -52,16 +72,8 @@ export class Lakitu extends SystemBase implements System {
 	setAnchor(anchor : BABYLON.Vector3) {
 		this._anchor.copyFrom(anchor);
 
-		if (settings.debugFreezeCamera) {
-			if (game.keys().keyDown(KeyType.LEFT)) {
-				this._camera.position.x -= 0.1;
-			} else if (game.keys().keyDown(KeyType.RIGHT)) {
-				this._camera.position.x += 0.1;
-			}
-			return;
-		}
-
 		this._target = this._anchor.clone();
+		this._target.addInPlace(this._offset);
 		this._target.y = Math.max(Lakitu._yMin, this._target.y);
 		this._target.addInPlace(Lakitu._targetOffset);
 
@@ -82,11 +94,65 @@ export class Lakitu extends SystemBase implements System {
 		};
 	}
 
+	override postUpdate(stepData : StepData) : void {
+		super.postUpdate(stepData);
+		const realMillis = stepData.realMillis;
+
+		if (this._mode === LakituMode.SPECTATE) {
+			if (this._playerRateLimiter.check(realMillis)) {
+				game.entities().queryEntities<Player>({
+					type: EntityType.PLAYER,
+					mapQuery: {
+						filter: (player : Player) => {
+							return player.initialized() && !player.deleted();
+						}
+					},
+				}).forEach((player : Player) => {
+					if (!this._players.has(player.id())) {
+						this._players.push(player.id(), player);
+					}
+				});
+			}
+		}
+	}
+
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
 
-		if (this.hasTargetEntity()) {
-			this.setAnchor(this.targetEntity().getProfile().pos().toBabylon3());
+		// Move during postPhysics so we can do camera position-based smoothing in preRender
+		switch (this._mode) {
+		case LakituMode.LEVEL:
+			break;
+		case LakituMode.SPECTATE:
+			if (this._players.empty()) {
+				return;
+			}
+
+			if (!this.hasTargetEntity()) {
+				this.setTargetEntity(this._players.getHead());
+			}
+
+			if (game.keys().keyPressed(KeyType.LEFT)) {
+				const [targetId, ok] = this._players.rewindAndDelete(this.targetEntity().id(), (player : Player) => {
+					return player.initialized() && !player.deleted();
+				});
+				if (ok) {
+					this.setTargetEntity(this._players.get(targetId));
+				}
+			} else if (game.keys().keyPressed(KeyType.RIGHT)) {
+				const [targetId, ok] = this._players.seekAndDelete(this.targetEntity().id(), (player : Player) => {
+					return player.initialized() && !player.deleted();
+				});
+				if (ok) {
+					this.setTargetEntity(this._players.get(targetId));
+				}
+			}
+			// fallthrough
+		case LakituMode.GAME:
+			if (this.hasTargetEntity()) {
+				this.setAnchor(this.targetEntity().getProfile().pos().toBabylon3());
+			}
+			break;
 		}
 	}
 
@@ -109,5 +175,16 @@ export class Lakitu extends SystemBase implements System {
 		let countersMsg = new UiMessage(UiMessageType.COUNTERS);
 		countersMsg.setProp<Array<UiMessage>>(UiProp.COUNTERS, counters);
 		ui.handleMessage(countersMsg);
+
+		// TODO: rate limit?
+		if (!this.targetEntity().clientIdMatches()) {
+			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
+			tooltipMsg.setProp<TooltipType>(UiProp.TYPE, TooltipType.SPECTATING);
+			tooltipMsg.setProp<number>(UiProp.TTL, 50);
+			if (game.clientStates().hasClientState(this.targetEntity().clientId())) {
+				tooltipMsg.setProp<Array<string>>(UiProp.NAMES, [game.clientState(this.targetEntity().clientId()).displayName()]);
+			}
+			ui.handleMessage(tooltipMsg);
+		}
 	}
 }

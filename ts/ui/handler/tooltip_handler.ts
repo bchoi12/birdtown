@@ -71,9 +71,15 @@ export class TooltipHandler extends HandlerBase implements Handler {
 
 	private getHtml(msg : UiMessage) : string{
 		const type = msg.getProp<TooltipType>(UiProp.TYPE);
+		const names = msg.getPropOr<Array<string>>(UiProp.NAMES, []);
 		switch (type) {
 		case TooltipType.CONSOLE:
 			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game.";
+		case TooltipType.SPECTATING:
+			if (names.length !== 1) {
+				return "Spectating";
+			}
+			return "Spectating " + names[0];
 		default:
 			return "Missing tooltip text for type " + type;
 		}

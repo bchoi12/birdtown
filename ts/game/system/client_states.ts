@@ -12,7 +12,7 @@ export class ClientStates extends SystemBase implements System {
 	constructor() {
 		super(SystemType.CLIENT_STATES);
 
-		this.setName({
+		this.addNameParams({
 			base: "client_states",
 		});
 

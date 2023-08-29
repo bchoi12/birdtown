@@ -22,7 +22,7 @@ export class Association extends ComponentBase implements Component {
 		super(ComponentType.ASSOCIATION);
 
 		if (!defined(init)) { init = {}; }
-		this.setName({ base: "associations" });
+		this.addNameParams({ base: "associations" });
 
 		if (init.associations) {
 			this._associations = init.associations;

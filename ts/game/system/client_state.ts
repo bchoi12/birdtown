@@ -27,7 +27,7 @@ export class ClientState extends ClientSideSystem implements System {
 	constructor(clientId : number) {
 		super(SystemType.CLIENT_STATE, clientId);
 
-		this.setName({
+		this.addNameParams({
 			base: "client_state",
 			id: clientId,
 		});

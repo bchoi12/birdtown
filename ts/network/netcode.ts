@@ -264,7 +264,7 @@ export abstract class Netcode {
 	}
 
 	send(name : string, type : ChannelType, msg : NetworkMessage) : boolean {
-		msg.setName(name);
+		msg.addNameParams(name);
 		if (!msg.valid()) {
 			console.error("Error: attempting to send invalid message", msg);
 			return false;
@@ -418,7 +418,7 @@ export abstract class Netcode {
 		msg.parseObject(decode(bytes));
 
 		const connection = this._connections.get(name);
-		msg.setName(name);
+		msg.addNameParams(name);
 
 		if (!msg.valid()) {
 			console.error("Error: received invalid message over network", msg);

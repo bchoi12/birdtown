@@ -29,7 +29,7 @@ export abstract class Weapon extends Equip<Player> {
 		super(entityType, entityOptions);
 		this._allTypes.add(EntityType.WEAPON);
 
-		this.setName({
+		this.addNameParams({
 			base: "weapon",
 			id: this.id(),
 		});

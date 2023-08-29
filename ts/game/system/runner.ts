@@ -27,13 +27,13 @@ export class Runner extends SystemBase implements System  {
 	constructor() {
 		super(SystemType.RUNNER);
 
-		this.setName({
+		this.addNameParams({
 			base: "runner",
 		});
 
 		this._seqNum = 0;
 		this._importSeqNum = 0;
-		this._updateSpeed = 1.0;
+		this._updateSpeed = 1;
 		this._lastStepTime = 0;
 
 		this.addProp<number>({
@@ -74,6 +74,7 @@ export class Runner extends SystemBase implements System  {
 		this._seqNum++;
 		const stepData = {
 			millis: Math.min(Date.now() - this._lastStepTime, Runner._maxFrameMillis),
+			realMillis: Date.now() - this._lastStepTime,
 			seqNum: this._seqNum,
 		}
 		this._lastStepTime = Date.now();
