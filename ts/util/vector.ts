@@ -233,4 +233,6 @@ export class Vec2 implements Vec {
     toBabylon3() : BABYLON.Vector3 { return new BABYLON.Vector3(this.x, this.y, 0)}
     toMatter() : MATTER.Vector { return {x: this.x, y: this.y }; }
     toVec() : Vec { return { x: this.x, y: this.y }; }
+
+    toString() : string { return "{ x: " + this.x + ", y: " + this.y + " }"; }
 }

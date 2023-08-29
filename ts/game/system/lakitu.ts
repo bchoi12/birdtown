@@ -17,7 +17,9 @@ import { ui } from 'ui'
 import { CounterType, KeyType, TooltipType } from 'ui/api'
 
 import { CircleMap } from 'util/circle_map'
+import { isLocalhost } from 'util/common'
 import { RateLimiter } from 'util/rate_limiter'
+import { Vec2 } from 'util/vector'
 
 enum LakituMode {
 	UNKNOWN,
@@ -28,9 +30,11 @@ enum LakituMode {
 }
 
 export class Lakitu extends SystemBase implements System {
-	// Horizontal length = 25 units
-	private static readonly _horizontalFov = 45.2397 * Math.PI / 180;
-	private static readonly _yMin = 1;
+	// Horizontal length = 25 units, needs to be updated if offsets are changed
+	private static readonly _horizontalFov = 45.1045 * Math.PI / 180;
+	// TODO: set from level
+	private static readonly _yMin = -6;
+	// TODO: make these dynamic
 	private static readonly _targetOffset = new BABYLON.Vector3(0, 0.5, 0);
 	private static readonly _cameraOffset = new BABYLON.Vector3(0, 2.5, 30.0);
 	private static readonly _playerRateLimit = 250;
@@ -40,6 +44,7 @@ export class Lakitu extends SystemBase implements System {
 	private _offset : BABYLON.Vector3;
 	private _playerRateLimiter : RateLimiter;
 	private _players : CircleMap<number, Player>;
+	private _fov : Vec2;
 
 	private _anchor : BABYLON.Vector3;
 	private _target : BABYLON.Vector3;
@@ -56,25 +61,31 @@ export class Lakitu extends SystemBase implements System {
     	this._offset = BABYLON.Vector3.Zero();
     	this._playerRateLimiter = new RateLimiter(Lakitu._playerRateLimit);
     	this._players = new CircleMap();
+    	this._fov = this.computeFov();
 
     	this._anchor = BABYLON.Vector3.Zero();
     	this._target = BABYLON.Vector3.Zero();
+
+    	this._camera.onProjectionMatrixChangedObservable.add(() => {
+    		this._fov = this.computeFov();
+    	});
 	}
 
 	camera() : BABYLON.UniversalCamera { return this._camera; }
+	fov() : Vec2 { return this._fov; }
 	anchor() : BABYLON.Vector3 { return this._anchor; }
 	target() : BABYLON.Vector3 { return this._target; }
 	direction() : BABYLON.Vector3 { return this._target.subtract(this._camera.position).normalize(); }
 	rayTo(point : BABYLON.Vector3) : BABYLON.Ray {
 		return new BABYLON.Ray(this._camera.position, point.subtract(this._camera.position));
-	} 
+	}
 
 	setAnchor(anchor : BABYLON.Vector3) {
 		this._anchor.copyFrom(anchor);
 
 		this._target = this._anchor.clone();
 		this._target.addInPlace(this._offset);
-		this._target.y = Math.max(Lakitu._yMin, this._target.y);
+		this._target.y = Math.max(Lakitu._yMin + this._fov.y / 2, this._target.y);
 		this._target.addInPlace(Lakitu._targetOffset);
 
 		this._camera.position = this._target.clone();
@@ -186,5 +197,17 @@ export class Lakitu extends SystemBase implements System {
 			}
 			ui.handleMessage(tooltipMsg);
 		}
+	}
+
+	private computeFov() : Vec2 {
+		let fov = Vec2.zero();
+		const dist = Lakitu._cameraOffset.length();
+		fov.x = 2 * dist * Math.tan(this._camera.fov / 2);
+		fov.y = fov.x / game.engine().getScreenAspectRatio();
+
+		if (isLocalhost()) {
+			console.log("%s: computed new fov %s", this.name(), fov.toString());
+		}
+		return fov;
 	}
 }

@@ -154,13 +154,13 @@ export class Physics extends SystemBase implements System {
 		}
 
 		const target = game.lakitu().target();
-		// TODO: get FOV from lakitu
+		const fov = game.lakitu().fov();
 		MATTER.Render.lookAt(this._render, {
-			min: {x: target.x - 12.5, y: target.y - 7.5 },
-			max: {x: target.x + 12.5, y: target.y + 7.5 },
+			min: {x: target.x - fov.x / 2, y: target.y - fov.y / 2 },
+			max: {x: target.x + fov.x / 2, y: target.y + fov.y / 2 },
 		})
-		this._render.bounds.min.x = target.x - 12.5;
-		this._render.bounds.max.x = target.x + 12.5; 
+		this._render.bounds.min.x = target.x - fov.x / 2;
+		this._render.bounds.max.x = target.x + fov.x / 2; 
 	}
 }
 		
