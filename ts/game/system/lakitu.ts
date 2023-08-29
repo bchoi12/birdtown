@@ -2,7 +2,6 @@ import * as BABYLON from "babylonjs";
 
 import { game } from 'game'
 import { StepData } from 'game/game_object'
-import { ComponentType } from 'game/component/api'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
@@ -94,14 +93,14 @@ export class Lakitu extends SystemBase implements System {
 	}
 
 	override setTargetEntity(entity : Entity) {
-		if (!entity.hasComponent(ComponentType.PROFILE)) {
+		if (!entity.hasProfile()) {
 			console.log("Error: target entity %s must have profile", entity.name());
 			return;
 		}
 		super.setTargetEntity(entity);
 
 		game.world().scene().audioListenerPositionProvider = () => {
-		  return entity.getProfile().pos().toBabylon3();
+			return entity.getProfile().pos().toBabylon3();
 		};
 	}
 
