@@ -95,7 +95,7 @@ export class Lakitu extends SystemBase implements System {
 
 	override setTargetEntity(entity : Entity) {
 		if (!entity.hasComponent(ComponentType.PROFILE)) {
-			console.log("Error: target entity %s must have profile", this.name());
+			console.log("Error: target entity %s must have profile", entity.name());
 			return;
 		}
 		super.setTargetEntity(entity);
