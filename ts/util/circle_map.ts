@@ -83,12 +83,23 @@ export class CircleMap<K, V> {
 			this._tail = key;
 		}
 
+		if (this._map.has(this._head)) {
+			let head = this._map.get(this._head);
+			head.prev = key;
+
+			// Break self loop
+			if (head.next === this._head) {
+				head.next = key;
+			}
+		}
 		if (this._map.has(this._tail)) {
 			let tail = this._map.get(this._tail);
+			tail.next = key;
+
+			// Break self loop
 			if (tail.prev === this._tail) {
 				tail.prev = key;
 			}
-			tail.next = key;
 		}
 
 		this._map.set(key, {

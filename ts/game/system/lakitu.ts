@@ -53,7 +53,7 @@ export class Lakitu extends SystemBase implements System {
 
 		this.addNameParams({ base: "lakitu" });
 
-		this._mode = LakituMode.GAME;
+		this._mode = LakituMode.SPECTATE;
 		this._camera = new BABYLON.UniversalCamera(this.name(), Lakitu._cameraOffset, scene);
 		this._camera.fov = Lakitu._horizontalFov;
     	this._camera.fovMode = BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED;
@@ -137,8 +137,7 @@ export class Lakitu extends SystemBase implements System {
 			if (this._players.empty()) {
 				return;
 			}
-
-			if (!this.hasTargetEntity()) {
+			if (!this.validTargetEntity()) {
 				this.setTargetEntity(this._players.getHead());
 			}
 
@@ -159,7 +158,7 @@ export class Lakitu extends SystemBase implements System {
 			}
 			// fallthrough
 		case LakituMode.GAME:
-			if (this.hasTargetEntity()) {
+			if (this.validTargetEntity()) {
 				this.setAnchor(this.targetEntity().getProfile().pos().toBabylon3());
 			}
 			break;
@@ -169,7 +168,7 @@ export class Lakitu extends SystemBase implements System {
 	override preRender() : void {
 		super.preRender();
 
-		if (!this.hasTargetEntity()) {
+		if (!this.validTargetEntity()) {
 			return;
 		}
 
@@ -197,6 +196,8 @@ export class Lakitu extends SystemBase implements System {
 			ui.handleMessage(tooltipMsg);
 		}
 	}
+
+	private validTargetEntity() : boolean { return this.hasTargetEntity() && !this.targetEntity().deleted(); }
 
 	private computeFov() : Vec2 {
 		let fov = Vec2.zero();

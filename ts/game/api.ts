@@ -3,7 +3,10 @@
 export enum GameState {
 	UNKNOWN,
 
-	// Waiting to meet criteria to start game
+	// Loading initial resources to run the game
+	INITIALIZING,
+
+	// Waiting to meet criteria to start a game
 	WAITING,
 
 	// Game started, all clients loading resources

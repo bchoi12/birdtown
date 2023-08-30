@@ -34,6 +34,7 @@ enum State {
 type LevelOptions = {
 	level : LevelType;
 	seed : number;
+	version? : number;
 }
 
 export class Level extends SystemBase implements System {
@@ -61,11 +62,7 @@ export class Level extends SystemBase implements System {
 
 		this.addProp<LevelOptions>({
 			export: () => { return this._options; },
-			import: (obj : LevelOptions) => { this.setLevel(obj); },
-		});
-		this.addProp<number>({
-			export: () => { return this._version; },
-			import: (obj : number) => { this._version = obj; },
+			import: (obj : LevelOptions) => { this.loadLevel(obj); },
 		});
 	}
 
@@ -73,74 +70,62 @@ export class Level extends SystemBase implements System {
 
 	version() : number { return this._version; }
 
-	setLevel(options : LevelOptions) : void {
-		if (options.level === LevelType.UNKNOWN || options.seed <= 0) {
+	loadLevel(options : LevelOptions) : void {
+		if (options.level === LevelType.UNKNOWN) {
 			console.error("Error: skipping invalid level options", options);
 			return;
 		}
 
 		this._options = options;
+
+		if (!defined(options.version)) {
+			this._version++;
+			this._options.version = this._version;
+		} else {
+			this._version = options.version;
+		}
 		this._rng.seed(this._options.seed);
 
-		if (this.isSource()) {
-			this._version++;
-		}
-		this._state = State.UNLOAD;
-	}
-
-	override preUpdate(stepData : StepData) : void {
-		super.preUpdate(stepData);
-
-		if (this._state === State.LOAD) {
-			if (isLocalhost()) {
-				console.log("Loading level with options", this._options);
-			}
-
-			this._rng.reset();
-			switch (this._options.level) {
-			case LevelType.LOBBY:
-				this.loadLobby();
-				break;
-			case LevelType.BIRDTOWN:
-				this.loadBirdtown();
-				break;
-			}
-
-			// TODO: send StateMsg instead
-			let msg = new GameMessage(GameMessageType.LEVEL_LOAD);
-			msg.setProp(GameProp.TYPE, this._options.level);
-			msg.setProp(GameProp.SEED, this._rng.getSeed());
-			msg.setProp(GameProp.VERSION, this._version);
-	    	game.runner().handleMessage(msg);
-
-	    	// TODO: send UiMessage elsewhere
-	    	const uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-	    	uiMsg.setProp(UiProp.TYPE, AnnouncementType.TEST);
-	    	ui.handleMessage(uiMsg);
-
-			this._state = State.READY;
-		}
-	}
-
-	override postUpdate(stepData : StepData) : void {
-		super.postUpdate(stepData);
-
-		if (this._state === State.UNLOAD) {
-			game.entities().queryEntities<Entity>({
-				mapQuery: {
-					filter: (entity : Entity) => {
-						return entity.hasLevelVersion() && entity.levelVersion() < this._version;
-					},
+		// Delete versioned entities which are associated with a level.
+		game.entities().queryEntities<Entity>({
+			mapQuery: {
+				filter: (entity : Entity) => {
+					return entity.hasLevelVersion() && entity.levelVersion() < this._version;
 				},
-			}).forEach((entity : Entity) => {
-				entity.delete();
-			});
+			},
+		}).forEach((entity : Entity) => {
+			entity.delete();
+		});
 
-			if (isLocalhost()) {
-				console.log("Unloading level: deleted all entities below current version", this._version);
-			}
+		if (isLocalhost()) {
+			console.log("Unloaded level: deleted all entities below current version", this._version);
+		}
 
-			this._state = State.LOAD;
+		this._rng.reset();
+		switch (this._options.level) {
+		case LevelType.LOBBY:
+			this.loadLobby();
+			break;
+		case LevelType.BIRDTOWN:
+			this.loadBirdtown();
+			break;
+		}
+
+		let msg = new GameMessage(GameMessageType.LEVEL_LOAD);
+		msg.setProp(GameProp.TYPE, this._options.level);
+		msg.setProp(GameProp.SEED, this._rng.getSeed());
+		msg.setProp(GameProp.VERSION, this._version);
+    	game.runner().handleMessage(msg);
+
+    	// TODO: send announcement in Controller
+    	const uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+    	uiMsg.setProp(UiProp.TYPE, AnnouncementType.TEST);
+    	ui.handleMessage(uiMsg);
+
+		this._state = State.READY;
+
+		if (isLocalhost()) {
+			console.log("Loaded level with options", this._options);
 		}
 	}
 

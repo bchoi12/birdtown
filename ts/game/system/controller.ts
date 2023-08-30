@@ -13,12 +13,11 @@ import { GameData } from 'game/game_data'
 
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
+import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
 
 export class Controller extends SystemBase implements System {
-
-	private static readonly _clientSideStates = new Set<GameState>([GameState.LOADING, GameState.SETUP]);
 
 	private _gameMode : GameMode;
 	private _gameState : GameState;
@@ -28,6 +27,10 @@ export class Controller extends SystemBase implements System {
 
 	constructor() {
 		super(SystemType.GAME_MODE);
+
+		this.addNameParams({
+			base: "controller",
+		});
 
 		this._gameMode = GameMode.UNKNOWN;
 		this._gameState = GameState.WAITING;
@@ -52,6 +55,8 @@ export class Controller extends SystemBase implements System {
 		})
 	}
 
+	override ready() : boolean { return super.ready(); }
+
 	override initialize() : void {
 		super.initialize();
 
@@ -65,6 +70,10 @@ export class Controller extends SystemBase implements System {
 	setGameMode(mode : GameMode) {
 		this._gameMode = mode;
 
+		if (isLocalhost()) {
+			console.log("%s: game mode is %s", this.name(), GameMode[mode]);
+		}
+
 		if (this._gameState === GameState.WAITING) {
 			if (this._gameMaker.get().queryAdvance(this._gameState)) {
 				this.advanceGameState();
@@ -73,27 +82,32 @@ export class Controller extends SystemBase implements System {
 		}
 	}
 
-	gameState() : number { return this._gameState; }
+	gameState() : GameState { return this._gameState; }
 	advanceGameState() : void {
 		if (this._gameState === GameState.FINISHING) {
 			return;
 		}
 		this.setGameState(this._gameState + 1);
 	}
-	setGameState(state : number) : void {
+	setGameState(state : GameState) : void {
 		if (this._gameState === state) {
 			return;
 		}
 
 		this._gameState = state;
 
-		if (this._gameMaker.has()) {
-			this._gameMaker.get().onStateChange(state);
+		if (isLocalhost()) {
+			console.log("%s: game state is %s", this.name(), GameState[state]);
 		}
 
+		// Broadcast state change
 		let msg = new GameMessage(GameMessageType.GAME_STATE);
 		msg.setProp<GameState>(GameProp.STATE, this._gameState);
 		game.handleMessage(msg);
+
+		if (this._gameMaker.has()) {
+			this._gameMaker.get().onStateChange(state);
+		}
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -136,7 +150,7 @@ export class Controller extends SystemBase implements System {
 			if (!this._resetTimer.hasTimeLeft()) {
 				this._resetTimer.start(1000, () => {
 					this._round++;
-					this.setGameState(GameState.SETUP);
+					this.setGameState(GameState.LOADING);
 				});
 			}
 			return;

@@ -73,7 +73,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 			this._players.forEach((player : Player) => {
 				player.setDeactivated(true);
 			});
-			game.level().setLevel({
+			game.level().loadLevel({
 				level: LevelType.BIRDTOWN,
 				seed: 1 + Math.floor(1000 * Math.random()),
 			});

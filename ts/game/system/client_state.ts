@@ -17,6 +17,8 @@ import { NetworkBehavior } from 'network/api'
 import { ui } from 'ui'
 import { DialogButtonAction, DialogType, DialogButtonType } from 'ui/api'
 
+import { isLocalhost } from 'util/common'
+
 export class ClientState extends ClientSideSystem implements System {
 
 	private _displayName : string;
@@ -160,6 +162,10 @@ export class ClientState extends ClientSideSystem implements System {
 		}
 
 		this._gameState = state;
+
+		if (this.clientIdMatches() && isLocalhost()) {
+			console.log("%s: game state is %s", this.name(), GameState[state]);
+		}
 
 		switch(this._gameState) {		
 		case GameState.SETUP:
