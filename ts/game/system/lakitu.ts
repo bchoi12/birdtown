@@ -53,7 +53,7 @@ export class Lakitu extends SystemBase implements System {
 
 		this.addNameParams({ base: "lakitu" });
 
-		this._mode = LakituMode.SPECTATE;
+		this._mode = LakituMode.GAME;
 		this._camera = new BABYLON.UniversalCamera(this.name(), Lakitu._cameraOffset, scene);
 		this._camera.fov = Lakitu._horizontalFov;
     	this._camera.fovMode = BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED;
