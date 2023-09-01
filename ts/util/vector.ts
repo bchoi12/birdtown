@@ -102,6 +102,24 @@ export class Vec2 implements Vec {
         this.y *= this.y;
         return this;
     }
+    min(other : Vec) : Vec2 {
+        if (defined(other.x) && other.x < this.x) {
+            this.x = other.x;
+        }
+        if (defined(other.y) && other.y < this.y) {
+            this.y = other.y;
+        }
+        return this;
+    }
+    max(other : Vec) : Vec2 {
+        if (defined(other.x) && other.x > this.x) {
+            this.x = other.x;
+        }
+        if (defined(other.y) && other.y > this.y) {
+            this.y = other.y;
+        }
+        return this;
+    }
     clamp(min : number, max : number) : Vec2 {
         this.x = Math.max(min, Math.min(max, this.x));
         this.y = Math.max(min, Math.min(max, this.y));
@@ -233,6 +251,7 @@ export class Vec2 implements Vec {
     toBabylon3() : BABYLON.Vector3 { return new BABYLON.Vector3(this.x, this.y, 0)}
     toMatter() : MATTER.Vector { return {x: this.x, y: this.y }; }
     toVec() : Vec { return { x: this.x, y: this.y }; }
+    toObject() : Object { return this.toVec(); }
 
     toString() : string { return "{ x: " + this.x + ", y: " + this.y + " }"; }
 }

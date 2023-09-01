@@ -1,6 +1,7 @@
 import * as BABYLON from "babylonjs";
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -8,6 +9,7 @@ import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 
+import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { settings } from 'settings'
@@ -16,9 +18,9 @@ import { ui } from 'ui'
 import { CounterType, KeyType, TooltipType } from 'ui/api'
 
 import { CircleMap } from 'util/circle_map'
-import { isLocalhost } from 'util/common'
+import { defined, isLocalhost } from 'util/common'
 import { RateLimiter } from 'util/rate_limiter'
-import { Vec2 } from 'util/vector'
+import { Vec, Vec2 } from 'util/vector'
 
 enum LakituMode {
 	UNKNOWN,
@@ -28,25 +30,33 @@ enum LakituMode {
 	SPECTATE,
 }
 
+enum OffsetType {
+	UNKNOWN,
+
+	ANCHOR,
+	TARGET,
+	CAMERA,
+}
+
 export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 25 units, needs to be updated if offsets are changed
 	private static readonly _horizontalFov = 45.1045 * Math.PI / 180;
 	// TODO: set from level
 	private static readonly _yMin = -6;
-	// TODO: make these dynamic
-	private static readonly _targetOffset = new BABYLON.Vector3(0, 0.5, 0);
-	private static readonly _cameraOffset = new BABYLON.Vector3(0, 2.5, 30.0);
+
 	private static readonly _playerRateLimit = 250;
 
 	private _mode : LakituMode;
 	private _camera : BABYLON.UniversalCamera;
-	private _offset : BABYLON.Vector3;
+
 	private _playerRateLimiter : RateLimiter;
 	private _players : CircleMap<number, Player>;
-	private _fov : Vec2;
 
+	private _offsets : Map<OffsetType, BABYLON.Vector3>;
 	private _anchor : BABYLON.Vector3;
 	private _target : BABYLON.Vector3;
+	private _vel : BABYLON.Vector3;
+	private _fov : Vec2;
 
 	constructor(scene : BABYLON.Scene) {
 		super(SystemType.LAKITU);
@@ -54,41 +64,55 @@ export class Lakitu extends SystemBase implements System {
 		this.addNameParams({ base: "lakitu" });
 
 		this._mode = LakituMode.GAME;
-		this._camera = new BABYLON.UniversalCamera(this.name(), Lakitu._cameraOffset, scene);
+		this._camera = new BABYLON.UniversalCamera(this.name(), BABYLON.Vector3.Zero(), scene);
 		this._camera.fov = Lakitu._horizontalFov;
     	this._camera.fovMode = BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED;
-    	this._offset = BABYLON.Vector3.Zero();
+
     	this._playerRateLimiter = new RateLimiter(Lakitu._playerRateLimit);
     	this._players = new CircleMap();
-    	this._fov = this.computeFov();
 
+    	this._offsets = new Map([
+    		[OffsetType.ANCHOR, BABYLON.Vector3.Zero()],
+    		[OffsetType.TARGET, new BABYLON.Vector3(0, 0.5, 0)],
+    		[OffsetType.CAMERA, new BABYLON.Vector3(0, 2.5, 30.0)],
+    	]);
     	this._anchor = BABYLON.Vector3.Zero();
     	this._target = BABYLON.Vector3.Zero();
-
+    	this._vel = BABYLON.Vector3.Zero();
+    	this._fov = Vec2.zero();
     	this._camera.onProjectionMatrixChangedObservable.add(() => {
     		this._fov = this.computeFov();
     	});
+
+    	this.setAnchor(BABYLON.Vector3.Zero());
 	}
 
 	camera() : BABYLON.UniversalCamera { return this._camera; }
 	fov() : Vec2 { return this._fov; }
 	anchor() : BABYLON.Vector3 { return this._anchor; }
 	target() : BABYLON.Vector3 { return this._target; }
+	offset(type : OffsetType) : BABYLON.Vector3 { return this._offsets.get(type); }
 	direction() : BABYLON.Vector3 { return this._target.subtract(this._camera.position).normalize(); }
 	rayTo(point : BABYLON.Vector3) : BABYLON.Ray {
 		return new BABYLON.Ray(this._camera.position, point.subtract(this._camera.position));
 	}
 
-	setAnchor(anchor : BABYLON.Vector3) {
+	addAnchor(delta : BABYLON.Vector3) : void {
+		this._anchor.addInPlace(delta);
+		this.move(this._anchor);
+	}
+	setAnchor(anchor : BABYLON.Vector3) : void {
 		this._anchor.copyFrom(anchor);
-
-		this._target = this._anchor.clone();
-		this._target.addInPlace(this._offset);
+		this._anchor.addInPlace(this.offset(OffsetType.ANCHOR));
+		this.move(this._anchor);
+	}
+	private move(anchor : BABYLON.Vector3) : void {
+		this._target = anchor.clone();
 		this._target.y = Math.max(Lakitu._yMin + this._fov.y / 2, this._target.y);
-		this._target.addInPlace(Lakitu._targetOffset);
+		this._target.addInPlace(this.offset(OffsetType.TARGET));
 
 		this._camera.position = this._target.clone();
-		this._camera.position.addInPlace(Lakitu._cameraOffset);
+		this._camera.position.addInPlace(this.offset(OffsetType.CAMERA));
 		this._camera.setTarget(this._target);
 	}
 
@@ -102,6 +126,28 @@ export class Lakitu extends SystemBase implements System {
 		game.world().scene().audioListenerPositionProvider = () => {
 			return entity.getProfile().pos().toBabylon3();
 		};
+	}
+
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		switch (msg.type()) {
+		case GameMessageType.GAME_STATE:
+			const state = msg.getProp<GameState>(GameProp.STATE);
+			switch (state) {
+			case GameState.SETUP:
+				this._mode = LakituMode.LEVEL;
+				this._vel.x = 2;
+				// TODO: compute based on bounds in postUpdate()
+				this._offsets.get(OffsetType.CAMERA).z = 60;
+				break;
+			default:
+				this._mode = LakituMode.GAME;
+				this._vel.x = 0;
+				this._offsets.get(OffsetType.CAMERA).z = 30;
+			}
+			break;
+		}
 	}
 
 	override postUpdate(stepData : StepData) : void {
@@ -128,10 +174,16 @@ export class Lakitu extends SystemBase implements System {
 
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
+		const millis = stepData.millis;
 
 		// Move during postPhysics so we can do camera position-based smoothing in preRender
 		switch (this._mode) {
 		case LakituMode.LEVEL:
+			const side = game.level().bounds().xSide({x: this._anchor.x });
+			if (side !== 0 && Math.sign(this._vel.x) === side) {
+				this._vel.x *= -1;
+			}
+			this.addAnchor(this._vel.scale(millis / 1000));
 			break;
 		case LakituMode.SPECTATE:
 			if (this._players.empty()) {
@@ -201,7 +253,7 @@ export class Lakitu extends SystemBase implements System {
 
 	private computeFov() : Vec2 {
 		let fov = Vec2.zero();
-		const dist = Lakitu._cameraOffset.length();
+		const dist = this.offset(OffsetType.CAMERA).length();
 		fov.x = 2 * dist * Math.tan(this._camera.fov / 2);
 		fov.y = fov.x / game.engine().getScreenAspectRatio();
 

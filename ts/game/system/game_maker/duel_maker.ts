@@ -43,10 +43,6 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 		switch (current) {
 		case GameState.WAITING:
 			return this._players.length >= 2;
-		case GameState.LOADING:
-			return game.clientStates().queryClientStates((client : ClientState) => {
-				return client.gameState() > GameState.LOADING;
-			});
 		case GameState.SETUP:
 			return game.clientStates().queryClientStates((client : ClientState) => {
 				return client.gameState() > GameState.SETUP;
@@ -68,7 +64,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 
 	override onStateChange(state : GameState) : void {
 		switch (state) {
-		case GameState.LOADING:
+		case GameState.SETUP:
 			this._players = this.queryPlayers();
 			this._players.forEach((player : Player) => {
 				player.setDeactivated(true);
@@ -77,8 +73,6 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 				level: LevelType.BIRDTOWN,
 				seed: 1 + Math.floor(1000 * Math.random()),
 			});
-			break;
-		case GameState.SETUP:
 			this._players.forEach((player : Player) => {
 				player.respawn();
 				player.setDeactivated(true);

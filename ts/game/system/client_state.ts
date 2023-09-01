@@ -121,11 +121,6 @@ export class ClientState extends ClientSideSystem implements System {
 		super.handleMessage(msg);
 
 		switch(msg.type()) {
-		case GameMessageType.LEVEL_LOAD:
-			if (this._gameState === GameState.LOADING) {
-				this.setGameState(GameState.SETUP);
-			}
-			break;
 		case GameMessageType.GAME_STATE:
 			this.setGameState(msg.getProp<GameState>(GameProp.STATE));
 			break;

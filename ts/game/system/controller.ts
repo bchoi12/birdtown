@@ -150,7 +150,7 @@ export class Controller extends SystemBase implements System {
 			if (!this._resetTimer.hasTimeLeft()) {
 				this._resetTimer.start(1000, () => {
 					this._round++;
-					this.setGameState(GameState.LOADING);
+					this.setGameState(GameState.SETUP);
 				});
 			}
 			return;

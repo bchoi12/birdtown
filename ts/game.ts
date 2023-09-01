@@ -80,8 +80,6 @@ class Game {
 	initialize(gameOptions : GameOptions) {
 		this._options = gameOptions;
 
-		// this._engine = new BABYLON.NullEngine();
-		// TODO: fast anti-alias
 		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false, {
 			stencil: true,
 		});
@@ -161,7 +159,7 @@ class Game {
     		this._runner.step();
 	    	this._netcode.postStep();
 
-	    	for (const filter of [DataFilter.TCP, DataFilter.UDP]) {
+	    	for (const filter of this._runner.getDataFilters()) {
     			const [msg, has] = this._runner.message(filter);
 				if (has) {
 					this._netcode.broadcast(Game._channelMapping.get(filter), msg);

@@ -23,6 +23,7 @@ export class Runner extends SystemBase implements System  {
 	private _importSeqNum : number;
 	private _updateSpeed : number;
 	private _lastStepTime : number;
+	private _sendFullMsg : boolean;
 
 	constructor() {
 		super(SystemType.RUNNER);
@@ -35,6 +36,7 @@ export class Runner extends SystemBase implements System  {
 		this._importSeqNum = 0;
 		this._updateSpeed = 1;
 		this._lastStepTime = 0;
+		this._sendFullMsg = false;
 
 		this.addProp<number>({
 			export: () => { return this._updateSpeed; },
@@ -102,11 +104,7 @@ export class Runner extends SystemBase implements System  {
 		switch(msg.type()) {
 		case GameMessageType.NEW_CLIENT:
 		case GameMessageType.LEVEL_LOAD:
-			const connection = game.netcode();
-			const [initMessage, has] = this.message(DataFilter.INIT);
-			if (has) {
-				connection.broadcast(ChannelType.TCP, initMessage);
-			}
+			this._sendFullMsg = true;
 			break;
 		}
 	}
@@ -117,6 +115,12 @@ export class Runner extends SystemBase implements System  {
 		super.importData(data, seqNum);
 	}
 
+	getDataFilters() : Array<DataFilter> {
+		if (this._sendFullMsg) {
+			return [DataFilter.INIT];
+		}
+		return [DataFilter.TCP, DataFilter.UDP];
+	}
 	message(filter : DataFilter) : [NetworkMessage, boolean] {
 		const [data, has] = this.dataMap(filter, this._seqNum);
 		if (!has) {

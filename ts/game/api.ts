@@ -9,9 +9,6 @@ export enum GameState {
 	// Waiting to meet criteria to start a game
 	WAITING,
 
-	// Game started, all clients loading resources
-	LOADING,
-
 	// All resources loaded, clients answering dialogs
 	SETUP,
 	

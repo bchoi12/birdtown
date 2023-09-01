@@ -16,20 +16,13 @@ import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 import { ui } from 'ui'
 import { AnnouncementType } from 'ui/api'
 
+import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
 import { CardinalDir } from 'util/cardinal'
 import { defined, isLocalhost } from 'util/common'
-import { ChangeTracker } from 'util/change_tracker'
 import { HexColor } from 'util/hex_color'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
-
-enum State {
-	UNKNOWN,
-	READY,
-	UNLOAD,
-	LOAD,
-}
 
 type LevelOptions = {
 	level : LevelType;
@@ -42,8 +35,7 @@ export class Level extends SystemBase implements System {
 	private _options : LevelOptions;
 	private _version : number;
 	private _rng : SeededRandom;
-
-	private _state : State;
+	private _bounds : Box2;
 
 	constructor() {
 		super(SystemType.LEVEL);
@@ -58,16 +50,21 @@ export class Level extends SystemBase implements System {
 		};
 		this._version = 0;
 		this._rng = new SeededRandom(0);
-		this._state = State.READY;
+		this._bounds = Box2.zero();
 
 		this.addProp<LevelOptions>({
 			export: () => { return this._options; },
 			import: (obj : LevelOptions) => { this.loadLevel(obj); },
 		});
+		this.addProp<Object>({
+			export: () => { return this._bounds.toObject(); },
+			import: (obj : Object) => { this._bounds.copyObject(obj); },
+		})
 	}
 
 	override ready() : boolean { return super.ready() && this._options.level !== LevelType.UNKNOWN && this._options.seed > 0 && this._version > 0; }
 
+	bounds() : Box2 { return this._bounds; }
 	version() : number { return this._version; }
 
 	loadLevel(options : LevelOptions) : void {
@@ -87,18 +84,21 @@ export class Level extends SystemBase implements System {
 		this._rng.seed(this._options.seed);
 
 		// Delete versioned entities which are associated with a level.
-		game.entities().queryEntities<Entity>({
-			mapQuery: {
-				filter: (entity : Entity) => {
-					return entity.hasLevelVersion() && entity.levelVersion() < this._version;
+		if (this.isSource()) {
+			game.entities().queryEntities<Entity>({
+				mapQuery: {
+					filter: (entity : Entity) => {
+						return entity.hasLevelVersion() && entity.levelVersion() < this._version;
+					},
 				},
-			},
-		}).forEach((entity : Entity) => {
-			entity.delete();
-		});
+			}).forEach((entity : Entity) => {
+				entity.delete();
+			});
 
-		if (isLocalhost()) {
-			console.log("Unloaded level: deleted all entities below current version", this._version);
+			if (isLocalhost()) {
+				console.log("Unloaded level: deleted all entities below current version", this._version);
+			}
+
 		}
 
 		this._rng.reset();
@@ -122,8 +122,6 @@ export class Level extends SystemBase implements System {
     	uiMsg.setProp(UiProp.TYPE, AnnouncementType.TEST);
     	ui.handleMessage(uiMsg);
 
-		this._state = State.READY;
-
 		if (isLocalhost()) {
 			console.log("Loaded level with options", this._options);
 		}
@@ -131,6 +129,8 @@ export class Level extends SystemBase implements System {
 
 	private loadLobby() : void {
 		let pos = new Vec2({ x: -2 * EntityFactory.getDimension(EntityType.ARCH_ROOM).x, y: -6 });
+		this._bounds.collapse(pos);
+
 		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 1, y: 2}, {x: 2, y: 2 });
 
 		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
@@ -140,6 +140,8 @@ export class Level extends SystemBase implements System {
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 			pos.y = -6;
+
+			this._bounds.stretch(pos);
 			for (let j = 0; j < floors; ++j) {
 				pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
 				this.addEntity(EntityType.ARCH_ROOM, {
@@ -195,26 +197,34 @@ export class Level extends SystemBase implements System {
 			}
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
+
+			this._bounds.stretch(pos);
 		}
 	}
 
 	private loadBirdtown() : void {
 		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 1, y: 2}, {x: 2, y: 2 });
-		let pos = new Vec2({ x: -6, y: -3 });
+		let pos = new Vec2({ x: -6, y: -6 });
+		this._bounds.collapse(pos);
 
 		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
-		const numBuildings = 3 + Math.floor(3 * this._rng.next());
+		const numBuildings = 6 + Math.floor(3 * this._rng.next());
 
 		let heights = new Array<number>();
-		for (let i = 0; i < numBuildings; ++i) {
+		for (let i = 0; i < Math.ceil(numBuildings / 2); ++i) {
 			heights.push(1 + Math.floor(3 * this._rng.next()));
+		}
+		// Mirror the map
+		for (let i = Math.floor(numBuildings / 2) - 1; i >= 0; --i) {
+			heights.push(heights[i]);
 		}
 
 		for (let i = 0; i < numBuildings; ++i) {
 			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BASE, i);
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
-			pos.y = -3;
+			pos.y = -6;
+			this._bounds.stretch(pos);
 			for (let j = 0; j < heights[i]; ++j) {
 				pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
 				this.addEntity(EntityType.ARCH_ROOM, {
@@ -275,6 +285,7 @@ export class Level extends SystemBase implements System {
 			}
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
+			this._bounds.stretch(pos);
 		}
 	}
 
