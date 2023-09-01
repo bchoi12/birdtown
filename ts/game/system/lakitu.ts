@@ -138,13 +138,16 @@ export class Lakitu extends SystemBase implements System {
 			case GameState.SETUP:
 				this._mode = LakituMode.LEVEL;
 				this._vel.x = 2;
-				// TODO: compute based on bounds in postUpdate()
+				// TODO: compute based on bounds in postUpdate(), level is not loaded yet
 				this._offsets.get(OffsetType.CAMERA).z = 60;
+				// TODO: just recompute FOV when setting camera offset
+				this.computeFov();
 				break;
 			default:
 				this._mode = LakituMode.GAME;
 				this._vel.x = 0;
 				this._offsets.get(OffsetType.CAMERA).z = 30;
+				this.computeFov();
 			}
 			break;
 		}

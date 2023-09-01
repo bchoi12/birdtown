@@ -1,4 +1,5 @@
 import { game } from 'game'
+import { GameState } from 'game/api'
 import { GameData, DataFilter } from 'game/game_data'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
@@ -63,7 +64,6 @@ export class Runner extends SystemBase implements System  {
 
 	seqNum() : number { return this._seqNum; }
 	importSeqNum() : number { return this._importSeqNum; }
-	setUpdateSpeed(speed : number) : void { this._updateSpeed = speed; }
 
 	step() : void {
 		if (!this.initialized()) {
@@ -75,7 +75,7 @@ export class Runner extends SystemBase implements System  {
 
 		this._seqNum++;
 		const stepData = {
-			millis: Math.min(Date.now() - this._lastStepTime, Runner._maxFrameMillis),
+			millis: this._updateSpeed * Math.min(Date.now() - this._lastStepTime, Runner._maxFrameMillis),
 			realMillis: Date.now() - this._lastStepTime,
 			seqNum: this._seqNum,
 		}
@@ -106,6 +106,15 @@ export class Runner extends SystemBase implements System  {
 		case GameMessageType.LEVEL_LOAD:
 			this._sendFullMsg = true;
 			break;
+		case GameMessageType.GAME_STATE:
+			const state = msg.getProp<GameState>(GameProp.STATE);
+			switch (state) {
+			case GameState.FINISHING:
+				this._updateSpeed = 0.3;
+				break;
+			default:
+				this._updateSpeed = 1;
+			}
 		}
 	}
 
