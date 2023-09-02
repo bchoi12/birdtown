@@ -126,6 +126,7 @@ export class Runner extends SystemBase implements System  {
 
 	getDataFilters() : Array<DataFilter> {
 		if (this._sendFullMsg) {
+			this._sendFullMsg = false;
 			return [DataFilter.INIT];
 		}
 		return [DataFilter.TCP, DataFilter.UDP];
