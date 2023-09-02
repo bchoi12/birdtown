@@ -85,20 +85,16 @@ export class Level extends SystemBase implements System {
 
 		// Delete versioned entities which are associated with a level.
 		if (this.isSource()) {
-			game.entities().queryEntities<Entity>({
-				mapQuery: {
-					filter: (entity : Entity) => {
-						return entity.hasLevelVersion() && entity.levelVersion() < this._version;
-					},
-				},
+			game.entities().findEntities((entity : Entity) => {
+				return entity.hasLevelVersion() && entity.levelVersion() < this._version;
 			}).forEach((entity : Entity) => {
+				console.log(entity);
 				entity.delete();
 			});
 
 			if (isLocalhost()) {
 				console.log("Unloaded level: deleted all entities below current version", this._version);
 			}
-
 		}
 
 		this._rng.reset();

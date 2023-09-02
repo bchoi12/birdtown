@@ -3,24 +3,28 @@
 export enum GameState {
 	UNKNOWN,
 
-	// Loading initial resources to run the game
-	INITIALIZING,
-
 	// Waiting to meet criteria to start a game
-	WAITING,
+	WAIT,
 
-	// All resources loaded, clients answering dialogs
+	// Load level and wait for client input if necessary
 	SETUP,
 	
 	// All setup finished, everyone is gaming
-	GAMING,
+	GAME,
 
 	// Finishing criteria met, game is over and can be reset
-	FINISHING,
+	FINISH,
+
+	// Reached error state and need to restart
+	ERROR,
+
+	// Reached unrecoverable error state and page needs to be fully reloaded
+	FATAL,
 }
 
 export enum GameMode {
 	UNKNOWN,
 
 	DUEL,
+	FREE_FOR_ALL,
 }

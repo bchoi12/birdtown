@@ -116,6 +116,11 @@ class UI {
 	resetKeyBinds() : void { this._inputHandler.reset(); }
 
 	handleMessage(msg : UiMessage) : void {
+		if (!msg.valid()) {
+			console.error("Error: invalid message", msg);
+			return;
+		}
+
 		this._handlers.forEach((handler) => {
 			handler.handleMessage(msg);
 		});

@@ -4,8 +4,8 @@ import { Message, MessageBase, FieldDescriptor } from 'message'
 export enum GameMessageType {
 	UNKNOWN,
 
-	NEW_CLIENT,
-	DISCONNECT_CLIENT,
+	CLIENT_JOIN,
+	CLIENT_DISCONNECT,
 
 	LEVEL_LOAD,
 
@@ -25,11 +25,11 @@ export enum GameProp {
 export class GameMessage extends MessageBase<GameMessageType, GameProp> implements Message<GameMessageType, GameProp> {
 
 	private static readonly _messageDescriptor = new Map<GameMessageType, FieldDescriptor>([
-		[GameMessageType.NEW_CLIENT, MessageBase.fieldDescriptor(
+		[GameMessageType.CLIENT_JOIN, MessageBase.fieldDescriptor(
 			[GameProp.CLIENT_ID, {}],
 			[GameProp.DISPLAY_NAME, {}],
 		)],
-		[GameMessageType.DISCONNECT_CLIENT, MessageBase.fieldDescriptor(
+		[GameMessageType.CLIENT_DISCONNECT, MessageBase.fieldDescriptor(
 			[GameProp.CLIENT_ID, {}],
 		)],
 		[GameMessageType.LEVEL_LOAD, MessageBase.fieldDescriptor(

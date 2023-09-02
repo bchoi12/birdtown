@@ -1,13 +1,15 @@
+
 import { game } from 'game'	
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { EntityFactory } from 'game/factory/entity_factory'
+import { ChildPredicate } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { EntityMap, EntityMapQuery } from 'game/system/entity_map'
 
 export type EntitiesQuery<T extends Entity> = {
-	type? : EntityType;
+	type : EntityType;
 	mapQuery : EntityMapQuery<T>;
 }
 
@@ -36,7 +38,6 @@ export class Entities extends SystemBase implements System {
 	addMap(map : EntityMap) : EntityMap { return this.registerChild<EntityMap>(map.entityType(), map); }
 	hasMap(type : EntityType) : boolean { return this.hasChild(type); }
 	getMap(type : EntityType) : EntityMap { return this.getChild<EntityMap>(type); }
-	unregisterMap(type : EntityType) : void { this.unregisterChild(type); }
 
 	addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : [T, boolean] {
 		if (!EntityFactory.hasCreateFn(type)) {
@@ -84,29 +85,11 @@ export class Entities extends SystemBase implements System {
 		}
 		return [this.getMap(this._idToType.get(id)).getEntity<T>(id), true];
 	}
-	getEntities<T extends Entity>(type : EntityType) : Map<number, T> {
-		if (!this.hasMap(type)) {
-			return new Map();
-		}
-		return this.getMap(type).getEntities<T>();
-	}
-	queryEntities<T extends Entity>(query : EntitiesQuery<T>) : T[] {
-		if (query.type) {
-			if (!this.hasMap(query.type)) {
-				return [];
-			}
-			return this.getMap(query.type).queryEntities(query.mapQuery);
-		}
-
-		const order = this.childOrder();
+	findEntities(predicate : ChildPredicate<Entity>) : Entity[] {
 		let entities = [];
-		for (let i = 0; i < order.length; ++i) {
-			const map = this.getMap(order[i]);
-
-			map.queryEntities(query.mapQuery).forEach((t : T) => {
-				entities.push(t);
-			});
-		}
+		this.execute<EntityMap>((map : EntityMap) => {
+			entities.concat(map.findAll(predicate));
+		});
 		return entities;
 	}
 	deleteEntity(id : number) : void {

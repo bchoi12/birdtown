@@ -10,7 +10,6 @@ import { Html, HtmlWrapper } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { Icon, IconType } from 'ui/util/icon'
 import { ClientWrapper } from 'ui/wrapper/client_wrapper'
-import { VoiceWrapper } from 'ui/wrapper/voice_wrapper'
 
 export class ClientsHandler extends HandlerBase implements Handler {
 
@@ -28,20 +27,34 @@ export class ClientsHandler extends HandlerBase implements Handler {
 	}
 
 	override handleMessage(msg : UiMessage) : void {
-		if (msg.type() !== UiMessageType.CLIENT) {
-			return;
+		if (msg.type() === UiMessageType.CLIENT_JOIN) {
+			const clientId = msg.getProp<number>(UiProp.CLIENT_ID);
+
+			// Support name changes for existing clients
+			if (this._clients.has(clientId)) {
+				this._clients.get(clientId).setDisplayName(msg.getProp<string>(UiProp.DISPLAY_NAME))
+				return;
+			}
+
+			let clientWrapper = new ClientWrapper(msg);
+			this._clientsElm.appendChild(clientWrapper.elm());
+			this._clients.set(clientId, clientWrapper)
+
+			ui.chat(clientWrapper.displayName() + " joined!");
+
+		} else if (msg.type() === UiMessageType.CLIENT_DISCONNECT) {
+			const clientId = msg.getProp<number>(UiProp.CLIENT_ID);
+
+			if (!this._clients.has(clientId)) {
+				return;
+			}
+
+			let clientWrapper = this._clients.get(clientId);
+			ui.chat(clientWrapper.displayName() + " disconnected");
+
+			this._clientsElm.removeChild(clientWrapper.elm());
+			this._clients.delete(clientId);
 		}
-
-		const clientId = msg.getProp<number>(UiProp.CLIENT_ID);
-
-		if (this._clients.has(clientId)) {
-			console.error("Error: skipping duplicate client in UI");
-			return;
-		}
-
-		const clientWrapper = new ClientWrapper(msg);
-		this._clients.set(clientId, clientWrapper)
-		this._clientsElm.appendChild(clientWrapper.elm());
 	}
 
 	hasClient(id : number) : boolean { return this._clients.has(id); }

@@ -7,7 +7,7 @@ import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
 import { NetworkBehavior } from 'network/api'
 
-import { defined } from 'util/common'
+import { defined, isLocalhost } from 'util/common'
 
 export interface System extends GameObject {
 	type() : SystemType;
@@ -49,11 +49,42 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	}
 
 	handleMessage(msg : GameMessage) : void {
-		this.executeCallback<System>((system : System) => {
+		this.execute<System>((system : System) => {
 			if (defined(system.handleMessage)) {
 				system.handleMessage(msg);			
 			}
 		});
+	}
+}
+
+export abstract class ClientSystemManager extends SystemBase implements System {
+
+	constructor(type : SystemType) {
+		super(type);
+	}
+
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		if (msg.type() === GameMessageType.CLIENT_JOIN) {
+			const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
+			if (!this.hasFactoryFn()) {
+				console.error("Error: %s missing FactoryFn for new client %d", this.name(), clientId);
+				return;
+			}
+			let child = <System>this.getFactoryFn()(clientId);
+			child.handleMessage(msg);
+		} else if (msg.type() === GameMessageType.CLIENT_DISCONNECT) {
+			const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
+			if (this.hasChild(clientId)) {
+				let child = this.getChild(clientId);
+				child.delete();
+
+				if (isLocalhost()) {
+					console.log("%s: deleting disconnected %s", this.name(), child.name());
+				}
+			}
+		}
 	}
 }
 
@@ -67,6 +98,7 @@ export abstract class ClientSystem extends SystemBase implements System {
 
 		this.addNameParams({
 			base: "client_system",
+			id: this._clientId,
 		});
 	}
 
@@ -90,6 +122,7 @@ export abstract class ClientSideSystem extends ClientSystem implements System {
 
 		this.addNameParams({
 			base: "client_side_system",
+			id: clientId,
 		});
 	}
 

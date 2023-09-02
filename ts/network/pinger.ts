@@ -30,7 +30,7 @@ export class Pinger {
 	}
 
 	ping() : number { return this._ping; }
-	timeSincePing(peer : string) : number { return this._peerPingTimes.has(peer) ? Math.max(0, Date.now() - this._peerPingTimes.get(peer)) : 0; }
+	millisSincePing(peer : string) : number { return this._peerPingTimes.has(peer) ? Math.max(0, Date.now() - this._peerPingTimes.get(peer)) : 0; }
 
 	initializeForHost(host : Netcode) {
 		if (this._initialized) {

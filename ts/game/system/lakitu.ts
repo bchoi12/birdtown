@@ -159,17 +159,12 @@ export class Lakitu extends SystemBase implements System {
 
 		if (this._mode === LakituMode.SPECTATE) {
 			if (this._playerRateLimiter.check(realMillis)) {
-				game.entities().queryEntities<Player>({
-					type: EntityType.PLAYER,
-					mapQuery: {
-						filter: (player : Player) => {
-							return player.initialized() && !player.deleted();
-						}
-					},
-				}).forEach((player : Player) => {
+				game.entities().getMap(EntityType.PLAYER).executeIf<Player>((player : Player) => {
 					if (!this._players.has(player.id())) {
 						this._players.push(player.id(), player);
 					}
+				}, (player : Player) => {
+					return player.initialized() && !player.deleted();
 				});
 			}
 		}
@@ -245,8 +240,8 @@ export class Lakitu extends SystemBase implements System {
 			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
 			tooltipMsg.setProp<TooltipType>(UiProp.TYPE, TooltipType.SPECTATING);
 			tooltipMsg.setProp<number>(UiProp.TTL, 50);
-			if (game.clientStates().hasClientState(this.targetEntity().clientId())) {
-				tooltipMsg.setProp<Array<string>>(UiProp.NAMES, [game.clientState(this.targetEntity().clientId()).displayName()]);
+			if (game.playerStates().hasPlayerState(this.targetEntity().clientId())) {
+				tooltipMsg.setProp<Array<string>>(UiProp.NAMES, [game.playerState(this.targetEntity().clientId()).displayName()]);
 			}
 			ui.handleMessage(tooltipMsg);
 		}

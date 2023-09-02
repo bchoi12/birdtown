@@ -49,6 +49,7 @@ export class BirdBrain extends Equip<Player> {
 		});
 	}
 
+	override displayName() : string { return "bird brain"; }
 	override attachType() : AttachType { return AttachType.NONE; }
 	override updateInput(input : EquipInput) : boolean {
 		if (this._juice <= 0 || !this.keysIntersect(input.keys)) {

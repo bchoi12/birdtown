@@ -113,6 +113,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	consumeUses() : void { this._consumedUseCounter = this._useCounter; }
 	recoilType() : number { return RecoilType.NONE; }
 
+	abstract displayName() : string;
 	abstract attachType() : AttachType;
 	abstract updateInput(input : EquipInput) : boolean;
 }

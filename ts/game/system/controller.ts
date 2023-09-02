@@ -33,7 +33,7 @@ export class Controller extends SystemBase implements System {
 		});
 
 		this._gameMode = GameMode.UNKNOWN;
-		this._gameState = GameState.WAITING;
+		this._gameState = GameState.UNKNOWN;
 		this._round = 0;
 		this._resetTimer = this.newTimer();
 		this._gameMaker = new Optional();
@@ -55,14 +55,15 @@ export class Controller extends SystemBase implements System {
 		})
 	}
 
-	override ready() : boolean { return super.ready(); }
-
 	override initialize() : void {
 		super.initialize();
 
-		if (this.isHost()) {
-			this._gameMaker.set(new DuelMaker());
+		if (!this.isSource()) {
+			return;
 		}
+
+		this._gameMaker.set(new DuelMaker());
+		this.setGameState(GameState.WAIT);
 	}
 
 	round() : number { return this._round; }
@@ -74,7 +75,7 @@ export class Controller extends SystemBase implements System {
 			console.log("%s: game mode is %s", this.name(), GameMode[mode]);
 		}
 
-		if (this._gameState === GameState.WAITING) {
+		if (this._gameState === GameState.WAIT) {
 			if (this._gameMaker.get().queryAdvance(this._gameState)) {
 				this.advanceGameState();
 				this._round = 1;
@@ -84,7 +85,7 @@ export class Controller extends SystemBase implements System {
 
 	gameState() : GameState { return this._gameState; }
 	advanceGameState() : void {
-		if (this._gameState === GameState.FINISHING) {
+		if (this._gameState === GameState.FINISH) {
 			return;
 		}
 		this.setGameState(this._gameState + 1);
@@ -98,6 +99,15 @@ export class Controller extends SystemBase implements System {
 
 		if (isLocalhost()) {
 			console.log("%s: game state is %s", this.name(), GameState[state]);
+		}
+
+		switch (this._gameState) {
+		case GameState.WAIT:
+			game.level().loadLevel({
+		    	level: LevelType.LOBBY,
+		    	seed: Math.floor(Math.random() * 10000),
+			});
+			break;
 		}
 
 		// Broadcast state change
@@ -117,22 +127,21 @@ export class Controller extends SystemBase implements System {
 			return;
 		}
 
-		if (msg.type() !== GameMessageType.NEW_CLIENT) {
+		if (msg.type() !== GameMessageType.CLIENT_JOIN) {
 			return;
 		}
 
-		if (this._gameState === GameState.WAITING) {
-			const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
-    		let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
-    			clientId: clientId,
-    			profileInit: {
-	    			pos: {x: 1, y: 10},
-    			},
-	    	});
-	    	if (hasPlayer) {
-	    		player.setSpawn({x: 1, y: 10});
-	    	}
-		}
+		// TODO: control spawn with states
+		const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
+		let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
+			clientId: clientId,
+			profileInit: {
+    			pos: {x: 1, y: 10},
+			},
+    	});
+    	if (hasPlayer) {
+    		player.setSpawn({x: 1, y: 10});
+    	}
 	}
 
 	override preUpdate(stepData : StepData) : void {
@@ -141,12 +150,12 @@ export class Controller extends SystemBase implements System {
 		if (!this._gameMaker.has()) { return; }
 
 		// TODO: remove this and generalize better
-		if (this._gameState === GameState.WAITING) {
+		if (this._gameState === GameState.WAIT) {
 			return;
 		}
 
 		// TODO: also generalize reset better
-		if (this._gameState === GameState.FINISHING) {
+		if (this._gameState === GameState.FINISH) {
 			if (!this._resetTimer.hasTimeLeft()) {
 				this._resetTimer.start(1000, () => {
 					this._round++;

@@ -30,13 +30,17 @@ export class LinkedList<T> {
 
 	private _head : LinkedNode<T>;
 	private _tail : LinkedNode<T>;
+	private _size : number;
 
 	constructor() {
 		this._head = null;
 		this._tail = null;
+		this._size = 0;
 	}
 
 	push(value : T) : void {
+		this._size++;
+
 		if (!defined(this._head)) {
 			this._head = new LinkedNode<T>(value);
 			this._tail = this._head;
@@ -49,6 +53,7 @@ export class LinkedList<T> {
 		this._tail = node;
 	}
 
+	size() : number { return this._size; }
 	empty() : boolean { return !defined(this._head); }
 	head() : LinkedNode<T> { return this._head; }
 	tail() : LinkedNode<T> { return this._tail; }

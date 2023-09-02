@@ -44,7 +44,7 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 		});
 		this._entity = entity;
 
-		this.executeCallback<Component>((subComponent : Component, id : number) => {
+		this.execute<Component>((subComponent : Component, id : number) => {
 			this.populateSubComponent(id, subComponent);
 		})
 	}

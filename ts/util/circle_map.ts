@@ -8,13 +8,55 @@ type Node<K, V> = {
 };
 type MatchFn<V> = (value : V) => boolean;
 
+enum StopType {
+	UNKNOWN,
+
+	// Don't stop
+	NONE,
+
+	// Stop after one successful match
+	FIRST,
+
+	// Stop after first N successful matches
+	FIRST_N,
+
+	// Stop after first unsuccessful match
+	UNTIL,
+}
+enum RecordType {
+	UNKNOWN,
+
+	// Don't record
+	NONE,
+
+	// Record number of matches
+	MATCH,
+
+	// Record all executed objects
+	OBJECT,
+}
+type ExecuteParams<K, V> = {
+	execute : (v : V, k : K) => void;
+	predicate : (v : V, k : K) => boolean;
+	stopType : StopType;
+	recordType : RecordType;
+
+	limit? : number;
+}
+type ExecuteResult<K, V> = {
+	matches? : number;
+	objects? : V[];
+}
+
 export class CircleMap<K, V> {
 
+	private _keys : Array<K>;
 	private _map : Map<K, Node<K, V>>;
 	private _head : K;
 	private _tail : K;
 
 	constructor() {
+		this._keys = new Array();
 		this._map = new Map();
 		this._head = null;
 		this._tail = null;
@@ -134,5 +176,126 @@ export class CircleMap<K, V> {
 			this._tail = null;
 			this._head = null;
 		}
+	}
+
+	matchCount(predicate : (v : V, k : K) => boolean) : number {
+		return this.executeHelper({
+			execute: () => {},
+			predicate: predicate,
+			stopType: StopType.NONE,
+			recordType: RecordType.MATCH,
+		}).matches;
+	}
+	matchAll(predicate : (v : V, k : K) => boolean) : boolean {
+		return this.executeHelper({
+			execute: () => {},
+			predicate: predicate,
+			stopType: StopType.UNTIL,
+			recordType: RecordType.MATCH,
+		}).matches === this.size();
+	}
+	matchAny(predicate : (v : V, k : K) => boolean) : boolean {
+		return this.executeHelper({
+			execute: () => {},
+			predicate: predicate,
+			stopType: StopType.FIRST,
+			recordType: RecordType.MATCH,
+		}).matches > 0;
+	}
+
+	findAll(predicate : (v : V, k : K) => boolean) : V[] {
+		return this.executeHelper({
+			execute: () => {},
+			predicate: predicate,
+			stopType: StopType.NONE,
+			recordType: RecordType.OBJECT,
+		}).objects;
+	}
+	findN(predicate : (v : V, k : K) => boolean, limit : number) : V[] {
+		return this.executeHelper({
+			execute: () => {},
+			predicate: predicate,
+			stopType: StopType.FIRST_N,
+			limit: limit,
+			recordType: RecordType.OBJECT,
+		}).objects;
+	}
+
+	execute(fn : (v : V, k : K) => void) : void {
+		this.executeHelper({
+			execute: fn,
+			predicate: () => { return true; },
+			stopType: StopType.NONE,
+			recordType: RecordType.NONE,
+		})
+	}
+	executeIf(fn: (v : V, k : K) => void, predicate : (v : V, k : K) => boolean) : void {
+		this.executeHelper({
+			execute: fn,
+			predicate: predicate,
+			stopType: StopType.NONE,
+			recordType: RecordType.NONE,
+		});
+	}
+	executeFirst(fn: (v : V, k : K) => void, predicate : (v : V, k : K) => boolean) : void {
+		this.executeHelper({
+			execute: fn,
+			predicate: predicate,
+			stopType: StopType.FIRST,
+			recordType: RecordType.NONE,
+		});
+	}
+
+	private executeHelper(executeParams : ExecuteParams<K, V>) : ExecuteResult<K, V> {
+		let current = this.head();
+		let matches = 0;
+		let iter = 0;
+
+		const stopType = executeParams.stopType;
+		const recordType = executeParams.recordType;
+
+		let result : ExecuteResult<K, V> = {};
+		if (recordType === RecordType.MATCH) {
+			result.matches = 0;
+		} else if (recordType === RecordType.OBJECT) {
+			result.objects = [];
+		}
+
+		while (this.has(current)) {
+			if (executeParams.predicate(this.get(current), current)) {
+				executeParams.execute(this.get(current), current);
+				matches++;
+
+				if (recordType === RecordType.OBJECT) {
+					result.objects.push(this.get(current));
+				}
+
+				if (stopType === StopType.FIRST) {
+					break;
+				} else if (stopType === StopType.FIRST_N && matches >= executeParams.limit) {
+					break;
+				}
+			} else {
+				if (stopType === StopType.UNTIL) {
+					break;
+				}
+			}
+
+			iter++;
+			if (iter === this.size()) {
+				break;
+			}
+
+			current = this.next(current);
+			if (current === this.head()) {
+				break;
+			}
+		}
+
+		if (recordType === RecordType.MATCH) {
+			result.matches = matches;
+		}
+
+		return result;
 	}
 }

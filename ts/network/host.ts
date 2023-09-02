@@ -1,4 +1,6 @@
-import { Peer } from 'peerjs'
+import { Peer, DataConnection } from 'peerjs'
+
+import { game } from 'game'
 
 import { ChannelType } from 'network/api'
 import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
@@ -18,11 +20,10 @@ export class Host extends Netcode {
 		super.initialize();
 
 		let peer = this.peer();
-
 		peer.on("open", () => {
 			console.log("Opened host connection for " + peer.id);
 
-		    peer.on("connection", (connection) => {
+		    peer.on("connection", (connection : DataConnection) => {
 		    	connection.on("open", () => {
 			    	this.register(connection);
 		    	});
@@ -33,7 +34,7 @@ export class Host extends Netcode {
 		    })
 
 		    peer.on("error", (error) => {
-		    	// TODO: actually do something
+		    	// TODO: add something to UI or controller error state
 		    	console.error(error);
 		    });
 
@@ -45,6 +46,8 @@ export class Host extends Netcode {
 		peer.on("disconnected", () => {
 			peer.reconnect();
 		});
+
+		game.setClientId(1);
 	}
 
 	private registerCallbacks() : void {
@@ -65,7 +68,7 @@ export class Host extends Netcode {
 				let voiceMapMsg = new NetworkMessage(NetworkMessageType.VOICE_MAP);
 				voiceMapMsg.setProp<Object>(NetworkProp.CLIENT_MAP, Object.fromEntries(this.getVoiceMap()));
 				this.send(msg.name(), ChannelType.TCP, voiceMapMsg);
-				this.sendMessage(connection.displayName() + " joined voice chat");
+				this.sendMessage(connection.displayName() + " hopped into voice chat");
 			} else {
 				this.closeMediaConnection(msg.getProp<number>(NetworkProp.CLIENT_ID));
 			}
@@ -88,7 +91,7 @@ export class Host extends Netcode {
 		this.broadcast(ChannelType.TCP, outgoing);
 
 		if (this._voiceEnabled) {
-			this.sendMessage(this.displayName() + " joined voice chat");
+			this.sendMessage(this.displayName() + " hopped into voice chat");
 			this.callAll(this.getVoiceMap());
 		} else {
 			this.closeMediaConnections();

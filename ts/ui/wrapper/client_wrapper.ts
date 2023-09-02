@@ -1,5 +1,4 @@
 
-
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
@@ -10,16 +9,22 @@ import { Vec } from 'util/vector'
 
 export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 
+	private _nameElm : HTMLElement;
 	private _voiceWrapper : VoiceWrapper;
 
 	constructor(msg : UiMessage) {
 		super(Html.div());
 
-		this.elm().textContent = msg.getProp<string>(UiProp.DISPLAY_NAME);
+		this._nameElm = Html.span();
+		this.setDisplayName(msg.getPropOr<string>(UiProp.DISPLAY_NAME, "unknown"));
+		this.elm().appendChild(this._nameElm);
 
 		this._voiceWrapper = new VoiceWrapper(msg);
 		this.elm().appendChild(this._voiceWrapper.elm());
 	}
+
+	setDisplayName(displayName : string) : void {this._nameElm.textContent = displayName; }
+	displayName() : string { return this._nameElm.textContent; }
 
 	addStream(stream : MediaStream) : void {
 		this._voiceWrapper.enable(stream);

@@ -14,6 +14,8 @@ import { Lakitu } from 'game/system/lakitu'
 import { Level } from 'game/system/level'
 import { Physics } from 'game/system/physics'
 import { Pipeline } from 'game/system/pipeline'
+import { PlayerState } from 'game/system/player_state'
+import { PlayerStates } from 'game/system/player_states'
 import { Runner } from 'game/system/runner'
 import { World } from 'game/system/world'
 
@@ -37,7 +39,6 @@ import { NumberRingBuffer } from 'util/number_ring_buffer'
 interface GameOptions {
 	displayName : string;
 	hostName : string;
-
 	host : boolean;
 }
 
@@ -68,6 +69,7 @@ class Game {
 	private _level : Level;
 	private _physics : Physics;
 	private _pipeline : Pipeline;
+	private _playerStates : PlayerStates;
 	private _world : World;
 
 	constructor() {
@@ -93,14 +95,16 @@ class Game {
 		this._input = new Input();
 		this._level = new Level();
 		this._physics = new Physics();
+		this._playerStates = new PlayerStates();
 
 		this._world = new World(this._engine);
 		this._lakitu = new Lakitu(this._world.scene());
 		this._pipeline = new Pipeline(this._engine, this._world.scene(), this._lakitu.camera());
 
-		// Order of insertion becomes order of execution
+		// Order of insertion is order of execution
 		this._runner.push(this._clientStates);
 		this._runner.push(this._controller);
+		this._runner.push(this._playerStates);
 		this._runner.push(this._level);
 		this._runner.push(this._input);
 		this._runner.push(this._entities);
@@ -121,7 +125,7 @@ class Game {
 				networkMsg.setProp<number>(NetworkProp.CLIENT_ID, clientId);
 				this._netcode.send(connection.name(), ChannelType.TCP, networkMsg);
 
-				let gameMsg = new GameMessage(GameMessageType.NEW_CLIENT);
+				let gameMsg = new GameMessage(GameMessageType.CLIENT_JOIN);
 				gameMsg.setProp(GameProp.CLIENT_ID, clientId);
 				gameMsg.setProp(GameProp.DISPLAY_NAME, connection.displayName());
 				this.handleMessage(gameMsg);
@@ -133,25 +137,17 @@ class Game {
 		} else {
 			this._netcode = new Client(this._options.hostName, this._options.displayName);
 			this._netcode.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
-				this.setClientId(msg.getProp<number>(NetworkProp.CLIENT_ID));
+				const clientId = msg.getProp<number>(NetworkProp.CLIENT_ID);
 				if (isLocalhost()) {
-					console.log("Got client id", this.clientId());
+					console.log("Got client id", clientId);
 				}
+				this.setClientId(clientId);
 			});
 		}
 		this._netcode.addMessageCallback(NetworkMessageType.GAME, (msg : NetworkMessage) => {
 			this._runner.importData(msg.getProp(NetworkProp.DATA), msg.getProp<number>(NetworkProp.SEQ_NUM));
 		});
 		this._netcode.initialize();
-
-	    if (this._options.host) {
-	    	this.setClientId(1);
-		    this._level.loadLevel({
-		    	level: LevelType.LOBBY,
-		    	seed: Math.floor(Math.random() * 10000) + 1,
-		    });	
-	    }
-
 	    this._engine.runRenderLoop(() => {
 	    	const frameStart = Date.now();
 
@@ -186,7 +182,7 @@ class Game {
 		this._clientId = clientId;
 		this._netcode.setClientId(clientId);
 
-		let gameMsg = new GameMessage(GameMessageType.NEW_CLIENT);
+		let gameMsg = new GameMessage(GameMessageType.CLIENT_JOIN);
 		gameMsg.setProp(GameProp.CLIENT_ID, clientId);
 		gameMsg.setProp(GameProp.DISPLAY_NAME, this._netcode.displayName());
     	this.handleMessage(gameMsg);
@@ -208,22 +204,31 @@ class Game {
 	averageFrameTime() : number { return this._frameTimes.average(); }
 
 	getSystem<T extends System>(type : SystemType) : T { return this._runner.getSystem<T>(type); }
-	handleMessage(msg : GameMessage) : void { this._runner.handleMessage(msg); }
+	handleMessage(msg : GameMessage) : void {
+		if (!msg.valid()) {
+			console.error("Error: invalid message", msg);
+			return;
+		}
+		this._runner.handleMessage(msg);
+	}
 
 	// Easy access for commonly used systems
 	runner() : Runner { return this._runner; }
 	scene() : BABYLON.Scene { return this._world.scene(); }
 	engine() : BABYLON.Engine { return this._engine; }
+	netcode() : Netcode { return this._netcode; }
+
 	audio() : Audio { return this._audio; }
 	clientStates() : ClientStates { return this._clientStates; }
 	clientState(id? : number) : ClientState { return this._clientStates.getClientState(id); }
 	controller() : Controller { return this._controller; }
+	entities() : Entities { return this._entities; }
+	keys(id? : number) : Keys { return this._input.getKeys(id); }
+	lakitu() : Lakitu { return this._lakitu; }
 	level() : Level { return this._level; }
 	physics() : Physics { return this._physics; }
-	lakitu() : Lakitu { return this._lakitu; }
-	keys(id? : number) : Keys { return this._input.getKeys(id); }
-	entities() : Entities { return this._entities; }
-	netcode() : Netcode { return this._netcode; }
+	playerStates() : PlayerStates { return this._playerStates; }
+	playerState(id? : number) : PlayerState { return this._playerStates.getPlayerState(id); }
 	world() : World { return this._world; }
 }
 

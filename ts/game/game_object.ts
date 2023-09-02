@@ -8,6 +8,7 @@ import { DataMap } from 'message'
 
 import { NetworkBehavior } from 'network/api'
 
+import { CircleMap } from 'util/circle_map'
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
 
@@ -41,7 +42,8 @@ export type StepData = {
 }
 
 export type FactoryFn = (id : number) => GameObject
-export type ChildCallback<T extends GameObject> = (child : T, id : number) => void;
+export type ChildPredicate<T extends GameObject> = (child : T, id : number) => boolean;
+export type ChildExecute<T extends GameObject> = (child : T, id : number) => void;
 
 type DataBuffer = {
 	seqNum : number;
@@ -77,17 +79,20 @@ export interface GameObject {
 	addLocalObject<T extends GameObject>(local : T) : T;
 	addProp<T extends Object>(handler : PropHandler<T>);
 	registerProp<T extends Object>(prop : number, handler : PropHandler<T>);
-	setFactoryFn(factoryFn : FactoryFn) : void;
+	hasFactoryFn() : boolean;
 	getFactoryFn() : FactoryFn;
+	setFactoryFn(factoryFn : FactoryFn) : void;
 	addChild<T extends GameObject>(child : T) : T;
 	registerChild<T extends GameObject>(id : number, child : T) : T;
 	hasChild(id : number) : boolean;
 	getChild<T extends GameObject>(id : number) : T;
-	queryChildren<T extends GameObject>(predicate : (t : T) => boolean) : boolean;
 	unregisterChild(id : number) : void;
-	childOrder() : Array<number>;
-	executeCallback<T extends GameObject>(cb : ChildCallback<T>) : void;
-	getChildren<T extends GameObject>() : Map<number, T>;
+
+	findAll<T extends GameObject>(predicate : (t : T) => boolean) : T[];
+	findN<T extends GameObject>(predicate : (t : T) => boolean, limit : number) : T[];
+	matchAll<T extends GameObject>(predicate : (t : T) => boolean) : boolean;
+	execute<T extends GameObject>(execute : ChildExecute<T>) : void;
+	executeIf<T extends GameObject>(execute : ChildExecute<T>, predicate : (t : T) => boolean) : void;
 
 	newTimer() : Timer;
 
@@ -117,8 +122,7 @@ export abstract class GameObjectBase {
 	protected _localObjects : Array<GameObject>;
 	protected _data : GameData;
 	protected _propHandlers : Map<number, PropHandler<Object>>;
-	protected _childOrder : Array<number>;
-	protected _childObjects : Map<number, GameObject>;
+	protected _childObjects : CircleMap<number, GameObject>;
 	protected _dataBuffers : Map<number, Array<DataBuffer>>;
 
 	protected _timers : Array<Timer>;
@@ -139,8 +143,7 @@ export abstract class GameObjectBase {
 		this._localObjects = new Array();
 		this._data = new GameData();
 		this._propHandlers = new Map();
-		this._childOrder = new Array();
-		this._childObjects = new Map();
+		this._childObjects = new CircleMap();
 		this._dataBuffers = new Map();
 
 		this._timers = new Array();
@@ -283,12 +286,13 @@ export abstract class GameObjectBase {
 		});
 	}
 	cleanup() : void {
-		this.updateObjects((obj : GameObject) => {
+		this.updateObjects((obj : GameObject, id : number) => {
 			if (obj.initialized()) {
 				obj.cleanup();
 
 				if (obj.deleted()) {
 					obj.dispose();
+					this.unregisterChild(id);
 				}
 			}
 		});
@@ -321,8 +325,9 @@ export abstract class GameObjectBase {
 		this._propHandlers.set(prop, handler);
 	}
 
-	setFactoryFn(factoryFn : FactoryFn) : void { this._factoryFn = factoryFn; }
+	hasFactoryFn() : boolean { return defined(this._factoryFn); }
 	getFactoryFn() : FactoryFn { return this._factoryFn; }
+	setFactoryFn(factoryFn : FactoryFn) : void { this._factoryFn = factoryFn; }
 
 	addChild<T extends GameObject>(child : T) : T {
 		return this.registerChild(this.numChildren() + 1, child);
@@ -344,40 +349,23 @@ export abstract class GameObjectBase {
 			this._dataBuffers.delete(id);
 		}
 
-		this._childObjects.set(id, child);
-		this._childOrder.push(id);
+		this._childObjects.push(id, child);
 		return child;
 	}
 	hasChild(id : number) : boolean { return this._childObjects.has(id); }
 	getChild<T extends GameObject>(id : number) : T { return <T>this._childObjects.get(id); }
-	queryChildren<T extends GameObject>(predicate : (t : T) => boolean) : boolean {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			const child = this.getChild<T>(this._childOrder[i]);
-			if (!predicate(child)) {
-				return false;
-			}
-		}
-		return true;
-	}
 	unregisterChild(id : number) : void {
 		if (!this.hasChild(id)) {
 			return;
 		}
-
-		const index = this._childOrder.indexOf(id);
-		if (index !== -1) {
-			this._childOrder.splice(index, 1);
-		}
 		this._childObjects.delete(id);
 	}
 
-	childOrder() : Array<number> { return this._childOrder; }
-	executeCallback<T extends GameObject>(cb : ChildCallback<T>) : void {
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			cb(this.getChild<T>(this._childOrder[i]), this._childOrder[i]);
-		}
-	}
-	getChildren<T extends GameObject>() : Map<number, T> { return <Map<number, T>>this._childObjects; }
+	findAll<T extends GameObject>(predicate : ChildPredicate<T>) : T[] { return <T[]>this._childObjects.findAll(predicate); }
+	findN<T extends GameObject>(predicate : ChildPredicate<T>, limit : number) : T[] { return <T[]>this._childObjects.findN(predicate, limit); }
+	matchAll<T extends GameObject>(predicate : ChildPredicate<T>) : boolean { return this._childObjects.matchAll(predicate); }
+	execute<T extends GameObject>(execute : ChildExecute<T>) : void { this._childObjects.execute(execute); }
+	executeIf<T extends GameObject>(execute : ChildExecute<T>, predicate : ChildPredicate<T>) : void { this._childObjects.executeIf(execute, predicate); }
 
 	newTimer() : Timer {
 		let timer = new Timer();
@@ -406,14 +394,11 @@ export abstract class GameObjectBase {
 		}
 
 		let data = this._data.toObject();
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let id = this._childOrder[i];
-			let child = this.getChild(this._childOrder[i]);
-
+		this._childObjects.execute((child : GameObject, id : number) => {
 			const prop = this.idToProp(id);
 			const childData = child.toDataMap();
 			data[prop] = childData;
-		};
+		});
 		return data;
 	}
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean] {
@@ -422,18 +407,14 @@ export abstract class GameObjectBase {
 		}
 
 		let [data, hasData] = this.shouldBroadcast() ? this._data.filtered(filter, seqNum) : [{}, false];
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let id = this._childOrder[i];
-			let child = this.getChild(this._childOrder[i]);
-
+		this._childObjects.execute((child : GameObject, id : number) => {
 			const prop = this.idToProp(id);
 			const [childData, childHasData] = child.dataMap(filter, seqNum);
 			if (childHasData) {
 				data[prop] = childData;
 				hasData = true;
 			}
-		};
-
+		});
 		return [data, hasData];
 	}
 
@@ -475,9 +456,9 @@ export abstract class GameObjectBase {
 			});
 		}
 
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			this.getChild(this._childOrder[i]).updateData(seqNum);
-		};
+		this._childObjects.execute((obj : GameObject) => {
+			obj.updateData(seqNum);
+		});
 	}
 
 	importData(data : DataMap, seqNum : number) : void {
@@ -530,16 +511,16 @@ export abstract class GameObjectBase {
 	protected propToId(prop : number) : number { return prop - this.numProps(); }
 	protected isProp(key : number) : boolean { return key <= this.numProps(); }
 	protected numProps() : number { return this._propHandlers.size; }
-	protected numChildren() : number { return this._childObjects.size; }
+	protected numChildren() : number { return this._childObjects.size(); }
 
-	private updateObjects<T extends GameObject>(update : (obj : T) => void) : void {
+	private updateObjects<T extends GameObject>(update : (obj : T, id : number) => void) : void {
 		for (let i = 0; i < this._localObjects.length; ++i) {
 			let obj = <T>this._localObjects[i];
-			update(obj);
+			update(obj, i);
 		}
-		for (let i = 0; i < this._childOrder.length; ++i) {
-			let obj = this.getChild<T>(this._childOrder[i]);
-			update(obj);
-		}
+
+		this._childObjects.execute((child : GameObject, id : number) => {
+			update(<T>child, id);
+		});
 	}
 }

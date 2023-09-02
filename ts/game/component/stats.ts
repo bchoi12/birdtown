@@ -28,7 +28,7 @@ export class Stats extends ComponentBase implements Component {
 	}
 
 	reset() : void {
-		this.executeCallback<Stat>((stat : Stat, type : StatType) => {
+		this.execute<Stat>((stat : Stat, type : StatType) => {
 			stat.reset();
 			stat.clearBoosts();
 		});
@@ -41,7 +41,7 @@ export class Stats extends ComponentBase implements Component {
 
 		let modifiers = <Modifiers>component;
 		modifiers.applyTo(this);
-		this.executeCallback<Stat>((stat : Stat) => {
+		this.execute<Stat>((stat : Stat) => {
 			stat.boost();
 		});
 	}

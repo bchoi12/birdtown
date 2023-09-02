@@ -30,7 +30,7 @@ export class ChannelMap {
 			return;
 		}
 		if (isLocalhost()) {
-			console.log("Deleting " + type + " channel to " + this._channels.get(type).peer);
+			console.log("Deleting %s channel to %s ", ChannelType[type], this._channels.get(type).peer);
 		}
 
 		this._channels.delete(type);

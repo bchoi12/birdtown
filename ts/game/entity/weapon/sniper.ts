@@ -30,6 +30,7 @@ export class Sniper extends Weapon {
 		this._attributes.setAttribute(AttributeType.READY, true);
 	}
 
+	override displayName() : string { return "thonker"; }
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.SMALL; }
 	override meshType() : MeshType { return MeshType.SNIPER; }

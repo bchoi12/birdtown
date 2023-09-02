@@ -102,14 +102,14 @@ export class Runner extends SystemBase implements System  {
 		}
 
 		switch(msg.type()) {
-		case GameMessageType.NEW_CLIENT:
+		case GameMessageType.CLIENT_JOIN:
 		case GameMessageType.LEVEL_LOAD:
 			this._sendFullMsg = true;
 			break;
 		case GameMessageType.GAME_STATE:
 			const state = msg.getProp<GameState>(GameProp.STATE);
 			switch (state) {
-			case GameState.FINISHING:
+			case GameState.FINISH:
 				this._updateSpeed = 0.3;
 				break;
 			default:

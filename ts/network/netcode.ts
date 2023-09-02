@@ -2,7 +2,8 @@ import { encode, decode } from '@msgpack/msgpack'
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
 import { game } from 'game'
-import { ClientConnectionState } from 'game/system/api'
+
+import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
 import { ChannelType } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
@@ -24,6 +25,9 @@ type RegisterCallback = (connection : Connection) => void;
 type MessageCallback = (message : NetworkMessage) => void;
 
 export abstract class Netcode {
+
+	private static readonly _pingTimeoutMillis = 10000;
+
 	private static readonly _validChannels : DoubleMap<ChannelType, string> = DoubleMap.fromEntries([
 		[ChannelType.TCP, "TCP"],
 		[ChannelType.UDP, "UDP"],
@@ -172,7 +176,7 @@ export abstract class Netcode {
 				return;
 			}
 
-			if (this._pinger.timeSincePing(name) >= 10000) {
+			if (this._pinger.millisSincePing(name) >= Netcode._pingTimeoutMillis) {
 				console.error("Connection to " + name + " timed out");
 				this.disconnect(name);
 			}
@@ -388,7 +392,9 @@ export abstract class Netcode {
 			connection.disconnect();
 
 			if (connection.hasClientId()) {
-				game.clientState(connection.clientId()).setConnectionState(ClientConnectionState.DISCONNECTED);
+				let msg = new GameMessage(GameMessageType.CLIENT_DISCONNECT);
+				msg.setProp<number>(GameProp.CLIENT_ID, connection.clientId());
+				game.handleMessage(msg);
 			}
 		}
 	}

@@ -32,9 +32,9 @@ export class EntityMap extends SystemBase implements System {
 	override reset() : void {
 		super.reset();
 
-		this.getChildren().forEach((_, id : number) => {
+		this.execute<EntityMap>((_, id : number) => {
 			this.unregisterEntity(id);
-		});
+		})
 	}
 
 	entityType() : EntityType { return this._entityType; }
@@ -44,29 +44,17 @@ export class EntityMap extends SystemBase implements System {
 	}
 	hasEntity(id : number) : boolean { return this.hasChild(id); }
 	getEntity<T extends Entity>(id : number) : T { return this.getChild<T>(id); }
-	getEntities<T extends Entity>() : Map<number, T> { return this.getChildren<T>(); }
 	queryEntities<T extends Entity>(query : EntityMapQuery<T>) : T[] {
-		let entities = [];
-
-		const order = this.childOrder();
-		for (let i = 0; i < order.length; ++i) {
-			const entity = this.getChild<T>(order[i]);
-
+		return <T[]>this.findN<Entity>((entity : T) => {
 			if (entity.deleted() || !entity.initialized()) {
-				continue;
+				return false;
 			}
 			if (query.filter && !query.filter(entity)) {
-				continue;
+				return false;
 			}
-
-			entities.push(entity);
-			if (query.limit && entities.length >= query.limit) {
-				break;
-			}
-		}
-
-		return entities;
+		}, query.limit);
 	}
+
 	deleteEntity(id : number) : void {
 		if (!this.hasEntity(id)) {
 			return;

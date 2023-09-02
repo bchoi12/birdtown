@@ -28,10 +28,10 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 
 	override queryAdvance(current : GameState) : boolean {
 		switch (current) {
-		case GameState.WAITING:
+		case GameState.WAIT:
 			this._players = this.queryPlayers();
 			break;
-		case GameState.GAMING:
+		case GameState.GAME:
 			this._players = this.queryPlayers();
 			break;
 		}
@@ -41,13 +41,13 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 
 	override canAdvance(current : GameState) : boolean {
 		switch (current) {
-		case GameState.WAITING:
+		case GameState.WAIT:
 			return this._players.length >= 2;
 		case GameState.SETUP:
-			return game.clientStates().queryClientStates((client : ClientState) => {
+			return game.clientStates().matchAll<ClientState>((client : ClientState) => {
 				return client.gameState() > GameState.SETUP;
 			});
-		case GameState.GAMING:
+		case GameState.GAME:
 			let alive = 0;
 			for (const player of this._players) {
 				if (!player.dead()) {
@@ -55,7 +55,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 				}
 			}
 			return alive <= 1;
-		case GameState.FINISHING:
+		case GameState.FINISH:
 			return false;
 		}
 
@@ -78,7 +78,7 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 				player.setDeactivated(true);
 			});
 			break;
-		case GameState.GAMING:
+		case GameState.GAME:
 			this._players = this.queryPlayers();
 			this._spawnPoints = this.querySpawnPoints();
 
@@ -97,20 +97,14 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 	}
 
 	private queryPlayers() : Array<Player> {
-		return game.entities().queryEntities<Player>({
-			type: EntityType.PLAYER,
-			mapQuery: {
-				filter: (player : Player) => { return player.initialized(); },
-			},
+		return game.entities().getMap(EntityType.PLAYER).findAll<Player>((player : Player) => {
+			return player.initialized();
 		});
 	}
 
 	private querySpawnPoints() : Array<SpawnPoint> {
-		return game.entities().queryEntities<SpawnPoint>({
-			type: EntityType.SPAWN_POINT,
-			mapQuery: {
-				filter: (spawnPoint : SpawnPoint) => { return spawnPoint.initialized(); },
-			},
+		return game.entities().getMap(EntityType.SPAWN_POINT).findAll<SpawnPoint>((spawn : SpawnPoint) => {
+			return spawn.initialized();
 		});
 	}
 }

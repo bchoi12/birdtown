@@ -32,6 +32,7 @@ export class Bazooka extends Weapon {
 		this._attributes.setAttribute(AttributeType.READY, true);
 	}
 
+	override displayName() : string { return "booty blaster 3000"; }
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }

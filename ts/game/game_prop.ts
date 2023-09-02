@@ -1,7 +1,7 @@
 
 import { GameData, DataFilter } from 'game/game_data'
 
-import { defined, assignOr } from 'util/common'
+import { assignOr } from 'util/common'
 import { Optional } from 'util/optional'
 
 export type GamePropOptions<T extends Object> = {
@@ -65,7 +65,7 @@ export class GameProp<T extends Object> {
 
 	private static equals(a : Object, b : Object) : boolean {
 		if (a === b) return true;
-		if (!defined(a) || !defined(b)) return false;
+		if (a === null || b === null) return false;
 		if (a !== Object(a) && b !== Object(b)) {
 			if (!Number.isNaN(a) && !Number.isNaN(b)) {
 				return GameProp.numberEquals(<number>a, <number>b);
@@ -112,7 +112,7 @@ export class GameProp<T extends Object> {
 		if (seqNum < this._seqNum) {
 			return false;
 		}
-		if (!defined(value)) {
+		if (value === null) {
 			return false;
 		}
 
@@ -129,7 +129,7 @@ export class GameProp<T extends Object> {
 	}
 
 	rollback(value : T, seqNum : number) : boolean {
-		if (!defined(value)) {
+		if (value === null) {
 			return false;
 		}
 
