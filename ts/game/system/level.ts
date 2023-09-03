@@ -88,7 +88,6 @@ export class Level extends SystemBase implements System {
 			game.entities().findEntities((entity : Entity) => {
 				return entity.hasLevelVersion() && entity.levelVersion() < this._version;
 			}).forEach((entity : Entity) => {
-				console.log(entity);
 				entity.delete();
 			});
 

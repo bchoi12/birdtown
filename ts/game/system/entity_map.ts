@@ -4,12 +4,6 @@ import { EntityType } from 'game/entity/api'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 
-export type EntityFilter<T extends Entity> = (entity : T) => boolean;
-export type EntityMapQuery<T extends Entity> = {
-	filter? : EntityFilter<T>;
-	limit? : number;
-}
-
 export class EntityMap extends SystemBase implements System {
 	private _entityType : EntityType;
 
@@ -44,17 +38,6 @@ export class EntityMap extends SystemBase implements System {
 	}
 	hasEntity(id : number) : boolean { return this.hasChild(id); }
 	getEntity<T extends Entity>(id : number) : T { return this.getChild<T>(id); }
-	queryEntities<T extends Entity>(query : EntityMapQuery<T>) : T[] {
-		return <T[]>this.findN<Entity>((entity : T) => {
-			if (entity.deleted() || !entity.initialized()) {
-				return false;
-			}
-			if (query.filter && !query.filter(entity)) {
-				return false;
-			}
-		}, query.limit);
-	}
-
 	deleteEntity(id : number) : void {
 		if (!this.hasEntity(id)) {
 			return;

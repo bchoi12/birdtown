@@ -6,12 +6,7 @@ import { EntityFactory } from 'game/factory/entity_factory'
 import { ChildPredicate } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
-import { EntityMap, EntityMapQuery } from 'game/system/entity_map'
-
-export type EntitiesQuery<T extends Entity> = {
-	type : EntityType;
-	mapQuery : EntityMapQuery<T>;
-}
+import { EntityMap } from 'game/system/entity_map'
 
 export class Entities extends SystemBase implements System {
 
@@ -86,9 +81,9 @@ export class Entities extends SystemBase implements System {
 		return [this.getMap(this._idToType.get(id)).getEntity<T>(id), true];
 	}
 	findEntities(predicate : ChildPredicate<Entity>) : Entity[] {
-		let entities = [];
+		let entities : Entity[] = [];
 		this.execute<EntityMap>((map : EntityMap) => {
-			entities.concat(map.findAll(predicate));
+			entities.push(...map.findAll(predicate));
 		});
 		return entities;
 	}

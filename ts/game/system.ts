@@ -13,8 +13,9 @@ export interface System extends GameObject {
 	type() : SystemType;
 
 	hasTargetEntity() : boolean;
-	targetEntity() : Entity;
-	setTargetEntity(entity : Entity) : void;
+	targetEntity<T extends Entity>() : T;
+	setTargetEntity<T extends Entity>(entity : T) : void;
+	clearTargetEntity() : void;
 
 	handleMessage(msg : GameMessage) : void;
 }
@@ -34,8 +35,8 @@ export abstract class SystemBase extends GameObjectBase implements System {
 
 	type() : SystemType { return this._type; }
 	hasTargetEntity() : boolean { return defined(this._targetEntity); }
-	targetEntity() : Entity { return this._targetEntity; }
-	setTargetEntity(entity : Entity) : void {
+	targetEntity<T extends Entity>() : T { return <T>this._targetEntity; }
+	setTargetEntity<T extends Entity>(entity : T) : void {
 		this._targetEntity = entity;
 		this.addNameParams({
 			target: entity,

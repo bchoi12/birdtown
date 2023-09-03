@@ -130,18 +130,6 @@ export class Controller extends SystemBase implements System {
 		if (msg.type() !== GameMessageType.CLIENT_JOIN) {
 			return;
 		}
-
-		// TODO: control spawn with states
-		const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
-		let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
-			clientId: clientId,
-			profileInit: {
-    			pos: {x: 1, y: 10},
-			},
-    	});
-    	if (hasPlayer) {
-    		player.setSpawn({x: 1, y: 10});
-    	}
 	}
 
 	override preUpdate(stepData : StepData) : void {
