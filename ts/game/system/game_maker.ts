@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 import { GameMode, GameState } from 'game/api'
+import { EntityType } from 'game/entity/api'
+import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { SystemBase, System } from 'game/system'
 import { SystemType, LevelType } from 'game/system/api'
@@ -8,6 +10,7 @@ import { Controller } from 'game/system/controller'
 import { ClientSetup } from 'game/system/game_maker/client_setup'
 import { GameSetup, GameConfig } from 'game/system/game_maker/game_setup'
 import { PlayerState } from 'game/system/player_state'
+import { EntityQuery } from 'game/util/entity_query'
 
 import { GameMessage, GameMessageType, GameProp} from 'message/game_message'
 import { GameConfigMessage, GameConfigProp } from 'message/game_config_message'
@@ -26,6 +29,7 @@ export class GameMaker extends SystemBase implements System {
 
 	private _config : GameConfigMessage;
 	private _clientSetup : ClientSetup;
+	private _entityQuery : EntityQuery;
 
 	private _round : number;
 	private _lastStateChange : number;
@@ -38,6 +42,7 @@ export class GameMaker extends SystemBase implements System {
 
 		this._config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
 		this._clientSetup = new ClientSetup(250);
+		this._entityQuery = new EntityQuery();
 		this._round = 0;
 		this._lastStateChange = Date.now();
 
@@ -47,6 +52,7 @@ export class GameMaker extends SystemBase implements System {
 			import: (obj : Object) => { this._config.parseObject(obj); },
 			options: {
 				filters: GameData.tcpFilters,
+				equals: (a : Object, b : Object) => { return false; },
 			},
 		});
 		this.addProp<number>({
@@ -121,12 +127,25 @@ export class GameMaker extends SystemBase implements System {
 			if (this.timeLimitReached(GameConfigProp.TIME_SETUP)) {
 				return GameState.GAME;
 			}
+			if (game.clientDialogs().inSync()) {
+				return GameState.GAME;
+			}
 			break;
 		case GameState.GAME:
 			if (this.timeLimitReached(GameConfigProp.TIME_GAME)) {
 				return GameState.FINISH;
 			}
-			// TODO: check num alive
+			const alive = this._entityQuery.filter<Player>(EntityType.PLAYER, (player : Player) => {
+				return !player.dead();
+			});
+
+			// TODO: add points, set winner, whatever
+			if (alive.length === 0) {
+				return GameState.FINISH;
+			} else if (alive.length === 1) {
+				return GameState.FINISH;
+			}
+
 			break;
 		case GameState.FINISH:
 			if (this.timeLimitReached(GameConfigProp.TIME_FINISH)) {
@@ -163,12 +182,20 @@ export class GameMaker extends SystemBase implements System {
 			break;
 		case GameState.SETUP:
 			this._round++;
+			this._entityQuery.registerQuery(EntityType.PLAYER, {
+				query: (player : Player) => { return player.canStep(); },
+				maxStaleness: 250,
+			});
 
 			let birdtownMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
 			birdtownMsg.set(GameProp.TYPE, LevelType.BIRDTOWN);
 			birdtownMsg.set(GameProp.SEED, Math.floor(Math.random() * 10000));
 			birdtownMsg.set(GameProp.VERSION, game.level().version() + 1);
 			game.level().loadLevel(birdtownMsg);
+
+			this._entityQuery.query<Player>(EntityType.PLAYER).forEach((player : Player) => {
+				game.level().spawnPlayer(player);
+			});
 
 			if (this._round === 1) {
 		    	let uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
@@ -178,7 +205,10 @@ export class GameMaker extends SystemBase implements System {
 			}
 			break;
 		case GameState.GAME:
-			// TODO: Respawn players
+			// Respawn again to reflect loadout changes
+			this._entityQuery.query<Player>(EntityType.PLAYER).forEach((player : Player) => {
+				game.level().spawnPlayer(player);
+			});
 			break;
 		}
 	}

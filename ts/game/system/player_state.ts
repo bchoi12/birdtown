@@ -21,6 +21,7 @@ export class PlayerState extends ClientSystem implements System {
 	private static readonly _respawnTime = 2000;
 
 	private _role : PlayerRole;
+	private _points : number;
 	private _displayName : string;
 
 	private _respawnTimer : Timer;
@@ -34,6 +35,7 @@ export class PlayerState extends ClientSystem implements System {
 		})
 
 		this._role = PlayerRole.UNKNOWN;
+		this._points = 0;
 		this._displayName = "unknown";
 		this._respawnTimer = this.newTimer({
 			interrupt: InterruptType.UNSTOPPABLE,
@@ -42,7 +44,11 @@ export class PlayerState extends ClientSystem implements System {
 		this.addProp<PlayerRole>({
 			export: () => { return this._role; },
 			import: (obj: PlayerRole) => { this.setRole(obj); },
-		})
+		});
+		this.addProp<number>({
+			export: () => { return this._points; },
+			import: (obj: number) => { this._points = obj; },
+		});
 		this.addProp<string>({
 			export: () => { return this.displayName(); },
 			import: (obj: string) => { this.setDisplayName(obj); },
@@ -96,6 +102,10 @@ export class PlayerState extends ClientSystem implements System {
 		ui.handleMessage(uiMsg);
 	}
 	displayName() : string { return this._displayName; }
+
+	resetPoints() : void { this._points = 0; }
+	addPoints(points : number) : void { this._points += points; }
+	points() : number { return this._points; }
 
 	role() : PlayerRole { return this._role; }
 	setRole(role : PlayerRole) : void {
@@ -160,7 +170,7 @@ export class PlayerState extends ClientSystem implements System {
 				let player = this.targetEntity<Player>();
 				if (player.dead()) {
 					this._respawnTimer.start(PlayerState._respawnTime, () => {
-						player.respawn(game.level().defaultSpawn());
+						game.level().spawnPlayer(player);
 					});
 				}
 				break;

@@ -91,6 +91,10 @@ export class Lakitu extends SystemBase implements System {
 	}
 
 	setMode(mode : LakituMode) : void {
+		if (this._mode === mode) {
+			return;
+		}
+
 		switch (mode) {
 		case LakituMode.LEVEL:
 			this._vel.x = 1.5;
@@ -100,6 +104,7 @@ export class Lakitu extends SystemBase implements System {
 			this._vel.x = 0;
 			this.setOffset(OffsetType.CAMERA, {x: 0, z: 30});
 		}
+		this._mode = mode;
 	}
 	private setOffset(type : OffsetType, vec : Vec) : void {
 		let offset = this.offset(type);
@@ -267,9 +272,6 @@ export class Lakitu extends SystemBase implements System {
 		fov.x = 2 * dist * Math.tan(this._camera.fov / 2);
 		fov.y = fov.x / game.engine().getScreenAspectRatio();
 
-		if (isLocalhost()) {
-			console.log("%s: computed new fov %s", this.name(), fov.toString());
-		}
 		return fov;
 	}
 }

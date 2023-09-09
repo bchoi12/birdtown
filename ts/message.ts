@@ -71,7 +71,8 @@ export abstract class MessageBase<T extends number, P extends number> {
 	}
 	clear() : void { this._data = {}; }
 	has(prop : P) : boolean {
-		if (!this.messageDescriptor().get(this._type).has(prop)) {
+		const descriptor = this.messageDescriptor().get(this._type);
+		if (!descriptor.has(prop)) {
 			return false;
 		}
 		return this._data.hasOwnProperty(prop);
@@ -112,10 +113,6 @@ export abstract class MessageBase<T extends number, P extends number> {
 		});
 		return this;
 	}	
-	setData(data : DataMap) : Message<T, P> {
-		this._data = data;
-		return this;
-	}
 
 	updated() : boolean { return this._updated; }
 	setUpdated(updated : boolean) : void { this._updated = updated; }
@@ -133,6 +130,7 @@ export abstract class MessageBase<T extends number, P extends number> {
 		}
 		return this;
 	}
+
 	parseObjectIf(obj : Object, predicate : (data : DataMap) => boolean) : Message<T, P> {
 		if (!predicate(<DataMap>(obj[Prop.DATA]))) {
 			return this;

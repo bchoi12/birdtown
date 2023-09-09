@@ -180,7 +180,7 @@ export abstract class GameObjectBase {
 		}
 		if (this._notReadyCounter >= 600) {
 			console.error("Error: deleting not ready object", this.name());
-			this.delete();
+			this.deleted() ? this.dispose() : this.delete();
 			return false;
 		}
 		return true;
@@ -441,7 +441,7 @@ export abstract class GameObjectBase {
 					continue;
 				}
 				const handler = this._propHandlers.get(prop);
-				if (defined(handler.rollback)) {
+				if (handler.rollback) {
 					handler.rollback(value, seqNum);
 				} else if (!this.isSource()) {
 					if (this._data.rollback(prop, value, seqNum)) {
@@ -463,9 +463,9 @@ export abstract class GameObjectBase {
 		}
 
 		if (this.shouldBroadcast()) {
-			this._propHandlers.forEach((fns : PropHandler<Object>, prop : number) => {
-				if (!defined(fns.has) || fns.has()) {
-					this._data.set(prop, fns.export(), seqNum)
+			this._propHandlers.forEach((handler : PropHandler<Object>, prop : number) => {
+				if (!handler.has || handler.has()) {
+					this._data.set(prop, handler.export(), seqNum)
 				}
 			});
 		}
@@ -487,7 +487,7 @@ export abstract class GameObjectBase {
 
 				const handler = this._propHandlers.get(prop);
 				if (this.isSource()) {
-					if (defined(handler.validate)) {
+					if (handler.validate) {
 						handler.validate(value);
 					}
 				} else {
@@ -498,7 +498,7 @@ export abstract class GameObjectBase {
 			} else {
 				const id = this.propToId(prop);
 				if (!this._childObjects.has(id)) {
-					if (defined(this._factoryFn)) {
+					if (this._factoryFn) {
 						// Create child if we can
 						this._factoryFn(id);
 					} else {

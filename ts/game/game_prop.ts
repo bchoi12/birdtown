@@ -38,6 +38,7 @@ export class GameProp<T extends Object> {
 	private _conditionalInterval : Optional<IntervalFn<T>>;
 	private _refreshInterval : Optional<number>;
 	private _udpRedundancies : number;
+	private _manualUpdate : boolean;
 	private _equals : EqualsFn<T>;
 
 	private _filters : Set<DataFilter>;
@@ -54,7 +55,7 @@ export class GameProp<T extends Object> {
 		this._minInterval = assignOr(propOptions.minInterval, 0);
 		this._refreshInterval = new Optional(assignOr(propOptions.refreshInterval, null));
 		this._conditionalInterval = new Optional(assignOr(propOptions.conditionalInterval, null));
-		this._udpRedundancies = assignOr(propOptions.udpRedundancies, 2); 
+		this._udpRedundancies = assignOr(propOptions.udpRedundancies, 2);
 		this._equals = assignOr(propOptions.equals, (a : T, b : T) => { return GameProp.equals(a, b); });
 		this._filters = assignOr(propOptions.filters, GameData.allFilters);
 	}
@@ -81,6 +82,10 @@ export class GameProp<T extends Object> {
 		return true;
 	}
 
+	seqNum() : number { return this._seqNum; }
+	consecutiveChanges() : number { return this._consecutiveChanges; }
+	lastChanged() : number { return this._lastChanged; }
+
 	has() : boolean { return this._value.has(); }
 	changed(filter : DataFilter, seqNum : number) : boolean {
 		if (!this.has()) {
@@ -102,10 +107,10 @@ export class GameProp<T extends Object> {
 	get() : T { return this._value.get(); }
 
 	equals(value : T) : boolean {
-		if (this._value.has() && this._equals(value, this._value.get())) {
-			return true;
+		if (!this._value.has()) {
+			return false;
 		}
-		return false;
+		return this._equals(value, this._value.get());
 	}
 
 	set(value : T, seqNum : number) : boolean {
@@ -114,6 +119,11 @@ export class GameProp<T extends Object> {
 		}
 		if (value === null) {
 			return false;
+		}
+
+		// Reset if there is a gap in setting value
+		if (seqNum - this._seqNum > 1) {
+			this._consecutiveChanges = 0;
 		}
 
 		if (this.equals(value)) {

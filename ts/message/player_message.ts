@@ -23,19 +23,12 @@ export class PlayerMessage extends MessageBase<PlayerMessageType, PlayerProp> im
 			[PlayerProp.TYPE, {}],
 			[PlayerProp.EQUIP_TYPE, {optional: true}],
 			[PlayerProp.ALT_EQUIP_TYPE, {optional: true}],
-			[PlayerProp.VERSION, {optional: true}],
+			[PlayerProp.VERSION, {}],
 		)],
 	]);
 
-	private _finalized : boolean;
-
 	constructor(type : PlayerMessageType) {
 		super(type);
-
-		this._finalized = false;
 	}
 	override messageDescriptor() : Map<PlayerMessageType, FieldDescriptor> { return PlayerMessage._messageDescriptor; }
-
-	finalized() : boolean { return this._finalized; }
-	setFinalized(finalized : boolean) { this._finalized = finalized; }
 }

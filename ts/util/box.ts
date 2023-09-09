@@ -8,6 +8,11 @@ enum Prop {
 	MAX,
 }
 
+export interface Box {
+	a: Vec;
+	b: Vec;
+}
+
 export class Box2 {
 	
 	private _min : Vec2;
@@ -67,18 +72,14 @@ export class Box2 {
 		return this;
 	}
 
-	toObject() : Object {
-		let obj = {};
-		obj[Prop.MIN] = this._min.toObject();
-		obj[Prop.MAX] = this._max.toObject();
-		return obj;
+	toBox() : Box {
+		return {
+			a: this._min.toVec(),
+			b: this._max.toVec(),
+		}
 	}
-	copyObject(obj : Object) : void {
-		if (obj.hasOwnProperty(Prop.MIN)) {
-			this._min.copyVec(obj[Prop.MIN]);
-		}
-		if (obj.hasOwnProperty(Prop.MAX)) {
-			this._max.copyVec(obj[Prop.MAX]);
-		}
+	copyBox(obj : Box) : void {
+		this._min.copyVec(obj.a);
+		this._max.copyVec(obj.b);
 	}
 }

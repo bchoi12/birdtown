@@ -34,14 +34,7 @@ export class EntityQuery {
 	}
 
 	hasQuery(type : EntityType) : boolean { return this._queries.has(type); }
-	registerQuery<T extends Entity>(type : EntityType, params : QueryParams<T>) : void {
-		if (this._queries.has(type)) {
-			console.error("Error: skipping adding duplicate query for %s", EntityType[type]);
-			return;
-		}
-
-		this._queries.set(type, params);
-	}
+	registerQuery<T extends Entity>(type : EntityType, params : QueryParams<T>) : void { this._queries.set(type, params); }
 
 	filter<T extends Entity>(type : EntityType, filter : FilterFn<T>) : T[] {
 		if (!this._cache.has(type)) {

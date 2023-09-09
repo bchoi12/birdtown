@@ -30,7 +30,15 @@ export class GameData {
 
 	empty() : boolean { return this._propData.size === 0; }
 	has(key : number) : boolean { return this._propData.has(key); }
+	get(key : number) : GameProp<Object> { return this._propData.get(key); }
 	getValue<T extends Object>(key : number) : T { return <T>this._propData.get(key).get(); }
+	set(key : number, value : Object, seqNum : number) : boolean {
+		if (!this.has(key)) {
+			return false;
+		}
+
+		return this._propData.get(key).set(value, seqNum);
+	}
 
 	registerProp<T extends Object>(prop : number, propOptions : GamePropOptions<T>) : void {
 		this._propData.set(prop, new GameProp<T>(propOptions));
@@ -38,17 +46,6 @@ export class GameData {
 
 	equals(key : number, value : Object) : boolean {
 		return this._propData.get(key).equals(value);
-	}
-
-	set(key : number, value : Object, seqNum : number) : boolean {
-		if (!defined(value)) {
-			return false;
-		}
-		if (!this.has(key)) {
-			return false;
-		}
-
-		return this._propData.get(key).set(value, seqNum);
 	}
 
 	rollback(key : number, value : Object, seqNum : number) : boolean {

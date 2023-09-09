@@ -19,10 +19,27 @@ import { DialogButtonAction, DialogType, DialogButtonType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
+enum DialogState {
+	UNKNOWN,
+
+	// Dialog data isn't necessary or hasn't been requested
+	NOT_REQUESTED,
+
+	// Dialog data is requested, but not ready to be sent out
+	OPEN,
+
+	// Dialog data is pending and needs to be periodically sent out
+	PENDING,
+
+	// Everything in sync
+	IN_SYNC,
+}
+
 export class ClientDialog extends ClientSideSystem implements System {
 
-	private _gameState : GameState;
+	private _dialogState : DialogState;
 	private _loadoutMsg : PlayerMessage;
+	private _tempMsg : PlayerMessage;
 
 	constructor(clientId : number) {
 		super(SystemType.CLIENT_DIALOG, clientId);
@@ -32,138 +49,125 @@ export class ClientDialog extends ClientSideSystem implements System {
 			id: clientId,
 		});
 
-		this._gameState = GameState.FREE;
+		this.setDialogState(DialogState.NOT_REQUESTED);
+
 		this._loadoutMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
 		this._loadoutMsg.set<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
 		this._loadoutMsg.set<EntityType>(PlayerProp.ALT_EQUIP_TYPE, EntityType.BIRD_BRAIN);
 		this._loadoutMsg.set<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.NONE);
 
-		this.addProp<GameState>({
-			has: () => { return this.gameState() !== GameState.UNKNOWN; },
-			export: () => { return this.gameState(); },
-			import: (obj : GameState) => { this.setGameState(obj); },
-		});
+		this._tempMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
 
-		this.addProp<Object>({
-			has: () => {
-				if (game.controller().gameState() !== GameState.SETUP) {
-					return false;
-				}
-
-				const version = this._loadoutMsg.getOr<number>(PlayerProp.VERSION, 0);
-				return version === game.controller().round();
-			},
-			validate: (obj : Object) => {
-				if (this._loadoutMsg.finalized()) {
-					return;
-				}
-
-				const version = this._loadoutMsg.getOr<number>(PlayerProp.VERSION, 0);
-				this._loadoutMsg.parseObjectIf(obj, (data : DataMap) => {
-					return data.hasOwnProperty(PlayerProp.VERSION) && data[PlayerProp.VERSION] === version;
-				});
-
-				if (version === game.controller().round()) {
-					this._loadoutMsg.setFinalized(true);
-					this.setGameState(GameState.GAME);
-				}
-			},
-			export: () => {
-				return this._loadoutMsg.exportObject();
-			},
-			import: (obj : Object) => {
-				if (this._loadoutMsg.finalized()) {
-					return;
-				}
-
-				const round = game.controller().round();
-				this._loadoutMsg.parseObjectIf(obj, (data : DataMap) => {
-					return data.hasOwnProperty(PlayerProp.VERSION) && data[PlayerProp.VERSION] === round;
-				});
-
-				this._loadoutMsg.setFinalized(true);
-			},
+		this.addProp<DialogState>({
+			export: () => { return this._dialogState; },
+			import: (obj : DialogState) => { this.setDialogState(obj); },
 			options: {
-				minInterval: 500,
+				conditionalInterval: (obj: DialogState, elapsed : number) => {
+					return this._dialogState !== DialogState.NOT_REQUESTED && elapsed >= 250;
+				},
 				filters: GameData.tcpFilters,
 			},
 		});
+
+		this.addProp<Object>({
+			has: () => { return this._dialogState === DialogState.PENDING; },
+			validate: (obj : Object) => {
+				if (this._dialogState !== DialogState.PENDING) {
+					return;
+				}
+				this._tempMsg.parseObject(obj);
+				if (!this._tempMsg.valid()) {
+					return;
+				}
+				if (this._tempMsg.get<number>(PlayerProp.VERSION) >= this._loadoutMsg.getOr<number>(PlayerProp.VERSION, 0)) {
+					this._loadoutMsg.merge(this._tempMsg);
+					this.setDialogState(DialogState.IN_SYNC);
+				}
+			},
+			export: () => { return this._loadoutMsg.exportObject(); },
+			import: (obj : Object) => {
+				this._tempMsg.parseObject(obj);
+				if (!this._tempMsg.valid()) {
+					return;
+				}
+				if (this._tempMsg.get<number>(PlayerProp.VERSION) >= this._loadoutMsg.getOr<number>(PlayerProp.VERSION, 0)) {
+					this._loadoutMsg.merge(this._tempMsg);
+				}
+			},
+			options: {
+				conditionalInterval: (obj: DialogState, elapsed : number) => {
+					return this._dialogState === DialogState.PENDING && elapsed >= 500;
+				},
+				filters: GameData.tcpFilters,
+				equals: (a : Object, b : Object) => { return false; },
+			},
+		});
 	}
+
+	setDialogState(state : DialogState) : void {
+		this._dialogState = state;
+	}
+	inSync() : boolean {
+		// Host doesn't get confirmation so will always be PENDING
+		return this._dialogState === DialogState.IN_SYNC || this.isSource() && this._dialogState === DialogState.PENDING;
+	}
+	loadoutMsg() : PlayerMessage { return this._loadoutMsg; }
 
 	override handleMessage(msg : GameMessage) : void {
 		super.handleMessage(msg);
 
-		switch(msg.type()) {
-		case GameMessageType.GAME_STATE:
-			this.setGameState(msg.get<GameState>(GameProp.STATE));
+		if (msg.type() !== GameMessageType.GAME_STATE) {
+			return;
+		}
+
+		if (!this.isSource()) {
+			return;
+		}
+
+		switch (msg.get<GameState>(GameProp.STATE)) {
+		case GameState.SETUP:
+			this.showDialogs();
 			break;
+		default:
+			this.setDialogState(DialogState.NOT_REQUESTED);
 		}
 	}
 
-	loadoutMsg() : PlayerMessage { return this._loadoutMsg; }
+	private showDialogs() : void {
+		this.setDialogState(DialogState.OPEN);
 
-	gameState() : GameState { return this._gameState; }
-	setGameState(state : GameState) : void {
-		if (this._gameState === state) {
-			return;
-		}
-
-		this._gameState = state;
-
-		if (this.clientIdMatches() && isLocalhost()) {
-			console.log("%s: game state is %s", this.name(), GameState[state]);
-		}
-
-		switch(this._gameState) {		
-		case GameState.SETUP:
-			this._loadoutMsg.setFinalized(false);
-			break;
-		}
-
-		if (!this.clientIdMatches()) {
-			return;
-		}
-
-		// TODO: stick this in GameMaker?
-		switch(this._gameState) {		
-		case GameState.SETUP:
-			let msg = new UiMessage(UiMessageType.DIALOG);
-			msg.set(UiProp.TYPE, DialogType.PICK_LOADOUT);
-			msg.set(UiProp.PAGES, [{
-				buttons: [{
-					type: DialogButtonType.IMAGE,
-					title: "bazooka",
-					action: DialogButtonAction.SUBMIT,
-					onSelect: () => { this._loadoutMsg.set<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA); },
-				}, {
-					type: DialogButtonType.IMAGE,
-					title: "sniper",
-					action: DialogButtonAction.SUBMIT,
-					onSelect: () => { this._loadoutMsg.set<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.SNIPER); },
-				}],
+		let msg = new UiMessage(UiMessageType.DIALOG);
+		msg.set(UiProp.TYPE, DialogType.PICK_LOADOUT);
+		msg.set(UiProp.PAGES, [{
+			buttons: [{
+				type: DialogButtonType.IMAGE,
+				title: "bazooka",
+				action: DialogButtonAction.SUBMIT,
+				onSelect: () => { this._loadoutMsg.set<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA); },
 			}, {
-				buttons: [{
-					type: DialogButtonType.IMAGE,
-					title: "big",
-					action: DialogButtonAction.SUBMIT,
-					onSelect: () => { this._loadoutMsg.set<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.BIG) },
-				}, {
-					type: DialogButtonType.IMAGE,
-					title: "none",
-					action: DialogButtonAction.SUBMIT,
-					onSelect: () => { this._loadoutMsg.set<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.NONE) },
-				}]
-			},
-			]);
-			msg.set(UiProp.ON_SUBMIT, () => {
-				this._loadoutMsg.set<number>(PlayerProp.VERSION, game.controller().round());
-				if (this.isHost()) {
-					this._loadoutMsg.setFinalized(true);
-					this.setGameState(GameState.GAME);
-				}
-			});
-			ui.handleMessage(msg);
-			break;
-		}
+				type: DialogButtonType.IMAGE,
+				title: "sniper",
+				action: DialogButtonAction.SUBMIT,
+				onSelect: () => { this._loadoutMsg.set<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.SNIPER); },
+			}],
+		}, {
+			buttons: [{
+				type: DialogButtonType.IMAGE,
+				title: "big",
+				action: DialogButtonAction.SUBMIT,
+				onSelect: () => { this._loadoutMsg.set<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.BIG) },
+			}, {
+				type: DialogButtonType.IMAGE,
+				title: "none",
+				action: DialogButtonAction.SUBMIT,
+				onSelect: () => { this._loadoutMsg.set<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.NONE) },
+			}]
+		},
+		]);
+		msg.set(UiProp.ON_SUBMIT, () => {
+			this._loadoutMsg.set<number>(PlayerProp.VERSION, game.controller().round());
+			this.setDialogState(DialogState.PENDING);
+		});
+		ui.handleMessage(msg);
 	}
 }

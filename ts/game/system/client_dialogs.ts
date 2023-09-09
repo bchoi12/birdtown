@@ -17,6 +17,12 @@ export class ClientDialogs extends ClientSystemManager implements System {
 		this.setFactoryFn((clientId : number) => { return this.addClientDialog(new ClientDialog(clientId)); })
 	}
 
+	inSync() : boolean {
+		return this.matchAll<ClientDialog>((clientDialog : ClientDialog) => {
+			return clientDialog.inSync();
+		});
+	}
+
 	addClientDialog(info : ClientDialog) : ClientDialog { return this.registerChild<ClientDialog>(info.clientId(), info); }
 	hasClientDialog(clientId : number) : boolean { return this.hasChild(clientId); }
 	getClientDialog(clientId? : number) : ClientDialog { return this.getChild<ClientDialog>(defined(clientId) ? clientId : game.clientId()); }

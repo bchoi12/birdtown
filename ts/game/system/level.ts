@@ -1,6 +1,7 @@
 
 import { game } from 'game'	
 import { AssociationType } from 'game/component/api'
+import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { CardinalFactory } from 'game/factory/cardinal_factory'
@@ -13,7 +14,7 @@ import { LevelType, SystemType } from 'game/system/api'
 
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
-import { Box2 } from 'util/box'
+import { Box, Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
 import { CardinalDir } from 'util/cardinal'
 import { defined, isLocalhost } from 'util/common'
@@ -50,11 +51,12 @@ export class Level extends SystemBase implements System {
 			},
 			options: {
 				filters: GameData.tcpFilters,
+				equals: (a : Object, b : Object) => { return false; },
 			},
 		});
-		this.addProp<Object>({
-			export: () => { return this._bounds.toObject(); },
-			import: (obj : Object) => { this._bounds.copyObject(obj); },
+		this.addProp<Box>({
+			export: () => { return this._bounds.toBox(); },
+			import: (obj : Box) => { this._bounds.copyBox(obj); },
 		});
 		this.addProp<Vec>({
 			export: () => { return this._defaultSpawn.toVec(); },
@@ -76,7 +78,11 @@ export class Level extends SystemBase implements System {
 	seed() : LevelType { return this._levelMsg.getOr<number>(GameProp.SEED, 0); }
 	version() : number { return this._levelMsg.getOr<number>(GameProp.VERSION, 0); }
 	bounds() : Box2 { return this._bounds; }
+
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }
+	spawnPlayer(player : Player) : void {
+		player.respawn(this._defaultSpawn);
+	}
 
 	loadLevel(msg : GameMessage) : void {
 		if (msg.type() !== GameMessageType.LEVEL_LOAD) {
