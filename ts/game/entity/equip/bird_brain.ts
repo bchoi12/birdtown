@@ -19,7 +19,7 @@ import { CounterType } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
-import { Timer } from 'util/timer'
+import { Timer, InterruptType } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
 export class BirdBrain extends Equip<Player> {
@@ -39,7 +39,9 @@ export class BirdBrain extends Equip<Player> {
 		super(EntityType.BIRD_BRAIN, options);
 
 		this._targetId = new Optional();
-		this._usageTimer = this.newTimer();
+		this._usageTimer = this.newTimer({
+			interrupt: InterruptType.UNSTOPPABLE,
+		});
 		this._canCharge = false;
 		this._juice = 100;
 
@@ -152,10 +154,8 @@ export class BirdBrain extends Equip<Player> {
 			this._targetId.clear();
 		}
 
-		if (!this._usageTimer.hasTimeLeft()) {
-			this._usageTimer.start(500, () => {
-				this._canCharge = true;
-			});
-		}
+		this._usageTimer.start(500, () => {
+			this._canCharge = true;
+		});
 	}
 }

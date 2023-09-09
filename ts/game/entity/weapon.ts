@@ -14,7 +14,7 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { KeyType } from 'ui/api'
 
 import { defined } from 'util/common'
-import { Timer } from 'util/timer'
+import { Timer, InterruptType } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
 export abstract class Weapon extends Equip<Player> {
@@ -27,7 +27,7 @@ export abstract class Weapon extends Equip<Player> {
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
-		this._allTypes.add(EntityType.WEAPON);
+		this.addType(EntityType.WEAPON);
 
 		this.addNameParams({
 			base: "weapon",
@@ -50,7 +50,9 @@ export abstract class Weapon extends Equip<Player> {
 			},
 		}));
 
-		this._reloadTimer = this.newTimer();
+		this._reloadTimer = this.newTimer({
+			interrupt: InterruptType.UNSTOPPABLE,
+		});
 	}
 
 	override ready() { return super.ready(); }

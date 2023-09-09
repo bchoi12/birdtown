@@ -1,6 +1,7 @@
 import * as BABYLON from 'babylonjs'
 
 import { game } from 'game'
+import { GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType, ShadowType } from 'game/component/api'
@@ -58,6 +59,14 @@ export class Model extends ComponentBase implements Component {
 				game.world().renderShadows(loaded.mesh());
 			});
 		}
+	}
+
+	override setState(state : GameObjectState) : void {
+		super.setState(state);
+
+		this.onLoad((model : Model) => {
+			model.mesh().isVisible = (state !== GameObjectState.DEACTIVATED);
+		});
 	}
 
 	override dispose() : void {

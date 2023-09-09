@@ -30,10 +30,9 @@ export class Association extends ComponentBase implements Component {
 			this._associations = new Map();
 		}
 
+		this._owner = new Optional();
 		if (init.owner) {
-			this._owner = new Optional(init.owner);
-		} else {
-			this._owner = new Optional();
+			this._owner.set(init.owner);
 		}
 
 		if (!this.hasAssociation(AssociationType.OWNER)) {

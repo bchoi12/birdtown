@@ -107,9 +107,10 @@ export class Runner extends SystemBase implements System  {
 			this._sendFullMsg = true;
 			break;
 		case GameMessageType.GAME_STATE:
-			const state = msg.getProp<GameState>(GameProp.STATE);
+			const state = msg.get<GameState>(GameProp.STATE);
 			switch (state) {
 			case GameState.FINISH:
+			case GameState.ERROR:
 				this._updateSpeed = 0.3;
 				break;
 			default:
@@ -138,8 +139,8 @@ export class Runner extends SystemBase implements System  {
 		}
 
 		let msg = new NetworkMessage(NetworkMessageType.GAME);
-		msg.setProp<number>(NetworkProp.SEQ_NUM, this._seqNum)
-			.setProp<Object>(NetworkProp.DATA, data);
+		msg.set<number>(NetworkProp.SEQ_NUM, this._seqNum);
+		msg.set<Object>(NetworkProp.DATA, data);
 		return [msg, true];
 	}
 }

@@ -1,6 +1,7 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { GameObjectState } from 'game/api'
 import { Component } from 'game/component'
 import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
@@ -11,12 +12,14 @@ import { CardinalsInitOptions } from 'game/component/cardinals'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { ProfileInitOptions } from 'game/component/profile'
 import { Stats } from 'game/component/stats'
-import { EntityType } from 'game/entity/api'
+import { EntityType, KeyState } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 
-import { CounterType } from 'ui/api'
+import { CounterType, KeyType } from 'ui/api'
 
 import { defined } from 'util/common'
+import { InterruptType } from 'util/timer'
+import { Vec2 } from 'util/vector'
 
 export type EntityOptions = {
 	id? : number;
@@ -60,6 +63,10 @@ export interface Entity extends GameObject {
 	getProfile() : Profile;
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
+
+	// Keys
+	key(type : KeyType, state : KeyState, seqNum : number) : boolean;
+	keysDir() : Vec2;
 
 	// Match associations
 	getAssociations() : Map<AssociationType, number>;
@@ -146,6 +153,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 
 	type() : EntityType { return this._type; }
+	addType(type : EntityType) { this._allTypes.add(type); }
 	allTypes() : Set<EntityType> { return this._allTypes; }
 	id() : number { return this._id; }
 
@@ -176,13 +184,51 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	getCounts() : Map<CounterType, number> { return new Map(); }
 	setTTL(ttl : number, onDelete? : () => void) : void {
-		const timer = this.newTimer();
+		const timer = this.newTimer({
+			interrupt: InterruptType.UNSTOPPABLE,
+		});
 		timer.start(ttl, () => {
 			if (onDelete) {
 				onDelete();
 			}
 			this.delete();
 		});
+	}
+
+	key(type : KeyType, state : KeyState, seqNum : number) : boolean {
+		if (this.state() === GameObjectState.DISABLE_INPUT) {
+			return false;
+		}
+		if (!this.hasClientId()) {
+			return false;
+		}
+
+		if (!game.input().hasKeys(this.clientId())) {
+			return false;
+		}
+
+		const keys = game.keys(this.clientId());
+		switch (state) {
+		case KeyState.UP:
+			return keys.keyUp(type, seqNum);
+		case KeyState.DOWN:
+			return keys.keyDown(type, seqNum);
+		case KeyState.PRESSED:
+			return keys.keyPressed(type, seqNum);
+		case KeyState.RELEASED:
+			return keys.keyReleased(type, seqNum);
+		}
+		return false;
+	}
+	keysDir() : Vec2 {
+		if (!this.hasClientId()) {
+			return Vec2.i();
+		}
+		if (!game.input().hasKeys(this.clientId())) {
+			return Vec2.i();
+		}
+
+		return game.keys(this.clientId()).dir();
 	}
 
 	getAssociations() : Map<AssociationType, number> {

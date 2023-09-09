@@ -1,5 +1,8 @@
 
 import { game } from 'game'
+import { GameState, GameObjectState, PlayerRole } from 'game/api'
+import { StepData } from 'game/game_object'
+import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, ClientSystem } from 'game/system'
@@ -10,17 +13,17 @@ import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
 
-export enum PlayerRole {
-	UNKNOWN,
-
-	WAITING,
-	GAMING,
-}
+import { isLocalhost } from 'util/common'
+import { Timer, InterruptType } from 'util/timer'
 
 export class PlayerState extends ClientSystem implements System {
 
+	private static readonly _respawnTime = 2000;
+
 	private _role : PlayerRole;
 	private _displayName : string;
+
+	private _respawnTimer : Timer;
 
 	constructor(clientId : number) {
 		super(SystemType.PLAYER_STATE, clientId);
@@ -32,55 +35,39 @@ export class PlayerState extends ClientSystem implements System {
 
 		this._role = PlayerRole.UNKNOWN;
 		this._displayName = "unknown";
+		this._respawnTimer = this.newTimer({
+			interrupt: InterruptType.UNSTOPPABLE,
+		});
 
 		this.addProp<PlayerRole>({
-			has: () => { return this._role !== PlayerRole.UNKNOWN; },
 			export: () => { return this._role; },
-			import: (obj: PlayerRole) => { this._role = obj; },
+			import: (obj: PlayerRole) => { this.setRole(obj); },
 		})
 		this.addProp<string>({
 			export: () => { return this.displayName(); },
 			import: (obj: string) => { this.setDisplayName(obj); },
 		});
-		this.addProp<number>({
-			has: () => { return this.hasTargetEntity(); },
-			export: () => { return this.targetEntity().id(); },
-			import: (obj : number) => {
-				const [entity, ok] = game.entities().getEntity(obj);
-				if (ok) {
-					this.setTargetEntity(entity);
-				}
-			}
-		})
 	}
 
-	override ready() : boolean { return super.ready() && this._role !== PlayerRole.UNKNOWN; }
-
-	override initialize() : void {
-		super.initialize();
+	override setTargetEntity(entity : Entity) : void {
+		super.setTargetEntity(entity);
+		this.applyRole();
 	}
 
 	override handleMessage(msg : GameMessage) : void {
 		super.handleMessage(msg);
 
-		if (msg.type() === GameMessageType.CLIENT_JOIN) {
-			const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
+		switch (msg.type()) {
+		case GameMessageType.CLIENT_JOIN:
+			const clientId = msg.get<number>(GameProp.CLIENT_ID);
 			if (clientId === this.clientId()) {
-				const displayName = msg.getProp<string>(GameProp.DISPLAY_NAME);
+				const displayName = msg.get<string>(GameProp.DISPLAY_NAME);
 				this.setDisplayName(displayName);
-
-				let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
-					clientId: clientId,
-					profileInit: {
-		    			pos: {x: 1, y: 10},
-					},
-		    	});
-		    	if (hasPlayer) {
-		    		player.setSpawn({x: 1, y: 10});
-		    		this.setTargetEntity(player);
-			    	this.setRole(PlayerRole.GAMING);
-		    	}
 			}
+			break;
+		case GameMessageType.GAME_STATE:
+			this.applyRole();
+			break;
 		}
 	}
 
@@ -92,12 +79,9 @@ export class PlayerState extends ClientSystem implements System {
 		}
 
 		const uiMsg = new UiMessage(UiMessageType.CLIENT_DISCONNECT);
-		uiMsg.setProp(UiProp.CLIENT_ID, this.clientId());
+		uiMsg.set(UiProp.CLIENT_ID, this.clientId());
 		ui.handleMessage(uiMsg);
 	}
-
-	role() : PlayerRole { return this._role; }
-	setRole(role : PlayerRole) : void { this._role = role; }
 
 	setDisplayName(displayName : string) : void {
 		this._displayName = displayName;
@@ -107,9 +91,80 @@ export class PlayerState extends ClientSystem implements System {
 		});
 
 		const uiMsg = new UiMessage(UiMessageType.CLIENT_JOIN);
-		uiMsg.setProp(UiProp.CLIENT_ID, this.clientId());
-		uiMsg.setProp(UiProp.DISPLAY_NAME, this.displayName());
+		uiMsg.set(UiProp.CLIENT_ID, this.clientId());
+		uiMsg.set(UiProp.DISPLAY_NAME, this.displayName());
 		ui.handleMessage(uiMsg);
 	}
 	displayName() : string { return this._displayName; }
+
+	role() : PlayerRole { return this._role; }
+	setRole(role : PlayerRole) : void {
+		if (this._role === role) {
+			return;
+		}
+
+		this._role = role;
+		this.applyRole();
+
+		if (isLocalhost()) {
+			console.log("%s: player role is %s", this.name(), PlayerRole[role]);
+		}
+	}
+	applyRole() : void {
+		if (!this.hasTargetEntity()) {
+			return;
+		}
+
+		switch (this._role) {
+		case PlayerRole.WAITING:
+	    	this.targetEntity().setState(GameObjectState.DEACTIVATED);
+    		break;
+    	case PlayerRole.GAMING:
+	    	this.targetEntity().setState(GameObjectState.NORMAL);
+
+    		switch (game.controller().gameState()) {
+    		case GameState.SETUP:
+    			this.targetEntity().setState(GameObjectState.DISABLE_INPUT);
+    			break;
+		    default:
+    			this.targetEntity().setState(GameObjectState.NORMAL);
+		    	break;
+    		}
+    		break;
+		}
+	}
+
+	override preUpdate(stepData : StepData) : void {
+		super.preUpdate(stepData);
+
+		if (!this.isSource()) {
+			return;
+		}
+
+		if (!this.hasTargetEntity() && game.controller().gameState() === GameState.FREE) {
+			let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
+				clientId: this.clientId(),
+				profileInit: {
+	    			pos: game.level().defaultSpawn(),
+				},
+	    	});
+	    	if (hasPlayer) {
+	    		this.setTargetEntity(player);
+		    	this.setRole(PlayerRole.GAMING);
+	    	}
+		}
+
+		if (this.hasTargetEntity()) {
+			switch (game.controller().gameState()) {
+			case GameState.FREE:
+				let player = this.targetEntity<Player>();
+				if (player.dead()) {
+					this._respawnTimer.start(PlayerState._respawnTime, () => {
+						player.respawn(game.level().defaultSpawn());
+					});
+				}
+				break;
+			}
+		}
+	}
 }

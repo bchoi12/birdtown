@@ -32,33 +32,31 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 	addSubComponent<T extends Component>(id : number, component : T) : T {
 		return this.registerChild(id, this.populateSubComponent<T>(id, component));
 	}
-	getSubComponent<T extends Component>(id : number) : T {
-		return this.getChild<T>(id);
-	}
+	getSubComponent<T extends Component>(id : number) : T { return this.getChild<T>(id); }
 
 	type() : ComponentType { return this._type; }
 	entity() : Entity { return this._entity; }
 	setEntity<T extends Entity>(entity : T) : void {
 		this.addNameParams({
-			parent: entity,
+			target: entity,
 		});
 		this._entity = entity;
 
 		this.execute<Component>((subComponent : Component, id : number) => {
 			this.populateSubComponent(id, subComponent);
-		})
+		});
 	}
 
 	processComponent<T extends Component>(component : T) : void {}
 
 	// Transfer some metadata to SubComponents
 	private populateSubComponent<T extends Component>(id : number, component : T) : T {
+		component.addNameParams({
+			parent: this,
+			id: id,
+		});
 		if (defined(this._entity)) {
-			component.setEntity(this.entity());
-			component.addNameParams({
-				parent: this,
-				id: id,
-			});
+			component.setEntity(this._entity);
 		}
 		return component;
 	}

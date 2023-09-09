@@ -1,20 +1,17 @@
 
 import { game } from 'game'	
+import { AssociationType } from 'game/component/api'
+import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { CardinalFactory } from 'game/factory/cardinal_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { GameData } from 'game/game_data'
 import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
-
-import { ui } from 'ui'
-import { AnnouncementType } from 'ui/api'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -24,18 +21,13 @@ import { HexColor } from 'util/hex_color'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
 
-type LevelOptions = {
-	level : LevelType;
-	seed : number;
-	version? : number;
-}
-
 export class Level extends SystemBase implements System {
 
-	private _options : LevelOptions;
-	private _version : number;
+	private _levelMsg : GameMessage;
+
 	private _rng : SeededRandom;
 	private _bounds : Box2;
+	private _defaultSpawn : Vec2;
 
 	constructor() {
 		super(SystemType.LEVEL);
@@ -44,60 +36,86 @@ export class Level extends SystemBase implements System {
 			base: "level",
 		});
 
-		this._options = {
-			level: LevelType.UNKNOWN,
-			seed: 0,
-		};
-		this._version = 0;
+		this._levelMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
 		this._rng = new SeededRandom(0);
 		this._bounds = Box2.zero();
+		this._defaultSpawn = Vec2.zero();
 
-		this.addProp<LevelOptions>({
-			export: () => { return this._options; },
-			import: (obj : LevelOptions) => { this.loadLevel(obj); },
+		this.addProp<Object>({
+			has: () => { return this._levelMsg.updated(); },
+			export: () => { return this._levelMsg.exportObject(); },
+			import: (obj : Object) => {
+				this._levelMsg.parseObject(obj);
+				this.applyLevel();
+			},
+			options: {
+				filters: GameData.tcpFilters,
+			},
 		});
 		this.addProp<Object>({
 			export: () => { return this._bounds.toObject(); },
 			import: (obj : Object) => { this._bounds.copyObject(obj); },
-		})
+		});
+		this.addProp<Vec>({
+			export: () => { return this._defaultSpawn.toVec(); },
+			import: (obj : Object) => { this._defaultSpawn.copyVec(obj); },
+		});
 	}
 
-	override ready() : boolean { return super.ready() && this._options.level !== LevelType.UNKNOWN && this._options.seed > 0 && this._version > 0; }
+	displayName() : string {
+		switch (this.levelType()) {
+		case LevelType.LOBBY:
+			return "Birdtown Lobby";
+		case LevelType.BIRDTOWN:
+			return "Birdtown #" + this.seed();
+		}
+		return "Unknown Level";
+	}
 
+	levelType() : LevelType { return this._levelMsg.getOr<LevelType>(GameProp.TYPE, LevelType.UNKNOWN); }
+	seed() : LevelType { return this._levelMsg.getOr<number>(GameProp.SEED, 0); }
+	version() : number { return this._levelMsg.getOr<number>(GameProp.VERSION, 0); }
 	bounds() : Box2 { return this._bounds; }
-	version() : number { return this._version; }
+	defaultSpawn() : Vec2 { return this._defaultSpawn; }
 
-	loadLevel(options : LevelOptions) : void {
-		if (options.level === LevelType.UNKNOWN) {
-			console.error("Error: skipping invalid level options", options);
+	loadLevel(msg : GameMessage) : void {
+		if (msg.type() !== GameMessageType.LEVEL_LOAD) {
+			console.error("Error: specified %s message for level load", GameMessageType[msg.type()]);
 			return;
 		}
 
-		this._options = options;
-
-		if (!defined(options.version)) {
-			this._version++;
-			this._options.version = this._version;
-		} else {
-			this._version = options.version;
+		if (!msg.valid()) {
+			console.error("Error: invalid level load message", msg);
+			return;
 		}
-		this._rng.seed(this._options.seed);
+
+		this._levelMsg.merge(msg);
+		this._levelMsg.setUpdated(true);
+		this.applyLevel();
+	}
+
+	private applyLevel() : void {
+		const level = this.levelType();
+		const seed = this.seed();
+		const version = this.version();
+
+		this._rng.seed(seed);
 
 		// Delete versioned entities which are associated with a level.
 		if (this.isSource()) {
 			game.entities().findEntities((entity : Entity) => {
-				return entity.hasLevelVersion() && entity.levelVersion() < this._version;
+				return entity.hasLevelVersion() && entity.levelVersion() < version;
 			}).forEach((entity : Entity) => {
 				entity.delete();
 			});
 
 			if (isLocalhost()) {
-				console.log("Unloaded level: deleted all entities below current version", this._version);
+				console.log("Unloaded level: deleted all entities below current version", version);
 			}
 		}
 
 		this._rng.reset();
-		switch (this._options.level) {
+		switch (level) {
 		case LevelType.LOBBY:
 			this.loadLobby();
 			break;
@@ -106,19 +124,9 @@ export class Level extends SystemBase implements System {
 			break;
 		}
 
-		let msg = new GameMessage(GameMessageType.LEVEL_LOAD);
-		msg.setProp(GameProp.TYPE, this._options.level);
-		msg.setProp(GameProp.SEED, this._rng.getSeed());
-		msg.setProp(GameProp.VERSION, this._version);
-    	game.runner().handleMessage(msg);
-
-    	// TODO: send announcement in Controller
-    	const uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-    	uiMsg.setProp(UiProp.TYPE, AnnouncementType.TEST);
-    	ui.handleMessage(uiMsg);
-
+    	game.runner().handleMessage(this._levelMsg);
 		if (isLocalhost()) {
-			console.log("Loaded level with options", this._options);
+			console.log("Loaded level %s with seed %d, version %d", LevelType[level], seed, version);
 		}
 	}
 
@@ -127,7 +135,6 @@ export class Level extends SystemBase implements System {
 		this._bounds.collapse(pos);
 
 		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 1, y: 2}, {x: 2, y: 2 });
-
 		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
 		for (let i = 0; i < 5; ++i) {
 			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BASE, i);
@@ -195,6 +202,13 @@ export class Level extends SystemBase implements System {
 
 			this._bounds.stretch(pos);
 		}
+
+		this._defaultSpawn.copyVec(this._bounds.relativePos(CardinalDir.TOP));
+		this.addEntity(EntityType.SPAWN_POINT, {
+			profileInit: {
+				pos: this._defaultSpawn,
+			},
+		});
 	}
 
 	private loadBirdtown() : void {
@@ -271,12 +285,22 @@ export class Level extends SystemBase implements System {
 			});
 			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOF).y / 2;
 
-			if (i == 0 || i == numBuildings - 1) {
+			if (i === 0 || i === numBuildings - 1) {
+				const spawnPos = pos.clone().add({y : 2});
 				this.addEntity(EntityType.SPAWN_POINT, {
 					profileInit: {
-						pos: pos.clone().add({y: 2}),
+						pos: spawnPos,
 					},
+					associationInit: {
+						associations: new Map([
+							[AssociationType.TEAM, i === 0 ? 1 : 2],
+						]),
+					}
 				});
+
+				if (i === 0) {
+					this._defaultSpawn = spawnPos;
+				}
 			}
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
@@ -285,7 +309,7 @@ export class Level extends SystemBase implements System {
 	}
 
 	private addEntity(type : EntityType, entityOptions : EntityOptions) : [Entity, boolean] {
-		entityOptions.levelVersion = this._version;
+		entityOptions.levelVersion = this.version();
 		return game.entities().addEntity(type, entityOptions);
 	}
 }

@@ -59,7 +59,7 @@ export class World extends SystemBase implements System {
 		this._shadowGenerator.transparencyShadow = true;
 		this._shadowGenerator.usePercentageCloserFiltering = true;
 		// TODO: option for shadow quality
-		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
+		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
 
 		this._skyBox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 500.0 }, this._scene);
 		this._skyBox.position.y = -100;

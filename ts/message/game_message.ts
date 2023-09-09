@@ -16,6 +16,7 @@ export enum GameProp {
 	UNKNOWN,
 	CLIENT_ID,
 	DISPLAY_NAME,
+	ROLE,
 	SEED,
 	STATE,
 	TYPE,
@@ -33,9 +34,9 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 			[GameProp.CLIENT_ID, {}],
 		)],
 		[GameMessageType.LEVEL_LOAD, MessageBase.fieldDescriptor(
-			[GameProp.TYPE, {}],
+			[GameProp.TYPE, { min: 1 }],
 			[GameProp.SEED, {}],
-			[GameProp.VERSION, {}],
+			[GameProp.VERSION, { min: 1 }],
 		)],
 		[GameMessageType.GAME_STATE, MessageBase.fieldDescriptor(
 			[GameProp.STATE, {}],

@@ -2,7 +2,7 @@ import * as BABYLON from 'babylonjs'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { GameState } from 'game/api'
+import { GameState, GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
@@ -12,7 +12,7 @@ import { Profile } from 'game/component/profile'
 import { StatInitOptions } from 'game/component/stat'
 import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
-import { EntityType } from 'game/entity/api'
+import { EntityType, KeyState } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
@@ -31,7 +31,7 @@ import { Buffer } from 'util/buffer'
 import { ChangeTracker } from 'util/change_tracker'
 import { defined } from 'util/common'
 import { Funcs } from 'util/funcs'
-import { Timer } from 'util/timer'
+import { Timer, InterruptType } from 'util/timer'
 import { Vec, Vec2 } from 'util/vector'
 
 enum Animation {
@@ -73,7 +73,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	private static readonly _rotationOffset = -0.1;
 	private static readonly _jumpGracePeriod = 100;
-	private static readonly _respawnTime = 2000;
 
 	private static readonly _armRecoveryTime = 500;
 
@@ -95,8 +94,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _jumpTimer : Timer;
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
-	private _spawn : Vec;
-	private _respawnTimer : Timer;
 
 	private _equips : Array<number>;
 	private _equip : Equip<Player>;
@@ -123,7 +120,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._boneOrigins = new Map();
 		this._collisionInfo = new CollisionInfo();
 
-		this._jumpTimer = this.newTimer();
+		this._jumpTimer = this.newTimer({
+			interrupt: InterruptType.RESTART,
+		});
 		this._canDoubleJump = true;
 		this._deadTracker = new ChangeTracker(() => {
 			return this._stats.dead();
@@ -135,28 +134,20 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._profile.resetInertia();
 				this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
 				this._profile.setAcc({x: 0});
-
-				if (game.controller().gameState() === GameState.WAIT) {
-					this._respawnTimer.start(Player._respawnTime, () => {
-						this.respawn();
-					});
-				}
 			} else {
 				this._profile.setInertia(Infinity);
 				this._profile.setAngularVelocity(0);
 			}
 		});
-		this._spawn = {x: 0, y: 0};
-		this._respawnTimer = this.newTimer();
 		this._equips = new Array();
 
 		this.addProp<boolean>({
 			export: () => { return this._canDoubleJump; },
 			import: (obj : boolean) => { this._canDoubleJump = obj; },
 		});
-		this.addProp<boolean>({
-			export: () => { return this.deactivated(); },
-			import: (obj : boolean) => { this.setDeactivated(obj); },
+		this.addProp<GameObjectState>({
+			export: () => { return this.state(); },
+			import: (obj : GameObjectState) => { this.setState(obj); },
 		});
 		this.addProp<Array<number>>({
 			export: () => { return this._equips; },
@@ -287,9 +278,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this.updateLoadout();
 	}
 
-	setSpawn(spawn : Vec) : void { this._spawn = spawn; }
-	respawn() : void {
-		this._profile.setPos(this._spawn);
+	respawn(spawn : Vec2) : void {
+		this._profile.setPos(spawn);
 		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
 		this.updateLoadout();
@@ -299,6 +289,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.processComponent<Stats>(this._stats);
 	}
 	dead() : boolean { return this._stats.dead(); }
+	timeDead() : number { return this.dead() ? this._deadTracker.timeSinceChange() : 0; }
 
 	equip(equip : Equip<Player>) : void {
 		this._equips.push(equip.id());
@@ -342,12 +333,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 		this._profile.setAcc({ y: gravity });
 
-		const keys = game.keys(this.clientId());
 		if (!this._stats.dead()) {
 			// Keypress acceleration
-			if (keys.keyDown(KeyType.LEFT, seqNum)) {
+			if (this.key(KeyType.LEFT, KeyState.DOWN, seqNum)) {
 				this._profile.setAcc({ x: -Player._sideAcc });
-			} else if (keys.keyDown(KeyType.RIGHT, seqNum)) {
+			} else if (this.key(KeyType.RIGHT, KeyState.DOWN, seqNum)) {
 				this._profile.setAcc({ x: Player._sideAcc });
 			} else {
 				this._profile.setAcc({ x: 0 });
@@ -360,18 +350,18 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			// Compute head and arm directions
-			const dir = keys.dir();
+			const dir = this.keysDir();
 			this.recomputeDir(dir);
 			this._headSubProfile.setAngle(this._headDir.angleRad());
 
 			// Jumping
 			if (this._jumpTimer.hasTimeLeft()) {
-				if (keys.keyDown(KeyType.JUMP, seqNum)) {
+				if (this.key(KeyType.JUMP, KeyState.DOWN, seqNum)) {
 					this._profile.setVel({ y: Player._jumpVel });
 					this._jumpTimer.stop();
 				}
 			} else if (this._canDoubleJump) {
-				if (keys.keyPressed(KeyType.JUMP, seqNum)) {
+				if (this.key(KeyType.JUMP, KeyState.PRESSED, seqNum)) {
 					this._profile.setVel({ y: Player._jumpVel });
 					this._canDoubleJump = false;
 				}
@@ -396,6 +386,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._equips.forEach((id : number) => {
 					const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
 					if (hasEquip) {
+						// TODO: just read directly from keys in Equip
+						const keys = game.keys(this.clientId());
 						equip.updateInput({
 							keys: this._stats.dead() ? new Set() : keys.keys(seqNum),
 							millis: millis,
@@ -542,10 +534,14 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	}
 
 	private updateLoadout() : void {
-		this._model.onLoad(() => {
-			const loadout = game.clientState(this.clientId()).loadoutMsg();
+		if (!this.isSource()) {
+			return;
+		}
 
-			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.getProp<ModifierPlayerType>(PlayerProp.TYPE));
+		this._model.onLoad(() => {
+			const loadout = game.clientDialog(this.clientId()).loadoutMsg();
+
+			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.get<ModifierPlayerType>(PlayerProp.TYPE));
 
 			if (defined(this._equip)) {
 				this._equip.delete();
@@ -553,7 +549,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			// TODO: add levelVersion to equips
 			let hasEquip;
-			[this._equip, hasEquip] = this.addTrackedEntity<Equip<Player>>(loadout.getProp<EntityType>(PlayerProp.EQUIP_TYPE), {
+			[this._equip, hasEquip] = this.addTrackedEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.EQUIP_TYPE), {
 				associationInit: {
 					owner: this,
 				},
@@ -567,7 +563,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._altEquip.delete();
 			}
 			let hasAltEquip;
-			[this._altEquip, hasAltEquip] = this.addTrackedEntity<Equip<Player>>(loadout.getProp<EntityType>(PlayerProp.ALT_EQUIP_TYPE), {
+			[this._altEquip, hasAltEquip] = this.addTrackedEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.ALT_EQUIP_TYPE), {
 				associationInit: {
 					owner: this,
 				},

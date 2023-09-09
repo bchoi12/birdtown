@@ -2,11 +2,12 @@
 export enum SystemType {
 	UNKNOWN,
 	AUDIO,
-	CLIENT_STATE,
-	CLIENT_STATES,
+	CLIENT_DIALOG,
+	CLIENT_DIALOGS,
+	CONTROLLER,
 	ENTITIES,
 	ENTITY_MAP,
-	GAME_MODE,
+	GAME_MAKER,
 	INPUT,
 	KEYS,
 	LAKITU,
@@ -17,6 +18,14 @@ export enum SystemType {
 	PIPELINE,
 	RUNNER,
 	WORLD,
+}
+
+export enum LakituMode {
+	UNKNOWN,
+
+	GAME,
+	LEVEL,
+	SPECTATE,
 }
 
 export enum LevelType {
@@ -33,10 +42,4 @@ export enum SoundType {
 	UNKNOWN,
 
 	EXPLOSION,
-}
-
-export enum ClientConnectionState {
-	UNKNOWN,
-	CONNECTED,
-	DISCONNECTED,
 }

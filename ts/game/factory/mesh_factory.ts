@@ -32,8 +32,8 @@ export namespace MeshFactory {
 				animationGroups: animationGroups,
 				transformNodes: transformNodes,
 			});
-		}, /*onProgress=*/null, () => {
-			console.error("Error: failed to load mesh at", pathPrefix + fileName);
+		}, /*onProgress=*/null, (scene : BABYLON.Scene, message : string) => {
+			console.error("Error: failed to load mesh at %s, %s", pathPrefix + fileName, message);
 		});
 	}
 

@@ -110,6 +110,11 @@ class UI {
 	}
 
 	chat(msg : string) : void { this._chatHandler.chat(msg); }
+	clear() : void {
+		this._handlers.forEach((handler) => {
+			handler.clear();
+		});	
+	}
 
 	keys() : Set<KeyType> { return this._inputHandler.keys(); }
 	mouse() : Vec { return this._inputHandler.mouse(); }

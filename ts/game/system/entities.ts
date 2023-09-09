@@ -8,11 +8,16 @@ import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { EntityMap } from 'game/system/entity_map'
 
+type EntityInfo = {
+	type : EntityType;
+	allTypes? : Set<EntityType>;
+}
+
 export class Entities extends SystemBase implements System {
 
 	private _lastId : number;
 	private _lastOfflineId : number;
-	private _idToType : Map<number, EntityType>;
+	private _entityInfo : Map<number, EntityInfo>;
 	private _deletedIds : Set<number>;
 
 	constructor() {
@@ -24,7 +29,7 @@ export class Entities extends SystemBase implements System {
 
 		this._lastId = 0;
 		this._lastOfflineId = 0;
-		this._idToType = new Map();
+		this._entityInfo = new Map();
 		this._deletedIds = new Set();
 
 		this.setFactoryFn((entityType : EntityType) => { return this.addMap(new EntityMap(entityType)); })
@@ -32,7 +37,12 @@ export class Entities extends SystemBase implements System {
 
 	addMap(map : EntityMap) : EntityMap { return this.registerChild<EntityMap>(map.entityType(), map); }
 	hasMap(type : EntityType) : boolean { return this.hasChild(type); }
-	getMap(type : EntityType) : EntityMap { return this.getChild<EntityMap>(type); }
+	getMap(type : EntityType) : EntityMap {
+		if (!this.hasMap(type)) {
+			this.addMap(new EntityMap(type));
+		}
+		return this.getChild<EntityMap>(type);
+	}
 
 	addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : [T, boolean] {
 		if (!EntityFactory.hasCreateFn(type)) {
@@ -59,13 +69,21 @@ export class Entities extends SystemBase implements System {
 			return [null, false];
 		}
 
-		if (this._idToType.has(entityOptions.id)) {
-			console.error("Warning: overwriting object type %d (previous: %d), id %d", type, this._idToType.get(entityOptions.id), entityOptions.id);
+		if (this._entityInfo.has(entityOptions.id)) {
+			console.error("Warning: overwriting object type %d (previous: %d), id %d", type, this._entityInfo.get(entityOptions.id), entityOptions.id);
 		}
 
 		let entity = EntityFactory.create<T>(type, entityOptions);
-		this._idToType.set(entityOptions.id, type);
+		if (entity.allTypes().size === 0) {
+			console.error("Error: created entity with no types", entity);
+			return [null, false];
+		}
 
+		// TODO: also add mapping entries for AllTypes to support queries?
+		this._entityInfo.set(entityOptions.id, {
+			type: type,
+			allTypes: entity.allTypes(),
+		});
 		if (!this.hasMap(type)) {
 			this.addMap(new EntityMap(type));
 		}
@@ -73,12 +91,13 @@ export class Entities extends SystemBase implements System {
 		return [entity, true];
 	}
 
-	hasEntity(id : number) : boolean { return this._idToType.has(id); }
+	hasEntity(id : number) : boolean { return this._entityInfo.has(id); }
 	getEntity<T extends Entity>(id : number) : [T, boolean] {
-		if (!this._idToType.has(id)) {
+		if (!this._entityInfo.has(id)) {
 			return [null, false];
 		}
-		return [this.getMap(this._idToType.get(id)).getEntity<T>(id), true];
+		const type = this._entityInfo.get(id).type;
+		return [this.getMap(type).getEntity<T>(id), true];
 	}
 	findEntities(predicate : ChildPredicate<Entity>) : Entity[] {
 		let entities : Entity[] = [];
@@ -88,20 +107,22 @@ export class Entities extends SystemBase implements System {
 		return entities;
 	}
 	deleteEntity(id : number) : void {
-		if (!this._idToType.has(id)) {
+		if (!this._entityInfo.has(id)) {
 			return;
 		}
 		this._deletedIds.add(id);
-		this.getMap(this._idToType.get(id)).deleteEntity(id);
+		const type = this._entityInfo.get(id).type;
+		this.getMap(type).deleteEntity(id);
 	}
 	unregisterEntity(id : number) : void {
-		if (!this._idToType.has(id)) {
+		if (!this._entityInfo.has(id)) {
 			return;
 		}
 
 		this._deletedIds.add(id);
-		this.getMap(this._idToType.get(id)).unregisterEntity(id);
-		this._idToType.delete(id);
+		const type = this._entityInfo.get(id).type;
+		this.getMap(type).unregisterEntity(id);
+		this._entityInfo.delete(id);
 	}
 
 	private nextId() : number { return ++this._lastId; }

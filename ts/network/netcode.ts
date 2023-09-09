@@ -16,13 +16,19 @@ import { settings } from 'settings'
 import { ui } from 'ui'
 
 import { Buffer } from 'util/buffer'
-import { isLocalhost } from 'util/common'
+import { defined, isLocalhost } from 'util/common'
 import { DoubleMap } from 'util/double_map'
 import { Optional } from 'util/optional'
 
 type PeerMap = Map<string, ChannelMap>;
 type RegisterCallback = (connection : Connection) => void;
 type MessageCallback = (message : NetworkMessage) => void;
+
+enum DataFormat {
+	UNKNOWN,
+	ARRAY_BUFFER,
+	BLOB,
+}
 
 export abstract class Netcode {
 
@@ -46,6 +52,7 @@ export abstract class Netcode {
 	protected _clientId : number;
 	protected _initialized : boolean;
 	protected _peer : Peer;
+	protected _dataFormat : DataFormat;
 
 	protected _connections : Map<string, Connection>;
 	protected _pinger : Pinger;
@@ -65,6 +72,7 @@ export abstract class Netcode {
 		this._hostName = hostName;
 		this._clientId = 0;
 		this._initialized = false;
+		this._dataFormat = DataFormat.UNKNOWN;
 		this._peer = new Peer(name, {
 			debug: 2,
 			pingInterval: 5000,
@@ -212,7 +220,7 @@ export abstract class Netcode {
 		let channels = this._connections.get(dataConnection.peer).channels();
 		channels.register(channelType, dataConnection);
 
-		dataConnection.on("data", (data : Object) => {
+		dataConnection.on("data", (data) => {
 			this.handleData(dataConnection.peer, data);
 		});
 
@@ -229,7 +237,9 @@ export abstract class Netcode {
 		}
 	}
 
-	unregister(connection : DataConnection) {
+	unregister(connection : DataConnection) : void {
+		if (!defined(connection)) { return; }
+
 		let channels = this._connections.get(connection.peer).channels();
 		const channelType = this.labelToChannelType(connection.label);
 
@@ -292,7 +302,7 @@ export abstract class Netcode {
 			return true;
 		}
 
-		const payload = encode(msg.toObject());
+		const payload = encode(msg.exportObject());
 		const delay = settings.debugDelay + Math.random() * settings.debugJitter;
 		if (delay > 0) {
 			setTimeout(() => {
@@ -353,23 +363,24 @@ export abstract class Netcode {
       	this.addMediaConnection(clientId, outgoing);
 	}
 
-	protected addMediaConnection(clientId : number, mc : MediaConnection) {
+	protected addMediaConnection(clientId : number, mediaConnection : MediaConnection) {
 		if (this._mediaConnections.has(clientId)) {
 			console.error("Error: skipping adding duplicate MediaConnection for", clientId);
 			return;
 		}
 
-      	mc.on("stream", (stream : MediaStream) => {
+      	mediaConnection.on("stream", (stream : MediaStream) => {
       		ui.addStream(clientId, stream);
       	});
-      	mc.on("close", () => {
+      	mediaConnection.on("close", () => {
       		ui.removeStream(clientId);
       		this._mediaConnections.delete(clientId);
       	});
-      	mc.on("error", (e) => {
-      		mc.close();
+      	mediaConnection.on("error", (e) => {
+      		console.error(e)
+      		mediaConnection.close();
       	});
-		this._mediaConnections.set(clientId, mc);
+		this._mediaConnections.set(clientId, mediaConnection);
 	}
 
 	protected closeMediaConnection(clientId : number) : void {
@@ -393,21 +404,34 @@ export abstract class Netcode {
 
 			if (connection.hasClientId()) {
 				let msg = new GameMessage(GameMessageType.CLIENT_DISCONNECT);
-				msg.setProp<number>(GameProp.CLIENT_ID, connection.clientId());
+				msg.set<number>(GameProp.CLIENT_ID, connection.clientId());
 				game.handleMessage(msg);
 			}
 		}
 	}
 
-	private async handleData(name : string, data : Object) {
+	private async handleData(name : string, data : unknown) {
 		let bytes;
-		if (data instanceof ArrayBuffer) {
-			bytes = new Uint8Array(data);
-		} else if (data instanceof Blob) {
-			bytes = new Uint8Array(await data.arrayBuffer());
-		} else {
-			console.error("Error: unknown data type: " + (typeof data));
-			return;
+
+		switch (this._dataFormat) {
+		case DataFormat.UNKNOWN:
+			if (data instanceof ArrayBuffer) {
+				bytes = new Uint8Array(data);
+				this._dataFormat = DataFormat.ARRAY_BUFFER;
+			} else if (data instanceof Blob) {
+				bytes = new Uint8Array(await data.arrayBuffer());
+				this._dataFormat = DataFormat.BLOB;
+			} else {
+				console.error("Error: unknown data type: " + (typeof data));
+				return;
+			}
+			break;
+		case DataFormat.ARRAY_BUFFER:
+			bytes = new Uint8Array(<ArrayBuffer>data);
+			break;
+		case DataFormat.BLOB:
+			bytes = new Uint8Array(await (<Blob>data).arrayBuffer());
+			break;
 		}
 
 		if (bytes.length === 0) {

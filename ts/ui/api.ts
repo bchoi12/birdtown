@@ -11,7 +11,9 @@ export enum UiMode {
 
 export enum AnnouncementType {
 	UNKNOWN,
-	TEST,
+	LEVEL,
+	DISCONNECTED,
+	DISCONNECTED_SIGNALING,
 }
 
 export enum CounterType {

@@ -5,8 +5,8 @@ import { System } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 import { Audio } from 'game/system/audio'
 import { Controller } from 'game/system/controller'
-import { ClientState } from 'game/system/client_state'
-import { ClientStates } from 'game/system/client_states'
+import { ClientDialog } from 'game/system/client_dialog'
+import { ClientDialogs } from 'game/system/client_dialogs'
 import { Entities } from 'game/system/entities'
 import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
@@ -61,7 +61,7 @@ class Game {
 
 	private _runner : Runner;
 	private _audio : Audio;
-	private _clientStates : ClientStates;
+	private _clientDialogs : ClientDialogs;
 	private _entities : Entities;
 	private _controller : Controller;
 	private _input : Input;
@@ -89,7 +89,7 @@ class Game {
 
 		this._runner = new Runner();
 		this._audio = new Audio();
-		this._clientStates = new ClientStates();
+		this._clientDialogs = new ClientDialogs();
 		this._entities = new Entities();
 		this._controller = new Controller();
 		this._input = new Input();
@@ -102,7 +102,7 @@ class Game {
 		this._pipeline = new Pipeline(this._engine, this._world.scene(), this._lakitu.camera());
 
 		// Order of insertion is order of execution
-		this._runner.push(this._clientStates);
+		this._runner.push(this._clientDialogs);
 		this._runner.push(this._controller);
 		this._runner.push(this._playerStates);
 		this._runner.push(this._level);
@@ -122,12 +122,12 @@ class Game {
 				connection.setClientId(clientId);
 				
 				let networkMsg = new NetworkMessage(NetworkMessageType.INIT_CLIENT);
-				networkMsg.setProp<number>(NetworkProp.CLIENT_ID, clientId);
+				networkMsg.set<number>(NetworkProp.CLIENT_ID, clientId);
 				this._netcode.send(connection.name(), ChannelType.TCP, networkMsg);
 
 				let gameMsg = new GameMessage(GameMessageType.CLIENT_JOIN);
-				gameMsg.setProp(GameProp.CLIENT_ID, clientId);
-				gameMsg.setProp(GameProp.DISPLAY_NAME, connection.displayName());
+				gameMsg.set(GameProp.CLIENT_ID, clientId);
+				gameMsg.set(GameProp.DISPLAY_NAME, connection.displayName());
 				this.handleMessage(gameMsg);
 
 				if (isLocalhost()) {
@@ -137,7 +137,7 @@ class Game {
 		} else {
 			this._netcode = new Client(this._options.hostName, this._options.displayName);
 			this._netcode.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
-				const clientId = msg.getProp<number>(NetworkProp.CLIENT_ID);
+				const clientId = msg.get<number>(NetworkProp.CLIENT_ID);
 				if (isLocalhost()) {
 					console.log("Got client id", clientId);
 				}
@@ -145,7 +145,7 @@ class Game {
 			});
 		}
 		this._netcode.addMessageCallback(NetworkMessageType.GAME, (msg : NetworkMessage) => {
-			this._runner.importData(msg.getProp(NetworkProp.DATA), msg.getProp<number>(NetworkProp.SEQ_NUM));
+			this._runner.importData(msg.get(NetworkProp.DATA), msg.get<number>(NetworkProp.SEQ_NUM));
 		});
 		this._netcode.initialize();
 	    this._engine.runRenderLoop(() => {
@@ -183,8 +183,8 @@ class Game {
 		this._netcode.setClientId(clientId);
 
 		let gameMsg = new GameMessage(GameMessageType.CLIENT_JOIN);
-		gameMsg.setProp(GameProp.CLIENT_ID, clientId);
-		gameMsg.setProp(GameProp.DISPLAY_NAME, this._netcode.displayName());
+		gameMsg.set(GameProp.CLIENT_ID, clientId);
+		gameMsg.set(GameProp.DISPLAY_NAME, this._netcode.displayName());
     	this.handleMessage(gameMsg);
 
 		if (this.options().host) {
@@ -219,10 +219,11 @@ class Game {
 	netcode() : Netcode { return this._netcode; }
 
 	audio() : Audio { return this._audio; }
-	clientStates() : ClientStates { return this._clientStates; }
-	clientState(id? : number) : ClientState { return this._clientStates.getClientState(id); }
+	clientDialogs() : ClientDialogs { return this._clientDialogs; }
+	clientDialog(id? : number) : ClientDialog { return this._clientDialogs.getClientDialog(id); }
 	controller() : Controller { return this._controller; }
 	entities() : Entities { return this._entities; }
+	input() : Input { return this._input; }
 	keys(id? : number) : Keys { return this._input.getKeys(id); }
 	lakitu() : Lakitu { return this._lakitu; }
 	level() : Level { return this._level; }

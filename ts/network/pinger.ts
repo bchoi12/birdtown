@@ -55,7 +55,7 @@ export class Pinger {
 		client.addMessageCallback(NetworkMessageType.PING, (msg : NetworkMessage) => {
 			this._peerPingTimes.set(msg.name(), Date.now());
 
-			const index = msg.getProp<number>(NetworkProp.SEQ_NUM) % Pinger._maxPings;
+			const index = msg.get<number>(NetworkProp.SEQ_NUM) % Pinger._maxPings;
 			this._pings[index] = Date.now() - this._pingTimes[index];
 
 			this._ping = 0;
@@ -72,7 +72,7 @@ export class Pinger {
 	private pingLoop(connection : Netcode, hostName : string, interval : number) : void {
 		if (connection.ready()) {
 			let msg = new NetworkMessage(NetworkMessageType.PING);
-			msg.setProp<number>(NetworkProp.SEQ_NUM, this._lastPingNumber);
+			msg.set<number>(NetworkProp.SEQ_NUM, this._lastPingNumber);
 			const success = connection.send(hostName, ChannelType.TCP, msg);
 
 			if (success) {

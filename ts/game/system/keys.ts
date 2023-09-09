@@ -20,15 +20,6 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Keys extends ClientSideSystem implements System {
 
-	private static readonly _trackedKeys = new Set([
-		KeyType.LEFT,
-		KeyType.RIGHT,
-		KeyType.JUMP,
-		KeyType.INTERACT,
-		KeyType.MOUSE_CLICK,
-		KeyType.ALT_MOUSE_CLICK,
-	]);
-
 	private _keys : Set<KeyType>;
 	private _keyStates : Map<KeyType, SeqMap<number, boolean>>;
 	private _changeNum : Map<KeyType, number>;

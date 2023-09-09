@@ -34,6 +34,12 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	}
 
 	type() : SystemType { return this._type; }
+
+	addSubSystem<T extends System>(system : T) : T {
+		return this.registerChild(system.type(), this.populateSubSystem<T>(system));
+	}
+	getSubSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
+
 	hasTargetEntity() : boolean { return defined(this._targetEntity); }
 	targetEntity<T extends Entity>() : T { return <T>this._targetEntity; }
 	setTargetEntity<T extends Entity>(entity : T) : void {
@@ -41,11 +47,19 @@ export abstract class SystemBase extends GameObjectBase implements System {
 		this.addNameParams({
 			target: entity,
 		});
+
+		this.execute<System>((subSystem : System) => {
+			subSystem.setTargetEntity(entity);
+		});
 	}
 	clearTargetEntity() : void {
 		this._targetEntity = null;
 		this.addNameParams({
 			target: null,
+		});
+
+		this.execute<System>((subSystem : System) => {
+			subSystem.clearTargetEntity();
 		});
 	}
 
@@ -56,19 +70,32 @@ export abstract class SystemBase extends GameObjectBase implements System {
 			}
 		});
 	}
+
+	private populateSubSystem<T extends System>(system : T) : T {
+		if (this.hasTargetEntity()) {
+			this.execute<System>((subSystem : System) => {
+				subSystem.setTargetEntity(this.targetEntity());
+			});
+		}
+		return system;
+	}
 }
 
 export abstract class ClientSystemManager extends SystemBase implements System {
 
 	constructor(type : SystemType) {
 		super(type);
+
+		this.addNameParams({
+			base: "client_system_manager",
+		});
 	}
 
 	override handleMessage(msg : GameMessage) : void {
 		super.handleMessage(msg);
 
 		if (msg.type() === GameMessageType.CLIENT_JOIN) {
-			const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
+			const clientId = msg.get<number>(GameProp.CLIENT_ID);
 			if (!this.hasFactoryFn()) {
 				console.error("Error: %s missing FactoryFn for new client %d", this.name(), clientId);
 				return;
@@ -76,7 +103,7 @@ export abstract class ClientSystemManager extends SystemBase implements System {
 			let child = <System>this.getFactoryFn()(clientId);
 			child.handleMessage(msg);
 		} else if (msg.type() === GameMessageType.CLIENT_DISCONNECT) {
-			const clientId = msg.getProp<number>(GameProp.CLIENT_ID);
+			const clientId = msg.get<number>(GameProp.CLIENT_ID);
 			if (this.hasChild(clientId)) {
 				let child = this.getChild(clientId);
 				child.delete();

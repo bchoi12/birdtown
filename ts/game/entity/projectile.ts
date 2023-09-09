@@ -13,6 +13,7 @@ export abstract class Projectile extends EntityBase {
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
+		this.addType(EntityType.PROJECTILE);
 
 		this.addNameParams({
 			base: "projectile",

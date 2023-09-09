@@ -97,19 +97,19 @@ export class Console extends EntityBase implements Entity {
 
 		if (this.isSource()) {
 			let msg = new UiMessage(UiMessageType.TOOLTIP);
-			msg.setProp(UiProp.TYPE, TooltipType.CONSOLE);
-			msg.setProp(UiProp.TTL, 100);
+			msg.set(UiProp.TYPE, TooltipType.CONSOLE);
+			msg.set(UiProp.TTL, 100);
 			ui.handleMessage(msg);
 
 			if (game.keys().keyPressed(KeyType.INTERACT, seqNum)) {
 				let msg = new UiMessage(UiMessageType.DIALOG);
-				msg.setProp(UiProp.TYPE, DialogType.PICK_GAME_MODE);
-				msg.setProp(UiProp.PAGES, [{
+				msg.set(UiProp.TYPE, DialogType.PICK_GAME_MODE);
+				msg.set(UiProp.PAGES, [{
 					buttons: [{
 						type: DialogButtonType.IMAGE,
 						title: "duel",
 						action: DialogButtonAction.SUBMIT,
-						onSelect: () => { game.controller().setGameMode(GameMode.DUEL) },
+						onSelect: () => { game.controller().startGame(GameMode.DUEL) },
 					}, {
 						type: DialogButtonType.IMAGE,
 						title: "cancel",

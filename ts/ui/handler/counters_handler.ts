@@ -32,11 +32,11 @@ export class CountersHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		const counters = msg.getProp<Array<UiMessage>>(UiProp.COUNTERS);
+		const counters = msg.get<Array<UiMessage>>(UiProp.COUNTERS);
 		let currentTypes = new Set<CounterType>();
 		counters.forEach((counterMsg : UiMessage) => {
-			const type = counterMsg.getProp<CounterType>(UiProp.TYPE);
-			const count = counterMsg.getProp<number>(UiProp.COUNT);
+			const type = counterMsg.get<CounterType>(UiProp.TYPE);
+			const count = counterMsg.get<number>(UiProp.COUNT);
 			let counter = this.getOrAddCounter(type);
 			counter.updateCounter(count);
 

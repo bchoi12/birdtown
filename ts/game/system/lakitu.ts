@@ -7,7 +7,7 @@ import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
-import { SystemType } from 'game/system/api'
+import { SystemType, LakituMode } from 'game/system/api'
 
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
@@ -21,14 +21,6 @@ import { CircleMap } from 'util/circle_map'
 import { defined, isLocalhost } from 'util/common'
 import { RateLimiter } from 'util/rate_limiter'
 import { Vec, Vec2 } from 'util/vector'
-
-enum LakituMode {
-	UNKNOWN,
-
-	GAME,
-	LEVEL,
-	SPECTATE,
-}
 
 enum OffsetType {
 	UNKNOWN,
@@ -45,6 +37,7 @@ export class Lakitu extends SystemBase implements System {
 	private static readonly _yMin = -6;
 
 	private static readonly _playerRateLimit = 250;
+	private static readonly _deadTimeLimit = 2000;
 
 	private _mode : LakituMode;
 	private _camera : BABYLON.UniversalCamera;
@@ -97,6 +90,30 @@ export class Lakitu extends SystemBase implements System {
 		return new BABYLON.Ray(this._camera.position, point.subtract(this._camera.position));
 	}
 
+	setMode(mode : LakituMode) : void {
+		switch (mode) {
+		case LakituMode.LEVEL:
+			this._vel.x = 1.5;
+			this.setOffset(OffsetType.CAMERA, {x: 10, z: 60});
+			break;
+		default:
+			this._vel.x = 0;
+			this.setOffset(OffsetType.CAMERA, {x: 0, z: 30});
+		}
+	}
+	private setOffset(type : OffsetType, vec : Vec) : void {
+		let offset = this.offset(type);
+		if (defined(vec.x)) {
+			offset.x = vec.x;
+		}
+		if (defined(vec.y)) {
+			offset.y = vec.y;
+		}
+		if (defined(vec.z)) {
+			offset.z = vec.z;
+		}
+		this.computeFov();
+	}
 	addAnchor(delta : BABYLON.Vector3) : void {
 		this._anchor.addInPlace(delta);
 		this.move(this._anchor);
@@ -133,21 +150,13 @@ export class Lakitu extends SystemBase implements System {
 
 		switch (msg.type()) {
 		case GameMessageType.GAME_STATE:
-			const state = msg.getProp<GameState>(GameProp.STATE);
+			const state = msg.get<GameState>(GameProp.STATE);
 			switch (state) {
 			case GameState.SETUP:
-				this._mode = LakituMode.LEVEL;
-				this._vel.x = 2;
-				// TODO: compute based on bounds in postUpdate(), level is not loaded yet
-				this._offsets.get(OffsetType.CAMERA).z = 60;
-				// TODO: just recompute FOV when setting camera offset
-				this.computeFov();
+				this.setMode(LakituMode.LEVEL);
 				break;
 			default:
-				this._mode = LakituMode.GAME;
-				this._vel.x = 0;
-				this._offsets.get(OffsetType.CAMERA).z = 30;
-				this.computeFov();
+				this.setMode(LakituMode.GAME);
 			}
 			break;
 		}
@@ -173,6 +182,7 @@ export class Lakitu extends SystemBase implements System {
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
 		const millis = stepData.millis;
+		const seqNum = stepData.seqNum;
 
 		// Move during postPhysics so we can do camera position-based smoothing in preRender
 		switch (this._mode) {
@@ -191,14 +201,14 @@ export class Lakitu extends SystemBase implements System {
 				this.setTargetEntity(this._players.getHead());
 			}
 
-			if (game.keys().keyPressed(KeyType.LEFT)) {
+			if (game.keys().keyPressed(KeyType.LEFT, seqNum)) {
 				const [targetId, ok] = this._players.rewindAndDelete(this.targetEntity().id(), (player : Player) => {
 					return player.initialized() && !player.deleted();
 				});
 				if (ok) {
 					this.setTargetEntity(this._players.get(targetId));
 				}
-			} else if (game.keys().keyPressed(KeyType.RIGHT)) {
+			} else if (game.keys().keyPressed(KeyType.RIGHT, seqNum)) {
 				const [targetId, ok] = this._players.seekAndDelete(this.targetEntity().id(), (player : Player) => {
 					return player.initialized() && !player.deleted();
 				});
@@ -208,8 +218,10 @@ export class Lakitu extends SystemBase implements System {
 			}
 			// fallthrough
 		case LakituMode.GAME:
-			if (this.validTargetEntity()) {
+			if (this.validTargetEntity() && this.targetEntity<Player>().timeDead() < Lakitu._deadTimeLimit) {
 				this.setAnchor(this.targetEntity().getProfile().pos().toBabylon3());
+			} else {
+				this.setMode(LakituMode.SPECTATE);
 			}
 			break;
 		}
@@ -226,22 +238,22 @@ export class Lakitu extends SystemBase implements System {
 		let counters = new Array<UiMessage>;
 		counts.forEach((count : number, type : CounterType) => {
 			let counterMsg = new UiMessage(UiMessageType.COUNTER);
-			counterMsg.setProp<CounterType>(UiProp.TYPE, type);
-			counterMsg.setProp<number>(UiProp.COUNT, count);
+			counterMsg.set<CounterType>(UiProp.TYPE, type);
+			counterMsg.set<number>(UiProp.COUNT, count);
 			counters.push(counterMsg);
 		});
 
 		let countersMsg = new UiMessage(UiMessageType.COUNTERS);
-		countersMsg.setProp<Array<UiMessage>>(UiProp.COUNTERS, counters);
+		countersMsg.set<Array<UiMessage>>(UiProp.COUNTERS, counters);
 		ui.handleMessage(countersMsg);
 
 		// TODO: rate limit?
 		if (!this.targetEntity().clientIdMatches()) {
 			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
-			tooltipMsg.setProp<TooltipType>(UiProp.TYPE, TooltipType.SPECTATING);
-			tooltipMsg.setProp<number>(UiProp.TTL, 50);
+			tooltipMsg.set<TooltipType>(UiProp.TYPE, TooltipType.SPECTATING);
+			tooltipMsg.set<number>(UiProp.TTL, 50);
 			if (game.playerStates().hasPlayerState(this.targetEntity().clientId())) {
-				tooltipMsg.setProp<Array<string>>(UiProp.NAMES, [game.playerState(this.targetEntity().clientId()).displayName()]);
+				tooltipMsg.set<Array<string>>(UiProp.NAMES, [game.playerState(this.targetEntity().clientId()).displayName()]);
 			}
 			ui.handleMessage(tooltipMsg);
 		}

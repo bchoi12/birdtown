@@ -1,10 +1,13 @@
 import { Peer, DataConnection } from 'peerjs'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ChannelType } from 'network/api'
 import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
+import { AnnouncementType } from 'ui/api'
 
 import { defined, isLocalhost } from 'util/common'
 
@@ -34,8 +37,15 @@ export class Client extends Netcode {
 			this.initTCP();
 		});
 
+		peer.on("error", (e) => {
+	    	const uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+	    	uiMsg.set<AnnouncementType>(UiProp.TYPE, AnnouncementType.DISCONNECTED);
+	    	uiMsg.set<number>(UiProp.TTL, 60 * 1000);
+	    	ui.handleMessage(uiMsg);
+		});
+
 		peer.on("disconnected", () => {
-			peer.reconnect();
+			// TODO: reconnect?
 		});
 	}
 
@@ -45,7 +55,7 @@ export class Client extends Netcode {
 		}
 
 		let msg = new NetworkMessage(NetworkMessageType.CHAT);
-		msg.setProp(NetworkProp.STRING, message);
+		msg.set(NetworkProp.STRING, message);
 		this.send(this.hostName(), ChannelType.TCP, msg);
 	}
 
@@ -55,9 +65,8 @@ export class Client extends Netcode {
 		}
 
 		let outgoing = new NetworkMessage(NetworkMessageType.VOICE);
-		outgoing
-			.setProp<number>(NetworkProp.CLIENT_ID, this.clientId())
-			.setProp<boolean>(NetworkProp.ENABLED, enabled);
+		outgoing.set<number>(NetworkProp.CLIENT_ID, this.clientId());
+		outgoing.set<boolean>(NetworkProp.ENABLED, enabled);
 
 		const sent = this.send(this.hostName(), ChannelType.TCP, outgoing);
 		if (sent) {
@@ -73,12 +82,12 @@ export class Client extends Netcode {
 
 	private registerCallbacks() : void {
 		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
-			ui.chat(msg.getProp<string>(NetworkProp.STRING));
+			ui.chat(msg.get<string>(NetworkProp.STRING));
 		});
 
 		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
-			if (!msg.getProp<boolean>(NetworkProp.ENABLED)) {
-				this.closeMediaConnection(msg.getProp<number>(NetworkProp.CLIENT_ID));
+			if (!msg.get<boolean>(NetworkProp.ENABLED)) {
+				this.closeMediaConnection(msg.get<number>(NetworkProp.CLIENT_ID));
 			}
 		});
 
@@ -87,7 +96,7 @@ export class Client extends Netcode {
 
 			const clients = new Map<number, string>();
 			console.log("Receive voice map", msg);
-			Object.entries(msg.getProp<Object>(NetworkProp.CLIENT_MAP)).forEach(([gameId, name] : [string, string]) => {
+			Object.entries(msg.get<Object>(NetworkProp.CLIENT_MAP)).forEach(([gameId, name] : [string, string]) => {
 				clients.set(Number(gameId), name);
 			});
 			this.callAll(clients);
@@ -119,10 +128,7 @@ export class Client extends Netcode {
 			console.error("TCP closed! Reconnecting...");
 
 			this.unregister(this._tcp);
-
-			if (defined(this._udp)) {
-				this.unregister(this._udp);
-			}
+			this.unregister(this._udp);
 
 			// TODO: only call if peer connection is still valid
 			this.initTCP();

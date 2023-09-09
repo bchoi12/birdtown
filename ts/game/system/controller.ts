@@ -1,160 +1,90 @@
 
 import { game } from 'game'
 import { GameMode, GameState } from 'game/api'
+import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
-import { ClientState } from 'game/system/client_state'
 import { GameMaker } from 'game/system/game_maker'
-import { DuelMaker } from 'game/system/game_maker/duel_maker'
-import { GameData } from 'game/game_data'
 
+import { GameConfigMessage } from 'message/game_config_message'
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
 import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
-import { Timer } from 'util/timer'
+import { Timer, InterruptType } from 'util/timer'
 
 export class Controller extends SystemBase implements System {
 
-	private _gameMode : GameMode;
 	private _gameState : GameState;
-	private _round : number;
-	private _resetTimer : Timer;
-	private _gameMaker : Optional<GameMaker>; 
+	private _gameMaker : GameMaker; 
 
 	constructor() {
-		super(SystemType.GAME_MODE);
+		super(SystemType.CONTROLLER);
 
 		this.addNameParams({
 			base: "controller",
 		});
 
-		this._gameMode = GameMode.UNKNOWN;
 		this._gameState = GameState.UNKNOWN;
-		this._round = 0;
-		this._resetTimer = this.newTimer();
-		this._gameMaker = new Optional();
+		this._gameMaker = this.addSubSystem<GameMaker>(new GameMaker());
 
-		this.addProp<number>({
+		this.addProp<GameState>({
 			export: () => { return this.gameState(); },
-			import: (obj : number) => { this.setGameState(obj); },
+			import: (obj : GameState) => { this.setGameState(obj); },
 			options: {
 				filters: GameData.tcpFilters,
 			},
 		});
-		this.addProp<number>({
-			has: () => { return this._round > 0; },
-			export: () => { return this._round; },
-			import: (obj : number) => { this._round = obj; },
-			options: {
-				filters: GameData.tcpFilters,
-			},
-		})
 	}
 
 	override initialize() : void {
 		super.initialize();
 
-		if (!this.isSource()) {
-			return;
+		if (this.isSource()) {
+			this.setGameState(GameState.FREE);
 		}
-
-		this._gameMaker.set(new DuelMaker());
-		this.setGameState(GameState.WAIT);
 	}
 
-	round() : number { return this._round; }
-	gameMode() : GameMode { return this._gameMode; }
-	setGameMode(mode : GameMode) {
-		this._gameMode = mode;
+	round() : number { return this._gameMaker.round(); }
 
-		if (isLocalhost()) {
-			console.log("%s: game mode is %s", this.name(), GameMode[mode]);
+	gameMode() : GameMode { return this._gameMaker.mode(); }
+	startGame(mode : GameMode, config? : GameConfigMessage) {
+		if (this.gameState() !== GameState.FREE) {
+			console.error("Error: trying to start %s in state %s", GameMode[mode], GameState[this.gameState()]);
+			return;
 		}
-
-		if (this._gameState === GameState.WAIT) {
-			if (this._gameMaker.get().queryAdvance(this._gameState)) {
-				this.advanceGameState();
-				this._round = 1;
-			}
+		if (this._gameMaker.setMode(mode, config)) {
+			this.setGameState(GameState.SETUP);
 		}
 	}
 
 	gameState() : GameState { return this._gameState; }
-	advanceGameState() : void {
-		if (this._gameState === GameState.FINISH) {
-			return;
-		}
-		this.setGameState(this._gameState + 1);
-	}
 	setGameState(state : GameState) : void {
 		if (this._gameState === state) {
 			return;
 		}
 
 		this._gameState = state;
-
-		if (isLocalhost()) {
-			console.log("%s: game state is %s", this.name(), GameState[state]);
-		}
-
-		switch (this._gameState) {
-		case GameState.WAIT:
-			game.level().loadLevel({
-		    	level: LevelType.LOBBY,
-		    	seed: Math.floor(Math.random() * 10000),
-			});
-			break;
-		}
+		this._gameMaker.setGameState(state);
 
 		// Broadcast state change
 		let msg = new GameMessage(GameMessageType.GAME_STATE);
-		msg.setProp<GameState>(GameProp.STATE, this._gameState);
+		msg.set<GameState>(GameProp.STATE, this._gameState);
 		game.handleMessage(msg);
 
-		if (this._gameMaker.has()) {
-			this._gameMaker.get().onStateChange(state);
-		}
-	}
-
-	override handleMessage(msg : GameMessage) : void {
-		super.handleMessage(msg);
-
-		if (!this.isSource()) {
-			return;
-		}
-
-		if (msg.type() !== GameMessageType.CLIENT_JOIN) {
-			return;
+		if (isLocalhost()) {
+			console.log("%s: game state is %s", this.name(), GameState[state]);
 		}
 	}
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
 
-		if (!this._gameMaker.has()) { return; }
-
-		// TODO: remove this and generalize better
-		if (this._gameState === GameState.WAIT) {
-			return;
-		}
-
-		// TODO: also generalize reset better
-		if (this._gameState === GameState.FINISH) {
-			if (!this._resetTimer.hasTimeLeft()) {
-				this._resetTimer.start(1000, () => {
-					this._round++;
-					this.setGameState(GameState.SETUP);
-				});
-			}
-			return;
-		}
-
-		if (this._gameMaker.get().queryAdvance(this._gameState)) {
-			this.advanceGameState();
+		if (this.isSource()) {
+			this.setGameState(this._gameMaker.queryState(this.gameState()));
 		}
 	}
 }

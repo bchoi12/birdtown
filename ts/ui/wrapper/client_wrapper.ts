@@ -16,7 +16,7 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 		super(Html.div());
 
 		this._nameElm = Html.span();
-		this.setDisplayName(msg.getPropOr<string>(UiProp.DISPLAY_NAME, "unknown"));
+		this.setDisplayName(msg.getOr<string>(UiProp.DISPLAY_NAME, "unknown"));
 		this.elm().appendChild(this._nameElm);
 
 		this._voiceWrapper = new VoiceWrapper(msg);

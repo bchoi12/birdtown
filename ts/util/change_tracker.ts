@@ -1,48 +1,50 @@
 
 import { defined } from 'util/common'
+import { Optional } from 'util/optional'
+
+type ChangeFn<T> = (value : T, oldValue? : T) => void;
 
 export class ChangeTracker<T> {
 
 	private _getValue : () => T;
+	private _value : Optional<T>;
+	private _onChange : Optional<ChangeFn<T>>;
+	private _lastChange : number;
 
-	private _value : T;
-	private _onChange : (value : T, oldValue? : T) => void;
-
-	constructor(getValue : () => T, onChange? : (value : T, oldValue? : T) => void) {
+	constructor(getValue : () => T, onChange? : ChangeFn<T>) {
 		this._getValue = getValue;
+		this._value = new Optional();
+		this._onChange = new Optional();
 		if (defined(onChange)) {
-			this._onChange = onChange;
+			this._onChange.set(onChange);
 		}
+		this._lastChange = Date.now();
 	}
 
 	check() : boolean {
 		const value = this._getValue();
 
-		if (!defined(value)) {
+		if (!this._value.has()) {
+			this.set(value);
 			return false;
 		}
 
-		if (!defined(this._value)) {
-			this._value = value;
-			return false;
-		}
-
-		if (this._value !== value) {
-			if (defined(this._onChange)) {
-				this._onChange(value, this._value);
+		if (this._value.get() !== value) {
+			if (this._onChange.has()) {
+				this._onChange.get()(value, this._value.get());
 			}
-			this._value = value;
+
+			this.set(value);
 			return true;
 		}
 
 		return false;
 	}
 
-	set(value : T) {
-		this._value = value;
-	}
+	timeSinceChange() : number { return Date.now() - this._lastChange; }
 
-	value() : T {
-		return this._value;
+	private set(value : T) {
+		this._value.set(value);
+		this._lastChange = Date.now();
 	}
 }

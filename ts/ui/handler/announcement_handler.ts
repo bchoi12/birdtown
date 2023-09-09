@@ -9,6 +9,11 @@ import { Handler, HandlerBase } from 'ui/handler'
 
 import { defined } from 'util/common'
 
+type AnnouncementHTML = {
+	main : string;
+	sub? : string;
+}
+
 export class AnnouncementHandler extends HandlerBase implements Handler {
 
 	private static readonly _defaultTTL : number = 3000;
@@ -51,14 +56,16 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 
 		const announcement = this._announcements.shift();
 		const htmls = this.getHtmls(announcement);
-		this._mainAnnouncementElm.innerHTML = htmls[0];
-		this._subAnnouncementElm.innerHTML = htmls[1];
+		this._mainAnnouncementElm.innerHTML = htmls.main;
+		if (htmls.sub) {
+			this._subAnnouncementElm.innerHTML = htmls.sub;
+		}
 		this._announcementElm.style.display = "block";
 		this._active = true;
 
 		let timeout;
-		if (announcement.hasProp(UiProp.TTL)) {
-			timeout = announcement.getProp<number>(UiProp.TTL);
+		if (announcement.has(UiProp.TTL)) {
+			timeout = announcement.get<number>(UiProp.TTL);
 		} else {
 			timeout = AnnouncementHandler._defaultTTL;
 		}
@@ -68,10 +75,32 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		}, timeout);
 	}
 
-	private getHtmls(announcement : UiMessage) : Array<string> {
-		switch (announcement.getProp<AnnouncementType>(UiProp.TYPE)) {
-		default:
-			return ["Welcome to birdtown", "This is a test announcement"];
+	private getHtmls(announcement : UiMessage) : AnnouncementHTML {
+		const type = announcement.get<AnnouncementType>(UiProp.TYPE)
+		const names = announcement.getOr<Array<string>>(UiProp.NAMES, []);
+
+		switch (type) {
+		case AnnouncementType.LEVEL:
+			if (names.length === 1) {
+				return {
+					main: "Welcome to " + names[0],
+				};
+			}
+		case AnnouncementType.DISCONNECTED:
+			return {
+				main: "Lost connection to server",
+				sub: "Please refresh the page",
+			};
+		case AnnouncementType.DISCONNECTED_SIGNALING:
+			return {
+				main: "Lost connection to signaling server",
+				sub: "The game may still work, but no new players can connect",
+			};
 		}
+
+		return {
+			main: "Something bad happened",
+			sub: "0x0" + type,
+		};
 	}
 }

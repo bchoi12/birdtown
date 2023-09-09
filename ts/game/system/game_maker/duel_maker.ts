@@ -1,4 +1,4 @@
-
+/*
 import { game } from 'game'
 import { GameState } from 'game/api'
 import { ComponentType } from 'game/component/api'
@@ -6,88 +6,115 @@ import { Profile } from 'game/component/profile'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { SpawnPoint } from 'game/entity/spawn_point'
+import { LevelType, PlayerRole } from 'game/system/api'
+import { ClientDialog } from 'game/system/client_dialog'
+import { GameMaker, DefaultMaker } from 'game/system/game_maker'
+import { EntityQuery } from 'game/util/entity_query'
 
-import { LevelType } from 'game/system/api'
-import { ClientState } from 'game/system/client_state'
-import { GameMaker, GameMakerBase } from 'game/system/game_maker'
+enum QueryType {
+	UNKNOWN,
 
-export class DuelMaker extends GameMakerBase implements GameMaker {
+	INITIALIZED,
+}
+
+export class DuelMaker extends DefaultMaker implements GameMaker {
 	
-	// TODO: util for tracking and querying entities
-	private _players : Array<Player>;
-	private _spawnPoints : Array<SpawnPoint>;
+	private _players : EntityQuery<Player>;
+	private _spawnPoints : EntityQuery<SpawnPoint>;
 
 	constructor() {
 		super();
 
-		this._players = new Array();
-		this._spawnPoints = new Array();
+		this._players = new EntityQuery<Player>(EntityType.PLAYER);
+		this._players.registerQuery(QueryType.INITIALIZED, {
+			query: (player : Player) => { return player.initialized(); },
+			maxStaleness: 250,
+		});
+		this._spawnPoints = new EntityQuery<SpawnPoint>(EntityType.SPAWN_POINT);
+		this._spawnPoints.registerQuery(QueryType.INITIALIZED, {
+			query: (spawn : SpawnPoint) => { return spawn.initialized(); },
+			maxStaleness: 1000,
+		});
 	}
 
-	players() : Array<Player> { return this._players; }
-
-	override queryAdvance(current : GameState) : boolean {
+	override valid(current : GameState) : boolean {
 		switch (current) {
-		case GameState.WAIT:
-			this._players = this.queryPlayers();
-			break;
-		case GameState.GAME:
-			this._players = this.queryPlayers();
-			break;
-		}
-
-		return this.canAdvance(current);
-	}
-
-	override canAdvance(current : GameState) : boolean {
-		switch (current) {
-		case GameState.WAIT:
-			return this._players.length >= 2;
 		case GameState.SETUP:
-			return game.clientStates().matchAll<ClientState>((client : ClientState) => {
-				return client.gameState() > GameState.SETUP;
-			});
 		case GameState.GAME:
-			let alive = 0;
-			for (const player of this._players) {
-				if (!player.dead()) {
-					alive++;
-				}
-			}
-			return alive <= 1;
 		case GameState.FINISH:
-			return false;
+			if (this.clientSetup().numConnected() < 2) {
+				return false;
+			}
+			break;
 		}
-
 		return true;
 	}
 
+	override queryState(current : GameState) : GameState {
+		const state = super.queryState(current);
+		if (state !== current) {
+			return state;
+		}
+
+		switch (current) {
+		case GameState.FREE:
+			this._players.query(QueryType.INITIALIZED);
+			if (this._players.get(QueryType.INITIALIZED).length >= 2) {
+				return GameState.SETUP;
+			}
+		case GameState.SETUP:
+			if (game.clientDialogs().matchAll<ClientDialog>((client : ClientDialog) => {
+				return client.gameState() > GameState.SETUP;
+			})) {
+				return GameState.GAME;
+			}
+		case GameState.GAME:
+			const filtered = this._players.filter(QueryType.INITIALIZED, (player : Player) => {
+				return !player.dead();
+			});
+			if (filtered.length <= 1) {
+				return GameState.FINISH;
+			}
+		case GameState.FINISH:
+			if (this.timeSinceStateChange() >= 1000) {
+				return GameState.SETUP;
+			}
+			break;
+		}
+
+		return current;
+	}
+
 	override onStateChange(state : GameState) : void {
+		super.onStateChange(state);
+
+		let players : Player[];
+		let spawnPoints : SpawnPoint[];
+
 		switch (state) {
 		case GameState.SETUP:
-			this._players = this.queryPlayers();
-			this._players.forEach((player : Player) => {
-				player.setDeactivated(true);
-			});
+			// TODO: deactivate all entities?
+			players = this._players.get(QueryType.INITIALIZED);
 			game.level().loadLevel({
 				level: LevelType.BIRDTOWN,
 				seed: 1 + Math.floor(1000 * Math.random()),
 			});
-			this._players.forEach((player : Player) => {
-				player.respawn();
-				player.setDeactivated(true);
-			});
 			break;
 		case GameState.GAME:
-			this._players = this.queryPlayers();
-			this._spawnPoints = this.querySpawnPoints();
+			players = this._players.get(QueryType.INITIALIZED);
+			players.forEach((player : Player) => {
+				if (game.playerStates().hasPlayerState(player.clientId())) {
+					game.playerState(player.clientId()).setRole(PlayerRole.GAMING);
+				}
+			});
+			spawnPoints = this._spawnPoints.get(QueryType.INITIALIZED);
 
-			const numPlayers = this._players.length;
-			const numSpawnPoints = this._spawnPoints.length;
+			const numPlayers = players.length;
+			const numSpawnPoints = spawnPoints.length;
 
 			for (let i = 0; i < numPlayers; ++i) {
-				let player = this._players[i];
-				const spawn = this._spawnPoints[i % numSpawnPoints];
+				let player = players[i];
+				const spawn = spawnPoints[i % numSpawnPoints];
 				player.setSpawn(spawn.getProfile().pos());
 				player.respawn();
 				player.setDeactivated(false);
@@ -95,16 +122,5 @@ export class DuelMaker extends GameMakerBase implements GameMaker {
 			break;
 		}
 	}
-
-	private queryPlayers() : Array<Player> {
-		return game.entities().getMap(EntityType.PLAYER).findAll<Player>((player : Player) => {
-			return player.initialized();
-		});
-	}
-
-	private querySpawnPoints() : Array<SpawnPoint> {
-		return game.entities().getMap(EntityType.SPAWN_POINT).findAll<SpawnPoint>((spawn : SpawnPoint) => {
-			return spawn.initialized();
-		});
-	}
 }
+*/

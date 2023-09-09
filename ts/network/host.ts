@@ -2,11 +2,14 @@ import { Peer, DataConnection } from 'peerjs'
 
 import { game } from 'game'
 
+import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+
 import { ChannelType } from 'network/api'
 import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
+import { AnnouncementType } from 'ui/api'
 
 export class Host extends Netcode {
 
@@ -33,9 +36,11 @@ export class Host extends Netcode {
 		    	console.error("Server closed!");
 		    })
 
-		    peer.on("error", (error) => {
-		    	// TODO: add something to UI or controller error state
-		    	console.error(error);
+		    peer.on("error", (e) => {
+		    	const uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+		    	uiMsg.set<AnnouncementType>(UiProp.TYPE, AnnouncementType.DISCONNECTED_SIGNALING);
+		    	uiMsg.set<number>(UiProp.TTL, 15 * 1000);
+		    	ui.handleMessage(uiMsg);
 		    });
 
 		    this.registerCallbacks();
@@ -43,8 +48,9 @@ export class Host extends Netcode {
 			this._initialized = true;
 		});
 
-		peer.on("disconnected", () => {
-			peer.reconnect();
+		peer.on("disconnected", (e) => {
+			// TODO: reconnect?
+			console.error(e);
 		});
 
 		game.setClientId(1);
@@ -52,25 +58,25 @@ export class Host extends Netcode {
 
 	private registerCallbacks() : void {
 		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
-			this.handleChat(msg.name(), msg.getProp<string>(NetworkProp.STRING));
+			this.handleChat(msg.name(), msg.get<string>(NetworkProp.STRING));
 		});
 
 		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
 			let connection = this.getConnection(msg.name());
-			connection.setVoiceEnabled(msg.getProp<boolean>(NetworkProp.ENABLED));
+			connection.setVoiceEnabled(msg.get<boolean>(NetworkProp.ENABLED));
 
 			let outgoingMsg = new NetworkMessage(NetworkMessageType.VOICE);
-			outgoingMsg.setProp<boolean>(NetworkProp.ENABLED, msg.getProp<boolean>(NetworkProp.ENABLED));
-			outgoingMsg.setProp<number>(NetworkProp.CLIENT_ID, msg.getProp<number>(NetworkProp.CLIENT_ID));
+			outgoingMsg.set<boolean>(NetworkProp.ENABLED, msg.get<boolean>(NetworkProp.ENABLED));
+			outgoingMsg.set<number>(NetworkProp.CLIENT_ID, msg.get<number>(NetworkProp.CLIENT_ID));
 			this.broadcast(ChannelType.TCP, outgoingMsg);
 
-			if (outgoingMsg.getProp<boolean>(NetworkProp.ENABLED)) {
+			if (outgoingMsg.get<boolean>(NetworkProp.ENABLED)) {
 				let voiceMapMsg = new NetworkMessage(NetworkMessageType.VOICE_MAP);
-				voiceMapMsg.setProp<Object>(NetworkProp.CLIENT_MAP, Object.fromEntries(this.getVoiceMap()));
+				voiceMapMsg.set<Object>(NetworkProp.CLIENT_MAP, Object.fromEntries(this.getVoiceMap()));
 				this.send(msg.name(), ChannelType.TCP, voiceMapMsg);
 				this.sendMessage(connection.displayName() + " hopped into voice chat");
 			} else {
-				this.closeMediaConnection(msg.getProp<number>(NetworkProp.CLIENT_ID));
+				this.closeMediaConnection(msg.get<number>(NetworkProp.CLIENT_ID));
 			}
 		});
 	}
@@ -86,8 +92,8 @@ export class Host extends Netcode {
 		this._voiceEnabled = enabled;
 
 		let outgoing = new NetworkMessage(NetworkMessageType.VOICE);
-		outgoing.setProp<number>(NetworkProp.CLIENT_ID, this.clientId())
-			.setProp<boolean>(NetworkProp.ENABLED, enabled);
+		outgoing.set<number>(NetworkProp.CLIENT_ID, this.clientId());
+		outgoing.set<boolean>(NetworkProp.ENABLED, enabled);
 		this.broadcast(ChannelType.TCP, outgoing);
 
 		if (this._voiceEnabled) {
@@ -119,7 +125,7 @@ export class Host extends Netcode {
 
 	private sendMessage(fullMessage : string) : void {
 		let msg = new NetworkMessage(NetworkMessageType.CHAT);
-		msg.setProp<string>(NetworkProp.STRING, fullMessage);
+		msg.set<string>(NetworkProp.STRING, fullMessage);
 		this.broadcast(ChannelType.TCP, msg);
 		ui.chat(fullMessage);
 	}

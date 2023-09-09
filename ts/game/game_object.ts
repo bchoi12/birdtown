@@ -1,6 +1,7 @@
 
 import { game } from 'game'
 
+import { GameObjectState } from 'game/api'
 import { GameData, DataFilter } from 'game/game_data'
 import { GamePropOptions } from 'game/game_prop'
 
@@ -10,7 +11,7 @@ import { NetworkBehavior } from 'network/api'
 
 import { CircleMap } from 'util/circle_map'
 import { defined } from 'util/common'
-import { Timer } from 'util/timer'
+import { Timer, TimerOptions } from 'util/timer'
 
 type HasFn = () => boolean;
 type ExportFn<T extends Object> = () => T;
@@ -57,8 +58,8 @@ export interface GameObject {
 	ready() : boolean;
 	initialized() : boolean;
 	initialize() : void;
-	deactivated() : boolean;
-	setDeactivated(deactivated : boolean) : void;
+	state() : GameObjectState;
+	setState(state : GameObjectState) : void;
 	reset() : void;
 	delete() : void;
 	deleted() : boolean;
@@ -82,6 +83,8 @@ export interface GameObject {
 	hasFactoryFn() : boolean;
 	getFactoryFn() : FactoryFn;
 	setFactoryFn(factoryFn : FactoryFn) : void;
+	getParent<T extends GameObject>() : T;
+	setParent<T extends GameObject>(parent : T) : void;
 	addChild<T extends GameObject>(child : T) : T;
 	registerChild<T extends GameObject>(id : number, child : T) : T;
 	hasChild(id : number) : boolean;
@@ -94,7 +97,7 @@ export interface GameObject {
 	execute<T extends GameObject>(execute : ChildExecute<T>) : void;
 	executeIf<T extends GameObject>(execute : ChildExecute<T>, predicate : (t : T) => boolean) : void;
 
-	newTimer() : Timer;
+	newTimer(options : TimerOptions) : Timer;
 
 	shouldBroadcast() : boolean;
 	isHost() : boolean;
@@ -113,15 +116,16 @@ export abstract class GameObjectBase {
 	protected _name : string;
 	protected _nameParams : NameParams;
 	protected _initialized : boolean;
-	protected _deactivated : boolean;
 	protected _offline : boolean;
 	protected _deleted : boolean;
+	protected _state : GameObjectState;
 	protected _notReadyCounter : number;
 
 	// TODO: unused? deprecate?
 	protected _localObjects : Array<GameObject>;
 	protected _data : GameData;
 	protected _propHandlers : Map<number, PropHandler<Object>>;
+	protected _parent : GameObject;
 	protected _childObjects : CircleMap<number, GameObject>;
 	protected _dataBuffers : Map<number, Array<DataBuffer>>;
 
@@ -135,14 +139,15 @@ export abstract class GameObjectBase {
 			base: name,
 		};
 		this._initialized = false;
-		this._deactivated = false;
 		this._offline = false;
 		this._deleted = false;
 		this._notReadyCounter = 0;
+		this._state = GameObjectState.NORMAL;
 
 		this._localObjects = new Array();
 		this._data = new GameData();
 		this._propHandlers = new Map();
+		this._parent = null;
 		this._childObjects = new CircleMap();
 		this._dataBuffers = new Map();
 
@@ -173,6 +178,11 @@ export abstract class GameObjectBase {
 		if (this._notReadyCounter % 60 === 0) {
 			console.error("Warning: still not ready", this.name());
 		}
+		if (this._notReadyCounter >= 600) {
+			console.error("Error: deleting not ready object", this.name());
+			this.delete();
+			return false;
+		}
 		return true;
 	}
 	initialize() : void {
@@ -182,15 +192,15 @@ export abstract class GameObjectBase {
 		this._initialized = true;
 	}
 	initialized() : boolean {return this._initialized; }
-	deactivated() : boolean { return this._deactivated; }
-	setDeactivated(deactivated : boolean) : void {
-		if (this._deactivated === deactivated) {
+	state() : GameObjectState { return this._state; }
+	setState(state : GameObjectState) : void {
+		if (this._state === state) {
 			return;
 		}
 		this.updateObjects((obj : GameObject) => {
-			obj.setDeactivated(deactivated);
+			obj.setState(state);
 		});
-		this._deactivated = deactivated;
+		this._state = state;
 	}
 	reset() : void {
 		this.updateObjects((obj : GameObject) => {
@@ -213,7 +223,7 @@ export abstract class GameObjectBase {
 		});
 	}
 
-	canStep() : boolean { return this.initialized() && !this.deactivated() && !this.deleted(); }
+	canStep() : boolean { return this.initialized() && this.state() !== GameObjectState.DEACTIVATED && !this.deleted(); }
 	preUpdate(stepData : StepData) : void {
 		const millis = stepData.millis;
 		this._timers.forEach((timer) => {
@@ -329,6 +339,9 @@ export abstract class GameObjectBase {
 	getFactoryFn() : FactoryFn { return this._factoryFn; }
 	setFactoryFn(factoryFn : FactoryFn) : void { this._factoryFn = factoryFn; }
 
+	getParent<T extends GameObject>() : T { return <T>this._parent; }
+	setParent<T extends GameObject>(parent : T) : void { this._parent = parent; }
+
 	addChild<T extends GameObject>(child : T) : T {
 		return this.registerChild(this.numChildren() + 1, child);
 	}
@@ -348,6 +361,7 @@ export abstract class GameObjectBase {
 			});
 			this._dataBuffers.delete(id);
 		}
+		child.setParent(this);
 
 		this._childObjects.push(id, child);
 		return child;
@@ -367,8 +381,8 @@ export abstract class GameObjectBase {
 	execute<T extends GameObject>(execute : ChildExecute<T>) : void { this._childObjects.execute(execute); }
 	executeIf<T extends GameObject>(execute : ChildExecute<T>, predicate : ChildPredicate<T>) : void { this._childObjects.executeIf(execute, predicate); }
 
-	newTimer() : Timer {
-		let timer = new Timer();
+	newTimer(options : TimerOptions) : Timer {
+		let timer = new Timer(options);
 		this._timers.push(timer);
 		return timer;
 	}

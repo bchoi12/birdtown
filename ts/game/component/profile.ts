@@ -1,6 +1,7 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType, StatType } from 'game/component/api'
@@ -72,7 +73,6 @@ export class Profile extends ComponentBase implements Component {
 	private _limits : ProfileLimits;
 	private _constraints : Map<number, MATTER.Constraint>;
 	private _predictWeight : PredictWeight;
-	private _posBuffer : SeqMap<number, Vec2>;
 
 	private _pos : SmoothVec2;
 	private _vel : SmoothVec2;
@@ -103,7 +103,6 @@ export class Profile extends ComponentBase implements Component {
 		this._forces = new Buffer();
 		this._limits = {};
 		this._predictWeight = new PredictWeight();
-		this._posBuffer = new SeqMap(20);
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -207,10 +206,10 @@ export class Profile extends ComponentBase implements Component {
 		}
 	}
 
-	override setDeactivated(deactivated : boolean) : void {
-		super.setDeactivated(deactivated);
+	override setState(state : GameObjectState) : void {
+		super.setState(state);
 
-		if (deactivated) {
+		if (state === GameObjectState.DEACTIVATED) {
 			this.uprightStop();
 		}
 	}

@@ -2,7 +2,7 @@
 
 export function defined(...objects : any) : boolean {
     for (let i = 0; i < objects.length; ++i) {
-        if (typeof objects[i] === 'undefined' || objects[i] === null) {
+        if (objects[i] === null || typeof objects[i] === 'undefined') {
             return false;
         }
     }

@@ -7,6 +7,7 @@ import { AudioType } from 'game/factory/api'
 import { AudioFactory } from 'game/factory/audio_factory'
 import { System, SystemBase } from 'game/system'
 import { SystemType, MusicType, SoundType } from 'game/system/api'
+import { EntityQuery } from 'game/util/entity_query'
 
 import { ui } from 'ui'
 
@@ -18,6 +19,7 @@ type SoundFn = () => AudioType;
 
 export class Audio extends SystemBase implements System {
 
+	private _players : EntityQuery;
 	private _rng : SeededRandom;
 	private _audioCache : Map<AudioType, ObjectCache<BABYLON.Sound>>; 
 	private _sounds : Map<SoundType, SoundFn>;
@@ -29,6 +31,11 @@ export class Audio extends SystemBase implements System {
 			base: "audio",
 		});
 
+		this._players = new EntityQuery();
+		this._players.registerQuery<Player>(EntityType.PLAYER, {
+			query: (player : Player) => { return player.initialized(); },
+			maxStaleness: 250,
+		});
 		this._rng = new SeededRandom(333);
 
 		this._audioCache = new Map();
@@ -75,7 +82,7 @@ export class Audio extends SystemBase implements System {
 		super.preRender();
 
 		// Set sound positions
-		game.entities().getMap(EntityType.PLAYER).execute<Player>((player : Player) => {
+		this._players.query<Player>(EntityType.PLAYER).forEach((player : Player) => {
 			ui.updatePos(player.clientId(), player.getProfile().pos());
 		});
 		if (game.lakitu().hasTargetEntity()) {

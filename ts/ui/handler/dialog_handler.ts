@@ -26,7 +26,17 @@ export class DialogHandler extends HandlerBase implements Handler {
 		this._dialogs = new Array();
 	}
 
+	override clear() : void {
+		super.clear();
+
+		while(this._dialogs.length > 0) {
+			this.popDialog(this._dialogs.pop());
+		}
+	}
+
 	override handleMessage(msg : UiMessage) : void {
+		super.handleMessage(msg);
+
 		if (msg.type() !== UiMessageType.DIALOG) {
 			return;
 		}
@@ -34,8 +44,8 @@ export class DialogHandler extends HandlerBase implements Handler {
 		const dialogWrapper = new DialogWrapper();
 
 		dialogWrapper.setTitle("Message");
-		if (msg.hasProp(UiProp.PAGES)) {
-			const dialogPages = msg.getProp<Array<DialogPage>>(UiProp.PAGES);
+		if (msg.has(UiProp.PAGES)) {
+			const dialogPages = msg.get<Array<DialogPage>>(UiProp.PAGES);
 
 			for (let i = 0; i < dialogPages.length; ++i) {
 				let page = dialogPages[i];
@@ -76,8 +86,8 @@ export class DialogHandler extends HandlerBase implements Handler {
 				});
 			}
 
-			if (msg.hasProp(UiProp.ON_SUBMIT)) {
-				dialogWrapper.addOnSubmit(msg.getProp(UiProp.ON_SUBMIT));
+			if (msg.has(UiProp.ON_SUBMIT)) {
+				dialogWrapper.addOnSubmit(msg.get(UiProp.ON_SUBMIT));
 			}
 		}
 
@@ -93,16 +103,11 @@ export class DialogHandler extends HandlerBase implements Handler {
 		this.showDialog();
 	}
 
-	popAll() : void {
-		while(this._dialogs.length > 0) {
-			this.popDialog(this._dialogs.pop());
-		}
-	}
-
 	popDialog(dialogWrapper : DialogWrapper) : void {
-		this._dialogsElm.removeChild(dialogWrapper.elm());
+		if (this._dialogsElm.contains(dialogWrapper.elm())) {
+			this._dialogsElm.removeChild(dialogWrapper.elm());
+		}
 		this._dialogs.pop();
-
 		this.showDialog();
 	}
 

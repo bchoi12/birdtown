@@ -41,8 +41,8 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		const type = msg.getProp<TooltipType>(UiProp.TYPE);
-		const ttl = msg.getPropOr<number>(UiProp.TTL, TooltipHandler._defaultTTL);
+		const type = msg.get<TooltipType>(UiProp.TYPE);
+		const ttl = msg.getOr<number>(UiProp.TTL, TooltipHandler._defaultTTL);
 
 		let wrapper;
 		if (this._tooltips.has(type)) {
@@ -70,8 +70,8 @@ export class TooltipHandler extends HandlerBase implements Handler {
 	}
 
 	private getHtml(msg : UiMessage) : string{
-		const type = msg.getProp<TooltipType>(UiProp.TYPE);
-		const names = msg.getPropOr<Array<string>>(UiProp.NAMES, []);
+		const type = msg.get<TooltipType>(UiProp.TYPE);
+		const names = msg.getOr<Array<string>>(UiProp.NAMES, []);
 		switch (type) {
 		case TooltipType.CONSOLE:
 			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game.";

@@ -1,4 +1,5 @@
 
+import { Cardinal, CardinalDir } from 'util/cardinal'
 import { Vec, Vec2 } from 'util/vector'
 
 enum Prop {
@@ -31,6 +32,23 @@ export class Box2 {
 		if (point.y < this._min.y) { return -1; }
 		if (point.y > this._max.y) { return 1; }
 		return 0;	
+	}
+	relativePos(cardinal : CardinalDir) : Vec2 {
+		const dim = this._max.clone().sub(this._min);
+
+		let relativePos = this._min.clone().lerp(this._max, 0.5);
+		if (Cardinal.isLeft(cardinal)) {
+			relativePos.add({ x: -dim.x / 2 });
+		} else if (Cardinal.isRight(cardinal)) {
+			relativePos.add({ x: dim.x / 2 });
+		}
+
+		if (Cardinal.isTop(cardinal)) {
+			relativePos.add({ y: dim.y / 2 });
+		} else if (Cardinal.isBottom(cardinal)) {
+			relativePos.add({ y: -dim.y / 2 });
+		}
+		return relativePos;
 	}
 
 	clamp(result : Vec2) : void {
