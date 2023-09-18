@@ -44,6 +44,8 @@ interface GameOptions {
 
 class Game {
 	private static readonly _targetFrames = 60;
+	private static readonly _targetFrameTime = Math.floor(1000 / Game._targetFrames);
+
 	private static readonly _channelMapping = new Map<DataFilter, ChannelType>([
 		[DataFilter.INIT, ChannelType.TCP],
 		[DataFilter.TCP, ChannelType.TCP],
@@ -53,7 +55,8 @@ class Game {
 	private _initialized : boolean;
 	private _clientId : number;
 	private _canvas : HTMLCanvasElement;
-	private _frameTimes : NumberRingBuffer;
+	private _gameTimes : NumberRingBuffer;
+	private _renderTimes : NumberRingBuffer;
 
 	private _options : GameOptions;
 	private _lastClientId : number;
@@ -77,7 +80,8 @@ class Game {
 		this._initialized = false;
 		this._clientId = 0;
 		this._canvas = Html.canvasElm(Html.canvasGame);
-		this._frameTimes = new NumberRingBuffer(Game._targetFrames / 2);
+		this._gameTimes = new NumberRingBuffer(Game._targetFrames / 2);
+		this._renderTimes = new NumberRingBuffer(Game._targetFrames / 2);
 	}
 
 	initialize(gameOptions : GameOptions) {
@@ -146,10 +150,12 @@ class Game {
 			});
 		}
 		this._netcode.addMessageCallback(NetworkMessageType.GAME, (msg : NetworkMessage) => {
+			// TODO: put data into buffer
 			this._runner.importData(msg.get(NetworkProp.DATA), msg.get<number>(NetworkProp.SEQ_NUM));
 		});
 		this._netcode.initialize();
-	    this._engine.runRenderLoop(() => {
+
+	    setInterval(() => {
 	    	const frameStart = Date.now();
 
 	    	this._netcode.preStep();
@@ -163,7 +169,13 @@ class Game {
     			}
 	    	}
 	    	this._runner.cleanup();
-	    	this._frameTimes.push(Date.now() - frameStart);
+	    	this._gameTimes.push(Date.now() - frameStart);
+	    }, Game._targetFrameTime);
+
+	    this._engine.runRenderLoop(() => {
+    		const frameStart = Date.now();
+	    	this._runner.renderFrame();
+	    	this._renderTimes.push(Date.now() - frameStart);
 	    });
 
 	    this._initialized = true;
@@ -202,7 +214,8 @@ class Game {
 		return ++this._lastClientId;
 	}	
 	options() : GameOptions { return this._options; }
-	frameTime() : number { return this._frameTimes.average(); }
+	gameTime() : number { return this._gameTimes.average(); }
+	renderTime() : number { return this._renderTimes.average(); }
 
 	getSystem<T extends System>(type : SystemType) : T { return this._runner.getSystem<T>(type); }
 	handleMessage(msg : GameMessage) : void {

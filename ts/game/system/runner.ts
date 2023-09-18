@@ -88,8 +88,6 @@ export class Runner extends SystemBase implements System  {
     	this.physics(stepData);
     	this.postPhysics(stepData);
     	this.updateData(this._seqNum);
-
-    	this.renderFrame();
 	}
 
 	renderFrame() : void {
