@@ -37,6 +37,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 			[GameProp.TYPE, { min: 1 }],
 			[GameProp.SEED, {}],
 			[GameProp.VERSION, { min: 1 }],
+			[GameProp.DISPLAY_NAME, { optional: true }],
 		)],
 		[GameMessageType.GAME_STATE, MessageBase.fieldDescriptor(
 			[GameProp.STATE, {}],

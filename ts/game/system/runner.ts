@@ -87,11 +87,15 @@ export class Runner extends SystemBase implements System  {
     	this.prePhysics(stepData);
     	this.physics(stepData);
     	this.postPhysics(stepData);
-    	this.preRender();
-    	this.render();
-    	this.postRender();
-
     	this.updateData(this._seqNum);
+
+    	this.renderFrame();
+	}
+
+	renderFrame() : void {
+		this.preRender();
+		this.render();
+		this.postRender();
 	}
 
 	override handleMessage(msg : GameMessage) : void {

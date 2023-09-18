@@ -21,7 +21,7 @@ class Settings {
 	public debugFreezeCamera : boolean;
 	public debugDelay : number;
 	public debugJitter : number;
-	public debugPacketLoss : number;
+	public debugSendFailure : number;
 
 	constructor() {
 		this.leftKeyCode = 65;
@@ -45,7 +45,7 @@ class Settings {
 		this.debugFreezeCamera = false;
 		this.debugDelay = 0;
 		this.debugJitter = 0;
-		this.debugPacketLoss = 0;
+		this.debugSendFailure = 0;
 	}
 
 	// TODO: save and load from cookie

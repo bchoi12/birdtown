@@ -43,6 +43,7 @@ interface GameOptions {
 }
 
 class Game {
+	private static readonly _targetFrames = 60;
 	private static readonly _channelMapping = new Map<DataFilter, ChannelType>([
 		[DataFilter.INIT, ChannelType.TCP],
 		[DataFilter.TCP, ChannelType.TCP],
@@ -76,7 +77,7 @@ class Game {
 		this._initialized = false;
 		this._clientId = 0;
 		this._canvas = Html.canvasElm(Html.canvasGame);
-		this._frameTimes = new NumberRingBuffer(60);
+		this._frameTimes = new NumberRingBuffer(Game._targetFrames / 2);
 	}
 
 	initialize(gameOptions : GameOptions) {
@@ -201,7 +202,7 @@ class Game {
 		return ++this._lastClientId;
 	}	
 	options() : GameOptions { return this._options; }
-	averageFrameTime() : number { return this._frameTimes.average(); }
+	frameTime() : number { return this._frameTimes.average(); }
 
 	getSystem<T extends System>(type : SystemType) : T { return this._runner.getSystem<T>(type); }
 	handleMessage(msg : GameMessage) : void {

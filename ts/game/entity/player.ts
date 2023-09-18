@@ -278,6 +278,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this.updateLoadout();
 	}
 
+	displayName() : string {
+		if (game.playerStates().hasPlayerState(this.clientId())) {
+			return game.playerState(this.clientId()).displayName();
+		}
+		return "player #" + this.clientId();
+	}
 	respawn(spawn : Vec2) : void {
 		this._profile.setPos(spawn);
 		this._profile.uprightStop();
@@ -547,12 +553,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._equip.delete();
 			}
 
-			// TODO: add levelVersion to equips
 			let hasEquip;
 			[this._equip, hasEquip] = this.addTrackedEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.EQUIP_TYPE), {
 				associationInit: {
 					owner: this,
 				},
+				clientId: this.clientId(),
 				levelVersion: game.level().version(),
 			});
 			if (hasEquip) {
@@ -567,6 +573,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				associationInit: {
 					owner: this,
 				},
+				clientId: this.clientId(),
 				levelVersion: game.level().version(),
 			});		
 			if (hasAltEquip) {

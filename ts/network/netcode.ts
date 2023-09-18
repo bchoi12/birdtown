@@ -3,6 +3,8 @@ import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
 import { game } from 'game'
 
+import { MediaGlobals } from 'global/media_globals'
+
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
 import { ChannelType } from 'network/api'
@@ -38,14 +40,6 @@ export abstract class Netcode {
 		[ChannelType.TCP, "TCP"],
 		[ChannelType.UDP, "UDP"],
 	]);
-	private static readonly _mediaOptions : MediaStreamConstraints = {
-		audio: {
-			autoGainControl: true,
-			echoCancellation: true,
-			noiseSuppression: true,
-		},
-	    video: false,
-    };
 
 	protected _displayName : string;
 	protected _hostName : string;
@@ -65,6 +59,7 @@ export abstract class Netcode {
 
 	protected _mediaConnections : Map<number, MediaConnection>;
 	protected _voiceEnabled : boolean;
+	// TODO: delete?
 	protected _audioContext : Optional<AudioContext>;
 
 	constructor(name : string, hostName : string, displayName : string) {
@@ -118,7 +113,6 @@ export abstract class Netcode {
 
 	abstract ready() : boolean;
 	abstract isHost() : boolean;
-
 	abstract setVoiceEnabled(enabled : boolean) : boolean;
 	abstract sendChat(message : string) : void;
 
@@ -133,6 +127,7 @@ export abstract class Netcode {
 
 	peer() : Peer { return this._peer; }
 	ping() : number { return this._pinger.ping(); }
+	pingLoss() : number { return this._pinger.pingLoss(); }
 
 	channelTypeToLabel(type : ChannelType) : string { return Netcode._validChannels.get(type); }
 	isLabelValid(label : string) : boolean { return Netcode._validChannels.hasReverse(label); }
@@ -278,7 +273,7 @@ export abstract class Netcode {
 	}
 
 	send(name : string, type : ChannelType, msg : NetworkMessage) : boolean {
-		msg.addNameParams(name);
+		msg.setName(name);
 		if (!msg.valid()) {
 			console.error("Error: attempting to send invalid message", msg);
 			return false;
@@ -298,7 +293,7 @@ export abstract class Netcode {
 			return false;
 		}
 
-		if (settings.debugPacketLoss > 0 && type === ChannelType.UDP && settings.debugPacketLoss > Math.random()) {
+		if (settings.debugSendFailure > 0 && type === ChannelType.UDP && settings.debugSendFailure > Math.random()) {
 			return true;
 		}
 
@@ -342,7 +337,7 @@ export abstract class Netcode {
 	}
 
 	protected queryMic(successCb : (stream : MediaStream) => void, failureCb : (e) => void) : void {
-		navigator.mediaDevices.getUserMedia(Netcode._mediaOptions).then((stream : MediaStream) => {
+		navigator.mediaDevices.getUserMedia(MediaGlobals.mediaConstraints).then((stream : MediaStream) => {
 			this._audioContext.set(new AudioContext());
 			successCb(stream);
 		}).catch((e) => {
@@ -410,7 +405,7 @@ export abstract class Netcode {
 		}
 	}
 
-	private async handleData(name : string, data : unknown) {
+	private async handleData(name : string, data : unknown) : Promise<void> {
 		let bytes;
 
 		switch (this._dataFormat) {
@@ -448,7 +443,7 @@ export abstract class Netcode {
 		msg.parseObject(decode(bytes));
 
 		const connection = this._connections.get(name);
-		msg.addNameParams(name);
+		msg.setName(name);
 
 		if (!msg.valid()) {
 			console.error("Error: received invalid message over network", msg);

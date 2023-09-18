@@ -49,13 +49,14 @@ export class ClientDialog extends ClientSideSystem implements System {
 			id: clientId,
 		});
 
-		this.setDialogState(DialogState.NOT_REQUESTED);
+		this._dialogState = DialogState.NOT_REQUESTED;
 
 		this._loadoutMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
 		this._loadoutMsg.set<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
 		this._loadoutMsg.set<EntityType>(PlayerProp.ALT_EQUIP_TYPE, EntityType.BIRD_BRAIN);
 		this._loadoutMsg.set<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.NONE);
 
+		// TODO: add staging support for message
 		this._tempMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
 
 		this.addProp<DialogState>({
@@ -69,6 +70,7 @@ export class ClientDialog extends ClientSideSystem implements System {
 			},
 		});
 
+		// IMPORTANT: override equals and manually update the object since the default equals fn always returns true
 		this.addProp<Object>({
 			has: () => { return this._dialogState === DialogState.PENDING; },
 			validate: (obj : Object) => {

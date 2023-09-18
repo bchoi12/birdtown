@@ -32,9 +32,9 @@ export class StatsHandler extends HandlerBase implements Handler {
 	}
 
 	private updateStats() {
-
 		if (game.initialized()) {
 			const ping = game.netcode().ping();
+			const pingSuccess = 100 * (1 - game.netcode().pingLoss());
 			const fps = game.engine().getFps().toFixed();
 
 			let tcp = 0;
@@ -48,9 +48,8 @@ export class StatsHandler extends HandlerBase implements Handler {
 			});
 
 			let text = [
-				"Ping: " + Math.ceil(ping),
-				"FPS: " + fps,
-				"Frame time: " + game.averageFrameTime().toFixed(1),
+				"Ping: " + Math.ceil(ping) + " ms (" + Math.ceil(pingSuccess) + "%)",
+				"FPS: " + fps + " (" + Math.ceil(game.frameTime()) + " ms)",
 				"TCP/s: " + Math.ceil(tcp),
 				"UDP/s: " + Math.ceil(udp),
 				"Kb/s: " + Math.ceil(bytes / 1024),

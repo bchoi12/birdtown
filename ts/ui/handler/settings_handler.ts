@@ -122,19 +122,19 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(jitter.elm());	
 
-		let packetLoss = new SettingWrapper({
-			id: "input-debug-packet-loss",
+		let sendFailure = new SettingWrapper({
+			id: "input-debug-send-failure",
 			type: "range",
-			label: "Packet Loss",
+			label: "Send Failure",
 
 			min: 0,
 			max: 0.5,
 			step: .01,
 
-			getSetting: () => { return settings.debugPacketLoss; },
-			setSetting: (value : number) => { settings.debugPacketLoss = value; },
+			getSetting: () => { return settings.debugSendFailure; },
+			setSetting: (value : number) => { settings.debugSendFailure = value; },
 		});
-		this._settingsElm.appendChild(packetLoss.elm());		
+		this._settingsElm.appendChild(sendFailure.elm());		
 	}
 
 	override setMode(mode : UiMode) : void {

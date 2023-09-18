@@ -18,18 +18,25 @@ export class NumberRingBuffer extends RingBuffer<number> {
 		return this._total / this.size();
 	}
 
+	override set(index : number, value : number) : void {
+		this._total -= this.get(index);
+		this._total += value;
+		super.set(index, value);
+	}
+
 	override pop() : number {
 		const num = super.pop();
 		this._total -= num;
 		return num;
 	}
 
-	override push(num : number) : void {
-		if (this.full()) {
-			this._total -= this.peek();
-		}
+	override push(num : number) : number {
+		const current = super.push(num);
 
-		super.push(num);
+		if (current != null) {
+			this._total -= current;
+		}
 		this._total += num;
+		return current;
 	}
 }

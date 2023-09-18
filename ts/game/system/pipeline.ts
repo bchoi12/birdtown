@@ -84,7 +84,6 @@ export class Pipeline extends SystemBase implements System {
 
 		if (settings.enableAntiAlias !== this.effectEnabled(EffectType.ANTI_ALIAS)) {
 			this.setEffectEnabled(EffectType.ANTI_ALIAS, settings.enableAntiAlias);
-			console.log("Set %s to %s", EffectType.ANTI_ALIAS, settings.enableAntiAlias);
 		}
 	}
 }

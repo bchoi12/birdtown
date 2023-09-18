@@ -23,6 +23,7 @@ import { isLocalhost } from 'util/common'
 
 export class GameMaker extends SystemBase implements System {
 
+	private static readonly _noWinner = "no one";
 	private static readonly _finishTime = 2000;
 	private static readonly _victoryTime = 3000;
 	private static readonly _errorTime = 3000;
@@ -72,6 +73,21 @@ export class GameMaker extends SystemBase implements System {
 			return false;
 		}
 		return (Date.now() - this._lastStateChange) >= this._config.get<number>(prop);
+	}
+
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		switch (msg.type()) {
+		case GameMessageType.LEVEL_LOAD:
+			if (msg.has(GameProp.DISPLAY_NAME)) {
+		    	let uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+		    	uiMsg.set(UiProp.TYPE, AnnouncementType.LEVEL);
+		    	uiMsg.set(UiProp.NAMES, [msg.get<string>(GameProp.DISPLAY_NAME)]);
+		    	ui.handleMessage(uiMsg);
+			}
+			break;
+		}
 	}
 
 	setMode(mode : GameMode, config? : GameConfigMessage) : boolean {
@@ -138,11 +154,7 @@ export class GameMaker extends SystemBase implements System {
 			const alive = this._entityQuery.filter<Player>(EntityType.PLAYER, (player : Player) => {
 				return !player.dead();
 			});
-
-			// TODO: add points, set winner, whatever
-			if (alive.length === 0) {
-				return GameState.FINISH;
-			} else if (alive.length === 1) {
+			if (alive.length <= 1) {
 				return GameState.FINISH;
 			}
 
@@ -151,6 +163,7 @@ export class GameMaker extends SystemBase implements System {
 			if (this.timeLimitReached(GameConfigProp.TIME_FINISH)) {
 				return GameState.SETUP;
 			}
+			// TODO: victory check
 			break;
 		case GameState.VICTORY:
 			if (this.timeLimitReached(GameConfigProp.TIME_VICTORY)) {
@@ -169,40 +182,34 @@ export class GameMaker extends SystemBase implements System {
 
 		ui.clear();
 
+		if (!this.isSource()) {
+			return;
+		}
+
 		switch (state) {
 		case GameState.FREE:
 			this._round = 0;
-
 			let lobbyMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
 			lobbyMsg.set(GameProp.TYPE, LevelType.LOBBY);
 			lobbyMsg.set(GameProp.SEED, Math.floor(Math.random() * 10000));
 			lobbyMsg.set(GameProp.VERSION, game.level().version() + 1);
 			game.level().loadLevel(lobbyMsg);
-
 			break;
 		case GameState.SETUP:
 			this._round++;
-			this._entityQuery.registerQuery(EntityType.PLAYER, {
-				query: (player : Player) => { return player.canStep(); },
-				maxStaleness: 250,
-			});
-
 			let birdtownMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
 			birdtownMsg.set(GameProp.TYPE, LevelType.BIRDTOWN);
 			birdtownMsg.set(GameProp.SEED, Math.floor(Math.random() * 10000));
 			birdtownMsg.set(GameProp.VERSION, game.level().version() + 1);
 			game.level().loadLevel(birdtownMsg);
 
+			this._entityQuery.registerQuery(EntityType.PLAYER, {
+				query: (player : Player) => { return player.canStep(); },
+				maxStaleness: 250,
+			});
 			this._entityQuery.query<Player>(EntityType.PLAYER).forEach((player : Player) => {
 				game.level().spawnPlayer(player);
 			});
-
-			if (this._round === 1) {
-		    	let uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-		    	uiMsg.set(UiProp.TYPE, AnnouncementType.LEVEL);
-		    	uiMsg.set(UiProp.NAMES, [game.level().displayName()]);
-		    	ui.handleMessage(uiMsg);
-			}
 			break;
 		case GameState.GAME:
 			// Respawn again to reflect loadout changes
@@ -210,6 +217,31 @@ export class GameMaker extends SystemBase implements System {
 				game.level().spawnPlayer(player);
 			});
 			break;
+		case GameState.FINISH:
+			const alive = this._entityQuery.filter<Player>(EntityType.PLAYER, (player : Player) => {
+				return !player.dead();
+			});
+
+			// TODO: send GameStateMessage to clients
+			let winner = GameMaker._noWinner;
+			if (alive.length === 1) {
+				winner = alive[0].displayName();
+			}
+	    	let finishMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+	    	finishMsg.set(UiProp.TYPE, AnnouncementType.GAME_FINISH);
+	    	finishMsg.set(UiProp.NAMES, [winner]);
+	    	ui.handleMessage(finishMsg);
+
+			break;
+		case GameState.VICTORY:
+			// TODO: announce victory
+			break;
+		case GameState.ERROR:
+	    	let errorMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+	    	errorMsg.set(UiProp.TYPE, AnnouncementType.GAME_ERROR);
+	    	errorMsg.set(UiProp.NAMES, ["TODO: add the error message here"]);
+	    	ui.handleMessage(errorMsg);
+	    	break;
 		}
 	}
 }

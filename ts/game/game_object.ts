@@ -178,11 +178,6 @@ export abstract class GameObjectBase {
 		if (this._notReadyCounter % 60 === 0) {
 			console.error("Warning: still not ready", this.name());
 		}
-		if (this._notReadyCounter >= 600) {
-			console.error("Error: deleting not ready object", this.name());
-			this.deleted() ? this.dispose() : this.delete();
-			return false;
-		}
 		return true;
 	}
 	initialize() : void {

@@ -14,6 +14,8 @@ export enum AnnouncementType {
 	LEVEL,
 	DISCONNECTED,
 	DISCONNECTED_SIGNALING,
+	GAME_FINISH,
+	GAME_ERROR,
 }
 
 export enum CounterType {

@@ -33,7 +33,7 @@ export class Client extends Netcode {
 			}
 
 			this.registerCallbacks();
-			this._pinger.initializeForClient(this, this.hostName());
+			this._pinger.initializeForClient(this);
 			this.initTCP();
 		});
 

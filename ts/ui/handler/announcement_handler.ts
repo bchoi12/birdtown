@@ -86,6 +86,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 					main: "Welcome to " + names[0],
 				};
 			}
+			break;
 		case AnnouncementType.DISCONNECTED:
 			return {
 				main: "Lost connection to server",
@@ -96,6 +97,21 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 				main: "Lost connection to signaling server",
 				sub: "The game may still work, but no new players can connect",
 			};
+		case AnnouncementType.GAME_FINISH:
+			if (names.length === 1) {
+				return {
+					main: names[0] + " wins the round!",
+				};
+			}
+			break;
+		case AnnouncementType.GAME_ERROR:
+			if (names.length === 1) {
+				return {
+					main: "A game-ending error occurred",
+					sub: names[0],
+				};
+			}
+			break;
 		}
 
 		return {

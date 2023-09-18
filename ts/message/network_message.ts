@@ -53,5 +53,5 @@ export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp>
 	override valid() { return super.valid() && this._name.length > 0; }
 
 	name() : string { return this._name; }
-	addNameParams(name : string) : void { this._name = name; }
+	setName(name : string) : void { this._name = name; }
 }

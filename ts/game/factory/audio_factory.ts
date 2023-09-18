@@ -3,7 +3,7 @@ import * as BABYLON from "babylonjs";
 import { game } from 'game'
 import { AudioType } from 'game/factory/api'
 
-import { AudioGlobals } from 'global/audio_globals'
+import { MediaGlobals } from 'global/media_globals'
 
 import { defined } from 'util/common'
 
@@ -42,9 +42,9 @@ export namespace AudioFactory {
 			"audio/" + metadata.get(type).path,
 			game.world().scene(),
 			defined(onLoad) ? () => { onLoad(sound); } : null,
-			metadata.get(type).spatial ? AudioGlobals.spatialGameOptions : {});
+			metadata.get(type).spatial ? MediaGlobals.spatialGameOptions : {});
 
-		if (AudioGlobals.panningModel === "HRTF") {
+		if (MediaGlobals.panningModel === "HRTF") {
 			sound.switchPanningModelToHRTF();
 		}
 		return sound;

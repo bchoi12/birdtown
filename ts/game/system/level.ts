@@ -64,16 +64,6 @@ export class Level extends SystemBase implements System {
 		});
 	}
 
-	displayName() : string {
-		switch (this.levelType()) {
-		case LevelType.LOBBY:
-			return "Birdtown Lobby";
-		case LevelType.BIRDTOWN:
-			return "Birdtown #" + this.seed();
-		}
-		return "Unknown Level";
-	}
-
 	levelType() : LevelType { return this._levelMsg.getOr<LevelType>(GameProp.TYPE, LevelType.UNKNOWN); }
 	seed() : LevelType { return this._levelMsg.getOr<number>(GameProp.SEED, 0); }
 	version() : number { return this._levelMsg.getOr<number>(GameProp.VERSION, 0); }
@@ -130,10 +120,21 @@ export class Level extends SystemBase implements System {
 			break;
 		}
 
+		this._levelMsg.set<string>(GameProp.DISPLAY_NAME, this.displayName());
     	game.runner().handleMessage(this._levelMsg);
 		if (isLocalhost()) {
 			console.log("Loaded level %s with seed %d, version %d", LevelType[level], seed, version);
 		}
+	}
+
+	private displayName() : string {
+		switch (this.levelType()) {
+		case LevelType.LOBBY:
+			return "Birdtown Lobby";
+		case LevelType.BIRDTOWN:
+			return "Birdtown #" + this.seed();
+		}
+		return "Unknown Level";
 	}
 
 	private loadLobby() : void {

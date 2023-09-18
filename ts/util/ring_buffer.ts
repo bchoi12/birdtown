@@ -2,18 +2,22 @@
 
 export class RingBuffer<T> {
 
-	private _buffer : Array<T>;
+	protected _buffer : Array<T>;
+	protected _maxSize : number;
+	protected _size : number;
+	// Points to next index to insert
+	protected _index : number;
 
-	private _size : number;
-	private _index : number;
-
-	constructor(size : number) {
-		this._buffer = new Array(size);
-
+	constructor(maxSize : number) {
+		this._buffer = new Array(maxSize);
+		this._maxSize = maxSize;
 		this._size = 0;
 		this._index = 0;
 	}
 
+	array() : Array<T> { return this._buffer; }
+	get(index : number) : T { return this._buffer[index]; }
+	set(index : number, value : T) : void { this._buffer[index] = value; }
 	size() : number { return this._size; }
 	empty() : boolean { return this._size === 0; }
 	full() : boolean { return this._size === this._buffer.length; }
@@ -27,7 +31,7 @@ export class RingBuffer<T> {
 		if (this.empty()) {
 			return null;
 		}
-		return this._buffer[this._index];
+		return this._buffer[this.wrapIndex(this._index - 1)];
 	}
 
 	pop() : T {
@@ -42,13 +46,15 @@ export class RingBuffer<T> {
 		return obj;
 	}
 
-	push(t : T) : void {
+	push(t : T) : T {
+		const current = this.full() ? this._buffer[this._index] : null;
 		this._buffer[this._index] = t;
 		this._index = this.wrapIndex(this._index + 1);
 		this._size = Math.min(this._size + 1, this._buffer.length);
+		return current;
 	}
 
 	protected wrapIndex(index : number) {
-		return ((index % this._size) + this._size) % this._size;
+		return ((index % this._maxSize) + this._maxSize) % this._maxSize;
 	}
 }

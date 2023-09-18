@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 
-import { AudioGlobals } from 'global/audio_globals'
+import { MediaGlobals } from 'global/media_globals'
 
 
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
@@ -84,7 +84,7 @@ export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 		let context = ui.audioContext();
 		let source = context.createMediaStreamSource(this._stream);
 		let dest = context.createMediaStreamDestination();
-		this._panner = new PannerNode(context, AudioGlobals.spatialVoiceOptions);
+		this._panner = new PannerNode(context, MediaGlobals.spatialVoiceOptions);
 
 		source.connect(this._panner);
 		this._panner.connect(dest);
