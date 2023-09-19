@@ -56,9 +56,9 @@ export class Keys extends ClientSideSystem implements System {
 			},
 		});
 
-		for (let i = 0; i < Keys._trackedTypes.length; ++i) {
-			this.addSubSystem(i + 1, new Key(Keys._trackedTypes[i], clientId));
-		}
+		Keys._trackedTypes.forEach((keyType : KeyType) => {
+			this.addSubSystem(keyType, new Key(keyType, clientId));
+		});
 	}
 
 	getKey(type : KeyType) : Key { return this.getChild<Key>(type); }
@@ -103,7 +103,6 @@ export class Keys extends ClientSideSystem implements System {
 
 	override preRender() : void {
 		super.preRender();
-
 		if (this.isSource()) {
 			this.updateMouse();
 		}

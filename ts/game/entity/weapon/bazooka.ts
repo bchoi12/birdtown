@@ -44,7 +44,6 @@ export class Bazooka extends Weapon {
 
 		let vel = unitDir.clone().scale(0.05);
 		let acc = unitDir.clone().scale(1.5);
-		// TODO: add level version
 		let [rocket, hasRocket] = this.addEntity<Rocket>(EntityType.ROCKET, {
 			associationInit: {
 				owner: this,
@@ -55,7 +54,6 @@ export class Bazooka extends Weapon {
 				vel: vel,
 				acc: acc,
 			},
-			levelVersion: this.levelVersion(),
 		});
 
 		if (hasRocket) {

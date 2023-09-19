@@ -162,9 +162,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	clientIdMatches() : boolean { return this.hasClientId() && this.clientId() === game.clientId() }
 
 	hasLevelVersion() : boolean { return defined(this._levelVersion); }
-	levelVersion() : number { return this._levelVersion; }
+	levelVersion() : number { return this.hasLevelVersion() ? this._levelVersion : 0; }
 
 	addEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {
+		if (this.hasLevelVersion()) {
+			options = {...options, levelVersion: this.levelVersion() };
+		}
 		return game.entities().addEntity(type, options);
 	}
 	addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {
