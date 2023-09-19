@@ -49,7 +49,6 @@ export class Keys extends ClientSideSystem implements System {
 			import: (obj : Array<KeyType>) => { this._keys = new Set(obj); },
 			options: {
 				refreshInterval: 100,
-				filters: GameData.udpFilters,
 				equals: (a : Array<KeyType>, b : Array<KeyType>) => {
 					if (a.length !== b.length) { return false; }
 

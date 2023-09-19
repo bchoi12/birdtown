@@ -55,7 +55,7 @@ export class GameProp<T extends Object> {
 		this._minInterval = assignOr(propOptions.minInterval, 0);
 		this._refreshInterval = new Optional(assignOr(propOptions.refreshInterval, null));
 		this._conditionalInterval = new Optional(assignOr(propOptions.conditionalInterval, null));
-		this._udpRedundancies = assignOr(propOptions.udpRedundancies, 2);
+		this._udpRedundancies = assignOr(propOptions.udpRedundancies, 1);
 		this._equals = assignOr(propOptions.equals, (a : T, b : T) => { return GameProp.equals(a, b); });
 		this._filters = assignOr(propOptions.filters, GameData.allFilters);
 	}
