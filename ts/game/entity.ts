@@ -12,10 +12,10 @@ import { CardinalsInitOptions } from 'game/component/cardinals'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { ProfileInitOptions } from 'game/component/profile'
 import { Stats } from 'game/component/stats'
-import { EntityType, KeyState } from 'game/entity/api'
+import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 
-import { CounterType, KeyType } from 'ui/api'
+import { CounterType, KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
 import { InterruptType } from 'util/timer'
@@ -195,7 +195,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		});
 	}
 
-	key(type : KeyType, state : KeyState, seqNum : number) : boolean {
+	key(type : KeyType, state : KeyState) : boolean {
 		if (this.state() === GameObjectState.DISABLE_INPUT) {
 			return false;
 		}
@@ -208,17 +208,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 
 		const keys = game.keys(this.clientId());
-		switch (state) {
-		case KeyState.UP:
-			return keys.keyUp(type, seqNum);
-		case KeyState.DOWN:
-			return keys.keyDown(type, seqNum);
-		case KeyState.PRESSED:
-			return keys.keyPressed(type, seqNum);
-		case KeyState.RELEASED:
-			return keys.keyReleased(type, seqNum);
-		}
-		return false;
+		return keys.getKey(type).keyState() === state;
 	}
 	keysDir() : Vec2 {
 		if (!this.hasClientId()) {

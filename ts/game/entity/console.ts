@@ -13,7 +13,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
-import { DialogButtonAction, DialogType, DialogButtonType, KeyType, TooltipType } from 'ui/api'
+import { DialogButtonAction, DialogType, DialogButtonType, KeyType, KeyState, TooltipType } from 'ui/api'
 
 export class Console extends EntityBase implements Entity {
 
@@ -101,7 +101,7 @@ export class Console extends EntityBase implements Entity {
 			msg.set(UiProp.TTL, 100);
 			ui.handleMessage(msg);
 
-			if (game.keys().keyPressed(KeyType.INTERACT, seqNum)) {
+			if (this.key(KeyType.INTERACT, KeyState.PRESSED)) {
 				let msg = new UiMessage(UiMessageType.DIALOG);
 				msg.set(UiProp.TYPE, DialogType.PICK_GAME_MODE);
 				msg.set(UiProp.PAGES, [{

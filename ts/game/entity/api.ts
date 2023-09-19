@@ -22,12 +22,3 @@ export enum EntityType {
 	SPAWN_POINT,
 	WALL,
 }
-
-export enum KeyState {
-	UNKNOWN,
-
-	UP,
-	DOWN,
-	PRESSED,
-	RELEASED,
-}

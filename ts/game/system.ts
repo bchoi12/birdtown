@@ -35,8 +35,8 @@ export abstract class SystemBase extends GameObjectBase implements System {
 
 	type() : SystemType { return this._type; }
 
-	addSubSystem<T extends System>(system : T) : T {
-		return this.registerChild(system.type(), this.populateSubSystem<T>(system));
+	addSubSystem<T extends System>(id : number, system : T) : T {
+		return this.registerChild(id, this.populateSubSystem<T>(system));
 	}
 	getSubSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
 
@@ -160,7 +160,6 @@ export abstract class ClientSideSystem extends ClientSystem implements System {
 		} else if (this.isHost()) {
 			return NetworkBehavior.RELAY;
 		}
-		
 		return NetworkBehavior.COPY;
 	}
 }

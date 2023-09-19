@@ -12,7 +12,7 @@ import { Profile } from 'game/component/profile'
 import { StatInitOptions } from 'game/component/stat'
 import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
-import { EntityType, KeyState } from 'game/entity/api'
+import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
@@ -24,7 +24,7 @@ import { GameGlobals } from 'global/game_globals'
 
 import { PlayerProp } from 'message/player_message'
 
-import { KeyType, CounterType } from 'ui/api'
+import { KeyType, KeyState, CounterType } from 'ui/api'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -330,20 +330,17 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
-		const seqNum = stepData.seqNum;
 
 		// Gravity
-		let gravity = GameGlobals.gravity;
-		if (!this._attributes.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0) {
-			gravity += (Player._fallMultiplier - 1) * GameGlobals.gravity;
-		}
+		const falling = !this._attributes.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0;
+		const gravity = falling ? Player._fallMultiplier * GameGlobals.gravity : GameGlobals.gravity;
 		this._profile.setAcc({ y: gravity });
 
 		if (!this._stats.dead()) {
 			// Keypress acceleration
-			if (this.key(KeyType.LEFT, KeyState.DOWN, seqNum)) {
+			if (this.key(KeyType.LEFT, KeyState.DOWN)) {
 				this._profile.setAcc({ x: -Player._sideAcc });
-			} else if (this.key(KeyType.RIGHT, KeyState.DOWN, seqNum)) {
+			} else if (this.key(KeyType.RIGHT, KeyState.DOWN)) {
 				this._profile.setAcc({ x: Player._sideAcc });
 			} else {
 				this._profile.setAcc({ x: 0 });
@@ -362,12 +359,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			// Jumping
 			if (this._jumpTimer.hasTimeLeft()) {
-				if (this.key(KeyType.JUMP, KeyState.DOWN, seqNum)) {
+				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
 					this._profile.setVel({ y: Player._jumpVel });
 					this._jumpTimer.stop();
 				}
 			} else if (this._canDoubleJump) {
-				if (this.key(KeyType.JUMP, KeyState.PRESSED, seqNum)) {
+				if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
 					this._profile.setVel({ y: Player._jumpVel });
 					this._canDoubleJump = false;
 				}
@@ -395,7 +392,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 						// TODO: just read directly from keys in Equip
 						const keys = game.keys(this.clientId());
 						equip.updateInput({
-							keys: this._stats.dead() ? new Set() : keys.keys(seqNum),
+							keys: this._stats.dead() ? new Set() : keys.getKeys(),
 							millis: millis,
 							mouse: keys.mouse(),
 							dir: this._armDir,

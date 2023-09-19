@@ -481,7 +481,7 @@ export class Profile extends ComponentBase implements Component {
 		let weight = 0;
 		if (settings.enablePrediction && this.entity().clientIdMatches()) {
 			// Diff based on time?
-			this._predictWeight.setDiff(game.keys(this.entity().clientId()).framesSinceChange());
+			this._predictWeight.setDiff(game.keys(this.entity().clientId()).maxDiff());
 			weight = this._predictWeight.weight();
 		}
 		this.vel().snap(weight);

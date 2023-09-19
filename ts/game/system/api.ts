@@ -10,6 +10,7 @@ export enum SystemType {
 	GAME_MAKER,
 	INPUT,
 	KEYS,
+	KEY,
 	LAKITU,
 	LEVEL,
 	PHYSICS,

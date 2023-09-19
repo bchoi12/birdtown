@@ -29,7 +29,7 @@ export class Controller extends SystemBase implements System {
 		});
 
 		this._gameState = GameState.UNKNOWN;
-		this._gameMaker = this.addSubSystem<GameMaker>(new GameMaker());
+		this._gameMaker = this.addSubSystem<GameMaker>(SystemType.GAME_MAKER, new GameMaker());
 
 		this.addProp<GameState>({
 			export: () => { return this.gameState(); },

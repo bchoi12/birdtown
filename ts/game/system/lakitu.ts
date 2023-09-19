@@ -187,7 +187,6 @@ export class Lakitu extends SystemBase implements System {
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
 		const millis = stepData.millis;
-		const seqNum = stepData.seqNum;
 
 		// Move during postPhysics so we can do camera position-based smoothing in preRender
 		switch (this._mode) {
@@ -206,14 +205,14 @@ export class Lakitu extends SystemBase implements System {
 				this.setTargetEntity(this._players.getHead());
 			}
 
-			if (game.keys().keyPressed(KeyType.LEFT, seqNum)) {
+			if (game.keys().getKey(KeyType.LEFT).pressed()) {
 				const [targetId, ok] = this._players.rewindAndDelete(this.targetEntity().id(), (player : Player) => {
 					return player.initialized() && !player.deleted();
 				});
 				if (ok) {
 					this.setTargetEntity(this._players.get(targetId));
 				}
-			} else if (game.keys().keyPressed(KeyType.RIGHT, seqNum)) {
+			} else if (game.keys().getKey(KeyType.RIGHT).pressed()) {
 				const [targetId, ok] = this._players.seekAndDelete(this.targetEntity().id(), (player : Player) => {
 					return player.initialized() && !player.deleted();
 				});
@@ -223,8 +222,15 @@ export class Lakitu extends SystemBase implements System {
 			}
 			// fallthrough
 		case LakituMode.GAME:
-			if (this.validTargetEntity() && this.targetEntity<Player>().timeDead() < Lakitu._deadTimeLimit) {
+			if (this.validTargetEntity()) {
 				this.setAnchor(this.targetEntity().getProfile().pos().toBabylon3());
+
+				// TODO: only swap when player state lives are out and we're gaming
+				if (game.controller().gameState() !== GameState.FREE) {
+					if (this.targetEntity<Player>().timeDead() > Lakitu._deadTimeLimit) {
+						this.setMode(LakituMode.SPECTATE);
+					}
+				}
 			} else {
 				this.setMode(LakituMode.SPECTATE);
 			}

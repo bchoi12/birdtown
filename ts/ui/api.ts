@@ -67,6 +67,15 @@ export enum KeyType {
 	ALT_MOUSE_CLICK,
 }
 
+export enum KeyState {
+	UNKNOWN,
+
+	UP,
+	DOWN,
+	PRESSED,
+	RELEASED,
+}
+
 export enum TooltipType {
 	UNKNOWN,
 	CONSOLE,
