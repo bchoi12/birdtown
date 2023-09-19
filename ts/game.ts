@@ -21,7 +21,6 @@ import { World } from 'game/system/world'
 
 import { ChannelType } from 'network/api'
 import { Client } from 'network/client'
-import { Connection } from 'network/connection'
 import { Netcode } from 'network/netcode'
 import { Host } from 'network/host'
 
@@ -119,40 +118,11 @@ class Game {
 		this._runner.push(this._world);
 		this._runner.push(this._audio);
 
-		// TODO: move most of this stuff to network code
 		if (this._options.host) {
 			this._netcode = new Host(this._options.hostName, this._options.displayName);
-			this._netcode.addRegisterCallback((connection : Connection) => {
-				const clientId = game.nextClientId();
-				connection.setClientId(clientId);
-				
-				let networkMsg = new NetworkMessage(NetworkMessageType.INIT_CLIENT);
-				networkMsg.set<number>(NetworkProp.CLIENT_ID, clientId);
-				this._netcode.send(connection.name(), ChannelType.TCP, networkMsg);
-
-				let gameMsg = new GameMessage(GameMessageType.CLIENT_JOIN);
-				gameMsg.set(GameProp.CLIENT_ID, clientId);
-				gameMsg.set(GameProp.DISPLAY_NAME, connection.displayName());
-				this.handleMessage(gameMsg);
-
-				if (isLocalhost()) {
-					console.log("Registered new client to game:", clientId);
-				}
-			});
 		} else {
 			this._netcode = new Client(this._options.hostName, this._options.displayName);
-			this._netcode.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
-				const clientId = msg.get<number>(NetworkProp.CLIENT_ID);
-				if (isLocalhost()) {
-					console.log("Got client id", clientId);
-				}
-				this.setClientId(clientId);
-			});
 		}
-		this._netcode.addMessageCallback(NetworkMessageType.GAME, (msg : NetworkMessage) => {
-			// TODO: put data into buffer
-			this._runner.importData(msg.get(NetworkProp.DATA), msg.get<number>(NetworkProp.SEQ_NUM));
-		});
 		this._netcode.initialize();
 
 		this.step();

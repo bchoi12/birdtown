@@ -6,10 +6,10 @@ import { game } from 'game'
 import { MediaGlobals } from 'global/media_globals'
 
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
+import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
 
 import { ChannelType } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
-import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 import { Connection } from 'network/connection'
 import { Pinger } from 'network/pinger'
 
@@ -88,6 +88,10 @@ export abstract class Netcode {
 	}
 
 	initialize() : void {
+		this.addMessageCallback(NetworkMessageType.GAME, (msg : NetworkMessage) => {
+			game.runner().importData(msg.get(NetworkProp.DATA), msg.get<number>(NetworkProp.SEQ_NUM));
+		});
+
 		this._peer.on("call", (incoming : MediaConnection) => {
 			if (!this._voiceEnabled) {
 				return;

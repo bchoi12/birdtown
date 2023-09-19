@@ -13,6 +13,7 @@ import { Projectile } from 'game/entity/projectile'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
+import { StepData } from 'game/game_object'
 
 import { CounterType } from 'ui/api'
 
@@ -36,7 +37,10 @@ export class Bazooka extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
-	override updateInput(input : EquipInput) : boolean {
+
+	override update(stepData : StepData) : boolean {
+		super.update(stepData);
+
 		if (!this._model.hasMesh() || !this.keysIntersect(input.keys) || !this._attributes.getAttribute(AttributeType.READY)) { return false; }
 
 		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());

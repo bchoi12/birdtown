@@ -1,6 +1,7 @@
 import * as BABYLON from "babylonjs";
 
 import { game } from 'game'
+import { GameObjectState } from 'game/api'
 import { GameData, DataFilter } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
@@ -64,6 +65,10 @@ export class Keys extends ClientSideSystem implements System {
 	getKey(type : KeyType) : Key { return this.getChild<Key>(type); }
 	getKeys() : Set<KeyType> {
 		let keys = new Set<KeyType>();
+		if (this.state() === GameObjectState.DEACTIVATED) {
+			return keys;
+		}
+
 		this.findAll<Key>((key : Key) => {
 			return key.down();
 		}).forEach((key : Key) => {

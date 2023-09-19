@@ -1,5 +1,7 @@
 import { Peer, DataConnection } from 'peerjs'
 
+import { game } from 'game'
+
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ChannelType } from 'network/api'
@@ -9,7 +11,7 @@ import { Netcode } from 'network/netcode'
 import { ui } from 'ui'
 import { AnnouncementType } from 'ui/api'
 
-import { defined, isLocalhost } from 'util/common'
+import { isLocalhost } from 'util/common'
 
 export class Client extends Netcode {
 
@@ -25,6 +27,14 @@ export class Client extends Netcode {
 	override ready() : boolean { return this.initialized() && this._tcp.open && this._udp.open; }
 	override initialize() : void {
 		super.initialize();
+
+		this.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
+			const clientId = msg.get<number>(NetworkProp.CLIENT_ID);
+			if (isLocalhost()) {
+				console.log("Got client id", clientId);
+			}
+			game.setClientId(clientId);
+		});
 
 		let peer = this.peer();
 		peer.on("open", () => {

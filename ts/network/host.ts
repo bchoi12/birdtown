@@ -2,14 +2,18 @@ import { Peer, DataConnection } from 'peerjs'
 
 import { game } from 'game'
 
+import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
+import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ChannelType } from 'network/api'
-import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
+import { Connection } from 'network/connection'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
 import { AnnouncementType } from 'ui/api'
+
+import { isLocalhost } from 'util/common'
 
 export class Host extends Netcode {
 
@@ -21,6 +25,24 @@ export class Host extends Netcode {
 	override ready() : boolean { return this.initialized() && this.peer().open; }
 	override initialize() : void {
 		super.initialize();
+
+		this.addRegisterCallback((connection : Connection) => {
+			const clientId = game.nextClientId();
+			connection.setClientId(clientId);
+			
+			let networkMsg = new NetworkMessage(NetworkMessageType.INIT_CLIENT);
+			networkMsg.set<number>(NetworkProp.CLIENT_ID, clientId);
+			this.send(connection.name(), ChannelType.TCP, networkMsg);
+
+			let gameMsg = new GameMessage(GameMessageType.CLIENT_JOIN);
+			gameMsg.set(GameProp.CLIENT_ID, clientId);
+			gameMsg.set(GameProp.DISPLAY_NAME, connection.displayName());
+			game.handleMessage(gameMsg);
+
+			if (isLocalhost()) {
+				console.log("Registered new client to game:", clientId);
+			}
+		});
 
 		let peer = this.peer();
 		peer.on("open", () => {
