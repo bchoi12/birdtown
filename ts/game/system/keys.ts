@@ -47,9 +47,6 @@ export class Keys extends ClientSideSystem implements System {
 		this.addProp<Array<KeyType>>({
 			export: () => { return Array.from(this._keys); },
 			import: (obj : Array<KeyType>) => { this._keys = new Set(obj); },
-			rollback: (obj : Array<KeyType>, seqNum : number) => {
-				this.updateKeys(new Set(obj), seqNum);
-			},
 			options: {
 				refreshInterval: 100,
 				filters: GameData.udpFilters,
@@ -181,8 +178,6 @@ export class Keys extends ClientSideSystem implements System {
 		super.preUpdate(stepData);
 		const millis = stepData.millis;
 		const seqNum = stepData.seqNum;
-
-		if (seqNum < this._keyNum) { return; }
 
 		if (this.isSource()) {
 			this._keyNum++;

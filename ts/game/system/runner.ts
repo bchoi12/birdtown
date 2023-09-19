@@ -15,11 +15,7 @@ import { ChannelType } from 'network/api'
 
 import { settings } from 'settings'
 
-import { SeqMap } from 'util/seq_map'
-
 export class Runner extends SystemBase implements System  {
-	private static readonly _maxFrameMillis = 33;
-
 	private _seqNum : number;
 	private _importSeqNum : number;
 	private _updateSpeed : number;
@@ -75,7 +71,7 @@ export class Runner extends SystemBase implements System  {
 
 		this._seqNum++;
 		const stepData = {
-			millis: this._updateSpeed * Math.min(Date.now() - this._lastStepTime, Runner._maxFrameMillis),
+			millis: this._updateSpeed * Math.min(Date.now() - this._lastStepTime, 32),
 			realMillis: Date.now() - this._lastStepTime,
 			seqNum: this._seqNum,
 		}

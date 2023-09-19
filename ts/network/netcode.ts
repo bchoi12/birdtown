@@ -194,8 +194,6 @@ export abstract class Netcode {
 		this._messageBuffer.clear();
 	}
 
-	postStep() : void {}
-
 	register(dataConnection : DataConnection) {
 		if (!this.isLabelValid(dataConnection.label)) {
 			console.error("Error: invalid channel type: " + dataConnection.label);
@@ -298,11 +296,12 @@ export abstract class Netcode {
 		}
 
 		const payload = encode(msg.exportObject());
-		const delay = settings.debugDelay + Math.random() * settings.debugJitter;
+		const second = (Date.now() / 1000) % 10;
+		const delay = Math.max(0, settings.debugDelay + Math.sin(Math.PI / 10 * second) * settings.debugJitter);
 		if (delay > 0) {
 			setTimeout(() => {
 				channels.send(type, payload);
-			}, settings.debugDelay);
+			}, delay);
 		} else {
 			channels.send(type, payload);
 		}

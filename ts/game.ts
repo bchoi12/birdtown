@@ -55,7 +55,7 @@ class Game {
 	private _initialized : boolean;
 	private _clientId : number;
 	private _canvas : HTMLCanvasElement;
-	private _gameTimes : NumberRingBuffer;
+	private _stepTimes : NumberRingBuffer;
 	private _renderTimes : NumberRingBuffer;
 
 	private _options : GameOptions;
@@ -80,7 +80,7 @@ class Game {
 		this._initialized = false;
 		this._clientId = 0;
 		this._canvas = Html.canvasElm(Html.canvasGame);
-		this._gameTimes = new NumberRingBuffer(Game._targetFrames / 2);
+		this._stepTimes = new NumberRingBuffer(Game._targetFrames / 2);
 		this._renderTimes = new NumberRingBuffer(Game._targetFrames / 2);
 	}
 
@@ -155,23 +155,7 @@ class Game {
 		});
 		this._netcode.initialize();
 
-	    setInterval(() => {
-	    	const frameStart = Date.now();
-
-	    	this._netcode.preStep();
-    		this._runner.step();
-	    	this._netcode.postStep();
-
-	    	for (const filter of this._runner.getDataFilters()) {
-    			const [msg, has] = this._runner.message(filter);
-				if (has) {
-					this._netcode.broadcast(Game._channelMapping.get(filter), msg);
-    			}
-	    	}
-	    	this._runner.cleanup();
-	    	this._gameTimes.push(Date.now() - frameStart);
-	    }, Game._targetFrameTime);
-
+		this.step();
 	    this._engine.runRenderLoop(() => {
     		const frameStart = Date.now();
 	    	this._runner.renderFrame();
@@ -214,7 +198,7 @@ class Game {
 		return ++this._lastClientId;
 	}	
 	options() : GameOptions { return this._options; }
-	gameTime() : number { return this._gameTimes.average(); }
+	stepTime() : number { return this._stepTimes.average(); }
 	renderTime() : number { return this._renderTimes.average(); }
 
 	getSystem<T extends System>(type : SystemType) : T { return this._runner.getSystem<T>(type); }
@@ -245,6 +229,26 @@ class Game {
 	playerStates() : PlayerStates { return this._playerStates; }
 	playerState(id? : number) : PlayerState { return this._playerStates.getPlayerState(id); }
 	world() : World { return this._world; }
+
+	private step() : void {
+    	const frameStart = Date.now();
+
+    	this._netcode.preStep();
+		this._runner.step();
+
+    	for (const filter of this._runner.getDataFilters()) {
+			const [msg, has] = this._runner.message(filter);
+			if (has) {
+				this._netcode.broadcast(Game._channelMapping.get(filter), msg);
+			}
+    	}
+    	this._runner.cleanup();
+    	this._stepTimes.push(Date.now() - frameStart);
+
+    	setTimeout(() => {
+    		this.step();
+    	}, Game._targetFrameTime);
+	}
 }
 
 export const game = new Game();

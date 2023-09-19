@@ -114,7 +114,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			label: "Jitter",
 
 			min: 0,
-			max: 100,
+			max: 300,
 			step: 1,
 
 			getSetting: () => { return settings.debugJitter; },
