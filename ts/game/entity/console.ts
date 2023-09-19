@@ -101,7 +101,7 @@ export class Console extends EntityBase implements Entity {
 			msg.set(UiProp.TTL, 100);
 			ui.handleMessage(msg);
 
-			if (this.key(KeyType.INTERACT, KeyState.PRESSED)) {
+			if (game.keys().getKey(KeyType.INTERACT).pressed()) {
 				let msg = new UiMessage(UiMessageType.DIALOG);
 				msg.set(UiProp.TYPE, DialogType.PICK_GAME_MODE);
 				msg.set(UiProp.PAGES, [{
