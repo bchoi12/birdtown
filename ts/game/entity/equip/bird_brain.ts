@@ -62,12 +62,8 @@ export class BirdBrain extends Equip<Player> {
 			this._juice = Math.min(100, this._juice + 1.6);
 		}	
 
-		if (this._juice <= 0) {
+		if (this._juice <= 0 || !this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			this.resetTarget();
-			return;
-		}
-
-		if (!this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			return;
 		}
 
