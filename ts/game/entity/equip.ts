@@ -39,7 +39,6 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	protected _attributes : Attributes;
 	protected _ownerId : number;
 	protected _owner : E;
-	protected _keys : Set<KeyType>;
 	// Networked counter for uses
 	protected _useCounter : number;
 	// Local copy for uses
@@ -58,7 +57,6 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._ownerId = 0;
 		this._owner = null;
-		this._keys = new Set();
 
 		this._useCounter = 0;
 		this._consumedUseCounter = 0;
@@ -92,21 +90,6 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	owner() : E { return this._owner; }
 	ownerId() : number { return this._ownerId; }
 
-	addKey(type : KeyType) : void { this._keys.add(type); }
-	keysIntersect(other : Set<KeyType>) : boolean {
-		if (other.size === 0) { return false; }
-
-		const small = this._keys.size < other.size ? this._keys : other;
-		const large = this._keys.size < other.size ? other : this._keys;
-
-		for (let key of small) {
-			if (large.has(key)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	// Record instance of equip use. Only needed if some action is performed on use (e.g. recoil)
 	protected recordUse() : void { this._useCounter++; }
 	hasUse() : boolean { return this._useCounter > this._consumedUseCounter; }
@@ -115,5 +98,4 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 	abstract displayName() : string;
 	abstract attachType() : AttachType;
-	abstract updateInput(input : EquipInput) : boolean;
 }

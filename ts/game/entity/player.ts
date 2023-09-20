@@ -29,8 +29,7 @@ import { KeyType, KeyState, CounterType } from 'ui/api'
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
 import { ChangeTracker } from 'util/change_tracker'
-import { defined } from 'util/common'
-import { Funcs } from 'util/funcs'
+import { Optional } from 'util/optional'
 import { Timer, InterruptType } from 'util/timer'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -96,8 +95,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _deadTracker : ChangeTracker<boolean>;
 
 	private _equips : Array<number>;
-	private _equip : Equip<Player>;
-	private _altEquip : Equip<Player>;
+	private _equip : Optional<Equip<Player>>;
+	private _altEquip : Optional<Equip<Player>>;
 
 	private _attributes : Attributes;
 	private _model : Model;
@@ -139,7 +138,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._profile.setAngularVelocity(0);
 			}
 		});
+
+		// TODO: probably need component for Equip tracking
 		this._equips = new Array();
+		this._equip = new Optional();
+		this._altEquip = new Optional();
 
 		this.addProp<boolean>({
 			export: () => { return this._canDoubleJump; },
@@ -278,6 +281,17 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this.updateLoadout();
 	}
 
+	override setState(state : GameObjectState) : void {
+		super.setState(state);
+
+		if (this._equip.has()) {
+			this._equip.get().setState(state);
+		}
+		if (this._altEquip.has()) {
+			this._altEquip.get().setState(state);
+		}
+	}
+
 	displayName() : string {
 		if (game.playerStates().hasPlayerState(this.clientId())) {
 			return game.playerState(this.clientId()).displayName();
@@ -353,7 +367,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			// Compute head and arm directions
-			const dir = this.keysDir();
+			const dir = this.inputDir();
 			this.recomputeDir(dir);
 			this._headSubProfile.setAngle(this._headDir.angleRad());
 
@@ -385,22 +399,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 
 		if (this._model.hasMesh()) {
-			if (this.isSource()) {
-				this._equips.forEach((id : number) => {
-					const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
-					if (hasEquip) {
-						// TODO: just read directly from keys in Equip
-						const keys = game.keys(this.clientId());
-						equip.updateInput({
-							keys: this._stats.dead() ? new Set() : keys.getKeys(),
-							millis: millis,
-							mouse: keys.mouse(),
-							dir: this._armDir,
-						});
-					}
-				});
-			}
-
 			// Cosmetic stuff
 			if (this._armRecoil > 0) {
 				this._armRecoil -= Math.abs(millis / Player._armRecoveryTime);
@@ -546,12 +544,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.get<ModifierPlayerType>(PlayerProp.TYPE));
 
-			if (defined(this._equip)) {
-				this._equip.delete();
+			if (this._equip.has()) {
+				this._equip.get().delete();
 			}
 
-			let hasEquip;
-			[this._equip, hasEquip] = this.addTrackedEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.EQUIP_TYPE), {
+			const [equip, hasEquip] = this.addTrackedEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.EQUIP_TYPE), {
 				associationInit: {
 					owner: this,
 				},
@@ -559,22 +556,21 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				levelVersion: game.level().version(),
 			});
 			if (hasEquip) {
-				this._equip.addKey(KeyType.MOUSE_CLICK);
+				this._equip.set(equip);
 			}
 
-			if (defined(this._altEquip)) {
-				this._altEquip.delete();
+			if (this._altEquip.has()) {
+				this._altEquip.get().delete();
 			}
-			let hasAltEquip;
-			[this._altEquip, hasAltEquip] = this.addTrackedEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.ALT_EQUIP_TYPE), {
+			const [altEquip, hasAltEquip] = this.addTrackedEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.ALT_EQUIP_TYPE), {
 				associationInit: {
 					owner: this,
 				},
 				clientId: this.clientId(),
 				levelVersion: game.level().version(),
-			});		
+			});
 			if (hasAltEquip) {
-				this._altEquip.addKey(KeyType.ALT_MOUSE_CLICK);
+				this._altEquip.set(altEquip);
 			}
 		});
 	}

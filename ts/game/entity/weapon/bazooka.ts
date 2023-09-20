@@ -15,7 +15,7 @@ import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
 import { StepData } from 'game/game_object'
 
-import { CounterType } from 'ui/api'
+import { CounterType, KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Vec2 } from 'util/vector'
@@ -38,13 +38,19 @@ export class Bazooka extends Weapon {
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
 
-	override update(stepData : StepData) : boolean {
+	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (!this._model.hasMesh() || !this.keysIntersect(input.keys) || !this._attributes.getAttribute(AttributeType.READY)) { return false; }
+		if (!this._model.hasMesh() || !this._attributes.getAttribute(AttributeType.READY)) {
+			return;
+		}
+
+		if (!this.key(KeyType.MOUSE_CLICK, KeyState.DOWN)) {
+			return;
+		}
 
 		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
-		const unitDir = input.dir.clone().normalize();
+		const unitDir = this.inputDir().clone().normalize();
 
 		let vel = unitDir.clone().scale(0.05);
 		let acc = unitDir.clone().scale(1.5);
@@ -68,7 +74,6 @@ export class Bazooka extends Weapon {
 		}
 
 		this.reload(1000);
-		return true;
 	}
 
 	override getCounts() : Map<CounterType, number> {

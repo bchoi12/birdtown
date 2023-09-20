@@ -33,7 +33,7 @@ export namespace MeshFactory {
 				transformNodes: transformNodes,
 			});
 		}, /*onProgress=*/null, (scene : BABYLON.Scene, message : string) => {
-			console.error("Error: failed to load mesh at %s, %s", pathPrefix + fileName, message);
+			console.error(message);
 		});
 	}
 

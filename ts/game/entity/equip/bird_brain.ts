@@ -15,7 +15,7 @@ import { Player } from 'game/entity/player'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { CounterType } from 'ui/api'
+import { CounterType, KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
@@ -53,18 +53,31 @@ export class BirdBrain extends Equip<Player> {
 
 	override displayName() : string { return "bird brain"; }
 	override attachType() : AttachType { return AttachType.NONE; }
-	override updateInput(input : EquipInput) : boolean {
-		if (this._juice <= 0 || !this.keysIntersect(input.keys)) {
+	
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+		const millis = stepData.millis;
+
+		if (this._canCharge) {
+			this._juice = Math.min(100, this._juice + 1.6);
+		}	
+
+		if (this._juice <= 0) {
 			this.resetTarget();
-			return false;
+			return;
+		}
+
+		if (!this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+			return;
 		}
 
 		// Move current target, reset if invalid
+		const mouse = this.inputMouse();
 		if (this._targetId.has()) {
 			let [target, hasTarget] = game.entities().getEntity(this._targetId.get());
 			if (hasTarget) {
-				target.getProfile().moveTo(input.mouse, {
-					millis: input.millis,
+				target.getProfile().moveTo(mouse, {
+					millis: millis,
 					posEpsilon: 0.5,
 					maxAccel: 3,
 				});
@@ -73,12 +86,11 @@ export class BirdBrain extends Equip<Player> {
 			} else {
 				this.resetTarget();
 			}
-			return true;
+			return;
 		}
 
 		// Try to pick a new target
 		const scene = game.world().scene();
-		const mouse = input.mouse;
 		const ray = game.lakitu().rayTo(new BABYLON.Vector3(mouse.x, mouse.y, 0));
 		const raycasts = scene.multiPickWithRay(ray);
 
@@ -103,19 +115,11 @@ export class BirdBrain extends Equip<Player> {
 				}
 
 				this.resetTarget(target.id());
-				return true;
+				return;
 			}
 		}
 
-		return false;
-	}
-
-	override update(stepData : StepData) : void {
-		super.update(stepData);
-
-		if (this._canCharge) {
-			this._juice = Math.min(100, this._juice + 1.6);
-		}	
+		return;
 	}
 
 	override getCounts() : Map<CounterType, number> {

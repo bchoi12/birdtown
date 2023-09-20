@@ -13,6 +13,9 @@ import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Weapon } from 'game/entity/weapon'
 import { MeshType } from 'game/factory/api'
+import { StepData } from 'game/game_object'
+
+import { KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Vec2 } from 'util/vector'
@@ -34,11 +37,20 @@ export class Sniper extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.SMALL; }
 	override meshType() : MeshType { return MeshType.SNIPER; }
-	override updateInput(input : EquipInput) : boolean {
-		if (!this._model.hasMesh() || !this.keysIntersect(input.keys) || !this._attributes.getAttribute(AttributeType.READY)) { return false; }
+
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+
+		if (!this._model.hasMesh() || !this._attributes.getAttribute(AttributeType.READY)) {
+			return;
+		}
+
+		if (!this.key(KeyType.MOUSE_CLICK, KeyState.DOWN)) {
+			return;
+		}
 
 		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
-		const unitDir = input.dir.clone().normalize();
+		const unitDir = this.inputDir().clone().normalize();
 
 		let vel = unitDir.clone().scale(0.7);
 		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, {
@@ -59,6 +71,5 @@ export class Sniper extends Weapon {
 		}
 
 		this.reload(125);
-		return true;
 	}
 }

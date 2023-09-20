@@ -64,9 +64,10 @@ export interface Entity extends GameObject {
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
 
-	// Keys
+	// Input/Keys
 	key(type : KeyType, state : KeyState, seqNum : number) : boolean;
-	keysDir() : Vec2;
+	inputDir() : Vec2;
+	inputMouse() : Vec2;
 
 	// Match associations
 	getAssociations() : Map<AssociationType, number>;
@@ -202,26 +203,29 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		if (this.state() === GameObjectState.DISABLE_INPUT) {
 			return false;
 		}
-		if (!this.hasClientId()) {
+
+		const clientId = this.hasClientId() ? this.clientId() : game.clientId();
+		if (!game.input().hasKeys(clientId)) {
 			return false;
 		}
 
-		if (!game.input().hasKeys(this.clientId())) {
-			return false;
-		}
-
-		const keys = game.keys(this.clientId());
+		const keys = game.keys(clientId);
 		return keys.getKey(type).keyState() === state;
 	}
-	keysDir() : Vec2 {
-		if (!this.hasClientId()) {
-			return Vec2.i();
-		}
-		if (!game.input().hasKeys(this.clientId())) {
+	inputDir() : Vec2 {
+		const clientId = this.hasClientId() ? this.clientId() : game.clientId();
+		if (!game.input().hasKeys(clientId)) {
 			return Vec2.i();
 		}
 
-		return game.keys(this.clientId()).dir();
+		return game.keys(clientId).dir();
+	}
+	inputMouse() : Vec2 {
+		const clientId = this.hasClientId() ? this.clientId() : game.clientId();
+		if (!game.input().hasKeys(clientId)) {
+			return Vec2.i();
+		}
+		return game.keys(clientId).mouse();
 	}
 
 	getAssociations() : Map<AssociationType, number> {
