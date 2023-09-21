@@ -81,6 +81,22 @@ export class World extends SystemBase implements System {
 
 	scene() : BABYLON.Scene { return this._scene; }
 
+	multiPick(ray : BABYLON.Ray) : Entity[] {
+		let entities = [];
+
+		const results = this._scene.multiPickWithRay(ray);
+		for (let result of results) {
+			if (result.hit && result.pickedMesh.metadata && result.pickedMesh.metadata.entityId) {
+				let [entity, found] = game.entities().getEntity(result.pickedMesh.metadata.entityId);
+
+				if (!found) { continue; }
+
+				entities.push(entity);
+			}
+		}
+		return entities;
+	}
+
 	highlight(mesh : BABYLON.Mesh, params : HighlightParams) : void {
 		let layer = this.getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT);
 		if (params.enabled) {

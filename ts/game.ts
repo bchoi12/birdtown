@@ -1,6 +1,5 @@
 import * as BABYLON from "babylonjs";
 
-import { GameData, DataFilter } from 'game/game_data'
 import { System } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 import { Audio } from 'game/system/audio'
@@ -19,7 +18,6 @@ import { PlayerStates } from 'game/system/player_states'
 import { Runner } from 'game/system/runner'
 import { World } from 'game/system/world'
 
-import { ChannelType } from 'network/api'
 import { Client } from 'network/client'
 import { Netcode } from 'network/netcode'
 import { Host } from 'network/host'
@@ -42,19 +40,9 @@ interface GameOptions {
 }
 
 class Game {
-	private static readonly _targetFrames = 60;
-	private static readonly _targetFrameTime = Math.floor(1000 / Game._targetFrames);
-
-	private static readonly _channelMapping = new Map<DataFilter, ChannelType>([
-		[DataFilter.INIT, ChannelType.TCP],
-		[DataFilter.TCP, ChannelType.TCP],
-		[DataFilter.UDP, ChannelType.UDP],
-	]);
-
 	private _initialized : boolean;
 	private _clientId : number;
 	private _canvas : HTMLCanvasElement;
-	private _stepTimes : NumberRingBuffer;
 	private _renderTimes : NumberRingBuffer;
 
 	private _options : GameOptions;
@@ -79,8 +67,7 @@ class Game {
 		this._initialized = false;
 		this._clientId = 0;
 		this._canvas = Html.canvasElm(Html.canvasGame);
-		this._stepTimes = new NumberRingBuffer(Game._targetFrames / 2);
-		this._renderTimes = new NumberRingBuffer(Game._targetFrames / 2);
+		this._renderTimes = new NumberRingBuffer(30);
 	}
 
 	initialize(gameOptions : GameOptions) {
@@ -124,14 +111,12 @@ class Game {
 			this._netcode = new Client(this._options.hostName, this._options.displayName);
 		}
 		this._netcode.initialize();
-
-		this.step();
+		this._runner.runGameLoop();
 	    this._engine.runRenderLoop(() => {
     		const frameStart = Date.now();
 	    	this._runner.renderFrame();
 	    	this._renderTimes.push(Date.now() - frameStart);
-	    });
-
+	    });		
 	    this._initialized = true;
 	}
 
@@ -168,7 +153,7 @@ class Game {
 		return ++this._lastClientId;
 	}	
 	options() : GameOptions { return this._options; }
-	stepTime() : number { return this._stepTimes.average(); }
+	stepTime() : number { return this._runner.stepTime(); }
 	renderTime() : number { return this._renderTimes.average(); }
 
 	getSystem<T extends System>(type : SystemType) : T { return this._runner.getSystem<T>(type); }
@@ -200,25 +185,6 @@ class Game {
 	playerState(id? : number) : PlayerState { return this._playerStates.getPlayerState(id); }
 	world() : World { return this._world; }
 
-	private step() : void {
-    	const frameStart = Date.now();
-
-    	this._netcode.preStep();
-		this._runner.step();
-
-    	for (const filter of this._runner.getDataFilters()) {
-			const [msg, has] = this._runner.message(filter);
-			if (has) {
-				this._netcode.broadcast(Game._channelMapping.get(filter), msg);
-			}
-    	}
-    	this._runner.cleanup();
-    	this._stepTimes.push(Date.now() - frameStart);
-
-    	setTimeout(() => {
-    		this.step();
-    	}, Game._targetFrameTime);
-	}
 }
 
 export const game = new Game();

@@ -7,6 +7,8 @@ import { Component, ComponentBase } from 'game/component'
 import { ComponentType, StatType } from 'game/component/api'
 import { Stats } from 'game/component/stats'
 
+import { GameGlobals } from 'global/game_globals'
+
 import { settings } from 'settings'
 
 import { Box2 } from 'util/box'
@@ -14,9 +16,9 @@ import { Buffer } from 'util/buffer'
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
-import { PredictWeight } from 'util/predict_weight'
 import { SeqMap } from 'util/seq_map'
 import { SmoothVec2 } from 'util/smooth_vector'
+import { Smoother } from 'util/smoother'
 import { Vec, Vec2 } from 'util/vector'
 
 type ReadyFn = (profile : Profile) => boolean;
@@ -72,7 +74,7 @@ export class Profile extends ComponentBase implements Component {
 	private _forces : Buffer<Vec>;
 	private _limits : ProfileLimits;
 	private _constraints : Map<number, MATTER.Constraint>;
-	private _predictWeight : PredictWeight;
+	private _smoother : Smoother;
 
 	private _pos : SmoothVec2;
 	private _vel : SmoothVec2;
@@ -102,7 +104,7 @@ export class Profile extends ComponentBase implements Component {
 		this._constraints = new Map();
 		this._forces = new Buffer();
 		this._limits = {};
-		this._predictWeight = new PredictWeight();
+		this._smoother = new Smoother(GameGlobals.smoothTime);
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -480,9 +482,8 @@ export class Profile extends ComponentBase implements Component {
 
 		let weight = 0;
 		if (settings.enablePrediction && this.entity().clientIdMatches()) {
-			// Diff based on time?
-			this._predictWeight.setDiff(game.keys(this.entity().clientId()).maxDiff());
-			weight = this._predictWeight.weight();
+			this._smoother.setDiff(game.keys(this.entity().clientId()).maxDiff());
+			weight = this._smoother.weight();
 		}
 		this.vel().snap(weight);
 		this.pos().snap(weight);

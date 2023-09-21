@@ -86,33 +86,26 @@ export class BirdBrain extends Equip<Player> {
 		}
 
 		// Try to pick a new target
-		const scene = game.world().scene();
 		const ray = game.lakitu().rayTo(new BABYLON.Vector3(mouse.x, mouse.y, 0));
-		const raycasts = scene.multiPickWithRay(ray);
+		const entities = game.world().multiPick(ray);
 
-		for (let raycast of raycasts) {
-			if (raycast.hit && raycast.pickedMesh.metadata && raycast.pickedMesh.metadata.entityId) {
-				let [target, found] = game.entities().getEntity(raycast.pickedMesh.metadata.entityId);
-
-				if (!found) { continue; }
-
-				let valid = false;
-				for (let type of target.allTypes()) {
-					if (BirdBrain._pickableTypes.has(type)) {
-						valid = true;
-						break;
-					}
+		for (let entity of entities) {
+			let valid = false;
+			for (let type of entity.allTypes()) {
+				if (BirdBrain._pickableTypes.has(type)) {
+					valid = true;
+					break;
 				}
-
-				if (!valid) { continue; }
-
-				if (target.getAttribute(AttributeType.BRAINED)) {
-					continue;
-				}
-
-				this.resetTarget(target.id());
-				return;
 			}
+
+			if (!valid) { continue; }
+
+			if (entity.getAttribute(AttributeType.BRAINED)) {
+				continue;
+			}
+
+			this.resetTarget(entity.id());
+			return;
 		}
 
 		return;

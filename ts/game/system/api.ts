@@ -29,6 +29,15 @@ export enum LakituMode {
 	SPECTATE,
 }
 
+export enum RunnerMode {
+	UNKNOWN,
+
+	MINIMUM,
+	SLOW,
+	NORMAL,
+	FAST,
+}
+
 export enum LevelType {
 	UNKNOWN,
 	BIRDTOWN,

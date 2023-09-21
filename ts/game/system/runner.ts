@@ -1,11 +1,8 @@
 import { game } from 'game'
 import { GameState } from 'game/api'
-import { GameData, DataFilter } from 'game/game_data'
+import { DataFilter } from 'game/game_data'
 import { System, SystemBase } from 'game/system'
-import { SystemType } from 'game/system/api'
-import { LevelType } from 'game/system/api'
-
-import { NetworkGlobals } from 'global/network_globals'
+import { SystemType, RunnerMode } from 'game/system/api'
 
 import { Message, DataMap } from 'message'
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
@@ -15,11 +12,29 @@ import { ChannelType } from 'network/api'
 
 import { settings } from 'settings'
 
+import { NumberRingBuffer } from 'util/number_ring_buffer'
+
 export class Runner extends SystemBase implements System  {
+
+	private static readonly _minFrameTime = 1;
+	private static readonly _maxFrameTime = 50;
+
+	private static readonly _channelMapping = new Map<DataFilter, ChannelType>([
+		[DataFilter.INIT, ChannelType.TCP],
+		[DataFilter.TCP, ChannelType.TCP],
+		[DataFilter.UDP, ChannelType.UDP],
+	]);
+
 	private _seqNum : number;
 	private _importSeqNum : number;
 	private _updateSpeed : number;
+	private _stepTimes : NumberRingBuffer;
 	private _lastStepTime : number;
+
+	private _mode : RunnerMode;
+	private _seqNumStep : number;
+	private _seqNumDiff : number;
+
 	private _sendFullMsg : boolean;
 
 	constructor() {
@@ -32,7 +47,15 @@ export class Runner extends SystemBase implements System  {
 		this._seqNum = 0;
 		this._importSeqNum = 0;
 		this._updateSpeed = 1;
+		this._stepTimes = new NumberRingBuffer(30);
 		this._lastStepTime = 0;
+
+		this._mode = RunnerMode.UNKNOWN;
+		this._seqNumStep = 0;
+
+		// TODO: make configurable
+		this.setMode(RunnerMode.NORMAL);
+
 		this._sendFullMsg = false;
 
 		this.addProp<number>({
@@ -41,8 +64,7 @@ export class Runner extends SystemBase implements System  {
 		});
 	}
 
-	override ready() : boolean { return super.ready() && game.hasClientId(); }
-
+	override ready() : boolean { return super.ready() && game.hasClientId() && this._mode !== RunnerMode.UNKNOWN; }
 	override initialize() : void {
 		super.initialize();
 		this._lastStepTime = Date.now();
@@ -58,20 +80,70 @@ export class Runner extends SystemBase implements System  {
 
 	getSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
 
-	seqNum() : number { return this._seqNum; }
-	importSeqNum() : number { return this._importSeqNum; }
-
-	step() : void {
-		if (!this.initialized()) {
-			if (!this.ready()) {
-				return;
-			}
-			this.initialize();
+	setMode(mode : RunnerMode) : void {
+		if (this._mode === mode) {
+			return;
 		}
 
-		this._seqNum++;
+		this._mode = mode;
+
+		switch (mode) {
+		case RunnerMode.MINIMUM:
+			this._seqNumStep = 64;
+			break;
+		case RunnerMode.SLOW:
+			this._seqNumStep = 32;
+			break;
+		case RunnerMode.NORMAL:
+			this._seqNumStep = 16;
+			break;
+		case RunnerMode.FAST:
+			this._seqNumStep = 8;
+			break;
+		default:
+			console.error("Error: unknown runner mode", RunnerMode[this._mode]);
+			this._seqNumStep = 0;
+		}
+
+		this._seqNumStep /= Runner._minFrameTime;
+	}
+
+	seqNum() : number { return this._seqNum; }
+	importSeqNum() : number { return this._importSeqNum; }
+	seqNumStep() : number { return this._seqNumStep; }
+	seqNumDiff() : number { return this.isSource() ? 0 : this._seqNumDiff; }
+
+	stepTime() : number { return this._stepTimes.average(); }
+	runGameLoop() : void {
+	   	game.netcode().preStep();
+
+	   	if (!this.initialized() && this.ready()) {
+	   		this.initialize();
+	   	}
+	   	if (this.initialized()) {
+			this.gameFrame();
+	   	}
+    	setTimeout(() => {
+    		this.runGameLoop();
+    	}, Runner._minFrameTime * this._seqNumStep);
+	}
+
+	gameFrame() : void {
+		let seqNumStep = this.seqNumStep();
+		if (!this.isSource()) {
+			this._seqNumDiff = this._seqNum - this._importSeqNum;
+
+			if (this._seqNumDiff > 2 * seqNumStep) {
+				seqNumStep -= 2;
+			} else if (this._seqNumDiff > seqNumStep) {
+				seqNumStep -= 1;
+			}
+		}
+
+		let millis = Runner._minFrameTime * seqNumStep;
+		this._seqNum += seqNumStep;
 		const stepData = {
-			millis: this._updateSpeed * Math.min(Date.now() - this._lastStepTime, 32),
+			millis: this._updateSpeed * millis,
 			realMillis: Date.now() - this._lastStepTime,
 			seqNum: this._seqNum,
 		}
@@ -84,6 +156,16 @@ export class Runner extends SystemBase implements System  {
     	this.physics(stepData);
     	this.postPhysics(stepData);
     	this.updateData(this._seqNum);
+
+    	for (const filter of this.getDataFilters()) {
+			const [msg, has] = this.message(filter);
+			if (has) {
+				game.netcode().broadcast(Runner._channelMapping.get(filter), msg);
+			}
+    	}
+
+    	this.cleanup();
+    	this._stepTimes.push(Date.now() - this._lastStepTime);
 	}
 
 	renderFrame() : void {
@@ -118,19 +200,21 @@ export class Runner extends SystemBase implements System  {
 	}
 
 	override importData(data : DataMap, seqNum : number) : void {
-		this._importSeqNum = Math.max(this._importSeqNum, seqNum);
-		this._seqNum = Math.max(this._seqNum, this._importSeqNum);	
 		super.importData(data, seqNum);
+
+		this._importSeqNum = Math.max(this._importSeqNum, seqNum);
+		this._seqNum = Math.max(this._seqNum, this._importSeqNum);
 	}
 
-	getDataFilters() : Array<DataFilter> {
+	private getDataFilters() : Array<DataFilter> {
 		if (this._sendFullMsg) {
 			this._sendFullMsg = false;
 			return [DataFilter.INIT];
 		}
 		return [DataFilter.TCP, DataFilter.UDP];
 	}
-	message(filter : DataFilter) : [NetworkMessage, boolean] {
+
+	private message(filter : DataFilter) : [NetworkMessage, boolean] {
 		const [data, has] = this.dataMap(filter, this._seqNum);
 		if (!has) {
 			return [null, false];

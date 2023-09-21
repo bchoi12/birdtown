@@ -143,11 +143,16 @@ export class Lakitu extends SystemBase implements System {
 			console.log("Error: target entity %s must have profile", entity.name());
 			return;
 		}
+
 		super.setTargetEntity(entity);
 
 		game.world().scene().audioListenerPositionProvider = () => {
 			return entity.getProfile().pos().toBabylon3();
 		};
+
+		if (isLocalhost()) {
+			console.log("%s: target is %s", this.name(), entity.name());	
+		}
 	}
 
 	override handleMessage(msg : GameMessage) : void {

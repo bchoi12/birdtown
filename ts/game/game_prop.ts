@@ -1,4 +1,5 @@
 
+import { game } from 'game'
 import { GameData, DataFilter } from 'game/game_data'
 
 import { assignOr } from 'util/common'
@@ -122,7 +123,7 @@ export class GameProp<T extends Object> {
 		}
 
 		// Reset if there is a gap in setting value
-		if (seqNum - this._seqNum > 1) {
+		if (seqNum - this._seqNum > game.runner().seqNumStep()) {
 			this._consecutiveChanges = 0;
 		}
 
