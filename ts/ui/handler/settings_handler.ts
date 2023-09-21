@@ -70,6 +70,21 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(prediction.elm());
 
+		let predictionTime = new SettingWrapper({
+			id: "input-prediction-time",
+			type: "range",
+			label: "Prediction Time",
+
+			min: 0,
+			max: 1000,
+			step: 1,
+
+			getSetting: () => { return settings.predictionTime; },
+			setSetting: (value : number) => { settings.predictionTime = value; },
+		});
+		this._settingsElm.appendChild(predictionTime.elm());	
+
+
 		let inspector = new SettingWrapper({
 			id: "input-debug-inspector",
 			type: "checkbox",

@@ -2,6 +2,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { GameObjectState } from 'game/api'
+import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType, StatType } from 'game/component/api'
@@ -104,7 +105,7 @@ export class Profile extends ComponentBase implements Component {
 		this._constraints = new Map();
 		this._forces = new Buffer();
 		this._limits = {};
-		this._smoother = new Smoother(GameGlobals.smoothTime);
+		this._smoother = new Smoother();
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -118,6 +119,7 @@ export class Profile extends ComponentBase implements Component {
 				this.pos().setBase(obj);
 			},
 			options: {
+				filters: GameData.udpFilters,
 				equals: (a : Vec, b : Vec) => {
 					return Vec2.approxEquals(a, b, 1e-3);
 				},
@@ -131,6 +133,7 @@ export class Profile extends ComponentBase implements Component {
 				this.vel().setBase(obj);
 			},
 			options: {
+				filters: GameData.udpFilters,
 				equals: (a : Vec, b : Vec) => {
 					return Vec2.approxEquals(a, b, 1e-3);
 				},
@@ -141,6 +144,7 @@ export class Profile extends ComponentBase implements Component {
 			export: () => { return this.acc().toVec(); },
 			import: (obj : Vec) => { this.setAcc(obj); },
 			options: {
+				filters: GameData.udpFilters,
 				equals: (a : Vec, b : Vec) => {
 					return Vec2.approxEquals(a, b, Profile._minAccel);
 				},
@@ -156,6 +160,7 @@ export class Profile extends ComponentBase implements Component {
 			export: () => { return this.angle(); },
 			import: (obj : number) => { this.setAngle(obj); },
 			options: {
+				filters: GameData.udpFilters,
 				equals: (a : number, b : number) => {
 					return Math.abs(a - b) < Profile._angleEpsilon;
 				},

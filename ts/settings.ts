@@ -17,6 +17,8 @@ class Settings {
 	public enableAntiAlias : boolean;
 	public enablePrediction : boolean;
 
+	public predictionTime : number;
+
 	public debugInspector : boolean;
 	public debugFreezeCamera : boolean;
 	public debugDelay : number;
@@ -39,6 +41,8 @@ class Settings {
 		this.enablePointerLock = false;
 		this.enableAntiAlias = true;
 		this.enablePrediction = true;
+
+		this.predictionTime = 250;
 
 		// Debug properties
 		this.debugInspector = false;

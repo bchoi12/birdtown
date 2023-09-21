@@ -106,6 +106,13 @@ export class Keys extends ClientSideSystem implements System {
 		}
 	}
 
+	override postPhysics() : void {
+		super.preRender();
+		if (this.isSource()) {
+			this.updateMouse();
+		}
+	}
+
 	override preRender() : void {
 		super.preRender();
 		if (this.isSource()) {
