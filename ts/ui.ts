@@ -117,6 +117,7 @@ class UI {
 	}
 
 	keys() : Set<KeyType> { return this._inputHandler.keys(); }
+	clearKeys() : void { this._inputHandler.clearKeys(); }
 	mouse() : Vec { return this._inputHandler.mouse(); }
 	resetKeyBinds() : void { this._inputHandler.reset(); }
 

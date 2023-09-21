@@ -12,6 +12,8 @@ import { ChannelType } from 'network/api'
 
 import { settings } from 'settings'
 
+import { ui } from 'ui'
+
 import { NumberRingBuffer } from 'util/number_ring_buffer'
 
 export class Runner extends SystemBase implements System  {
@@ -166,6 +168,7 @@ export class Runner extends SystemBase implements System  {
 			}
     	}
 
+    	ui.clearKeys();
     	this.cleanup();
     	this._stepTimes.push(Date.now() - this._lastStepTime);
 	}

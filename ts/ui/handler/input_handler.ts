@@ -17,6 +17,7 @@ export class InputHandler extends HandlerBase implements Handler {
 	private readonly _cursorHeight = 20;
 
 	private _keys : Set<KeyType>;
+	private _clearedKeys : Set<KeyType>;
 	private _keyMap : Map<number, KeyType>;
 
 	private _keyDownCallbacks : Map<number, (e : any) => void>;
@@ -28,7 +29,8 @@ export class InputHandler extends HandlerBase implements Handler {
 	constructor() {
 		super(HandlerType.INPUT);
 
-		this._keys = new Set<number>();
+		this._keys = new Set();
+		this._clearedKeys = new Set();
 		this._keyMap = new Map();
 
 		this._keyDownCallbacks = new Map();
@@ -102,6 +104,12 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	keys() : Set<number> { return this._keys; }
+	clearKeys() : void {
+		this._clearedKeys.forEach((type : KeyType) => {
+			this._keys.delete(type);
+		});
+		this._clearedKeys.clear();
+	}
 	mouse() : Vec { return this._mouse; }
 
 	private mapKey(keyCode : number, key : KeyType) {
@@ -125,7 +133,7 @@ export class InputHandler extends HandlerBase implements Handler {
 
 		const key = this._keyMap.get(e.keyCode);
 		if (this._keys.has(key)) {
-			this._keys.delete(key);
+			this._clearedKeys.add(key);
 		}
 	}
 
