@@ -33,7 +33,7 @@ export class Runner extends SystemBase implements System  {
 
 	private _mode : RunnerMode;
 	private _seqNumStep : number;
-	private _seqNumDiff : number;
+	private _seqNumDiffs : NumberRingBuffer;
 
 	private _sendFullMsg : boolean;
 
@@ -48,6 +48,7 @@ export class Runner extends SystemBase implements System  {
 		this._importSeqNum = 0;
 		this._updateSpeed = 1;
 		this._stepTimes = new NumberRingBuffer(30);
+		this._seqNumDiffs = new NumberRingBuffer(10);
 		this._lastStepTime = 0;
 
 		this._mode = RunnerMode.UNKNOWN;
@@ -111,7 +112,7 @@ export class Runner extends SystemBase implements System  {
 	seqNum() : number { return this._seqNum; }
 	importSeqNum() : number { return this._importSeqNum; }
 	seqNumStep() : number { return this._seqNumStep; }
-	seqNumDiff() : number { return this.isSource() ? 0 : this._seqNumDiff; }
+	seqNumDiff() : number { return this.isSource() ? 0 : this._seqNumDiffs.average(); }
 
 	stepTime() : number { return this._stepTimes.average(); }
 	runGameLoop() : void {
@@ -131,19 +132,20 @@ export class Runner extends SystemBase implements System  {
 	gameFrame() : void {
 		let seqNumStep = this.seqNumStep();
 		if (!this.isSource()) {
-			this._seqNumDiff = this._seqNum - this._importSeqNum;
+			const seqNumDiff = this._seqNum - this._importSeqNum;
+			this._seqNumDiffs.push(seqNumDiff);
 
-			if (this._seqNumDiff > 2 * seqNumStep) {
-				seqNumStep -= 2;
-			} else if (this._seqNumDiff > seqNumStep) {
-				seqNumStep -= 1;
+			// Reduce seqNumStep by up to 5ms
+			for (let i = 5 * Runner._minFrameTime; i >= Runner._minFrameTime; i -= Runner._minFrameTime) {
+				if (seqNumDiff > i * seqNumStep) {
+					seqNumStep -= Math.min(seqNumStep / 4, i);
+				}
 			}
 		}
 
-		let millis = Runner._minFrameTime * seqNumStep;
 		this._seqNum += seqNumStep;
 		const stepData = {
-			millis: this._updateSpeed * millis,
+			millis: this._updateSpeed * Runner._minFrameTime * seqNumStep,
 			realMillis: Date.now() - this._lastStepTime,
 			seqNum: this._seqNum,
 		}
