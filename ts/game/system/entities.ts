@@ -99,6 +99,8 @@ export class Entities extends SystemBase implements System {
 		const type = this._entityInfo.get(id).type;
 		return [this.getMap(type).getEntity<T>(id), true];
 	}
+	isDeleted(id : number) : boolean { return this._deletedIds.has(id); }
+
 	findEntities(predicate : ChildPredicate<Entity>) : Entity[] {
 		let entities : Entity[] = [];
 		this.execute<EntityMap>((map : EntityMap) => {

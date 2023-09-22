@@ -40,7 +40,7 @@ export namespace AudioFactory {
 		let sound = new BABYLON.Sound(
 			"audio-" + type + "[" + id + "]",
 			"audio/" + metadata.get(type).path,
-			game.world().scene(),
+			game.scene(),
 			defined(onLoad) ? () => { onLoad(sound); } : null,
 			metadata.get(type).spatial ? MediaGlobals.spatialGameOptions : {});
 

@@ -168,8 +168,8 @@ export class Runner extends SystemBase implements System  {
 			}
     	}
 
-    	ui.clearKeys();
     	this.cleanup();
+    	ui.clearKeys();
     	this._stepTimes.push(Date.now() - this._lastStepTime);
 	}
 

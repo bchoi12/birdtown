@@ -146,7 +146,7 @@ export class Lakitu extends SystemBase implements System {
 
 		super.setTargetEntity(entity);
 
-		game.world().scene().audioListenerPositionProvider = () => {
+		game.scene().audioListenerPositionProvider = () => {
 			return entity.getProfile().pos().toBabylon3();
 		};
 

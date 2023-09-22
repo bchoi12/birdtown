@@ -6,6 +6,7 @@ import { GameState, GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
+import { EntityTrackers } from 'game/component/entity_trackers'
 import { Model } from 'game/component/model'
 import { Modifiers } from 'game/component/modifiers'
 import { Profile } from 'game/component/profile'
@@ -99,6 +100,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _altEquip : Optional<Equip<Player>>;
 
 	private _attributes : Attributes;
+	private _entityTrackers : EntityTrackers;
 	private _model : Model;
 	private _modifiers : Modifiers;
 	private _profile : Profile;
@@ -185,7 +187,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			maxSpeed: {x: Player._maxHorizontalVel, y: Player._maxVerticalVel },
 		});
 
-		this._headSubProfile = this._profile.addSubComponent<Profile>(SubProfile.HEAD, new Profile({
+		this._headSubProfile = this._profile.registerSubComponent<Profile>(SubProfile.HEAD, new Profile({
 			readyFn: (head : Profile) => { return this._profile.initialized(); },
 			bodyFn: (head : Profile) => {
 				return BodyFactory.rectangle(head.pos(), head.dim(), {

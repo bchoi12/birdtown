@@ -67,7 +67,7 @@ export class Pipeline extends SystemBase implements System {
 			return;
 		}
 
-		let scene = game.world().scene();
+		let scene = game.scene();
 		let camera = game.lakitu().camera();
 		if (enabled) {
 			scene.postProcessRenderPipelineManager.enableEffectInPipeline(Pipeline._name, effectType, [camera]);

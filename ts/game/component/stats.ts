@@ -50,7 +50,7 @@ export class Stats extends ComponentBase implements Component {
 	health() : number { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).getCurrent(); }
 	dead() : boolean { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).atMin(); }
 
-	addStat(type : StatType, init? : StatInitOptions) : void { this.addSubComponent(type, new Stat(defined(init) ? init : {})); }
+	addStat(type : StatType, init? : StatInitOptions) : void { this.registerSubComponent(type, new Stat(defined(init) ? init : {})); }
 	hasStat(type : StatType) : boolean { return this.hasChild(type); }
 	getStat(type : StatType) : Stat {
 		if (!this.hasStat(type)) {
