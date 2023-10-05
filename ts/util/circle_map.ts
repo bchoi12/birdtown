@@ -50,13 +50,11 @@ type ExecuteResult<K, V> = {
 
 export class CircleMap<K, V> {
 
-	private _keys : Array<K>;
 	private _map : Map<K, Node<K, V>>;
 	private _head : K;
 	private _tail : K;
 
 	constructor() {
-		this._keys = new Array();
 		this._map = new Map();
 		this._head = null;
 		this._tail = null;
@@ -64,11 +62,17 @@ export class CircleMap<K, V> {
 
 	size() : number { return this._map.size; }
 	empty() : boolean { return this._map.size === 0; }
+	clear() : void {
+		this._map.clear();
+		this._head = null;
+		this._tail = null;
+	}
 	head() : K { return this._head; }
 	tail() : K { return this._tail; }
 
 	has(key : K) : boolean { return this._map.has(key); }
 	get(key : K) : V { return this._map.has(key) ? this._map.get(key).value : null; }
+	keys() : Array<K> { return Array.from(this._map.keys()); }
 	getHead() : V { return this._map.get(this._head).value; }
 	getTail() : V { return this._map.get(this._tail).value; }
 	hasNext(key : K) : boolean { return this._map.has(key) && this._map.has(this._map.get(key).next); }

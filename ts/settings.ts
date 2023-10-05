@@ -42,7 +42,7 @@ class Settings {
 		this.enableAntiAlias = true;
 		this.enablePrediction = true;
 
-		this.predictionTime = 250;
+		this.predictionTime = 1000;
 
 		// Debug properties
 		this.debugInspector = false;

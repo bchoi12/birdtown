@@ -95,10 +95,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
 
-	private _equips : Array<number>;
-	private _equip : Optional<Equip<Player>>;
-	private _altEquip : Optional<Equip<Player>>;
-
 	private _attributes : Attributes;
 	private _entityTrackers : EntityTrackers;
 	private _model : Model;
@@ -141,11 +137,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 		});
 
-		// TODO: probably need component for Equip tracking
-		this._equips = new Array();
-		this._equip = new Optional();
-		this._altEquip = new Optional();
-
 		this.addProp<boolean>({
 			export: () => { return this._canDoubleJump; },
 			import: (obj : boolean) => { this._canDoubleJump = obj; },
@@ -154,14 +145,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			export: () => { return this.state(); },
 			import: (obj : GameObjectState) => { this.setState(obj); },
 		});
-		this.addProp<Array<number>>({
-			export: () => { return this._equips; },
-			import: (obj : Array<number>) => { this._equips = obj; },
-		});
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.setAttribute(AttributeType.GROUNDED, false);
 		this._attributes.setAttribute(AttributeType.SOLID, true);
+
+		this._entityTrackers = this.addComponent<EntityTrackers>(new EntityTrackers());
 
 		const collisionGroup = MATTER.Body.nextGroup(/*ignoreCollisions=*/true);
 		this._profile = this.addComponent<Profile>(new Profile({
@@ -283,17 +272,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this.updateLoadout();
 	}
 
-	override setState(state : GameObjectState) : void {
-		super.setState(state);
-
-		if (this._equip.has()) {
-			this._equip.get().setState(state);
-		}
-		if (this._altEquip.has()) {
-			this._altEquip.get().setState(state);
-		}
-	}
-
 	displayName() : string {
 		if (game.playerStates().hasPlayerState(this.clientId())) {
 			return game.playerState(this.clientId()).displayName();
@@ -314,7 +292,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	timeDead() : number { return this.dead() ? this._deadTracker.timeSinceChange() : 0; }
 
 	equip(equip : Equip<Player>) : void {
-		this._equips.push(equip.id());
+		this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, equip);
 		this._model.onLoad((m : Model) => {
 			switch(equip.attachType()) {
 			case AttachType.ARM:
@@ -470,9 +448,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 
 		// Perform any required actions when using equips
-		this._equips.forEach((id : number) => {
-			const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
-			if (hasEquip && equip.hasUse()) {
+		this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP).execute((equip : Equip<Player>) => {
+			if (equip.hasUse()) {
 				switch(equip.attachType()) {
 				case AttachType.ARM:
 					this._armRecoil = equip.recoilType();
@@ -525,13 +502,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override getCounts() : Map<CounterType, number> {
 		let counts = new Map<CounterType, number>();
 		counts.set(CounterType.HEALTH, this._stats.health());
-		this._equips.forEach((id : number) => {
-				const [equip, hasEquip] = game.entities().getEntity<Equip<Player>>(id);
-				if (hasEquip) {
-					equip.getCounts().forEach((count : number, type : CounterType) => {
-						counts.set(type, count);
-					});
-				}
+
+		this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP).execute((equip : Equip<Player>) => {
+			equip.getCounts().forEach((count : number, type : CounterType) => {
+				counts.set(type, count);
+			});
 		});
 		return counts;
 	}
@@ -546,11 +521,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.get<ModifierPlayerType>(PlayerProp.TYPE));
 
-			if (this._equip.has()) {
-				this._equip.get().delete();
-			}
+			this._entityTrackers.clearEntityType(EntityType.EQUIP);
 
-			const [equip, hasEquip] = this.addTrackedEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.EQUIP_TYPE), {
+			const [equip, hasEquip] = this.addEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.EQUIP_TYPE), {
 				associationInit: {
 					owner: this,
 				},
@@ -558,13 +531,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				levelVersion: game.level().version(),
 			});
 			if (hasEquip) {
-				this._equip.set(equip);
+				this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, equip);
 			}
 
-			if (this._altEquip.has()) {
-				this._altEquip.get().delete();
-			}
-			const [altEquip, hasAltEquip] = this.addTrackedEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.ALT_EQUIP_TYPE), {
+			const [altEquip, hasAltEquip] = this.addEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.ALT_EQUIP_TYPE), {
 				associationInit: {
 					owner: this,
 				},
@@ -572,7 +542,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				levelVersion: game.level().version(),
 			});
 			if (hasAltEquip) {
-				this._altEquip.set(altEquip);
+				this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, altEquip);
 			}
 		});
 	}

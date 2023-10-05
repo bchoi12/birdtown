@@ -8,29 +8,31 @@ export class Smoother {
 	
 	private _lastDiffTime : number;
 	private _weight : number;
-	private _smoothTime : Optional<number>;
+	private _smoothTime : number;
 
 	constructor(smoothTime? : number) {
 		this._lastDiffTime = Date.now();
 		this._weight = 0;
-		this._smoothTime = new Optional();
-		if (smoothTime) {
-			this._smoothTime.set(smoothTime);
-		}
+		this._smoothTime = smoothTime ? smoothTime : settings.predictionTime;
 	}
 
 	setDiff(diff : number) : void {
-		if (diff <= 0) {
+		// Nothing to smooth
+		if (this.smoothTime() <= 0.1) {
 			this._weight = 0;
 			return;
 		}
+		if (this._weight <= 0 && diff <= 0) {
+			return;
+		}
 
+		// Diff !== 0, start smoothing
 		if (this._weight <= 0) {
 			this._lastDiffTime = Date.now();
 		}
-		this._weight = 1 - (Date.now() - this._lastDiffTime) / this.smoothTime();
+		this._weight = Math.max(0, 1 - (Date.now() - this._lastDiffTime) / this.smoothTime());
 	}
 
-	weight() : number { return Math.max(0, this._weight); }
-	smoothTime() : number { return this._smoothTime.has() ? this._smoothTime.get() : settings.predictionTime; }
+	weight() : number { return Math.min(1, Math.max(0, this._weight)); }
+	smoothTime() : number { return this._smoothTime; }
 }

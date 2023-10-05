@@ -3,6 +3,7 @@ export enum EntityType {
 	UNKNOWN,
 
 	BLOCK,
+	EQUIP,
 	PROJECTILE,
 	WEAPON,
 
@@ -14,7 +15,6 @@ export enum EntityType {
 	BOLT,
 	CONSOLE,
 	CRATE,
-	EQUIP,
 	EXPLOSION,
 	PLAYER,
 	ROCKET,
