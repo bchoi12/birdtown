@@ -48,7 +48,6 @@ export interface Entity extends GameObject {
 	levelVersion() : number;
 
 	addEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean];
-	addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean];
 
 	addComponent<T extends Component>(component : T) : T;
 	hasComponent(type : ComponentType) : boolean;
@@ -90,7 +89,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	protected _id : number;
 	protected _clientId : number;
 	protected _levelVersion : number;
-	protected _trackedEntities : Array<number>;
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super("entity-" + type + "," + entityOptions.id);
@@ -102,7 +100,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		if (entityOptions.levelVersion) {
 			this._levelVersion = entityOptions.levelVersion;
 		}
-		this._trackedEntities = [];
 
 		if (!defined(entityOptions.id)) {
 			console.error("Warning: entity type " + type + " has no id");
@@ -137,14 +134,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		});
 	}
 
-	override delete() : void {
-		super.delete();
-
-		this._trackedEntities.forEach((id : number) => {
-			game.entities().deleteEntity(id);
-		});
-	}
-
 	override dispose() : void {
 		super.dispose();
 
@@ -170,13 +159,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			options = {...options, levelVersion: this.levelVersion() };
 		}
 		return game.entities().addEntity(type, options);
-	}
-	addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {
-		const [entity, hasEntity] = this.addEntity<T>(type, options);
-		if (hasEntity) {
-			this._trackedEntities.push(entity.id());
-		}
-		return [entity, hasEntity];
 	}
 
 	addComponent<T extends Component>(component : T) : T {

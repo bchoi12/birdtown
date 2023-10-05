@@ -7,6 +7,7 @@ import { ColorFactory, ColorType } from 'game/factory/color_factory'
 import { CardinalType } from 'game/factory/cardinal_factory'
 import { ComponentType, ShadowType } from 'game/component/api'
 import { Cardinals } from 'game/component/cardinals'
+import { EntityTrackers } from 'game/component/entity_trackers'
 import { HexColors } from 'game/component/hex_colors'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
@@ -58,6 +59,7 @@ export abstract class Block extends EntityBase {
 	protected _transparentFrontMeshes : Array<BABYLON.Mesh>;
 
 	protected _cardinals : Cardinals;
+	protected _entityTrackers : EntityTrackers;
 	protected _hexColors : HexColors;
 	protected _profile : Profile;
 	protected _model : Model;
@@ -78,7 +80,7 @@ export abstract class Block extends EntityBase {
 		this._transparentFrontMeshes = new Array();
 
 		this._cardinals = this.addComponent<Cardinals>(new Cardinals(entityOptions.cardinalsInit));
-
+		this._entityTrackers = this.addComponent<EntityTrackers>(new EntityTrackers());
 		this._hexColors = this.addComponent<HexColors>(new HexColors(entityOptions.hexColorsInit));
 
 		this._profile = this.addComponent<Profile>(new Profile({
@@ -169,6 +171,14 @@ export abstract class Block extends EntityBase {
 				mesh.isVisible = true;
 			});
 		}
+	}
+
+	protected addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {
+		const [entity, hasEntity] = this.addEntity<T>(type, options);
+		if (hasEntity) {
+			this._entityTrackers.trackEntity(type, entity);
+		}
+		return [entity, hasEntity];
 	}
 
 	protected processMesh(mesh : BABYLON.Mesh) : void {

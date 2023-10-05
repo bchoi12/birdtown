@@ -28,8 +28,8 @@ export class ArchRoom extends ArchBase implements Entity {
 		if (this.openings().empty()) {
 			this.addTrackedEntity(EntityType.WALL, {
 				profileInit: {
-					pos: this._profile.pos().clone(),
-					dim: this._profile.dim().clone(),
+					pos: this._profile.pos().clone().add({ y: this.thickness() / 2 }),
+					dim: this._profile.dim().clone().add({ y: this.thickness() }),
 				}
 			});
 			return;
@@ -60,7 +60,7 @@ export class ArchRoom extends ArchBase implements Entity {
 
 		if (this.openings().hasDir(CardinalDir.RIGHT)) {
 			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.TOP_RIGHT, {x: this.thickness(), y: 1.5 }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.TOP_RIGHT, {x: this.thickness(), y: ArchBase._doorHeight }),
 			});
 		} else {
 			this.addTrackedEntity(EntityType.WALL, {
@@ -70,7 +70,7 @@ export class ArchRoom extends ArchBase implements Entity {
 
 		if (this.openings().hasDir(CardinalDir.LEFT)) {
 			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.TOP_LEFT, {x: this.thickness(), y: 1.5 }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.TOP_LEFT, {x: this.thickness(), y: ArchBase._doorHeight }),
 			});
 		} else {
 			this.addTrackedEntity(EntityType.WALL, {

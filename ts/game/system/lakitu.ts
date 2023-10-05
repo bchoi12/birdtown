@@ -78,6 +78,9 @@ export class Lakitu extends SystemBase implements System {
     	});
 
     	this.setAnchor(BABYLON.Vector3.Zero());
+		game.scene().audioListenerPositionProvider = () => {
+			return this._target;
+		};
 	}
 
 	camera() : BABYLON.UniversalCamera { return this._camera; }
@@ -145,10 +148,6 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		super.setTargetEntity(entity);
-
-		game.scene().audioListenerPositionProvider = () => {
-			return entity.getProfile().pos().toBabylon3();
-		};
 
 		if (isLocalhost()) {
 			console.log("%s: target is %s", this.name(), entity.name());	

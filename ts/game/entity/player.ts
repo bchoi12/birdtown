@@ -520,7 +520,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			const loadout = game.clientDialog(this.clientId()).loadoutMsg();
 
 			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.get<ModifierPlayerType>(PlayerProp.TYPE));
-
 			this._entityTrackers.clearEntityType(EntityType.EQUIP);
 
 			const [equip, hasEquip] = this.addEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.EQUIP_TYPE), {

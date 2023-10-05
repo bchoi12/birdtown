@@ -13,6 +13,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 
 import { GameGlobals } from 'global/game_globals'
 
+import { Box2 } from 'util/box'
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -48,6 +49,11 @@ export class Crate extends EntityBase implements Entity {
 		if (!this._profile.hasAngle()) {
 			this._profile.setAngle(0);
 		}
+		this._profile.setLimits({
+			posBounds: new Box2({x: -1000, y: -100}, {x: 1000, y: 100}),
+			// TODO: scalar param?
+			maxSpeed: {x: 0.6, y: 0.6 },
+		});
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => {
