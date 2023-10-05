@@ -13,6 +13,6 @@ export class EntityTrackers extends ComponentBase implements Component {
 	}
 
 	addEntityTracker(entityId : number) : EntityTracker {
-		return this.registerSubComponent(entityId, new EntityTracker(entityId));
+		return this.addSubComponent(new EntityTracker(entityId));
 	}
 }

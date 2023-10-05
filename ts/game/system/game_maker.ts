@@ -12,6 +12,7 @@ import { GameSetup, GameConfig } from 'game/system/game_maker/game_setup'
 import { PlayerState } from 'game/system/player_state'
 import { EntityQuery } from 'game/util/entity_query'
 
+import { MessageObject } from 'message'
 import { GameMessage, GameMessageType, GameProp} from 'message/game_message'
 import { GameConfigMessage, GameConfigProp } from 'message/game_config_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
@@ -47,13 +48,11 @@ export class GameMaker extends SystemBase implements System {
 		this._round = 0;
 		this._lastStateChange = Date.now();
 
-		this.addProp<Object>({
-			has: () => { return this._config.updated(); },
+		this.addProp<MessageObject>({
 			export: () => { return this._config.exportObject(); },
-			import: (obj : Object) => { this._config.parseObject(obj); },
+			import: (obj : MessageObject) => { this._config.parseObject(obj); },
 			options: {
 				filters: GameData.tcpFilters,
-				equals: (a : Object, b : Object) => { return false; },
 			},
 		});
 		this.addProp<number>({
@@ -106,7 +105,6 @@ export class GameMaker extends SystemBase implements System {
 			return false;
 		}
 
-		this._config.setUpdated(true);
 		this.addNameParams({
 			type: GameMode[mode],
 		});

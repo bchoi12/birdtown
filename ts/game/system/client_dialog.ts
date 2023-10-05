@@ -7,7 +7,7 @@ import { GameData, DataFilter } from 'game/game_data'
 import { ClientSideSystem, System } from 'game/system'
 import { SystemType } from 'game/system/api'
 
-import { DataMap } from 'message'
+import { DataMap, MessageObject } from 'message'
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 import { PlayerMessage, PlayerMessageType, PlayerProp } from 'message/player_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
@@ -71,9 +71,9 @@ export class ClientDialog extends ClientSideSystem implements System {
 		});
 
 		// IMPORTANT: override equals and manually update the object since the default equals fn always returns true
-		this.addProp<Object>({
+		this.addProp<MessageObject>({
 			has: () => { return this._dialogState === DialogState.PENDING; },
-			validate: (obj : Object) => {
+			validate: (obj : MessageObject) => {
 				if (this._dialogState !== DialogState.PENDING) {
 					return;
 				}
@@ -87,7 +87,7 @@ export class ClientDialog extends ClientSideSystem implements System {
 				}
 			},
 			export: () => { return this._loadoutMsg.exportObject(); },
-			import: (obj : Object) => {
+			import: (obj : MessageObject) => {
 				this._tempMsg.parseObject(obj);
 				if (!this._tempMsg.valid()) {
 					return;
@@ -97,11 +97,10 @@ export class ClientDialog extends ClientSideSystem implements System {
 				}
 			},
 			options: {
-				conditionalInterval: (obj: DialogState, elapsed : number) => {
+				conditionalInterval: (obj: MessageObject, elapsed : number) => {
 					return this._dialogState === DialogState.PENDING && elapsed >= 500;
 				},
 				filters: GameData.tcpFilters,
-				equals: (a : Object, b : Object) => { return false; },
 			},
 		});
 	}

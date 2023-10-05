@@ -12,6 +12,7 @@ import { EntityType } from 'game/entity/api'
 import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 
+import { MessageObject } from 'message'
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
 import { Box, Box2 } from 'util/box'
@@ -45,13 +46,12 @@ export class Level extends SystemBase implements System {
 		this.addProp<Object>({
 			has: () => { return this._levelMsg.updated(); },
 			export: () => { return this._levelMsg.exportObject(); },
-			import: (obj : Object) => {
+			import: (obj : MessageObject) => {
 				this._levelMsg.parseObject(obj);
 				this.applyLevel();
 			},
 			options: {
 				filters: GameData.tcpFilters,
-				equals: (a : Object, b : Object) => { return false; },
 			},
 		});
 		this.addProp<Box>({
@@ -86,7 +86,6 @@ export class Level extends SystemBase implements System {
 		}
 
 		this._levelMsg.merge(msg);
-		this._levelMsg.setUpdated(true);
 		this.applyLevel();
 	}
 

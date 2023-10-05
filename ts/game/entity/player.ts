@@ -272,8 +272,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override initialize() : void {
 		super.initialize();
 
-		console.log(this.name());
-
 		this._profile.setInertia(Infinity);
 		this._headSubProfile.setInertia(Infinity);
 

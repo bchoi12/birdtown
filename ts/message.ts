@@ -1,4 +1,9 @@
 
+export type MessageObject = {
+	t : number;
+	d : DataMap;
+};
+
 export interface Message<T extends number, P extends number> {
 	type() : T;
 	valid() : boolean;
@@ -8,14 +13,8 @@ export interface Message<T extends number, P extends number> {
 	getOr<O extends Object>(prop : P, obj : O) : O;
 	set<O extends Object>(prop : P, obj : O) : void;
 
-	parseObject(obj : Object) : Message<T, P>;
-	exportObject() : Object;
-}
-
-enum Prop {
-	UNKNOWN,
-	TYPE,
-	DATA,
+	parseObject(obj : MessageObject) : Message<T, P>;
+	exportObject() : MessageObject;
 }
 
 export type Descriptor = {
@@ -96,6 +95,7 @@ export abstract class MessageBase<T extends number, P extends number> {
 			return this;
 		}
 
+		this.setUpdated(true);
 		this._data[prop] = obj;
 		return this;
 	}
@@ -115,37 +115,25 @@ export abstract class MessageBase<T extends number, P extends number> {
 	}	
 
 	updated() : boolean { return this._updated; }
-	setUpdated(updated : boolean) : void { this._updated = updated; }
+	private setUpdated(updated : boolean) : void { this._updated = updated; }
 
-	parseObject(obj : Object) : Message<T, P> {
+	parseObject(obj : MessageObject) : Message<T, P> {
 		if (this._type === 0) {
-			this._type = <T>(obj[Prop.TYPE]);
-		} else if (this._type !== <T>(obj[Prop.TYPE])) {
+			this._type = <T>obj.t;
+		} else if (this._type !== <T>obj.t) {
 			return this;
 		}
-		if (obj.hasOwnProperty(Prop.DATA)) {
-			this._data = <DataMap>(obj[Prop.DATA]);
-		} else {
-			this._data = {};
-		}
+		this._data = <DataMap>(obj.d);	
 		return this;
 	}
 
-	parseObjectIf(obj : Object, predicate : (data : DataMap) => boolean) : Message<T, P> {
-		if (!predicate(<DataMap>(obj[Prop.DATA]))) {
-			return this;
-		}
-
-		return this.parseObject(obj);
-	}
-
 	dataMap() : DataMap { return this._data; }
-	exportObject() : Object {
+	exportObject() : MessageObject {
 		this._updated = false;
-		let obj = {};
-		obj[Prop.TYPE] = this._type;
-		obj[Prop.DATA] = this._data;
-		return obj;
+		return {
+			t: this._type,
+			d: this._data,
+		};
 	}
 
 

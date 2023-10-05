@@ -5,6 +5,7 @@ import { game } from 'game'
 
 import { MediaGlobals } from 'global/media_globals'
 
+import { MessageObject } from 'message'
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
 
@@ -443,7 +444,7 @@ export abstract class Netcode {
 		}
 
 		let msg = new NetworkMessage(NetworkMessageType.UNKNOWN);
-		msg.parseObject(decode(bytes));
+		msg.parseObject(<MessageObject>decode(bytes));
 
 		const connection = this._connections.get(name);
 		msg.setName(name);
