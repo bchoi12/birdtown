@@ -15,7 +15,8 @@ import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
-import { Weapon } from 'game/entity/weapon'
+import { Beak } from 'game/entity/equip/beak'
+import { Weapon } from 'game/entity/equip/weapon'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { BodyFactory } from 'game/factory/body_factory'
@@ -49,6 +50,7 @@ enum Animation {
 enum Bone {
 	ARM = "arm.R",
 	ARMATURE = "Armature",
+	BEAK = "beak",
 	NECK = "neck",
 	SPINE = "spine",
 }
@@ -86,7 +88,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.WALK, Animation.JUMP])],
 	]);
 	private static readonly _controllableBones = new Set<string>([
-		Bone.ARM, Bone.ARMATURE, Bone.NECK,
+		Bone.ARM, Bone.ARMATURE, Bone.BEAK, Bone.NECK,
 	]);
 
 	// TODO: package in struct, Pose, PlayerPose?
@@ -304,7 +306,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	timeDead() : number { return this.dead() ? this._deadTracker.timeSinceChange() : 0; }
 
 	equip(equip : Equip<Player>) : void {
-		this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, equip);
 		this._model.onLoad((m : Model) => {
 			switch(equip.attachType()) {
 			case AttachType.ARM:
@@ -313,6 +314,14 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				equipModel.onLoad((wm : Model) => {
 					wm.mesh().attachToBone(arm, m.mesh());
 					wm.mesh().rotation = new BABYLON.Vector3(3 * Math.PI / 2, 0, Math.PI);
+				});
+				break;
+			case AttachType.BEAK:
+				const beak = m.getBone(Bone.BEAK);
+				let beakModel = equip.getComponent<Model>(ComponentType.MODEL);
+				beakModel.onLoad((bm : Model) => {
+					bm.mesh().attachToBone(beak, m.mesh());
+					bm.mesh().rotation = new BABYLON.Vector3(0, Math.PI, 0);
 				});
 				break;
 			}
@@ -529,6 +538,19 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 
 		this._model.onLoad(() => {
+			if (!this._entityTrackers.hasEntityType(EntityType.BEAK)) {
+				const [beak, hasBeak] = this.addEntity<Beak>(EntityType.CHICKEN_BEAK, {
+					associationInit: {
+						owner: this,
+					},
+					clientId: this.clientId(),
+				});
+
+				if (hasBeak) {
+					this._entityTrackers.trackEntity<Beak>(EntityType.BEAK, beak);
+				}
+			}
+
 			const loadout = game.clientDialog(this.clientId()).loadoutMsg();
 
 			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.get<ModifierPlayerType>(PlayerProp.TYPE));

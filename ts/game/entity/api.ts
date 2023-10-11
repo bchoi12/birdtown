@@ -2,6 +2,7 @@
 export enum EntityType {
 	UNKNOWN,
 
+	BEAK,
 	BLOCK,
 	EQUIP,
 	PROJECTILE,
@@ -13,6 +14,7 @@ export enum EntityType {
 	BAZOOKA,
 	BIRD_BRAIN,
 	BOLT,
+	CHICKEN_BEAK,
 	CONSOLE,
 	CRATE,
 	EXPLOSION,

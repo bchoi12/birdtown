@@ -8,6 +8,7 @@ export enum AudioType {
 export enum MeshType {
 	UNKNOWN,
 	BIRD,
+	CHICKEN_BEAK,
 	CHICKEN,
 	DUCK,
 

@@ -122,7 +122,7 @@ export class Client extends Netcode {
 			},
 			reliable: true,
 			label: this.channelTypeToLabel(ChannelType.TCP),
-			serialization: "none",
+			serialization: "raw",
 		});
 
 		this._tcp.on("open", () => {
@@ -151,7 +151,7 @@ export class Client extends Netcode {
 		this._udp = peer.connect(this.hostName(), {
 			reliable: false,
 			label: this.channelTypeToLabel(ChannelType.UDP),
-			serialization: "none",
+			serialization: "raw",
 		});
 
 		this._udp.on("open", () => {

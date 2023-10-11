@@ -64,7 +64,7 @@ export interface Entity extends GameObject {
 	setAttribute(type : AttributeType, value : boolean) : void;
 
 	// Input/Keys
-	key(type : KeyType, state : KeyState, seqNum : number) : boolean;
+	key(type : KeyType, state : KeyState) : boolean;
 	inputDir() : Vec2;
 	inputMouse() : Vec2;
 

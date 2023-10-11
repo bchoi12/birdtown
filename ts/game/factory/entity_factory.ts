@@ -4,6 +4,7 @@ import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Console } from 'game/entity/console'
 import { Crate } from 'game/entity/crate'
+import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { BirdBrain } from 'game/entity/equip/bird_brain'
 import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
@@ -11,8 +12,8 @@ import { Bolt } from 'game/entity/projectile/bolt'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { SpawnPoint } from 'game/entity/spawn_point'
 import { Wall } from 'game/entity/wall'
-import { Bazooka } from 'game/entity/weapon/bazooka'
-import { Sniper } from 'game/entity/weapon/sniper'
+import { Bazooka } from 'game/entity/equip/weapon/bazooka'
+import { Sniper } from 'game/entity/equip/weapon/sniper'
 
 import { Vec } from 'util/vector'
 
@@ -25,6 +26,7 @@ export namespace EntityFactory {
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
 		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
+		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CONSOLE, (options : EntityOptions) => { return new Console(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],

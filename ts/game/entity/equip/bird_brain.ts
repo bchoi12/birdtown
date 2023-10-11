@@ -1,4 +1,3 @@
-
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
@@ -10,7 +9,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
-import { Equip, EquipInput, AttachType } from 'game/entity/equip'
+import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 
 import { GameGlobals } from 'global/game_globals'

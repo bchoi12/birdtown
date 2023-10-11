@@ -10,18 +10,14 @@ import { KeyType } from 'ui/api'
 
 import { Vec2 } from 'util/vector'
 
-export type EquipInput = {
-	keys : Set<KeyType>;
-	millis : number;
-	mouse : Vec2;
-	dir : Vec2;
-}
-
 export enum AttachType {
 	UNKNOWN,
 
 	NONE,
 	ARM,
+	BACK,
+	BEAK,
+	HEAD,
 }
 
 export enum RecoilType {
@@ -47,11 +43,6 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
 		this._allTypes.add(EntityType.EQUIP);
-
-		this.addNameParams({
-			base: "equip",
-			id: this.id(),
-		});
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
