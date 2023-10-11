@@ -7,6 +7,7 @@ import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
+import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 
 import { KeyType, KeyState } from 'ui/api'
@@ -33,6 +34,9 @@ export abstract class Beak extends Equip<Player> {
 		this.addProp<boolean>({
 			export: () => { return this._squawking; },
 			import: (obj : boolean) => { this._squawking = obj; },
+			options: {
+				filters: GameData.udpFilters,
+			},
 		});
 
 		this._model = this.addComponent<Model>(new Model({
