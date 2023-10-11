@@ -27,7 +27,7 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	protected _targetEntity : Entity;
 
 	constructor(type : SystemType) {
-		super("system-" + type);
+		super(SystemType[type].toLowerCase());
 
 		this._targetEntity = null;
 		this._type = type;

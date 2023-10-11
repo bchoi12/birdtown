@@ -1,4 +1,4 @@
-import * as BABYLON from "babylonjs";
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { GameState } from 'game/api'
@@ -53,8 +53,6 @@ export class Lakitu extends SystemBase implements System {
 
 	constructor(scene : BABYLON.Scene) {
 		super(SystemType.LAKITU);
-
-		this.addNameParams({ base: "lakitu" });
 
 		this._mode = LakituMode.GAME;
 		this._camera = new BABYLON.UniversalCamera(this.name(), BABYLON.Vector3.Zero(), scene);

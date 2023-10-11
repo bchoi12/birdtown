@@ -1,5 +1,5 @@
-import * as BABYLON from 'babylonjs'
-import { SkyMaterial } from 'babylonjs-materials'
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+import { SkyMaterial } from '@babylonjs/materials/Sky'
 
 import { game } from 'game'	
 import { ComponentType } from 'game/component/api'
@@ -35,6 +35,7 @@ export class World extends SystemBase implements System {
 
 		this._scene = new BABYLON.Scene(engine);
 		this._scene.useRightHandedSystem = true;
+		this._scene.disablePhysicsEngine();
 
 		this._layers = new Map();
 		this._layers.set(LayerType.HIGHLIGHT, new BABYLON.HighlightLayer("highlight", this._scene, {

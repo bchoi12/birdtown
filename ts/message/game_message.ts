@@ -16,7 +16,6 @@ export enum GameProp {
 	UNKNOWN,
 	CLIENT_ID,
 	DISPLAY_NAME,
-	ROLE,
 	SEED,
 	STATE,
 	TYPE,

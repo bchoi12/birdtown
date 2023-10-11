@@ -1,4 +1,4 @@
-import * as BABYLON from "babylonjs";
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { System } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'

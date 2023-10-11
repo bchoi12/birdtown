@@ -21,7 +21,7 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 	protected _type : ComponentType;
 
 	constructor(type : ComponentType) {
-		super("component-" + type);
+		super(ComponentType[type].toLowerCase());
 
 		this._entity = null;
 		this._type = type;

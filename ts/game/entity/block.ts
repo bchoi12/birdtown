@@ -1,4 +1,4 @@
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'

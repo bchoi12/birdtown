@@ -24,6 +24,7 @@ export class Box2 {
 	}
 
 	static zero() : Box2 { return new Box2(Vec2.zero(), Vec2.zero()); }
+	static point(point : Vec) : Box2 { return new Box2(point, point); }
 
 	contains(point : Vec) : boolean {
 		return this.xSide(point) === 0 && this.ySide(point) === 0;
@@ -56,6 +57,10 @@ export class Box2 {
 		return relativePos;
 	}
 
+	add(delta : Vec2) : void {
+		this._min.sub(delta);
+		this._max.add(delta);
+	}
 	clamp(result : Vec2) : void {
 		result.x = Math.min(this._max.x, Math.max(this._min.x, result.x));
 		result.y = Math.min(this._max.y, Math.max(this._min.y, result.y));

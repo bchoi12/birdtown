@@ -91,7 +91,14 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	protected _levelVersion : number;
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
-		super("entity-" + type + "," + entityOptions.id);
+		super(EntityType[type].toLowerCase());
+
+		if (!defined(entityOptions.id)) {
+			console.error("Warning: entity type " + type + " has no id");
+		}
+		this.addNameParams({
+			id: entityOptions.id,
+		});
 
 		this._type = type;
 		this._allTypes = new Set();
@@ -101,9 +108,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			this._levelVersion = entityOptions.levelVersion;
 		}
 
-		if (!defined(entityOptions.id)) {
-			console.error("Warning: entity type " + type + " has no id");
-		}
 		this._id = entityOptions.id;
 		if (defined(entityOptions.clientId)) {
 			this._clientId = entityOptions.clientId;

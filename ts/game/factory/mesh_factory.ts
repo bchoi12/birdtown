@@ -1,5 +1,5 @@
-import * as BABYLON from "babylonjs";
-import "babylonjs-loaders"
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+import '@babylonjs/loaders/glTF'
 
 import { game } from 'game'
 import { MeshType } from 'game/factory/api'

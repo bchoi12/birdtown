@@ -1,4 +1,4 @@
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
@@ -33,6 +33,12 @@ import { ChangeTracker } from 'util/change_tracker'
 import { Optional } from 'util/optional'
 import { Timer, InterruptType } from 'util/timer'
 import { Vec, Vec2 } from 'util/vector'
+
+enum AnimationGroup {
+	UNKNOWN,
+
+	MOVEMENT,
+}
 
 enum Animation {
 	IDLE = "Idle",
@@ -76,11 +82,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	private static readonly _armRecoveryTime = 500;
 
-	private readonly _moveAnimations = new Set<string>([
-		Animation.IDLE, Animation.WALK, Animation.JUMP
+	private static readonly _animations = new Map<AnimationGroup, Set<string>>([
+		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.WALK, Animation.JUMP])],
 	]);
-	private readonly _controllableBones = new Set<string>([
-		Bone.ARM, Bone.ARMATURE, Bone.NECK, Bone.SPINE,
+	private static readonly _controllableBones = new Set<string>([
+		Bone.ARM, Bone.ARMATURE, Bone.NECK,
 	]);
 
 	// TODO: package in struct, Pose, PlayerPose?
@@ -205,17 +211,23 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
-				MeshFactory.load(MeshType.CHICKEN, (result : LoadResult) => {
+				MeshFactory.load(MeshType.BIRD, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					result.animationGroups.forEach((animationGroup : BABYLON.AnimationGroup) => {
-						if (this._moveAnimations.has(animationGroup.name)) {
-							model.registerAnimation(animationGroup, 0);
+						const movementAnimations = Player._animations.get(AnimationGroup.MOVEMENT);
+						if (movementAnimations.has(animationGroup.name)) {
+							// Probably not needed, but ensures animations do not prevent bone control
+							animationGroup.mask = new BABYLON.AnimationGroupMask(
+								Array.from(Player._controllableBones),
+								BABYLON.AnimationGroupMaskMode.Exclude);
+							animationGroup.removeUnmaskedAnimations();
+							model.registerAnimation(animationGroup, /*group=*/0);
 						}
 					})
 					model.stopAllAnimations();
 
 					result.skeletons[0].bones.forEach((bone : BABYLON.Bone) => {
-						if (this._controllableBones.has(bone.name)) {
+						if (Player._controllableBones.has(bone.name)) {
 							model.registerBone(bone);
 						}
 					});
@@ -224,7 +236,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					const dim = this._profile.dim();
 					armature.position.y -= dim.y / 2;
 
-					this._controllableBones.forEach((name : string) => {
+					Player._controllableBones.forEach((name : string) => {
 						if (!model.hasBone(name)) {
 							console.error("Error: missing bone %s for %s", name, this.name());
 							return;
@@ -236,8 +248,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					// TODO: this doesn't seem to work
 					let animationProperties = new BABYLON.AnimationPropertiesOverride();
 					animationProperties.enableBlending = true;
-					animationProperties.blendingSpeed = 2;
-					result.skeletons[0].animationPropertiesOverride = animationProperties;
+					animationProperties.blendingSpeed = 0.02;
+					mesh.animationPropertiesOverride = animationProperties;
 
 					model.setMesh(mesh);
 				});
@@ -495,8 +507,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		arm.rotation = new BABYLON.Vector3(armRotation, Math.PI, 0);
 
 		// Compute arm position
-		let rotatedOffset = new BABYLON.Vector3(0, -Math.cos(armRotation) * this._armRecoil, Math.sin(armRotation) * this._armRecoil);
-		arm.position = this._boneOrigins.get(Bone.ARM).add(rotatedOffset);
+		let recoil = new BABYLON.Vector3(0, -Math.cos(armRotation) * this._armRecoil, Math.sin(armRotation) * this._armRecoil);
+		arm.position = this._boneOrigins.get(Bone.ARM).add(recoil);
 	}
 
 	override getCounts() : Map<CounterType, number> {

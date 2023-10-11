@@ -1,4 +1,4 @@
-import * as BABYLON from "babylonjs";
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 type SoundFn = () => BABYLON.Sound;
 

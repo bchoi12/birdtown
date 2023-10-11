@@ -56,7 +56,7 @@ export abstract class MessageBase<T extends number, P extends number> {
 					return false;
 				}
 			} else {
-				if (descriptor.min && this.get(<P>prop) < descriptor.min) {
+				if (descriptor.min && this.get<number>(<P>prop) < descriptor.min) {
 					return false;
 				}
 			}

@@ -34,10 +34,6 @@ export class Level extends SystemBase implements System {
 	constructor() {
 		super(SystemType.LEVEL);
 
-		this.addNameParams({
-			base: "level",
-		});
-
 		this._levelMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
 		this._rng = new SeededRandom(0);
 		this._bounds = Box2.zero();
@@ -56,7 +52,7 @@ export class Level extends SystemBase implements System {
 		});
 		this.addProp<Box>({
 			export: () => { return this._bounds.toBox(); },
-			import: (obj : Box) => { this._bounds.copyBox(obj); },
+			import: (obj : Box) => { this.setBounds(obj); },
 		});
 		this.addProp<Vec>({
 			export: () => { return this._defaultSpawn.toVec(); },
@@ -126,6 +122,12 @@ export class Level extends SystemBase implements System {
 		}
 	}
 
+	private setBounds(bounds : Box) : void {
+		this._bounds.copyBox(bounds);
+
+		// TODO: broadcast bounds
+	}
+
 	private displayName() : string {
 		switch (this.levelType()) {
 		case LevelType.LOBBY:
@@ -138,7 +140,7 @@ export class Level extends SystemBase implements System {
 
 	private loadLobby() : void {
 		let pos = new Vec2({ x: -2 * EntityFactory.getDimension(EntityType.ARCH_ROOM).x, y: -6 });
-		this._bounds.collapse(pos);
+		let bounds = Box2.point(pos);
 
 		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 1, y: 2}, {x: 2, y: 2 });
 		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
@@ -149,7 +151,7 @@ export class Level extends SystemBase implements System {
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 			pos.y = -6;
 
-			this._bounds.stretch(pos);
+			bounds.stretch(pos);
 			for (let j = 0; j < floors; ++j) {
 				pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
 				this.addEntity(EntityType.ARCH_ROOM, {
@@ -205,22 +207,23 @@ export class Level extends SystemBase implements System {
 			}
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
-
-			this._bounds.stretch(pos);
+			bounds.stretch(pos);
 		}
 
-		this._defaultSpawn.copyVec(this._bounds.relativePos(CardinalDir.TOP));
+		this._defaultSpawn.copyVec(bounds.relativePos(CardinalDir.TOP));
 		this.addEntity(EntityType.SPAWN_POINT, {
 			profileInit: {
 				pos: this._defaultSpawn,
 			},
 		});
+
+		this.setBounds(bounds.toBox());
 	}
 
 	private loadBirdtown() : void {
 		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 1, y: 2}, {x: 2, y: 2 });
 		let pos = new Vec2({ x: -6, y: -6 });
-		this._bounds.collapse(pos);
+		let bounds = Box2.point(pos);
 
 		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
 		const numBuildings = 6 + Math.floor(3 * this._rng.next());
@@ -239,7 +242,7 @@ export class Level extends SystemBase implements System {
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 			pos.y = -6;
-			this._bounds.stretch(pos);
+			bounds.stretch(pos);
 			for (let j = 0; j < heights[i]; ++j) {
 				pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
 				this.addEntity(EntityType.ARCH_ROOM, {
@@ -310,8 +313,10 @@ export class Level extends SystemBase implements System {
 			}
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
-			this._bounds.stretch(pos);
+			bounds.stretch(pos);
 		}
+
+		this.setBounds(bounds.toBox());
 	}
 
 	private addEntity(type : EntityType, entityOptions : EntityOptions) : [Entity, boolean] {

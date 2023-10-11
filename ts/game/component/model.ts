@@ -1,4 +1,4 @@
-import * as BABYLON from 'babylonjs'
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { GameObjectState } from 'game/api'
@@ -29,11 +29,11 @@ export class Model extends ComponentBase implements Component {
 	private _options : MeshOptions;
 	private _offset : Vec2;
 	private _onLoadFns : Array<OnLoadFn>;
+	private _animationHandler : AnimationHandler;
+	private _bones : Map<string, BABYLON.Bone>;
 
 	// TODO: multi mesh support
 	private _mesh : BABYLON.Mesh;
-	private _animationHandler : AnimationHandler
-	private _bones : Map<string, BABYLON.Bone>;
 
 	constructor(options : MeshOptions) {
 		super(ComponentType.MODEL);
@@ -43,6 +43,10 @@ export class Model extends ComponentBase implements Component {
 		this._options = options;
 		this._offset = Vec2.zero();
 		this._onLoadFns = new Array();
+		this._animationHandler = new AnimationHandler();
+		this._bones = new Map();
+
+		this._mesh = null;
 	}
 
 	override ready() : boolean {
@@ -81,7 +85,7 @@ export class Model extends ComponentBase implements Component {
 		this._offset.copyVec(offset);
 	}
 
-	hasMesh() : boolean { return defined(this._mesh); }
+	hasMesh() : boolean { return this._mesh !== null; }
 	setMesh(mesh : BABYLON.Mesh) {
 		this._mesh = mesh;
 		this._mesh.name = this.entity().name();
@@ -116,48 +120,13 @@ export class Model extends ComponentBase implements Component {
 		}
 	}
 
-	registerAnimation(animation : BABYLON.AnimationGroup, group? : number) {
-		if (!defined(this._animationHandler)) {
-			this._animationHandler = new AnimationHandler();
-		}
+	registerAnimation(animation : BABYLON.AnimationGroup, group? : number) { this._animationHandler.register(animation, group); }
+	playAnimation(name : string, loop? : boolean) : void { this._animationHandler.play(name, loop); }
+	stopAllAnimations() : void { this._animationHandler.stopAll(); }
 
-		this._animationHandler.register(animation, group);
-	}
-
-	playAnimation(name : string, loop? : boolean) : void {
-		if (!defined(this._animationHandler)) {
-			console.error("Error: tried to play animation before handler was initialized")
-			return;
-		}
-
-		this._animationHandler.play(name, loop);
-	}
-
-	stopAllAnimations() : void {
-		this._animationHandler.stopAll();
-	}
-
-	registerBone(bone : BABYLON.Bone) {
-		if (!defined(this._bones)) {
-			this._bones = new Map();
-		}
-
-		this._bones.set(bone.name, bone);
-	}
-
-	hasBone(name : string) : boolean {
-		if (!defined(this._bones)) {
-			return false;
-		}
-
-		return this._bones.has(name);
-	}
-	getBone(name : string) : BABYLON.Bone {
-		if (!defined(this._bones)) {
-			return null;
-		}
-		return this._bones.get(name);
-	}
+	registerBone(bone : BABYLON.Bone) { this._bones.set(bone.name, bone); }
+	hasBone(name : string) : boolean { return this._bones.has(name); }
+	getBone(name : string) : BABYLON.Bone { return this._bones.get(name); }
 
 	copyProfile(profile : Profile) : void {
 		this._mesh.position.x = profile.pos().x + this._offset.x;
