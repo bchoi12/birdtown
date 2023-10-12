@@ -5,6 +5,7 @@ import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Console } from 'game/entity/console'
 import { Crate } from 'game/entity/crate'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
+import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { BirdBrain } from 'game/entity/equip/bird_brain'
 import { Explosion } from 'game/entity/explosion'
 import { Player } from 'game/entity/player'
@@ -27,6 +28,7 @@ export namespace EntityFactory {
 		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
+		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
 		[EntityType.CONSOLE, (options : EntityOptions) => { return new Console(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],

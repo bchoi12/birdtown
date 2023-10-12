@@ -9,6 +9,7 @@ export enum MeshType {
 	UNKNOWN,
 	BIRD,
 	CHICKEN_BEAK,
+	CHICKEN_HAIR,
 	CHICKEN,
 	DUCK,
 
@@ -32,10 +33,4 @@ export enum MeshType {
 	BEACH_BALL,
 	TRASH_CAN,
 	POTTED_TREE,
-}
-
-export enum Texture {
-	UNKNOWN,
-	WATER_NORMALS,
-	SAND,
 }

@@ -5,6 +5,7 @@ export enum EntityType {
 	BEAK,
 	BLOCK,
 	EQUIP,
+	HEADWEAR,
 	PROJECTILE,
 	WEAPON,
 
@@ -15,6 +16,7 @@ export enum EntityType {
 	BIRD_BRAIN,
 	BOLT,
 	CHICKEN_BEAK,
+	CHICKEN_HAIR,
 	CONSOLE,
 	CRATE,
 	EXPLOSION,

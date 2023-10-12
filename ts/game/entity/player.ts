@@ -16,6 +16,7 @@ import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Beak } from 'game/entity/equip/beak'
+import { Headwear } from 'game/entity/equip/headwear'
 import { Weapon } from 'game/entity/equip/weapon'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -50,7 +51,11 @@ enum Animation {
 enum Bone {
 	ARM = "arm.R",
 	ARMATURE = "Armature",
+	BACK = "back",
 	BEAK = "beak",
+	EYE = "eye.R",
+	FOREHEAD = "forehead",
+	HEAD = "head",
 	NECK = "neck",
 	SPINE = "spine",
 }
@@ -88,7 +93,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.WALK, Animation.JUMP])],
 	]);
 	private static readonly _controllableBones = new Set<string>([
-		Bone.ARM, Bone.ARMATURE, Bone.BEAK, Bone.NECK,
+		Bone.ARM, Bone.ARMATURE, Bone.BACK, Bone.BEAK, Bone.EYE, Bone.FOREHEAD, Bone.HEAD, Bone.NECK,
 	]);
 
 	// TODO: package in struct, Pose, PlayerPose?
@@ -215,6 +220,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.BIRD, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
+
 					result.animationGroups.forEach((animationGroup : BABYLON.AnimationGroup) => {
 						const movementAnimations = Player._animations.get(AnimationGroup.MOVEMENT);
 						if (movementAnimations.has(animationGroup.name)) {
@@ -322,6 +328,13 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				beakModel.onLoad((bm : Model) => {
 					bm.mesh().attachToBone(beak, m.mesh());
 					bm.mesh().rotation = new BABYLON.Vector3(0, Math.PI, 0);
+				});
+				break;
+			case AttachType.HEAD:
+				const head = m.getBone(Bone.HEAD);
+				let headModel = equip.getComponent<Model>(ComponentType.MODEL);
+				headModel.onLoad((hm : Model) => {
+					hm.mesh().attachToBone(head, m.mesh());
 				});
 				break;
 			}
@@ -548,6 +561,19 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 				if (hasBeak) {
 					this._entityTrackers.trackEntity<Beak>(EntityType.BEAK, beak);
+				}
+			}
+
+			if (!this._entityTrackers.hasEntityType(EntityType.HEADWEAR)) {
+				const [headwear, hasHeadwear] = this.addEntity<Headwear>(EntityType.CHICKEN_HAIR, {
+					associationInit: {
+						owner: this,
+					},
+					clientId: this.clientId(),
+				});
+
+				if (hasHeadwear) {
+					this._entityTrackers.trackEntity<Headwear>(EntityType.HEADWEAR, headwear);
 				}
 			}
 

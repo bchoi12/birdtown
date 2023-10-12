@@ -79,7 +79,7 @@ export interface Entity extends GameObject {
 	collide(collision : MATTER.Collision, other : Entity) : void;
 }
 
-export interface EquipEntity {
+export interface EquipEntity extends Entity {
 	equip(equip : Equip<Entity & EquipEntity>);
 }
 
