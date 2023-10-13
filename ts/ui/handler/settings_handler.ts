@@ -76,7 +76,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			label: "Prediction Time",
 
 			min: 0,
-			max: 1000,
+			max: 3000,
 			step: 1,
 
 			getSetting: () => { return settings.predictionTime; },
