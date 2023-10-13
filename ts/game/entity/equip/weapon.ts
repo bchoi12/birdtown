@@ -11,7 +11,7 @@ import { Player } from 'game/entity/player'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { KeyType } from 'ui/api'
+import { KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Timer, InterruptType } from 'util/timer'
@@ -55,7 +55,13 @@ export abstract class Weapon extends Equip<Player> {
 		});
 	}
 
-	override ready() { return super.ready(); }
+	override key(type : KeyType, state : KeyState) : boolean {
+		if (!this.hasOwner()) { return false; }
+
+		if (this.owner().dead()) { return false; }
+
+		return super.key(type, state);
+	}
 
 	abstract meshType() : MeshType;
 	shootNode() : BABYLON.TransformNode { return defined(this._shoot) ? this._shoot : this._model.mesh(); }

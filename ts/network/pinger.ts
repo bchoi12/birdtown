@@ -24,7 +24,7 @@ export class Pinger {
 	private _lastReceivedTime : Map<string, number>;
 
 	constructor() {
-		this._pingTimes = new NumberRingBuffer(4);
+		this._pingTimes = new NumberRingBuffer(3);
 		this._pingLoss = new NumberRingBuffer(20);
 		this._lastSent = 0;
 		this._lastSentTime = Date.now();

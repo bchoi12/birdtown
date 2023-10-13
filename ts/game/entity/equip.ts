@@ -78,6 +78,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this._owner.equip(this);
 	}
 
+	hasOwner() : boolean { return this._owner !== null; }
 	owner() : E { return this._owner; }
 	ownerId() : number { return this._ownerId; }
 
