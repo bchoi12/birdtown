@@ -5,8 +5,13 @@ import { game } from 'game'
 import { ComponentType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Entity } from 'game/entity'
+import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
+
+import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
+
+import { SeededRandom } from 'util/seeded_random'
 
 enum LayerType {
 	UNKNOWN,
@@ -22,6 +27,7 @@ export class World extends SystemBase implements System {
 
 	private _scene : BABYLON.Scene;
 	private _layers : Map<LayerType, BABYLON.EffectLayer>;
+	private _rng : SeededRandom;
 
 	private _hemisphericLight : BABYLON.HemisphericLight;
 	private _directionalLight : BABYLON.DirectionalLight;
@@ -29,6 +35,8 @@ export class World extends SystemBase implements System {
 	private _shadowGenerator : BABYLON.ShadowGenerator;
 
 	private _skyBox : BABYLON.Mesh;
+	// TODO: expand upon this to support arbitrary objects
+	private _clouds : Array<BABYLON.Mesh>;
 
 	constructor(engine : BABYLON.Engine) {
 		super(SystemType.WORLD);
@@ -42,6 +50,7 @@ export class World extends SystemBase implements System {
         	isStroke: true,
         	mainTextureRatio: 2,
 		}));
+		this._rng = new SeededRandom(0);
 
 	    const dir = new BABYLON.Vector3(-0.1, -0.3, -0.4);
 	    this._hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", dir.scale(-1), this._scene);
@@ -70,6 +79,8 @@ export class World extends SystemBase implements System {
 		skyMaterial.luminance = 1.0;
 		skyMaterial.turbidity = 5;
 		this._skyBox.material = skyMaterial;
+
+		this._clouds = new Array();
 	}
 
 	renderShadows(mesh : BABYLON.AbstractMesh) : void {
@@ -118,6 +129,26 @@ export class World extends SystemBase implements System {
 
 	getLayer<T extends BABYLON.EffectLayer>(type : LayerType) : T { return <T>this._layers.get(type); }
 
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		switch(msg.type()) {
+		case GameMessageType.LEVEL_LOAD:
+			const seed = msg.getOr<number>(GameProp.SEED, 0);
+			this.generateClouds(seed);
+			break;
+		}
+	}
+
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+		const millis = stepData.millis;
+
+		this._clouds.forEach((cloud : BABYLON.Mesh) => {
+			cloud.position.x += 0.4 * millis / 1000;
+		});
+	}
+
 	override preRender() : void {
 		super.preRender();
 
@@ -130,5 +161,44 @@ export class World extends SystemBase implements System {
 		super.render();
 
 		this._scene.render();
+	}
+
+	private generateClouds(seed : number) : void {
+		this._clouds.forEach((mesh : BABYLON.Mesh) => {
+			mesh.dispose();
+		});
+
+		this._rng.seed(seed);
+
+		const bounds = game.level().bounds();
+
+		let x = bounds.min().x;
+		while (x < bounds.max().x) {
+			const length = 4 + 2 * this._rng.next();
+
+			let cloud = BABYLON.MeshBuilder.CreateBox("cloud", {
+				width: length,
+				height: 0.4,
+				depth: 2,
+			}, this.scene());
+			cloud.material = new BABYLON.StandardMaterial("cloud_material", this.scene());
+			cloud.material.alpha = 0.4;
+			cloud.material.needDepthPrePass = true;
+
+			cloud.position.x = x;
+			cloud.position.y = bounds.min().y + this._rng.next() * bounds.height();
+			const temp = this._rng.next();
+			if (temp < 0.3) {
+				cloud.position.z = 10;
+			} else if (temp < 0.65) {
+				cloud.position.z = -10;
+			} else {
+				cloud.position.z = -15;
+			}
+
+			this._clouds.push(cloud);
+
+			x += length + 4;
+		}
 	}
 }

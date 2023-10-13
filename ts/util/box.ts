@@ -26,6 +26,12 @@ export class Box2 {
 	static zero() : Box2 { return new Box2(Vec2.zero(), Vec2.zero()); }
 	static point(point : Vec) : Box2 { return new Box2(point, point); }
 
+	min() : Vec2 { return this._min; }
+	max() : Vec2 { return this._max; }
+	width() : number { return this._max.x - this._min.x; }
+	height() : number { return this._max.y - this._min.y; }
+	dim() : Vec2 { return this._max.clone().sub(this._min); }
+
 	contains(point : Vec) : boolean {
 		return this.xSide(point) === 0 && this.ySide(point) === 0;
 	}
