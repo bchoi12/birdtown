@@ -112,7 +112,6 @@ export class Runner extends SystemBase implements System  {
 	}
 
 	seqNum() : number { return this._seqNum; }
-	importSeqNum() : number { return this._importSeqNum; }
 	seqNumStep() : number { return this._seqNumStep; }
 	seqNumDiff() : number { return this.isSource() ? 0 : this._seqNumDiffs.average(); }
 

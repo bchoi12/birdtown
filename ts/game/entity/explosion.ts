@@ -22,11 +22,6 @@ export class Explosion extends EntityBase implements Entity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.EXPLOSION, entityOptions);
 
-		this.addNameParams({
-			base: "explosion",
-			id: this.id(),
-		});
-
 		this._hit = new Set();
 
 		this._profile = this.addComponent<Profile>(new Profile({

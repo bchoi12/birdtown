@@ -24,11 +24,6 @@ export class Bolt extends Projectile {
 	constructor(options : EntityOptions) {
 		super(EntityType.BOLT, options);
 
-		this.addNameParams({
-			base: "bolt",
-			id: this.id(),
-		});
-
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				const pos = profile.pos();

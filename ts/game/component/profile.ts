@@ -93,8 +93,6 @@ export class Profile extends ComponentBase implements Component {
 	constructor(profileOptions : ProfileOptions) {
 		super(ComponentType.PROFILE);
 
-		this.addNameParams({ base: "profile" });
-
 		this._bodyFn = profileOptions.bodyFn;
 
 		if (defined(profileOptions.readyFn)) { this._readyFn = profileOptions.readyFn; }

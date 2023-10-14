@@ -18,7 +18,7 @@ type MeshFn = (model : Model) => void;
 type OnLoadFn = (model : Model) => void;
 type ReadyFn = (model : Model) => boolean;
 
-type MeshOptions = {
+type ModelOptions = {
 	shadowType? : ShadowType;
 	meshFn : MeshFn;
 	readyFn? : ReadyFn;
@@ -26,7 +26,7 @@ type MeshOptions = {
 
 export class Model extends ComponentBase implements Component {
 
-	private _options : MeshOptions;
+	private _options : ModelOptions;
 	private _offset : Vec2;
 	private _onLoadFns : Array<OnLoadFn>;
 	private _animationHandler : AnimationHandler;
@@ -35,10 +35,8 @@ export class Model extends ComponentBase implements Component {
 	// TODO: multi mesh support
 	private _mesh : BABYLON.Mesh;
 
-	constructor(options : MeshOptions) {
+	constructor(options : ModelOptions) {
 		super(ComponentType.MODEL);
-
-		this.addNameParams({ base: "model" });
 
 		this._options = options;
 		this._offset = Vec2.zero();

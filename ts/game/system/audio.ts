@@ -27,10 +27,6 @@ export class Audio extends SystemBase implements System {
 	constructor() {
 		super(SystemType.AUDIO);
 
-		this.addNameParams({
-			base: "audio",
-		});
-
 		this._players = new EntityQuery();
 		this._players.registerQuery<Player>(EntityType.PLAYER, {
 			query: (player : Player) => { return player.initialized(); },
@@ -59,22 +55,24 @@ export class Audio extends SystemBase implements System {
 		]);
 	}
 
-	loadSound(type : SoundType, onLoad? : (sound : BABYLON.Sound) => void) : void {
-		if (!this._sounds.has(type)) {
-			console.error("Error: attempting to play unregistered sound %d", type);
+	loadSound(soundType : SoundType, onLoad? : (sound : BABYLON.Sound) => void) : void {
+		if (!this._sounds.has(soundType)) {
+			console.error("Error: attempting to play unregistered sound %s", SoundType[soundType]);
 			return;
 		}
 
-		let cache = this._audioCache.get(this._sounds.get(type)());
-		if (!defined(cache)) {
-			console.error("Error: audio cache is not initialized for type %d", type);
+		const audioType = this._sounds.get(soundType)();
+		if (!this._audioCache.has(audioType)) {
+			console.error("Error: audio cache is not initialized for %s", AudioType[audioType]);
 			return;
 		}
+
+		let cache = this._audioCache.get(audioType);
 
 		// TODO: set volume and other global settings
-		let sound = cache.borrow(onLoad);
-		sound.onEndedObservable.addOnce(() => {
-			cache.return(sound);
+		let audio = cache.borrow(onLoad);
+		audio.onEndedObservable.addOnce(() => {
+			cache.return(audio);
 		});
 	}
 

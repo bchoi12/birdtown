@@ -66,12 +66,7 @@ export abstract class Block extends EntityBase {
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
-
 		this.addType(EntityType.BLOCK);
-		this.addNameParams({
-			base: "block",
-			id: this.id(),
-		});
 
 		this._transparent = false;
 

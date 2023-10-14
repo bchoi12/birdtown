@@ -15,12 +15,10 @@ export class Cardinals extends ComponentBase implements Component {
 
 	private _cardinals : Map<CardinalType, Cardinal>;
 
-	constructor(init : CardinalsInitOptions) {
+	constructor(init? : CardinalsInitOptions) {
 		super(ComponentType.CARDINALS);
 
 		if (!defined(init)) { init = {}; }
-
-		this.addNameParams({ base: "cardinals" });
 
 		this._cardinals = new Map();
 

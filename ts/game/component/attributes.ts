@@ -13,11 +13,10 @@ export class Attributes extends ComponentBase implements Component {
 
 	private _attributes : Map<AttributeType, boolean>;
 
-	constructor(init : AttributesInitOptions) {
+	constructor(init? : AttributesInitOptions) {
 		super(ComponentType.ATTRIBUTES);
 
 		if (!defined(init)) { init = {}; }
-		this.addNameParams({ base: "attributes" });
 
 		this._attributes = new Map();
 

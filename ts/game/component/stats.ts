@@ -20,8 +20,6 @@ export class Stats extends ComponentBase implements Component {
 	constructor(init : StatsInitOptions) {
 		super(ComponentType.STATS);
 
-		this.addNameParams({ base: "stats" });
-
 		init.stats.forEach((init : StatInitOptions, type : StatType) => {
 			this.addStat(type, init);
 		});

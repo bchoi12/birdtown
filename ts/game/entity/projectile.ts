@@ -15,11 +15,6 @@ export abstract class Projectile extends EntityBase {
 		super(entityType, entityOptions);
 		this.addType(EntityType.PROJECTILE);
 
-		this.addNameParams({
-			base: "projectile",
-			id: this.id(),
-		});
-
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 	}

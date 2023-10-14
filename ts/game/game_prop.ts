@@ -122,20 +122,25 @@ export class GameProp<T extends Object> {
 			return false;
 		}
 
+		const seqNumEqual = this._seqNum === seqNum;
+
 		// Reset if there is a gap in setting value
 		if (seqNum - this._seqNum > game.runner().seqNumStep()) {
 			this._consecutiveChanges = 0;
 		}
 
 		if (this.equals(value)) {
-			this._consecutiveChanges = Math.min(-1, this._consecutiveChanges - 1);
+			if (!seqNumEqual) {
+				this._consecutiveChanges = Math.min(-1, this._consecutiveChanges - 1);
+			}
 			return false;
 		}
 
 		this._value.set(value);
 		this._seqNum = seqNum;
-		this._consecutiveChanges = Math.max(1, this._consecutiveChanges + 1);
-		this._lastChanged = Math.max(this._lastChanged, this._seqNum);
+		// If seqnums are equal, either set to 1 or don't increment.
+		this._consecutiveChanges = Math.max(1, this._consecutiveChanges + (seqNumEqual ? 0 : 1));
+		this._lastChanged = this._seqNum;
 		return true;
 	}
 
@@ -152,7 +157,7 @@ export class GameProp<T extends Object> {
 		return true;
 	}
 
-	optional() : boolean { return this._optional; }
+	isOptional() : boolean { return this._optional; }
 
 	shouldPublish(filter : DataFilter, seqNum : number) : boolean {
 		if (!this.has()) {

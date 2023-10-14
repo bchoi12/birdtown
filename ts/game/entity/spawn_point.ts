@@ -16,11 +16,6 @@ export class SpawnPoint extends EntityBase implements Entity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.SPAWN_POINT, entityOptions);
 
-		this.addNameParams({
-			base: "spawn_point",
-			id: this.id(),
-		});
-
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {

@@ -18,7 +18,6 @@ export class HexColors extends ComponentBase implements Component {
 		super(ComponentType.HEX_COLORS);
 
 		if (!defined(init)) { init = {}; }
-		this.addNameParams({ base: "colors" });
 
 		this._colors = new Map();
 		if (init.colors) {

@@ -18,11 +18,10 @@ export class Association extends ComponentBase implements Component {
 	private _associations : Map<AssociationType, number>;
 	private _owner : Optional<Entity>;
 
-	constructor(init : AssociationInitOptions) {
+	constructor(init? : AssociationInitOptions) {
 		super(ComponentType.ASSOCIATION);
 
 		if (!defined(init)) { init = {}; }
-		this.addNameParams({ base: "associations" });
 
 		if (init.associations) {
 			this._associations = init.associations;

@@ -29,11 +29,6 @@ export abstract class Weapon extends Equip<Player> {
 		super(entityType, entityOptions);
 		this.addType(EntityType.WEAPON);
 
-		this.addNameParams({
-			base: "weapon",
-			id: this.id(),
-		});
-
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
 				MeshFactory.load(this.meshType(), (result : LoadResult) => {

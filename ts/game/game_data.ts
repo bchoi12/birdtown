@@ -70,7 +70,7 @@ export class GameData {
 			const [value, shouldPublish] = prop.publish(filter, seqNum);
 			if (shouldPublish) {
 				filtered[key] = value;
-				hasData = hasData || !prop.optional();
+				hasData = hasData || !prop.isOptional();
 			}
 		});
 		return [filtered, hasData];

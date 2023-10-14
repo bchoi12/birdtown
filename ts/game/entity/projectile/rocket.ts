@@ -24,11 +24,6 @@ export class Rocket extends Projectile {
 	constructor(options : EntityOptions) {
 		super(EntityType.ROCKET, options);
 
-		this.addNameParams({
-			base: "rocket",
-			id: this.id(),
-		});
-
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				const pos = profile.pos();
