@@ -30,6 +30,13 @@ export class SmoothVec2 extends Vec2 {
 	setBase(vec : Vec) : void { this._base.set(Vec2.fromVec(vec)); }
 	setPredict(vec : Vec) : void { this._predict.set(Vec2.fromVec(vec)); }
 
+	snapDistSq(weight : number) : number {
+		let temp = this.clone();
+		temp.snap(weight)
+
+		return this.distSq(temp);
+	}
+
 	snap(t : number) : Vec2 {
 		if (!this._base.has() || !this._predict.has()) { return this; }
 

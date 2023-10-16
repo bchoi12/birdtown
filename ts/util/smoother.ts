@@ -11,14 +11,14 @@ export class Smoother {
 	private _smoothTime : number;
 
 	constructor(smoothTime? : number) {
-		this._lastDiffTime = Date.now();
+		this._lastDiffTime = 0
 		this._weight = 0;
 		this._smoothTime = smoothTime ? smoothTime : settings.predictionTime;
 	}
 
 	setDiff(diff : number) : void {
 		// Nothing to smooth
-		if (this.smoothTime() <= 0.1) {
+		if (this.smoothTime() <= 0) {
 			this._weight = 0;
 			return;
 		}

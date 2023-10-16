@@ -484,12 +484,18 @@ export class Profile extends ComponentBase implements Component {
 		}
 
 		let weight = 0;
-		if (settings.enablePrediction && this.entity().clientIdMatches()) {
-			this._smoother.setDiff(game.keys(this.entity().clientId()).maxDiff());
+		if (settings.enablePrediction) {
+			// this._smoother.setDiff(game.keys(this.entity().clientId()).maxDiff());
+			this._smoother.setDiff(game.runner().frameDiff());
 			weight = this._smoother.weight();
 		}
+
 		this.vel().snap(weight);
-		this.pos().snap(weight);
+		if (this.pos().snapDistSq(weight) > 1) {
+			this.pos().snap(0);
+		} else {
+			this.pos().snap(weight);
+		}
 
 		if (this.hasAcc()) {
 			const acc = this.acc();

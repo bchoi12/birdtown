@@ -50,7 +50,7 @@ export class StatsHandler extends HandlerBase implements Handler {
 			let text = [
 				"Ping: " + Math.ceil(ping) + " ms (" + Math.ceil(pingSuccess) + "%)",
 				"FPS: " + fps + " (" + Math.ceil(game.stepTime()) + "+" + Math.ceil(game.renderTime()) + " ms)",
-				"Diff: " + Math.round(game.runner().seqNumDiff()),
+				"Diff: " + Math.round(game.runner().frameDiff()),
 				"TCP/s: " + Math.ceil(tcp),
 				"UDP/s: " + Math.ceil(udp),
 				"Kb/s: " + Math.ceil(bytes / 1024),

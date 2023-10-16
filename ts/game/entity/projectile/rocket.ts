@@ -12,6 +12,7 @@ import { Projectile } from 'game/entity/projectile'
 import { MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
+import { StepData } from 'game/game_object'
 
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
@@ -54,6 +55,17 @@ export class Rocket extends Projectile {
 
 	override damage() : number { return 50; }
 
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+		const millis = stepData.millis;
+
+		if (!this._model.hasMesh()) {
+			return;
+		}
+
+		this._model.mesh().rotation.z += 6 * Math.PI * millis / 1000; 
+	}
+
 	override preRender() : void {
 		super.preRender();
 
@@ -61,10 +73,7 @@ export class Rocket extends Projectile {
 			return;
 		}
 
-		const vel = this._profile.vel();
-		const angle = Vec2.fromVec(vel).angleRad();
-
-		this._model.mesh().rotation = new BABYLON.Vector3(-angle, Math.PI / 2, 0);
+		this._model.mesh().rotation.x = -this._profile.vel().angleRad();
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {
