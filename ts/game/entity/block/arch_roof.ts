@@ -13,11 +13,6 @@ export class ArchRoof extends ArchBase implements Entity {
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.ARCH_ROOF, entityOptions);
-
-		this.addNameParams({
-			base: "arch_roof",
-			id: this.id(),
-		});
 	}
 
 	override meshType() : MeshType { return MeshType.ARCH_ROOF; }

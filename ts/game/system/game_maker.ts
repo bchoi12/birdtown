@@ -13,7 +13,7 @@ import { EntityQuery } from 'game/util/entity_query'
 
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType, GameProp} from 'message/game_message'
-import { GameConfigMessage, GameConfigProp } from 'message/game_config_message'
+import { GameConfigMessage } from 'message/game/game_config_message'
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
 import { ui } from 'ui'
@@ -63,11 +63,24 @@ export class GameMaker extends SystemBase implements System {
 	mode() : GameMode { return this._config.type(); }
 	clientSetup() : ClientSetup { return this._clientSetup; }
 	round() : number { return this._round; }
-	timeLimitReached(prop : GameConfigProp) : boolean {
-		if (!this._config.has(prop)) {
+	timeLimitReached(state : GameState) : boolean {
+		const elapsed = Date.now() - this._lastStateChange;
+
+		switch (state) {
+		case GameState.SETUP:
+			return this._config.hasTimeSetup() && elapsed >= this._config.getTimeSetup();
+		case GameState.GAME:
+			return this._config.hasTimeGame() && elapsed >= this._config.getTimeGame();
+		case GameState.FINISH:
+			return this._config.hasTimeFinish() && elapsed >= this._config.getTimeFinish();
+		case GameState.VICTORY:
+			return this._config.hasTimeVictory() && elapsed >= this._config.getTimeVictory();
+		case GameState.ERROR:
+			return this._config.hasTimeError() && elapsed >= this._config.getTimeError();
+		default:
+			console.error("Warning: queried time limit of unknown type %s", GameState[state]);
 			return false;
 		}
-		return (Date.now() - this._lastStateChange) >= this._config.get<number>(prop);
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -120,7 +133,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.SETUP:
 		case GameState.GAME:
 			this._clientSetup.prune();
-			if (this._clientSetup.numConnected() < this._config.getOr(GameConfigProp.PLAYERS_MIN, 0)) {
+			if (this._config.hasPlayersMin() && this._clientSetup.numConnected() < this._config.getPlayersMin()) {
 				return false;
 			}
 			break;
@@ -134,7 +147,7 @@ export class GameMaker extends SystemBase implements System {
 
 		switch(current) {		
 		case GameState.SETUP:
-			if (this.timeLimitReached(GameConfigProp.TIME_SETUP)) {
+			if (this.timeLimitReached(current)) {
 				return GameState.GAME;
 			}
 			if (game.clientDialogs().inSync()) {
@@ -142,7 +155,7 @@ export class GameMaker extends SystemBase implements System {
 			}
 			break;
 		case GameState.GAME:
-			if (this.timeLimitReached(GameConfigProp.TIME_GAME)) {
+			if (this.timeLimitReached(current)) {
 				return GameState.FINISH;
 			}
 			const alive = this._entityQuery.filter<Player>(EntityType.PLAYER, (player : Player) => {
@@ -154,18 +167,18 @@ export class GameMaker extends SystemBase implements System {
 
 			break;
 		case GameState.FINISH:
-			if (this.timeLimitReached(GameConfigProp.TIME_FINISH)) {
+			if (this.timeLimitReached(current)) {
 				return GameState.SETUP;
 			}
 			// TODO: victory check
 			break;
 		case GameState.VICTORY:
-			if (this.timeLimitReached(GameConfigProp.TIME_VICTORY)) {
+			if (this.timeLimitReached(current)) {
 				return GameState.FREE;
 			}
 			break;
 		case GameState.ERROR:
-			if (this.timeLimitReached(GameConfigProp.TIME_ERROR)) {
+			if (this.timeLimitReached(current)) {
 				return GameState.FREE;
 			}
 		}

@@ -9,7 +9,7 @@ import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 import { GameMaker } from 'game/system/game_maker'
 
-import { GameConfigMessage } from 'message/game_config_message'
+import { GameConfigMessage } from 'message/game/game_config_message'
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 
 import { isLocalhost } from 'util/common'
