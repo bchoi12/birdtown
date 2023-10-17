@@ -10,10 +10,6 @@ export class PlayerStates extends ClientSystemManager implements System {
 	constructor() {
 		super(SystemType.PLAYER_STATES);
 
-		this.addNameParams({
-			base: "player_states",
-		});
-
 		this.setFactoryFn((clientId : number) => { return this.addPlayerState(new PlayerState(clientId)); })
 	}
 

@@ -10,10 +10,6 @@ export class ClientDialogs extends ClientSystemManager implements System {
 	constructor() {
 		super(SystemType.CLIENT_DIALOGS);
 
-		this.addNameParams({
-			base: "client_dialogs",
-		});
-
 		this.setFactoryFn((clientId : number) => { return this.addClientDialog(new ClientDialog(clientId)); })
 	}
 

@@ -18,9 +18,7 @@ export class Key extends ClientSideSystem implements System {
 		super(SystemType.KEY, clientId);
 
 		this.addNameParams({
-			base: "key",
 			type: KeyType[keyType],
-			id: this.clientId(),
 		});
 
 		this._keyType = keyType;

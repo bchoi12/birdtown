@@ -43,10 +43,6 @@ export class Runner extends SystemBase implements System  {
 	constructor() {
 		super(SystemType.RUNNER);
 
-		this.addNameParams({
-			base: "runner",
-		});
-
 		this._seqNum = 0;
 		this._importSeqNum = 0;
 		this._updateSpeed = 1;

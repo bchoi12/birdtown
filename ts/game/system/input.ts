@@ -13,10 +13,6 @@ export class Input extends ClientSystemManager implements System {
 	constructor() {
 		super(SystemType.INPUT);
 
-		this.addNameParams({
-			base: "input",
-		});
-
 		this.setFactoryFn((clientId : number) => { return this.addKeys(new Keys(clientId)); })
 		this._keys = new Map();
 	}

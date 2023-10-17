@@ -32,11 +32,6 @@ export class Keys extends ClientSideSystem implements System {
 	constructor(clientId : number) {
 		super(SystemType.KEYS, clientId);
 
-		this.addNameParams({
-			base: "keys",
-			id: this.clientId(),
-		});
-
 		this._mouse = Vec2.zero();
 		this._dir = Vec2.i();
 

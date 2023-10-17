@@ -23,10 +23,6 @@ export class Entities extends SystemBase implements System {
 	constructor() {
 		super(SystemType.ENTITIES);
 
-		this.addNameParams({
-			base: "entities",
-		});
-
 		this._lastId = 0;
 		this._lastOfflineId = 0;
 		this._entityInfo = new Map();

@@ -8,7 +8,6 @@ import { SystemBase, System } from 'game/system'
 import { SystemType, LevelType } from 'game/system/api'
 import { Controller } from 'game/system/controller'
 import { ClientSetup } from 'game/system/game_maker/client_setup'
-import { GameSetup, GameConfig } from 'game/system/game_maker/game_setup'
 import { PlayerState } from 'game/system/player_state'
 import { EntityQuery } from 'game/util/entity_query'
 
@@ -38,9 +37,6 @@ export class GameMaker extends SystemBase implements System {
 
 	constructor() {
 		super(SystemType.GAME_MAKER);
-		this.addNameParams({
-			base: "game_maker",
-		})
 
 		this._config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
 		this._clientSetup = new ClientSetup(250);

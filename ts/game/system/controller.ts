@@ -24,10 +24,6 @@ export class Controller extends SystemBase implements System {
 	constructor() {
 		super(SystemType.CONTROLLER);
 
-		this.addNameParams({
-			base: "controller",
-		});
-
 		this._gameState = GameState.UNKNOWN;
 		this._gameMaker = this.addSubSystem<GameMaker>(SystemType.GAME_MAKER, new GameMaker());
 

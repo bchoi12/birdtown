@@ -29,11 +29,6 @@ export class PlayerState extends ClientSystem implements System {
 	constructor(clientId : number) {
 		super(SystemType.PLAYER_STATE, clientId);
 
-		this.addNameParams({
-			base: "player_state",
-			id: clientId,
-		})
-
 		this._role = PlayerRole.UNKNOWN;
 		this._points = 0;
 		this._displayName = "unknown";

@@ -11,9 +11,7 @@ export class EntityMap extends SystemBase implements System {
 		super(SystemType.ENTITY_MAP);
 
 		this._entityType = entityType;
-
 		this.addNameParams({
-			base: "entity_map",
 			type: EntityType[entityType],
 		})
 

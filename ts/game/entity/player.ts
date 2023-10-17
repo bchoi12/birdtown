@@ -135,7 +135,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 		this._canDoubleJump = true;
 		this._deadTracker = new ChangeTracker(() => {
-			return this._stats.dead();
+			return this.dead();
 		}, (dead : boolean) => {
 			if (dead) {
 				const x = this._profile.vel().x;
@@ -364,7 +364,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		const gravity = falling ? Player._fallMultiplier * GameGlobals.gravity : GameGlobals.gravity;
 		this._profile.setAcc({ y: gravity });
 
-		if (!this._stats.dead()) {
+		if (!this.dead()) {
 			// Keypress acceleration
 			if (this.key(KeyType.LEFT, KeyState.DOWN)) {
 				this._profile.setAcc({ x: -Player._sideAcc });
@@ -493,7 +493,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 		});
 
-		if (!this._attributes.getAttribute(AttributeType.GROUNDED) || this._stats.dead()) {
+		if (!this._attributes.getAttribute(AttributeType.GROUNDED) || this.dead()) {
 			this._model.playAnimation(Animation.JUMP);
 		} else {
 			if (Math.abs(this._profile.acc().x) < 0.01) {
@@ -503,7 +503,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 		}
 
-		if (this.clientIdMatches() && !this._stats.dead()) {
+		if (this.clientIdMatches() && !this.dead()) {
 			this.recomputeDir(game.keys(this.clientId()).dir());
 		}
 		const headSign = this._headDir.x === 0 ? 1 : Math.sign(this._headDir.x);

@@ -44,11 +44,6 @@ export class ClientDialog extends ClientSideSystem implements System {
 	constructor(clientId : number) {
 		super(SystemType.CLIENT_DIALOG, clientId);
 
-		this.addNameParams({
-			base: "client_dialog",
-			id: clientId,
-		});
-
 		this._dialogState = DialogState.NOT_REQUESTED;
 
 		this._loadoutMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
