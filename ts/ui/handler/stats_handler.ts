@@ -3,8 +3,7 @@ import { game } from 'game'
 
 import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
 
-import { ChannelType } from 'network/api'
-import { ChannelMap, ChannelStat } from 'network/channel_map'
+import { ChannelType, ChannelStat } from 'network/api'
 import { Connection } from 'network/connection'
 
 import { ui } from 'ui'
@@ -37,23 +36,15 @@ export class StatsHandler extends HandlerBase implements Handler {
 			const pingSuccess = 100 * (1 - game.netcode().pingLoss());
 			const fps = game.engine().getFps().toFixed();
 
-			let tcp = 0;
-			let udp = 0;
-			let bytes = 0;
-			game.netcode().connections().forEach((connection : Connection) => {
-				tcp += connection.channels().flushStat(ChannelType.TCP, ChannelStat.PACKETS);
-				udp += connection.channels().flushStat(ChannelType.UDP, ChannelStat.PACKETS);
-				bytes += connection.channels().flushStat(ChannelType.TCP, ChannelStat.BYTES);
-				bytes += connection.channels().flushStat(ChannelType.UDP, ChannelStat.BYTES);
-			});
-
+			const stats = game.netcode().stats();
 			let text = [
-				"Ping: " + Math.ceil(ping) + " ms (" + Math.ceil(pingSuccess) + "%)",
-				"FPS: " + fps + " (" + Math.ceil(game.stepTime()) + "+" + Math.ceil(game.renderTime()) + " ms)",
+				"Ping: " + Math.round(ping) + "ms (" + Math.round(pingSuccess) + "%)",
+				"FPS: " + fps + " (" + Math.ceil(game.stepTime()) + "+" + Math.ceil(game.renderTime()) + "ms)",
 				"Diff: " + Math.round(game.runner().frameDiff()),
-				"TCP/s: " + Math.ceil(tcp),
-				"UDP/s: " + Math.ceil(udp),
-				"Kb/s: " + Math.ceil(bytes / 1024),
+				"TCP/s: " + Math.round(stats.get(ChannelType.TCP).get(ChannelStat.PACKETS))
+					+ " (" + Math.round(stats.get(ChannelType.TCP).get(ChannelStat.BYTES) / 1024) + "Kb)",
+				"UDP/s: " + Math.round(stats.get(ChannelType.UDP).get(ChannelStat.PACKETS))
+					+ " (" + Math.round(stats.get(ChannelType.UDP).get(ChannelStat.BYTES) / 1024) + "Kb)",
 			];
 			this._customStats.textContent = text.join(" | ");
 		}

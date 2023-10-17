@@ -1,16 +1,9 @@
 import { DataConnection } from 'peerjs'
 
-import { ChannelType } from 'network/api'
+import { ChannelType, ChannelStat } from 'network/api'
 
 import { isLocalhost } from 'util/common'
 import { StatsTracker } from 'util/stats_tracker'
-
-// TODO: move to API
-export enum ChannelStat {
-	UNKNOWN,
-	PACKETS,
-	BYTES,
-}
 
 export class ChannelMap {
 	private _channels : Map<ChannelType, DataConnection>;

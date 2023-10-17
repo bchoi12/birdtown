@@ -5,6 +5,12 @@ export enum ChannelType {
 	UDP,
 }
 
+export enum ChannelStat {
+	UNKNOWN,
+	PACKETS,
+	BYTES,
+}
+
 export enum NetworkBehavior {
 	UNKNOWN,
 	SOURCE,

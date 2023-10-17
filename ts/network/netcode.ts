@@ -9,7 +9,7 @@ import { MessageObject } from 'message'
 import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
 import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
 
-import { ChannelType } from 'network/api'
+import { ChannelType, ChannelStat } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
 import { Connection } from 'network/connection'
 import { Pinger } from 'network/pinger'
@@ -138,8 +138,25 @@ export abstract class Netcode {
 	isLabelValid(label : string) : boolean { return Netcode._validChannels.hasReverse(label); }
 	labelToChannelType(label : string) : ChannelType { return Netcode._validChannels.getReverse(label); }
 
-	// TODO: deprecate, replace with stats()
-	connections() : Map<string, Connection> { return this._connections; }
+	stats() : Map<ChannelType, Map<ChannelStat, number>> {
+
+		let tcpStats = new Map<ChannelStat, number>();
+		let udpStats = new Map<ChannelStat, number>();
+
+		const channelStats = new Map<ChannelType, Map<ChannelStat, number>>([
+			[ChannelType.TCP, tcpStats],
+			[ChannelType.UDP, udpStats],
+		]);
+
+		this._connections.forEach((connection : Connection) => {
+			const channels = connection.channels();
+			tcpStats.set(ChannelStat.PACKETS, channels.flushStat(ChannelType.TCP, ChannelStat.PACKETS))
+			udpStats.set(ChannelStat.PACKETS, channels.flushStat(ChannelType.UDP, ChannelStat.PACKETS))
+			tcpStats.set(ChannelStat.BYTES, channels.flushStat(ChannelType.TCP, ChannelStat.BYTES))
+			udpStats.set(ChannelStat.BYTES, channels.flushStat(ChannelType.UDP, ChannelStat.BYTES))
+		});
+		return channelStats;
+	}
 	getOrAddConnection(name : string) : Connection {
 		if (this.hasConnection(name)) {
 			return this.getConnection(name);
