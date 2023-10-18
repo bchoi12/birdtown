@@ -4,7 +4,7 @@ Demo: https://brianchoi.net/birdtown
 
 ## Overview
 
-birdtown 
+birdtown is an experiment to make real-time multiplayer games instantly accessible in your web browser.
 
 ### Status
 
