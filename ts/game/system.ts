@@ -40,7 +40,7 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	}
 	getSubSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
 
-	hasTargetEntity() : boolean { return defined(this._targetEntity); }
+	hasTargetEntity() : boolean { return this._targetEntity !== null && this._targetEntity.initialized(); }
 	targetEntity<T extends Entity>() : T { return <T>this._targetEntity; }
 	setTargetEntity<T extends Entity>(entity : T) : void {
 		this._targetEntity = entity;
@@ -65,7 +65,7 @@ export abstract class SystemBase extends GameObjectBase implements System {
 
 	handleMessage(msg : GameMessage) : void {
 		this.execute<System>((system : System) => {
-			if (defined(system.handleMessage)) {
+			if (system.handleMessage) {
 				system.handleMessage(msg);			
 			}
 		});
