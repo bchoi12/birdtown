@@ -96,6 +96,7 @@ body {
 
 #div-minimap {
     position:  absolute;
+    visibility: hidden;
 
     right: 0;
     bottom: 0;
@@ -107,7 +108,6 @@ body {
 
 #canvas-physics {
     display: block;
-
     transform: scale(1, -1);
 }
 

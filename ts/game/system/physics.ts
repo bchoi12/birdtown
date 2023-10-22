@@ -15,6 +15,7 @@ export class Physics extends SystemBase implements System {
 	private static readonly _renderInterval : number = 250;
 
 	private _engine : MATTER.Engine;
+	private _minimap : HTMLElement;
 	private _canvas : HTMLCanvasElement;
 	private _render : MATTER.Render;
 	private _lastRender : number;
@@ -26,6 +27,7 @@ export class Physics extends SystemBase implements System {
 			gravity: { y: 0 }
 		});
 
+		this._minimap = Html.elm(Html.divMinimap);
 		this._canvas = Html.canvasElm(Html.canvasPhysics);
 		this._render = MATTER.Render.create({
 			canvas: this._canvas,
@@ -156,8 +158,10 @@ export class Physics extends SystemBase implements System {
 		super.render();
 
 		if (!game.lakitu().hasTargetEntity()) {
+			this._minimap.style.visibility = "hidden";
 			return;
 		}
+		this._minimap.style.visibility = "visible";
 
 		const target = game.lakitu().target();
 		const fov = game.lakitu().fov();
