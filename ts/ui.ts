@@ -95,17 +95,13 @@ class UI {
 		let context = this.audioContext();
 		if (clientId === game.clientId()) {
 			let listener = context.listener;
-
 			if (listener.positionX) {
 				listener.positionX.setValueAtTime(pos.x, context.currentTime);
 				listener.positionY.setValueAtTime(pos.y, context.currentTime);
-
-				if (defined(pos.z)) {
-					listener.positionZ.setValueAtTime(pos.z, context.currentTime);
-				}
+				listener.positionZ.setValueAtTime(pos.z ? pos.z : 0, context.currentTime);
 			} else {
 				// Support Firefox
-				listener.setPosition(pos.x, pos.y, defined(pos.z) ? pos.z : 0);
+				listener.setPosition(pos.x, pos.y, pos.z ? pos.z : 0);
 			}
 			return;
 		}

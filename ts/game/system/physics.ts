@@ -11,7 +11,8 @@ import { Vec2 } from 'util/vector'
 
 export class Physics extends SystemBase implements System {
 
-	private static readonly _renderInterval = 250;
+	private static readonly _maxUpdateTime : number = 10;
+	private static readonly _renderInterval : number = 250;
 
 	private _engine : MATTER.Engine;
 	private _canvas : HTMLCanvasElement;
@@ -52,7 +53,12 @@ export class Physics extends SystemBase implements System {
 		super.physics(stepData);
 		const millis = stepData.millis;
 
-		MATTER.Engine.update(this._engine, millis);
+		let update = millis;
+		while (update > 0) {
+			const step = Math.min(Physics._maxUpdateTime, update);
+			MATTER.Engine.update(this._engine, step);
+			update -= step;
+		}
 
 		const entities = game.entities();
 		const collisions = MATTER.Detector.collisions(this._engine.detector);

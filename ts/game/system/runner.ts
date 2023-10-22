@@ -151,6 +151,7 @@ export class Runner extends SystemBase implements System  {
 			realMillis: Date.now() - this._lastStepTime,
 			seqNum: this._seqNum,
 		}
+		console.log(Date.now() - this._lastStepTime, Runner._minFrameTime * this._seqNumStep);
 		this._lastStepTime = Date.now();
 
     	this.preUpdate(stepData);

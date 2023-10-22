@@ -25,6 +25,8 @@ export class StatsTracker {
 	}
 
 	flush(key : number) : number {
+		if (!this._values.has(key)) { return 0; }
+
 		const time = this.secondsElapsed(key);
 		if (time === 0) {
 			this.reset(key);

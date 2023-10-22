@@ -80,7 +80,6 @@ export class Audio extends SystemBase implements System {
 		super.preRender();
 
 		// Set sound positions
-		// TODO: this crashes on firefox
 		this._players.query<Player>(EntityType.PLAYER).forEach((player : Player) => {
 			ui.updatePos(player.clientId(), player.getProfile().pos());
 		});

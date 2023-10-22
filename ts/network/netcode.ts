@@ -148,13 +148,19 @@ export abstract class Netcode {
 			[ChannelType.UDP, udpStats],
 		]);
 
+		let tcpPackets = 0, udpPackets = 0, tcpBytes = 0, udpBytes = 0;
 		this._connections.forEach((connection : Connection) => {
 			const channels = connection.channels();
-			tcpStats.set(ChannelStat.PACKETS, channels.flushStat(ChannelType.TCP, ChannelStat.PACKETS))
-			udpStats.set(ChannelStat.PACKETS, channels.flushStat(ChannelType.UDP, ChannelStat.PACKETS))
-			tcpStats.set(ChannelStat.BYTES, channels.flushStat(ChannelType.TCP, ChannelStat.BYTES))
-			udpStats.set(ChannelStat.BYTES, channels.flushStat(ChannelType.UDP, ChannelStat.BYTES))
+			tcpPackets += channels.flushStat(ChannelType.TCP, ChannelStat.PACKETS);
+			udpPackets += channels.flushStat(ChannelType.UDP, ChannelStat.PACKETS);
+			tcpBytes += channels.flushStat(ChannelType.TCP, ChannelStat.BYTES);
+			udpBytes += channels.flushStat(ChannelType.UDP, ChannelStat.BYTES);
 		});
+
+		tcpStats.set(ChannelStat.PACKETS, tcpPackets)
+		udpStats.set(ChannelStat.PACKETS, udpPackets)
+		tcpStats.set(ChannelStat.BYTES, tcpBytes)
+		udpStats.set(ChannelStat.BYTES, udpBytes)
 		return channelStats;
 	}
 	getOrAddConnection(name : string) : Connection {
