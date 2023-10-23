@@ -19,7 +19,6 @@ import { NumberRingBuffer } from 'util/number_ring_buffer'
 export class Runner extends SystemBase implements System  {
 
 	private static readonly _minFrameTime = 1;
-	private static readonly _maxFrameTime = 50;
 
 	private static readonly _channelMapping = new Map<DataFilter, ChannelType>([
 		[DataFilter.INIT, ChannelType.TCP],
@@ -151,7 +150,6 @@ export class Runner extends SystemBase implements System  {
 			realMillis: Date.now() - this._lastStepTime,
 			seqNum: this._seqNum,
 		}
-		console.log(Date.now() - this._lastStepTime, Runner._minFrameTime * this._seqNumStep);
 		this._lastStepTime = Date.now();
 
     	this.preUpdate(stepData);

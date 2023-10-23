@@ -25,7 +25,7 @@ import { Optional } from 'util/optional'
 
 type PeerMap = Map<string, ChannelMap>;
 type RegisterCallback = (connection : Connection) => void;
-type MessageCallback = (message : NetworkMessage) => void;
+type MessageCallback<T extends NetworkMessage> = (message : T) => void;
 
 enum DataFormat {
 	UNKNOWN,
@@ -56,7 +56,7 @@ export abstract class Netcode {
 	protected _registerCallbacks : Array<RegisterCallback>;
 
 	protected _messageBuffer : Buffer<NetworkMessage>;
-	protected _messageCallbacks : Map<NetworkMessageType, MessageCallback>;
+	protected _messageCallbacks : Map<NetworkMessageType, MessageCallback<NetworkMessage>>;
 
 	protected _mediaConnections : Map<number, MediaConnection>;
 	protected _voiceEnabled : boolean;
@@ -281,7 +281,7 @@ export abstract class Netcode {
 		this._registerCallbacks.push(cb);
 	}
 
-	addMessageCallback(type : NetworkMessageType, cb : MessageCallback) {
+	addMessageCallback<T extends NetworkMessage>(type : NetworkMessageType, cb : MessageCallback<T>) {
 		if (this._messageCallbacks.has(type)) {
 			console.error("Warning: overwriting callback for message type " + type);
 		}

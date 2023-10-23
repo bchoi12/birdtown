@@ -80,7 +80,7 @@ export class Host extends Netcode {
 
 	private registerCallbacks() : void {
 		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
-			this.handleChat(msg.name(), msg.get<string>(NetworkProp.STRING));
+			this.handleChat(msg.name(), msg.get<string>(NetworkProp.MESSAGE));
 		});
 
 		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
@@ -147,7 +147,7 @@ export class Host extends Netcode {
 
 	private sendMessage(fullMessage : string) : void {
 		let msg = new NetworkMessage(NetworkMessageType.CHAT);
-		msg.set<string>(NetworkProp.STRING, fullMessage);
+		msg.set<string>(NetworkProp.MESSAGE, fullMessage);
 		this.broadcast(ChannelType.TCP, msg);
 		ui.chat(fullMessage);
 	}
