@@ -5,6 +5,7 @@ import { game } from 'game'
 import { GameState, GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
+import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
 import { EntityTrackers } from 'game/component/entity_trackers'
 import { Model } from 'game/component/model'
@@ -106,6 +107,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
 
+	private _association : Association;
 	private _attributes : Attributes;
 	private _entityTrackers : EntityTrackers;
 	private _model : Model;
@@ -156,6 +158,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			export: () => { return this.state(); },
 			import: (obj : GameObjectState) => { this.setState(obj); },
 		});
+
+		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.setAttribute(AttributeType.GROUNDED, false);

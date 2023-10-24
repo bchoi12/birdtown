@@ -107,7 +107,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		case AnnouncementType.GAME_ERROR:
 			if (names.length === 1) {
 				return {
-					main: "A game-ending error occurred",
+					main: "A game ending error occurred",
 					sub: names[0],
 				};
 			}

@@ -83,6 +83,11 @@ export class Association extends ComponentBase implements Component {
 
 		return false;
 	}
+	getAssociationOr(type : AssociationType, value : number) : number {
+		if (!this.hasAssociation(type)) { return value; }
+
+		return this.getAssociation(type);
+	}
 	getAssociation(type : AssociationType) : number {
 		if (this._associations.has(type)) { return this._associations.get(type); }
 

@@ -1,6 +1,7 @@
 
 import { game } from 'game'
 import { GameState, GameObjectState, PlayerRole } from 'game/api'
+import { AssociationType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -149,6 +150,11 @@ export class PlayerState extends ClientSystem implements System {
 		if (!this.hasTargetEntity() && game.controller().gameState() === GameState.FREE) {
 			let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
 				clientId: this.clientId(),
+				associationInit: {
+					associations: new Map([
+						[AssociationType.TEAM, 1 + (this.clientId() % 2)],
+					]),
+				},
 				profileInit: {
 	    			pos: game.level().defaultSpawn(),
 				},

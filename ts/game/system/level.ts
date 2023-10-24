@@ -67,6 +67,18 @@ export class Level extends SystemBase implements System {
 
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }
 	spawnPlayer(player : Player) : void {
+		if (!this.isSource()) {
+			return;
+		}
+
+		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findAll((spawnPoint : Entity) => {
+			return spawnPoint.initialized() && spawnPoint.matchAssociations([AssociationType.TEAM], player);
+		});
+		if (spawns.length > 0) {
+			player.respawn(spawns[0].getProfile().pos());
+			return;
+		}
+
 		player.respawn(this._defaultSpawn);
 	}
 
@@ -101,7 +113,7 @@ export class Level extends SystemBase implements System {
 			});
 
 			if (isLocalhost()) {
-				console.log("Unloaded level: deleted all entities below current version", version);
+				console.log("%s: deleted all entities below current version %d", this.name(), version);
 			}
 		}
 
@@ -118,7 +130,7 @@ export class Level extends SystemBase implements System {
 		this._levelMsg.setDisplayName(this.displayName());
     	game.runner().handleMessage(this._levelMsg);
 		if (isLocalhost()) {
-			console.log("Loaded level %s with seed %d, version %d", LevelType[level], seed, version);
+			console.log("%s: loaded level %s with seed %d, version %d", this.name(), LevelType[level], seed, version);
 		}
 	}
 

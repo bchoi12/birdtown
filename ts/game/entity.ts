@@ -216,10 +216,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	getAssociations() : Map<AssociationType, number> {
 		let associations : Map<AssociationType, number>;
-		if (this.hasComponent(ComponentType.ASSOCIATION)) {
-			associations = this.getComponent<Association>(ComponentType.ASSOCIATION).toMap();
-		} else {
+		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
 			associations = new Map();
+		} else {
+			associations = this.getComponent<Association>(ComponentType.ASSOCIATION).toMap();
+		}
+		if (!associations.has(AssociationType.OWNER)) {
 			associations.set(AssociationType.OWNER, this.id());
 		}
 		return associations;
