@@ -8,9 +8,9 @@ import { ClientSideSystem, System } from 'game/system'
 import { SystemType } from 'game/system/api'
 
 import { DataMap, MessageObject } from 'message'
-import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
-import { PlayerMessage, PlayerMessageType, PlayerProp } from 'message/player_message'
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
+import { PlayerMessage, PlayerMessageType } from 'message/player_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { NetworkBehavior } from 'network/api'
 
@@ -47,9 +47,9 @@ export class ClientDialog extends ClientSideSystem implements System {
 		this._dialogState = DialogState.NOT_REQUESTED;
 
 		this._loadoutMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
-		this._loadoutMsg.set<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA);
-		this._loadoutMsg.set<EntityType>(PlayerProp.ALT_EQUIP_TYPE, EntityType.BIRD_BRAIN);
-		this._loadoutMsg.set<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.NONE);
+		this._loadoutMsg.setEquipType(EntityType.BAZOOKA);
+		this._loadoutMsg.setAltEquipType(EntityType.BIRD_BRAIN);
+		this._loadoutMsg.setPlayerType(ModifierPlayerType.NONE);
 
 		// TODO: add staging support for message
 		this._tempMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
@@ -76,7 +76,7 @@ export class ClientDialog extends ClientSideSystem implements System {
 				if (!this._tempMsg.valid()) {
 					return;
 				}
-				if (this._tempMsg.get<number>(PlayerProp.VERSION) >= this._loadoutMsg.getOr<number>(PlayerProp.VERSION, 0)) {
+				if (this._tempMsg.getVersion() >= this._loadoutMsg.getVersionOr(0)) {
 					this._loadoutMsg.merge(this._tempMsg);
 					this.setDialogState(DialogState.IN_SYNC);
 				}
@@ -87,7 +87,7 @@ export class ClientDialog extends ClientSideSystem implements System {
 				if (!this._tempMsg.valid()) {
 					return;
 				}
-				if (this._tempMsg.get<number>(PlayerProp.VERSION) >= this._loadoutMsg.getOr<number>(PlayerProp.VERSION, 0)) {
+				if (this._tempMsg.getVersion() >= this._loadoutMsg.getVersionOr(0)) {
 					this._loadoutMsg.merge(this._tempMsg);
 				}
 			},
@@ -120,7 +120,7 @@ export class ClientDialog extends ClientSideSystem implements System {
 			return;
 		}
 
-		switch (msg.get<GameState>(GameProp.STATE)) {
+		switch (msg.getState()) {
 		case GameState.SETUP:
 			this.showDialogs();
 			break;
@@ -133,35 +133,35 @@ export class ClientDialog extends ClientSideSystem implements System {
 		this.setDialogState(DialogState.OPEN);
 
 		let msg = new UiMessage(UiMessageType.DIALOG);
-		msg.set(UiProp.TYPE, DialogType.PICK_LOADOUT);
-		msg.set(UiProp.PAGES, [{
+		msg.setDialogType(DialogType.PICK_LOADOUT);
+		msg.setPages([{
 			buttons: [{
 				type: DialogButtonType.IMAGE,
 				title: "bazooka",
 				action: DialogButtonAction.SUBMIT,
-				onSelect: () => { this._loadoutMsg.set<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.BAZOOKA); },
+				onSelect: () => { this._loadoutMsg.setEquipType(EntityType.BAZOOKA); },
 			}, {
 				type: DialogButtonType.IMAGE,
 				title: "sniper",
 				action: DialogButtonAction.SUBMIT,
-				onSelect: () => { this._loadoutMsg.set<EntityType>(PlayerProp.EQUIP_TYPE, EntityType.SNIPER); },
+				onSelect: () => { this._loadoutMsg.setEquipType(EntityType.SNIPER); },
 			}],
 		}, {
 			buttons: [{
 				type: DialogButtonType.IMAGE,
 				title: "big",
 				action: DialogButtonAction.SUBMIT,
-				onSelect: () => { this._loadoutMsg.set<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.BIG) },
+				onSelect: () => { this._loadoutMsg.setPlayerType(ModifierPlayerType.BIG) },
 			}, {
 				type: DialogButtonType.IMAGE,
 				title: "none",
 				action: DialogButtonAction.SUBMIT,
-				onSelect: () => { this._loadoutMsg.set<ModifierPlayerType>(PlayerProp.TYPE, ModifierPlayerType.NONE) },
+				onSelect: () => { this._loadoutMsg.setPlayerType(ModifierPlayerType.NONE) },
 			}]
 		},
 		]);
-		msg.set(UiProp.ON_SUBMIT, () => {
-			this._loadoutMsg.set<number>(PlayerProp.VERSION, game.controller().round());
+		msg.setOnSubmit(() => {
+			this._loadoutMsg.setVersion(game.controller().round());
 			this.setDialogState(DialogState.PENDING);
 		});
 		ui.handleMessage(msg);

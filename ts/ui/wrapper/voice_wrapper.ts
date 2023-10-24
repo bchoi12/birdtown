@@ -3,8 +3,7 @@ import { game } from 'game'
 
 import { MediaGlobals } from 'global/media_globals'
 
-
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { UiMessage } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
@@ -25,7 +24,7 @@ export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 	constructor(msg : UiMessage) {
 		super(Html.span());
 
-		this._clientId = msg.get<number>(UiProp.CLIENT_ID);
+		this._clientId = msg.getClientId();
 
 		if (this._clientId === game.clientId()) {
 			this._micButton = Html.span();

@@ -1,8 +1,7 @@
 
 import { game } from 'game'
 
-
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'

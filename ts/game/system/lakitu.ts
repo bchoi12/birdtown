@@ -9,8 +9,8 @@ import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
 import { SystemType, LakituMode } from 'game/system/api'
 
-import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { settings } from 'settings'
 
@@ -157,8 +157,7 @@ export class Lakitu extends SystemBase implements System {
 
 		switch (msg.type()) {
 		case GameMessageType.GAME_STATE:
-			const state = msg.get<GameState>(GameProp.STATE);
-			switch (state) {
+			switch (msg.getState()) {
 			case GameState.SETUP:
 				this.setMode(LakituMode.LEVEL);
 				break;
@@ -248,25 +247,17 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		const counts = this.targetEntity().getCounts();
-		let counters = new Array<UiMessage>;
-		counts.forEach((count : number, type : CounterType) => {
-			let counterMsg = new UiMessage(UiMessageType.COUNTER);
-			counterMsg.set<CounterType>(UiProp.TYPE, type);
-			counterMsg.set<number>(UiProp.COUNT, count);
-			counters.push(counterMsg);
-		});
-
 		let countersMsg = new UiMessage(UiMessageType.COUNTERS);
-		countersMsg.set<Array<UiMessage>>(UiProp.COUNTERS, counters);
+		countersMsg.setCountersMap(counts);
 		ui.handleMessage(countersMsg);
 
 		// TODO: rate limit?
 		if (!this.targetEntity().clientIdMatches()) {
 			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
-			tooltipMsg.set<TooltipType>(UiProp.TYPE, TooltipType.SPECTATING);
-			tooltipMsg.set<number>(UiProp.TTL, 50);
+			tooltipMsg.setTooltipType(TooltipType.SPECTATING);
+			tooltipMsg.setTtl(50);
 			if (game.playerStates().hasPlayerState(this.targetEntity().clientId())) {
-				tooltipMsg.set<Array<string>>(UiProp.NAMES, [game.playerState(this.targetEntity().clientId()).displayName()]);
+				tooltipMsg.setNames([game.playerState(this.targetEntity().clientId()).displayName()]);
 			}
 			ui.handleMessage(tooltipMsg);
 		}

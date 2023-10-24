@@ -9,7 +9,7 @@ import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 
-import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { SeededRandom } from 'util/seeded_random'
 
@@ -134,7 +134,7 @@ export class World extends SystemBase implements System {
 
 		switch(msg.type()) {
 		case GameMessageType.LEVEL_LOAD:
-			const seed = msg.getOr<number>(GameProp.SEED, 0);
+			const seed = msg.getSeedOr(0);
 			this.generateClouds(seed);
 			break;
 		}

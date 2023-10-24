@@ -5,8 +5,8 @@ import { System, SystemBase } from 'game/system'
 import { SystemType, RunnerMode } from 'game/system/api'
 
 import { Message, DataMap } from 'message'
-import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
-import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
+import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { ChannelType } from 'network/api'
 
@@ -191,8 +191,7 @@ export class Runner extends SystemBase implements System  {
 			this._sendFullMsg = true;
 			break;
 		case GameMessageType.GAME_STATE:
-			const state = msg.get<GameState>(GameProp.STATE);
-			switch (state) {
+			switch (msg.getState()) {
 			case GameState.FINISH:
 			case GameState.ERROR:
 				this._updateSpeed = 0.3;
@@ -228,8 +227,8 @@ export class Runner extends SystemBase implements System  {
 		}
 
 		let msg = new NetworkMessage(NetworkMessageType.GAME);
-		msg.set<number>(NetworkProp.SEQ_NUM, this._seqNum);
-		msg.set<Object>(NetworkProp.DATA, data);
+		msg.setSeqNum(this._seqNum);
+		msg.setData( data);
 		return [msg, true];
 	}
 }

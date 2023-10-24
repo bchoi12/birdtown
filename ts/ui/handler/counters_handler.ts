@@ -1,6 +1,6 @@
 import { game } from 'game'
 
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { CounterType, UiMode } from 'ui/api'
@@ -32,11 +32,9 @@ export class CountersHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		const counters = msg.get<Array<UiMessage>>(UiProp.COUNTERS);
+		const counters = msg.getCountersMap();
 		let currentTypes = new Set<CounterType>();
-		counters.forEach((counterMsg : UiMessage) => {
-			const type = counterMsg.get<CounterType>(UiProp.TYPE);
-			const count = counterMsg.get<number>(UiProp.COUNT);
+		counters.forEach((count : number, type : CounterType) => {
 			let counter = this.getOrAddCounter(type);
 			counter.updateCounter(count);
 

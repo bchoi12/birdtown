@@ -9,8 +9,8 @@ import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 import { GameMaker } from 'game/system/game_maker'
 
-import { GameConfigMessage } from 'message/game/game_config_message'
-import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
+import { GameConfigMessage } from 'message/game_config_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
@@ -68,7 +68,7 @@ export class Controller extends SystemBase implements System {
 
 		// Broadcast state change
 		let msg = new GameMessage(GameMessageType.GAME_STATE);
-		msg.set<GameState>(GameProp.STATE, this._gameState);
+		msg.setState(this._gameState);
 		game.handleMessage(msg);
 
 		if (isLocalhost()) {

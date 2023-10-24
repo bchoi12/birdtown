@@ -25,8 +25,6 @@ import { CollisionInfo } from 'game/util/collision_info'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { PlayerProp } from 'message/player_message'
-
 import { KeyType, KeyState, CounterType } from 'ui/api'
 
 import { Box2 } from 'util/box'
@@ -579,10 +577,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			const loadout = game.clientDialog(this.clientId()).loadoutMsg();
 
-			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.get<ModifierPlayerType>(PlayerProp.TYPE));
+			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.getPlayerType());
 			this._entityTrackers.clearEntityType(EntityType.EQUIP);
 
-			const [equip, hasEquip] = this.addEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.EQUIP_TYPE), {
+			const [equip, hasEquip] = this.addEntity<Equip<Player>>(loadout.getEquipType(), {
 				associationInit: {
 					owner: this,
 				},
@@ -593,7 +591,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, equip);
 			}
 
-			const [altEquip, hasAltEquip] = this.addEntity<Equip<Player>>(loadout.get<EntityType>(PlayerProp.ALT_EQUIP_TYPE), {
+			const [altEquip, hasAltEquip] = this.addEntity<Equip<Player>>(loadout.getAltEquipType(), {
 				associationInit: {
 					owner: this,
 				},

@@ -13,7 +13,7 @@ import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 
 import { MessageObject } from 'message'
-import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { Box, Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -60,9 +60,9 @@ export class Level extends SystemBase implements System {
 		});
 	}
 
-	levelType() : LevelType { return this._levelMsg.getOr<LevelType>(GameProp.TYPE, LevelType.UNKNOWN); }
-	seed() : LevelType { return this._levelMsg.getOr<number>(GameProp.SEED, 0); }
-	version() : number { return this._levelMsg.getOr<number>(GameProp.VERSION, 0); }
+	levelType() : LevelType { return this._levelMsg.getLevelTypeOr(LevelType.UNKNOWN); }
+	seed() : LevelType { return this._levelMsg.getSeedOr(0); }
+	version() : number { return this._levelMsg.getVersionOr(0); }
 	bounds() : Box2 { return this._bounds; }
 
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }
@@ -115,7 +115,7 @@ export class Level extends SystemBase implements System {
 			break;
 		}
 
-		this._levelMsg.set<string>(GameProp.DISPLAY_NAME, this.displayName());
+		this._levelMsg.setDisplayName(this.displayName());
     	game.runner().handleMessage(this._levelMsg);
 		if (isLocalhost()) {
 			console.log("Loaded level %s with seed %d, version %d", LevelType[level], seed, version);

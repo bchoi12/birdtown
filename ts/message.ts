@@ -7,6 +7,7 @@ export type MessageObject = {
 export interface Message<T extends number, P extends number> {
 	type() : T;
 	valid() : boolean;
+	serializable() : boolean;
 
 	has(prop : P);
 	get<O extends Object>(prop : P) : O;
@@ -63,6 +64,7 @@ export abstract class MessageBase<T extends number, P extends number> {
 		}
 		return true;
 	}
+	serializable() : boolean { return false; }
 
 	reset(type : T) : void {
 		this._type = type;
@@ -123,12 +125,21 @@ export abstract class MessageBase<T extends number, P extends number> {
 		} else if (this._type !== <T>obj.t) {
 			return this;
 		}
-		this._data = <DataMap>(obj.d);	
+		this._data = <DataMap>(obj.d);
+
+		if (!this.serializable()) {
+			console.error("Warning: parsed non-serializable object", this);
+		}
+
 		return this;
 	}
 
 	dataMap() : DataMap { return this._data; }
 	exportObject() : MessageObject {
+		if (!this.serializable()) {
+			console.error("Warning: exporting non-serializable object", this);
+		}
+
 		this._updated = false;
 		return {
 			t: this._type,

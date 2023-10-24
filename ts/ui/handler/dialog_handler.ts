@@ -1,5 +1,5 @@
 
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { settings } from 'settings'
 
@@ -44,8 +44,8 @@ export class DialogHandler extends HandlerBase implements Handler {
 		const dialogWrapper = new DialogWrapper();
 
 		dialogWrapper.setTitle("Message");
-		if (msg.has(UiProp.PAGES)) {
-			const dialogPages = msg.get<Array<DialogPage>>(UiProp.PAGES);
+		if (msg.hasPages()) {
+			const dialogPages = msg.getPages();
 
 			for (let i = 0; i < dialogPages.length; ++i) {
 				let page = dialogPages[i];
@@ -86,8 +86,8 @@ export class DialogHandler extends HandlerBase implements Handler {
 				});
 			}
 
-			if (msg.has(UiProp.ON_SUBMIT)) {
-				dialogWrapper.addOnSubmit(msg.get(UiProp.ON_SUBMIT));
+			if (msg.hasOnSubmit()) {
+				dialogWrapper.addOnSubmit(msg.getOnSubmit());
 			}
 		}
 

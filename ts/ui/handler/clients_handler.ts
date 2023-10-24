@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'
@@ -28,11 +28,11 @@ export class ClientsHandler extends HandlerBase implements Handler {
 
 	override handleMessage(msg : UiMessage) : void {
 		if (msg.type() === UiMessageType.CLIENT_JOIN) {
-			const clientId = msg.get<number>(UiProp.CLIENT_ID);
+			const clientId = msg.getClientId();
 
 			// Support name changes for existing clients
 			if (this._clients.has(clientId)) {
-				this._clients.get(clientId).setDisplayName(msg.get<string>(UiProp.DISPLAY_NAME))
+				this._clients.get(clientId).setDisplayName(msg.getDisplayName());
 				return;
 			}
 
@@ -43,7 +43,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 			ui.chat(clientWrapper.displayName() + " joined!");
 
 		} else if (msg.type() === UiMessageType.CLIENT_DISCONNECT) {
-			const clientId = msg.get<number>(UiProp.CLIENT_ID);
+			const clientId = msg.getClientId();
 
 			if (!this._clients.has(clientId)) {
 				return;

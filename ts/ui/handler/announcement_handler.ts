@@ -1,5 +1,5 @@
 
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { AnnouncementType, UiMode } from 'ui/api'
@@ -64,8 +64,8 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		this._active = true;
 
 		let timeout;
-		if (announcement.has(UiProp.TTL)) {
-			timeout = announcement.get<number>(UiProp.TTL);
+		if (announcement.hasTtl()) {
+			timeout = announcement.getTtl();
 		} else {
 			timeout = AnnouncementHandler._defaultTTL;
 		}
@@ -76,8 +76,8 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 	}
 
 	private getHtmls(announcement : UiMessage) : AnnouncementHTML {
-		const type = announcement.get<AnnouncementType>(UiProp.TYPE)
-		const names = announcement.getOr<Array<string>>(UiProp.NAMES, []);
+		const type = announcement.getAnnouncementType()
+		const names = announcement.getNamesOr([]);
 
 		switch (type) {
 		case AnnouncementType.LEVEL:

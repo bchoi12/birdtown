@@ -12,9 +12,9 @@ import { PlayerState } from 'game/system/player_state'
 import { EntityQuery } from 'game/util/entity_query'
 
 import { MessageObject } from 'message'
-import { GameMessage, GameMessageType, GameProp} from 'message/game_message'
-import { GameConfigMessage } from 'message/game/game_config_message'
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { GameMessage, GameMessageType} from 'message/game_message'
+import { GameConfigMessage } from 'message/game_config_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { AnnouncementType } from 'ui/api'
@@ -88,10 +88,10 @@ export class GameMaker extends SystemBase implements System {
 
 		switch (msg.type()) {
 		case GameMessageType.LEVEL_LOAD:
-			if (msg.has(GameProp.DISPLAY_NAME)) {
+			if (msg.hasDisplayName()) {
 		    	let uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-		    	uiMsg.set(UiProp.TYPE, AnnouncementType.LEVEL);
-		    	uiMsg.set(UiProp.NAMES, [msg.get<string>(GameProp.DISPLAY_NAME)]);
+		    	uiMsg.setAnnouncementType(AnnouncementType.LEVEL);
+		    	uiMsg.setNames([msg.getDisplayName()]);
 		    	ui.handleMessage(uiMsg);
 			}
 			break;
@@ -197,17 +197,17 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.FREE:
 			this._round = 0;
 			let lobbyMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
-			lobbyMsg.set(GameProp.TYPE, LevelType.LOBBY);
-			lobbyMsg.set(GameProp.SEED, Math.floor(Math.random() * 10000));
-			lobbyMsg.set(GameProp.VERSION, game.level().version() + 1);
+			lobbyMsg.setLevelType(LevelType.LOBBY);
+			lobbyMsg.setSeed(Math.floor(Math.random() * 10000));
+			lobbyMsg.setVersion(game.level().version() + 1);
 			game.level().loadLevel(lobbyMsg);
 			break;
 		case GameState.SETUP:
 			this._round++;
 			let birdtownMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
-			birdtownMsg.set(GameProp.TYPE, LevelType.BIRDTOWN);
-			birdtownMsg.set(GameProp.SEED, Math.floor(Math.random() * 10000));
-			birdtownMsg.set(GameProp.VERSION, game.level().version() + 1);
+			birdtownMsg.setLevelType(LevelType.BIRDTOWN);
+			birdtownMsg.setSeed(Math.floor(Math.random() * 10000));
+			birdtownMsg.setVersion(game.level().version() + 1);
 			game.level().loadLevel(birdtownMsg);
 
 			this._entityQuery.registerQuery(EntityType.PLAYER, {
@@ -235,8 +235,8 @@ export class GameMaker extends SystemBase implements System {
 				winner = alive[0].displayName();
 			}
 	    	let finishMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-	    	finishMsg.set(UiProp.TYPE, AnnouncementType.GAME_FINISH);
-	    	finishMsg.set(UiProp.NAMES, [winner]);
+	    	finishMsg.setAnnouncementType(AnnouncementType.GAME_FINISH);
+	    	finishMsg.setNames([winner]);
 	    	ui.handleMessage(finishMsg);
 
 			break;
@@ -245,8 +245,8 @@ export class GameMaker extends SystemBase implements System {
 			break;
 		case GameState.ERROR:
 	    	let errorMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-	    	errorMsg.set(UiProp.TYPE, AnnouncementType.GAME_ERROR);
-	    	errorMsg.set(UiProp.NAMES, ["TODO: add the error message here"]);
+	    	errorMsg.setAnnouncementType(AnnouncementType.GAME_ERROR);
+	    	errorMsg.setNames(["TODO: add the error message here"]);
 	    	ui.handleMessage(errorMsg);
 	    	break;
 		}

@@ -6,8 +6,8 @@ import { game } from 'game'
 import { MediaGlobals } from 'global/media_globals'
 
 import { MessageObject } from 'message'
-import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
-import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
+import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { ChannelType, ChannelStat } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
@@ -90,7 +90,7 @@ export abstract class Netcode {
 
 	initialize() : void {
 		this.addMessageCallback(NetworkMessageType.GAME, (msg : NetworkMessage) => {
-			game.runner().importData(msg.get(NetworkProp.DATA), msg.get<number>(NetworkProp.SEQ_NUM));
+			game.runner().importData(msg.getData(), msg.getSeqNum());
 		});
 
 		this._peer.on("call", (incoming : MediaConnection) => {
@@ -426,7 +426,7 @@ export abstract class Netcode {
 
 			if (connection.hasClientId()) {
 				let msg = new GameMessage(GameMessageType.CLIENT_DISCONNECT);
-				msg.set<number>(GameProp.CLIENT_ID, connection.clientId());
+				msg.setClientId(connection.clientId());
 				game.handleMessage(msg);
 			}
 		}

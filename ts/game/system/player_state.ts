@@ -8,8 +8,8 @@ import { Player } from 'game/entity/player'
 import { System, ClientSystem } from 'game/system'
 import { SystemType } from 'game/system/api'
 
-import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 
@@ -60,9 +60,9 @@ export class PlayerState extends ClientSystem implements System {
 
 		switch (msg.type()) {
 		case GameMessageType.CLIENT_JOIN:
-			const clientId = msg.get<number>(GameProp.CLIENT_ID);
+			const clientId = msg.getClientId();
 			if (clientId === this.clientId()) {
-				const displayName = msg.get<string>(GameProp.DISPLAY_NAME);
+				const displayName = msg.getDisplayName();
 				this.setDisplayName(displayName);
 			}
 			break;
@@ -80,7 +80,7 @@ export class PlayerState extends ClientSystem implements System {
 		}
 
 		const uiMsg = new UiMessage(UiMessageType.CLIENT_DISCONNECT);
-		uiMsg.set(UiProp.CLIENT_ID, this.clientId());
+		uiMsg.setClientId(this.clientId());
 		ui.handleMessage(uiMsg);
 	}
 
@@ -92,8 +92,8 @@ export class PlayerState extends ClientSystem implements System {
 		});
 
 		const uiMsg = new UiMessage(UiMessageType.CLIENT_JOIN);
-		uiMsg.set(UiProp.CLIENT_ID, this.clientId());
-		uiMsg.set(UiProp.DISPLAY_NAME, this.displayName());
+		uiMsg.setClientId(this.clientId());
+		uiMsg.setDisplayName(this.displayName());
 		ui.handleMessage(uiMsg);
 	}
 	displayName() : string { return this._displayName; }

@@ -22,8 +22,8 @@ import { Client } from 'network/client'
 import { Netcode } from 'network/netcode'
 import { Host } from 'network/host'
 
-import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
-import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
+import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { settings } from 'settings'
 
@@ -135,8 +135,8 @@ class Game {
 		this._netcode.setClientId(clientId);
 
 		let gameMsg = new GameMessage(GameMessageType.CLIENT_JOIN);
-		gameMsg.set(GameProp.CLIENT_ID, clientId);
-		gameMsg.set(GameProp.DISPLAY_NAME, this._netcode.displayName());
+		gameMsg.setClientId(clientId);
+		gameMsg.setDisplayName(this._netcode.displayName());
     	this.handleMessage(gameMsg);
 
 		if (this.options().host) {

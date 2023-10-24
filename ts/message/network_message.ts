@@ -1,5 +1,5 @@
 
-import { Message, MessageBase, FieldDescriptor } from 'message'
+import { Message, MessageBase, MessageObject, FieldDescriptor, DataMap } from 'message'
 
 export enum NetworkMessageType {
 	UNKNOWN,
@@ -13,21 +13,21 @@ export enum NetworkMessageType {
 	VOICE_MAP,
 }
 
-export enum NetworkProp {
+enum NetworkProp {
 	UNKNOWN,
+	CHAT_MESSAGE,
 	CLIENT_ID,
 	CLIENT_MAP,
 	DATA,
 	ENABLED,
 	SEQ_NUM,
-	MESSAGE,
 }
 
 export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp> implements Message<NetworkMessageType, NetworkProp> {
 
 	private static readonly _messageDescriptor = new Map<NetworkMessageType, FieldDescriptor>([
 		[NetworkMessageType.CHAT, MessageBase.fields(
-			NetworkProp.MESSAGE)],
+			NetworkProp.CHAT_MESSAGE)],
 		[NetworkMessageType.GAME, MessageBase.fields(
 			NetworkProp.SEQ_NUM,
 			NetworkProp.DATA)],
@@ -54,4 +54,48 @@ export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp>
 
 	name() : string { return this._name; }
 	setName(name : string) : void { this._name = name; }
+
+	// Begin auto-generated code (v2.0)
+	override serializable() { return true; }
+
+	hasChatMessage() : boolean { return this.has(NetworkProp.CHAT_MESSAGE); }
+	getChatMessage() : string { return this.get<string>(NetworkProp.CHAT_MESSAGE); }
+	getChatMessageOr(value : string) : string { return this.getOr<string>(NetworkProp.CHAT_MESSAGE, value); }
+	setChatMessage(value : string) : void { this.set<string>(NetworkProp.CHAT_MESSAGE, value); }
+
+	hasClientId() : boolean { return this.has(NetworkProp.CLIENT_ID); }
+	getClientId() : number { return this.get<number>(NetworkProp.CLIENT_ID); }
+	getClientIdOr(value : number) : number { return this.getOr<number>(NetworkProp.CLIENT_ID, value); }
+	setClientId(value : number) : void { this.set<number>(NetworkProp.CLIENT_ID, value); }
+
+	hasClientMap() : boolean { return this.has(NetworkProp.CLIENT_MAP); }
+	getClientMap() : Object { return this.get<Object>(NetworkProp.CLIENT_MAP); }
+	getClientMapOr(value : Object) : Object { return this.getOr<Object>(NetworkProp.CLIENT_MAP, value); }
+	setClientMap(value : Object) : void { this.set<Object>(NetworkProp.CLIENT_MAP, value); }
+
+	hasData() : boolean { return this.has(NetworkProp.DATA); }
+	getData() : DataMap { return this.get<DataMap>(NetworkProp.DATA); }
+	getDataOr(value : DataMap) : DataMap { return this.getOr<DataMap>(NetworkProp.DATA, value); }
+	setData(value : DataMap) : void { this.set<DataMap>(NetworkProp.DATA, value); }
+
+	hasEnabled() : boolean { return this.has(NetworkProp.ENABLED); }
+	getEnabled() : boolean { return this.get<boolean>(NetworkProp.ENABLED); }
+	getEnabledOr(value : boolean) : boolean { return this.getOr<boolean>(NetworkProp.ENABLED, value); }
+	setEnabled(value : boolean) : void { this.set<boolean>(NetworkProp.ENABLED, value); }
+
+	hasSeqNum() : boolean { return this.has(NetworkProp.SEQ_NUM); }
+	getSeqNum() : number { return this.get<number>(NetworkProp.SEQ_NUM); }
+	getSeqNumOr(value : number) : number { return this.getOr<number>(NetworkProp.SEQ_NUM, value); }
+	setSeqNum(value : number) : void { this.set<number>(NetworkProp.SEQ_NUM, value); }
+
+	/*
+	const enumClass = "NetworkProp";
+	["CHAT_MESSAGE", "string"],
+	["CLIENT_ID", "number"],
+	["CLIENT_MAP", "Object"],
+	["DATA", "DataMap"],
+	["ENABLED", "boolean"],
+	["SEQ_NUM", "number"],
+	*/
+	// End auto-generated code (v2.0)
 }

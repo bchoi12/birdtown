@@ -2,10 +2,10 @@ import { Peer, DataConnection } from 'peerjs'
 
 import { game } from 'game'
 
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ChannelType } from 'network/api'
-import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
+import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
@@ -29,7 +29,7 @@ export class Client extends Netcode {
 		super.initialize();
 
 		this.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
-			const clientId = msg.get<number>(NetworkProp.CLIENT_ID);
+			const clientId = msg.getClientId();
 			if (isLocalhost()) {
 				console.log("Got client id", clientId);
 			}
@@ -49,8 +49,8 @@ export class Client extends Netcode {
 
 		peer.on("error", (e) => {
 	    	const uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-	    	uiMsg.set<AnnouncementType>(UiProp.TYPE, AnnouncementType.DISCONNECTED);
-	    	uiMsg.set<number>(UiProp.TTL, 60 * 1000);
+	    	uiMsg.setAnnouncementType(AnnouncementType.DISCONNECTED);
+	    	uiMsg.setTtl(60 * 1000);
 	    	ui.handleMessage(uiMsg);
 		});
 
@@ -65,7 +65,7 @@ export class Client extends Netcode {
 		}
 
 		let msg = new NetworkMessage(NetworkMessageType.CHAT);
-		msg.set(NetworkProp.MESSAGE, message);
+		msg.setChatMessage(message);
 		this.send(this.hostName(), ChannelType.TCP, msg);
 	}
 
@@ -75,8 +75,8 @@ export class Client extends Netcode {
 		}
 
 		let outgoing = new NetworkMessage(NetworkMessageType.VOICE);
-		outgoing.set<number>(NetworkProp.CLIENT_ID, this.clientId());
-		outgoing.set<boolean>(NetworkProp.ENABLED, enabled);
+		outgoing.setClientId(this.clientId());
+		outgoing.setEnabled(enabled);
 
 		const sent = this.send(this.hostName(), ChannelType.TCP, outgoing);
 		if (sent) {
@@ -92,12 +92,12 @@ export class Client extends Netcode {
 
 	private registerCallbacks() : void {
 		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
-			ui.chat(msg.get<string>(NetworkProp.MESSAGE));
+			ui.chat(msg.getChatMessage());
 		});
 
 		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
-			if (!msg.get<boolean>(NetworkProp.ENABLED)) {
-				this.closeMediaConnection(msg.get<number>(NetworkProp.CLIENT_ID));
+			if (!msg.getEnabled()) {
+				this.closeMediaConnection(msg.getClientId());
 			}
 		});
 
@@ -106,7 +106,7 @@ export class Client extends Netcode {
 
 			const clients = new Map<number, string>();
 			console.log("Receive voice map", msg);
-			Object.entries(msg.get<Object>(NetworkProp.CLIENT_MAP)).forEach(([gameId, name] : [string, string]) => {
+			Object.entries(msg.getClientMap()).forEach(([gameId, name] : [string, string]) => {
 				clients.set(Number(gameId), name);
 			});
 			this.callAll(clients);

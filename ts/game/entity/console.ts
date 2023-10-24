@@ -10,7 +10,7 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
 
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { DialogButtonAction, DialogType, DialogButtonType, KeyType, KeyState, TooltipType } from 'ui/api'
@@ -92,14 +92,14 @@ export class Console extends EntityBase implements Entity {
 
 		if (this.isSource()) {
 			let msg = new UiMessage(UiMessageType.TOOLTIP);
-			msg.set(UiProp.TYPE, TooltipType.CONSOLE);
-			msg.set(UiProp.TTL, 100);
+			msg.setTooltipType(TooltipType.CONSOLE);
+			msg.setTtl(100);
 			ui.handleMessage(msg);
 
 			if (game.keys().getKey(KeyType.INTERACT).pressed()) {
 				let msg = new UiMessage(UiMessageType.DIALOG);
-				msg.set(UiProp.TYPE, DialogType.PICK_GAME_MODE);
-				msg.set(UiProp.PAGES, [{
+				msg.setDialogType(DialogType.PICK_GAME_MODE);
+				msg.setPages([{
 					buttons: [{
 						type: DialogButtonType.IMAGE,
 						title: "duel",

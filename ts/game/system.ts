@@ -3,7 +3,7 @@ import { GameObject, GameObjectBase } from 'game/game_object'
 import { Entity, EntityOptions } from 'game/entity'
 import { LevelType, SystemType } from 'game/system/api'
 
-import { GameMessage, GameMessageType, GameProp } from 'message/game_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { NetworkBehavior } from 'network/api'
 
@@ -95,7 +95,7 @@ export abstract class ClientSystemManager extends SystemBase implements System {
 		super.handleMessage(msg);
 
 		if (msg.type() === GameMessageType.CLIENT_JOIN) {
-			const clientId = msg.get<number>(GameProp.CLIENT_ID);
+			const clientId = msg.getClientId();
 			if (!this.hasFactoryFn()) {
 				console.error("Error: %s missing FactoryFn for new client %d", this.name(), clientId);
 				return;
@@ -103,7 +103,7 @@ export abstract class ClientSystemManager extends SystemBase implements System {
 			let child = <System>this.getFactoryFn()(clientId);
 			child.handleMessage(msg);
 		} else if (msg.type() === GameMessageType.CLIENT_DISCONNECT) {
-			const clientId = msg.get<number>(GameProp.CLIENT_ID);
+			const clientId = msg.getClientId();
 			if (this.hasChild(clientId)) {
 				let child = this.getChild(clientId);
 				child.delete();

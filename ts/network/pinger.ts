@@ -1,7 +1,7 @@
 
 import { ChannelType } from 'network/api'
 import { Netcode } from 'network/netcode'
-import { NetworkMessage, NetworkMessageType, NetworkProp } from 'message/network_message'
+import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { defined } from 'util/common'
 import { NumberRingBuffer } from 'util/number_ring_buffer'
@@ -47,7 +47,7 @@ export class Pinger {
 
 	initializeForClient(client : Netcode) {
 		client.addMessageCallback(NetworkMessageType.PING, (msg : NetworkMessage) => {
-			const seqNum = msg.get<number>(NetworkProp.SEQ_NUM);
+			const seqNum = msg.getSeqNum();
 			if (seqNum > this._lastSent) {
 				console.error("Error: received ping response with future sequence number %d, last sent is %d", seqNum, this._lastSent);
 				return;
@@ -73,7 +73,7 @@ export class Pinger {
 	private pingLoop(connection : Netcode, hostName : string, interval : number) : void {
 		if (connection.ready()) {
 			let msg = new NetworkMessage(NetworkMessageType.PING);
-			msg.set<number>(NetworkProp.SEQ_NUM, this._lastSent + 1);
+			msg.setSeqNum(this._lastSent + 1);
 			const success = connection.send(hostName, ChannelType.UDP, msg);
 			if (success) {
 				this._lastSent++;

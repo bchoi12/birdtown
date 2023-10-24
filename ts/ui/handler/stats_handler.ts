@@ -1,7 +1,7 @@
 import { game } from 'game'
 
 
-import { UiMessage, UiMessageType, UiProp } from 'message/ui_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ChannelType, ChannelStat } from 'network/api'
 import { Connection } from 'network/connection'
