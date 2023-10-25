@@ -42,6 +42,7 @@ export namespace EntityFactory {
 	export const dimensions = new Map<EntityType, Vec>([
 		[EntityType.ARCH_ROOM, { x: 12, y: 6 }],
 		[EntityType.ARCH_ROOF, { x: 12, y: 1 }],
+		[EntityType.CRATE, {x: 1, y: 1, z: 1}],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44 }],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1}],
 	]);
@@ -52,11 +53,19 @@ export namespace EntityFactory {
 			if (!options.profileInit) {
 				options.profileInit = {};
 			}
-			options.profileInit.dim = getDimension(type);
+			if (!options.profileInit.dim) {
+				options.profileInit.dim = getDimension(type);
+			}
 		}
 		return <T>createFns.get(type)(options);
 	}
 
 	export function hasDimension(type : EntityType) : boolean { return dimensions.has(type); }
-	export function getDimension(type : EntityType) : Vec { return dimensions.get(type); }
+	export function getDimension(type : EntityType) : Vec {
+		if (!hasDimension(type)) {
+			console.error("Warning: missing dimension for", EntityType[type]);
+			return { x: 1, y: 1, z: 1 };
+		}
+		return dimensions.get(type);
+	}
 }

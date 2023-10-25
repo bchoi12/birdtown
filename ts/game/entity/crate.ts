@@ -9,7 +9,10 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { EntityFactory } from 'game/factory/entity_factory'
+import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { GameGlobals } from 'global/game_globals'
 
@@ -55,12 +58,17 @@ export class Crate extends EntityBase implements Entity {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				const dim = this._profile.dim();
-				model.setMesh(BABYLON.MeshBuilder.CreateBox(this.name(), {
-					width: dim.x,
-					height: dim.y,
-					depth: (dim.x + dim.y) / 2,
-				}, game.scene()));
+				MeshFactory.load(MeshType.CRATE, (result : LoadResult) => {
+					let mesh = <BABYLON.Mesh>result.meshes[0];
+					model.setMesh(mesh);
+
+					const meshDimensions = EntityFactory.getDimension(this.type());
+					const scaling = Vec2.fromVec({
+						x: this._profile.dim().x / meshDimensions.x,
+						y: this._profile.dim().y / meshDimensions.y,
+					});
+					model.setScaling(new BABYLON.Vector3(scaling.x, scaling.y, (scaling.x + scaling.y) / 2));
+				});
 			},
 		}));
 	}
@@ -89,7 +97,7 @@ export class Crate extends EntityBase implements Entity {
 		if (this.getAttribute(AttributeType.BRAINED)) {
 			game.world().highlight(this._model.mesh(), {
 				enabled: true,
-				color: BABYLON.Color3.Red(),
+				color: BABYLON.Color3.Blue(),
 			});
 		} else {
 			game.world().highlight(this._model.mesh(), {

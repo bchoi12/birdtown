@@ -105,7 +105,7 @@ export abstract class Block extends EntityBase {
 
 					this.processMesh(mesh);
 					model.setMesh(mesh);
-					model.setOffset({y: -this._profile.dim().y / 2});
+					model.setTranslation(new BABYLON.Vector3(0, -this._profile.dim().y / 2, 0));
 				});
 			},
 		}));

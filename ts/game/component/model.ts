@@ -27,10 +27,12 @@ type ModelOptions = {
 export class Model extends ComponentBase implements Component {
 
 	private _options : ModelOptions;
-	private _offset : Vec2;
 	private _onLoadFns : Array<OnLoadFn>;
 	private _animationHandler : AnimationHandler;
 	private _bones : Map<string, BABYLON.Bone>;
+
+	private _translation : BABYLON.Vector3;
+	private _scaling : BABYLON.Vector3;
 
 	// TODO: multi mesh support
 	private _mesh : BABYLON.Mesh;
@@ -39,10 +41,12 @@ export class Model extends ComponentBase implements Component {
 		super(ComponentType.MODEL);
 
 		this._options = options;
-		this._offset = Vec2.zero();
 		this._onLoadFns = new Array();
 		this._animationHandler = new AnimationHandler();
 		this._bones = new Map();
+
+		this._translation = new BABYLON.Vector3(0, 0, 0);
+		this._scaling = new BABYLON.Vector3(1, 1, 1);
 
 		this._mesh = null;
 	}
@@ -79,9 +83,10 @@ export class Model extends ComponentBase implements Component {
 		});
 	}
 
-	setOffset(offset : Vec) : void {
-		this._offset.copyVec(offset);
-	}
+	translation() : BABYLON.Vector3 { return this._translation; }
+	setTranslation(translation : BABYLON.Vector3) : void { this._translation.copyFrom(translation); }
+	scaling() : BABYLON.Vector3 { return this._scaling; }
+	setScaling(scaling : BABYLON.Vector3) : void { this._scaling.copyFrom(scaling); }
 
 	hasMesh() : boolean { return this._mesh !== null; }
 	setMesh(mesh : BABYLON.Mesh) {
@@ -90,6 +95,11 @@ export class Model extends ComponentBase implements Component {
 		this._mesh.metadata = {
 			entityId: this.entity().id(),
 		};
+		this._mesh.getChildMeshes<BABYLON.Mesh>().forEach((child : BABYLON.Mesh) => {
+			child.metadata = {
+				entityId: this.entity().id(),
+			};
+		});
 
 		this._onLoadFns.forEach((fn : OnLoadFn) => {
 			if (this._mesh.isReady()) {
@@ -126,18 +136,20 @@ export class Model extends ComponentBase implements Component {
 	hasBone(name : string) : boolean { return this._bones.has(name); }
 	getBone(name : string) : BABYLON.Bone { return this._bones.get(name); }
 
-	copyProfile(profile : Profile) : void {
-		this._mesh.position.x = profile.pos().x + this._offset.x;
-		this._mesh.position.y = profile.pos().y + this._offset.y;
+	resetTransforms() : void {
+		this._mesh.position.copyFrom(this._translation);
+		this._mesh.scaling.copyFrom(this._scaling);
+	}
+	addProfileTransforms(profile : Profile) : void {
+		this._mesh.position.x += profile.pos().x;
+		this._mesh.position.y += profile.pos().y;
 
 		if (profile.hasAngle()) {
 			this._mesh.rotation.z = profile.angle();
 		}
 
-		if (profile.hasScaling()) {
-			this._mesh.scaling.x = profile.scaling().x;
-			this._mesh.scaling.y = profile.scaling().y;
-		}
+		this._mesh.scaling.x *= profile.scaling().x;
+		this._mesh.scaling.y *= profile.scaling().y;
 	}
 
 	override preRender() : void {
@@ -147,8 +159,9 @@ export class Model extends ComponentBase implements Component {
 			return;
 		}
 
+		this.resetTransforms();
 		if (this.entity().hasProfile()) {
-			this.copyProfile(this.entity().getProfile());
+			this.addProfileTransforms(this.entity().getProfile());
 		}
 	}
 }

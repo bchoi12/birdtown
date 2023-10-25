@@ -154,7 +154,7 @@ export class Level extends SystemBase implements System {
 		let pos = new Vec2({ x: -2 * EntityFactory.getDimension(EntityType.ARCH_ROOM).x, y: -6 });
 		let bounds = Box2.point(pos);
 
-		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 1, y: 2}, {x: 2, y: 2 });
+		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 2, y: 2 });
 		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
 		for (let i = 0; i < 5; ++i) {
 			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BASE, i);
@@ -233,7 +233,7 @@ export class Level extends SystemBase implements System {
 	}
 
 	private loadBirdtown() : void {
-		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 1, y: 2}, {x: 2, y: 2 });
+		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 2, y: 2 });
 		let pos = new Vec2({ x: -6, y: -6 });
 		let bounds = Box2.point(pos);
 
