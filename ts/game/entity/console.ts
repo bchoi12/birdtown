@@ -44,7 +44,7 @@ export class Console extends EntityBase implements Entity {
 					depth: 0.5,
 				}, game.scene()));
 
-				model.setTranslation(new BABYLON.Vector3(0, 0, -1));
+				model.setTranslation({ z: -1 });
 			},
 		}));
 

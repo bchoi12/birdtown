@@ -39,27 +39,38 @@ export namespace EntityFactory {
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 	]);
 
-	export const dimensions = new Map<EntityType, Vec>([
+	export const staticDimensions = new Map<EntityType, Vec>([
 		[EntityType.ARCH_ROOM, { x: 12, y: 6 }],
 		[EntityType.ARCH_ROOF, { x: 12, y: 1 }],
-		[EntityType.CRATE, {x: 1, y: 1, z: 1}],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44 }],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1}],
 	]);
+	export const dimensions = new Map<EntityType, Vec>([
+		...staticDimensions,
+		[EntityType.CRATE, {x: 1, y: 1, z: 1 }],
+	])
 
 	export function hasCreateFn(type : EntityType) : boolean { return createFns.has(type); }
 	export function create<T extends Entity>(type : EntityType, options : EntityOptions) : T {
-		if (hasDimension(type)) {
+		if (hasStaticDimension(type)) {
 			if (!options.profileInit) {
 				options.profileInit = {};
 			}
 			if (!options.profileInit.dim) {
-				options.profileInit.dim = getDimension(type);
+				options.profileInit.dim = getStaticDimension(type);
 			}
 		}
 		return <T>createFns.get(type)(options);
 	}
 
+	export function hasStaticDimension(type : EntityType) : boolean { return staticDimensions.has(type); }
+	export function getStaticDimension(type : EntityType) : Vec {
+		if (!hasDimension(type)) {
+			console.error("Warning: missing dimension for", EntityType[type]);
+			return { x: 1, y: 1, z: 1 };
+		}
+		return staticDimensions.get(type);
+	}
 	export function hasDimension(type : EntityType) : boolean { return dimensions.has(type); }
 	export function getDimension(type : EntityType) : Vec {
 		if (!hasDimension(type)) {

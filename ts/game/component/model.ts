@@ -12,7 +12,7 @@ import { AnimationHandler } from 'game/util/animation_handler'
 import { GameData, DataFilter } from 'game/game_data'
 
 import { defined } from 'util/common'
-import { Vec, Vec2 } from 'util/vector'
+import { Vec, Vec3 } from 'util/vector'
 
 type MeshFn = (model : Model) => void;
 type OnLoadFn = (model : Model) => void;
@@ -31,8 +31,8 @@ export class Model extends ComponentBase implements Component {
 	private _animationHandler : AnimationHandler;
 	private _bones : Map<string, BABYLON.Bone>;
 
-	private _translation : BABYLON.Vector3;
-	private _scaling : BABYLON.Vector3;
+	private _translation : Vec3;
+	private _scaling : Vec3;
 
 	// TODO: multi mesh support
 	private _mesh : BABYLON.Mesh;
@@ -45,10 +45,19 @@ export class Model extends ComponentBase implements Component {
 		this._animationHandler = new AnimationHandler();
 		this._bones = new Map();
 
-		this._translation = new BABYLON.Vector3(0, 0, 0);
-		this._scaling = new BABYLON.Vector3(1, 1, 1);
+		this._translation = Vec3.zero();
+		this._scaling = Vec3.one();
 
 		this._mesh = null;
+
+		this.addProp<Vec>({
+			export: () => { return this._translation.toVec(); },
+			import: (obj : Vec) => { this._translation.copyVec(obj); },
+		});
+		this.addProp<Vec>({
+			export: () => { return this._scaling.toVec(); },
+			import: (obj : Vec) => { this._scaling.copyVec(obj); },
+		});
 	}
 
 	override ready() : boolean {
@@ -83,10 +92,10 @@ export class Model extends ComponentBase implements Component {
 		});
 	}
 
-	translation() : BABYLON.Vector3 { return this._translation; }
-	setTranslation(translation : BABYLON.Vector3) : void { this._translation.copyFrom(translation); }
-	scaling() : BABYLON.Vector3 { return this._scaling; }
-	setScaling(scaling : BABYLON.Vector3) : void { this._scaling.copyFrom(scaling); }
+	translation() : Vec3 { return this._translation; }
+	setTranslation(translation : Vec) : void { this._translation.copyVec(translation); }
+	scaling() : Vec3 { return this._scaling; }
+	setScaling(scaling : Vec) : void { this._scaling.copyVec(scaling); }
 
 	hasMesh() : boolean { return this._mesh !== null; }
 	setMesh(mesh : BABYLON.Mesh) {
@@ -137,8 +146,8 @@ export class Model extends ComponentBase implements Component {
 	getBone(name : string) : BABYLON.Bone { return this._bones.get(name); }
 
 	resetTransforms() : void {
-		this._mesh.position.copyFrom(this._translation);
-		this._mesh.scaling.copyFrom(this._scaling);
+		this._mesh.position.set(this._translation.x, this._translation.y, this._translation.z);
+		this._mesh.scaling.set(this._scaling.x, this._scaling.y, this._scaling.z);
 	}
 	addProfileTransforms(profile : Profile) : void {
 		this._mesh.position.x += profile.pos().x;

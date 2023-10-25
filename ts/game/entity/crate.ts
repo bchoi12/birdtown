@@ -18,7 +18,7 @@ import { GameGlobals } from 'global/game_globals'
 
 import { Box2 } from 'util/box'
 import { defined } from 'util/common'
-import { Vec, Vec2 } from 'util/vector'
+import { Vec, Vec2, Vec3 } from 'util/vector'
 
 export class Crate extends EntityBase implements Entity {
 
@@ -60,14 +60,15 @@ export class Crate extends EntityBase implements Entity {
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.CRATE, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
+					const modelDimension = EntityFactory.getDimension(this.type());
+					let scaling = {
+						x: this._profile.dim().x / modelDimension.x,
+						y: this._profile.dim().y / modelDimension.y,
+						z: 0,
+					}
+					scaling.z = (scaling.x + scaling.y) / 2;
+					model.setScaling(scaling);
 					model.setMesh(mesh);
-
-					const meshDimensions = EntityFactory.getDimension(this.type());
-					const scaling = Vec2.fromVec({
-						x: this._profile.dim().x / meshDimensions.x,
-						y: this._profile.dim().y / meshDimensions.y,
-					});
-					model.setScaling(new BABYLON.Vector3(scaling.x, scaling.y, (scaling.x + scaling.y) / 2));
 				});
 			},
 		}));

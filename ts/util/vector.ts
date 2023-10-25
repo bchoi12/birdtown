@@ -18,8 +18,8 @@ export class Vec2 implements Vec {
     public y : number;
 
     constructor(vec : Vec) {
-        this.x = defined(vec.x) ? vec.x : 0;
-        this.y = defined(vec.y) ? vec.y : 0;
+        this.x = vec.x ? vec.x : 0;
+        this.y = vec.y ? vec.y : 0;
     }
 
     static zero() : Vec2 { return new Vec2({x: 0, y: 0}); }
@@ -240,4 +240,28 @@ export class Vec2 implements Vec {
     toVec() : Vec { return { x: this.x, y: this.y }; }
 
     toString() : string { return "{ x: " + this.x + ", y: " + this.y + " }"; }
+}
+
+// Use with caution, most methods are unimplemented.
+export class Vec3 extends Vec2 implements Vec {
+
+    public z : number;
+
+    constructor(vec : Vec) {
+        super(vec);
+
+        this.z = vec.z ? vec.z : 0;
+    }
+
+    static override zero() : Vec3 { return new Vec3({x: 0, y: 0, z: 0}); }
+    static override one() : Vec3 { return new Vec3({x: 1, y: 1, z: 1}); }
+    static override fromVec(vec : Vec) : Vec3 { return new Vec3(vec); }
+
+    override copyVec(vec : Vec) : Vec3 {
+        super.copyVec(vec);
+        if (defined(vec.z)) { this.z = vec.z; }
+        return this;
+    }
+
+    override toVec() : Vec { return {x : this.x, y: this.y, z: this.z }; }
 }
