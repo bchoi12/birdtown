@@ -4,7 +4,12 @@ Demo: https://brianchoi.net/birdtown
 
 ## Overview
 
-birdtown is an experiment to make real-time multiplayer games instantly accessible in your web browser.
+birdtown is an experiment to recreate the magic of split-screen gaming in our modern world.
+
+Key features include
+ * no downloads/installs required--load the whole game in seconds
+ * real-time netcode optimized for a web browser experience, allowing you to play with your friends without worrying about connection quality
+ * built-in spatial voice chat for more immersion
 
 ### Status
 
