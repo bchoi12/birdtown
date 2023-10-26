@@ -24,7 +24,8 @@ export class Physics extends SystemBase implements System {
 		super(SystemType.PHYSICS);
 
 		this._engine = MATTER.Engine.create({
-			gravity: { y: 0 }
+			gravity: { y: 0 },
+			constraintIterations: 4,
 		});
 
 		this._minimap = Html.elm(Html.divMinimap);
@@ -55,12 +56,7 @@ export class Physics extends SystemBase implements System {
 		super.physics(stepData);
 		const millis = stepData.millis;
 
-		let update = millis;
-		while (update > 0) {
-			const step = Math.min(Physics._maxUpdateTime, update);
-			MATTER.Engine.update(this._engine, step);
-			update -= step;
-		}
+		MATTER.Engine.update(this._engine, millis);
 
 		const entities = game.entities();
 		const collisions = MATTER.Detector.collisions(this._engine.detector);

@@ -63,8 +63,8 @@ export type ProfileLimits = {
 export class Profile extends ComponentBase implements Component {
 
 	private static readonly _minQuantization = 1e-3;
-	private static readonly _vecEpsilon = 5 * Profile._minQuantization;
-	private static readonly _degradedVecEpsilon = 2 * Profile._vecEpsilon;
+	private static readonly _vecEpsilon = 3 * Profile._minQuantization;
+	private static readonly _degradedVecEpsilon = 10 * Profile._vecEpsilon;
 	private static readonly _angleEpsilon = 1e-1;
 
 	private _degraded : boolean;
