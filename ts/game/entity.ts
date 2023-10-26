@@ -256,12 +256,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		attributes.setAttribute(type, value);
 	}
 
-	// TODO: from.id() is projectile, not owner
 	takeDamage(amount : number, from? : Entity) : void {
 		if (!this.hasComponent(ComponentType.STATS)) { return; }
 		this.getComponent<Stats>(ComponentType.STATS).updateStat(StatType.HEALTH, {
 			amount: -amount,
-			...from && { fromId: from.id() },
+			...from && { from: from },
 		});
 	}
 	collide(collision : MATTER.Collision, other : Entity) : void {}

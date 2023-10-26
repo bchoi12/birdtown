@@ -2,6 +2,7 @@
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType, StatType } from 'game/component/api'
 import { StatNumber } from 'game/component/util/stat_number'
+import { Entity } from 'game/entity'
 
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
@@ -14,7 +15,7 @@ export type StatInitOptions = {
 }
 
 export interface StatUpdate {
-	fromId? : number;
+	from? : Entity;
 	amount : number;
 }
 

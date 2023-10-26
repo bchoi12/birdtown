@@ -91,9 +91,12 @@ export class Association extends ComponentBase implements Component {
 	getAssociation(type : AssociationType) : number {
 		if (this._associations.has(type)) { return this._associations.get(type); }
 
-		if (this._owner.has() && this._owner.get().hasComponent(ComponentType.ASSOCIATION)) {
-			const ownerAssociations = this._owner.get().getComponent<Association>(ComponentType.ASSOCIATION);
-			return ownerAssociations.getAssociation(type); 
+		if (this._owner.has()) {
+			const ownerAssociations = this._owner.get().getAssociations();
+
+			if (ownerAssociations.has(type)) {
+				return ownerAssociations.get(type); 
+			}
 		}
 
 		console.error("Warning: retrieving unset association %d, defaulting to 0", type);
