@@ -41,7 +41,7 @@ export class Crate extends EntityBase implements Entity {
 					density: BodyFactory.defaultDensity,
 				});
 			},
-			init: entityOptions.profileInit,
+			init: {...entityOptions.profileInit, degraded: true },
 		}));
 		this._profile.setAcc({ y: GameGlobals.gravity });
 		if (!this._profile.hasAngle()) {

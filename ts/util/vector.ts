@@ -57,6 +57,11 @@ export class Vec2 implements Vec {
     static isZero(vec : Vec) : boolean { return vec.x === 0 && vec.y === 0; }
     static approxZero(vec : Vec, epsilon : number) : boolean { return Math.abs(vec.x) < epsilon && Math.abs(vec.y) < epsilon; }
     isZero() : boolean { return Vec2.isZero(this); }
+    roundToEpsilon(epsilon : number) : Vec2 {
+        this.x = Math.round(this.x / epsilon) * epsilon;
+        this.y = Math.round(this.y / epsilon) * epsilon;
+        return this;
+    }
     approxZero(epsilon : number) : boolean { return Vec2.approxZero(this, epsilon); }
     zeroEpsilon(epsilon : number) : Vec2 {
         if (Math.abs(this.x) < epsilon) { this.x = 0; }

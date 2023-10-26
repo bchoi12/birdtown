@@ -33,6 +33,8 @@ export type ProfileInitOptions = {
 	acc? : Vec;
 	dim? : Vec;
 	angle? : number;
+
+	degraded? : boolean;
 }
 
 export type ProfileOptions = {
@@ -60,14 +62,14 @@ export type ProfileLimits = {
 
 export class Profile extends ComponentBase implements Component {
 
-	private static readonly _posEpsilon = 1e-3;
-	private static readonly _minAccel = 1e-3;
-	private static readonly _minSpeed = 1e-3;
+	private static readonly _minQuantization = 1e-3;
+	private static readonly _vecEpsilon = 5 * Profile._minQuantization;
+	private static readonly _degradedVecEpsilon = 2 * Profile._vecEpsilon;
 	private static readonly _angleEpsilon = 1e-1;
-	private static readonly _sizeEpsilon = 1e-2;
 
-	private _readyFn : ReadyFn;
+	private _degraded : boolean;
 	private _bodyFn : BodyFn;
+	private _readyFn : ReadyFn;
 	private _onInitFn : OnInitFn;
 	private _prePhysicsFn : PhysicsFn;
 	private _postPhysicsFn : PhysicsFn;
@@ -93,12 +95,13 @@ export class Profile extends ComponentBase implements Component {
 	constructor(profileOptions : ProfileOptions) {
 		super(ComponentType.PROFILE);
 
+		this._degraded = false;
 		this._bodyFn = profileOptions.bodyFn;
 
-		if (defined(profileOptions.readyFn)) { this._readyFn = profileOptions.readyFn; }
-		if (defined(profileOptions.onInitFn)) { this._onInitFn = profileOptions.onInitFn; }
-		if (defined(profileOptions.prePhysicsFn)) { this._prePhysicsFn = profileOptions.prePhysicsFn; }
-		if (defined(profileOptions.postPhysicsFn)) { this._postPhysicsFn = profileOptions.postPhysicsFn; }
+		if (profileOptions.readyFn) { this._readyFn = profileOptions.readyFn; }
+		if (profileOptions.onInitFn) { this._onInitFn = profileOptions.onInitFn; }
+		if (profileOptions.prePhysicsFn) { this._prePhysicsFn = profileOptions.prePhysicsFn; }
+		if (profileOptions.postPhysicsFn) { this._postPhysicsFn = profileOptions.postPhysicsFn; }
 
 		this._constraints = new Map();
 		this._forces = new Buffer();
@@ -119,7 +122,7 @@ export class Profile extends ComponentBase implements Component {
 			options: {
 				filters: GameData.udpFilters,
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, 1e-3);
+					return Vec2.approxEquals(a, b, this.vecEpsilon());
 				},
 			},
 		});
@@ -133,7 +136,7 @@ export class Profile extends ComponentBase implements Component {
 			options: {
 				filters: GameData.udpFilters,
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, 1e-3);
+					return Vec2.approxEquals(a, b, this.vecEpsilon());
 				},
 			},
 		});
@@ -144,7 +147,7 @@ export class Profile extends ComponentBase implements Component {
 			options: {
 				filters: GameData.udpFilters,
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, Profile._minAccel);
+					return Vec2.approxEquals(a, b, this.vecEpsilon());
 				},
 			},
 		});
@@ -175,13 +178,14 @@ export class Profile extends ComponentBase implements Component {
 			import: (obj : Vec) => { this.setScaling(obj); },
 			options: {
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, Profile._sizeEpsilon);
+					return Vec2.approxEquals(a, b, this.vecEpsilon());
 				},
 			},
 		});
 	}
 
 	initFromOptions(init : ProfileInitOptions) : void {
+		if (init.degraded) { this._degraded = init.degraded; }
 		if (init.pos) { this.setPos(init.pos); }
 		if (init.vel) { this.setVel(init.vel); }
 		if (init.acc) { this.setAcc(init.acc); }
@@ -287,6 +291,7 @@ export class Profile extends ComponentBase implements Component {
 		if (!this.hasPos()) { this._pos = SmoothVec2.zero(); }
 
 		this._pos.copyVec(vec);
+		this._pos.roundToEpsilon(Profile._minQuantization);
 	}
 
 	hasVel() : boolean { return defined(this._vel); }
@@ -295,13 +300,13 @@ export class Profile extends ComponentBase implements Component {
 		if (!this.hasVel()) { this._vel = SmoothVec2.zero(); }
 
 		this._vel.copyVec(vec);
-		this._vel.zeroEpsilon(Profile._minSpeed);
+		this._vel.zeroEpsilon(Profile._minQuantization);
+		this._vel.roundToEpsilon(Profile._minQuantization);
 	}
 	private addVel(delta : Vec) : void {
 		if (!this.hasVel()) { this._vel = SmoothVec2.zero(); }
 
 		this._vel.add(delta);
-		this._vel.zeroEpsilon(Profile._minSpeed);
 	}
 
 	hasAcc() : boolean { return defined(this._acc); }
@@ -310,13 +315,14 @@ export class Profile extends ComponentBase implements Component {
 		if (!this.hasAcc()) { this._acc = Vec2.zero(); }
 
 		this._acc.copyVec(vec);
-		this._acc.zeroEpsilon(Profile._minAccel);
+		this._acc.zeroEpsilon(Profile._minQuantization);
+		this._acc.roundToEpsilon(Profile._minQuantization);
 	}
 
 	private hasDim() : boolean { return defined(this._dim); }
 	dim() : Vec2 { return this._dim; }
 	setDim(vec : Vec) : void {
-		if (defined(this._dim) && Vec2.approxEquals(this._dim.toVec(), vec, Profile._sizeEpsilon)) { return; }
+		if (defined(this._dim) && Vec2.approxEquals(this._dim.toVec(), vec, this.vecEpsilon())) { return; }
 		if (this.hasDim()) {
 			console.error("Error: dimension is already initialized for", this.name());
 			return;
@@ -434,6 +440,7 @@ export class Profile extends ComponentBase implements Component {
 		this._forces.clear();
 	}
 
+	private vecEpsilon() : number { return this._degraded ? Profile._degradedVecEpsilon : Profile._vecEpsilon; }
 	limits() : ProfileLimits { return this._limits; }
 	setLimits(limits : ProfileLimits) : void { this._limits = limits; }
 	mergeLimits(limits : ProfileLimits) { this._limits = {...this._limits, ...limits}; }
@@ -441,12 +448,7 @@ export class Profile extends ComponentBase implements Component {
 	enableLimits() : void { this._limits.disabled = false; }
 	disableLimits() : void { this._limits.disabled = true; }
 	private applyLimits(pos : Vec2, vel : Vec2) : void {
-		if (Math.abs(vel.x) < Profile._minSpeed) {
-			vel.x = 0;
-		}
-		if (Math.abs(vel.y) < Profile._minSpeed) {
-			vel.y = 0;
-		}
+		vel.zeroEpsilon(Profile._minQuantization);
 
 		if (this._limits.disabled) { return; }
 

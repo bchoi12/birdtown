@@ -269,7 +269,7 @@ export class Level extends SystemBase implements System {
 					},
 				});
 
-				let chance = 0.9;
+				let chance = 0.7;
 				while (this._rng.next() < chance) {
 					this.addEntity(EntityType.CRATE, {
 						profileInit: {
@@ -278,7 +278,7 @@ export class Level extends SystemBase implements System {
 							angle: this._rng.next() * 360,
 						},
 					});
-					chance -= 0.15;
+					chance -= 0.3;
 				}
 
 				pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;

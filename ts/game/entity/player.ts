@@ -119,11 +119,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PLAYER, entityOptions);
 
-		this.addNameParams({
-			base: "player",
-			id: this.id(),
-		});
-
 		this._armDir = Vec2.i();
 		this._armRecoil = 0;
 		this._headDir = Vec2.i();
