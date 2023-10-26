@@ -4,7 +4,7 @@ import { AnimationSet } from 'game/util/animation_set'
 
 import { defined } from 'util/common'
 
-export class AnimationHandler {
+export class AnimationController {
 
 	private _animations : Map<string, BABYLON.AnimationGroup>;
 	private _animationGroups : Map<string, number>;

@@ -7,11 +7,10 @@ import { Component, ComponentBase } from 'game/component'
 import { ComponentType, ShadowType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
-import { AnimationHandler } from 'game/util/animation_handler'
+import { AnimationController } from 'game/util/animation_controller'
 
 import { GameData, DataFilter } from 'game/game_data'
 
-import { defined } from 'util/common'
 import { Vec, Vec3 } from 'util/vector'
 
 type MeshFn = (model : Model) => void;
@@ -28,7 +27,7 @@ export class Model extends ComponentBase implements Component {
 
 	private _options : ModelOptions;
 	private _onLoadFns : Array<OnLoadFn>;
-	private _animationHandler : AnimationHandler;
+	private _animationController : AnimationController;
 	private _bones : Map<string, BABYLON.Bone>;
 
 	private _translation : Vec3;
@@ -42,7 +41,7 @@ export class Model extends ComponentBase implements Component {
 
 		this._options = options;
 		this._onLoadFns = new Array();
-		this._animationHandler = new AnimationHandler();
+		this._animationController = new AnimationController();
 		this._bones = new Map();
 
 		this._translation = Vec3.zero();
@@ -61,8 +60,7 @@ export class Model extends ComponentBase implements Component {
 	}
 
 	override ready() : boolean {
-		return super.ready()
-			&& (!defined(this._options.readyFn) || this._options.readyFn(this));
+		return super.ready() && (this._options.readyFn !== null || this._options.readyFn(this));
 	}
 
 	override initialize() : void {
@@ -137,9 +135,9 @@ export class Model extends ComponentBase implements Component {
 		}
 	}
 
-	registerAnimation(animation : BABYLON.AnimationGroup, group? : number) { this._animationHandler.register(animation, group); }
-	playAnimation(name : string, loop? : boolean) : void { this._animationHandler.play(name, loop); }
-	stopAllAnimations() : void { this._animationHandler.stopAll(); }
+	registerAnimation(animation : BABYLON.AnimationGroup, group? : number) { this._animationController.register(animation, group); }
+	playAnimation(name : string, loop? : boolean) : void { this._animationController.play(name, loop); }
+	stopAllAnimations() : void { this._animationController.stopAll(); }
 
 	registerBone(bone : BABYLON.Bone) { this._bones.set(bone.name, bone); }
 	hasBone(name : string) : boolean { return this._bones.has(name); }
