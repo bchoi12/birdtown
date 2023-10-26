@@ -61,8 +61,8 @@ export class Level extends SystemBase implements System {
 	}
 
 	levelType() : LevelType { return this._levelMsg.getLevelTypeOr(LevelType.UNKNOWN); }
-	seed() : LevelType { return this._levelMsg.getSeedOr(0); }
-	version() : number { return this._levelMsg.getVersionOr(0); }
+	seed() : LevelType { return this._levelMsg.getLevelSeedOr(0); }
+	version() : number { return this._levelMsg.getLevelVersionOr(0); }
 	bounds() : Box2 { return this._bounds; }
 
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }

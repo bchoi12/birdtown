@@ -157,7 +157,7 @@ export class Lakitu extends SystemBase implements System {
 
 		switch (msg.type()) {
 		case GameMessageType.GAME_STATE:
-			switch (msg.getState()) {
+			switch (msg.getGameState()) {
 			case GameState.SETUP:
 				this.setMode(LakituMode.LEVEL);
 				break;

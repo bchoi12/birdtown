@@ -1,5 +1,5 @@
 
-const version = "2.1";
+// Script for generating boilerplate message methods
 
 const b = "boolean";
 const s = "string";
@@ -20,21 +20,17 @@ serializableRegex.add(".*Type");
 //
 // Start params
 //
+const version = "2.1";
 
-const enumClass = "UiProp";
+const enumClass = "GameProp";
 const map = new Map<string, string>([
-    ["ANNOUNCEMENT_TYPE", "AnnouncementType"],
     ["CLIENT_ID", "number"],
-    ["COUNTERS_MAP", "Map<CounterType, number>"],
-    ["DIALOG_TYPE", "DialogType"],
     ["DISPLAY_NAME", "string"],
-    ["NAMES", "Array<string>"],
-    ["ON_SUBMIT", "() => void"],
-    ["PAGES", "Array<DialogPage>"],
-    ["TOOLTIP_TYPE", "TooltipType"],
-    ["TTL", "number"],
+    ["GAME_STATE", "number"],
+    ["LEVEL_SEED", "number"],
+    ["LEVEL_TYPE", "LevelType"],
+    ["LEVEL_VERSION", "number"],
 ]);
-
 //
 // End params
 //

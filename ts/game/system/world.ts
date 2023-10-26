@@ -134,7 +134,7 @@ export class World extends SystemBase implements System {
 
 		switch(msg.type()) {
 		case GameMessageType.LEVEL_LOAD:
-			const seed = msg.getSeedOr(0);
+			const seed = msg.getLevelSeedOr(0);
 			this.generateClouds(seed);
 			break;
 		}

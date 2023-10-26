@@ -85,14 +85,14 @@ export class Host extends Netcode {
 
 		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
 			let connection = this.getConnection(msg.name());
-			connection.setVoiceEnabled(msg.getEnabled());
+			connection.setVoiceEnabled(msg.getVoiceEnabled());
 
 			let outgoingMsg = new NetworkMessage(NetworkMessageType.VOICE);
-			outgoingMsg.setEnabled(msg.getEnabled());
+			outgoingMsg.setVoiceEnabled(msg.getVoiceEnabled());
 			outgoingMsg.setClientId(msg.getClientId());
 			this.broadcast(ChannelType.TCP, outgoingMsg);
 
-			if (outgoingMsg.getEnabled()) {
+			if (outgoingMsg.getVoiceEnabled()) {
 				let voiceMapMsg = new NetworkMessage(NetworkMessageType.VOICE_MAP);
 				voiceMapMsg.setClientMap(Object.fromEntries(this.getVoiceMap()));
 				this.send(msg.name(), ChannelType.TCP, voiceMapMsg);
@@ -115,7 +115,7 @@ export class Host extends Netcode {
 
 		let outgoing = new NetworkMessage(NetworkMessageType.VOICE);
 		outgoing.setClientId(this.clientId());
-		outgoing.setEnabled(enabled);
+		outgoing.setVoiceEnabled(enabled);
 		this.broadcast(ChannelType.TCP, outgoing);
 
 		if (this._voiceEnabled) {

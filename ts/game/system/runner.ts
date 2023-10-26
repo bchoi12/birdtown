@@ -191,7 +191,7 @@ export class Runner extends SystemBase implements System  {
 			this._sendFullMsg = true;
 			break;
 		case GameMessageType.GAME_STATE:
-			switch (msg.getState()) {
+			switch (msg.getGameState()) {
 			case GameState.FINISH:
 			case GameState.ERROR:
 				this._updateSpeed = 0.3;

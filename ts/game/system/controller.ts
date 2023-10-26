@@ -68,7 +68,7 @@ export class Controller extends SystemBase implements System {
 
 		// Broadcast state change
 		let msg = new GameMessage(GameMessageType.GAME_STATE);
-		msg.setState(this._gameState);
+		msg.setGameState(this._gameState);
 		game.handleMessage(msg);
 
 		if (isLocalhost()) {

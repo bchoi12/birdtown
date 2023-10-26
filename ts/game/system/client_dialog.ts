@@ -120,7 +120,7 @@ export class ClientDialog extends ClientSideSystem implements System {
 			return;
 		}
 
-		switch (msg.getState()) {
+		switch (msg.getGameState()) {
 		case GameState.SETUP:
 			this.showDialogs();
 			break;
