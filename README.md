@@ -4,24 +4,25 @@ Demo: https://brianchoi.net/birdtown
 
 ## Overview
 
-birdtown is an experiment to recreate the magic of split-screen gaming in our modern world.
+birdtown is an experiment to recreate the magic of split-screen gaming in your web browser.
 
 Key features include
+ * absolutely free
  * no downloads/installs required--load the whole game in seconds
  * real-time netcode optimized for a web browser experience, allowing you to play with your friends without worrying about connection quality
  * built-in spatial voice chat for more immersion
 
-### Status
+## Status
 
 Under development - demo at https://brianchoi.net/birdtown.
 
-### Screenshots
+## Screenshots
 
 ![devlog012](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog012.png?raw=true)
 
 ![devlog016](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog016.png?raw=true)
 
-### Game Engine Highlights
+## Game Engine Highlights
  * built for the web with nearly instant load times
  * fully featured voice chat with spatialized audio
  * peer-to-peer, but also server authoritative (one client serves as host)
