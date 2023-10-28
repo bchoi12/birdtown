@@ -9,46 +9,45 @@ enum Prop {
 }
 
 export interface Box {
-	a: Vec;
-	b: Vec;
+	min: Vec;
+	max: Vec;
 }
 
-export class Box2 {
+export class Box2 implements Box {
 	
-	private _min : Vec2;
-	private _max : Vec2;
+	public min : Vec2;
+	public max : Vec2;
 
 	constructor(min : Vec, max : Vec) {
-		this._min = Vec2.fromVec(min);
-		this._max = Vec2.fromVec(max);
+		this.min = Vec2.fromVec(min);
+		this.max = Vec2.fromVec(max);
 	}
 
 	static zero() : Box2 { return new Box2(Vec2.zero(), Vec2.zero()); }
 	static point(point : Vec) : Box2 { return new Box2(point, point); }
+	static fromBox(box : Box) : Box2 { return new Box2(box.min, box.max); }
 
-	min() : Vec2 { return this._min; }
-	max() : Vec2 { return this._max; }
-	width() : number { return this._max.x - this._min.x; }
-	height() : number { return this._max.y - this._min.y; }
-	dim() : Vec2 { return this._max.clone().sub(this._min); }
+	width() : number { return this.max.x - this.min.x; }
+	height() : number { return this.max.y - this.min.y; }
+	dim() : Vec2 { return this.max.clone().sub(this.min); }
 
 	contains(point : Vec) : boolean {
 		return this.xSide(point) === 0 && this.ySide(point) === 0;
 	}
 	xSide(point : Vec) : number {
-		if (point.x < this._min.x) { return -1; }
-		if (point.x > this._max.x) { return 1; }
+		if (point.x < this.min.x) { return -1; }
+		if (point.x > this.max.x) { return 1; }
 		return 0;
 	}
 	ySide(point : Vec) : number {
-		if (point.y < this._min.y) { return -1; }
-		if (point.y > this._max.y) { return 1; }
+		if (point.y < this.min.y) { return -1; }
+		if (point.y > this.max.y) { return 1; }
 		return 0;	
 	}
 	relativePos(cardinal : CardinalDir) : Vec2 {
-		const dim = this._max.clone().sub(this._min);
+		const dim = this.max.clone().sub(this.min);
 
-		let relativePos = this._min.clone().lerp(this._max, 0.5);
+		let relativePos = this.min.clone().lerp(this.max, 0.5);
 		if (Cardinal.isLeft(cardinal)) {
 			relativePos.add({ x: -dim.x / 2 });
 		} else if (Cardinal.isRight(cardinal)) {
@@ -64,33 +63,37 @@ export class Box2 {
 	}
 
 	add(delta : Vec2) : void {
-		this._min.sub(delta);
-		this._max.add(delta);
+		this.min.sub(delta);
+		this.max.add(delta);
 	}
 	clamp(result : Vec2) : void {
-		result.x = Math.min(this._max.x, Math.max(this._min.x, result.x));
-		result.y = Math.min(this._max.y, Math.max(this._min.y, result.y));
+		result.x = Math.min(this.max.x, Math.max(this.min.x, result.x));
+		result.y = Math.min(this.max.y, Math.max(this.min.y, result.y));
 	}
 
 	collapse(point : Vec) : Box2 {
-		this._min.copyVec(point);
-		this._max.copyVec(point);
+		this.min.copyVec(point);
+		this.max.copyVec(point);
 		return this;
 	}
 	stretch(point : Vec) : Box2 {
-		this._min.min(point);
-		this._max.max(point);
+		this.min.min(point);
+		this.max.max(point);
 		return this;
 	}
 
 	toBox() : Box {
 		return {
-			a: this._min.toVec(),
-			b: this._max.toVec(),
+			min: this.min.toVec(),
+			max: this.max.toVec(),
 		}
 	}
 	copyBox(obj : Box) : void {
-		this._min.copyVec(obj.a);
-		this._max.copyVec(obj.b);
+		this.min.copyVec(obj.min);
+		this.max.copyVec(obj.max);
+	}
+	copyBox2(box : Box2) : void {
+		this.min.copyVec(box.min);
+		this.max.copyVec(box.max);
 	}
 }

@@ -23,6 +23,7 @@ import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { BodyFactory } from 'game/factory/body_factory'
 import { CollisionInfo } from 'game/util/collision_info'
+import { MaterialShifter } from 'game/util/material_shifter'
 
 import { GameGlobals } from 'global/game_globals'
 
@@ -59,14 +60,20 @@ enum Bone {
 	SPINE = "spine",
 }
 
+enum Material {
+	BASE = "base",
+	EYE = "eye",
+}
+
+enum Expression {
+	UNKNOWN,
+	NORMAL,
+	MAD,
+}
+
 enum SubProfile {
 	UNKNOWN,
 	HEAD,
-}
-
-enum Constraint {
-	UNKNOWN,
-	NECK,
 }
 
 export class Player extends EntityBase implements Entity, EquipEntity {
@@ -100,7 +107,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _armRecoil : number;
 	private _headDir : Vec2;
 	private _boneOrigins : Map<Bone, BABYLON.Vector3>;
-	private _collisionInfo : CollisionInfo
+	private _collisionInfo : CollisionInfo;
+	private _eyeShifter : MaterialShifter;
 
 	// TODO: create state machine with mutually exclusive set of states?
 	private _jumpTimer : Timer;
@@ -124,6 +132,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._headDir = Vec2.i();
 		this._boneOrigins = new Map();
 		this._collisionInfo = new CollisionInfo();
+		this._eyeShifter = new MaterialShifter();
 
 		this._jumpTimer = this.newTimer({
 			interrupt: InterruptType.RESTART,
@@ -217,6 +226,18 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.BIRD, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
+					mesh.getChildMeshes().forEach((mesh : BABYLON.Mesh) => {
+						if (!mesh.material) { return; }
+
+						if (mesh.material instanceof BABYLON.PBRMaterial && mesh.material.name === Material.EYE) {
+							this._eyeShifter.setMaterial(mesh.material, Box2.fromBox({
+								min: {x: 0, y: 0},
+								max: {x: 4, y: 1},
+							}));
+							this._eyeShifter.registerOffset(Expression.NORMAL, {x: 0, y: 0});
+							this._eyeShifter.registerOffset(Expression.MAD, {x: 1, y: 0});
+						}
+					});
 
 					result.animationGroups.forEach((animationGroup : BABYLON.AnimationGroup) => {
 						const movementAnimations = Player._animations.get(AnimationGroup.MOVEMENT);
@@ -304,6 +325,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._stats.reset();
 		this._stats.processComponent<Modifiers>(this._modifiers);
 		this._profile.processComponent<Stats>(this._stats);
+
+		this._eyeShifter.offset(Expression.NORMAL);
 	}
 	dead() : boolean { return this._stats.dead(); }
 	timeDead() : number { return this.dead() ? this._deadTracker.timeSinceChange() : 0; }
@@ -487,6 +510,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					break;
 				}
 				equip.consumeUses();
+				this._eyeShifter.offset(Expression.MAD);
 			}
 		});
 

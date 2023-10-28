@@ -210,7 +210,7 @@ export abstract class Block extends EntityBase {
 
 		let materialProps = new Set<string>(mesh.material.name.split("-"));
 
-		let newMaterial = new BABYLON.StandardMaterial(mesh.material.name, game.scene());
+		let newMaterial = new BABYLON.StandardMaterial(this.name() + "_" + mesh.material.name, game.scene());
 		newMaterial.sideOrientation = mesh.material.sideOrientation;
 		newMaterial.backFaceCulling = true;
 

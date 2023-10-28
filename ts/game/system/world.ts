@@ -171,9 +171,8 @@ export class World extends SystemBase implements System {
 		this._rng.seed(seed);
 
 		const bounds = game.level().bounds();
-
-		let x = bounds.min().x;
-		while (x < bounds.max().x) {
+		let x = bounds.min.x;
+		while (x < bounds.max.x) {
 			const length = 4 + 2 * this._rng.next();
 
 			let cloud = BABYLON.MeshBuilder.CreateBox("cloud", {
@@ -186,7 +185,7 @@ export class World extends SystemBase implements System {
 			cloud.material.needDepthPrePass = true;
 
 			cloud.position.x = x;
-			cloud.position.y = bounds.min().y + this._rng.next() * bounds.height();
+			cloud.position.y = bounds.min.y + this._rng.next() * bounds.height();
 			const temp = this._rng.next();
 			if (temp < 0.3) {
 				cloud.position.z = 10;

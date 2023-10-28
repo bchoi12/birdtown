@@ -39,7 +39,7 @@ export class Level extends SystemBase implements System {
 		this._bounds = Box2.zero();
 		this._defaultSpawn = Vec2.zero();
 
-		this.addProp<Object>({
+		this.addProp<MessageObject>({
 			has: () => { return this._levelMsg.updated(); },
 			export: () => { return this._levelMsg.exportObject(); },
 			import: (obj : MessageObject) => {
@@ -56,7 +56,7 @@ export class Level extends SystemBase implements System {
 		});
 		this.addProp<Vec>({
 			export: () => { return this._defaultSpawn.toVec(); },
-			import: (obj : Object) => { this._defaultSpawn.copyVec(obj); },
+			import: (obj : Vec) => { this._defaultSpawn.copyVec(obj); },
 		});
 	}
 

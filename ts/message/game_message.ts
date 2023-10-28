@@ -14,6 +14,7 @@ export enum GameMessageType {
 
 enum GameProp {
 	UNKNOWN,
+
 	CLIENT_ID,
 	DISPLAY_NAME,
 	GAME_STATE,
