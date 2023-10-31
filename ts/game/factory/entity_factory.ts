@@ -43,6 +43,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOM, { x: 12, y: 6 }],
 		[EntityType.ARCH_ROOF, { x: 12, y: 1 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44 }],
+		[EntityType.SIGN, {x: 3, y: 2}],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1}],
 	]);
 	export const dimensions = new Map<EntityType, Vec>([

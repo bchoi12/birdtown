@@ -193,13 +193,12 @@ export class Level extends SystemBase implements System {
 					colors: colors,
 				},
 			});
-			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOF).y / 2;
 
 			if (i === 2) {
 				this.addEntity(EntityType.CONSOLE, {
 					profileInit: {
-						pos: pos.clone().add({ y: 1}),
-						dim: {x: 3, y: 1.5},
+						pos: pos.clone().add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
+						dim: EntityFactory.getDimension(EntityType.SIGN),
 					},
 				})
 			}

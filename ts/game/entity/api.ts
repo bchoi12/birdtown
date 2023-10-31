@@ -7,6 +7,7 @@ export enum EntityType {
 	EQUIP,
 	HEADWEAR,
 	PROJECTILE,
+	SIGN,
 	WEAPON,
 
 	ARCH_BASE,
