@@ -201,6 +201,12 @@ export class Level extends SystemBase implements System {
 						dim: EntityFactory.getDimension(EntityType.SIGN),
 					},
 				})
+
+				this.addEntity(EntityType.PLANE, {
+					profileInit: {
+						pos: pos.clone().add({ y: 6 }),
+					},
+				});
 			}
 
 

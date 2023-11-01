@@ -109,15 +109,9 @@ export class Lakitu extends SystemBase implements System {
 	}
 	private setOffset(type : OffsetType, vec : Vec) : void {
 		let offset = this.offset(type);
-		if (defined(vec.x)) {
-			offset.x = vec.x;
-		}
-		if (defined(vec.y)) {
-			offset.y = vec.y;
-		}
-		if (defined(vec.z)) {
-			offset.z = vec.z;
-		}
+		if (defined(vec.x)) { offset.x = vec.x; }
+		if (defined(vec.y)) { offset.y = vec.y; }
+		if (defined(vec.z)) { offset.z = vec.z; }
 		this.computeFov();
 	}
 	addAnchor(delta : BABYLON.Vector3) : void {

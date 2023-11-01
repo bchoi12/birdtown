@@ -7,6 +7,7 @@ import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { BirdBrain } from 'game/entity/equip/bird_brain'
 import { Explosion } from 'game/entity/explosion'
+import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Rocket } from 'game/entity/projectile/rocket'
@@ -32,6 +33,7 @@ export namespace EntityFactory {
 		[EntityType.CONSOLE, (options : EntityOptions) => { return new Console(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],
+		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
 		[EntityType.SNIPER, (options : EntityOptions) => { return new Sniper(options); }],
@@ -42,6 +44,7 @@ export namespace EntityFactory {
 	export const staticDimensions = new Map<EntityType, Vec>([
 		[EntityType.ARCH_ROOM, { x: 12, y: 6 }],
 		[EntityType.ARCH_ROOF, { x: 12, y: 1 }],
+		[EntityType.PLANE, {x: 10.5, y: 4}],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44 }],
 		[EntityType.SIGN, {x: 3, y: 2}],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1}],

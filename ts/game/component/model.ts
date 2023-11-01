@@ -18,8 +18,9 @@ type OnLoadFn = (model : Model) => void;
 type ReadyFn = (model : Model) => boolean;
 
 type ModelOptions = {
-	shadowType? : ShadowType;
 	meshFn : MeshFn;
+	
+	shadowType? : ShadowType;
 	readyFn? : ReadyFn;
 }
 

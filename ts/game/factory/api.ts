@@ -20,5 +20,6 @@ export enum MeshType {
 	ARCH_BALCONY,
 	CRATE,
 
+	PLANE,
 	SIGN,
 }

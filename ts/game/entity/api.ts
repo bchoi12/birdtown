@@ -21,6 +21,7 @@ export enum EntityType {
 	CONSOLE,
 	CRATE,
 	EXPLOSION,
+	PLANE,
 	PLAYER,
 	ROCKET,
 	SNIPER,

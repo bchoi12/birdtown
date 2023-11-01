@@ -4,6 +4,7 @@ import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { Component } from 'game/component'
 import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
+import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { GameObject, GameObjectBase } from 'game/game_object'
 import { Association, AssociationInitOptions } from 'game/component/association'
@@ -58,6 +59,8 @@ export interface Entity extends GameObject {
 	setTTL(ttl : number, onDelete? : () => void);
 
 	// Convenience getters/setters
+	hasModel() : boolean;
+	getModel() : Model;
 	hasProfile() : boolean;
 	getProfile() : Profile;
 	getAttribute(type : AttributeType) : boolean;
@@ -240,6 +243,8 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		return false;
 	}
 
+	hasModel() : boolean { return this.hasComponent(ComponentType.MODEL); }
+	getModel() : Model { return this.getComponent<Model>(ComponentType.MODEL); }
 	hasProfile() : boolean { return this.hasComponent(ComponentType.PROFILE); }
 	getProfile() : Profile { return this.getComponent<Profile>(ComponentType.PROFILE); }
 
