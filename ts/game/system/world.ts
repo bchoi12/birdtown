@@ -52,7 +52,8 @@ export class World extends SystemBase implements System {
 		}));
 		this._rng = new SeededRandom(0);
 
-	    const dir = new BABYLON.Vector3(-0.1, -0.3, -0.4);
+	    let dir = new BABYLON.Vector3(-1, -3, -4);
+	    dir.normalize();
 	    this._hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", dir.scale(-1), this._scene);
 	    this._hemisphericLight.diffuse = new BABYLON.Color3(0.8, 0.8, 0.8);
 	    this._hemisphericLight.specular = new BABYLON.Color3(1, 1, 1);
@@ -60,16 +61,12 @@ export class World extends SystemBase implements System {
 	    this._hemisphericLight.intensity = 0.6;
 
 	    this._directionalLight = new BABYLON.DirectionalLight("directionalLight", dir, this._scene);
-	    this._directionalLightOffset = dir.scale(-50);
-	    this._directionalLight.position = this._directionalLightOffset;
+	    this._directionalLightOffset = dir.scale(-30);
 	    this._directionalLight.diffuse = new BABYLON.Color3(1, 1, 1);
 	    this._directionalLight.intensity = 1.0;
 
-		this._shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight);
-		this._shadowGenerator.transparencyShadow = true;
-		this._shadowGenerator.usePercentageCloserFiltering = true;
-		// TODO: option for shadow quality
-		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+	    this._directionalLight.autoUpdateExtends = false;
+	    this._directionalLight.autoCalcShadowZBounds = false;
 
 		this._skyBox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 500.0 }, this._scene);
 		this._skyBox.position.y = -100;
@@ -81,6 +78,16 @@ export class World extends SystemBase implements System {
 		this._skyBox.material = skyMaterial;
 
 		this._clouds = new Array();
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		this._shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight, /*useFullFloatFirst=*/true, game.lakitu().camera());
+		this._shadowGenerator.transparencyShadow = true;
+		this._shadowGenerator.usePercentageCloserFiltering = true;
+		// TODO: option for shadow quality
+		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
 	}
 
 	renderShadows(mesh : BABYLON.AbstractMesh) : void {
@@ -152,7 +159,16 @@ export class World extends SystemBase implements System {
 	override preRender() : void {
 		super.preRender();
 
-		this._directionalLight.position.copyFrom(game.lakitu().camera().position);
+		const fov = game.lakitu().fov();
+		const buffer = 0.7;
+		this._directionalLight.shadowMinZ = Math.max(0);
+	    this._directionalLight.shadowMaxZ = Math.abs(2 * this._directionalLightOffset.z);
+	    this._directionalLight.orthoLeft = -buffer * fov.x;
+	    this._directionalLight.orthoRight = buffer * fov.x;
+	    this._directionalLight.orthoTop = buffer * fov.y;
+	    this._directionalLight.orthoBottom = -buffer * fov.y;
+
+		this._directionalLight.position.copyFrom(game.lakitu().target());
 		this._directionalLight.position.addInPlace(this._directionalLightOffset);
 		this._skyBox.position.x = game.lakitu().camera().position.x;
 	}

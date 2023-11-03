@@ -82,6 +82,7 @@ export class Lakitu extends SystemBase implements System {
 	}
 
 	camera() : BABYLON.UniversalCamera { return this._camera; }
+	aspect() : number { return this._fov.y === 0 ? 1 : this._fov.x / this._fov.y; }
 	fov() : Vec2 { return this._fov; }
 	anchor() : BABYLON.Vector3 { return this._anchor; }
 	target() : BABYLON.Vector3 { return this._target; }
@@ -264,7 +265,6 @@ export class Lakitu extends SystemBase implements System {
 		const dist = this.offset(OffsetType.CAMERA).length();
 		fov.x = 2 * dist * Math.tan(this._camera.fov / 2);
 		fov.y = fov.x / game.engine().getScreenAspectRatio();
-
 		return fov;
 	}
 }
