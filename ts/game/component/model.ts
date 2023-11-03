@@ -4,7 +4,7 @@ import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { Component, ComponentBase } from 'game/component'
-import { ComponentType, ShadowType } from 'game/component/api'
+import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { AnimationController } from 'game/util/animation_controller'
@@ -20,7 +20,7 @@ type ReadyFn = (model : Model) => boolean;
 type ModelOptions = {
 	meshFn : MeshFn;
 	
-	shadowType? : ShadowType;
+	disableShadows? : boolean;
 	readyFn? : ReadyFn;
 }
 
@@ -68,7 +68,7 @@ export class Model extends ComponentBase implements Component {
 		super.initialize();
 		this._options.meshFn(this);
 
-		if (this._options.shadowType !== ShadowType.ALL_OFF) {
+		if (!this._options.disableShadows) {
 			this.onLoad((loaded : Model) => {
 				game.world().renderShadows(loaded.mesh());
 			});

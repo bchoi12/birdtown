@@ -61,10 +61,3 @@ export enum BoostType {
 	ADD_BONUS,
 	MULT_TOTAL,
 }
-
-export enum ShadowType {
-	UNKNOWN,
-
-	DEFAULT,
-	ALL_OFF,
-}

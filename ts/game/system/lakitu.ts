@@ -100,11 +100,11 @@ export class Lakitu extends SystemBase implements System {
 		switch (mode) {
 		case LakituMode.LEVEL:
 			this._vel.x = 1.5;
-			this.setOffset(OffsetType.CAMERA, {x: 10, z: 60});
+			this.setOffset(OffsetType.CAMERA, {z: 60});
 			break;
 		default:
 			this._vel.x = 0;
-			this.setOffset(OffsetType.CAMERA, {x: 0, z: 30});
+			this.setOffset(OffsetType.CAMERA, {z: 30});
 		}
 		this._mode = mode;
 	}

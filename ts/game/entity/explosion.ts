@@ -35,6 +35,7 @@ export class Explosion extends EntityBase implements Entity {
 		}));
 
 		this.addComponent(new Model({
+			disableShadows: true, 
 			readyFn: () => {
 				return this._profile.ready();
 			},

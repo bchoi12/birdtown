@@ -5,7 +5,7 @@ import { game } from 'game'
 import { StepData } from 'game/game_object'
 import { ColorFactory, ColorType } from 'game/factory/color_factory'
 import { CardinalType } from 'game/factory/cardinal_factory'
-import { ComponentType, ShadowType } from 'game/component/api'
+import { ComponentType } from 'game/component/api'
 import { Cardinals } from 'game/component/cardinals'
 import { EntityTrackers } from 'game/component/entity_trackers'
 import { HexColors } from 'game/component/hex_colors'
@@ -181,7 +181,10 @@ export abstract class Block extends EntityBase {
 			this.processMesh(child);
 		});
 
-		if (!defined(mesh.material)) {
+		if (!defined(mesh.material)) { return; }
+
+		if (!(mesh.material instanceof BABYLON.PBRMaterial)) {
+			console.error("Error: %s material is not PBRMaterial", this.name(), mesh.material);
 			return;
 		}
 
@@ -207,13 +210,10 @@ export abstract class Block extends EntityBase {
 			mesh.material = this._materialCache.get(mesh.material.name).material;
 			return;
 		}
+		// mesh.material.name = this.name() + "_" + mesh.material.name;
+		mesh.material.backFaceCulling = true;
 
 		let materialProps = new Set<string>(mesh.material.name.split("-"));
-
-		let newMaterial = new BABYLON.StandardMaterial(this.name() + "_" + mesh.material.name, game.scene());
-		newMaterial.sideOrientation = mesh.material.sideOrientation;
-		newMaterial.backFaceCulling = true;
-
 		let diffuse = new Optional<HexColor>();
 		if (materialProps.has(MaterialProp.BASE)) {
 			if (!this._hexColors.hasColor(ColorType.BASE)) {
@@ -235,24 +235,27 @@ export abstract class Block extends EntityBase {
 			if (materialProps.has(MaterialProp.BACK)) {
 				diffuse.set(diffuse.get().clone().mult(Block._backColorScale));
 			}
-			newMaterial.diffuseColor = diffuse.get().toBabylonColor3();
+			mesh.material.albedoColor = diffuse.get().toBabylonColor3();
 		}
 
 
 		if (materialProps.has(MaterialProp.TRANSPARENT)) {
-			newMaterial.alpha = Block._transparentAlpha;
-			newMaterial.needDepthPrePass = true;
+			mesh.material.alpha = Block._transparentAlpha;
+			mesh.material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+			mesh.material.needDepthPrePass = true;
 		}
 
 		if (materialProps.has(MaterialProp.FRONT)) {
-			this._frontMaterials.add(newMaterial.name);
-			newMaterial.needDepthPrePass = true;
+			this._frontMaterials.add(mesh.material.name);
+			mesh.material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+			mesh.material.needDepthPrePass = true;
 		}
 
-		this._materialCache.set(newMaterial.name, {
-			material: newMaterial,
-			alpha: newMaterial.alpha,
+		this._materialCache.set(mesh.material.name, {
+			material: mesh.material,
+			alpha: mesh.material.alpha,
 		});
-		mesh.material = newMaterial;
+
+		mesh.material.markDirty(true);
 	}
 }
