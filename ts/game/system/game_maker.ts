@@ -39,7 +39,7 @@ export class GameMaker extends SystemBase implements System {
 		super(SystemType.GAME_MAKER);
 
 		this._config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
-		this._clientSetup = new ClientSetup(250);
+		this._clientSetup = new ClientSetup(/*refreshTime=*/250);
 		this._entityQuery = new EntityQuery();
 		this._round = 0;
 		this._lastStateChange = Date.now();

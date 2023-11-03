@@ -4,12 +4,11 @@ Demo: https://brianchoi.net/birdtown
 
 ## Overview
 
-birdtown is an experiment to recreate the magic of split-screen gaming in your web browser.
+birdtown is an experiment to connect friends with real-time multiplayer gaming from any web browser.
 
 Key features include
- * absolutely free
- * no downloads/installs required--load the whole game in seconds
- * real-time netcode optimized for a web browser experience, allowing you to play with your friends without worrying about connection quality
+ * extremely accessible multiplayer: load the whole game in a few seconds and start playing right away
+ * netcode engineered to support real-time gaming and smooth out network hiccups
  * built-in spatial voice chat for more immersion
 
 ## Status
@@ -18,16 +17,17 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 ## Screenshots
 
-![devlog012](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog012.png?raw=true)
+![devlog028](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog028.png?raw=true)
 
-![devlog016](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog016.png?raw=true)
+![devlog029](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog029.png?raw=true)
 
 ## Game Engine Highlights
- * built for the web with nearly instant load times
- * fully featured voice chat with spatialized audio
+ * custom built for the web with nearly instant load times
+ * 3D rendering thanks to Babylon.js and WebGL
+ * fully featured voice chat with spatialized audio (and text chat)
  * peer-to-peer, but also server authoritative (one client serves as host)
  * automatic client prediction and smoothing based on changing network conditions
- * game states are diff-based, compressed, and selectively sent using both reliable (TCP-like) and unreliable (UDP-like) protocols
+ * game states are diff-based, compressed, and selectively sent using both reliable (TCP-like) and unreliable (UDP-like) protocols for fast and consistent gameplay
  * levels are procedurally generated, deterministic, and synced over the network
 
 ## Credits
