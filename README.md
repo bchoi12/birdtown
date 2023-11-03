@@ -8,8 +8,9 @@ birdtown is an experiment to connect friends with real-time multiplayer gaming f
 
 Key features include
  * extremely accessible multiplayer: load the whole game in a few seconds and start playing right away
- * netcode engineered to support real-time gaming and smooth out network hiccups
- * built-in spatial voice chat for more immersion
+ * cross platform support: play with any device that can run a (modern) web browser. Mobile controls coming soon (tm)
+ * real-time netcode in a browser: engineered to support fast-paced gameplay and smooth out network hiccups
+ * built-in spatial voice chat: for more immersion
 
 ## Status
 
