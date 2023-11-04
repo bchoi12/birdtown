@@ -491,7 +491,6 @@ export class Profile extends ComponentBase implements Component {
 			this._smoother.setDiff(game.runner().frameDiff());
 			weight = this._smoother.weight();
 		}
-
 		this.vel().snap(weight);
 		if (this.pos().snapDistSq(weight) > 1) {
 			this.pos().snap(0);

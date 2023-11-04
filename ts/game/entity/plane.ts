@@ -21,15 +21,11 @@ export class Plane extends EntityBase implements Entity {
 
 	private static readonly _animations = new Set<string>([Animation.FLYING, Animation.ON]);
 
-	private _vel : Vec2;
-
 	private _model : Model;
 	private _profile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PLANE, entityOptions);
-
-		this._vel = Vec2.zero();
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
@@ -61,16 +57,34 @@ export class Plane extends EntityBase implements Entity {
 			},
 			init: entityOptions.profileInit,
 		}));
+
+		this._profile.setVel({x: 0, y: 0});
 	}
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		this._model.translation().add({
-			x: this._vel.x * millis / 1000,
-			y: this._vel.y * millis / 1000,
-		});
-	}
+		const bounds = game.level().bounds();
+		const side = bounds.xSide(this._profile.pos());
 
+		if (this._profile.vel().isZero()) {
+			if (side === 0) {
+				this._profile.vel().x = .05;
+			}
+			return;
+		}
+
+		// Turn around
+		if (side !== 0) {
+			this._profile.vel().x = -1 * side * Math.abs(this._profile.vel().x);
+		}
+
+		// Rotate to match velocity direction
+		if (this._profile.vel().x > 0) {
+			this._model.rotation().y = Math.min(0, this._model.rotation().y + 3 * millis / 1000);
+		} else {
+			this._model.rotation().y = Math.max(-Math.PI, this._model.rotation().y - 3 * millis / 1000);
+		}
+	}
 }

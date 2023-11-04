@@ -32,6 +32,7 @@ export class Model extends ComponentBase implements Component {
 	private _bones : Map<string, BABYLON.Bone>;
 
 	private _translation : Vec3;
+	private _rotation : Vec3;
 	private _scaling : Vec3;
 
 	// TODO: multi mesh support
@@ -46,6 +47,7 @@ export class Model extends ComponentBase implements Component {
 		this._bones = new Map();
 
 		this._translation = Vec3.zero();
+		this._rotation = Vec3.zero();
 		this._scaling = Vec3.one();
 
 		this._mesh = null;
@@ -53,6 +55,10 @@ export class Model extends ComponentBase implements Component {
 		this.addProp<Vec>({
 			export: () => { return this._translation.toVec(); },
 			import: (obj : Vec) => { this._translation.copyVec(obj); },
+		});
+		this.addProp<Vec>({
+			export: () => { return this._rotation.toVec(); },
+			import: (obj : Vec) => { this._rotation.copyVec(obj); },
 		});
 		this.addProp<Vec>({
 			export: () => { return this._scaling.toVec(); },
@@ -93,6 +99,8 @@ export class Model extends ComponentBase implements Component {
 
 	translation() : Vec3 { return this._translation; }
 	setTranslation(translation : Vec) : void { this._translation.copyVec(translation); }
+	rotation() : Vec3 { return this._rotation; }
+	setRotation(rotation : Vec) : void { this._rotation.copyVec(rotation); }
 	scaling() : Vec3 { return this._scaling; }
 	setScaling(scaling : Vec) : void { this._scaling.copyVec(scaling); }
 
@@ -146,6 +154,7 @@ export class Model extends ComponentBase implements Component {
 
 	resetTransforms() : void {
 		this._mesh.position.set(this._translation.x, this._translation.y, this._translation.z);
+		this._mesh.rotation.set(this._rotation.x, this._rotation.y, this._rotation.z);
 		this._mesh.scaling.set(this._scaling.x, this._scaling.y, this._scaling.z);
 	}
 	addProfileTransforms(profile : Profile) : void {

@@ -71,6 +71,14 @@ export class Level extends SystemBase implements System {
 			return;
 		}
 
+		const planes = game.entities().getMap(EntityType.PLANE).findN((plane : Entity) => {
+			return plane.initialized();
+		}, 1);
+		if (planes.length > 0) {
+			player.respawn(planes[0].getProfile().pos());
+			return;
+		}
+
 		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findAll((spawnPoint : Entity) => {
 			return spawnPoint.initialized() && spawnPoint.matchAssociations([AssociationType.TEAM], player);
 		});
@@ -204,7 +212,7 @@ export class Level extends SystemBase implements System {
 
 				this.addEntity(EntityType.PLANE, {
 					profileInit: {
-						pos: pos.clone().add({ y: 6 }),
+						pos: pos.clone().add({ y: 12 }),
 					},
 				});
 			}
