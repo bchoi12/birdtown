@@ -326,7 +326,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._stats.processComponent<Modifiers>(this._modifiers);
 		this._profile.processComponent<Stats>(this._stats);
 
-		this._eyeShifter.offset(Expression.NORMAL);
+		this._eyeShifter.offset(Expression.NORMAL);  
 	}
 	dead() : boolean { return this._stats.dead(); }
 	timeDead() : number { return this.dead() ? this._deadTracker.timeSinceChange() : 0; }

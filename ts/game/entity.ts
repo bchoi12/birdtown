@@ -108,6 +108,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		if (entityOptions.offline) {
 			this.setOffline(true);
+			console.log(this.name());
 		}
 		if (entityOptions.levelVersion) {
 			this._levelVersion = entityOptions.levelVersion;

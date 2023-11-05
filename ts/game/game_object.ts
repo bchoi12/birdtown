@@ -104,7 +104,7 @@ export interface GameObject {
 	isOffline() : boolean;
 	setOffline(offline : boolean) : void;
 	data() : GameData;
-	toDataMap() : DataMap;
+	debugDataMap() : DataMap;
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean];
 	rollback(data : DataMap, seqNum : number) : void;
 	updateData(seqNum : number) : void;
@@ -373,7 +373,7 @@ export abstract class GameObjectBase {
 	}
 
 	networkBehavior() : NetworkBehavior {
-		if (this._offline) {
+		if (this.isOffline()) {
 			return NetworkBehavior.OFFLINE;
 		}
 		return this.isHost() ? NetworkBehavior.SOURCE : NetworkBehavior.COPY
@@ -382,12 +382,12 @@ export abstract class GameObjectBase {
 		return this.networkBehavior() === NetworkBehavior.SOURCE || this.networkBehavior() === NetworkBehavior.RELAY;
 	}
 	isHost() : boolean { return game.options().host; }
-	isSource() : boolean { return this.networkBehavior() === NetworkBehavior.SOURCE; }
+	isSource() : boolean { return this.networkBehavior() === NetworkBehavior.SOURCE || this.networkBehavior() === NetworkBehavior.OFFLINE; }
 	isOffline() : boolean { return this._offline; }
 	setOffline(offline : boolean) : void { this._offline = offline; }
 	data() : GameData { return this._data; }
 
-	toDataMap() : DataMap {
+	debugDataMap() : DataMap {
 		if (!this.initialized()) {
 			return {};
 		}
@@ -395,13 +395,13 @@ export abstract class GameObjectBase {
 		let data = this._data.toObject();
 		this._childObjects.execute((child : GameObject, id : number) => {
 			const prop = this.idToProp(id);
-			const childData = child.toDataMap();
+			const childData = child.debugDataMap();
 			data[prop] = childData;
 		});
 		return data;
 	}
 	dataMap(filter : DataFilter, seqNum : number) : [DataMap, boolean] {
-		if (!this.initialized()) {
+		if (!this.initialized() || this.isOffline()) {
 			return [{}, false];
 		}
 
@@ -418,6 +418,10 @@ export abstract class GameObjectBase {
 	}
 
 	rollback(data : DataMap, seqNum : number) : void {
+		if (!this.initialized() || this.isOffline()) {
+			return;
+		}
+
 		for (const [stringProp, value] of Object.entries(data)) {
 			const prop = Number(stringProp);
 			if (this.isProp(prop)) {
@@ -443,7 +447,7 @@ export abstract class GameObjectBase {
 	}
 
 	updateData(seqNum : number) : void {
-		if (!this.initialized()) {
+		if (!this.initialized() || this.isOffline()) {
 			return;
 		}
 

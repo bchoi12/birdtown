@@ -13,18 +13,24 @@ type EntityInfo = {
 	allTypes? : Set<EntityType>;
 }
 
+enum IdType {
+	NORMAL,
+	OFFLINE,
+}
+
 export class Entities extends SystemBase implements System {
 
-	private _lastId : number;
-	private _lastOfflineId : number;
+	private _lastId : Map<IdType, number>;
 	private _entityInfo : Map<number, EntityInfo>;
 	private _deletedIds : Set<number>;
 
 	constructor() {
 		super(SystemType.ENTITIES);
 
-		this._lastId = -1;
-		this._lastOfflineId = 0;
+		this._lastId = new Map([
+			[IdType.NORMAL, 0],
+			[IdType.OFFLINE, -1],
+		]);
 		this._entityInfo = new Map();
 		this._deletedIds = new Set();
 
@@ -46,18 +52,15 @@ export class Entities extends SystemBase implements System {
 			return [null, false];
 		}
 
-		if (entityOptions.offline) {
-			entityOptions.id = this.nextOfflineId();
-		}
-
+		const idType = entityOptions.offline ? IdType.OFFLINE : IdType.NORMAL;
 		if (!entityOptions.id) {
 			// Only allow source to create new objects
 			if (!this.isSource()) {
 				return [null, false];
 			}
-			entityOptions.id = this.nextId();
+			entityOptions.id = this.nextId(idType);
 		} else {
-			this._lastId = Math.max(this._lastId, entityOptions.id);
+			this.updateLastId(idType, entityOptions.id);
 		}
 
 		if (this._deletedIds.has(entityOptions.id)) {
@@ -122,12 +125,11 @@ export class Entities extends SystemBase implements System {
 		this._entityInfo.delete(id);
 	}
 
-	private nextId() : number {
-		this._lastId += 2;
-		return this._lastId;
+	private updateLastId(type : IdType, id : number) : void {
+		this._lastId.set(type, Math.max(id, this._lastId.get(type)));
 	}
-	private nextOfflineId() : number {
-		this._lastOfflineId += 2;
-		return this._lastOfflineId;
+	private nextId(type : IdType) : number {
+		this._lastId.set(type, this._lastId.get(type) + 2);
+		return this._lastId.get(type);
 	}
 }
