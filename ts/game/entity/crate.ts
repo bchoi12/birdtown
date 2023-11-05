@@ -67,7 +67,7 @@ export class Crate extends EntityBase implements Entity {
 						z: 0,
 					}
 					scaling.z = (scaling.x + scaling.y) / 2;
-					model.setScaling(scaling);
+					model.offlineTransforms().setScaling(scaling);
 					model.setMesh(mesh);
 				});
 			},

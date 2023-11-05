@@ -273,10 +273,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					animationProperties.blendingSpeed = 0.02;
 					mesh.animationPropertiesOverride = animationProperties;
 
+					let armature = model.getBone(Bone.ARMATURE).getTransformNode();
+					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + Player._rotationOffset, 0);
 					const dim = this._profile.dim();
-					model.setTranslation({ y: -dim.y / 2 });
-					model.setRotation({ y: Math.PI / 2 + Player._rotationOffset });
-
+					armature.position.y -= dim.y / 2;
 					model.setMesh(mesh);
 				});
 			},
@@ -339,7 +339,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				let equipModel = equip.getComponent<Model>(ComponentType.MODEL);
 				equipModel.onLoad((wm : Model) => {
 					wm.mesh().attachToBone(arm, m.mesh());
-					wm.setRotation({x: 3 * Math.PI / 2, z: Math.PI });
+					wm.offlineTransforms().setRotation({x: 3 * Math.PI / 2, z: Math.PI });
 				});
 				break;
 			case AttachType.BEAK:
@@ -347,7 +347,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				let beakModel = equip.getComponent<Model>(ComponentType.MODEL);
 				beakModel.onLoad((bm : Model) => {
 					bm.mesh().attachToBone(beak, m.mesh());
-					bm.setRotation({ y: Math.PI });
+					bm.offlineTransforms().setRotation({ y: Math.PI });
 				});
 				break;
 			case AttachType.HEAD:
@@ -528,7 +528,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this.recomputeDir(game.keys(this.clientId()).dir());
 		}
 		const headSign = this._headDir.x === 0 ? 1 : Math.sign(this._headDir.x);
-		this._model.scaling().z = headSign * Math.abs(this._model.scaling().z);
+		this._model.offlineTransforms().setScaling({x: headSign * Math.abs(this._model.getScaling().x) });
 
 		let neckAngle = this._headDir.angleRad();
 		if (headSign > 0) {

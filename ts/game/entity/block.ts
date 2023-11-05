@@ -105,7 +105,7 @@ export abstract class Block extends EntityBase {
 
 					this.processMesh(mesh);
 					model.setMesh(mesh);
-					model.setTranslation({y: -this._profile.dim().y / 2 });
+					model.offlineTransforms().setTranslation({y: -this._profile.dim().y / 2 });
 				});
 			},
 		}));

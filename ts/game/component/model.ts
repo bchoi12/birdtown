@@ -8,6 +8,7 @@ import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { AnimationController } from 'game/util/animation_controller'
+import { Transforms } from 'game/util/transforms'
 
 import { GameData, DataFilter } from 'game/game_data'
 
@@ -31,9 +32,8 @@ export class Model extends ComponentBase implements Component {
 	private _animationController : AnimationController;
 	private _bones : Map<string, BABYLON.Bone>;
 
-	private _translation : Vec3;
-	private _rotation : Vec3;
-	private _scaling : Vec3;
+	private _transforms : Transforms;
+	private _offlineTransforms : Transforms;
 
 	// TODO: multi mesh support
 	private _mesh : BABYLON.Mesh;
@@ -46,23 +46,25 @@ export class Model extends ComponentBase implements Component {
 		this._animationController = new AnimationController();
 		this._bones = new Map();
 
-		this._translation = Vec3.zero();
-		this._rotation = Vec3.zero();
-		this._scaling = Vec3.one();
+		this._transforms = new Transforms();
+		this._offlineTransforms = new Transforms();
 
 		this._mesh = null;
 
 		this.addProp<Vec>({
-			export: () => { return this._translation.toVec(); },
-			import: (obj : Vec) => { this._translation.copyVec(obj); },
+			has: () => { return this._transforms.hasTranslation(); },
+			export: () => { return this._transforms.translation().toVec(); },
+			import: (obj : Vec) => { return this._transforms.setTranslation(obj); },
 		});
 		this.addProp<Vec>({
-			export: () => { return this._rotation.toVec(); },
-			import: (obj : Vec) => { this._rotation.copyVec(obj); },
+			has: () => { return this._transforms.hasRotation(); },
+			export: () => { return this._transforms.rotation().toVec(); },
+			import: (obj : Vec) => { return this._transforms.setRotation(obj); },
 		});
 		this.addProp<Vec>({
-			export: () => { return this._scaling.toVec(); },
-			import: (obj : Vec) => { this._scaling.copyVec(obj); },
+			has: () => { return this._transforms.hasScaling(); },
+			export: () => { return this._transforms.scaling().toVec(); },
+			import: (obj : Vec) => { return this._transforms.setScaling(obj); },
 		});
 	}
 
@@ -97,12 +99,14 @@ export class Model extends ComponentBase implements Component {
 		});
 	}
 
-	translation() : Vec3 { return this._translation; }
-	setTranslation(translation : Vec) : void { this._translation.copyVec(translation); }
-	rotation() : Vec3 { return this._rotation; }
-	setRotation(rotation : Vec) : void { this._rotation.copyVec(rotation); }
-	scaling() : Vec3 { return this._scaling; }
-	setScaling(scaling : Vec) : void { this._scaling.copyVec(scaling); }
+	transforms() : Transforms { return this._transforms; }
+	offlineTransforms() : Transforms { return this._offlineTransforms; }
+	hasTranslation() : boolean { return this._transforms.hasTranslation() || this._offlineTransforms.hasTranslation(); }
+	getTranslation() : Vec3 { return this._transforms.translation().clone().add(this._offlineTransforms.translation()); }
+	hasRotation() : boolean { return this._transforms.hasRotation() || this._offlineTransforms.hasRotation(); }
+	getRotation() : Vec3 { return this._transforms.rotation().clone().add(this._offlineTransforms.rotation()); }
+	hasScaling() : boolean { return this._transforms.hasScaling() || this._offlineTransforms.hasScaling(); }
+	getScaling() : Vec3 { return this._transforms.scaling().clone().mult(this._offlineTransforms.scaling()); }
 
 	hasMesh() : boolean { return this._mesh !== null; }
 	setMesh(mesh : BABYLON.Mesh) {
@@ -153,9 +157,14 @@ export class Model extends ComponentBase implements Component {
 	getBone(name : string) : BABYLON.Bone { return this._bones.get(name); }
 
 	resetTransforms() : void {
-		this._mesh.position.set(this._translation.x, this._translation.y, this._translation.z);
-		this._mesh.rotation.set(this._rotation.x, this._rotation.y, this._rotation.z);
-		this._mesh.scaling.set(this._scaling.x, this._scaling.y, this._scaling.z);
+		const translation = this.getTranslation();
+		this._mesh.position.set(translation.x, translation.y, translation.z);
+
+		const rotation = this.getRotation();
+		this._mesh.rotation.set(rotation.x, rotation.y, rotation.z);
+
+		const scaling = this.getScaling();
+		this._mesh.scaling.set(scaling.x, scaling.y, scaling.z);
 	}
 	addProfileTransforms(profile : Profile) : void {
 		this._mesh.position.x += profile.pos().x;

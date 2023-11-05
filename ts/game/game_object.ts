@@ -77,7 +77,6 @@ export interface GameObject {
 	postRender() : void
 	cleanup() : void;
 
-	addLocalObject<T extends GameObject>(local : T) : T;
 	addProp<T extends Object>(handler : PropHandler<T>);
 	registerProp<T extends Object>(prop : number, handler : PropHandler<T>);
 	hasFactoryFn() : boolean;
@@ -121,8 +120,6 @@ export abstract class GameObjectBase {
 	protected _state : GameObjectState;
 	protected _notReadyCounter : number;
 
-	// TODO: unused? deprecate?
-	protected _localObjects : Array<GameObject>;
 	protected _data : GameData;
 	protected _propHandlers : Map<number, PropHandler<Object>>;
 	protected _parent : GameObject;
@@ -144,7 +141,6 @@ export abstract class GameObjectBase {
 		this._notReadyCounter = 0;
 		this._state = GameObjectState.NORMAL;
 
-		this._localObjects = new Array();
 		this._data = new GameData();
 		this._propHandlers = new Map();
 		this._parent = null;
@@ -301,12 +297,6 @@ export abstract class GameObjectBase {
 				}
 			}
 		});
-	}
-
-	addLocalObject<T extends GameObject>(local : T) : T {
-		this._localObjects.push(local);
-		local.setOffline(true);
-		return local;
 	}
 
 	addProp<T extends Object>(handler : PropHandler<T>) : void {
@@ -523,11 +513,6 @@ export abstract class GameObjectBase {
 	protected numChildren() : number { return this._childObjects.size(); }
 
 	private updateObjects<T extends GameObject>(update : (obj : T, id : number) => void) : void {
-		for (let i = 0; i < this._localObjects.length; ++i) {
-			let obj = <T>this._localObjects[i];
-			update(obj, i);
-		}
-
 		this._childObjects.execute((child : GameObject, id : number) => {
 			update(<T>child, id);
 		});

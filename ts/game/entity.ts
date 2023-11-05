@@ -25,7 +25,6 @@ import { Vec2 } from 'util/vector'
 export type EntityOptions = {
 	id? : number;
 	clientId? : number;
-	// TODO: delete? unused
 	offline? : boolean;
 	levelVersion? : number;
 
@@ -107,6 +106,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this._allTypes = new Set();
 		this._allTypes.add(type);
 
+		if (entityOptions.offline) {
+			this.setOffline(true);
+		}
 		if (entityOptions.levelVersion) {
 			this._levelVersion = entityOptions.levelVersion;
 		}

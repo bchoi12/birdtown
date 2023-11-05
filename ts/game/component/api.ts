@@ -13,6 +13,7 @@ export enum ComponentType {
 	PROFILE,
 	STAT,
 	STATS,
+	TRANSFORMS,
 }
 
 export enum AssociationType {
@@ -29,6 +30,15 @@ export enum AttributeType {
 	GROUNDED,
 	READY,
 	SOLID,
+}
+
+export enum BoostType {
+	UNKNOWN,
+
+	ADD_BASE,
+	MULT_BASE,
+	ADD_BONUS,
+	MULT_TOTAL,
 }
 
 export enum ModifierType {
@@ -51,13 +61,4 @@ export enum StatType {
 
 	HEALTH,
 	SCALING,
-}
-
-export enum BoostType {
-	UNKNOWN,
-
-	ADD_BASE,
-	MULT_BASE,
-	ADD_BONUS,
-	MULT_TOTAL,
 }

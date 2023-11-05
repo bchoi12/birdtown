@@ -23,7 +23,7 @@ export class Entities extends SystemBase implements System {
 	constructor() {
 		super(SystemType.ENTITIES);
 
-		this._lastId = 0;
+		this._lastId = -1;
 		this._lastOfflineId = 0;
 		this._entityInfo = new Map();
 		this._deletedIds = new Set();
@@ -48,7 +48,6 @@ export class Entities extends SystemBase implements System {
 
 		if (entityOptions.offline) {
 			entityOptions.id = this.nextOfflineId();
-			return [this.addLocalObject<T>(EntityFactory.create<T>(type, entityOptions)), true];
 		}
 
 		if (!entityOptions.id) {
@@ -123,6 +122,12 @@ export class Entities extends SystemBase implements System {
 		this._entityInfo.delete(id);
 	}
 
-	private nextId() : number { return ++this._lastId; }
-	private nextOfflineId() : number { return ++this._lastOfflineId; }
+	private nextId() : number {
+		this._lastId += 2;
+		return this._lastId;
+	}
+	private nextOfflineId() : number {
+		this._lastOfflineId += 2;
+		return this._lastOfflineId;
+	}
 }

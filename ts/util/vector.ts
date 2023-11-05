@@ -1,7 +1,6 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
-import { defined } from 'util/common'
 import { SeededRandom } from 'util/seeded_random'
 
 export interface Vec {
@@ -108,19 +107,19 @@ export class Vec2 implements Vec {
         return this;
     }
     min(other : Vec) : Vec2 {
-        if (defined(other.x) && other.x < this.x) {
+        if (other.hasOwnProperty("x") && other.x < this.x) {
             this.x = other.x;
         }
-        if (defined(other.y) && other.y < this.y) {
+        if (other.hasOwnProperty("y") && other.y < this.y) {
             this.y = other.y;
         }
         return this;
     }
     max(other : Vec) : Vec2 {
-        if (defined(other.x) && other.x > this.x) {
+        if (other.hasOwnProperty("x") && other.x > this.x) {
             this.x = other.x;
         }
-        if (defined(other.y) && other.y > this.y) {
+        if (other.hasOwnProperty("y") && other.y > this.y) {
             this.y = other.y;
         }
         return this;
@@ -132,30 +131,30 @@ export class Vec2 implements Vec {
     }
 
     add(vec : Vec) : Vec2 {
-        if (defined(vec.x)) {
+        if (vec.x) {
             this.x += vec.x;
         }
-        if (defined(vec.y)) {
+        if (vec.y) {
             this.y += vec.y;
         }
         return this;
     }
 
     mult(vec : Vec) : Vec2 {
-        if (defined(vec.x)) {
+        if (vec.hasOwnProperty("x")) {
             this.x *= vec.x;
         }
-        if (defined(vec.y)) {
+        if (vec.hasOwnProperty("y")) {
             this.y *= vec.y;
         }
         return this;
     }
 
     sub(vec : Vec) : Vec2 {
-        if (defined(vec.x)) {
+        if (vec.x) {
             this.x -= vec.x;
         }
-        if (defined(vec.y)) {
+        if (vec.y) {
             this.y -= vec.y;
         }
         return this;
@@ -176,8 +175,8 @@ export class Vec2 implements Vec {
     }
 
     addRandomOffset(maxOffset : Vec, rng? : SeededRandom) : Vec2 {
-        this.x += ((defined(rng) ? rng.next() : Math.random()) < 0.5 ? -1 : 1) * (defined(rng) ? rng.next() : Math.random()) * maxOffset.x;
-        this.y += ((defined(rng) ? rng.next() : Math.random()) < 0.5 ? -1 : 1) * (defined(rng) ? rng.next() : Math.random()) * maxOffset.y;
+        this.x += ((rng ? rng.next() : Math.random()) < 0.5 ? -1 : 1) * (rng ? rng.next() : Math.random()) * maxOffset.x;
+        this.y += ((rng ? rng.next() : Math.random()) < 0.5 ? -1 : 1) * (rng ? rng.next() : Math.random()) * maxOffset.y;
         return this;
     }
 
@@ -206,10 +205,10 @@ export class Vec2 implements Vec {
     angleDeg() : number { return this.angleRad() * 180 / Math.PI; }
 
     interpolate(vec : Vec, t : number, interpFn : (t : number) => number) : Vec2 {
-        if (defined(vec.x)) {
+        if (vec.hasOwnProperty("x")) {
             this.x += (vec.x - this.x) * interpFn(t);
         }
-        if (defined(vec.y)) {
+        if (vec.hasOwnProperty("y")) {
             this.y += (vec.y - this.y) * interpFn(t);
         }
         return this;
@@ -234,8 +233,8 @@ export class Vec2 implements Vec {
         return this;
     }
     copyVec(vec : Vec) : Vec2 {
-        if (defined(vec.x)) { this.x = vec.x; }
-        if (defined(vec.y)) { this.y = vec.y; }
+        if (vec.hasOwnProperty("x")) { this.x = vec.x; }
+        if (vec.hasOwnProperty("y")) { this.y = vec.y; }
         return this;
     }
 
@@ -262,11 +261,35 @@ export class Vec3 extends Vec2 implements Vec {
     static override one() : Vec3 { return new Vec3({x: 1, y: 1, z: 1}); }
     static override fromVec(vec : Vec) : Vec3 { return new Vec3(vec); }
 
-    override copyVec(vec : Vec) : Vec3 {
-        super.copyVec(vec);
-        if (defined(vec.z)) { this.z = vec.z; }
+    override add(vec : Vec) : Vec3 {
+        super.add(vec);
+        if (vec.z) {
+            this.z += vec.z;
+        }
+        return this;
+    }
+    override sub(vec : Vec) : Vec3 {
+        super.sub(vec);
+        if (vec.z) {
+            this.z -= vec.z;
+        }
+        return this;
+    }
+    override mult(vec : Vec) : Vec3 {
+        super.mult(vec);
+        if (vec.hasOwnProperty("z")) {
+            this.z *= vec.z;
+        }
         return this;
     }
 
+
+    override copyVec(vec : Vec) : Vec3 {
+        super.copyVec(vec);
+        if (vec.hasOwnProperty("z")) { this.z = vec.z; }
+        return this;
+    }
+
+    override clone() : Vec3 { return new Vec3(this); }
     override toVec() : Vec { return {x : this.x, y: this.y, z: this.z }; }
 }

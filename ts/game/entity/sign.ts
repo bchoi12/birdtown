@@ -42,7 +42,7 @@ export abstract class Sign extends EntityBase implements Entity {
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.SIGN, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
-					model.setTranslation({z: -1.5 });
+					model.offlineTransforms().setTranslation({z: -1.5 });
 					model.setMesh(mesh);
 				});
 			},
