@@ -14,16 +14,12 @@ type AudioMetadata = {
 
 export namespace AudioFactory {
 	export const metadata = new Map<AudioType, AudioMetadata>([
-		[AudioType.EXPLOSION_1, {
-			path: "sound/explosion_1.wav",
+		[AudioType.EXPLOSION, {
+			path: "sound/explosion.mp3",
 			spatial: true,
 		}],
-		[AudioType.EXPLOSION_2, {
-			path: "sound/explosion_2.wav",
-			spatial: true,
-		}],
-		[AudioType.EXPLOSION_3, {
-			path: "sound/explosion_3.wav",
+		[AudioType.BAWK, {
+			path: "sound/bawk.mp3",
 			spatial: true,
 		}],
 	]);

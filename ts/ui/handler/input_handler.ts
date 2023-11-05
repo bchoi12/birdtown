@@ -90,6 +90,7 @@ export class InputHandler extends HandlerBase implements Handler {
 		this.mapKey(settings.rightKeyCode, KeyType.RIGHT);
 		this.mapKey(settings.jumpKeyCode, KeyType.JUMP);
 		this.mapKey(settings.interactKeyCode, KeyType.INTERACT);
+		this.mapKey(settings.squawkKeyCode, KeyType.SQUAWK);
 		this.mapKey(settings.mouseClickKeyCode, KeyType.MOUSE_CLICK);
 		this.mapKey(settings.altMouseClickKeyCode, KeyType.ALT_MOUSE_CLICK);
 	}

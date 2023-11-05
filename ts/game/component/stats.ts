@@ -48,6 +48,24 @@ export class Stats extends ComponentBase implements Component {
 	health() : number { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).getCurrent(); }
 	dead() : boolean { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).atMin(); }
 
+	lastDamager(sinceMillis : number) : [Entity, boolean] {
+		const [log, found] = this.flushStat(StatType.HEALTH, (log : StatLog) => {
+			// Skip
+			if (!log.from || log.from.id() === this.entity().id()) {
+				return true;
+			}
+			return false;
+		}, (log : StatLog) => {
+			// Stop
+			return log.timestamp < sinceMillis;
+		});
+
+		if (!found) {
+			return [null, false];
+		}
+		return [log.from, true];
+	}
+
 	addStat(type : StatType, init? : StatInitOptions) : void { this.registerSubComponent(type, new Stat(defined(init) ? init : {})); }
 	hasStat(type : StatType) : boolean { return this.hasChild(type); }
 	getStat(type : StatType) : Stat {
@@ -68,7 +86,7 @@ export class Stats extends ComponentBase implements Component {
 		this.getSubComponent<Stat>(type).updateStat(update);
 	}
 
-	flushStat(type : StatType, skip : (log : StatLog) => boolean, stop : (log : StatLog) => boolean) : [StatLog, boolean] {
+	private flushStat(type : StatType, skip : (log : StatLog) => boolean, stop : (log : StatLog) => boolean) : [StatLog, boolean] {
 		if (!this.hasStat(type)) {
 			console.error("Error: attempting to flush nonexistent stat %d for %s", type, this.name());
 			return [null, false];

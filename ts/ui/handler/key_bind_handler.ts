@@ -46,6 +46,12 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		});
 
 		this.addKeyBind({
+			name: "Squawk",
+			get: () => { return settings.squawkKeyCode; },
+			update: (keyCode : number) => { settings.squawkKeyCode = keyCode; },
+		});
+
+		this.addKeyBind({
 			name: "Shoot (LMB)",
 			get: () => { return settings.mouseClickKeyCode; },
 			update: (keyCode : number) => { settings.mouseClickKeyCode = keyCode; },

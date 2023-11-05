@@ -51,5 +51,6 @@ export enum MusicType {
 export enum SoundType {
 	UNKNOWN,
 
+	BAWK,
 	EXPLOSION,
 }

@@ -48,14 +48,17 @@ export class Audio extends SystemBase implements System {
 			}));
 		}
 
-		this._sounds = new Map([
+		this._sounds = new Map<SoundType, SoundFn>([
+			[SoundType.BAWK, () => {
+				return AudioType.BAWK;
+			}],
 			[SoundType.EXPLOSION, () => {
-				return AudioType.EXPLOSION_2;
+				return AudioType.EXPLOSION;
 			}],
 		]);
 	}
 
-	loadSound(soundType : SoundType, onLoad? : (sound : BABYLON.Sound) => void) : void {
+	loadSound(soundType : SoundType, onLoad? : (sound : BABYLON.Sound) => void, onEnded? : () => void) : void {
 		if (!this._sounds.has(soundType)) {
 			console.error("Error: attempting to play unregistered sound %s", SoundType[soundType]);
 			return;
@@ -73,6 +76,9 @@ export class Audio extends SystemBase implements System {
 		let audio = cache.borrow(onLoad);
 		audio.onEndedObservable.addOnce(() => {
 			cache.return(audio);
+			if (onEnded) {
+				onEnded();
+			}
 		});
 	}
 

@@ -1,5 +1,6 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
+import { game } from 'game'
 import { Model } from 'game/component/model'
 import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -7,10 +8,13 @@ import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
+import { SoundType } from 'game/system/api'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 
 import { KeyType, KeyState } from 'ui/api'
+
+import { Timer, InterruptType } from 'util/timer'
 
 enum Animation {
 	IDLE = "Idle",
@@ -20,8 +24,10 @@ enum Animation {
 export abstract class Beak extends Equip<Player> {
 
 	private static readonly _animations = new Set<string>([Animation.IDLE, Animation.SQUAWK]);
+	private static readonly _squawkCooldown = 2000;
 
 	private _squawking : boolean;
+	private _squawkTimer : Timer;
 
 	private _model : Model;
 
@@ -30,10 +36,13 @@ export abstract class Beak extends Equip<Player> {
 		this.addType(EntityType.BEAK);
 
 		this._squawking = false;
+		this._squawkTimer = this.newTimer({
+			interrupt: InterruptType.UNSTOPPABLE,
+		});
 
 		this.addProp<boolean>({
 			export: () => { return this._squawking; },
-			import: (obj : boolean) => { this._squawking = obj; },
+			import: (obj : boolean) => { this.setSquawking(obj); },
 			options: {
 				filters: GameData.udpFilters,
 			},
@@ -58,6 +67,7 @@ export abstract class Beak extends Equip<Player> {
 	}
 
 	abstract meshType() : MeshType;
+	abstract soundType() : SoundType;
 
 	override attachType() : AttachType { return AttachType.BEAK; }
 
@@ -72,7 +82,11 @@ export abstract class Beak extends Equip<Player> {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		this._squawking = this.key(KeyType.MOUSE_CLICK, KeyState.DOWN);
+		if (!this.isSource()) {
+			return;
+		}
+
+		this.setSquawking(this.key(KeyType.SQUAWK, KeyState.DOWN));
 	}
 
 	override preRender() : void {
@@ -84,6 +98,30 @@ export abstract class Beak extends Equip<Player> {
 			this._model.playAnimation(Animation.SQUAWK);
 		} else {
 			this._model.playAnimation(Animation.IDLE);
+		}
+	}
+
+	private setSquawking(squawking : boolean) : void {
+		if (this._squawking === squawking) {
+			return;
+		}
+		if (this._squawkTimer.hasTimeLeft()) {
+			return;
+		}
+
+		this._squawking = squawking;
+		if (this._squawking) {
+			game.audio().loadSound(this.soundType(), (sound : BABYLON.Sound) => {
+				if (this._model.hasMesh()) {
+					sound.attachToMesh(this._model.mesh());
+				} else if (this.owner().hasProfile()) {
+					sound.setPosition(this.owner().getProfile().pos().toBabylon3());
+				}
+				sound.play();
+			}, () => {
+				this._squawking = false;
+			});
+			this._squawkTimer.start(Beak._squawkCooldown);
 		}
 	}
 }

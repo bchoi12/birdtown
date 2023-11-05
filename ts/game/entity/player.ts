@@ -328,6 +328,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		this._eyeShifter.offset(Expression.NORMAL);  
 	}
+	stats() : Stats { return this._stats; }
 	dead() : boolean { return this._stats.dead(); }
 	timeDead() : number { return this.dead() ? this._deadTracker.timeSinceChange() : 0; }
 

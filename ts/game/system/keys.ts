@@ -23,6 +23,7 @@ export class Keys extends ClientSideSystem implements System {
 		KeyType.RIGHT,
 		KeyType.JUMP,
 		KeyType.INTERACT,
+		KeyType.SQUAWK,
 		KeyType.MOUSE_CLICK,
 		KeyType.ALT_MOUSE_CLICK);
 

@@ -5,6 +5,7 @@ class Settings {
 	public rightKeyCode : number;
 	public jumpKeyCode : number;
 	public interactKeyCode : number;
+	public squawkKeyCode : number;
 	public mouseClickKeyCode : number;
 	public altMouseClickKeyCode : number;
 
@@ -29,6 +30,7 @@ class Settings {
 		this.rightKeyCode = 68;
 		this.jumpKeyCode = 32;
 		this.interactKeyCode = 69;
+		this.squawkKeyCode = 81;
 		this.mouseClickKeyCode = 83;
 		this.altMouseClickKeyCode = 16;
 

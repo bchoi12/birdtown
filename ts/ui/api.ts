@@ -63,6 +63,7 @@ export enum KeyType {
 	RIGHT,
 	JUMP,
 	INTERACT,
+	SQUAWK,
 	MOUSE_CLICK,
 	ALT_MOUSE_CLICK,
 }

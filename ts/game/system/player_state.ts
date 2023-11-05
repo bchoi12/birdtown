@@ -169,7 +169,12 @@ export class PlayerState extends ClientSystem implements System {
 			switch (game.controller().gameState()) {
 			case GameState.FREE:
 				let player = this.targetEntity<Player>();
-				if (player.dead()) {
+				if (player.dead() && !this._respawnTimer.hasTimeLeft()) {
+					const [last, found] = player.stats().lastDamager(Date.now() - 10000);
+					if (found) {
+						console.log(last.name());
+						console.log(last.getAssociations());
+					}
 					this._respawnTimer.start(PlayerState._respawnTime, () => {
 						game.level().spawnPlayer(player);
 					});

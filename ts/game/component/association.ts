@@ -35,7 +35,7 @@ export class Association extends ComponentBase implements Component {
 		}
 
 		if (!this.hasAssociation(AssociationType.OWNER)) {
-			if (this._owner.get()) {
+			if (this._owner.has()) {
 				this._associations.set(AssociationType.OWNER, this._owner.get().id());
 			}
 		}

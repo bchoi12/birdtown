@@ -3,6 +3,7 @@ import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Beak } from 'game/entity/equip/beak'
 import { MeshType } from 'game/factory/api'
+import { SoundType } from 'game/system/api'
 
 export class ChickenBeak extends Beak {
 
@@ -14,4 +15,5 @@ export class ChickenBeak extends Beak {
 
 	override displayName() : string { return ChickenBeak._displayName; }
 	override meshType() : MeshType { return MeshType.CHICKEN_BEAK; }
+	override soundType() : SoundType { return SoundType.BAWK; }
 }

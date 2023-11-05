@@ -1,8 +1,7 @@
 export enum AudioType {
 	UNKNOWN,
-	EXPLOSION_1,
-	EXPLOSION_2,
-	EXPLOSION_3,
+	BAWK,
+	EXPLOSION,
 }
 
 export enum MeshType {

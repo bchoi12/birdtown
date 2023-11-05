@@ -20,7 +20,7 @@ export interface StatUpdate {
 }
 
 export interface StatLog extends StatUpdate {
-	ts : number;
+	timestamp : number;
 }
 
 export class Stat extends ComponentBase implements Component {
@@ -144,7 +144,7 @@ export class Stat extends ComponentBase implements Component {
 		this._stat.add(update.amount);
 		this._logBuffer.push({
 			...update,
-			ts: Date.now(),
+			timestamp: Date.now(),
 		});
 	}
 
