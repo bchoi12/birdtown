@@ -47,7 +47,7 @@ class Game {
 
 	private _options : GameOptions;
 	private _lastClientId : number;
-	private _engine : BABYLON.Engine|BABYLON.NullEngine;
+	private _engine : BABYLON.Engine;
 	private _netcode : Netcode;
 
 	private _runner : Runner;
@@ -76,6 +76,7 @@ class Game {
 		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false, {
 			stencil: true,
 		});
+		this._engine.enableOfflineSupport = true;
 		window.onresize = () => { this._engine.resize(); };
 
 		this._runner = new Runner();

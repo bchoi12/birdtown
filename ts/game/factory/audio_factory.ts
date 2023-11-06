@@ -34,7 +34,7 @@ export namespace AudioFactory {
 		const id = nextId.has(type) ? nextId.get(type) : 1;
 		nextId.set(type, id + 1);
 		let sound = new BABYLON.Sound(
-			"audio-" + type + "[" + id + "]",
+			"audio-" + AudioType[type] + "[" + id + "]",
 			"audio/" + metadata.get(type).path,
 			game.scene(),
 			defined(onLoad) ? () => { onLoad(sound); } : null,

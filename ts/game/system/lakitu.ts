@@ -18,7 +18,7 @@ import { ui } from 'ui'
 import { CounterType, KeyType, TooltipType } from 'ui/api'
 
 import { CircleMap } from 'util/circle_map'
-import { defined, isLocalhost } from 'util/common'
+import { isLocalhost } from 'util/common'
 import { RateLimiter } from 'util/rate_limiter'
 import { Vec, Vec2 } from 'util/vector'
 

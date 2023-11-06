@@ -49,12 +49,8 @@ export class Audio extends SystemBase implements System {
 		}
 
 		this._sounds = new Map<SoundType, SoundFn>([
-			[SoundType.BAWK, () => {
-				return AudioType.BAWK;
-			}],
-			[SoundType.EXPLOSION, () => {
-				return AudioType.EXPLOSION;
-			}],
+			[SoundType.BAWK, () => { return AudioType.BAWK; }],
+			[SoundType.EXPLOSION, () => { return AudioType.EXPLOSION; }],
 		]);
 	}
 
@@ -65,11 +61,11 @@ export class Audio extends SystemBase implements System {
 		}
 
 		const audioType = this._sounds.get(soundType)();
+
 		if (!this._audioCache.has(audioType)) {
 			console.error("Error: audio cache is not initialized for %s", AudioType[audioType]);
 			return;
 		}
-
 		let cache = this._audioCache.get(audioType);
 
 		// TODO: set volume and other global settings

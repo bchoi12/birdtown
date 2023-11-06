@@ -31,17 +31,17 @@ export class Box2 implements Box {
 	height() : number { return this.max.y - this.min.y; }
 	dim() : Vec2 { return this.max.clone().sub(this.min); }
 
-	contains(point : Vec) : boolean {
-		return this.xSide(point) === 0 && this.ySide(point) === 0;
+	contains(point : Vec, buffer? : number) : boolean {
+		return this.xSide(point, buffer) === 0 && this.ySide(point, buffer) === 0;
 	}
-	xSide(point : Vec) : number {
-		if (point.x < this.min.x) { return -1; }
-		if (point.x > this.max.x) { return 1; }
+	xSide(point : Vec, buffer? : number) : number {
+		if (point.x < this.min.x - buffer) { return -1; }
+		if (point.x > this.max.x + buffer) { return 1; }
 		return 0;
 	}
-	ySide(point : Vec) : number {
-		if (point.y < this.min.y) { return -1; }
-		if (point.y > this.max.y) { return 1; }
+	ySide(point : Vec, buffer? : number) : number {
+		if (point.y < this.min.y - buffer) { return -1; }
+		if (point.y > this.max.y + buffer) { return 1; }
 		return 0;	
 	}
 	relativePos(cardinal : CardinalDir) : Vec2 {

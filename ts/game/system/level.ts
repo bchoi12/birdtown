@@ -341,6 +341,15 @@ export class Level extends SystemBase implements System {
 			bounds.stretch(pos);
 		}
 
+		this.addEntity(EntityType.PLANE, {
+			profileInit: {
+				pos: bounds.relativePos(CardinalDir.TOP_LEFT).add({
+					x: bounds.width() / 3,
+					y: 20,
+				}),
+			},
+		});
+
 		this.setBounds(bounds.toBox());
 	}
 

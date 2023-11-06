@@ -33,11 +33,12 @@ export class ObjectCache<T extends Object> {
 	borrow(onLoad? : OnLoadFn<T>) : T {
 		for (let obj of this._objs) {
 			this._objs.delete(obj);
-			if (defined(onLoad)) {
+			if (onLoad) {
 				onLoad(obj);
 			}
 			return obj;
 		}
+
 		return this.create(onLoad);
 	}
 
