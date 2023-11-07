@@ -1,13 +1,13 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
-import { GameState } from 'game/api'
+import { GameState, PlayerRole, GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
-import { SystemType, LakituMode } from 'game/system/api'
+import { SystemType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { UiMessage, UiMessageType } from 'message/ui_message'
@@ -33,13 +33,9 @@ enum OffsetType {
 export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 25 units, needs to be updated if offsets are changed
 	private static readonly _horizontalFov = 45.1045 * Math.PI / 180;
-	// TODO: set from level
-	private static readonly _yMin = -6;
 
 	private static readonly _playerRateLimit = 250;
-	private static readonly _deadTimeLimit = 2000;
 
-	private _mode : LakituMode;
 	private _camera : BABYLON.UniversalCamera;
 
 	private _playerRateLimiter : RateLimiter;
@@ -48,19 +44,14 @@ export class Lakitu extends SystemBase implements System {
 	private _offsets : Map<OffsetType, BABYLON.Vector3>;
 	private _anchor : BABYLON.Vector3;
 	private _target : BABYLON.Vector3;
-	private _vel : BABYLON.Vector3;
 	private _fov : Vec2;
 
 	constructor(scene : BABYLON.Scene) {
 		super(SystemType.LAKITU);
 
-		this._mode = LakituMode.GAME;
 		this._camera = new BABYLON.UniversalCamera(this.name(), BABYLON.Vector3.Zero(), scene);
 		this._camera.fov = Lakitu._horizontalFov;
     	this._camera.fovMode = BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED;
-
-    	this._playerRateLimiter = new RateLimiter(Lakitu._playerRateLimit);
-    	this._players = new CircleMap();
 
     	this._offsets = new Map([
     		[OffsetType.ANCHOR, BABYLON.Vector3.Zero()],
@@ -69,10 +60,9 @@ export class Lakitu extends SystemBase implements System {
     	]);
     	this._anchor = BABYLON.Vector3.Zero();
     	this._target = BABYLON.Vector3.Zero();
-    	this._vel = BABYLON.Vector3.Zero();
     	this._fov = Vec2.zero();
     	this._camera.onProjectionMatrixChangedObservable.add(() => {
-    		this._fov = this.computeFov();
+    		this.computeFov();
     	});
 
     	this.setAnchor(BABYLON.Vector3.Zero());
@@ -92,22 +82,6 @@ export class Lakitu extends SystemBase implements System {
 		return new BABYLON.Ray(this._camera.position, point.subtract(this._camera.position));
 	}
 
-	setMode(mode : LakituMode) : void {
-		if (this._mode === mode) {
-			return;
-		}
-
-		switch (mode) {
-		case LakituMode.LEVEL:
-			this._vel.x = 1.5;
-			this.setOffset(OffsetType.CAMERA, {z: 60});
-			break;
-		default:
-			this._vel.x = 0;
-			this.setOffset(OffsetType.CAMERA, {z: 30});
-		}
-		this._mode = mode;
-	}
 	private setOffset(type : OffsetType, vec : Vec) : void {
 		let offset = this.offset(type);
 		if (vec.hasOwnProperty("x")) { offset.x = vec.x; }
@@ -126,7 +100,7 @@ export class Lakitu extends SystemBase implements System {
 	}
 	private move(anchor : BABYLON.Vector3) : void {
 		this._target = anchor.clone();
-		this._target.y = Math.max(Lakitu._yMin + this._fov.y / 2, this._target.y);
+		this._target.y = Math.max(game.level().bounds().min.y + this._fov.y / 2, this._target.y);
 		this._target.addInPlace(this.offset(OffsetType.TARGET));
 
 		this._camera.position = this._target.clone();
@@ -141,10 +115,6 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		super.setTargetEntity(entity);
-
-		if (isLocalhost()) {
-			console.log("%s: target is %s", this.name(), entity.name());	
-		}
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -154,10 +124,12 @@ export class Lakitu extends SystemBase implements System {
 		case GameMessageType.GAME_STATE:
 			switch (msg.getGameState()) {
 			case GameState.SETUP:
-				this.setMode(LakituMode.LEVEL);
+				this.setOffset(OffsetType.TARGET, {x: 0, y: -5, z: 0});
+				this.setOffset(OffsetType.CAMERA, {x: 0, y: 0, z: 60});
 				break;
 			default:
-				this.setMode(LakituMode.GAME);
+				this.setOffset(OffsetType.TARGET, {x: 0, y: 0.5, z: 0});
+				this.setOffset(OffsetType.CAMERA, {x: 0, y: 2.5, z: 30});
 			}
 			break;
 		}
@@ -167,7 +139,7 @@ export class Lakitu extends SystemBase implements System {
 		super.postUpdate(stepData);
 		const realMillis = stepData.realMillis;
 
-		if (this._mode === LakituMode.SPECTATE) {
+		if (game.playerState().role() === PlayerRole.SPECTATING) {
 			if (this._playerRateLimiter.check(realMillis)) {
 				game.entities().getMap(EntityType.PLAYER).executeIf<Player>((player : Player) => {
 					if (!this._players.has(player.id())) {
@@ -185,52 +157,71 @@ export class Lakitu extends SystemBase implements System {
 		const millis = stepData.millis;
 
 		// Move during postPhysics so we can do camera position-based smoothing in preRender
-		switch (this._mode) {
-		case LakituMode.LEVEL:
-			const side = game.level().bounds().xSide({x: this._anchor.x });
-			if (side !== 0 && Math.sign(this._vel.x) === side) {
-				this._vel.x *= -1;
+		switch (game.controller().gameState()) {
+		case GameState.FREE:
+			if (game.playerState().hasTargetEntity()) {
+				this.setTargetEntity(game.playerState().targetEntity());
 			}
-			this.addAnchor(this._vel.scale(millis / 1000));
 			break;
-		case LakituMode.SPECTATE:
-			if (this._players.empty()) {
-				return;
+		case GameState.SETUP:
+			const plane = game.entities().getMap(EntityType.PLANE).findN((plane : Entity) => {
+				return plane.initialized();
+			}, 1);
+			if (plane.length === 1) {
+				this.setTargetEntity(plane[0]);
 			}
-			if (!this.validTargetEntity()) {
-				this.setTargetEntity(this._players.getHead());
-			}
-
-			if (game.keys().getKey(KeyType.LEFT).pressed()) {
-				const [targetId, ok] = this._players.rewindAndDelete(this.targetEntity().id(), (player : Player) => {
-					return player.initialized() && !player.deleted();
-				});
-				if (ok) {
-					this.setTargetEntity(this._players.get(targetId));
+			break;
+		case GameState.GAME:
+			if (game.playerState().role() === PlayerRole.SPECTATING) {
+				if (this._players.empty()) {
+					break;
 				}
-			} else if (game.keys().getKey(KeyType.RIGHT).pressed()) {
-				const [targetId, ok] = this._players.seekAndDelete(this.targetEntity().id(), (player : Player) => {
-					return player.initialized() && !player.deleted();
-				});
-				if (ok) {
-					this.setTargetEntity(this._players.get(targetId));
+				if (!this.validTargetEntity()) {
+					this.setTargetEntity(this._players.getHead());
 				}
-			}
-			// fallthrough
-		case LakituMode.GAME:
-			if (this.validTargetEntity()) {
-				this.setAnchor(this.targetEntity().getProfile().pos().toBabylon3());
 
-				// TODO: only swap when player state lives are out and we're gaming
-				if (game.controller().gameState() !== GameState.FREE) {
-					if (this.targetEntity<Player>().timeDead() > Lakitu._deadTimeLimit) {
-						this.setMode(LakituMode.SPECTATE);
+				if (game.keys().getKey(KeyType.LEFT).pressed()) {
+					const [targetId, ok] = this._players.rewindAndDelete(this.targetEntity().id(), (player : Player) => {
+						return player.initialized() && !player.deleted();
+					});
+					if (ok) {
+						this.setTargetEntity(this._players.get(targetId));
+					}
+				} else if (game.keys().getKey(KeyType.RIGHT).pressed()) {
+					const [targetId, ok] = this._players.seekAndDelete(this.targetEntity().id(), (player : Player) => {
+						return player.initialized() && !player.deleted();
+					});
+					if (ok) {
+						this.setTargetEntity(this._players.get(targetId));
 					}
 				}
-			} else {
-				this.setMode(LakituMode.SPECTATE);
+			} else if (game.playerState().hasTargetEntity()) {
+				if (game.playerState().targetEntity().state() === GameObjectState.NORMAL) {
+					this.setTargetEntity(game.playerState().targetEntity());
+				} else {
+					// TODO: refactor this duplication
+					const plane = game.entities().getMap(EntityType.PLANE).findN((plane : Entity) => {
+						return plane.initialized();
+					}, 1);
+					if (plane.length === 1) {
+						this.setTargetEntity(plane[0]);
+					}
+				}
 			}
 			break;
+		case GameState.FINISH:
+			// TODO: pan to spotlighted player
+			break;
+		case GameState.VICTORY:
+			// TODO: pan to winner
+			break;
+		case GameState.ERROR:
+			this.clearTargetEntity();
+			break;
+		}
+
+		if (this.validTargetEntity()) {
+			this.setAnchor(this.targetEntity().getProfile().pos().toBabylon3());
 		}
 	}
 
@@ -241,16 +232,18 @@ export class Lakitu extends SystemBase implements System {
 			return;
 		}
 
+		this.setAnchor(this.targetEntity().getProfile().pos().toBabylon3());
+
 		const counts = this.targetEntity().getCounts();
 		let countersMsg = new UiMessage(UiMessageType.COUNTERS);
 		countersMsg.setCountersMap(counts);
 		ui.handleMessage(countersMsg);
 
 		// TODO: rate limit?
-		if (!this.targetEntity().clientIdMatches()) {
+		if (game.playerState().role() === PlayerRole.SPECTATING) {
 			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
 			tooltipMsg.setTooltipType(TooltipType.SPECTATING);
-			tooltipMsg.setTtl(50);
+			tooltipMsg.setTtl(250);
 			if (game.playerStates().hasPlayerState(this.targetEntity().clientId())) {
 				tooltipMsg.setNames([game.playerState(this.targetEntity().clientId()).displayName()]);
 			}
@@ -260,11 +253,19 @@ export class Lakitu extends SystemBase implements System {
 
 	private validTargetEntity() : boolean { return this.hasTargetEntity() && !this.targetEntity().deleted(); }
 
-	private computeFov() : Vec2 {
-		let fov = Vec2.zero();
+	private computeFov() : void {
+		const aspect = game.engine().getScreenAspectRatio();
+		if (aspect <= 0) {
+			console.error("%s: cannot compute FOV, aspect ratio is invalid", this.name(), aspect);
+			return;
+		}
+
 		const dist = this.offset(OffsetType.CAMERA).length();
-		fov.x = 2 * dist * Math.tan(this._camera.fov / 2);
-		fov.y = fov.x / game.engine().getScreenAspectRatio();
-		return fov;
+		this._fov.x = 2 * dist * Math.tan(this._camera.fov / 2);
+		this._fov.y = this._fov.x / aspect;
+
+		if (isLocalhost()) {
+			console.log("%s: computed new FOV", this.name(), this._fov);
+		}
 	}
 }

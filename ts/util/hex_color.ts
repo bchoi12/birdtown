@@ -12,7 +12,6 @@ export class HexColor {
 	}
 
 	static fromHex(hex : number) : HexColor { return new HexColor(hex); }
-	static fromObject(obj : Object) : HexColor { return HexColor.fromHex(<number>obj); }
 	static fromRGB(r : number, g : number, b : number) { return HexColor.fromHex(HexColor.rgbToHex(r, g, b)); }
 
 	static hexToRGB(hex : number) : [number, number, number] {
@@ -33,12 +32,10 @@ export class HexColor {
 	clone() : HexColor { return HexColor.fromHex(this._hex); }
 
 	toString() : string { return "#" + this._hex.toString(16).padStart(6, "0"); }
-	toObject() : Object { return this._hex; }
+	toHex() : number { return this._hex; }
 	toBabylonColor3() : BABYLON.Color3 { return new BABYLON.Color3(this._r / 0xff, this._g / 0xff, this._b / 0xff); }
 
-	copyObject(obj : Object) : void {
-		this._hex = HexColor.clampHex(<number>obj);
-	}
+	copyHex(value : number) : void { this._hex = HexColor.clampHex(<number>value); }
 	copyRGB(r : number, g : number, b : number) : void {
 		this._r = HexColor.clampPrimary(r);
 		this._g = HexColor.clampPrimary(g);

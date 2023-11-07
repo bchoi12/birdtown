@@ -65,11 +65,6 @@ export interface Entity extends GameObject {
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
 
-	// Input/Keys
-	key(type : KeyType, state : KeyState) : boolean;
-	inputDir() : Vec2;
-	inputMouse() : Vec2;
-
 	// Match associations
 	getAssociations() : Map<AssociationType, number>;
 	matchAssociations(types : AssociationType[], other : Entity) : boolean;

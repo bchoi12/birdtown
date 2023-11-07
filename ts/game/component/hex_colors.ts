@@ -32,14 +32,15 @@ export class HexColors extends ComponentBase implements Component {
 				continue;
 			}
 
-			this.registerProp(color, {
+			this.addProp<number>({
 				has: () => { return this._colors.has(color); },
-				export: () => { return this._colors.get(color).toObject(); },
-				import: (obj : Object) => {
+				export: () => { return this._colors.get(color).toHex(); },
+				import: (obj : number) => {
 					if (!this._colors.has(color)) {
-						this._colors.set(color, HexColor.fromObject(obj));
+						this._colors.set(color, HexColor.fromHex(obj));
+					} else {
+						this._colors.get(color).copyHex(obj);
 					}
-					this._colors.get(color).copyObject(obj);
 				},
 			})
 		}

@@ -48,8 +48,8 @@ export enum PlayerRole {
 	UNKNOWN,
 
 	// Player is not participating, but is watching
-	WAITING,
+	SPECTATING,
 
-	// Player is playing a game
+	// Player is actively participating in the game
 	GAMING,
 }

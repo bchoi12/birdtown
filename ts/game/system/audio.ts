@@ -69,6 +69,7 @@ export class Audio extends SystemBase implements System {
 		let cache = this._audioCache.get(audioType);
 
 		// TODO: set volume and other global settings
+		// TODO: debug audio lag after browser is inactive
 		let audio = cache.borrow(onLoad);
 		audio.onEndedObservable.addOnce(() => {
 			cache.return(audio);

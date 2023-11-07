@@ -21,14 +21,6 @@ export enum SystemType {
 	WORLD,
 }
 
-export enum LakituMode {
-	UNKNOWN,
-
-	GAME,
-	LEVEL,
-	SPECTATE,
-}
-
 export enum RunnerMode {
 	UNKNOWN,
 

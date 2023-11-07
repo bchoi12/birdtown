@@ -80,5 +80,6 @@ export enum KeyState {
 export enum TooltipType {
 	UNKNOWN,
 	CONSOLE,
+	SPAWN,
 	SPECTATING,
 }

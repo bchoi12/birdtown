@@ -275,14 +275,14 @@ export class Level extends SystemBase implements System {
 						pos: pos,
 					},
 					cardinalsInit: {
-						cardinals: CardinalFactory.openSides,
+						cardinals: j === 0 ? CardinalFactory.noOpenings : CardinalFactory.openSides,
 					},
 					hexColorsInit: {
 						colors: colors,
 					},
 				});
 
-				let chance = 0.7;
+				let chance = j > 0 ? 0.7 : 0.0;
 				while (this._rng.next() < chance) {
 					this.addEntity(EntityType.CRATE, {
 						profileInit: {

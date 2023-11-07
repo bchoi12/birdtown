@@ -20,6 +20,8 @@ enum Animation {
 export class Plane extends EntityBase implements Entity {
 
 	private static readonly _animations = new Set<string>([Animation.FLYING, Animation.ON]);
+	private static readonly _speed = 0.1;
+	private static readonly _turnRate = 3;
 
 	private _model : Model;
 	private _profile : Profile;
@@ -70,24 +72,24 @@ export class Plane extends EntityBase implements Entity {
 
 		if (this._profile.vel().isZero()) {
 			if (side === 0) {
-				this._profile.vel().x = 0.15;
+				this._profile.vel().x = Plane._speed;
 			}
 			return;
 		}
 
 		// Turn around
 		if (side !== 0) {
-			this._profile.vel().x = -1 * side * Math.abs(this._profile.vel().x);
+			this._profile.vel().x = -1 * side * Plane._speed;
 		} else {
-			this._profile.vel().x = 0.15 * Math.sign(this._profile.vel().x);
+			this._profile.vel().x = Math.sign(this._profile.vel().x) * Plane._speed;
 		}
 
 		// Rotate to match velocity direction
 		let rotation = this._model.offlineTransforms().rotation();
 		if (this._profile.vel().x > 0) {
-			rotation.y = Math.min(0, rotation.y + 3 * millis / 1000);
+			rotation.y = Math.min(0, rotation.y + Plane._turnRate * millis / 1000);
 		} else {
-			rotation.y = Math.max(-Math.PI, rotation.y - 3 * millis / 1000);
+			rotation.y = Math.max(-Math.PI, rotation.y - Plane._turnRate * millis / 1000);
 		}
 	}
 }

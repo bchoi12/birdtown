@@ -75,6 +75,8 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		switch (type) {
 		case TooltipType.CONSOLE:
 			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game.";
+		case TooltipType.SPAWN:
+			return "Press " + KeyNames.boxed(settings.jumpKeyCode) + " to deploy the chicken."
 		case TooltipType.SPECTATING:
 			if (names.length !== 1) {
 				return "Spectating";

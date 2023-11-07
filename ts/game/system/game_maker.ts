@@ -27,6 +27,7 @@ export class GameMaker extends SystemBase implements System {
 
 	private _config : GameConfigMessage;
 	private _clientSetup : ClientSetup;
+	// TODO: remove EntityQuery and use PlayerStates
 	private _entityQuery : EntityQuery;
 
 	private _round : number;
@@ -155,13 +156,12 @@ export class GameMaker extends SystemBase implements System {
 			if (this.timeLimitReached(current)) {
 				return GameState.FINISH;
 			}
-			const alive = this._entityQuery.filter<Player>(EntityType.PLAYER, (player : Player) => {
-				return !player.dead();
+			const winners = game.playerStates().findAll<PlayerState>((playerState : PlayerState) => {
+				return playerState.points() >= 3;
 			});
-			if (alive.length <= 1) {
+			if (winners.length >= 1) {
 				return GameState.FINISH;
 			}
-
 			break;
 		case GameState.FINISH:
 			if (this.timeLimitReached(current)) {
@@ -206,20 +206,12 @@ export class GameMaker extends SystemBase implements System {
 			birdtownMsg.setLevelSeed(Math.floor(Math.random() * 10000));
 			birdtownMsg.setLevelVersion(game.level().version() + 1);
 			game.level().loadLevel(birdtownMsg);
-
 			this._entityQuery.registerQuery(EntityType.PLAYER, {
 				query: (player : Player) => { return player.canStep(); },
 				maxStaleness: 250,
 			});
-			this._entityQuery.query<Player>(EntityType.PLAYER).forEach((player : Player) => {
-				game.level().spawnPlayer(player);
-			});
 			break;
 		case GameState.GAME:
-			// Respawn again to reflect loadout changes
-			this._entityQuery.query<Player>(EntityType.PLAYER).forEach((player : Player) => {
-				game.level().spawnPlayer(player);
-			});
 			break;
 		case GameState.FINISH:
 			const alive = this._entityQuery.filter<Player>(EntityType.PLAYER, (player : Player) => {

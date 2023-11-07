@@ -13,6 +13,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
+import { KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 import { Timer, InterruptType } from 'util/timer'
@@ -21,6 +22,7 @@ export class PlayerState extends ClientSystem implements System {
 
 	private static readonly _respawnTime = 2000;
 
+	private _targetId : number;
 	private _role : PlayerRole;
 	private _points : number;
 	private _displayName : string;
@@ -30,6 +32,7 @@ export class PlayerState extends ClientSystem implements System {
 	constructor(clientId : number) {
 		super(SystemType.PLAYER_STATE, clientId);
 
+		this._targetId = 0;
 		this._role = PlayerRole.UNKNOWN;
 		this._points = 0;
 		this._displayName = "unknown";
@@ -37,6 +40,10 @@ export class PlayerState extends ClientSystem implements System {
 			interrupt: InterruptType.UNSTOPPABLE,
 		});
 
+		this.addProp<number>({
+			export: () => { return this._targetId; },
+			import: (obj : number) => { this._targetId = obj; },
+		});
 		this.addProp<PlayerRole>({
 			export: () => { return this._role; },
 			import: (obj: PlayerRole) => { this.setRole(obj); },
@@ -54,23 +61,6 @@ export class PlayerState extends ClientSystem implements System {
 	override setTargetEntity(entity : Entity) : void {
 		super.setTargetEntity(entity);
 		this.applyRole();
-	}
-
-	override handleMessage(msg : GameMessage) : void {
-		super.handleMessage(msg);
-
-		switch (msg.type()) {
-		case GameMessageType.CLIENT_JOIN:
-			const clientId = msg.getClientId();
-			if (clientId === this.clientId()) {
-				const displayName = msg.getDisplayName();
-				this.setDisplayName(displayName);
-			}
-			break;
-		case GameMessageType.GAME_STATE:
-			this.applyRole();
-			break;
-		}
 	}
 
 	override delete() : void {
@@ -122,29 +112,75 @@ export class PlayerState extends ClientSystem implements System {
 		}
 
 		switch (this._role) {
-		case PlayerRole.WAITING:
+		case PlayerRole.SPECTATING:
 	    	this.targetEntity().setState(GameObjectState.DEACTIVATED);
     		break;
     	case PlayerRole.GAMING:
-	    	this.targetEntity().setState(GameObjectState.NORMAL);
-
     		switch (game.controller().gameState()) {
-    		case GameState.SETUP:
-    			this.targetEntity().setState(GameObjectState.DISABLE_INPUT);
-    			break;
-		    default:
+    		case GameState.FREE:
     			this.targetEntity().setState(GameObjectState.NORMAL);
-		    	break;
+    			break;
+    		case GameState.SETUP:
+    			this.targetEntity().setState(GameObjectState.DEACTIVATED);
+    			break;
     		}
     		break;
+		}
+	}
+
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		switch (msg.type()) {
+		case GameMessageType.CLIENT_JOIN:
+			const clientId = msg.getClientId();
+			if (clientId === this.clientId()) {
+				const displayName = msg.getDisplayName();
+				this.setDisplayName(displayName);
+			}
+			break;
+		case GameMessageType.GAME_STATE:
+			if (msg.getGameState() === GameState.SETUP) {
+				this.resetPoints();
+			}
+			this.applyRole();
+			break;
 		}
 	}
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
 
+		if (this._targetId > 0 && (!this.hasTargetEntity() || this.targetEntity().id() !== this._targetId)) {
+			const [player, hasPlayer] = game.entities().getEntity(this._targetId);
+			if (hasPlayer) {
+				this.setTargetEntity(player);
+			}
+		}
+
+		// Spawning
+		if (this.clientIdMatches() && this.hasTargetEntity()) {
+			if (this.targetEntity().state() === GameObjectState.DEACTIVATED && game.controller().gameState() === GameState.GAME) {
+				let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
+				tooltipMsg.setTooltipType(TooltipType.SPAWN);
+				tooltipMsg.setTtl(1000);
+				ui.handleMessage(tooltipMsg);
+			}
+		}
+
 		if (!this.isSource()) {
 			return;
+		}
+
+		// Spawning part 2
+		// TODO: refactor this duplication
+		if (this.hasTargetEntity() && game.controller().gameState() === GameState.GAME) {
+			if (this.targetEntity().state() === GameObjectState.DEACTIVATED) {
+				if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
+					game.level().spawnPlayer(this.targetEntity());
+					this.targetEntity().setState(GameObjectState.NORMAL);
+				}
+			}
 		}
 
 		if (!this.hasTargetEntity() && game.controller().gameState() === GameState.FREE) {
@@ -160,7 +196,7 @@ export class PlayerState extends ClientSystem implements System {
 				},
 	    	});
 	    	if (hasPlayer) {
-	    		this.setTargetEntity(player);
+	    		this._targetId = player.id();
 		    	this.setRole(PlayerRole.GAMING);
 	    	}
 		}
@@ -168,13 +204,9 @@ export class PlayerState extends ClientSystem implements System {
 		if (this.hasTargetEntity()) {
 			switch (game.controller().gameState()) {
 			case GameState.FREE:
+			case GameState.GAME:
 				let player = this.targetEntity<Player>();
 				if (player.dead() && !this._respawnTimer.hasTimeLeft()) {
-					const [last, found] = player.stats().lastDamager(Date.now() - 10000);
-					if (found) {
-						console.log(last.name());
-						console.log(last.getAssociations());
-					}
 					this._respawnTimer.start(PlayerState._respawnTime, () => {
 						game.level().spawnPlayer(player);
 					});

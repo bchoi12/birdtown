@@ -7,6 +7,8 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { NetworkBehavior } from 'network/api'
 
+import { KeyType, KeyState } from 'ui/api'
+
 import { defined, isLocalhost } from 'util/common'
 
 export interface System extends GameObject {
@@ -132,6 +134,14 @@ export abstract class ClientSystem extends SystemBase implements System {
 
 	clientId() : number { return this._clientId; }
 	clientIdMatches() : boolean { return this._clientId === game.clientId(); }
+
+	key(type : KeyType, state : KeyState) : boolean {
+		if (!game.input().hasKeys(this.clientId())) {
+			return false;
+		}
+		const keys = game.keys(this.clientId());
+		return keys.getKey(type).keyState() === state;
+	}
 
 	override networkBehavior() : NetworkBehavior {
 		if (this.isHost()) {
