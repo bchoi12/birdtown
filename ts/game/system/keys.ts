@@ -102,6 +102,13 @@ export class Keys extends ClientSideSystem implements System {
 		}
 	}
 
+	override postUpdate(stepData : StepData) : void {
+		super.postUpdate(stepData);
+		if (this.isSource()) {
+			this.updateMouse();
+		}
+	}
+
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
 
@@ -122,7 +129,7 @@ export class Keys extends ClientSideSystem implements System {
 		this._mouse.copyVec({ x: mouseWorld.x, y: mouseWorld.y });
 
 		if (this.hasTargetEntity()) {
-			const profile = this.targetEntity().getProfile();
+			const profile = this.targetEntity().profile();
 			this._dir = this._mouse.clone().sub(profile.pos()).normalize();
 		}
 	}

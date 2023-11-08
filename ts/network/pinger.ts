@@ -4,7 +4,7 @@ import { Netcode } from 'network/netcode'
 import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { defined } from 'util/common'
-import { NumberRingBuffer } from 'util/number_ring_buffer'
+import { NumberRingBuffer } from 'util/buffer/number_ring_buffer'
 
 type PingData = {
 	seqNum : number;

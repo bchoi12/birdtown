@@ -115,7 +115,7 @@ export abstract class Beak extends Equip<Player> {
 				if (this._model.hasMesh()) {
 					sound.attachToMesh(this._model.mesh());
 				} else if (this.owner().hasProfile()) {
-					sound.setPosition(this.owner().getProfile().pos().toBabylon3());
+					sound.setPosition(this.owner().profile().pos().toBabylon3());
 				}
 				sound.play();
 			}, () => {

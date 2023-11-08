@@ -17,10 +17,9 @@ import { Buffer } from 'util/buffer'
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
-import { SeqMap } from 'util/seq_map'
-import { SmoothVec2 } from 'util/smooth_vector'
 import { Smoother } from 'util/smoother'
 import { Vec, Vec2 } from 'util/vector'
+import { SmoothVec2 } from 'util/vector/smooth_vector'
 
 type ReadyFn = (profile : Profile) => boolean;
 type BodyFn = (profile : Profile) => MATTER.Body;
@@ -218,8 +217,13 @@ export class Profile extends ComponentBase implements Component {
 	override setState(state : GameObjectState) : void {
 		super.setState(state);
 
-		if (state === GameObjectState.DEACTIVATED) {
-			this.uprightStop();
+		if (defined(this._body)) {
+			if (state === GameObjectState.DEACTIVATED) {
+				// Hack to remove the body from the scene.
+				MATTER.Body.setPosition(this._body, game.level().bounds().relativePos(CardinalDir.BOTTOM).sub({y: 10}));
+			} else {
+				MATTER.Body.setPosition(this._body, this.pos());
+			}
 		}
 	}
 
@@ -403,9 +407,9 @@ export class Profile extends ComponentBase implements Component {
 		const acc = Vec2.fromVec(distVec);
 		const slowDist = this._vel.lengthSq() / (2 * params.maxAccel);
 		if (distVec.lengthSq() > slowDist * slowDist) {
-			acc.normalize(params.maxAccel);
+			acc.normalize().scale(params.maxAccel);
 		} else {
-			acc.normalize(-params.maxAccel);
+			acc.normalize().scale(-params.maxAccel);
 		}
 		this.setAcc(acc);
 	} 

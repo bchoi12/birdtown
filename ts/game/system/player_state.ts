@@ -20,7 +20,7 @@ import { Timer, InterruptType } from 'util/timer'
 
 export class PlayerState extends ClientSystem implements System {
 
-	private static readonly _respawnTime = 2000;
+	private static readonly _respawnTime = 1500;
 
 	private _targetId : number;
 	private _role : PlayerRole;
@@ -59,6 +59,11 @@ export class PlayerState extends ClientSystem implements System {
 	}
 
 	override setTargetEntity(entity : Entity) : void {
+		if (entity.type() !== EntityType.PLAYER) {
+			console.error("%s: skipping setting non-player entity as target", this.name(), entity.name());
+			return;
+		}
+
 		super.setTargetEntity(entity);
 		this.applyRole();
 	}
@@ -111,20 +116,18 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
+		let player = this.targetEntity<Player>();
+
 		switch (this._role) {
 		case PlayerRole.SPECTATING:
-	    	this.targetEntity().setState(GameObjectState.DEACTIVATED);
-    		break;
+		case PlayerRole.WAITING:
+    	case PlayerRole.SPAWNING:
+	    	player.setState(GameObjectState.DEACTIVATED);
+    		break;   		
     	case PlayerRole.GAMING:
-    		switch (game.controller().gameState()) {
-    		case GameState.FREE:
-    			this.targetEntity().setState(GameObjectState.NORMAL);
-    			break;
-    		case GameState.SETUP:
-    			this.targetEntity().setState(GameObjectState.DEACTIVATED);
-    			break;
-    		}
-    		break;
+			game.level().spawnPlayer(player);
+			player.setState(GameObjectState.NORMAL);
+   			break;
 		}
 	}
 
@@ -140,10 +143,20 @@ export class PlayerState extends ClientSystem implements System {
 			}
 			break;
 		case GameMessageType.GAME_STATE:
-			if (msg.getGameState() === GameState.SETUP) {
+			switch (msg.getGameState()) {
+			case GameState.FREE:
+				this.setRole(PlayerRole.GAMING);
+				break;
+			case GameState.SETUP:
+				// TODO: this should be set by GameMaker since some clients may be spectating
+				this.setRole(PlayerRole.WAITING);
 				this.resetPoints();
+				break;
+			case GameState.GAME:
+				// TODO: this should also be set by GameMaker
+				this.setRole(PlayerRole.SPAWNING);
+				break;
 			}
-			this.applyRole();
 			break;
 		}
 	}
@@ -151,6 +164,7 @@ export class PlayerState extends ClientSystem implements System {
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
 
+		// Update target entity if we should
 		if (this._targetId > 0 && (!this.hasTargetEntity() || this.targetEntity().id() !== this._targetId)) {
 			const [player, hasPlayer] = game.entities().getEntity(this._targetId);
 			if (hasPlayer) {
@@ -158,59 +172,62 @@ export class PlayerState extends ClientSystem implements System {
 			}
 		}
 
-		// Spawning
-		if (this.clientIdMatches() && this.hasTargetEntity()) {
-			if (this.targetEntity().state() === GameObjectState.DEACTIVATED && game.controller().gameState() === GameState.GAME) {
-				let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
-				tooltipMsg.setTooltipType(TooltipType.SPAWN);
-				tooltipMsg.setTtl(1000);
-				ui.handleMessage(tooltipMsg);
-			}
+		// Show tooltip if we can spawn
+		if (this.clientIdMatches() && this.role() === PlayerRole.SPAWNING) {
+			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
+			tooltipMsg.setTooltipType(TooltipType.SPAWN);
+			tooltipMsg.setTtl(100);
+			ui.handleMessage(tooltipMsg);
 		}
 
 		if (!this.isSource()) {
 			return;
 		}
 
-		// Spawning part 2
-		// TODO: refactor this duplication
-		if (this.hasTargetEntity() && game.controller().gameState() === GameState.GAME) {
-			if (this.targetEntity().state() === GameObjectState.DEACTIVATED) {
-				if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
-					game.level().spawnPlayer(this.targetEntity());
-					this.targetEntity().setState(GameObjectState.NORMAL);
-				}
+		// Handle if no target entity yet
+		if (!this.hasTargetEntity()) {
+			if (game.controller().gameState() === GameState.FREE) {
+				let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
+					clientId: this.clientId(),
+					associationInit: {
+						associations: new Map([
+							[AssociationType.TEAM, 1 + (this.clientId() % 2)],
+						]),
+					},
+					profileInit: {
+		    			pos: game.level().defaultSpawn(),
+					},
+		    	});
+		    	if (hasPlayer) {
+		    		this.setTargetEntity(player);
+		    		this._targetId = player.id();
+			    	this.setRole(PlayerRole.GAMING);
+		    	}
+			}
+			return;
+		}
+
+		let player = this.targetEntity<Player>();
+
+		// Allow player to spawn by pressing a key
+		if (this.role() === PlayerRole.SPAWNING) {
+			if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
+				this.setRole(PlayerRole.GAMING);
 			}
 		}
 
-		if (!this.hasTargetEntity() && game.controller().gameState() === GameState.FREE) {
-			let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
-				clientId: this.clientId(),
-				associationInit: {
-					associations: new Map([
-						[AssociationType.TEAM, 1 + (this.clientId() % 2)],
-					]),
-				},
-				profileInit: {
-	    			pos: game.level().defaultSpawn(),
-				},
-	    	});
-	    	if (hasPlayer) {
-	    		this._targetId = player.id();
-		    	this.setRole(PlayerRole.GAMING);
-	    	}
-		}
-
-		if (this.hasTargetEntity()) {
+		// Respawn logic
+		if (player.dead() && !this._respawnTimer.hasTimeLeft() && this.role() === PlayerRole.GAMING) {
 			switch (game.controller().gameState()) {
 			case GameState.FREE:
+				this._respawnTimer.start(PlayerState._respawnTime, () => {
+					player.respawn(game.level().defaultSpawn());
+				});
+				break;
 			case GameState.GAME:
-				let player = this.targetEntity<Player>();
-				if (player.dead() && !this._respawnTimer.hasTimeLeft()) {
-					this._respawnTimer.start(PlayerState._respawnTime, () => {
-						game.level().spawnPlayer(player);
-					});
-				}
+				this._respawnTimer.start(PlayerState._respawnTime, () => {
+					this.setRole(PlayerRole.SPAWNING);
+				});
 				break;
 			}
 		}

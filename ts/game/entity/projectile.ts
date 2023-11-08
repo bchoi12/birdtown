@@ -28,7 +28,7 @@ export abstract class Projectile extends EntityBase {
 			return;
 		}
 
-		const profile = this.getProfile();
+		const profile = this.profile();
 		if (profile.initialized()) {
 			let [explosion, hasExplosion] = this.addEntity(EntityType.EXPLOSION, {
 				profileInit: {

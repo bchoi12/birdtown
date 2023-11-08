@@ -1,5 +1,5 @@
 
-import { RingBuffer } from 'util/ring_buffer'
+import { RingBuffer } from 'util/buffer/ring_buffer'
 
 export class NumberRingBuffer extends RingBuffer<number> {
 

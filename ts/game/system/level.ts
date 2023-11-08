@@ -75,7 +75,7 @@ export class Level extends SystemBase implements System {
 			return plane.initialized();
 		}, 1);
 		if (planes.length > 0) {
-			player.respawn(planes[0].getProfile().pos());
+			player.respawn(planes[0].profile().pos());
 			return;
 		}
 
@@ -83,7 +83,7 @@ export class Level extends SystemBase implements System {
 			return spawnPoint.initialized() && spawnPoint.matchAssociations([AssociationType.TEAM], player);
 		});
 		if (spawns.length > 0) {
-			player.respawn(spawns[0].getProfile().pos());
+			player.respawn(spawns[0].profile().pos());
 			return;
 		}
 
@@ -345,7 +345,7 @@ export class Level extends SystemBase implements System {
 			profileInit: {
 				pos: bounds.relativePos(CardinalDir.TOP_LEFT).add({
 					x: bounds.width() / 3,
-					y: 20,
+					y: 12,
 				}),
 			},
 		});

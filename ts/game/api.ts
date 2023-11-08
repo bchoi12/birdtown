@@ -50,6 +50,12 @@ export enum PlayerRole {
 	// Player is not participating, but is watching
 	SPECTATING,
 
+	// Player is participating, but game has not started and we're not yet ready to spawn
+	WAITING,
+
+	// Player is not in the game, but can spawn
+	SPAWNING,
+
 	// Player is actively participating in the game
 	GAMING,
 }

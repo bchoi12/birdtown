@@ -86,8 +86,8 @@ export class Model extends ComponentBase implements Component {
 	override setState(state : GameObjectState) : void {
 		super.setState(state);
 
-		this.onLoad((model : Model) => {
-			model.mesh().isVisible = (state !== GameObjectState.DEACTIVATED);
+		this.applyToMeshes((mesh : BABYLON.Mesh) => {
+			mesh.isVisible = (state !== GameObjectState.DEACTIVATED);
 		});
 	}
 
@@ -112,11 +112,8 @@ export class Model extends ComponentBase implements Component {
 	setMesh(mesh : BABYLON.Mesh) {
 		this._mesh = mesh;
 		this._mesh.name = this.entity().name();
-		this._mesh.metadata = {
-			entityId: this.entity().id(),
-		};
-		this._mesh.getChildMeshes<BABYLON.Mesh>().forEach((child : BABYLON.Mesh) => {
-			child.metadata = {
+		this.applyToMeshes((mesh : BABYLON.Mesh) => {
+			mesh.metadata = {
 				entityId: this.entity().id(),
 			};
 		});
@@ -146,6 +143,14 @@ export class Model extends ComponentBase implements Component {
 		} else {
 			this._onLoadFns.push(fn);
 		}
+	}
+	private applyToMeshes(fn : (mesh : BABYLON.Mesh) => void) : void {
+		this.onLoad((model : Model) => {
+			fn(model.mesh());
+			model.mesh().getChildMeshes<BABYLON.Mesh>().forEach((child : BABYLON.Mesh) => {
+				fn(child);
+			});
+		});
 	}
 
 	registerAnimation(animation : BABYLON.AnimationGroup, group? : number) { this._animationController.register(animation, group); }
@@ -187,7 +192,7 @@ export class Model extends ComponentBase implements Component {
 
 		this.resetTransforms();
 		if (this.entity().hasProfile()) {
-			this.addProfileTransforms(this.entity().getProfile());
+			this.addProfileTransforms(this.entity().profile());
 		}
 	}
 }

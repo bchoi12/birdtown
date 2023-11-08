@@ -100,8 +100,8 @@ export class Physics extends SystemBase implements System {
 				return;
 			}
 
-			const profileA = entityA.getProfile();
-			const profileB = entityB.getProfile();
+			const profileA = entityA.profile();
+			const profileB = entityB.profile();
 
 			// Smooth out normals that are nearly axis-aligned
 			// Ignore "pixel collisions"

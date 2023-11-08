@@ -14,7 +14,7 @@ import { settings } from 'settings'
 
 import { ui } from 'ui'
 
-import { NumberRingBuffer } from 'util/number_ring_buffer'
+import { NumberRingBuffer } from 'util/buffer/number_ring_buffer'
 
 export class Runner extends SystemBase implements System  {
 

@@ -76,7 +76,7 @@ export class Vec2 implements Vec {
     dist(other : Vec) : number { return Math.sqrt(this.distSq(other)); }
     lengthSq() : number { return this.x * this.x + this.y * this.y; }
     length() : number { return Math.sqrt(this.lengthSq()); }
-    normalize(magnitude? : number) : Vec2 {
+    normalize() : Vec2 {
         const len = this.length();
         if (len === 0) {
             this.x = 1;
@@ -86,12 +86,6 @@ export class Vec2 implements Vec {
 
         this.x /= len;
         this.y /= len;
-
-        if (magnitude) {
-            let sqrt = Math.sqrt(magnitude);
-            this.x *= sqrt;
-            this.y *= sqrt;
-        }
 
         return this;
     }
@@ -213,6 +207,9 @@ export class Vec2 implements Vec {
         }
         return this;
     }
+    interpolateClone(vec : Vec, t : number, interpFn : (t : number) => number) : Vec2 {
+        return this.clone().interpolate(vec, t, interpFn);
+    }
     lerp(vec : Vec, t : number) : Vec2 {
         return this.interpolate(vec, t, (t : number) => { return t;});
     }
@@ -262,6 +259,29 @@ export class Vec3 extends Vec2 implements Vec {
     static override one() : Vec3 { return new Vec3({x: 1, y: 1, z: 1}); }
     static override fromVec(vec : Vec) : Vec3 { return new Vec3(vec); }
 
+    override distSq(other : Vec) : number {
+        const zDist = this.z - other.z;
+        return super.distSq(other) + zDist;
+    }
+    override dist(other : Vec) : number { return Math.sqrt(this.distSq(other)); }
+    override lengthSq() : number { return this.x * this.x + this.y * this.y + this.z * this.z; }
+    override length() : number { return Math.sqrt(this.lengthSq()); }
+    override normalize() : Vec3 {
+        const len = this.length();
+        if (len === 0) {
+            this.x = 1;
+            this.y = 0;
+            this.z = 0;
+            return this;
+        }
+
+        this.x /= len;
+        this.y /= len;
+        this.z /= len;
+
+        return this;
+    }
+
     override add(vec : Vec) : Vec3 {
         super.add(vec);
         if (vec.z) {
@@ -284,7 +304,26 @@ export class Vec3 extends Vec2 implements Vec {
         return this;
     }
 
+    override interpolate(vec : Vec, t : number, interpFn : (t : number) => number) : Vec3 {
+        super.interpolate(vec, t, interpFn);
+        if (vec.hasOwnProperty("z")) {
+            this.z += (vec.z - this.z) * interpFn(t);
+        }
+        return this;
+    }
+    override interpolateClone(vec : Vec, t : number, interpFn : (t : number) => number) : Vec3 {
+        return this.clone().interpolate(vec, t, interpFn);
+    }
+    override lerp(vec : Vec, t : number) : Vec3 {
+        return this.interpolate(vec, t, (t : number) => { return t;});
+    }
 
+    override copy(vec : Vec3) : Vec3 { 
+        this.x = vec.x;
+        this.y = vec.y;
+        this.z = vec.z;
+        return this;
+    }
     override copyVec(vec : Vec) : Vec3 {
         super.copyVec(vec);
         if (vec.hasOwnProperty("z")) { this.z = vec.z; }

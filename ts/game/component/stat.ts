@@ -6,7 +6,7 @@ import { Entity } from 'game/entity'
 
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
-import { RingBuffer } from 'util/ring_buffer'
+import { RingBuffer } from 'util/buffer/ring_buffer'
 
 export type StatInitOptions = {
 	stat? : number;

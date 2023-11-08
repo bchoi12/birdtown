@@ -31,7 +31,7 @@ import { ui } from 'ui'
 
 import { defined, isLocalhost } from 'util/common'
 import { Html } from 'ui/html'
-import { NumberRingBuffer } from 'util/number_ring_buffer'
+import { NumberRingBuffer } from 'util/buffer/number_ring_buffer'
 
 interface GameOptions {
 	displayName : string;

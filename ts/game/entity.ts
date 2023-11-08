@@ -59,9 +59,9 @@ export interface Entity extends GameObject {
 
 	// Convenience getters/setters
 	hasModel() : boolean;
-	getModel() : Model;
+	model() : Model;
 	hasProfile() : boolean;
-	getProfile() : Profile;
+	profile() : Profile;
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
 
@@ -242,9 +242,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 
 	hasModel() : boolean { return this.hasComponent(ComponentType.MODEL); }
-	getModel() : Model { return this.getComponent<Model>(ComponentType.MODEL); }
+	model() : Model { return this.getComponent<Model>(ComponentType.MODEL); }
 	hasProfile() : boolean { return this.hasComponent(ComponentType.PROFILE); }
-	getProfile() : Profile { return this.getComponent<Profile>(ComponentType.PROFILE); }
+	profile() : Profile { return this.getComponent<Profile>(ComponentType.PROFILE); }
 
 	getAttribute(type : AttributeType) : boolean {
 		if (!this.hasComponent(ComponentType.ATTRIBUTES)) { return false; }

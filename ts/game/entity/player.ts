@@ -110,8 +110,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _collisionInfo : CollisionInfo;
 	private _eyeShifter : MaterialShifter;
 
-	// TODO: create state machine with mutually exclusive set of states?
-	private _jumpTimer : Timer;
+	private _canJumpTimer : Timer;
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
 
@@ -134,7 +133,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._collisionInfo = new CollisionInfo();
 		this._eyeShifter = new MaterialShifter();
 
-		this._jumpTimer = this.newTimer({
+		this._canJumpTimer = this.newTimer({
 			interrupt: InterruptType.RESTART,
 		});
 		this._canDoubleJump = true;
@@ -317,6 +316,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		return "player #" + this.clientId();
 	}
 	respawn(spawn : Vec2) : void {
+		this.setAttribute(AttributeType.GROUNDED, false);
+		this._canJumpTimer.stop();
+		this._canDoubleJump = false;
+
 		this._profile.setPos(spawn);
 		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
@@ -367,10 +370,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		if (this.isSource()) {
 			// Out of bounds
-			if (this._profile.pos().y < -8) {
+			if (this._profile.pos().y < game.level().bounds().min.y) {
 				this.takeDamage(this._stats.health(), this);
 			}
-			this._attributes.setAttribute(AttributeType.GROUNDED, this._jumpTimer.hasTimeLeft());
+			this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.hasTimeLeft());
 		}
 
 		this._deadTracker.check();
@@ -381,7 +384,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		const millis = stepData.millis;
 
 		// Gravity
-		const falling = !this._attributes.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0;
+		const falling = !this.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0;
 		const gravity = falling ? Player._fallMultiplier * GameGlobals.gravity : GameGlobals.gravity;
 		this._profile.setAcc({ y: gravity });
 
@@ -407,10 +410,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this._headSubProfile.setAngle(this._headDir.angleRad());
 
 			// Jumping
-			if (this._jumpTimer.hasTimeLeft()) {
+			if (this._canJumpTimer.hasTimeLeft()) {
 				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
 					this._profile.setVel({ y: Player._jumpVel });
-					this._jumpTimer.stop();
+					this._canJumpTimer.stop();
 				}
 			} else if (this._canDoubleJump) {
 				if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
@@ -425,7 +428,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this._profile.setVel({x: 0});
 		} else if (Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x)) {
 			let sideVel = this._profile.vel().x;
-			if (this._attributes.getAttribute(AttributeType.GROUNDED)) {
+			if (this.getAttribute(AttributeType.GROUNDED)) {
 				sideVel *= 1 / (1 + Player._friction * millis / 1000);
 			} else {
 				sideVel *= 1 / (1 + Player._airResistance * millis / 1000);
@@ -488,7 +491,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			if (normal.y > 0.5) {
 				this._canDoubleJump = true;
-				this._jumpTimer.start(Player._jumpGracePeriod);
+				this._canJumpTimer.start(Player._jumpGracePeriod);
 			}
 		}
 		this._profile.setVel(resolvedVel);
