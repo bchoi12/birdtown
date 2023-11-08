@@ -220,7 +220,7 @@ export class Profile extends ComponentBase implements Component {
 		if (defined(this._body)) {
 			if (state === GameObjectState.DEACTIVATED) {
 				// Hack to remove the body from the scene.
-				MATTER.Body.setPosition(this._body, game.level().bounds().relativePos(CardinalDir.BOTTOM).sub({y: 10}));
+				MATTER.Body.setPosition(this._body, { x: this.pos().x, y: game.level().bounds().min.y - 10 });
 			} else {
 				MATTER.Body.setPosition(this._body, this.pos());
 			}
