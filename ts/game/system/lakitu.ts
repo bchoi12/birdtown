@@ -140,12 +140,12 @@ export class Lakitu extends SystemBase implements System {
 		if (plane.length === 1) {
 			this.setTargetEntity(plane[0]);
 			this._panners.get(OffsetType.TARGET).pan({
-				goal: {x: 0, y: -5, z: 0},
+				goal: {x: 0, y: -7, z: 0},
 				millis: Lakitu._panTime,
 				interpType: InterpType.NEGATIVE_SQUARE,
 			});
 			this._panners.get(OffsetType.CAMERA).pan({
-				goal: {x: 0, y: 0, z: 60},
+				goal: {x: 0, y: 0, z: 75},
 				millis: Lakitu._panTime,
 				interpType: InterpType.NEGATIVE_SQUARE,
 			});
@@ -212,6 +212,7 @@ export class Lakitu extends SystemBase implements System {
 			case PlayerRole.GAMING:
 				this.targetPlayer();
 				break;
+			case PlayerRole.WAITING:
 			case PlayerRole.SPAWNING:
 				this.targetPlane();
 				break;
@@ -239,17 +240,6 @@ export class Lakitu extends SystemBase implements System {
 					}
 				}
 				break;
-			}
-
-			if (game.playerState().role() === PlayerRole.SPECTATING) {
-
-			} else if (game.playerState().hasTargetEntity()) {
-				// TODO: use PlayerRole and do not import GameObjectState
-				if (game.playerState().targetEntity().state() === GameObjectState.NORMAL) {
-					this.targetPlayer();
-				} else {
-					this.targetPlane();
-				}
 			}
 			break;
 		case GameState.FINISH:

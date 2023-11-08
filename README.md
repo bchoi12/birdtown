@@ -21,6 +21,8 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 ![devlog029](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog029.png?raw=true)
 
+![devlog030](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog030.png?raw=true)
+
 ## Game Engine Highlights
  * Custom built for the web with nearly instant load times
  * Cross platform support - play with any device that can run a (modern) web browser. Mobile controls coming soon™

@@ -345,7 +345,7 @@ export class Level extends SystemBase implements System {
 			profileInit: {
 				pos: bounds.relativePos(CardinalDir.TOP_LEFT).add({
 					x: bounds.width() / 3,
-					y: 12,
+					y: 17,
 				}),
 			},
 		});
