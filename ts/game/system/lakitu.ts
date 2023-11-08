@@ -145,7 +145,7 @@ export class Lakitu extends SystemBase implements System {
 				interpType: InterpType.NEGATIVE_SQUARE,
 			});
 			this._panners.get(OffsetType.CAMERA).pan({
-				goal: {x: 0, y: 0, z: 75},
+				goal: {x: 0, y: 0, z: 80 },
 				millis: Lakitu._panTime,
 				interpType: InterpType.NEGATIVE_SQUARE,
 			});
