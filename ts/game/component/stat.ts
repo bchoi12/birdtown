@@ -1,8 +1,10 @@
 
 import { Component, ComponentBase } from 'game/component'
-import { ComponentType, StatType } from 'game/component/api'
+import { ComponentType, AssociationType, StatType } from 'game/component/api'
+import { StatLog } from 'game/component/util/stat_log'
 import { StatNumber } from 'game/component/util/stat_number'
 import { Entity } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
@@ -14,18 +16,14 @@ export type StatInitOptions = {
 	max? : number;
 }
 
-export interface StatUpdate {
-	from? : Entity;
-	amount : number;
-}
-
-export interface StatLog extends StatUpdate {
-	timestamp : number;
+export type StatUpdate = {
+	delta : number;
+	entity? : Entity;
 }
 
 export class Stat extends ComponentBase implements Component {
 
-	private static readonly _bufferSize : number = 20;
+	private static readonly _bufferSize : number = 30;
 
 	private _stat : StatNumber;
 	private _min : Optional<StatNumber>;
@@ -115,50 +113,53 @@ export class Stat extends ComponentBase implements Component {
 			return;
 		}
 
-		if (update.amount < 0) {
+		if (update.delta < 0) {
 			if (this._min.has()) {
 				const min = this._min.get();
 				if (this._stat.get() <= min.get()) {
-					update.amount = 0;
+					update.delta = 0;
 				}
 
-				update.amount = Math.max(min.get() - this._stat.get(), update.amount);
+				update.delta = Math.max(min.get() - this._stat.get(), update.delta);
 			}
 		}
 
-		if (update.amount > 0) {
+		if (update.delta > 0) {
 			if (this._max.has()) {
 				const max = this._max.get();
 				if (this._stat.get() >= max.get()) {
-					update.amount = 0;
+					update.delta = 0;
 				}
 
-				update.amount = Math.max(max.get() - this._stat.get(), update.amount);
+				update.delta = Math.max(max.get() - this._stat.get(), update.delta);
 			}
 		}
 
-		if (update.amount === 0) {
+		if (update.delta === 0) {
 			return;
 		}
 
-		this._stat.add(update.amount);
-		this._logBuffer.push({
-			...update,
-			timestamp: Date.now(),
-		});
+		this._stat.add(update.delta);
+
+		if (update.entity) {
+			this._logBuffer.push(new StatLog({
+				timestamp: Date.now(),
+				delta: update.delta,
+				entity: update.entity,	
+			}));
+		}
 	}
 
-	flush(skip : (log : StatLog) => boolean, stop : (log : StatLog) => boolean) : [StatLog, boolean] {
+	flush(pick : (log : StatLog) => boolean, stop : (log : StatLog) => boolean) : [StatLog, boolean] {
 		while(!this._logBuffer.empty()) {
 			const log = this._logBuffer.pop();
 			if (stop(log)) {
 				break;
 			}
 
-			if (skip(log)) {
-				continue;
+			if (pick(log)) {
+				return [log, true];
 			}
-			return [log, true];
 		}
 
 		return [null, false];

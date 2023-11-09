@@ -38,7 +38,7 @@ export class Lakitu extends SystemBase implements System {
 
 	private static readonly _playerRateLimit = 250;
 
-	private static readonly _panTime = 1500;
+	private static readonly _panTime = 1000;
 	private static readonly _offsets = new Map<OffsetType, Vec3>([
 		[OffsetType.ANCHOR, Vec3.zero()],
 		[OffsetType.TARGET, new Vec3({ y: 0.5 })],
@@ -97,7 +97,7 @@ export class Lakitu extends SystemBase implements System {
 	}
 	private move(anchor : BABYLON.Vector3) : void {
 		this._target = anchor.clone();
-		this._target.y = Math.max(game.level().bounds().min.y + this._fov.y / 2, this._target.y);
+		this._target.y = Math.max(game.level().bounds().min.y + this._fov.y / 2 + 1, this._target.y);
 		const targetOffset = this.offset(OffsetType.TARGET);
 		this._target.addInPlaceFromFloats(targetOffset.x, targetOffset.y, targetOffset.z);
 
@@ -154,7 +154,6 @@ export class Lakitu extends SystemBase implements System {
 		return false;
 	}
 
-	override hasTargetEntity() : boolean { return super.hasTargetEntity() && !this.targetEntity().deleted(); }
 	override setTargetEntity(entity : Entity) {
 		if (!entity.hasProfile()) {
 			console.log("Error: target entity %s must have profile", entity.name());
@@ -184,7 +183,7 @@ export class Lakitu extends SystemBase implements System {
 		const realMillis = stepData.realMillis;
 
 		if (game.playerState().role() === PlayerRole.SPECTATING) {
-			// TODO: get a map from PlayerStates
+			// TODO: get a map from PlayerStates in postPhysics, delete this
 			game.entities().getMap(EntityType.PLAYER).executeIf<Player>((player : Player) => {
 				if (!this._players.has(player.id())) {
 					this._players.push(player.id(), player);

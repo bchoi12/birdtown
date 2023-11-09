@@ -1,4 +1,6 @@
 
+import { AssociationType } from 'game/component/api'
+
 export enum EntityType {
 	UNKNOWN,
 

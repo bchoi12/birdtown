@@ -333,7 +333,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	}
 	stats() : Stats { return this._stats; }
 	dead() : boolean { return this._stats.dead(); }
-	timeDead() : number { return this.dead() ? this._deadTracker.timeSinceChange() : 0; }
 
 	equip(equip : Equip<Player>) : void {
 		this._model.onLoad((m : Model) => {

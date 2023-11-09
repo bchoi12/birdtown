@@ -3,9 +3,11 @@ import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType, StatType } from 'game/component/api'
 import { Modifiers } from 'game/component/modifiers'
-import { Stat, StatLog, StatUpdate, StatInitOptions } from 'game/component/stat'
+import { Stat, StatUpdate, StatInitOptions } from 'game/component/stat'
+import { StatLog } from 'game/component/util/stat_log'
 
 import { Entity } from 'game/entity'
+import { EntityLog } from 'game/entity/util/entity_log'
 
 import { RingBuffer } from 'util/buffer/ring_buffer'
 import { defined } from 'util/common'
@@ -48,22 +50,17 @@ export class Stats extends ComponentBase implements Component {
 	health() : number { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).getCurrent(); }
 	dead() : boolean { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).atMin(); }
 
-	lastDamager(sinceMillis : number) : [Entity, boolean] {
-		const [log, found] = this.flushStat(StatType.HEALTH, (log : StatLog) => {
-			// Skip
-			if (!log.from || log.from.id() === this.entity().id()) {
-				return true;
+	lastDamager(sinceMillis : number) : [StatLog, boolean] {
+		return this.flushStat(StatType.HEALTH, (log : StatLog) => {
+			// Pick
+			if (!log.hasEntityLog() || log.entityLog().id() === this.entity().id()) {
+				return false;
 			}
-			return false;
+			return true;
 		}, (log : StatLog) => {
 			// Stop
-			return log.timestamp < sinceMillis;
+			return log.timestamp() < sinceMillis;
 		});
-
-		if (!found) {
-			return [null, false];
-		}
-		return [log.from, true];
 	}
 
 	addStat(type : StatType, init? : StatInitOptions) : void { this.registerSubComponent(type, new Stat(defined(init) ? init : {})); }
@@ -86,12 +83,11 @@ export class Stats extends ComponentBase implements Component {
 		this.getSubComponent<Stat>(type).updateStat(update);
 	}
 
-	private flushStat(type : StatType, skip : (log : StatLog) => boolean, stop : (log : StatLog) => boolean) : [StatLog, boolean] {
+	private flushStat(type : StatType, pick : (log : StatLog) => boolean, stop : (log : StatLog) => boolean) : [StatLog, boolean] {
 		if (!this.hasStat(type)) {
 			console.error("Error: attempting to flush nonexistent stat %d for %s", type, this.name());
 			return [null, false];
 		}
-
-		return this.getSubComponent<Stat>(type).flush(skip, stop);
+		return this.getSubComponent<Stat>(type).flush(pick, stop);
 	}
 }

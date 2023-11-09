@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 import { GameState, GameObjectState, PlayerRole } from 'game/api'
-import { AssociationType } from 'game/component/api'
+import { AssociationType, ComponentType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -20,6 +20,7 @@ import { Timer, InterruptType } from 'util/timer'
 
 export class PlayerState extends ClientSystem implements System {
 
+	private static readonly _lastDamageTime = 10000;
 	private static readonly _respawnTime = 1500;
 
 	private _targetId : number;
@@ -39,6 +40,8 @@ export class PlayerState extends ClientSystem implements System {
 		this._respawnTimer = this.newTimer({
 			interrupt: InterruptType.UNSTOPPABLE,
 		});
+
+		this.setRole(PlayerRole.SPECTATING);
 
 		this.addProp<number>({
 			export: () => { return this._targetId; },
@@ -203,7 +206,17 @@ export class PlayerState extends ClientSystem implements System {
 		    		this._targetId = player.id();
 			    	this.setRole(PlayerRole.GAMING);
 		    	}
+			} else {
+				this.setRole(PlayerRole.SPECTATING);
 			}
+			return;
+		}
+	}
+
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+
+		if (!this.isSource() || !this.hasTargetEntity()) {
 			return;
 		}
 
@@ -215,18 +228,28 @@ export class PlayerState extends ClientSystem implements System {
 				this.setRole(PlayerRole.GAMING);
 			}
 		}
+	}
+
+	override postUpdate(stepData : StepData) : void {
+		super.postUpdate(stepData);
+
+		if (!this.isSource() || !this.hasTargetEntity()) {
+			return;
+		}
+
+		let player = this.targetEntity<Player>();
 
 		// Respawn logic
 		if (player.dead() && !this._respawnTimer.hasTimeLeft() && this.role() === PlayerRole.GAMING) {
 			switch (game.controller().gameState()) {
-			case GameState.FREE:
-				this._respawnTimer.start(PlayerState._respawnTime, () => {
-					player.respawn(game.level().defaultSpawn());
-				});
-				break;
 			case GameState.GAME:
 				this._respawnTimer.start(PlayerState._respawnTime, () => {
 					this.setRole(PlayerRole.SPAWNING);
+				});
+				break;
+			default:
+				this._respawnTimer.start(PlayerState._respawnTime, () => {
+					player.respawn(game.level().defaultSpawn());
 				});
 				break;
 			}

@@ -56,9 +56,6 @@ export class Association extends ComponentBase implements Component {
 
 	toMap() : Map<AssociationType, number> {
 		let associations = new Map<AssociationType, number>();
-		this._associations.forEach((value : number, type : AssociationType) => {
-			associations.set(type, value);
-		});
 
 		if (this._owner.has() && this._owner.get().hasComponent(ComponentType.ASSOCIATION)) {
 			const ownerAssociations = this._owner.get().getComponent<Association>(ComponentType.ASSOCIATION);
@@ -66,6 +63,13 @@ export class Association extends ComponentBase implements Component {
 				associations.set(type, value);
 			});
 		}
+
+		this._associations.forEach((value : number, type : AssociationType) => {
+			if (!associations.has(type)) {
+				associations.set(type, value);
+			}
+		});
+
 		return associations;
 	}
 

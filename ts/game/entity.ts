@@ -70,7 +70,7 @@ export interface Entity extends GameObject {
 	matchAssociations(types : AssociationType[], other : Entity) : boolean;
 
 	// Stats methods
-	takeDamage(amount : number, from? : Entity) : void;
+	takeDamage(amount : number, from : Entity) : void;
 
 	// Profile methods
 	collide(collision : MATTER.Collision, other : Entity) : void;
@@ -259,11 +259,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		attributes.setAttribute(type, value);
 	}
 
-	takeDamage(amount : number, from? : Entity) : void {
+	takeDamage(delta : number, from? : Entity) : void {
 		if (!this.hasComponent(ComponentType.STATS)) { return; }
+
 		this.getComponent<Stats>(ComponentType.STATS).updateStat(StatType.HEALTH, {
-			amount: -amount,
-			...from && { from: from },
+			delta: -delta,
+			entity: from,
 		});
 	}
 	collide(collision : MATTER.Collision, other : Entity) : void {}
