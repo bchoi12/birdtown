@@ -16,6 +16,8 @@ import { Pipeline } from 'game/system/pipeline'
 import { PlayerState } from 'game/system/player_state'
 import { PlayerStates } from 'game/system/player_states'
 import { Runner } from 'game/system/runner'
+import { Tablet } from 'game/system/tablet'
+import { Tablets } from 'game/system/tablets'
 import { World } from 'game/system/world'
 
 import { Client } from 'network/client'
@@ -61,6 +63,7 @@ class Game {
 	private _physics : Physics;
 	private _pipeline : Pipeline;
 	private _playerStates : PlayerStates;
+	private _tablets : Tablets;
 	private _world : World;
 
 	constructor() {
@@ -88,6 +91,7 @@ class Game {
 		this._level = new Level();
 		this._physics = new Physics();
 		this._playerStates = new PlayerStates();
+		this._tablets = new Tablets();
 
 		this._world = new World(this._engine);
 		this._lakitu = new Lakitu(this._world.scene());
@@ -101,6 +105,7 @@ class Game {
 		this._runner.push(this._input);
 		this._runner.push(this._entities);
 		this._runner.push(this._physics);
+		this._runner.push(this._tablets);
 		this._runner.push(this._lakitu);
 		this._runner.push(this._pipeline);
 		this._runner.push(this._world);
@@ -184,6 +189,8 @@ class Game {
 	physics() : Physics { return this._physics; }
 	playerStates() : PlayerStates { return this._playerStates; }
 	playerState(id? : number) : PlayerState { return this._playerStates.getPlayerState(id); }
+	tablets() : Tablets { return this._tablets; }
+	tablet(id? : number) : Tablet { return this._tablets.getTablet(id); }
 	world() : World { return this._world; }
 
 }

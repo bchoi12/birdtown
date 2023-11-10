@@ -8,7 +8,7 @@ import { SystemBase, System } from 'game/system'
 import { SystemType, LevelType } from 'game/system/api'
 import { Controller } from 'game/system/controller'
 import { ClientSetup } from 'game/system/game_maker/client_setup'
-import { PlayerState } from 'game/system/player_state'
+import { Tablet } from 'game/system/tablet'
 import { EntityQuery } from 'game/util/entity_query'
 
 import { MessageObject } from 'message'
@@ -81,21 +81,6 @@ export class GameMaker extends SystemBase implements System {
 		}
 	}
 
-	override handleMessage(msg : GameMessage) : void {
-		super.handleMessage(msg);
-
-		switch (msg.type()) {
-		case GameMessageType.LEVEL_LOAD:
-			if (msg.hasDisplayName()) {
-		    	let uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-		    	uiMsg.setAnnouncementType(AnnouncementType.LEVEL);
-		    	uiMsg.setNames([msg.getDisplayName()]);
-		    	ui.handleMessage(uiMsg);
-			}
-			break;
-		}
-	}
-
 	setMode(mode : GameMode, config? : GameConfigMessage) : boolean {
 		this._config.resetToDefault(mode);
 		if (config) {
@@ -156,8 +141,9 @@ export class GameMaker extends SystemBase implements System {
 			if (this.timeLimitReached(current)) {
 				return GameState.FINISH;
 			}
-			const winners = game.playerStates().findAll<PlayerState>((playerState : PlayerState) => {
-				return playerState.points() >= 3;
+
+			const winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
+				return tablet.totalScore() >= 3;
 			});
 			if (winners.length >= 1) {
 				return GameState.FINISH;
@@ -186,6 +172,8 @@ export class GameMaker extends SystemBase implements System {
 
 		ui.clear();
 
+		// TODO: go through announcements here?
+
 		if (!this.isSource()) {
 			return;
 		}
@@ -206,33 +194,23 @@ export class GameMaker extends SystemBase implements System {
 			birdtownMsg.setLevelSeed(Math.floor(Math.random() * 10000));
 			birdtownMsg.setLevelVersion(game.level().version() + 1);
 			game.level().loadLevel(birdtownMsg);
-			this._entityQuery.registerQuery(EntityType.PLAYER, {
-				query: (player : Player) => { return player.canStep(); },
-				maxStaleness: 250,
-			});
+			game.tablets().reset();
 			break;
 		case GameState.GAME:
 			break;
 		case GameState.FINISH:
-			const alive = this._entityQuery.filter<Player>(EntityType.PLAYER, (player : Player) => {
-				return !player.dead();
-			});
-
-			// TODO: send GameStateMessage to clients
-			let winner = GameMaker._noWinner;
-			if (alive.length === 1) {
-				winner = alive[0].displayName();
-			}
-	    	let finishMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-	    	finishMsg.setAnnouncementType(AnnouncementType.GAME_FINISH);
-	    	finishMsg.setNames([winner]);
-	    	ui.handleMessage(finishMsg);
+			// TODO: let everyone see this
+	    	let winnerMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+	    	winnerMsg.setAnnouncementType(AnnouncementType.GAME_FINISH);
+	    	winnerMsg.setNames(["somebody (TODO)"]);
+	    	ui.handleMessage(winnerMsg);
 
 			break;
 		case GameState.VICTORY:
 			// TODO: announce victory
 			break;
 		case GameState.ERROR:
+			// TODO: let everyone see this
 	    	let errorMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
 	    	errorMsg.setAnnouncementType(AnnouncementType.GAME_ERROR);
 	    	errorMsg.setNames(["TODO: add the error message here"]);

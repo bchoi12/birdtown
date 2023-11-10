@@ -14,6 +14,10 @@ import { LevelType, SystemType } from 'game/system/api'
 
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
+import { UiMessage, UiMessageType } from 'message/ui_message'
+
+import { ui } from 'ui'
+import { AnnouncementType } from 'ui/api'
 
 import { Box, Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -136,7 +140,14 @@ export class Level extends SystemBase implements System {
 		}
 
 		this._levelMsg.setDisplayName(this.displayName());
+
     	game.runner().handleMessage(this._levelMsg);
+
+    	let uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+    	uiMsg.setAnnouncementType(AnnouncementType.LEVEL);
+    	uiMsg.setNames([this.displayName()]);
+    	ui.handleMessage(uiMsg);
+
 		if (isLocalhost()) {
 			console.log("%s: loaded level %s with seed %d, version %d", this.name(), LevelType[level], seed, version);
 		}
@@ -209,12 +220,6 @@ export class Level extends SystemBase implements System {
 						dim: EntityFactory.getDimension(EntityType.SIGN),
 					},
 				})
-
-				this.addEntity(EntityType.PLANE, {
-					profileInit: {
-						pos: pos.clone().add({ y: 12 }),
-					},
-				});
 			}
 
 

@@ -7,7 +7,7 @@ import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, ClientSystem } from 'game/system'
-import { SystemType } from 'game/system/api'
+import { SystemType, ScoreType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { UiMessage, UiMessageType } from 'message/ui_message'
@@ -25,8 +25,6 @@ export class PlayerState extends ClientSystem implements System {
 
 	private _targetId : number;
 	private _role : PlayerRole;
-	private _points : number;
-	private _displayName : string;
 
 	private _respawnTimer : Timer;
 
@@ -35,8 +33,6 @@ export class PlayerState extends ClientSystem implements System {
 
 		this._targetId = 0;
 		this._role = PlayerRole.UNKNOWN;
-		this._points = 0;
-		this._displayName = "unknown";
 		this._respawnTimer = this.newTimer({
 			interrupt: InterruptType.UNSTOPPABLE,
 		});
@@ -50,14 +46,6 @@ export class PlayerState extends ClientSystem implements System {
 		this.addProp<PlayerRole>({
 			export: () => { return this._role; },
 			import: (obj: PlayerRole) => { this.setRole(obj); },
-		});
-		this.addProp<number>({
-			export: () => { return this._points; },
-			import: (obj: number) => { this._points = obj; },
-		});
-		this.addProp<string>({
-			export: () => { return this.displayName(); },
-			import: (obj: string) => { this.setDisplayName(obj); },
 		});
 	}
 
@@ -82,24 +70,6 @@ export class PlayerState extends ClientSystem implements System {
 		uiMsg.setClientId(this.clientId());
 		ui.handleMessage(uiMsg);
 	}
-
-	setDisplayName(displayName : string) : void {
-		this._displayName = displayName;
-
-		this.addNameParams({
-			type: this._displayName,
-		});
-
-		const uiMsg = new UiMessage(UiMessageType.CLIENT_JOIN);
-		uiMsg.setClientId(this.clientId());
-		uiMsg.setDisplayName(this.displayName());
-		ui.handleMessage(uiMsg);
-	}
-	displayName() : string { return this._displayName; }
-
-	resetPoints() : void { this._points = 0; }
-	addPoints(points : number) : void { this._points += points; }
-	points() : number { return this._points; }
 
 	role() : PlayerRole { return this._role; }
 	setRole(role : PlayerRole) : void {
@@ -134,17 +104,35 @@ export class PlayerState extends ClientSystem implements System {
 		}
 	}
 
+	private updateTablet(player : Player) : void {
+		if (!this.isSource()) {
+			return;
+		}
+
+		let tablet = game.tablet(player.clientId());
+		tablet.addScore(ScoreType.DEATH, 1);		
+
+		const [log, hasLog] = player.stats().lastDamager(PlayerState._lastDamageTime);
+		if (!hasLog || !log.hasEntityLog()) {
+			return;
+		}
+
+		// Update tablet for last damager.
+		const associations = log.entityLog().associations();
+		if (associations.has(AssociationType.OWNER)) {
+			const damagerId = associations.get(AssociationType.OWNER);
+			const [damager, hasDamager] = game.entities().getEntity(damagerId);
+
+			if (hasDamager) {
+				game.tablet(damager.clientId()).addScore(ScoreType.KILL, 1);
+			}
+		}
+	}
+
 	override handleMessage(msg : GameMessage) : void {
 		super.handleMessage(msg);
 
 		switch (msg.type()) {
-		case GameMessageType.CLIENT_JOIN:
-			const clientId = msg.getClientId();
-			if (clientId === this.clientId()) {
-				const displayName = msg.getDisplayName();
-				this.setDisplayName(displayName);
-			}
-			break;
 		case GameMessageType.GAME_STATE:
 			switch (msg.getGameState()) {
 			case GameState.FREE:
@@ -153,7 +141,6 @@ export class PlayerState extends ClientSystem implements System {
 			case GameState.SETUP:
 				// TODO: this should be set by GameMaker since some clients may be spectating
 				this.setRole(PlayerRole.WAITING);
-				this.resetPoints();
 				break;
 			case GameState.GAME:
 				// TODO: this should also be set by GameMaker
@@ -243,6 +230,7 @@ export class PlayerState extends ClientSystem implements System {
 		if (player.dead() && !this._respawnTimer.hasTimeLeft() && this.role() === PlayerRole.GAMING) {
 			switch (game.controller().gameState()) {
 			case GameState.GAME:
+				this.updateTablet(player);
 				this._respawnTimer.start(PlayerState._respawnTime, () => {
 					this.setRole(PlayerRole.SPAWNING);
 				});

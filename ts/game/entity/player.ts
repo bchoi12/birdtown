@@ -309,12 +309,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this.updateLoadout();
 	}
 
-	displayName() : string {
-		if (game.playerStates().hasPlayerState(this.clientId())) {
-			return game.playerState(this.clientId()).displayName();
-		}
-		return "player #" + this.clientId();
-	}
+	displayName() : string { return game.tablet(this.clientId()).displayName(); }
 	respawn(spawn : Vec2) : void {
 		this.setAttribute(AttributeType.GROUNDED, false);
 		this._canJumpTimer.stop();

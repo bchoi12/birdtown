@@ -17,6 +17,8 @@ export enum SystemType {
 	PLAYER_STATE,
 	PLAYER_STATES,
 	PIPELINE,
+	TABLET,
+	TABLETS,
 	RUNNER,
 	WORLD,
 }
@@ -45,4 +47,11 @@ export enum SoundType {
 
 	BAWK,
 	EXPLOSION,
+}
+
+export enum ScoreType {
+	UNKNOWN,
+
+	KILL,
+	DEATH,
 }

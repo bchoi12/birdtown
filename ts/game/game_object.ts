@@ -487,9 +487,9 @@ export abstract class GameObjectBase {
 			} else {
 				const id = this.propToId(prop);
 				if (!this._childObjects.has(id)) {
-					if (this._factoryFn) {
+					if (this.hasFactoryFn()) {
 						// Create child if we can
-						this._factoryFn(id);
+						this.getFactoryFn()(id);
 					} else {
 						// Store data in a buffer for later
 						if (!this._dataBuffers.has(id)) {

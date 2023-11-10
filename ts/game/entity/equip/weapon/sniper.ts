@@ -67,7 +67,7 @@ export class Sniper extends Weapon {
 
 		if (hasBolt) {
 			this.recordUse();
-			bolt.setTTL(1000);
+			bolt.setTTL(750);
 		}
 
 		this.reload(125);

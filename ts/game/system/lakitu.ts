@@ -1,7 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
-import { GameState, PlayerRole, GameObjectState } from 'game/api'
+import { GameState, PlayerRole } from 'game/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -276,9 +276,7 @@ export class Lakitu extends SystemBase implements System {
 			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
 			tooltipMsg.setTooltipType(TooltipType.SPECTATING);
 			tooltipMsg.setTtl(100);
-			if (game.playerStates().hasPlayerState(this.targetEntity().clientId())) {
-				tooltipMsg.setNames([game.playerState(this.targetEntity().clientId()).displayName()]);
-			}
+			tooltipMsg.setNames([game.tablet(this.targetEntity().clientId()).displayName()]);
 			ui.handleMessage(tooltipMsg);
 		}
 	}

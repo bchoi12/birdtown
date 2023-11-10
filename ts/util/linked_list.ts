@@ -1,6 +1,4 @@
 
-import { defined } from 'util/common'
-
 type ComparatorFn<T> = (a : T, b : T) => boolean;
 
 export class LinkedNode<T> {
@@ -17,11 +15,11 @@ export class LinkedNode<T> {
 	setValue(value : T) : void { this._value = value; }
 	value() : T { return this._value; }
 
-	hasNext() : boolean { return defined(this._next); }
+	hasNext() : boolean { return this._next !== null; }
 	setNext(next : LinkedNode<T>) { this._next = next; }
 	next() : LinkedNode<T> { return this._next; }
 
-	hasPrev() : boolean { return defined(this._prev); }
+	hasPrev() : boolean { return this._prev !== null; }
 	setPrev(prev : LinkedNode<T>) { this._prev = prev; }
 	prev() : LinkedNode<T> { return this._prev; }
 }
@@ -38,10 +36,30 @@ export class LinkedList<T> {
 		this._size = 0;
 	}
 
-	push(value : T) : void {
+	size() : number { return this._size; }
+	empty() : boolean { return this._head === null; }
+	head() : LinkedNode<T> { return this._head; }
+	tail() : LinkedNode<T> { return this._tail; }
+
+	peekFirst() : T { return this._head !== null ? this._head.value() : null; }
+	peekLast() : T { return this._tail !== null ? this._tail.value() : null; }
+	popFirst() : T {
+		if (this._head === null) {
+			return null;
+		}
+		return this.delete(this._head);
+	}
+	popBack() : T {
+		if (this._tail === null) {
+			return null;
+		}
+		return this.delete(this._tail);
+	}
+
+	push(value : T) : T {
 		this._size++;
 
-		if (!defined(this._head)) {
+		if (this._head === null) {
 			this._head = new LinkedNode<T>(value);
 			this._tail = this._head;
 			return;
@@ -51,32 +69,34 @@ export class LinkedList<T> {
 		node.setPrev(this._tail);
 		this._tail.setNext(node);
 		this._tail = node;
+		return node.value();
 	}
 
-	size() : number { return this._size; }
-	empty() : boolean { return !defined(this._head); }
-	head() : LinkedNode<T> { return this._head; }
-	tail() : LinkedNode<T> { return this._tail; }
+	insert(value : T, comparator : ComparatorFn<T>) : T {
+		if (this.empty()) {
+			return this.push(value);
+		}
 
-	insert(value : T, comparator : ComparatorFn<T>) : void {
 		let current = this._head;
-
-		while(defined(current)) {
+		while(current !== this._tail) {
 			if (comparator(value, current.value())) {
-				let node = new LinkedNode<T>(value);
-				if (current.hasPrev()) {
-					let prev = current.prev();
-					node.setPrev(prev);
-					prev.setNext(node);
-				}
-				current.setPrev(node);
-				node.setNext(current);
+				break;
 			}
 			current = current.next();
 		}
+
+		let node = new LinkedNode<T>(value);
+		if (current.hasPrev()) {
+			let prev = current.prev();
+			node.setPrev(prev);
+			prev.setNext(node);
+		}
+		current.setPrev(node);
+		node.setNext(current);
+		return node.value();
 	}
 
-	delete(node : LinkedNode<T>) : void {
+	delete(node : LinkedNode<T>) : T {
 		if (node.hasPrev()) {
 			let prev = node.prev();
 			prev.setNext(node.next());
@@ -86,5 +106,7 @@ export class LinkedList<T> {
 			let next = node.next();
 			next.setPrev(node.prev());
 		}
+
+		return node.value();
 	}
 }

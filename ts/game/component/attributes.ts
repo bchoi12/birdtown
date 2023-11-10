@@ -32,7 +32,7 @@ export class Attributes extends ComponentBase implements Component {
 				continue;
 			}
 
-			this.registerProp<boolean>(attribute, {
+			this.addProp<boolean>({
 				has: () => { return this.hasAttribute(attribute); },
 				export: () => { return this.getAttribute(attribute); },
 				import: (obj : boolean) => { this.setAttribute(attribute, obj); },

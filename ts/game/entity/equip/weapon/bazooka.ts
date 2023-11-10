@@ -68,7 +68,7 @@ export class Bazooka extends Weapon {
 
 		if (hasRocket) {
 			this.recordUse();
-			rocket.setTTL(1000, () => {
+			rocket.setTTL(750, () => {
 				rocket.explode();
 			});
 		}

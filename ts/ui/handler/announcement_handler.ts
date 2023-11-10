@@ -57,9 +57,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		const announcement = this._announcements.shift();
 		const htmls = this.getHtmls(announcement);
 		this._mainAnnouncementElm.innerHTML = htmls.main;
-		if (htmls.sub) {
-			this._subAnnouncementElm.innerHTML = htmls.sub;
-		}
+		this._subAnnouncementElm.innerHTML = htmls.sub ? htmls.sub : "";
 		this._announcementElm.style.display = "block";
 		this._active = true;
 
