@@ -47,7 +47,7 @@ export class Stats extends ComponentBase implements Component {
 	}
 
 	// Convenience methods
-	health() : number { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).getCurrent(); }
+	health() : number { return this.hasStat(StatType.HEALTH) ? this.getStat(StatType.HEALTH).getCurrent() : 0; }
 	dead() : boolean { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).atMin(); }
 
 	lastDamager(sinceMillis : number) : [StatLog, boolean] {

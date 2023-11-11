@@ -14,7 +14,7 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
-import { Timer, InterruptType } from 'util/timer'
+import { Timer} from 'util/timer'
 import { Vec2 } from 'util/vector'
 
 export abstract class Weapon extends Equip<Player> {
@@ -46,7 +46,7 @@ export abstract class Weapon extends Equip<Player> {
 		}));
 
 		this._reloadTimer = this.newTimer({
-			interrupt: InterruptType.UNSTOPPABLE,
+			canInterrupt: false,
 		});
 	}
 

@@ -19,7 +19,6 @@ import { Equip } from 'game/entity/equip'
 import { CounterType, KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
-import { InterruptType } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
 export type EntityOptions = {
@@ -103,7 +102,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		if (entityOptions.offline) {
 			this.setOffline(true);
-			console.log(this.name());
 		}
 		if (entityOptions.levelVersion) {
 			this._levelVersion = entityOptions.levelVersion;
@@ -176,7 +174,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	getCounts() : Map<CounterType, number> { return new Map(); }
 	setTTL(ttl : number, onDelete? : () => void) : void {
 		const timer = this.newTimer({
-			interrupt: InterruptType.UNSTOPPABLE,
+			canInterrupt: true,
 		});
 		timer.start(ttl, () => {
 			if (onDelete) {

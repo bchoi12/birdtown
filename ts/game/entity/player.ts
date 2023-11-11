@@ -8,6 +8,7 @@ import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierPl
 import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
 import { EntityTrackers } from 'game/component/entity_trackers'
+import { Expression } from 'game/component/expression'
 import { Model } from 'game/component/model'
 import { Modifiers } from 'game/component/modifiers'
 import { Profile } from 'game/component/profile'
@@ -32,8 +33,9 @@ import { KeyType, KeyState, CounterType } from 'ui/api'
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
 import { ChangeTracker } from 'util/change_tracker'
+import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
-import { Timer, InterruptType } from 'util/timer'
+import { Timer} from 'util/timer'
 import { Vec, Vec2 } from 'util/vector'
 
 enum AnimationGroup {
@@ -65,10 +67,12 @@ enum Material {
 	EYE = "eye",
 }
 
-enum Expression {
+enum Emotion {
 	UNKNOWN,
 	NORMAL,
 	MAD,
+	SAD,
+	DEAD,
 }
 
 enum SubProfile {
@@ -117,6 +121,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _association : Association;
 	private _attributes : Attributes;
 	private _entityTrackers : EntityTrackers;
+	private _expression : Expression<Emotion>;
 	private _model : Model;
 	private _modifiers : Modifiers;
 	private _profile : Profile;
@@ -134,7 +139,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._eyeShifter = new MaterialShifter();
 
 		this._canJumpTimer = this.newTimer({
-			interrupt: InterruptType.RESTART,
+			canInterrupt: true,
 		});
 		this._canDoubleJump = true;
 		this._deadTracker = new ChangeTracker(() => {
@@ -147,6 +152,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._profile.resetInertia();
 				this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
 				this._profile.setAcc({x: 0});
+				this._expression.setOverride(Emotion.DEAD);
 			} else {
 				this._profile.setInertia(Infinity);
 				this._profile.setAngularVelocity(0);
@@ -169,6 +175,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._attributes.setAttribute(AttributeType.SOLID, true);
 
 		this._entityTrackers = this.addComponent<EntityTrackers>(new EntityTrackers());
+
+		this._expression = this.addComponent<Expression<Emotion>>(new Expression({ defaultValue: Emotion.NORMAL }));
 
 		const collisionGroup = MATTER.Body.nextGroup(/*ignoreCollisions=*/true);
 		this._profile = this.addComponent<Profile>(new Profile({
@@ -233,8 +241,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 								min: {x: 0, y: 0},
 								max: {x: 4, y: 1},
 							}));
-							this._eyeShifter.registerOffset(Expression.NORMAL, {x: 0, y: 0});
-							this._eyeShifter.registerOffset(Expression.MAD, {x: 1, y: 0});
+							this._eyeShifter.registerOffset(Emotion.NORMAL, {x: 0, y: 0});
+							this._eyeShifter.registerOffset(Emotion.MAD, {x: 1, y: 0});
+							this._eyeShifter.registerOffset(Emotion.SAD, {x: 2, y: 0});
+							this._eyeShifter.registerOffset(Emotion.DEAD, {x: 3, y: 0});
 						}
 					});
 
@@ -311,9 +321,13 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	displayName() : string { return game.tablet(this.clientId()).displayName(); }
 	respawn(spawn : Vec2) : void {
+		// TODO: try just calling reset()?
+
 		this.setAttribute(AttributeType.GROUNDED, false);
 		this._canJumpTimer.stop();
 		this._canDoubleJump = false;
+
+		this._expression.reset();
 
 		this._profile.setPos(spawn);
 		this._profile.uprightStop();
@@ -323,8 +337,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._stats.reset();
 		this._stats.processComponent<Modifiers>(this._modifiers);
 		this._profile.processComponent<Stats>(this._stats);
-
-		this._eyeShifter.offset(Expression.NORMAL);  
 	}
 	stats() : Stats { return this._stats; }
 	dead() : boolean { return this._stats.dead(); }
@@ -358,6 +370,17 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 		});
 	}
+
+	override takeDamage(amount : number, from : Entity) : void {
+		super.takeDamage(amount, from);
+
+		this._expression.emote(Emotion.SAD, {
+			max: 1.0,
+			delta: Fns.clamp(0, amount / 100, 1),
+			millis: 1500,
+		});
+	}
+
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
@@ -501,17 +524,22 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		// Perform any required actions when using equips
 		this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP).execute((equip : Equip<Player>) => {
-			if (equip.hasUse()) {
+			const uses = equip.popUses();
+			if (uses > 0) {
 				switch(equip.attachType()) {
 				case AttachType.ARM:
 					this._armRecoil = equip.recoilType();
+					this._expression.emote(Emotion.MAD, {
+						max: 1.0,
+						delta: uses / 3,
+						millis: 1000,
+					});
 					break;
 				}
-				equip.consumeUses();
-				this._eyeShifter.offset(Expression.MAD);
 			}
 		});
 
+		// Animation and expression
 		if (!this._attributes.getAttribute(AttributeType.GROUNDED) || this.dead()) {
 			this._model.playAnimation(Animation.JUMP);
 		} else {
@@ -521,6 +549,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._model.playAnimation(Animation.WALK);
 			}
 		}
+		this._eyeShifter.offset(this._expression.emotion());
 
 		if (this.clientIdMatches() && !this.dead()) {
 			this.recomputeDir(game.keys(this.clientId()).dir());

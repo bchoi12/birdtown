@@ -1,7 +1,7 @@
 
 import { FnGlobals, InterpType } from 'global/fn_globals'
 
-import { Timer, InterruptType } from 'util/timer'
+import { Timer } from 'util/timer'
 import { Vec, Vec3 } from 'util/vector'
 
 export type PanOptions = {
@@ -23,7 +23,7 @@ export class Panner {
 		this._base = Vec3.fromVec(vec);
 		this._goal = Vec3.fromVec(vec);
 		this._timer = new Timer({
-			interrupt: InterruptType.RESTART,
+			canInterrupt: true,
 		});
 		this._interpFn = FnGlobals.interpFns.get(InterpType.LINEAR);
 	}

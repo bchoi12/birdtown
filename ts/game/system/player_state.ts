@@ -16,7 +16,7 @@ import { ui } from 'ui'
 import { KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
-import { Timer, InterruptType } from 'util/timer'
+import { Timer} from 'util/timer'
 
 export class PlayerState extends ClientSystem implements System {
 
@@ -34,7 +34,7 @@ export class PlayerState extends ClientSystem implements System {
 		this._targetId = 0;
 		this._role = PlayerRole.UNKNOWN;
 		this._respawnTimer = this.newTimer({
-			interrupt: InterruptType.UNSTOPPABLE,
+			canInterrupt: false,
 		});
 
 		this.setRole(PlayerRole.SPECTATING);

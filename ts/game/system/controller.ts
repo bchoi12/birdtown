@@ -14,7 +14,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
-import { Timer, InterruptType } from 'util/timer'
+import { Timer} from 'util/timer'
 
 export class Controller extends SystemBase implements System {
 

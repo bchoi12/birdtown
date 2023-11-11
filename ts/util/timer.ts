@@ -1,15 +1,8 @@
 
 import { Fns } from 'util/fns'
 
-export enum InterruptType {
-	UNKNOWN,
-
-	RESTART,
-	UNSTOPPABLE,
-}
-
 export type TimerOptions = {
-	interrupt: InterruptType;
+	canInterrupt: boolean;
 }
 
 export class Timer {
@@ -36,7 +29,7 @@ export class Timer {
 			return;
 		}
 
-		if (this._options.interrupt === InterruptType.UNSTOPPABLE && this.hasTimeLeft()) {
+		if (!this._options.canInterrupt && this.hasTimeLeft()) {
 			return;
 		}
 

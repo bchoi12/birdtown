@@ -18,7 +18,7 @@ import { CounterType, KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
-import { Timer, InterruptType } from 'util/timer'
+import { Timer} from 'util/timer'
 import { Vec2 } from 'util/vector'
 
 export class BirdBrain extends Equip<Player> {
@@ -39,7 +39,7 @@ export class BirdBrain extends Equip<Player> {
 
 		this._targetId = new Optional();
 		this._usageTimer = this.newTimer({
-			interrupt: InterruptType.UNSTOPPABLE,
+			canInterrupt: false,
 		});
 		this._canCharge = false;
 		this._juice = 100;

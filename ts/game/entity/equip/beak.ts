@@ -14,7 +14,7 @@ import { StepData } from 'game/game_object'
 
 import { KeyType, KeyState } from 'ui/api'
 
-import { Timer, InterruptType } from 'util/timer'
+import { Timer} from 'util/timer'
 
 enum Animation {
 	IDLE = "Idle",
@@ -37,7 +37,7 @@ export abstract class Beak extends Equip<Player> {
 
 		this._squawking = false;
 		this._squawkTimer = this.newTimer({
-			interrupt: InterruptType.UNSTOPPABLE,
+			canInterrupt: false,
 		});
 
 		this.addProp<boolean>({
@@ -94,7 +94,7 @@ export abstract class Beak extends Equip<Player> {
 
 		if (!this._model.hasMesh()) { return; }
 
-		if (this._squawking) {
+		if (this._squawking || this._owner.dead()) {
 			this._model.playAnimation(Animation.SQUAWK);
 		} else {
 			this._model.playAnimation(Animation.IDLE);

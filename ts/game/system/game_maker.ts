@@ -9,7 +9,6 @@ import { SystemType, LevelType } from 'game/system/api'
 import { Controller } from 'game/system/controller'
 import { ClientSetup } from 'game/system/game_maker/client_setup'
 import { Tablet } from 'game/system/tablet'
-import { EntityQuery } from 'game/util/entity_query'
 
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType} from 'message/game_message'
@@ -27,8 +26,6 @@ export class GameMaker extends SystemBase implements System {
 
 	private _config : GameConfigMessage;
 	private _clientSetup : ClientSetup;
-	// TODO: remove EntityQuery and use PlayerStates
-	private _entityQuery : EntityQuery;
 
 	private _round : number;
 	private _lastStateChange : number;
@@ -38,7 +35,6 @@ export class GameMaker extends SystemBase implements System {
 
 		this._config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
 		this._clientSetup = new ClientSetup(/*refreshTime=*/250);
-		this._entityQuery = new EntityQuery();
 		this._round = 0;
 		this._lastStateChange = Date.now();
 

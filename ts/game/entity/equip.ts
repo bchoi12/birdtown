@@ -84,8 +84,11 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 	// Record instance of equip use. Only needed if some action is performed on use (e.g. recoil)
 	protected recordUse() : void { this._useCounter++; }
-	hasUse() : boolean { return this._useCounter > this._consumedUseCounter; }
-	consumeUses() : void { this._consumedUseCounter = this._useCounter; }
+	popUses() : number {
+		const uses = this._useCounter - this._consumedUseCounter;
+		this._consumedUseCounter = this._useCounter;
+		return uses;
+	}
 	recoilType() : number { return RecoilType.NONE; }
 
 	abstract displayName() : string;
