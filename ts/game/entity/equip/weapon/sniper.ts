@@ -25,11 +25,6 @@ export class Sniper extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.SNIPER, options);
 
-		this.addNameParams({
-			base: "sniper",
-			id: this.id(),
-		});
-
 		this._attributes.setAttribute(AttributeType.READY, true);
 	}
 
@@ -59,7 +54,6 @@ export class Sniper extends Weapon {
 			},
 			profileInit: {
 				pos: {x: pos.x, y: pos.y},
-				dim: {x: 0.2, y: 0.1},
 				vel: vel,
 				angle: vel.angleRad(),
 			},

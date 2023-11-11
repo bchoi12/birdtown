@@ -25,11 +25,6 @@ export class Bazooka extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.BAZOOKA, options);
 
-		this.addNameParams({
-			base: "bazooka",
-			id: this.id(),
-		});
-
 		this._attributes.setAttribute(AttributeType.READY, true);
 	}
 
@@ -60,7 +55,6 @@ export class Bazooka extends Weapon {
 			},
 			profileInit: {
 				pos: {x: pos.x, y: pos.y},
-				dim: {x: 0.3, y: 0.3},
 				vel: vel,
 				acc: acc,
 			},

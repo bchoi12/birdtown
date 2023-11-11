@@ -42,17 +42,21 @@ export namespace EntityFactory {
 	]);
 
 	export const staticDimensions = new Map<EntityType, Vec>([
-		[EntityType.ARCH_ROOM, { x: 12, y: 6 }],
-		[EntityType.ARCH_ROOF, { x: 12, y: 1 }],
-		[EntityType.PLANE, {x: 10.5, y: 4}],
-		[EntityType.PLAYER, {x: 0.8, y: 1.44 }],
-		[EntityType.SIGN, {x: 3, y: 2}],
-		[EntityType.SPAWN_POINT, {x: 1, y: 1}],
+		[EntityType.ARCH_ROOM, { x: 12, y: 6, z: 8 }],
+		[EntityType.ARCH_ROOF, { x: 12, y: 1, z: 8 }],
+		[EntityType.BOLT, { x: 0.2, y: 0.1, z : 0.1 }],
+		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
+		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],
+		[EntityType.ROCKET, { x: 0.3, y: 0.3, z: 0.3 }],
+		[EntityType.SIGN, {x: 3, y: 2, z: 0.2 }],
+		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],
 	]);
+
+	// Also includes dimensions that can change.
 	export const dimensions = new Map<EntityType, Vec>([
 		...staticDimensions,
 		[EntityType.CRATE, {x: 1, y: 1, z: 1 }],
-	])
+	]);
 
 	export function hasCreateFn(type : EntityType) : boolean { return createFns.has(type); }
 	export function create<T extends Entity>(type : EntityType, options : EntityOptions) : T {
