@@ -22,14 +22,15 @@ serializableRegex.add(".*Type");
 //
 const version = "2.1";
 
-const enumClass = "GameProp";
+const enumClass = "UiProp";
 const map = new Map<string, string>([
+    ["ANNOUNCEMENT_TYPE", "AnnouncementType"],
     ["CLIENT_ID", "number"],
+    ["DIALOG_TYPE", "DialogType"],
     ["DISPLAY_NAME", "string"],
-    ["GAME_STATE", "number"],
-    ["LEVEL_SEED", "number"],
-    ["LEVEL_TYPE", "LevelType"],
-    ["LEVEL_VERSION", "number"],
+    ["NAMES", "Array<string>"],
+    ["TOOLTIP_TYPE", "TooltipType"],
+    ["TTL", "number"],
 ]);
 //
 // End params

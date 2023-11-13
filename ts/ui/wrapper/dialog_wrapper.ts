@@ -6,7 +6,7 @@ import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
 type OnSubmitFn = () => void;
 
-export class DialogWrapper extends HtmlWrapper<HTMLElement> {
+export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _titleElm : HTMLElement;
 	private _textElm : HTMLElement;
@@ -34,13 +34,21 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._onSubmitFns = new Array();
 	}
 
-	addPage(page : PageWrapper) : void {
+	addPage() : PageWrapper {
+		let page = new PageWrapper();
+
+		if (this._pages.length > 0) {
+			this._pages[this._pages.length - 1].setOnSubmit(() => { this.nextPage(); });
+		}
+
+		page.setOnSubmit(() => { this.submit(); });
 		this._pages.push(page);
 		this.elm().appendChild(page.elm());
 
 		if (this._pages.length > 1) {
 			page.elm().style.display = "none";
 		}
+		return page;
 	}
 	nextPage() : void {
 		if (this._pageIndex >= this._pages.length - 1) {

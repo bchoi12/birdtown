@@ -74,7 +74,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		const names = msg.getNamesOr([]);
 		switch (type) {
 		case TooltipType.CONSOLE:
-			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game.";
+			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game.\n(2+ players required)";
 		case TooltipType.SPAWN:
 			return "Press " + KeyNames.boxed(settings.jumpKeyCode) + " to deploy the chicken."
 		case TooltipType.SPECTATING:

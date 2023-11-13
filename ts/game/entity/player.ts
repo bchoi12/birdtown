@@ -28,7 +28,7 @@ import { MaterialShifter } from 'game/util/material_shifter'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { KeyType, KeyState, CounterType } from 'ui/api'
+import { CounterType, DialogType, KeyType, KeyState } from 'ui/api'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -377,7 +377,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._expression.emote(Emotion.SAD, {
 			max: 1.0,
 			delta: Fns.clamp(0, amount / 100, 1),
-			millis: 1500,
+			millis: 2000,
 		});
 	}
 
@@ -532,7 +532,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					this._expression.emote(Emotion.MAD, {
 						max: 1.0,
 						delta: uses / 3,
-						millis: 1000,
+						millis: 3000,
 					});
 					break;
 				}
@@ -625,7 +625,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				}
 			}
 
-			const loadout = game.clientDialog(this.clientId()).loadoutMsg();
+			const loadout = game.clientDialog(this.clientId()).message(DialogType.PICK_LOADOUT);
 
 			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.getPlayerType());
 			this._entityTrackers.clearEntityType(EntityType.EQUIP);

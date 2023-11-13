@@ -2,6 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { System } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
+import { Announcer } from 'game/system/announcer'
 import { Audio } from 'game/system/audio'
 import { Controller } from 'game/system/controller'
 import { ClientDialog } from 'game/system/client_dialog'
@@ -53,6 +54,7 @@ class Game {
 	private _netcode : Netcode;
 
 	private _runner : Runner;
+	private _announcer : Announcer;
 	private _audio : Audio;
 	private _clientDialogs : ClientDialogs;
 	private _entities : Entities;
@@ -83,6 +85,7 @@ class Game {
 		window.onresize = () => { this._engine.resize(); };
 
 		this._runner = new Runner();
+		this._announcer = new Announcer();
 		this._audio = new Audio();
 		this._clientDialogs = new ClientDialogs();
 		this._entities = new Entities();
@@ -109,6 +112,7 @@ class Game {
 		this._runner.push(this._lakitu);
 		this._runner.push(this._pipeline);
 		this._runner.push(this._world);
+		this._runner.push(this._announcer);
 		this._runner.push(this._audio);
 
 		if (this._options.host) {
@@ -127,8 +131,6 @@ class Game {
 	}
 
 	initialized() : boolean { return this._initialized; }
-	canvas() : HTMLCanvasElement { return this._canvas; }
-
 	hasClientId() : boolean { return this._clientId > 0; }
 	clientId() : number { return this._clientId; }
 	setClientId(clientId : number) : void {
@@ -158,6 +160,8 @@ class Game {
 
 		return ++this._lastClientId;
 	}	
+
+	canvas() : HTMLCanvasElement { return this._canvas; }
 	options() : GameOptions { return this._options; }
 	stepTime() : number { return this._runner.stepTime(); }
 	renderTime() : number { return this._renderTimes.average(); }
@@ -177,6 +181,7 @@ class Game {
 	engine() : BABYLON.Engine { return this._engine; }
 	netcode() : Netcode { return this._netcode; }
 
+	announcer() : Announcer { return this._announcer; }
 	audio() : Audio { return this._audio; }
 	clientDialogs() : ClientDialogs { return this._clientDialogs; }
 	clientDialog(id? : number) : ClientDialog { return this._clientDialogs.getClientDialog(id); }

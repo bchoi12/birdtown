@@ -265,11 +265,7 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		this.setAnchor(this.targetEntity().profile().pos().toBabylon3());
-
-		const counts = this.targetEntity().getCounts();
-		let countersMsg = new UiMessage(UiMessageType.COUNTERS);
-		countersMsg.setCountersMap(counts);
-		ui.handleMessage(countersMsg);
+		ui.updateCounters(this.targetEntity().getCounts());
 
 		// TODO: rate limit?
 		if (game.playerState().role() === PlayerRole.SPECTATING) {

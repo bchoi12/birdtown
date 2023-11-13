@@ -1,6 +1,7 @@
 
 export enum SystemType {
 	UNKNOWN,
+	ANNOUNCER,
 	AUDIO,
 	CLIENT_DIALOG,
 	CLIENT_DIALOGS,

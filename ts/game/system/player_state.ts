@@ -13,7 +13,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
-import { KeyType, KeyState, TooltipType } from 'ui/api'
+import { DialogType, KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 import { Timer} from 'util/timer'

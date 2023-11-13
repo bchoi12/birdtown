@@ -110,6 +110,7 @@ class UI {
 			this._clientsHandler.getClient(clientId).updatePos(pos);
 		}
 	}
+	updateCounters(counters : Map<CounterType, number>) : void { this._countersHandler.updateCounters(counters); }
 
 	chat(msg : string) : void { this._chatHandler.chat(msg); }
 	clear() : void {

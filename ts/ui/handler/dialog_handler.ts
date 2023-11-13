@@ -4,12 +4,13 @@ import { UiMessage, UiMessageType } from 'message/ui_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { UiMode, DialogButtonAction, DialogPage } from 'ui/api'
+import { UiMode, DialogType } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
+import { LoadoutDialogWrapper } from 'ui/wrapper/dialog/loadout_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
 import { defined } from 'util/common'
@@ -41,63 +42,24 @@ export class DialogHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		const dialogWrapper = new DialogWrapper();
+		let dialogWrapper;
 
-		dialogWrapper.setTitle("Message");
-		if (msg.hasPages()) {
-			const dialogPages = msg.getPages();
-
-			for (let i = 0; i < dialogPages.length; ++i) {
-				let page = dialogPages[i];
-				let pageWrapper = new PageWrapper();
-				let groupIndex = pageWrapper.addGroup();
-				for (let button of page.buttons) {
-
-					let buttonWrapper = pageWrapper.addButton(groupIndex, button);
-					buttonWrapper.elm().textContent = button.title;
-
-					if (defined(button.onSelect)) {
-						buttonWrapper.addOnSelect(button.onSelect);
-					}
-					if (defined(button.onUnselect)) {
-						buttonWrapper.addOnUnselect(button.onUnselect);
-					}
-
-					if (button.action === DialogButtonAction.UNSELECT_GROUP) {
-						buttonWrapper.addOnSelect(() => {
-							pageWrapper.getGroup(groupIndex).forEach((otherWrapper : ButtonWrapper) => {
-								if (buttonWrapper.id() === otherWrapper.id()) {
-									return;
-								}
-								otherWrapper.unselect();
-							});
-						});
-					} else if (button.action === DialogButtonAction.SUBMIT) {
-						buttonWrapper.addOnSelect(() => {
-							pageWrapper.submit();
-						});
-					}
-				}
-				dialogWrapper.addPage(pageWrapper);
-
-				// Submit dialog after last page is submitted.
-				pageWrapper.addOnSubmit(() => {
-					dialogWrapper.nextPage();
-				});
-			}
-
-			if (msg.hasOnSubmit()) {
-				dialogWrapper.addOnSubmit(msg.getOnSubmit());
-			}
+		switch (msg.getDialogType()) {
+		case DialogType.PICK_LOADOUT:
+			dialogWrapper = new LoadoutDialogWrapper();
+			dialogWrapper.setTitle("Pick Your Loadout");
+			break;
+		default:
+			console.error("Error: not showing unknown dialog type", DialogType[msg.getDialogType()], msg);
+			return;
 		}
 
 		dialogWrapper.addOnSubmit(() => {
 			this.popDialog(dialogWrapper);
 		});
+		dialogWrapper.display("none");
 
 		this._dialogs.push(dialogWrapper);
-
-		dialogWrapper.display("none");
 		this._dialogsElm.appendChild(dialogWrapper.elm());
 
 		this.showDialog();

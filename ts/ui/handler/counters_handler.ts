@@ -27,29 +27,23 @@ export class CountersHandler extends HandlerBase implements Handler {
 			});
 		});
 	}
-	override handleMessage(msg : UiMessage) : void {
-		if (msg.type() !== UiMessageType.COUNTERS) {
-			return;
-		}
 
-		const counters = msg.getCountersMap();
+	updateCounters(counters : Map<CounterType, number>) : void {
 		let currentTypes = new Set<CounterType>();
 		counters.forEach((count : number, type : CounterType) => {
 			let counter = this.getOrAddCounter(type);
 			counter.updateCounter(count);
-
 			currentTypes.add(type);
 		});
-
 		this.removeOthers(currentTypes);
 	}
 
-	setCounter(type : CounterType, count : number) : void {
+	private setCounter(type : CounterType, count : number) : void {
 		let counter = this.getOrAddCounter(type);
 		counter.setCounter(count);
 	}
 
-	updateCounter(type : CounterType, count : number) : void {
+	private updateCounter(type : CounterType, count : number) : void {
 		let counter = this.getOrAddCounter(type);
 		counter.updateCounter(count);
 	}

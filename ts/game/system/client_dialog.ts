@@ -7,15 +7,15 @@ import { GameData, DataFilter } from 'game/game_data'
 import { ClientSideSystem, System } from 'game/system'
 import { SystemType } from 'game/system/api'
 
-import { DataMap, MessageObject } from 'message'
+import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
-import { PlayerMessage, PlayerMessageType } from 'message/player_message'
+import { DialogMessage } from 'message/dialog_message'
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { NetworkBehavior } from 'network/api'
 
 import { ui } from 'ui'
-import { DialogButtonAction, DialogType, DialogButtonType } from 'ui/api'
+import { DialogType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -33,137 +33,151 @@ enum DialogState {
 
 	// Everything in sync
 	IN_SYNC,
+
+	// Failed to sync, most likely client dialog didn't make it to the host
+	ERROR,
 }
 
 export class ClientDialog extends ClientSideSystem implements System {
 
-	private _dialogState : DialogState;
-	private _loadoutMsg : PlayerMessage;
-	private _tempMsg : PlayerMessage;
+	private _states : Map<DialogType, DialogState>;
+	private _messages : Map<DialogType, DialogMessage>;
+	private _stagingMsg : DialogMessage;
 
 	constructor(clientId : number) {
 		super(SystemType.CLIENT_DIALOG, clientId);
 
-		this._dialogState = DialogState.NOT_REQUESTED;
+		this._states = new Map();
+		this._messages = new Map();
+		this._stagingMsg = new DialogMessage(DialogType.UNKNOWN);
 
-		this._loadoutMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
-		this._loadoutMsg.setEquipType(EntityType.BAZOOKA);
-		this._loadoutMsg.setAltEquipType(EntityType.BIRD_BRAIN);
-		this._loadoutMsg.setPlayerType(ModifierPlayerType.NONE);
+		let loadout = this.message(DialogType.PICK_LOADOUT);
+		loadout.setEquipType(EntityType.BAZOOKA);
+		loadout.setAltEquipType(EntityType.BIRD_BRAIN);
+		loadout.setPlayerType(ModifierPlayerType.NONE);
 
-		// TODO: add staging support for message
-		this._tempMsg = new PlayerMessage(PlayerMessageType.LOADOUT);
+		for (const stringType in DialogType) {
+			const type = Number(DialogType[stringType]);
+			if (Number.isNaN(type) || type <= 0) {
+				continue;
+			}
 
-		this.addProp<DialogState>({
-			export: () => { return this._dialogState; },
-			import: (obj : DialogState) => { this.setDialogState(obj); },
-			options: {
-				conditionalInterval: (obj: DialogState, elapsed : number) => {
-					return this._dialogState !== DialogState.NOT_REQUESTED && elapsed >= 250;
+			this.addProp<DialogState>({
+				has: () => { return this._states.has(type); },
+				validate: (obj : DialogState) => {
+					if (obj === DialogState.ERROR) {
+						this.setDialogState(type, obj);
+					}
 				},
-				filters: GameData.tcpFilters,
-			},
-		});
-
-		// IMPORTANT: override equals and manually update the object since the default equals fn always returns true
-		this.addProp<MessageObject>({
-			has: () => { return this._dialogState === DialogState.PENDING; },
-			validate: (obj : MessageObject) => {
-				if (this._dialogState !== DialogState.PENDING) {
-					return;
-				}
-				this._tempMsg.parseObject(obj);
-				if (!this._tempMsg.valid()) {
-					return;
-				}
-				if (this._tempMsg.getVersion() >= this._loadoutMsg.getVersionOr(0)) {
-					this._loadoutMsg.merge(this._tempMsg);
-					this.setDialogState(DialogState.IN_SYNC);
-				}
-			},
-			export: () => { return this._loadoutMsg.exportObject(); },
-			import: (obj : MessageObject) => {
-				this._tempMsg.parseObject(obj);
-				if (!this._tempMsg.valid()) {
-					return;
-				}
-				if (this._tempMsg.getVersion() >= this._loadoutMsg.getVersionOr(0)) {
-					this._loadoutMsg.merge(this._tempMsg);
-				}
-			},
-			options: {
-				conditionalInterval: (obj: MessageObject, elapsed : number) => {
-					return this._dialogState === DialogState.PENDING && elapsed >= 500;
+				export: () => { return this._states.get(type); },
+				import: (obj : DialogState) => { this.setDialogState(type, obj); },
+				options: {
+					conditionalInterval: (obj: DialogState, elapsed : number) => {
+						return this._states.get(type) !== DialogState.NOT_REQUESTED && elapsed >= 250;
+					},
+					filters: GameData.tcpFilters,
 				},
-				filters: GameData.tcpFilters,
-			},
-		});
+			});
+
+			this.addProp<MessageObject>({
+				has: () => { return this.dialogState(type) === DialogState.PENDING; },
+				validate: (obj : MessageObject) => {
+					if (this.dialogState(type) !== DialogState.PENDING) { return; }
+
+					this._stagingMsg.parseObject(obj);
+					if (!this._stagingMsg.valid()) {
+						return;
+					}
+
+					if (this._stagingMsg.getVersion() >= this.message(type).getVersionOr(0)) {
+						this.message(type).merge(this._stagingMsg);
+						this.setDialogState(type, DialogState.IN_SYNC);
+					}
+				},
+				export: () => { return this.message(type).exportObject(); },
+				import: (obj : MessageObject) => {
+					this._stagingMsg.parseObject(obj);
+					if (!this._stagingMsg.valid()) {
+						return;
+					}
+					if (this._stagingMsg.getVersion() >= this.message(type).getVersionOr(0)) {
+						this.message(type).merge(this._stagingMsg);
+					}
+				},
+				options: {
+					conditionalInterval: (obj: MessageObject, elapsed : number) => {
+						return this.dialogState(type) === DialogState.PENDING && elapsed >= 500;
+					},
+					filters: GameData.tcpFilters,
+				},
+			});
+
+		}
 	}
 
-	setDialogState(state : DialogState) : void {
-		this._dialogState = state;
+	private dialogState(type : DialogType) : DialogState { return this._states.has(type) ? this._states.get(type) : DialogState.NOT_REQUESTED; }
+	private setDialogState(type : DialogType, state : DialogState) : void {
+		if (this.isSource() && state === DialogState.ERROR) {
+			// TODO: tooltip or something
+			console.error("%s: failed to sync dialog %s with host", this.name(), DialogType[type]);
+		} else if (this.isHost() && state === DialogState.PENDING) {
+			// Host is always in sync.
+			this._states.set(type, DialogState.IN_SYNC);
+			return;
+		}
+		this._states.set(type, state);
+	}
+	private resetDialogStates() : void { this._states.clear(); }
+
+	forceSync() : void {
+		if (!this.isHost()) { return; }
+
+		this._states.forEach((state : DialogState, type : DialogType) => {
+			if (state === DialogState.OPEN || state === DialogState.PENDING) {
+				this._states.set(type, DialogState.ERROR);
+			}
+		});
 	}
 	inSync() : boolean {
-		// Host doesn't get confirmation so will always be PENDING
-		return this._dialogState === DialogState.IN_SYNC || this.isSource() && this._dialogState === DialogState.PENDING;
+		for (const state of this._states.values()) {
+			if (state === DialogState.PENDING || state === DialogState.OPEN) {
+				return false;
+			}
+		}
+		return true;
 	}
-	loadoutMsg() : PlayerMessage { return this._loadoutMsg; }
+	message(type : DialogType) : DialogMessage {
+		if (!this._messages.has(type)) {
+			this._messages.set(type, new DialogMessage(type));
+		}
+		return this._messages.get(type);
+	}
+	submit(type : DialogType) : void {
+		this.message(type).setVersion(this.message(type).getVersionOr(0) + 1);
+		this.setDialogState(type, DialogState.PENDING);
+	}
 
 	override handleMessage(msg : GameMessage) : void {
 		super.handleMessage(msg);
 
-		if (msg.type() !== GameMessageType.GAME_STATE) {
-			return;
-		}
-
-		if (!this.isSource()) {
+		if (!this.isSource() || msg.type() !== GameMessageType.GAME_STATE) {
 			return;
 		}
 
 		switch (msg.getGameState()) {
 		case GameState.SETUP:
-			this.showDialogs();
+			this.showDialog(DialogType.PICK_LOADOUT);
 			break;
 		default:
-			this.setDialogState(DialogState.NOT_REQUESTED);
+			this.resetDialogStates();
 		}
 	}
 
-	private showDialogs() : void {
-		this.setDialogState(DialogState.OPEN);
+	showDialog(type : DialogType) : void {
+		this.setDialogState(type, DialogState.OPEN);
 
 		let msg = new UiMessage(UiMessageType.DIALOG);
-		msg.setDialogType(DialogType.PICK_LOADOUT);
-		msg.setPages([{
-			buttons: [{
-				type: DialogButtonType.IMAGE,
-				title: "bazooka",
-				action: DialogButtonAction.SUBMIT,
-				onSelect: () => { this._loadoutMsg.setEquipType(EntityType.BAZOOKA); },
-			}, {
-				type: DialogButtonType.IMAGE,
-				title: "sniper",
-				action: DialogButtonAction.SUBMIT,
-				onSelect: () => { this._loadoutMsg.setEquipType(EntityType.SNIPER); },
-			}],
-		}, {
-			buttons: [{
-				type: DialogButtonType.IMAGE,
-				title: "big",
-				action: DialogButtonAction.SUBMIT,
-				onSelect: () => { this._loadoutMsg.setPlayerType(ModifierPlayerType.BIG) },
-			}, {
-				type: DialogButtonType.IMAGE,
-				title: "none",
-				action: DialogButtonAction.SUBMIT,
-				onSelect: () => { this._loadoutMsg.setPlayerType(ModifierPlayerType.NONE) },
-			}]
-		},
-		]);
-		msg.setOnSubmit(() => {
-			this._loadoutMsg.setVersion(game.controller().round());
-			this.setDialogState(DialogState.PENDING);
-		});
+		msg.setDialogType(type);
 		ui.handleMessage(msg);
 	}
 }

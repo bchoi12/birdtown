@@ -31,32 +31,6 @@ export enum DialogType {
 	PICK_GAME_MODE,
 }
 
-export type DialogPage = {
-	buttons : Array<DialogButton>;
-}
-
-export enum DialogButtonType {
-	UNKNOWN,
-	IMAGE,
-}
-
-export enum DialogButtonAction {
-	UNKNOWN,
-	NONE,
-	UNSELECT_GROUP,
-	SUBMIT,
-}
-
-export type DialogButtonOnSelectFn = () => void
-export type DialogButtonOnUnselectFn = () => void;
-export type DialogButton = {
-	type : DialogButtonType;
-	title : string;
-	action : DialogButtonAction;
-	onSelect? : DialogButtonOnSelectFn;
-	onUnselect? : DialogButtonOnUnselectFn;
-}
-
 export enum KeyType {
 	UNKNOWN,
 	LEFT,

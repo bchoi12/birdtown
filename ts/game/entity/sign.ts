@@ -15,7 +15,7 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
-import { DialogButtonAction, DialogType, DialogButtonType, KeyType, KeyState, TooltipType } from 'ui/api'
+import { DialogType, KeyType, KeyState, TooltipType } from 'ui/api'
 
 export abstract class Sign extends EntityBase implements Entity {
 
