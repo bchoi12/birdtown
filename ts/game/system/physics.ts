@@ -1,6 +1,7 @@
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
+import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
@@ -103,22 +104,24 @@ export class Physics extends SystemBase implements System {
 			const profileA = entityA.profile();
 			const profileB = entityB.profile();
 
-			// Smooth out normals that are nearly axis-aligned
+			if (profileA.body().isStatic && profileB.body().isStatic) {
+				return;
+			}
+
 			// Ignore "pixel collisions"
 			let normal = Vec2.fromVec(collision.normal);
 			let pen = Vec2.fromVec(collision.penetration);
-			if (Math.abs(normal.x) > 0.99 || Math.abs(normal.y) > 0.99) {
+			if (profileB.body().isStatic) {
 				// Find overlap of rectangle bounding boxes.
 				let overlap = profileA.pos().clone().sub(profileB.pos()).abs();
 				overlap.sub({
-					x: profileA.dim().x / 2 + profileB.dim().x / 2,
-					y: profileA.dim().y / 2 + profileB.dim().y / 2,
+					x: profileA.scaledDim().x / 2 + profileB.scaledDim().x / 2,
+					y: profileA.scaledDim().y / 2 + profileB.scaledDim().y / 2,
 				});
-				overlap.negate();
 
 				// Calculate relative vel to determine collision direction
-				let relativeVel = profileA.vel().clone().sub(profileB.vel());
-				const xCollision = Math.abs(overlap.x * relativeVel.y) < Math.abs(overlap.y * relativeVel.x);
+				let vel = profileA.vel();
+				const xCollision = Math.abs(overlap.x * vel.y) < Math.abs(overlap.y * vel.x);
 				if (xCollision) {
 					// Either overlap in other dimension is too small or collision direction is in disagreement.
 					if (Math.abs(overlap.y) < 1e-2 || Math.abs(normal.y) > 0.99) {

@@ -5,7 +5,7 @@ import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
 import { GameData, DataFilter } from 'game/game_data'
 import { ClientSideSystem, System } from 'game/system'
-import { SystemType } from 'game/system/api'
+import { SystemType, PlayerRole } from 'game/system/api'
 
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -160,24 +160,29 @@ export class ClientDialog extends ClientSideSystem implements System {
 	override handleMessage(msg : GameMessage) : void {
 		super.handleMessage(msg);
 
-		if (!this.isSource() || msg.type() !== GameMessageType.GAME_STATE) {
-			return;
-		}
+		switch (msg.type()) {
+		case GameMessageType.PLAYER_STATE:
+			if (msg.getClientId() !== this.clientId()) {
+				return;
+			}
 
-		switch (msg.getGameState()) {
-		case GameState.SETUP:
-			this.showDialog(DialogType.PICK_LOADOUT);
-			break;
-		default:
-			this.resetDialogStates();
+			switch (msg.getPlayerRole()) {
+			case PlayerRole.WAITING:
+				this.showDialog(DialogType.PICK_LOADOUT);
+				break;
+			default:
+				this.resetDialogStates();
+			}
 		}
 	}
 
 	showDialog(type : DialogType) : void {
 		this.setDialogState(type, DialogState.OPEN);
 
-		let msg = new UiMessage(UiMessageType.DIALOG);
-		msg.setDialogType(type);
-		ui.handleMessage(msg);
+		if (this.isSource()) {
+			let msg = new UiMessage(UiMessageType.DIALOG);
+			msg.setDialogType(type);
+			ui.handleMessage(msg);
+		}
 	}
 }

@@ -143,10 +143,10 @@ export class Level extends SystemBase implements System {
 
     	game.runner().handleMessage(this._levelMsg);
 
-    	let uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-    	uiMsg.setAnnouncementType(AnnouncementType.LEVEL);
-    	uiMsg.setNames([this.displayName()]);
-    	ui.handleMessage(uiMsg);
+    	let announcement = new UiMessage(UiMessageType.ANNOUNCEMENT);
+    	announcement.setAnnouncementType(AnnouncementType.LEVEL);
+    	announcement.setNames([this.displayName()]);
+    	game.announcer().announce(announcement);
 
 		if (isLocalhost()) {
 			console.log("%s: loaded level %s with seed %d, version %d", this.name(), LevelType[level], seed, version);

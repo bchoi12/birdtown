@@ -1,9 +1,7 @@
-import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
-import { AttributeType, ComponentType } from 'game/component/api'
+import { ComponentType, AttributeType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
-import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -37,21 +35,5 @@ export class Wall extends EntityBase implements Entity {
 			},
 			init: entityOptions.profileInit,
 		}));
-
-		/*
-		this.addComponent(new Model({
-			readyFn: () => {
-				return this._profile.ready();
-			},
-			meshFn: (model : Model) => {
-				const dim = this._profile.dim();
-				model.setMesh(BABYLON.MeshBuilder.CreateBox(this.name(), {
-					width: dim.x,
-					height: dim.y,
-					depth: 16,
-				}, game.scene()));
-			},
-		}));
-		*/
 	}
 }

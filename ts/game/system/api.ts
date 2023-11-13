@@ -50,6 +50,22 @@ export enum SoundType {
 	EXPLOSION,
 }
 
+export enum PlayerRole {
+	UNKNOWN,
+
+	// Player is not participating, but is watching
+	SPECTATING,
+
+	// Player is participating, but we're not ready to spawn yet
+	WAITING,
+
+	// Player is not in the game, but can spawn
+	SPAWNING,
+
+	// Player is actively participating in the game
+	GAMING,
+}
+
 export enum ScoreType {
 	UNKNOWN,
 

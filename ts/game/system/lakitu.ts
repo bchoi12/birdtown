@@ -1,13 +1,13 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
-import { GameState, PlayerRole } from 'game/api'
+import { GameState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
-import { SystemType } from 'game/system/api'
+import { SystemType, PlayerRole } from 'game/system/api'
 
 import { InterpType } from 'global/fn_globals'
 

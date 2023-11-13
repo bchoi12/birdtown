@@ -43,39 +43,27 @@ export class LinkedList<T> {
 
 	peekFirst() : T { return this._head !== null ? this._head.value() : null; }
 	peekLast() : T { return this._tail !== null ? this._tail.value() : null; }
-	popFirst() : T {
-		if (this._head === null) {
-			return null;
-		}
-		return this.delete(this._head);
-	}
-	popBack() : T {
-		if (this._tail === null) {
-			return null;
-		}
-		return this.delete(this._tail);
-	}
+	popFirst() : T { return this.delete(this._head); }
+	popBack() : T { return this.delete(this._tail); }
 
 	push(value : T) : T {
-		this._size++;
-
 		if (this._head === null) {
 			this._head = new LinkedNode<T>(value);
 			this._tail = this._head;
-			return;
+			this._size = 1;
+			return this._head.value();
 		}
 
 		const node = new LinkedNode<T>(value);
 		node.setPrev(this._tail);
 		this._tail.setNext(node);
 		this._tail = node;
+		this._size++;
 		return node.value();
 	}
 
 	insert(value : T, comparator : ComparatorFn<T>) : T {
-		if (this.empty()) {
-			return this.push(value);
-		}
+		if (this.empty()) { return this.push(value); }
 
 		let current = this._head;
 		while(current !== this._tail) {
@@ -93,20 +81,29 @@ export class LinkedList<T> {
 		}
 		current.setPrev(node);
 		node.setNext(current);
+
+		this._size++;
 		return node.value();
 	}
 
 	delete(node : LinkedNode<T>) : T {
+		if (this.empty()) { return null; }
+
 		if (node.hasPrev()) {
 			let prev = node.prev();
 			prev.setNext(node.next());
+		} else {
+			this._head = node.next();
 		}
 
 		if (node.hasNext()) {
 			let next = node.next();
 			next.setPrev(node.prev());
+		} else {
+			this._tail = node.prev();
 		}
 
+		this._size--;
 		return node.value();
 	}
 }

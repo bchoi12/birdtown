@@ -258,6 +258,7 @@ export class Vec3 extends Vec2 implements Vec {
     static override zero() : Vec3 { return new Vec3({x: 0, y: 0, z: 0}); }
     static override one() : Vec3 { return new Vec3({x: 1, y: 1, z: 1}); }
     static override fromVec(vec : Vec) : Vec3 { return new Vec3(vec); }
+    static override fromBabylon3(vec : BABYLON.Vector3) : Vec3 { return new Vec3({x: vec.x, y: vec.y, z: vec.z }); }
 
     override distSq(other : Vec) : number {
         const zDist = this.z - other.z;

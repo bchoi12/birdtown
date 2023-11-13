@@ -77,14 +77,14 @@ export class Profile extends ComponentBase implements Component {
 	private _limits : ProfileLimits;
 	private _constraints : Map<number, MATTER.Constraint>;
 	private _smoother : Smoother;
+	private _applyScaling : boolean;
+	private _scaleFactor : Vec2;
 
 	private _pos : SmoothVec2;
 	private _vel : SmoothVec2;
 	private _acc : Vec2;
 	private _dim : Vec2;
 	private _angle : number;
-	private _applyScaling : boolean;
-	private _scaleFactor : Vec2;
 	private _inertia : number;
 	private _initialInertia : number;
 	private _scaling : Vec2;
@@ -106,6 +106,8 @@ export class Profile extends ComponentBase implements Component {
 		this._forces = new Buffer();
 		this._limits = {};
 		this._smoother = new Smoother();
+		this._applyScaling = false;
+		this._scaleFactor = Vec2.one();
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -325,6 +327,7 @@ export class Profile extends ComponentBase implements Component {
 
 	private hasDim() : boolean { return defined(this._dim); }
 	dim() : Vec2 { return this._dim; }
+	scaledDim() : Vec2 { return this._dim.clone().mult(this.scaling()); }
 	setDim(vec : Vec) : void {
 		if (defined(this._dim) && Vec2.approxEquals(this._dim.toVec(), vec, this.vecEpsilon())) { return; }
 		if (this.hasDim()) {
@@ -361,11 +364,10 @@ export class Profile extends ComponentBase implements Component {
 		}
 		if (Vec2.approxEquals(this._scaling.toVec(), vec, 1e-2)) { return; }
 
-		this._scaleFactor = Vec2.one();
-		if (defined(vec.x)) {
+		if (vec.hasOwnProperty("x")) {
 			this._scaleFactor.x = vec.x / this._scaling.x;
 		}
-		if (defined(vec.y)) {
+		if (vec.hasOwnProperty("y")) {
 			this._scaleFactor.y = vec.y / this._scaling.y;
 		}
 
@@ -478,7 +480,7 @@ export class Profile extends ComponentBase implements Component {
 			this._prePhysicsFn(this);
 		}
 
-		if (this._applyScaling && defined(this._scaleFactor)) {
+		if (this._applyScaling) {
 			MATTER.Body.scale(this._body, this._scaleFactor.x, this._scaleFactor.y);
 			this._applyScaling = false;
 		}

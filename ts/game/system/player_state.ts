@@ -1,13 +1,13 @@
 
 import { game } from 'game'
-import { GameState, GameObjectState, PlayerRole } from 'game/api'
+import { GameState, GameObjectState } from 'game/api'
 import { AssociationType, ComponentType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, ClientSystem } from 'game/system'
-import { SystemType, ScoreType } from 'game/system/api'
+import { SystemType, PlayerRole, ScoreType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { UiMessage, UiMessageType } from 'message/ui_message'
@@ -80,6 +80,11 @@ export class PlayerState extends ClientSystem implements System {
 		this._role = role;
 		this.applyRole();
 
+		let playerStateMsg = new GameMessage(GameMessageType.PLAYER_STATE);
+		playerStateMsg.setPlayerRole(this._role);
+		playerStateMsg.setClientId(this.clientId());
+		game.handleMessage(playerStateMsg);
+
 		if (isLocalhost()) {
 			console.log("%s: player role is %s", this.name(), PlayerRole[role]);
 		}
@@ -138,14 +143,6 @@ export class PlayerState extends ClientSystem implements System {
 			case GameState.FREE:
 				this.setRole(PlayerRole.GAMING);
 				break;
-			case GameState.SETUP:
-				// TODO: this should be set by GameMaker since some clients may be spectating
-				this.setRole(PlayerRole.WAITING);
-				break;
-			case GameState.GAME:
-				// TODO: this should also be set by GameMaker
-				this.setRole(PlayerRole.SPAWNING);
-				break;
 			}
 			break;
 		}
@@ -196,7 +193,6 @@ export class PlayerState extends ClientSystem implements System {
 			} else {
 				this.setRole(PlayerRole.SPECTATING);
 			}
-			return;
 		}
 	}
 
@@ -208,6 +204,12 @@ export class PlayerState extends ClientSystem implements System {
 		}
 
 		let player = this.targetEntity<Player>();
+
+		if (this.role() === PlayerRole.WAITING) {
+			if (game.controller().gameState() === GameState.GAME && game.clientDialog(player.clientId()).inSync()) {
+				this.setRole(PlayerRole.SPAWNING);
+			}
+		}
 
 		// Allow player to spawn by pressing a key
 		if (this.role() === PlayerRole.SPAWNING) {
@@ -232,7 +234,7 @@ export class PlayerState extends ClientSystem implements System {
 			case GameState.GAME:
 				this.updateTablet(player);
 				this._respawnTimer.start(PlayerState._respawnTime, () => {
-					this.setRole(PlayerRole.SPAWNING);
+					this.setRole(PlayerRole.WAITING);
 				});
 				break;
 			default:

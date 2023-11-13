@@ -18,7 +18,7 @@ import { StepData } from 'game/game_object'
 import { CounterType, KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
-import { Vec2 } from 'util/vector'
+import { Vec3 } from 'util/vector'
 
 export class Bazooka extends Weapon {
 
@@ -44,7 +44,7 @@ export class Bazooka extends Weapon {
 			return;
 		}
 
-		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
+		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = this.inputDir().clone().normalize();
 
 		let vel = unitDir.clone().scale(0.05);
@@ -54,7 +54,7 @@ export class Bazooka extends Weapon {
 				owner: this,
 			},
 			profileInit: {
-				pos: {x: pos.x, y: pos.y},
+				pos: pos,
 				vel: vel,
 				acc: acc,
 			},
@@ -65,6 +65,7 @@ export class Bazooka extends Weapon {
 			rocket.setTTL(750, () => {
 				rocket.explode();
 			});
+			rocket.model().offlineTransforms().setTranslation({ z: pos.z });
 		}
 
 		this.reload(1000);

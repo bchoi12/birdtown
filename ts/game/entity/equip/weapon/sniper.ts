@@ -18,7 +18,7 @@ import { StepData } from 'game/game_object'
 import { KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
-import { Vec2 } from 'util/vector'
+import { Vec3 } from 'util/vector'
 
 export class Sniper extends Weapon {
 
@@ -44,7 +44,7 @@ export class Sniper extends Weapon {
 			return;
 		}
 
-		const pos = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
+		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = this.inputDir().clone().normalize();
 
 		let vel = unitDir.clone().scale(0.7);
@@ -53,7 +53,7 @@ export class Sniper extends Weapon {
 				owner: this,
 			},
 			profileInit: {
-				pos: {x: pos.x, y: pos.y},
+				pos: pos,
 				vel: vel,
 				angle: vel.angleRad(),
 			},
@@ -62,6 +62,7 @@ export class Sniper extends Weapon {
 		if (hasBolt) {
 			this.recordUse();
 			bolt.setTTL(750);
+			bolt.model().offlineTransforms().setTranslation({ z: pos.z });
 		}
 
 		this.reload(125);

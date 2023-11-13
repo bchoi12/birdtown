@@ -10,18 +10,19 @@ import { ui } from 'ui'
 
 export class Tablet extends ClientSideSystem implements System {
 
-	private _totalScore : number;
+	private _roundScore : number;
+
 	private _displayName : string;
 	private _scores : Map<ScoreType, number>;
-	private _totalChanged : boolean;
+	private _scoreChanged : boolean;
 
 	constructor(clientId : number) {
 		super(SystemType.TABLET, clientId);
 
-		this._totalScore = 0;
+		this._roundScore = 0;
 		this._displayName = "";
 		this._scores = new Map();
-		this._totalChanged = false;
+		this._scoreChanged = false;
 
 		this.addProp<string>({
 			has: () => { return this._displayName.length > 0; },
@@ -46,7 +47,7 @@ export class Tablet extends ClientSideSystem implements System {
 	override reset() : void {
 		super.reset();
 
-		this._totalScore = 0;
+		this._roundScore = 0;
 		this._scores.forEach((score : number, type : ScoreType) => {
 			this._scores.set(type, 0);
 		});
@@ -66,11 +67,11 @@ export class Tablet extends ClientSideSystem implements System {
 		}
 	}
 
-	totalChanged() : boolean { return this._totalChanged; }
-	totalScore() : number { return this._totalScore; }
-	setTotalScore(value : number) : void {
-		this._totalScore = value;
-		this._totalChanged = false;
+	scoreChanged() : boolean { return this._scoreChanged; }
+	roundScore() : number { return this._roundScore; }
+	setRoundScore(value : number) : void {
+		this._roundScore = value;
+		this._scoreChanged = false;
 	}
 
 	scores() : Map<ScoreType, number> { return this._scores; }
@@ -78,7 +79,7 @@ export class Tablet extends ClientSideSystem implements System {
 	hasScore(type : ScoreType) : boolean { return this._scores.has(type); }
 	setScore(type : ScoreType, value : number) : void {
 		this._scores.set(type, value);
-		this._totalChanged = true;
+		this._scoreChanged = true;
 	}
 	addScore(type : ScoreType, delta : number) : void {
 		if (!this.hasScore(type)) {

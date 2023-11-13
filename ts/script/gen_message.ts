@@ -15,6 +15,7 @@ baseSerializableTypes.forEach((type : string) => {
 });
 let serializableRegex = new Set<string>();
 serializableRegex.add(".*Type");
+serializableRegex.add("PlayerRole");
 
 // Command: node js/script/gen_message.js
 //
@@ -22,15 +23,15 @@ serializableRegex.add(".*Type");
 //
 const version = "2.1";
 
-const enumClass = "UiProp";
+   const enumClass = "GameProp";
 const map = new Map<string, string>([
-    ["ANNOUNCEMENT_TYPE", "AnnouncementType"],
     ["CLIENT_ID", "number"],
-    ["DIALOG_TYPE", "DialogType"],
     ["DISPLAY_NAME", "string"],
-    ["NAMES", "Array<string>"],
-    ["TOOLTIP_TYPE", "TooltipType"],
-    ["TTL", "number"],
+    ["GAME_STATE", "number"],
+    ["LEVEL_SEED", "number"],
+    ["LEVEL_TYPE", "LevelType"],
+    ["LEVEL_VERSION", "number"],
+    ["PLAYER_ROLE", "PlayerRole"],
 ]);
 //
 // End params

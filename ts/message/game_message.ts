@@ -1,7 +1,7 @@
 
 import { Message, MessageBase, FieldDescriptor } from 'message'
 
-import { LevelType } from 'game/system/api'
+import { LevelType, PlayerRole } from 'game/system/api'
 
 export enum GameMessageType {
 	UNKNOWN,
@@ -10,6 +10,7 @@ export enum GameMessageType {
 	CLIENT_DISCONNECT,
 	LEVEL_LOAD,
 	GAME_STATE,
+	PLAYER_STATE,
 }
 
 enum GameProp {
@@ -21,6 +22,7 @@ enum GameProp {
 	LEVEL_TYPE,
 	LEVEL_SEED,
 	LEVEL_VERSION,
+	PLAYER_ROLE,
 }
 
 export class GameMessage extends MessageBase<GameMessageType, GameProp> implements Message<GameMessageType, GameProp> {
@@ -41,6 +43,10 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 		)],
 		[GameMessageType.GAME_STATE, MessageBase.fieldDescriptor(
 			[GameProp.GAME_STATE, {}],
+		)],
+		[GameMessageType.PLAYER_STATE, MessageBase.fieldDescriptor(
+			[GameProp.PLAYER_ROLE, {}],
+			[GameProp.CLIENT_ID, {}],
 		)],
 	]);
 
@@ -80,6 +86,11 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getLevelVersionOr(value : number) : number { return this.getOr<number>(GameProp.LEVEL_VERSION, value); }
     setLevelVersion(value : number) : void { this.set<number>(GameProp.LEVEL_VERSION, value); }
 
+    hasPlayerRole() : boolean { return this.has(GameProp.PLAYER_ROLE); }
+    getPlayerRole() : PlayerRole { return this.get<PlayerRole>(GameProp.PLAYER_ROLE); }
+    getPlayerRoleOr(value : PlayerRole) : PlayerRole { return this.getOr<PlayerRole>(GameProp.PLAYER_ROLE, value); }
+    setPlayerRole(value : PlayerRole) : void { this.set<PlayerRole>(GameProp.PLAYER_ROLE, value); }
+
     /*
     const enumClass = "GameProp";
     ["CLIENT_ID", "number"],
@@ -88,6 +99,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["LEVEL_SEED", "number"],
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],
+    ["PLAYER_ROLE", "PlayerRole"],
     */
     // End auto-generated code (v2.1)
 }

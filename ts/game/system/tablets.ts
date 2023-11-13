@@ -24,9 +24,9 @@ export class Tablets extends ClientSystemManager implements System {
 		super.postUpdate(stepData);
 
 		this.executeIf<Tablet>((tablet : Tablet) => {
-			tablet.setTotalScore(tablet.score(ScoreType.KILL));
+			tablet.setRoundScore(tablet.score(ScoreType.KILL));
 		}, (tablet : Tablet) => {
-			return tablet.totalChanged();
+			return tablet.scoreChanged();
 		});
 	}
 }

@@ -43,19 +43,3 @@ export enum GameObjectState {
 	// Disables all logic in object step
 	DEACTIVATED,
 }
-
-export enum PlayerRole {
-	UNKNOWN,
-
-	// Player is not participating, but is watching
-	SPECTATING,
-
-	// Player is participating, but game has not started and we're not yet ready to spawn
-	WAITING,
-
-	// Player is not in the game, but can spawn
-	SPAWNING,
-
-	// Player is actively participating in the game
-	GAMING,
-}

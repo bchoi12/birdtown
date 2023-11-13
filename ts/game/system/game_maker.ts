@@ -5,9 +5,10 @@ import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { SystemBase, System } from 'game/system'
-import { SystemType, LevelType } from 'game/system/api'
+import { SystemType, LevelType, PlayerRole } from 'game/system/api'
 import { Controller } from 'game/system/controller'
 import { ClientSetup } from 'game/system/game_maker/client_setup'
+import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
 
 import { MessageObject } from 'message'
@@ -25,7 +26,6 @@ export class GameMaker extends SystemBase implements System {
 	private static readonly _noWinner : string = "no one";
 
 	private _config : GameConfigMessage;
-	private _clientSetup : ClientSetup;
 
 	private _round : number;
 	private _lastStateChange : number;
@@ -34,7 +34,6 @@ export class GameMaker extends SystemBase implements System {
 		super(SystemType.GAME_MAKER);
 
 		this._config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
-		this._clientSetup = new ClientSetup(/*refreshTime=*/250);
 		this._round = 0;
 		this._lastStateChange = Date.now();
 
@@ -55,7 +54,6 @@ export class GameMaker extends SystemBase implements System {
 	}
 
 	mode() : GameMode { return this._config.type(); }
-	clientSetup() : ClientSetup { return this._clientSetup; }
 	round() : number { return this._round; }
 	timeLimitReached(state : GameState) : boolean {
 		const elapsed = Date.now() - this._lastStateChange;
@@ -88,7 +86,6 @@ export class GameMaker extends SystemBase implements System {
 			return false;
 		}
 
-		this._clientSetup.refresh();
 		if (!this.valid(GameState.SETUP)) {
 			return false;
 		}
@@ -111,8 +108,7 @@ export class GameMaker extends SystemBase implements System {
 		switch (current) {
 		case GameState.SETUP:
 		case GameState.GAME:
-			this._clientSetup.prune();
-			if (this._config.hasPlayersMin() && this._clientSetup.numConnected() < this._config.getPlayersMin()) {
+			if (this._config.hasPlayersMin() && game.playerStates().numPlayerStates() < this._config.getPlayersMin()) {
 				return false;
 			}
 			break;
@@ -139,7 +135,7 @@ export class GameMaker extends SystemBase implements System {
 			}
 
 			const winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
-				return tablet.totalScore() >= 3;
+				return tablet.roundScore() >= 3;
 			});
 			if (winners.length >= 1) {
 				return GameState.FINISH;
@@ -147,9 +143,9 @@ export class GameMaker extends SystemBase implements System {
 			break;
 		case GameState.FINISH:
 			if (this.timeLimitReached(current)) {
+				// TODO: victory check
 				return GameState.SETUP;
 			}
-			// TODO: victory check
 			break;
 		case GameState.VICTORY:
 			if (this.timeLimitReached(current)) {
@@ -167,8 +163,6 @@ export class GameMaker extends SystemBase implements System {
 		this._lastStateChange = Date.now();
 
 		ui.clear();
-
-		// TODO: go through announcements here?
 
 		if (!this.isSource()) {
 			return;
@@ -190,27 +184,28 @@ export class GameMaker extends SystemBase implements System {
 			birdtownMsg.setLevelSeed(Math.floor(Math.random() * 10000));
 			birdtownMsg.setLevelVersion(game.level().version() + 1);
 			game.level().loadLevel(birdtownMsg);
+
 			game.tablets().reset();
+			game.playerStates().execute((playerState : PlayerState) => {
+				playerState.setRole(PlayerRole.WAITING);
+			});
 			break;
 		case GameState.GAME:
 			break;
 		case GameState.FINISH:
-			// TODO: let everyone see this
 	    	let winnerMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
 	    	winnerMsg.setAnnouncementType(AnnouncementType.GAME_FINISH);
-	    	winnerMsg.setNames(["somebody (TODO)"]);
-	    	ui.handleMessage(winnerMsg);
-
+	    	winnerMsg.setNames(["somebody"]);
+	    	game.announcer().announce(winnerMsg);
 			break;
 		case GameState.VICTORY:
 			// TODO: announce victory
 			break;
 		case GameState.ERROR:
-			// TODO: let everyone see this
 	    	let errorMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
 	    	errorMsg.setAnnouncementType(AnnouncementType.GAME_ERROR);
 	    	errorMsg.setNames(["TODO: add the error message here"]);
-	    	ui.handleMessage(errorMsg);
+	    	game.announcer().announce(errorMsg);
 	    	break;
 		}
 	}

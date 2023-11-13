@@ -333,10 +333,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
 		this.updateLoadout();
-
-		this._stats.reset();
-		this._stats.processComponent<Modifiers>(this._modifiers);
-		this._profile.processComponent<Stats>(this._stats);
 	}
 	stats() : Stats { return this._stats; }
 	dead() : boolean { return this._stats.dead(); }
@@ -494,19 +490,20 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		while (this._collisionInfo.hasRecord()) {
 			const record = this._collisionInfo.popRecord();
 			const pen = record.penetration;
-			const normal = record.normal;
 
-			if (!pen.isZero()) {
-				// Check if we should use updated velocity.
-				if (Math.abs(pen.x) > 1e-6) {
-					resolvedVel.x = this._profile.vel().x;
-				}
-				if (Math.abs(pen.y) > 1e-6) {
-					resolvedVel.y = this._profile.vel().y;
-				}
+			if (pen.isZero()) {
+				continue;
 			}
 
-			if (normal.y > 0.5) {
+			// Check if we should use updated velocity.
+			if (Math.abs(pen.x) > 1e-6) {
+				resolvedVel.x = this._profile.vel().x;
+			}
+			if (Math.abs(pen.y) > 1e-6) {
+				resolvedVel.y = this._profile.vel().y;
+			}
+
+			if (record.normal.y > 0.7) {
 				this._canDoubleJump = true;
 				this._canJumpTimer.start(Player._jumpGracePeriod);
 			}
@@ -651,6 +648,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			if (hasAltEquip) {
 				this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, altEquip);
 			}
+
+			this._stats.reset();
+			this._stats.processComponent<Modifiers>(this._modifiers);
+			this._profile.processComponent<Stats>(this._stats);
 		});
 	}
 
