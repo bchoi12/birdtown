@@ -92,6 +92,7 @@ export interface GameObject {
 
 	findAll<T extends GameObject>(predicate : (t : T) => boolean) : T[];
 	findN<T extends GameObject>(predicate : (t : T) => boolean, limit : number) : T[];
+	mapAll<T extends GameObject, O>(map : (t : T) => O) : O[];
 	matchAll<T extends GameObject>(predicate : (t : T) => boolean) : boolean;
 	execute<T extends GameObject>(execute : ChildExecute<T>) : void;
 	executeIf<T extends GameObject>(execute : ChildExecute<T>, predicate : (t : T) => boolean) : void;
@@ -363,6 +364,7 @@ export abstract class GameObjectBase {
 	findAll<T extends GameObject>(predicate : ChildPredicate<T>) : T[] { return <T[]>this._childObjects.findAll(predicate); }
 	findN<T extends GameObject>(predicate : ChildPredicate<T>, limit : number) : T[] { return <T[]>this._childObjects.findN(predicate, limit); }
 	matchAll<T extends GameObject>(predicate : ChildPredicate<T>) : boolean { return this._childObjects.matchAll(predicate); }
+	mapAll<T extends GameObject, O>(map : (t : T) => O) : O[] { return this._childObjects.mapAll(map); }
 	execute<T extends GameObject>(execute : ChildExecute<T>) : void { this._childObjects.execute(execute); }
 	executeIf<T extends GameObject>(execute : ChildExecute<T>, predicate : ChildPredicate<T>) : void { this._childObjects.executeIf(execute, predicate); }
 

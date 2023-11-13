@@ -45,6 +45,7 @@ export class InputHandler extends HandlerBase implements Handler {
 			if (e.repeat || ui.mode() !== UiMode.GAME) return;
 
 			if (this._keyDownCallbacks.has(e.keyCode)) {
+				e.preventDefault();
 				this._keyDownCallbacks.get(e.keyCode)(e);
 			}
 		});
@@ -52,6 +53,7 @@ export class InputHandler extends HandlerBase implements Handler {
 			if (e.repeat || ui.mode() !== UiMode.GAME) return;
 
 			if (this._keyUpCallbacks.has(e.keyCode)) {
+				e.preventDefault();
 				this._keyUpCallbacks.get(e.keyCode)(e);
 			}
 		});

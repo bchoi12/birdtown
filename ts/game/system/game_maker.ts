@@ -7,7 +7,6 @@ import { GameData } from 'game/game_data'
 import { SystemBase, System } from 'game/system'
 import { SystemType, LevelType, PlayerRole } from 'game/system/api'
 import { Controller } from 'game/system/controller'
-import { ClientSetup } from 'game/system/game_maker/client_setup'
 import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
 
@@ -26,9 +25,9 @@ export class GameMaker extends SystemBase implements System {
 	private static readonly _noWinner : string = "no one";
 
 	private _config : GameConfigMessage;
-
 	private _round : number;
 	private _lastStateChange : number;
+	private _winners : Array<Tablet>;
 
 	constructor() {
 		super(SystemType.GAME_MAKER);
@@ -36,6 +35,7 @@ export class GameMaker extends SystemBase implements System {
 		this._config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
 		this._round = 0;
 		this._lastStateChange = Date.now();
+		this._winners = new Array();
 
 		this.addProp<MessageObject>({
 			export: () => { return this._config.exportObject(); },
@@ -134,10 +134,10 @@ export class GameMaker extends SystemBase implements System {
 				return GameState.FINISH;
 			}
 
-			const winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
+			this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
 				return tablet.roundScore() >= 3;
 			});
-			if (winners.length >= 1) {
+			if (this._winners.length >= 1) {
 				return GameState.FINISH;
 			}
 			break;
@@ -195,7 +195,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.FINISH:
 	    	let winnerMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
 	    	winnerMsg.setAnnouncementType(AnnouncementType.GAME_FINISH);
-	    	winnerMsg.setNames(["somebody"]);
+	    	winnerMsg.setNames(this._winners.map((tablet : Tablet) => { return tablet.displayName(); }));
 	    	game.announcer().announce(winnerMsg);
 			break;
 		case GameState.VICTORY:

@@ -7,6 +7,12 @@ import { Tablet } from 'game/system/tablet'
 
 import { defined } from 'util/common'
 
+type Score = {
+	displayName : string;
+	roundScore : number;
+	scores : Map<ScoreType, number>;
+}
+
 export class Tablets extends ClientSystemManager implements System {
 
 	constructor() {
@@ -19,6 +25,16 @@ export class Tablets extends ClientSystemManager implements System {
 	addTablet(tablet : Tablet) : Tablet { return this.registerChild<Tablet>(tablet.clientId(), tablet); }
 	hasTablet(clientId : number) : boolean { return this.hasChild(clientId); }
 	getTablet(clientId? : number) : Tablet { return this.getChild<Tablet>(defined(clientId) ? clientId : game.clientId()); }
+
+	scores() : Array<Score> {
+		return this.mapAll<Tablet, Score>((tablet : Tablet) => {
+			return {
+				displayName: tablet.displayName(),
+				roundScore: tablet.roundScore(),
+				scores: tablet.scores(),
+			}
+		});
+	}
 
 	override postUpdate(stepData : StepData) : void {
 		super.postUpdate(stepData);

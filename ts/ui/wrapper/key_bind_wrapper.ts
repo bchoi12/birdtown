@@ -4,8 +4,6 @@ import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 import { KeyNames } from 'ui/util/key_names'
 
-import { defined } from 'util/common'
-
 export type KeyBindWrapperOptions = {
 	name : string;
 	get : () => number;
@@ -46,7 +44,7 @@ export class KeyBindWrapper extends HtmlWrapper<HTMLElement> {
 		};
 
 		document.addEventListener("keydown", (e) => {
-			if (!this._active || !defined(e.keyCode)) {
+			if (!this._active || !e.keyCode) {
 				return;
 			}
 

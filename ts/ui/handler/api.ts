@@ -9,6 +9,7 @@ export enum HandlerType {
 	KEY_BIND,
 	LOGIN,
 	PAUSE,
+	SCOREBOARD,
 	SETTINGS,
 	STATS,
 	TOOLTIPS,

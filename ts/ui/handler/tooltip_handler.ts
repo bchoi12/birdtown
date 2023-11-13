@@ -16,7 +16,7 @@ import { defined } from 'util/common'
 
 export class TooltipHandler extends HandlerBase implements Handler {
 
-	private static readonly _defaultTTL : number = 2000;
+	private static readonly _defaultTTL : number = 3000;
 	private static readonly _maxTooltips : number = 3;
 
 	private _tooltipsElm : HTMLElement;
@@ -75,6 +75,8 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		switch (type) {
 		case TooltipType.CONSOLE:
 			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game.\n(2+ players required)";
+		case TooltipType.FAILED_DIALOG_SYNC:
+			return "Error: failed to save dialog input!";
 		case TooltipType.SPAWN:
 			return "Press " + KeyNames.boxed(settings.jumpKeyCode) + " to deploy the chicken."
 		case TooltipType.SPECTATING:

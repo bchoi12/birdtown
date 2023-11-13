@@ -41,6 +41,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			if (e.repeat) return;
 
 			if (e.keyCode === settings.chatKeyCode) {
+				e.preventDefault();
 				this.chatKeyPressed();
 			}
 		});		
@@ -48,17 +49,17 @@ export class ChatHandler extends HandlerBase implements Handler {
 
 	setMode(mode : UiMode) : void {
 		if (mode === UiMode.CHAT) {
-			this._chatElm.style.display = "block";
+			this._chatElm.style.visibility = "visible";
 			this._chatElm.classList.remove(Html.classSlightlyTransparent);
 			this._chatElm.classList.remove(Html.classNoSelect);
-			this._messageElm.style.display = "block";
+			this._messageElm.style.visibility = "visible";
 			this._chatElm.style.bottom = "2em";
 			this._chatElm.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
 			this._messageInputElm.focus();
 		} else {
 			this._chatElm.classList.add(Html.classSlightlyTransparent);
 			this._chatElm.classList.add(Html.classNoSelect);
-			this._messageElm.style.display = "none";
+			this._messageElm.style.visibility = "hidden";
 			this._chatElm.style.bottom = "1em";
 			this._chatElm.style.backgroundColor = "";
 			this._messageInputElm.blur();

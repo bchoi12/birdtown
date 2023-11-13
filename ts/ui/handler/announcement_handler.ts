@@ -34,9 +34,23 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		this._announcements = new Array<UiMessage>();
 	}
 
-	override reset() : void { this._announcementElm.style.display = "none"; }
+	override reset() : void {
+		super.reset();
+
+		this._announcementElm.style.visibility = "hidden";
+		this._announcements = [];
+		this._active = false;
+	}
+
+	override clear() : void {
+		super.clear();
+
+		this.reset();
+	}
 
 	override handleMessage(msg : UiMessage) : void {
+		super.handleMessage(msg);
+
 		if (msg.type() !== UiMessageType.ANNOUNCEMENT) {
 			return;
 		}
@@ -49,7 +63,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 
 	private popAnnouncement() {
 		if (this._announcements.length === 0) {
-			this._announcementElm.style.display = "none";
+			this._announcementElm.style.visibility = "hidden";
 			this._active = false;
 			return;
 		}
@@ -58,7 +72,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		const htmls = this.getHtmls(announcement);
 		this._mainAnnouncementElm.innerHTML = htmls.main;
 		this._subAnnouncementElm.innerHTML = htmls.sub ? htmls.sub : "";
-		this._announcementElm.style.display = "block";
+		this._announcementElm.style.visibility = "visible";
 		this._active = true;
 
 		let timeout;
@@ -98,7 +112,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		case AnnouncementType.GAME_FINISH:
 			if (names.length === 1) {
 				return {
-					main: names[0] + " wins the round!",
+					main: names.join(", ") + " wins the round!",
 				};
 			}
 			break;

@@ -207,6 +207,15 @@ export class CircleMap<K, V> {
 		}).matches > 0;
 	}
 
+	mapAll<O>(map : (v : V) => O) : O[] {
+		return this.executeHelper({
+			execute: () => {},
+			predicate: () => { return true; },
+			stopType: StopType.NONE,
+			recordType: RecordType.OBJECT,
+		}).objects.map(map);
+	}
+
 	findAll(predicate : (v : V, k : K) => boolean) : V[] {
 		return this.executeHelper({
 			execute: () => {},

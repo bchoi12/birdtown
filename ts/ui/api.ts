@@ -54,6 +54,7 @@ export enum KeyState {
 export enum TooltipType {
 	UNKNOWN,
 	CONSOLE,
+	FAILED_DIALOG_SYNC,
 	SPAWN,
 	SPECTATING,
 }

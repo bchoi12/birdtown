@@ -29,11 +29,14 @@ export class PauseHandler extends HandlerBase implements Handler {
 		document.addEventListener("keyup", (e : any) => {
 			if (e.keyCode !== settings.pauseKeyCode) return;
 
+			e.preventDefault();
 			this._canPause = true;
 		});
 
 		document.addEventListener("keydown", (e : any) => {
 			if (!this._canPause || e.keyCode !== settings.pauseKeyCode) return;
+
+			e.preventDefault();
 
 			if (ui.mode() === UiMode.CHAT) {
 				ui.setMode(UiMode.GAME);
@@ -54,10 +57,10 @@ export class PauseHandler extends HandlerBase implements Handler {
 
 	override setMode(mode : UiMode) : void {
 		if (mode === UiMode.PAUSE) {
-			this._pauseElm.style.display = "block";
+			this._pauseElm.style.visibility = "visible";
 			this._canPause = false;
 		} else {
-			this._pauseElm.style.display = "none";
+			this._pauseElm.style.visibility = "hidden";
 		}
 	}
 }

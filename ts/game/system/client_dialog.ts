@@ -15,7 +15,7 @@ import { UiMessage, UiMessageType } from 'message/ui_message'
 import { NetworkBehavior } from 'network/api'
 
 import { ui } from 'ui'
-import { DialogType } from 'ui/api'
+import { DialogType, TooltipType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -117,10 +117,7 @@ export class ClientDialog extends ClientSideSystem implements System {
 
 	private dialogState(type : DialogType) : DialogState { return this._states.has(type) ? this._states.get(type) : DialogState.NOT_REQUESTED; }
 	private setDialogState(type : DialogType, state : DialogState) : void {
-		if (this.isSource() && state === DialogState.ERROR) {
-			// TODO: tooltip or something
-			console.error("%s: failed to sync dialog %s with host", this.name(), DialogType[type]);
-		} else if (this.isHost() && state === DialogState.PENDING) {
+		if (this.isHost() && state === DialogState.PENDING) {
 			// Host is always in sync.
 			this._states.set(type, DialogState.IN_SYNC);
 			return;
@@ -130,13 +127,22 @@ export class ClientDialog extends ClientSideSystem implements System {
 	private resetDialogStates() : void { this._states.clear(); }
 
 	forceSync() : void {
-		if (!this.isHost()) { return; }
+		if (!this.isSource()) { return; }
 
+		let error = false;
 		this._states.forEach((state : DialogState, type : DialogType) => {
 			if (state === DialogState.OPEN || state === DialogState.PENDING) {
-				this._states.set(type, DialogState.ERROR);
+				this.setDialogState(type, DialogState.ERROR);
+				error = true;
 			}
 		});
+		if (error) {
+			ui.clear();
+
+			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
+			tooltipMsg.setTooltipType(TooltipType.FAILED_DIALOG_SYNC);
+			ui.handleMessage(tooltipMsg);
+		}
 	}
 	inSync() : boolean {
 		for (const state of this._states.values()) {
@@ -161,6 +167,14 @@ export class ClientDialog extends ClientSideSystem implements System {
 		super.handleMessage(msg);
 
 		switch (msg.type()) {
+		case GameMessageType.GAME_STATE:
+			switch (msg.getGameState()) {
+			case GameState.GAME:
+				// Force close any still open dialogs.
+				this.forceSync();
+				break;
+			}
+			break;
 		case GameMessageType.PLAYER_STATE:
 			if (msg.getClientId() !== this.clientId()) {
 				return;

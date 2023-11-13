@@ -1,6 +1,6 @@
 
 import { StepData } from 'game/game_object'
-import { ClientSideSystem, System } from 'game/system'
+import { ClientSystem, System } from 'game/system'
 import { SystemType, ScoreType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -8,7 +8,7 @@ import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 
-export class Tablet extends ClientSideSystem implements System {
+export class Tablet extends ClientSystem implements System {
 
 	private _roundScore : number;
 
@@ -75,7 +75,7 @@ export class Tablet extends ClientSideSystem implements System {
 	}
 
 	scores() : Map<ScoreType, number> { return this._scores; }
-	score(type : ScoreType) : number { return this._scores.get(type); }
+	score(type : ScoreType) : number { return this.hasScore(type) ? this._scores.get(type) : 0; }
 	hasScore(type : ScoreType) : boolean { return this._scores.has(type); }
 	setScore(type : ScoreType, value : number) : void {
 		this._scores.set(type, value);
