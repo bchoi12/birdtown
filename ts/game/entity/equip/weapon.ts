@@ -43,6 +43,7 @@ export abstract class Weapon extends Equip<Player> {
 					model.setMesh(mesh);
 				});
 			},
+			init: entityOptions.modelInit,
 		}));
 
 		this._reloadTimer = this.newTimer({

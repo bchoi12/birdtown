@@ -44,6 +44,7 @@ export class Explosion extends EntityBase implements Entity {
 					diameter: this._profile.unscaledDim().x,
 				}, game.scene()));
 			},
+			init: entityOptions.modelInit,
 		}));
 	}
 

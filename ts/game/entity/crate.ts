@@ -71,6 +71,7 @@ export class Crate extends EntityBase implements Entity {
 					model.setMesh(mesh);
 				});
 			},
+			init: entityOptions.modelInit,
 		}));
 	}
 

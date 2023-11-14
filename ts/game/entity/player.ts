@@ -286,6 +286,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					model.setMesh(mesh);
 				});
 			},
+			init: entityOptions.modelInit,
 		}));
 
 		this._modifiers = new Modifiers();

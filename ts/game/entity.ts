@@ -4,17 +4,16 @@ import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { Component } from 'game/component'
 import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
-import { Model } from 'game/component/model'
-import { Profile } from 'game/component/profile'
-import { GameObject, GameObjectBase } from 'game/game_object'
 import { Association, AssociationInitOptions } from 'game/component/association'
 import { Attributes, AttributesInitOptions } from 'game/component/attributes'
 import { CardinalsInitOptions } from 'game/component/cardinals'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
-import { ProfileInitOptions } from 'game/component/profile'
+import { Model, ModelInitOptions } from 'game/component/model'
+import { Profile, ProfileInitOptions } from 'game/component/profile'
 import { Stats } from 'game/component/stats'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
+import { GameObject, GameObjectBase } from 'game/game_object'
 
 import { CounterType, KeyType, KeyState } from 'ui/api'
 
@@ -31,6 +30,7 @@ export type EntityOptions = {
 	attributesInit? : AttributesInitOptions;
 	cardinalsInit? : CardinalsInitOptions;
 	hexColorsInit? : HexColorsInitOptions;
+	modelInit? : ModelInitOptions;
 	profileInit? : ProfileInitOptions
 }
 
@@ -80,20 +80,26 @@ export interface EquipEntity extends Entity {
 }
 
 export abstract class EntityBase extends GameObjectBase implements Entity {
-	protected _type : EntityType;
-	protected _allTypes : Set<EntityType>;
+
 	protected _id : number;
 	protected _clientId : number;
+
+	protected _type : EntityType;
+	protected _allTypes : Set<EntityType>;
+
 	protected _levelVersion : number;
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(EntityType[type].toLowerCase());
 
-		if (!defined(entityOptions.id)) {
-			console.error("Warning: entity type " + type + " has no id");
+		if (!entityOptions.id) {
+			console.error("Warning: created entity with invalid id:", this.name());
 		}
+		this._id = entityOptions.id ? entityOptions.id : 0;
+		this._clientId = entityOptions.clientId ? entityOptions.clientId : 0;
+
 		this.addNameParams({
-			id: entityOptions.id,
+			id: this._id,
 		});
 
 		this._type = type;
@@ -105,11 +111,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 		if (entityOptions.levelVersion) {
 			this._levelVersion = entityOptions.levelVersion;
-		}
-
-		this._id = entityOptions.id;
-		if (defined(entityOptions.clientId)) {
-			this._clientId = entityOptions.clientId;
 		}
 
 		this.addProp<boolean>({
@@ -145,16 +146,16 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 	}
 
-	type() : EntityType { return this._type; }
-	addType(type : EntityType) { this._allTypes.add(type); }
-	allTypes() : Set<EntityType> { return this._allTypes; }
 	id() : number { return this._id; }
-
-	hasClientId() : boolean { return defined(this._clientId); }
+	hasClientId() : boolean { return this._clientId > 0; }
 	clientId() : number { return this._clientId; }
 	clientIdMatches() : boolean { return this.hasClientId() && this.clientId() === game.clientId() }
 
-	hasLevelVersion() : boolean { return defined(this._levelVersion); }
+	type() : EntityType { return this._type; }
+	addType(type : EntityType) { this._allTypes.add(type); }
+	allTypes() : Set<EntityType> { return this._allTypes; }
+
+	hasLevelVersion() : boolean { return this._levelVersion < 0; }
 	levelVersion() : number { return this.hasLevelVersion() ? this._levelVersion : 0; }
 
 	addEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {

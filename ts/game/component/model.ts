@@ -8,7 +8,7 @@ import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { AnimationController } from 'game/util/animation_controller'
-import { Transforms } from 'game/util/transforms'
+import { Transforms, TransformOptions } from 'game/util/transforms'
 
 import { GameData, DataFilter } from 'game/game_data'
 
@@ -18,11 +18,16 @@ type MeshFn = (model : Model) => void;
 type OnLoadFn = (model : Model) => void;
 type ReadyFn = (model : Model) => boolean;
 
+export type ModelInitOptions = {
+	transforms? : TransformOptions;
+	offlineTransforms? : TransformOptions;
+}
+
 type ModelOptions = {
 	meshFn : MeshFn;
-	
 	disableShadows? : boolean;
 	readyFn? : ReadyFn;
+	init? : ModelInitOptions;
 }
 
 export class Model extends ComponentBase implements Component {
@@ -48,6 +53,10 @@ export class Model extends ComponentBase implements Component {
 
 		this._transforms = new Transforms();
 		this._offlineTransforms = new Transforms();
+		if (options.init) {
+			this._transforms.setFromOptions(options.init.transforms);
+			this._offlineTransforms.setFromOptions(options.init.offlineTransforms);
+		}
 
 		this._mesh = null;
 
@@ -69,7 +78,7 @@ export class Model extends ComponentBase implements Component {
 	}
 
 	override ready() : boolean {
-		return super.ready() && (this._options.readyFn !== null || this._options.readyFn(this));
+		return super.ready() && (!this._options.readyFn || this._options.readyFn(this));
 	}
 
 	override initialize() : void {

@@ -153,6 +153,11 @@ export class Vec2 implements Vec {
         }
         return this;
     }
+    subScalar(scalar : number) : Vec2 {
+        this.x -= scalar;
+        this.y -= scalar;
+        return this;
+    }
 
     dot(vec : Vec) : number { return this.x * vec.x + this.y * vec.y; }
 

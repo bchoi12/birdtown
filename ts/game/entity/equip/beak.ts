@@ -31,8 +31,8 @@ export abstract class Beak extends Equip<Player> {
 
 	private _model : Model;
 
-	constructor(entityType : EntityType, options : EntityOptions) {
-		super(entityType, options);
+	constructor(entityType : EntityType, entityOptions : EntityOptions) {
+		super(entityType, entityOptions);
 		this.addType(EntityType.BEAK);
 
 		this._squawking = false;
@@ -63,6 +63,7 @@ export abstract class Beak extends Equip<Player> {
 					model.setMesh(mesh);
 				});
 			},
+			init: entityOptions.modelInit,
 		}));
 	}
 

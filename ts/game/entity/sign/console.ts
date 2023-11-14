@@ -4,7 +4,6 @@ import { GameMode } from 'game/api'
 import { EntityOptions } from 'game/entity'
 import { Sign } from 'game/entity/sign'
 import { EntityType } from 'game/entity/api'
-import { BodyFactory } from 'game/factory/body_factory'
 
 import { UiMessage, UiMessageType } from 'message/ui_message'
 

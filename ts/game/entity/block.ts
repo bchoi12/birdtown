@@ -108,6 +108,7 @@ export abstract class Block extends EntityBase {
 					model.offlineTransforms().setTranslation({y: -this._profile.unscaledDim().y / 2 });
 				});
 			},
+			init: entityOptions.modelInit,
 		}));
 	}
 

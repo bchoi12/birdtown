@@ -31,6 +31,7 @@ export type ProfileInitOptions = {
 	vel? : Vec;
 	acc? : Vec;
 	dim? : Vec;
+	scaling? : Vec;
 	angle? : number;
 
 	degraded? : boolean;
@@ -191,6 +192,7 @@ export class Profile extends ComponentBase implements Component {
 		if (init.vel) { this.setVel(init.vel); }
 		if (init.acc) { this.setAcc(init.acc); }
 		if (init.dim) { this.setDim(init.dim); }
+		if (init.scaling) { this.setScaling(init.scaling); }
 		if (init.angle) { this.setAngle(init.angle); }
 	}
 

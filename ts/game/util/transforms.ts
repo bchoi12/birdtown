@@ -9,6 +9,12 @@ enum TransformType {
 	SCALE,
 }
 
+export type TransformOptions = {
+	translate? : Vec;
+	rotate? : Vec;
+	scale? : Vec;
+}
+
 export class Transforms {
 
 	private static readonly _factory = new Map([
@@ -19,8 +25,24 @@ export class Transforms {
 
 	private _transforms : Map<TransformType, Vec3>;
 
-	constructor() {
+	constructor(transformOptions? : TransformOptions) {
 		this._transforms = new Map();
+
+		this.setFromOptions(transformOptions);
+	}
+
+	setFromOptions(transformOptions? : TransformOptions) {
+		if (transformOptions) {
+			if (transformOptions.translate) {
+				this.setTranslation(transformOptions.translate);
+			}
+			if (transformOptions.rotate) {
+				this.setRotation(transformOptions.rotate);
+			}
+			if (transformOptions.scale) {
+				this.setTranslation(transformOptions.scale);
+			}
+		}
 	}
 
 	hasTranslation() : boolean { return this.hasTransform(TransformType.TRANSLATE); }

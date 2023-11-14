@@ -15,15 +15,21 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
 
 import { defined } from 'util/common'
+import { Fns } from 'util/fns'
+import { RateLimiter } from 'util/rate_limiter'
 import { Vec, Vec2 } from 'util/vector'
 
 export class Rocket extends Projectile {
 
+	private _smoker : RateLimiter;
+
 	private _model : Model;
 	private _profile : Profile;
 
-	constructor(options : EntityOptions) {
-		super(EntityType.ROCKET, options);
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.ROCKET, entityOptions);
+
+		this._smoker = new RateLimiter(24);
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -31,7 +37,7 @@ export class Rocket extends Projectile {
 					isSensor: true,
 				});
 			},
-			init: options.profileInit,
+			init: entityOptions.profileInit,
 		}));
 
 		this._model = this.addComponent<Model>(new Model({
@@ -45,6 +51,7 @@ export class Rocket extends Projectile {
 					model.setMesh(mesh);
 				});
 			},
+			init: entityOptions.modelInit,
 		}));
 	}
 
@@ -56,6 +63,21 @@ export class Rocket extends Projectile {
 
 		if (!this._model.hasMesh()) {
 			return;
+		}
+
+		if (this._smoker.check(millis)) {
+			this.addEntity(EntityType.PARTICLE_SMOKE, {
+				offline: true,
+				profileInit: {
+					pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.1, 0.1), y: Fns.randomRange(-0.1, 0.1), }),
+					scaling: { x: 0.2, y : 0.2 },
+				},
+				modelInit: {
+					transforms: {
+						translate: { z: this._model.mesh().position.z },
+					}
+				}
+			});
 		}
 
 		this._model.offlineTransforms().rotation().z += 6 * Math.PI * millis / 1000; 

@@ -46,6 +46,7 @@ export abstract class Sign extends EntityBase implements Entity {
 					model.setMesh(mesh);
 				});
 			},
+			init: entityOptions.modelInit,
 		}));
 
 		this._profile = this.addComponent<Profile>(new Profile({

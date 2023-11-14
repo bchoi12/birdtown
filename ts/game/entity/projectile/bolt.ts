@@ -21,8 +21,8 @@ export class Bolt extends Projectile {
 	private _model : Model;
 	private _profile : Profile;
 
-	constructor(options : EntityOptions) {
-		super(EntityType.BOLT, options);
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.BOLT, entityOptions);
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -30,7 +30,7 @@ export class Bolt extends Projectile {
 					isSensor: true,
 				});
 			},
-			init: options.profileInit,
+			init: entityOptions.profileInit,
 		}));
 
 		this._model = this.addComponent<Model>(new Model({
@@ -45,6 +45,7 @@ export class Bolt extends Projectile {
 					depth: (dim.x + dim.y) / 2,
 				}, game.scene()));
 			},
+			init: entityOptions.modelInit,
 		}));
 	}
 

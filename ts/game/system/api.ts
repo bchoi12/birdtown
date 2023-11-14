@@ -14,6 +14,7 @@ export enum SystemType {
 	KEY,
 	LAKITU,
 	LEVEL,
+	PARTICLE_CACHE,
 	PHYSICS,
 	PLAYER_STATE,
 	PLAYER_STATES,
@@ -48,6 +49,12 @@ export enum SoundType {
 
 	BAWK,
 	EXPLOSION,
+}
+
+export enum ParticleType {
+	UNKNOWN,
+
+	SMOKE,
 }
 
 export enum PlayerRole {

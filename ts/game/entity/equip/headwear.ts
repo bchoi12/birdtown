@@ -16,8 +16,8 @@ export abstract class Headwear extends Equip<EquipEntity> {
 	private _model : Model;
 	private _top : BABYLON.TransformNode;
 
-	constructor(entityType : EntityType, options : EntityOptions) {
-		super(entityType, options);
+	constructor(entityType : EntityType, entityOptions : EntityOptions) {
+		super(entityType, entityOptions);
 		this.addType(EntityType.HEADWEAR);
 
 		this._model = this.addComponent<Model>(new Model({
@@ -38,6 +38,7 @@ export abstract class Headwear extends Equip<EquipEntity> {
 					model.setMesh(mesh);
 				});
 			},
+			init: entityOptions.modelInit,
 		}));
 	}
 
