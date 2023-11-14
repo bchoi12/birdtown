@@ -37,11 +37,17 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 			if (e.keyCode !== settings.scoreboardKeyCode) return;
 
 			e.preventDefault();
+
+			// TODO: only show during GameState.GAME
 			this.showScores();
 		})
 	}
 
 	private showScores() : void {
+		if (!game.initialized()) {
+			return;
+		}
+
 		// TODO: rate limited poll for updates
 		if (this._scoreboardElm.style.visibility === "visible") {
 			return;

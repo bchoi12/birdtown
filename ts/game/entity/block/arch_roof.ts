@@ -21,12 +21,12 @@ export class ArchRoof extends ArchBase implements Entity {
 
 		if (!this.openings().anyBottom()) {
 			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x - 1e-2, y: this.thickness() }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.scaledDim().x - 1e-2, y: this.thickness() }),
 			});
 		} else {
 			if (!this.openings().hasDir(CardinalDir.BOTTOM_LEFT)) {
 				this.addTrackedEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this._profile.dim().x / 2, y: this.thickness() }),
+					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this._profile.scaledDim().x / 2, y: this.thickness() }),
 				});
 				this.addTrackedEntity(EntityType.WALL, {
 					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this.thickness(), y: this.thickness() }),
@@ -34,7 +34,7 @@ export class ArchRoof extends ArchBase implements Entity {
 			}
 			if (!this.openings().hasDir(CardinalDir.BOTTOM_RIGHT)) {
 				this.addTrackedEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this._profile.dim().x / 2, y: this.thickness() }),
+					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this._profile.scaledDim().x / 2, y: this.thickness() }),
 				});
 				this.addTrackedEntity(EntityType.WALL, {
 					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this.thickness(), y: this.thickness() }),
@@ -44,13 +44,13 @@ export class ArchRoof extends ArchBase implements Entity {
 
 		if (!this.openings().hasDir(CardinalDir.RIGHT)) {
 			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.RIGHT, {x: this.thickness(), y: this._profile.dim().y }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.RIGHT, {x: this.thickness(), y: this._profile.scaledDim().y }),
 			});
 		}
 
 		if (!this.openings().hasDir(CardinalDir.LEFT)) {
 			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.LEFT, {x: this.thickness(), y: this._profile.dim().y }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.LEFT, {x: this.thickness(), y: this._profile.scaledDim().y }),
 			});
 		}
 	}

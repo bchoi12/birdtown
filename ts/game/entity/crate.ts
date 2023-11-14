@@ -37,7 +37,7 @@ export class Crate extends EntityBase implements Entity {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: BodyFactory.defaultDensity,
 				});
 			},
@@ -62,8 +62,8 @@ export class Crate extends EntityBase implements Entity {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					const modelDimension = EntityFactory.getDimension(this.type());
 					let scaling = {
-						x: this._profile.dim().x / modelDimension.x,
-						y: this._profile.dim().y / modelDimension.y,
+						x: this._profile.scaledDim().x / modelDimension.x,
+						y: this._profile.scaledDim().y / modelDimension.y,
 						z: 0,
 					}
 					scaling.z = (scaling.x + scaling.y) / 2;

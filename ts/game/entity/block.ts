@@ -80,7 +80,7 @@ export abstract class Block extends EntityBase {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
 					isStatic: true,
 					collisionFilter: {
@@ -101,11 +101,11 @@ export abstract class Block extends EntityBase {
 			meshFn: (model : Model) => {
 				MeshFactory.load(this.meshType(), (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
-					mesh.position = this._profile.pos().clone().sub({y: this._profile.dim().y / 2}).toBabylon3();
+					mesh.position = this._profile.pos().clone().sub({y: this._profile.unscaledDim().y / 2}).toBabylon3();
 
 					this.processMesh(mesh);
 					model.setMesh(mesh);
-					model.offlineTransforms().setTranslation({y: -this._profile.dim().y / 2 });
+					model.offlineTransforms().setTranslation({y: -this._profile.unscaledDim().y / 2 });
 				});
 			},
 		}));
@@ -137,7 +137,7 @@ export abstract class Block extends EntityBase {
 		}
 
 		const targetProfile = target.profile();
-		const feet = targetProfile.pos().clone().sub({y: targetProfile.dim().y / 2});
+		const feet = targetProfile.pos().clone().sub({y: targetProfile.scaledDim().y / 2});
 		if (!this._profile.contains(feet)) {
 			return;
 		}

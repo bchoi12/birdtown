@@ -154,7 +154,7 @@ export class Profile extends ComponentBase implements Component {
 		});
 		this.addProp<Vec>({
 			has: () => { return this.hasDim(); },
-			export: () => { return this.dim().toVec(); },
+			export: () => { return this.unscaledDim().toVec(); },
 			import: (obj : Vec) => { this.setDim(obj); },
 		});
 		this.addProp<number>({
@@ -254,7 +254,7 @@ export class Profile extends ComponentBase implements Component {
 
 	relativePos(cardinal : CardinalDir, objectDim : Vec) : Vec2 {
 		let adjustedPos = this.pos().clone();
-		const dim = this.dim();
+		const dim = this.scaledDim();
 
 		if (Cardinal.isLeft(cardinal)) {
 			adjustedPos.add({ x: -dim.x / 2 + objectDim.x / 2});
@@ -326,8 +326,8 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	private hasDim() : boolean { return defined(this._dim); }
-	dim() : Vec2 { return this._dim; }
-	scaledDim() : Vec2 { return this._dim.clone().mult(this.scaling()); }
+	unscaledDim() : Vec2 { return this._dim; }
+	scaledDim() : Vec2 { return this.hasScaling() ? this.unscaledDim().clone().mult(this.scaling()) : this.unscaledDim(); }
 	setDim(vec : Vec) : void {
 		if (defined(this._dim) && Vec2.approxEquals(this._dim.toVec(), vec, this.vecEpsilon())) { return; }
 		if (this.hasDim()) {

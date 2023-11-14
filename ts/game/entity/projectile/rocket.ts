@@ -27,9 +27,7 @@ export class Rocket extends Projectile {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				const pos = profile.pos();
-				const dim = profile.dim();
-				return BodyFactory.circle(profile.pos(), profile.dim(), {
+				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
 				});
 			},
@@ -41,7 +39,6 @@ export class Rocket extends Projectile {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				const dim = this._profile.dim();
 				MeshFactory.load(MeshType.ROCKET, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					model.offlineTransforms().setRotation({ y: Math.PI / 2 });

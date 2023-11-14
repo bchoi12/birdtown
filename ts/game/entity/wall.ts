@@ -23,7 +23,7 @@ export class Wall extends EntityBase implements Entity {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
 					collisionFilter: {
 						group: BodyFactory.ignoreWallGroup,

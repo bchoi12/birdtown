@@ -50,7 +50,7 @@ export class Plane extends EntityBase implements Entity {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
 					render: {
 						visible: false,
@@ -68,7 +68,7 @@ export class Plane extends EntityBase implements Entity {
 		const millis = stepData.millis;
 
 		const bounds = game.level().bounds();
-		const side = bounds.xSide(this._profile.pos(), /*buffer=*/-this._profile.dim().x);
+		const side = bounds.xSide(this._profile.pos(), /*buffer=*/-this._profile.scaledDim().x);
 
 		if (this._profile.vel().isZero()) {
 			if (side === 0) {

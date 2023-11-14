@@ -26,7 +26,7 @@ export class Explosion extends EntityBase implements Entity {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.circle(profile.pos(), profile.dim(), {
+				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
 					isSensor: true,
 				});
@@ -40,9 +40,8 @@ export class Explosion extends EntityBase implements Entity {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				const dim = this._profile.dim();
 				model.setMesh(BABYLON.MeshBuilder.CreateSphere(this.name(), {
-					diameter: dim.x,
+					diameter: this._profile.unscaledDim().x,
 				}, game.scene()));
 			},
 		}));

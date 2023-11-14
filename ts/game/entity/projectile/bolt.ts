@@ -26,9 +26,7 @@ export class Bolt extends Projectile {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				const pos = profile.pos();
-				const dim = profile.dim();
-				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
 				});
 			},
@@ -40,7 +38,7 @@ export class Bolt extends Projectile {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				const dim = this._profile.dim();
+				const dim = this._profile.unscaledDim();
 				model.setMesh(BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: dim.x,
 					height: dim.y,

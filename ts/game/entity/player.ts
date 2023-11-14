@@ -181,10 +181,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		const collisionGroup = MATTER.Body.nextGroup(/*ignoreCollisions=*/true);
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				const pos = profile.pos();
-				const dim = profile.dim();
-
-				return BodyFactory.rectangle(profile.pos(), profile.dim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: BodyFactory.playerDensity,
 					friction: 0,
 					collisionFilter: {
@@ -205,7 +202,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._headSubProfile = this._profile.registerSubComponent<Profile>(SubProfile.HEAD, new Profile({
 			readyFn: (head : Profile) => { return this._profile.initialized(); },
 			bodyFn: (head : Profile) => {
-				return BodyFactory.rectangle(head.pos(), head.dim(), {
+				return BodyFactory.rectangle(head.pos(), head.unscaledDim(), {
 					isSensor: true,
 					collisionFilter: {
 						group: collisionGroup,
@@ -284,7 +281,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 					let armature = model.getBone(Bone.ARMATURE).getTransformNode();
 					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + Player._rotationOffset, 0);
-					const dim = this._profile.dim();
+					const dim = this._profile.unscaledDim();
 					armature.position.y -= dim.y / 2;
 					model.setMesh(mesh);
 				});

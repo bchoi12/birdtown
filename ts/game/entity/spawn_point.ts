@@ -22,7 +22,7 @@ export class SpawnPoint extends EntityBase implements Entity {
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.circle(profile.pos(), profile.dim(), {
+				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
 					isSensor: true,
 					render: {
