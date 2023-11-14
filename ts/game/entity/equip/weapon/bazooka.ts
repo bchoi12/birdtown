@@ -65,7 +65,7 @@ export class Bazooka extends Weapon {
 			rocket.setTTL(750, () => {
 				rocket.explode();
 			});
-			rocket.model().offlineTransforms().setTranslation({ z: pos.z });
+			rocket.model().transforms().setTranslation({ z: pos.z });
 		}
 
 		this.reload(1000);

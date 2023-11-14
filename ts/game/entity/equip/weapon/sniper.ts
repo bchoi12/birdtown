@@ -62,7 +62,7 @@ export class Sniper extends Weapon {
 		if (hasBolt) {
 			this.recordUse();
 			bolt.setTTL(750);
-			bolt.model().offlineTransforms().setTranslation({ z: pos.z });
+			bolt.model().transforms().setTranslation({ z: pos.z });
 		}
 
 		this.reload(125);
