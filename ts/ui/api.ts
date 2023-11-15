@@ -11,11 +11,12 @@ export enum UiMode {
 
 export enum AnnouncementType {
 	UNKNOWN,
-	LEVEL,
 	DISCONNECTED,
 	DISCONNECTED_SIGNALING,
 	GAME_FINISH,
 	GAME_ERROR,
+	LEVEL,
+	WELCOME,
 }
 
 export enum CounterType {
@@ -53,8 +54,9 @@ export enum KeyState {
 
 export enum TooltipType {
 	UNKNOWN,
-	CONSOLE,
 	FAILED_DIALOG_SYNC,
+	JUST_A_SIGN,
 	SPAWN,
 	SPECTATING,
+	START_GAME,
 }

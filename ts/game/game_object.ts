@@ -383,7 +383,7 @@ export abstract class GameObjectBase {
 	shouldBroadcast() : boolean {
 		return this.networkBehavior() === NetworkBehavior.SOURCE || this.networkBehavior() === NetworkBehavior.RELAY;
 	}
-	isHost() : boolean { return game.options().host; }
+	isHost() : boolean { return game.isHost(); }
 	isSource() : boolean { return this.networkBehavior() === NetworkBehavior.SOURCE || this.networkBehavior() === NetworkBehavior.OFFLINE; }
 	isOffline() : boolean { return this._offline; }
 	setOffline(offline : boolean) : void { this._offline = offline; }

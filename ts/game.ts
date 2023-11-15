@@ -167,6 +167,7 @@ class Game {
 
 	canvas() : HTMLCanvasElement { return this._canvas; }
 	options() : GameOptions { return this._options; }
+	isHost() : boolean { return this._options.host; }
 	stepTime() : number { return this._runner.stepTime(); }
 	renderTime() : number { return this._renderTimes.average(); }
 

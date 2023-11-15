@@ -1,6 +1,8 @@
 
 import { game } from 'game'	
+import { GameState } from 'game/api'
 import { AssociationType } from 'game/component/api'
+import { Sign } from 'game/entity/sign'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
@@ -17,7 +19,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
-import { AnnouncementType } from 'ui/api'
+import { AnnouncementType, TooltipType } from 'ui/api'
 
 import { Box, Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -72,6 +74,12 @@ export class Level extends SystemBase implements System {
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }
 	spawnPlayer(player : Player) : void {
 		if (!this.isSource()) {
+			player.respawn(player.profile().pos());
+			return;
+		}
+
+		if (game.controller().gameState() === GameState.FREE) {
+			player.respawn(this._defaultSpawn);
 			return;
 		}
 
@@ -125,7 +133,7 @@ export class Level extends SystemBase implements System {
 			});
 
 			if (isLocalhost()) {
-				console.log("%s: deleted all entities below current version %d", this.name(), version);
+				console.log("%s: deleted entities below current version %d", this.name(), version);
 			}
 		}
 
@@ -142,11 +150,6 @@ export class Level extends SystemBase implements System {
 		this._levelMsg.setDisplayName(this.displayName());
 
     	game.runner().handleMessage(this._levelMsg);
-
-    	let announcement = new UiMessage(UiMessageType.ANNOUNCEMENT);
-    	announcement.setAnnouncementType(AnnouncementType.LEVEL);
-    	announcement.setNames([this.displayName()]);
-    	game.announcer().announce(announcement);
 
 		if (isLocalhost()) {
 			console.log("%s: loaded level %s with seed %d, version %d", this.name(), LevelType[level], seed, version);
@@ -214,12 +217,15 @@ export class Level extends SystemBase implements System {
 			});
 
 			if (i === 2) {
-				this.addEntity(EntityType.CONSOLE, {
+				let [sign, hasSign] = this.addEntity<Sign>(EntityType.SIGN, {
 					profileInit: {
 						pos: pos.clone().add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
 						dim: EntityFactory.getDimension(EntityType.SIGN),
 					},
-				})
+				});
+				if (hasSign) {
+					sign.setTooltipType(TooltipType.START_GAME);
+				}
 			}
 
 
@@ -358,9 +364,9 @@ export class Level extends SystemBase implements System {
 		this.setBounds(bounds.toBox());
 	}
 
-	private addEntity(type : EntityType, entityOptions : EntityOptions) : [Entity, boolean] {
+	private addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : [T, boolean] {
 		entityOptions.levelVersion = this.version();
-		return game.entities().addEntity(type, entityOptions);
+		return game.entities().addEntity<T>(type, entityOptions);
 	}
 }
 		

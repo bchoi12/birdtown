@@ -12,7 +12,7 @@ import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Rocket } from 'game/entity/projectile/rocket'
-import { Console } from 'game/entity/sign/console'
+import { Sign } from 'game/entity/sign'
 import { SpawnPoint } from 'game/entity/spawn_point'
 import { Wall } from 'game/entity/wall'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
@@ -31,13 +31,13 @@ export namespace EntityFactory {
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
-		[EntityType.CONSOLE, (options : EntityOptions) => { return new Console(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],
 		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
+		[EntityType.SIGN, (options : EntityOptions) => { return new Sign(options); }],
 		[EntityType.SNIPER, (options : EntityOptions) => { return new Sniper(options); }],
 		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],

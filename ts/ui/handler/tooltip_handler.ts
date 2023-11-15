@@ -1,4 +1,5 @@
 
+import { game } from 'game'
 
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
@@ -73,10 +74,10 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		const type = msg.getTooltipType();
 		const names = msg.getNamesOr([]);
 		switch (type) {
-		case TooltipType.CONSOLE:
-			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game.\n(2+ players required)";
 		case TooltipType.FAILED_DIALOG_SYNC:
 			return "Error: failed to save dialog input!";
+		case TooltipType.JUST_A_SIGN:
+			return "Just a sign...nothing to see here."
 		case TooltipType.SPAWN:
 			return "Press " + KeyNames.boxed(settings.jumpKeyCode) + " to deploy the chicken."
 		case TooltipType.SPECTATING:
@@ -84,6 +85,11 @@ export class TooltipHandler extends HandlerBase implements Handler {
 				return "Spectating";
 			}
 			return "Spectating " + names[0];
+		case TooltipType.START_GAME:
+			if (!game.isHost()) {
+				return "When you\'re ready, ask the host to start a game.";
+			}
+			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game at anytime.\n(2+ players required)";
 		default:
 			return "Missing tooltip text for type " + type;
 		}

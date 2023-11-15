@@ -92,13 +92,6 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		const names = announcement.getNamesOr([]);
 
 		switch (type) {
-		case AnnouncementType.LEVEL:
-			if (names.length === 1) {
-				return {
-					main: "Welcome to " + names[0],
-				};
-			}
-			break;
 		case AnnouncementType.DISCONNECTED:
 			return {
 				main: "Lost connection to server",
@@ -124,6 +117,17 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 				};
 			}
 			break;
+		case AnnouncementType.LEVEL:
+			if (names.length === 1) {
+				return {
+					main: "Welcome to " + names[0],
+				};
+			}
+			break;
+		case AnnouncementType.WELCOME:
+			return {
+				main: "Welcome to Birdtown",
+			}
 		}
 
 		return {

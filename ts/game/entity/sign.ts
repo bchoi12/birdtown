@@ -17,22 +17,27 @@ import { UiMessage, UiMessageType } from 'message/ui_message'
 import { ui } from 'ui'
 import { DialogType, KeyType, KeyState, TooltipType } from 'ui/api'
 
-export abstract class Sign extends EntityBase implements Entity {
+export class Sign extends EntityBase implements Entity {
 
-	protected _active : boolean;
+	private _active : boolean;
+	private _tooltipType : TooltipType;
 
-	protected _model : Model;
-	protected _profile : Profile;
+	private _model : Model;
+	private _profile : Profile;
 
-	constructor(type : EntityType, entityOptions : EntityOptions) {
-		super(type, entityOptions);
-		this.addType(EntityType.SIGN);
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.SIGN, entityOptions);
 
 		this._active = false;
+		this._tooltipType = TooltipType.JUST_A_SIGN;
 
 		this.addProp<boolean>({
 			export: () => { return this._active; },
 			import: (obj : boolean) => { this._active = obj; },
+		});
+		this.addProp<TooltipType>({
+			export: () => { return this._tooltipType; },
+			import: (obj : TooltipType) => { this._tooltipType = obj; },
 		});
 
 		this._model = this.addComponent<Model>(new Model({
@@ -63,7 +68,7 @@ export abstract class Sign extends EntityBase implements Entity {
 		}));
 	}
 
-	abstract showTooltip() : void;
+	setTooltipType(type : TooltipType) : void { this._tooltipType = type; }
 
 	override prePhysics(stepData : StepData) : void {
 		super.prePhysics(stepData);
@@ -93,6 +98,9 @@ export abstract class Sign extends EntityBase implements Entity {
 			return;
 		}
 
-		this.showTooltip();
+		let msg = new UiMessage(UiMessageType.TOOLTIP);
+		msg.setTtl(100);
+		msg.setTooltipType(this._tooltipType);
+		ui.handleMessage(msg);
 	}
 }

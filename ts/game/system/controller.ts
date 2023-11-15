@@ -12,6 +12,8 @@ import { GameMaker } from 'game/system/game_maker'
 import { GameConfigMessage } from 'message/game_config_message'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
+import { KeyType } from 'ui/api'
+
 import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
 import { Timer} from 'util/timer'
@@ -79,8 +81,14 @@ export class Controller extends SystemBase implements System {
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
 
-		if (this.isSource()) {
-			this.setGameState(this._gameMaker.queryState(this.gameState()));
+		if (!this.isSource()) {
+			return;
+		}
+
+		this.setGameState(this._gameMaker.queryState(this.gameState()));
+
+		if (game.keys().getKey(KeyType.INTERACT).pressed()) {
+			this.startGame(GameMode.DUEL);
 		}
 	}
 }

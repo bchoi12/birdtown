@@ -160,7 +160,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	addType(type : EntityType) { this._allTypes.add(type); }
 	allTypes() : Set<EntityType> { return this._allTypes; }
 
-	hasLevelVersion() : boolean { return this._levelVersion < 0; }
+	hasLevelVersion() : boolean { return this._levelVersion > 0; }
 	levelVersion() : number { return this.hasLevelVersion() ? this._levelVersion : 0; }
 
 	addEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {

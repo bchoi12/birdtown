@@ -37,6 +37,15 @@ export class Announcer extends SystemBase implements System {
 		});
 	}
 
+	override initialize() : void {
+		super.initialize();
+
+		// Client-side welcome
+    	let announcement = new UiMessage(UiMessageType.ANNOUNCEMENT);
+    	announcement.setAnnouncementType(AnnouncementType.WELCOME);
+    	ui.handleMessage(announcement);
+	}
+
 	announce(announcement : UiMessage) : void {
 		if (announcement.type() !== UiMessageType.ANNOUNCEMENT || !announcement.valid()) {
 			console.error("Error: skipping invalid announcement", announcement);

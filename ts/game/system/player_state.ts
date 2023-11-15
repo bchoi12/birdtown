@@ -239,7 +239,7 @@ export class PlayerState extends ClientSystem implements System {
 				break;
 			default:
 				this._respawnTimer.start(PlayerState._respawnTime, () => {
-					player.respawn(game.level().defaultSpawn());
+					game.level().spawnPlayer(player);
 				});
 				break;
 			}
