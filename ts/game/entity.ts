@@ -18,6 +18,7 @@ import { GameObject, GameObjectBase } from 'game/game_object'
 import { CounterType, KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
+import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
 export type EntityOptions = {
@@ -86,6 +87,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	protected _type : EntityType;
 	protected _allTypes : Set<EntityType>;
+	protected _ttlTimer : Timer;
 
 	protected _levelVersion : number;
 
@@ -105,6 +107,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this._type = type;
 		this._allTypes = new Set();
 		this._allTypes.add(type);
+		this._ttlTimer = this.newTimer({
+			canInterrupt: true,
+		});
 
 		if (entityOptions.offline) {
 			this.setOffline(true);
@@ -174,16 +179,14 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	getCounts() : Map<CounterType, number> { return new Map(); }
 	setTTL(ttl : number, onDelete? : () => void) : void {
-		const timer = this.newTimer({
-			canInterrupt: true,
-		});
-		timer.start(ttl, () => {
+		this._ttlTimer.start(ttl, () => {
 			if (onDelete) {
 				onDelete();
 			}
 			this.delete();
 		});
 	}
+	ttlElapsed() : number { return this._ttlTimer.percentElapsed(); }
 
 	key(type : KeyType, state : KeyState) : boolean {
 		if (this.state() === GameObjectState.DISABLE_INPUT) {

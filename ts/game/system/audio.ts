@@ -19,6 +19,7 @@ type SoundFn = () => AudioType;
 
 export class Audio extends SystemBase implements System {
 
+	// TODO: probably don't need EntityQuery
 	private _players : EntityQuery;
 	private _rng : SeededRandom;
 	private _audioCache : Map<AudioType, ObjectCache<BABYLON.Sound>>; 
@@ -42,7 +43,7 @@ export class Audio extends SystemBase implements System {
 			}
 
 			this._audioCache.set(type, new ObjectCache<BABYLON.Sound>({
-				createFn: (onLoad? : (sound : BABYLON.Sound) => void) => {
+				createFn: (index : number, onLoad? : (sound : BABYLON.Sound) => void) => {
 					return AudioFactory.load(type, onLoad);
 				},
 			}));
@@ -62,6 +63,7 @@ export class Audio extends SystemBase implements System {
 
 		const audioType = this._sounds.get(soundType)();
 
+		// TODO: lazy initialize the cache here?
 		if (!this._audioCache.has(audioType)) {
 			console.error("Error: audio cache is not initialized for %s", AudioType[audioType]);
 			return;
@@ -79,6 +81,7 @@ export class Audio extends SystemBase implements System {
 		});
 	}
 
+	// TODO: postUpdate instead?
 	override preRender() : void {
 		super.preRender();
 

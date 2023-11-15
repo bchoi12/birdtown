@@ -2,7 +2,7 @@
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
 
-export type ObjectCacheCreateFn<T extends Object> = (onLoad? : ObjectCacheOnLoadFn<T>) => T;
+export type ObjectCacheCreateFn<T extends Object> = (index : number, onLoad? : ObjectCacheOnLoadFn<T>) => T;
 export type ObjectCacheOnLoadFn<T extends Object> = (t : T) => void;
 export interface ObjectCacheOptions<T extends Object> {
 	createFn: ObjectCacheCreateFn<T>;
@@ -13,11 +13,13 @@ export class ObjectCache<T extends Object> {
 
 	private _objs : Set<T>;
 	private _create : ObjectCacheCreateFn<T>;
+	private _createCounter : number;
 	private _maxSize : Optional<number>;
 
 	constructor(options : ObjectCacheOptions<T>) {
 		this._objs = new Set();
 		this._create = options.createFn;
+		this._createCounter = 0;
 		this._maxSize = new Optional();
 
 		if (options.maxSize) {
@@ -25,7 +27,10 @@ export class ObjectCache<T extends Object> {
 		}
 	}
 
-	private create(onLoad? : ObjectCacheOnLoadFn<T>) : T { return this._create(onLoad); }
+	private create(onLoad? : ObjectCacheOnLoadFn<T>) : T {
+		this._createCounter++;
+		return this._create(this._createCounter, onLoad);
+	}
 
 	borrow(onLoad? : ObjectCacheOnLoadFn<T>) : T {
 		for (let obj of this._objs) {

@@ -8,7 +8,7 @@ import { ObjectCache, ObjectCacheOnLoadFn } from 'util/object_cache'
 
 export class ParticleCache extends SystemBase implements System {
 
-	private static readonly _createFns = new Map<ParticleType, () => BABYLON.Mesh>([
+	private static readonly _createFns = new Map<ParticleType, (index : number) => BABYLON.Mesh>([
 		[ParticleType.SMOKE, ParticleCache.createSphere],
 	]);
 
@@ -47,6 +47,16 @@ export class ParticleCache extends SystemBase implements System {
 		}));
 	}
 
-	private static createSphere() : BABYLON.Mesh { return BABYLON.MeshBuilder.CreateSphere("particle-sphere", { diameter: 1, }, game.scene()); }
-	private static createCube() : BABYLON.Mesh { return BABYLON.MeshBuilder.CreateBox("particle-cube", { width: 1, height: 1, depth: 1, }, game.scene()); }
+	private static createSphere(index : number) : BABYLON.Mesh {
+		const name = "particle-sphere-" + index;
+		let sphere = BABYLON.MeshBuilder.CreateSphere(name, { diameter: 1, }, game.scene());
+		sphere.material = new BABYLON.StandardMaterial(name, game.scene());
+		return sphere;
+	}
+	private static createCube(index : number) : BABYLON.Mesh {
+		const name = "particle-cube-" + index;
+		let cube =BABYLON.MeshBuilder.CreateBox("particle-cube", { width: 1, height: 1, depth: 1, }, game.scene());
+		cube.material = new BABYLON.StandardMaterial(name, game.scene());
+		return cube;
+	}
 }

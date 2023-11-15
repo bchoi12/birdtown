@@ -10,20 +10,26 @@ import { ParticleType } from 'game/system/api'
 
 export abstract class Particle extends EntityBase implements Entity {
 
+	private static readonly _defaultParticleTTL : number = 1000;
+
 	protected _model : Model;
 	protected _profile : Profile;
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
+
 		this.addType(EntityType.PARTICLE);
+		this.setTTL(Particle._defaultParticleTTL);
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				let mesh = game.particleCache().getMesh(this.particleType(), this.processMesh);
+				let mesh = game.particleCache().getMesh(this.particleType());
 				model.setMesh(mesh);
+
+				this.processModel(model);
 			},
 			init: entityOptions.modelInit,
 		}));
@@ -49,6 +55,7 @@ export abstract class Particle extends EntityBase implements Entity {
 	}
 
 	abstract particleType() : ParticleType;
-	abstract processMesh(mesh : BABYLON.Mesh) : void;
+	abstract processModel(model : Model) : void;
+	abstract resetModel(model : Model) : void;
 }
 
