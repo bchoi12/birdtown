@@ -7,6 +7,7 @@ import { Component, ComponentBase } from 'game/component'
 import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { AnimationController } from 'game/util/animation_controller'
 import { Transforms, TransformOptions } from 'game/util/transforms'
 
@@ -202,6 +203,17 @@ export class Model extends ComponentBase implements Component {
 		this.resetTransforms();
 		if (this.entity().hasProfile()) {
 			this.addProfileTransforms(this.entity().profile());
+		}
+
+		if (!this.entity().allTypes().has(EntityType.EQUIP)) {
+			const bounds = game.level().bounds();
+			const target = game.lakitu().target();
+			let pos = this.mesh().position;
+			if (pos.x - target.x > bounds.width() / 2) {
+				pos.x -= bounds.width();
+			} else if (target.x - pos.x > bounds.width() / 2) {
+				pos.x += bounds.width();
+			}
 		}
 	}
 }

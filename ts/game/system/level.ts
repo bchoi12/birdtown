@@ -29,20 +29,24 @@ import { HexColor } from 'util/hex_color'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
 
+type LevelOptions = {
+	type : LevelType;
+	seed : number;
+}
+
 export class Level extends SystemBase implements System {
 
 	private _levelMsg : GameMessage;
-
-	private _rng : SeededRandom;
 	private _bounds : Box2;
+	private _rng : SeededRandom;
 	private _defaultSpawn : Vec2;
 
 	constructor() {
 		super(SystemType.LEVEL);
 
 		this._levelMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
-		this._rng = new SeededRandom(0);
 		this._bounds = Box2.zero();
+		this._rng = new SeededRandom(0);
 		this._defaultSpawn = Vec2.zero();
 
 		this.addProp<MessageObject>({
@@ -102,18 +106,11 @@ export class Level extends SystemBase implements System {
 		player.respawn(this._defaultSpawn);
 	}
 
-	loadLevel(msg : GameMessage) : void {
-		if (msg.type() !== GameMessageType.LEVEL_LOAD) {
-			console.error("Error: specified %s message for level load", GameMessageType[msg.type()]);
-			return;
-		}
+	loadLevel(options : LevelOptions) : void {
+		this._levelMsg.setLevelType(options.type);
+		this._levelMsg.setLevelSeed(options.seed);
+		this._levelMsg.setLevelVersion(this.version() + 1);
 
-		if (!msg.valid()) {
-			console.error("Error: invalid level load message", msg);
-			return;
-		}
-
-		this._levelMsg.merge(msg);
 		this.applyLevel();
 	}
 
@@ -148,6 +145,7 @@ export class Level extends SystemBase implements System {
 		}
 
 		this._levelMsg.setDisplayName(this.displayName());
+		this._levelMsg.setLevelBounds(this._bounds.toBox());
 
     	game.runner().handleMessage(this._levelMsg);
 
@@ -156,11 +154,7 @@ export class Level extends SystemBase implements System {
 		}
 	}
 
-	private setBounds(bounds : Box) : void {
-		this._bounds.copyBox(bounds);
-
-		// TODO: broadcast bounds
-	}
+	private setBounds(bounds : Box) : void { this._bounds.copyBox(bounds); }
 
 	private displayName() : string {
 		switch (this.levelType()) {
@@ -253,6 +247,7 @@ export class Level extends SystemBase implements System {
 			},
 		});
 
+		bounds.add({ x: 3, y: 0 });
 		this.setBounds(bounds.toBox());
 	}
 
@@ -361,6 +356,7 @@ export class Level extends SystemBase implements System {
 			},
 		});
 
+		bounds.add({ x: 3, y: 0 });
 		this.setBounds(bounds.toBox());
 	}
 

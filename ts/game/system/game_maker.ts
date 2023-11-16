@@ -171,19 +171,17 @@ export class GameMaker extends SystemBase implements System {
 		switch (state) {
 		case GameState.FREE:
 			this._round = 0;
-			let lobbyMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
-			lobbyMsg.setLevelType(LevelType.LOBBY);
-			lobbyMsg.setLevelSeed(Math.floor(Math.random() * 10000));
-			lobbyMsg.setLevelVersion(game.level().version() + 1);
-			game.level().loadLevel(lobbyMsg);
+			game.level().loadLevel({
+				type: LevelType.LOBBY,
+				seed: Math.floor(Math.random() * 10000),
+			});
 			break;
 		case GameState.SETUP:
 			this._round++;
-			let birdtownMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
-			birdtownMsg.setLevelType(LevelType.BIRDTOWN);
-			birdtownMsg.setLevelSeed(Math.floor(Math.random() * 10000));
-			birdtownMsg.setLevelVersion(game.level().version() + 1);
-			game.level().loadLevel(birdtownMsg);
+			game.level().loadLevel({
+				type: LevelType.BIRDTOWN,
+				seed: Math.floor(Math.random() * 10000),
+			});
 
 			game.tablets().reset();
 			game.playerStates().execute((playerState : PlayerState) => {

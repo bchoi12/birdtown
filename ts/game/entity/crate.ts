@@ -47,8 +47,7 @@ export class Crate extends EntityBase implements Entity {
 		if (!this._profile.hasAngle()) {
 			this._profile.setAngle(0);
 		}
-		this._profile.setLimits({
-			posBounds: new Box2({x: -1000, y: -100}, {x: 1000, y: 100}),
+		this._profile.mergeLimits({
 			// TODO: scalar param?
 			maxSpeed: {x: 0.6, y: 0.6 },
 		});

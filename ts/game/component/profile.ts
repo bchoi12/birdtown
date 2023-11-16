@@ -453,14 +453,12 @@ export class Profile extends ComponentBase implements Component {
 	setLimits(limits : ProfileLimits) : void { this._limits = limits; }
 	mergeLimits(limits : ProfileLimits) { this._limits = {...this._limits, ...limits}; }
 	clearLimits() : void { this._limits = {}; }
-	enableLimits() : void { this._limits.disabled = false; }
-	disableLimits() : void { this._limits.disabled = true; }
 	private applyLimits(pos : Vec2, vel : Vec2) : void {
 		vel.zeroEpsilon(Profile._minQuantization);
 
 		if (this._limits.disabled) { return; }
 
-		if (defined(this._limits.maxSpeed)) {
+		if (this._limits.maxSpeed) {
 			const maxSpeed = this._limits.maxSpeed;
 			if (Math.abs(vel.x) > maxSpeed.x) {
 				vel.x = Math.sign(vel.x) * maxSpeed.x;
@@ -470,9 +468,8 @@ export class Profile extends ComponentBase implements Component {
 			}
 		}
 
-		if (defined(this._limits.posBounds)) {
-			this._limits.posBounds.clamp(pos);
-		}
+		const bounds = game.level().bounds();
+		this.pos().wrapX(bounds.min.x, bounds.max.x);
 	}
 
 	override prePhysics(stepData : StepData) : void {
@@ -522,6 +519,7 @@ export class Profile extends ComponentBase implements Component {
 		if (this.hasVel()) {
 			MATTER.Body.setVelocity(this._body, this.vel());
 		}
+
 		MATTER.Body.setPosition(this._body, this.pos());
 
 		// Update child objects afterwards

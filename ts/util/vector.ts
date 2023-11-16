@@ -1,6 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
+import { Box } from 'util/box'
 import { SeededRandom } from 'util/seeded_random'
 
 export interface Vec {
@@ -217,6 +218,14 @@ export class Vec2 implements Vec {
     }
     lerp(vec : Vec, t : number) : Vec2 {
         return this.interpolate(vec, t, (t : number) => { return t;});
+    }
+
+    wrapX(min : number, max : number) : Vec2 {
+        const width = max - min;
+        if (width > 0) {
+            this.x = min + ((((this.x - min) % width) + width) % width);
+        }
+        return this;
     }
 
     copy(vec : Vec2) : Vec2 { 

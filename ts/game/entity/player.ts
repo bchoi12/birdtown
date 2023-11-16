@@ -194,8 +194,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.setAngle(0);
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
-		this._profile.setLimits({
-			posBounds: new Box2({x: -1000, y: -100}, {x: 1000, y: 100}),
+
+		this._profile.mergeLimits({
 			maxSpeed: {x: Player._maxHorizontalVel, y: Player._maxVerticalVel },
 		});
 
@@ -374,7 +374,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			millis: 2000,
 		});
 	}
-
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);

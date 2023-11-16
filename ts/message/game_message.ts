@@ -3,6 +3,8 @@ import { Message, MessageBase, FieldDescriptor } from 'message'
 
 import { LevelType, PlayerRole } from 'game/system/api'
 
+import { Box } from 'util/box'
+
 export enum GameMessageType {
 	UNKNOWN,
 
@@ -19,6 +21,7 @@ enum GameProp {
 	CLIENT_ID,
 	DISPLAY_NAME,
 	GAME_STATE,
+	LEVEL_BOUNDS,
 	LEVEL_TYPE,
 	LEVEL_SEED,
 	LEVEL_VERSION,
@@ -37,6 +40,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 		)],
 		[GameMessageType.LEVEL_LOAD, MessageBase.fieldDescriptor(
 			[GameProp.LEVEL_TYPE, { min: 1 }],
+			[GameProp.LEVEL_BOUNDS, {}],
 			[GameProp.LEVEL_SEED, {}],
 			[GameProp.LEVEL_VERSION, { min: 1 }],
 			[GameProp.DISPLAY_NAME, { optional: true }],
@@ -71,6 +75,11 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getGameStateOr(value : number) : number { return this.getOr<number>(GameProp.GAME_STATE, value); }
     setGameState(value : number) : void { this.set<number>(GameProp.GAME_STATE, value); }
 
+    hasLevelBounds() : boolean { return this.has(GameProp.LEVEL_BOUNDS); }
+    getLevelBounds() : Box { return this.get<Box>(GameProp.LEVEL_BOUNDS); }
+    getLevelBoundsOr(value : Box) : Box { return this.getOr<Box>(GameProp.LEVEL_BOUNDS, value); }
+    setLevelBounds(value : Box) : void { this.set<Box>(GameProp.LEVEL_BOUNDS, value); }
+
     hasLevelSeed() : boolean { return this.has(GameProp.LEVEL_SEED); }
     getLevelSeed() : number { return this.get<number>(GameProp.LEVEL_SEED); }
     getLevelSeedOr(value : number) : number { return this.getOr<number>(GameProp.LEVEL_SEED, value); }
@@ -96,6 +105,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["CLIENT_ID", "number"],
     ["DISPLAY_NAME", "string"],
     ["GAME_STATE", "number"],
+    ["LEVEL_BOUNDS", "Box"],
     ["LEVEL_SEED", "number"],
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],

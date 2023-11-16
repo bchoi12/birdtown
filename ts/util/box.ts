@@ -62,11 +62,11 @@ export class Box2 implements Box {
 		return relativePos;
 	}
 
-	add(delta : Vec2) : void {
+	add(delta : Vec) : void {
 		this.min.sub(delta);
 		this.max.add(delta);
 	}
-	clamp(result : Vec2) : void {
+	clamp(result : Vec) : void {
 		result.x = Math.min(this.max.x, Math.max(this.min.x, result.x));
 		result.y = Math.min(this.max.y, Math.max(this.min.y, result.y));
 	}

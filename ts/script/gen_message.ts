@@ -1,13 +1,14 @@
 
 // Script for generating boilerplate message methods
-
-const b = "boolean";
-const s = "string";
-const n = "number";
-const o = "Object";
-const dm = "DataMap"
-
-let baseSerializableTypes = new Set<string>([b, s, n, o, dm]);
+let baseSerializableTypes = new Set<string>([
+	"boolean",
+	"string",
+	"number",
+	"Object",
+	"DataMap",
+	"Box",
+	"Vec",
+]);
 let serializableTypes = new Set<string>();
 baseSerializableTypes.forEach((type : string) => {
 	serializableTypes.add(type);
@@ -28,6 +29,7 @@ const map = new Map<string, string>([
     ["CLIENT_ID", "number"],
     ["DISPLAY_NAME", "string"],
     ["GAME_STATE", "number"],
+    ["LEVEL_BOUNDS", "Box"],
     ["LEVEL_SEED", "number"],
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],

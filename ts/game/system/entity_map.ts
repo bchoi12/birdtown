@@ -4,15 +4,20 @@ import { EntityType } from 'game/entity/api'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 
+import { GameMessage, GameMessageType } from 'message/game_message'
+
+import { Box2 } from 'util/box'
+
 export class EntityMap extends SystemBase implements System {
+
 	private _entityType : EntityType;
 
-	constructor(entityType : EntityType) {
+	constructor(type : EntityType) {
 		super(SystemType.ENTITY_MAP);
 
-		this._entityType = entityType;
+		this._entityType = type;
 		this.addNameParams({
-			type: EntityType[entityType],
+			type: EntityType[type],
 		})
 
 		this.setFactoryFn((id : number) => {
