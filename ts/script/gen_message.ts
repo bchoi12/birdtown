@@ -14,9 +14,12 @@ baseSerializableTypes.forEach((type : string) => {
 	serializableTypes.add(type);
 	serializableTypes.add("Array<" + type + ">");
 });
+
+// Add enum types here
 let serializableRegex = new Set<string>();
 serializableRegex.add(".*Type");
 serializableRegex.add("PlayerRole");
+serializableRegex.add("LevelLayout");
 
 // Command: node js/script/gen_message.js
 //
@@ -24,12 +27,13 @@ serializableRegex.add("PlayerRole");
 //
 const version = "2.1";
 
-   const enumClass = "GameProp";
+const enumClass = "GameProp";
 const map = new Map<string, string>([
     ["CLIENT_ID", "number"],
     ["DISPLAY_NAME", "string"],
     ["GAME_STATE", "number"],
     ["LEVEL_BOUNDS", "Box"],
+    ["LEVEL_LAYOUT", "LevelLayout"],
     ["LEVEL_SEED", "number"],
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],

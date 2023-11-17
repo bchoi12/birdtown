@@ -61,28 +61,22 @@ export class Plane extends EntityBase implements Entity {
 			init: entityOptions.profileInit,
 		}));
 
-		this._profile.setVel({x: 0, y: 0});
+		this._profile.setVel({x: Plane._speed, y: 0});
 	}
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		const bounds = game.level().bounds();
-		const side = bounds.xSide(this._profile.pos(), /*buffer=*/-this._profile.scaledDim().x);
-
-		if (this._profile.vel().isZero()) {
-			if (side === 0) {
-				this._profile.setVel({ x: Plane._speed });
-			}
-			return;
-		}
-
 		// Turn around
-		if (side !== 0) {
-			this._profile.setVel({ x: -1 * side * Plane._speed });
-		} else {
-			this._profile.setVel({ x: Math.sign(this._profile.vel().x) * Plane._speed });
+		if (!game.level().isCircle()) {
+			const bounds = game.level().bounds();
+			const side = bounds.xSide(this._profile.pos(), /*buffer=*/-this._profile.scaledDim().x);
+			if (side !== 0) {
+				this._profile.setVel({ x: -1 * side * Plane._speed });
+			} else {
+				this._profile.setVel({ x: Math.sign(this._profile.vel().x) * Plane._speed });
+			}
 		}
 
 		// Rotate to match velocity direction

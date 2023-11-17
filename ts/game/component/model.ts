@@ -28,7 +28,7 @@ type ModelOptions = {
 	meshFn : MeshFn;
 	disableShadows? : boolean;
 	readyFn? : ReadyFn;
-	init? : ModelInitOptions;
+	init : ModelInitOptions;
 }
 
 export class Model extends ComponentBase implements Component {
@@ -181,9 +181,12 @@ export class Model extends ComponentBase implements Component {
 		const scaling = this.getScaling();
 		this._mesh.scaling.set(scaling.x, scaling.y, scaling.z);
 	}
-	addProfileTransforms(profile : Profile) : void {
-		this._mesh.position.x += profile.pos().x;
-		this._mesh.position.y += profile.pos().y;
+	private addProfileTransforms(profile : Profile) : void {
+		const useRenderPos = game.level().isCircle() && this._mesh.parent === null;
+		let pos = useRenderPos ? profile.getRenderPos() : profile.pos();
+
+		this._mesh.position.x += pos.x;
+		this._mesh.position.y += pos.y;
 
 		if (profile.hasAngle()) {
 			this._mesh.rotation.z = profile.angle();
@@ -203,17 +206,6 @@ export class Model extends ComponentBase implements Component {
 		this.resetTransforms();
 		if (this.entity().hasProfile()) {
 			this.addProfileTransforms(this.entity().profile());
-		}
-
-		if (this.mesh().parent === null) {
-			const bounds = game.level().bounds();
-			const target = game.lakitu().target();
-			let pos = this.mesh().position;
-			if (pos.x - target.x > bounds.width() / 2) {
-				pos.x -= bounds.width();
-			} else if (target.x - pos.x > bounds.width() / 2) {
-				pos.x += bounds.width();
-			}
 		}
 	}
 }

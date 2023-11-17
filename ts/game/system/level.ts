@@ -12,25 +12,25 @@ import { EntityFactory } from 'game/factory/entity_factory'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { System, SystemBase } from 'game/system'
-import { LevelType, SystemType } from 'game/system/api'
+import { SystemType, LevelType, LevelLayout } from 'game/system/api'
 
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
-import { UiMessage, UiMessageType } from 'message/ui_message'
 
-import { ui } from 'ui'
-import { AnnouncementType, TooltipType } from 'ui/api'
+import { TooltipType } from 'ui/api'
 
 import { Box, Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
 import { CardinalDir } from 'util/cardinal'
-import { defined, isLocalhost } from 'util/common'
+import { isLocalhost } from 'util/common'
+import { Fns } from 'util/fns'
 import { HexColor } from 'util/hex_color'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
 
 type LevelOptions = {
 	type : LevelType;
+	layout : LevelLayout;
 	seed : number;
 }
 
@@ -74,6 +74,14 @@ export class Level extends SystemBase implements System {
 	seed() : LevelType { return this._levelMsg.getLevelSeedOr(0); }
 	version() : number { return this._levelMsg.getLevelVersionOr(0); }
 	bounds() : Box2 { return this._bounds; }
+	isCircle() : boolean { return this._levelMsg.getLevelLayout() === LevelLayout.CIRCLE; }
+	clampPos(vec : Vec) : void {
+		if (this.isCircle()) {
+			vec.x = Fns.wrap(this._bounds.min.x, vec.x, this._bounds.max.x);
+		} else {
+			vec.x = Fns.clamp(this._bounds.min.x, vec.x, this._bounds.max.x);
+		}
+	}
 
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }
 	spawnPlayer(player : Player) : void {
@@ -108,6 +116,7 @@ export class Level extends SystemBase implements System {
 
 	loadLevel(options : LevelOptions) : void {
 		this._levelMsg.setLevelType(options.type);
+		this._levelMsg.setLevelLayout(options.layout);
 		this._levelMsg.setLevelSeed(options.seed);
 		this._levelMsg.setLevelVersion(this.version() + 1);
 

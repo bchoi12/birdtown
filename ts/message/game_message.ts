@@ -1,7 +1,7 @@
 
 import { Message, MessageBase, FieldDescriptor } from 'message'
 
-import { LevelType, PlayerRole } from 'game/system/api'
+import { LevelType, LevelLayout, PlayerRole } from 'game/system/api'
 
 import { Box } from 'util/box'
 
@@ -22,6 +22,7 @@ enum GameProp {
 	DISPLAY_NAME,
 	GAME_STATE,
 	LEVEL_BOUNDS,
+	LEVEL_LAYOUT,
 	LEVEL_TYPE,
 	LEVEL_SEED,
 	LEVEL_VERSION,
@@ -41,6 +42,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 		[GameMessageType.LEVEL_LOAD, MessageBase.fieldDescriptor(
 			[GameProp.LEVEL_TYPE, { min: 1 }],
 			[GameProp.LEVEL_BOUNDS, {}],
+			[GameProp.LEVEL_LAYOUT, {}],
 			[GameProp.LEVEL_SEED, {}],
 			[GameProp.LEVEL_VERSION, { min: 1 }],
 			[GameProp.DISPLAY_NAME, { optional: true }],
@@ -80,6 +82,11 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getLevelBoundsOr(value : Box) : Box { return this.getOr<Box>(GameProp.LEVEL_BOUNDS, value); }
     setLevelBounds(value : Box) : void { this.set<Box>(GameProp.LEVEL_BOUNDS, value); }
 
+    hasLevelLayout() : boolean { return this.has(GameProp.LEVEL_LAYOUT); }
+    getLevelLayout() : LevelLayout { return this.get<LevelLayout>(GameProp.LEVEL_LAYOUT); }
+    getLevelLayoutOr(value : LevelLayout) : LevelLayout { return this.getOr<LevelLayout>(GameProp.LEVEL_LAYOUT, value); }
+    setLevelLayout(value : LevelLayout) : void { this.set<LevelLayout>(GameProp.LEVEL_LAYOUT, value); }
+
     hasLevelSeed() : boolean { return this.has(GameProp.LEVEL_SEED); }
     getLevelSeed() : number { return this.get<number>(GameProp.LEVEL_SEED); }
     getLevelSeedOr(value : number) : number { return this.getOr<number>(GameProp.LEVEL_SEED, value); }
@@ -106,6 +113,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["DISPLAY_NAME", "string"],
     ["GAME_STATE", "number"],
     ["LEVEL_BOUNDS", "Box"],
+    ["LEVEL_LAYOUT", "LevelLayout"],
     ["LEVEL_SEED", "number"],
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],

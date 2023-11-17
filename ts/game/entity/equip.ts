@@ -60,6 +60,8 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	}
 
 	override ready() : boolean { return super.ready() && this._association.hasAssociation(AssociationType.OWNER); }
+	override hasClientId() : boolean { return this._owner ? this._owner.hasClientId() : super.hasClientId(); }
+	override clientId() : number { return this._owner ? this._owner.clientId() : super.clientId(); }
 
 	override initialize() : void {
 		super.initialize();

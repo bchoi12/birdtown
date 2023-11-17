@@ -42,6 +42,13 @@ export enum LevelType {
 	LOBBY,
 }
 
+export enum LevelLayout {
+	UNKNOWN,
+
+	NORMAL,
+	CIRCLE,
+}
+
 export enum MusicType {
 	UNKNOWN,
 }

@@ -5,7 +5,7 @@ import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { SystemBase, System } from 'game/system'
-import { SystemType, LevelType, PlayerRole } from 'game/system/api'
+import { SystemType, LevelType, LevelLayout, PlayerRole } from 'game/system/api'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
@@ -173,6 +173,7 @@ export class GameMaker extends SystemBase implements System {
 			this._round = 0;
 			game.level().loadLevel({
 				type: LevelType.LOBBY,
+				layout: LevelLayout.CIRCLE,
 				seed: Math.floor(Math.random() * 10000),
 			});
 			break;
@@ -180,6 +181,7 @@ export class GameMaker extends SystemBase implements System {
 			this._round++;
 			game.level().loadLevel({
 				type: LevelType.BIRDTOWN,
+				layout: LevelLayout.CIRCLE,
 				seed: Math.floor(Math.random() * 10000),
 			});
 

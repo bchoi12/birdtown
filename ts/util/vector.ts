@@ -220,14 +220,6 @@ export class Vec2 implements Vec {
         return this.interpolate(vec, t, (t : number) => { return t;});
     }
 
-    wrapX(min : number, max : number) : Vec2 {
-        const width = max - min;
-        if (width > 0) {
-            this.x = min + ((((this.x - min) % width) + width) % width);
-        }
-        return this;
-    }
-
     copy(vec : Vec2) : Vec2 { 
         this.x = vec.x;
         this.y = vec.y;

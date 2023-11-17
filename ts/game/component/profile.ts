@@ -16,14 +16,13 @@ import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
-import { Optional } from 'util/optional'
 import { Smoother } from 'util/smoother'
 import { Vec, Vec2 } from 'util/vector'
 import { SmoothVec2 } from 'util/vector/smooth_vector'
 
 type ReadyFn = (profile : Profile) => boolean;
 type BodyFn = (profile : Profile) => MATTER.Body;
-type OnInitFn = (profile : Profile) => void;
+type OnBodyFn = (profile : Profile) => void;
 type PhysicsFn = (profile : Profile) => void;
 
 export type ProfileInitOptions = {
@@ -41,11 +40,10 @@ export type ProfileOptions = {
 	bodyFn : BodyFn;
 
 	readyFn? : ReadyFn;
-	onInitFn? : OnInitFn;
 	prePhysicsFn? : PhysicsFn;
 	postPhysicsFn? : PhysicsFn;
 
-	init? : ProfileInitOptions
+	init : ProfileInitOptions
 }
 
 export type MoveToParams = {
@@ -69,8 +67,8 @@ export class Profile extends ComponentBase implements Component {
 
 	private _degraded : boolean;
 	private _bodyFn : BodyFn;
+	private _onBodyFns : Array<OnBodyFn>;
 	private _readyFn : ReadyFn;
-	private _onInitFn : OnInitFn;
 	private _prePhysicsFn : PhysicsFn;
 	private _postPhysicsFn : PhysicsFn;
 
@@ -97,9 +95,9 @@ export class Profile extends ComponentBase implements Component {
 
 		this._degraded = false;
 		this._bodyFn = profileOptions.bodyFn;
+		this._onBodyFns = new Array();
 
 		if (profileOptions.readyFn) { this._readyFn = profileOptions.readyFn; }
-		if (profileOptions.onInitFn) { this._onInitFn = profileOptions.onInitFn; }
 		if (profileOptions.prePhysicsFn) { this._prePhysicsFn = profileOptions.prePhysicsFn; }
 		if (profileOptions.postPhysicsFn) { this._postPhysicsFn = profileOptions.postPhysicsFn; }
 
@@ -113,6 +111,8 @@ export class Profile extends ComponentBase implements Component {
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
 		}
+
+		this._body = null;
 
 		this.addProp<Vec>({
 			has: () => { return this.hasPos(); },
@@ -213,9 +213,11 @@ export class Profile extends ComponentBase implements Component {
 		})
 
 		this._initialInertia = this._body.inertia;
-		if (defined(this._onInitFn)) {
-			this._onInitFn(this);
-		}
+
+		this._onBodyFns.forEach((fn : OnBodyFn) => {
+			fn(this);
+		});
+		this._onBodyFns = [];
 	}
 
 	override setState(state : GameObjectState) : void {
@@ -278,7 +280,15 @@ export class Profile extends ComponentBase implements Component {
 		}
 	}
 
+	hasBody() : boolean { return this._body !== null; } 
 	body() : MATTER.Body { return this._body; }
+	onBody(fn : OnBodyFn) : void {
+		if (this.hasBody()) {
+			fn(this);
+		} else {
+			this._onBodyFns.push(fn);
+		}
+	}
 	addConstraint(constraint : MATTER.Constraint) : [MATTER.Constraint, number] {
 		const id = this._constraints.size + 1;
 		MATTER.Composite.add(game.physics().world(), constraint);
@@ -295,6 +305,17 @@ export class Profile extends ComponentBase implements Component {
 
 	private hasPos() : boolean { return defined(this._pos); }
 	pos() : SmoothVec2 { return this._pos; }
+	getRenderPos() : Vec2 {
+		let renderPos = this.pos().clone();
+		const bounds = game.level().bounds();
+		const target = game.lakitu().target();
+		if (this.pos().x - target.x > bounds.width() / 2) {
+			renderPos.x -= bounds.width();
+		} else if (target.x - this.pos().x > bounds.width() / 2) {
+			renderPos.x += bounds.width();
+		}
+		return renderPos;
+	}
 	setPos(vec : Vec) : void {
 		if (!this.hasPos()) { this._pos = SmoothVec2.zero(); }
 
@@ -396,8 +417,18 @@ export class Profile extends ComponentBase implements Component {
 	moveTo(point : Vec, params : MoveToParams) : void {
 		if (params.millis <= 0) { return; }
 
+		if (game.level().isCircle()) {
+			if (this.pos().x - point.x > game.level().bounds().width() / 2) {
+				point.x += game.level().bounds().width();
+			} else if (point.x - this.pos().x > game.level().bounds().width() / 2) {
+				point.x -= game.level().bounds().width();
+			}
+		} else {
+			game.level().clampPos(point);
+		}
+
 		const dt = params.millis / 1000;
-		const distVec = this._pos.clone().sub(point).negate();
+		const distVec = this.pos().clone().sub(point).negate();
 		if (this._vel.length() * dt >= distVec.length() || distVec.length() < params.posEpsilon) {
 			this.setPos(point);
 			this.stop();
@@ -405,11 +436,11 @@ export class Profile extends ComponentBase implements Component {
 		}
 
 		// Turn to point
-		this._vel.setAngleRad(distVec.angleRad());
+		this.vel().setAngleRad(distVec.angleRad());
 
 		// Accelerate or deccelerate
 		const acc = Vec2.fromVec(distVec);
-		const slowDist = this._vel.lengthSq() / (2 * params.maxAccel);
+		const slowDist = this.vel().lengthSq() / (2 * params.maxAccel);
 		if (distVec.lengthSq() > slowDist * slowDist) {
 			acc.normalize().scale(params.maxAccel);
 		} else {
@@ -468,8 +499,7 @@ export class Profile extends ComponentBase implements Component {
 			}
 		}
 
-		const bounds = game.level().bounds();
-		this.pos().wrapX(bounds.min.x, bounds.max.x);
+		game.level().clampPos(this.pos());
 	}
 
 	override prePhysics(stepData : StepData) : void {
@@ -551,5 +581,15 @@ export class Profile extends ComponentBase implements Component {
 
 		// Update child objects afterwards.
 		super.postPhysics(stepData);
+	}
+
+	override preRender() : void {
+		super.preRender();
+
+		if (!game.level().isCircle()) {
+			return;
+		}
+
+		MATTER.Body.setPosition(this._body, this.getRenderPos());
 	}
 } 

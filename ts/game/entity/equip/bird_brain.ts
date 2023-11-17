@@ -85,8 +85,9 @@ export class BirdBrain extends Equip<Player> {
 		}
 
 		// Try to pick a new target
-		const ray = game.lakitu().rayTo(new BABYLON.Vector3(mouse.x, mouse.y, 0));
-		const entities = game.world().multiPick(ray);
+		let entities = game.entities().getMap(EntityType.CRATE).findAll((crate : Entity) => {
+			return crate.profile().contains(mouse);
+		});
 
 		for (let entity of entities) {
 			let valid = false;
