@@ -2,6 +2,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
+import { Cloud } from 'game/entity/cloud'
 import { Crate } from 'game/entity/crate'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
@@ -31,6 +32,7 @@ export namespace EntityFactory {
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
+		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],
 		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],

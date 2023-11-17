@@ -205,7 +205,7 @@ export class Model extends ComponentBase implements Component {
 			this.addProfileTransforms(this.entity().profile());
 		}
 
-		if (!this.entity().allTypes().has(EntityType.EQUIP)) {
+		if (this.mesh().parent === null) {
 			const bounds = game.level().bounds();
 			const target = game.lakitu().target();
 			let pos = this.mesh().position;

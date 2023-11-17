@@ -20,6 +20,7 @@ export enum EntityType {
 	BOLT,
 	CHICKEN_BEAK,
 	CHICKEN_HAIR,
+	CLOUD,
 	CRATE,
 	EXPLOSION,
 	PARTICLE,

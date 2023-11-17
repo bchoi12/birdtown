@@ -12,6 +12,7 @@ import { Input } from 'game/system/input'
 import { Keys } from 'game/system/keys'
 import { Lakitu } from 'game/system/lakitu'
 import { Level } from 'game/system/level'
+import { MaterialCache } from 'game/system/material_cache'
 import { ParticleCache } from 'game/system/particle_cache'
 import { Physics } from 'game/system/physics'
 import { Pipeline } from 'game/system/pipeline'
@@ -63,6 +64,7 @@ class Game {
 	private _input : Input;
 	private _lakitu : Lakitu;
 	private _level : Level;
+	private _materialCache : MaterialCache;
 	private _particleCache : ParticleCache;
 	private _physics : Physics;
 	private _pipeline : Pipeline;
@@ -94,6 +96,7 @@ class Game {
 		this._controller = new Controller();
 		this._input = new Input();
 		this._level = new Level();
+		this._materialCache = new MaterialCache();
 		this._particleCache = new ParticleCache();
 		this._physics = new Physics();
 		this._playerStates = new PlayerStates();
@@ -109,13 +112,14 @@ class Game {
 		this._runner.push(this._playerStates);
 		this._runner.push(this._level);
 		this._runner.push(this._input);
+		this._runner.push(this._materialCache);
+		this._runner.push(this._particleCache);
 		this._runner.push(this._entities);
 		this._runner.push(this._physics);
 		this._runner.push(this._tablets);
 		this._runner.push(this._lakitu);
 		this._runner.push(this._pipeline);
 		this._runner.push(this._world);
-		this._runner.push(this._particleCache);
 		this._runner.push(this._announcer);
 		this._runner.push(this._audio);
 
@@ -196,6 +200,7 @@ class Game {
 	keys(id? : number) : Keys { return this._input.getKeys(id); }
 	lakitu() : Lakitu { return this._lakitu; }
 	level() : Level { return this._level; }
+	materialCache() : MaterialCache { return this._materialCache; }
 	particleCache() : ParticleCache { return this._particleCache; }
 	physics() : Physics { return this._physics; }
 	playerStates() : PlayerStates { return this._playerStates; }

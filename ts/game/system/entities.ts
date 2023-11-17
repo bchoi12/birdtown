@@ -48,7 +48,7 @@ export class Entities extends SystemBase implements System {
 
 	addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : [T, boolean] {
 		if (!EntityFactory.hasCreateFn(type)) {
-			console.error("Error: missing factory function for entity type %d", type);
+			console.error("Error: missing factory function for %s", EntityType[type]);
 			return [null, false];
 		}
 
