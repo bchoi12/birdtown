@@ -579,17 +579,13 @@ export class Profile extends ComponentBase implements Component {
 			this._pos.setPredict(this._body.position);
 		}
 
-		// Update child objects afterwards.
-		super.postPhysics(stepData);
-	}
-
-	override preRender() : void {
-		super.preRender();
-
-		if (!game.level().isCircle()) {
-			return;
+		// Wrap the object for visualization if we're in a circle level
+		// This must be done outside of render() since MATTER.Render is synced with RequestAnimationFrame, not render()
+		if (game.level().isCircle()) {
+			MATTER.Body.setPosition(this._body, this.getRenderPos());
 		}
 
-		MATTER.Body.setPosition(this._body, this.getRenderPos());
+		// Update child objects afterwards.
+		super.postPhysics(stepData);
 	}
 } 

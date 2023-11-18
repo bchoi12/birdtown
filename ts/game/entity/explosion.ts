@@ -52,7 +52,7 @@ export class Explosion extends EntityBase implements Entity {
 		super.initialize();
 
 		game.audio().loadSound(SoundType.EXPLOSION, (sound : BABYLON.Sound) => {
-			sound.setPosition(this._profile.pos().toBabylon3());
+			sound.setPosition(this._profile.getRenderPos().toBabylon3());
 			sound.play();
 		});
 	}

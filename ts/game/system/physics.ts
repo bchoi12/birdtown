@@ -12,9 +12,6 @@ import { Vec2 } from 'util/vector'
 
 export class Physics extends SystemBase implements System {
 
-	private static readonly _maxUpdateTime : number = 10;
-	private static readonly _renderInterval : number = 250;
-
 	private _engine : MATTER.Engine;
 	private _minimap : HTMLElement;
 	private _canvas : HTMLCanvasElement;
