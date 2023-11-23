@@ -32,7 +32,8 @@ export class Pipeline extends SystemBase implements System {
 		this._postProcesses = new Map();
 		let fxaa = new BABYLON.FxaaPostProcess(PostProcessType.FXAA, 1, null, undefined, engine, /*reusable=*/true);
 		// TODO: setting to modify?
-		fxaa.samples = 8;
+		fxaa.samples = 1;
+		console.log("1 sample");
 		this._postProcesses.set(PostProcessType.FXAA, fxaa);
 
 		this._effects = new Map();

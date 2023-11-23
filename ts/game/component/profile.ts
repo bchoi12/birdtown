@@ -523,7 +523,7 @@ export class Profile extends ComponentBase implements Component {
 		let weight = 0;
 		if (settings.enablePrediction) {
 			// this._smoother.setDiff(game.keys(this.entity().clientId()).maxDiff());
-			this._smoother.setDiff(game.runner().frameDiff());
+			this._smoother.setDiff(game.runner().seqNumDiff());
 			weight = this._smoother.weight();
 		}
 		this.vel().snap(weight);

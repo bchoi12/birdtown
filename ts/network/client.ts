@@ -30,9 +30,6 @@ export class Client extends Netcode {
 
 		this.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
 			const clientId = msg.getClientId();
-			if (isLocalhost()) {
-				console.log("Got client id", clientId);
-			}
 			game.setClientId(clientId);
 		});
 

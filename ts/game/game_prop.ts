@@ -125,7 +125,7 @@ export class GameProp<T extends Object> {
 		const seqNumEqual = this._seqNum === seqNum;
 
 		// Reset if there is a gap in setting value
-		if (seqNum - this._seqNum > game.runner().seqNumStep()) {
+		if (seqNum - this._seqNum > game.runner().lastStep()) {
 			this._consecutiveChanges = 0;
 		}
 

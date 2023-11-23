@@ -27,10 +27,10 @@ export enum SystemType {
 	WORLD,
 }
 
-export enum RunnerMode {
+export enum RunnerSpeed {
 	UNKNOWN,
 
-	MINIMUM,
+	AUTO,
 	SLOW,
 	NORMAL,
 	FAST,

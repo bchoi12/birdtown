@@ -1,7 +1,7 @@
 
 import { Message, MessageBase, FieldDescriptor } from 'message'
 
-import { LevelType, LevelLayout, PlayerRole } from 'game/system/api'
+import { LevelType, LevelLayout, PlayerRole, RunnerSpeed } from 'game/system/api'
 
 import { Box } from 'util/box'
 
@@ -13,6 +13,7 @@ export enum GameMessageType {
 	LEVEL_LOAD,
 	GAME_STATE,
 	PLAYER_STATE,
+	RUNNER_SPEED,
 }
 
 enum GameProp {
@@ -20,6 +21,7 @@ enum GameProp {
 
 	CLIENT_ID,
 	DISPLAY_NAME,
+	GAME_SPEED,
 	GAME_STATE,
 	LEVEL_BOUNDS,
 	LEVEL_LAYOUT,
@@ -27,6 +29,7 @@ enum GameProp {
 	LEVEL_SEED,
 	LEVEL_VERSION,
 	PLAYER_ROLE,
+	RENDER_SPEED,
 }
 
 export class GameMessage extends MessageBase<GameMessageType, GameProp> implements Message<GameMessageType, GameProp> {
@@ -54,6 +57,10 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 			[GameProp.PLAYER_ROLE, {}],
 			[GameProp.CLIENT_ID, {}],
 		)],
+		[GameMessageType.RUNNER_SPEED, MessageBase.fieldDescriptor(
+			[GameProp.GAME_SPEED, { optional: true }],
+			[GameProp.RENDER_SPEED, { optional: true }],
+		)],
 	]);
 
 	constructor(type : GameMessageType) { super(type); }
@@ -71,6 +78,11 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getDisplayName() : string { return this.get<string>(GameProp.DISPLAY_NAME); }
     getDisplayNameOr(value : string) : string { return this.getOr<string>(GameProp.DISPLAY_NAME, value); }
     setDisplayName(value : string) : void { this.set<string>(GameProp.DISPLAY_NAME, value); }
+
+    hasGameSpeed() : boolean { return this.has(GameProp.GAME_SPEED); }
+    getGameSpeed() : RunnerSpeed { return this.get<RunnerSpeed>(GameProp.GAME_SPEED); }
+    getGameSpeedOr(value : RunnerSpeed) : RunnerSpeed { return this.getOr<RunnerSpeed>(GameProp.GAME_SPEED, value); }
+    setGameSpeed(value : RunnerSpeed) : void { this.set<RunnerSpeed>(GameProp.GAME_SPEED, value); }
 
     hasGameState() : boolean { return this.has(GameProp.GAME_STATE); }
     getGameState() : number { return this.get<number>(GameProp.GAME_STATE); }
@@ -107,10 +119,17 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getPlayerRoleOr(value : PlayerRole) : PlayerRole { return this.getOr<PlayerRole>(GameProp.PLAYER_ROLE, value); }
     setPlayerRole(value : PlayerRole) : void { this.set<PlayerRole>(GameProp.PLAYER_ROLE, value); }
 
+    hasRenderSpeed() : boolean { return this.has(GameProp.RENDER_SPEED); }
+    getRenderSpeed() : RunnerSpeed { return this.get<RunnerSpeed>(GameProp.RENDER_SPEED); }
+    getRenderSpeedOr(value : RunnerSpeed) : RunnerSpeed { return this.getOr<RunnerSpeed>(GameProp.RENDER_SPEED, value); }
+    setRenderSpeed(value : RunnerSpeed) : void { this.set<RunnerSpeed>(GameProp.RENDER_SPEED, value); }
+
+
     /*
     const enumClass = "GameProp";
     ["CLIENT_ID", "number"],
     ["DISPLAY_NAME", "string"],
+    ["GAME_SPEED", "RunnerSpeed"],
     ["GAME_STATE", "number"],
     ["LEVEL_BOUNDS", "Box"],
     ["LEVEL_LAYOUT", "LevelLayout"],
@@ -118,6 +137,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],
     ["PLAYER_ROLE", "PlayerRole"],
+    ["RENDER_SPEED", "RunnerSpeed"],
     */
     // End auto-generated code (v2.1)
 }

@@ -48,7 +48,6 @@ class Game {
 	private _initialized : boolean;
 	private _clientId : number;
 	private _canvas : HTMLCanvasElement;
-	private _renderTimes : NumberRingBuffer;
 
 	private _options : GameOptions;
 	private _lastClientId : number;
@@ -76,7 +75,6 @@ class Game {
 		this._initialized = false;
 		this._clientId = 0;
 		this._canvas = Html.canvasElm(Html.canvasGame);
-		this._renderTimes = new NumberRingBuffer(30);
 	}
 
 	initialize(gameOptions : GameOptions) {
@@ -130,11 +128,7 @@ class Game {
 		}
 		this._netcode.initialize();
 		this._runner.runGameLoop();
-	    this._engine.runRenderLoop(() => {
-    		const frameStart = Date.now();
-	    	this._runner.renderFrame();
-	    	this._renderTimes.push(Date.now() - frameStart);
-	    });		
+		this._runner.runRenderLoop();
 	    this._initialized = true;
 	}
 
@@ -158,6 +152,10 @@ class Game {
 		if (this.options().host) {
 			this._lastClientId = clientId;
 		}
+
+		if (isLocalhost()) {
+			console.log("Set client id:", clientId);
+		}
 	}
 
 	nextClientId() : number {
@@ -172,8 +170,6 @@ class Game {
 	canvas() : HTMLCanvasElement { return this._canvas; }
 	options() : GameOptions { return this._options; }
 	isHost() : boolean { return this._options.host; }
-	stepTime() : number { return this._runner.stepTime(); }
-	renderTime() : number { return this._renderTimes.average(); }
 
 	getSystem<T extends System>(type : SystemType) : T { return this._runner.getSystem<T>(type); }
 	handleMessage(msg : GameMessage) : void {

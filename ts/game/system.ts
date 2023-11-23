@@ -87,10 +87,6 @@ export abstract class ClientSystemManager extends SystemBase implements System {
 
 	constructor(type : SystemType) {
 		super(type);
-
-		this.addNameParams({
-			base: "client_system_manager",
-		});
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -127,7 +123,6 @@ export abstract class ClientSystem extends SystemBase implements System {
 		this._clientId = clientId;
 
 		this.addNameParams({
-			base: "client_system",
 			id: this._clientId,
 		});
 	}
@@ -159,7 +154,6 @@ export abstract class ClientSideSystem extends ClientSystem implements System {
 		super(type, clientId);
 
 		this.addNameParams({
-			base: "client_side_system",
 			id: clientId,
 		});
 	}

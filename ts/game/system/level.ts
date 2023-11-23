@@ -81,6 +81,8 @@ export class Level extends SystemBase implements System {
 		} else {
 			vec.x = Fns.clamp(this._bounds.min.x, vec.x, this._bounds.max.x);
 		}
+
+		vec.y = Math.min(vec.y, 1000);
 	}
 
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }

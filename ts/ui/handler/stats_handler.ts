@@ -34,13 +34,16 @@ export class StatsHandler extends HandlerBase implements Handler {
 		if (game.initialized()) {
 			const ping = game.netcode().ping();
 			const pingSuccess = 100 * (1 - game.netcode().pingLoss());
-			const fps = game.engine().getFps().toFixed();
+
+			const gameStats = game.runner().getGameStats();
+			const renderStats = game.runner().getRenderStats();
 
 			const stats = game.netcode().stats();
 			let text = [
 				"Ping: " + Math.round(ping) + "ms (" + Math.round(pingSuccess) + "%)",
-				"FPS: " + fps + " (" + Math.ceil(game.stepTime()) + "+" + Math.ceil(game.renderTime()) + "ms)",
-				"Diff: " + Math.round(game.runner().frameDiff()),
+				"Game: " + Math.ceil(gameStats.stepsPerSecond) + " (" + Math.ceil(gameStats.stepTime) + "/" + Math.ceil(gameStats.stepInterval) + "ms)",
+				"Render: " + Math.ceil(renderStats.stepsPerSecond) + " (" + Math.ceil(renderStats.stepTime) + "/" + Math.ceil(renderStats.stepInterval) + "ms)",
+				"Diff: " + Math.round(game.runner().seqNumDiff()),
 				"TCP/s: " + Math.round(stats.get(ChannelType.TCP).get(ChannelStat.PACKETS))
 					+ " (" + Math.round(stats.get(ChannelType.TCP).get(ChannelStat.BYTES) / 1024) + "Kb)",
 				"UDP/s: " + Math.round(stats.get(ChannelType.UDP).get(ChannelStat.PACKETS))

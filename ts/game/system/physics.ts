@@ -6,6 +6,8 @@ import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 
+import { GameMessage, GameMessageType } from 'message/game_message'
+
 import { Html } from 'ui/html'
 
 import { Vec2 } from 'util/vector'
@@ -21,10 +23,7 @@ export class Physics extends SystemBase implements System {
 	constructor() {
 		super(SystemType.PHYSICS);
 
-		this._engine = MATTER.Engine.create({
-			gravity: { y: 0 },
-			constraintIterations: 4,
-		});
+		this._engine = MATTER.Engine.create(this.getOptions());
 
 		this._minimap = Html.elm(Html.divMinimap);
 		this._canvas = Html.canvasElm(Html.canvasPhysics);
@@ -40,12 +39,42 @@ export class Physics extends SystemBase implements System {
 		this._lastRender = Date.now();
 	}
 
+	private getOptions() : MATTER.IEngineDefinition {
+		let frameTime = game.runner().targetStepTime();
+		if (frameTime === 0) {
+			frameTime = 16;
+		}
+		// Increase iterations for slower frame time
+		return {
+			gravity: { x: 0, y: 0 },
+			constraintIterations: Math.ceil(frameTime / 4),
+			positionIterations: Math.ceil(frameTime / 3),
+			velocityIterations: Math.ceil(frameTime / 4),
+		}
+	}
+
 	override initialize() : void {
 		super.initialize();
 
 		MATTER.Render.run(this._render);
 		this._canvas.style.width = Html.elm(Html.divMinimap).offsetWidth + "px";
 		this._canvas.style.height = Html.elm(Html.divMinimap).offsetHeight + "px";
+	}
+
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		if (msg.type() !== GameMessageType.RUNNER_SPEED) {
+			return;
+		}
+
+		/*
+		if (msg.hasGameSpeed()) {
+			let newEngine = MATTER.Engine.create(this.getOptions());
+			MATTER.Engine.merge(newEngine, this._engine);
+			this._engine = newEngine;
+		}
+		*/
 	}
 
 	world() : MATTER.Composite { return this._engine.world; }
@@ -169,4 +198,3 @@ export class Physics extends SystemBase implements System {
 		this._render.bounds.max.x = target.x + fov.x / 2; 
 	}
 }
-		

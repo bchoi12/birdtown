@@ -20,6 +20,7 @@ let serializableRegex = new Set<string>();
 serializableRegex.add(".*Type");
 serializableRegex.add("PlayerRole");
 serializableRegex.add("LevelLayout");
+serializableRegex.add("RunnerSpeed");
 
 // Command: node js/script/gen_message.js
 //
@@ -31,6 +32,7 @@ const enumClass = "GameProp";
 const map = new Map<string, string>([
     ["CLIENT_ID", "number"],
     ["DISPLAY_NAME", "string"],
+    ["GAME_SPEED", "RunnerSpeed"],
     ["GAME_STATE", "number"],
     ["LEVEL_BOUNDS", "Box"],
     ["LEVEL_LAYOUT", "LevelLayout"],
@@ -38,6 +40,7 @@ const map = new Map<string, string>([
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],
     ["PLAYER_ROLE", "PlayerRole"],
+    ["RENDER_SPEED", "RunnerSpeed"],
 ]);
 //
 // End params
