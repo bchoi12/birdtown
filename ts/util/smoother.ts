@@ -9,13 +9,17 @@ export class Smoother {
 	private _lastDiffTime : number;
 	private _weight : number;
 	private _canSmooth : boolean;
-	private _smoothTime : number;
+	private _smoothTime : Optional<number>;
 
 	constructor(smoothTime? : number) {
 		this._lastDiffTime = 0
 		this._weight = 0;
 		this._canSmooth = true;
-		this._smoothTime = smoothTime ? smoothTime : settings.predictionTime;
+		this._smoothTime = new Optional();
+
+		if (smoothTime) {
+			this._smoothTime.set(smoothTime);
+		}
 	}
 
 	setDiff(diff : number) : void {
@@ -40,5 +44,5 @@ export class Smoother {
 	}
 
 	weight() : number { return Math.min(1, Math.max(0, this._weight)); }
-	smoothTime() : number { return this._smoothTime; }
+	smoothTime() : number { return this._smoothTime.has() ? this._smoothTime.get() : settings.predictionTime(); }
 }

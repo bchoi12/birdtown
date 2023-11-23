@@ -23,7 +23,9 @@ export class Physics extends SystemBase implements System {
 	constructor() {
 		super(SystemType.PHYSICS);
 
-		this._engine = MATTER.Engine.create(this.getOptions());
+		this._engine = MATTER.Engine.create({
+			gravity: { y: 0 },
+		});
 
 		this._minimap = Html.elm(Html.divMinimap);
 		this._canvas = Html.canvasElm(Html.canvasPhysics);
@@ -39,22 +41,10 @@ export class Physics extends SystemBase implements System {
 		this._lastRender = Date.now();
 	}
 
-	private getOptions() : MATTER.IEngineDefinition {
-		let frameTime = game.runner().targetStepTime();
-		if (frameTime === 0) {
-			frameTime = 16;
-		}
-		// Increase iterations for slower frame time
-		return {
-			gravity: { x: 0, y: 0 },
-			constraintIterations: Math.ceil(frameTime / 4),
-			positionIterations: Math.ceil(frameTime / 3),
-			velocityIterations: Math.ceil(frameTime / 4),
-		}
-	}
-
 	override initialize() : void {
 		super.initialize();
+
+		this.updateIterations();
 
 		MATTER.Render.run(this._render);
 		this._canvas.style.width = Html.elm(Html.divMinimap).offsetWidth + "px";
@@ -68,13 +58,16 @@ export class Physics extends SystemBase implements System {
 			return;
 		}
 
-		/*
 		if (msg.hasGameSpeed()) {
-			let newEngine = MATTER.Engine.create(this.getOptions());
-			MATTER.Engine.merge(newEngine, this._engine);
-			this._engine = newEngine;
+			this.updateIterations();
 		}
-		*/
+	}
+
+	private updateIterations() : void {
+		const stepTime = game.runner().targetStepTime();
+		this._engine.constraintIterations = Math.ceil(stepTime / 4);
+		this._engine.positionIterations = Math.ceil(stepTime / 3);
+		this._engine.velocityIterations = Math.ceil(stepTime / 4);
 	}
 
 	world() : MATTER.Composite { return this._engine.world; }

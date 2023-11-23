@@ -71,7 +71,7 @@ export class Level extends SystemBase implements System {
 	}
 
 	levelType() : LevelType { return this._levelMsg.getLevelTypeOr(LevelType.UNKNOWN); }
-	seed() : LevelType { return this._levelMsg.getLevelSeedOr(0); }
+	seed() : number { return this._levelMsg.getLevelSeedOr(0); }
 	version() : number { return this._levelMsg.getLevelVersionOr(0); }
 	bounds() : Box2 { return this._bounds; }
 	isCircle() : boolean { return this._levelMsg.getLevelLayout() === LevelLayout.CIRCLE; }
@@ -82,7 +82,7 @@ export class Level extends SystemBase implements System {
 			vec.x = Fns.clamp(this._bounds.min.x, vec.x, this._bounds.max.x);
 		}
 
-		vec.y = Math.min(vec.y, 1000);
+		vec.y = Math.min(vec.y, this._bounds.max.y);
 	}
 
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }
@@ -259,6 +259,7 @@ export class Level extends SystemBase implements System {
 		});
 
 		bounds.add({ x: 3, y: 0 });
+		bounds.max.y += 50;
 		this.setBounds(bounds.toBox());
 	}
 
@@ -368,6 +369,7 @@ export class Level extends SystemBase implements System {
 		});
 
 		bounds.add({ x: 3, y: 0 });
+		bounds.max.y += 50;
 		this.setBounds(bounds.toBox());
 	}
 

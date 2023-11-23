@@ -27,15 +27,6 @@ export enum SystemType {
 	WORLD,
 }
 
-export enum RunnerSpeed {
-	UNKNOWN,
-
-	AUTO,
-	SLOW,
-	NORMAL,
-	FAST,
-}
-
 export enum LevelType {
 	UNKNOWN,
 	BIRDTOWN,

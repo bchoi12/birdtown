@@ -1,7 +1,9 @@
 
 import { Message, MessageBase, FieldDescriptor } from 'message'
 
-import { LevelType, LevelLayout, PlayerRole, RunnerSpeed } from 'game/system/api'
+import { LevelType, LevelLayout, PlayerRole } from 'game/system/api'
+
+import { SpeedSetting } from 'settings/api'
 
 import { Box } from 'util/box'
 
@@ -80,9 +82,9 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     setDisplayName(value : string) : void { this.set<string>(GameProp.DISPLAY_NAME, value); }
 
     hasGameSpeed() : boolean { return this.has(GameProp.GAME_SPEED); }
-    getGameSpeed() : RunnerSpeed { return this.get<RunnerSpeed>(GameProp.GAME_SPEED); }
-    getGameSpeedOr(value : RunnerSpeed) : RunnerSpeed { return this.getOr<RunnerSpeed>(GameProp.GAME_SPEED, value); }
-    setGameSpeed(value : RunnerSpeed) : void { this.set<RunnerSpeed>(GameProp.GAME_SPEED, value); }
+    getGameSpeed() : SpeedSetting { return this.get<SpeedSetting>(GameProp.GAME_SPEED); }
+    getGameSpeedOr(value : SpeedSetting) : SpeedSetting { return this.getOr<SpeedSetting>(GameProp.GAME_SPEED, value); }
+    setGameSpeed(value : SpeedSetting) : void { this.set<SpeedSetting>(GameProp.GAME_SPEED, value); }
 
     hasGameState() : boolean { return this.has(GameProp.GAME_STATE); }
     getGameState() : number { return this.get<number>(GameProp.GAME_STATE); }
@@ -120,16 +122,16 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     setPlayerRole(value : PlayerRole) : void { this.set<PlayerRole>(GameProp.PLAYER_ROLE, value); }
 
     hasRenderSpeed() : boolean { return this.has(GameProp.RENDER_SPEED); }
-    getRenderSpeed() : RunnerSpeed { return this.get<RunnerSpeed>(GameProp.RENDER_SPEED); }
-    getRenderSpeedOr(value : RunnerSpeed) : RunnerSpeed { return this.getOr<RunnerSpeed>(GameProp.RENDER_SPEED, value); }
-    setRenderSpeed(value : RunnerSpeed) : void { this.set<RunnerSpeed>(GameProp.RENDER_SPEED, value); }
+    getRenderSpeed() : SpeedSetting { return this.get<SpeedSetting>(GameProp.RENDER_SPEED); }
+    getRenderSpeedOr(value : SpeedSetting) : SpeedSetting { return this.getOr<SpeedSetting>(GameProp.RENDER_SPEED, value); }
+    setRenderSpeed(value : SpeedSetting) : void { this.set<SpeedSetting>(GameProp.RENDER_SPEED, value); }
 
 
     /*
     const enumClass = "GameProp";
     ["CLIENT_ID", "number"],
     ["DISPLAY_NAME", "string"],
-    ["GAME_SPEED", "RunnerSpeed"],
+    ["GAME_SPEED", "SpeedSetting"],
     ["GAME_STATE", "number"],
     ["LEVEL_BOUNDS", "Box"],
     ["LEVEL_LAYOUT", "LevelLayout"],
@@ -137,7 +139,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],
     ["PLAYER_ROLE", "PlayerRole"],
-    ["RENDER_SPEED", "RunnerSpeed"],
+    ["RENDER_SPEED", "SpeedSetting"],
     */
     // End auto-generated code (v2.1)
 }

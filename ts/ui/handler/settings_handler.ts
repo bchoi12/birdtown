@@ -1,10 +1,21 @@
 
 import { game } from 'game'
 
-
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { settings } from 'settings'
+import {
+	AntiAliasSetting,
+	ClientPredictionSetting,
+	FullscreenSetting,
+	PointerSetting,
+	SpeedSetting,
+
+	DelaySetting,
+	JitterSetting,
+	InspectorSetting,
+	NetworkStabilitySetting,
+} from 'settings/api'
 
 import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -29,132 +40,169 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			e.stopPropagation();
 		};
 
-		let fullscreen = new SettingWrapper({
-			id: "input-fullscreen",
-			type: "checkbox",
-			label: "Enable fullscreen",
-
-			getSetting: () => { return settings.enableFullscreen; },
-			setSetting: (value: boolean) => { settings.enableFullscreen = value; },
+		let fullscreen = new SettingWrapper<FullscreenSetting>({
+			name: "Fullscreen mode",
+			get: () => { return settings.fullscreenSetting; },
+			click: (current : FullscreenSetting) => {
+				if (current === FullscreenSetting.WINDOWED) {
+					document.documentElement.requestFullscreen();
+					settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
+				} else if (window.innerHeight === screen.height) {
+					document.exitFullscreen();
+					settings.fullscreenSetting = FullscreenSetting.WINDOWED;
+				}
+			},
+			text: (current : FullscreenSetting) => {
+				return FullscreenSetting[current];
+			},
 		});
 		this._settingsElm.appendChild(fullscreen.elm());
 
-		let pointerLock = new SettingWrapper({
-			id: "input-pointer-lock",
-			type: "checkbox",
-			label: "Enable in-game cursor",
-
-			getSetting: () => { return settings.enablePointerLock; },
-			setSetting: (value: boolean) => { settings.enablePointerLock = value; },
+		let pointer = new SettingWrapper<PointerSetting>({
+			name: "In-game cursor",
+			get: () => { return settings.pointerSetting; },
+			click: (current : PointerSetting) => {
+				settings.pointerSetting = current === PointerSetting.LOCKED ? PointerSetting.NORMAL : PointerSetting.LOCKED;
+			},
+			text: (current : PointerSetting) => {
+				return PointerSetting[current];
+			},
 		});
-		this._settingsElm.appendChild(pointerLock.elm());
+		this._settingsElm.appendChild(pointer.elm());
 
-		let antiAlias = new SettingWrapper({
-			id: "input-anti-alias",
-			type: "checkbox",
-			label: "Enable anti-aliasing",
+		let frameRate = new SettingWrapper<SpeedSetting>({
+			name: "Target FPS",
+			get: () => { return settings.gameSpeedSetting; },
+			click: (current : SpeedSetting) => {
+				if (current === SpeedSetting.FAST) {
+					settings.gameSpeedSetting = SpeedSetting.AUTO;
+				} else {
+					settings.gameSpeedSetting++;
+				}
+			},
+			text: (current : SpeedSetting) => {
+				switch (current) {
+				case SpeedSetting.SLOW:
+					return "30 FPS";
+				case SpeedSetting.NORMAL:
+					return "60 FPS";
+				case SpeedSetting.FAST:
+					return "120 FPS";
+				default:
+					return SpeedSetting[current];
+				}
+			},
+		});
+		this._settingsElm.appendChild(frameRate.elm());
 
-			getSetting: () => { return settings.enableAntiAlias; },
-			setSetting: (value: boolean) => { settings.enableAntiAlias = value; },
+		let antiAlias = new SettingWrapper<AntiAliasSetting>({
+			name: "Anti-aliasing",
+			get: () => { return settings.antiAliasSetting; },
+			click: (current : AntiAliasSetting) => {
+				if (current === AntiAliasSetting.HIGH) {
+					settings.antiAliasSetting = AntiAliasSetting.NONE;
+				} else {
+					settings.antiAliasSetting++;
+				}
+			},
+			text: (current : AntiAliasSetting) => {
+				return AntiAliasSetting[current];
+			},
 		});
 		this._settingsElm.appendChild(antiAlias.elm());
 
-		// TODO: hide on game start if hosting
-		let prediction = new SettingWrapper({
-			id: "input-prediction",
-			type: "checkbox",
-			label: "Client-side prediction",
-
-			getSetting: () => { return settings.enablePrediction; },
-			setSetting: (value : boolean) => { settings.enablePrediction = value; },
-		});
-		this._settingsElm.appendChild(prediction.elm());
-
-		let predictionTime = new SettingWrapper({
-			id: "input-prediction-time",
-			type: "range",
-			label: "Prediction Time",
-
-			min: 0,
-			max: 3000,
-			step: 1,
-
-			getSetting: () => { return settings.predictionTime; },
-			setSetting: (value : number) => { settings.predictionTime = value; },
-		});
-		this._settingsElm.appendChild(predictionTime.elm());	
-
-
-		let inspector = new SettingWrapper({
-			id: "input-debug-inspector",
-			type: "checkbox",
-			label: "Enable inspector",
-
-			getSetting: () => {
-				return settings.debugInspector;
+		let clientPrediction = new SettingWrapper<ClientPredictionSetting>({
+			name: "Client-side prediction",
+			get: () => { return settings.clientPredictionSetting; },
+			click: (current : ClientPredictionSetting) => {
+				if (current === ClientPredictionSetting.HIGH) {
+					settings.clientPredictionSetting = ClientPredictionSetting.NONE;
+				} else {
+					settings.clientPredictionSetting++;
+				}
 			},
-			setSetting: (value: boolean) => {
-				settings.debugInspector = value;
+			text: (current : ClientPredictionSetting) => {
+				return ClientPredictionSetting[current];
+			},
+		});
+		this._settingsElm.appendChild(clientPrediction.elm());
+
+		let inspector = new SettingWrapper<InspectorSetting>({
+			name: "[D] Inspector",
+			get: () => { return settings.inspectorSetting; },
+			click: (current : InspectorSetting) => {
+				settings.inspectorSetting = current === InspectorSetting.OFF ? InspectorSetting.ON : InspectorSetting.OFF;
+			},
+			text: (current : InspectorSetting) => {
+				return InspectorSetting[current];
 			},
 		});
 		this._settingsElm.appendChild(inspector.elm());
 
-		let delay = new SettingWrapper({
-			id: "input-debug-delay",
-			type: "range",
-			label: "Delay",
-
-			min: 0,
-			max: 100,
-			step: 1,
-
-			getSetting: () => { return settings.debugDelay; },
-			setSetting: (value : number) => { settings.debugDelay = value; },
+		let delay = new SettingWrapper<DelaySetting>({
+			name: "[D] Delay",
+			get: () => { return settings.delaySetting; },
+			click: (current : DelaySetting) => {
+				if (current === DelaySetting.GLOBAL) {
+					settings.delaySetting = DelaySetting.NONE;
+				} else {
+					settings.delaySetting++;
+				}
+			},
+			text: (current : DelaySetting) => {
+				return DelaySetting[current];
+			},
 		});
-		this._settingsElm.appendChild(delay.elm());	
+		this._settingsElm.appendChild(delay.elm());
 
-		let jitter = new SettingWrapper({
-			id: "input-debug-jitter",
-			type: "range",
-			label: "Jitter",
-
-			min: 0,
-			max: 300,
-			step: 1,
-
-			getSetting: () => { return settings.debugJitter; },
-			setSetting: (value : number) => { settings.debugJitter = value; },
+		let jitter = new SettingWrapper<JitterSetting>({
+			name: "[D] Jitter",
+			get: () => { return settings.jitterSetting; },
+			click: (current : JitterSetting) => {
+				if (current === JitterSetting.TERRIBLE) {
+					settings.jitterSetting = JitterSetting.NONE;
+				} else {
+					settings.jitterSetting++;
+				}
+			},
+			text: (current : JitterSetting) => {
+				return JitterSetting[current];
+			},
 		});
-		this._settingsElm.appendChild(jitter.elm());	
+		this._settingsElm.appendChild(jitter.elm());
 
-		let sendFailure = new SettingWrapper({
-			id: "input-debug-send-failure",
-			type: "range",
-			label: "Send Failure",
-
-			min: 0,
-			max: 0.5,
-			step: .01,
-
-			getSetting: () => { return settings.debugSendFailure; },
-			setSetting: (value : number) => { settings.debugSendFailure = value; },
+		let networkStability = new SettingWrapper<NetworkStabilitySetting>({
+			name: "[D] Network stability",
+			get: () => { return settings.networkStabilitySetting; },
+			click: (current : NetworkStabilitySetting) => {
+				if (current === NetworkStabilitySetting.TERRIBLE) {
+					settings.networkStabilitySetting = NetworkStabilitySetting.PERFECT;
+				} else {
+					settings.networkStabilitySetting++;
+				}
+			},
+			text: (current : NetworkStabilitySetting) => {
+				return NetworkStabilitySetting[current];
+			},
 		});
-		this._settingsElm.appendChild(sendFailure.elm());		
+		this._settingsElm.appendChild(networkStability.elm());
 	}
 
 	override setMode(mode : UiMode) : void {
 		if (mode !== UiMode.PAUSE) {
-			if (settings.enableFullscreen) {
+			if (settings.fullscreen()) {
 				document.documentElement.requestFullscreen();
 			} else if (window.innerHeight === screen.height) {
 				document.exitFullscreen();
 			}
 
-			if (settings.debugInspector) {
+			if (settings.useInspector()) {
 				game.scene().debugLayer.show();
 			} else {
 				game.scene().debugLayer.hide();
 			}
+
+			game.runner().setSpeed(settings.gameSpeedSetting);
 		}		
 	}
 }

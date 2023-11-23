@@ -3,7 +3,7 @@ import { GameState } from 'game/api'
 import { DataFilter } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
-import { SystemType, RunnerSpeed } from 'game/system/api'
+import { SystemType } from 'game/system/api'
 
 import { Message, DataMap } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -12,6 +12,7 @@ import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 import { ChannelType } from 'network/api'
 
 import { settings } from 'settings'
+import { SpeedSetting } from 'settings/api'
 
 import { ui } from 'ui'
 
@@ -35,14 +36,14 @@ export class Runner extends SystemBase implements System  {
 		[DataFilter.UDP, ChannelType.UDP],
 	]);
 
-	private static readonly _targetFrameTimes = new Map<RunnerSpeed, number>([
-		[RunnerSpeed.SLOW, 32],
-		[RunnerSpeed.NORMAL, 16],
-		[RunnerSpeed.FAST, 8],
+	private static readonly _targetFrameTimes = new Map<SpeedSetting, number>([
+		[SpeedSetting.SLOW, 32],
+		[SpeedSetting.NORMAL, 16],
+		[SpeedSetting.FAST, 8],
 	]);
 
-	private _speed : RunnerSpeed;
-	private _actualSpeed : RunnerSpeed;
+	private _speed : SpeedSetting;
+	private _actualSpeed : SpeedSetting;
 
 	private _gameStepper : Stepper;
 	private _gameTargetStep : number;
@@ -56,8 +57,8 @@ export class Runner extends SystemBase implements System  {
 	constructor() {
 		super(SystemType.RUNNER);
 
-		this._speed = RunnerSpeed.AUTO;
-		this._actualSpeed = RunnerSpeed.NORMAL;
+		this._speed = SpeedSetting.AUTO;
+		this._actualSpeed = SpeedSetting.NORMAL;
 
 		this._gameStepper = new Stepper({ timePerStep: Runner._gameTimePerStep });
 		this._renderStepper = new Stepper({ timePerStep: Runner._renderTimePerStep });
@@ -70,7 +71,7 @@ export class Runner extends SystemBase implements System  {
 	}
 
 	override ready() : boolean {
-		return super.ready() && game.hasClientId() && this.speed() !== RunnerSpeed.UNKNOWN;
+		return super.ready() && game.hasClientId() && this.speed() !== SpeedSetting.UNKNOWN;
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -108,22 +109,22 @@ export class Runner extends SystemBase implements System  {
 	getSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
 
 	// TODO: split game and render loop
-	speed() : RunnerSpeed { return this._actualSpeed; }
-	setSpeed(speed : RunnerSpeed) : void {
+	speed() : SpeedSetting { return this._actualSpeed; }
+	setSpeed(speed : SpeedSetting) : void {
 		if (this._speed === speed) {
 			return;
 		}
 
-		if (this.setActualSpeed(speed === RunnerSpeed.AUTO ? RunnerSpeed.NORMAL : speed)) {
+		if (this.setActualSpeed(speed === SpeedSetting.AUTO ? SpeedSetting.NORMAL : speed)) {
 			this._speed = speed;
 		}
 	}
-	private setActualSpeed(speed : RunnerSpeed) : boolean {
+	private setActualSpeed(speed : SpeedSetting) : boolean {
 		if (this._actualSpeed === speed) {
 			return true;
 		}
 		if (!Runner._targetFrameTimes.has(speed)) {
-			console.error("Error: tried to set runner to speed with undefined target frame time, %s", RunnerSpeed[speed]);
+			console.error("Error: tried to set runner to speed with undefined target frame time, %s", SpeedSetting[speed]);
 			return false;
 		}
 
@@ -172,7 +173,7 @@ export class Runner extends SystemBase implements System  {
 	private getGameStep() : number {
 		let currentStep = this._gameStepper.timeSinceLastStep() / this._gameStepper.timePerStep();
 
-		if (currentStep > 1.5 * this._gameTargetStep) {
+		if (currentStep > 1.3 * this._gameTargetStep) {
 			currentStep = this._gameTargetStep;
 		}
 
@@ -184,7 +185,7 @@ export class Runner extends SystemBase implements System  {
 			if (Math.abs(timeDiff) > Runner._clientSnapThreshold) {
 				this._gameStepper.setSeqNum(this._importSeqNum);
 			} else if (Math.abs(timeDiff) > currentStep * this._gameStepper.timePerStep()) {
-				const coeff = 1 - Math.sign(timeDiff) * Math.min(0.5, Math.abs(timeDiff) / Runner._clientSnapThreshold);
+				const coeff = 1 - Math.sign(timeDiff) * Math.min(0.3, Math.abs(timeDiff) / Runner._clientSnapThreshold);
 				currentStep *= coeff;
 			}
 		}

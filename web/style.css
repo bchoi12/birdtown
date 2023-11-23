@@ -178,13 +178,6 @@ body {
     margin-bottom: 0;
 }
 
-.key-bind {
-    width: 100%;
-    font-size: 1em;
-    height: 1em;
-    margin-bottom: 0.3em;
-}
-
 #div-announcement {
     position: absolute;
     display: block;
@@ -290,6 +283,10 @@ body {
 
 .setting {
     padding: 0.2em;
+    width: 100%;
+    font-size: 1em;
+    height: 1em;
+    margin-bottom: 0.3em;
 }
 
 #cursor {

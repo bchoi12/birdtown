@@ -319,13 +319,16 @@ export abstract class Netcode {
 			return false;
 		}
 
-		if (settings.debugSendFailure > 0 && type === ChannelType.UDP && settings.debugSendFailure > Math.random()) {
+		// For debugging - fail to send UDP packet.
+		if (type === ChannelType.UDP && settings.sendSuccessRate() < Math.random()) {
 			return true;
 		}
 
 		const payload = encode(msg.exportObject());
-		const second = (Date.now() / 1000) % 10;
-		const delay = Math.max(0, settings.debugDelay + Math.sin(Math.PI / 10 * second) * settings.debugJitter);
+		let delay = settings.delay();
+		if (Date.now() % 3000 <= 500) {
+			delay += settings.jitter() * (0.5 + 0.5 * Math.random());
+		}
 		if (delay > 0) {
 			setTimeout(() => {
 				channels.send(type, payload);

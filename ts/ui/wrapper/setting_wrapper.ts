@@ -4,66 +4,45 @@ import { settings } from 'settings'
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 
-export type SettingWrapperOptions = {
-	id: string;
-	type: string;
-	label: string;
+export type SettingWrapperOptions<T extends number> = {
+	name: string;
 
-	min?: number;
-	max?: number;
-	step?: number;
-
-	getSetting: () => boolean | number;
-	setSetting: (value : boolean | number) => void;
+	get: () => T;
+	click: (current : T) => void;
+	text: (current : T) => string;
 }
 
-export class SettingWrapper extends HtmlWrapper<HTMLElement> {
+export class SettingWrapper<T extends number> extends HtmlWrapper<HTMLElement> {
 
-	constructor(options : SettingWrapperOptions) {
+	private _setting : SettingWrapperOptions<T>;
+	private _nameElm : HTMLElement;
+	private _settingElm : HTMLElement;
+
+	constructor(setting : SettingWrapperOptions<T>) {
 		super(Html.div());
 
-		this.elm().classList.add("setting");
+		this._setting = setting;
 
-		let input = Html.input();
-		input.id = options.id;
-		input.type = options.type;
+		this.elm().classList.add(Html.classSetting);
+		this.elm().classList.add(Html.classTextButton);
 
-		if (options.min) {
-			input.min = "" + options.min;
-		}
-		if (options.max) {
-			input.max = "" + options.max;
-		}
-		if (options.step) {
-			input.step = "" + options.step;
-		}
+		this._nameElm = Html.div();
+		this._nameElm.style.float = "left";
+		this._nameElm.textContent = this._setting.name;
+		this.elm().appendChild(this._nameElm);
 
-		if (input.type === "checkbox") {
-			input.checked = <boolean>options.getSetting();
-		} else if (input.type === "range") {
-			input.value = "" + <number>options.getSetting();
-		}
-		input.onchange = () => {
-			if (input.type === "checkbox") {
-				if (options.getSetting() === input.checked) {
-					return;
-				}
-				options.setSetting(input.checked);
-			} else if (input.type === "range") {
-				const value = Math.min(options.max, Math.max(options.min, Number(input.value)));
-				if (options.getSetting() === value) {
-					return;
-				}
-				options.setSetting(value);
-			}
-		}
+		this._settingElm = Html.div();
+		this._settingElm.style.float = "right";
+		this.updateText();
+		this.elm().appendChild(this._settingElm);
 
-		let label = Html.label();
-		// @ts-ignore
-		label.htmlFor = options.id;
-		label.textContent = options.label;
+		this.elm().onclick = (e) => {
+			this._setting.click(this._setting.get());
+			this.updateText();
+		}
+	}
 
-		this.elm().appendChild(input);
-		this.elm().appendChild(label);
+	private updateText() : void {
+		this._settingElm.textContent = "[" + this._setting.text(this._setting.get()) + "]"
 	}
 }

@@ -85,8 +85,10 @@ export class BirdBrain extends Equip<Player> {
 		}
 
 		// Try to pick a new target
+		let clampedMouse = mouse.clone();
+		game.level().clampPos(clampedMouse);
 		let entities = game.entities().getMap(EntityType.CRATE).findAll((crate : Entity) => {
-			return crate.profile().contains(mouse);
+			return crate.profile().contains(clampedMouse);
 		});
 
 		for (let entity of entities) {

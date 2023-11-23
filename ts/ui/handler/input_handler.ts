@@ -65,7 +65,7 @@ export class InputHandler extends HandlerBase implements Handler {
     	document.addEventListener("mousedown", (e : any) => { this.mouseDown(e); });
     	document.addEventListener("mouseup", (e : any) => { this.mouseUp(e); });
 		document.addEventListener("pointerlockchange", (e : any) => {
-			if (settings.enablePointerLock && !this.pointerLocked() && ui.mode() === UiMode.GAME) {
+			if (settings.pointerLocked() && !this.pointerLocked() && ui.mode() === UiMode.GAME) {
 				ui.setMode(UiMode.PAUSE);
 			}
 		});
@@ -169,7 +169,7 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	private pointerLock() : void {
-		if (settings.enablePointerLock) {
+		if (settings.pointerLocked()) {
 			game.canvas().requestPointerLock();
 		}
 	}

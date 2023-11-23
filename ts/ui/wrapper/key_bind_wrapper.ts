@@ -24,13 +24,13 @@ export class KeyBindWrapper extends HtmlWrapper<HTMLElement> {
 		super(Html.div());
 
 		this.elm().classList.add(Html.classTextButton);
-		this.elm().classList.add(Html.classKeyBind);
+		this.elm().classList.add(Html.classSetting);
 
 		this._nameElm = Html.div();
 		this._nameElm.style.float = "left";
 		this._nameElm.textContent = wrapperOptions.name;
-
 		this.elm().appendChild(this._nameElm);
+
 		this._keyElm = Html.div();
 		this._keyElm.style.float = "right";
 		this.elm().appendChild(this._keyElm);

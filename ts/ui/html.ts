@@ -46,7 +46,7 @@ export namespace Html {
 	export const classNoSelect = "no-select";
 
 	export const classTextButton = "text-button";
-	export const classKeyBind = "key-bind";
+	export const classSetting = "setting";
 	export const classCounter = "counter";
 	export const classTooltip = "tooltip";
 	export const classTooltipShow = "tooltip-show";
