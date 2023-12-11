@@ -41,7 +41,7 @@ export class Stepper {
 
 		this._lastStep = 0;
 		this._stepsCounter = new SavedCounter();;
-		this._stepsPerSecond = new NumberRingBuffer(30);
+		this._stepsPerSecond = new NumberRingBuffer(2);
 		this._stepTimes = new NumberRingBuffer(30);
 		this._stepIntervals = new NumberRingBuffer(30);
 		this._beginStepTime = Date.now();
@@ -75,16 +75,17 @@ export class Stepper {
 
 	prepareStep(currentStep : number) : void {
 		this._stepIntervals.push(Date.now() - this._beginStepTime);
-		this._beginStepTime = Date.now();
 
 		this._lastStep = currentStep;
 		this._seqNum += this._lastStep;
 
-		if (this._beginStepTime % 1000 < this._endStepTime % 1000) {
+		if (Math.floor(Date.now() / 1000) > Math.floor(this._beginStepTime / 1000)) {
 			this._stepsCounter.save();
 			this._stepsPerSecond.push(this._stepsCounter.saved());
 			this._stepsCounter.reset();
 		}
+
+		this._beginStepTime = Date.now();
 	}
 	getStepData() : StepData {
 		return {

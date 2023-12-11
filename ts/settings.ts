@@ -29,7 +29,7 @@ class Settings {
 	public fullscreenSetting : FullscreenSetting;
 	public pointerSetting : PointerSetting;
 
-	public gameSpeedSetting : SpeedSetting;
+	public fpsSetting : SpeedSetting;
 	public antiAliasSetting : AntiAliasSetting;
 	public clientPredictionSetting : ClientPredictionSetting;
 
@@ -54,7 +54,7 @@ class Settings {
 		this.fullscreenSetting = FullscreenSetting.WINDOWED;
 		this.pointerSetting = PointerSetting.NORMAL;
 
-		this.gameSpeedSetting = SpeedSetting.AUTO;
+		this.fpsSetting = SpeedSetting.AUTO;
 		this.antiAliasSetting = AntiAliasSetting.MEDIUM;
 		this.clientPredictionSetting = ClientPredictionSetting.LOW;
 

@@ -21,11 +21,11 @@ import { Stepper, StepperStats } from 'util/stepper'
 
 export class Runner extends SystemBase implements System  {
 
-	// Support up to 4Hz
-	private static readonly _gameTimePerStep = 4;
+	// Support up to ~60 steps per second
+	private static readonly _gameTimePerStep = 16;
 
-	// Support up to 500fps
-	private static readonly _renderTimePerStep = 2;
+	// Support up to 250 FPS
+	private static readonly _renderTimePerStep = 4;
 
 	// Snap seqNum to host when time diff is above a threshold
 	private static readonly _clientSnapThreshold = 1000;
@@ -39,7 +39,6 @@ export class Runner extends SystemBase implements System  {
 	private static readonly _targetFrameTimes = new Map<SpeedSetting, number>([
 		[SpeedSetting.SLOW, 32],
 		[SpeedSetting.NORMAL, 16],
-		[SpeedSetting.FAST, 8],
 	]);
 
 	private _speed : SpeedSetting;
@@ -71,7 +70,7 @@ export class Runner extends SystemBase implements System  {
 	}
 
 	override ready() : boolean {
-		return super.ready() && game.hasClientId() && this.speed() !== SpeedSetting.UNKNOWN;
+		return super.ready() && game.hasClientId() && this.renderSpeed() !== SpeedSetting.UNKNOWN;
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -108,9 +107,8 @@ export class Runner extends SystemBase implements System  {
 
 	getSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
 
-	// TODO: split game and render loop
-	speed() : SpeedSetting { return this._actualSpeed; }
-	setSpeed(speed : SpeedSetting) : void {
+	renderSpeed() : SpeedSetting { return this._actualSpeed; }
+	setRenderSpeed(speed : SpeedSetting) : void {
 		if (this._speed === speed) {
 			return;
 		}
@@ -129,11 +127,9 @@ export class Runner extends SystemBase implements System  {
 		}
 
 		this._actualSpeed = speed;
-		this._gameTargetStep = Runner._targetFrameTimes.get(this._actualSpeed) / Runner._gameTimePerStep;
 		this._renderTargetStep = Runner._targetFrameTimes.get(this._actualSpeed) / Runner._renderTimePerStep;
 
 		let speedMsg = new GameMessage(GameMessageType.RUNNER_SPEED);
-		speedMsg.setGameSpeed(speed);
 		speedMsg.setRenderSpeed(speed);
 		game.handleMessage(speedMsg);
 	}
@@ -157,7 +153,7 @@ export class Runner extends SystemBase implements System  {
 	   	}
     	setTimeout(() => {
     		this.runGameLoop();
-    	}, this.targetStepTime());
+    	}, this.targetStepTime() - this._gameStepper.lastStepTime());
 	}
 	runRenderLoop() : void {
 	   	if (this.initialized()) {
@@ -167,7 +163,7 @@ export class Runner extends SystemBase implements System  {
 	   	}
     	setTimeout(() => {
     		this.runRenderLoop();
-    	}, this._renderTargetStep * this._renderStepper.timePerStep());
+    	}, this._renderTargetStep * this._renderStepper.timePerStep() - this._renderStepper.lastStepTime());
 	}
 
 	private getGameStep() : number {

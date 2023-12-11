@@ -62,5 +62,5 @@ export class Timer {
 
 	hasTimeLeft() : boolean { return this._enabled && this._millisLeft > 0; }
 	timeLeft() : number { return this.hasTimeLeft() ? this._millisLeft : 0; }
-	percentElapsed() : number { return Fns.clamp(0, this._totalMillis > 0 ? 1 - this._millisLeft / this._totalMillis : 0, 1); }
+	percentElapsed() : number { return this._enabled ? Fns.clamp(0, this._totalMillis > 0 ? 1 - this._millisLeft / this._totalMillis : 0, 1) : 0; }
 }

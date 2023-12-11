@@ -17,6 +17,7 @@ import {
 	NetworkStabilitySetting,
 } from 'settings/api'
 
+import { ui } from 'ui'
 import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
@@ -41,7 +42,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		};
 
 		let fullscreen = new SettingWrapper<FullscreenSetting>({
-			name: "Fullscreen mode",
+			name: "Fullscreen Mode",
 			get: () => { return settings.fullscreenSetting; },
 			click: (current : FullscreenSetting) => {
 				if (current === FullscreenSetting.WINDOWED) {
@@ -59,7 +60,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm.appendChild(fullscreen.elm());
 
 		let pointer = new SettingWrapper<PointerSetting>({
-			name: "In-game cursor",
+			name: "In-game Cursor",
 			get: () => { return settings.pointerSetting; },
 			click: (current : PointerSetting) => {
 				settings.pointerSetting = current === PointerSetting.LOCKED ? PointerSetting.NORMAL : PointerSetting.LOCKED;
@@ -71,13 +72,13 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm.appendChild(pointer.elm());
 
 		let frameRate = new SettingWrapper<SpeedSetting>({
-			name: "Target FPS",
-			get: () => { return settings.gameSpeedSetting; },
+			name: "FPS Cap",
+			get: () => { return settings.fpsSetting; },
 			click: (current : SpeedSetting) => {
-				if (current === SpeedSetting.FAST) {
-					settings.gameSpeedSetting = SpeedSetting.AUTO;
+				if (current === SpeedSetting.AUTO) {
+					settings.fpsSetting = SpeedSetting.SLOW;
 				} else {
-					settings.gameSpeedSetting++;
+					settings.fpsSetting++;
 				}
 			},
 			text: (current : SpeedSetting) => {
@@ -86,8 +87,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 					return "30 FPS";
 				case SpeedSetting.NORMAL:
 					return "60 FPS";
-				case SpeedSetting.FAST:
-					return "120 FPS";
+				case SpeedSetting.AUTO:
+					return "None";
 				default:
 					return SpeedSetting[current];
 				}
@@ -112,7 +113,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm.appendChild(antiAlias.elm());
 
 		let clientPrediction = new SettingWrapper<ClientPredictionSetting>({
-			name: "Client-side prediction",
+			name: "Client-side Prediction",
 			get: () => { return settings.clientPredictionSetting; },
 			click: (current : ClientPredictionSetting) => {
 				if (current === ClientPredictionSetting.HIGH) {
@@ -172,7 +173,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm.appendChild(jitter.elm());
 
 		let networkStability = new SettingWrapper<NetworkStabilitySetting>({
-			name: "[D] Network stability",
+			name: "[D] Network Stability",
 			get: () => { return settings.networkStabilitySetting; },
 			click: (current : NetworkStabilitySetting) => {
 				if (current === NetworkStabilitySetting.TERRIBLE) {
@@ -189,7 +190,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 	}
 
 	override setMode(mode : UiMode) : void {
-		if (mode !== UiMode.PAUSE) {
+		if (ui.mode() === UiMode.PAUSE && mode !== UiMode.PAUSE) {
 			if (settings.fullscreen()) {
 				document.documentElement.requestFullscreen();
 			} else if (window.innerHeight === screen.height) {
@@ -202,7 +203,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 				game.scene().debugLayer.hide();
 			}
 
-			game.runner().setSpeed(settings.gameSpeedSetting);
+			game.runner().setRenderSpeed(settings.fpsSetting);
 		}		
 	}
 }

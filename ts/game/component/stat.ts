@@ -158,6 +158,7 @@ export class Stat extends ComponentBase implements Component {
 			}
 
 			if (pick(log)) {
+				this._logBuffer.clear();
 				return [log, true];
 			}
 		}

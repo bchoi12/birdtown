@@ -2,14 +2,10 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
-import { Association } from 'game/component/association'
-import { Model } from 'game/component/model'
-import { Profile } from 'game/component/profile'
+import { AttributeType } from 'game/component/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
-import { Projectile } from 'game/entity/projectile'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Weapon } from 'game/entity/equip/weapon'
 import { MeshType } from 'game/factory/api'
@@ -17,7 +13,6 @@ import { StepData } from 'game/game_object'
 
 import { CounterType, KeyType, KeyState } from 'ui/api'
 
-import { defined } from 'util/common'
 import { Vec3 } from 'util/vector'
 
 export class Bazooka extends Weapon {
@@ -62,7 +57,7 @@ export class Bazooka extends Weapon {
 
 		if (hasRocket) {
 			this.recordUse();
-			rocket.setTTL(750, () => {
+			rocket.setTTL(850, () => {
 				rocket.explode();
 			});
 			rocket.model().transforms().setTranslation({ z: pos.z });

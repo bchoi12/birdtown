@@ -78,9 +78,9 @@ export class World extends SystemBase implements System {
 		this._shadowGenerator.transparencyShadow = true;
 
 		// TODO: option for shadow quality
-		this._shadowGenerator.usePercentageCloserFiltering = false;
+		this._shadowGenerator.usePercentageCloserFiltering = true;
 		// TODO: option for shadow quality
-		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_LOW;
+		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
 	}
 
 	renderShadows(mesh : BABYLON.AbstractMesh) : void {

@@ -13,10 +13,9 @@ export enum PointerSetting {
 export enum SpeedSetting {
 	UNKNOWN,
 
-	AUTO,
 	SLOW,
 	NORMAL,
-	FAST,
+	AUTO,
 }
 
 export enum AntiAliasSetting {

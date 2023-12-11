@@ -183,9 +183,11 @@ export class Level extends SystemBase implements System {
 
 		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 2, y: 2 });
 		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
-		for (let i = 0; i < 5; ++i) {
+
+		const numBuildings = 5;
+		for (let i = 0; i < numBuildings; ++i) {
 			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BASE, i);
-			let floors = (i % 4) === 0 ? 2 : 1;
+			let floors = (i % (numBuildings - 1)) === 0 ? 2 : 1;
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 			pos.y = -6;
@@ -214,14 +216,14 @@ export class Level extends SystemBase implements System {
 					pos: pos,
 				},
 				cardinalsInit: {
-					cardinals: (i % 4) === 0 ? CardinalFactory.noOpenings : CardinalFactory.openSides,
+					cardinals: (i % (numBuildings - 1)) === 0 ? CardinalFactory.noOpenings : CardinalFactory.openSides,
 				},
 				hexColorsInit: {
 					colors: colors,
 				},
 			});
 
-			if (i === 2) {
+			if (i === Math.floor(numBuildings / 2)) {
 				let [sign, hasSign] = this.addEntity<Sign>(EntityType.SIGN, {
 					profileInit: {
 						pos: pos.clone().add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
@@ -259,7 +261,7 @@ export class Level extends SystemBase implements System {
 		});
 
 		bounds.add({ x: 3, y: 0 });
-		bounds.max.y += 50;
+		bounds.max.add({ y: 10 });
 		this.setBounds(bounds.toBox());
 	}
 

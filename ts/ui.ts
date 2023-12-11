@@ -99,10 +99,14 @@ class UI {
 	}
 	mode() : UiMode { return this._mode; }
 	setMode(mode : UiMode) {
-		this._mode = mode;
+		if (this._mode === mode) {
+			return;
+		}
+
 		this._handlers.forEach((handler) => {
 			handler.setMode(mode);
 		});	
+		this._mode = mode;
 	}
 	updatePos(clientId : number, pos : Vec) : void {
 		let context = this.audioContext();
