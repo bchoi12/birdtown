@@ -1,10 +1,9 @@
 import { game } from 'game'
-import { ColorType } from 'game/factory/color_factory'
 import { ComponentType } from 'game/component/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { ArchBase } from 'game/entity/block/arch_base'
-import { MeshType } from 'game/factory/api'
+import { ColorType, MeshType } from 'game/factory/api'
 
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'

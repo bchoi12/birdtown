@@ -4,6 +4,18 @@ export enum AudioType {
 	EXPLOSION,
 }
 
+export enum CardinalType {
+	UNKNOWN,
+	DIRECTION,
+	OPENINGS,
+}
+
+export enum ColorType {
+	UNKNOWN,
+	BASE,
+	SECONDARY,
+}
+
 export enum MeshType {
 	UNKNOWN,
 	BIRD,

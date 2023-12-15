@@ -2,7 +2,7 @@
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType } from 'game/component/api'
-import { CardinalType } from 'game/factory/cardinal_factory'
+import { CardinalType } from 'game/factory/api'
 
 import { Cardinal } from 'util/cardinal'
 import { defined } from 'util/common'

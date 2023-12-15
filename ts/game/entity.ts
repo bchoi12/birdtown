@@ -15,7 +15,7 @@ import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { GameObject, GameObjectBase } from 'game/game_object'
 
-import { CounterType, KeyType, KeyState } from 'ui/api'
+import { CounterType, KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
@@ -33,6 +33,8 @@ export type EntityOptions = {
 	hexColorsInit? : HexColorsInitOptions;
 	modelInit? : ModelInitOptions;
 	profileInit? : ProfileInitOptions
+
+	tooltipType? : TooltipType;
 }
 
 export interface Entity extends GameObject {

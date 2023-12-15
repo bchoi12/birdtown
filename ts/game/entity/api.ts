@@ -4,6 +4,7 @@ import { AssociationType } from 'game/component/api'
 export enum EntityType {
 	UNKNOWN,
 
+	ARCH_BLOCK,
 	BEAK,
 	BLOCK,
 	EQUIP,
@@ -12,7 +13,6 @@ export enum EntityType {
 	SIGN,
 	WEAPON,
 
-	ARCH_BASE,
 	ARCH_ROOM,
 	ARCH_ROOF,
 	BAZOOKA,

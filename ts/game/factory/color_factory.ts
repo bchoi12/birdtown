@@ -1,15 +1,12 @@
 
 import { EntityType } from 'game/entity/api'
+import { ColorType } from 'game/factory/api'
 
 import { Buffer } from 'util/buffer'
 import { HexColor } from 'util/hex_color'
 import { SeededRandom } from 'util/seeded_random'
 
-export enum ColorType {
-	UNKNOWN,
-	BASE,
-	SECONDARY,
-}
+export type ColorMap = Map<number, HexColor>;
 
 export namespace ColorFactory {
 
@@ -27,7 +24,7 @@ export namespace ColorFactory {
 	export const archWhite = HexColor.fromHex(0xeeeeee);
 
 	export const baseColors = new Map<EntityType, Buffer<HexColor>>([
-		[EntityType.ARCH_BASE, Buffer.from(archRed, archOrange, archYellow, archGreen, archBlue, archPurple)],
+		[EntityType.ARCH_BLOCK, Buffer.from(archRed, archOrange, archYellow, archGreen, archBlue, archPurple)],
 	]);
 
 	export function shuffleColors(type : EntityType, rng? : SeededRandom) : void {
@@ -37,13 +34,13 @@ export namespace ColorFactory {
 		baseColors.get(type).shuffle(rng);
 	}
 
-	export function generateColorMap(type : EntityType, index? : number) : Map<number, HexColor> {
+	export function generateColorMap(type : EntityType, index? : number) : ColorMap {
 		if (!index || index < 0 ) { index = 0; }
 
 		switch (type) {
-		case EntityType.ARCH_BASE:
+		case EntityType.ARCH_BLOCK:
 			return new Map([
-				[ColorType.BASE, getColor(EntityType.ARCH_BASE, index)],
+				[ColorType.BASE, getColor(EntityType.ARCH_BLOCK, index)],
 				[ColorType.SECONDARY, archWhite],
 			]);
 		default:

@@ -1,29 +1,29 @@
+
+import { CardinalType } from 'game/factory/api'
+
 import { Cardinal, CardinalDir } from 'util/cardinal'
 
-export enum CardinalType {
-	UNKNOWN,
-	OPENINGS,
-}
+export type CardinalMap = Map<CardinalType, Cardinal>;
 
 export namespace CardinalFactory {
 
-	export const noOpenings = new Map([
+	export const noOpenings : CardinalMap = new Map([
 		[CardinalType.OPENINGS, Cardinal.empty()]
 	]);
 
-	export const openSides = new Map([
+	export const openSides : CardinalMap = new Map([
 		[CardinalType.OPENINGS, Cardinal.fromDirs([CardinalDir.LEFT, CardinalDir.RIGHT])],
 	]);
 
-	export const openLeft = new Map([
+	export const openLeft : CardinalMap = new Map([
 		[CardinalType.OPENINGS, Cardinal.fromDirs([CardinalDir.LEFT])],
 	]);
 
-	export const openRight = new Map([
+	export const openRight : CardinalMap = new Map([
 		[CardinalType.OPENINGS, Cardinal.fromDirs([CardinalDir.RIGHT])],
 	]);
 
-	export function generateOpenings(dirs : CardinalDir[]) {
+	export function generateOpenings(dirs : CardinalDir[]) : CardinalMap {
 		return new Map([
 			[CardinalType.OPENINGS, Cardinal.fromDirs(dirs)],
 		]);

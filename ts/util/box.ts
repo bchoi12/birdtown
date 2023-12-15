@@ -76,12 +76,21 @@ export class Box2 implements Box {
 		this.max.copyVec(point);
 		return this;
 	}
-	stretch(point : Vec) : Box2 {
-		this.min.min(point);
-		this.max.max(point);
+	stretch(point : Vec, buffer? : Vec) : Box2 {
+		this.min.min({
+			x: point.x - (buffer ? buffer.x : 0),
+			y: point.y - (buffer ? buffer.y : 0),
+		});
+		this.max.max({
+			x: point.x + (buffer ? buffer.x : 0),
+			y: point.y + (buffer ? buffer.y : 0),
+		});
 		return this;
 	}
 
+	clone() : Box2 {
+		return new Box2(this.min, this.max);
+	}
 	toBox() : Box {
 		return {
 			min: this.min.toVec(),

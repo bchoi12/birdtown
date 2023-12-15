@@ -29,7 +29,7 @@ export class Sign extends EntityBase implements Entity {
 		super(EntityType.SIGN, entityOptions);
 
 		this._active = false;
-		this._tooltipType = TooltipType.JUST_A_SIGN;
+		this._tooltipType = entityOptions.tooltipType ? entityOptions.tooltipType : TooltipType.JUST_A_SIGN;
 
 		this.addProp<boolean>({
 			export: () => { return this._active; },
@@ -67,8 +67,6 @@ export class Sign extends EntityBase implements Entity {
 			init: entityOptions.profileInit,
 		}));
 	}
-
-	setTooltipType(type : TooltipType) : void { this._tooltipType = type; }
 
 	override prePhysics(stepData : StepData) : void {
 		super.prePhysics(stepData);

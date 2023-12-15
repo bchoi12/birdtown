@@ -175,8 +175,12 @@ export class Vec2 implements Vec {
     }
 
     addRandomOffset(maxOffset : Vec, rng? : SeededRandom) : Vec2 {
-        this.x += ((rng ? rng.next() : Math.random()) < 0.5 ? -1 : 1) * (rng ? rng.next() : Math.random()) * maxOffset.x;
-        this.y += ((rng ? rng.next() : Math.random()) < 0.5 ? -1 : 1) * (rng ? rng.next() : Math.random()) * maxOffset.y;
+        if (maxOffset.hasOwnProperty("x")) {
+            this.x += ((rng ? rng.next() : Math.random()) < 0.5 ? -1 : 1) * (rng ? rng.next() : Math.random()) * maxOffset.x;
+        }
+        if (maxOffset.hasOwnProperty("y")) {
+            this.y += ((rng ? rng.next() : Math.random()) < 0.5 ? -1 : 1) * (rng ? rng.next() : Math.random()) * maxOffset.y;
+        }
         return this;
     }
 

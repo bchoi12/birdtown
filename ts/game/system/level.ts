@@ -2,7 +2,6 @@
 import { game } from 'game'	
 import { GameState } from 'game/api'
 import { AssociationType } from 'game/component/api'
-import { Sign } from 'game/entity/sign'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
@@ -13,6 +12,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { System, SystemBase } from 'game/system'
 import { SystemType, LevelType, LevelLayout } from 'game/system/api'
+import { ArchBlueprint } from 'game/system/level/blueprint/arch_blueprint'
 
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -28,7 +28,7 @@ import { HexColor } from 'util/hex_color'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
 
-type LevelOptions = {
+export type LevelOptions = {
 	type : LevelType;
 	layout : LevelLayout;
 	seed : number;
@@ -71,10 +71,11 @@ export class Level extends SystemBase implements System {
 	}
 
 	levelType() : LevelType { return this._levelMsg.getLevelTypeOr(LevelType.UNKNOWN); }
+	levelLayout() : LevelLayout { return this._levelMsg.getLevelLayoutOr(LevelLayout.NORMAL); }
 	seed() : number { return this._levelMsg.getLevelSeedOr(0); }
 	version() : number { return this._levelMsg.getLevelVersionOr(0); }
 	bounds() : Box2 { return this._bounds; }
-	isCircle() : boolean { return this._levelMsg.getLevelLayout() === LevelLayout.CIRCLE; }
+	isCircle() : boolean { return this.levelLayout() === LevelLayout.CIRCLE; }
 	clampPos(vec : Vec) : void {
 		if (this.isCircle()) {
 			vec.x = Fns.wrap(this._bounds.min.x, vec.x, this._bounds.max.x);
@@ -178,15 +179,46 @@ export class Level extends SystemBase implements System {
 	}
 
 	private loadLobby() : void {
+		let blueprint = new ArchBlueprint();
+		let pos = {x: 0, y: 0};
+		let bounds = Box2.point(pos);
+		blueprint.load({
+			level: {
+				type: this.levelType(),
+				layout: this.levelLayout(),
+				seed: this.seed(),
+			},
+			pos: pos,
+		});
+
+		blueprint.buildings().forEach((building) => {
+			building.blocks().forEach((block) => {
+				block.entities().forEach((entity) => {
+					this.addEntity(entity.type, entity.options);
+				});
+
+				bounds.stretch(block.pos(), block.dim());
+			});
+		});
+
+		bounds.min.add({ y: 3 });
+		bounds.max.add({ y: 4 });
+		this._defaultSpawn.copyVec(bounds.relativePos(CardinalDir.TOP));
+		bounds.max.add({ y: 4 });
+
+		this.setBounds(bounds.toBox());
+	}
+
+	private loadLobbyDeprecated() : void {
 		let pos = new Vec2({ x: -2 * EntityFactory.getDimension(EntityType.ARCH_ROOM).x, y: -6 });
 		let bounds = Box2.point(pos);
 
 		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 2, y: 2 });
-		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
+		ColorFactory.shuffleColors(EntityType.ARCH_BLOCK, this._rng);
 
 		const numBuildings = 5;
 		for (let i = 0; i < numBuildings; ++i) {
-			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BASE, i);
+			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BLOCK, i);
 			let floors = (i % (numBuildings - 1)) === 0 ? 2 : 1;
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
@@ -224,15 +256,13 @@ export class Level extends SystemBase implements System {
 			});
 
 			if (i === Math.floor(numBuildings / 2)) {
-				let [sign, hasSign] = this.addEntity<Sign>(EntityType.SIGN, {
+				this.addEntity(EntityType.SIGN, {
 					profileInit: {
 						pos: pos.clone().add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
 						dim: EntityFactory.getDimension(EntityType.SIGN),
 					},
+					tooltipType: TooltipType.START_GAME,
 				});
-				if (hasSign) {
-					sign.setTooltipType(TooltipType.START_GAME);
-				}
 			}
 
 
@@ -254,12 +284,6 @@ export class Level extends SystemBase implements System {
 		}
 
 		this._defaultSpawn.copyVec(bounds.relativePos(CardinalDir.TOP));
-		this.addEntity(EntityType.SPAWN_POINT, {
-			profileInit: {
-				pos: this._defaultSpawn,
-			},
-		});
-
 		bounds.add({ x: 3, y: 0 });
 		bounds.max.add({ y: 10 });
 		this.setBounds(bounds.toBox());
@@ -270,7 +294,7 @@ export class Level extends SystemBase implements System {
 		let pos = new Vec2({ x: -6, y: -6 });
 		let bounds = Box2.point(pos);
 
-		ColorFactory.shuffleColors(EntityType.ARCH_BASE, this._rng);
+		ColorFactory.shuffleColors(EntityType.ARCH_BLOCK, this._rng);
 		const numBuildings = 6 + Math.floor(3 * this._rng.next());
 
 		let heights = new Array<number>();
@@ -283,7 +307,7 @@ export class Level extends SystemBase implements System {
 		}
 
 		for (let i = 0; i < numBuildings; ++i) {
-			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BASE, i);
+			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BLOCK, i);
 
 			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
 			pos.y = -6;

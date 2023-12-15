@@ -1,5 +1,5 @@
 
-import { ColorType } from 'game/factory/color_factory'
+import { ColorType } from 'game/factory/api'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType } from 'game/component/api'
 
