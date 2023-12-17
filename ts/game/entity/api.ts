@@ -13,6 +13,7 @@ export enum EntityType {
 	SIGN,
 	WEAPON,
 
+	ARCH_BALCONY,
 	ARCH_ROOM,
 	ARCH_ROOF,
 	BAZOOKA,

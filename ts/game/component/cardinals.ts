@@ -2,13 +2,12 @@
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType } from 'game/component/api'
-import { CardinalType } from 'game/factory/api'
 
-import { Cardinal } from 'util/cardinal'
+import { Cardinal, CardinalType } from 'util/cardinal'
 import { defined } from 'util/common'
 
 export type CardinalsInitOptions = {
-	cardinals? : Map<CardinalType, Cardinal>;
+	cardinals? : Array<Cardinal>;
 }
 
 export class Cardinals extends ComponentBase implements Component {
@@ -23,8 +22,8 @@ export class Cardinals extends ComponentBase implements Component {
 		this._cardinals = new Map();
 
 		if (init.cardinals) {
-			init.cardinals.forEach((cardinal : Cardinal, type : CardinalType) => {
-				this.setCardinal(type, cardinal);
+			init.cardinals.forEach((cardinal : Cardinal) => {
+				this.setCardinal(cardinal.type(), cardinal);
 			});
 		}
 
@@ -39,7 +38,7 @@ export class Cardinals extends ComponentBase implements Component {
 				export: () => { return this.getCardinal(type).toBitMask(); },
 				import: (obj : Object) => {
 					if (!this.hasCardinal(type)) {
-						this.setCardinal(type, new Cardinal());
+						this.setCardinal(type, new Cardinal(type));
 					}
 					this.getCardinal(type).copyBitMask(<number>obj);
 				},
@@ -49,5 +48,10 @@ export class Cardinals extends ComponentBase implements Component {
 
 	hasCardinal(type : CardinalType) : boolean { return this._cardinals.has(type); }
 	getCardinal(type : CardinalType) : Cardinal { return this._cardinals.get(type); }
-	setCardinal(type : CardinalType, cardinal : Cardinal) : void { this._cardinals.set(type, cardinal); }
+	setCardinal(type : CardinalType, cardinal : Cardinal) : void {
+		if (this._cardinals.has(type)) {
+			console.error("Warning: overwriting cardinal", CardinalType[type]);
+		}
+		this._cardinals.set(type, cardinal);
+	}
 }

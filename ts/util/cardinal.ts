@@ -1,6 +1,12 @@
 
 import { DoubleMap } from 'util/double_map'
 
+export enum CardinalType {
+	UNKNOWN,
+	DIRECTION,
+	OPENINGS,
+}
+
 export enum CardinalDir {
 	NONE,
 	LEFT,
@@ -47,32 +53,68 @@ export class Cardinal {
 	private static readonly _allBottom = new Set<CardinalDir>([
 		CardinalDir.BOTTOM, CardinalDir.BOTTOM_LEFT, CardinalDir.BOTTOM_RIGHT]);
 
+	private _type : CardinalType;
 	private _cardinals : Set<CardinalDir>;
 
-	constructor() { this._cardinals = new Set(); }
+	constructor(type : CardinalType) {
+		this._type = type;
+		this._cardinals = new Set();
+	}
 
 	static isLeft(type : CardinalDir) : boolean { return Cardinal._allLeft.has(type); }
 	static isRight(type : CardinalDir) : boolean { return Cardinal._allRight.has(type); }
 	static isTop(type : CardinalDir) : boolean { return Cardinal._allTop.has(type); }
 	static isBottom(type : CardinalDir) : boolean { return Cardinal._allBottom.has(type); }
-
-	static empty() : Cardinal {
-		return new Cardinal();
+	static opposite(type : CardinalDir) : CardinalDir {
+		switch (type) {
+		case CardinalDir.LEFT:
+			return CardinalDir.RIGHT;
+		case CardinalDir.RIGHT:
+			return CardinalDir.LEFT;
+		case CardinalDir.BOTTOM:
+			return CardinalDir.TOP;
+		case CardinalDir.TOP:
+			return CardinalDir.BOTTOM;
+		case CardinalDir.BOTTOM_LEFT:
+			return CardinalDir.TOP_RIGHT;
+		case CardinalDir.TOP_RIGHT:
+			return CardinalDir.BOTTOM_LEFT;
+		case CardinalDir.BOTTOM_RIGHT:
+			return CardinalDir.TOP_LEFT;
+		case CardinalDir.TOP_LEFT:
+			return CardinalDir.BOTTOM_RIGHT;
+		}
+		return CardinalDir.NONE;
 	}
-	static fromDirs(types : CardinalDir[]) : Cardinal { 
-		let cardinal = new Cardinal();
-		types.forEach((type) => {
-			cardinal.addDir(type);
+
+	static empty(type : CardinalType) : Cardinal {
+		return new Cardinal(type);
+	}
+	static fromDirs(type : CardinalType, dirs : CardinalDir[]) : Cardinal { 
+		let cardinal = new Cardinal(type);
+		dirs.forEach((dir : CardinalDir) => {
+			cardinal.addDir(dir);
 		});
 		return cardinal;
 	}
 
-	static fromName(names : string[]) : Cardinal {
-		let cardinal = new Cardinal();
+	static fromName(type : CardinalType, names : string[]) : Cardinal {
+		let cardinal = new Cardinal(type);
 		names.forEach((name) => {
 			cardinal.addName(name);
 		});
 		return cardinal;
+	}
+
+	type() : CardinalType { return this._type; }
+	dirs() : Set<CardinalDir> { return this._cardinals; }
+	merge(other : Cardinal) : void {
+		if (this.type() !== other.type()) {
+			console.error("Error: skipping merge for cardinals with different types", CardinalType[this.type()], CardinalType[other.type()]);
+			return;
+		}
+
+		this.addDirs(other.dirs());
 	}
 
 	empty() : boolean { return this._cardinals.size === 0; }
@@ -82,7 +124,7 @@ export class Cardinal {
 			this._cardinals.add(type);
 		}
 	}
-	addDirs(types : CardinalDir[]) : void {
+	addDirs(types : Set<CardinalDir>) : void {
 		types.forEach((type : CardinalDir) => {
 			this.addDir(type);
 		});

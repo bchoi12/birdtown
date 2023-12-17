@@ -9,6 +9,8 @@ import { Blueprint, BlueprintBlock, BlueprintOptions } from 'game/system/level/b
 
 import { TooltipType } from 'ui/api'
 
+import { Cardinal, CardinalDir } from 'util/cardinal'
+import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
 
 type BuildingPlan = {
@@ -24,12 +26,41 @@ class ArchBlueprintBlock extends BlueprintBlock {
 
 	override dim() : Vec { return ArchBlueprint.baseDim(); }
 
-	addBalcony(options : EntityOptions) : void {
-		// TODO: add balcony
+	addBalcony(dir : CardinalDir, options : EntityOptions) : void {
+		let pos = Vec2.fromVec(this.pos());
+		if (dir === CardinalDir.RIGHT) {
+			pos.add({
+				x: ArchBlueprint.baseDim().x / 2 + ArchBlueprint.balconyDim().x / 2,
+				y: -ArchBlueprint.baseDim().y / 2 + ArchBlueprint.balconyDim().y / 2,
+			});
+		} else {
+			pos.add({
+				x: -ArchBlueprint.baseDim().x / 2 - ArchBlueprint.balconyDim().x / 2,
+				y: -ArchBlueprint.baseDim().y / 2 + ArchBlueprint.balconyDim().y / 2,
+			});
+		}
+
+		this.addEntity(ArchBlueprint.balconyType(), {
+			profileInit: {
+				pos: pos,
+			},
+			cardinalsInit: {
+				cardinals: [CardinalFactory.openings([Cardinal.opposite(dir)])],
+			},
+			...options,
+		});
 	}
 
-	setOpenings(openings : CardinalMap) : void {
-		this.options().cardinalsInit.cardinals = openings;
+	addCrates(rng : SeededRandom) : void {
+		while(rng.testChance()) {
+			this.addEntity(EntityType.CRATE, {
+				profileInit: {
+					pos: Vec2.fromVec(this.pos()).addRandomOffset({x: ArchBlueprint.baseDim().x / 3 }, rng),
+					dim: { x: 1, y: 1 },
+					angle: rng.next() * 360,
+				},
+			});
+		}
 	}
 }
 
@@ -50,30 +81,34 @@ class Building {
 	block(i : number) : ArchBlueprintBlock { return this._blocks[i]; }
 	blocks() : Array<ArchBlueprintBlock> { return this._blocks; }
 
-	addBlock(options : EntityOptions) : void {
+	addBlock(options : EntityOptions) : ArchBlueprintBlock {
 		if (this.numBlocks() === 0) {
 			this._pos.y += ArchBlueprint.baseDim().y / 2;
 		} else {
 			this._pos.y += ArchBlueprint.baseDim().y;
 		}
 
-		this._blocks.push(new ArchBlueprintBlock(ArchBlueprint.baseType(), {
+		let block = new ArchBlueprintBlock(ArchBlueprint.baseType(), {
 			profileInit: {
 				pos: this._pos.toVec(),
 			},
 			...options,
-		}));
+		});
+		this._blocks.push(block);
+		return block;
 	}
-	addRoof(options : EntityOptions) : void {
+	addRoof(options : EntityOptions) : ArchBlueprintBlock {
 		let pos = this._initPos.clone();
 		pos.add({y: this.numBlocks() * ArchBlueprint.baseDim().y + ArchBlueprint.roofDim().y / 2 });
 
-		this._blocks.push(new ArchBlueprintBlock(ArchBlueprint.roofType(), {
+		let block = new ArchBlueprintBlock(ArchBlueprint.roofType(), {
 			profileInit: {
 				pos: pos.toVec(),
 			},
 			...options,
-		}));
+		});
+		this._blocks.push(block);
+		return block;
 	}
 }
 
@@ -94,8 +129,10 @@ export class ArchBlueprint extends Blueprint {
 	static baseType() : EntityType { return EntityType.ARCH_ROOM; }
 	static blockType() : EntityType { return EntityType.ARCH_BLOCK; }
 	static roofType() : EntityType { return EntityType.ARCH_ROOF; }
+	static balconyType() : EntityType { return EntityType.ARCH_BALCONY; }
 	static baseDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.baseType()); }
 	static roofDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.roofType()); }
+	static balconyDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.balconyType()); }
 
 	override load(options : BlueprintOptions) : void {
 		super.load(options);
@@ -137,6 +174,10 @@ export class ArchBlueprint extends Blueprint {
 		}
 		this._pos.add(offset);
 
+		if (height === 0) {
+			return;
+		}
+
 		let building = new Building(this._pos);
 		const colors = ColorFactory.generateColorMap(ArchBlueprint.blockType(), this._buildings.length);
 		const options = {
@@ -145,27 +186,30 @@ export class ArchBlueprint extends Blueprint {
 			}
 		};
 		for (let j = 0; j < height; ++j) {
-			let openings : CardinalMap;
-			if (j === 0) {
-				openings = CardinalFactory.noOpenings;
-			} else {
-				openings = this.getOpenings(j <= prevHeight || prevHeight === 0, j <= nextHeight || nextHeight === 0);
+			let openings = CardinalFactory.openings([]);
+			if (j > 0) {
+				openings.merge(this.getOpenings(j <= prevHeight || prevHeight === 0, j <= nextHeight || nextHeight === 0));
 			}
 
-			building.addBlock({
+			let block = building.addBlock({
 				cardinalsInit: {
-					cardinals: openings,				
+					cardinals: [openings],		
 				},
 				...options});
-		}
 
-		if (height > 0) {
-			building.addRoof({
-				cardinalsInit: {
-					cardinals: this.getOpenings(height <= prevHeight, height <= nextHeight),				
-				},
-				...options});
+			if (openings.anyRight() && (j > nextHeight + 1 || nextHeight === 0)) {
+				block.addBalcony(CardinalDir.RIGHT, options);
+			}
+			if (openings.anyLeft() && (j > prevHeight + 1 || prevHeight === 0)) {
+				block.addBalcony(CardinalDir.LEFT, options);
+			}
 		}
+		building.addRoof({
+			cardinalsInit: {
+				cardinals: [this.getOpenings(height <= prevHeight, height <= nextHeight)],
+			},
+			...options});
+
 		this._buildings.push(building);
 	}
 
@@ -186,17 +230,9 @@ export class ArchBlueprint extends Blueprint {
 				let block = building.block(j);
 
 				this.rng().setChance(0.9, (n : number) => { return n - 0.3; });
-				while(this.rng().testChance()) {
-					block.addEntity(EntityType.CRATE, {
-						profileInit: {
-							pos: Vec2.fromVec(block.pos()).addRandomOffset({x: ArchBlueprint.baseDim().x / 3 }, this.rng()),
-							dim: { x: 1, y: 1 },
-							angle: this.rng().next() * 360,
-						},
-					});
-				}
+				block.addCrates(this.rng());
 
-				if (i === Math.floor(this.numBuildings() / 2) - 1 && j === building.numBlocks() - 1) {
+				if (i === Math.floor(this.numBuildings() / 2) && j === building.numBlocks() - 1) {
 					block.addEntity(EntityType.SIGN, {
 						profileInit: {
 							pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
@@ -213,15 +249,15 @@ export class ArchBlueprint extends Blueprint {
 
 	}
 
-	private getOpenings(openLeft : boolean, openRight : boolean) : CardinalMap {
-		if (openLeft && openRight) {
-			return CardinalFactory.openSides;
-		} else if (openLeft) {
-			return CardinalFactory.openLeft;
-		} else if (openRight) {
-			return CardinalFactory.openRight;
+	private getOpenings(openLeft : boolean, openRight : boolean) : Cardinal {
+		let openings = [];
+		if (openLeft) {
+			openings.push(CardinalDir.LEFT);
 		}
-		return CardinalFactory.noOpenings;
+		if (openRight) {
+			openings.push(CardinalDir.RIGHT);
+		}
+		return CardinalFactory.openings(openings);
 	}
 
 }

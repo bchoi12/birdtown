@@ -1,5 +1,6 @@
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { ArchBalcony } from 'game/entity/block/arch_balcony'
 import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Cloud } from 'game/entity/cloud'
@@ -25,6 +26,7 @@ export namespace EntityFactory {
 	type EntityFactoryFn = (options : EntityOptions) => Entity;
 
 	export const createFns = new Map<EntityType, EntityFactoryFn>([
+		[EntityType.ARCH_BALCONY, (options : EntityOptions) => { return new ArchBalcony(options); }],
 		[EntityType.ARCH_ROOM, (options : EntityOptions) => { return new ArchRoom(options); }],
 		[EntityType.ARCH_ROOF, (options : EntityOptions) => { return new ArchRoof(options); }],
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
@@ -46,6 +48,7 @@ export namespace EntityFactory {
 	]);
 
 	export const staticDimensions = new Map<EntityType, Vec>([
+		[EntityType.ARCH_BALCONY, { x: 3, y: 2, z: 6 }],
 		[EntityType.ARCH_ROOM, { x: 12, y: 6, z: 8 }],
 		[EntityType.ARCH_ROOF, { x: 12, y: 1, z: 8 }],
 		[EntityType.BOLT, { x: 0.2, y: 0.1, z : 0.1 }],

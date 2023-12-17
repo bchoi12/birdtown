@@ -209,86 +209,6 @@ export class Level extends SystemBase implements System {
 		this.setBounds(bounds.toBox());
 	}
 
-	private loadLobbyDeprecated() : void {
-		let pos = new Vec2({ x: -2 * EntityFactory.getDimension(EntityType.ARCH_ROOM).x, y: -6 });
-		let bounds = Box2.point(pos);
-
-		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 2, y: 2 });
-		ColorFactory.shuffleColors(EntityType.ARCH_BLOCK, this._rng);
-
-		const numBuildings = 5;
-		for (let i = 0; i < numBuildings; ++i) {
-			let colors = ColorFactory.generateColorMap(EntityType.ARCH_BLOCK, i);
-			let floors = (i % (numBuildings - 1)) === 0 ? 2 : 1;
-
-			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
-			pos.y = -6;
-
-			bounds.stretch(pos);
-			for (let j = 0; j < floors; ++j) {
-				pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
-				this.addEntity(EntityType.ARCH_ROOM, {
-					profileInit: {
-						pos: pos,
-					},
-					cardinalsInit: {
-						cardinals: j == 0 ? CardinalFactory.noOpenings : CardinalFactory.openSides,
-					},
-					hexColorsInit: {
-						colors: colors,
-					},
-				});
-
-				pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
-			}
-
-			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOF).y / 2;
-			this.addEntity(EntityType.ARCH_ROOF, {
-				profileInit: {
-					pos: pos,
-				},
-				cardinalsInit: {
-					cardinals: (i % (numBuildings - 1)) === 0 ? CardinalFactory.noOpenings : CardinalFactory.openSides,
-				},
-				hexColorsInit: {
-					colors: colors,
-				},
-			});
-
-			if (i === Math.floor(numBuildings / 2)) {
-				this.addEntity(EntityType.SIGN, {
-					profileInit: {
-						pos: pos.clone().add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
-						dim: EntityFactory.getDimension(EntityType.SIGN),
-					},
-					tooltipType: TooltipType.START_GAME,
-				});
-			}
-
-
-			pos.y += EntityFactory.getDimension(EntityType.ARCH_ROOM).y / 2;
-			let chance = (i % 2) === 0 ? 0 : 1
-			while (this._rng.next() < chance) {
-				this.addEntity(EntityType.CRATE, {
-					profileInit: {
-						pos: pos.clone().addRandomOffset({x: 4, y: 2}, this._rng),
-						dim: crateSizes.getRandom(this._rng),
-						angle: this._rng.next() * 360,
-					},
-				});
-				chance -= 0.15;
-			}
-
-			pos.x += EntityFactory.getDimension(EntityType.ARCH_ROOM).x / 2;
-			bounds.stretch(pos);
-		}
-
-		this._defaultSpawn.copyVec(bounds.relativePos(CardinalDir.TOP));
-		bounds.add({ x: 3, y: 0 });
-		bounds.max.add({ y: 10 });
-		this.setBounds(bounds.toBox());
-	}
-
 	private loadBirdtown() : void {
 		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 2, y: 2 });
 		let pos = new Vec2({ x: -6, y: -6 });
@@ -319,7 +239,7 @@ export class Level extends SystemBase implements System {
 						pos: pos,
 					},
 					cardinalsInit: {
-						cardinals: j === 0 ? CardinalFactory.noOpenings : CardinalFactory.openSides,
+						cardinals: [j === 0 ? CardinalFactory.noOpenings : CardinalFactory.openSides],
 					},
 					hexColorsInit: {
 						colors: colors,
@@ -355,7 +275,7 @@ export class Level extends SystemBase implements System {
 					pos: pos,
 				},
 				cardinalsInit: {
-					cardinals: CardinalFactory.generateOpenings(openings),
+					cardinals: [CardinalFactory.openings(openings)],
 				},
 				hexColorsInit: {
 					colors: colors,
