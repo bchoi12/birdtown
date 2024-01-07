@@ -55,7 +55,7 @@ export class Expression<T extends number> extends ComponentBase implements Compo
 		super.reset();
 
 		this._emotions.forEach((emotion : Emotion) => {
-			emotion.timer.stop();
+			emotion.timer.reset();
 		});
 		this._current = this._default;
 		this._override.clear();

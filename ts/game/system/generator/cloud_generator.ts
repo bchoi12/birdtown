@@ -31,15 +31,12 @@ export class CloudGenerator extends Generator implements System {
 		while (x < bounds.max.x) {
 			const length = 4 + 2 * this._rng.next();
 
-			const temp = this._rng.next();
 			let z = 0;
-			if (temp < 0.3) {
-				z = 10;
-			} else if (temp < 0.65) {
-				z = -10;
-			} else {
-				z = -15;
-			}
+			this._rng.switch([
+				[0.3, () => { z = 10; }],
+				[0.65, () => { z = -10; }],
+				[1, () => { z = -15; }],
+			]);
 
 			let [cloud, hasCloud] = game.entities().addEntity(EntityType.CLOUD, {
 				offline: true,

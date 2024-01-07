@@ -210,6 +210,48 @@ export class Level extends SystemBase implements System {
 	}
 
 	private loadBirdtown() : void {
+		let blueprint = new ArchBlueprint();
+		let pos = {x: 0, y: 0};
+		let bounds = Box2.point(pos);
+		blueprint.load({
+			level: {
+				type: this.levelType(),
+				layout: this.levelLayout(),
+				seed: this.seed(),
+			},
+			pos: pos,
+		});
+
+		blueprint.buildings().forEach((building) => {
+			building.blocks().forEach((block) => {
+				block.entities().forEach((entity) => {
+					this.addEntity(entity.type, entity.options);
+				});
+
+				bounds.stretch(block.pos(), block.dim());
+			});
+		});
+
+		bounds.min.add({ y: 3 });
+		bounds.max.add({ y: 4 });
+		this._defaultSpawn.copyVec(bounds.relativePos(CardinalDir.TOP));
+
+		bounds.max.add({ y: 7 });
+
+		this.addEntity(EntityType.PLANE, {
+			profileInit: {
+				pos: bounds.relativePos(CardinalDir.TOP_LEFT).add({
+					x: bounds.width() / 3,
+					y: bounds.max.y,
+				}),
+			},
+		});
+
+		bounds.max.add({ y: 4 });
+
+		this.setBounds(bounds.toBox());
+
+		/*
 		let crateSizes = Buffer.from<Vec>({x: 1, y: 1}, {x: 2, y: 2 });
 		let pos = new Vec2({ x: -6, y: -6 });
 		let bounds = Box2.point(pos);
@@ -317,6 +359,7 @@ export class Level extends SystemBase implements System {
 		bounds.add({ x: 3, y: 0 });
 		bounds.max.y += 50;
 		this.setBounds(bounds.toBox());
+		*/
 	}
 
 	private addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : [T, boolean] {

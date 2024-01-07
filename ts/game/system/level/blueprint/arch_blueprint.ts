@@ -10,6 +10,7 @@ import { Blueprint, BlueprintBlock, BlueprintOptions } from 'game/system/level/b
 import { TooltipType } from 'ui/api'
 
 import { Cardinal, CardinalDir } from 'util/cardinal'
+import { Fns } from 'util/fns'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -187,9 +188,7 @@ export class ArchBlueprint extends Blueprint {
 		};
 		for (let j = 0; j < height; ++j) {
 			let openings = CardinalFactory.openings([]);
-			if (j > 0) {
-				openings.merge(this.getOpenings(j <= prevHeight || prevHeight === 0, j <= nextHeight || nextHeight === 0));
-			}
+			openings.merge(this.getOpenings(/*openLeft=*/j > 0, /*openRight=*/j > 0));
 
 			let block = building.addBlock({
 				cardinalsInit: {
@@ -197,10 +196,10 @@ export class ArchBlueprint extends Blueprint {
 				},
 				...options});
 
-			if (openings.anyRight() && (j > nextHeight + 1 || nextHeight === 0)) {
+			if (openings.anyRight() && (j > nextHeight || nextHeight === 0)) {
 				block.addBalcony(CardinalDir.RIGHT, options);
 			}
-			if (openings.anyLeft() && (j > prevHeight + 1 || prevHeight === 0)) {
+			if (openings.anyLeft() && (j > prevHeight || prevHeight === 0)) {
 				block.addBalcony(CardinalDir.LEFT, options);
 			}
 		}
@@ -246,7 +245,65 @@ export class ArchBlueprint extends Blueprint {
 	}
 
 	private loadBirdtown(options : BlueprintOptions) : void {
+		const plan = this.generateBirdtownPlan(options);
+		this.addBuildings(plan);
 
+		for (let i = 0; i < this.numBuildings(); ++i) {
+			let building = this.building(i);
+
+			for (let j = 1; j < building.numBlocks(); ++j) {
+				let block = building.block(j);
+
+				this.rng().setChance(0.9, (n : number) => { return n - 0.3; });
+				block.addCrates(this.rng());
+			}
+		}
+	}
+
+	private generateBirdtownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
+		let plan = new Array<BuildingPlan>();
+		const halfLength = 4 + this.rng().int(2);
+
+		let currentHeight = 1 + this.rng().int(2);
+		const maxHeight = 3;
+		for (let i = 0; i < halfLength; ++i) {
+			plan.push({
+				height: currentHeight,
+			});
+
+			this.rng().switch([
+				[0.5, () => {
+					if (currentHeight < maxHeight / 2) {
+						currentHeight++;
+					} else {
+						currentHeight--;
+					}
+				}],
+				[0.8, () => {
+					if (currentHeight > 0 && currentHeight < maxHeight / 2) {
+						currentHeight--;
+					} else {
+						currentHeight++;
+					}
+				}],
+				[1, () => {
+					if (currentHeight < maxHeight / 2) {
+						currentHeight += 2;
+					} else {
+						currentHeight -= 2;
+					}
+				}],
+			]);
+
+			currentHeight = Fns.clamp(0, currentHeight, maxHeight);
+		}
+		for (let i = halfLength - 2; i >= 0; --i) {
+			plan.push({
+				height: plan[i].height,
+			});
+		}
+
+		return plan;
 	}
 
 	private getOpenings(openLeft : boolean, openRight : boolean) : Cardinal {

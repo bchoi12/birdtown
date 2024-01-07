@@ -1,6 +1,7 @@
 
 
 type ChanceFn = (n : number, result? : boolean) => number;
+type SwitchFn = [number, (n? : number) => void];
 
 // Based on Mulberry32
 export class SeededRandom {
@@ -25,6 +26,9 @@ export class SeededRandom {
 
 	reset() : void { this._current = this._seed; }
 
+	int(n : number) : number {
+		return Math.floor(this.next() * n);
+	}
 	next() : number {
     	this._current |= 0;
     	this._current = this._current + 0x6D2B79F5 | 0;
@@ -41,6 +45,18 @@ export class SeededRandom {
     	const result = this.next() < this._chance;
     	this._chance = this._chanceFn(this._chance, result);
     	return result;
+    }
+    switch(sortedFns : Array<SwitchFn>) : number {
+    	const num = this.next();
+
+    	for (let i = 0; i < sortedFns.length; ++i) {
+    		if (num < sortedFns[i][0]) {
+    			sortedFns[i][1]();
+    			break;
+    		}
+    	}
+
+    	return num;
     }
 
     gt(test : number) : boolean { return this.next() > test; }

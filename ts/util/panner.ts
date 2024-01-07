@@ -33,8 +33,8 @@ export class Panner {
 
 	current() : Vec3 {
 		const percent = this._timer.percentElapsed();
-		if (percent === 0) { return this._base; }
-		if (percent === 1) { return this._goal; }
+		if (percent <= 0) { return this._base; }
+		if (percent >= 1) { return this._goal; }
 
 		return this._base.interpolateClone(this._goal, percent, this._interpFn);
 	}
@@ -46,7 +46,7 @@ export class Panner {
 		return false;
 	}
 	snap() : void {
-		this._timer.stop();
+		this._timer.reset();
 		this._base.copy(this._goal);
 	}
 	pan(options : PanOptions) : void {

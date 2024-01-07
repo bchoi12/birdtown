@@ -322,7 +322,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		// TODO: try just calling reset()?
 
 		this.setAttribute(AttributeType.GROUNDED, false);
-		this._canJumpTimer.stop();
+		this._canJumpTimer.reset();
 		this._canDoubleJump = false;
 
 		this._expression.reset();
@@ -423,7 +423,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			if (this._canJumpTimer.hasTimeLeft()) {
 				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
 					this._profile.setVel({ y: Player._jumpVel });
-					this._canJumpTimer.stop();
+					this._canJumpTimer.reset();
 				}
 			} else if (this._canDoubleJump) {
 				if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
