@@ -262,45 +262,35 @@ export class ArchBlueprint extends Blueprint {
 
 	private generateBirdtownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
 		let plan = new Array<BuildingPlan>();
-		const halfLength = 4 + this.rng().int(2);
+		const length = 8 + this.rng().int(3);
 
-		let currentHeight = 1 + this.rng().int(2);
+		let currentHeight = 2;
 		const maxHeight = 3;
-		for (let i = 0; i < halfLength; ++i) {
+		for (let i = 0; i < length; ++i) {
 			plan.push({
 				height: currentHeight,
 			});
 
-			this.rng().switch([
-				[0.5, () => {
-					if (currentHeight < maxHeight / 2) {
-						currentHeight++;
-					} else {
-						currentHeight--;
-					}
-				}],
-				[0.8, () => {
-					if (currentHeight > 0 && currentHeight < maxHeight / 2) {
-						currentHeight--;
-					} else {
-						currentHeight++;
-					}
-				}],
-				[1, () => {
-					if (currentHeight < maxHeight / 2) {
-						currentHeight += 2;
-					} else {
-						currentHeight -= 2;
-					}
-				}],
-			]);
-
+			if (currentHeight === 0) {
+				currentHeight = this.rng().int(maxHeight) + 1;
+			} else if (currentHeight === 1) {
+				this.rng().switch([
+					[0.5, () => { currentHeight = 2; }],
+					[0.8, () => { currentHeight = 3; }],
+				]);
+			} else if (currentHeight === 2) {
+				this.rng().switch([
+					[0.5, () => { currentHeight--; }],
+					[0.8, () => { currentHeight = 0; }],
+					[0.95, () => { currentHeight++; }],
+				]);
+			} else {
+				this.rng().switch([
+					[0.6, () => { currentHeight--; }],
+					[0.95, () => { currentHeight -= 2; }],
+				]);
+			}
 			currentHeight = Fns.clamp(0, currentHeight, maxHeight);
-		}
-		for (let i = halfLength - 2; i >= 0; --i) {
-			plan.push({
-				height: plan[i].height,
-			});
 		}
 
 		return plan;
