@@ -145,6 +145,11 @@ export class PlayerState extends ClientSystem implements System {
 				break;
 			}
 			break;
+		case GameMessageType.LEVEL_LOAD:
+			if (this.hasTargetEntity()) {
+				game.level().spawnPlayer(this.targetEntity<Player>());
+			}
+			break;
 		}
 	}
 
