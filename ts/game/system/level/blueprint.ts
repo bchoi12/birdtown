@@ -21,16 +21,19 @@ export abstract class Blueprint {
 
 	private _rng : SeededRandom;
 	private _chance : number;
+	private _options : BlueprintOptions
 
-	constructor() {
+	constructor(options : BlueprintOptions) {
 		this._rng = new SeededRandom(0);
 		this._chance = 0;
-	}
+		this._options = options;
 
-	rng() : SeededRandom { return this._rng; }
-	load(options : BlueprintOptions) : void {
 		this._rng.seed(options.level.seed);
 	}
+
+	options() : BlueprintOptions { return this._options; }
+	rng() : SeededRandom { return this._rng; }
+	abstract load() : void;
 }
 
 export abstract class BlueprintBlock {

@@ -223,7 +223,7 @@ export class Profile extends ComponentBase implements Component {
 	override setState(state : GameObjectState) : void {
 		super.setState(state);
 
-		if (defined(this._body)) {
+		if (this._body !== null) {
 			if (state === GameObjectState.DEACTIVATED) {
 				// Hack to remove the body from the scene.
 				MATTER.Body.setPosition(this._body, { x: this.pos().x, y: game.level().bounds().min.y - 10 });
@@ -236,7 +236,7 @@ export class Profile extends ComponentBase implements Component {
 	override dispose() : void {
 		super.dispose();
 
-		if (defined(this._body)) {
+		if (this._body !== null) {
 			MATTER.World.remove(game.physics().world(), this._body);
 		}
 		this._constraints.forEach((constraint : MATTER.Constraint) => {
@@ -332,7 +332,7 @@ export class Profile extends ComponentBase implements Component {
 		this._vel.zeroEpsilon(Profile._minQuantization);
 		this._vel.roundToEpsilon(Profile._minQuantization);
 	}
-	private addVel(delta : Vec) : void {
+	addVel(delta : Vec) : void {
 		if (!this.hasVel()) { this._vel = SmoothVec2.zero(); }
 
 		this._vel.add(delta);
@@ -364,12 +364,12 @@ export class Profile extends ComponentBase implements Component {
 	angle() : number { return this.hasAngle() ? this._angle : 0; }
 	setAngle(angle : number) : void { this._angle = angle; }
 	setAngularVelocity(vel : number) : void {
-		if (defined(this._body)) {
+		if (this._body !== null) {
 			MATTER.Body.setAngularVelocity(this._body, vel);
 		}
 	}
 	addAngularVelocity(delta : number) : void {
-		if (defined(this._body)) {
+		if (this._body !== null) {
 			MATTER.Body.setAngularVelocity(this._body, this._body.angularVelocity + delta);
 		}
 	}
@@ -464,7 +464,7 @@ export class Profile extends ComponentBase implements Component {
 		}
 	}
 	addForce(force : Vec) : void { this._forces.push(force); }
-	private applyForces(pos : Vec2, vel : Vec2) : void {
+	private applyForces() : void {
 		if (this._forces.empty()) {
 			return;
 		}
@@ -473,9 +473,10 @@ export class Profile extends ComponentBase implements Component {
 		while(!this._forces.empty()) {
 			totalForce.add(this._forces.pop());
 		}
-
-		vel.x += totalForce.x / this._body.mass;
-		vel.y += totalForce.y / this._body.mass;
+		this.addVel({
+			x: totalForce.x / this._body.mass,
+			y: totalForce.y / this._body.mass,
+		})
 		this._forces.clear();
 	}
 
@@ -484,18 +485,20 @@ export class Profile extends ComponentBase implements Component {
 	setLimits(limits : ProfileLimits) : void { this._limits = limits; }
 	mergeLimits(limits : ProfileLimits) { this._limits = {...this._limits, ...limits}; }
 	clearLimits() : void { this._limits = {}; }
-	private applyLimits(pos : Vec2, vel : Vec2) : void {
-		vel.zeroEpsilon(Profile._minQuantization);
+	private applyLimits() : void {
+		if (this.hasVel()) {
+			this.vel().zeroEpsilon(Profile._minQuantization);
+		}
 
 		if (this._limits.disabled) { return; }
 
-		if (this._limits.maxSpeed) {
+		if (this._limits.maxSpeed && this.hasVel()) {
 			const maxSpeed = this._limits.maxSpeed;
-			if (Math.abs(vel.x) > maxSpeed.x) {
-				vel.x = Math.sign(vel.x) * maxSpeed.x;
+			if (Math.abs(this.vel().x) > maxSpeed.x) {
+				this.vel().x = Math.sign(this.vel().x) * maxSpeed.x;
 			}
-			if (Math.abs(vel.y) > maxSpeed.y) {
-				vel.y = Math.sign(vel.y) * maxSpeed.y;
+			if (Math.abs(this.vel().y) > maxSpeed.y) {
+				this.vel().y = Math.sign(this.vel().y) * maxSpeed.y;
 			}
 		}
 
@@ -544,8 +547,8 @@ export class Profile extends ComponentBase implements Component {
 			}
 		}
 
-		this.applyForces(this.pos(), this.vel());
-		this.applyLimits(this.pos(), this.vel());
+		this.applyForces();
+		this.applyLimits();
 		if (this.hasVel()) {
 			MATTER.Body.setVelocity(this._body, this.vel());
 		}

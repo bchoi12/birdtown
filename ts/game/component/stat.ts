@@ -109,10 +109,6 @@ export class Stat extends ComponentBase implements Component {
 	getCurrent() : number { return this._stat.get(); }
 
 	updateStat(update : StatUpdate) : void {
-		if (!this.isSource()) {
-			return;
-		}
-
 		if (update.delta < 0) {
 			if (this._min.has()) {
 				const min = this._min.get();
@@ -139,7 +135,9 @@ export class Stat extends ComponentBase implements Component {
 			return;
 		}
 
-		this._stat.add(update.delta);
+		if (this.isSource()) {
+			this._stat.add(update.delta);
+		}
 
 		if (update.entity) {
 			this._logBuffer.push(new StatLog({

@@ -1,7 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { Model } from 'game/component/model'
-import { EquipEntity, EntityOptions } from 'game/entity'
+import { Entity, EquipEntity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { MeshType } from 'game/factory/api'
@@ -9,7 +9,7 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { defined } from 'util/common'
 
-export abstract class Headwear extends Equip<EquipEntity> {
+export abstract class Headwear extends Equip<Entity & EquipEntity> {
 
 	private static readonly _top = "top";
 

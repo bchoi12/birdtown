@@ -53,7 +53,7 @@ export class ClientDialog extends ClientSideSystem implements System {
 
 		let loadout = this.message(DialogType.PICK_LOADOUT);
 		loadout.setEquipType(EntityType.BAZOOKA);
-		loadout.setAltEquipType(EntityType.BIRD_BRAIN);
+		loadout.setAltEquipType(EntityType.JETPACK);
 		loadout.setPlayerType(ModifierPlayerType.NONE);
 
 		for (const stringType in DialogType) {

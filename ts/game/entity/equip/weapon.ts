@@ -51,14 +51,6 @@ export abstract class Weapon extends Equip<Player> {
 		});
 	}
 
-	override key(type : KeyType, state : KeyState) : boolean {
-		if (!this.hasOwner()) { return false; }
-
-		if (this.owner().dead()) { return false; }
-
-		return super.key(type, state);
-	}
-
 	abstract meshType() : MeshType;
 	shootNode() : BABYLON.TransformNode { return defined(this._shoot) ? this._shoot : this._model.mesh(); }
 

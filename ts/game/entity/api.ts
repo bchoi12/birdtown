@@ -24,6 +24,7 @@ export enum EntityType {
 	CLOUD,
 	CRATE,
 	EXPLOSION,
+	JETPACK,
 	PARTICLE,
 	PARTICLE_SMOKE,
 	PLANE,

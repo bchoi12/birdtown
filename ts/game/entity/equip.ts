@@ -6,8 +6,9 @@ import { Attributes } from 'game/component/attributes'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 
-import { KeyType } from 'ui/api'
+import { KeyType, KeyState } from 'ui/api'
 
+import { SavedCounter } from 'util/saved_counter'
 import { Vec2 } from 'util/vector'
 
 export enum AttachType {
@@ -17,6 +18,8 @@ export enum AttachType {
 	ARM,
 	BACK,
 	BEAK,
+	EYE,
+	FOREHEAD,
 	HEAD,
 }
 
@@ -36,9 +39,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	protected _ownerId : number;
 	protected _owner : E;
 	// Networked counter for uses
-	protected _useCounter : number;
-	// Local copy for uses
-	protected _consumedUseCounter : number;
+	protected _uses : SavedCounter;
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
@@ -49,13 +50,12 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this._ownerId = 0;
 		this._owner = null;
 
-		this._useCounter = 0;
-		this._consumedUseCounter = 0;
+		this._uses = new SavedCounter(0);
 
 		this.addProp<number>({
-			has: () => { return this._useCounter > 0; },
-			export: () => { return this._useCounter; },
-			import: (obj : number) => { this._useCounter = obj; },
+			has: () => { return this._uses.count() > 0; },
+			export: () => { return this._uses.count(); },
+			import: (obj : number) => { this._uses.set(obj); },
 		})
 	}
 
@@ -80,17 +80,21 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this._owner.equip(this);
 	}
 
+	override key(type : KeyType, state : KeyState) : boolean {
+		if (!this.hasOwner()) { return false; }
+
+		if (this.owner().dead()) { return false; }
+
+		return super.key(type, state);
+	}
+
 	hasOwner() : boolean { return this._owner !== null; }
 	owner() : E { return this._owner; }
 	ownerId() : number { return this._ownerId; }
 
 	// Record instance of equip use. Only needed if some action is performed on use (e.g. recoil)
-	protected recordUse() : void { this._useCounter++; }
-	popUses() : number {
-		const uses = this._useCounter - this._consumedUseCounter;
-		this._consumedUseCounter = this._useCounter;
-		return uses;
-	}
+	protected recordUse() : void { this._uses.add(1); }
+	popUses() : number { return this._uses.save(); }
 	recoilType() : number { return RecoilType.NONE; }
 
 	abstract displayName() : string;

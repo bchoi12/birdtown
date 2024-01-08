@@ -12,6 +12,7 @@ export class SavedCounter {
 
 	count() : number { return this._count; }
 	saved() : number { return this._saved; }
+	diff() : number { return this._count - this._saved; }
 
 	reset() : void { this._count = 0; }
 	resetSaved() : void { this._saved = 0; }
@@ -19,5 +20,9 @@ export class SavedCounter {
 	set(value : number) : void { this._count = value; }
 	add(value : number) : void { this._count += value; }
 
-	save() : void { this._saved = this._count; }
+	save() : number {
+		const diff = this.diff();
+		this._saved = this._count;
+		return diff;
+	}
 }

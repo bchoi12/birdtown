@@ -72,14 +72,6 @@ export abstract class Beak extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.BEAK; }
 
-	override key(type : KeyType, state : KeyState) : boolean {
-		if (!this.hasOwner()) { return false; }
-
-		if (this.owner().dead()) { return false; }
-
-		return super.key(type, state);
-	}
-
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 

@@ -20,6 +20,8 @@ export enum MeshType {
 	SNIPER,
 	ROCKET,
 
+	JETPACK,
+
 	ARCH_ROOM,
 	ARCH_ROOF,
 	ARCH_BALCONY,

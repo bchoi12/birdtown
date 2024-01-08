@@ -44,11 +44,12 @@ export class Expression<T extends number> extends ComponentBase implements Compo
 		this._override = new Optional();
 		this._emotions = new Map();
 
-
+		/*
 		this.addProp<T>({
 			export: () => { return this.emotion(); },
 			import: (obj : T) => { this.setOverride(obj); },
 		});
+		*/
 	}
 
 	override reset() : void {
@@ -99,25 +100,29 @@ export class Expression<T extends number> extends ComponentBase implements Compo
 
 		this.updateEmotion();
 	}
+
+	override postUpdate(stepData : StepData) : void {
+		super.postUpdate(stepData);
+
+		this.updateEmotion();
+	}
+
 	private updateEmotion() : void {
 		if (!this.isSource()) { return; }
 
 		let max = 0;
 		this._current = this._default;
 		this._emotions.forEach((emotion : Emotion, type : T) => {
-			const value = emotion.value * FnGlobals.interpFns.get(emotion.fn)(1 - emotion.timer.percentElapsed());
+			if (!emotion.timer.hasTimeLeft()) {
+				return;
+			}
 
+			const value = emotion.value * FnGlobals.interpFns.get(emotion.fn)(1 - emotion.timer.percentElapsed());
 			if (value > max) {
 				this._current = type;
 				max = value;
 			}
 		});
-	}
-
-	override postUpdate(stepData : StepData) : void {
-		super.postUpdate(stepData);
-
-		this.updateEmotion();
 	}
 
 }

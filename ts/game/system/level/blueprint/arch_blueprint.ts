@@ -118,8 +118,8 @@ export class ArchBlueprint extends Blueprint {
 	private _buildings : Array<Building>;
 	private _pos : Vec2;
 
-	constructor() {
-		super();
+	constructor(options : BlueprintOptions) {
+		super(options);
 
 		ColorFactory.shuffleColors(ArchBlueprint.blockType(), this.rng());
 
@@ -135,9 +135,8 @@ export class ArchBlueprint extends Blueprint {
 	static roofDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.roofType()); }
 	static balconyDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.balconyType()); }
 
-	override load(options : BlueprintOptions) : void {
-		super.load(options);
-
+	override load() : void {
+		const options = this.options();
 		this._pos.copyVec(options.pos);
 
 		switch (options.level.type) {

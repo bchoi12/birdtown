@@ -101,7 +101,7 @@ export class Level extends SystemBase implements System {
 		const planes = game.entities().getMap(EntityType.PLANE).findN((plane : Entity) => {
 			return plane.initialized();
 		}, 1);
-		if (planes.length > 0) {
+		if (planes.length === 1) {
 			player.respawn(planes[0].profile().pos());
 			return;
 		}
@@ -179,10 +179,8 @@ export class Level extends SystemBase implements System {
 	}
 
 	private loadLobby() : void {
-		let blueprint = new ArchBlueprint();
-		let pos = {x: 0, y: 0};
-		let bounds = Box2.point(pos);
-		blueprint.load({
+		const pos = {x: 0, y: 0};
+		let blueprint = new ArchBlueprint({
 			level: {
 				type: this.levelType(),
 				layout: this.levelLayout(),
@@ -190,7 +188,9 @@ export class Level extends SystemBase implements System {
 			},
 			pos: pos,
 		});
+		let bounds = Box2.point(pos);
 
+		blueprint.load();
 		blueprint.buildings().forEach((building) => {
 			building.blocks().forEach((block) => {
 				block.entities().forEach((entity) => {
@@ -210,10 +210,8 @@ export class Level extends SystemBase implements System {
 	}
 
 	private loadBirdtown() : void {
-		let blueprint = new ArchBlueprint();
-		let pos = {x: 0, y: 0};
-		let bounds = Box2.point(pos);
-		blueprint.load({
+		const pos = {x: 0, y: 0};
+		let blueprint = new ArchBlueprint({
 			level: {
 				type: this.levelType(),
 				layout: this.levelLayout(),
@@ -221,7 +219,9 @@ export class Level extends SystemBase implements System {
 			},
 			pos: pos,
 		});
+		let bounds = Box2.point(pos);
 
+		blueprint.load();
 		blueprint.buildings().forEach((building) => {
 			building.blocks().forEach((block) => {
 				block.entities().forEach((entity) => {

@@ -49,9 +49,9 @@ export abstract class Particle extends EntityBase implements Entity {
 	override dispose() : void {
 		super.dispose();
 
-		if (this._model.hasMesh()) {
-			game.particleCache().returnMesh(this.particleType(), this._model.mesh());
-		}
+		this._model.onLoad((model : Model) => {
+			game.particleCache().returnMesh(this.particleType(), model.mesh());
+		});
 	}
 
 	abstract particleType() : ParticleType;

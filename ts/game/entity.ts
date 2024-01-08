@@ -78,8 +78,9 @@ export interface Entity extends GameObject {
 	collide(collision : MATTER.Collision, other : Entity) : void;
 }
 
-export interface EquipEntity extends Entity {
-	equip(equip : Equip<Entity & EquipEntity>);
+export interface EquipEntity {
+	dead() : boolean;
+	equip(equip : Equip<Entity & EquipEntity>) : void;
 }
 
 export abstract class EntityBase extends GameObjectBase implements Entity {

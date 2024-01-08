@@ -337,30 +337,49 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	equip(equip : Equip<Player>) : void {
 		this._model.onLoad((m : Model) => {
+			let equipModel = equip.model();
+
 			switch(equip.attachType()) {
 			case AttachType.ARM:
 				const arm = m.getBone(Bone.ARM);
-				let equipModel = equip.getComponent<Model>(ComponentType.MODEL);
-				equipModel.onLoad((wm : Model) => {
-					wm.mesh().attachToBone(arm, m.mesh());
-					wm.offlineTransforms().setRotation({x: 3 * Math.PI / 2, z: Math.PI });
+				equipModel.onLoad((em : Model) => {
+					em.mesh().attachToBone(arm, m.mesh());
+					em.offlineTransforms().setRotation({x: 3 * Math.PI / 2, z: Math.PI });
+				});
+				break;
+			case AttachType.BACK:
+				const back = m.getBone(Bone.BACK);
+				equipModel.onLoad((em : Model) => {
+					em.mesh().attachToBone(back, m.mesh());
 				});
 				break;
 			case AttachType.BEAK:
 				const beak = m.getBone(Bone.BEAK);
-				let beakModel = equip.getComponent<Model>(ComponentType.MODEL);
-				beakModel.onLoad((bm : Model) => {
-					bm.mesh().attachToBone(beak, m.mesh());
-					bm.offlineTransforms().setRotation({ y: Math.PI });
+				equipModel.onLoad((em : Model) => {
+					em.mesh().attachToBone(beak, m.mesh());
+					em.offlineTransforms().setRotation({ y: Math.PI });
+				});
+				break;
+			case AttachType.EYE:
+				const eye = m.getBone(Bone.EYE);
+				equipModel.onLoad((em : Model) => {
+					em.mesh().attachToBone(eye, m.mesh());
+				});
+				break;
+			case AttachType.FOREHEAD:
+				const forehead = m.getBone(Bone.FOREHEAD);
+				equipModel.onLoad((em : Model) => {
+					em.mesh().attachToBone(forehead, m.mesh());
 				});
 				break;
 			case AttachType.HEAD:
 				const head = m.getBone(Bone.HEAD);
-				let headModel = equip.getComponent<Model>(ComponentType.MODEL);
-				headModel.onLoad((hm : Model) => {
-					hm.mesh().attachToBone(head, m.mesh());
+				equipModel.onLoad((em : Model) => {
+					em.mesh().attachToBone(head, m.mesh());
 				});
 				break;
+			default:
+				console.error("Error: unhandled attach type", AttachType[equip.attachType()]);
 			}
 		});
 	}
@@ -371,21 +390,19 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._expression.emote(Emotion.SAD, {
 			max: 1.0,
 			delta: Fns.clamp(0, amount / 100, 1),
-			millis: 2000,
+			millis: 1500,
 		});
 	}
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
 
-		if (this.isSource()) {
-			// Out of bounds
-			if (this._profile.pos().y < game.level().bounds().min.y) {
-				this.takeDamage(this._stats.health(), this);
-			}
-			this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.hasTimeLeft());
+		// Out of bounds
+		if (this._profile.pos().y < game.level().bounds().min.y) {
+			this.takeDamage(this._stats.health(), this);
 		}
 
+		this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.hasTimeLeft());
 		this._deadTracker.check();
 	}
 
@@ -523,10 +540,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				switch(equip.attachType()) {
 				case AttachType.ARM:
 					this._armRecoil = equip.recoilType();
+
+					// TODO: move emote value to equip
 					this._expression.emote(Emotion.MAD, {
 						max: 1.0,
 						delta: uses / 3,
-						millis: 3000,
+						millis: 1500,
 					});
 					break;
 				}

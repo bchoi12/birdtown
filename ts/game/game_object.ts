@@ -296,6 +296,10 @@ export abstract class GameObjectBase {
 					obj.dispose();
 					this.unregisterChild(id);
 				}
+			} else if (obj.deleted()) {
+				// Object deleted during initialization
+				obj.dispose();
+				this.unregisterChild(id);
 			}
 		});
 	}

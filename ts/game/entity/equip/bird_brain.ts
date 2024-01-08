@@ -34,8 +34,8 @@ export class BirdBrain extends Equip<Player> {
 	private _canCharge : boolean;
 	private _juice : number;
 
-	constructor(options : EntityOptions) {
-		super(EntityType.BIRD_BRAIN, options);
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.BIRD_BRAIN, entityOptions);
 
 		this._targetId = new Optional();
 		this._usageTimer = this.newTimer({
@@ -109,8 +109,6 @@ export class BirdBrain extends Equip<Player> {
 			this.resetTarget(entity.id());
 			return;
 		}
-
-		return;
 	}
 
 	override getCounts() : Map<CounterType, number> {

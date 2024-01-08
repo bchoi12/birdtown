@@ -8,6 +8,7 @@ import { Crate } from 'game/entity/crate'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { BirdBrain } from 'game/entity/equip/bird_brain'
+import { Jetpack } from 'game/entity/equip/jetpack'
 import { Explosion } from 'game/entity/explosion'
 import { ParticleSmoke } from 'game/entity/particle/particle_smoke'
 import { Plane } from 'game/entity/plane'
@@ -37,6 +38,7 @@ export namespace EntityFactory {
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],
+		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
