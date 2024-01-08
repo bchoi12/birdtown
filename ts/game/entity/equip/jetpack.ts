@@ -14,7 +14,8 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { CounterType, KeyType, KeyState } from 'ui/api'
 
 import { Fns } from 'util/fns'
-import { Timer} from 'util/timer'
+import { RateLimiter } from 'util/rate_limiter'
+import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
 export class Jetpack extends Equip<Player> {
@@ -23,13 +24,14 @@ export class Jetpack extends Equip<Player> {
 	private static readonly _maxJuice = 100;
 	private static readonly _chargeDelay = 500;
 
-	private static readonly _maxAcc = 5;
+	private static readonly _maxAcc = 4.5;
 	private static readonly _ownerMaxVel = 0.3;
 
 	private _enabled : boolean;
 	private _juice : number;
 	private _canChargeTimer : Timer;
 	private _canCharge : boolean;
+	private _smoker : RateLimiter;
 
 	private _fire : BABYLON.Mesh;
 
@@ -44,6 +46,7 @@ export class Jetpack extends Equip<Player> {
 			canInterrupt: true,
 		});
 		this._canCharge = false;
+		this._smoker = new RateLimiter(36);
 
 		this._fire = null;
 
@@ -112,12 +115,23 @@ export class Jetpack extends Equip<Player> {
 
 		if (this._canCharge) {
 			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
-				this._juice += millis / 5;
+				this._juice += millis / 4;
 			} else {
 				this._juice += millis / 20;
 			}
 
 			this._juice = Math.min(this._juice, Jetpack._maxJuice);
+		}
+
+		if (this._model.hasMesh() && this._enabled && this._smoker.check(millis)) {
+			this.addEntity(EntityType.PARTICLE_SMOKE, {
+				offline: true,
+				ttl: 1000,
+				profileInit: {
+					pos: Vec2.fromBabylon3(this._fire.getAbsolutePosition()).add({ x: Fns.randomRange(-0.05, 0.05), y: -0.3, }),
+					scaling: { x: 0.25, y : 0.25 },
+				},
+			});
 		}
 	}
 
@@ -130,6 +144,7 @@ export class Jetpack extends Equip<Player> {
 
 		if (this._enabled) {
 			this._fire.scaling.y = 1 + 3 * Math.random();
+
 		} else {
 			this._fire.scaling.y = 0;
 		}

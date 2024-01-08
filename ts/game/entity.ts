@@ -26,6 +26,7 @@ export type EntityOptions = {
 	clientId? : number;
 	offline? : boolean;
 	levelVersion? : number;
+	ttl? : number;
 
 	associationInit? : AssociationInitOptions;
 	attributesInit? : AttributesInitOptions;
@@ -119,6 +120,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 		if (entityOptions.levelVersion) {
 			this._levelVersion = entityOptions.levelVersion;
+		}
+		if (entityOptions.ttl) {
+			this.setTTL(entityOptions.ttl);
 		}
 
 		this.addProp<boolean>({

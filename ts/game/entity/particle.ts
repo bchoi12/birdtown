@@ -19,7 +19,9 @@ export abstract class Particle extends EntityBase implements Entity {
 		super(type, entityOptions);
 
 		this.addType(EntityType.PARTICLE);
-		this.setTTL(Particle._defaultParticleTTL);
+		if (entityOptions.ttl <= 0) {
+			this.setTTL(Particle._defaultParticleTTL);
+		}
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => {

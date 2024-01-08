@@ -156,6 +156,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			} else {
 				this._profile.setInertia(Infinity);
 				this._profile.setAngularVelocity(0);
+				this._expression.clearOverride();
 			}
 		});
 

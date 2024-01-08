@@ -14,8 +14,6 @@ export class ParticleSmoke extends Particle {
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PARTICLE_SMOKE, entityOptions);
-
-		this.setTTL(500);
 	}
 
 	override particleType() : ParticleType { return ParticleType.SMOKE; }

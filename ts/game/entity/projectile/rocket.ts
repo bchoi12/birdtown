@@ -68,6 +68,7 @@ export class Rocket extends Projectile {
 		if (this._smoker.check(millis)) {
 			this.addEntity(EntityType.PARTICLE_SMOKE, {
 				offline: true,
+				ttl: 500,
 				profileInit: {
 					pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.05, 0.05), y: Fns.randomRange(-0.05, 0.05), }),
 					scaling: { x: 0.2, y : 0.2 },
