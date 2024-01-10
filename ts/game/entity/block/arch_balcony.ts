@@ -10,6 +10,8 @@ import { defined } from 'util/common'
 
 export class ArchBalcony extends ArchBase implements Entity {
 
+	private static readonly _sideWallScale = 0.7;
+
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.ARCH_BALCONY, entityOptions);
 	}
@@ -33,7 +35,7 @@ export class ArchBalcony extends ArchBase implements Entity {
 			this._model.offlineTransforms().rotation().y = Math.PI / 2;
 
 			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.RIGHT, {x: this.thickness() / 2, y: this._profile.scaledDim().y }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.RIGHT, {x: ArchBalcony._sideWallScale * this.thickness(), y: this._profile.scaledDim().y }),
 			});
 
 		} else if (this.openings().anyRight()) {
@@ -41,7 +43,7 @@ export class ArchBalcony extends ArchBase implements Entity {
 			this._model.offlineTransforms().rotation().y = -Math.PI / 2;
 
 			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.LEFT, {x: this.thickness() / 2, y: this._profile.scaledDim().y }),
+				profileInit: this._profile.createRelativeInit(CardinalDir.LEFT, {x: ArchBalcony._sideWallScale * this.thickness(), y: this._profile.scaledDim().y }),
 			});
 		}
 	}

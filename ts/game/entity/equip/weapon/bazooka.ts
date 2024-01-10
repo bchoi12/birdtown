@@ -2,7 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { AttributeType } from 'game/component/api'
+import { AttributeType, CounterType } from 'game/component/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
@@ -11,7 +11,7 @@ import { Weapon } from 'game/entity/equip/weapon'
 import { MeshType } from 'game/factory/api'
 import { StepData } from 'game/game_object'
 
-import { CounterType, KeyType, KeyState } from 'ui/api'
+import { KeyType, KeyState } from 'ui/api'
 
 import { Vec3 } from 'util/vector'
 
@@ -67,8 +67,8 @@ export class Bazooka extends Weapon {
 	}
 
 	override getCounts() : Map<CounterType, number> {
-		return new Map([
-			[CounterType.ROCKET, this.reloadTimeLeft() / 1000],
-		]);
+		let counts = super.getCounts();
+		counts.set(CounterType.ROCKET, this.reloadTimeLeft() / 1000);
+		return counts;
 	}
 }

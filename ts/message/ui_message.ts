@@ -1,7 +1,7 @@
 
 import { Message, MessageBase, FieldDescriptor } from 'message'
 
-import { AnnouncementType, CounterType, DialogType, TooltipType } from 'ui/api'
+import { AnnouncementType, DialogType, TooltipType } from 'ui/api'
 
 export enum UiMessageType {
 	UNKNOWN,

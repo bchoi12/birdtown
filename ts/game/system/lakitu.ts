@@ -2,10 +2,11 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { GameState } from 'game/api'
-import { StepData } from 'game/game_object'
+import { CounterType } from 'game/component/api'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
+import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType, PlayerRole } from 'game/system/api'
 
@@ -17,7 +18,7 @@ import { UiMessage, UiMessageType } from 'message/ui_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { CounterType, KeyType, TooltipType } from 'ui/api'
+import { KeyType, TooltipType } from 'ui/api'
 
 import { CircleMap } from 'util/circle_map'
 import { isLocalhost } from 'util/common'
@@ -253,7 +254,7 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		if (this.hasTargetEntity()) {
-			this.setAnchor(this.targetEntity().profile().pos().toBabylon3());
+			this.anchorToTarget();
 		}
 	}
 
@@ -264,7 +265,7 @@ export class Lakitu extends SystemBase implements System {
 			return;
 		}
 
-		this.setAnchor(this.targetEntity().profile().pos().toBabylon3());
+		this.anchorToTarget();
 		ui.updateCounters(this.targetEntity().getCounts());
 
 		// TODO: rate limit?
@@ -275,6 +276,12 @@ export class Lakitu extends SystemBase implements System {
 			tooltipMsg.setNames([game.tablet(this.targetEntity().clientId()).displayName()]);
 			ui.handleMessage(tooltipMsg);
 		}
+	}
+
+	private anchorToTarget() : void {
+		let pos = this.targetEntity().profile().pos().clone();
+		pos.add(this.targetEntity().cameraOffset());
+		this.setAnchor(pos.toBabylon3());
 	}
 
 	private computeFov() : void {

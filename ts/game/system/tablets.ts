@@ -1,9 +1,12 @@
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { System, ClientSystemManager } from 'game/system'
 import { SystemType, ScoreType } from 'game/system/api'
 import { Tablet } from 'game/system/tablet'
+
+import { GameMessage, GameMessageType} from 'message/game_message'
 
 import { defined } from 'util/common'
 
@@ -34,6 +37,21 @@ export class Tablets extends ClientSystemManager implements System {
 				scores: tablet.scores(),
 			}
 		});
+	}
+
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		switch (msg.type()) {
+		case GameMessageType.GAME_STATE:
+			switch (msg.getGameState()) {
+			case GameState.FREE:
+			case GameState.SETUP:
+				this.reset();
+				break;
+			}
+			break;
+		}
 	}
 
 	override postUpdate(stepData : StepData) : void {

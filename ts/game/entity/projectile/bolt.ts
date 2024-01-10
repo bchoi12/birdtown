@@ -49,7 +49,7 @@ export class Bolt extends Projectile {
 		}));
 	}
 
-	override damage() : number { return 20; }
+	override damage() : number { return this.getAttribute(AttributeType.CHARGED) ? 70 : 12; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
@@ -74,6 +74,11 @@ export class Bolt extends Projectile {
 		// TODO: collide with multiple objects?
 		if (other.getAttribute(AttributeType.SOLID)) {
 			other.takeDamage(this.damage(), this);
+
+			if (this.getAttribute(AttributeType.CHARGED)) {
+				this.explode();
+			}
+
 			this.delete();
 		}
 	}

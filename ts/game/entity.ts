@@ -3,10 +3,11 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { Component } from 'game/component'
-import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, CounterType, StatType } from 'game/component/api'
 import { Association, AssociationInitOptions } from 'game/component/association'
 import { Attributes, AttributesInitOptions } from 'game/component/attributes'
 import { CardinalsInitOptions } from 'game/component/cardinals'
+import { Counters, CountersInitOptions } from 'game/component/counters'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { Model, ModelInitOptions } from 'game/component/model'
 import { Profile, ProfileInitOptions } from 'game/component/profile'
@@ -15,11 +16,11 @@ import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { GameObject, GameObjectBase } from 'game/game_object'
 
-import { CounterType, KeyType, KeyState, TooltipType } from 'ui/api'
+import { KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Timer } from 'util/timer'
-import { Vec2 } from 'util/vector'
+import { Vec2, Vec3 } from 'util/vector'
 
 export type EntityOptions = {
 	id? : number;
@@ -31,6 +32,7 @@ export type EntityOptions = {
 	associationInit? : AssociationInitOptions;
 	attributesInit? : AttributesInitOptions;
 	cardinalsInit? : CardinalsInitOptions;
+	countersInit? : CountersInitOptions;
 	hexColorsInit? : HexColorsInitOptions;
 	modelInit? : ModelInitOptions;
 	profileInit? : ProfileInitOptions
@@ -59,6 +61,11 @@ export interface Entity extends GameObject {
 	// Methods spanning components
 	getCounts() : Map<CounterType, number>;
 	setTTL(ttl : number, onDelete? : () => void);
+	ttlElapsed() : number;
+	key(type : KeyType, state : KeyState) : boolean;
+	inputDir() : Vec2;
+	inputMouse() : Vec2;
+	cameraOffset() : Vec3;
 
 	// Convenience getters/setters
 	hasModel() : boolean;
@@ -67,6 +74,9 @@ export interface Entity extends GameObject {
 	profile() : Profile;
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
+	getCounter(type : CounterType) : number;
+	addCounter(type : CounterType, value : number) : void;
+	setCounter(type : CounterType, value : number) : void;
 
 	// Match associations
 	getAssociations() : Map<AssociationType, number>;
@@ -223,6 +233,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 		return game.keys(clientId).mouse();
 	}
+	cameraOffset() : Vec3 {
+		return Vec3.zero();
+	}
 
 	getAssociations() : Map<AssociationType, number> {
 		let associations : Map<AssociationType, number>;
@@ -258,14 +271,37 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	getAttribute(type : AttributeType) : boolean {
 		if (!this.hasComponent(ComponentType.ATTRIBUTES)) { return false; }
 
-		const attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-		return attributes.hasAttribute(type) && attributes.getAttribute(type);
+		return this.getComponent<Attributes>(ComponentType.ATTRIBUTES).getAttribute(type);
 	}
 	setAttribute(type : AttributeType, value : boolean) : void {
-		if (!this.hasComponent(ComponentType.ATTRIBUTES)) { return; }
+		if (!this.hasComponent(ComponentType.ATTRIBUTES)) {
+			console.error("Warning: %s missing Attributes component", this.name());
+			return;
+		}
 
-		let attributes = this.getComponent<Attributes>(ComponentType.ATTRIBUTES);
-		attributes.setAttribute(type, value);
+		this.getComponent<Attributes>(ComponentType.ATTRIBUTES).setAttribute(type, value);
+	}
+
+	getCounter(type : CounterType) : number {
+		if (!this.hasComponent(ComponentType.COUNTERS)) { return 0; }
+
+		return this.getComponent<Counters>(ComponentType.COUNTERS).getCounter(type);
+	}
+	addCounter(type : CounterType, value : number) : void {
+		if (!this.hasComponent(ComponentType.COUNTERS)) {
+			console.error("Warning: %s missing Counters component", this.name());
+			return;
+		}
+
+		this.getComponent<Counters>(ComponentType.COUNTERS).addCounter(type, value);		
+	}
+	setCounter(type : CounterType, value : number) : void {
+		if (!this.hasComponent(ComponentType.COUNTERS)) {
+			console.error("Warning: %s missing Counters component", this.name());
+			return;
+		}
+
+		this.getComponent<Counters>(ComponentType.COUNTERS).setCounter(type, value);	
 	}
 
 	takeDamage(delta : number, from? : Entity) : void {

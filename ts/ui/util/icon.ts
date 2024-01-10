@@ -2,9 +2,7 @@
 export enum IconType {
 	UNKNOWN,
 
-	HEART,
 	PERSON,
-
 	MIC,
 	MUTED_MIC,
 	MOUSE,
@@ -16,6 +14,8 @@ export enum IconType {
 	VOLUME_LOW,
 	VOLUME_HIGH,
 
+	BOLT,
+	HEART,
 	ROCKET,
 	TRUCK_FAST,
 }
@@ -23,7 +23,6 @@ export enum IconType {
 export namespace Icon {
 
 	const classMap = new Map<IconType, string>([
-		[IconType.HEART, "fa-heart"],
 		[IconType.PERSON, "fa-user"],
 		[IconType.MIC, "fa-microphone"],
 		[IconType.MUTED_MIC, "fa-microphone-slash"],
@@ -34,6 +33,8 @@ export namespace Icon {
 		[IconType.VOLUME_NONE, "fa-volume-off"],
 		[IconType.VOLUME_LOW, "fa-volume-low"],
 		[IconType.VOLUME_HIGH, "fa-volume-high"],
+		[IconType.BOLT, "fa-bolt"],
+		[IconType.HEART, "fa-heart"],
 		[IconType.ROCKET, "fa-rocket"],
 		[IconType.TRUCK_FAST, "fa-truck-fast"],
 	]);

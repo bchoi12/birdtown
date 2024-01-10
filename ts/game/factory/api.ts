@@ -21,6 +21,7 @@ export enum MeshType {
 	ROCKET,
 
 	JETPACK,
+	SCOUTER,
 
 	ARCH_ROOM,
 	ARCH_ROOF,

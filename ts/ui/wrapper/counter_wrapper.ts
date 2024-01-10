@@ -1,6 +1,7 @@
 
+import { CounterType } from 'game/component/api'
+
 import { ui } from 'ui'
-import { CounterType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon, IconType } from 'ui/util/icon'
 
@@ -21,6 +22,11 @@ type IconMetadata = {
 export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 
 	private static readonly _iconMetadata = new Map<CounterType, IconMetadata>([
+		[CounterType.CHARGE, {
+			iconType: IconType.BOLT,
+			displayType: DisplayType.INTEGER,
+			delay: 0,
+		}],
 		[CounterType.HEALTH, {
 			iconType: IconType.HEART,
 			displayType: DisplayType.INTEGER,

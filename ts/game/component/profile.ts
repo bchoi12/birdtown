@@ -381,7 +381,10 @@ export class Profile extends ComponentBase implements Component {
 
 	hasScaling() : boolean { return defined(this._scaling) && defined(this._scaling.x, this._scaling.y); }
 	scaling() : Vec2 { return this.hasScaling() ? this._scaling : Vec2.one(); }
-	setScaling(vec : Vec) {
+	setScaleFactor(factor : number) : void {
+		this.setScaling({ x: factor, y : factor });
+	}
+	setScaling(vec : Vec) : void {
 		if (!defined(this._scaling)) {
 			this._scaling = Vec2.one();
 		}

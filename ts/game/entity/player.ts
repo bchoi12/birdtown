@@ -4,7 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { GameState, GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
-import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, CounterType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
 import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
 import { EntityTrackers } from 'game/component/entity_trackers'
@@ -28,15 +28,16 @@ import { MaterialShifter } from 'game/util/material_shifter'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { CounterType, DialogType, KeyType, KeyState } from 'ui/api'
+import { DialogType, KeyType, KeyState } from 'ui/api'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
 import { ChangeTracker } from 'util/change_tracker'
+import { CircleMap } from 'util/circle_map'
 import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
 import { Timer} from 'util/timer'
-import { Vec, Vec2 } from 'util/vector'
+import { Vec, Vec2, Vec3 } from 'util/vector'
 
 enum AnimationGroup {
 	UNKNOWN,
@@ -336,6 +337,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	stats() : Stats { return this._stats; }
 	dead() : boolean { return this._stats.dead(); }
 
+	equips() : CircleMap<number, Equip<Player>> { return this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP); }
 	equip(equip : Equip<Player>) : void {
 		this._model.onLoad((m : Model) => {
 			let equipModel = equip.model();
@@ -383,6 +385,14 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				console.error("Error: unhandled attach type", AttachType[equip.attachType()]);
 			}
 		});
+	}
+
+	override cameraOffset() : Vec3 {
+		let pos = super.cameraOffset();
+		this.equips().execute((equip : Equip<Player>) => {
+			pos.add(equip.cameraOffset());
+		});
+		return pos;
 	}
 
 	override takeDamage(amount : number, from : Entity) : void {
@@ -596,7 +606,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	}
 
 	override getCounts() : Map<CounterType, number> {
-		let counts = new Map<CounterType, number>();
+		let counts = super.getCounts();
 		counts.set(CounterType.HEALTH, this._stats.health());
 
 		this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP).execute((equip : Equip<Player>) => {

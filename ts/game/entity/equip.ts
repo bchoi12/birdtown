@@ -3,6 +3,7 @@ import { game } from 'game'
 import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
 import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
+import { Counters } from 'game/component/counters'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 
@@ -36,6 +37,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 	protected _association : Association;
 	protected _attributes : Attributes;
+	protected _counters : Counters;
 	protected _ownerId : number;
 	protected _owner : E;
 	// Networked counter for uses
@@ -47,6 +49,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
+		this._counters = this.addComponent<Counters>(new Counters(entityOptions.countersInit));
 		this._ownerId = 0;
 		this._owner = null;
 

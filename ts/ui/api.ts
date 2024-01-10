@@ -19,13 +19,6 @@ export enum AnnouncementType {
 	WELCOME,
 }
 
-export enum CounterType {
-	UNKOWN,
-	HEALTH,
-	JUICE,
-	ROCKET,
-}
-
 export enum DialogType {
 	UNKNOWN,
 	PICK_LOADOUT,

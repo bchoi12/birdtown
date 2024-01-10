@@ -1,8 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
-import * as MATTER from 'matter-js'
 
 import { StepData } from 'game/game_object'
-import { AttributeType } from 'game/component/api'
+import { AttributeType, CounterType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
@@ -11,7 +10,7 @@ import { Player } from 'game/entity/player'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { CounterType, KeyType, KeyState } from 'ui/api'
+import { KeyType, KeyState } from 'ui/api'
 
 import { Fns } from 'util/fns'
 import { RateLimiter } from 'util/rate_limiter'
@@ -22,7 +21,11 @@ export class Jetpack extends Equip<Player> {
 
 	private static readonly _fireMeshName = "fire";
 	private static readonly _maxJuice = 100;
+	private static readonly _useRate = 120;
+	private static readonly _chargeRate = 100;
+	private static readonly _groundChargeRate = 200;
 	private static readonly _chargeDelay = 500;
+	private static readonly _smokeDelay = 30;
 
 	private static readonly _maxAcc = 4.5;
 	private static readonly _ownerMaxVel = 0.3;
@@ -30,7 +33,7 @@ export class Jetpack extends Equip<Player> {
 	private _enabled : boolean;
 	private _juice : number;
 	private _canChargeTimer : Timer;
-	private _canCharge : boolean;
+	private _chargeRate : number;
 	private _smoker : RateLimiter;
 
 	private _fire : BABYLON.Mesh;
@@ -45,8 +48,8 @@ export class Jetpack extends Equip<Player> {
 		this._canChargeTimer = this.newTimer({
 			canInterrupt: true,
 		});
-		this._canCharge = false;
-		this._smoker = new RateLimiter(36);
+		this._chargeRate = 0;
+		this._smoker = new RateLimiter(Jetpack._smokeDelay);
 
 		this._fire = null;
 
@@ -99,38 +102,42 @@ export class Jetpack extends Equip<Player> {
 
 		this._enabled = false;
 		if (this._juice > 0 && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
-			this._juice = Math.max(this._juice - millis / 8, 0);
+			this._juice = Math.max(this._juice - Jetpack._useRate * millis / 1000, 0);
 
 			this._enabled = true;
-			this._canCharge = false;
+			this._chargeRate = 0;
 			this._canChargeTimer.start(Jetpack._chargeDelay);
 
 			let ownerProfile = this.owner().profile();
 			ownerProfile.addVel({ y: this.computeAcc(ownerProfile.vel().y) * millis / 1000, });
 		} else {
-			if (this.owner().getAttribute(AttributeType.GROUNDED) || !this._canChargeTimer.hasTimeLeft()) {
-				this._canCharge = true;
+			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
+				// Touch ground to unlock faster charge rate.
+				this._chargeRate = Math.max(this._chargeRate, Jetpack._groundChargeRate);
+			} else if (!this._canChargeTimer.hasTimeLeft()) {
+				this._chargeRate = Math.max(this._chargeRate, Jetpack._chargeRate);
 			}
 		}
 
-		if (this._canCharge) {
-			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
-				this._juice += millis / 4;
-			} else {
-				this._juice += millis / 20;
-			}
-
+		if (this._chargeRate > 0) {
+			this._juice += this._chargeRate * millis / 1000;
 			this._juice = Math.min(this._juice, Jetpack._maxJuice);
 		}
 
 		if (this._model.hasMesh() && this._enabled && this._smoker.check(millis)) {
+			const scale = 0.2 + 0.2 * Math.random();
 			this.addEntity(EntityType.PARTICLE_SMOKE, {
 				offline: true,
-				ttl: 1000,
+				ttl: Fns.randomRange(1500, 2000),
 				profileInit: {
-					pos: Vec2.fromBabylon3(this._fire.getAbsolutePosition()).add({ x: Fns.randomRange(-0.05, 0.05), y: -0.3, }),
-					scaling: { x: 0.25, y : 0.25 },
+					pos: Vec2.fromBabylon3(this._fire.getAbsolutePosition()).add({ x: Fns.randomRange(-0.1, 0.1), y: -0.3, }),
+					scaling: { x: scale, y : scale },
 				},
+				modelInit: {
+					transforms: {
+						translate: { z: Fns.randomRange(-0.1, 0.1), },
+					}
+				}
 			});
 		}
 	}

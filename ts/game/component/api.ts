@@ -4,6 +4,7 @@ export enum ComponentType {
 	ASSOCIATION,
 	ATTRIBUTES,
 	CARDINALS,
+	COUNTERS,
 	ENTITY_TRACKER,
 	ENTITY_TRACKERS,
 	EXPRESSION,
@@ -28,6 +29,8 @@ export enum AttributeType {
 	UNKNOWN,
 
 	BRAINED,
+	CHARGING,
+	CHARGED,
 	GROUNDED,
 	READY,
 	SOLID,
@@ -42,6 +45,13 @@ export enum BoostType {
 	MULT_TOTAL,
 }
 
+export enum CounterType {
+	UNKOWN,
+	CHARGE,
+	HEALTH,
+	JUICE,
+	ROCKET,
+}
 export enum ModifierType {
 	UNKNOWN,
 

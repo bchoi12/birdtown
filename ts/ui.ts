@@ -1,10 +1,10 @@
 
 import { game } from 'game'
-import { Profile } from 'game/component/profile'
+import { CounterType } from 'game/component/api'
 
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
-import { CounterType, KeyType, UiMode } from 'ui/api'
+import { KeyType, UiMode } from 'ui/api'
 import { Handler } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 

@@ -24,22 +24,18 @@ export abstract class Projectile extends EntityBase {
 	}
 
 	explode() : void {
-		if (!this.hasProfile()) {
+		if (!this.hasProfile() || !this.profile().initialized()) {
 			return;
 		}
 
 		const profile = this.profile();
-		if (profile.initialized()) {
-			let [explosion, hasExplosion] = this.addEntity(EntityType.EXPLOSION, {
-				profileInit: {
-					pos: profile.pos(),
-					dim: {x: 3, y: 3},
-				},
-			});
-			if (hasExplosion) {
-				explosion.setTTL(200);
-			}
-		}
+		this.addEntity(EntityType.EXPLOSION, {
+			ttl: 200,
+			profileInit: {
+				pos: profile.pos(),
+				dim: {x: 3, y: 3},
+			},
+		});
 	}
 
 	abstract damage() : number;

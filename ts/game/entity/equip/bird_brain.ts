@@ -3,7 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { StepData } from 'game/game_object'
-import { AttributeType, ComponentType } from 'game/component/api'
+import { AttributeType, ComponentType, CounterType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
@@ -14,7 +14,7 @@ import { Player } from 'game/entity/player'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { CounterType, KeyType, KeyState } from 'ui/api'
+import { KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
@@ -112,9 +112,9 @@ export class BirdBrain extends Equip<Player> {
 	}
 
 	override getCounts() : Map<CounterType, number> {
-		return new Map([
-			[CounterType.JUICE, this._juice],
-		]);
+		let counts = super.getCounts();
+		counts.set(CounterType.JUICE, this._juice);
+		return counts;
 	}
 
 	private resetTarget(id? : number) : void {

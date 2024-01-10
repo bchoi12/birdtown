@@ -12,7 +12,7 @@ export interface Vec {
 
 export class Vec2 implements Vec {
 
-    public static readonly defaultEpsilon = 1e-3;
+    public static readonly defaultEpsilon = 1e-5;
 
     public x : number;
     public y : number;
@@ -50,9 +50,6 @@ export class Vec2 implements Vec {
         return true;
     }
     static equals(a : Vec, b : Vec) : boolean { return Vec2.approxEquals(a, b, Vec2.defaultEpsilon); }
-
-    approxEquals(other : Vec, epsilon : number) : boolean { return Vec2.approxEquals(this, other, epsilon); }
-    equals(other : Vec) : boolean { return Vec2.equals(this, other); }
 
     static isZero(vec : Vec) : boolean { return vec.x === 0 && vec.y === 0; }
     static approxZero(vec : Vec, epsilon : number) : boolean { return Math.abs(vec.x) < epsilon && Math.abs(vec.y) < epsilon; }
@@ -270,6 +267,32 @@ export class Vec3 extends Vec2 implements Vec {
     static override fromVec(vec : Vec) : Vec3 { return new Vec3(vec); }
     static override fromBabylon3(vec : BABYLON.Vector3) : Vec3 { return new Vec3({x: vec.x, y: vec.y, z: vec.z }); }
 
+    static override approxEquals(a : Vec, b : Vec, epsilon : number) : boolean {
+        if (Math.abs(a.x - b.x) >= epsilon || Math.abs(a.y - b.y) >= epsilon) {
+            return false;
+        }
+        if (Vec3.isZero(a) !== Vec3.isZero(b)) {
+            return false;
+        }
+        return true;
+    }
+    static override equals(a : Vec, b : Vec) : boolean { return Vec3.approxEquals(a, b, Vec3.defaultEpsilon); }
+
+    static override isZero(vec : Vec) : boolean { return Vec2.isZero(vec) && vec.z === 0 }
+    static override approxZero(vec : Vec, epsilon : number) : boolean { return Vec2.approxZero(vec, epsilon) && Math.abs(vec.z) < epsilon; }
+    override isZero() : boolean { return Vec3.isZero(this); }
+    override roundToEpsilon(epsilon : number) : Vec3 {
+        super.roundToEpsilon(epsilon);
+        this.z = Math.round(this.z / epsilon) * epsilon;
+        return this;
+    }
+    override approxZero(epsilon : number) : boolean { return Vec3.approxZero(this, epsilon); }
+    override zeroEpsilon(epsilon : number) : Vec3 {
+        super.zeroEpsilon(epsilon);
+        if (Math.abs(this.z) < epsilon) { this.z = 0; }
+        return this;
+    }
+
     override distSq(other : Vec) : number {
         const zDist = this.z - other.z;
         return super.distSq(other) + zDist;
@@ -312,6 +335,12 @@ export class Vec3 extends Vec2 implements Vec {
         if (vec.hasOwnProperty("z")) {
             this.z *= vec.z;
         }
+        return this;
+    }
+
+    override scale(s : number) : Vec3 {
+        super.scale(s);
+        this.z *= s;
         return this;
     }
 

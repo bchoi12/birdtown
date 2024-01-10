@@ -3,8 +3,6 @@ import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
 import { AttributeType, ComponentType } from 'game/component/api'
 
-import { defined } from 'util/common'
-
 export type AttributesInitOptions = {
 	attributes? : Map<AttributeType, boolean>;
 }
@@ -16,11 +14,9 @@ export class Attributes extends ComponentBase implements Component {
 	constructor(init? : AttributesInitOptions) {
 		super(ComponentType.ATTRIBUTES);
 
-		if (!defined(init)) { init = {}; }
-
 		this._attributes = new Map();
 
-		if (init.attributes) {
+		if (init && init.attributes) {
 			init.attributes.forEach((value, key) => {
 				this.setAttribute(key, value);
 			})
@@ -43,7 +39,6 @@ export class Attributes extends ComponentBase implements Component {
 	hasAttribute(attribute : AttributeType) : boolean { return this._attributes.has(attribute); }
 	getAttribute(attribute : AttributeType) : boolean {
 		if (!this.hasAttribute(attribute)) {
-			console.error("Warning: retrieving unset attribute %d, defaulting to false", attribute);
 			return false;
 		}
 		return this._attributes.get(attribute);

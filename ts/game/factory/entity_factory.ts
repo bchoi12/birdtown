@@ -9,6 +9,7 @@ import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { BirdBrain } from 'game/entity/equip/bird_brain'
 import { Jetpack } from 'game/entity/equip/jetpack'
+import { Scouter } from 'game/entity/equip/scouter'
 import { Explosion } from 'game/entity/explosion'
 import { ParticleSmoke } from 'game/entity/particle/particle_smoke'
 import { Plane } from 'game/entity/plane'
@@ -43,6 +44,7 @@ export namespace EntityFactory {
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
+		[EntityType.SCOUTER, (options : EntityOptions) => { return new Scouter(options); }],
 		[EntityType.SIGN, (options : EntityOptions) => { return new Sign(options); }],
 		[EntityType.SNIPER, (options : EntityOptions) => { return new Sniper(options); }],
 		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
@@ -53,7 +55,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_BALCONY, { x: 3, y: 2, z: 6 }],
 		[EntityType.ARCH_ROOM, { x: 12, y: 6, z: 8 }],
 		[EntityType.ARCH_ROOF, { x: 12, y: 1, z: 8 }],
-		[EntityType.BOLT, { x: 0.2, y: 0.1, z : 0.1 }],
+		[EntityType.BOLT, { x: 0.25, y: 0.12, z : 0.12 }],
 		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],
