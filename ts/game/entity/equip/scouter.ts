@@ -12,8 +12,15 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { KeyType, KeyState } from 'ui/api'
 
+import { Vec3 } from 'util/vector'
+
 export class Scouter extends Equip<Player> {
 
+	private static readonly _lookLength = 8;
+	private static readonly _lookPanTime = 200;
+
+	private _look : Vec3;
+	private _lookWeight : number;
 	private _weapons : Equip<Player>[];
 
 	private _model : Model;
@@ -21,6 +28,8 @@ export class Scouter extends Equip<Player> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.SCOUTER, entityOptions);
 
+		this._look = Vec3.zero();
+		this._lookWeight = 0;
 		this._weapons = [];
 
 		this._model = this.addComponent<Model>(new Model({
@@ -49,16 +58,34 @@ export class Scouter extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
+		if (this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED)) {
+			this._look = Vec3.fromVec(this.inputDir()).normalize().scale(Scouter._lookLength);
+			this._lookWeight = 0;			
+		}
+
 		if (this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+			this._lookWeight = Math.min(Scouter._lookPanTime, this._lookWeight + millis);
+
 			this._weapons.forEach((weapon : Equip<Player>) => {
 				weapon.setAttribute(AttributeType.CHARGING, true);
 				weapon.addCounter(CounterType.CHARGE, millis);
 			});
 		} else {
+			this._lookWeight = Math.max(0, this._lookWeight - 2 * millis);
+
 			this._weapons.forEach((weapon : Equip<Player>) => {
 				weapon.setAttribute(AttributeType.CHARGING, false);
 				weapon.setCounter(CounterType.CHARGE, 0);
 			});
 		}
 	}
+
+	override cameraOffset() : Vec3 {
+		if (this._lookWeight <= 0) {
+			return super.cameraOffset();
+		}
+		const n = Math.min(1, this._lookWeight / Scouter._lookPanTime);
+		return this._look.clone().scale(n * (2 - n));
+	}
+
 }

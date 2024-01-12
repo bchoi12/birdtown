@@ -86,10 +86,6 @@ export class Lakitu extends SystemBase implements System {
 		return new BABYLON.Ray(this._camera.position, point.subtract(this._camera.position));
 	}
 
-	addAnchor(delta : BABYLON.Vector3) : void {
-		this._anchor.addInPlace(delta);
-		this.move(this._anchor);
-	}
 	setAnchor(anchor : BABYLON.Vector3) : void {
 		this._anchor.copyFrom(anchor);
 		const offset = this.offset(OffsetType.ANCHOR);

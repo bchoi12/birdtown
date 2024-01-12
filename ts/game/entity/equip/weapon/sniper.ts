@@ -25,16 +25,9 @@ export class Sniper extends Weapon {
 
 	private static readonly _chargedThreshold = 1000;
 	private static readonly _boltTTL = 750;
-	private static readonly _lookPanTime = 200;
-
-	private _look : Vec3;
-	private _lookWeight : number;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.SNIPER, options);
-
-		this._look = Vec3.zero();
-		this._lookWeight = 0;
 
 		this.setAttribute(AttributeType.READY, true);
 	}
@@ -52,23 +45,12 @@ export class Sniper extends Weapon {
 			return;
 		}
 
-		const charged = this.getCounter(CounterType.CHARGE) >= Sniper._chargedThreshold;
-		if (this.getAttribute(AttributeType.CHARGING)) {
-			if (this._look.isZero()) {
-				this._look = Vec3.fromVec(this.inputDir()).normalize().scale(8);
-				this._lookWeight = 0;
-			}
-			this._lookWeight += millis;
-
-			if (!charged) {
-				return;
-			}
-		} else {
-			this._look.scale(0);
-			this._lookWeight = Math.max(0, this._lookWeight - 3 * millis);
+		if (!this.key(KeyType.MOUSE_CLICK, KeyState.DOWN) || !this._attributes.getAttribute(AttributeType.READY)) {
+			return;
 		}
 
-		if (!this.key(KeyType.MOUSE_CLICK, KeyState.DOWN) || !this._attributes.getAttribute(AttributeType.READY)) {
+		const charged = this.getCounter(CounterType.CHARGE) >= Sniper._chargedThreshold;
+		if (this.getAttribute(AttributeType.CHARGING) && !charged) {
 			return;
 		}
 
@@ -114,14 +96,6 @@ export class Sniper extends Weapon {
 		let counts = super.getCounts();
 		counts.set(CounterType.CHARGE, Math.floor(this.chargePercent()));
 		return counts;
-	}
-
-	override cameraOffset() : Vec3 {
-		if (!this.getAttribute(AttributeType.CHARGING)) {
-			return super.cameraOffset();
-		}
-		const n = Math.min(1, this._lookWeight / Sniper._lookPanTime);
-		return this._look.clone().scale(n * (2 - n));
 	}
 
 	private chargePercent() : number {
