@@ -51,6 +51,7 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 			buttonWrapper.elm().textContent = "Bazooka";
 			buttonWrapper.setOnSelect(() => {
 				game.clientDialog().message(DialogType.PICK_LOADOUT).setEquipType(EntityType.BAZOOKA);
+				game.clientDialog().message(DialogType.PICK_LOADOUT).setAltEquipType(EntityType.JETPACK);
 				pageWrapper.submit();
 			});
 		}
@@ -60,6 +61,7 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 			buttonWrapper.elm().textContent = "Sniper";
 			buttonWrapper.setOnSelect(() => {
 				game.clientDialog().message(DialogType.PICK_LOADOUT).setEquipType(EntityType.SNIPER);
+				game.clientDialog().message(DialogType.PICK_LOADOUT).setAltEquipType(EntityType.SCOUTER);
 				pageWrapper.submit();
 			});
 		}

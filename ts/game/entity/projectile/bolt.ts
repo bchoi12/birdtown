@@ -12,8 +12,11 @@ import { EntityType } from 'game/entity/api'
 import { Projectile } from 'game/entity/projectile'
 import { MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { ColorFactory } from 'game/factory/color_factory'
+import { MaterialType } from 'game/system/api'
 
 import { defined } from 'util/common'
+import { Fns } from 'util/fns'
 import { Vec, Vec2 } from 'util/vector'
 
 export class Bolt extends Projectile {
@@ -39,11 +42,14 @@ export class Bolt extends Projectile {
 			},
 			meshFn: (model : Model) => {
 				const dim = this._profile.unscaledDim();
-				model.setMesh(BABYLON.MeshBuilder.CreateBox(this.name(), {
+
+				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: dim.x,
 					height: dim.y,
 					depth: (dim.x + dim.y) / 2,
-				}, game.scene()));
+				}, game.scene());
+				mesh.material = game.materialCache().materialForEntity(this);
+				model.setMesh(mesh);
 			},
 			init: entityOptions.modelInit,
 		}));
@@ -63,10 +69,6 @@ export class Bolt extends Projectile {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (!this.isSource()) {
-			return;
-		}
-
 		if (this.matchAssociations([AssociationType.OWNER], other)) {
 			return;
 		}
@@ -77,6 +79,27 @@ export class Bolt extends Projectile {
 
 			if (this.getAttribute(AttributeType.CHARGED)) {
 				this.explode();
+			} else {
+				for (let i = 0; i < 3; ++i) {
+					this.addEntity(EntityType.PARTICLE_SPARK, {
+						offline: true,
+						ttl: 300,
+						profileInit: {
+							pos: this._profile.pos(),
+							vel: this._profile.vel().clone().negate().normalize().scaleVec({
+								x: Fns.randomRange(0.05, 0.2),
+								y: Fns.randomRange(0.05, 0.2),
+							}),
+							scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.08 },
+						},
+						modelInit: {
+							transforms: {
+								translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1), },
+							},
+							materialType: MaterialType.SPARK_BLUE,
+						}
+					});
+				}
 			}
 
 			this.delete();

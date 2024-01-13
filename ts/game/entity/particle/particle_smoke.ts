@@ -17,11 +17,15 @@ export class ParticleSmoke extends Particle {
 	}
 
 	override particleType() : ParticleType { return ParticleType.SMOKE; }
-	override processModel(model : Model) : void {
-		this._initialScale = this._profile.scaling().clone();
-	}
+	override processModel(model : Model) : void {}
 	override resetModel(model : Model) : void {
 		model.mesh().material.alpha = 1;
+	}
+
+	override initialize() : void {
+		super.initialize();
+		
+		this._initialScale = this._profile.scaling().clone();
 	}
 
 	override update(stepData : StepData) : void {

@@ -23,6 +23,12 @@ export namespace ColorFactory {
 	export const archPurple = HexColor.fromHex(0x910ffc);
 	export const archWhite = HexColor.fromHex(0xeeeeee);
 
+	export const boltBlue = HexColor.fromHex(0x7cf2f0);
+	export const boltOrange = HexColor.fromHex(0xffb163);
+
+	export const sparkBlue = HexColor.fromHex(0x9ef4ff);
+	export const sparkOrange = HexColor.fromHex(0xffd79e);
+
 	export const baseColors = new Map<EntityType, Buffer<HexColor>>([
 		[EntityType.ARCH_BLOCK, Buffer.from(archRed, archOrange, archYellow, archGreen, archBlue, archPurple)],
 	]);

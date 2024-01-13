@@ -18,4 +18,6 @@ export namespace FnGlobals {
 		[InterpType.CUBIC, (t : number) => { return t * t * t; }],
 		[InterpType.NEGATIVE_SQUARE, (t : number) => { return t * (2 - t); }],
 	]);
+
+	export function interp(type : InterpType, n : number) : number { return interpFns.get(type)(n); }
 }

@@ -220,13 +220,13 @@ export abstract class Block extends EntityBase {
 			if (!this._hexColors.hasColor(ColorType.BASE)) {
 				console.error("Warning: missing base color for %s", this.name());
 			} else {
-				diffuse.set(this._hexColors.getColor(ColorType.BASE));
+				diffuse.set(this._hexColors.color(ColorType.BASE));
 			}
 		} else if (materialProps.has(MaterialProp.SECONDARY)) {
 			if (!this._hexColors.hasColor(ColorType.SECONDARY)) {
 				console.error("Warning: missing secondary color for %s", this.name());
 			} else {
-				diffuse.set(this._hexColors.getColor(ColorType.SECONDARY));
+				diffuse.set(this._hexColors.color(ColorType.SECONDARY));
 			}
 		} else if (meshProps.has(MeshProp.WINDOWS)) {
 			diffuse.set(ColorFactory.transparentWindow);

@@ -24,7 +24,6 @@ import { Buffer } from 'util/buffer'
 import { CardinalDir } from 'util/cardinal'
 import { isLocalhost } from 'util/common'
 import { Fns } from 'util/fns'
-import { HexColor } from 'util/hex_color'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
 

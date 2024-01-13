@@ -97,10 +97,6 @@ export class Rocket extends Projectile {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (!this.isSource()) {
-			return;
-		}
-
 		if (this.matchAssociations([AssociationType.OWNER], other)) {
 			return;
 		}

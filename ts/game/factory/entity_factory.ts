@@ -12,6 +12,7 @@ import { Jetpack } from 'game/entity/equip/jetpack'
 import { Scouter } from 'game/entity/equip/scouter'
 import { Explosion } from 'game/entity/explosion'
 import { ParticleSmoke } from 'game/entity/particle/particle_smoke'
+import { ParticleSpark } from 'game/entity/particle/particle_spark'
 import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
 import { Bolt } from 'game/entity/projectile/bolt'
@@ -41,6 +42,7 @@ export namespace EntityFactory {
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],
+		[EntityType.PARTICLE_SPARK, (options : EntityOptions) => { return new ParticleSpark(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
@@ -57,6 +59,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOF, { x: 12, y: 1, z: 8 }],
 		[EntityType.BOLT, { x: 0.25, y: 0.12, z : 0.12 }],
 		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],
+		[EntityType.PARTICLE_SPARK, { x: 1, y: 1, z: 1 }],
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],
 		[EntityType.ROCKET, { x: 0.3, y: 0.3, z: 0.3 }],

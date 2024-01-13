@@ -6,10 +6,12 @@ import { SystemType, ParticleType } from 'game/system/api'
 
 import { ObjectCache, ObjectCacheOnLoadFn } from 'util/object_cache'
 
+// TODO: should be factory?
 export class ParticleCache extends SystemBase implements System {
 
 	private static readonly _createFns = new Map<ParticleType, (index : number) => BABYLON.Mesh>([
 		[ParticleType.SMOKE, ParticleCache.createSphere],
+		[ParticleType.SPARK, ParticleCache.createCube],
 	]);
 
 	private _cache : Map<ParticleType, ObjectCache<BABYLON.Mesh>>; 
@@ -55,7 +57,7 @@ export class ParticleCache extends SystemBase implements System {
 	}
 	private static createCube(index : number) : BABYLON.Mesh {
 		const name = "particle-cube-" + index;
-		let cube =BABYLON.MeshBuilder.CreateBox("particle-cube", { width: 1, height: 1, depth: 1, }, game.scene());
+		let cube = BABYLON.MeshBuilder.CreateBox("particle-cube", { width: 1, height: 1, depth: 1, }, game.scene());
 		cube.material = new BABYLON.StandardMaterial(name, game.scene());
 		return cube;
 	}

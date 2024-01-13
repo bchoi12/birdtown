@@ -8,6 +8,7 @@ import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { MaterialType } from 'game/system/api'
 import { AnimationController } from 'game/util/animation_controller'
 import { Transforms, TransformOptions } from 'game/util/transforms'
 
@@ -22,6 +23,7 @@ type ReadyFn = (model : Model) => boolean;
 export type ModelInitOptions = {
 	transforms? : TransformOptions;
 	offlineTransforms? : TransformOptions;
+	materialType? : MaterialType;
 }
 
 type ModelOptions = {
@@ -40,6 +42,7 @@ export class Model extends ComponentBase implements Component {
 
 	private _transforms : Transforms;
 	private _offlineTransforms : Transforms;
+	private _initMaterialType : MaterialType;
 
 	// TODO: multi mesh support
 	private _mesh : BABYLON.Mesh;
@@ -54,12 +57,19 @@ export class Model extends ComponentBase implements Component {
 
 		this._transforms = new Transforms();
 		this._offlineTransforms = new Transforms();
+		this._mesh = null;
+
 		if (options.init) {
 			this._transforms.setFromOptions(options.init.transforms);
 			this._offlineTransforms.setFromOptions(options.init.offlineTransforms);
-		}
 
-		this._mesh = null;
+			if (options.init.materialType) {
+				this._initMaterialType = options.init.materialType;
+				this.onLoad((model : Model) => {
+					model.mesh().material = game.materialCache().material(this._initMaterialType);
+				});
+			}
+		}
 
 		this.addProp<Vec>({
 			has: () => { return this._transforms.hasTranslation(); },

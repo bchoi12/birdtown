@@ -32,7 +32,7 @@ export class Cloud extends EntityBase implements Entity {
 				}, game.scene());
 
 				// TODO: instanced mesh
-				cloud.material = game.materialCache().material(this.type());
+				cloud.material = game.materialCache().materialForEntity(this);
 				model.setMesh(cloud);
 			},
 			init: entityOptions.modelInit,
