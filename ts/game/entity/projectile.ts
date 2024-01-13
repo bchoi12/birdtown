@@ -23,7 +23,7 @@ export abstract class Projectile extends EntityBase {
 		return super.ready() && this._association.hasAssociation(AssociationType.OWNER);
 	}
 
-	explode() : void {
+	explode(entityOptions? : EntityOptions) : void {
 		if (!this.hasProfile() || !this.profile().initialized()) {
 			return;
 		}
@@ -35,6 +35,7 @@ export abstract class Projectile extends EntityBase {
 				pos: profile.pos(),
 				dim: {x: 3, y: 3},
 			},
+			...entityOptions,
 		});
 	}
 

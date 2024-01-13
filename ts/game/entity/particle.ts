@@ -5,8 +5,9 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { ParticleType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
-import { ParticleType } from 'game/system/api'
+import { ParticleFactory } from 'game/factory/particle_factory'
 
 export abstract class Particle extends EntityBase implements Entity {
 
@@ -28,9 +29,8 @@ export abstract class Particle extends EntityBase implements Entity {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				let mesh = game.particleCache().getMesh(this.particleType());
+				let mesh = ParticleFactory.borrowMesh(this.particleType());
 				model.setMesh(mesh);
-
 				this.processModel(model);
 			},
 			init: entityOptions.modelInit,
@@ -51,9 +51,13 @@ export abstract class Particle extends EntityBase implements Entity {
 	override dispose() : void {
 		super.dispose();
 
-		this._model.onLoad((model : Model) => {
-			game.particleCache().returnMesh(this.particleType(), model.mesh());
-		});
+		// TODO: is this worth? Mesh is GC'd by dispose() and need to manage its visibility
+		/*
+		if (this._model.hasMesh()) {
+			this.resetModel(this._model);
+			ParticleFactory.returnMesh(this.particleType(), this._model.mesh());
+		}
+		*/
 	}
 
 	abstract particleType() : ParticleType;

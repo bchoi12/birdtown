@@ -3,6 +3,7 @@ import { SkyMaterial } from '@babylonjs/materials/Sky'
 
 import { game } from 'game'	
 import { Entity } from 'game/entity'
+import { MaterialFactory } from 'game/factory/material_factory'
 import { CloudGenerator } from 'game/system/generator/cloud_generator'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
@@ -73,6 +74,8 @@ export class World extends SystemBase implements System {
 
 	override initialize() : void {
 		super.initialize();
+
+		MaterialFactory.initialize();
 
 		this._shadowGenerator.bias = 1.5e-3;
 		this._shadowGenerator.transparencyShadow = true;

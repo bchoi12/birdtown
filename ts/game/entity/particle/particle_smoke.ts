@@ -4,7 +4,7 @@ import { EntityOptions } from 'game/entity'
 import { Particle } from 'game/entity/particle'
 import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
-import { ParticleType } from 'game/system/api'
+import { ParticleType } from 'game/factory/api'
 
 import { Vec2 } from 'util/vector'
 
@@ -20,6 +20,7 @@ export class ParticleSmoke extends Particle {
 	override processModel(model : Model) : void {}
 	override resetModel(model : Model) : void {
 		model.mesh().material.alpha = 1;
+		model.mesh().scaling.set(1, 1, 1);
 	}
 
 	override initialize() : void {

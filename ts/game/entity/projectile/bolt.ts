@@ -10,10 +10,9 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Projectile } from 'game/entity/projectile'
-import { MeshType } from 'game/factory/api'
+import { MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
-import { MaterialType } from 'game/system/api'
 
 import { defined } from 'util/common'
 import { Fns } from 'util/fns'
@@ -48,7 +47,6 @@ export class Bolt extends Projectile {
 					height: dim.y,
 					depth: (dim.x + dim.y) / 2,
 				}, game.scene());
-				mesh.material = game.materialCache().materialForEntity(this);
 				model.setMesh(mesh);
 			},
 			init: entityOptions.modelInit,
@@ -78,7 +76,11 @@ export class Bolt extends Projectile {
 			other.takeDamage(this.damage(), this);
 
 			if (this.getAttribute(AttributeType.CHARGED)) {
-				this.explode();
+				this.explode({
+					modelInit: {
+						materialType: MaterialType.BOLT_ORANGE,
+					},
+				});
 			} else {
 				for (let i = 0; i < 3; ++i) {
 					this.addEntity(EntityType.PARTICLE_SPARK, {

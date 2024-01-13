@@ -10,6 +10,16 @@ export enum ColorType {
 	SECONDARY,
 }
 
+export enum MaterialType {
+	UNKNOWN,
+
+	BOLT_BLUE,
+	BOLT_ORANGE,
+	CLOUD,
+	SPARK_BLUE,
+	SPARK_ORANGE,
+}
+
 export enum MeshType {
 	UNKNOWN,
 	BIRD,
@@ -30,4 +40,11 @@ export enum MeshType {
 
 	PLANE,
 	SIGN,
+}
+
+export enum ParticleType {
+	UNKNOWN,
+
+	SMOKE,
+	SPARK,
 }

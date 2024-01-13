@@ -8,12 +8,14 @@ import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { MaterialType } from 'game/system/api'
+import { MaterialType } from 'game/factory/api'
+import { MaterialFactory } from 'game/factory/material_factory'
 import { AnimationController } from 'game/util/animation_controller'
 import { Transforms, TransformOptions } from 'game/util/transforms'
 
 import { GameData, DataFilter } from 'game/game_data'
 
+import { Optional } from 'util/optional'
 import { Vec, Vec3 } from 'util/vector'
 
 type MeshFn = (model : Model) => void;
@@ -42,7 +44,7 @@ export class Model extends ComponentBase implements Component {
 
 	private _transforms : Transforms;
 	private _offlineTransforms : Transforms;
-	private _initMaterialType : MaterialType;
+	private _materialType : Optional<MaterialType>;
 
 	// TODO: multi mesh support
 	private _mesh : BABYLON.Mesh;
@@ -57,6 +59,8 @@ export class Model extends ComponentBase implements Component {
 
 		this._transforms = new Transforms();
 		this._offlineTransforms = new Transforms();
+		this._materialType = new Optional();
+
 		this._mesh = null;
 
 		if (options.init) {
@@ -64,10 +68,7 @@ export class Model extends ComponentBase implements Component {
 			this._offlineTransforms.setFromOptions(options.init.offlineTransforms);
 
 			if (options.init.materialType) {
-				this._initMaterialType = options.init.materialType;
-				this.onLoad((model : Model) => {
-					model.mesh().material = game.materialCache().material(this._initMaterialType);
-				});
+				this._materialType.set(options.init.materialType);
 			}
 		}
 
@@ -86,6 +87,11 @@ export class Model extends ComponentBase implements Component {
 			export: () => { return this._transforms.scaling().toVec(); },
 			import: (obj : Vec) => { return this._transforms.setScaling(obj); },
 		});
+		this.addProp<MaterialType>({
+			has: () => { return this._materialType.has(); },
+			export: () => { return this._materialType.get(); },
+			import: (obj : MaterialType) => { this._materialType.set(obj); },
+		})
 	}
 
 	override ready() : boolean {
@@ -114,9 +120,9 @@ export class Model extends ComponentBase implements Component {
 	override dispose() : void {
 		super.dispose();
 
-		this.onLoad((model : Model) => {
-			model.mesh().dispose();
-		});
+		if (this.hasMesh()) {
+			this.mesh().dispose();
+		}
 	}
 
 	transforms() : Transforms { return this._transforms; }
@@ -137,6 +143,9 @@ export class Model extends ComponentBase implements Component {
 				entityId: this.entity().id(),
 			};
 		});
+		if (this._materialType.has()) {
+			mesh.material = MaterialFactory.material(this._materialType.get());
+		}
 
 		this._onLoadFns.forEach((fn : OnLoadFn) => {
 			if (this._mesh.isReady()) {

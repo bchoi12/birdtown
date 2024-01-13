@@ -5,7 +5,9 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { MaterialType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { MaterialFactory } from 'game/factory/material_factory'
 import { StepData } from 'game/game_object'
 
 import { Vec2 } from 'util/vector'
@@ -32,7 +34,7 @@ export class Cloud extends EntityBase implements Entity {
 				}, game.scene());
 
 				// TODO: instanced mesh
-				cloud.material = game.materialCache().materialForEntity(this);
+				cloud.material = MaterialFactory.material(MaterialType.CLOUD);
 				model.setMesh(cloud);
 			},
 			init: entityOptions.modelInit,

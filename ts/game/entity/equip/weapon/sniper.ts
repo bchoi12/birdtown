@@ -12,7 +12,7 @@ import { AttachType, RecoilType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Weapon } from 'game/entity/equip/weapon'
-import { MeshType } from 'game/factory/api'
+import { MaterialType, MeshType } from 'game/factory/api'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
 
@@ -66,7 +66,8 @@ export class Sniper extends Weapon {
 			modelInit: {
 				transforms: {
 					translate: { z: pos.z },
-				}
+				},
+				materialType: charged ? MaterialType.BOLT_ORANGE : MaterialType.BOLT_BLUE,
 			},
 			profileInit: {
 				pos: pos,

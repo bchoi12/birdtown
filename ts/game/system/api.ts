@@ -51,23 +51,6 @@ export enum SoundType {
 	EXPLOSION,
 }
 
-export enum MaterialType {
-	UNKNOWN,
-
-	BOLT_BLUE,
-	BOLT_ORANGE,
-	CLOUD,
-	SPARK_BLUE,
-	SPARK_ORANGE,
-}
-
-export enum ParticleType {
-	UNKNOWN,
-
-	SMOKE,
-	SPARK,
-}
-
 export enum PlayerRole {
 	UNKNOWN,
 

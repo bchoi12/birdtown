@@ -6,7 +6,7 @@ import { EntityOptions } from 'game/entity'
 import { Particle } from 'game/entity/particle'
 import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
-import { ParticleType } from 'game/system/api'
+import { ParticleType } from 'game/factory/api'
 
 import { FnGlobals, InterpType } from 'global/fn_globals'
 
@@ -27,6 +27,7 @@ export class ParticleSpark extends Particle {
 	}
 	override resetModel(model : Model) : void {
 		model.mesh().receiveShadows = true;
+		model.mesh().scaling.set(1, 1, 1);
 	}
 
 	override initialize() : void {

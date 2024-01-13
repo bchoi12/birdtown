@@ -46,7 +46,7 @@ export namespace ColorFactory {
 		switch (type) {
 		case EntityType.ARCH_BLOCK:
 			return new Map([
-				[ColorType.BASE, getColor(EntityType.ARCH_BLOCK, index)],
+				[ColorType.BASE, color(EntityType.ARCH_BLOCK, index)],
 				[ColorType.SECONDARY, archWhite],
 			]);
 		default:
@@ -55,7 +55,7 @@ export namespace ColorFactory {
 		}
 	}
 
-	function getColor(type : EntityType, index : number) : HexColor {
+	function color(type : EntityType, index : number) : HexColor {
 		if (!baseColors.has(type)) {
 			console.error("Warning: missing colors for type %d", type);
 			return black;

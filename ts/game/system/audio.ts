@@ -87,10 +87,10 @@ export class Audio extends SystemBase implements System {
 
 		// Set sound positions
 		this._players.query<Player>(EntityType.PLAYER).forEach((player : Player) => {
-			ui.updatePos(player.clientId(), player.profile().pos());
+			ui.updatePos(player.clientId(), player.profile().getRenderPos());
 		});
 		if (game.lakitu().hasTargetEntity()) {
-			ui.updatePos(game.clientId(), game.lakitu().targetEntity().profile().pos())
+			ui.updatePos(game.clientId(), game.lakitu().targetEntity().profile().getRenderPos())
 		}
 	}
 }
