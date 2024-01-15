@@ -15,7 +15,7 @@ export enum SpeedSetting {
 
 	SLOW,
 	NORMAL,
-	AUTO,
+	FAST,
 }
 
 export enum AntiAliasSetting {

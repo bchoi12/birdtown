@@ -20,11 +20,15 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Bolt extends Projectile {
 
+	private _collided : boolean;
+
 	private _model : Model;
 	private _profile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.BOLT, entityOptions);
+
+		this._collided = false;
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -71,40 +75,49 @@ export class Bolt extends Projectile {
 			return;
 		}
 
-		// TODO: collide with multiple objects?
 		if (other.getAttribute(AttributeType.SOLID)) {
+			this._collided = true;
 			other.takeDamage(this.damage(), this);
-
-			if (this.getAttribute(AttributeType.CHARGED)) {
-				this.explode({
-					modelInit: {
-						materialType: MaterialType.BOLT_ORANGE,
-					},
-				});
-			} else {
-				for (let i = 0; i < 3; ++i) {
-					this.addEntity(EntityType.PARTICLE_SPARK, {
-						offline: true,
-						ttl: 300,
-						profileInit: {
-							pos: this._profile.pos(),
-							vel: this._profile.vel().clone().negate().normalize().scaleVec({
-								x: Fns.randomRange(0.05, 0.2),
-								y: Fns.randomRange(0.05, 0.2),
-							}),
-							scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.08 },
-						},
-						modelInit: {
-							transforms: {
-								translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1), },
-							},
-							materialType: MaterialType.SPARK_BLUE,
-						}
-					});
-				}
-			}
-
-			this.delete();
 		}
+	}
+
+	override postPhysics(stepData : StepData) : void {
+		super.postPhysics(stepData);
+
+		if (!this._collided) {
+			return;
+		}
+
+		// TODO: move to Projectile
+		// TODO: move back by max penetration
+		if (this.getAttribute(AttributeType.CHARGED)) {
+			this.explode({
+				modelInit: {
+					materialType: MaterialType.BOLT_ORANGE,
+				},
+			});
+		} else {
+			for (let i = 0; i < 3; ++i) {
+				this.addEntity(EntityType.PARTICLE_SPARK, {
+					offline: true,
+					ttl: 300,
+					profileInit: {
+						pos: this._profile.pos(),
+						vel: this._profile.vel().clone().negate().normalize().scaleVec({
+							x: Fns.randomRange(0.05, 0.2),
+							y: Fns.randomRange(0.05, 0.2),
+						}),
+						scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.08 },
+					},
+					modelInit: {
+						transforms: {
+							translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1), },
+						},
+						materialType: MaterialType.SPARK_BLUE,
+					}
+				});
+			}
+		}
+		this.delete();
 	}
 }

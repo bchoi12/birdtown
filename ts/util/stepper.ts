@@ -5,10 +5,6 @@ import { Optional } from 'util/optional'
 import { NumberRingBuffer } from 'util/buffer/number_ring_buffer'
 import { SavedCounter } from 'util/saved_counter'
 
-type StepperOptions = {
-	timePerStep : number;
-}
-
 export type StepperStats = {
 	stepsPerSecond: number;
 	stepTime : number;
@@ -16,9 +12,6 @@ export type StepperStats = {
 }
 
 export class Stepper {
-
-	// From Options
-	private _timePerStep : number;
 
 	// Used to evaluate current step
 	private _seqNum : number;
@@ -33,9 +26,7 @@ export class Stepper {
 	private _beginStepTime : number;
 	private _endStepTime : number;
 
-	constructor(options : StepperOptions) {
-		this.setFromOptions(options);
-
+	constructor() {	
 		this._seqNum = 0;
 		this._updateSpeed = 1;
 
@@ -48,19 +39,15 @@ export class Stepper {
 		this._endStepTime = Date.now();
 	}
 
-	setFromOptions(options : StepperOptions) : void { this._timePerStep = options.timePerStep; }
-
-	timePerStep() : number { return this._timePerStep; }
 	seqNum() : number { return this._seqNum; }
 	setSeqNum(seqNum : number) : void { this._seqNum = seqNum; }
-	private updateSpeed() : number { return this._updateSpeed; }
 	setUpdateSpeed(speed : number) : void { this._updateSpeed = speed; }
 
 	lastStepsPerSecond() : number { return this._stepsCounter.saved(); }
 	lastStep() : number { return this._lastStep; }
 	lastStepTime() : number { return this._endStepTime - this._beginStepTime; }
-	lastStepInterval() : number { return Date.now() - this._beginStepTime; }
-	timeSinceLastStep() : number { return Date.now() - this._endStepTime; }
+	timeSinceBeginStep() : number { return Date.now() - this._beginStepTime; }
+	timeSinceEndStep() : number { return Date.now() - this._endStepTime; }
 	averageStepsPerSecond() : number { return this._stepsPerSecond.average(); }
 	averageStepTime() : number { return this._stepTimes.average(); }
 	averageStepInterval() : number { return this._stepIntervals.average(); }
@@ -73,7 +60,7 @@ export class Stepper {
 		}
 	}
 
-	prepareStep(currentStep : number) : void {
+	beginStep(currentStep : number) : void {
 		this._stepIntervals.push(Date.now() - this._beginStepTime);
 
 		this._lastStep = currentStep;
@@ -89,8 +76,8 @@ export class Stepper {
 	}
 	getStepData() : StepData {
 		return {
-			millis: this.updateSpeed() * this.lastStep() * this.timePerStep(),
-			realMillis: this.timeSinceLastStep(),
+			millis: this._updateSpeed * this._lastStep,
+			realMillis: this._stepIntervals.peek(),
 			seqNum: this.seqNum(),
 		};
 	}

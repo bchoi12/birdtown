@@ -23,8 +23,12 @@ export class Physics extends SystemBase implements System {
 	constructor() {
 		super(SystemType.PHYSICS);
 
+		// TODO: support higher iterations for low FPS mode?
 		this._engine = MATTER.Engine.create({
 			gravity: { y: 0 },
+			constraintIterations: 4,
+			positionIterations: 8,
+			velocityIterations: 4,
 		});
 
 		this._minimap = Html.elm(Html.divMinimap);
@@ -44,8 +48,6 @@ export class Physics extends SystemBase implements System {
 	override initialize() : void {
 		super.initialize();
 
-		this.updateIterations();
-
 		MATTER.Render.run(this._render);
 		this._canvas.style.width = Html.elm(Html.divMinimap).offsetWidth + "px";
 		this._canvas.style.height = Html.elm(Html.divMinimap).offsetHeight + "px";
@@ -58,16 +60,7 @@ export class Physics extends SystemBase implements System {
 			return;
 		}
 
-		if (msg.hasGameSpeed()) {
-			this.updateIterations();
-		}
-	}
-
-	private updateIterations() : void {
-		const stepTime = game.runner().targetStepTime();
-		this._engine.constraintIterations = Math.ceil(stepTime / 4);
-		this._engine.positionIterations = Math.ceil(stepTime / 3);
-		this._engine.velocityIterations = Math.ceil(stepTime / 4);
+		// TODO: 
 	}
 
 	world() : MATTER.Composite { return this._engine.world; }

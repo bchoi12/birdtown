@@ -11,21 +11,15 @@ import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { ChannelType } from 'network/api'
 
-import { settings } from 'settings'
 import { SpeedSetting } from 'settings/api'
 
 import { ui } from 'ui'
 
 import { NumberRingBuffer } from 'util/buffer/number_ring_buffer'
+import { isFirefox } from 'util/common'
 import { Stepper, StepperStats } from 'util/stepper'
 
 export class Runner extends SystemBase implements System  {
-
-	// Support up to ~60 steps per second
-	private static readonly _gameTimePerStep = 16;
-
-	// Support up to 250 FPS
-	private static readonly _renderTimePerStep = 4;
 
 	// Snap seqNum to host when time diff is above a threshold
 	private static readonly _clientSnapThreshold = 1000;
@@ -36,13 +30,14 @@ export class Runner extends SystemBase implements System  {
 		[DataFilter.UDP, ChannelType.UDP],
 	]);
 
-	private static readonly _targetFrameTimes = new Map<SpeedSetting, number>([
+	private static readonly _targetSteps = new Map<SpeedSetting, number>([
 		[SpeedSetting.SLOW, 32],
 		[SpeedSetting.NORMAL, 16],
+		[SpeedSetting.FAST, 8],
 	]);
 
-	private _speed : SpeedSetting;
-	private _actualSpeed : SpeedSetting;
+	private _gameSpeed : SpeedSetting;
+	private _renderSpeed : SpeedSetting;
 
 	private _gameStepper : Stepper;
 	private _gameTargetStep : number;
@@ -56,13 +51,14 @@ export class Runner extends SystemBase implements System  {
 	constructor() {
 		super(SystemType.RUNNER);
 
-		this._speed = SpeedSetting.AUTO;
-		this._actualSpeed = SpeedSetting.NORMAL;
+		this._gameSpeed = SpeedSetting.NORMAL;
+		this._renderSpeed = SpeedSetting.NORMAL;
 
-		this._gameStepper = new Stepper({ timePerStep: Runner._gameTimePerStep });
-		this._renderStepper = new Stepper({ timePerStep: Runner._renderTimePerStep });
-		this._gameTargetStep = Runner._targetFrameTimes.get(this._actualSpeed) / Runner._gameTimePerStep;
-		this._renderTargetStep = Runner._targetFrameTimes.get(this._actualSpeed) / Runner._renderTimePerStep;
+		this._gameStepper = new Stepper();
+		this._renderStepper = new Stepper();
+
+		this._gameTargetStep = Runner._targetSteps.get(this._gameSpeed);
+		this._renderTargetStep = Runner._targetSteps.get(this._renderSpeed);
 
 		this._importSeqNum = 0;
 		this._seqNumDiffs = new NumberRingBuffer(10);
@@ -70,7 +66,7 @@ export class Runner extends SystemBase implements System  {
 	}
 
 	override ready() : boolean {
-		return super.ready() && game.hasClientId() && this.renderSpeed() !== SpeedSetting.UNKNOWN;
+		return super.ready() && game.hasClientId();
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -107,34 +103,26 @@ export class Runner extends SystemBase implements System  {
 
 	getSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
 
-	renderSpeed() : SpeedSetting { return this._actualSpeed; }
-	setRenderSpeed(speed : SpeedSetting) : void {
-		if (this._speed === speed) {
-			return;
-		}
-
-		if (this.setActualSpeed(speed === SpeedSetting.AUTO ? SpeedSetting.NORMAL : speed)) {
-			this._speed = speed;
-		}
-	}
-	private setActualSpeed(speed : SpeedSetting) : boolean {
-		if (this._actualSpeed === speed) {
+	renderSpeed() : SpeedSetting { return this._renderSpeed; }
+	setRenderSpeed(speed : SpeedSetting) : boolean {
+		if (this._renderSpeed === speed) {
 			return true;
 		}
-		if (!Runner._targetFrameTimes.has(speed)) {
+		if (!Runner._targetSteps.has(speed)) {
 			console.error("Error: tried to set runner to speed with undefined target frame time, %s", SpeedSetting[speed]);
 			return false;
 		}
 
-		this._actualSpeed = speed;
-		this._renderTargetStep = Runner._targetFrameTimes.get(this._actualSpeed) / Runner._renderTimePerStep;
+		this._renderSpeed = speed;
+		this._renderTargetStep = Runner._targetSteps.get(this._renderSpeed);
 
 		let speedMsg = new GameMessage(GameMessageType.RUNNER_SPEED);
 		speedMsg.setRenderSpeed(speed);
 		game.handleMessage(speedMsg);
 	}
 
- 	targetStepTime() : number { return this._gameTargetStep * this._gameStepper.timePerStep(); }
+ 	gameTargetStep() : number {return Runner._targetSteps.get(this._gameSpeed); }
+ 	renderTargetStep() : number { return Runner._targetSteps.get(this._renderSpeed); }
  	lastStep() : number { return this._gameStepper.lastStep(); }
 	seqNumDiff() : number { return this.isSource() ? 0 : Math.round(this._seqNumDiffs.peek() / this._gameTargetStep); }
  
@@ -142,56 +130,57 @@ export class Runner extends SystemBase implements System  {
  	getRenderStats() : StepperStats { return this._renderStepper.stats(); }
 
 	runGameLoop() : void {
-	   	game.netcode().preStep();
 	   	if (!this.initialized() && this.ready()) {
 	   		this.initialize();
 	   	}
+
 	   	if (this.initialized()) {
-	   		this._gameStepper.prepareStep(this.getGameStep());
+		   	game.netcode().preStep();
+	   		this._gameStepper.beginStep(this.getGameStep());
 	   		this.gameStep(this._gameStepper.getStepData());
 	   		this._gameStepper.endStep();
 	   	}
-    	setTimeout(() => {
-    		this.runGameLoop();
-    	}, this.targetStepTime() - this._gameStepper.lastStepTime());
+
+	   	let interval = Math.max(1, this.gameTargetStep() - this._gameStepper.timeSinceBeginStep());
+	   	// Terrible hack to fix Firefox perf
+	   	if (isFirefox()) { interval /= 2; }
+    	setTimeout(() => { this.runGameLoop(); }, interval);
 	}
 	runRenderLoop() : void {
 	   	if (this.initialized()) {
-	   		this._renderStepper.prepareStep(this.getRenderStep());
+	   		this._renderStepper.beginStep(this.getRenderStep());
 	   		this.renderFrame(this._renderStepper.getStepData());
 	   		this._renderStepper.endStep();
 	   	}
-    	setTimeout(() => {
-    		this.runRenderLoop();
-    	}, this._renderTargetStep * this._renderStepper.timePerStep() - this._renderStepper.lastStepTime());
+	   	let interval = Math.max(1, this.renderTargetStep() - this._renderStepper.timeSinceBeginStep());
+	   	// Terrible hack to fix Firefox perf
+	   	if (isFirefox()) { interval /= 2; }
+    	setTimeout(() => { this.runRenderLoop(); }, interval);
 	}
 
 	private getGameStep() : number {
-		let currentStep = this._gameStepper.timeSinceLastStep() / this._gameStepper.timePerStep();
+		let currentStep = this._gameStepper.timeSinceBeginStep();
 
-		if (currentStep > 1.3 * this._gameTargetStep) {
-			currentStep = this._gameTargetStep;
+		if (currentStep > 1.3 * this.gameTargetStep()) {
+			currentStep = this.gameTargetStep();
 		}
 
 		if (!this.isSource()) {
 			const seqNumDiff = this._gameStepper.seqNum() - this._importSeqNum;
 			this._seqNumDiffs.push(seqNumDiff);
 
-			const timeDiff = Math.round(seqNumDiff * this._gameStepper.timePerStep());
-			if (Math.abs(timeDiff) > Runner._clientSnapThreshold) {
+			if (Math.abs(seqNumDiff) > Runner._clientSnapThreshold) {
 				this._gameStepper.setSeqNum(this._importSeqNum);
-			} else if (Math.abs(timeDiff) > currentStep * this._gameStepper.timePerStep()) {
-				const coeff = 1 - Math.sign(timeDiff) * Math.min(0.3, Math.abs(timeDiff) / Runner._clientSnapThreshold);
+			} else if (Math.abs(seqNumDiff) > currentStep) {
+				const coeff = 1 - Math.sign(seqNumDiff) * Math.min(0.3, Math.abs(seqNumDiff) / Runner._clientSnapThreshold);
 				currentStep *= coeff;
 			}
 		}
 
-		return currentStep;
+		return Math.floor(currentStep);
 	}
 
-	private getRenderStep() : number {
-		return this._renderStepper.timeSinceLastStep() / this._renderStepper.timePerStep();
-	}
+	private getRenderStep() : number { return this._renderStepper.timeSinceBeginStep(); }
 
 	private gameStep(stepData : StepData) : void {
     	this.preUpdate(stepData);

@@ -16,3 +16,7 @@ export function assignOr<T extends Object>(obj : T, or : T) : T {
 export function isLocalhost() : boolean {
     return location.hostname === "localhost" || location.hostname === "127.0.0.1";
 }
+
+export function isFirefox() : boolean {
+    return navigator.userAgent.toLowerCase().includes('firefox');
+}

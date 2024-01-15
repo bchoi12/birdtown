@@ -75,8 +75,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			name: "FPS Cap",
 			get: () => { return settings.fpsSetting; },
 			click: (current : SpeedSetting) => {
-				if (current === SpeedSetting.AUTO) {
-					settings.fpsSetting = SpeedSetting.SLOW;
+				if (current === SpeedSetting.FAST) {
+					settings.fpsSetting = SpeedSetting.NORMAL;
 				} else {
 					settings.fpsSetting++;
 				}
@@ -87,8 +87,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 					return "30 FPS";
 				case SpeedSetting.NORMAL:
 					return "60 FPS";
-				case SpeedSetting.AUTO:
-					return "None";
+				case SpeedSetting.FAST:
+					return "120 FPS";
 				default:
 					return SpeedSetting[current];
 				}

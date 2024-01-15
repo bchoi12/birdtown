@@ -54,7 +54,7 @@ class Settings {
 		this.fullscreenSetting = FullscreenSetting.WINDOWED;
 		this.pointerSetting = PointerSetting.NORMAL;
 
-		this.fpsSetting = SpeedSetting.AUTO;
+		this.fpsSetting = SpeedSetting.NORMAL;
 		this.antiAliasSetting = AntiAliasSetting.MEDIUM;
 		this.clientPredictionSetting = ClientPredictionSetting.LOW;
 

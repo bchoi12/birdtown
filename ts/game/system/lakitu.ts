@@ -177,7 +177,6 @@ export class Lakitu extends SystemBase implements System {
 
 	override postUpdate(stepData : StepData) : void {
 		super.postUpdate(stepData);
-		const realMillis = stepData.realMillis;
 
 		if (game.playerState().role() === PlayerRole.SPECTATING) {
 			// TODO: get a map from PlayerStates in postPhysics, delete this
