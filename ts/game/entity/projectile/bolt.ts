@@ -20,15 +20,11 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Bolt extends Projectile {
 
-	private _collided : boolean;
-
 	private _model : Model;
 	private _profile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.BOLT, entityOptions);
-
-		this._collided = false;
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -76,20 +72,11 @@ export class Bolt extends Projectile {
 		}
 
 		if (other.getAttribute(AttributeType.SOLID)) {
-			this._collided = true;
-			other.takeDamage(this.damage(), this);
+			this.hit(collision, other);
 		}
 	}
 
-	override postPhysics(stepData : StepData) : void {
-		super.postPhysics(stepData);
-
-		if (!this._collided) {
-			return;
-		}
-
-		// TODO: move to Projectile
-		// TODO: move back by max penetration
+	override onHit() : void {
 		if (this.getAttribute(AttributeType.CHARGED)) {
 			this.explode({
 				modelInit: {
@@ -118,6 +105,15 @@ export class Bolt extends Projectile {
 				});
 			}
 		}
-		this.delete();
+	}
+
+	override onFizzle() : void {
+		if (this.getAttribute(AttributeType.CHARGED)) {
+			this.explode({
+				modelInit: {
+					materialType: MaterialType.BOLT_ORANGE,
+				},
+			});
+		}
 	}
 }

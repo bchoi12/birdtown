@@ -103,9 +103,15 @@ export class Rocket extends Projectile {
 
 		// TODO: collide with multiple objects?
 		if (other.getAttribute(AttributeType.SOLID)) {
-			other.takeDamage(this.damage(), this);
-			this.explode();
-			this.delete();
+			this.hit(collision, other);
 		}
+	}
+
+	override onHit() : void {
+		this.explode();
+	}
+
+	override onFizzle() : void {
+		this.explode();
 	}
 }
