@@ -7,7 +7,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
 import { Rocket } from 'game/entity/projectile/rocket'
-import { Weapon } from 'game/entity/equip/weapon'
+import { Weapon, ShotConfig } from 'game/entity/equip/weapon'
 import { MeshType } from 'game/factory/api'
 import { StepData } from 'game/game_object'
 
@@ -19,8 +19,6 @@ export class Bazooka extends Weapon {
 
 	constructor(options : EntityOptions) {
 		super(EntityType.BAZOOKA, options);
-
-		this._attributes.setAttribute(AttributeType.READY, true);
 	}
 
 	override displayName() : string { return "booty blaster 3000"; }
@@ -28,17 +26,14 @@ export class Bazooka extends Weapon {
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
 
-	override update(stepData : StepData) : void {
-		super.update(stepData);
-
-		if (!this._model.hasMesh() || !this._attributes.getAttribute(AttributeType.READY)) {
-			return;
+	override shotConfig() : ShotConfig {
+		return {
+			bursts: 1,
+			reloadTime: 1000,
 		}
+	}
 
-		if (!this.key(KeyType.MOUSE_CLICK, KeyState.DOWN)) {
-			return;
-		}
-
+	override shoot() : void {
 		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = this.inputDir().clone().normalize();
 
@@ -62,9 +57,9 @@ export class Bazooka extends Weapon {
 			});
 			rocket.model().transforms().setTranslation({ z: pos.z });
 		}
-
-		this.reload(1000);
 	}
+
+	override reload() : void {}
 
 	override getCounts() : Map<CounterType, number> {
 		let counts = super.getCounts();

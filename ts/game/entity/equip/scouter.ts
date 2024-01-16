@@ -50,15 +50,11 @@ export class Scouter extends Equip<Player> {
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
+		const millis = stepData.millis;
 
 		this._weapons = this.owner().equips().findAll((equip : Equip<Player>) => {
 			return equip.allTypes().has(EntityType.WEAPON);
 		});
-	}
-
-	override update(stepData : StepData) : void {
-		super.update(stepData);
-		const millis = stepData.millis;
 
 		if (this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED)) {
 			this._look = Vec3.fromVec(this.inputDir()).normalize().scale(Scouter._lookLength);

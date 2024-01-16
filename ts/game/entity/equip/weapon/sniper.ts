@@ -11,7 +11,7 @@ import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
-import { Weapon } from 'game/entity/equip/weapon'
+import { Weapon, ShotConfig } from 'game/entity/equip/weapon'
 import { MaterialType, MeshType } from 'game/factory/api'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
@@ -28,8 +28,6 @@ export class Sniper extends Weapon {
 
 	constructor(options : EntityOptions) {
 		super(EntityType.SNIPER, options);
-
-		this.setAttribute(AttributeType.READY, true);
 	}
 
 	override displayName() : string { return "thonker"; }
@@ -37,23 +35,25 @@ export class Sniper extends Weapon {
 	override recoilType() : RecoilType { return RecoilType.SMALL; }
 	override meshType() : MeshType { return MeshType.SNIPER; }
 
-	override update(stepData : StepData) : void {
-		super.update(stepData);
-		const millis = stepData.millis;
+	override charged() : boolean { return this.getCounter(CounterType.CHARGE) >= Sniper._chargedThreshold; }
 
-		if (!this._model.hasMesh()) {
-			return;
+	override shotConfig() : ShotConfig {
+		if (this.charged()) {
+			return {
+				bursts: 1,
+				reloadTime: 500,
+			}
 		}
 
-		if (!this.key(KeyType.MOUSE_CLICK, KeyState.DOWN) || !this._attributes.getAttribute(AttributeType.READY)) {
-			return;
+		return {
+			bursts: 3,
+			burstTime: 80,
+			reloadTime: 300,
 		}
+	}
 
-		const charged = this.getCounter(CounterType.CHARGE) >= Sniper._chargedThreshold;
-		if (this.getAttribute(AttributeType.CHARGING) && !charged) {
-			return;
-		}
-
+	override shoot() : void {
+		const charged = this.charged();
 		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = this.inputDir().clone().normalize();
 
@@ -84,22 +84,17 @@ export class Sniper extends Weapon {
 
 			this.recordUse();
 		}
+	}
 
-		if (charged) {
+	override reload() : void {
+		if (this.charged()) {
 			this.setCounter(CounterType.CHARGE, 0);
-			this.reload(500);
-		} else {
-			this.reload(125);
 		}
 	}
 
 	override getCounts() : Map<CounterType, number> {
 		let counts = super.getCounts();
-		counts.set(CounterType.CHARGE, Math.floor(this.chargePercent()));
+		counts.set(CounterType.CHARGE, Math.min(100, Math.floor(this.getCounter(CounterType.CHARGE) / 10)));
 		return counts;
-	}
-
-	private chargePercent() : number {
-		return Math.min(100, this.getCounter(CounterType.CHARGE) / 10);
 	}
 }
