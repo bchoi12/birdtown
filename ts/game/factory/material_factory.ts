@@ -19,21 +19,6 @@ export namespace MaterialFactory {
 		return materials.get(type);
 	}
 
-	export function materialForEntity(entity : Entity) : BABYLON.Material {
-		switch (entity.type()) {
-		case EntityType.BOLT:
-			if (entity.getAttribute(AttributeType.CHARGED)) {
-				return material(MaterialType.BOLT_ORANGE);
-			}
-			return material(MaterialType.BOLT_BLUE);
-		case EntityType.CLOUD:
-			return material(MaterialType.CLOUD);
-		default:
-			console.error("Error: no material set for %s", entity.name());
-			return new BABYLON.StandardMaterial("unknown_material", game.scene());
-		}
-	}
-
 	export function initialize() : void {
 		if (initialized) {
 			return;
@@ -45,20 +30,30 @@ export namespace MaterialFactory {
 		materials.set(MaterialType.CLOUD, cloud);
 
 		let boltBlue = standardMaterial(MaterialType.BOLT_BLUE);
-		boltBlue.diffuseColor = ColorFactory.boltBlue.toBabylonColor3();
+		boltBlue.emissiveColor = ColorFactory.boltBlue.toBabylonColor3();
+		boltBlue.disableLighting = true;
 		materials.set(MaterialType.BOLT_BLUE, boltBlue);
 
 		let boltOrange = standardMaterial(MaterialType.BOLT_ORANGE);
-		boltOrange.diffuseColor = ColorFactory.boltOrange.toBabylonColor3();
+		boltOrange.emissiveColor = ColorFactory.boltOrange.toBabylonColor3();
+		boltOrange.disableLighting = true;
 		materials.set(MaterialType.BOLT_ORANGE, boltOrange);
 
-		let sparkBlue = standardMaterial(MaterialType.SPARK_BLUE);
-		sparkBlue.diffuseColor = ColorFactory.sparkBlue.toBabylonColor3();
-		materials.set(MaterialType.SPARK_BLUE, sparkBlue);
+		let boltExplosion = standardMaterial(MaterialType.BOLT_EXPLOSION);
+		boltExplosion.emissiveColor = ColorFactory.boltExplosion.toBabylonColor3();
+		boltExplosion.disableLighting = true;
+		materials.set(MaterialType.BOLT_EXPLOSION, boltExplosion);
 
-		let sparkOrange = standardMaterial(MaterialType.SPARK_ORANGE);
-		sparkOrange.diffuseColor = ColorFactory.sparkOrange.toBabylonColor3();
-		materials.set(MaterialType.SPARK_ORANGE, sparkOrange);
+		let rocketExplosion = standardMaterial(MaterialType.ROCKET_EXPLOSION);
+		rocketExplosion.emissiveColor = ColorFactory.rocketExplosion.toBabylonColor3();
+		rocketExplosion.disableLighting = true;
+		materials.set(MaterialType.ROCKET_EXPLOSION, rocketExplosion);
+
+		let sparkBlue = standardMaterial(MaterialType.SPARK_BLUE);
+		sparkBlue.emissiveColor = ColorFactory.sparkBlue.toBabylonColor3();
+		sparkBlue.disableLighting = true;
+		sparkBlue.alpha = 0.7;
+		materials.set(MaterialType.SPARK_BLUE, sparkBlue);
 
 		initialized = true;
 	}

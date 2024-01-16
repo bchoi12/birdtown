@@ -52,8 +52,8 @@ export class ClientDialog extends ClientSideSystem implements System {
 		this._stagingMsg = new DialogMessage(DialogType.UNKNOWN);
 
 		let loadout = this.message(DialogType.PICK_LOADOUT);
-		loadout.setEquipType(EntityType.SNIPER);
-		loadout.setAltEquipType(EntityType.SCOUTER);
+		loadout.setEquipType(EntityType.BAZOOKA);
+		loadout.setAltEquipType(EntityType.JETPACK);
 		loadout.setPlayerType(ModifierPlayerType.NONE);
 
 		for (const stringType in DialogType) {

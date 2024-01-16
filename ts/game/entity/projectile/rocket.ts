@@ -9,7 +9,7 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Explosion } from 'game/entity/explosion'
 import { Projectile } from 'game/entity/projectile'
-import { MeshType } from 'game/factory/api'
+import { MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
@@ -108,10 +108,14 @@ export class Rocket extends Projectile {
 	}
 
 	override onHit() : void {
-		this.explode();
+		this.explode({
+			modelInit: {
+				materialType: MaterialType.ROCKET_EXPLOSION,
+			},
+		});
 	}
 
 	override onFizzle() : void {
-		this.explode();
+		this.onHit();
 	}
 }

@@ -41,12 +41,14 @@ export class Bolt extends Projectile {
 			},
 			meshFn: (model : Model) => {
 				const dim = this._profile.unscaledDim();
+				const depth = (dim.x + dim.y) / 2;
 
 				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: dim.x,
 					height: dim.y,
-					depth: (dim.x + dim.y) / 2,
+					depth: depth,
 				}, game.scene());
+
 				model.setMesh(mesh);
 			},
 			init: entityOptions.modelInit,
@@ -80,7 +82,7 @@ export class Bolt extends Projectile {
 		if (this.getAttribute(AttributeType.CHARGED)) {
 			this.explode({
 				modelInit: {
-					materialType: MaterialType.BOLT_ORANGE,
+					materialType: MaterialType.BOLT_EXPLOSION,
 				},
 			});
 		} else {

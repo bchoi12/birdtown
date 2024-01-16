@@ -83,8 +83,8 @@ export abstract class Projectile extends EntityBase {
 		}
 
 		const penetration = Vec2.fromVec(collision.penetration);
-		if (!this._maxPenetration.has() ||
-			(this.profile().vel().dot(penetration) < 0 && penetration.lengthSq() > this._maxPenetration.get().lengthSq())) {
+		if (this.profile().vel().dot(penetration) < 0 &&
+			(!this._maxPenetration.has() || penetration.lengthSq() > this._maxPenetration.get().lengthSq())) {
 			this._maxPenetration.set(penetration);
 		}
 		other.takeDamage(this.damage(), this);

@@ -15,9 +15,10 @@ export enum MaterialType {
 
 	BOLT_BLUE,
 	BOLT_ORANGE,
+	BOLT_EXPLOSION,
 	CLOUD,
+	ROCKET_EXPLOSION,
 	SPARK_BLUE,
-	SPARK_ORANGE,
 }
 
 export enum MeshType {
