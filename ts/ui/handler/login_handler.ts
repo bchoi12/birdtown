@@ -8,6 +8,7 @@ import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
+import { LoginNames } from 'ui/util/login_names'
 
 export class LoginHandler extends HandlerBase implements Handler {
 
@@ -40,7 +41,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._buttonJoinElm.style.display = "block";
 		this._buttonHostElm.style.display = "block";
 
-		this._nameInputElm.value = "b";
+		this._nameInputElm.value = LoginNames.randomName();
 		this._roomInputElm.focus();
 
 		this._buttonHostElm.onclick = () => {

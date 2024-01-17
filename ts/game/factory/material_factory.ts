@@ -42,11 +42,13 @@ export namespace MaterialFactory {
 		let boltExplosion = standardMaterial(MaterialType.BOLT_EXPLOSION);
 		boltExplosion.emissiveColor = ColorFactory.boltExplosion.toBabylonColor3();
 		boltExplosion.disableLighting = true;
+		boltExplosion.alpha = 0.7;
 		materials.set(MaterialType.BOLT_EXPLOSION, boltExplosion);
 
 		let rocketExplosion = standardMaterial(MaterialType.ROCKET_EXPLOSION);
 		rocketExplosion.emissiveColor = ColorFactory.rocketExplosion.toBabylonColor3();
 		rocketExplosion.disableLighting = true;
+		rocketExplosion.alpha = 0.7;
 		materials.set(MaterialType.ROCKET_EXPLOSION, rocketExplosion);
 
 		let sparkBlue = standardMaterial(MaterialType.SPARK_BLUE);

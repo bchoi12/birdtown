@@ -413,7 +413,38 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this.takeDamage(this._stats.health(), this);
 		}
 
+		if (!this.getAttribute(AttributeType.GROUNDED) && this._canJumpTimer.hasTimeLeft()) {
+			this.addEntity(EntityType.PARTICLE_SMOKE, {
+				offline: true,
+				ttl: 500,
+				profileInit: {
+					pos: this._profile.pos().clone().sub({ y: this._profile.scaledDim().y / 2 }),
+					vel: { x: 0.2 },
+					scaling: { x: 0.2, y : 0.2 },
+				},
+				modelInit: {
+					transforms: {
+						translate: { z: this._model.mesh().position.z },
+					}
+				}
+			});
+			this.addEntity(EntityType.PARTICLE_SMOKE, {
+				offline: true,
+				ttl: 500,
+				profileInit: {
+					pos: this._profile.pos().clone().sub({ y: this._profile.scaledDim().y / 2 }),
+					vel: { x: -0.2 },
+					scaling: { x: 0.2, y : 0.2 },
+				},
+				modelInit: {
+					transforms: {
+						translate: { z: this._model.mesh().position.z },
+					}
+				}
+			});
+		}
 		this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.hasTimeLeft());
+
 		this._deadTracker.check();
 	}
 
