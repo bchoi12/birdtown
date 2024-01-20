@@ -45,7 +45,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 		let dialogWrapper;
 
 		switch (msg.getDialogType()) {
-		case DialogType.PICK_LOADOUT:
+		case DialogType.LOADOUT:
 			dialogWrapper = new LoadoutDialogWrapper();
 			dialogWrapper.setTitle("Pick Your Loadout");
 			break;

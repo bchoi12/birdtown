@@ -53,20 +53,6 @@ export class Tablet extends ClientSystem implements System {
 		});
 	}
 
-	override handleMessage(msg : GameMessage) : void {
-		super.handleMessage(msg);
-
-		switch (msg.type()) {
-		case GameMessageType.CLIENT_JOIN:
-			const clientId = msg.getClientId();
-			if (clientId === this.clientId()) {
-				const displayName = msg.getDisplayName();
-				this.setDisplayName(displayName);
-			}
-			break;
-		}
-	}
-
 	scoreChanged() : boolean { return this._scoreChanged; }
 	roundScore() : number { return this._roundScore; }
 	setRoundScore(value : number) : void {
@@ -101,5 +87,6 @@ export class Tablet extends ClientSystem implements System {
 		uiMsg.setDisplayName(this.displayName());
 		ui.handleMessage(uiMsg);
 	}
-	displayName() : string { return this._displayName.length > 0 ? this._displayName : "unknown"; }
+	hasDisplayName() : boolean { return this._displayName.length > 0; }
+	displayName() : string { return this.hasDisplayName() ? this._displayName : "unknown"; }
 }

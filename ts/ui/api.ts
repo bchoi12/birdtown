@@ -21,8 +21,7 @@ export enum AnnouncementType {
 
 export enum DialogType {
 	UNKNOWN,
-	PICK_LOADOUT,
-	PICK_GAME_MODE,
+	LOADOUT,
 }
 
 export enum KeyType {

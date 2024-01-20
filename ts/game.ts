@@ -28,13 +28,8 @@ import { Host } from 'network/host'
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
-import { settings } from 'settings'
-
-import { ui } from 'ui'
-
-import { defined, isLocalhost } from 'util/common'
+import { isLocalhost } from 'util/common'
 import { Html } from 'ui/html'
-import { NumberRingBuffer } from 'util/buffer/number_ring_buffer'
 
 interface GameOptions {
 	displayName : string;
@@ -138,7 +133,6 @@ class Game {
 
 		let gameMsg = new GameMessage(GameMessageType.CLIENT_JOIN);
 		gameMsg.setClientId(clientId);
-		gameMsg.setDisplayName(this._netcode.displayName());
     	this.handleMessage(gameMsg);
 
 		if (this.options().host) {
@@ -181,7 +175,7 @@ class Game {
 	announcer() : Announcer { return this._announcer; }
 	audio() : Audio { return this._audio; }
 	clientDialogs() : ClientDialogs { return this._clientDialogs; }
-	clientDialog(id? : number) : ClientDialog { return this._clientDialogs.getClientDialog(id); }
+	clientDialog(id? : number) : ClientDialog { return this._clientDialogs.clientDialog(id); }
 	controller() : Controller { return this._controller; }
 	entities() : Entities { return this._entities; }
 	input() : Input { return this._input; }

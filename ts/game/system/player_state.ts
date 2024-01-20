@@ -211,7 +211,8 @@ export class PlayerState extends ClientSystem implements System {
 		let player = this.targetEntity<Player>();
 
 		if (this.role() === PlayerRole.WAITING) {
-			if (game.controller().gameState() === GameState.GAME && game.clientDialog(player.clientId()).inSync()) {
+			if (game.controller().gameState() === GameState.GAME
+				&& game.clientDialog(player.clientId()).inSync(DialogType.LOADOUT)) {
 				this.setRole(PlayerRole.SPAWNING);
 			}
 		}

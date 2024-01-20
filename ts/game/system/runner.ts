@@ -161,7 +161,7 @@ export class Runner extends SystemBase implements System  {
 	private getGameStep() : number {
 		let currentStep = this._gameStepper.timeSinceBeginStep();
 
-		if (currentStep > 1.3 * this.gameTargetStep()) {
+		if (currentStep > 1.2 * this.gameTargetStep()) {
 			currentStep = this.gameTargetStep();
 		}
 

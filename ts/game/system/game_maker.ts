@@ -16,7 +16,7 @@ import { GameConfigMessage } from 'message/game_config_message'
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
-import { AnnouncementType } from 'ui/api'
+import { AnnouncementType, DialogType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -125,7 +125,7 @@ export class GameMaker extends SystemBase implements System {
 			if (this.timeLimitReached(current)) {
 				return GameState.GAME;
 			}
-			if (game.clientDialogs().inSync()) {
+			if (game.clientDialogs().inSync(DialogType.LOADOUT)) {
 				return GameState.GAME;
 			}
 			break;

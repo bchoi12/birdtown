@@ -43,17 +43,22 @@ export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp>
 	]);
 
 	private _name : string;
+	private _id : number;
 
 	constructor(type : NetworkMessageType) {
 		super(type);
 		this._name = "";
+		this._id = 0;
 	}
 
+	override debugName() : string { return "NetworkMessage"; }
 	override messageDescriptor() : Map<NetworkMessageType, FieldDescriptor> { return NetworkMessage._messageDescriptor; }
 	override valid() { return super.valid() && this._name.length > 0; }
 
 	name() : string { return this._name; }
 	setName(name : string) : void { this._name = name; }
+	id() : number { return this._id; }
+	setId(id : number) : void { this._id = id; }
 
     // Begin auto-generated code (v2.1)
     override serializable() { return true; }

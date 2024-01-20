@@ -50,6 +50,8 @@ export class UiMessage extends MessageBase<UiMessageType, UiProp> implements Mes
 	]);
 
 	constructor(type : UiMessageType) { super(type); }
+
+	override debugName() : string { return "UiMessage"; }
 	override messageDescriptor() : Map<UiMessageType, FieldDescriptor> { return UiMessage._messageDescriptor; }
 
     // Begin auto-generated code (v2.1)

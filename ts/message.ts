@@ -36,10 +36,11 @@ export abstract class MessageBase<T extends number, P extends number> {
 		this._updated = false;
 
 		if (this._type > 0 && !this.messageDescriptor().has(this._type)) {
-			console.error("Error: messageDescriptor is missing type %d", this._type, this.messageDescriptor());
+			console.error("Error: %s messageDescriptor is missing type %d", this.debugName(), this._type, this.messageDescriptor());
 		}
 	}
 
+	abstract debugName() : string;
 	abstract messageDescriptor() : Map<T, FieldDescriptor>;
 
 	type() : T { return this._type; }
@@ -80,7 +81,7 @@ export abstract class MessageBase<T extends number, P extends number> {
 	}
 	get<O extends Object>(prop : P) : O {
 		if (!this.messageDescriptor().get(this._type).has(prop)) {
-			console.error("Error: trying to get invalid prop %d for type %d", prop, this._type);
+			console.error("Error: trying to get invalid prop %d from %s for type %d", prop, this.debugName(), this._type);
 			return null;
 		}
 		return <O>this._data[prop];
@@ -93,7 +94,7 @@ export abstract class MessageBase<T extends number, P extends number> {
 	}
 	set<O extends Object>(prop : P, obj : O) : Message<T, P> {
 		if (!this.messageDescriptor().get(this._type).has(prop)) {
-			console.error("Error: skipping setting invalid prop %d for type %d", prop, this._type);
+			console.error("Error: skipping setting invalid prop %d from %s for type %d", prop, this.debugName(), this._type);
 			return this;
 		}
 
@@ -103,7 +104,7 @@ export abstract class MessageBase<T extends number, P extends number> {
 	}
 	merge(other : Message<T, P>) : Message<T, P> {
 		if (this.type() !== other.type()) {
-			console.error("Error: skipping attempt to merge messages with different types", this, other);
+			console.error("Error: skipping attempt to merge %s messages with different types", this.debugName(), this, other);
 			return this;
 		}
 
@@ -128,7 +129,7 @@ export abstract class MessageBase<T extends number, P extends number> {
 		this._data = <DataMap>(obj.d);
 
 		if (!this.serializable()) {
-			console.error("Warning: parsed non-serializable object", this);
+			console.error("Warning: parsed non-serializable %s", this.debugName(), this);
 		}
 
 		return this;
@@ -137,7 +138,7 @@ export abstract class MessageBase<T extends number, P extends number> {
 	dataMap() : DataMap { return this._data; }
 	exportObject() : MessageObject {
 		if (!this.serializable()) {
-			console.error("Warning: exporting non-serializable object", this);
+			console.error("Warning: exporting non-serializable %s", this.debugName(), this);
 		}
 
 		this._updated = false;

@@ -414,34 +414,24 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 
 		if (!this.getAttribute(AttributeType.GROUNDED) && this._canJumpTimer.hasTimeLeft()) {
-			this.addEntity(EntityType.PARTICLE_SMOKE, {
-				offline: true,
-				ttl: 500,
-				profileInit: {
-					pos: this._profile.pos().clone().sub({ y: this._profile.scaledDim().y / 2 }),
-					vel: { x: 0.2 },
-					scaling: { x: 0.2, y : 0.2 },
-				},
-				modelInit: {
-					transforms: {
-						translate: { z: this._model.mesh().position.z },
+			for (let i of [-1, 1]) {
+				const scale = 0.25 + 0.1 * Math.random();
+				this.addEntity(EntityType.PARTICLE_SMOKE, {
+					offline: true,
+					ttl: 500,
+					profileInit: {
+						pos: this._profile.pos().clone().sub({ y: this._profile.scaledDim().y / 2 - 0.3 }),
+						vel: { x: 0.05 * i * (1 + 0.5 * Math.random()) },
+						acc: { x: -0.1 * i, y: 0.1 },
+						scaling: { x: scale, y: scale },
+					},
+					modelInit: {
+						transforms: {
+							translate: { z: this._model.mesh().position.z + 0.3 },
+						}
 					}
-				}
-			});
-			this.addEntity(EntityType.PARTICLE_SMOKE, {
-				offline: true,
-				ttl: 500,
-				profileInit: {
-					pos: this._profile.pos().clone().sub({ y: this._profile.scaledDim().y / 2 }),
-					vel: { x: -0.2 },
-					scaling: { x: 0.2, y : 0.2 },
-				},
-				modelInit: {
-					transforms: {
-						translate: { z: this._model.mesh().position.z },
-					}
-				}
-			});
+				});
+			}
 		}
 		this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.hasTimeLeft());
 
@@ -680,7 +670,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				}
 			}
 
-			const loadout = game.clientDialog(this.clientId()).message(DialogType.PICK_LOADOUT);
+			const loadout = game.clientDialog(this.clientId()).message(DialogType.LOADOUT);
 
 			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.getPlayerType());
 			this._entityTrackers.clearEntityType(EntityType.EQUIP);

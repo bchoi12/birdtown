@@ -1,4 +1,6 @@
 
+import { game } from 'game'
+
 import { ChannelMap } from 'network/channel_map'
 import { defined } from 'util/common'
 
@@ -22,9 +24,6 @@ export class Connection {
 
 	name() : string { return this._name; }
 	channels() : ChannelMap { return this._channels; }
-	setDisplayName(name : string) : void { this._displayName = name; }
-	hasDisplayName() : boolean { return this._displayName.length > 0; }
-	displayName() : string { return (this.hasDisplayName() ? this._displayName : "unknown") + " #" + (this.hasClientId() ? this.clientId() : "?"); }
 	connected() : boolean { return this._connected; }
 	disconnect() : void {
 		this._channels.disconnect();
@@ -37,4 +36,7 @@ export class Connection {
 	setClientId(id : number) : void { this._clientId = id; }
 	hasClientId() : boolean { return this._clientId > 0; }
 	clientId() : number { return this._clientId; }
+
+	hasDisplayName() : boolean { return this.hasClientId() && game.tablet(this.clientId()).hasDisplayName(); }
+	displayName() : string { return game.tablet(this.clientId()).displayName(); }
 }

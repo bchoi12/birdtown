@@ -114,9 +114,6 @@ export class Client extends Netcode {
 		let peer = this.peer();
 
 		this._tcp = peer.connect(this.hostName(), {
-			metadata: {
-				name: this.displayName(),
-			},
 			reliable: true,
 			label: this.channelTypeToLabel(ChannelType.TCP),
 			serialization: "raw",

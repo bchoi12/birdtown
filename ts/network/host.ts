@@ -36,7 +36,6 @@ export class Host extends Netcode {
 
 			let gameMsg = new GameMessage(GameMessageType.CLIENT_JOIN);
 			gameMsg.setClientId(clientId);
-			gameMsg.setDisplayName(connection.displayName());
 			game.handleMessage(gameMsg);
 
 			if (isLocalhost()) {
@@ -84,7 +83,7 @@ export class Host extends Netcode {
 		});
 
 		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
-			let connection = this.getConnection(msg.name());
+			let connection = this.connection(msg.name());
 			connection.setVoiceEnabled(msg.getVoiceEnabled());
 
 			let outgoingMsg = new NetworkMessage(NetworkMessageType.VOICE);
@@ -119,7 +118,7 @@ export class Host extends Netcode {
 		this.broadcast(ChannelType.TCP, outgoing);
 
 		if (this._voiceEnabled) {
-			this.sendMessage(this.displayName() + " hopped into voice chat");
+			this.sendMessage(game.tablet(this.clientId()).displayName() + " hopped into voice chat");
 			this.callAll(this.getVoiceMap());
 		} else {
 			this.closeMediaConnections();
@@ -134,10 +133,11 @@ export class Host extends Netcode {
 
 		let displayName;
 		if (from === this.name()) {
-			displayName = this.displayName();
+			displayName = game.tablet().displayName();
 		} else if (this.hasConnection(from)) {
-			displayName = this.getConnection(from).displayName();
+			displayName = this.connection(from).displayName();
 		} else {
+			console.error("Error: received message from unknown connection", from, message);
 			return;
 		}
 

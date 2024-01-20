@@ -35,6 +35,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 	]);
 
 	private constructor(mode : GameMode) { super(mode); }
+
+	override debugName() : string { return "GameConfigMessage"; }
 	override messageDescriptor() : Map<GameMode, FieldDescriptor> { return GameConfigMessage._messageDescriptor; }
 
 	static defaultConfig(mode : GameMode) : GameConfigMessage {

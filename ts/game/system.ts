@@ -40,7 +40,8 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	addSubSystem<T extends System>(id : number, system : T) : T {
 		return this.registerChild(id, this.populateSubSystem<T>(system));
 	}
-	getSubSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
+	hasSubSystem(type : SystemType) : boolean { return this.hasChild(type); }
+	subSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
 
 	hasTargetEntity() : boolean { return this._targetEntity !== null && this._targetEntity.initialized() && !this._targetEntity.deleted(); }
 	targetEntity<T extends Entity>() : T { return <T>this._targetEntity; }

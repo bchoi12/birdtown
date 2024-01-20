@@ -42,7 +42,6 @@ export abstract class Netcode {
 		[ChannelType.UDP, "UDP"],
 	]);
 
-	protected _displayName : string;
 	protected _hostName : string;
 	protected _clientId : number;
 	protected _initialized : boolean;
@@ -64,7 +63,6 @@ export abstract class Netcode {
 	protected _audioContext : Optional<AudioContext>;
 
 	constructor(name : string, hostName : string, displayName : string) {
-		this._displayName = displayName;
 		this._hostName = hostName;
 		this._clientId = 0;
 		this._initialized = false;
@@ -122,7 +120,6 @@ export abstract class Netcode {
 	abstract sendChat(message : string) : void;
 
 	name() : string { return this._peer.id; }
-	displayName() : string { return this.hasClientId() ? (this._displayName + " #" + this.clientId()) : this._displayName; }
 	hostName() : string { return this._hostName; }
 	hasClientId() : boolean { return this._clientId > 0; }
 	setClientId(id : number) { this._clientId = id; }
@@ -165,7 +162,7 @@ export abstract class Netcode {
 	}
 	getOrAddConnection(name : string) : Connection {
 		if (this.hasConnection(name)) {
-			return this.getConnection(name);
+			return this.connection(name);
 		}
 
 		let connection = new Connection(name);
@@ -173,7 +170,7 @@ export abstract class Netcode {
 		return connection;
 	}
 	hasConnection(name : string) : boolean { return this._connections.has(name); }
-	getConnection(name : string) : Connection { return this._connections.get(name); }
+	connection(name : string) : Connection { return this._connections.get(name); }
 	getVoiceMap() : Map<number, string> {
 		if (!this.isHost()) {
 			console.error("Error: client queried voice map");
@@ -234,11 +231,7 @@ export abstract class Netcode {
 
 		// TODO: not sure why, but need to keep getOrAdd instead of add
 		let connection = this.getOrAddConnection(dataConnection.peer);
-		if (dataConnection.metadata && dataConnection.metadata.name) {
-			connection.setDisplayName(dataConnection.metadata.name);
-		}
-
-		let channels = this._connections.get(dataConnection.peer).channels();
+		let channels = connection.channels();
 		channels.register(channelType, dataConnection);
 
 		dataConnection.on("data", (data) => {
@@ -424,7 +417,7 @@ export abstract class Netcode {
 
 	disconnect(name : string) : void {
 		if (this.hasConnection(name)) {
-			let connection = this.getConnection(name);
+			let connection = this.connection(name);
 			connection.disconnect();
 
 			if (connection.hasClientId()) {

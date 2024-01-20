@@ -2,7 +2,7 @@
 
 export namespace LoginNames {
 	const birdNames = [
-		"Arcticuno",
+		"Articuno",
 		"Badtz‑Maru",
 		"Big Bird",
 		"Bobert Penguin",

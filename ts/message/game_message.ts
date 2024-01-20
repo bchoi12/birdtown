@@ -39,7 +39,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 	private static readonly _messageDescriptor = new Map<GameMessageType, FieldDescriptor>([
 		[GameMessageType.CLIENT_JOIN, MessageBase.fieldDescriptor(
 			[GameProp.CLIENT_ID, {}],
-			[GameProp.DISPLAY_NAME, {}],
 		)],
 		[GameMessageType.CLIENT_DISCONNECT, MessageBase.fieldDescriptor(
 			[GameProp.CLIENT_ID, {}],
@@ -66,6 +65,8 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 	]);
 
 	constructor(type : GameMessageType) { super(type); }
+
+	override debugName() : string { return "GameMessage"; }
 	override messageDescriptor() : Map<GameMessageType, FieldDescriptor> { return GameMessage._messageDescriptor; }
 
     // Begin auto-generated code (v2.1)

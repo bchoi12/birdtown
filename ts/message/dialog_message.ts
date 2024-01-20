@@ -16,7 +16,7 @@ enum DialogProp {
 export class DialogMessage extends MessageBase<DialogType, DialogProp> implements Message<DialogType, DialogProp> {
 
 	private static readonly _messageDescriptor = new Map<DialogType, FieldDescriptor>([
-		[DialogType.PICK_LOADOUT, MessageBase.fieldDescriptor(
+		[DialogType.LOADOUT, MessageBase.fieldDescriptor(
 			[DialogProp.PLAYER_TYPE, {}],
 			[DialogProp.EQUIP_TYPE, {optional: true}],
 			[DialogProp.ALT_EQUIP_TYPE, {optional: true}],
@@ -27,6 +27,8 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
 	constructor(type : DialogType) {
 		super(type);
 	}
+
+	override debugName() : string { return "DialogMessage"; }
 	override messageDescriptor() : Map<DialogType, FieldDescriptor> { return DialogMessage._messageDescriptor; }
 
 	// Begin auto-generated code (v2.0)
