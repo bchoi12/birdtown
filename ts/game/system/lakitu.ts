@@ -137,7 +137,7 @@ export class Lakitu extends SystemBase implements System {
 		if (plane.length === 1) {
 			this.setTargetEntity(plane[0]);
 			this._panners.get(OffsetType.TARGET).pan({
-				goal: {x: 0, y: -7, z: 0},
+				goal: {x: 0, y: -8, z: 0},
 				millis: Lakitu._panTime,
 				interpType: InterpType.NEGATIVE_SQUARE,
 			});
@@ -150,7 +150,22 @@ export class Lakitu extends SystemBase implements System {
 		}
 		return false;
 	}
+	private anchorToTarget() : void {
+		let pos = this.targetEntity().profile().pos().clone();
+		pos.add(this.targetEntity().cameraOffset());
+		this.setAnchor(pos.toBabylon3());
+	}
+	private computeFov() : void {
+		const aspect = game.engine().getScreenAspectRatio();
+		if (aspect <= 0) {
+			console.error("%s: cannot compute FOV, aspect ratio is invalid", this.name(), aspect);
+			return;
+		}
 
+		const dist = this.offset(OffsetType.CAMERA).length();
+		this._fov.x = 2 * dist * Math.tan(this._camera.fov / 2);
+		this._fov.y = this._fov.x / aspect;
+	}
 	override setTargetEntity(entity : Entity) {
 		if (!entity.hasProfile()) {
 			console.log("Error: target entity %s must have profile", entity.name());
@@ -250,6 +265,8 @@ export class Lakitu extends SystemBase implements System {
 
 		if (this.hasTargetEntity()) {
 			this.anchorToTarget();
+		} else {
+			this.setAnchor(game.level().defaultSpawn().toBabylon3());
 		}
 	}
 
@@ -271,23 +288,5 @@ export class Lakitu extends SystemBase implements System {
 			tooltipMsg.setNames([game.tablet(this.targetEntity().clientId()).displayName()]);
 			ui.handleMessage(tooltipMsg);
 		}
-	}
-
-	private anchorToTarget() : void {
-		let pos = this.targetEntity().profile().pos().clone();
-		pos.add(this.targetEntity().cameraOffset());
-		this.setAnchor(pos.toBabylon3());
-	}
-
-	private computeFov() : void {
-		const aspect = game.engine().getScreenAspectRatio();
-		if (aspect <= 0) {
-			console.error("%s: cannot compute FOV, aspect ratio is invalid", this.name(), aspect);
-			return;
-		}
-
-		const dist = this.offset(OffsetType.CAMERA).length();
-		this._fov.x = 2 * dist * Math.tan(this._camera.fov / 2);
-		this._fov.y = this._fov.x / aspect;
 	}
 }

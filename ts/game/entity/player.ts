@@ -413,7 +413,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this.takeDamage(this._stats.health(), this);
 		}
 
-		if (!this.getAttribute(AttributeType.GROUNDED) && this._canJumpTimer.hasTimeLeft()) {
+		if (this._model.hasMesh()
+			&& !this.getAttribute(AttributeType.GROUNDED)
+			&& this._canJumpTimer.hasTimeLeft()
+			&& !this.dead()) {
 			for (let i of [-1, 1]) {
 				const scale = 0.25 + 0.1 * Math.random();
 				this.addEntity(EntityType.PARTICLE_SMOKE, {

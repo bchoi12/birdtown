@@ -87,6 +87,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 				}
 				if (this._stagingMsg.getVersion() >= this._message.getVersionOr(0)) {
 					this._message.merge(this._stagingMsg);
+					this.propagate();
 				}
 			},
 			options: {
@@ -98,6 +99,18 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		});
 	}
 
+	private propagate() : void {
+		if (!this.isHost()) {
+			return;
+		}
+
+		switch(this._message.type()) {
+		case DialogType.INIT:
+			game.tablet(this.clientId()).setDisplayName(this._message.getDisplayName());
+			break;
+		}
+	}
+
 	setDialogState(state : DialogState) : void {
 		if (this.isHost() && state === DialogState.PENDING) {
 			// Host is always in sync.
@@ -107,14 +120,12 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		this._dialogState = state;
 	}
 
-	forceSync() : void {
+	forceSubmit() : void {
 		if (!this.isSource()) { return; }
 
 		if (this._dialogState === DialogState.OPEN || this._dialogState === DialogState.PENDING) {
+			this.submit();
 			this.setDialogState(DialogState.ERROR);
-
-			// TODO: don't clear entire UI
-			ui.clear();
 
 			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
 			tooltipMsg.setTooltipType(TooltipType.FAILED_DIALOG_SYNC);
@@ -131,6 +142,10 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 	submit() : void {
 		this._message.setVersion(this._message.getVersionOr(0) + 1);
 		this.setDialogState(DialogState.PENDING);
+
+		if (this.isHost()) {
+			this.propagate();
+		}
 	}
 
 	showDialog() : void {

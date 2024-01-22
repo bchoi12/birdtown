@@ -1,5 +1,5 @@
 
-import { SpecialName } from 'ui/util/special_name'
+import { SpecialName } from 'ui/common/special_name'
 
 export enum UiMode {
 	UNKNOWN,
@@ -21,6 +21,7 @@ export enum AnnouncementType {
 
 export enum DialogType {
 	UNKNOWN,
+	INIT,
 	LOADOUT,
 }
 

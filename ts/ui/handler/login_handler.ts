@@ -8,7 +8,7 @@ import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
-import { LoginNames } from 'ui/util/login_names'
+import { LoginNames } from 'ui/common/login_names'
 
 export class LoginHandler extends HandlerBase implements Handler {
 

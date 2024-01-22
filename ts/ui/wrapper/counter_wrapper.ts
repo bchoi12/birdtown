@@ -3,7 +3,7 @@ import { CounterType } from 'game/component/api'
 
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
-import { Icon, IconType } from 'ui/util/icon'
+import { Icon, IconType } from 'ui/common/icon'
 
 import { defined } from 'util/common'
 

@@ -8,7 +8,7 @@ import { UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
-import { Icon, IconType } from 'ui/util/icon'
+import { Icon, IconType } from 'ui/common/icon'
 import { ClientWrapper } from 'ui/wrapper/client_wrapper'
 
 export class ClientsHandler extends HandlerBase implements Handler {

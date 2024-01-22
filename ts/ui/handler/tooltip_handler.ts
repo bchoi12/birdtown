@@ -10,7 +10,7 @@ import { TooltipType, UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
-import { KeyNames } from 'ui/util/key_names'
+import { KeyNames } from 'ui/common/key_names'
 import { TooltipWrapper } from 'ui/wrapper/tooltip_wrapper'
 
 import { defined } from 'util/common'

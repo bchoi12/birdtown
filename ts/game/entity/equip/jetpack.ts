@@ -22,7 +22,7 @@ export class Jetpack extends Equip<Player> {
 	private static readonly _fireMeshName = "fire";
 	private static readonly _maxJuice = 100;
 	private static readonly _useRate = 120;
-	private static readonly _chargeRate = 100;
+	private static readonly _chargeRate = 200;
 	private static readonly _groundChargeRate = 200;
 	private static readonly _chargeDelay = 500;
 	private static readonly _smokeDelay = 30;

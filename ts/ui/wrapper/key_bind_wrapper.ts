@@ -2,7 +2,7 @@ import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
-import { KeyNames } from 'ui/util/key_names'
+import { KeyNames } from 'ui/common/key_names'
 
 export type KeyBindWrapperOptions = {
 	name : string;

@@ -162,8 +162,6 @@ export class GameMaker extends SystemBase implements System {
 	setGameState(state : GameState) : void {
 		this._lastStateChange = Date.now();
 
-		ui.clear();
-
 		if (!this.isSource()) {
 			return;
 		}

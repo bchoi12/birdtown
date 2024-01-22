@@ -10,13 +10,12 @@ import { PageWrapper } from 'ui/wrapper/page_wrapper'
 export class LoadoutDialogWrapper extends DialogWrapper {
 
 	constructor() {
-		super();
+		super(DialogType.LOADOUT);
+
+		this.setTitle("Pick Your Loadout");
 
 		this.addModifierPage();
 		this.addWeaponPage();
-		this.addOnSubmit(() => {
-			game.clientDialog().submit(DialogType.LOADOUT);
-		});
 	}
 
 	private addModifierPage() : void {
@@ -27,7 +26,7 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 			let buttonWrapper = pageWrapper.addButton(groupIndex);
 			buttonWrapper.elm().textContent = "BIG";
 			buttonWrapper.setOnSelect(() => {
-				game.clientDialog().message(DialogType.LOADOUT).setPlayerType(ModifierPlayerType.BIG);
+				this.dialogMessage().setPlayerType(ModifierPlayerType.BIG);
 				pageWrapper.submit();
 			});
 		}
@@ -36,7 +35,7 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 			let buttonWrapper = pageWrapper.addButton(groupIndex);
 			buttonWrapper.elm().textContent = "NORMAL";
 			buttonWrapper.setOnSelect(() => {
-				game.clientDialog().message(DialogType.LOADOUT).setPlayerType(ModifierPlayerType.NONE);
+				this.dialogMessage().setPlayerType(ModifierPlayerType.NONE);
 				pageWrapper.submit();
 			});
 		}
@@ -50,8 +49,8 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 			let buttonWrapper = pageWrapper.addButton(groupIndex);
 			buttonWrapper.elm().textContent = "Bazooka";
 			buttonWrapper.setOnSelect(() => {
-				game.clientDialog().message(DialogType.LOADOUT).setEquipType(EntityType.BAZOOKA);
-				game.clientDialog().message(DialogType.LOADOUT).setAltEquipType(EntityType.JETPACK);
+				this.dialogMessage().setEquipType(EntityType.BAZOOKA);
+				this.dialogMessage().setAltEquipType(EntityType.JETPACK);
 				pageWrapper.submit();
 			});
 		}
@@ -60,8 +59,8 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 			let buttonWrapper = pageWrapper.addButton(groupIndex);
 			buttonWrapper.elm().textContent = "Sniper";
 			buttonWrapper.setOnSelect(() => {
-				game.clientDialog().message(DialogType.LOADOUT).setEquipType(EntityType.SNIPER);
-				game.clientDialog().message(DialogType.LOADOUT).setAltEquipType(EntityType.SCOUTER);
+				this.dialogMessage().setEquipType(EntityType.SNIPER);
+				this.dialogMessage().setAltEquipType(EntityType.SCOUTER);
 				pageWrapper.submit();
 			});
 		}

@@ -14,7 +14,6 @@ body {
 #canvas-game {
     width: 100%;
     height: 100%;
-    touch-action: none;
 }
 
 #div-login {
@@ -22,18 +21,17 @@ body {
   align-items: center;
   justify-content: center;
 
-  width: 30%;
+  width: 40%;
   min-width: 320px;
   top: 30%;
   left: 0;
   right: 0;
   margin: 0 auto;
-  font-size: 2.5vh;
+  font-size: 1.5em;
 }
 #fieldset-login {
     background-color: rgba(255, 255, 255, 0.8);
-
-    padding: 20px;
+    padding: 30px;
     border-radius: 10px;
     border: 1px solid;
 }

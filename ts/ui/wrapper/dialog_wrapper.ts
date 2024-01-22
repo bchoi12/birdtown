@@ -1,5 +1,10 @@
 
+import { game } from 'game'
+
+import { DialogMessage } from 'message/dialog_message'
+
 import { ui } from 'ui'
+import { DialogType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
@@ -8,6 +13,7 @@ type OnSubmitFn = () => void;
 
 export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
+	private _dialogType : DialogType;
 	private _titleElm : HTMLElement;
 	private _textElm : HTMLElement;
 	private _pages : Array<PageWrapper>;
@@ -15,8 +21,10 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _onSubmitFns : Array<OnSubmitFn>;
 
-	constructor() {
+	constructor(dialogType : DialogType) {
 		super(Html.div());
+
+		this._dialogType = dialogType;
 
 		this.elm().classList.add("dialog");
 
@@ -32,7 +40,14 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._pageIndex = 0;
 
 		this._onSubmitFns = new Array();
+
+		this.addOnSubmit(() => {
+			game.clientDialog().submit(this._dialogType);
+		});
 	}
+
+	protected dialogMessage() : DialogMessage { return game.clientDialog().message(this.dialogType()); }
+	dialogType() : DialogType { return this._dialogType; }
 
 	addPage() : PageWrapper {
 		let page = new PageWrapper();

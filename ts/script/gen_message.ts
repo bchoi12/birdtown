@@ -28,19 +28,13 @@ serializableRegex.add("LevelLayout");
 //
 const version = "2.1";
 
-const enumClass = "GameProp";
+const enumClass = "DialogProp";
 const map = new Map<string, string>([
-    ["CLIENT_ID", "number"],
-    ["DISPLAY_NAME", "string"],
-    ["GAME_SPEED", "SpeedSetting"],
-    ["GAME_STATE", "number"],
-    ["LEVEL_BOUNDS", "Box"],
-    ["LEVEL_LAYOUT", "LevelLayout"],
-    ["LEVEL_SEED", "number"],
-    ["LEVEL_TYPE", "LevelType"],
-    ["LEVEL_VERSION", "number"],
-    ["PLAYER_ROLE", "PlayerRole"],
-    ["RENDER_SPEED", "SpeedSetting"],
+	["ALT_EQUIP_TYPE", "number"],
+	["DISPLAY_NAME", "string"],
+	["EQUIP_TYPE", "number"],
+	["PLAYER_TYPE", "number"],
+	["VERSION", "number"]
 ]);
 //
 // End params
