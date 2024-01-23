@@ -211,14 +211,13 @@ body {
     color: #f2f2f2;
 }
 
+.dialog-page {
+    padding: 10%;
+}
+
 .dialog-title {
     text-align: center;
     font-size: 2em;
-}
-
-.dialog-text {
-    text-align: left;
-    font-size: 1em;
 }
 
 #div-scoreboard {

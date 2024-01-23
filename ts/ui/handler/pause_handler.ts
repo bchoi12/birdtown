@@ -41,14 +41,14 @@ export class PauseHandler extends HandlerBase implements Handler {
 			if (ui.mode() === UiMode.CHAT) {
 				ui.setMode(UiMode.GAME);
 			} else if (ui.mode() === UiMode.GAME) {
-				ui.setMode(UiMode.PAUSE);
-			} else if (ui.mode() === UiMode.PAUSE) {
+				ui.setMode(UiMode.SETTINGS);
+			} else if (ui.mode() === UiMode.SETTINGS) {
 				ui.setMode(UiMode.GAME);
 			}
 		})
 
 		this._continueElm.onclick = (e : any) => {
-			if (ui.mode() !== UiMode.PAUSE) {
+			if (ui.mode() !== UiMode.SETTINGS) {
 				return;
 			}
 			ui.setMode(UiMode.GAME);
@@ -56,7 +56,7 @@ export class PauseHandler extends HandlerBase implements Handler {
 	}
 
 	override setMode(mode : UiMode) : void {
-		if (mode === UiMode.PAUSE) {
+		if (mode === UiMode.SETTINGS) {
 			this._pauseElm.style.visibility = "visible";
 			this._canPause = false;
 		} else {

@@ -18,8 +18,8 @@ export class Client extends Netcode {
 	private _tcp : DataConnection;
 	private _udp : DataConnection;
 
-	constructor(hostName : string, displayName : string) {
-		super("", hostName, displayName);
+	constructor(hostName : string) {
+		super("", hostName);
 	}
 
 	override isHost() : boolean { return false; }

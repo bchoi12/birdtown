@@ -87,7 +87,7 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 	}
 
 	override setMode(mode : UiMode) : void {
-		if (mode === UiMode.PAUSE) {
+		if (mode === UiMode.SETTINGS) {
 			this._keyBindWrappers.forEach((wrapper) => {
 				wrapper.setActive(false);
 			})

@@ -190,7 +190,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 	}
 
 	override setMode(mode : UiMode) : void {
-		if (ui.mode() === UiMode.PAUSE && mode !== UiMode.PAUSE) {
+		if (ui.mode() === UiMode.SETTINGS && mode !== UiMode.SETTINGS) {
 			if (settings.fullscreen()) {
 				document.documentElement.requestFullscreen();
 			} else if (window.innerHeight === screen.height) {

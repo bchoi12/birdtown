@@ -62,7 +62,7 @@ export abstract class Netcode {
 	// TODO: delete?
 	protected _audioContext : Optional<AudioContext>;
 
-	constructor(name : string, hostName : string, displayName : string) {
+	constructor(name : string, hostName : string) {
 		this._hostName = hostName;
 		this._clientId = 0;
 		this._initialized = false;

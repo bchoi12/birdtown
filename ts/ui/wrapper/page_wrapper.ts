@@ -14,6 +14,8 @@ export class PageWrapper extends HtmlWrapper<HTMLElement> {
 	constructor() {
 		super(Html.div());
 
+		this.elm().classList.add(Html.classDialogPage);
+
 		this._buttonGroups = new Map();
 		this._lastGroupId = 0;
 		this._onSubmit = () => {};

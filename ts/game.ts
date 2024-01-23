@@ -32,7 +32,6 @@ import { isLocalhost } from 'util/common'
 import { Html } from 'ui/html'
 
 interface GameOptions {
-	displayName : string;
 	hostName : string;
 	host : boolean;
 }
@@ -109,9 +108,9 @@ class Game {
 		this._runner.push(this._audio);
 
 		if (this._options.host) {
-			this._netcode = new Host(this._options.hostName, this._options.displayName);
+			this._netcode = new Host(this._options.hostName);
 		} else {
-			this._netcode = new Client(this._options.hostName, this._options.displayName);
+			this._netcode = new Client(this._options.hostName);
 		}
 		this._netcode.initialize();
 		this._runner.runGameLoop();

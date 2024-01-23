@@ -5,8 +5,9 @@ export enum UiMode {
 	UNKNOWN,
 	DEFAULT,
 	CHAT,
+	DIALOG,
 	GAME,
-	PAUSE,
+	SETTINGS,
 }
 
 export enum AnnouncementType {

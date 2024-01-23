@@ -14,8 +14,6 @@ import { InitDialogWrapper } from 'ui/wrapper/dialog/init_dialog_wrapper'
 import { LoadoutDialogWrapper } from 'ui/wrapper/dialog/loadout_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
-import { defined } from 'util/common'
-
 export class DialogHandler extends HandlerBase implements Handler {
 
 	private _dialogsElm : HTMLElement;
@@ -77,9 +75,13 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 	showDialog() : void {
 		if (this._dialogs.length === 0) {
+			if (ui.mode() === UiMode.DIALOG) {
+				ui.setMode(UiMode.GAME);
+			}
 			return;
 		}
 
+		ui.setMode(UiMode.DIALOG);
 		this._dialogs[this._dialogs.length - 1].display("block");
 	}
 

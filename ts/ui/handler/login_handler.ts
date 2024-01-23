@@ -8,14 +8,12 @@ import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
-import { LoginNames } from 'ui/common/login_names'
 
 export class LoginHandler extends HandlerBase implements Handler {
 
 	private _loginElm : HTMLElement;
 	private _legendElm : HTMLElement;
 	private _loginInfoElm : HTMLElement;
-	private _nameInputElm : HTMLInputElement;
 	private _roomInputElm : HTMLInputElement;
 	private _buttonHostElm : HTMLInputElement;
 	private _buttonJoinElm : HTMLInputElement;
@@ -28,7 +26,6 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginElm = Html.elm(Html.divLogin);
 		this._legendElm = Html.elm(Html.legendLogin);
 		this._loginInfoElm = Html.elm(Html.loginInfo);
-		this._nameInputElm = Html.inputElm(Html.inputName);
 		this._roomInputElm = Html.inputElm(Html.inputRoom);
 		this._buttonHostElm = Html.inputElm(Html.buttonHost);
 		this._buttonJoinElm = Html.inputElm(Html.buttonJoin);
@@ -41,7 +38,6 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._buttonJoinElm.style.display = "block";
 		this._buttonHostElm.style.display = "block";
 
-		this._nameInputElm.value = LoginNames.randomName();
 		this._roomInputElm.focus();
 
 		this._buttonHostElm.onclick = () => {
@@ -54,37 +50,25 @@ export class LoginHandler extends HandlerBase implements Handler {
 	}
 
 	private createRoom(host : boolean) : void {
-			if (!this._enabled) {
-				return;
-			}
-
-			const [displayName, room, success] = this.getInputs();
-			if (!success) {
-				return;
-			}
-
-			game.initialize({
-			    displayName: displayName,
-			    hostName: "birdtown2-" + room,
-			    host: host,
-			});
-
-			ui.setMode(UiMode.GAME);
-			this._loginElm.style.display = "none";
-			this._enabled = false;
-	}
-
-	private getInputs() : [string, string, boolean] {
-		const name = Html.trimmedValue(this._nameInputElm);
-		if (name.length === 0) {
-			return ["", "", false];
+		if (!this._enabled) {
+			return;
 		}
 
 		const room = Html.trimmedValue(this._roomInputElm);
 		if (room.length === 0) {
-			return ["", "", false];
+			console.error("Error: room should not be empty");
+			return;
 		}
 
-		return [name, room, true];
+		game.initialize({
+		    hostName: "birdtown2-" + room,
+		    host: host,
+		});
+
+		if (ui.mode() === UiMode.DEFAULT) {
+			ui.setMode(UiMode.GAME);
+		}
+		this._loginElm.style.display = "none";
+		this._enabled = false;
 	}
 }

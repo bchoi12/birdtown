@@ -6,7 +6,6 @@ export namespace Html {
 
 	export const divLogin = "div-login";
 	export const legendLogin = "legend-login";
-	export const inputName = "input-name";
 	export const inputRoom = "input-room";
 	export const loginInfo = "login-info";
 	export const formLogin = "form-login";
@@ -48,6 +47,9 @@ export namespace Html {
 	export const classTextButton = "text-button";
 	export const classSetting = "setting";
 	export const classCounter = "counter";
+	export const classDialog = "dialog";
+	export const classDialogPage = "dialog-page";
+	export const classDialogTitle = "dialog-title";
 	export const classTooltip = "tooltip";
 	export const classTooltipShow = "tooltip-show";
 

@@ -66,7 +66,7 @@ export class InputHandler extends HandlerBase implements Handler {
     	document.addEventListener("mouseup", (e : any) => { this.mouseUp(e); });
 		document.addEventListener("pointerlockchange", (e : any) => {
 			if (settings.pointerLocked() && !this.pointerLocked() && ui.mode() === UiMode.GAME) {
-				ui.setMode(UiMode.PAUSE);
+				ui.setMode(UiMode.SETTINGS);
 			}
 		});
 		document.addEventListener("pointerlockerror", (e : any) => {

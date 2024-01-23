@@ -4,6 +4,8 @@ import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
 
 import { DialogType } from 'ui/api'
+import { LoginNames } from 'ui/common/login_names'
+import { Html } from 'ui/html'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
@@ -18,12 +20,17 @@ export class InitDialogWrapper extends DialogWrapper {
 
 	private addNamePage() : void {
 		let pageWrapper = this.addPage();
+
+		let nameInput = Html.input();
+		pageWrapper.elm().appendChild(nameInput);
+
 		let groupIndex = pageWrapper.addButtonGroup();
 		{
 			let buttonWrapper = pageWrapper.addButton(groupIndex);
 			buttonWrapper.elm().textContent = "OK";
 			buttonWrapper.setOnSelect(() => {
-				this.dialogMessage().setDisplayName("Bob");
+				const name = nameInput.value ? nameInput.value : LoginNames.randomName();
+				this.dialogMessage().setDisplayName(name);
 				pageWrapper.submit();
 			});
 		}

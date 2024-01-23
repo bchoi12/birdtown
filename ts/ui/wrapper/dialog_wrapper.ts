@@ -15,7 +15,6 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _dialogType : DialogType;
 	private _titleElm : HTMLElement;
-	private _textElm : HTMLElement;
 	private _pages : Array<PageWrapper>;
 	private _pageIndex : number;
 
@@ -26,15 +25,11 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._dialogType = dialogType;
 
-		this.elm().classList.add("dialog");
+		this.elm().classList.add(Html.classDialog);
 
 		this._titleElm = Html.div();
-		this._titleElm.classList.add("dialog-title");
+		this._titleElm.classList.add(Html.classDialogTitle);
 		this.elm().appendChild(this._titleElm);
-
-		this._textElm = Html.div();
-		this._textElm.classList.add("dialog-text");
-		this.elm().appendChild(this._textElm);
 
 		this._pages = new Array();
 		this._pageIndex = 0;
@@ -79,7 +74,6 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	setTitle(title : string) : void { this._titleElm.innerHTML = title; }
-	setText(text : string) : void { this._textElm.innerHTML = text; }
 
 	addOnSubmit(fn : OnSubmitFn) : void { this._onSubmitFns.push(fn); }
 	submit() : void {
