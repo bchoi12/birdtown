@@ -7,7 +7,7 @@ export enum UiMessageType {
 	UNKNOWN,
 
 	ANNOUNCEMENT,
-	CLIENT_JOIN,
+	CLIENT_INIT,
 	CLIENT_DISCONNECT,
 	DIALOG,
 	TOOLTIP,
@@ -32,7 +32,7 @@ export class UiMessage extends MessageBase<UiMessageType, UiProp> implements Mes
 			[UiProp.TTL, {optional: true}],
 			[UiProp.NAMES, {optional: true}],
 		)],
-		[UiMessageType.CLIENT_JOIN, MessageBase.fieldDescriptor(
+		[UiMessageType.CLIENT_INIT, MessageBase.fieldDescriptor(
 			[UiProp.CLIENT_ID, {}],
 			[UiProp.DISPLAY_NAME, {}],
 		)],

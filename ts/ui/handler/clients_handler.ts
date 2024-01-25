@@ -27,7 +27,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 	}
 
 	override handleMessage(msg : UiMessage) : void {
-		if (msg.type() === UiMessageType.CLIENT_JOIN) {
+		if (msg.type() === UiMessageType.CLIENT_INIT) {
 			const clientId = msg.getClientId();
 
 			// Support name changes for existing clients

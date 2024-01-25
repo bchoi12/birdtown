@@ -1,4 +1,5 @@
 
+import { game } from 'game'
 import { StepData } from 'game/game_object'
 import { ClientSystem, System } from 'game/system'
 import { SystemType, ScoreType } from 'game/system/api'
@@ -7,6 +8,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
+import { AnnouncementType } from 'ui/api'
 
 export class Tablet extends ClientSystem implements System {
 
@@ -53,6 +55,17 @@ export class Tablet extends ClientSystem implements System {
 		});
 	}
 
+	override delete() : void {
+		super.delete();
+
+		if (this.hasDisplayName()) {
+    		let announcementMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+    		announcementMsg.setAnnouncementType(AnnouncementType.PLAYER_LEFT);
+    		announcementMsg.setNames([this.displayName()]);
+	    	ui.handleMessage(announcementMsg);			
+		}
+	}
+
 	scoreChanged() : boolean { return this._scoreChanged; }
 	roundScore() : number { return this._roundScore; }
 	setRoundScore(value : number) : void {
@@ -76,16 +89,31 @@ export class Tablet extends ClientSystem implements System {
 	}
 
 	setDisplayName(displayName : string) : void {
-		this._displayName = displayName;
+		if (displayName.length === 0) {
+			console.error("Error: skipping empty display name");
+			return;
+		}
 
+		if (!this.hasDisplayName()) {
+	    	let announcementMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+	    	if (this.clientIdMatches()) {
+	    		announcementMsg.setAnnouncementType(AnnouncementType.WELCOME);
+	    	} else {
+		    	announcementMsg.setAnnouncementType(AnnouncementType.PLAYER_JOINED);
+	    	}
+	    	announcementMsg.setNames([this.displayName()]);
+	    	ui.handleMessage(announcementMsg);
+		}
+
+		this._displayName = displayName;
 		this.addNameParams({
 			type: this._displayName,
 		});
 
-		const uiMsg = new UiMessage(UiMessageType.CLIENT_JOIN);
-		uiMsg.setClientId(this.clientId());
-		uiMsg.setDisplayName(this.displayName());
-		ui.handleMessage(uiMsg);
+		const initMsg = new UiMessage(UiMessageType.CLIENT_INIT);
+		initMsg.setClientId(this.clientId());
+		initMsg.setDisplayName(this.displayName());
+		ui.handleMessage(initMsg);
 	}
 	hasDisplayName() : boolean { return this._displayName.length > 0; }
 	displayName() : string { return this.hasDisplayName() ? this._displayName : "unknown"; }

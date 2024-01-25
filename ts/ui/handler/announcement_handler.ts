@@ -1,4 +1,6 @@
 
+import { game } from 'game'
+
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
@@ -52,6 +54,10 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		super.handleMessage(msg);
 
 		if (msg.type() !== UiMessageType.ANNOUNCEMENT) {
+			return;
+		}
+
+		if (!game.tablet().initialized()) {
 			return;
 		}
 
@@ -124,15 +130,42 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 				};
 			}
 			break;
-		case AnnouncementType.WELCOME:
-			return {
-				main: "Welcome to Birdtown",
+		case AnnouncementType.PLAYER_JOINED:
+			if (names.length === 1) {
+				return {
+					main: names[0] + " just joined!",
+					sub: this.numPlayersMessage(),
+				}
 			}
+			break;
+		case AnnouncementType.PLAYER_LEFT:
+			if (names.length === 1) {
+				return {
+					main: names[0] + " disconnected",
+					sub: this.numPlayersMessage(),
+				}
+			}
+			break;
+		case AnnouncementType.WELCOME:
+			if (names.length === 1) {
+				return {
+					main: "Welcome " + names[0] + "!",
+					sub: this.numPlayersMessage(),
+				}
+			}
+
 		}
 
 		return {
 			main: "Something bad happened",
-			sub: "0x0" + type,
+			sub: "type: " + AnnouncementType[type],
 		};
+	}
+
+	private numPlayersMessage() : string {
+		const players = game.tablets().numSetup();
+		return players === 1
+			? "You\'re the only one here"
+			: "There are currently " + players + " players";
 	}
 }

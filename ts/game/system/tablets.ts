@@ -24,7 +24,11 @@ export class Tablets extends ClientSystemManager implements System {
 		this.setFactoryFn((clientId : number) => { return this.addTablet(new Tablet(clientId)); })
 	}
 
-	numTablets() : number { return this.numChildren(); }
+	numSetup() : number {
+		return this.findAll((tablet : Tablet) => {
+			return tablet.hasDisplayName() && !tablet.deleted();
+		}).length;
+	}
 	addTablet(tablet : Tablet) : Tablet { return this.registerChild<Tablet>(tablet.clientId(), tablet); }
 	hasTablet(clientId : number) : boolean { return this.hasChild(clientId); }
 	getTablet(clientId? : number) : Tablet { return this.getChild<Tablet>(defined(clientId) ? clientId : game.clientId()); }
