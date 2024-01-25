@@ -7,6 +7,8 @@ import { EntityType } from 'game/entity/api'
 import { MaterialType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
+type MaterialFn<T extends BABYLON.Material> = (material : T) => void;
+
 export namespace MaterialFactory {
 
 	let initialized = false;
@@ -24,43 +26,47 @@ export namespace MaterialFactory {
 			return;
 		}
 
-		let cloud = standardMaterial(MaterialType.CLOUD);
-		cloud.alpha = 0.4;
-		cloud.needDepthPrePass = true;
-		materials.set(MaterialType.CLOUD, cloud);
+		standardMaterial(MaterialType.ARCH_BACKGROUND_RED, (mat : BABYLON.StandardMaterial) => {
+			mat.diffuseColor = ColorFactory.archBackgroundRed.toBabylonColor3();
+		});
 
-		let boltBlue = standardMaterial(MaterialType.BOLT_BLUE);
-		boltBlue.emissiveColor = ColorFactory.boltBlue.toBabylonColor3();
-		boltBlue.disableLighting = true;
-		materials.set(MaterialType.BOLT_BLUE, boltBlue);
+		standardMaterial(MaterialType.BOLT_BLUE, (mat : BABYLON.StandardMaterial) => {
+			mat.emissiveColor = ColorFactory.boltBlue.toBabylonColor3();
+			mat.disableLighting = true;
+		});
+		standardMaterial(MaterialType.BOLT_ORANGE, (mat : BABYLON.StandardMaterial) => {
+			mat.emissiveColor = ColorFactory.boltOrange.toBabylonColor3();
+			mat.disableLighting = true;
+		});
+		standardMaterial(MaterialType.BOLT_EXPLOSION, (mat : BABYLON.StandardMaterial) => {
+			mat.emissiveColor = ColorFactory.boltExplosion.toBabylonColor3();
+			mat.disableLighting = true;
+			mat.alpha = 0.7;
+		});
 
-		let boltOrange = standardMaterial(MaterialType.BOLT_ORANGE);
-		boltOrange.emissiveColor = ColorFactory.boltOrange.toBabylonColor3();
-		boltOrange.disableLighting = true;
-		materials.set(MaterialType.BOLT_ORANGE, boltOrange);
+		standardMaterial(MaterialType.CLOUD, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.4;
+			mat.needDepthPrePass = true;
+		});
 
-		let boltExplosion = standardMaterial(MaterialType.BOLT_EXPLOSION);
-		boltExplosion.emissiveColor = ColorFactory.boltExplosion.toBabylonColor3();
-		boltExplosion.disableLighting = true;
-		boltExplosion.alpha = 0.7;
-		materials.set(MaterialType.BOLT_EXPLOSION, boltExplosion);
+		standardMaterial(MaterialType.ROCKET_EXPLOSION, (mat : BABYLON.StandardMaterial) => {
+			mat.emissiveColor = ColorFactory.rocketExplosion.toBabylonColor3();
+			mat.disableLighting = true;
+			mat.alpha = 0.7;
+		});
 
-		let rocketExplosion = standardMaterial(MaterialType.ROCKET_EXPLOSION);
-		rocketExplosion.emissiveColor = ColorFactory.rocketExplosion.toBabylonColor3();
-		rocketExplosion.disableLighting = true;
-		rocketExplosion.alpha = 0.7;
-		materials.set(MaterialType.ROCKET_EXPLOSION, rocketExplosion);
-
-		let sparkBlue = standardMaterial(MaterialType.SPARK_BLUE);
-		sparkBlue.emissiveColor = ColorFactory.sparkBlue.toBabylonColor3();
-		sparkBlue.disableLighting = true;
-		sparkBlue.alpha = 0.7;
-		materials.set(MaterialType.SPARK_BLUE, sparkBlue);
+		standardMaterial(MaterialType.SPARK_BLUE, (mat : BABYLON.StandardMaterial) => {
+			mat.emissiveColor = ColorFactory.sparkBlue.toBabylonColor3();
+			mat.disableLighting = true;
+			mat.alpha = 0.7;
+		});
 
 		initialized = true;
 	}
 
-	function standardMaterial(type : MaterialType) : BABYLON.StandardMaterial {
-		return new BABYLON.StandardMaterial(MaterialType[type], game.scene());
+	function standardMaterial(type : MaterialType, fn : MaterialFn<BABYLON.StandardMaterial>) : void {
+		let mat = new BABYLON.StandardMaterial(MaterialType[type], game.scene());
+		fn(mat);
+		materials.set(type, mat);
 	}
 }

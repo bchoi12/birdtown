@@ -23,6 +23,7 @@ type OnLoadFn = (model : Model) => void;
 type ReadyFn = (model : Model) => boolean;
 
 export type ModelInitOptions = {
+	disableShadows? : boolean;
 	transforms? : TransformOptions;
 	offlineTransforms? : TransformOptions;
 	materialType? : MaterialType;
@@ -30,9 +31,8 @@ export type ModelInitOptions = {
 
 type ModelOptions = {
 	meshFn : MeshFn;
-	disableShadows? : boolean;
 	readyFn? : ReadyFn;
-	init : ModelInitOptions;
+	init? : ModelInitOptions;
 }
 
 export class Model extends ComponentBase implements Component {
@@ -102,7 +102,7 @@ export class Model extends ComponentBase implements Component {
 		super.initialize();
 		this._options.meshFn(this);
 
-		if (!this._options.disableShadows) {
+		if (this._options.init && !this._options.init.disableShadows) {
 			this.onLoad((loaded : Model) => {
 				game.world().renderShadows(loaded.mesh());
 			});

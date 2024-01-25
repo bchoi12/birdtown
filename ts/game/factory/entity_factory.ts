@@ -1,5 +1,6 @@
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { BackgroundArchBuilding } from 'game/entity/background/background_arch_building'
 import { ArchBalcony } from 'game/entity/block/arch_balcony'
 import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
@@ -32,6 +33,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_BALCONY, (options : EntityOptions) => { return new ArchBalcony(options); }],
 		[EntityType.ARCH_ROOM, (options : EntityOptions) => { return new ArchRoom(options); }],
 		[EntityType.ARCH_ROOF, (options : EntityOptions) => { return new ArchRoof(options); }],
+		[EntityType.BACKGROUND_ARCH_BUILDING, (options : EntityOptions) => { return new BackgroundArchBuilding(options); }],
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
 		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
@@ -57,6 +59,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_BALCONY, { x: 3, y: 2, z: 6 }],
 		[EntityType.ARCH_ROOM, { x: 12, y: 6, z: 8 }],
 		[EntityType.ARCH_ROOF, { x: 12, y: 1, z: 8 }],
+		[EntityType.BACKGROUND_ARCH_BUILDING, { x: 12, y: 6 }],
 		[EntityType.BOLT, { x: 0.3, y: 0.12, z : 0.12 }],
 		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],
 		[EntityType.PARTICLE_SPARK, { x: 1, y: 1, z: 1 }],

@@ -12,6 +12,8 @@ import { AnnouncementType } from 'ui/api'
 
 export class Tablet extends ClientSystem implements System {
 
+	private static readonly _displayNameMaxLength = 16;
+
 	private _roundScore : number;
 
 	private _displayName : string;
@@ -94,7 +96,18 @@ export class Tablet extends ClientSystem implements System {
 			return;
 		}
 
-		if (!this.hasDisplayName()) {
+		if (displayName.length > Tablet._displayNameMaxLength) {
+			displayName = displayName.substring(0, Tablet._displayNameMaxLength);
+		}
+
+		const announce = !this.hasDisplayName();
+
+		this._displayName = displayName;
+		this.addNameParams({
+			type: this._displayName,
+		});
+
+		if (announce) {
 	    	let announcementMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
 	    	if (this.clientIdMatches()) {
 	    		announcementMsg.setAnnouncementType(AnnouncementType.WELCOME);
@@ -104,11 +117,6 @@ export class Tablet extends ClientSystem implements System {
 	    	announcementMsg.setNames([this.displayName()]);
 	    	ui.handleMessage(announcementMsg);
 		}
-
-		this._displayName = displayName;
-		this.addNameParams({
-			type: this._displayName,
-		});
 
 		const initMsg = new UiMessage(UiMessageType.CLIENT_INIT);
 		initMsg.setClientId(this.clientId());

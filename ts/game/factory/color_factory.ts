@@ -23,6 +23,13 @@ export namespace ColorFactory {
 	export const archPurple = HexColor.fromHex(0x910ffc);
 	export const archWhite = HexColor.fromHex(0xeeeeee);
 
+	export const archBackgroundRed = HexColor.fromHex(0xff867d);
+	export const archBackgroundOrange = HexColor.fromHex(0xffd6a3);
+	export const archBackgroundYellow = HexColor.fromHex(0xfffdc7);
+	export const archBackgroundGreen = HexColor.fromHex(0xb0ffd9);
+	export const archBackgroundBlue = HexColor.fromHex(0xc4f7ff);
+	export const archBackgroundPurple = HexColor.fromHex(0xe0baff);
+
 	export const boltBlue = HexColor.fromHex(0x7cf2f0);
 	export const boltOrange = HexColor.fromHex(0xffb163);
 	export const boltExplosion = HexColor.fromHex(0xffc361);

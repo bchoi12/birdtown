@@ -35,7 +35,8 @@ enum OffsetType {
 
 export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 25 units, needs to be updated if offsets are changed
-	private static readonly _horizontalFov = 45.1045 * Math.PI / 180;
+	// Formula: deg = 2 * arctan(0.5 * horizontal_fov / offset_length)
+	private static readonly _horizontalFov = 49.882 * Math.PI / 180;
 
 	private static readonly _playerRateLimit = 250;
 

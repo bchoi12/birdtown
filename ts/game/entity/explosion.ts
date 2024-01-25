@@ -35,7 +35,6 @@ export class Explosion extends EntityBase implements Entity {
 		}));
 
 		this.addComponent(new Model({
-			disableShadows: true, 
 			readyFn: () => {
 				return this._profile.ready();
 			},
@@ -44,7 +43,10 @@ export class Explosion extends EntityBase implements Entity {
 					diameter: this._profile.unscaledDim().x,
 				}, game.scene()));
 			},
-			init: entityOptions.modelInit,
+			init: {
+				disableShadows: true, 
+				...entityOptions.modelInit,
+			},
 		}));
 	}
 

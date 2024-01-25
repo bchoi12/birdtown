@@ -1,7 +1,8 @@
 
 import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { CardinalFactory, CardinalMap } from 'game/factory/cardinal_factory'
+import { MaterialType } from 'game/factory/api'
+import { CardinalFactory } from 'game/factory/cardinal_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { LevelType } from 'game/system/api'
@@ -53,6 +54,10 @@ class ArchBlueprintBlock extends BlueprintBlock {
 	}
 
 	addCrates(rng : SeededRandom) : void {
+		if (this.type() === ArchBlueprint.backgroundType()) {
+			return;
+		}
+
 		while(rng.testChance()) {
 			this.addEntity(EntityType.CRATE, {
 				profileInit: {
@@ -77,6 +82,7 @@ class Building {
 		this._blocks = new Array();
 	}
 
+	initPos() : Vec2 { return this._initPos; }
 	numBlocks() : number { return this._blocks.length; }
 	hasBlock(i : number) : boolean { return i >= 0 && i < this._blocks.length; }
 	block(i : number) : ArchBlueprintBlock { return this._blocks[i]; }
@@ -98,6 +104,7 @@ class Building {
 		this._blocks.push(block);
 		return block;
 	}
+
 	addRoof(options : EntityOptions) : ArchBlueprintBlock {
 		let pos = this._initPos.clone();
 		pos.add({y: this.numBlocks() * ArchBlueprint.baseDim().y + ArchBlueprint.roofDim().y / 2 });
@@ -108,6 +115,38 @@ class Building {
 			},
 			...options,
 		});
+		this._blocks.push(block);
+		return block;
+	}
+
+	addBackgroundBuilding(height : number, options : EntityOptions) : ArchBlueprintBlock {
+		if (height === 0) {
+			return;
+		}
+
+		let pos = this._initPos.clone();
+		let block = new ArchBlueprintBlock(ArchBlueprint.backgroundType(), {
+			profileInit: {
+				pos: pos.toVec(),
+			},
+			...options,
+		});
+
+		for (let i = 0; i < height; ++i) {
+			pos.add({y: ArchBlueprint.baseDim().y / 2 });
+
+			block.addEntity(ArchBlueprint.backgroundType(), {
+				profileInit: {
+					pos: pos.toVec(),
+				},
+				modelInit: {
+					materialType: MaterialType.ARCH_BACKGROUND_RED,
+				},
+			});
+			pos.add({y: ArchBlueprint.baseDim().y / 2 });
+		}
+
+
 		this._blocks.push(block);
 		return block;
 	}
@@ -131,6 +170,7 @@ export class ArchBlueprint extends Blueprint {
 	static blockType() : EntityType { return EntityType.ARCH_BLOCK; }
 	static roofType() : EntityType { return EntityType.ARCH_ROOF; }
 	static balconyType() : EntityType { return EntityType.ARCH_BALCONY; }
+	static backgroundType() : EntityType { return EntityType.BACKGROUND_ARCH_BUILDING; }
 	static baseDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.baseType()); }
 	static roofDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.roofType()); }
 	static balconyDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.balconyType()); }
@@ -161,7 +201,7 @@ export class ArchBlueprint extends Blueprint {
 			this.addBuilding(i, plans);
 		}
 	}
-	addBuilding(i : number, plans : Array<BuildingPlan>) : void {
+	addBuilding(i : number, plans : Array<BuildingPlan>) : Building {
 		const height = plans[i].height;
 		const offset = plans[i].offset ? plans[i].offset : {x: 0, y: 0};
 		const prevHeight = i > 0 ? plans[i-1].height : 0;
@@ -201,14 +241,29 @@ export class ArchBlueprint extends Blueprint {
 			if (openings.anyLeft() && (j > prevHeight || prevHeight === 0)) {
 				block.addBalcony(CardinalDir.LEFT, options);
 			}
-		}
+		}		
 		building.addRoof({
 			cardinalsInit: {
 				cardinals: [this.getOpenings(height <= prevHeight, height <= nextHeight)],
 			},
 			...options});
 
+		let backgroundHeight = height;
+		this.rng().switch([
+			[0.2, () => {
+				if (height > 1) {
+					backgroundHeight--;
+				} else {
+					backgroundHeight++;
+				}
+			}],
+			[0.6, () => { backgroundHeight++; }],
+			[0.9, () => { backgroundHeight += 2; }],
+		]);
+		building.addBackgroundBuilding(backgroundHeight, {});
+
 		this._buildings.push(building);
+		return building;
 	}
 
 	private loadLobby(options : BlueprintOptions) : void {
@@ -230,7 +285,7 @@ export class ArchBlueprint extends Blueprint {
 				this.rng().setChance(0.9, (n : number) => { return n - 0.3; });
 				block.addCrates(this.rng());
 
-				if (i === Math.floor(this.numBuildings() / 2) && j === building.numBlocks() - 1) {
+				if (i === Math.floor(this.numBuildings() / 2) && block.type() === ArchBlueprint.roofType()) {
 					block.addEntity(EntityType.SIGN, {
 						profileInit: {
 							pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
