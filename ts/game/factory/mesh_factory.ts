@@ -14,8 +14,8 @@ export type LoadResult = {
 
 export namespace MeshFactory {
 
-	export const pathPrefix = "mesh/";
-	export const fileExtension = ".glb";
+	const pathPrefix = "mesh/";
+	const fileExtension = ".glb";
 
 	export function preload(type : MeshType) : void {
 		load(type, () => {});

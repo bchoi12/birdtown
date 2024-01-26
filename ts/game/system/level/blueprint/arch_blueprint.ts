@@ -5,6 +5,7 @@ import { MaterialType } from 'game/factory/api'
 import { CardinalFactory } from 'game/factory/cardinal_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
+import { MaterialFactory } from 'game/factory/material_factory'
 import { LevelType } from 'game/system/api'
 import { Blueprint, BlueprintBlock, BlueprintOptions } from 'game/system/level/blueprint'
 
@@ -26,7 +27,16 @@ class ArchBlueprintBlock extends BlueprintBlock {
 		super(type, options);
 	}
 
-	override dim() : Vec { return ArchBlueprint.baseDim(); }
+	override dim() : Vec {
+		switch (this.type()) {
+		case ArchBlueprint.roofType():
+			return ArchBlueprint.roofDim();
+		case ArchBlueprint.backgroundType():
+			return {x: 0, y: 0};
+		default:
+			return ArchBlueprint.baseDim();
+		}
+	}
 
 	addBalcony(dir : CardinalDir, options : EntityOptions) : void {
 		let pos = Vec2.fromVec(this.pos());
@@ -120,11 +130,13 @@ class Building {
 	}
 
 	addBackgroundBuilding(height : number, options : EntityOptions) : ArchBlueprintBlock {
-		if (height === 0) {
+		if (height <= 0) {
 			return;
 		}
 
-		let pos = this._initPos.clone();
+		const extras = 3;
+
+		let pos = this._initPos.clone().sub({ y: (extras - 1.66) * ArchBlueprint.baseDim().y });
 		let block = new ArchBlueprintBlock(ArchBlueprint.backgroundType(), {
 			profileInit: {
 				pos: pos.toVec(),
@@ -132,16 +144,14 @@ class Building {
 			...options,
 		});
 
-		for (let i = 0; i < height; ++i) {
+		for (let i = 0; i < height + extras; ++i) {
 			pos.add({y: ArchBlueprint.baseDim().y / 2 });
 
 			block.addEntity(ArchBlueprint.backgroundType(), {
 				profileInit: {
 					pos: pos.toVec(),
 				},
-				modelInit: {
-					materialType: MaterialType.ARCH_BACKGROUND_RED,
-				},
+				...options,
 			});
 			pos.add({y: ArchBlueprint.baseDim().y / 2 });
 		}
@@ -153,6 +163,8 @@ class Building {
 }
 
 export class ArchBlueprint extends Blueprint {
+
+	private static readonly _numBasementBlocks = 2;
 
 	private _buildings : Array<Building>;
 	private _pos : Vec2;
@@ -170,7 +182,7 @@ export class ArchBlueprint extends Blueprint {
 	static blockType() : EntityType { return EntityType.ARCH_BLOCK; }
 	static roofType() : EntityType { return EntityType.ARCH_ROOF; }
 	static balconyType() : EntityType { return EntityType.ARCH_BALCONY; }
-	static backgroundType() : EntityType { return EntityType.BACKGROUND_ARCH_BUILDING; }
+	static backgroundType() : EntityType { return EntityType.BACKGROUND_ARCH_ROOM; }
 	static baseDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.baseType()); }
 	static roofDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.roofType()); }
 	static balconyDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.balconyType()); }
@@ -214,7 +226,7 @@ export class ArchBlueprint extends Blueprint {
 		}
 		this._pos.add(offset);
 
-		if (height === 0) {
+		if (height <= 0) {
 			return;
 		}
 
@@ -225,9 +237,20 @@ export class ArchBlueprint extends Blueprint {
 				colors: colors,
 			}
 		};
-		for (let j = 0; j < height; ++j) {
+
+		// Basement
+		for (let j = 0; j < ArchBlueprint._numBasementBlocks; ++j) {
+			building.addBlock({
+				cardinalsInit: {
+					cardinals: [CardinalFactory.openings([])],		
+				},
+				...options});
+		}
+
+		// height of 1 == only basement
+		for (let j = 1; j < height; ++j) {
 			let openings = CardinalFactory.openings([]);
-			openings.merge(this.getOpenings(/*openLeft=*/j > 0, /*openRight=*/j > 0));
+			openings.merge(this.getOpenings(/*openLeft=*/true, /*openRight=*/true));
 
 			let block = building.addBlock({
 				cardinalsInit: {
@@ -250,17 +273,16 @@ export class ArchBlueprint extends Blueprint {
 
 		let backgroundHeight = height;
 		this.rng().switch([
-			[0.2, () => {
-				if (height > 1) {
-					backgroundHeight--;
-				} else {
-					backgroundHeight++;
-				}
-			}],
-			[0.6, () => { backgroundHeight++; }],
-			[0.9, () => { backgroundHeight += 2; }],
+			[0.4, () => { backgroundHeight++; }],
+			[0.6, () => { backgroundHeight--; }],
 		]);
-		building.addBackgroundBuilding(backgroundHeight, {});
+
+		const materialTypes = MaterialFactory.archBackgroundMaterials()
+		building.addBackgroundBuilding(backgroundHeight, {
+			modelInit: {
+				materialType: materialTypes[i % materialTypes.length]
+			},
+		});
 
 		this._buildings.push(building);
 		return building;
@@ -279,7 +301,7 @@ export class ArchBlueprint extends Blueprint {
 		for (let i = 0; i < this.numBuildings(); ++i) {
 			let building = this.building(i);
 
-			for (let j = 1; j < building.numBlocks(); ++j) {
+			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
 				let block = building.block(j);
 
 				this.rng().setChance(0.9, (n : number) => { return n - 0.3; });
@@ -305,7 +327,7 @@ export class ArchBlueprint extends Blueprint {
 		for (let i = 0; i < this.numBuildings(); ++i) {
 			let building = this.building(i);
 
-			for (let j = 1; j < building.numBlocks(); ++j) {
+			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
 				let block = building.block(j);
 
 				this.rng().setChance(0.9, (n : number) => { return n - 0.3; });

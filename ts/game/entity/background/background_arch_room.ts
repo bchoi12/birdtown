@@ -4,29 +4,38 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EntityBase, EntityOptions } from 'game/entity'
+import { Entity, EntityOptions } from 'game/entity'
+import { BackgroundEntity } from 'game/entity/background_entity'
 import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
 
-export class BackgroundArchBuilding extends EntityBase implements Entity {
+export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 
 	private _model : Model;
 	private _profile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.BACKGROUND_ARCH_BUILDING, entityOptions);
+		super(EntityType.BACKGROUND_ARCH_ROOM, entityOptions);
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				let building = BABYLON.MeshBuilder.CreatePlane("background_arch_building", {
+				let faceUV = new Array(6);
+				for (let i = 0; i < 6; i++) {
+				    faceUV[i] = new BABYLON.Vector4(0, 0, 0, 0);
+				}
+				faceUV[1] = new BABYLON.Vector4(0, 0, 1, -1);
+
+				let building = BABYLON.MeshBuilder.CreateBox("background_arch_room", {
 					width: this._profile.unscaledDim().x,
 					height: this._profile.unscaledDim().y,
+					depth: 6,
+					faceUV: faceUV,
 				}, game.scene());
 
-				model.offlineTransforms().setTranslation({z: -18 });
+				model.offlineTransforms().setTranslation({z: -25 });
 				model.offlineTransforms().setRotation({x: Math.PI });
 				model.setMesh(building);
 			},

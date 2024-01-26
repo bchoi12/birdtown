@@ -196,14 +196,17 @@ export class Level extends SystemBase implements System {
 					this.addEntity(entity.type, entity.options);
 				});
 
-				bounds.stretch(block.pos(), block.dim());
+				const dim = block.dim();
+				if (dim.x > 0 && dim.y > 0) {
+					bounds.stretch(block.pos(), block.dim());
+				}
 			});
 		});
 
-		bounds.min.add({ y: 3 });
+		bounds.min.add({ y: 8 });
 		bounds.max.add({ y: 4 });
 		this._defaultSpawn.copyVec(bounds.relativePos(CardinalDir.TOP));
-		bounds.max.add({ y: 4 });
+		bounds.max.add({ y: 8 });
 
 		this.setBounds(bounds.toBox());
 	}
@@ -231,12 +234,11 @@ export class Level extends SystemBase implements System {
 			});
 		});
 
-		bounds.min.add({ y: 3 });
+		bounds.min.add({ y: 8 });
 		bounds.max.add({ y: 4 });
 		this._defaultSpawn.copyVec(bounds.relativePos(CardinalDir.TOP));
 
 		bounds.max.add({ y: 7 });
-
 		this.addEntity(EntityType.PLANE, {
 			profileInit: {
 				pos: bounds.relativePos(CardinalDir.TOP_LEFT).add({
@@ -246,7 +248,7 @@ export class Level extends SystemBase implements System {
 			},
 		});
 
-		bounds.max.add({ y: 4 });
+		bounds.max.add({ y: 8 });
 
 		this.setBounds(bounds.toBox());
 	}

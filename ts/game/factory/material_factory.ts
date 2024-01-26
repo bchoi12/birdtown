@@ -1,11 +1,15 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+import { CustomMaterial } from '@babylonjs/materials/custom/customMaterial'
 
 import { game } from 'game'
 import { AttributeType } from 'game/component/api'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { MaterialType } from 'game/factory/api'
+import { MaterialType, TextureType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
+import { TextureFactory } from 'game/factory/texture_factory'
+
+import { HexColor } from 'util/hex_color'
 
 type MaterialFn<T extends BABYLON.Material> = (material : T) => void;
 
@@ -26,9 +30,12 @@ export namespace MaterialFactory {
 			return;
 		}
 
-		standardMaterial(MaterialType.ARCH_BACKGROUND_RED, (mat : BABYLON.StandardMaterial) => {
-			mat.diffuseColor = ColorFactory.archBackgroundRed.toBabylonColor3();
-		});
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_RED, ColorFactory.archBackgroundRed);
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_ORANGE, ColorFactory.archBackgroundOrange);
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_YELLOW, ColorFactory.archBackgroundYellow);
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_GREEN, ColorFactory.archBackgroundGreen);
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_BLUE, ColorFactory.archBackgroundBlue);
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_PURPLE, ColorFactory.archBackgroundPurple);
 
 		standardMaterial(MaterialType.BOLT_BLUE, (mat : BABYLON.StandardMaterial) => {
 			mat.emissiveColor = ColorFactory.boltBlue.toBabylonColor3();
@@ -64,8 +71,39 @@ export namespace MaterialFactory {
 		initialized = true;
 	}
 
+	export function archBackgroundMaterials() : MaterialType[] {
+		return [
+			MaterialType.ARCH_BACKGROUND_RED,
+			MaterialType.ARCH_BACKGROUND_ORANGE,
+			MaterialType.ARCH_BACKGROUND_YELLOW,
+			MaterialType.ARCH_BACKGROUND_GREEN,
+			MaterialType.ARCH_BACKGROUND_BLUE,
+			MaterialType.ARCH_BACKGROUND_PURPLE,
+		];
+	}
+
+	function archBackgroundMaterial(type : MaterialType, color : HexColor) : void {
+		customMaterial(type, (mat : CustomMaterial) => {
+			mat.diffuseTexture = TextureFactory.loadCached(TextureType.ARCH_WINDOWS);
+			mat.diffuseTexture.hasAlpha = true;
+			mat.useAlphaFromDiffuseTexture = true;
+			mat.Fragment_Before_FragColor(`
+				if (color.a < 1.) {
+					color = vec4(` + color.toShaderVec3() + `, 1);
+				}
+	        `);
+			mat.specularPower = 128;
+		});
+	}
+
 	function standardMaterial(type : MaterialType, fn : MaterialFn<BABYLON.StandardMaterial>) : void {
 		let mat = new BABYLON.StandardMaterial(MaterialType[type], game.scene());
+		fn(mat);
+		materials.set(type, mat);
+	}
+
+	function customMaterial(type : MaterialType, fn : MaterialFn<CustomMaterial>) : void {
+		let mat = new CustomMaterial(MaterialType[type], game.scene());
 		fn(mat);
 		materials.set(type, mat);
 	}

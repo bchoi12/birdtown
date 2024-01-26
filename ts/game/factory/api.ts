@@ -55,3 +55,9 @@ export enum ParticleType {
 	SMOKE,
 	SPARK,
 }
+
+export enum TextureType {
+	UNKNOWN,
+
+	ARCH_WINDOWS,
+}

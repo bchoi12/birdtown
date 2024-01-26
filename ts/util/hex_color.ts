@@ -34,6 +34,7 @@ export class HexColor {
 	clone() : HexColor { return HexColor.fromHex(this._hex); }
 
 	toString() : string { return "#" + this._hex.toString(16).padStart(6, "0"); }
+	toShaderVec3() : string { return "vec3(" + this.r() / 0xff + ", " + this.g() / 0xff + ", " + this.b() / 0xff + ")"}
 	toHex() : number { return this._hex; }
 	toBabylonColor3() : BABYLON.Color3 { return new BABYLON.Color3(this._r / 0xff, this._g / 0xff, this._b / 0xff); }
 
@@ -45,6 +46,10 @@ export class HexColor {
 
 		this.computeHex();
 	}
+	
+	r() : number { return this._r; }
+	g() : number { return this._g; }
+	b() : number { return this._b; }
 
 	add(delta : number) : HexColor {
 		this._hex = HexColor.clampHex(this._hex + delta);

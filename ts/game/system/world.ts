@@ -66,7 +66,7 @@ export class World extends SystemBase implements System {
 		skyMaterial.backFaceCulling = false;
 		skyMaterial.inclination = 0;
 		skyMaterial.luminance = 1.0;
-		skyMaterial.turbidity = 5;
+		skyMaterial.turbidity = 2.5;
 		this._skyBox.material = skyMaterial;
 
 		this._cloudGenerator = this.addSubSystem<CloudGenerator>(SystemType.CLOUD_GENERATOR, new CloudGenerator());
