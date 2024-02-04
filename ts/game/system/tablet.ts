@@ -30,7 +30,7 @@ export class Tablet extends ClientSystem implements System {
 
 		this.addProp<string>({
 			has: () => { return this._displayName.length > 0; },
-			export: () => { return this.displayName(); },
+			export: () => { return this._displayName; },
 			import: (obj: string) => { this.setDisplayName(obj); },
 		});
 
@@ -100,11 +100,11 @@ export class Tablet extends ClientSystem implements System {
 			displayName = displayName.substring(0, Tablet._displayNameMaxLength);
 		}
 
-		const announce = !this.hasDisplayName();
-
-		this._displayName = displayName + "# " + this.clientId();
+		// Announce new players and welcome self.
+		const announce = !this.hasDisplayName() && game.clientId() <= this.clientId();
+		this._displayName = displayName;
 		this.addNameParams({
-			type: this._displayName,
+			type: this.displayName(),
 		});
 
 		if (announce) {
@@ -124,5 +124,5 @@ export class Tablet extends ClientSystem implements System {
 		ui.handleMessage(initMsg);
 	}
 	hasDisplayName() : boolean { return this._displayName.length > 0; }
-	displayName() : string { return this.hasDisplayName() ? this._displayName : "unknown"; }
+	displayName() : string { return (this.hasDisplayName() ? this._displayName : "unknown") + " #" + this.clientId(); }
 }

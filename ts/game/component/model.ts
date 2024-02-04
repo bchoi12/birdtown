@@ -173,7 +173,7 @@ export class Model extends ComponentBase implements Component {
 			this._onLoadFns.push(fn);
 		}
 	}
-	private applyToMeshes(fn : (mesh : BABYLON.Mesh) => void) : void {
+	applyToMeshes(fn : (mesh : BABYLON.Mesh) => void) : void {
 		this.onLoad((model : Model) => {
 			fn(model.mesh());
 			model.mesh().getChildMeshes<BABYLON.Mesh>().forEach((child : BABYLON.Mesh) => {

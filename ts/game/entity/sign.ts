@@ -2,7 +2,6 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { GameMode } from 'game/api'
 import { StepData } from 'game/game_object'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
@@ -15,11 +14,14 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
-import { DialogType, KeyType, KeyState, TooltipType } from 'ui/api'
+import { DialogType, TooltipType } from 'ui/api'
+
+import { ChangeTracker } from 'util/change_tracker'
 
 export class Sign extends EntityBase implements Entity {
 
 	private _active : boolean;
+	private _activeTracker : ChangeTracker<boolean>;
 	private _tooltipType : TooltipType;
 
 	private _model : Model;
@@ -29,12 +31,26 @@ export class Sign extends EntityBase implements Entity {
 		super(EntityType.SIGN, entityOptions);
 
 		this._active = false;
+		this._activeTracker = new ChangeTracker(() => {
+			return this._active;
+		}, (active : boolean) => {
+			if (active) {
+				this._model.applyToMeshes((mesh : BABYLON.Mesh) => {
+					game.world().highlight(mesh, {
+						enabled: true,
+						color: BABYLON.Color3.White(),
+					});
+				});
+			} else {
+				this._model.applyToMeshes((mesh : BABYLON.Mesh) => {
+					game.world().highlight(mesh, {
+						enabled: false,
+					});
+				});
+			}
+		});
 		this._tooltipType = entityOptions.tooltipType ? entityOptions.tooltipType : TooltipType.JUST_A_SIGN;
 
-		this.addProp<boolean>({
-			export: () => { return this._active; },
-			import: (obj : boolean) => { this._active = obj; },
-		});
 		this.addProp<TooltipType>({
 			export: () => { return this._tooltipType; },
 			import: (obj : TooltipType) => { this._tooltipType = obj; },
@@ -90,15 +106,14 @@ export class Sign extends EntityBase implements Entity {
 
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
-		const seqNum = stepData.seqNum;
 
-		if (!this._active) {
-			return;
+		if (this._active) {
+			let msg = new UiMessage(UiMessageType.TOOLTIP);
+			msg.setTtl(100);
+			msg.setTooltipType(this._tooltipType);
+			ui.handleMessage(msg);
 		}
 
-		let msg = new UiMessage(UiMessageType.TOOLTIP);
-		msg.setTtl(100);
-		msg.setTooltipType(this._tooltipType);
-		ui.handleMessage(msg);
+		this._activeTracker.check();
 	}
 }
