@@ -102,7 +102,7 @@ export class Tablet extends ClientSystem implements System {
 
 		const announce = !this.hasDisplayName();
 
-		this._displayName = displayName;
+		this._displayName = displayName + "# " + this.clientId();
 		this.addNameParams({
 			type: this._displayName,
 		});

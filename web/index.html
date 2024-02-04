@@ -11,9 +11,9 @@
 
 </head>
 
-<body>
+<body><div id="div-screen">
     <iframe name="iframe-empty" style="display:none"></iframe>
-    <canvas id="canvas-game">Game</canvas>
+    <div id="div-canvas"><canvas id="canvas-game">Game</canvas></div>
     <div id="div-overlays" oncontextmenu="return false;">
         <div id="div-stats" class="no-select spaced"></div>
         <div id="div-chat" class="no-select slightly-transparent spaced"></div>
@@ -66,6 +66,6 @@
     <img id="cursor" src="./img/cursor.png" alt="cursor" class="no-select" />
 
     <script src="main.js?v=1"></script>
-</body>
+</div></body>
 
 </html>

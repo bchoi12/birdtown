@@ -101,6 +101,10 @@ export class ChatHandler extends HandlerBase implements Handler {
 		switch (pieces[0].toLowerCase()) {
 		case "/test":
 			console.log("test");
+			break;
+		case "/die":
+			// TODO: die
+			break;
 		default:
 			console.error("Unknown command:", message);
 		}

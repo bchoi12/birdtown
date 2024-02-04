@@ -49,8 +49,6 @@ export class Physics extends SystemBase implements System {
 		super.initialize();
 
 		MATTER.Render.run(this._render);
-		this._canvas.style.width = Html.elm(Html.divMinimap).offsetWidth + "px";
-		this._canvas.style.height = Html.elm(Html.divMinimap).offsetHeight + "px";
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -173,6 +171,9 @@ export class Physics extends SystemBase implements System {
 			return;
 		}
 		this._minimap.style.visibility = "visible";
+
+		this._canvas.style.width = this._minimap.offsetWidth + "px";
+		this._canvas.style.height = this._minimap.offsetHeight + "px";
 
 		const target = game.lakitu().target();
 		const fov = game.lakitu().fov();
