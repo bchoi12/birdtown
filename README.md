@@ -7,9 +7,9 @@ Demo: https://brianchoi.net/birdtown
 birdtown is an experiment to connect friends through accessible, real-time multiplayer by leveraging new features from modern web browsers.
 
 Key features include
- * Native WebGL support for 3D graphics with minimal load times
- * WebRTC for peer-to-peer netcode that can reliably support fast-paced gameplay and smooth out small network hiccups
- * Spatial audio nodes (and WebRTC) for integrated proximity voice chat
+ * WebGPU for 3D graphics with minimal load times
+ * WebRTC for low cost peer-to-peer netcode that can reliably support fast-paced cross-platform gameplay
+ * HTML5 spatial audio nodes (and WebRTC) for integrated proximity voice chat
 
 ## Status
 
@@ -25,7 +25,7 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 ## Game Engine Highlights
  * Custom built for the web with nearly instant load times
- * Cross platform support - play with any device that can run a (modern) web browser. Mobile controls coming soon™
+ * Cross platform support - play with any device that can run a (modern) web browser, including your phone
  * 3D rendering thanks to Babylon.js and WebGL
  * Fully featured voice chat with spatialized audio (and text chat)
  * Peer-to-peer, but also server authoritative (one client serves as host)
