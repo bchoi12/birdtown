@@ -103,7 +103,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			console.log("test");
 			break;
 		case "/die":
-			// TODO: die
+			game.playerState().die();
 			break;
 		default:
 			console.error("Unknown command:", message);

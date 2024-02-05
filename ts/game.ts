@@ -73,7 +73,7 @@ class Game {
 		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false, {
 			audioEngine: true,
 			stencil: true,
-		}, /*adaptToDeviceRatio=*/true);
+		});
 		window.onresize = () => { this._engine.resize(); };
 
 		this._runner = new Runner();

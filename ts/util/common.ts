@@ -20,3 +20,8 @@ export function isLocalhost() : boolean {
 export function isFirefox() : boolean {
     return navigator.userAgent.toLowerCase().includes('firefox');
 }
+
+const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+export function isMobile() : boolean {
+    return mobile;
+}

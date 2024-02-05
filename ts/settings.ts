@@ -12,6 +12,8 @@ import {
 	NetworkStabilitySetting,
 } from 'settings/api'
 
+import { isMobile } from 'util/common'
+
 class Settings {
 	
 	public leftKeyCode : number;
@@ -51,12 +53,12 @@ class Settings {
 		this.chatKeyCode = 13;
 		this.scoreboardKeyCode = 9;
 
-		this.fullscreenSetting = FullscreenSetting.WINDOWED;
+		this.fullscreenSetting = isMobile() ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 		this.pointerSetting = PointerSetting.NORMAL;
 
 		this.fpsSetting = SpeedSetting.NORMAL;
-		this.antiAliasSetting = AntiAliasSetting.MEDIUM;
-		this.clientPredictionSetting = ClientPredictionSetting.LOW;
+		this.antiAliasSetting = isMobile() ? AntiAliasSetting.LOW : AntiAliasSetting.MEDIUM;
+		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 
 		// Debug properties
 		this.inspectorSetting = InspectorSetting.OFF;

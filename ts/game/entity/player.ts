@@ -335,6 +335,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this.updateLoadout();
 	}
 	stats() : Stats { return this._stats; }
+	die() : void { this.takeDamage(this._stats.health(), this); }
 	dead() : boolean { return this._stats.dead(); }
 
 	equips() : CircleMap<number, Equip<Player>> { return this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP); }
@@ -410,7 +411,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		// Out of bounds
 		if (this._profile.pos().y < game.level().bounds().min.y) {
-			this.takeDamage(this._stats.health(), this);
+			this.die();
 		}
 
 		if (this._model.hasMesh()

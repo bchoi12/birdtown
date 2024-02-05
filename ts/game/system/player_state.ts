@@ -71,6 +71,12 @@ export class PlayerState extends ClientSystem implements System {
 		ui.handleMessage(uiMsg);
 	}
 
+	die() : void {
+		if (this.hasTargetEntity()) {
+			this.targetEntity<Player>().die();
+		}
+	}
+
 	role() : PlayerRole { return this._role; }
 	setRole(role : PlayerRole) : void {
 		if (this._role === role) {

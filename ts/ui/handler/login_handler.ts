@@ -15,6 +15,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 	private _legendElm : HTMLElement;
 	private _loginInfoElm : HTMLElement;
 	private _roomInputElm : HTMLInputElement;
+	private _loginButtonsElm : HTMLElement;
 	private _buttonHostElm : HTMLInputElement;
 	private _buttonJoinElm : HTMLInputElement;
 
@@ -27,6 +28,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._legendElm = Html.elm(Html.legendLogin);
 		this._loginInfoElm = Html.elm(Html.loginInfo);
 		this._roomInputElm = Html.inputElm(Html.inputRoom);
+		this._loginButtonsElm = Html.elm(Html.divLoginButtons);
 		this._buttonHostElm = Html.inputElm(Html.buttonHost);
 		this._buttonJoinElm = Html.inputElm(Html.buttonJoin);
 
@@ -35,8 +37,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 	override setup() : void {
 		this._loginInfoElm.style.display = "none";
-		this._buttonJoinElm.style.display = "block";
-		this._buttonHostElm.style.display = "block";
+		this._roomInputElm.style.display = "block";
+		this._loginButtonsElm.style.display = "block";
 
 		this._roomInputElm.focus();
 

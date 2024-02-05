@@ -42,7 +42,7 @@ export class World extends SystemBase implements System {
 		this._layers = new Map();
 		this._layers.set(LayerType.HIGHLIGHT, new BABYLON.HighlightLayer("highlight", this._scene, {
         	isStroke: true,
-        	mainTextureRatio: 2,
+        	mainTextureRatio: 4,
 		}));
 
 	    this._lightDir = new BABYLON.Vector3(-1, -3, -4);

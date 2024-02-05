@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>birdtown 2</title>
     <link href="./normalize.css" rel="stylesheet">
     <link href="./style.css" rel="stylesheet">
@@ -56,13 +57,16 @@
         <fieldset id="fieldset-login">
             <legend id="legend-login">birdtown 2</legend>
             <form id="form-login" action="about:blank" target="iframe-empty" onsubmit="return false;">
-                <input id="input-room" class="form-input" type="text" placeholder="Enter a room code" maxlength="10" required>
                 <div id="login-info">Loading...</div>
-                <input id="button-host" type="submit" value="Host">
-                <input id="button-join" type="submit" value="Join">
+                <input id="input-room" class="form-input" type="text" placeholder="Enter room code" maxlength="10" required>
+                <div id="div-login-buttons">
+                    <input id="button-host" type="submit" value="Host">
+                    <input id="button-join" type="submit" value="Join">
+                </div>
             </form>
         </fieldset>
     </div>
+    <img id="aim" src="./img/aim.png" alt="aim" class="no-select" />
     <img id="cursor" src="./img/cursor.png" alt="cursor" class="no-select" />
 
     <script src="main.js?v=1"></script>

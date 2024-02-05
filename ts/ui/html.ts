@@ -9,6 +9,7 @@ export namespace Html {
 	export const inputRoom = "input-room";
 	export const loginInfo = "login-info";
 	export const formLogin = "form-login";
+	export const divLoginButtons = "div-login-buttons";
 	export const buttonHost = "button-host";
 	export const buttonJoin = "button-join";
 
@@ -54,6 +55,7 @@ export namespace Html {
 	export const classTooltipShow = "tooltip-show";
 
 	export const cursor = "cursor";
+	export const aim = "aim";
 
 	export function elm(id : string) : HTMLElement { return document.getElementById(id); }
 	export function canvasElm(id : string) : HTMLCanvasElement { return (<HTMLCanvasElement>document.getElementById(id)); }
