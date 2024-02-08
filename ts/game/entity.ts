@@ -14,7 +14,7 @@ import { Profile, ProfileInitOptions } from 'game/component/profile'
 import { Stats } from 'game/component/stats'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
-import { GameObject, GameObjectBase } from 'game/game_object'
+import { GameObject, GameObjectBase, StepData } from 'game/game_object'
 
 import { KeyType, KeyState, TooltipType } from 'ui/api'
 
@@ -72,6 +72,7 @@ export interface Entity extends GameObject {
 	model() : Model;
 	hasProfile() : boolean;
 	profile() : Profile;
+	hasAttribute(type : AttributeType) : boolean;
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
 	getCounter(type : CounterType) : number;
@@ -165,6 +166,14 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		if (!this.isOffline()) {
 			game.entities().unregisterEntity(this.id());
+		}
+	}
+
+	override prePhysics(stepData : StepData) : void {
+		super.prePhysics(stepData);
+
+		if (this.hasAttribute(AttributeType.OCCLUDED)) {
+			this.setAttribute(AttributeType.OCCLUDED, false);
 		}
 	}
 
@@ -268,6 +277,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	hasProfile() : boolean { return this.hasComponent(ComponentType.PROFILE); }
 	profile() : Profile { return this.getComponent<Profile>(ComponentType.PROFILE); }
 
+	hasAttribute(type : AttributeType) : boolean {
+		if (!this.hasComponent(ComponentType.ATTRIBUTES)) { return false; }
+
+		return this.getComponent<Attributes>(ComponentType.ATTRIBUTES).hasAttribute(type);
+	}
 	getAttribute(type : AttributeType) : boolean {
 		if (!this.hasComponent(ComponentType.ATTRIBUTES)) { return false; }
 
@@ -275,7 +289,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 	setAttribute(type : AttributeType, value : boolean) : void {
 		if (!this.hasComponent(ComponentType.ATTRIBUTES)) {
-			console.error("Warning: %s missing Attributes component", this.name());
 			return;
 		}
 

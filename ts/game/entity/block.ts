@@ -2,6 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { AttributeType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 import { ColorFactory } from 'game/factory/color_factory'
 import { ColorType } from 'game/factory/api'
@@ -18,7 +19,6 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { Cardinal, CardinalDir, CardinalType } from 'util/cardinal'
-import { defined } from 'util/common'
 import { HexColor } from 'util/hex_color'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
@@ -53,6 +53,7 @@ export abstract class Block extends EntityBase {
 	protected static readonly _backColorScale = 0.7;
 	protected static readonly _transparentAlpha = 0.5;
 
+	protected _occludedEntities : Set<Entity>;
 	protected _transparent : boolean;
 	protected _materialCache : Map<string, CachedMaterial>;
 	protected _frontMaterials : Set<string>
@@ -68,8 +69,8 @@ export abstract class Block extends EntityBase {
 		super(type, entityOptions);
 		this.addType(EntityType.BLOCK);
 
+		this._occludedEntities = new Set();
 		this._transparent = false;
-
 		this._materialCache = new Map();
 		this._frontMaterials = new Set();
 		this._transparentFrontMeshes = new Array();
@@ -121,10 +122,19 @@ export abstract class Block extends EntityBase {
 		super.prePhysics(stepData);
 
 		this._transparent = false;
+		this._occludedEntities.clear();
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
+
+		if (this._transparentFrontMeshes.length === 0) {
+			return;
+		}
+
+		if (this.profile().containsProfile(other.profile())) {
+			this._occludedEntities.add(other);
+		}
 
 		if (!game.lakitu().hasTargetEntity()) {
 			return;
@@ -157,6 +167,9 @@ export abstract class Block extends EntityBase {
 				mesh.isVisible = false;
 			});
 		} else {
+			this._occludedEntities.forEach((entity : Entity) => {
+				entity.setAttribute(AttributeType.OCCLUDED, true);
+			});
 			this._frontMaterials.forEach((name : string) => {
 				const cached = this._materialCache.get(name);
 				cached.material.alpha = Math.min(cached.alpha, cached.material.alpha + millis / Block._transitionMillis);
@@ -180,7 +193,7 @@ export abstract class Block extends EntityBase {
 			this.processMesh(child);
 		});
 
-		if (!defined(mesh.material)) { return; }
+		if (!mesh.material) { return; }
 
 		if (!(mesh.material instanceof BABYLON.PBRMaterial)) {
 			console.error("Error: %s material is not PBRMaterial", this.name(), mesh.material);

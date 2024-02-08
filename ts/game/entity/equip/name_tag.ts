@@ -10,16 +10,23 @@ import { Player } from 'game/entity/player'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
+import { PlayerRole } from 'game/system/api'
 
 import { UiGlobals } from 'global/ui_globals'
 
+import { ChangeTracker } from 'util/change_tracker'
 import { Vec2 } from 'util/vector'
 
 export class NameTag extends Equip<Player> {
 
+	private static readonly _height = 0.4;
+	private static readonly _pointerHeight = 0.1;
+
+	private static readonly _pointerId = 1;
 	private static readonly _font = "64px " + UiGlobals.font;
 
 	private _displayName : string;
+	private _occlusionTracker : ChangeTracker<boolean>;
 
 	protected _model : Model;
 
@@ -27,6 +34,13 @@ export class NameTag extends Equip<Player> {
 		super(EntityType.NAME_TAG, entityOptions);
 
 		this._displayName = "";
+		this._occlusionTracker = new ChangeTracker(() => {
+			return (this._model.hasMesh() && this.hasOwner())
+				? (this.owner().getAttribute(AttributeType.OCCLUDED) || game.playerState(this.owner().clientId()).role() !== PlayerRole.GAMING)
+				: false;
+		}, (occluded : boolean) => {
+			this._model.setVisible(!occluded);
+		});
 
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
@@ -39,7 +53,7 @@ export class NameTag extends Equip<Player> {
 				return this._displayName.length > 0;
 			},
 			meshFn: (model : Model) => {
-				const planeHeight = 0.4;
+				const planeHeight = NameTag._height;
 				const textureHeight = 64;
 				const text = this.displayName();
 
@@ -56,7 +70,7 @@ export class NameTag extends Equip<Player> {
 					width: textureWidth,
 					height: textureHeight,
 				}, game.scene());
-				texture.drawText(text, /*x=*/null, /*y=*/null, NameTag._font, "#fbfbfb", "#0b0b0b", /*invertY=*/false);
+				texture.drawText(text, /*x=*/null, /*y=*/null, NameTag._font, "#ffffff", "#333333", /*invertY=*/false);
 
 				let material = new BABYLON.StandardMaterial(this.name() + "-material");
 				material.diffuseTexture = texture;
@@ -76,6 +90,18 @@ export class NameTag extends Equip<Player> {
 				}, game.scene());
 				mesh.material = material;
 
+				let pointer = BABYLON.MeshBuilder.CreatePolyhedron(this.name() + "-pointer", {
+					type: 0, // tetrahedron
+					sizeX: NameTag._pointerHeight,
+					sizeY: 1.5 * NameTag._pointerHeight,
+					sizeZ: 1.5 * NameTag._pointerHeight,
+				}, game.scene());
+				let pointerMaterial = new BABYLON.StandardMaterial(this.name() + "-pointer-mat");
+				pointerMaterial.disableLighting = true;
+				pointerMaterial.emissiveColor = BABYLON.Color3.Red();
+				pointer.material = pointerMaterial;
+
+				model.registerSubMesh(NameTag._pointerId, pointer);
 				model.setMesh(mesh);
 			},
 			init: entityOptions.modelInit,
@@ -86,7 +112,11 @@ export class NameTag extends Equip<Player> {
 		super.initialize();
 
 		this._model.onLoad((model : Model) => {
-			model.mesh().position.y = this.owner().profile().scaledDim().y;
+			model.mesh().position.y = this.owner().profile().scaledDim().y + 0.1;
+			
+			let pointer = model.subMesh(NameTag._pointerId);
+			pointer.position.y = this.owner().profile().scaledDim().y - NameTag._height / 2 - NameTag._pointerHeight / 2;
+			pointer.rotation.z = - Math.PI / 2;
 		})
 	}
 
@@ -102,4 +132,10 @@ export class NameTag extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.ROOT; }
 	override equipName() : string { return "Name tag"; }
+
+	override preRender() : void {
+		super.preRender();
+
+		this._occlusionTracker.check();
+	}
 }

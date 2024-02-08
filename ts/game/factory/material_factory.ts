@@ -38,17 +38,17 @@ export namespace MaterialFactory {
 		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_PURPLE, ColorFactory.archBackgroundPurple);
 
 		standardMaterial(MaterialType.BOLT_BLUE, (mat : BABYLON.StandardMaterial) => {
-			mat.emissiveColor = ColorFactory.boltBlue.toBabylonColor3();
 			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.boltBlue.toBabylonColor3();
 		});
 		standardMaterial(MaterialType.BOLT_ORANGE, (mat : BABYLON.StandardMaterial) => {
-			mat.emissiveColor = ColorFactory.boltOrange.toBabylonColor3();
 			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.boltOrange.toBabylonColor3();
 		});
 		standardMaterial(MaterialType.BOLT_EXPLOSION, (mat : BABYLON.StandardMaterial) => {
-			mat.emissiveColor = ColorFactory.boltExplosion.toBabylonColor3();
-			mat.disableLighting = true;
 			mat.alpha = 0.7;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.boltExplosion.toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.CLOUD, (mat : BABYLON.StandardMaterial) => {
@@ -57,15 +57,15 @@ export namespace MaterialFactory {
 		});
 
 		standardMaterial(MaterialType.ROCKET_EXPLOSION, (mat : BABYLON.StandardMaterial) => {
-			mat.emissiveColor = ColorFactory.rocketExplosion.toBabylonColor3();
-			mat.disableLighting = true;
 			mat.alpha = 0.7;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.rocketExplosion.toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.SPARK_BLUE, (mat : BABYLON.StandardMaterial) => {
-			mat.emissiveColor = ColorFactory.sparkBlue.toBabylonColor3();
-			mat.disableLighting = true;
 			mat.alpha = 0.7;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.sparkBlue.toBabylonColor3();
 		});
 
 		initialized = true;

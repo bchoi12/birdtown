@@ -51,16 +51,6 @@ export class Physics extends SystemBase implements System {
 		MATTER.Render.run(this._render);
 	}
 
-	override handleMessage(msg : GameMessage) : void {
-		super.handleMessage(msg);
-
-		if (msg.type() !== GameMessageType.RUNNER_SPEED) {
-			return;
-		}
-
-		// TODO: 
-	}
-
 	world() : MATTER.Composite { return this._engine.world; }
 
 	override physics(stepData : StepData) : void {

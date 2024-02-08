@@ -61,6 +61,7 @@ export class Lakitu extends SystemBase implements System {
 		this._camera = new BABYLON.UniversalCamera(this.name(), BABYLON.Vector3.Zero(), scene);
 		this._camera.fov = Lakitu._horizontalFov;
     	this._camera.fovMode = BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED;
+    	this._players = new CircleMap();
 
     	this._panners = new Map();
     	Lakitu._offsets.forEach((offset : Vec3, type : OffsetType) => {
@@ -194,7 +195,7 @@ export class Lakitu extends SystemBase implements System {
 	override postUpdate(stepData : StepData) : void {
 		super.postUpdate(stepData);
 
-		if (game.playerState().role() === PlayerRole.SPECTATING) {
+		if (game.playerState().role() === PlayerRole.WAITING || game.playerState().role() === PlayerRole.SPECTATING) {
 			// TODO: get a map from PlayerStates in postPhysics, delete this
 			game.entities().getMap(EntityType.PLAYER).executeIf<Player>((player : Player) => {
 				if (!this._players.has(player.id())) {
@@ -203,6 +204,8 @@ export class Lakitu extends SystemBase implements System {
 			}, (player : Player) => {
 				return player.initialized() && !player.deleted();
 			});
+		} else {
+			this._players.clear();
 		}
 	}
 
@@ -212,23 +215,22 @@ export class Lakitu extends SystemBase implements System {
 
 		// Move during postPhysics so we can do camera position-based smoothing in preRender
 		switch (game.controller().gameState()) {
-		case GameState.FREE:
-			this.targetPlayer();
-			break;
 		case GameState.SETUP:
 			this.targetPlane();
 			break;
+		case GameState.FREE:
 		case GameState.GAME:
 			switch (game.playerState().role()) {
 			case PlayerRole.GAMING:
 				this.targetPlayer();
 				break;
-			case PlayerRole.WAITING:
 			case PlayerRole.SPAWNING:
 				this.targetPlane();
 				break;
+			case PlayerRole.WAITING:
 			case PlayerRole.SPECTATING:
 				if (this._players.empty()) {
+					this.targetPlane();
 					break;
 				}
 				if (!this.hasTargetEntity()) {

@@ -25,7 +25,6 @@ export namespace LoginNames {
 		"Psyduck",
 		"Private",
 		"Quacker",
-		"Rico",
 		"Road Runner",
 		"Scrooge",
 		"Skipper",

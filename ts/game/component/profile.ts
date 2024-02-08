@@ -417,6 +417,18 @@ export class Profile extends ComponentBase implements Component {
 
 		return true;
 	}
+	containsProfile(profile : Profile, buffer? : number) : boolean {
+		if (!buffer) {
+			buffer = 0;
+		}
+
+		if (profile.pos().x + profile.scaledDim().x / 2 > this._pos.x + this._dim.x / 2 + buffer) { return false; }
+		if (profile.pos().x - profile.scaledDim().x / 2 < this._pos.x - this._dim.x / 2 - buffer) { return false; }
+		if (profile.pos().y + profile.scaledDim().y / 2 > this._pos.y + this._dim.y / 2 + buffer) { return false; }
+		if (profile.pos().y - profile.scaledDim().y / 2 < this._pos.y - this._dim.y / 2 - buffer) { return false; }
+
+		return true;
+	}
 	moveTo(point : Vec, params : MoveToParams) : void {
 		if (params.millis <= 0) { return; }
 

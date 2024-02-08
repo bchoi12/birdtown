@@ -45,8 +45,8 @@ export class Model extends ComponentBase implements Component {
 	private _transforms : Transforms;
 	private _materialType : Optional<MaterialType>;
 
-	// TODO: multi mesh support
 	private _mesh : BABYLON.Mesh;
+	private _subMesh : Map<number, BABYLON.Mesh>;
 
 	constructor(options : ModelOptions) {
 		super(ComponentType.MODEL);
@@ -61,6 +61,7 @@ export class Model extends ComponentBase implements Component {
 		this._materialType = new Optional();
 
 		this._mesh = null;
+		this._subMesh = new Map();
 
 		if (options.init) {
 			this._transforms.setFromOptions(options.init.transforms);
@@ -113,9 +114,7 @@ export class Model extends ComponentBase implements Component {
 	override setState(state : GameObjectState) : void {
 		super.setState(state);
 
-		this.applyToMeshes((mesh : BABYLON.Mesh) => {
-			mesh.isVisible = (state !== GameObjectState.DEACTIVATED);
-		});
+		this.setVisible(state !== GameObjectState.DEACTIVATED);
 	}
 
 	override dispose() : void {
@@ -167,6 +166,15 @@ export class Model extends ComponentBase implements Component {
 	}
 	mesh() : BABYLON.Mesh { return this._mesh; }
 
+	registerSubMesh(id : number, subMesh : BABYLON.Mesh) : void {
+		if (this._subMesh.has(id)) {
+			console.error("Warning: overwriting mesh with ID %d in %s", id, this.name());
+		}
+		subMesh.parent = this._root;
+		this._subMesh.set(id, subMesh);
+	}
+	subMesh(id : number) : BABYLON.Mesh { return this._subMesh.get(id); }
+
 	onLoad(fn : OnLoadFn) : void {
 		if (this.hasMesh()) {
 			if (this._mesh.isReady()) {
@@ -186,7 +194,17 @@ export class Model extends ComponentBase implements Component {
 			model.mesh().getChildMeshes<BABYLON.Mesh>().forEach((child : BABYLON.Mesh) => {
 				fn(child);
 			});
+
+			this._subMesh.forEach((mesh : BABYLON.Mesh) => {
+				fn(mesh);
+				mesh.getChildMeshes<BABYLON.Mesh>().forEach((child : BABYLON.Mesh) => {
+					fn(child);
+				});
+			});
 		});
+	}
+	setVisible(visible : boolean) : void {
+		this.applyToMeshes((mesh : BABYLON.Mesh) => { mesh.isVisible = visible; });
 	}
 
 	registerAnimation(animation : BABYLON.AnimationGroup, group? : number) { this._animationController.register(animation, group); }

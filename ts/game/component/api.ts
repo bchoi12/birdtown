@@ -32,6 +32,7 @@ export enum AttributeType {
 	CHARGING,
 	CHARGED,
 	GROUNDED,
+	OCCLUDED,
 	SOLID,
 }
 

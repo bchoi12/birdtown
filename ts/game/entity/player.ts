@@ -16,6 +16,7 @@ import { StatInitOptions } from 'game/component/stat'
 import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { Block } from 'game/entity/block'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Beak } from 'game/entity/equip/beak'
 import { Headwear } from 'game/entity/equip/headwear'
@@ -544,15 +545,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (collision.pair.bodyA.isSensor || collision.pair.bodyB.isSensor) {
-			return;
-		}
-
-		if (!other.getAttribute(AttributeType.SOLID)) {
-			return;
-		}
-
 		this._collisionInfo.pushRecord({
+			entity: other,
 			penetration: Vec2.fromVec(collision.penetration),
 			normal: Vec2.fromVec(collision.normal),
 		});
@@ -566,7 +560,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			const record = this._collisionInfo.popRecord();
 			const pen = record.penetration;
 
-			if (pen.isZero()) {
+			if (!record.entity.getAttribute(AttributeType.SOLID) || pen.isZero()) {
 				continue;
 			}
 

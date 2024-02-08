@@ -1,14 +1,17 @@
 
 import { Profile } from 'game/component/profile'
+import { Entity } from 'game/entity'
 
 import { Buffer } from 'util/buffer'
 import { Vec2 } from 'util/vector'
 
 type Record = {
+	entity : Entity;
 	penetration : Vec2;
 	normal : Vec2;
 }
 
+// TODO: rename CollisionBuffer
 export class CollisionInfo {
 
 	private _snapshotVel : Vec2;

@@ -147,7 +147,9 @@ export class PlayerState extends ClientSystem implements System {
 		case GameMessageType.GAME_STATE:
 			switch (msg.getGameState()) {
 			case GameState.FREE:
-				this.setRole(PlayerRole.GAMING);
+				if (this.hasTargetEntity()) {
+					this.setRole(PlayerRole.GAMING);
+				}
 				break;
 			}
 			break;
