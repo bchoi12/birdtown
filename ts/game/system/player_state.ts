@@ -184,7 +184,7 @@ export class PlayerState extends ClientSystem implements System {
 
 		// Handle if no target entity yet
 		if (!this.hasTargetEntity()) {
-			if (game.controller().gameState() === GameState.FREE) {
+			if (game.controller().gameState() === GameState.FREE && game.tablet(this.clientId()).isSetup()) {
 				let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
 					clientId: this.clientId(),
 					associationInit: {

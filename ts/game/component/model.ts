@@ -25,7 +25,6 @@ type ReadyFn = (model : Model) => boolean;
 export type ModelInitOptions = {
 	disableShadows? : boolean;
 	transforms? : TransformOptions;
-	offlineTransforms? : TransformOptions;
 	materialType? : MaterialType;
 }
 
@@ -42,8 +41,8 @@ export class Model extends ComponentBase implements Component {
 	private _animationController : AnimationController;
 	private _bones : Map<string, BABYLON.Bone>;
 
+	private _root : BABYLON.TransformNode;
 	private _transforms : Transforms;
-	private _offlineTransforms : Transforms;
 	private _materialType : Optional<MaterialType>;
 
 	// TODO: multi mesh support
@@ -57,15 +56,14 @@ export class Model extends ComponentBase implements Component {
 		this._animationController = new AnimationController();
 		this._bones = new Map();
 
+		this._root = new BABYLON.TransformNode("root");
 		this._transforms = new Transforms();
-		this._offlineTransforms = new Transforms();
 		this._materialType = new Optional();
 
 		this._mesh = null;
 
 		if (options.init) {
 			this._transforms.setFromOptions(options.init.transforms);
-			this._offlineTransforms.setFromOptions(options.init.offlineTransforms);
 
 			if (options.init.materialType) {
 				this._materialType.set(options.init.materialType);
@@ -100,6 +98,9 @@ export class Model extends ComponentBase implements Component {
 
 	override initialize() : void {
 		super.initialize();
+
+		this._root.name = this.entity().name() + "-root";
+
 		this._options.meshFn(this);
 
 		if (this._options.init && !this._options.init.disableShadows) {
@@ -120,20 +121,22 @@ export class Model extends ComponentBase implements Component {
 	override dispose() : void {
 		super.dispose();
 
+		this._root.dispose();
+
 		if (this.hasMesh()) {
 			this.mesh().dispose();
 		}
 	}
 
 	transforms() : Transforms { return this._transforms; }
-	offlineTransforms() : Transforms { return this._offlineTransforms; }
-	hasTranslation() : boolean { return this._transforms.hasTranslation() || this._offlineTransforms.hasTranslation(); }
-	getTranslation() : Vec3 { return this._transforms.translation().clone().add(this._offlineTransforms.translation()); }
-	hasRotation() : boolean { return this._transforms.hasRotation() || this._offlineTransforms.hasRotation(); }
-	getRotation() : Vec3 { return this._transforms.rotation().clone().add(this._offlineTransforms.rotation()); }
-	hasScaling() : boolean { return this._transforms.hasScaling() || this._offlineTransforms.hasScaling(); }
-	getScaling() : Vec3 { return this._transforms.scaling().clone().mult(this._offlineTransforms.scaling()); }
+	hasTranslation() : boolean { return this._transforms.hasTranslation(); }
+	translation() : Vec3 { return this._transforms.translation(); }
+	hasRotation() : boolean { return this._transforms.hasRotation(); }
+	rotation() : Vec3 { return this._transforms.rotation(); }
+	hasScaling() : boolean { return this._transforms.hasScaling() ; }
+	scaling() : Vec3 { return this._transforms.scaling(); }
 
+	root() : BABYLON.TransformNode { return this._root; }
 	hasMesh() : boolean { return this._mesh !== null; }
 	setMesh(mesh : BABYLON.Mesh) {
 		this._mesh = mesh;
@@ -145,6 +148,10 @@ export class Model extends ComponentBase implements Component {
 		});
 		if (this._materialType.has()) {
 			mesh.material = MaterialFactory.material(this._materialType.get());
+		}
+
+		if (this._mesh.parent === null) {
+			this._mesh.parent = this._root;
 		}
 
 		this._onLoadFns.forEach((fn : OnLoadFn) => {
@@ -191,28 +198,28 @@ export class Model extends ComponentBase implements Component {
 	getBone(name : string) : BABYLON.Bone { return this._bones.get(name); }
 
 	resetTransforms() : void {
-		const translation = this.getTranslation();
-		this._mesh.position.set(translation.x, translation.y, translation.z);
+		const translation = this.translation();
+		this._root.position.set(translation.x, translation.y, translation.z);
 
-		const rotation = this.getRotation();
-		this._mesh.rotation.set(rotation.x, rotation.y, rotation.z);
+		const rotation = this.rotation();
+		this._root.rotation.set(rotation.x, rotation.y, rotation.z);
 
-		const scaling = this.getScaling();
-		this._mesh.scaling.set(scaling.x, scaling.y, scaling.z);
+		const scaling = this.scaling();
+		this._root.scaling.set(scaling.x, scaling.y, scaling.z);
 	}
 	private addProfileTransforms(profile : Profile) : void {
-		const useRenderPos = game.level().isCircle() && this._mesh.parent === null;
+		const useRenderPos = game.level().isCircle() && this._root.parent === null;
 		let pos = useRenderPos ? profile.getRenderPos() : profile.pos();
 
-		this._mesh.position.x += pos.x;
-		this._mesh.position.y += pos.y;
+		this._root.position.x += pos.x;
+		this._root.position.y += pos.y;
 
 		if (profile.hasAngle()) {
-			this._mesh.rotation.z = profile.angle();
+			this._root.rotation.z = profile.angle();
 		}
 
-		this._mesh.scaling.x *= profile.scaling().x;
-		this._mesh.scaling.y *= profile.scaling().y;
+		this._root.scaling.x *= profile.scaling().x;
+		this._root.scaling.y *= profile.scaling().y;
 	}
 
 	override preRender() : void {

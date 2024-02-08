@@ -21,7 +21,7 @@ export class Bazooka extends Weapon {
 		super(EntityType.BAZOOKA, options);
 	}
 
-	override displayName() : string { return "booty blaster 3000"; }
+	override equipName() : string { return "booty blaster 3000"; }
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }

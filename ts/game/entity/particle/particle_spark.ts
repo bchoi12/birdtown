@@ -49,6 +49,6 @@ export class ParticleSpark extends Particle {
 		const weight = FnGlobals.interp(InterpType.NEGATIVE_SQUARE, this.ttlElapsed());
 		this._profile.vel().copyVec(this._initialVel).scale(1 - weight);
 		this._profile.scaling().y = this._initialScale.y * (1 - weight);
-		this._model.offlineTransforms().scaling().z = this._profile.scaling().y;
+		this._model.mesh().scaling.z = this._profile.scaling().y;
 	}
 }

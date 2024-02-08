@@ -62,12 +62,12 @@ export abstract class Netcode {
 	// TODO: delete?
 	protected _audioContext : Optional<AudioContext>;
 
-	constructor(name : string, hostName : string) {
+	constructor(id : string, hostName : string) {
 		this._hostName = hostName;
 		this._clientId = 0;
 		this._initialized = false;
 		this._dataFormat = DataFormat.UNKNOWN;
-		this._peer = new Peer(name, {
+		this._peer = new Peer(id, {
 			debug: 2,
 			pingInterval: 5000,
 		});
@@ -119,7 +119,7 @@ export abstract class Netcode {
 	abstract setVoiceEnabled(enabled : boolean) : boolean;
 	abstract sendChat(message : string) : void;
 
-	name() : string { return this._peer.id; }
+	id() : string { return this._peer.id; }
 	hostName() : string { return this._hostName; }
 	hasClientId() : boolean { return this._clientId > 0; }
 	setClientId(id : number) { this._clientId = id; }
@@ -160,17 +160,17 @@ export abstract class Netcode {
 		udpStats.set(ChannelStat.BYTES, udpBytes)
 		return channelStats;
 	}
-	getOrAddConnection(name : string) : Connection {
-		if (this.hasConnection(name)) {
-			return this.connection(name);
+	getOrAddConnection(id : string) : Connection {
+		if (this.hasConnection(id)) {
+			return this.connection(id);
 		}
 
-		let connection = new Connection(name);
-		this._connections.set(name, connection);
+		let connection = new Connection(id);
+		this._connections.set(id, connection);
 		return connection;
 	}
-	hasConnection(name : string) : boolean { return this._connections.has(name); }
-	connection(name : string) : Connection { return this._connections.get(name); }
+	hasConnection(id : string) : boolean { return this._connections.has(id); }
+	connection(id : string) : Connection { return this._connections.get(id); }
 	getVoiceMap() : Map<number, string> {
 		if (!this.isHost()) {
 			console.error("Error: client queried voice map");
@@ -179,14 +179,14 @@ export abstract class Netcode {
 
 		const voiceMap = new Map<number, string>();
 		if (this._voiceEnabled) {
-			voiceMap.set(this.clientId(), this.name());
+			voiceMap.set(this.clientId(), this.id());
 		}
-		this._connections.forEach((connection : Connection, name : string) => {
+		this._connections.forEach((connection : Connection, id : string) => {
 			if (!connection.hasClientId() || !connection.voiceEnabled()) {
 				return;
 			}
 
-			voiceMap.set(connection.clientId(), name);
+			voiceMap.set(connection.clientId(), id);
 		});
 		return voiceMap;
 	}
@@ -199,14 +199,14 @@ export abstract class Netcode {
 		}
 		this._registerBuffer.clear();
 
-		this._connections.forEach((connection : Connection, name : string) => {
+		this._connections.forEach((connection : Connection, id : string) => {
 			if (!connection.connected()) {
 				return;
 			}
 
-			if (this._pinger.millisSincePing(name) >= Netcode._pingTimeoutMillis) {
-				console.error("Connection to " + name + " timed out");
-				this.disconnect(name);
+			if (this._pinger.millisSincePing(id) >= Netcode._pingTimeoutMillis) {
+				console.error("Connection to " + id + " timed out");
+				this.disconnect(id);
 			}
 		});
 
@@ -282,32 +282,32 @@ export abstract class Netcode {
 	}
 
 	broadcast(type : ChannelType, msg : NetworkMessage) : void {
-		this._connections.forEach((outgoing, name) => {
+		this._connections.forEach((outgoing, id) => {
 			if (!outgoing.channels().ready()) {
 				return;
 			}
 
-			this.send(name, type, msg);
+			this.send(id, type, msg);
 		});
 	}
 
-	send(name : string, type : ChannelType, msg : NetworkMessage) : boolean {
-		msg.setName(name);
+	send(id : string, type : ChannelType, msg : NetworkMessage) : boolean {
+		msg.setName(id);
 		if (!msg.valid()) {
 			console.error("Error: attempting to send invalid message", msg);
 			return false;
 		}
 
-		if (!this._connections.has(name)) {
-			console.error("Error: trying to send message to missing connection", name, msg);
+		if (!this._connections.has(id)) {
+			console.error("Error: trying to send message to missing connection", id, msg);
 			return false;
 		}
 
-		if (!this._connections.get(name).connected()) {
+		if (!this._connections.get(id).connected()) {
 			return false;
 		}
 
-		const channels = this._connections.get(name).channels();
+		const channels = this._connections.get(id).channels();
 		if (!channels.ready() || !channels.has(type)) {
 			return false;
 		}
@@ -335,11 +335,11 @@ export abstract class Netcode {
 	callAll(clients : Map<number, string>) : void {
 		const callFn = () => {
 			clients.delete(this.clientId());
-			clients.forEach((name : string, clientId : number) => {
+			clients.forEach((id : string, clientId : number) => {
 				this.queryMic((stream : MediaStream) => {
-					this.call(name, clientId, stream);
+					this.call(id, clientId, stream);
 					if (isLocalhost()) {
-						console.log("Calling", name, clientId);
+						console.log("Calling", id, clientId);
 					}
 				}, (e) => {
 					ui.chat("Failed to call peer: " + e);
@@ -368,12 +368,12 @@ export abstract class Netcode {
 		});
 	}
 
-	protected call(name : string, clientId : number, stream : MediaStream) : void {
-		if (name === this.name()) {
+	protected call(id : string, clientId : number, stream : MediaStream) : void {
+		if (id === this.id()) {
 			return;
 		}
 
-      	const outgoing = this._peer.call(name, stream, {
+      	const outgoing = this._peer.call(id, stream, {
       		metadata: {
       			clientId: this.clientId(),
       		},
@@ -415,9 +415,9 @@ export abstract class Netcode {
 		this._mediaConnections.clear();
 	}
 
-	disconnect(name : string) : void {
-		if (this.hasConnection(name)) {
-			let connection = this.connection(name);
+	disconnect(id : string) : void {
+		if (this.hasConnection(id)) {
+			let connection = this.connection(id);
 			connection.disconnect();
 
 			if (connection.hasClientId()) {
@@ -428,7 +428,7 @@ export abstract class Netcode {
 		}
 	}
 
-	private async handleData(name : string, data : unknown) : Promise<void> {
+	private async handleData(id : string, data : unknown) : Promise<void> {
 		let bytes;
 
 		switch (this._dataFormat) {
@@ -457,16 +457,16 @@ export abstract class Netcode {
 			return;
 		}
 
-		if (!this._connections.has(name)) {
-			console.error("Error: received message from unknown source", name);
+		if (!this._connections.has(id)) {
+			console.error("Error: received message from unknown source", id);
 			return;
 		}
 
 		let msg = new NetworkMessage(NetworkMessageType.UNKNOWN);
 		msg.parseObject(<MessageObject>decode(bytes));
 
-		const connection = this._connections.get(name);
-		msg.setName(name);
+		const connection = this._connections.get(id);
+		msg.setName(id);
 
 		if (!msg.valid()) {
 			console.error("Error: received invalid message over network", msg);

@@ -19,6 +19,7 @@ import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Beak } from 'game/entity/equip/beak'
 import { Headwear } from 'game/entity/equip/headwear'
+import { NameTag } from 'game/entity/equip/name_tag'
 import { Weapon } from 'game/entity/equip/weapon'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -59,6 +60,7 @@ enum Bone {
 	EYE = "eye.R",
 	FOREHEAD = "forehead",
 	HEAD = "head",
+	MESH = "mesh",
 	NECK = "neck",
 	SPINE = "spine",
 }
@@ -261,9 +263,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					model.stopAllAnimations();
 
 					result.skeletons[0].bones.forEach((bone : BABYLON.Bone) => {
-						if (Player._controllableBones.has(bone.name)) {
-							model.registerBone(bone);
-						}
+						model.registerBone(bone);
 					});
 
 					Player._controllableBones.forEach((name : string) => {
@@ -285,6 +285,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + Player._rotationOffset, 0);
 					const dim = this._profile.unscaledDim();
 					armature.position.y -= dim.y / 2;
+
 					model.setMesh(mesh);
 				});
 			},
@@ -315,6 +316,18 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			game.lakitu().setTargetEntity(this);
 		}
 		game.keys(this.clientId()).setTargetEntity(this);
+
+
+		const [nameTag, hasNameTag] = this.addEntity<NameTag>(EntityType.NAME_TAG, {
+			associationInit: {
+				owner: this,
+			},
+			clientId: this.clientId(),
+			offline: true,
+		});
+		if (hasNameTag) {
+			nameTag.setDisplayName(game.tablet(this.clientId()).displayName());
+		}
 
 		this.updateLoadout();
 	}
@@ -347,39 +360,51 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			case AttachType.ARM:
 				const arm = m.getBone(Bone.ARM);
 				equipModel.onLoad((em : Model) => {
-					em.mesh().attachToBone(arm, m.mesh());
-					em.offlineTransforms().setRotation({x: 3 * Math.PI / 2, z: Math.PI });
+					em.root().attachToBone(arm, m.mesh());
+					em.mesh().rotation.x = 3 * Math.PI / 2;
+					em.mesh().rotation.z = Math.PI;
+				});
+				break;
+			case AttachType.ARMATURE:
+				const armature = m.getBone(Bone.ARMATURE);
+				equipModel.onLoad((em : Model) => {
+					em.root().attachToBone(armature, m.mesh());
 				});
 				break;
 			case AttachType.BACK:
 				const back = m.getBone(Bone.BACK);
 				equipModel.onLoad((em : Model) => {
-					em.mesh().attachToBone(back, m.mesh());
+					em.root().attachToBone(back, m.mesh());
 				});
 				break;
 			case AttachType.BEAK:
 				const beak = m.getBone(Bone.BEAK);
 				equipModel.onLoad((em : Model) => {
-					em.mesh().attachToBone(beak, m.mesh());
-					em.offlineTransforms().setRotation({ y: Math.PI });
+					em.root().attachToBone(beak, m.mesh());
+					em.mesh().rotation.y = Math.PI;
 				});
 				break;
 			case AttachType.EYE:
 				const eye = m.getBone(Bone.EYE);
 				equipModel.onLoad((em : Model) => {
-					em.mesh().attachToBone(eye, m.mesh());
+					em.root().attachToBone(eye, m.mesh());
 				});
 				break;
 			case AttachType.FOREHEAD:
 				const forehead = m.getBone(Bone.FOREHEAD);
 				equipModel.onLoad((em : Model) => {
-					em.mesh().attachToBone(forehead, m.mesh());
+					em.root().attachToBone(forehead, m.mesh());
 				});
 				break;
 			case AttachType.HEAD:
 				const head = m.getBone(Bone.HEAD);
 				equipModel.onLoad((em : Model) => {
-					em.mesh().attachToBone(head, m.mesh());
+					em.root().attachToBone(head, m.mesh());
+				});
+				break;
+			case AttachType.ROOT:
+				equipModel.onLoad((em : Model) => {
+					em.root().parent = m.root();
 				});
 				break;
 			default:
@@ -604,7 +629,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this.recomputeDir(game.keys(this.clientId()).dir());
 		}
 		const headSign = this._headDir.x === 0 ? 1 : Math.sign(this._headDir.x);
-		this._model.offlineTransforms().setScaling({x: headSign * Math.abs(this._model.getScaling().x) });
+		this._model.mesh().scaling.x = headSign * Math.abs(this._model.mesh().scaling.x);
 
 		let neckAngle = this._headDir.angleRad();
 		if (headSign > 0) {

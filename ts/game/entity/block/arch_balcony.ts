@@ -1,5 +1,6 @@
 import { game } from 'game'
 import { ComponentType } from 'game/component/api'
+import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { ArchBase } from 'game/entity/block/arch_base'
@@ -31,8 +32,10 @@ export class ArchBalcony extends ArchBase implements Entity {
 		});
 
 		if (this.openings().anyLeft()) {
-			this._model.offlineTransforms().translation().x = -this._profile.scaledDim().x / 2;
-			this._model.offlineTransforms().rotation().y = Math.PI / 2;
+			this._model.onLoad((model : Model) => {
+				model.mesh().position.x = -this._profile.scaledDim().x / 2;
+				model.mesh().rotation.y = Math.PI / 2;
+			});
 
 			this.addTrackedEntity(EntityType.WALL, {
 				profileInit: this._profile.createRelativeInit(CardinalDir.RIGHT, {
@@ -41,8 +44,10 @@ export class ArchBalcony extends ArchBase implements Entity {
 			});
 
 		} else if (this.openings().anyRight()) {
-			this._model.offlineTransforms().translation().x = this._profile.scaledDim().x / 2;
-			this._model.offlineTransforms().rotation().y = -Math.PI / 2;
+			this._model.onLoad((model : Model) => {
+				model.mesh().position.x = this._profile.scaledDim().x / 2;
+				model.mesh().rotation.y = -Math.PI / 2;
+			});
 
 			this.addTrackedEntity(EntityType.WALL, {
 				profileInit: this._profile.createRelativeInit(CardinalDir.LEFT, {

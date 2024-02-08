@@ -101,11 +101,9 @@ export abstract class Block extends EntityBase {
 			meshFn: (model : Model) => {
 				MeshFactory.load(this.meshType(), (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
-					mesh.position = this._profile.pos().clone().sub({y: this._profile.unscaledDim().y / 2}).toBabylon3();
-
 					this.processMesh(mesh);
+					mesh.position.y = -this._profile.unscaledDim().y / 2;
 					model.setMesh(mesh);
-					model.offlineTransforms().setTranslation({y: -this._profile.unscaledDim().y / 2 });
 				});
 			},
 			init: entityOptions.modelInit,

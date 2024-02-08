@@ -27,7 +27,7 @@ export class Cloud extends EntityBase implements Entity {
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
-				let cloud = BABYLON.MeshBuilder.CreateBox("cloud", {
+				let cloud = BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: this._profile.unscaledDim().x,
 					height: this._profile.unscaledDim().y,
 					depth: 2,

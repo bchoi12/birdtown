@@ -47,7 +47,7 @@ export class Rocket extends Projectile {
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.ROCKET, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
-					model.offlineTransforms().setRotation({ y: Math.PI / 2 });
+					mesh.rotation.y = Math.PI / 2;
 					model.setMesh(mesh);
 				});
 			},
@@ -81,7 +81,7 @@ export class Rocket extends Projectile {
 			});
 		}
 
-		this._model.offlineTransforms().rotation().z += 6 * Math.PI * millis / 1000; 
+		this._model.mesh().rotation.z += 6 * Math.PI * millis / 1000; 
 	}
 
 	override preRender() : void {
@@ -91,7 +91,7 @@ export class Rocket extends Projectile {
 			return;
 		}
 
-		this._model.offlineTransforms().rotation().x = -this._profile.vel().angleRad();
+		this._model.mesh().rotation.x = -this._profile.vel().angleRad();
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {

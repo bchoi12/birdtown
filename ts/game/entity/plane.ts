@@ -79,8 +79,12 @@ export class Plane extends EntityBase implements Entity {
 			}
 		}
 
+		if (!this._model.hasMesh()) {
+			return;
+		}
+
 		// Rotate to match velocity direction
-		let rotation = this._model.offlineTransforms().rotation();
+		let rotation = this._model.mesh().rotation
 		if (this._profile.vel().x > 0) {
 			rotation.y = Math.min(0, rotation.y + Plane._turnRate * millis / 1000);
 		} else {

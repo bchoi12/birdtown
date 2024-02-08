@@ -38,8 +38,8 @@ export class ParticleSmoke extends Particle {
 
 		let scaling = this._profile.scaling();
 		scaling.copyVec(this._initialScale).scale(1 - this.ttlElapsed());
-		this._model.offlineTransforms().scaling().z = (scaling.x + scaling.y) / 2;
 
+		this._model.mesh().scaling.z = (scaling.x + scaling.y) / 2;
 		this._model.mesh().material.alpha = 1 - this.ttlElapsed();
 	}
 }

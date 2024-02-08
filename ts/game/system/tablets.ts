@@ -26,7 +26,7 @@ export class Tablets extends ClientSystemManager implements System {
 
 	numSetup() : number {
 		return this.findAll((tablet : Tablet) => {
-			return tablet.hasDisplayName() && !tablet.deleted();
+			return tablet.isSetup();
 		}).length;
 	}
 	addTablet(tablet : Tablet) : Tablet { return this.registerChild<Tablet>(tablet.clientId(), tablet); }

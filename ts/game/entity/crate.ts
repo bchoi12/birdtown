@@ -63,10 +63,8 @@ export class Crate extends EntityBase implements Entity {
 					let scaling = {
 						x: this._profile.scaledDim().x / modelDimension.x,
 						y: this._profile.scaledDim().y / modelDimension.y,
-						z: 0,
 					}
-					scaling.z = (scaling.x + scaling.y) / 2;
-					model.offlineTransforms().setScaling(scaling);
+					mesh.scaling.set(scaling.x, scaling.y, (scaling.x + scaling.y) / 2);
 					model.setMesh(mesh);
 				});
 			},

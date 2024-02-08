@@ -102,7 +102,7 @@ export class Host extends Netcode {
 		});
 	}
 
-	override sendChat(message : string) : void { this.handleChat(this.name(), message); }
+	override sendChat(message : string) : void { this.handleChat(this.id(), message); }
 
 	// TODO: de-duplicate code here and above. Probably need to add self as a connection and add some code in send() to trigger callbacks immediately
 	override setVoiceEnabled(enabled : boolean) : boolean {
@@ -126,18 +126,18 @@ export class Host extends Netcode {
 		return this._voiceEnabled;
 	}
 
-	private handleChat(from : string, message : string) : void {
+	private handleChat(fromId : string, message : string) : void {
 		if (message.length <= 0) {
 			return;
 		}
 
 		let displayName;
-		if (from === this.name()) {
+		if (fromId === this.id()) {
 			displayName = game.tablet().displayName();
-		} else if (this.hasConnection(from)) {
-			displayName = this.connection(from).displayName();
+		} else if (this.hasConnection(fromId)) {
+			displayName = this.connection(fromId).displayName();
 		} else {
-			console.error("Error: received message from unknown connection", from, message);
+			console.error("Error: received message from unknown connection", fromId, message);
 			return;
 		}
 

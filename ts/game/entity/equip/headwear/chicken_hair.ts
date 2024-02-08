@@ -6,12 +6,12 @@ import { MeshType } from 'game/factory/api'
 
 export class ChickenHair extends Headwear {
 
-	private static readonly _displayName = "chicken hair";
+	private static readonly _equipName = "chicken hair";
 
 	constructor(options : EntityOptions) {
 		super(EntityType.CHICKEN_HAIR, options);
 	}
 
-	override displayName() : string { return ChickenHair._displayName; }
+	override equipName() : string { return ChickenHair._equipName; }
 	override meshType() : MeshType { return MeshType.CHICKEN_HAIR; }
 }

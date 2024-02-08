@@ -24,7 +24,7 @@ import { HandlerType } from 'ui/handler/api'
 import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
 import { Html } from 'ui/html'
 
-import { isLocalhost } from 'util/common'
+import { isLocalhost, isMobile } from 'util/common'
 
 export class SettingsHandler extends HandlerBase implements Handler{
 
@@ -40,6 +40,11 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm.onclick = (e) => {
 			e.stopPropagation();
 		};
+
+		if (isMobile()) {
+			this._settingsElm.style.display = "none";
+			return;
+		}
 
 		let fullscreen = new SettingWrapper<FullscreenSetting>({
 			name: "Fullscreen Mode",

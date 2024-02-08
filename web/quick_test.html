@@ -79,6 +79,35 @@
                 generator.addShadowCaster(scene.getMeshByName("mesh"), true);
             });
 
+            {
+                let height = 1;
+                let font = "bold 48px Arial";
+                let text = "bob";
+
+                /*
+                let temp = new BABYLON.DynamicTexture("temp", 64, scene);
+                let context = temp.getContext();
+                context.font = font;
+                let width = context.measureText(text).width;
+                */
+
+                let texture = new BABYLON.DynamicTexture("texture", {
+                    width: 4,
+                    height: 1,
+                }, scene);
+                texture.drawText(text, /*x=*/null, /*y=*/null, font, "rgba(0, 0, 0, 0.1)", "rgba(1, 1, 1, 0.7)", /*invertY=*/true);
+
+                let material = new BABYLON.StandardMaterial("material");
+                material.diffuseTexture = texture;
+
+                let mesh = BABYLON.MeshBuilder.CreateBox("nametag", {
+                    width: 4,
+                    height: height,
+                    depth: 0.3,
+                }, scene);
+                mesh.material = material;
+            }
+
 
             scene.debugLayer.show();
 

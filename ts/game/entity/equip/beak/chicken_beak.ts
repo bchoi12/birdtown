@@ -7,13 +7,13 @@ import { SoundType } from 'game/system/api'
 
 export class ChickenBeak extends Beak {
 
-	private static readonly _displayName = "chicken beak";
+	private static readonly _equipName = "chicken beak";
 
 	constructor(options : EntityOptions) {
 		super(EntityType.CHICKEN_BEAK, options);
 	}
 
-	override displayName() : string { return ChickenBeak._displayName; }
+	override equipName() : string { return ChickenBeak._equipName; }
 	override meshType() : MeshType { return MeshType.CHICKEN_BEAK; }
 	override soundType() : SoundType { return SoundType.BAWK; }
 }

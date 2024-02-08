@@ -30,7 +30,7 @@ export class Sniper extends Weapon {
 		super(EntityType.SNIPER, options);
 	}
 
-	override displayName() : string { return "thonker"; }
+	override equipName() : string { return "thonker"; }
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.SMALL; }
 	override meshType() : MeshType { return MeshType.SNIPER; }

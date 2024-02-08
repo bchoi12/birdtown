@@ -68,6 +68,8 @@ export class Tablet extends ClientSystem implements System {
 		}
 	}
 
+	isSetup() : boolean { return this.hasDisplayName() && !this.deleted(); }
+
 	scoreChanged() : boolean { return this._scoreChanged; }
 	roundScore() : number { return this._roundScore; }
 	setRoundScore(value : number) : void {

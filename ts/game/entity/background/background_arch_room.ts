@@ -26,18 +26,17 @@ export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 				for (let i = 0; i < 6; i++) {
 				    faceUV[i] = new BABYLON.Vector4(0, 0, 0, 0);
 				}
-				faceUV[1] = new BABYLON.Vector4(0, 0, 1, -1);
+				faceUV[0] = new BABYLON.Vector4(0, 0, 1, -1);
 
-				let building = BABYLON.MeshBuilder.CreateBox("background_arch_room", {
+				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: this._profile.unscaledDim().x,
 					height: this._profile.unscaledDim().y,
 					depth: 6,
 					faceUV: faceUV,
 				}, game.scene());
 
-				model.offlineTransforms().setTranslation({z: -25 });
-				model.offlineTransforms().setRotation({x: Math.PI });
-				model.setMesh(building);
+				mesh.position.z = -25;
+				model.setMesh(mesh);
 			},
 			init: {
 				disableShadows: true,

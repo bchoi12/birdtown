@@ -50,7 +50,7 @@ export class BirdBrain extends Equip<Player> {
 		});
 	}
 
-	override displayName() : string { return "bird brain"; }
+	override equipName() : string { return "bird brain"; }
 	override attachType() : AttachType { return AttachType.NONE; }
 	
 	override update(stepData : StepData) : void {

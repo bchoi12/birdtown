@@ -17,11 +17,13 @@ export enum AttachType {
 
 	NONE,
 	ARM,
+	ARMATURE,
 	BACK,
 	BEAK,
 	EYE,
 	FOREHEAD,
 	HEAD,
+	ROOT,
 }
 
 export enum RecoilType {
@@ -100,6 +102,6 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	popUses() : number { return this._uses.save(); }
 	recoilType() : number { return RecoilType.NONE; }
 
-	abstract displayName() : string;
+	abstract equipName() : string;
 	abstract attachType() : AttachType;
 }

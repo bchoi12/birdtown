@@ -87,7 +87,7 @@ export class Jetpack extends Equip<Player> {
 		});
 	}
 
-	override displayName() : string { return "jetpack"; }
+	override equipName() : string { return "jetpack"; }
 	override attachType() : AttachType { return AttachType.BACK; }
 
 	override initialize() : void {
