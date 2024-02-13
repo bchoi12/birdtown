@@ -22,9 +22,10 @@ import { Beak } from 'game/entity/equip/beak'
 import { Headwear } from 'game/entity/equip/headwear'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Weapon } from 'game/entity/equip/weapon'
-import { MeshType } from 'game/factory/api'
-import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
+import { MeshType, TextureType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
+import { TextureFactory } from 'game/factory/texture_factory'
 import { CollisionInfo } from 'game/util/collision_info'
 import { MaterialShifter } from 'game/util/material_shifter'
 
@@ -236,9 +237,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				MeshFactory.load(MeshType.BIRD, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.getChildMeshes().forEach((mesh : BABYLON.Mesh) => {
-						if (!mesh.material) { return; }
+						if (!mesh.material || !(mesh.material instanceof BABYLON.PBRMaterial)) { return; }
 
-						if (mesh.material instanceof BABYLON.PBRMaterial && mesh.material.name === Material.EYE) {
+						if (mesh.material.name === Material.BASE) {
+							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(TextureType.BIRD_BOOBY));
+						} else if (mesh.material.name === Material.EYE) {
 							this._eyeShifter.setMaterial(mesh.material, Box2.fromBox({
 								min: {x: 0, y: 0},
 								max: {x: 4, y: 1},
@@ -668,7 +671,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		this._model.onLoad(() => {
 			if (!this._entityTrackers.hasEntityType(EntityType.BEAK)) {
-				const [beak, hasBeak] = this.addEntity<Beak>(EntityType.CHICKEN_BEAK, {
+				const [beak, hasBeak] = this.addEntity<Beak>(EntityType.BOOBY_BEAK, {
 					associationInit: {
 						owner: this,
 					},
@@ -681,6 +684,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			if (!this._entityTrackers.hasEntityType(EntityType.HEADWEAR)) {
+				/*
 				const [headwear, hasHeadwear] = this.addEntity<Headwear>(EntityType.CHICKEN_HAIR, {
 					associationInit: {
 						owner: this,
@@ -691,6 +695,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				if (hasHeadwear) {
 					this._entityTrackers.trackEntity<Headwear>(EntityType.HEADWEAR, headwear);
 				}
+				*/
 			}
 
 			const loadout = game.clientDialog(this.clientId()).message(DialogType.LOADOUT);

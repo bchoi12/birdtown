@@ -22,6 +22,7 @@ export enum EntityType {
 	BAZOOKA,
 	BIRD_BRAIN,
 	BOLT,
+	BOOBY_BEAK,
 	CHICKEN_BEAK,
 	CHICKEN_HAIR,
 	CLOUD,

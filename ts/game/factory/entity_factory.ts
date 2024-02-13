@@ -6,6 +6,7 @@ import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Cloud } from 'game/entity/cloud'
 import { Crate } from 'game/entity/crate'
+import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { BirdBrain } from 'game/entity/equip/bird_brain'
@@ -38,6 +39,7 @@ export namespace EntityFactory {
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
 		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
+		[EntityType.BOOBY_BEAK, (options : EntityOptions) => { return new BoobyBeak(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],

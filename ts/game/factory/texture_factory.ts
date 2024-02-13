@@ -19,10 +19,10 @@ export namespace TextureFactory {
 	}
 
 	export function loadNew(type : TextureType) : BABYLON.Texture {
-		return new BABYLON.Texture(getFileName(type));
+		return new BABYLON.Texture(getURL(type));
 	}
 
-	function getFileName(type : TextureType) : string {
+	export function getURL(type : TextureType) : string {
 		return pathPrefix + TextureType[type].toLowerCase() + fileExtension;
 	}
 }
