@@ -6,15 +6,15 @@ import { defined } from 'util/common'
 
 export class Connection {
 	
-	private _name : string;
+	private _id : string;
 	private _displayName : string;
 	private _connected : boolean;
 	private _channels : ChannelMap;
 	private _voiceEnabled : boolean;
 	private _clientId : number;
 
-	constructor(name : string) {
-		this._name = name;
+	constructor(id : string) {
+		this._id = id;
 		this._displayName = "";
 		this._connected = true;
 		this._channels = new ChannelMap();
@@ -22,7 +22,7 @@ export class Connection {
 		this._clientId = 0;
 	}
 
-	name() : string { return this._name; }
+	id() : string { return this._id; }
 	channels() : ChannelMap { return this._channels; }
 	connected() : boolean { return this._connected; }
 	disconnect() : void {

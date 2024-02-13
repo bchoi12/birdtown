@@ -226,7 +226,8 @@ export abstract class Netcode {
 		}
 		const channelType = this.labelToChannelType(dataConnection.label);
 		if (!dataConnection.open) {
-			console.error("Warning: registering unopen " + channelType + " channel for " + dataConnection.peer);
+			console.error("Error: tried to register unopen " + ChannelType[channelType] + " channel for " + dataConnection.peer);
+			return;
 		}
 
 		// TODO: not sure why, but need to keep getOrAdd instead of add
@@ -276,7 +277,7 @@ export abstract class Netcode {
 
 	addMessageCallback<T extends NetworkMessage>(type : NetworkMessageType, cb : MessageCallback<T>) {
 		if (this._messageCallbacks.has(type)) {
-			console.error("Warning: overwriting callback for message type " + type);
+			console.error("Warning: overwriting callback for %s message", NetworkMessageType[type]);
 		}
 		this._messageCallbacks.set(type, cb);
 	}
@@ -426,6 +427,14 @@ export abstract class Netcode {
 				game.handleMessage(msg);
 			}
 		}
+	}
+
+	kick(clientId : number) : void {
+		this._connections.forEach((connection : Connection) => {
+			if (clientId === connection.clientId()) {
+				this.disconnect(connection.id());
+			}
+		});
 	}
 
 	private async handleData(id : string, data : unknown) : Promise<void> {

@@ -35,9 +35,17 @@ export class NameTag extends Equip<Player> {
 
 		this._displayName = "";
 		this._occlusionTracker = new ChangeTracker(() => {
-			return (this._model.hasMesh() && this.hasOwner())
-				? (this.owner().getAttribute(AttributeType.OCCLUDED) || game.playerState(this.owner().clientId()).role() !== PlayerRole.GAMING)
-				: false;
+			if (!this.hasOwner()) {
+				return false;
+			}
+			if (this.owner().getAttribute(AttributeType.OCCLUDED)) {
+				return true;
+			}
+			if (game.playerStates().hasPlayerState(this.owner().clientId())
+				&& game.playerState(this.owner().clientId()).role() !== PlayerRole.GAMING) {
+				return true;
+			}
+			return false;
 		}, (occluded : boolean) => {
 			this._model.setVisible(!occluded);
 		});

@@ -32,7 +32,7 @@ export class Host extends Netcode {
 			
 			let networkMsg = new NetworkMessage(NetworkMessageType.INIT_CLIENT);
 			networkMsg.setClientId(clientId);
-			this.send(connection.name(), ChannelType.TCP, networkMsg);
+			this.send(connection.id(), ChannelType.TCP, networkMsg);
 
 			let gameMsg = new GameMessage(GameMessageType.CLIENT_JOIN);
 			gameMsg.setClientId(clientId);

@@ -129,13 +129,13 @@ export class Client extends Netcode {
 		});
 
 		this._tcp.on("close", () => {
-			console.error("TCP closed! Reconnecting...");
+			console.error("TCP closed!");
 
 			this.unregister(this._tcp);
 			this.unregister(this._udp);
 
-			// TODO: only call if peer connection is still valid
-			this.initTCP();
+			// TODO: reconnect?
+			// this.initTCP();
 		});
 	}
 
@@ -162,8 +162,8 @@ export class Client extends Netcode {
 
 			this.unregister(this._udp);
 
-			// TODO: only call this if the TCP connection is still valid
-			this.initUDP();
+			// TODO: reconnect?
+			// this.initUDP();
 		});
 	}
 }

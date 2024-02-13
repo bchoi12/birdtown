@@ -6,6 +6,7 @@ export enum IconType {
 	MIC,
 	MUTED_MIC,
 	MOUSE,
+	KICK,
 
 	PLUS,
 	MINUS,
@@ -27,6 +28,7 @@ export namespace Icon {
 		[IconType.MIC, "fa-microphone"],
 		[IconType.MUTED_MIC, "fa-microphone-slash"],
 		[IconType.MOUSE, "fa-computer-mouse"],
+		[IconType.KICK, "fa-ban"],
 		[IconType.PLUS, "fa-plus"],
 		[IconType.MINUS, "fa-minus"],
 		[IconType.VOLUME_X, "fa-volume-xmark"],

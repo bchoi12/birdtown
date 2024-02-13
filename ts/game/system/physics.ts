@@ -113,8 +113,7 @@ export class Physics extends SystemBase implements System {
 			let pen = Vec2.fromVec(collision.penetration);
 			if (profileB.body().isStatic) {
 				// Find overlap of rectangle bounding boxes.
-				let overlap = profileA.pos().clone().sub(profileB.pos()).abs();
-				overlap.sub({
+				let overlap = profileA.pos().clone().sub(profileB.pos()).abs().sub({
 					x: profileA.scaledDim().x / 2 + profileB.scaledDim().x / 2,
 					y: profileA.scaledDim().y / 2 + profileB.scaledDim().y / 2,
 				});

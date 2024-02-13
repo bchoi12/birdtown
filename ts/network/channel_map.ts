@@ -39,13 +39,13 @@ export class ChannelMap {
 		this._channels.set(type, connection);
 		this._stats.set(type, new StatsTracker());
 		if (isLocalhost()) {
-			console.log("Registered " + type + " channel to " + connection.peer);
+			console.log("Registered " + ChannelType[type] + " channel to " + connection.peer);
 		}
 	}
 
 	send(type : ChannelType, data : Uint8Array) {
 		if (!this._channels.has(type)) {
-			console.error("Error: missing channel with type %d", type);
+			console.error("Error: missing %s channel", ChannelType[type]);
 			return;
 		}
 
