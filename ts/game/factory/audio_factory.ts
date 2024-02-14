@@ -19,8 +19,8 @@ export namespace AudioFactory {
 			spatial: true,
 		}],
 		[AudioType.BAWK, {
-			path: "sound/bawk.mp3",
-			spatial: true,
+		path: "sound/bawk.mp3",
+			spatial: false,
 		}],
 	]);
 
@@ -40,9 +40,6 @@ export namespace AudioFactory {
 			defined(onLoad) ? () => { onLoad(sound); } : null,
 			metadata.get(type).spatial ? MediaGlobals.spatialGameOptions : {});
 
-		if (MediaGlobals.panningModel === "HRTF") {
-			sound.switchPanningModelToHRTF();
-		}
 		return sound;
 	}
 }

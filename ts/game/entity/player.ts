@@ -242,6 +242,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 						if (mesh.material.name === Material.BASE) {
 							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(TextureType.BIRD_BOOBY));
 						} else if (mesh.material.name === Material.EYE) {
+							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(TextureType.BOOBY_EYE));
+							mesh.material.albedoTexture.hasAlpha = true;
+							mesh.material.useAlphaFromAlbedoTexture = true;
+							mesh.material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+
 							this._eyeShifter.setMaterial(mesh.material, Box2.fromBox({
 								min: {x: 0, y: 0},
 								max: {x: 4, y: 1},
@@ -684,8 +689,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			if (!this._entityTrackers.hasEntityType(EntityType.HEADWEAR)) {
-				/*
-				const [headwear, hasHeadwear] = this.addEntity<Headwear>(EntityType.CHICKEN_HAIR, {
+				const [headwear, hasHeadwear] = this.addEntity<Headwear>(EntityType.BOOBY_HAIR, {
 					associationInit: {
 						owner: this,
 					},
@@ -695,7 +699,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				if (hasHeadwear) {
 					this._entityTrackers.trackEntity<Headwear>(EntityType.HEADWEAR, headwear);
 				}
-				*/
 			}
 
 			const loadout = game.clientDialog(this.clientId()).message(DialogType.LOADOUT);

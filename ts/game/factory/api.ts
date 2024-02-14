@@ -31,6 +31,7 @@ export enum MeshType {
 	UNKNOWN,
 	BIRD,
 	BOOBY_BEAK,
+	BOOBY_HAIR,
 	CHICKEN_BEAK,
 	CHICKEN_HAIR,
 
@@ -63,4 +64,6 @@ export enum TextureType {
 	ARCH_WINDOWS,
 	BIRD_BOOBY,
 	BIRD_CHICKEN,
+	BOOBY_EYE,
+	CHICKEN_EYE,
 }
