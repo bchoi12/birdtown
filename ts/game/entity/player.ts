@@ -240,9 +240,13 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 						if (!mesh.material || !(mesh.material instanceof BABYLON.PBRMaterial)) { return; }
 
 						if (mesh.material.name === Material.BASE) {
-							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(TextureType.BIRD_BOOBY));
+							const texture = this.clientId() % 2 === 1 ? TextureType.BIRD_CHICKEN : TextureType.BIRD_BOOBY;
+
+							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(texture));
 						} else if (mesh.material.name === Material.EYE) {
-							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(TextureType.BOOBY_EYE));
+							const texture = this.clientId() % 2 === 1 ? TextureType.CHICKEN_EYE : TextureType.BOOBY_EYE;
+
+							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(texture));
 							mesh.material.albedoTexture.hasAlpha = true;
 							mesh.material.useAlphaFromAlbedoTexture = true;
 							mesh.material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
@@ -676,7 +680,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		this._model.onLoad(() => {
 			if (!this._entityTrackers.hasEntityType(EntityType.BEAK)) {
-				const [beak, hasBeak] = this.addEntity<Beak>(EntityType.BOOBY_BEAK, {
+				const beakType = this.clientId() % 2 === 1 ? EntityType.CHICKEN_BEAK : EntityType.BOOBY_BEAK;
+
+				const [beak, hasBeak] = this.addEntity<Beak>(beakType, {
 					associationInit: {
 						owner: this,
 					},
@@ -689,7 +695,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			if (!this._entityTrackers.hasEntityType(EntityType.HEADWEAR)) {
-				const [headwear, hasHeadwear] = this.addEntity<Headwear>(EntityType.BOOBY_HAIR, {
+				const hairType = this.clientId() % 2 === 1 ? EntityType.CHICKEN_HAIR : EntityType.BOOBY_HAIR;
+
+				const [headwear, hasHeadwear] = this.addEntity<Headwear>(hairType, {
 					associationInit: {
 						owner: this,
 					},
