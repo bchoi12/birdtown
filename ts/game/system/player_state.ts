@@ -20,6 +20,16 @@ import { Timer} from 'util/timer'
 
 export class PlayerState extends ClientSystem implements System {
 
+	private static readonly _spawnKeys = [
+		KeyType.LEFT,
+		KeyType.RIGHT,
+		KeyType.JUMP,
+		KeyType.INTERACT,
+		KeyType.SQUAWK,
+		KeyType.MOUSE_CLICK,
+		KeyType.ALT_MOUSE_CLICK,
+	];
+
 	private static readonly _lastDamageTime = 10000;
 	private static readonly _respawnTime = 1500;
 
@@ -227,7 +237,7 @@ export class PlayerState extends ClientSystem implements System {
 
 		// Allow player to spawn by pressing a key
 		if (this.role() === PlayerRole.SPAWNING) {
-			if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
+			if (this.anyKey(PlayerState._spawnKeys, KeyState.PRESSED)) {
 				this.setRole(PlayerRole.GAMING);
 			}
 		}

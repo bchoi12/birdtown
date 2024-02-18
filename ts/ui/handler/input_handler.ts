@@ -15,10 +15,27 @@ import { isMobile } from 'util/common'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
 
+enum TouchType {
+	UNKNOWN,
+
+	START,
+	MOVE,
+	END,
+}
+
+// TODO: setting
+enum AimMode {
+	UNKNOWN,
+
+	TOUCH,
+	JOYSTICK,
+}
+
 export class InputHandler extends HandlerBase implements Handler {
-	private readonly _cursorWidth = 20;
-	private readonly _cursorHeight = 20;
-	private readonly _aimRadius = 96;
+
+	private static readonly _aimRadius = 96;
+	private static readonly _cursorWidth = 20;
+	private static readonly _cursorHeight = 20;
 
 	private _keys : Set<KeyType>;
 	private _clearedKeys : Set<KeyType>;
@@ -30,8 +47,9 @@ export class InputHandler extends HandlerBase implements Handler {
 	private _cursorElm : HTMLElement;
 	private _mouse : Vec;
 
+	private _aimMode : AimMode;
 	private _aimElm : HTMLElement;
-	private _aimId : number;
+	private _aimId : Optional<number>;
 	private _aim : Optional<Vec2>;
 
 	constructor() {
@@ -47,16 +65,17 @@ export class InputHandler extends HandlerBase implements Handler {
 		this._cursorElm = Html.elm(Html.cursor);
 		this._mouse = {x: 0, y: 0};
 
+		this._aimMode = AimMode.TOUCH;
 		this._aimElm = Html.elm(Html.aim);
-		this._aimId = -1;
+		this._aimId = new Optional();
 		this._aim = new Optional();
 	}
 
 	override setup() : void {
 		if (isMobile()) {
-			document.addEventListener("touchstart", (e : any) => { this.updateTouch(e); });
-			document.addEventListener("touchmove", (e : any) => { this.updateTouch(e); });
-			document.addEventListener("touchend", (e : any) => { this.updateTouch(e); });
+			document.addEventListener("touchstart", (e : any) => { this.updateTouch(e, TouchType.START); });
+			document.addEventListener("touchmove", (e : any) => { this.updateTouch(e, TouchType.MOVE); });
+			document.addEventListener("touchend", (e : any) => { this.updateTouch(e, TouchType.END); });
 		} else {
 			document.addEventListener("keydown", (e : any) => {
 				if (e.repeat || ui.mode() !== UiMode.GAME) return;
@@ -140,7 +159,7 @@ export class InputHandler extends HandlerBase implements Handler {
 		this._keyUpCallbacks.set(keyCode, (e : any) => { this.recordKeyUp(e); });
 	}
 
-	private updateTouch(e : any) : void {
+	private updateTouch(e : any, type : TouchType) : void {
 		let keyMap = new Map<KeyType, boolean>([
 			[KeyType.LEFT, false],
 			[KeyType.RIGHT, false],
@@ -154,7 +173,7 @@ export class InputHandler extends HandlerBase implements Handler {
 			for (let i = 0; i < e.touches.length; ++i) {
 				const touch = e.touches[i];
 
-				if (this._aim.has() && this._aimId === touch.identifier) {
+				if (this._aimId.has() && this._aimId.get() === touch.identifier) {
 					this.updateAim(touch);
 					resetAim = false;
 					continue;
@@ -162,19 +181,22 @@ export class InputHandler extends HandlerBase implements Handler {
 
 				const ratioX = touch.clientX / window.innerWidth;
 				const ratioY = touch.clientY / window.innerHeight;
+
 				if (ratioY < 0.2) {
-					if (ratioX < 0.5) {
-						keyMap.set(KeyType.ALT_MOUSE_CLICK, true);
-					} else {
+					if (ratioX < 0.2 || ratioX > 0.8) {
 						keyMap.set(KeyType.MOUSE_CLICK, true);
 					}
-				} else if (ratioX > 0.85) {
-					keyMap.set(KeyType.RIGHT, true);
+				} else if (ratioY > 0.8) {
+					if (ratioX < 0.2 || ratioX > 0.8) {
+						keyMap.set(KeyType.ALT_MOUSE_CLICK, true);
+					} else {
+						keyMap.set(KeyType.JUMP, true);
+					}
 				} else if (ratioX < 0.2) {
 					keyMap.set(KeyType.LEFT, true);
-				} else if (ratioY > 0.8) {
-					keyMap.set(KeyType.JUMP, true);
-				} else if (!this._aim.has()) {
+				} else if (ratioX > 0.8) {
+					keyMap.set(KeyType.RIGHT, true);
+				} else if (!this._aimId.has() || type === TouchType.START) {
 					this.updateAim(touch);
 					resetAim = false;
 				}
@@ -195,20 +217,28 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	private updateAim(touch : Touch) : void {
-		if (!this._aim.has()) {
-			this._aimId = touch.identifier;
+		if (!this._aim.has() || this._aimId.get() !== touch.identifier) {
+			this._aimId.set(touch.identifier);
 			this._aim.set(Vec2.fromVec({x: touch.clientX, y: touch.clientY }));
-			this._aimElm.style.visibility = "visible";
-			this._aimElm.style.left = (this._aim.get().x - this._aimRadius) + "px";
-			this._aimElm.style.top = (this._aim.get().y - this._aimRadius) + "px";
+
+			if (this._aimMode === AimMode.JOYSTICK) {
+				this._aimElm.style.visibility = "visible";
+				this._aimElm.style.left = (this._aim.get().x - InputHandler._aimRadius) + "px";
+				this._aimElm.style.top = (this._aim.get().y - InputHandler._aimRadius) + "px";
+			}
 		}
 
-		this._mouse.x = window.innerWidth / 2 + touch.clientX - this._aim.get().x;
-		this._mouse.y = window.innerHeight / 2 + touch.clientY - this._aim.get().y;
+		if (this._aimMode === AimMode.TOUCH) {
+			this._mouse.x = touch.clientX;
+			this._mouse.y = touch.clientY;
+		} else {
+			this._mouse.x = window.innerWidth / 2 + touch.clientX - this._aim.get().x;
+			this._mouse.y = window.innerHeight / 2 + touch.clientY - this._aim.get().y;
+		}
 	}
 	private resetAim() : void {
 		this._aimElm.style.visibility = "hidden";
-		this._aimId = -1;
+		this._aimId.clear();
 		this._aim.clear();
 	}
 
@@ -285,8 +315,8 @@ export class InputHandler extends HandlerBase implements Handler {
 
 		if (this.pointerLocked()) {
 			this._cursorElm.style.visibility = "visible";
-			this._cursorElm.style.left = (this._mouse.x - this._cursorWidth / 2) + "px";
-			this._cursorElm.style.top = (this._mouse.y - this._cursorHeight / 2) + "px";
+			this._cursorElm.style.left = (this._mouse.x - InputHandler._cursorWidth / 2) + "px";
+			this._cursorElm.style.top = (this._mouse.y - InputHandler._cursorHeight / 2) + "px";
 		} else {
 			this._cursorElm.style.visibility = "hidden";
 		}

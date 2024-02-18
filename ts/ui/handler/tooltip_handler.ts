@@ -79,7 +79,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		case TooltipType.JUST_A_SIGN:
 			return "Just a sign...nothing to see here."
 		case TooltipType.SPAWN:
-			return "Press " + KeyNames.boxed(settings.jumpKeyCode) + " to deploy the chicken."
+			return "Press [any key] to deploy the chicken."
 		case TooltipType.SPECTATING:
 			if (names.length !== 1) {
 				return "Spectating";

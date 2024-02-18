@@ -56,7 +56,7 @@ class Settings {
 		this.fullscreenSetting = isMobile() ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 		this.pointerSetting = PointerSetting.NORMAL;
 
-		this.fpsSetting = SpeedSetting.NORMAL;
+		this.fpsSetting = isMobile() ? SpeedSetting.SLOW : SpeedSetting.NORMAL;
 		this.antiAliasSetting = isMobile() ? AntiAliasSetting.LOW : AntiAliasSetting.MEDIUM;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 
