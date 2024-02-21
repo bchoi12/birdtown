@@ -13,6 +13,7 @@ export enum ComponentType {
 	MODIFIERS,
 	OPENINGS,
 	PROFILE,
+	SOUND_PLAYER,
 	STAT,
 	STATS,
 	TRANSFORMS,

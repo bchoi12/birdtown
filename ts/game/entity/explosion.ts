@@ -6,16 +6,19 @@ import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
+import { SoundPlayer } from 'game/component/sound_player'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
-import { SoundType } from 'game/system/api'
 
 import { Vec, Vec2 } from 'util/vector'
 
 export class Explosion extends EntityBase implements Entity {
 
 	private _profile : Profile;
+	private _model : Model;
+	private _soundPlayer : SoundPlayer;
 
 	private _hit : Set<number>;
 
@@ -34,7 +37,7 @@ export class Explosion extends EntityBase implements Entity {
 			init: entityOptions.profileInit,
 		}));
 
-		this.addComponent(new Model({
+		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => {
 				return this._profile.ready();
 			},
@@ -48,15 +51,15 @@ export class Explosion extends EntityBase implements Entity {
 				...entityOptions.modelInit,
 			},
 		}));
+
+		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
+		this._soundPlayer.registerSound(SoundType.EXPLOSION, SoundType.EXPLOSION);
 	}
 
 	override initialize() : void {
 		super.initialize();
 
-		game.audio().loadSound(SoundType.EXPLOSION, (sound : BABYLON.Sound) => {
-			sound.setPosition(this._profile.getRenderPos().toBabylon3());
-			sound.play();
-		});
+		this._soundPlayer.playFromSelf(SoundType.EXPLOSION);
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {

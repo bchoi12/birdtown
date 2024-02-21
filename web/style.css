@@ -125,6 +125,10 @@ body {
     width: 20em;
 }
 
+#button-message {
+    display: none;
+}
+
 #div-minimap {
     position:  absolute;
     visibility: hidden;

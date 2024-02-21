@@ -3,10 +3,10 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import { game } from 'game'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
-import { AudioType } from 'game/factory/api'
-import { AudioFactory } from 'game/factory/audio_factory'
+import { SoundFactory } from 'game/factory/sound_factory'
+import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
-import { SystemType, MusicType, SoundType } from 'game/system/api'
+import { SystemType } from 'game/system/api'
 
 import { ui } from 'ui'
 
@@ -14,68 +14,14 @@ import { defined } from 'util/common'
 import { ObjectCache } from 'util/object_cache'
 import { SeededRandom } from 'util/seeded_random'
 
-type SoundFn = () => AudioType;
-
 export class Audio extends SystemBase implements System {
-
-	private _rng : SeededRandom;
-	private _audioCache : Map<AudioType, ObjectCache<BABYLON.Sound>>; 
-	private _sounds : Map<SoundType, SoundFn>;
 
 	constructor() {
 		super(SystemType.AUDIO);
-
-		this._rng = new SeededRandom(333);
-
-		this._audioCache = new Map();
-		for (const stringType in AudioType) {
-			const type = Number(AudioType[stringType]);
-			if (Number.isNaN(type) || type <= 0) {
-				continue;
-			}
-
-			this._audioCache.set(type, new ObjectCache<BABYLON.Sound>({
-				createFn: (index : number, onLoad? : (sound : BABYLON.Sound) => void) => {
-					return AudioFactory.load(type, onLoad);
-				},
-			}));
-		}
-
-		this._sounds = new Map<SoundType, SoundFn>([
-			[SoundType.BAWK, () => { return AudioType.BAWK; }],
-			[SoundType.EXPLOSION, () => { return AudioType.EXPLOSION; }],
-		]);
 	}
 
-	loadSound(soundType : SoundType, onLoad? : (sound : BABYLON.Sound) => void, onEnded? : () => void) : void {
-		if (!this._sounds.has(soundType)) {
-			console.error("Error: attempting to play unregistered sound %s", SoundType[soundType]);
-			return;
-		}
-
-		const audioType = this._sounds.get(soundType)();
-
-		// TODO: lazy initialize the cache here?
-		if (!this._audioCache.has(audioType)) {
-			console.error("Error: audio cache is not initialized for %s", AudioType[audioType]);
-			return;
-		}
-		let cache = this._audioCache.get(audioType);
-
-		// TODO: set volume and other global settings
-		// TODO: debug audio lag after browser is inactive
-		let audio = cache.borrow(onLoad);
-		audio.onEndedObservable.addOnce(() => {
-			cache.return(audio);
-			if (onEnded) {
-				onEnded();
-			}
-		});
-	}
-
-	// TODO: postUpdate instead?
-	override preRender() : void {
-		super.preRender();
+	override postPhysics(stepData : StepData) : void {
+		super.postPhysics(stepData);
 
 		// Set sound positions
 		game.entities().getMap(EntityType.PLAYER).executeIf((player : Player) => {
@@ -83,7 +29,10 @@ export class Audio extends SystemBase implements System {
 		}, (player : Player) => {
 			return player.initialized() && !player.deleted();
 		});
-		if (game.lakitu().hasTargetEntity()) {
+		if (game.lakitu().hasTargetEntity()
+			&& game.lakitu().targetEntity().hasProfile()
+			&& game.lakitu().targetEntity().initialized()
+			&& !game.lakitu().targetEntity().deleted()) {
 			ui.updatePos(game.clientId(), game.lakitu().targetEntity().profile().getRenderPos())
 		}
 	}

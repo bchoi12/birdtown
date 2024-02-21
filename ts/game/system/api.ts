@@ -41,17 +41,6 @@ export enum LevelLayout {
 	CIRCLE,
 }
 
-export enum MusicType {
-	UNKNOWN,
-}
-
-export enum SoundType {
-	UNKNOWN,
-
-	BAWK,
-	EXPLOSION,
-}
-
 export enum PlayerRole {
 	UNKNOWN,
 

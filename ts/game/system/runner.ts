@@ -11,6 +11,7 @@ import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { ChannelType } from 'network/api'
 
+import { settings } from 'settings'
 import { SpeedSetting } from 'settings/api'
 
 import { ui } from 'ui'
@@ -52,7 +53,7 @@ export class Runner extends SystemBase implements System  {
 		super(SystemType.RUNNER);
 
 		this._gameSpeed = SpeedSetting.NORMAL;
-		this._renderSpeed = SpeedSetting.NORMAL;
+		this._renderSpeed = settings.fpsSetting;
 
 		this._gameStepper = new Stepper();
 		this._renderStepper = new Stepper();
@@ -72,15 +73,7 @@ export class Runner extends SystemBase implements System  {
 	override handleMessage(msg : GameMessage) : void {
 		super.handleMessage(msg);
 
-		if (!this.isSource()) {
-			return;
-		}
-
 		switch(msg.type()) {
-		case GameMessageType.CLIENT_JOIN:
-		case GameMessageType.LEVEL_LOAD:
-			this._sendFullMsg = true;
-			break;
 		case GameMessageType.GAME_STATE:
 			switch (msg.getGameState()) {
 			case GameState.FINISH:
@@ -90,6 +83,17 @@ export class Runner extends SystemBase implements System  {
 			default:
 				this._gameStepper.setUpdateSpeed(1);
 			}
+		}
+
+		if (!this.isSource()) {
+			return;
+		}
+
+		switch(msg.type()) {
+		case GameMessageType.CLIENT_JOIN:
+		case GameMessageType.LEVEL_LOAD:
+			this._sendFullMsg = true;
+			break;
 		}
 	}
 

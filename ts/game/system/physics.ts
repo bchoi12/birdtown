@@ -23,12 +23,14 @@ export class Physics extends SystemBase implements System {
 	constructor() {
 		super(SystemType.PHYSICS);
 
-		// TODO: support higher iterations for low FPS mode?
 		this._engine = MATTER.Engine.create({
 			gravity: { y: 0 },
-			constraintIterations: 4,
+			// default = 2
+			constraintIterations: 3,
+			// default = 6
 			positionIterations: 8,
-			velocityIterations: 4,
+			// default = 4
+			velocityIterations: 6,
 		});
 
 		this._minimap = Html.elm(Html.divMinimap);

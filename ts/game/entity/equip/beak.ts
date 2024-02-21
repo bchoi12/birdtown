@@ -2,13 +2,13 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { Model } from 'game/component/model'
+import { SoundPlayer } from 'game/component/sound_player'
 import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { MeshType } from 'game/factory/api'
+import { MeshType, SoundType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
-import { SoundType } from 'game/system/api'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 
@@ -30,6 +30,7 @@ export abstract class Beak extends Equip<Player> {
 	private _squawkTimer : Timer;
 
 	private _model : Model;
+	private _soundPlayer : SoundPlayer;
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
@@ -65,10 +66,12 @@ export abstract class Beak extends Equip<Player> {
 			},
 			init: entityOptions.modelInit,
 		}));
+
+		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
+		this._soundPlayer.registerSound(SoundType.BAWK, SoundType.BAWK);
 	}
 
 	abstract meshType() : MeshType;
-	abstract soundType() : SoundType;
 
 	override attachType() : AttachType { return AttachType.BEAK; }
 
@@ -101,20 +104,13 @@ export abstract class Beak extends Equip<Player> {
 		if (this._squawkTimer.hasTimeLeft()) {
 			return;
 		}
-
 		this._squawking = squawking;
+
 		if (this._squawking) {
-			game.audio().loadSound(this.soundType(), (sound : BABYLON.Sound) => {
-				if (this._model.hasMesh()) {
-					sound.attachToMesh(this._model.mesh());
-				} else if (this.owner().hasProfile()) {
-					sound.setPosition(this.owner().profile().getRenderPos().toBabylon3());
-				}
-				// TODO: set playbackRate if big
-				sound.play();
-			}, () => {
+			this._soundPlayer.onEnded(SoundType.BAWK).addOnce(() => {
 				this._squawking = false;
 			});
+			this._soundPlayer.playFromSelf(SoundType.BAWK);
 			this._squawkTimer.start(Beak._squawkCooldown);
 		}
 	}

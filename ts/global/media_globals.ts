@@ -2,18 +2,18 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 export namespace MediaGlobals {
 
-	export const panningModel = "equalpower";
+	export const panningModel = "HRTF";
 	export const distanceModel = "linear";
-	export const refDistance = 8;
-	export const maxDistance = 32;
-	export const rolloffFactor = 1.5;
+	export const refDistance = 10;
+	export const maxDistance = 40;
+	export const rolloffFactor = 1.8;
 
-	export const spatialGameOptions : BABYLON.ISoundOptions = {
+	export const gameOptions : BABYLON.ISoundOptions = {
 	    distanceModel: distanceModel,
 	    refDistance: refDistance,
 	    maxDistance: maxDistance,
 	    rolloffFactor: rolloffFactor,
-	    spatialSound: true,
+	    spatialSound: false,
 	};
 
 	export const spatialVoiceOptions : PannerOptions = {

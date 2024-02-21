@@ -1,4 +1,5 @@
-export enum AudioType {
+
+export enum SoundType {
 	UNKNOWN,
 	BAWK,
 	EXPLOSION,
