@@ -25,6 +25,9 @@ export class Runner extends SystemBase implements System  {
 	// Snap seqNum to host when time diff is above a threshold
 	private static readonly _clientSnapThreshold = 1000;
 
+	// Max speedup is 10%
+	private static readonly _maxSpeedUp = 1.1;
+
 	private static readonly _channelMapping = new Map<DataFilter, ChannelType>([
 		[DataFilter.INIT, ChannelType.TCP],
 		[DataFilter.TCP, ChannelType.TCP],
@@ -165,7 +168,7 @@ export class Runner extends SystemBase implements System  {
 	private getGameStep() : number {
 		let currentStep = this._gameStepper.timeSinceBeginStep();
 
-		if (currentStep > 1.2 * this.gameTargetStep()) {
+		if (currentStep > Runner._maxSpeedUp * this.gameTargetStep()) {
 			currentStep = this.gameTargetStep();
 		}
 

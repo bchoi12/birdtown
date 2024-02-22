@@ -238,6 +238,7 @@ body {
 }
 
 .dialog {
+    display: block;
     position: absolute;
     width: 70%;
     height: 70%;
@@ -259,13 +260,10 @@ body {
 }
 
 #div-scoreboard {
-    width: 70%;
-    height: 70%;
-    top: 15%;
-    left: 15%;
+    visibility: hidden;
+}
 
-    position: absolute;
-    display: block;
+#div-quick-menu {
     visibility: hidden;
 }
 

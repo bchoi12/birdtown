@@ -18,7 +18,8 @@ import { Vec3 } from 'util/vector'
 
 export class Scouter extends Equip<Player> {
 
-	private static readonly _lookLength = 8;
+	private static readonly _lookVertical = 5;
+	private static readonly _lookHorizontal = 8;
 	private static readonly _lookPanTime = 200;
 
 	private _look : Vec3;
@@ -57,7 +58,8 @@ export class Scouter extends Equip<Player> {
 		});
 
 		if (this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED)) {
-			this._look = Vec3.fromVec(this.inputDir()).normalize().scale(Scouter._lookLength);
+			this._look = Vec3.fromVec(this.inputDir()).normalize();
+			this._look.scale(Math.abs(this._look.y) * Scouter._lookVertical + (1 - Math.abs(this._look.y)) * Scouter._lookHorizontal);
 			this._lookWeight = 0;			
 		}
 

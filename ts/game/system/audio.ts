@@ -1,18 +1,12 @@
-import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
-import { SoundFactory } from 'game/factory/sound_factory'
 import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 
 import { ui } from 'ui'
-
-import { defined } from 'util/common'
-import { ObjectCache } from 'util/object_cache'
-import { SeededRandom } from 'util/seeded_random'
 
 export class Audio extends SystemBase implements System {
 
