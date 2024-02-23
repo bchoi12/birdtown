@@ -4,6 +4,8 @@ import { BackgroundArchRoom } from 'game/entity/background/background_arch_room'
 import { ArchBalcony } from 'game/entity/block/arch_balcony'
 import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
+import { Floor } from 'game/entity/bound/floor'
+import { Wall } from 'game/entity/bound/wall'
 import { Cloud } from 'game/entity/cloud'
 import { Crate } from 'game/entity/crate'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
@@ -23,7 +25,6 @@ import { Bolt } from 'game/entity/projectile/bolt'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Sign } from 'game/entity/sign'
 import { SpawnPoint } from 'game/entity/spawn_point'
-import { Wall } from 'game/entity/wall'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Sniper } from 'game/entity/equip/weapon/sniper'
 
@@ -47,6 +48,7 @@ export namespace EntityFactory {
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],
+		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
 		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],

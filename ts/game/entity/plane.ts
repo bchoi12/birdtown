@@ -53,14 +53,11 @@ export class Plane extends EntityBase implements Entity {
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
-					render: {
-						visible: false,
-					},
 				});
 			},
 			init: entityOptions.profileInit,
 		}));
-
+		this._profile.setRenderNever();
 		this._profile.setVel({x: Plane._speed, y: 0});
 	}
 

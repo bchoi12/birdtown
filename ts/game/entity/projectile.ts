@@ -67,11 +67,10 @@ export abstract class Projectile extends EntityBase {
 			return;
 		}
 
-		const profile = this.profile();
 		this.addEntity(EntityType.EXPLOSION, {
 			ttl: 200,
 			profileInit: {
-				pos: profile.pos(),
+				pos: this.profile().body().position,
 				dim: {x: 3, y: 3},
 			},
 			...entityOptions,

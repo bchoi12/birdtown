@@ -110,41 +110,6 @@ export class Physics extends SystemBase implements System {
 				return;
 			}
 
-			// Ignore "pixel collisions"
-			let normal = Vec2.fromVec(collision.normal);
-			let pen = Vec2.fromVec(collision.penetration);
-			if (profileB.body().isStatic) {
-				// Find overlap of rectangle bounding boxes.
-				let overlap = profileA.pos().clone().sub(profileB.pos()).abs().sub({
-					x: profileA.scaledDim().x / 2 + profileB.scaledDim().x / 2,
-					y: profileA.scaledDim().y / 2 + profileB.scaledDim().y / 2,
-				});
-
-				// Calculate relative vel to determine collision direction
-				let vel = profileA.vel();
-				const xCollision = Math.abs(overlap.x * vel.y) < Math.abs(overlap.y * vel.x);
-				if (xCollision) {
-					// Either overlap in other dimension is too small or collision direction is in disagreement.
-					if (Math.abs(overlap.y) < 1e-2 || Math.abs(normal.y) > 0.99) {
-						pen.scale(0);
-					}
-					pen.y = 0;
-					normal.x = Math.sign(normal.x);
-					normal.y = 0;
-				} else {
-					if (Math.abs(overlap.x) < 1e-2 || Math.abs(normal.x) > 0.99) {
-						pen.scale(0);
-					}
-					pen.x = 0;
-					normal.x = 0;
-					normal.y = Math.sign(normal.y);
-				}
-			}
-			collision.normal.x = normal.x;
-			collision.normal.y = normal.y;
-			collision.penetration.x = pen.x;
-			collision.penetration.y = pen.y;
-
 			entityA.collide(collision, entityB);
 			collision.normal.x *= -1;
 			collision.normal.y *= -1;

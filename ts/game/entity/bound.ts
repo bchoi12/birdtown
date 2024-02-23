@@ -7,16 +7,14 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
 
-import { defined } from 'util/common'
-import { Vec } from 'util/vector'
+export abstract class Bound extends EntityBase implements Entity {
 
-export class Wall extends EntityBase implements Entity {
+	protected _attributes : Attributes;
+	protected _profile : Profile;
 
-	private _attributes : Attributes;
-	private _profile : Profile;
-
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.WALL, entityOptions);
+	constructor(entityType : EntityType, entityOptions : EntityOptions) {
+		super(entityType, entityOptions);
+		this.addType(EntityType.BOUND);
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.setAttribute(AttributeType.SOLID, true);
@@ -26,14 +24,12 @@ export class Wall extends EntityBase implements Entity {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
 					collisionFilter: {
-						group: BodyFactory.ignoreWallGroup,
+						group: BodyFactory.ignoreBoundGroup,
 					},
-					render: {
-						lineWidth: 0,
-					}
 				});
 			},
 			init: entityOptions.profileInit,
 		}));
+		this._profile.setRenderNever();
 	}
 }

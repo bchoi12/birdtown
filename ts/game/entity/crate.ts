@@ -39,6 +39,9 @@ export class Crate extends EntityBase implements Entity {
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: BodyFactory.defaultDensity,
+					render: {
+						fillStyle: "#FF0000",
+					}
 				});
 			},
 			init: {...entityOptions.profileInit, degraded: true },
@@ -47,6 +50,7 @@ export class Crate extends EntityBase implements Entity {
 		if (!this._profile.hasAngle()) {
 			this._profile.setAngle(0);
 		}
+		this._profile.setRenderUnoccluded();
 		this._profile.mergeLimits({
 			// TODO: scalar param?
 			maxSpeed: {x: 0.6, y: 0.6 },

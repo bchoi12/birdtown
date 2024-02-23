@@ -325,5 +325,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			entity: from,
 		});
 	}
-	collide(collision : MATTER.Collision, other : Entity) : void {}
+	collide(collision : MATTER.Collision, other : Entity) : void {
+		if (this.hasProfile()) {
+			this.profile().collide(collision, other);
+		}
+	}
 }

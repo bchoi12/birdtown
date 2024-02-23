@@ -39,13 +39,11 @@ export abstract class Particle extends EntityBase implements Entity {
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
-					render: {
-						visible: false,
-					},
 				});
 			},
 			init: entityOptions.profileInit,
 		}));
+		this._profile.setRenderNever();
 	}
 
 	override dispose() : void {

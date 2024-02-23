@@ -19,7 +19,7 @@ import { Vec3 } from 'util/vector'
 export class Scouter extends Equip<Player> {
 
 	private static readonly _lookVertical = 5;
-	private static readonly _lookHorizontal = 8;
+	private static readonly _lookHorizontal = 9;
 	private static readonly _lookPanTime = 200;
 
 	private _look : Vec3;

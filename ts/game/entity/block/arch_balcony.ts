@@ -27,21 +27,20 @@ export class ArchBalcony extends ArchBase implements Entity {
 			return;
 		}
 
-		this.addTrackedEntity(EntityType.WALL, {
-			profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.scaledDim().x, y: this.thickness() }),
-		});
-
 		if (this.openings().anyLeft()) {
 			this._model.onLoad((model : Model) => {
 				model.mesh().position.x = -this._profile.scaledDim().x / 2;
 				model.mesh().rotation.y = Math.PI / 2;
 			});
 
-			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.RIGHT, {
+			this.addFloor(
+				this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {
+					x: this._profile.scaledDim().x - this.thickness(),
+					y: this.thickness() }));
+			this.addWall(
+				this._profile.createRelativeInit(CardinalDir.RIGHT, {
 					x: ArchBalcony._sideWallScale * this.thickness(),
-					y: this._profile.scaledDim().y }),
-			});
+					y: this._profile.scaledDim().y }));
 
 		} else if (this.openings().anyRight()) {
 			this._model.onLoad((model : Model) => {
@@ -49,11 +48,14 @@ export class ArchBalcony extends ArchBase implements Entity {
 				model.mesh().rotation.y = -Math.PI / 2;
 			});
 
-			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.LEFT, {
+			this.addFloor(
+				this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {
+					x: this._profile.scaledDim().x - this.thickness(),
+					y: this.thickness() }));
+			this.addWall(
+				this._profile.createRelativeInit(CardinalDir.LEFT, {
 					x: ArchBalcony._sideWallScale * this.thickness(),
-					y: this._profile.scaledDim().y }),
-			});
+					y: this._profile.scaledDim().y }));
 		}
 	}
 }

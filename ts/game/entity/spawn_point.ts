@@ -25,12 +25,10 @@ export class SpawnPoint extends EntityBase implements Entity {
 				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
 					isSensor: true,
-					render: {
-						visible: false,
-					},
 				});
 			},
 			init: entityOptions.profileInit,
 		}));
+		this._profile.setRenderNever();
 	}
 }

@@ -26,7 +26,6 @@ import { MeshType, TextureType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
-import { CollisionInfo } from 'game/util/collision_info'
 import { MaterialShifter } from 'game/util/material_shifter'
 
 import { GameGlobals } from 'global/game_globals'
@@ -116,7 +115,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _armRecoil : number;
 	private _headDir : Vec2;
 	private _boneOrigins : Map<Bone, BABYLON.Vector3>;
-	private _collisionInfo : CollisionInfo;
 	private _eyeShifter : MaterialShifter;
 
 	private _canJumpTimer : Timer;
@@ -140,7 +138,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._armRecoil = 0;
 		this._headDir = Vec2.i();
 		this._boneOrigins = new Map();
-		this._collisionInfo = new CollisionInfo();
 		this._eyeShifter = new MaterialShifter();
 
 		this._canJumpTimer = this.newTimer({
@@ -197,6 +194,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			},
 			init: entityOptions.profileInit,
 		}));
+		if (!this.clientIdMatches()) {
+			this._profile.setRenderUnoccluded();
+		}
 		this._profile.setAngle(0);
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
@@ -213,9 +213,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					collisionFilter: {
 						group: collisionGroup,
 					},
-					render: {
-						visible: false,
-					},
 				});
 			},
 			init: {
@@ -229,6 +226,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				MATTER.Body.setPosition(head.body(), this._profile.pos().clone().add({y: 0.22}));
 			},
 		}));
+		this._headSubProfile.setRenderNever();
 		this._headSubProfile.setAngle(0);
 
 		this._model = this.addComponent<Model>(new Model({
@@ -548,49 +546,13 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 	}
 
-	override prePhysics(stepData : StepData) : void {
-		super.prePhysics(stepData);
-
-		this._collisionInfo.resetAndSnapshot(this._profile);
-	}
-
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		this._collisionInfo.pushRecord({
-			entity: other,
-			penetration: Vec2.fromVec(collision.penetration),
-			normal: Vec2.fromVec(collision.normal),
-		});
-	}
-
-	override postPhysics(stepData : StepData) : void {
-		super.postPhysics(stepData);
-
-		let resolvedVel = Vec2.fromVec(this._collisionInfo.vel());
-		while (this._collisionInfo.hasRecord()) {
-			const record = this._collisionInfo.popRecord();
-			const pen = record.penetration;
-
-			if (!record.entity.getAttribute(AttributeType.SOLID) || pen.isZero()) {
-				continue;
-			}
-
-			// Check if we should use updated velocity.
-			if (Math.abs(pen.x) > 1e-6) {
-				resolvedVel.x = this._profile.vel().x;
-			}
-			if (Math.abs(pen.y) > 1e-6) {
-				resolvedVel.y = this._profile.vel().y;
-			}
-
-			if (record.normal.y > 0.7) {
-				this._canDoubleJump = true;
-				this._canJumpTimer.start(Player._jumpGracePeriod);
-			}
+		if (other.getAttribute(AttributeType.SOLID) && collision.normal.y > 0.7) {
+			this._canDoubleJump = true;
+			this._canJumpTimer.start(Player._jumpGracePeriod);
 		}
-		this._profile.setVel(resolvedVel);
-		MATTER.Body.setVelocity(this._profile.body(), this._profile.vel());
 	}
 
 	override preRender() : void {

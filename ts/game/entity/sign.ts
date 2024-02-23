@@ -75,13 +75,11 @@ export class Sign extends EntityBase implements Entity {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
 					isSensor: true,
-					render: {
-						visible: false,
-					},
 				});
 			},
 			init: entityOptions.profileInit,
 		}));
+		this._profile.setRenderNever();
 	}
 
 	override prePhysics(stepData : StepData) : void {

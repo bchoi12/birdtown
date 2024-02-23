@@ -5,7 +5,7 @@ import { Vec } from 'util/vector'
 
 export namespace BodyFactory {
 
-	export const ignoreWallGroup = MATTER.Body.nextGroup(true);
+	export const ignoreBoundGroup = MATTER.Body.nextGroup(true);
 
 	export const defaultDensity = 1;
 	export const playerDensity = 1.5 * defaultDensity;

@@ -56,5 +56,6 @@ export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 			},
 			init: entityOptions.profileInit,
 		}));
+		this._profile.setRenderNever();
 	}
 }

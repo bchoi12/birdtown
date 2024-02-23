@@ -2,11 +2,11 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { AttributeType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 import { ColorFactory } from 'game/factory/color_factory'
 import { ColorType } from 'game/factory/api'
-import { ComponentType } from 'game/component/api'
+import { ComponentType, AttributeType } from 'game/component/api'
+import { Attributes } from 'game/component/attributes'
 import { Cardinals } from 'game/component/cardinals'
 import { EntityTrackers } from 'game/component/entity_trackers'
 import { HexColors } from 'game/component/hex_colors'
@@ -59,6 +59,7 @@ export abstract class Block extends EntityBase {
 	protected _frontMaterials : Set<string>
 	protected _transparentFrontMeshes : Array<BABYLON.Mesh>;
 
+	protected _attributes : Attributes;
 	protected _cardinals : Cardinals;
 	protected _entityTrackers : EntityTrackers;
 	protected _hexColors : HexColors;
@@ -85,15 +86,16 @@ export abstract class Block extends EntityBase {
 					isSensor: true,
 					isStatic: true,
 					collisionFilter: {
-						group: BodyFactory.ignoreWallGroup,
+						group: BodyFactory.ignoreBoundGroup,
 					},
 					render: {
-						visible: false,
-					},
+						fillStyle: this._hexColors.color(ColorType.BASE).toString(),
+					}
 				});
 			},
 			init: entityOptions.profileInit,
 		}));
+		this._profile.setRenderNever();
 
 		this._model = this.addComponent(new Model({
 			readyFn: () => {
@@ -158,7 +160,8 @@ export abstract class Block extends EntityBase {
 		super.postPhysics(stepData);
 		const millis = stepData.millis;
 
-		if (this.transparent()) {
+		this.setAttribute(AttributeType.OCCLUDED, this._transparent);
+		if (this._transparent) {
 			this._frontMaterials.forEach((name : string) => {
 				const cached = this._materialCache.get(name);
 				cached.material.alpha = Math.max(Block._minOpacity, cached.material.alpha - millis / Block._transitionMillis);

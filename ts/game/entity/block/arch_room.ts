@@ -20,56 +20,45 @@ export class ArchRoom extends ArchBase implements Entity {
 		super.initialize();
 
 		if (this.openings().empty()) {
-			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: {
-					pos: this._profile.pos().clone().add({ y: this.thickness() / 2 }),
-					dim: this._profile.scaledDim().clone().add({ y: this.thickness() }),
-				}
+			this.addWall({
+				pos: this._profile.pos().clone().add({ y: this.thickness() / 2 }),
+				dim: this._profile.scaledDim().clone().add({ y: this.thickness() }),
 			});
 			return;
 		}
 
 		if (!this.openings().anyBottom()) {
-			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.scaledDim().x, y: this.thickness() }),
-			});
+			this.addFloor(
+				this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.scaledDim().x, y: this.thickness() }));
 		} else {
 			if (!this.openings().hasDir(CardinalDir.BOTTOM_LEFT)) {
-				this.addTrackedEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this._profile.scaledDim().x / 2, y: this.thickness() }),
-				});
-				this.addTrackedEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this.thickness(), y: this.thickness() }),
-				});
+				this.addFloor(
+					this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this._profile.scaledDim().x / 2, y: this.thickness() }));
+				this.addFloor(
+					this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this.thickness(), y: this.thickness() }));
 			}
 			if (!this.openings().hasDir(CardinalDir.BOTTOM_RIGHT)) {
-				this.addTrackedEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this._profile.scaledDim().x / 2, y: this.thickness() }),
-				});
-				this.addTrackedEntity(EntityType.WALL, {
-					profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this.thickness(), y: this.thickness() }),
-				});
+				this.addFloor(
+					this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this._profile.scaledDim().x / 2, y: this.thickness() }));
+				this.addFloor(
+					this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this.thickness(), y: this.thickness() }));
 			}
 		}
 
 		if (this.openings().hasDir(CardinalDir.RIGHT)) {
-			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.TOP_RIGHT, {x: this.thickness(), y: ArchBase._doorHeight }),
-			});
+			this.addWall(
+				this._profile.createRelativeInit(CardinalDir.TOP_RIGHT, {x: this.thickness(), y: ArchBase._doorHeight }));
 		} else {
-			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.RIGHT, {x: this.thickness(), y: this._profile.scaledDim().y }),
-			});
+			this.addWall(
+				this._profile.createRelativeInit(CardinalDir.RIGHT, {x: this.thickness(), y: this._profile.scaledDim().y }));
 		}
 
 		if (this.openings().hasDir(CardinalDir.LEFT)) {
-			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.TOP_LEFT, {x: this.thickness(), y: ArchBase._doorHeight }),
-			});
+			this.addWall(
+				this._profile.createRelativeInit(CardinalDir.TOP_LEFT, {x: this.thickness(), y: ArchBase._doorHeight }));
 		} else {
-			this.addTrackedEntity(EntityType.WALL, {
-				profileInit: this._profile.createRelativeInit(CardinalDir.LEFT, {x: this.thickness(), y: this._profile.scaledDim().y }),
-			});
+			this.addWall(
+				this._profile.createRelativeInit(CardinalDir.LEFT, {x: this.thickness(), y: this._profile.scaledDim().y }));
 		}
 	}
 }

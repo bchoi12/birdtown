@@ -2,11 +2,14 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { GameObjectState } from 'game/api'
+import { Component, ComponentBase } from 'game/component'
+import { ComponentType, AttributeType, StatType } from 'game/component/api'
+import { Stats } from 'game/component/stats'
+import { Entity } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
-import { Component, ComponentBase } from 'game/component'
-import { ComponentType, StatType } from 'game/component/api'
-import { Stats } from 'game/component/stats'
+import { CollisionBuffer, RecordType } from 'game/util/collision_buffer'
 
 import { GameGlobals } from 'global/game_globals'
 
@@ -58,6 +61,14 @@ export type ProfileLimits = {
 	maxSpeed? : Vec;
 }
 
+enum RenderMode {
+	UNKNOWN,
+
+	ALWAYS,
+	NEVER,
+	CHECK_OCCLUSION,
+}
+
 export class Profile extends ComponentBase implements Component {
 
 	private static readonly _minQuantization = 1e-3;
@@ -72,12 +83,14 @@ export class Profile extends ComponentBase implements Component {
 	private _prePhysicsFn : PhysicsFn;
 	private _postPhysicsFn : PhysicsFn;
 
+	private _applyScaling : boolean;
+	private _collisionBuffer : CollisionBuffer;
+	private _constraints : Map<number, MATTER.Constraint>;
 	private _forces : Buffer<Vec>;
 	private _limits : ProfileLimits;
-	private _constraints : Map<number, MATTER.Constraint>;
 	private _smoother : Smoother;
-	private _applyScaling : boolean;
 	private _scaleFactor : Vec2;
+	private _renderMode : RenderMode;
 
 	private _pos : SmoothVec2;
 	private _vel : SmoothVec2;
@@ -101,12 +114,14 @@ export class Profile extends ComponentBase implements Component {
 		if (profileOptions.prePhysicsFn) { this._prePhysicsFn = profileOptions.prePhysicsFn; }
 		if (profileOptions.postPhysicsFn) { this._postPhysicsFn = profileOptions.postPhysicsFn; }
 
+		this._applyScaling = false;
+		this._collisionBuffer = new CollisionBuffer();
 		this._constraints = new Map();
 		this._forces = new Buffer();
 		this._limits = {};
-		this._smoother = new Smoother();
-		this._applyScaling = false;
 		this._scaleFactor = Vec2.one();
+		this._smoother = new Smoother();
+		this._renderMode = RenderMode.ALWAYS;
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -289,6 +304,30 @@ export class Profile extends ComponentBase implements Component {
 			this._onBodyFns.push(fn);
 		}
 	}
+	setRenderAlways() : void { this.setRenderMode(RenderMode.ALWAYS); }
+	setRenderUnoccluded() : void { this.setRenderMode(RenderMode.CHECK_OCCLUSION); }
+	setRenderNever() : void { this.setRenderMode(RenderMode.NEVER); }
+	private setRenderMode(mode : RenderMode) : void {
+		if (this._renderMode === mode) {
+			return;
+		}
+
+		this._renderMode = mode;
+		switch (mode) {
+			case RenderMode.ALWAYS:
+			case RenderMode.CHECK_OCCLUSION:
+				this.onBody((profile : Profile) => {
+					profile.body().render.visible = true;
+				});
+				break;
+			case RenderMode.NEVER:
+				this.onBody((profile : Profile) => {
+					profile.body().render.visible = false;
+				});
+				break;
+		}
+	}
+
 	addConstraint(constraint : MATTER.Constraint) : [MATTER.Constraint, number] {
 		const id = this._constraints.size + 1;
 		MATTER.Composite.add(game.physics().world(), constraint);
@@ -540,7 +579,6 @@ export class Profile extends ComponentBase implements Component {
 
 		let weight = 0;
 		if (settings.predictionTime() > 0) {
-			// this._smoother.setDiff(game.keys(this.entity().clientId()).maxDiff());
 			this._smoother.setDiff(game.runner().seqNumDiff());
 			weight = this._smoother.weight();
 		}
@@ -570,12 +608,103 @@ export class Profile extends ComponentBase implements Component {
 
 		MATTER.Body.setPosition(this._body, this.pos());
 
+		this._collisionBuffer.reset();
+
 		// Update child objects afterwards
 		super.prePhysics(stepData);
 	}
 
+	collide(collision : MATTER.Collision, other : Entity) : void {
+		if (this._body.isSensor || this._body.isStatic || other.profile().body().isSensor) {
+			return;
+		}
+
+		const otherProfile = other.profile();
+
+		// Smooth out "pixel" collisions
+		let normal = Vec2.fromVec(collision.normal);
+		let pen = Vec2.fromVec(collision.penetration);
+		let fixed = false;
+		if (otherProfile.body().isStatic && other.getAttribute(AttributeType.SOLID)) {
+			// Find overlap of rectangle bounding boxes.
+			let overlap = this.pos().clone().sub(otherProfile.pos()).abs().sub({
+				x: this.scaledDim().x / 2 + otherProfile.scaledDim().x / 2,
+				y: this.scaledDim().y / 2 + otherProfile.scaledDim().y / 2,
+			}).mult({
+				x: 1 / this.scaledDim().x,
+				y: 1 / this.scaledDim().y,
+			});
+
+			// Calculate relative vel to determine collision direction
+			let vel = this.vel();
+			const yCollision = Math.abs(overlap.x * vel.y) >= Math.abs(overlap.y * vel.x);
+			if (yCollision) {
+				// Either overlap in other dimension is too small or collision direction is in disagreement.
+				if (Math.abs(overlap.x) < 0.01 || Math.abs(normal.x) > 0.99) {
+					pen.scale(0);
+					fixed = true;
+				}
+				pen.x = 0;
+				normal.x = 0;
+				normal.y = Math.sign(normal.y);
+			} else {
+				if (Math.abs(overlap.y) < 0.01 || Math.abs(normal.y) > 0.99) {
+					pen.scale(0);
+					fixed = true;
+				}
+				pen.y = 0;
+				normal.x = Math.sign(normal.x);
+				normal.y = 0;
+			}
+		}
+
+		if (other.allTypes().has(EntityType.FLOOR)) {
+			if (Math.abs(normal.x) > 0 || Math.abs(pen.x) > 0) {
+				pen.x = 0;
+				normal.x = 0;
+				normal.y = Math.sign(normal.y);
+				fixed = true;
+			}
+		}
+
+		collision.normal.x = normal.x;
+		collision.normal.y = normal.y;
+		collision.penetration.x = pen.x;
+		collision.penetration.y = pen.y;
+
+		this._collisionBuffer.pushRecord({
+			entity: other,
+			collision: collision,
+			fixed: fixed,
+		});
+	}
+
 	override postPhysics(stepData : StepData) : void {
 		const seqNum = stepData.seqNum;
+		const millis = stepData.millis;
+
+		if (this._collisionBuffer.fixed() && this._collisionBuffer.hasRecords()) {
+			if (this._collisionBuffer.record(RecordType.MAX_PEN_X).collision.penetration.x === 0) {
+				MATTER.Body.setVelocity(this._body, {
+					x: this.vel().x,
+					y: this._body.velocity.y,
+				});
+				MATTER.Body.setPosition(this._body, {
+					x: this._body.velocity.x * millis / 1000 + this._body.position.x,
+					y: this._body.position.y,
+				});
+			}
+			if (this._collisionBuffer.record(RecordType.MAX_PEN_Y).collision.penetration.y === 0) {
+				MATTER.Body.setVelocity(this._body, {
+					x: this._body.velocity.x,
+					y: this.vel().y,
+				});
+				MATTER.Body.setPosition(this._body, {
+					x: this._body.position.x,
+					y: this._body.velocity.y * millis / 1000 + this._body.position.y,
+				});
+			}
+		}
 
 		if (this._postPhysicsFn) {
 			this._postPhysicsFn(this);
@@ -605,5 +734,13 @@ export class Profile extends ComponentBase implements Component {
 
 		// Update child objects afterwards.
 		super.postPhysics(stepData);
+	}
+
+	override preRender() : void {
+		super.preRender();
+
+		if (this._renderMode === RenderMode.CHECK_OCCLUSION) {
+			this._body.render.visible = !this.entity().getAttribute(AttributeType.OCCLUDED);
+		}
 	}
 } 
