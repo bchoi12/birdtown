@@ -7,8 +7,14 @@ import { SavedCounter } from 'util/saved_counter'
 
 export type StepperStats = {
 	stepsPerSecond: number;
+	stepsPerSecondMin : number;
+	stepsPerSecondMax : number;
 	stepTime : number;
+	stepTimeMin : number;
+	stepTimeMax : number;
 	stepInterval : number;
+	stepIntervalMin : number;
+	stepIntervalMax : number;
 }
 
 export class Stepper {
@@ -48,16 +54,25 @@ export class Stepper {
 	lastStepTime() : number { return this._endStepTime - this._beginStepTime; }
 	timeSinceBeginStep() : number { return Date.now() - this._beginStepTime; }
 	timeSinceEndStep() : number { return Date.now() - this._endStepTime; }
-	averageStepsPerSecond() : number { return this._stepsPerSecond.average(); }
-	averageStepTime() : number { return this._stepTimes.average(); }
-	averageStepInterval() : number { return this._stepIntervals.average(); }
 
 	stats() : StepperStats {
-		return {
-			stepsPerSecond: this.averageStepsPerSecond(),
-			stepTime: this.averageStepTime(),
-			stepInterval: this.averageStepInterval(),
-		}
+		const stats = {
+			stepsPerSecond: this._stepsPerSecond.average(),
+			stepsPerSecondMin: this._stepsPerSecond.min(),
+			stepsPerSecondMax: this._stepsPerSecond.max(),
+			stepTime: this._stepTimes.average(),
+			stepTimeMin: this._stepTimes.min(),
+			stepTimeMax: this._stepTimes.max(),
+			stepInterval: this._stepIntervals.average(),
+			stepIntervalMin: this._stepIntervals.min(),
+			stepIntervalMax: this._stepIntervals.max(),
+		};
+
+		this._stepsPerSecond.flushStats();
+		this._stepTimes.flushStats();
+		this._stepIntervals.flushStats();
+
+		return stats;
 	}
 
 	beginStep(currentStep : number) : void {

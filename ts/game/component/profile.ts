@@ -684,11 +684,13 @@ export class Profile extends ComponentBase implements Component {
 		const millis = stepData.millis;
 
 		if (this._collisionBuffer.fixed() && this._collisionBuffer.hasRecords()) {
+			// Fix getting stuck on small corners
 			if (this._collisionBuffer.record(RecordType.MAX_PEN_X).collision.penetration.x === 0) {
 				MATTER.Body.setVelocity(this._body, {
 					x: this.vel().x,
 					y: this._body.velocity.y,
 				});
+				// Probably a bit extra to use body vel instead of profile vel, but it works better
 				MATTER.Body.setPosition(this._body, {
 					x: this._body.velocity.x * millis / 1000 + this._body.position.x,
 					y: this._body.position.y,
