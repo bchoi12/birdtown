@@ -86,17 +86,19 @@ enum SubProfile {
 
 export class Player extends EntityBase implements Entity, EquipEntity {
 	// blockdudes3 = 18.0
-	private static readonly _sideAcc = 0.6;
-	private static readonly _jumpVel = 0.3;
+	private static readonly _sideAcc = 0.5;
+	private static readonly _jumpVel = 0.33;
 	private static readonly _maxHorizontalVel = 0.25;
 	private static readonly _maxVerticalVel = 0.6;
-	private static readonly _minSpeed = 1e-3;
+	private static readonly _minSpeed = 5e-4;
 
 	private static readonly _turnMultiplier = 3.0;
 	private static readonly _fallMultiplier = 1.5;
+	private static readonly _lowSpeedMultiplier = 1.5;
+	private static readonly _lowSpeedThreshold = 0.05;
 
-	private static readonly _friction = 24;
-	private static readonly _airResistance = 6;
+	private static readonly _friction = 20;
+	private static readonly _airResistance = 5;
 
 	private static readonly _rotationOffset = -0.1;
 	private static readonly _jumpGracePeriod = 100;
@@ -488,20 +490,25 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.setAcc({ y: gravity });
 
 		if (!this.dead()) {
-			// Keypress acceleration
+			let sideAcc = 0;
 			if (this.key(KeyType.LEFT, KeyState.DOWN)) {
-				this._profile.setAcc({ x: -Player._sideAcc });
+				sideAcc = -Player._sideAcc;
 			} else if (this.key(KeyType.RIGHT, KeyState.DOWN)) {
-				this._profile.setAcc({ x: Player._sideAcc });
-			} else {
-				this._profile.setAcc({ x: 0 });
+				sideAcc = Player._sideAcc;
 			}
 
-			// Turn acceleration
-			const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
-			if (turning) {
-				this._profile.acc().x *= Player._turnMultiplier;
+			// Accel multipliers
+			if (sideAcc !== 0) {
+				const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
+				const sideSpeed = Math.abs(this._profile.vel().x);
+
+				if (turning) {
+					sideAcc *= Player._turnMultiplier;
+				} else if (sideSpeed < Player._lowSpeedThreshold) {
+					sideAcc *= (1 + Player._lowSpeedThreshold - sideSpeed) * Player._lowSpeedMultiplier;
+				}
 			}
+			this._profile.setAcc({ x: sideAcc });
 
 			// Compute head and arm directions
 			const dir = this.inputDir();

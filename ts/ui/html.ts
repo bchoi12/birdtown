@@ -3,6 +3,7 @@
 export namespace Html {
 
 	export const canvasGame = "canvas-game";
+	export const divScreen = "div-screen";
 
 	export const divLogin = "div-login";
 	export const legendLogin = "legend-login";
@@ -40,6 +41,8 @@ export namespace Html {
 	export const fieldsetSettings = "fieldset-settings";
 
 	export const fieldsetKeyBind = "fieldset-key-bind";
+
+	export const divQuickMenu = "div-quick-menu";
 
 	export const classSlightlyTransparent = "slightly-transparent";
 	export const classSpaced = "spaced";

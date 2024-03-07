@@ -148,7 +148,7 @@ export class Runner extends SystemBase implements System  {
 	   		this._gameStepper.endStep();
 	   	}
 
-	   	let interval = Math.max(1, this.gameTargetStep() - this._gameStepper.timeSinceBeginStep());
+	   	let interval = Math.max(1, Math.floor(this.gameTargetStep() - this._gameStepper.timeSinceBeginStep()));
 	   	// Terrible hack to fix Firefox perf
 	   	if (isFirefox()) { interval /= 2; }
     	setTimeout(() => { this.runGameLoop(); }, interval);
@@ -159,7 +159,7 @@ export class Runner extends SystemBase implements System  {
 	   		this.renderFrame(this._renderStepper.getStepData());
 	   		this._renderStepper.endStep();
 	   	}
-	   	let interval = Math.max(1, this.renderTargetStep() - this._renderStepper.timeSinceBeginStep());
+	   	let interval = Math.max(1, Math.floor(this.renderTargetStep() - this._renderStepper.timeSinceBeginStep()));
 	   	// Terrible hack to fix Firefox perf
 	   	if (isFirefox()) { interval /= 2; }
     	setTimeout(() => { this.runRenderLoop(); }, interval);

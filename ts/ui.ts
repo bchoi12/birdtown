@@ -24,7 +24,7 @@ import { TooltipHandler } from 'ui/handler/tooltip_handler'
 
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
-import { Vec } from 'util/vector'
+import { Vec, Vec2 } from 'util/vector'
 
 class UI {
 
@@ -81,6 +81,9 @@ class UI {
 		}
 		return this._audioContext.get();
 	}
+	inputWidth() : number { return this._inputHandler.inputWidth(); }
+	inputHeight() : number { return this._inputHandler.inputHeight(); }
+	screenRect() : DOMRect { return this._inputHandler.screenRect(); }
 
 	handleMessage(msg : UiMessage) : void {
 		if (!msg.valid()) {
@@ -138,7 +141,7 @@ class UI {
 
 	keys() : Set<KeyType> { return this._inputHandler.keys(); }
 	clearKeys() : void { this._inputHandler.clearKeys(); }
-	mouse() : Vec { return this._inputHandler.mouse(); }
+	mouse() : Vec2 { return this._inputHandler.mouse(); }
 	resetKeyBinds() : void { this._inputHandler.reset(); }
 
 	addStream(clientId : number, stream : MediaStream) : void { this._clientsHandler.addStream(clientId, stream); }

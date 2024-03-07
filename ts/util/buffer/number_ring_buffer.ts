@@ -14,8 +14,8 @@ export class NumberRingBuffer extends RingBuffer<number> {
 
 		this._total = 0;
 
-		this._min = new Optional();
-		this._max = new Optional();
+		this._min = Optional.empty(0);
+		this._max = Optional.empty(0);
 	}
 
 	average() : number {

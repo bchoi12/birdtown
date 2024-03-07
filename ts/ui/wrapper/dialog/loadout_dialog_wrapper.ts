@@ -25,7 +25,7 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 		{
 			let buttonWrapper = pageWrapper.addButton(groupIndex);
 			buttonWrapper.elm().textContent = "BIG";
-			buttonWrapper.setOnSelect(() => {
+			buttonWrapper.addOnSelect(() => {
 				this.dialogMessage().setPlayerType(ModifierPlayerType.BIG);
 				pageWrapper.submit();
 			});
@@ -34,7 +34,7 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 		{
 			let buttonWrapper = pageWrapper.addButton(groupIndex);
 			buttonWrapper.elm().textContent = "NORMAL";
-			buttonWrapper.setOnSelect(() => {
+			buttonWrapper.addOnSelect(() => {
 				this.dialogMessage().setPlayerType(ModifierPlayerType.NONE);
 				pageWrapper.submit();
 			});
@@ -48,7 +48,7 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 		{
 			let buttonWrapper = pageWrapper.addButton(groupIndex);
 			buttonWrapper.elm().textContent = "Bazooka";
-			buttonWrapper.setOnSelect(() => {
+			buttonWrapper.addOnSelect(() => {
 				this.dialogMessage().setEquipType(EntityType.BAZOOKA);
 				this.dialogMessage().setAltEquipType(EntityType.JETPACK);
 				pageWrapper.submit();
@@ -58,7 +58,7 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 		{
 			let buttonWrapper = pageWrapper.addButton(groupIndex);
 			buttonWrapper.elm().textContent = "Sniper";
-			buttonWrapper.setOnSelect(() => {
+			buttonWrapper.addOnSelect(() => {
 				this.dialogMessage().setEquipType(EntityType.SNIPER);
 				this.dialogMessage().setAltEquipType(EntityType.SCOUTER);
 				pageWrapper.submit();

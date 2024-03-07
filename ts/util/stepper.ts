@@ -76,18 +76,20 @@ export class Stepper {
 	}
 
 	beginStep(currentStep : number) : void {
-		this._stepIntervals.push(Date.now() - this._beginStepTime);
+		const now = Date.now();
+
+		this._stepIntervals.push(now - this._beginStepTime);
 
 		this._lastStep = currentStep;
 		this._seqNum += this._lastStep;
 
-		if (Math.floor(Date.now() / 1000) > Math.floor(this._beginStepTime / 1000)) {
+		if (Math.floor(now / 1000) > Math.floor(this._beginStepTime / 1000)) {
 			this._stepsCounter.save();
 			this._stepsPerSecond.push(this._stepsCounter.saved());
 			this._stepsCounter.reset();
 		}
 
-		this._beginStepTime = Date.now();
+		this._beginStepTime = now;
 	}
 	getStepData() : StepData {
 		return {

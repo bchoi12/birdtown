@@ -31,7 +31,7 @@ export class InitDialogWrapper extends DialogWrapper {
 		{
 			let buttonWrapper = pageWrapper.addButton(groupIndex);
 			buttonWrapper.elm().textContent = "OK";
-			buttonWrapper.setOnSelect(() => {
+			buttonWrapper.addOnSelect(() => {
 				const name = nameInput.value.length > 0 ? nameInput.value : LoginNames.randomName();
 				this.dialogMessage().setDisplayName(name);
 

@@ -44,8 +44,9 @@ export class InputHandler extends HandlerBase implements Handler {
 	private _keyDownCallbacks : Map<number, (e : any) => void>;
 	private _keyUpCallbacks : Map<number, (e : any) => void>;
 
+	private _screenElm : HTMLElement;
 	private _cursorElm : HTMLElement;
-	private _mouse : Vec;
+	private _mouse : Vec2;
 
 	private _aimMode : AimMode;
 	private _aimElm : HTMLElement;
@@ -62,8 +63,9 @@ export class InputHandler extends HandlerBase implements Handler {
 		this._keyDownCallbacks = new Map();
 		this._keyUpCallbacks = new Map();
 
+		this._screenElm = Html.elm(Html.divScreen);
 		this._cursorElm = Html.elm(Html.cursor);
-		this._mouse = {x: 0, y: 0};
+		this._mouse = Vec2.zero();
 
 		this._aimMode = AimMode.TOUCH;
 		this._aimElm = Html.elm(Html.aim);
@@ -150,7 +152,11 @@ export class InputHandler extends HandlerBase implements Handler {
 		});
 		this._clearedKeys.clear();
 	}
-	mouse() : Vec { return this._mouse; }
+	mouse() : Vec2 { return this._mouse; }
+
+	screenRect() : DOMRect { return this._screenElm.getBoundingClientRect(); }
+	inputWidth() : number { return window.innerWidth; }
+	inputHeight() : number { return window.innerHeight; }
 
 	private mapKey(keyCode : number, key : KeyType) {
 		this._keyMap.set(keyCode, key);
@@ -179,8 +185,8 @@ export class InputHandler extends HandlerBase implements Handler {
 					continue;
 				}
 
-				const ratioX = touch.clientX / window.innerWidth;
-				const ratioY = touch.clientY / window.innerHeight;
+				const ratioX = touch.clientX / this.inputWidth();
+				const ratioY = touch.clientY / this.inputHeight();
 
 				if (ratioY < 0.2) {
 					if (ratioX < 0.2 || ratioX > 0.8) {
@@ -217,6 +223,8 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	private updateAim(touch : Touch) : void {
+		const screen = this.screenRect();
+
 		if (!this._aim.has() || this._aimId.get() !== touch.identifier) {
 			this._aimId.set(touch.identifier);
 			this._aim.set(Vec2.fromVec({x: touch.clientX, y: touch.clientY }));
@@ -232,8 +240,8 @@ export class InputHandler extends HandlerBase implements Handler {
 			this._mouse.x = touch.clientX;
 			this._mouse.y = touch.clientY;
 		} else {
-			this._mouse.x = window.innerWidth / 2 + touch.clientX - this._aim.get().x;
-			this._mouse.y = window.innerHeight / 2 + touch.clientY - this._aim.get().y;
+			this._mouse.x = this.inputWidth() / 2 + touch.clientX - this._aim.get().x;
+			this._mouse.y = this.inputHeight() / 2 + touch.clientY - this._aim.get().y;
 		}
 	}
 	private resetAim() : void {
@@ -294,30 +302,25 @@ export class InputHandler extends HandlerBase implements Handler {
 	private pointerLocked() : boolean { return document.pointerLockElement === game.canvas(); }
 
 	private recordMouse(e : any) : void {
+		const screen = this.screenRect();
+
 		if (!this.pointerLocked()) {
 			this._mouse.x = e.clientX;
 			this._mouse.y = e.clientY;
 		} else {
 			this._mouse.x += e.movementX;
 			this._mouse.y += e.movementY;
-    	}
 
-		if (this._mouse.x > window.innerWidth) {
-			this._mouse.x = window.innerWidth;
-		} else if (this._mouse.x < 0) {
-			this._mouse.x = 0;
-		}
-		if (this._mouse.y > window.innerHeight) {
-			this._mouse.y = window.innerHeight;
-		} else if (this._mouse.y < 0) {
-			this._mouse.y = 0;
-		}
+			this._mouse.max({x: 0, y: 0 });
+			this._mouse.min({x: screen.width, y:screen.height });
+    	}
 
 		if (this.pointerLocked()) {
 			this._cursorElm.style.visibility = "visible";
 			this._cursorElm.style.left = (this._mouse.x - InputHandler._cursorWidth / 2) + "px";
 			this._cursorElm.style.top = (this._mouse.y - InputHandler._cursorHeight / 2) + "px";
 		} else {
+			this._mouse.sub({ x: screen.left, y: screen.top });
 			this._cursorElm.style.visibility = "hidden";
 		}
 	}

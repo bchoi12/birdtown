@@ -136,12 +136,13 @@ export class Keys extends ClientSideSystem implements System {
 
 	private computeMouseWorld() : BABYLON.Vector3 {
 		const mouse = ui.mouse();
+		const screen = ui.screenRect();
 
 		// Z-coordinate is not necessarily 0
 		let mouseWorld = BABYLON.Vector3.Unproject(
 			new BABYLON.Vector3(mouse.x, mouse.y, 0.99),
-			window.innerWidth,
-			window.innerHeight,
+			screen.width,
+			screen.height,
 			BABYLON.Matrix.Identity(),
 			game.lakitu().camera().getViewMatrix(),
 			game.lakitu().camera().getProjectionMatrix());
