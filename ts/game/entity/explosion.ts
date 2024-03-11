@@ -11,6 +11,7 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { MaterialFactory } from 'game/factory/material_factory'
 
 import { Vec, Vec2 } from 'util/vector'
 
@@ -54,6 +55,14 @@ export class Explosion extends EntityBase implements Entity {
 
 		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
 		this._soundPlayer.registerSound(SoundType.EXPLOSION, SoundType.EXPLOSION);
+
+		if (this._model.hasMaterialType()) {
+			this._profile.onBody((profile : Profile) => {
+				const material = MaterialFactory.material<BABYLON.StandardMaterial>(this._model.materialType());
+				profile.body().render.fillStyle = material.emissiveColor.toHexString();
+				profile.body().render.strokeStyle = material.emissiveColor.toHexString();
+			});
+		}
 	}
 
 	override initialize() : void {

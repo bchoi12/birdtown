@@ -127,6 +127,9 @@ export class Model extends ComponentBase implements Component {
 		}
 	}
 
+	hasMaterialType() : boolean { return this._materialType.has(); }
+	materialType() : MaterialType { return this._materialType.get(); }
+
 	transforms() : Transforms { return this._transforms; }
 	hasTranslation() : boolean { return this._transforms.hasTranslation(); }
 	translation() : Vec3 { return this._transforms.translation(); }

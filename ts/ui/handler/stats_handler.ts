@@ -12,6 +12,8 @@ import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 
+import { isLocalhost } from 'util/common'
+
 export class StatsHandler extends HandlerBase implements Handler {
 	private static readonly _intervalSec = 0.5;
 
@@ -42,17 +44,19 @@ export class StatsHandler extends HandlerBase implements Handler {
 			let text = [
 				"Ping: " + Math.round(ping) + "ms (" + Math.round(pingSuccess) + "%)",
 				"Game: " + Math.ceil(gameStats.stepsPerSecond)
-					+ " (" + Math.ceil(gameStats.stepTime) + "/" +
+					+ " (" + (isLocalhost() ? (Math.ceil(renderStats.stepTime) + "/") : "") +
 					+ gameStats.stepIntervalMin + "-" + gameStats.stepIntervalMax + "ms)",
 				"Render: " + Math.ceil(renderStats.stepsPerSecond)
-					+ " (" + Math.ceil(renderStats.stepTime) + "/" +
+					+ " (" + (isLocalhost() ? (Math.ceil(renderStats.stepTime) + "/") : "") +
 					+ renderStats.stepIntervalMin + "-" + renderStats.stepIntervalMax + "ms)",
-				"Diff: " + Math.round(game.runner().seqNumDiff()),
-				"TCP/s: " + Math.round(stats.get(ChannelType.TCP).get(ChannelStat.PACKETS))
-					+ " (" + Math.round(stats.get(ChannelType.TCP).get(ChannelStat.BYTES) / 1024) + "Kb)",
-				"UDP/s: " + Math.round(stats.get(ChannelType.UDP).get(ChannelStat.PACKETS))
-					+ " (" + Math.round(stats.get(ChannelType.UDP).get(ChannelStat.BYTES) / 1024) + "Kb)",
 			];
+			if (isLocalhost()) {
+				text.push("Diff: " + Math.round(game.runner().seqNumDiff()));
+				text.push("TCP/s: " + Math.round(stats.get(ChannelType.TCP).get(ChannelStat.PACKETS))
+					+ " (" + Math.round(stats.get(ChannelType.TCP).get(ChannelStat.BYTES) / 1024) + "Kb)");
+				text.push("UDP/s: " + Math.round(stats.get(ChannelType.UDP).get(ChannelStat.PACKETS))
+					+ " (" + Math.round(stats.get(ChannelType.UDP).get(ChannelStat.BYTES) / 1024) + "Kb)");
+			}
 			this._customStats.textContent = text.join(" | ");
 		}
 

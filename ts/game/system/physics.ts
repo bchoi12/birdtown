@@ -50,7 +50,14 @@ export class Physics extends SystemBase implements System {
 	override initialize() : void {
 		super.initialize();
 
-		MATTER.Render.run(this._render);
+		MATTER.Events.on(this._engine.world, "afterAdd", (items) => {
+			if (items.object.plugin.zIndex == 0) {
+				return;
+			}
+		    this._engine.world.bodies.sort((a : MATTER.Body, b : MATTER.Body) => {
+		        return (b.plugin.zIndex ? b.plugin.zIndex : 0) - (a.plugin.zIndex ? a.plugin.zIndex : 0);
+		    });
+		});
 	}
 
 	world() : MATTER.Composite { return this._engine.world; }
@@ -124,8 +131,12 @@ export class Physics extends SystemBase implements System {
 
 		if (!game.lakitu().hasTargetEntity()) {
 			this._minimap.style.visibility = "hidden";
+			MATTER.Render.stop(this._render);
 			return;
 		}
+
+		MATTER.Render.run(this._render);
+
 		this._minimap.style.visibility = "visible";
 
 		this._canvas.style.width = this._minimap.offsetWidth + "px";
@@ -139,5 +150,7 @@ export class Physics extends SystemBase implements System {
 		})
 		this._render.bounds.min.x = target.x - fov.x / 2;
 		this._render.bounds.max.x = target.x + fov.x / 2; 
+
+		MATTER.Render.stop(this._render);
 	}
 }

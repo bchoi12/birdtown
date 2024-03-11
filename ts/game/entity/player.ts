@@ -26,6 +26,7 @@ import { MeshType, TextureType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
+import { DepthType } from 'game/system/api'
 import { MaterialShifter } from 'game/util/material_shifter'
 
 import { GameGlobals } from 'global/game_globals'
@@ -191,6 +192,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					friction: 0,
 					collisionFilter: {
 						group: collisionGroup,
+					},
+					plugin: {
+						zIndex: DepthType.PLAYER,
 					},
 				});
 			},

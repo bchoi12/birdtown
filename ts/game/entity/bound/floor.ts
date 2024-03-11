@@ -5,6 +5,7 @@ import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Bound } from 'game/entity/bound'
 import { ColorType } from 'game/factory/api'
+import { DepthType } from 'game/system/api'
 
 export class Floor extends Bound {
 
@@ -19,6 +20,7 @@ export class Floor extends Bound {
 			this._profile.onBody((profile : Profile) => {
 				profile.body().render.fillStyle = this._hexColors.mainColor().toString();
 				profile.body().render.strokeStyle = this._hexColors.mainColor().toString();
+				profile.body().plugin.zIndex = DepthType.FLOOR;
 			});
 			this._profile.setRenderUnoccluded();
 		}

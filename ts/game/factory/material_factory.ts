@@ -18,11 +18,11 @@ export namespace MaterialFactory {
 	let initialized = false;
 	let materials = new Map<MaterialType, BABYLON.Material>;
 
-	export function material(type : MaterialType) : BABYLON.Material {
+	export function material<T extends BABYLON.Material>(type : MaterialType) : T {
 		if (!initialized) {
 			initialize();
 		}
-		return materials.get(type);
+		return <T>materials.get(type);
 	}
 
 	export function initialize() : void {

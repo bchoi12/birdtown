@@ -28,6 +28,13 @@ export enum SystemType {
 	WORLD,
 }
 
+export enum DepthType {
+	WALL = 2,
+	FLOOR = 1,
+	DEFAULT = 0,
+	PLAYER = -1,
+}
+
 export enum LevelType {
 	UNKNOWN,
 	BIRDTOWN,
