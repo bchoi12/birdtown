@@ -269,12 +269,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					result.animationGroups.forEach((animationGroup : BABYLON.AnimationGroup) => {
 						const movementAnimations = Player._animations.get(AnimationGroup.MOVEMENT);
 						if (movementAnimations.has(animationGroup.name)) {
-							// Probably not needed, but ensures animations do not prevent bone control
-							animationGroup.mask = new BABYLON.AnimationGroupMask(
-								Array.from(Player._controllableBones),
-								BABYLON.AnimationGroupMaskMode.Exclude);
-							animationGroup.removeUnmaskedAnimations();
-							model.registerAnimation(animationGroup, /*group=*/0);
+							animationGroup.enableBlending = true;
+							animationGroup.blendingSpeed = 0.3;
+							model.registerAnimation(animationGroup, AnimationGroup.MOVEMENT);
 						}
 					})
 					model.stopAllAnimations();
@@ -291,12 +288,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 						const bone = <Bone>name;
 						this._boneOrigins.set(bone, model.getBone(bone).getTransformNode().position);
 					})
-
-					// TODO: this doesn't seem to work
-					let animationProperties = new BABYLON.AnimationPropertiesOverride();
-					animationProperties.enableBlending = true;
-					animationProperties.blendingSpeed = 0.02;
-					mesh.animationPropertiesOverride = animationProperties;
 
 					let armature = model.getBone(Bone.ARMATURE).getTransformNode();
 					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + Player._rotationOffset, 0);
@@ -599,7 +590,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			if (Math.abs(this._profile.acc().x) < 0.01) {
 				this._model.playAnimation(Animation.IDLE);
 			} else {
-				this._model.playAnimation(Animation.WALK);
+				this._model.playAnimation(Animation.WALK, {
+					speedRatio: 0.5 + Math.abs(this._profile.vel().x / Player._maxHorizontalVel),
+				});
 			}
 		}
 		this._eyeShifter.offset(this._expression.emotion());

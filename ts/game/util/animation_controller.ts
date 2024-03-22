@@ -4,17 +4,24 @@ import { AnimationSet } from 'game/util/animation_set'
 
 import { defined } from 'util/common'
 
+export type PlayOptions = {
+	loop? : boolean;
+	speedRatio? : number;
+}
+
 export class AnimationController {
 
 	private _animations : Map<string, BABYLON.AnimationGroup>;
-	private _animationGroups : Map<string, number>;
+	private _animationSetIds : Map<string, number>;
 	private _animationSets : Map<number, AnimationSet>;
 
 	constructor() {
 		this._animations = new Map();
-		this._animationGroups = new Map();
+		this._animationSetIds = new Map();
 		this._animationSets = new Map();
 	}
+
+	animationSet(group : number) : AnimationSet { return this._animationSets.get(group); }
 
 	register(animation : BABYLON.AnimationGroup, group? : number) {
 		const name = animation.name;
@@ -34,23 +41,32 @@ export class AnimationController {
 		}
 
 		this._animationSets.get(group).add(name, animation);
-		this._animationGroups.set(name, group);
+		this._animationSetIds.set(name, group);
 	}
 
-	play(name : string, loop? : boolean) : void {
+	play(name : string, options? : PlayOptions) : void {
 		if (!this._animations.has(name)) {
 			return;
+		}
+
+
+		if (!options) {
+			options = {};
+		}
+
+		if (options.speedRatio) {
+			this._animations.get(name).speedRatio = options.speedRatio;
 		}
 
 		if (this._animations.get(name).isPlaying) {
 			return;
 		}
 
-		if (this._animationGroups.has(name)) {
-			let set = this._animationSets.get(this._animationGroups.get(name));
-			set.play(name, loop);
+		if (this._animationSetIds.has(name)) {
+			let set = this._animationSets.get(this._animationSetIds.get(name));
+			set.play(name, options.loop);
 		} else {
-			this._animations.get(name).play(loop);
+			this._animations.get(name).play(options.loop);
 		}
 	}
 

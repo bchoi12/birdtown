@@ -40,8 +40,8 @@ export class Plane extends EntityBase implements Entity {
 							model.registerAnimation(animationGroup);
 						}
 					});
-					model.playAnimation(Animation.FLYING, /*loop=*/true);
-					model.playAnimation(Animation.ON, /*loop=*/true);
+					model.playAnimation(Animation.FLYING, { loop: true });
+					model.playAnimation(Animation.ON, { loop: true });
 
 					model.setMesh(mesh);
 				});

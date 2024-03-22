@@ -10,7 +10,7 @@ import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { MaterialType } from 'game/factory/api'
 import { MaterialFactory } from 'game/factory/material_factory'
-import { AnimationController } from 'game/util/animation_controller'
+import { AnimationController, PlayOptions } from 'game/util/animation_controller'
 import { Transforms, TransformOptions } from 'game/util/transforms'
 
 import { GameData, DataFilter } from 'game/game_data'
@@ -211,7 +211,7 @@ export class Model extends ComponentBase implements Component {
 	}
 
 	registerAnimation(animation : BABYLON.AnimationGroup, group? : number) { this._animationController.register(animation, group); }
-	playAnimation(name : string, loop? : boolean) : void { this._animationController.play(name, loop); }
+	playAnimation(name : string, options? : PlayOptions) : void { this._animationController.play(name, options); }
 	stopAllAnimations() : void { this._animationController.stopAll(); }
 
 	registerBone(bone : BABYLON.Bone) { this._bones.set(bone.name, bone); }

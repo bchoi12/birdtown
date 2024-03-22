@@ -75,6 +75,11 @@
             BABYLON.SceneLoader.Append("", "mesh/chicken.glb", scene, function (added){
                 scene.getMeshByName("mesh").getChildMeshes().forEach((child) => {
                     child.receiveShadows = true;
+
+                    let animationProperties = new BABYLON.AnimationPropertiesOverride();
+                    animationProperties.enableBlending = true;
+                    animationProperties.blendingSpeed = 0.02;
+                    child.animationPropertiesOverride = animationProperties;
                 });
                 generator.addShadowCaster(scene.getMeshByName("mesh"), true);
             });
