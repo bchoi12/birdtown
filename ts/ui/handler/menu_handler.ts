@@ -7,8 +7,8 @@ import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 
-export class PauseHandler extends HandlerBase implements Handler {
-	private _pauseElm : HTMLElement;
+export class MenuHandler extends HandlerBase implements Handler {
+	private _menuElm : HTMLElement;
 	private _continueElm : HTMLElement;
 
 	private _canPause : boolean;
@@ -16,8 +16,8 @@ export class PauseHandler extends HandlerBase implements Handler {
 	constructor() {
 		super(HandlerType.PAUSE);
 
-		this._pauseElm = Html.elm(Html.divPause);
-		this._continueElm = Html.elm(Html.pauseContinue);
+		this._menuElm = Html.elm(Html.divMenu);
+		this._continueElm = Html.elm(Html.menuContinue);
 
 		this._canPause = true;
 	}
@@ -54,10 +54,10 @@ export class PauseHandler extends HandlerBase implements Handler {
 
 	override setMode(mode : UiMode) : void {
 		if (mode === UiMode.SETTINGS) {
-			this._pauseElm.style.visibility = "visible";
+			this._menuElm.style.visibility = "visible";
 			this._canPause = false;
 		} else {
-			this._pauseElm.style.visibility = "hidden";
+			this._menuElm.style.visibility = "hidden";
 		}
 	}
 }

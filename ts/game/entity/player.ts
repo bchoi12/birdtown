@@ -270,7 +270,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 						const movementAnimations = Player._animations.get(AnimationGroup.MOVEMENT);
 						if (movementAnimations.has(animationGroup.name)) {
 							animationGroup.enableBlending = true;
-							animationGroup.blendingSpeed = 0.3;
+							animationGroup.blendingSpeed = 0.25;
 							model.registerAnimation(animationGroup, AnimationGroup.MOVEMENT);
 						}
 					})
@@ -591,7 +591,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._model.playAnimation(Animation.IDLE);
 			} else {
 				this._model.playAnimation(Animation.WALK, {
-					speedRatio: 0.5 + Math.abs(this._profile.vel().x / Player._maxHorizontalVel),
+					speedRatio: 0.3 + Math.abs(this._profile.vel().x / Player._maxHorizontalVel),
 				});
 			}
 		}

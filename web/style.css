@@ -269,11 +269,11 @@ body {
     visibility: hidden;
 }
 
-#div-quick-menu {
+#div-mini-menu {
     visibility: hidden;
 }
 
-#div-pause {
+#div-menu {
   text-align: center;
   position: absolute;
   visibility: hidden;
@@ -288,13 +288,13 @@ body {
   padding-top: 5%;
 }
 
-#pause-title {
+#menu-title {
     width: 100%;
     font-size: 1.5em;
     padding-bottom: 0.3em;
 }
 
-#pause-continue {
+#menu-continue {
     font-size: 1.5em;
 }
 

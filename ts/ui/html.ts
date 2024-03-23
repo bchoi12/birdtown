@@ -34,15 +34,13 @@ export namespace Html {
 	export const divScoreboard = "div-scoreboard";
 	export const divDialogs = "div-dialogs"
 
-	export const divPause = "div-pause";
-	export const pauseContinue = "pause-continue";
+	export const divMiniMenu = "div-mini-menu";
+
+	export const divMenu = "div-menu";
+	export const menuContinue = "menu-continue";
 	export const fieldsetClients = "fieldset-clients";
-
 	export const fieldsetSettings = "fieldset-settings";
-
 	export const fieldsetKeyBind = "fieldset-key-bind";
-
-	export const divQuickMenu = "div-quick-menu";
 
 	export const classSlightlyTransparent = "slightly-transparent";
 	export const classSpaced = "spaced";

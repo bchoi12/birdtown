@@ -20,7 +20,7 @@
         <div id="div-chat" class="no-select slightly-transparent spaced"></div>
         <div id="div-message" class="no-select spaced">
             <form action="about:blank" target="iframe-empty" onsubmit="return false;">
-                <input id="input-message" type="text" placeholder="Press enter to chat" maxlength="256">
+                <input id="input-message" type="text" placeholder="Press [Enter] to send" maxlength="256">
                 <input id="button-message" type="submit" value="" style="display: none;">
             </form>
         </div>
@@ -37,24 +37,26 @@
             <div id="scoreboard-title" class="dialog-title">Scoreboard</div>
         </div>
         <div id="div-dialogs"></div>
-        <div id="div-quick-menu" class="dialog">
-            <div class="dialog-title">Quick Setup</div>
-        </div>
     </div>
-    <div id="div-pause">
-        <div id="pause-title" class="bold">Settings</div>
-        <div id="div-menus">
-            <fieldset id="fieldset-clients" class="spaced">
-                <legend id="legend-clients">Players</legend>
-            </fieldset>
-            <fieldset id="fieldset-settings" class="spaced">
-                <legend id="legend-options">Options</legend>
-            </fieldset>
-            <fieldset id="fieldset-key-bind" class="spaced">
-                <legend id="legend-key-bind">Keys</legend>
-            </fieldset>
+    <div id="div-menus">
+        <div id="div-mini-menu" class="dialog">
+            <div class="dialog-title">Quick Menu</div>
         </div>
-        <div id="pause-continue" class="bold text-button">Continue</div>
+        <div id="div-menu">
+            <div id="menu-title" class="bold">Menu</div>
+            <div id="div-menus">
+                <fieldset id="fieldset-clients" class="spaced">
+                    <legend id="legend-clients">Players</legend>
+                </fieldset>
+                <fieldset id="fieldset-settings" class="spaced">
+                    <legend id="legend-options">Options</legend>
+                </fieldset>
+                <fieldset id="fieldset-key-bind" class="spaced">
+                    <legend id="legend-key-bind">Keys</legend>
+                </fieldset>
+            </div>
+            <div id="menu-continue" class="bold text-button">Continue</div>
+        </div>
     </div>
     <div id="div-login">
         <fieldset id="fieldset-login">

@@ -4,7 +4,7 @@ import { game } from 'game'
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
-import { AnnouncementType, UiMode } from 'ui/api'
+import { AnnouncementType } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'

@@ -136,7 +136,9 @@ class Building {
 
 		const extras = 3;
 
-		let pos = this._initPos.clone().sub({ y: (extras - 1.66) * ArchBlueprint.baseDim().y });
+		let pos = this._initPos.clone();
+		pos.add({ x: ArchBlueprint.baseDim().x / 3 });
+		pos.sub({ y: (extras - 1.66) * ArchBlueprint.baseDim().y });
 		let block = new ArchBlueprintBlock(ArchBlueprint.backgroundType(), {
 			profileInit: {
 				pos: pos.toVec(),

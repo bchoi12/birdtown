@@ -16,7 +16,7 @@ import { DialogHandler } from 'ui/handler/dialog_handler'
 import { InputHandler } from 'ui/handler/input_handler'
 import { KeyBindHandler } from 'ui/handler/key_bind_handler'
 import { LoginHandler } from 'ui/handler/login_handler'
-import { PauseHandler } from 'ui/handler/pause_handler'
+import { MenuHandler } from 'ui/handler/menu_handler'
 import { ScoreboardHandler } from 'ui/handler/scoreboard_handler'
 import { SettingsHandler } from 'ui/handler/settings_handler'
 import { StatsHandler } from 'ui/handler/stats_handler'
@@ -41,7 +41,7 @@ class UI {
 	private _inputHandler : InputHandler;
 	private _keyBindHandler : KeyBindHandler;
 	private _loginHandler : LoginHandler;
-	private _pauseHandler : PauseHandler;
+	private _menuHandler : MenuHandler;
 	private _scoreboardHandler : ScoreboardHandler;
 	private _settingsHandler : SettingsHandler;
 	private _statsHandler : StatsHandler;
@@ -61,7 +61,7 @@ class UI {
 		this._inputHandler = this.add(new InputHandler());
 		this._keyBindHandler = this.add<KeyBindHandler>(new KeyBindHandler());
 		this._loginHandler = this.add<LoginHandler>(new LoginHandler());
-		this._pauseHandler = this.add<PauseHandler>(new PauseHandler());
+		this._menuHandler = this.add<MenuHandler>(new MenuHandler());
 		this._scoreboardHandler = this.add<ScoreboardHandler>(new ScoreboardHandler());
 		this._settingsHandler = this.add<SettingsHandler>(new SettingsHandler());
 		this._statsHandler = this.add<StatsHandler>(new StatsHandler());
