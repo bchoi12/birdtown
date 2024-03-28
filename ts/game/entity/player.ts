@@ -472,7 +472,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 		this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.hasTimeLeft());
 
-		this._deadTracker.check();
+		if (this.isSource()) {
+			this._deadTracker.check();
+		}
 	}
 
 	override update(stepData : StepData) : void {

@@ -20,7 +20,7 @@
         <div id="div-chat" class="no-select slightly-transparent spaced"></div>
         <div id="div-message" class="no-select spaced">
             <form action="about:blank" target="iframe-empty" onsubmit="return false;">
-                <input id="input-message" type="text" placeholder="Press [Enter] to send" maxlength="256">
+                <input id="input-message" type="text" maxlength="256">
                 <input id="button-message" type="submit" value="" style="display: none;">
             </form>
         </div>
@@ -36,20 +36,20 @@
         <div id="div-scoreboard" class="dialog">
             <div id="scoreboard-title" class="dialog-title">Scoreboard</div>
         </div>
-        <div id="div-dialogs"></div>
     </div>
-    <div id="div-menus">
+    <div id="div-dialogs"></div>
+    <div id="div-modals">
         <div id="div-mini-menu" class="dialog">
             <div class="dialog-title">Quick Menu</div>
         </div>
         <div id="div-menu">
-            <div id="menu-title" class="bold">Menu</div>
-            <div id="div-menus">
+            <div id="menu-title" class="bold">Full Menu</div>
+            <div id="menu-fieldsets">
                 <fieldset id="fieldset-clients" class="spaced">
                     <legend id="legend-clients">Players</legend>
                 </fieldset>
                 <fieldset id="fieldset-settings" class="spaced">
-                    <legend id="legend-options">Options</legend>
+                    <legend id="legend-settings">Settings</legend>
                 </fieldset>
                 <fieldset id="fieldset-key-bind" class="spaced">
                     <legend id="legend-key-bind">Keys</legend>

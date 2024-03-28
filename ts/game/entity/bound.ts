@@ -1,11 +1,11 @@
 
-import { game } from 'game'
 import { ComponentType, AttributeType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { DepthType } from 'game/system/api'
 
 export abstract class Bound extends EntityBase implements Entity {
 
@@ -31,5 +31,14 @@ export abstract class Bound extends EntityBase implements Entity {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setRenderNever();
+	}
+
+	protected setMinimapRender(color : string, depthType : DepthType) : void {
+		this._profile.onBody((profile : Profile) => {
+			profile.body().render.fillStyle = color;
+			profile.body().render.strokeStyle = color;
+			profile.body().plugin.zIndex = depthType;
+		});
+		this._profile.setRenderUnoccluded();
 	}
 }

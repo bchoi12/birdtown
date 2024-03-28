@@ -8,30 +8,31 @@ import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 
 export class MenuHandler extends HandlerBase implements Handler {
+	private _miniMenuElm : HTMLElement;
 	private _menuElm : HTMLElement;
 	private _continueElm : HTMLElement;
 
-	private _canPause : boolean;
+	private _canMenu : boolean;
 
 	constructor() {
-		super(HandlerType.PAUSE);
+		super(HandlerType.MENU);
 
 		this._menuElm = Html.elm(Html.divMenu);
 		this._continueElm = Html.elm(Html.menuContinue);
 
-		this._canPause = true;
+		this._canMenu = true;
 	}
 
 	override setup() : void {
 		document.addEventListener("keyup", (e : any) => {
-			if (e.keyCode !== settings.pauseKeyCode) return;
+			if (e.keyCode !== settings.menuKeyCode) return;
 
 			e.preventDefault();
-			this._canPause = true;
+			this._canMenu = true;
 		});
 
 		document.addEventListener("keydown", (e : any) => {
-			if (!this._canPause || e.keyCode !== settings.pauseKeyCode) return;
+			if (!this._canMenu || e.keyCode !== settings.menuKeyCode) return;
 
 			e.preventDefault();
 
@@ -55,7 +56,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 	override setMode(mode : UiMode) : void {
 		if (mode === UiMode.SETTINGS) {
 			this._menuElm.style.visibility = "visible";
-			this._canPause = false;
+			this._canMenu = false;
 		} else {
 			this._menuElm.style.visibility = "hidden";
 		}

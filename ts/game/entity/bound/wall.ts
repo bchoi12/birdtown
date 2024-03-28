@@ -15,14 +15,13 @@ export class Wall extends Bound {
 		super(EntityType.WALL, entityOptions);
 
 		this._hexColors = this.addComponent<HexColors>(new HexColors(entityOptions.hexColorsInit));
+	}
+
+	override initialize() : void {
+		super.initialize();
 
 		if (this._hexColors.hasMainColor()) {
-			this._profile.onBody((profile : Profile) => {
-				profile.body().render.fillStyle = this._hexColors.mainColor().toString();
-				profile.body().render.strokeStyle = this._hexColors.mainColor().toString();
-				profile.body().plugin.zIndex = DepthType.WALL;
-			});
-			this._profile.setRenderUnoccluded();
+			this.setMinimapRender(this._hexColors.mainColor().toString(), DepthType.WALL);
 		}
 	}
 }

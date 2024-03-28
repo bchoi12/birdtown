@@ -25,7 +25,7 @@ class Settings {
 	public altMouseClickKeyCode : number;
 
 	public scoreboardKeyCode : number;
-	public pauseKeyCode : number;
+	public menuKeyCode : number;
 	public chatKeyCode : number;
 
 	public fullscreenSetting : FullscreenSetting;
@@ -49,7 +49,7 @@ class Settings {
 		this.mouseClickKeyCode = 83;
 		this.altMouseClickKeyCode = 16;
 
-		this.pauseKeyCode = 27;
+		this.menuKeyCode = 27;
 		this.chatKeyCode = 13;
 		this.scoreboardKeyCode = 9;
 

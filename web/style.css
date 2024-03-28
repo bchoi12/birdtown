@@ -104,7 +104,6 @@ body {
 
 #div-chat {
     position: absolute;
-    visibility: hidden;
     left: 0;
     
     bottom: 1em;
@@ -298,21 +297,21 @@ body {
     font-size: 1.5em;
 }
 
-#div-menus {
+#menu-fieldsets {
     display: flex;
     width: 84%;
     margin: 1em auto;
     height: 60%;
 }
 
-#div-menus fieldset {
+#menu-fieldsets fieldset {
     overflow-y: scroll;
     text-align: left;
-    font-size: 0.7em;
+    font-size: 0.6em;
     flex: 1;
 }
 
-#div-menus fieldset legend {
+#menu-fieldsets fieldset legend {
     font-size: 2em;
 }
 

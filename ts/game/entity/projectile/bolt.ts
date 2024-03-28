@@ -96,7 +96,7 @@ export class Bolt extends Projectile {
 							x: Fns.randomRange(0.05, 0.2),
 							y: Fns.randomRange(0.05, 0.2),
 						}),
-						scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.08 },
+						scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.12 },
 					},
 					modelInit: {
 						transforms: {

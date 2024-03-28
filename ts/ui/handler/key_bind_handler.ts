@@ -64,12 +64,12 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		});
 
 		this.addKeyBind({
-			name: "Pause",
-			get: () => { return settings.pauseKeyCode; },
-			update: (keyCode : number) => { settings.pauseKeyCode = keyCode; },
+			name: "Open Menu",
+			get: () => { return settings.menuKeyCode; },
+			update: (keyCode : number) => { settings.menuKeyCode = keyCode; },
 		});
 		this.addKeyBind({
-			name: "Chat",
+			name: "Open Chat",
 			get: () => { return settings.chatKeyCode; },
 			update: (keyCode : number) => { settings.chatKeyCode = keyCode; },
 		});
