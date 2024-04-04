@@ -18,16 +18,14 @@ export class ChatHandler extends HandlerBase implements Handler {
 	private _messageElm : HTMLElement;
 	private _messageInputElm : HTMLInputElement;
 
-	private _chatting : boolean;
-
 	constructor() {
-		super(HandlerType.CHAT);
+		super(HandlerType.CHAT, {
+			mode: UiMode.CHAT,
+		});
 
 		this._chatElm = Html.elm(Html.divChat);
 		this._messageElm = Html.elm(Html.divMessage);
 		this._messageInputElm = Html.inputElm(Html.inputMessage);
-
-		this._chatting = false;
 	}
 
 	chat(msg : string) : void {
@@ -47,57 +45,52 @@ export class ChatHandler extends HandlerBase implements Handler {
 
 			if (e.keyCode === settings.chatKeyCode) {
 				e.preventDefault();
-				this.chatKeyPressed();
+
+				if (ui.mode() === UiMode.GAME) {
+					this.enable();
+				} else if (this.enabled()) {
+					this.flushMessage();
+					this.disable();
+				}
 			}
 		});		
 	}
 
-	setChatting(chatting : boolean) : void {
-		if (this._chatting === chatting) {
-			return;
-		}
+	override onEnable() : void {
+		super.onEnable();
 
-		this._chatting = chatting;
+		this._chatElm.classList.remove(Html.classSlightlyTransparent);
+		this._chatElm.classList.remove(Html.classNoSelect);
+		this._chatElm.style.bottom = "2em";
+		this._chatElm.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
 
-		if (this._chatting) {
-			this._chatElm.classList.remove(Html.classSlightlyTransparent);
-			this._chatElm.classList.remove(Html.classNoSelect);
-			this._chatElm.style.bottom = "2em";
-			this._chatElm.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
-
-			this._messageElm.style.visibility = "visible";
-			this._messageInputElm.focus();
-			this._messageInputElm.placeholder = "Press " + KeyNames.boxed(settings.chatKeyCode) + " to send";
-		} else {
-			this._chatElm.classList.add(Html.classSlightlyTransparent);
-			this._chatElm.classList.add(Html.classNoSelect);
-			this._chatElm.style.bottom = "1em";
-			this._chatElm.style.backgroundColor = "";
-
-			this._messageElm.style.visibility = "hidden";
-			this._messageInputElm.blur();
-
-			const message = Html.trimmedValue(this._messageInputElm);
-			this._messageInputElm.value = "";
-			if (message.length > 0) {
-				if (message.startsWith("/")) {
-					this.command(message);
-				} else {
-					game.netcode().sendChat(message);
-				}
-			}
-		}
+		this._messageElm.style.visibility = "visible";
+		this._messageInputElm.focus();
+		this._messageInputElm.placeholder = "Press " + KeyNames.boxed(settings.chatKeyCode) + " to send";
 	}
 
-	private chatKeyPressed() : void {
-		if (ui.mode() === UiMode.GAME) {
-			this.setChatting(true);
-			ui.setMode(UiMode.CHAT);
-			return;
-		}
+	override onDisable() : void {
+		super.onDisable();
 
-		this.setChatting(false);
-		ui.setMode(UiMode.GAME);
+		this._chatElm.classList.add(Html.classSlightlyTransparent);
+		this._chatElm.classList.add(Html.classNoSelect);
+		this._chatElm.style.bottom = "1em";
+		this._chatElm.style.backgroundColor = "";
+
+		this._messageElm.style.visibility = "hidden";
+		this._messageInputElm.blur();
+	}
+
+	private flushMessage() : void {
+		const message = Html.trimmedValue(this._messageInputElm);
+		this._messageInputElm.value = "";
+		if (message.length > 0) {
+			if (message.startsWith("/")) {
+				this.command(message);
+			} else {
+				game.netcode().sendChat(message);
+			}
+		}
 	}
 
 	private command(message : string) {

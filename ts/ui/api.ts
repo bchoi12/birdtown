@@ -3,11 +3,12 @@ import { SpecialName } from 'ui/common/special_name'
 
 export enum UiMode {
 	UNKNOWN,
-	DEFAULT,
+	GAME,
+
 	CHAT,
 	DIALOG,
-	GAME,
-	SETTINGS,
+	LOGIN,
+	MENU,
 }
 
 export enum AnnouncementType {
@@ -37,6 +38,11 @@ export enum KeyType {
 	SQUAWK,
 	MOUSE_CLICK,
 	ALT_MOUSE_CLICK,
+
+	// TODO: implement these
+	MENU,
+	CHAT,
+	SCOREBOARD,
 }
 
 export enum KeyState {

@@ -31,6 +31,8 @@ export class TooltipHandler extends HandlerBase implements Handler {
 	}
 
 	override reset() : void {
+		super.reset();
+
 		this._tooltips.forEach((wrapper : TooltipWrapper, type : TooltipType) => {
 			wrapper.delete(() => {
 				this._tooltips.delete(type);

@@ -194,20 +194,18 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm.appendChild(networkStability.elm());
 	}
 
-	override setMode(mode : UiMode) : void {
-		if (ui.mode() === UiMode.SETTINGS && mode !== UiMode.SETTINGS) {
+	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
+		if (ui.mode() === UiMode.GAME) {
 			if (settings.fullscreen()) {
 				document.documentElement.requestFullscreen();
 			} else if (window.innerHeight === screen.height) {
 				document.exitFullscreen();
 			}
-
 			if (settings.useInspector()) {
 				game.scene().debugLayer.show();
 			} else {
 				game.scene().debugLayer.hide();
 			}
-
 			game.runner().setRenderSpeed(settings.fpsSetting);
 		}		
 	}

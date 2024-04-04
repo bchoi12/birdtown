@@ -19,10 +19,10 @@ export class LoginHandler extends HandlerBase implements Handler {
 	private _buttonHostElm : HTMLInputElement;
 	private _buttonJoinElm : HTMLInputElement;
 
-	private _enabled : boolean;
-
 	constructor() {
-		super(HandlerType.LOGIN);
+		super(HandlerType.LOGIN, {
+			mode: UiMode.LOGIN,
+		});
 
 		this._loginElm = Html.elm(Html.divLogin);
 		this._legendElm = Html.elm(Html.legendLogin);
@@ -31,17 +31,9 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginButtonsElm = Html.elm(Html.divLoginButtons);
 		this._buttonHostElm = Html.inputElm(Html.buttonHost);
 		this._buttonJoinElm = Html.inputElm(Html.buttonJoin);
-
-		this._enabled = true;
 	}
 
-	override setup() : void {
-		this._loginInfoElm.style.display = "none";
-		this._roomInputElm.style.display = "block";
-		this._loginButtonsElm.style.display = "block";
-
-		this._roomInputElm.focus();
-
+	override setup() : void {	
 		this._buttonHostElm.onclick = () => {
 			this.createRoom(/*host=*/true);
 		};
@@ -49,10 +41,26 @@ export class LoginHandler extends HandlerBase implements Handler {
 			this.createRoom(/*host=*/false);
 		};
 
+		this.enable();
+	}
+
+	override onEnable() : void {
+		super.onEnable();
+
+		this._loginInfoElm.style.display = "none";
+		this._roomInputElm.style.display = "block";
+		this._loginButtonsElm.style.display = "block";
+		this._roomInputElm.focus();
+	}
+
+	override onDisable() : void {
+		super.onDisable();
+
+		this._loginElm.style.display = "none";
 	}
 
 	private createRoom(host : boolean) : void {
-		if (!this._enabled) {
+		if (!this.enabled()) {
 			return;
 		}
 
@@ -67,10 +75,6 @@ export class LoginHandler extends HandlerBase implements Handler {
 		    host: host,
 		});
 
-		if (ui.mode() === UiMode.DEFAULT) {
-			ui.setMode(UiMode.GAME);
-		}
-		this._loginElm.style.display = "none";
-		this._enabled = false;
+		this.disable();
 	}
 }

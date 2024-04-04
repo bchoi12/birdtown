@@ -299,9 +299,9 @@ body {
 
 #menu-fieldsets {
     display: flex;
-    width: 84%;
+    width: 85%;
     margin: 1em auto;
-    height: 60%;
+    height: 55%;
 }
 
 #menu-fieldsets fieldset {

@@ -15,7 +15,9 @@ export class MenuHandler extends HandlerBase implements Handler {
 	private _canMenu : boolean;
 
 	constructor() {
-		super(HandlerType.MENU);
+		super(HandlerType.MENU, {
+			mode: UiMode.MENU,
+		});
 
 		this._menuElm = Html.elm(Html.divMenu);
 		this._continueElm = Html.elm(Html.menuContinue);
@@ -36,29 +38,29 @@ export class MenuHandler extends HandlerBase implements Handler {
 
 			e.preventDefault();
 
-			if (ui.mode() === UiMode.CHAT) {
-				ui.setMode(UiMode.GAME);
-			} else if (ui.mode() === UiMode.GAME) {
-				ui.setMode(UiMode.SETTINGS);
-			} else if (ui.mode() === UiMode.SETTINGS) {
-				ui.setMode(UiMode.GAME);
+			if (ui.mode() === UiMode.GAME) {
+				this.enable();
+			} else if (this.enabled()) {
+				this.disable();
 			}
-		})
+		});
 
 		this._continueElm.onclick = (e : any) => {
-			if (ui.mode() !== UiMode.SETTINGS) {
+			if (ui.mode() !== UiMode.MENU) {
 				return;
 			}
-			ui.setMode(UiMode.GAME);
+			this.disable();
 		}
 	}
 
-	override setMode(mode : UiMode) : void {
-		if (mode === UiMode.SETTINGS) {
-			this._menuElm.style.visibility = "visible";
-			this._canMenu = false;
-		} else {
-			this._menuElm.style.visibility = "hidden";
-		}
+	override onEnable() : void {
+		super.onEnable();
+
+		this._menuElm.style.visibility = "visible";
+		this._canMenu = false;
+	}
+
+	override onDisable() : void {
+		this._menuElm.style.visibility = "hidden";
 	}
 }

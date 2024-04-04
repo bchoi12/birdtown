@@ -100,11 +100,13 @@ export class InputHandler extends HandlerBase implements Handler {
 			};
 
 	    	document.addEventListener("mousemove", (e: any) => { this.recordMouse(e); });
-	    	document.addEventListener("mousedown", (e: any) => { this.mouseDown(e); });
+	    	document.addEventListener("mousedown", (e: any) => { 			game.canvas().focus(); this.mouseDown(e); });
 	    	document.addEventListener("mouseup", (e: any) => { this.mouseUp(e); });
+
+	    	// TODO: pointer lock code should be in MenuHandler
 			document.addEventListener("pointerlockchange", (e : any) => {
 				if (settings.pointerLocked() && !this.pointerLocked() && ui.mode() === UiMode.GAME) {
-					ui.setMode(UiMode.SETTINGS);
+					ui.setMode(UiMode.MENU);
 				}
 			});
 			document.addEventListener("pointerlockerror", (e : any) => {
@@ -123,6 +125,8 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	override reset() : void {
+		super.reset();
+
 		this._keyMap.clear();
 		this._keyDownCallbacks.clear();
 		this._keyUpCallbacks.clear();
@@ -136,7 +140,7 @@ export class InputHandler extends HandlerBase implements Handler {
 		this.mapKey(settings.altMouseClickKeyCode, KeyType.ALT_MOUSE_CLICK);
 	}
 
-	override setMode(mode : UiMode) : void {
+	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
 		if (mode === UiMode.GAME) {
 			this.pointerLock();
 		} else {

@@ -20,7 +20,9 @@ export class DialogHandler extends HandlerBase implements Handler {
 	private _dialogs : Array<DialogWrapper>;
 
 	constructor() {
-		super(HandlerType.DIALOGS);
+		super(HandlerType.DIALOGS, {
+			mode: UiMode.DIALOG,
+		});
 
 		this._dialogsElm = Html.elm(Html.divDialogs);
 		this._dialogs = new Array();
@@ -75,17 +77,11 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 	showDialog() : void {
 		if (this._dialogs.length === 0) {
-			if (ui.mode() === UiMode.DIALOG) {
-				ui.setMode(UiMode.GAME);
-			}
+			this.disable();
 			return;
 		}
 
-		ui.setMode(UiMode.DIALOG);
+		this.enable();
 		this._dialogs[this._dialogs.length - 1].display("block");
-	}
-
-	clearDialog(type : DialogType) : void {
-		
 	}
 }

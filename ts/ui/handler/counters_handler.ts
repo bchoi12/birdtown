@@ -21,6 +21,8 @@ export class CountersHandler extends HandlerBase implements Handler {
 	}
 
 	override reset() : void {
+		super.reset();
+
 		this._counters.forEach((wrapper : CounterWrapper, type : CounterType) => {
 			wrapper.delete(() => {
 				this._counters.delete(type);

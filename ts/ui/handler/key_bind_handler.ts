@@ -1,7 +1,4 @@
 
-
-import { UiMessage, UiMessageType } from 'message/ui_message'
-
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -20,6 +17,12 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 
 		this._keyBindElm = Html.elm(Html.fieldsetKeyBind);
 		this._keyBindWrappers = new Array();
+	}
+
+	override setup() : void {
+		this._keyBindElm.onclick = (e) => {
+			e.stopPropagation();
+		};
 
 		this.addKeyBind({
 			name: "Move left",
@@ -80,18 +83,14 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		});
 	}
 
-	override setup() : void {
-		this._keyBindElm.onclick = (e) => {
-			e.stopPropagation();
-		};
+	override reset() : void {
+		this._keyBindWrappers.forEach((wrapper) => {
+			wrapper.setActive(false);
+		});
 	}
 
-	override setMode(mode : UiMode) : void {
-		if (mode === UiMode.SETTINGS) {
-			this._keyBindWrappers.forEach((wrapper) => {
-				wrapper.setActive(false);
-			})
-		}
+	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
+		this.reset();
 	}
 
 	private addKeyBind(wrapperOptions : KeyBindWrapperOptions) : void {

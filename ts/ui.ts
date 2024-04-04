@@ -48,7 +48,7 @@ class UI {
 	private _tooltipHandler : TooltipHandler;
 
 	constructor() {
-		this._mode = UiMode.DEFAULT;
+		this._mode = UiMode.UNKNOWN;
 		this._audioContext = new Optional();
 
 		this._handlers = new Map();		
@@ -101,13 +101,13 @@ class UI {
 		return handler;
 	}
 	mode() : UiMode { return this._mode; }
-	setMode(mode : UiMode) {
+	setMode(mode : UiMode) : void {
 		if (this._mode === mode) {
 			return;
 		}
 
 		this._handlers.forEach((handler) => {
-			handler.setMode(mode);
+			handler.onModeChange(mode, this._mode);
 		});	
 		this._mode = mode;
 	}
