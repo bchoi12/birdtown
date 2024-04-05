@@ -17,8 +17,8 @@ import { isLocalhost } from 'util/common'
 
 export class Host extends Netcode {
 
-	constructor(hostName : string) {
-		super(hostName, hostName);
+	constructor(room : string) {
+		super(room, /*isHost=*/true);
 	}
 
 	override isHost() : boolean { return true; }

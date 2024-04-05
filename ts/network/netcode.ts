@@ -42,7 +42,7 @@ export abstract class Netcode {
 		[ChannelType.UDP, "UDP"],
 	]);
 
-	protected _hostName : string;
+	protected _room : string;
 	protected _clientId : number;
 	protected _initialized : boolean;
 	protected _peer : Peer;
@@ -62,12 +62,12 @@ export abstract class Netcode {
 	// TODO: delete?
 	protected _audioContext : Optional<AudioContext>;
 
-	constructor(id : string, hostName : string) {
-		this._hostName = hostName;
+	constructor(room : string, isHost : boolean) {
+		this._room = room;
 		this._clientId = 0;
 		this._initialized = false;
 		this._dataFormat = DataFormat.UNKNOWN;
-		this._peer = new Peer(id, {
+		this._peer = new Peer(isHost ? this.hostName() : "", {
 			debug: 2,
 			pingInterval: 5000,
 		});
@@ -120,7 +120,8 @@ export abstract class Netcode {
 	abstract sendChat(message : string) : void;
 
 	id() : string { return this._peer.id; }
-	hostName() : string { return this._hostName; }
+	room() : string { return this._room; }
+	hostName() : string { return "birdtown-" + this._room; }
 	hasClientId() : boolean { return this._clientId > 0; }
 	setClientId(id : number) { this._clientId = id; }
 	clientId() : number { return this._clientId; }

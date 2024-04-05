@@ -50,7 +50,7 @@ export class HandlerBase {
 	reset() : void {}
 	handleMessage(msg : UiMessage) : void {}
 
-	enabled() : boolean { return this._enabled; }
+	enabled() : boolean { return this._enabled && ui.mode() === this._mode.get(); }
 	enable() : void {
 		if (!this._mode.has()) {
 			console.error("Error: trying to enable handler %s with no mode set", HandlerType[this._type]);
@@ -66,15 +66,24 @@ export class HandlerBase {
 		this._enabled = true;
 	}
 	disable() : void {
+		console.log("disable %s", HandlerType[this._type]);
 		if (!this._enabled) {
 			return;
 		}
 
 		this.onDisable();
-		ui.setMode(UiMode.GAME);
+		if (ui.mode() === this._mode.get()) {
+			ui.setMode(UiMode.GAME);
+		}
 		this._enabled = false;
 	}
 	onEnable() : void {}
-	onDisable() : void {}
-	onModeChange(mode : UiMode, oldMode : UiMode) : void {}
+	onDisable() : void {
+		console.log("onDisable %s", HandlerType[this._type]);
+	}
+	onModeChange(mode : UiMode, oldMode : UiMode) : void {
+		if (this._enabled && mode !== this._mode.get()) {
+			this.disable();
+		}
+	}
 }

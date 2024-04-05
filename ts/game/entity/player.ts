@@ -157,6 +157,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._profile.resetInertia();
 				this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
 				this._profile.setAcc({x: 0});
+				this._profile.addVel({y: 0.7 * Player._jumpVel});
 				this._expression.setOverride(Emotion.DEAD);
 			} else {
 				this._profile.setInertia(Infinity);
@@ -472,9 +473,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 		this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.hasTimeLeft());
 
-		if (this.isSource()) {
-			this._deadTracker.check();
-		}
+		this._deadTracker.check();
 	}
 
 	override update(stepData : StepData) : void {

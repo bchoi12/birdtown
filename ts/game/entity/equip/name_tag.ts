@@ -93,7 +93,7 @@ export class NameTag extends Equip<Player> {
 				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: planeWidth,
 					height: planeHeight,
-					depth: 0.3,
+					depth: 0.1,
 					faceUV: faceUV,
 				}, game.scene());
 				mesh.material = material;

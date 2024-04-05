@@ -31,9 +31,9 @@ import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 import { isLocalhost } from 'util/common'
 import { Html } from 'ui/html'
 
-interface GameOptions {
-	hostName : string;
-	host : boolean;
+export type GameOptions = {
+	room : string;
+	isHost : boolean;
 }
 
 class Game {
@@ -107,10 +107,10 @@ class Game {
 		this._runner.push(this._announcer);
 		this._runner.push(this._audio);
 
-		if (this._options.host) {
-			this._netcode = new Host(this._options.hostName);
+		if (this._options.isHost) {
+			this._netcode = new Host(this._options.room);
 		} else {
-			this._netcode = new Client(this._options.hostName);
+			this._netcode = new Client(this._options.room);
 		}
 		this._netcode.initialize();
 		this._runner.runGameLoop();
@@ -134,7 +134,7 @@ class Game {
 		gameMsg.setClientId(clientId);
     	this.handleMessage(gameMsg);
 
-		if (this.options().host) {
+		if (this.isHost()) {
 			this._lastClientId = clientId;
 		}
 
@@ -144,7 +144,7 @@ class Game {
 	}
 
 	nextClientId() : number {
-		if (!this.options().host) {
+		if (!this.isHost()) {
 			console.error("Error: client called nextClientId()");
 			return -1;
 		}
@@ -154,7 +154,7 @@ class Game {
 
 	canvas() : HTMLCanvasElement { return this._canvas; }
 	options() : GameOptions { return this._options; }
-	isHost() : boolean { return this._options.host; }
+	isHost() : boolean { return this._options.isHost; }
 
 	getSystem<T extends System>(type : SystemType) : T { return this._runner.getSystem<T>(type); }
 	handleMessage(msg : GameMessage) : void {

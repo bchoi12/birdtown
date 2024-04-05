@@ -22,7 +22,7 @@ import { SettingsHandler } from 'ui/handler/settings_handler'
 import { StatsHandler } from 'ui/handler/stats_handler'
 import { TooltipHandler } from 'ui/handler/tooltip_handler'
 
-import { defined } from 'util/common'
+import { defined, isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -106,10 +106,16 @@ class UI {
 			return;
 		}
 
-		this._handlers.forEach((handler) => {
-			handler.onModeChange(mode, this._mode);
-		});	
+		const oldMode = this._mode;
 		this._mode = mode;
+
+		if (isLocalhost()) {
+			console.log("UI mode %s -> %s", UiMode[oldMode], UiMode[mode]);	
+		}
+
+		this._handlers.forEach((handler) => {
+			handler.onModeChange(mode, oldMode);
+		});	
 	}
 	updatePos(clientId : number, pos : Vec) : void {
 		let context = this.audioContext();

@@ -42,6 +42,7 @@ export class StatsHandler extends HandlerBase implements Handler {
 
 			const stats = game.netcode().stats();
 			let text = [
+				game.netcode().room(), 
 				"Ping: " + Math.round(ping) + "ms (" + Math.round(pingSuccess) + "%)",
 				"Game: " + Math.ceil(gameStats.stepsPerSecond)
 					+ " (" + (isLocalhost() ? (Math.ceil(renderStats.stepTime) + "/") : "") +

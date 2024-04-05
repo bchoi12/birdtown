@@ -59,7 +59,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginElm.style.display = "none";
 	}
 
-	private createRoom(host : boolean) : void {
+	private createRoom(isHost : boolean) : void {
 		if (!this.enabled()) {
 			return;
 		}
@@ -71,8 +71,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 		}
 
 		game.initialize({
-		    hostName: "birdtown2-" + room,
-		    host: host,
+		    room: room,
+		    isHost: isHost,
 		});
 
 		this.disable();
