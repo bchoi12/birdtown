@@ -24,7 +24,7 @@ import { HandlerType } from 'ui/handler/api'
 import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
 import { Html } from 'ui/html'
 
-import { isLocalhost, isMobile } from 'util/common'
+import { isLocalhost } from 'util/common'
 
 export class SettingsHandler extends HandlerBase implements Handler{
 
@@ -37,44 +37,11 @@ export class SettingsHandler extends HandlerBase implements Handler{
 	}
 
 	override setup() : void {
+		super.setup();
+
 		this._settingsElm.onclick = (e) => {
 			e.stopPropagation();
 		};
-
-		if (isMobile()) {
-			this._settingsElm.style.display = "none";
-			return;
-		}
-
-		let fullscreen = new SettingWrapper<FullscreenSetting>({
-			name: "Fullscreen Mode",
-			get: () => { return settings.fullscreenSetting; },
-			click: (current : FullscreenSetting) => {
-				if (current === FullscreenSetting.WINDOWED) {
-					document.documentElement.requestFullscreen();
-					settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
-				} else if (window.innerHeight === screen.height) {
-					document.exitFullscreen();
-					settings.fullscreenSetting = FullscreenSetting.WINDOWED;
-				}
-			},
-			text: (current : FullscreenSetting) => {
-				return FullscreenSetting[current];
-			},
-		});
-		this._settingsElm.appendChild(fullscreen.elm());
-
-		let pointer = new SettingWrapper<PointerSetting>({
-			name: "In-game Cursor",
-			get: () => { return settings.pointerSetting; },
-			click: (current : PointerSetting) => {
-				settings.pointerSetting = current === PointerSetting.LOCKED ? PointerSetting.NORMAL : PointerSetting.LOCKED;
-			},
-			text: (current : PointerSetting) => {
-				return PointerSetting[current];
-			},
-		});
-		this._settingsElm.appendChild(pointer.elm());
 
 		let frameRate = new SettingWrapper<SpeedSetting>({
 			name: "FPS Cap",
@@ -195,12 +162,9 @@ export class SettingsHandler extends HandlerBase implements Handler{
 	}
 
 	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
+		super.onModeChange(mode, oldMode);
+
 		if (ui.mode() === UiMode.GAME) {
-			if (settings.fullscreen()) {
-				document.documentElement.requestFullscreen();
-			} else if (window.innerHeight === screen.height) {
-				document.exitFullscreen();
-			}
 			if (settings.useInspector()) {
 				game.scene().debugLayer.show();
 			} else {

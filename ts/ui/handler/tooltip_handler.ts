@@ -66,7 +66,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			this._tooltipsElm.appendChild(wrapper.elm());
 		}
 
-		wrapper.setHtml(this.getHtml(msg));
+		wrapper.elm().innerHTML = this.getHtml(msg);
 		wrapper.setTTL(ttl, () => {
 			this._tooltips.delete(type);
 		});

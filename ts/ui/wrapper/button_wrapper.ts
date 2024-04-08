@@ -9,41 +9,51 @@ enum ButtonState {
 	UNSELECTED,
 }
 
-type OnSelectFn = () => void;
-type OnUnselectFn = () => void;
+type OnClickFn = () => void;
 
 export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 
-	private _id : number;
 	private _state : ButtonState;
-	private _onSelectFns : Array<OnSelectFn>;
-	private _onUnselectFns : Array<OnUnselectFn>;
+	private _onClickFns : Array<OnClickFn>;
+	private _onSelectFns : Array<OnClickFn>;
+	private _onUnselectFns : Array<OnClickFn>;
 
-	constructor(id : number) {
-		super(Html.button());
+	constructor() {
+		super(Html.div());
 
-		this._id = id;
 		this._state = ButtonState.UNKNOWN;
+		this._onClickFns = new Array();
 		this._onSelectFns = new Array();
 		this._onUnselectFns = new Array();
 
+		this.elm().classList.add(Html.classButton);
 		this.elm().onclick = (e) => {
 			e.preventDefault();
+			this.click();
 			this.select();
 		};
 	}
 
-	id() : number { return this._id; }
+	setText(text : string) : void {
+		this.elm().textContent = "[" + text + "]";
+	}
 
-	addOnSelect(fn : OnSelectFn) : void { this._onSelectFns.push(fn); }
-	addOnUnselect(fn : OnUnselectFn) : void { this._onUnselectFns.push(fn); }
+	addOnClick(fn : OnClickFn) : void { this._onClickFns.push(fn); }
+	addOnSelect(fn : OnClickFn) : void { this._onSelectFns.push(fn); }
+	addOnUnselect(fn : OnClickFn) : void { this._onUnselectFns.push(fn); }
+
+	click() : void {
+		this._onClickFns.forEach((fn : OnClickFn) => {
+			fn();
+		});
+	}
 
 	select() : void {
 		if (this._state === ButtonState.SELECTED) {
 			return;
 		}
 
-		this._onSelectFns.forEach((fn : OnSelectFn) => {
+		this._onSelectFns.forEach((fn : OnClickFn) => {
 			fn();
 		});
 		this._state = ButtonState.SELECTED;
@@ -54,7 +64,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 			return;
 		}
 
-		this._onUnselectFns.forEach((fn : OnUnselectFn) => {
+		this._onUnselectFns.forEach((fn : OnClickFn) => {
 			fn();
 		});
 		this._state = ButtonState.UNSELECTED;

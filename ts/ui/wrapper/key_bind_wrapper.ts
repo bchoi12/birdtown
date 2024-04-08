@@ -23,7 +23,7 @@ export class KeyBindWrapper extends HtmlWrapper<HTMLElement> {
 	constructor(wrapperOptions : KeyBindWrapperOptions) {
 		super(Html.div());
 
-		this.elm().classList.add(Html.classTextButton);
+		this.elm().classList.add(Html.classButton);
 		this.elm().classList.add(Html.classSetting);
 
 		this._nameElm = Html.div();

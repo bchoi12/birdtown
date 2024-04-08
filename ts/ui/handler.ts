@@ -66,7 +66,6 @@ export class HandlerBase {
 		this._enabled = true;
 	}
 	disable() : void {
-		console.log("disable %s", HandlerType[this._type]);
 		if (!this._enabled) {
 			return;
 		}
@@ -78,9 +77,7 @@ export class HandlerBase {
 		this._enabled = false;
 	}
 	onEnable() : void {}
-	onDisable() : void {
-		console.log("onDisable %s", HandlerType[this._type]);
-	}
+	onDisable() : void {}
 	onModeChange(mode : UiMode, oldMode : UiMode) : void {
 		if (this._enabled && mode !== this._mode.get()) {
 			this.disable();

@@ -20,6 +20,8 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 	}
 
 	override setup() : void {
+		super.setup();
+
 		this._keyBindElm.onclick = (e) => {
 			e.stopPropagation();
 		};
@@ -84,12 +86,16 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 	}
 
 	override reset() : void {
+		super.reset();
+
 		this._keyBindWrappers.forEach((wrapper) => {
 			wrapper.setActive(false);
 		});
 	}
 
 	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
+		super.onModeChange(mode, oldMode);
+
 		this.reset();
 	}
 

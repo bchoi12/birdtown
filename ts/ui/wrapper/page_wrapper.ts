@@ -24,22 +24,9 @@ export class PageWrapper extends HtmlWrapper<HTMLElement> {
 	setOnSubmit(fn : OnSubmitFn) : void { this._onSubmit = fn; }
 	submit() : void { this._onSubmit(); }
 
-	addButtonGroup() : number {
-		this._lastGroupId++;
-		this._buttonGroups.set(this._lastGroupId, new Array())
-		return this._lastGroupId;
-	}
-	getButtons(group : number) : Array<ButtonWrapper> { return this._buttonGroups.get(group); }
-	addButton(group : number) : ButtonWrapper {
-		if (!this._buttonGroups.has(group)) {
-			console.error("Error: skipping attempt to add button to nonexistent group", group);
-			return;
-		}
-
-		let buttonWrapper = new ButtonWrapper(this._buttonGroups.get(group).length + 1);
-		this._buttonGroups.get(group).push(buttonWrapper);
+	addButton() : ButtonWrapper {
+		let buttonWrapper = new ButtonWrapper();
 		this.elm().appendChild(buttonWrapper.elm());
-
 		return buttonWrapper;
 	}
 }

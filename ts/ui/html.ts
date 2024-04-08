@@ -34,8 +34,8 @@ export namespace Html {
 	export const divScoreboard = "div-scoreboard";
 	export const divDialogs = "div-dialogs"
 
-	export const divMiniMenu = "div-mini-menu";
-
+	export const divModals = "div-modals";
+	export const divMenuDialog = "div-menu-dialog";
 	export const divMenu = "div-menu";
 	export const menuContinue = "menu-continue";
 	export const fieldsetClients = "fieldset-clients";
@@ -46,10 +46,11 @@ export namespace Html {
 	export const classSpaced = "spaced";
 	export const classNoSelect = "no-select";
 
-	export const classTextButton = "text-button";
+	export const classButton = "button";
 	export const classSetting = "setting";
 	export const classCounter = "counter";
 	export const classDialog = "dialog";
+	export const classDialogContainer = "dialog-container";
 	export const classDialogPage = "dialog-page";
 	export const classDialogTitle = "dialog-title";
 	export const classTooltip = "tooltip";
@@ -95,7 +96,6 @@ export class HtmlWrapper<T extends HTMLElement> {
 
 	elm() : T { return this._elm; }
 	display(display : string) : void { this.elm().style.display = display; }
-	setHtml(html : string) : void { this.elm().innerHTML = html; }
 
 	removeChildren() : void {
 		while (this._elm.firstChild) {

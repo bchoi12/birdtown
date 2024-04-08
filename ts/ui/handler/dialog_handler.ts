@@ -10,8 +10,8 @@ import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
-import { InitDialogWrapper } from 'ui/wrapper/dialog/init_dialog_wrapper'
-import { LoadoutDialogWrapper } from 'ui/wrapper/dialog/loadout_dialog_wrapper'
+import { InitDialogWrapper } from 'ui/wrapper/dialog/game/init_dialog_wrapper'
+import { LoadoutDialogWrapper } from 'ui/wrapper/dialog/game/loadout_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
 export class DialogHandler extends HandlerBase implements Handler {

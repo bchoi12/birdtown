@@ -29,7 +29,7 @@ export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 		if (this._clientId === game.clientId()) {
 			this._micButton = Html.span();
 			this._micButton.append(Icon.create(IconType.MUTED_MIC));
-			this._micButton.classList.add(Html.classTextButton);
+			this._micButton.classList.add(Html.classButton);
 
 			this.elm().onclick = (e) => {
 				e.stopPropagation();
@@ -119,7 +119,7 @@ export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 				volumeRange.style.display = "block";
 			}
 		}
-		muteButton.elm().classList.add(Html.classTextButton);
+		muteButton.elm().classList.add(Html.classButton);
 
 		this._audioControls.push(muteButton.elm());
 		this._audioControls.push(volumeRange);

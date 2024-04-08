@@ -255,6 +255,14 @@ body {
     color: #f2f2f2;
 }
 
+.dialog-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    
+    overflow-y: scroll;
+}
+
 .dialog-page {
     padding: 10%;
 }
@@ -265,10 +273,6 @@ body {
 }
 
 #div-scoreboard {
-    visibility: hidden;
-}
-
-#div-mini-menu {
     visibility: hidden;
 }
 
@@ -344,12 +348,13 @@ body {
     font-weight: bold;
 }
 
-.text-button {
+.button {
     padding: 0.1em;
     margin: 0.2em;
+    display: inline-block;
 }
 
-.text-button:hover {
+.button:hover {
   text-shadow: 0px 0px 7px #BBBBBB;
   cursor: pointer;
 }

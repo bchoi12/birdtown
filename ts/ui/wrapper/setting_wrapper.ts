@@ -24,7 +24,7 @@ export class SettingWrapper<T extends number> extends HtmlWrapper<HTMLElement> {
 		this._setting = setting;
 
 		this.elm().classList.add(Html.classSetting);
-		this.elm().classList.add(Html.classTextButton);
+		this.elm().classList.add(Html.classButton);
 
 		this._nameElm = Html.div();
 		this._nameElm.style.float = "left";

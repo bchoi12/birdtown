@@ -100,25 +100,8 @@ export class InputHandler extends HandlerBase implements Handler {
 			};
 
 	    	document.addEventListener("mousemove", (e: any) => { this.recordMouse(e); });
-	    	document.addEventListener("mousedown", (e: any) => { 			game.canvas().focus(); this.mouseDown(e); });
+	    	document.addEventListener("mousedown", (e: any) => { this.mouseDown(e); });
 	    	document.addEventListener("mouseup", (e: any) => { this.mouseUp(e); });
-
-	    	// TODO: pointer lock code should be in MenuHandler
-			document.addEventListener("pointerlockchange", (e : any) => {
-				if (settings.pointerLocked() && !this.pointerLocked() && ui.mode() === UiMode.GAME) {
-					ui.setMode(UiMode.MENU);
-				}
-			});
-			document.addEventListener("pointerlockerror", (e : any) => {
-				if (ui.mode() !== UiMode.GAME) {
-					return;
-				}
-				setTimeout(() => {
-					if (ui.mode() === UiMode.GAME) {
-						this.pointerLock();
-					}
-				}, 1000);
-			});
 		}
 
 		this.reset();
@@ -141,11 +124,10 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
-		if (mode === UiMode.GAME) {
-			this.pointerLock();
-		} else {
+		super.onModeChange(mode, oldMode);
+
+		if (mode !== UiMode.GAME) {
 			this._keys.clear();
-			this.pointerUnlock();
 		}
 	}
 
@@ -297,18 +279,10 @@ export class InputHandler extends HandlerBase implements Handler {
 		}
 	}
 
-	private pointerLock() : void {
-		if (settings.pointerLocked()) {
-			game.canvas().requestPointerLock();
-		}
-	}
-	private pointerUnlock() : void { document.exitPointerLock(); }
-	private pointerLocked() : boolean { return document.pointerLockElement === game.canvas(); }
-
 	private recordMouse(e : any) : void {
 		const screen = this.screenRect();
 
-		if (!this.pointerLocked()) {
+		if (!ui.isPointerLocked()) {
 			this._mouse.x = e.clientX;
 			this._mouse.y = e.clientY;
 		} else {
@@ -319,7 +293,7 @@ export class InputHandler extends HandlerBase implements Handler {
 			this._mouse.min({x: screen.width, y:screen.height });
     	}
 
-		if (this.pointerLocked()) {
+		if (ui.isPointerLocked()) {
 			this._cursorElm.style.visibility = "visible";
 			this._cursorElm.style.left = (this._mouse.x - InputHandler._cursorWidth / 2) + "px";
 			this._cursorElm.style.top = (this._mouse.y - InputHandler._cursorHeight / 2) + "px";

@@ -31,7 +31,7 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 		if (game.isHost() && this._clientId !== game.clientId()) {
 			let kickButton = Html.span();
 			kickButton.append(Icon.create(IconType.KICK));
-			kickButton.classList.add(Html.classTextButton);
+			kickButton.classList.add(Html.classButton);
 
 			kickButton.onclick = (e) => {
 				e.stopPropagation();

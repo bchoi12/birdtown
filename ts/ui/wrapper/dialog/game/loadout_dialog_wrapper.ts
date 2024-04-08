@@ -4,15 +4,15 @@ import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
 
 import { DialogType } from 'ui/api'
-import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
+import { GameDialogWrapper } from 'ui/wrapper/game_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
-export class LoadoutDialogWrapper extends DialogWrapper {
+export class LoadoutDialogWrapper extends GameDialogWrapper {
 
 	constructor() {
 		super(DialogType.LOADOUT);
 
-		this.setTitle("Pick Your Loadout");
+		this.titleElm().textContent = "Pick Your Loadout";
 
 		this.addModifierPage();
 		this.addWeaponPage();
@@ -20,21 +20,19 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 
 	private addModifierPage() : void {
 		let pageWrapper = this.addPage();
-		let groupIndex = pageWrapper.addButtonGroup();
-
 		{
-			let buttonWrapper = pageWrapper.addButton(groupIndex);
-			buttonWrapper.elm().textContent = "BIG";
-			buttonWrapper.addOnSelect(() => {
+			let buttonWrapper = pageWrapper.addButton();
+			buttonWrapper.setText("BIG");
+			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setPlayerType(ModifierPlayerType.BIG);
 				pageWrapper.submit();
 			});
 		}
 
 		{
-			let buttonWrapper = pageWrapper.addButton(groupIndex);
-			buttonWrapper.elm().textContent = "NORMAL";
-			buttonWrapper.addOnSelect(() => {
+			let buttonWrapper = pageWrapper.addButton();
+			buttonWrapper.setText("NORMAL");
+			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setPlayerType(ModifierPlayerType.NONE);
 				pageWrapper.submit();
 			});
@@ -43,12 +41,10 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 
 	private addWeaponPage() : void {
 		let pageWrapper = this.addPage();
-		let groupIndex = pageWrapper.addButtonGroup();
-
 		{
-			let buttonWrapper = pageWrapper.addButton(groupIndex);
-			buttonWrapper.elm().textContent = "Bazooka";
-			buttonWrapper.addOnSelect(() => {
+			let buttonWrapper = pageWrapper.addButton();
+			buttonWrapper.setText("Bazooka");
+			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setEquipType(EntityType.BAZOOKA);
 				this.dialogMessage().setAltEquipType(EntityType.JETPACK);
 				pageWrapper.submit();
@@ -56,9 +52,9 @@ export class LoadoutDialogWrapper extends DialogWrapper {
 		}
 
 		{
-			let buttonWrapper = pageWrapper.addButton(groupIndex);
-			buttonWrapper.elm().textContent = "Sniper";
-			buttonWrapper.addOnSelect(() => {
+			let buttonWrapper = pageWrapper.addButton();
+			buttonWrapper.setText("Sniper");
+			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setEquipType(EntityType.SNIPER);
 				this.dialogMessage().setAltEquipType(EntityType.SCOUTER);
 				pageWrapper.submit();

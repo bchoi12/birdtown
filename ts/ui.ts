@@ -74,17 +74,6 @@ class UI {
 		});
 	}
 
-	audioContext() : AudioContext {
-		// Lazy initialize since I think browser needs user input beforehand
-		if (!this._audioContext.has()) {
-			this._audioContext.set(new AudioContext());
-		}
-		return this._audioContext.get();
-	}
-	inputWidth() : number { return this._inputHandler.inputWidth(); }
-	inputHeight() : number { return this._inputHandler.inputHeight(); }
-	screenRect() : DOMRect { return this._inputHandler.screenRect(); }
-
 	handleMessage(msg : UiMessage) : void {
 		if (!msg.valid()) {
 			console.error("Error: invalid message", msg);
@@ -117,6 +106,34 @@ class UI {
 			handler.onModeChange(mode, oldMode);
 		});	
 	}
+
+	audioContext() : AudioContext {
+		// Lazy initialize since I think browser needs user input beforehand
+		if (!this._audioContext.has()) {
+			this._audioContext.set(new AudioContext());
+		}
+		return this._audioContext.get();
+	}
+	inputWidth() : number { return this._inputHandler.inputWidth(); }
+	inputHeight() : number { return this._inputHandler.inputHeight(); }
+	screenRect() : DOMRect { return this._inputHandler.screenRect(); }
+
+	requestFullscreen() : void { document.documentElement.requestFullscreen(); }
+	exitFullscreen() : void {
+		if (this.isFullscreen()) {
+			document.exitFullscreen();
+		}
+	}
+	isFullscreen() : boolean { return window.innerHeight === screen.height; }
+
+	requestPointerLock() : void { game.canvas().requestPointerLock(); }
+	exitPointerLock() : void {
+		if (this.isPointerLocked()) {
+			document.exitPointerLock();
+		}
+	}
+	isPointerLocked() : boolean { return document.pointerLockElement === game.canvas(); }
+
 	updatePos(clientId : number, pos : Vec) : void {
 		let context = this.audioContext();
 		if (clientId === game.clientId()) {
