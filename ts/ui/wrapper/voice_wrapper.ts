@@ -14,19 +14,16 @@ import { Vec } from 'util/vector'
 
 export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 
-	private _clientId : number;
 	private _micButton : HTMLElement;
 	private _audioControls : Array<HTMLElement>;
 
 	private _stream : MediaStream;
 	private _panner : PannerNode;
 
-	constructor(msg : UiMessage) {
+	constructor(self : boolean) {
 		super(Html.span());
 
-		this._clientId = msg.getClientId();
-
-		if (this._clientId === game.clientId()) {
+		if (self) {
 			this._micButton = Html.span();
 			this._micButton.append(Icon.create(IconType.MUTED_MIC));
 			this._micButton.classList.add(Html.classButton);

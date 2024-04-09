@@ -3,6 +3,7 @@ import { settings } from 'settings'
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 import { KeyNames } from 'ui/common/key_names'
+import { LabelButtonWrapper } from 'ui/wrapper/label_button_wrapper'
 
 export type KeyBindWrapperOptions = {
 	name : string;
@@ -10,35 +11,22 @@ export type KeyBindWrapperOptions = {
 	update : (keyCode : number) => void;
 }
 
+export class KeyBindWrapper extends LabelButtonWrapper {
 
-export class KeyBindWrapper extends HtmlWrapper<HTMLElement> {
-	private _name : string;
 	private _active : boolean;
 	private _update : (keyCode : number) => void;
 	private _get : () => number;
 
-	private _nameElm : HTMLElement;
-	private _keyElm : HTMLElement;
+	constructor(options : KeyBindWrapperOptions) {
+		super();
 
-	constructor(wrapperOptions : KeyBindWrapperOptions) {
-		super(Html.div());
+		this.setLabel(options.name);
 
-		this.elm().classList.add(Html.classButton);
-		this.elm().classList.add(Html.classSetting);
+		this._active = false;
+		this._update = options.update;
+		this._get = options.get;
 
-		this._nameElm = Html.div();
-		this._nameElm.style.float = "left";
-		this._nameElm.textContent = wrapperOptions.name;
-		this.elm().appendChild(this._nameElm);
-
-		this._keyElm = Html.div();
-		this._keyElm.style.float = "right";
-		this.elm().appendChild(this._keyElm);
-
-		this._update = wrapperOptions.update;
-		this._get = wrapperOptions.get;
-
-		this.setActive(false);
+		this.update();
 		this.elm().onclick = (e) => {
 			this.setActive(!this._active);
 		};
@@ -64,10 +52,10 @@ export class KeyBindWrapper extends HtmlWrapper<HTMLElement> {
 
 	update() : void {
 		if (this._active) {
-			this._keyElm.textContent = "[Press a key]";
+			this.setText("[Press a key]");
 		} else {
 			let key = KeyNames.get(this._get());
-			this._keyElm.textContent = "[" + key + "]";
+			this.setText("[" + key + "]");
 		}
 	}
 }

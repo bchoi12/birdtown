@@ -13,11 +13,13 @@ import { HandlerType } from 'ui/handler/api'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
+import { VoiceWrapper } from 'ui/wrapper/voice_wrapper'
 
 export class MenuHandler extends HandlerBase implements Handler {
 
 	private _modalsElm : HTMLElement;
-	private _menuDialog : DialogWrapper;
+	private _dialogWrapper : DialogWrapper;
+	private _voiceWrapper : VoiceWrapper;
 	private _menuElm : HTMLElement;
 	private _continueElm : HTMLElement;
 
@@ -29,13 +31,14 @@ export class MenuHandler extends HandlerBase implements Handler {
 		});
 
 		this._modalsElm = Html.elm(Html.divModals);
-		this._menuDialog = new DialogWrapper();
+		this._dialogWrapper = new DialogWrapper();
+		this._voiceWrapper = new VoiceWrapper(/*self=*/true);
 		this._menuElm = Html.elm(Html.divMenu);
 		this._continueElm = Html.elm(Html.menuContinue);
 
-		this._menuDialog.titleElm().textContent = "Menu";
-		this._menuDialog.elm().style.visibility = "hidden";
-		this._modalsElm.prepend(this._menuDialog.elm());
+		this._dialogWrapper.titleElm().textContent = "Menu";
+		this._dialogWrapper.elm().style.visibility = "hidden";
+		this._modalsElm.prepend(this._dialogWrapper.elm());
 
 		this._canMenu = true;
 	}
@@ -84,7 +87,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 				return FullscreenSetting[current];
 			},
 		});
-		this._menuDialog.contentElm().appendChild(fullscreen.elm());
+		this._dialogWrapper.contentElm().appendChild(fullscreen.elm());
 
 		let pointer = new SettingWrapper<PointerSetting>({
 			name: "In-game Cursor",
@@ -96,22 +99,27 @@ export class MenuHandler extends HandlerBase implements Handler {
 				return PointerSetting[current];
 			},
 		});
-		this._menuDialog.contentElm().appendChild(pointer.elm());
+		this._dialogWrapper.contentElm().appendChild(pointer.elm());
 
-		let fullMenu = new ButtonWrapper();
-		fullMenu.setText("Full Menu");
-		fullMenu.addOnClick(() => {
-			this._menuDialog.elm().style.visibility = "hidden";
-			this._menuElm.style.visibility = "visible";
-		});
-		this._menuDialog.footer().elm().appendChild(fullMenu.elm());
+
+		this._dialogWrapper.footer().elm().appendChild(this._voiceWrapper.elm());
 
 		let miniContinue = new ButtonWrapper();
+		miniContinue.elm().style.float = "right";
 		miniContinue.setText("Continue");
 		miniContinue.addOnClick(() => {
 			this.disable();
 		});
-		this._menuDialog.footer().elm().appendChild(miniContinue.elm());
+		this._dialogWrapper.footer().elm().appendChild(miniContinue.elm());
+
+		let fullMenu = new ButtonWrapper();
+		fullMenu.elm().style.float = "right";
+		fullMenu.setText("Full Menu");
+		fullMenu.addOnClick(() => {
+			this._dialogWrapper.elm().style.visibility = "hidden";
+			this._menuElm.style.visibility = "visible";
+		});
+		this._dialogWrapper.footer().elm().appendChild(fullMenu.elm());
 
 		this._continueElm.onclick = (e : any) => {
 			this.disable();
@@ -121,13 +129,13 @@ export class MenuHandler extends HandlerBase implements Handler {
 	override onEnable() : void {
 		super.onEnable();
 
-		this._menuDialog.elm().style.visibility = "visible";
+		this._dialogWrapper.elm().style.visibility = "visible";
 	}
 
 	override onDisable() : void {
 		super.onDisable();
 
-		this._menuDialog.elm().style.visibility = "hidden";
+		this._dialogWrapper.elm().style.visibility = "hidden";
 		this._menuElm.style.visibility = "hidden";
 	}
 

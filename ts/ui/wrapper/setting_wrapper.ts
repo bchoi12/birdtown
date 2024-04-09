@@ -3,6 +3,7 @@ import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
+import { LabelButtonWrapper } from 'ui/wrapper/label_button_wrapper'
 
 export type SettingWrapperOptions<T extends number> = {
 	name: string;
@@ -12,37 +13,25 @@ export type SettingWrapperOptions<T extends number> = {
 	text: (current : T) => string;
 }
 
-export class SettingWrapper<T extends number> extends HtmlWrapper<HTMLElement> {
+export class SettingWrapper<T extends number> extends LabelButtonWrapper {
 
-	private _setting : SettingWrapperOptions<T>;
-	private _nameElm : HTMLElement;
-	private _settingElm : HTMLElement;
+	private _options : SettingWrapperOptions<T>;
 
-	constructor(setting : SettingWrapperOptions<T>) {
-		super(Html.div());
+	constructor(options : SettingWrapperOptions<T>) {
+		super();
 
-		this._setting = setting;
+		this._options = options;
 
-		this.elm().classList.add(Html.classSetting);
-		this.elm().classList.add(Html.classButton);
-
-		this._nameElm = Html.div();
-		this._nameElm.style.float = "left";
-		this._nameElm.textContent = this._setting.name;
-		this.elm().appendChild(this._nameElm);
-
-		this._settingElm = Html.div();
-		this._settingElm.style.float = "right";
-		this.updateText();
-		this.elm().appendChild(this._settingElm);
+		this.setLabel(this._options.name);
+		this.setText(this._options.text(this._options.get()));
 
 		this.elm().onclick = (e) => {
-			this._setting.click(this._setting.get());
-			this.updateText();
+			this._options.click(this._options.get());
+			this.setText(this._options.text(this._options.get()));
 		}
 	}
 
-	private updateText() : void {
-		this._settingElm.textContent = "[" + this._setting.text(this._setting.get()) + "]"
+	override setText(text : string) : void {
+		super.setText("[" + text + "]");
 	}
 }

@@ -257,10 +257,7 @@ body {
 
 .dialog-container {
     position: relative;
-    width: 100%;
     height: 100%;
-    
-    overflow-y: scroll;
 }
 
 .dialog-page {
@@ -311,7 +308,7 @@ body {
 #menu-fieldsets fieldset {
     overflow-y: scroll;
     text-align: left;
-    font-size: 0.6em;
+    font-size: 0.5em;
     flex: 1;
 }
 
@@ -325,10 +322,10 @@ body {
 
 .setting {
     padding: 0.2em;
-    width: 100%;
     font-size: 1em;
     height: 1em;
     margin-bottom: 0.3em;
+    display: block;
 }
 
 #cursor, #aim {

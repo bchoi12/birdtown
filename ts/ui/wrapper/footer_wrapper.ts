@@ -9,6 +9,7 @@ export class FooterWrapper extends HtmlWrapper<HTMLElement> {
 		min-height: 1em;
 		position: absolute;
 		bottom: 0px;
+		padding: 1em 0;
 	`
 
 	constructor() {
