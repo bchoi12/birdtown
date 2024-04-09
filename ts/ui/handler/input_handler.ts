@@ -99,9 +99,21 @@ export class InputHandler extends HandlerBase implements Handler {
 				this._keys.clear();
 			};
 
-	    	document.addEventListener("mousemove", (e: any) => { this.recordMouse(e); });
-	    	document.addEventListener("mousedown", (e: any) => { this.mouseDown(e); });
-	    	document.addEventListener("mouseup", (e: any) => { this.mouseUp(e); });
+	    	document.addEventListener("mousemove", (e: any) => {
+	    		if (ui.mode() !== UiMode.GAME) return;
+
+	    		this.recordMouse(e);
+	    	});
+	    	document.addEventListener("mousedown", (e: any) => {
+	    		if (ui.mode() !== UiMode.GAME) return;
+
+	    		this.mouseDown(e);
+	    	});
+	    	document.addEventListener("mouseup", (e: any) => {
+	    		if (ui.mode() !== UiMode.GAME) return;
+
+	    		this.mouseUp(e);
+	    	});
 		}
 
 		this.reset();

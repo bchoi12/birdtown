@@ -102,7 +102,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _airResistance = 5;
 
 	private static readonly _rotationOffset = -0.1;
-	private static readonly _jumpGracePeriod = 100;
+	private static readonly _jumpGracePeriod = 160;
 
 	private static readonly _armRecoveryTime = 500;
 
@@ -120,9 +120,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _boneOrigins : Map<Bone, BABYLON.Vector3>;
 	private _eyeShifter : MaterialShifter;
 
+	private _canJump : boolean;
 	private _canJumpTimer : Timer;
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
+	private _groundedTracker : ChangeTracker<boolean>;
 
 	private _association : Association;
 	private _attributes : Attributes;
@@ -143,6 +145,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._boneOrigins = new Map();
 		this._eyeShifter = new MaterialShifter();
 
+		this._canJump = true;
 		this._canJumpTimer = this.newTimer({
 			canInterrupt: true,
 		});
@@ -163,6 +166,32 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._profile.setInertia(Infinity);
 				this._profile.setAngularVelocity(0);
 				this._expression.clearOverride();
+			}
+		});
+		this._groundedTracker = new ChangeTracker(() => {
+			return this.getAttribute(AttributeType.GROUNDED);
+		}, (grounded : boolean) => {
+			if (this._model.hasMesh()
+				&& grounded
+				&& !this.dead()) {
+				for (let i of [-1, 1]) {
+					const scale = 0.25 + 0.1 * Math.random();
+					this.addEntity(EntityType.PARTICLE_SMOKE, {
+						offline: true,
+						ttl: 500,
+						profileInit: {
+							pos: this._profile.pos().clone().sub({ y: this._profile.scaledDim().y / 2 - 0.3 }),
+							vel: { x: 0.05 * i * (1 + 0.5 * Math.random()) },
+							acc: { x: -0.1 * i, y: 0.1 },
+							scaling: { x: scale, y: scale },
+						},
+						modelInit: {
+							transforms: {
+								translate: { z: this._model.mesh().position.z + 0.3 },
+							}
+						}
+					});
+				}
 			}
 		});
 
@@ -346,6 +375,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		// TODO: try just calling reset()?
 
 		this.setAttribute(AttributeType.GROUNDED, false);
+		this._canJump = false;
 		this._canJumpTimer.reset();
 		this._canDoubleJump = false;
 
@@ -448,30 +478,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this.die();
 		}
 
-		if (this._model.hasMesh()
-			&& !this.getAttribute(AttributeType.GROUNDED)
-			&& this._canJumpTimer.hasTimeLeft()
-			&& !this.dead()) {
-			for (let i of [-1, 1]) {
-				const scale = 0.25 + 0.1 * Math.random();
-				this.addEntity(EntityType.PARTICLE_SMOKE, {
-					offline: true,
-					ttl: 500,
-					profileInit: {
-						pos: this._profile.pos().clone().sub({ y: this._profile.scaledDim().y / 2 - 0.3 }),
-						vel: { x: 0.05 * i * (1 + 0.5 * Math.random()) },
-						acc: { x: -0.1 * i, y: 0.1 },
-						scaling: { x: scale, y: scale },
-					},
-					modelInit: {
-						transforms: {
-							translate: { z: this._model.mesh().position.z + 0.3 },
-						}
-					}
-				});
-			}
-		}
-		this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.hasTimeLeft());
+		this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.timeLeft() > Player._jumpGracePeriod / 2);
 
 		this._deadTracker.check();
 	}
@@ -511,11 +518,14 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this.recomputeDir(dir);
 			this._headSubProfile.setAngle(this._headDir.angleRad());
 
+			// Check for actions during grounded changes
+			this._groundedTracker.check();
+
 			// Jumping
-			if (this._canJumpTimer.hasTimeLeft()) {
+			if (this._canJump && this._canJumpTimer.hasTimeLeft()) {
 				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
 					this._profile.setVel({ y: Player._jumpVel });
-					this._canJumpTimer.reset();
+					this._canJump = false;
 				}
 			} else if (this._canDoubleJump) {
 				if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
@@ -553,6 +563,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		super.collide(collision, other);
 
 		if (other.getAttribute(AttributeType.SOLID) && collision.normal.y > 0.7) {
+			this._canJump = true;
 			this._canDoubleJump = true;
 			this._canJumpTimer.start(Player._jumpGracePeriod);
 		}

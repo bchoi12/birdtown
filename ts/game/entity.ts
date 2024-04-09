@@ -19,6 +19,7 @@ import { GameObject, GameObjectBase, StepData } from 'game/game_object'
 import { KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { defined } from 'util/common'
+import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
 import { Vec2, Vec3 } from 'util/vector'
 
@@ -75,6 +76,7 @@ export interface Entity extends GameObject {
 	hasAttribute(type : AttributeType) : boolean;
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
+	attributeLastChange(type : AttributeType) : Optional<number>;
 	getCounter(type : CounterType) : number;
 	addCounter(type : CounterType, value : number) : void;
 	setCounter(type : CounterType, value : number) : void;
@@ -293,6 +295,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 
 		this.getComponent<Attributes>(ComponentType.ATTRIBUTES).setAttribute(type, value);
+	}
+	attributeLastChange(type : AttributeType) : Optional<number> {
+		if (!this.hasComponent(ComponentType.ATTRIBUTES)) {
+			return Optional.empty();
+		}
+		return this.getComponent<Attributes>(ComponentType.ATTRIBUTES).lastChange(type);
 	}
 
 	getCounter(type : CounterType) : number {
