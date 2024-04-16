@@ -23,6 +23,9 @@ export abstract class Bound extends EntityBase implements Entity {
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
+					chamfer: {
+						radius: 0.03,
+					},
 					collisionFilter: {
 						group: BodyFactory.ignoreBoundGroup,
 					},

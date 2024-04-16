@@ -344,7 +344,8 @@ export abstract class Netcode {
 						console.log("Calling", id, clientId);
 					}
 				}, (e) => {
-					ui.chat("Failed to call peer: " + e);
+					ui.chat("Error: failed to call peer");
+					console.error(e);
 				});
 			});
 		}
@@ -354,7 +355,8 @@ export abstract class Netcode {
 				stream = null;
 				callFn();
 			}, (e) => {
-				ui.chat("Failed to get microphone permissions: " + e);
+				ui.chat("Error: failed to get microphone permissions");
+				console.error(e);
 			});
 		} else {
 			callFn();

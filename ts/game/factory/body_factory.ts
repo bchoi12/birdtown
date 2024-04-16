@@ -14,7 +14,7 @@ export namespace BodyFactory {
 	export const defaultFrictionAir = 0.01;
 
 	export const defaultOptions = {
-		slop: 0,
+		slop: 0.01,
 		friction: defaultFriction,
 		frictionAir: defaultFrictionAir,
 		density: defaultDensity,

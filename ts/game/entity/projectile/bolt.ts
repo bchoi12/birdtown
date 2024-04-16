@@ -91,8 +91,8 @@ export class Bolt extends Projectile {
 					offline: true,
 					ttl: 300,
 					profileInit: {
-						pos: this._profile.body().position,
-						vel: Vec2.fromVec(this._profile.body().velocity).negate().normalize().scaleVec({
+						pos: this._profile.pos(),
+						vel: Vec2.fromVec(this._profile.vel()).negate().normalize().scaleVec({
 							x: Fns.randomRange(0.05, 0.2),
 							y: Fns.randomRange(0.05, 0.2),
 						}),

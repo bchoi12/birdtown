@@ -2,6 +2,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'	
 import { EntityType } from 'game/entity/api'
+import { Entity } from 'game/entity'
 import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
@@ -61,6 +62,9 @@ export class Physics extends SystemBase implements System {
 	}
 
 	world() : MATTER.Composite { return this._engine.world; }
+	queryEntity(body : MATTER.Body) : [Entity, boolean] {
+		return game.entities().getEntity(Number(body.label));
+	}
 
 	override physics(stepData : StepData) : void {
 		super.physics(stepData);
@@ -78,15 +82,10 @@ export class Physics extends SystemBase implements System {
 				return;
 			}
 
-			const idA = Number(pair.bodyA.label);
-			const idB = Number(pair.bodyB.label);
-
-			if (Number.isNaN(idA) || Number.isNaN(idB)) {
-				return;
-			}
-
-			const [entityA, hasEntityA] = entities.getEntity(idA);
-			const [entityB, hasEntityB] = entities.getEntity(idB);
+			const idA = pair.bodyA.label;
+			const idB = pair.bodyB.label;
+			const [entityA, hasEntityA] = this.queryEntity(pair.bodyA);
+			const [entityB, hasEntityB] = this.queryEntity(pair.bodyB);
 
 			if (!hasEntityA || !hasEntityB) {
 				console.error("Error: skipping collision with missing entity", idA, hasEntityA, idB, hasEntityB);

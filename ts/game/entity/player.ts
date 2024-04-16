@@ -27,6 +27,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
 import { DepthType } from 'game/system/api'
+import { CollisionBuffer, RecordType } from 'game/util/collision_buffer'
 import { MaterialShifter } from 'game/util/material_shifter'
 
 import { GameGlobals } from 'global/game_globals'
@@ -219,6 +220,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: BodyFactory.playerDensity,
+					chamfer: {
+						radius: 0.05,
+					},
 					friction: 0,
 					collisionFilter: {
 						group: collisionGroup,
@@ -259,7 +263,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				head.setPos(this._profile.pos().clone().add({y: 0.22}));
 			},
 			postPhysicsFn: (head : Profile) => {
-				MATTER.Body.setPosition(head.body(), this._profile.pos().clone().add({y: 0.22}));
+				head.setPos(this._profile.pos().clone().add({y: 0.22}));
 			},
 		}));
 		this._headSubProfile.setRenderNever();
@@ -559,10 +563,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 	}
 
-	override collide(collision : MATTER.Collision, other : Entity) : void {
-		super.collide(collision, other);
+	override postPhysics(stepData : StepData) : void {
+		super.postPhysics(stepData);
 
-		if (other.getAttribute(AttributeType.SOLID) && collision.normal.y > 0.7) {
+		const buffer = this._profile.collisionBuffer();
+		if (buffer.hasRecords() && buffer.record(RecordType.MAX_NORMAL_Y).collision.normal.y > 0.7) {
 			this._canJump = true;
 			this._canDoubleJump = true;
 			this._canJumpTimer.start(Player._jumpGracePeriod);

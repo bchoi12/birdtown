@@ -25,11 +25,11 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 ## Game Engine Highlights
  * Custom built for the web with nearly instant load times
- * Cross platform support - play with any device that can run a (modern) web browser, including your phone
+ * Cross platform support - play with any device that can run a modern web browser, including your phone
  * 3D rendering thanks to Babylon.js and WebGL
  * Fully featured voice chat with spatialized audio (and text chat)
  * Peer-to-peer, but also server authoritative (one client serves as host)
- * Automatic client prediction and smoothing based on changing network conditions
+ * Configurable client prediction for smoothing network hiccups
  * Game states are diff-based, compressed, and selectively sent using both reliable (TCP-like) and unreliable (UDP-like) protocols for fast and consistent gameplay
  * Levels are procedurally generated, deterministic, and synced over the network
 

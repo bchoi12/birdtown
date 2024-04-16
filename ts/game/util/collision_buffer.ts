@@ -17,8 +17,9 @@ export enum RecordType {
 	UNKNOWN,
 
 	MAX_PEN_X,
+	MIN_PEN_X,
 	MAX_PEN_Y,
-	MAX_NORMAL_X,
+	MIN_PEN_Y,
 	MAX_NORMAL_Y,
 }
 
@@ -45,10 +46,15 @@ export class CollisionBuffer {
 	fixed() : boolean { return this._fixed; }
 	hasRecords() : boolean { return this._records.size() > 0; }
 	pushRecord(record : Record) : void {
-		this._records.push(record);
 		if (record.fixed) {
 			this._fixed = true;
 		}
+
+		if (record.collision.penetration.x === 0 && record.collision.penetration.y === 0) {
+			return;
+		}
+
+		this._records.push(record);
 
 		if (this._records.size() <= 1) {
 			return;
@@ -57,16 +63,19 @@ export class CollisionBuffer {
 		const index = this._records.size() - 1;
 
 		this.updateRecord(RecordType.MAX_PEN_X, index, (record : Record, current : Record) => {
-			return Math.abs(record.collision.penetration.x) > Math.abs(current.collision.penetration.x);
+			return record.collision.penetration.x > current.collision.penetration.x;
 		});
 		this.updateRecord(RecordType.MAX_PEN_Y, index, (record : Record, current : Record) => {
-			return Math.abs(record.collision.penetration.y) > Math.abs(current.collision.penetration.y);
+			return record.collision.penetration.y > current.collision.penetration.y;
 		});
-		this.updateRecord(RecordType.MAX_NORMAL_X, index, (record : Record, current : Record) => {
-			return Math.abs(record.collision.normal.x) > Math.abs(current.collision.normal.x);
+		this.updateRecord(RecordType.MIN_PEN_X, index, (record : Record, current : Record) => {
+			return record.collision.penetration.x < current.collision.penetration.x;
+		});
+		this.updateRecord(RecordType.MIN_PEN_Y, index, (record : Record, current : Record) => {
+			return record.collision.penetration.y < current.collision.penetration.y;
 		});
 		this.updateRecord(RecordType.MAX_NORMAL_Y, index, (record : Record, current : Record) => {
-			return Math.abs(record.collision.normal.y) > Math.abs(current.collision.normal.y);
+			return record.collision.normal.y > current.collision.normal.y;
 		});
 	}
 

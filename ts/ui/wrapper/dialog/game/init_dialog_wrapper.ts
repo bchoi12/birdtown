@@ -25,6 +25,7 @@ export class InitDialogWrapper extends GameDialogWrapper {
 		let pageWrapper = this.addPage();
 
 		let nameInput = Html.input();
+		nameInput.placeholder = "[Enter your name]";
 		pageWrapper.elm().appendChild(nameInput);
 
 		let buttonWrapper = pageWrapper.addButton();

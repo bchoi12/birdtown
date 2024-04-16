@@ -15,7 +15,7 @@ type OnSubmitFn = () => void;
 export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 	private static readonly _containerCss = `
-		margin: 0em 1.5em;
+		margin: 0em 2em;
 	`
 
 	private static readonly _titleCss = `

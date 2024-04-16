@@ -25,7 +25,7 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 		this.setDisplayName(msg.getDisplayNameOr("unknown"));
 		this.elm().appendChild(this._nameElm);
 
-		this._voiceWrapper = new VoiceWrapper(this._clientId === game.clientId());
+		this._voiceWrapper = new VoiceWrapper(/*self=*/this._clientId === game.clientId());
 		this.elm().appendChild(this._voiceWrapper.elm());
 
 		if (game.isHost() && this._clientId !== game.clientId()) {

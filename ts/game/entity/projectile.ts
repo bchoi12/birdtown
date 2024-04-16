@@ -70,7 +70,7 @@ export abstract class Projectile extends EntityBase {
 		this.addEntity(EntityType.EXPLOSION, {
 			ttl: 200,
 			profileInit: {
-				pos: this.profile().body().position,
+				pos: this.profile().pos(),
 				dim: {x: 3, y: 3},
 			},
 			...entityOptions,

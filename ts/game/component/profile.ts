@@ -296,6 +296,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	hasBody() : boolean { return this._body !== null; } 
+	// TODO: make private
 	body() : MATTER.Body { return this._body; }
 	onBody(fn : OnBodyFn) : void {
 		if (this.hasBody()) {
@@ -327,6 +328,8 @@ export class Profile extends ComponentBase implements Component {
 				break;
 		}
 	}
+
+	collisionBuffer() : CollisionBuffer { return this._collisionBuffer; }
 
 	addConstraint(constraint : MATTER.Constraint) : [MATTER.Constraint, number] {
 		const id = this._constraints.size + 1;
@@ -560,6 +563,8 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	override prePhysics(stepData : StepData) : void {
+		// super.prePhysics() called later
+
 		const millis = stepData.millis;
 
 		if (this._prePhysicsFn) {
@@ -625,8 +630,9 @@ export class Profile extends ComponentBase implements Component {
 		let normal = Vec2.fromVec(collision.normal);
 		let pen = Vec2.fromVec(collision.penetration);
 		let fixed = false;
-		if (otherProfile.body().isStatic && other.getAttribute(AttributeType.SOLID)) {
-			// Find overlap of rectangle bounding boxes.
+
+		// Find overlap of rectangle bounding boxes.
+		if (other.getAttribute(AttributeType.SOLID) && otherProfile.body().isStatic) {
 			let overlap = this.pos().clone().sub(otherProfile.pos()).abs().sub({
 				x: this.scaledDim().x / 2 + otherProfile.scaledDim().x / 2,
 				y: this.scaledDim().y / 2 + otherProfile.scaledDim().y / 2,
@@ -635,35 +641,45 @@ export class Profile extends ComponentBase implements Component {
 				y: 1 / this.scaledDim().y,
 			});
 
-			// Calculate relative vel to determine collision direction
 			let vel = this.vel();
 			const yCollision = Math.abs(overlap.x * vel.y) >= Math.abs(overlap.y * vel.x);
 			if (yCollision) {
-				// Either overlap in other dimension is too small or collision direction is in disagreement.
-				if (Math.abs(overlap.x) < 0.01 || Math.abs(normal.x) > 0.99) {
-					pen.scale(0);
-					fixed = true;
-				}
 				pen.x = 0;
 				normal.x = 0;
 				normal.y = Math.sign(normal.y);
-			} else {
-				if (Math.abs(overlap.y) < 0.01 || Math.abs(normal.y) > 0.99) {
+
+				if (Math.sign(vel.y) === Math.sign(this.pos().y - otherProfile.pos().y)) {
+					// Moving away from the collision
+					pen.scale(0);
+					fixed = true;
+				} else if (Math.abs(overlap.x) < 0.04 || Math.abs(normal.x) > 0.99) {
+					// Either overlap in other dimension is too small or collision direction is in disagreement.
 					pen.scale(0);
 					fixed = true;
 				}
+			} else {
 				pen.y = 0;
 				normal.x = Math.sign(normal.x);
 				normal.y = 0;
-			}
-		}
 
-		if (other.allTypes().has(EntityType.FLOOR)) {
-			if (Math.abs(normal.x) > 0 || Math.abs(pen.x) > 0) {
-				pen.x = 0;
-				normal.x = 0;
-				normal.y = Math.sign(normal.y);
-				fixed = true;
+				if (Math.sign(vel.x) === Math.sign(this.pos().x - otherProfile.pos().x)) {
+					// Moving away from the collision
+					pen.scale(0);
+					fixed = true;
+				} if (Math.abs(overlap.y) < 0.04 || Math.abs(normal.y) > 0.99) {
+					// Either overlap in other dimension is too small or collision direction is in disagreement.
+					pen.scale(0);
+					fixed = true;
+				}
+			}
+
+			if (other.allTypes().has(EntityType.FLOOR)) {
+				if (Math.abs(normal.x) > 0 || Math.abs(pen.x) > 0) {
+					pen.x = 0;
+					normal.x = 0;
+					normal.y = Math.sign(normal.y);
+					fixed = true;
+				}
 			}
 		}
 
@@ -680,31 +696,64 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	override postPhysics(stepData : StepData) : void {
-		const seqNum = stepData.seqNum;
-		const millis = stepData.millis;
+		// super.postPhysics() called later
 
-		if (this._collisionBuffer.fixed() && this._collisionBuffer.hasRecords()) {
-			// Fix getting stuck on small corners
-			if (this._collisionBuffer.record(RecordType.MAX_PEN_X).collision.penetration.x === 0) {
-				MATTER.Body.setVelocity(this._body, {
-					x: this.vel().x,
-					y: this._body.velocity.y,
-				});
-				// Probably a bit extra to use body vel instead of profile vel, but it works better
-				MATTER.Body.setPosition(this._body, {
-					x: this._body.velocity.x * millis / 1000 + this._body.position.x,
-					y: this._body.position.y,
-				});
+		// Fix getting stuck on small corners
+		const millis = stepData.millis;
+		if (this._collisionBuffer.hasRecords() && this._collisionBuffer.fixed()) {
+			{
+				const record = this._collisionBuffer.record(RecordType.MAX_PEN_X);
+				if (record.collision.penetration.x <= 0 && this.vel().x > 0) {
+					MATTER.Body.setVelocity(this._body, {
+						x: this.vel().x,
+						y: this._body.velocity.y,
+					});
+					MATTER.Body.setPosition(this._body, {
+						x: this._body.position.x + this.vel().x * millis / 1000,
+						y: this._body.position.y,
+					});
+				}
 			}
-			if (this._collisionBuffer.record(RecordType.MAX_PEN_Y).collision.penetration.y === 0) {
-				MATTER.Body.setVelocity(this._body, {
-					x: this._body.velocity.x,
-					y: this.vel().y,
-				});
-				MATTER.Body.setPosition(this._body, {
-					x: this._body.position.x,
-					y: this._body.velocity.y * millis / 1000 + this._body.position.y,
-				});
+			{
+				const record = this._collisionBuffer.record(RecordType.MIN_PEN_X);
+				if (record.collision.penetration.x >= 0 && this.vel().x < 0) {
+					MATTER.Body.setVelocity(this._body, {
+						x: this.vel().x,
+						y: this._body.velocity.y,
+					});
+					MATTER.Body.setPosition(this._body, {
+						x: this._body.position.x + this.vel().x * millis / 1000,
+						y: this._body.position.y,
+					});
+				}
+			}
+
+			{
+				const record = this._collisionBuffer.record(RecordType.MAX_PEN_Y);
+				if (record.collision.penetration.y <= 0 && this.vel().y > 0) {
+					MATTER.Body.setVelocity(this._body, {
+						x: this._body.velocity.x,
+						y: this.vel().y,
+					});
+					MATTER.Body.setPosition(this._body, {
+						x: this._body.position.x,
+						y: this._body.position.y + this.vel().y * millis / 1000,
+					});
+				}
+			}
+
+			{
+				const record = this._collisionBuffer.record(RecordType.MIN_PEN_Y);
+				if (record.collision.penetration.y >= 0 && this.vel().y < 0) {
+					MATTER.Body.setVelocity(this._body, {
+						x: this._body.velocity.x,
+						y: this.vel().y,
+					});
+					MATTER.Body.setPosition(this._body, {
+						x: this._body.position.x,
+						y: this._body.position.y + this.vel().y * millis / 1000,
+					});
+				}
 			}
 		}
 

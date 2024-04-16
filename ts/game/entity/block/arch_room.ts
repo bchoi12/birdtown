@@ -21,8 +21,8 @@ export class ArchRoom extends ArchBase implements Entity {
 
 		if (this.openings().empty()) {
 			this.addWall({
-				pos: this._profile.pos().clone().add({ y: this.thickness() / 2 }),
-				dim: this._profile.scaledDim().clone().add({ y: this.thickness() }),
+				pos: this._profile.pos(),
+				dim: this._profile.scaledDim(),
 			});
 			return;
 		}
