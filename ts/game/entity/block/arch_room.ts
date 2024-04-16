@@ -1,3 +1,5 @@
+import * as MATTER from 'matter-js'
+
 import { game } from 'game'
 import { ComponentType } from 'game/component/api'
 import { Entity, EntityOptions } from 'game/entity'
@@ -59,6 +61,22 @@ export class ArchRoom extends ArchBase implements Entity {
 		} else {
 			this.addWall(
 				this._profile.createRelativeInit(CardinalDir.LEFT, {x: this.thickness(), y: this._profile.scaledDim().y }));
+		}
+	}
+
+	override collide(collision : MATTER.Collision, other : Entity) : void {
+		super.collide(collision, other);
+
+		if (!this.openings().empty()) {
+			return;
+		}
+
+		if (!other.allTypes().has(EntityType.PLAYER)) {
+			return;
+		}
+
+		if (this._profile.contains(other.profile().pos())) {
+			other.takeDamage(1, this);
 		}
 	}
 }
