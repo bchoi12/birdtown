@@ -117,11 +117,22 @@ export class Physics extends SystemBase implements System {
 			}
 
 			entityA.collide(collision, entityB);
-			collision.normal.x *= -1;
-			collision.normal.y *= -1;
-			collision.penetration.x *= -1;
-			collision.penetration.y *= -1;
-			entityB.collide(collision, entityA);		
+
+			if (collision.penetration.x === 0 && collision.penetration.y === 0) {
+				return;
+			}
+
+			// Create a partial record for the backwards collision. Only set fields are supported.
+			let reverseCollision = MATTER.Collision.create(pair.bodyB, pair.bodyA);
+			reverseCollision.collided = true;
+			reverseCollision.normal.x = -1 * collision.normal.x;
+			reverseCollision.normal.y = -1 * collision.normal.y;
+			reverseCollision.penetration.x = -1 * collision.penetration.x;
+			reverseCollision.penetration.y = -1 * collision.penetration.y;
+			reverseCollision.tangent.x = -1 * collision.tangent.x;
+			reverseCollision.tangent.y = -1 * collision.tangent.y;
+
+			entityB.collide(reverseCollision, entityA);		
 		});
 	}
 

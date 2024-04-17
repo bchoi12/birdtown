@@ -482,7 +482,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this.die();
 		}
 
-		this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.timeLeft() > Player._jumpGracePeriod / 2);
+		if (this.isSource() || this.clientIdMatches()) {
+			this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.timeLeft() > Player._jumpGracePeriod / 2);
+		}
 
 		this._deadTracker.check();
 	}
@@ -567,7 +569,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		super.postPhysics(stepData);
 
 		const buffer = this._profile.collisionBuffer();
-		if (buffer.hasRecords() && buffer.record(RecordType.MAX_NORMAL_Y).collision.normal.y > 0.7) {
+		if (buffer.hasRecords() && buffer.record(RecordType.MAX_NORMAL_Y).collision.normal.y > 0.8) {
 			this._canJump = true;
 			this._canDoubleJump = true;
 			this._canJumpTimer.start(Player._jumpGracePeriod);

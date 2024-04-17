@@ -20,6 +20,7 @@ export enum RecordType {
 	MIN_PEN_X,
 	MAX_PEN_Y,
 	MIN_PEN_Y,
+
 	MAX_NORMAL_Y,
 }
 
@@ -50,7 +51,7 @@ export class CollisionBuffer {
 			this._fixed = true;
 		}
 
-		if (record.collision.penetration.x === 0 && record.collision.penetration.y === 0) {
+		if (record.collision.penetration.x === 0 && record.collision.penetration.y === 0 && record.fixed) {
 			return;
 		}
 
