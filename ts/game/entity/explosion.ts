@@ -39,9 +39,7 @@ export class Explosion extends EntityBase implements Entity {
 		}));
 
 		this._model = this.addComponent<Model>(new Model({
-			readyFn: () => {
-				return this._profile.ready();
-			},
+			readyFn: (model: Model) => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				model.setMesh(BABYLON.MeshBuilder.CreateSphere(this.name(), {
 					diameter: this._profile.unscaledDim().x,
@@ -56,13 +54,13 @@ export class Explosion extends EntityBase implements Entity {
 		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
 		this._soundPlayer.registerSound(SoundType.EXPLOSION, SoundType.EXPLOSION);
 
-		if (this._model.hasMaterialType()) {
+		this._model.onLoad((model: Model) => {
 			this._profile.onBody((profile : Profile) => {
 				const material = MaterialFactory.material<BABYLON.StandardMaterial>(this._model.materialType());
 				profile.body().render.fillStyle = material.emissiveColor.toHexString();
 				profile.body().render.strokeStyle = material.emissiveColor.toHexString();
 			});
-		}
+		});
 	}
 
 	override initialize() : void {

@@ -90,6 +90,8 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 		if (this.owner().dead()) { return false; }
 
+		if (this.owner().getAttribute(AttributeType.INVINCIBLE)) { return false; }
+
 		return super.key(type, state);
 	}
 
