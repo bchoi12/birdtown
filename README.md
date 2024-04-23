@@ -17,7 +17,7 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 ## Screenshots
 
-![devlog028](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog028.png?raw=true)
+![devlog039](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog039.png?raw=true)
 
 ![devlog032](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog032.png?raw=true)
 

@@ -119,7 +119,7 @@ export class Lakitu extends SystemBase implements System {
 			this._panners.forEach((panner : Panner, type : OffsetType) => {
 				panner.pan({
 					goal: Lakitu._offsets.get(type),
-					millis: Lakitu._panTime,
+					millis: 5 * Lakitu._panTime,
 					interpType: InterpType.NEGATIVE_SQUARE,
 				});
 			});

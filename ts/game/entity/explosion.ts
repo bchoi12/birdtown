@@ -56,6 +56,9 @@ export class Explosion extends EntityBase implements Entity {
 
 		this._model.onLoad((model: Model) => {
 			this._profile.onBody((profile : Profile) => {
+				if (!this._model.hasMaterialType()) {
+					return;
+				}
 				const material = MaterialFactory.material<BABYLON.StandardMaterial>(this._model.materialType());
 				profile.body().render.fillStyle = material.emissiveColor.toHexString();
 				profile.body().render.strokeStyle = material.emissiveColor.toHexString();
