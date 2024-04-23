@@ -35,7 +35,7 @@ export class NameTag extends Equip<Player> {
 
 		this._displayName = "";
 		this._occlusionTracker = new ChangeTracker(() => {
-			if (!this.hasOwner()) {
+			if (!this.initialized()) {
 				return false;
 			}
 			if (this.owner().getAttribute(AttributeType.OCCLUDED)) {

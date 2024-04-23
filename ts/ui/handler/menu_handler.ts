@@ -102,7 +102,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 		this._dialogWrapper.contentElm().appendChild(pointer.elm());
 
 
-		this._dialogWrapper.footer().elm().appendChild(this._voiceWrapper.elm());
+		this._dialogWrapper.footerElm().appendChild(this._voiceWrapper.elm());
 
 		let miniContinue = new ButtonWrapper();
 		miniContinue.elm().style.float = "right";
@@ -110,7 +110,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 		miniContinue.addOnClick(() => {
 			this.disable();
 		});
-		this._dialogWrapper.footer().elm().appendChild(miniContinue.elm());
+		this._dialogWrapper.footerElm().appendChild(miniContinue.elm());
 
 		let fullMenu = new ButtonWrapper();
 		fullMenu.elm().style.float = "right";
@@ -119,7 +119,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 			this._dialogWrapper.elm().style.visibility = "hidden";
 			this._menuElm.style.visibility = "visible";
 		});
-		this._dialogWrapper.footer().elm().appendChild(fullMenu.elm());
+		this._dialogWrapper.footerElm().appendChild(fullMenu.elm());
 
 		this._continueElm.onclick = (e : any) => {
 			this.disable();

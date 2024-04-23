@@ -7,6 +7,7 @@ enum DialogProp {
 	UNKNOWN,
 
 	ALT_EQUIP_TYPE,
+    COLOR,
 	DISPLAY_NAME,
 	EQUIP_TYPE,
 	PLAYER_TYPE,
@@ -18,6 +19,7 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
 
 	private static readonly _messageDescriptor = new Map<DialogType, FieldDescriptor>([
 		[DialogType.INIT, MessageBase.fieldDescriptor(
+            [DialogProp.COLOR, {}],
 			[DialogProp.DISPLAY_NAME, {}],
             [DialogProp.VERSION, {}],
 		)],
@@ -44,6 +46,11 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
     getAltEquipTypeOr(value : number) : number { return this.getOr<number>(DialogProp.ALT_EQUIP_TYPE, value); }
     setAltEquipType(value : number) : void { this.set<number>(DialogProp.ALT_EQUIP_TYPE, value); }
 
+    hasColor() : boolean { return this.has(DialogProp.COLOR); }
+    getColor() : string { return this.get<string>(DialogProp.COLOR); }
+    getColorOr(value : string) : string { return this.getOr<string>(DialogProp.COLOR, value); }
+    setColor(value : string) : void { this.set<string>(DialogProp.COLOR, value); }
+
     hasDisplayName() : boolean { return this.has(DialogProp.DISPLAY_NAME); }
     getDisplayName() : string { return this.get<string>(DialogProp.DISPLAY_NAME); }
     getDisplayNameOr(value : string) : string { return this.getOr<string>(DialogProp.DISPLAY_NAME, value); }
@@ -67,6 +74,7 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
     /*
     const enumClass = "DialogProp";
     ["ALT_EQUIP_TYPE", "number"],
+    ["COLOR", "string"],
     ["DISPLAY_NAME", "string"],
     ["EQUIP_TYPE", "number"],
     ["PLAYER_TYPE", "number"],

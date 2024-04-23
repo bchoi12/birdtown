@@ -55,11 +55,7 @@ export type MoveToParams = {
 	maxAccel : number;
 }
 
-export type ProfileLimits = {
-	disabled? : boolean;
-	posBounds? : Box2;
-	maxSpeed? : Vec;
-}
+type LimitFn = (profile : Profile) => void;
 
 enum RenderMode {
 	UNKNOWN,
@@ -87,7 +83,8 @@ export class Profile extends ComponentBase implements Component {
 	private _collisionBuffer : CollisionBuffer;
 	private _constraints : Map<number, MATTER.Constraint>;
 	private _forces : Buffer<Vec>;
-	private _limits : ProfileLimits;
+	private _limitFn : LimitFn;
+	private _tempLimitFns : Map<number, LimitFn>;
 	private _smoother : Smoother;
 	private _scaleFactor : Vec2;
 	private _renderMode : RenderMode;
@@ -118,7 +115,8 @@ export class Profile extends ComponentBase implements Component {
 		this._collisionBuffer = new CollisionBuffer();
 		this._constraints = new Map();
 		this._forces = new Buffer();
-		this._limits = {};
+		this._limitFn = () => {};
+		this._tempLimitFns = new Map();
 		this._scaleFactor = Vec2.one();
 		this._smoother = new Smoother();
 		this._renderMode = RenderMode.ALWAYS;
@@ -379,6 +377,16 @@ export class Profile extends ComponentBase implements Component {
 
 		this._vel.add(delta);
 	}
+	capSpeed(speed : number) : void {
+		if (!this.hasVel()) {
+			this._vel = SmoothVec2.zero();
+			return;
+		}
+
+		if (this._vel.lengthSq() > speed * speed) {
+			this._vel.normalize().scale(speed);
+		}
+	}
 
 	hasAcc() : boolean { return defined(this._acc); }
 	acc() : Vec2 { return this.hasAcc() ? this._acc : Vec2.zero(); }
@@ -538,28 +546,24 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	private vecEpsilon() : number { return this._degraded ? Profile._degradedVecEpsilon : Profile._vecEpsilon; }
-	limits() : ProfileLimits { return this._limits; }
-	setLimits(limits : ProfileLimits) : void { this._limits = limits; }
-	mergeLimits(limits : ProfileLimits) { this._limits = {...this._limits, ...limits}; }
-	clearLimits() : void { this._limits = {}; }
+	setLimitFn(limitFn : LimitFn) { this._limitFn = limitFn; }
+	addTempLimitFn(limitFn : LimitFn) : number {
+		const index = this._tempLimitFns.size + 1;
+		this._tempLimitFns.set(index, limitFn);
+		return index;
+	}
+	deleteTempLimitFn(index : number) : void { this._tempLimitFns.delete(index); }
+	clearTempLimitFns() : void { this._tempLimitFns.clear(); }
 	private applyLimits() : void {
 		if (this.hasVel()) {
 			this.vel().zeroEpsilon(Profile._minQuantization);
 		}
-
-		if (this._limits.disabled) { return; }
-
-		if (this._limits.maxSpeed && this.hasVel()) {
-			const maxSpeed = this._limits.maxSpeed;
-			if (Math.abs(this.vel().x) > maxSpeed.x) {
-				this.vel().x = Math.sign(this.vel().x) * maxSpeed.x;
-			}
-			if (Math.abs(this.vel().y) > maxSpeed.y) {
-				this.vel().y = Math.sign(this.vel().y) * maxSpeed.y;
-			}
-		}
-
 		game.level().clampPos(this.pos());
+
+		this._limitFn(this);
+		this._tempLimitFns.forEach((fn : LimitFn) => {
+			fn(this);
+		});
 	}
 
 	override prePhysics(stepData : StepData) : void {

@@ -1,6 +1,6 @@
 import * as MATTER from 'matter-js'
 
-import { AssociationType, ComponentType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
 import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
 import { Profile } from 'game/component/profile'
@@ -48,6 +48,14 @@ export abstract class Projectile extends EntityBase {
 		this._maxPenetration.clear();
 	}
 
+	override collide(collision : MATTER.Collision, other : Entity) : void {
+		super.collide(collision, other);
+
+		if (this.canHit(collision, other)) {
+			this.hit(collision, other);
+		}
+	}
+
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
 
@@ -75,6 +83,16 @@ export abstract class Projectile extends EntityBase {
 			},
 			...entityOptions,
 		});
+	}
+
+	canHit(collision : MATTER.Collision, other : Entity) : boolean {
+		if (this.matchAssociations([AssociationType.OWNER], other)) {
+			return false;
+		}
+		if (other.getAttribute(AttributeType.INVINCIBLE)) {
+			return false;
+		}
+		return other.getAttribute(AttributeType.SOLID);
 	}
 	hit(collision : MATTER.Collision, other : Entity) : void {
 		if (this._hits.has(other.id())) {

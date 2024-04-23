@@ -66,18 +66,6 @@ export class Bolt extends Projectile {
 		}
 	}
 
-	override collide(collision : MATTER.Collision, other : Entity) : void {
-		super.collide(collision, other);
-
-		if (this.matchAssociations([AssociationType.OWNER], other)) {
-			return;
-		}
-
-		if (other.getAttribute(AttributeType.SOLID)) {
-			this.hit(collision, other);
-		}
-	}
-
 	override onHit() : void {
 		if (this.getAttribute(AttributeType.CHARGED)) {
 			this.explode({

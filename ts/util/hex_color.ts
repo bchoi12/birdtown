@@ -13,6 +13,7 @@ export class HexColor {
 
 	static fromHex(hex : number) : HexColor { return new HexColor(hex); }
 	static fromRGB(r : number, g : number, b : number) { return HexColor.fromHex(HexColor.rgbToHex(r, g, b)); }
+	static fromString(str : string) : HexColor { return new HexColor(Number("0x" + str.substring(1)));}
 	static white() : HexColor { return new HexColor(0xffffff); }
 	static black() : HexColor { return new HexColor(0x000000); }
 

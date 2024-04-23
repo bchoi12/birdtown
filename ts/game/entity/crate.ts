@@ -22,6 +22,8 @@ import { Vec, Vec2, Vec3 } from 'util/vector'
 
 export class Crate extends EntityBase implements Entity {
 
+	private static _maxSpeed = 0.6;
+
 	private _attributes : Attributes;
 	private _profile : Profile;
 	private _model : Model;
@@ -51,9 +53,8 @@ export class Crate extends EntityBase implements Entity {
 			this._profile.setAngle(0);
 		}
 		this._profile.setRenderUnoccluded();
-		this._profile.mergeLimits({
-			// TODO: scalar param?
-			maxSpeed: {x: 0.6, y: 0.6 },
+		this._profile.setLimitFn((profile : Profile) => {
+			profile.capSpeed(0.6);
 		});
 
 		this._model = this.addComponent<Model>(new Model({

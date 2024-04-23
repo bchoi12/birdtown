@@ -35,6 +35,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	private _pageIndex : number;
 	private _footer : FooterWrapper;
 
+	private _onNextPageFns : Array<OnSubmitFn>;
 	private _onSubmitFns : Array<OnSubmitFn>;
 
 	constructor() {
@@ -63,12 +64,13 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._pages = new Array();
 		this._pageIndex = 0;
 
+		this._onNextPageFns = new Array();
 		this._onSubmitFns = new Array();
 	}
 
 	titleElm() : HTMLElement { return this._titleElm; }
 	contentElm() : HTMLElement { return this._contentElm; }
-	footer() : FooterWrapper { return this._footer; }
+	footerElm() : HTMLElement { return this._footer.elm(); }
 
 	addPage() : PageWrapper {
 		let page = new PageWrapper();
@@ -86,7 +88,13 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		}
 		return page;
 	}
+
+	addOnNextPageh(fn : OnSubmitFn) : void { this._onNextPageFns.push(fn); }
 	nextPage() : void {
+		this._onNextPageFns.forEach((onNextPage : OnSubmitFn) => {
+			onNextPage();
+		});
+
 		if (this._pageIndex >= this._pages.length - 1) {
 			this.submit();
 			return;
@@ -101,7 +109,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 	addOnSubmit(fn : OnSubmitFn) : void { this._onSubmitFns.push(fn); }
 	submit() : void {
-		this._onSubmitFns.forEach((onSubmit) => {
+		this._onSubmitFns.forEach((onSubmit : OnSubmitFn) => {
 			onSubmit();
 		});
 	}

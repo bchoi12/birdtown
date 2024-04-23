@@ -48,7 +48,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			get: () => { return settings.fpsSetting; },
 			click: (current : SpeedSetting) => {
 				if (current === SpeedSetting.FAST) {
-					settings.fpsSetting = SpeedSetting.NORMAL;
+					settings.fpsSetting = SpeedSetting.SLOW;
 				} else {
 					settings.fpsSetting++;
 				}
@@ -165,12 +165,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		super.onModeChange(mode, oldMode);
 
 		if (ui.mode() === UiMode.GAME) {
-			if (settings.useInspector()) {
-				game.scene().debugLayer.show();
-			} else {
-				game.scene().debugLayer.hide();
-			}
-			game.runner().setRenderSpeed(settings.fpsSetting);
+			ui.applySettings();
 		}		
 	}
 }

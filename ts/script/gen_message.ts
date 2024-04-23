@@ -30,11 +30,12 @@ const version = "2.1";
 
 const enumClass = "DialogProp";
 const map = new Map<string, string>([
-	["ALT_EQUIP_TYPE", "number"],
-	["DISPLAY_NAME", "string"],
-	["EQUIP_TYPE", "number"],
-	["PLAYER_TYPE", "number"],
-	["VERSION", "number"]
+    ["ALT_EQUIP_TYPE", "number"],
+    ["COLOR", "string"],
+    ["DISPLAY_NAME", "string"],
+    ["EQUIP_TYPE", "number"],
+    ["PLAYER_TYPE", "number"],
+    ["VERSION", "number"],
 ]);
 //
 // End params

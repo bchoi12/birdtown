@@ -94,19 +94,6 @@ export class Rocket extends Projectile {
 		this._model.mesh().rotation.x = -this._profile.vel().angleRad();
 	}
 
-	override collide(collision : MATTER.Collision, other : Entity) : void {
-		super.collide(collision, other);
-
-		if (this.matchAssociations([AssociationType.OWNER], other)) {
-			return;
-		}
-
-		// TODO: collide with multiple objects?
-		if (other.getAttribute(AttributeType.SOLID)) {
-			this.hit(collision, other);
-		}
-	}
-
 	override onHit() : void {
 		this.explode({
 			modelInit: {

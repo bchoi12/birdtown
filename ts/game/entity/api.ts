@@ -25,6 +25,7 @@ export enum EntityType {
 	BOLT,
 	BOOBY_BEAK,
 	BOOBY_HAIR,
+	BUBBLE,
 	CHICKEN_BEAK,
 	CHICKEN_HAIR,
 	CLOUD,

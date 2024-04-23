@@ -104,7 +104,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	protected _type : EntityType;
 	protected _allTypes : Set<EntityType>;
-	protected _ttlTimer : Timer;
+	protected _ttlTimer : Optional<Timer>;
 
 	protected _levelVersion : number;
 
@@ -124,9 +124,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this._type = type;
 		this._allTypes = new Set();
 		this._allTypes.add(type);
-		this._ttlTimer = this.newTimer({
-			canInterrupt: true,
-		});
+		this._ttlTimer = new Optional();
 
 		if (entityOptions.offline) {
 			this.setOffline(true);
@@ -207,14 +205,20 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	getCounts() : Map<CounterType, number> { return new Map(); }
 	setTTL(ttl : number, onDelete? : () => void) : void {
-		this._ttlTimer.start(ttl, () => {
+		if (!this._ttlTimer.has()) {
+			this._ttlTimer.set(this.newTimer({
+				canInterrupt: true,
+			}));
+		}
+
+		this._ttlTimer.get().start(ttl, () => {
 			if (onDelete) {
 				onDelete();
 			}
 			this.delete();
 		});
 	}
-	ttlElapsed() : number { return this._ttlTimer.percentElapsed(); }
+	ttlElapsed() : number { return this._ttlTimer.has() ? this._ttlTimer.get().percentElapsed() : 0; }
 
 	key(type : KeyType, state : KeyState) : boolean {
 		if (this.state() === GameObjectState.DISABLE_INPUT) {

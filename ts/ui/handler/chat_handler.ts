@@ -106,6 +106,18 @@ export class ChatHandler extends HandlerBase implements Handler {
 		case "/die":
 			game.playerState().die();
 			break;
+		case "/debug":
+			if (pieces.length !== 2) {
+				console.error("Usage: /debug [EntityId]");
+			} else {
+				const [entity, ok] = game.entities().getEntity(Number(pieces[1]));
+				if (ok) {
+					console.log(entity);
+				} else {
+					console.log("%s not found", pieces[1]);
+				}
+			}
+			break;
 		default:
 			console.error("Unknown command:", message);
 		}

@@ -4,6 +4,8 @@ import { CounterType } from 'game/component/api'
 
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
+import { settings } from 'settings'
+
 import { KeyType, UiMode } from 'ui/api'
 import { Handler } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
@@ -105,6 +107,14 @@ class UI {
 		this._handlers.forEach((handler) => {
 			handler.onModeChange(mode, oldMode);
 		});	
+	}
+	applySettings() : void {
+		if (settings.useInspector()) {
+			game.scene().debugLayer.show();
+		} else {
+			game.scene().debugLayer.hide();
+		}
+		game.runner().setRenderSpeed(settings.fpsSetting);
 	}
 
 	audioContext() : AudioContext {

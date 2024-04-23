@@ -29,6 +29,7 @@ export class BirdBrain extends Equip<Player> {
 	]);
 
 	private _targetId : Optional<number>;
+	private _tempLimitId : Optional<number>;
 
 	private _usageTimer : Timer;
 	private _canCharge : boolean;
@@ -38,6 +39,7 @@ export class BirdBrain extends Equip<Player> {
 		super(EntityType.BIRD_BRAIN, entityOptions);
 
 		this._targetId = new Optional();
+		this._tempLimitId = new Optional();
 		this._usageTimer = this.newTimer({
 			canInterrupt: false,
 		});
@@ -124,7 +126,10 @@ export class BirdBrain extends Equip<Player> {
 			if (hasTarget) {
 				let profile = target.profile();
 				profile.setAcc({x: 0, y: GameGlobals.gravity });
-				profile.clearLimits();
+				if (this._tempLimitId.has()) {
+					profile.deleteTempLimitFn(this._tempLimitId.get());
+					this._tempLimitId.clear();
+				}
 				MATTER.Body.setDensity(profile.body(), profile.body().density / BirdBrain._densityAdjustment);
 				target.setAttribute(AttributeType.BRAINED, false);
 			}
@@ -134,9 +139,9 @@ export class BirdBrain extends Equip<Player> {
 			let [target, hasTarget] = game.entities().getEntity(id);
 			if (hasTarget) {
 				let profile = target.profile();
-				profile.mergeLimits({
-					maxSpeed: { x: 5, y: 5},
-				});
+				this._tempLimitId.set(profile.addTempLimitFn((profile : Profile) => {
+					profile.capSpeed(5);
+				}));
 				MATTER.Body.setDensity(profile.body(), BirdBrain._densityAdjustment * profile.body().density);
 
 				target.setAttribute(AttributeType.BRAINED, true);

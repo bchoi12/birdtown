@@ -32,7 +32,9 @@ export enum AttributeType {
 	BRAINED,
 	CHARGING,
 	CHARGED,
+	FLOATING,
 	GROUNDED,
+	INVINCIBLE,
 	OCCLUDED,
 	SOLID,
 }

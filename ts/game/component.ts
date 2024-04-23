@@ -6,7 +6,7 @@ import { GameObject, GameObjectBase, NameParams } from 'game/game_object'
 
 import { NetworkBehavior } from 'network/api'
 
-import { defined } from 'util/common'
+import { Optional } from 'util/optional'
 
 export interface Component extends GameObject {
 	type() : ComponentType;
@@ -17,17 +17,17 @@ export interface Component extends GameObject {
 
 export abstract class ComponentBase extends GameObjectBase implements Component {
 
-	protected _entity : Entity;
+	protected _entity : Optional<Entity>;
 	protected _type : ComponentType;
 
 	constructor(type : ComponentType) {
 		super(ComponentType[type].toLowerCase());
 
-		this._entity = null;
+		this._entity = new Optional();
 		this._type = type;
 	}
 
-	override ready() : boolean { return defined(this._entity); }
+	override ready() : boolean { return this._entity.has(); }
 
 	addSubComponent<T extends Component>(component : T) : T {
 		return this.addChild<T>(this.populateSubComponent<T>(component, /*nameParams=*/{}));
@@ -38,12 +38,12 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 	getSubComponent<T extends Component>(id : number) : T { return this.getChild<T>(id); }
 
 	type() : ComponentType { return this._type; }
-	entity() : Entity { return this._entity; }
+	entity() : Entity { return this._entity.get(); }
 	setEntity<T extends Entity>(entity : T) : void {
 		this.addNameParams({
 			target: entity,
 		});
-		this._entity = entity;
+		this._entity.set(entity);
 
 		this.execute<Component>((subComponent : Component, id : number) => {
 			this.populateSubComponent(subComponent, {id: id});
@@ -57,8 +57,8 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 		if (nameParams) {
 			component.addNameParams({ parent: this, ...nameParams});
 		}
-		if (defined(this._entity)) {
-			component.setEntity(this._entity);
+		if (this._entity.has()) {
+			component.setEntity(this._entity.get());
 		}
 		return component;
 	}

@@ -16,9 +16,9 @@ import { StatInitOptions } from 'game/component/stat'
 import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { Block } from 'game/entity/block'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Beak } from 'game/entity/equip/beak'
+import { Bubble } from 'game/entity/equip/bubble'
 import { Headwear } from 'game/entity/equip/headwear'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Weapon } from 'game/entity/equip/weapon'
@@ -92,6 +92,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _jumpVel = 0.33;
 	private static readonly _maxHorizontalVel = 0.25;
 	private static readonly _maxVerticalVel = 0.6;
+	private static readonly _maxFloatingVel = 0.1;
 	private static readonly _minSpeed = 5e-4;
 
 	private static readonly _turnMultiplier = 3.0;
@@ -241,8 +242,15 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
 
-		this._profile.mergeLimits({
-			maxSpeed: {x: Player._maxHorizontalVel, y: Player._maxVerticalVel },
+		this._profile.setLimitFn((profile : Profile) => {
+			if (Math.abs(profile.vel().x) > Player._maxHorizontalVel) {
+				profile.vel().x = Math.sign(profile.vel().x) * Player._maxHorizontalVel;
+			}
+
+			const maxVerticalVel = this.getAttribute(AttributeType.FLOATING) ? Player._maxFloatingVel : Player._maxVerticalVel;
+			if (Math.abs(profile.vel().y) > maxVerticalVel) {
+				profile.vel().y = Math.sign(profile.vel().y) * maxVerticalVel;
+			}
 		});
 
 		this._headSubProfile = this._profile.registerSubComponent<Profile>(SubProfile.HEAD, new Profile({
@@ -288,6 +296,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 							mesh.material.albedoTexture.hasAlpha = true;
 							mesh.material.useAlphaFromAlbedoTexture = true;
 							mesh.material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+							mesh.material.needDepthPrePass = true;
 
 							this._eyeShifter.setMaterial(mesh.material, Box2.fromBox({
 								min: {x: 0, y: 0},
@@ -666,14 +675,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._model.onLoad(() => {
 			if (!this._entityTrackers.hasEntityType(EntityType.BEAK)) {
 				const beakType = this.clientId() % 2 === 1 ? EntityType.CHICKEN_BEAK : EntityType.BOOBY_BEAK;
-
 				const [beak, hasBeak] = this.addEntity<Beak>(beakType, {
-					associationInit: {
-						owner: this,
-					},
-					clientId: this.clientId(),
-				});
-
+				associationInit: {
+					owner: this,
+				},
+				clientId: this.clientId(),
+			});
 				if (hasBeak) {
 					this._entityTrackers.trackEntity<Beak>(EntityType.BEAK, beak);
 				}
@@ -681,14 +688,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			if (!this._entityTrackers.hasEntityType(EntityType.HEADWEAR)) {
 				const hairType = this.clientId() % 2 === 1 ? EntityType.CHICKEN_HAIR : EntityType.BOOBY_HAIR;
-
 				const [headwear, hasHeadwear] = this.addEntity<Headwear>(hairType, {
-					associationInit: {
-						owner: this,
-					},
-					clientId: this.clientId(),
-				});
-
+				associationInit: {
+					owner: this,
+				},
+				clientId: this.clientId(),
+			});
 				if (hasHeadwear) {
 					this._entityTrackers.trackEntity<Headwear>(EntityType.HEADWEAR, headwear);
 				}
@@ -697,8 +702,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			const loadout = game.clientDialog(this.clientId()).message(DialogType.LOADOUT);
 
 			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.getPlayerType());
-			this._entityTrackers.clearEntityType(EntityType.EQUIP);
 
+			this._entityTrackers.clearEntityType(EntityType.EQUIP);
 			const [equip, hasEquip] = this.addEntity<Equip<Player>>(loadout.getEquipType(), {
 				associationInit: {
 					owner: this,
@@ -719,6 +724,18 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			});
 			if (hasAltEquip) {
 				this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, altEquip);
+			}
+
+			this._entityTrackers.clearEntityType(EntityType.BUBBLE);
+			const [bubble, hasBubble] = this.addEntity<Bubble>(EntityType.BUBBLE, {
+				associationInit: {
+					owner: this,
+				},
+				clientId: this.clientId(),
+				levelVersion: game.level().version(),
+			});
+			if (hasBubble) {
+				this._entityTrackers.trackEntity<Bubble>(EntityType.BUBBLE, bubble);
 			}
 
 			this._stats.reset();

@@ -173,7 +173,7 @@ export abstract class GameObjectBase {
 	ready() : boolean {
 		this._notReadyCounter++;
 		if (this._notReadyCounter % 60 === 0) {
-			console.error("Warning: still not ready", this.name());
+			console.error("Warning: %s still not ready", this.name());
 		}
 		return true;
 	}

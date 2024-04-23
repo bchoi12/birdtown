@@ -68,7 +68,7 @@ export class Entities extends SystemBase implements System {
 		}
 
 		if (this._entityInfo.has(entityOptions.id)) {
-			console.error("Warning: overwriting object type %d (previous: %d), id %d", type, this._entityInfo.get(entityOptions.id), entityOptions.id);
+			console.error("Warning: overwriting %s object, id %d, previous: ", EntityType[type], entityOptions.id, this._entityInfo.get(entityOptions.id));
 		}
 
 		let entity = EntityFactory.create<T>(type, entityOptions);

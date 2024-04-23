@@ -101,7 +101,6 @@ export abstract class Weapon extends Equip<Player> {
 
 		if (this._weaponState === WeaponState.RELOADING) {
 			// TODO: click sound on key press
-
 			if (this.getCounter(CounterType.CHARGE) > 0) {
 				this.setCounter(CounterType.CHARGE, 0);
 			}
