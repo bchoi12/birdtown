@@ -3,10 +3,9 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import { game } from 'game'
 import { AttributeType, CounterType } from 'game/component/api'
 import { Model } from 'game/component/model'
-import { Entity, EntityOptions } from 'game/entity'
+import { Entity, EquipEntity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, Equip } from 'game/entity/equip'
-import { Player } from 'game/entity/player'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
@@ -17,7 +16,7 @@ import { UiGlobals } from 'global/ui_globals'
 import { ChangeTracker } from 'util/change_tracker'
 import { Vec2 } from 'util/vector'
 
-export class NameTag extends Equip<Player> {
+export class NameTag extends Equip<Entity & EquipEntity> {
 
 	private static readonly _height = 0.4;
 	private static readonly _pointerHeight = 0.1;
@@ -26,7 +25,8 @@ export class NameTag extends Equip<Player> {
 	private static readonly _font = "64px " + UiGlobals.font;
 
 	private _displayName : string;
-	private _occlusionTracker : ChangeTracker<boolean>;
+	private _occluded : boolean;
+	private _visible : boolean;
 
 	protected _model : Model;
 
@@ -34,21 +34,8 @@ export class NameTag extends Equip<Player> {
 		super(EntityType.NAME_TAG, entityOptions);
 
 		this._displayName = "";
-		this._occlusionTracker = new ChangeTracker(() => {
-			if (!this.initialized()) {
-				return false;
-			}
-			if (this.owner().getAttribute(AttributeType.OCCLUDED)) {
-				return true;
-			}
-			if (game.playerStates().hasPlayerState(this.owner().clientId())
-				&& game.playerState(this.owner().clientId()).role() !== PlayerRole.GAMING) {
-				return true;
-			}
-			return false;
-		}, (occluded : boolean) => {
-			this._model.setVisible(!occluded);
-		});
+		this._occluded = false;
+		this._visible = true;
 
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
@@ -138,12 +125,38 @@ export class NameTag extends Equip<Player> {
 		this._displayName = displayName;
 	}
 
+	setVisible(visible : boolean) : void {
+		if (this._visible === visible) {
+			return;
+		}
+
+		this._visible = visible;
+		this._model.setVisible(this._visible && !this._occluded);
+	}
+	private setOccluded(occluded : boolean) : void {
+		if (this._occluded === occluded) {
+			return;
+		}
+
+		this._occluded = occluded;
+		this._model.setVisible(this._visible && !this._occluded);
+	}
+
 	override attachType() : AttachType { return AttachType.ROOT; }
 	override equipName() : string { return "Name tag"; }
 
 	override preRender() : void {
 		super.preRender();
 
-		this._occlusionTracker.check();
+		let occluded = false;
+		if (this.owner().getAttribute(AttributeType.OCCLUDED)) {
+			occluded = true;
+		} else if (this.owner().type() === EntityType.PLAYER) {
+			if (game.playerStates().hasPlayerState(this.owner().clientId())
+				&& game.playerState(this.owner().clientId()).role() !== PlayerRole.GAMING) {
+				occluded = true;
+			}
+		}
+		this.setOccluded(occluded);
 	}
 }

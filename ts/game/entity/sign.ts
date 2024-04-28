@@ -5,24 +5,31 @@ import { game } from 'game'
 import { StepData } from 'game/game_object'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EntityBase, EntityOptions } from 'game/entity'
+import { Entity, EquipEntity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { Equip } from 'game/entity/equip'
+import { NameTag } from 'game/entity/equip/name_tag'
 import { MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
+import { settings } from 'settings'
+
 import { ui } from 'ui'
 import { DialogType, TooltipType } from 'ui/api'
+import { KeyNames } from 'ui/common/key_names'
 
 import { ChangeTracker } from 'util/change_tracker'
 
-export class Sign extends EntityBase implements Entity {
+export class Sign extends EntityBase implements Entity, EquipEntity {
 
 	private _active : boolean;
-	private _activeTracker : ChangeTracker<boolean>;
+	private _hasCollision : boolean;
 	private _tooltipType : TooltipType;
+
+	private _nameTag : NameTag;
 
 	private _model : Model;
 	private _profile : Profile;
@@ -31,25 +38,10 @@ export class Sign extends EntityBase implements Entity {
 		super(EntityType.SIGN, entityOptions);
 
 		this._active = false;
-		this._activeTracker = new ChangeTracker(() => {
-			return this._active;
-		}, (active : boolean) => {
-			if (active) {
-				this._model.applyToMeshes((mesh : BABYLON.Mesh) => {
-					game.world().highlight(mesh, {
-						enabled: true,
-						color: BABYLON.Color3.White(),
-					});
-				});
-			} else {
-				this._model.applyToMeshes((mesh : BABYLON.Mesh) => {
-					game.world().highlight(mesh, {
-						enabled: false,
-					});
-				});
-			}
-		});
+		this._hasCollision = false;
 		this._tooltipType = entityOptions.tooltipType ? entityOptions.tooltipType : TooltipType.JUST_A_SIGN;
+
+		this._nameTag = null;
 
 		this.addProp<TooltipType>({
 			export: () => { return this._tooltipType; },
@@ -63,7 +55,7 @@ export class Sign extends EntityBase implements Entity {
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.SIGN, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
-					mesh.position.z = -1.5;
+					model.translation().z = -1.5;
 					model.setMesh(mesh);
 				});
 			},
@@ -82,10 +74,58 @@ export class Sign extends EntityBase implements Entity {
 		this._profile.setRenderNever();
 	}
 
+	override initialize() : void {
+		super.initialize();
+
+		const [nameTag, hasNameTag] = this.addEntity<NameTag>(EntityType.NAME_TAG, {
+			associationInit: {
+				owner: this,
+			},
+			offline: true,
+		});
+
+		if (!hasNameTag) {
+			console.error("Error: could not create name tag for ", this.name());
+			this.delete();
+			return;
+		}
+
+		this._nameTag = nameTag;
+		this._nameTag.setDisplayName(KeyNames.boxed(settings.interactKeyCode));
+	}
+
+	equip(equip : Equip<Entity & EquipEntity>) : void {
+		if (equip.type() !== EntityType.NAME_TAG) {
+			console.error("Error: skipping attaching %s to %s", equip.name(), this.name());
+			return;
+		}
+
+		this._model.onLoad((m : Model) => {
+			let equipModel = equip.model();
+			equipModel.onLoad((em : Model) => {
+				em.root().parent = m.root();
+			});
+		});
+	}
+
+	setActive(active : boolean) : void {
+		if (this._active === active) {
+			return;
+		}
+
+		this._active = active;
+
+		if (this._active) {
+			this._nameTag.setVisible(false);
+		} else {
+			this._nameTag.setVisible(true);
+		}
+	}
+
 	override prePhysics(stepData : StepData) : void {
 		super.prePhysics(stepData);
 
-		this._active = false;
+		this._hasCollision = false;
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {
@@ -95,15 +135,17 @@ export class Sign extends EntityBase implements Entity {
 			return;
 		}
 
-		if (!other.clientIdMatches()) {
+		if (!game.lakitu().hasTargetEntity() || game.lakitu().targetEntity().id() !== other.id()) {
 			return;
 		}
 
-		this._active = true;
+		this._hasCollision = true;
 	}
 
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
+
+		this.setActive(this._hasCollision);
 
 		if (this._active) {
 			let msg = new UiMessage(UiMessageType.TOOLTIP);
@@ -111,7 +153,5 @@ export class Sign extends EntityBase implements Entity {
 			msg.setTooltipType(this._tooltipType);
 			ui.handleMessage(msg);
 		}
-
-		this._activeTracker.check();
 	}
 }

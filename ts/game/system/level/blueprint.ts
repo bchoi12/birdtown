@@ -52,7 +52,7 @@ export abstract class BlueprintBlock {
 			this._pos.copyVec(options.profileInit.pos);
 		}
 
-		this.addEntity(type, this._options);
+		this.pushEntityOptions(type, this._options);
 	}
 
 	type() : EntityType { return this._type; }
@@ -62,7 +62,7 @@ export abstract class BlueprintBlock {
 
 	options() : EntityOptions { return this._options; }
 	entities() : Array<BlueprintEntity> { return this._entities; }
-	addEntity(type : EntityType, options : EntityOptions) {
+	pushEntityOptions(type : EntityType, options : EntityOptions) {
 		this._entities.push({ type: type, options: options });
 	}
 }

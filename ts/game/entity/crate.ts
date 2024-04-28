@@ -7,8 +7,10 @@ import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EntityBase, EntityOptions } from 'game/entity'
+import { Entity, EquipEntity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { Equip } from 'game/entity/equip'
+import { NameTag } from 'game/entity/equip/name_tag'
 import { MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -16,23 +18,30 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { GameGlobals } from 'global/game_globals'
 
+import { settings } from 'settings'
+
+import { KeyNames } from 'ui/common/key_names'
+
 import { Box2 } from 'util/box'
 import { defined } from 'util/common'
 import { Vec, Vec2, Vec3 } from 'util/vector'
 
-export class Crate extends EntityBase implements Entity {
+export class Crate extends EntityBase implements Entity, EquipEntity {
 
 	private static _maxSpeed = 0.6;
+
+	private _canOpen : boolean;
 
 	private _attributes : Attributes;
 	private _profile : Profile;
 	private _model : Model;
 
-	private _startingPos : Vec2;
-	private _startingAngle : number;
+	private _nameTag : NameTag;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.CRATE, entityOptions);
+
+		this._canOpen = false;
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.setAttribute(AttributeType.SOLID, true);
@@ -80,33 +89,53 @@ export class Crate extends EntityBase implements Entity {
 	override initialize() : void {
 		super.initialize();
 
-		this._startingPos = this._profile.pos().clone();
-		this._startingAngle = this._profile.angle();
+		const [nameTag, hasNameTag] = this.addEntity<NameTag>(EntityType.NAME_TAG, {
+			associationInit: {
+				owner: this,
+			},
+			offline: true,
+		});
+
+		if (!hasNameTag) {
+			console.error("Error: could not create name tag for ", this.name());
+			this.delete();
+			return;
+		}
+
+		this._nameTag = nameTag;
+		this._nameTag.setVisible(false);
+		this._nameTag.setDisplayName(KeyNames.boxed(settings.interactKeyCode));
+	}
+
+	canOpen() : boolean { return this._canOpen; }
+	setCanOpen(canOpen : boolean) {
+		if (this._canOpen === canOpen) {
+			return;
+		}
+
+		this._canOpen = canOpen;
+
+		this._nameTag.setVisible(this._canOpen);
+	}
+
+	equip(equip : Equip<Entity & EquipEntity>) : void {
+		if (equip.type() !== EntityType.NAME_TAG) {
+			console.error("Error: trying to attach %s to %s", equip.name(), this.name());
+			return;
+		}
 	}
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (this._profile.pos().y < -10) {
-			this._profile.setPos(this._startingPos);
-			this._profile.stop();
-			this._profile.setAcc({ y: GameGlobals.gravity });
-			this._profile.setAngle(this._startingAngle);
+		if (this._profile.pos().y < game.level().bounds().min.y) {
+			this.delete();
 		}
+	}
 
-		if (!this._model.hasMesh()) {
-			return;
-		}
+	override preRender() : void {
+		super.preRender();
 
-		if (this.getAttribute(AttributeType.BRAINED)) {
-			game.world().highlight(this._model.mesh(), {
-				enabled: true,
-				color: BABYLON.Color3.Blue(),
-			});
-		} else {
-			game.world().highlight(this._model.mesh(), {
-				enabled: false
-			});
-		}
+		this._nameTag.model().translation().copyVec(this._profile.pos());
 	}
 }

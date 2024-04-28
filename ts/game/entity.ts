@@ -93,7 +93,6 @@ export interface Entity extends GameObject {
 }
 
 export interface EquipEntity {
-	dead() : boolean;
 	equip(equip : Equip<Entity & EquipEntity>) : void;
 }
 

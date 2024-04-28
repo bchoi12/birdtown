@@ -52,7 +52,7 @@ class ArchBlueprintBlock extends BlueprintBlock {
 			});
 		}
 
-		this.addEntity(ArchBlueprint.balconyType(), {
+		this.pushEntityOptions(ArchBlueprint.balconyType(), {
 			profileInit: {
 				pos: pos,
 			},
@@ -69,7 +69,7 @@ class ArchBlueprintBlock extends BlueprintBlock {
 		}
 
 		while(rng.testChance()) {
-			this.addEntity(EntityType.CRATE, {
+			this.pushEntityOptions(EntityType.CRATE, {
 				profileInit: {
 					pos: Vec2.fromVec(this.pos()).addRandomOffset({x: ArchBlueprint.baseDim().x / 3 }, rng),
 					dim: { x: 1, y: 1 },
@@ -149,7 +149,7 @@ class Building {
 		for (let i = 0; i < height + extras; ++i) {
 			pos.add({y: ArchBlueprint.baseDim().y / 2 });
 
-			block.addEntity(ArchBlueprint.backgroundType(), {
+			block.pushEntityOptions(ArchBlueprint.backgroundType(), {
 				profileInit: {
 					pos: pos.toVec(),
 				},
@@ -310,7 +310,7 @@ export class ArchBlueprint extends Blueprint {
 				block.addCrates(this.rng());
 
 				if (i === Math.floor(this.numBuildings() / 2) && block.type() === ArchBlueprint.roofType()) {
-					block.addEntity(EntityType.SIGN, {
+					block.pushEntityOptions(EntityType.SIGN, {
 						profileInit: {
 							pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
 							dim: EntityFactory.getDimension(EntityType.SIGN),

@@ -400,6 +400,8 @@ export class Profile extends ComponentBase implements Component {
 
 	private hasDim() : boolean { return defined(this._dim); }
 	unscaledDim() : Vec2 { return this._dim; }
+	width() : number { return this.scaledDim().x; }
+	height() : number { return this.scaledDim().y; }
 	scaledDim() : Vec2 { return this.hasScaling() ? this.unscaledDim().clone().mult(this.scaling()) : this.unscaledDim(); }
 	setDim(vec : Vec) : void {
 		if (defined(this._dim) && Vec2.approxEquals(this._dim.toVec(), vec, this.vecEpsilon())) { return; }

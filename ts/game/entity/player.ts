@@ -16,6 +16,7 @@ import { StatInitOptions } from 'game/component/stat'
 import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { Crate } from 'game/entity/crate'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Beak } from 'game/entity/equip/beak'
 import { Bubble } from 'game/entity/equip/bubble'
@@ -40,6 +41,7 @@ import { ChangeTracker } from 'util/change_tracker'
 import { CircleMap } from 'util/circle_map'
 import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
+import { RateLimiter } from 'util/rate_limiter'
 import { Timer} from 'util/timer'
 import { Vec, Vec2, Vec3 } from 'util/vector'
 
@@ -107,6 +109,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _jumpGracePeriod = 160;
 
 	private static readonly _armRecoveryTime = 500;
+	private static readonly _crateCheckInterval = 250;
 
 	private static readonly _animations = new Map<AnimationGroup, Set<string>>([
 		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.WALK, Animation.JUMP])],
@@ -127,6 +130,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
 	private _groundedTracker : ChangeTracker<boolean>;
+
+	private _nearestCrate : Optional<Crate>;
+	private _crateRateLimiter : RateLimiter;
 
 	private _association : Association;
 	private _attributes : Attributes;
@@ -196,6 +202,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				}
 			}
 		});
+
+		this._nearestCrate = new Optional();
+		this._crateRateLimiter = new RateLimiter(Player._crateCheckInterval);
 
 		this.addProp<boolean>({
 			export: () => { return this._canDoubleJump; },
@@ -377,7 +386,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			offline: true,
 		});
 		if (hasNameTag) {
-			nameTag.setDisplayName(game.tablet(this.clientId()).displayName());
+			nameTag.setDisplayName(this.displayName());
 		}
 
 		this.updateLoadout();
@@ -577,11 +586,49 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
 
+		const millis = stepData.millis;
+
 		const buffer = this._profile.collisionBuffer();
 		if (buffer.hasRecords() && buffer.record(RecordType.MAX_NORMAL_Y).collision.normal.y > 0.8) {
 			this._canJump = true;
 			this._canDoubleJump = true;
 			this._canJumpTimer.start(Player._jumpGracePeriod);
+		}
+
+		if (this._crateRateLimiter.check(millis)) {
+			const pos = this._profile.pos();
+			const width = this._profile.width();
+			const height = this._profile.height();
+			const bounds = MATTER.Bounds.create([
+				{ x: pos.x - 2 * width, y: pos.y - 2 * height },
+				{ x: pos.x + 2 * width, y: pos.y - 2 * height },
+				{ x: pos.x + 2 * width, y: pos.y + 2 * height },
+				{ x: pos.x - 2 * width, y: pos.y + 2 * height },
+			]);
+			const bodies = MATTER.Query.region(game.physics().world().bodies, bounds);
+
+			let nearestCrate : Crate = null;
+			let currentDistSq : number = null;
+			for (let i = 0; i < bodies.length; ++i) {
+				const [entity, ok] = game.physics().queryEntity(bodies[i]);
+				if (!ok || entity.type() !== EntityType.CRATE) {
+					continue;
+				}
+				const distSq = pos.distSq(entity.profile().pos());
+				if (nearestCrate === null || distSq < currentDistSq) {
+					nearestCrate = <Crate>entity;
+					currentDistSq = distSq
+				}
+			}
+
+			if (this._nearestCrate.has()) {
+				this._nearestCrate.get().setCanOpen(false);
+				this._nearestCrate.clear();
+			}
+			if (nearestCrate !== null) {
+				nearestCrate.setCanOpen(true);
+				this._nearestCrate.set(nearestCrate);
+			}
 		}
 	}
 

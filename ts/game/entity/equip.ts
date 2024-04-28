@@ -6,6 +6,7 @@ import { Attributes } from 'game/component/attributes'
 import { Counters } from 'game/component/counters'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { Player } from 'game/entity/player'
 
 import { KeyType, KeyState } from 'ui/api'
 
@@ -86,11 +87,21 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	}
 
 	override key(type : KeyType, state : KeyState) : boolean {
-		if (!this.hasOwner()) { return false; }
+		if (!this.hasOwner()) {
+			return false;
+		}
 
-		if (this.owner().dead()) { return false; }
+		if (this.owner().type() !== EntityType.PLAYER) {
+			return false;
+		}
 
-		if (this.owner().getAttribute(AttributeType.INVINCIBLE)) { return false; }
+		const player = <Player>(<unknown>this.owner());
+		if (player.dead()) {
+			return false;
+		}
+		if (player.getAttribute(AttributeType.INVINCIBLE)) {
+			return false;
+		}
 
 		return super.key(type, state);
 	}
