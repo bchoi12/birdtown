@@ -24,6 +24,8 @@ export enum MaterialType {
 	BOLT_ORANGE,
 	BOLT_EXPLOSION,
 	CLOUD,
+	CUBE_RED,
+	CUBE_YELLOW,
 	ROCKET_EXPLOSION,
 	SPARK_BLUE,
 }
@@ -55,6 +57,7 @@ export enum MeshType {
 export enum ParticleType {
 	UNKNOWN,
 
+	CUBE,
 	SMOKE,
 	SPARK,
 }

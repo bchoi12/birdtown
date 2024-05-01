@@ -18,6 +18,7 @@ import { Jetpack } from 'game/entity/equip/jetpack'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Scouter } from 'game/entity/equip/scouter'
 import { Explosion } from 'game/entity/explosion'
+import { ParticleCube } from 'game/entity/particle/particle_cube'
 import { ParticleSmoke } from 'game/entity/particle/particle_smoke'
 import { ParticleSpark } from 'game/entity/particle/particle_spark'
 import { Plane } from 'game/entity/plane'
@@ -53,6 +54,7 @@ export namespace EntityFactory {
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
+		[EntityType.PARTICLE_CUBE, (options : EntityOptions) => { return new ParticleCube(options); }],
 		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],
 		[EntityType.PARTICLE_SPARK, (options : EntityOptions) => { return new ParticleSpark(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],

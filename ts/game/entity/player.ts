@@ -109,7 +109,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _jumpGracePeriod = 160;
 
 	private static readonly _armRecoveryTime = 500;
-	private static readonly _crateCheckInterval = 250;
+	private static readonly _crateCheckInterval = 333;
 
 	private static readonly _animations = new Map<AnimationGroup, Set<string>>([
 		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.WALK, Animation.JUMP])],
@@ -304,7 +304,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(texture));
 							mesh.material.albedoTexture.hasAlpha = true;
 							mesh.material.useAlphaFromAlbedoTexture = true;
-							mesh.material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+							mesh.material.transparencyMode = BABYLON.Material.MATERIAL_ALPHATEST;
 							mesh.material.needDepthPrePass = true;
 
 							this._eyeShifter.setMaterial(mesh.material, Box2.fromBox({
@@ -473,6 +473,32 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 		});
 	}
+	createEquips(equipType : EntityType, altEquipType? : EntityType) : void {
+		this._entityTrackers.clearEntityType(EntityType.EQUIP);
+		const [equip, hasEquip] = this.addEntity<Equip<Player>>(equipType, {
+			associationInit: {
+				owner: this,
+			},
+			clientId: this.clientId(),
+			levelVersion: game.level().version(),
+		});
+		if (hasEquip) {
+			this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, equip);
+		}
+
+		if (altEquipType) {
+			const [altEquip, hasAltEquip] = this.addEntity<Equip<Player>>(altEquipType, {
+				associationInit: {
+					owner: this,
+				},
+				clientId: this.clientId(),
+				levelVersion: game.level().version(),
+			});
+			if (hasAltEquip) {
+				this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, altEquip);
+			}
+		}
+	}
 
 	override cameraOffset() : Vec3 {
 		let pos = super.cameraOffset();
@@ -595,6 +621,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this._canJumpTimer.start(Player._jumpGracePeriod);
 		}
 
+		// Check for nearby crates
 		if (this._crateRateLimiter.check(millis)) {
 			const pos = this._profile.pos();
 			const width = this._profile.width();
@@ -629,6 +656,13 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				nearestCrate.setCanOpen(true);
 				this._nearestCrate.set(nearestCrate);
 			}
+		}
+
+		// Open crates
+		if (this.isSource() && this.key(KeyType.INTERACT, KeyState.PRESSED) && this._nearestCrate.has()) {
+			let crate = this._nearestCrate.get();
+			this.createEquips(crate.equipType(), crate.altEquipType());
+			crate.open();
 		}
 	}
 
@@ -750,28 +784,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.getPlayerType());
 
-			this._entityTrackers.clearEntityType(EntityType.EQUIP);
-			const [equip, hasEquip] = this.addEntity<Equip<Player>>(loadout.getEquipType(), {
-				associationInit: {
-					owner: this,
-				},
-				clientId: this.clientId(),
-				levelVersion: game.level().version(),
-			});
-			if (hasEquip) {
-				this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, equip);
-			}
-
-			const [altEquip, hasAltEquip] = this.addEntity<Equip<Player>>(loadout.getAltEquipType(), {
-				associationInit: {
-					owner: this,
-				},
-				clientId: this.clientId(),
-				levelVersion: game.level().version(),
-			});
-			if (hasAltEquip) {
-				this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, altEquip);
-			}
+			this.createEquips(loadout.getEquipType(), loadout.getAltEquipType());
 
 			this._entityTrackers.clearEntityType(EntityType.BUBBLE);
 			const [bubble, hasBubble] = this.addEntity<Bubble>(EntityType.BUBBLE, {

@@ -34,6 +34,9 @@ export namespace ColorFactory {
 	export const boltOrange = HexColor.fromHex(0xffb163);
 	export const boltExplosion = HexColor.fromHex(0xffc361);
 
+	export const cubeRed = HexColor.fromHex(0xfa2a2a);
+	export const cubeYellow = HexColor.fromHex(0xfaf32a);
+
 	export const rocketExplosion = HexColor.fromHex(0xdc5a3a);
 
 	export const sparkBlue = HexColor.fromHex(0xc2f8ff);

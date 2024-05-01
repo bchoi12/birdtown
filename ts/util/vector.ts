@@ -179,6 +179,11 @@ export class Vec2 implements Vec {
         }
         return this;
     }
+    setScalar(s : number) : Vec2 {
+        this.x = s;
+        this.y = s;
+        return this;
+    }
 
     addRandomOffset(maxOffset : Vec, rng? : SeededRandom) : Vec2 {
         if (maxOffset.hasOwnProperty("x")) {
@@ -352,11 +357,16 @@ export class Vec3 extends Vec2 implements Vec {
         this.z *= s;
         return this;
     }
-    scaleVec(vec : Vec) : Vec2 {
+    override scaleVec(vec : Vec) : Vec3 {
         super.scaleVec(vec);
         if (vec.hasOwnProperty("z")) {
             this.z *= vec.z;
         }
+        return this;
+    }
+    override setScalar(s : number) : Vec3 {
+        super.setScalar(s);
+        this.z = s;
         return this;
     }
 

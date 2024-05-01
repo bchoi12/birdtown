@@ -31,6 +31,8 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 	private static _maxSpeed = 0.6;
 
 	private _canOpen : boolean;
+	private _equipType : EntityType;
+	private _altEquipType : EntityType;
 
 	private _attributes : Attributes;
 	private _profile : Profile;
@@ -42,6 +44,19 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 		super(EntityType.CRATE, entityOptions);
 
 		this._canOpen = false;
+		this._equipType = EntityType.SNIPER;
+		this._altEquipType = EntityType.SCOUTER;
+
+		this.addProp<EntityType>({
+			has: () => { return this._equipType !== EntityType.UNKNOWN; },
+			export: () => { return this._equipType; },
+			import: (obj : EntityType) => { this._equipType = obj; },
+		});
+		this.addProp<EntityType>({
+			has: () => { return this._altEquipType !== EntityType.UNKNOWN; },
+			export: () => { return this._altEquipType; },
+			import: (obj : EntityType) => { this._altEquipType = obj; },
+		});
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.setAttribute(AttributeType.SOLID, true);
@@ -107,6 +122,9 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 		this._nameTag.setDisplayName(KeyNames.boxed(settings.interactKeyCode));
 	}
 
+	equipType() : EntityType { return this._equipType; }
+	altEquipType() : EntityType { return this._altEquipType; }
+
 	canOpen() : boolean { return this._canOpen; }
 	setCanOpen(canOpen : boolean) {
 		if (this._canOpen === canOpen) {
@@ -116,6 +134,9 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 		this._canOpen = canOpen;
 
 		this._nameTag.setVisible(this._canOpen);
+	}
+	open() : void {
+		this.delete();
 	}
 
 	equip(equip : Equip<Entity & EquipEntity>) : void {

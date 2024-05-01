@@ -41,7 +41,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 			has: () => { return this.hasDisplayName(); },
 			export: () => { return this._displayName; },
 			import: (obj : string) => { this.setDisplayName(obj); },
-		})
+		});
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => {
@@ -53,7 +53,6 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 				const text = this.displayName();
 
 				let temp = new BABYLON.DynamicTexture(this.name() + "-temp", 64, game.scene());
-
 				let context = temp.getContext();
 				context.font = NameTag._font;
 				const textureWidth = context.measureText(text).width;
