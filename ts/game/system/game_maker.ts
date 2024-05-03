@@ -108,7 +108,7 @@ export class GameMaker extends SystemBase implements System {
 		switch (current) {
 		case GameState.SETUP:
 		case GameState.GAME:
-			if (this._config.hasPlayersMin() && game.playerStates().numPlayerStates() < this._config.getPlayersMin()) {
+			if (this._config.hasPlayersMin() && game.playerStates().numSpawnedPlayers() < this._config.getPlayersMin()) {
 				return false;
 			}
 			break;

@@ -86,11 +86,5 @@ export class Controller extends SystemBase implements System {
 		}
 
 		this.setGameState(this._gameMaker.queryState(this.gameState()));
-
-		/*
-		if (game.keys().getKey(KeyType.INTERACT).pressed()) {
-			this.startGame(GameMode.DUEL);
-		}
-		*/
 	}
 }

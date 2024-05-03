@@ -129,6 +129,7 @@ export class Runner extends SystemBase implements System  {
 	}
 
  	gameTargetStep() : number {return Runner._targetSteps.get(this._gameSpeed); }
+ 	gameTargetFPS() : number { return Math.floor(1000 / Runner._targetSteps.get(this._gameSpeed)); }
  	renderTargetStep() : number { return Runner._targetSteps.get(this._renderSpeed); }
  	lastStep() : number { return this._gameStepper.lastStep(); }
 	seqNumDiff() : number { return this.isSource() ? 0 : Math.round(this._seqNumDiffs.peek() / this._gameTargetStep); }

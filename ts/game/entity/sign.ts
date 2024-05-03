@@ -2,6 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { GameMode } from 'game/api'
 import { StepData } from 'game/game_object'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
@@ -18,11 +19,12 @@ import { UiMessage, UiMessageType } from 'message/ui_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { DialogType, TooltipType } from 'ui/api'
+import { KeyType, KeyState, TooltipType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
 import { ChangeTracker } from 'util/change_tracker'
 
+// TODO: turn into abstract class
 export class Sign extends EntityBase implements Entity, EquipEntity {
 
 	private _active : boolean;
@@ -91,7 +93,7 @@ export class Sign extends EntityBase implements Entity, EquipEntity {
 		}
 
 		this._nameTag = nameTag;
-		this._nameTag.setDisplayName(KeyNames.boxed(settings.interactKeyCode));
+		this._nameTag.setDisplayName("Start Game");
 	}
 
 	equip(equip : Equip<Entity & EquipEntity>) : void {
@@ -152,6 +154,17 @@ export class Sign extends EntityBase implements Entity, EquipEntity {
 			msg.setTtl(100);
 			msg.setTooltipType(this._tooltipType);
 			ui.handleMessage(msg);
+
+			if (this.key(KeyType.INTERACT, KeyState.PRESSED)) {
+				switch (this._tooltipType) {
+				case TooltipType.START_GAME:
+					// TODO: show dialog instead
+					if (this.isSource()) {
+						game.controller().startGame(GameMode.DUEL);
+					}
+					break;
+				}
+			}
 		}
 	}
 }

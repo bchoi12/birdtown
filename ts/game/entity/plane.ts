@@ -20,7 +20,7 @@ enum Animation {
 export class Plane extends EntityBase implements Entity {
 
 	private static readonly _animations = new Set<string>([Animation.FLYING, Animation.ON]);
-	private static readonly _speed = 1.5;
+	private static readonly _speed = 0.2;
 	private static readonly _turnRate = 3;
 
 	private _model : Model;
@@ -74,6 +74,8 @@ export class Plane extends EntityBase implements Entity {
 			} else {
 				this._profile.setVel({ x: Math.sign(this._profile.vel().x) * Plane._speed });
 			}
+		} else {
+			this._profile.setVel({x: Plane._speed });
 		}
 
 		if (!this._model.hasMesh()) {

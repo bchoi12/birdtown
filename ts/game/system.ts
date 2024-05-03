@@ -35,6 +35,11 @@ export abstract class SystemBase extends GameObjectBase implements System {
 		this._type = type;
 	}
 
+	override ready() : boolean {
+		this.maybePrintUnready(/*interval=*/300);
+		return true;
+	}
+
 	type() : SystemType { return this._type; }
 
 	addSubSystem<T extends System>(id : number, system : T) : T {

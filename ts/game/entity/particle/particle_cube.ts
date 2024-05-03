@@ -1,21 +1,43 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { Model } from 'game/component/model'
+import { Profile } from 'game/component/profile'
 import { EntityOptions } from 'game/entity'
 import { Particle } from 'game/entity/particle'
 import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
 import { ParticleType } from 'game/factory/api'
+import { BodyFactory } from 'game/factory/body_factory'
 
 import { FnGlobals, InterpType } from 'global/fn_globals'
+import { GameGlobals } from 'global/game_globals'
 
+import { Fns } from 'util/fns'
 import { Vec2 } from 'util/vector'
 
 export class ParticleCube extends Particle {
 
+	private _initialScale : Vec2;
+
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PARTICLE_CUBE, entityOptions);
+
+		this._profile.setAngle(0);
+		this._profile.setAcc({ y: GameGlobals.gravity });
+	}
+
+	override bodyFn(profile : Profile) : MATTER.Body {
+		return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
+			isSensor: true,
+		});
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		this._initialScale = this._profile.scaling().clone();
 	}
 
 	override particleType() : ParticleType { return ParticleType.CUBE; }
@@ -27,18 +49,12 @@ export class ParticleCube extends Particle {
 		model.mesh().scaling.set(1, 1, 1);
 	}
 
-	override update(stepData : StepData) : void {
-		super.update(stepData);
-
-		if (!this._model.hasMesh()) {
-			return;
-		}
-
-		this._profile.setAngle(this._profile.vel().angleRad());
-
-		const weight = FnGlobals.interp(InterpType.LINEAR, this.ttlElapsed());
-		this._profile.vel().copyVec(this._initialVel).scale(1 - weight);
-		this._profile.scaling().y = this._initialScale.y * (1 - weight);
-		this._model.mesh().scaling.z = this._profile.scaling().y;
+	override updateParticle(stepData : StepData) : void {
+		const weight = 1 - FnGlobals.interp(InterpType.LINEAR, this.ttlElapsed());
+		this._profile.setScaling({
+			x: this._initialScale.x * weight,
+			y: this._initialScale.y * weight,
+		});
+		this._model.mesh().scaling.z = (this._profile.scaling().x + this._profile.scaling().y) / 2;
 	}
 }

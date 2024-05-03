@@ -109,7 +109,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _jumpGracePeriod = 160;
 
 	private static readonly _armRecoveryTime = 500;
-	private static readonly _crateCheckInterval = 333;
+	private static readonly _crateCheckInterval = 250;
 
 	private static readonly _animations = new Map<AnimationGroup, Set<string>>([
 		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.WALK, Animation.JUMP])],
@@ -623,14 +623,15 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		// Check for nearby crates
 		if (this._crateRateLimiter.check(millis)) {
+			// Need to use render position for circular levels
 			const pos = this._profile.pos();
 			const width = this._profile.width();
 			const height = this._profile.height();
 			const bounds = MATTER.Bounds.create([
-				{ x: pos.x - 2 * width, y: pos.y - 2 * height },
-				{ x: pos.x + 2 * width, y: pos.y - 2 * height },
-				{ x: pos.x + 2 * width, y: pos.y + 2 * height },
-				{ x: pos.x - 2 * width, y: pos.y + 2 * height },
+				{ x: pos.x - width / 2 - 1, y: pos.y - height / 2 - 1 },
+				{ x: pos.x + width / 2 + 1, y: pos.y - height / 2 - 1 },
+				{ x: pos.x + width / 2 + 1, y: pos.y + height / 2 + 1 },
+				{ x: pos.x - width / 2 - 1, y: pos.y + height / 2 + 1 },
 			]);
 			const bodies = MATTER.Query.region(game.physics().world().bodies, bounds);
 
@@ -663,6 +664,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			let crate = this._nearestCrate.get();
 			this.createEquips(crate.equipType(), crate.altEquipType());
 			crate.open();
+			this._crateRateLimiter.reset();
 		}
 	}
 

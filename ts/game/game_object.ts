@@ -113,13 +113,16 @@ export interface GameObject {
 }
 
 export abstract class GameObjectBase {
+
+	private static readonly _readyPrintInterval = 100;
+
 	protected _name : string;
 	protected _nameParams : NameParams;
 	protected _initialized : boolean;
 	protected _offline : boolean;
 	protected _deleted : boolean;
 	protected _state : GameObjectState;
-	protected _notReadyCounter : number;
+	protected _readyCalls : number;
 
 	protected _data : GameData;
 	protected _propHandlers : Map<number, PropHandler<Object>>;
@@ -139,8 +142,9 @@ export abstract class GameObjectBase {
 		this._initialized = false;
 		this._offline = false;
 		this._deleted = false;
-		this._notReadyCounter = 0;
+		this._readyCalls = 0;
 		this._state = GameObjectState.NORMAL;
+		this._readyCalls = 0;
 
 		this._data = new GameData();
 		this._propHandlers = new Map();
@@ -170,11 +174,24 @@ export abstract class GameObjectBase {
 		}
 	}
 
-	ready() : boolean {
-		this._notReadyCounter++;
-		if (this._notReadyCounter % 60 === 0) {
-			console.error("Warning: %s still not ready", this.name());
+	protected maybePrintUnready(interval? : number) : void {
+		if (!interval) {
+			interval = GameObjectBase._readyPrintInterval;
 		}
+		if (this._readyCalls <= 0 || this._readyCalls % interval !== 0) {
+			return;
+		}
+
+		const unready : Array<string> = this.findAll((child : GameObject) => {
+			return !child.ready();
+		}).map((child : GameObject) => {
+			return child.name();
+		});
+		console.error("Warning: %s not ready, bad components: %s", this.name(), unready.join(","));
+	}
+
+	ready() : boolean {
+		this._readyCalls++;
 		return true;
 	}
 	initialize() : void {

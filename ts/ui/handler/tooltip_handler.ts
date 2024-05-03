@@ -81,7 +81,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		case TooltipType.JUST_A_SIGN:
 			return "Just a sign...nothing to see here."
 		case TooltipType.SPAWN:
-			return "Press [any key] to deploy the chicken."
+			return "Press [any key] to deploy."
 		case TooltipType.SPECTATING:
 			if (names.length !== 1) {
 				return "Spectating";
@@ -91,7 +91,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			if (!game.isHost()) {
 				return "When you\'re ready, ask the host to start a game.";
 			}
-			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game at anytime.\n(2+ players required)";
+			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game.\n(2+ players required)";
 		default:
 			return "Missing tooltip text for type " + type;
 		}

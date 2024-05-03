@@ -13,7 +13,11 @@ export class PlayerStates extends ClientSystemManager implements System {
 		this.setFactoryFn((clientId : number) => { return this.addPlayerState(new PlayerState(clientId)); })
 	}
 
-	numPlayerStates() : number { return this.numChildren(); }
+	numSpawnedPlayers() : number {
+		return this.findAll((playerState : PlayerState) => {
+			return playerState.hasTargetEntity();
+		}).length;
+	}
 
 	addPlayerState(info : PlayerState) : PlayerState { return this.registerChild<PlayerState>(info.clientId(), info); }
 	hasPlayerState(clientId : number) : boolean { return this.hasChild(clientId); }

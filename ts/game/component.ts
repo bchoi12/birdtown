@@ -27,7 +27,11 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 		this._type = type;
 	}
 
-	override ready() : boolean { return this._entity.has(); }
+	override ready() : boolean {
+		this.maybePrintUnready();
+
+		return this._entity.has();
+	}
 
 	addSubComponent<T extends Component>(component : T) : T {
 		return this.addChild<T>(this.populateSubComponent<T>(component, /*nameParams=*/{}));

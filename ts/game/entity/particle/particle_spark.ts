@@ -37,13 +37,7 @@ export class ParticleSpark extends Particle {
 		this._initialScale = this._profile.scaling().clone();
 	}
 
-	override update(stepData : StepData) : void {
-		super.update(stepData);
-
-		if (!this._model.hasMesh()) {
-			return;
-		}
-
+	override updateParticle(stepData : StepData) : void {
 		this._profile.setAngle(this._profile.vel().angleRad());
 
 		const weight = FnGlobals.interp(InterpType.NEGATIVE_SQUARE, this.ttlElapsed());

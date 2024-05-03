@@ -236,14 +236,14 @@ export class Profile extends ComponentBase implements Component {
 	override setState(state : GameObjectState) : void {
 		super.setState(state);
 
-		if (this._body !== null) {
+		this.onBody((profile : Profile) => {
 			if (state === GameObjectState.DEACTIVATED) {
 				// Hack to remove the body from the scene.
-				MATTER.Body.setPosition(this._body, { x: this.pos().x, y: game.level().bounds().min.y - 10 });
+				MATTER.Body.setPosition(profile.body(), { x: this.pos().x, y: game.level().bounds().min.y - 10 });
 			} else {
-				MATTER.Body.setPosition(this._body, this.pos());
+				MATTER.Body.setPosition(profile.body(), this.pos());
 			}
-		}
+		});
 	}
 
 	override dispose() : void {
@@ -416,14 +416,18 @@ export class Profile extends ComponentBase implements Component {
 	angle() : number { return this.hasAngle() ? this._angle : 0; }
 	setAngle(angle : number) : void { this._angle = angle; }
 	setAngularVelocity(vel : number) : void {
-		if (this._body !== null) {
-			MATTER.Body.setAngularVelocity(this._body, vel);
-		}
+		if (!this.hasAngle()) { this.setAngle(0); }
+
+		this.onBody((profile : Profile) => {
+			MATTER.Body.setAngularVelocity(profile.body(), vel);
+		});
 	}
 	addAngularVelocity(delta : number) : void {
-		if (this._body !== null) {
-			MATTER.Body.setAngularVelocity(this._body, this._body.angularVelocity + delta);
-		}
+		if (!this.hasAngle()) { this.setAngle(0); }
+
+		this.onBody((profile : Profile) => {
+			MATTER.Body.setAngularVelocity(profile.body(), profile.body().angularVelocity + delta);
+		});
 	}
 
 	hasInertia() : boolean { return defined(this._inertia); }
@@ -783,18 +787,18 @@ export class Profile extends ComponentBase implements Component {
 			this._pos.setPredict(this._body.position);
 		}
 
-		// Wrap the object for visualization if we're in a circle level
-		// This must be done outside of render() since MATTER.Render is synced with RequestAnimationFrame, not render()
-		if (game.level().isCircle()) {
-			MATTER.Body.setPosition(this._body, this.getRenderPos());
-		}
-
 		// Update child objects afterwards.
 		super.postPhysics(stepData);
 	}
 
 	override preRender() : void {
 		super.preRender();
+
+		// Wrap the object for visualization if we're in a circle level
+		// Putting this here introduces some minimap flicker since MATTER.Render is synced with RequestAnimationFrame, not render()
+		if (game.level().isCircle()) {
+			MATTER.Body.setPosition(this._body, this.getRenderPos());
+		}
 
 		if (this._renderMode === RenderMode.CHECK_OCCLUSION) {
 			this._body.render.visible = !this.entity().getAttribute(AttributeType.OCCLUDED);

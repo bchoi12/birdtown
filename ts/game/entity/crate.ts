@@ -11,7 +11,7 @@ import { Entity, EquipEntity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
-import { MeshType } from 'game/factory/api'
+import { MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -24,6 +24,7 @@ import { KeyNames } from 'ui/common/key_names'
 
 import { Box2 } from 'util/box'
 import { defined } from 'util/common'
+import { Fns } from 'util/fns'
 import { Vec, Vec2, Vec3 } from 'util/vector'
 
 export class Crate extends EntityBase implements Entity, EquipEntity {
@@ -31,6 +32,7 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 	private static _maxSpeed = 0.6;
 
 	private _canOpen : boolean;
+	private _opened : boolean;
 	private _equipType : EntityType;
 	private _altEquipType : EntityType;
 
@@ -44,9 +46,18 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 		super(EntityType.CRATE, entityOptions);
 
 		this._canOpen = false;
+		this._opened = false;
 		this._equipType = EntityType.SNIPER;
 		this._altEquipType = EntityType.SCOUTER;
 
+		this.addProp<boolean>({
+			has: () => { return this._opened; },
+			export: () => { return this._opened; },
+			import: (obj : boolean) => {
+				this._opened = obj;
+				this.delete();
+			},
+		});
 		this.addProp<EntityType>({
 			has: () => { return this._equipType !== EntityType.UNKNOWN; },
 			export: () => { return this._equipType; },
@@ -122,6 +133,37 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 		this._nameTag.setDisplayName(KeyNames.boxed(settings.interactKeyCode));
 	}
 
+	override delete() : void {
+		super.delete();
+
+		if (this._opened) {
+			for (let i = 0; i < 5; ++i) {
+				this.addEntity(EntityType.PARTICLE_CUBE, {
+					offline: true,
+					ttl: 1000,
+					profileInit: {
+						pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.1, 0.1), y: Fns.randomRange(-0.1, 0.1), }),
+						vel: {
+							x: Fns.randomRange(-0.2, 0.2),
+							y: Fns.randomRange(0.2, 0.3),
+						},
+						scaling: { x: 0.25, y: 0.25 },
+					},
+					modelInit: {
+						transforms: {
+							translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1) },
+						},
+						materialType: i % 2 === 1 ? MaterialType.CRATE_YELLOW : MaterialType.CRATE_RED,
+					}
+				});
+			}
+		}
+
+		if (this._nameTag !== null) {
+			this._nameTag.delete();
+		}
+	}
+
 	equipType() : EntityType { return this._equipType; }
 	altEquipType() : EntityType { return this._altEquipType; }
 
@@ -136,7 +178,11 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 		this._nameTag.setVisible(this._canOpen);
 	}
 	open() : void {
-		this.delete();
+		this._opened = true;
+
+		if (this.isSource()) {
+			this.delete();
+		}
 	}
 
 	equip(equip : Equip<Entity & EquipEntity>) : void {

@@ -73,6 +73,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOF, { x: 12, y: 1, z: 8 }],
 		[EntityType.BACKGROUND_ARCH_ROOM, { x: 12, y: 6 }],
 		[EntityType.BOLT, { x: 0.3, y: 0.12, z : 0.12 }],
+		[EntityType.PARTICLE_CUBE, { x: 1, y: 1, z: 1}],
 		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],
 		[EntityType.PARTICLE_SPARK, { x: 1, y: 1, z: 1 }],
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],

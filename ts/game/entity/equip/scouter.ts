@@ -71,7 +71,7 @@ export class Scouter extends Equip<Player> {
 				weapon.addCounter(CounterType.CHARGE, millis);
 			});
 		} else {
-			this._lookWeight = Math.max(0, this._lookWeight - 2 * millis);
+			this._lookWeight = Math.max(0, this._lookWeight - 1.5 * millis);
 
 			this._weapons.forEach((weapon : Equip<Player>) => {
 				weapon.setAttribute(AttributeType.CHARGING, false);

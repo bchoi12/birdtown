@@ -56,11 +56,14 @@ export namespace MaterialFactory {
 			mat.needDepthPrePass = true;
 		});
 
-		standardMaterial(MaterialType.CUBE_RED, (mat : BABYLON.StandardMaterial) => {
-			mat.diffuseColor = ColorFactory.cubeRed.toBabylonColor3();
+		standardMaterial(MaterialType.CRATE_BLUE, (mat : BABYLON.StandardMaterial) => {
+			mat.diffuseColor = ColorFactory.crateBlue.toBabylonColor3();
 		});
-		standardMaterial(MaterialType.CUBE_YELLOW, (mat : BABYLON.StandardMaterial) => {
-			mat.diffuseColor = ColorFactory.cubeYellow.toBabylonColor3();
+		standardMaterial(MaterialType.CRATE_RED, (mat : BABYLON.StandardMaterial) => {
+			mat.diffuseColor = ColorFactory.crateRed.toBabylonColor3();
+		});
+		standardMaterial(MaterialType.CRATE_YELLOW, (mat : BABYLON.StandardMaterial) => {
+			mat.diffuseColor = ColorFactory.crateYellow.toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.ROCKET_EXPLOSION, (mat : BABYLON.StandardMaterial) => {

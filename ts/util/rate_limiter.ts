@@ -11,13 +11,13 @@ export class RateLimiter {
 	}
 
 	setLimit(limit : number) : void { this._limit = limit; }
-	reset() : void { this._current = 0; }
+	reset() : void { this._current = this._limit; }
 
 	check(num : number) : boolean {
 		this._current += num;
 
 		if (this._current >= this._limit) {
-			this.reset();
+			this._current = 0;
 			return true;
 		}
 		return false;

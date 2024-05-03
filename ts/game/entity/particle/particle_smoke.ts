@@ -29,13 +29,7 @@ export class ParticleSmoke extends Particle {
 		this._initialScale = this._profile.scaling().clone();
 	}
 
-	override update(stepData : StepData) : void {
-		super.update(stepData);
-
-		if (!this._model.hasMesh()) {
-			return;
-		}
-
+	override updateParticle(stepData : StepData) : void {
 		let scaling = this._profile.scaling();
 		scaling.copyVec(this._initialScale).scale(1 - this.ttlElapsed());
 

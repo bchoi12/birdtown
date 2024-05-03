@@ -155,6 +155,8 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	override ready() : boolean {
 		super.ready();
 
+		this.maybePrintUnready();
+
 		return this.matchAll((component : Component) => {
 			return component.ready();
 		});
