@@ -69,7 +69,7 @@ export namespace MaterialFactory {
 		standardMaterial(MaterialType.ROCKET_EXPLOSION, (mat : BABYLON.StandardMaterial) => {
 			mat.alpha = 0.7;
 			mat.disableLighting = true;
-			mat.emissiveColor = ColorFactory.rocketExplosion.toBabylonColor3();
+			mat.emissiveColor = ColorFactory.bazookaRed.toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.SPARK_BLUE, (mat : BABYLON.StandardMaterial) => {

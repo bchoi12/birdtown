@@ -30,6 +30,8 @@ export namespace ColorFactory {
 	export const archBackgroundBlue = HexColor.fromHex(0x7aa3cc);
 	export const archBackgroundPurple = HexColor.fromHex(0xaa7acc);
 
+	export const bazookaRed = HexColor.fromHex(0xdc5a3a);
+
 	export const boltBlue = HexColor.fromHex(0x7cf2f0);
 	export const boltOrange = HexColor.fromHex(0xffb163);
 	export const boltExplosion = HexColor.fromHex(0xffc361);
@@ -38,7 +40,7 @@ export namespace ColorFactory {
 	export const crateRed = HexColor.fromHex(0xfa493c);
 	export const crateYellow = HexColor.fromHex(0xf6ff56);
 
-	export const rocketExplosion = HexColor.fromHex(0xdc5a3a);
+	export const signGray = HexColor.fromHex(0x8b8b8b);
 
 	export const sparkBlue = HexColor.fromHex(0xc2f8ff);
 

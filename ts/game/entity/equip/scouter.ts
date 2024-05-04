@@ -46,7 +46,6 @@ export class Scouter extends Equip<Player> {
 		}));
 	}
 
-	override equipName() : string { return "scouter"; }
 	override attachType() : AttachType { return AttachType.EYE; }
 
 	override preUpdate(stepData : StepData) : void {

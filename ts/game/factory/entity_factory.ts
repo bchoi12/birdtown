@@ -25,7 +25,7 @@ import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Rocket } from 'game/entity/projectile/rocket'
-import { Sign } from 'game/entity/sign'
+import { SignStartGame } from 'game/entity/sign/sign_start_game'
 import { SpawnPoint } from 'game/entity/spawn_point'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Sniper } from 'game/entity/equip/weapon/sniper'
@@ -61,7 +61,7 @@ export namespace EntityFactory {
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
 		[EntityType.SCOUTER, (options : EntityOptions) => { return new Scouter(options); }],
-		[EntityType.SIGN, (options : EntityOptions) => { return new Sign(options); }],
+		[EntityType.SIGN_START_GAME, (options : EntityOptions) => { return new SignStartGame(options); }],
 		[EntityType.SNIPER, (options : EntityOptions) => { return new Sniper(options); }],
 		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],

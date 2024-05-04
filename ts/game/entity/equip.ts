@@ -115,6 +115,5 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	popUses() : number { return this._uses.save(); }
 	recoilType() : number { return RecoilType.NONE; }
 
-	abstract equipName() : string;
 	abstract attachType() : AttachType;
 }

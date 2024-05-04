@@ -655,11 +655,15 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 			if (nearestCrate !== null) {
 				nearestCrate.setCanOpen(true);
+				if (this.isLakituTarget()) {
+					nearestCrate.showTooltip();
+				}
 				this._nearestCrate.set(nearestCrate);
 			}
 		}
 
 		// Open crates
+		// TODO: put in update?
 		if (this.isSource() && this.key(KeyType.INTERACT, KeyState.PRESSED) && this._nearestCrate.has()) {
 			let crate = this._nearestCrate.get();
 			this.createEquips(crate.equipType(), crate.altEquipType());

@@ -306,17 +306,16 @@ export class ArchBlueprint extends Blueprint {
 			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
 				let block = building.block(j);
 
-				this.rng().setChance(0.9, (n : number) => { return n - 0.3; });
-				block.addCrates(this.rng());
-
 				if (i === Math.floor(this.numBuildings() / 2) && block.type() === ArchBlueprint.roofType()) {
-					block.pushEntityOptions(EntityType.SIGN, {
+					block.pushEntityOptions(EntityType.SIGN_START_GAME, {
 						profileInit: {
 							pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
 							dim: EntityFactory.getDimension(EntityType.SIGN),
 						},
-						tooltipType: TooltipType.START_GAME,
 					});
+				} else {
+					this.rng().setChance(0.9, (n : number) => { return n - 0.3; });
+					block.addCrates(this.rng());
 				}
 			}
 		}

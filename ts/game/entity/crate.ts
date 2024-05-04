@@ -1,5 +1,4 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
-import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { StepData } from 'game/game_object'
@@ -13,19 +12,23 @@ import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { GameGlobals } from 'global/game_globals'
 
+import { UiMessage, UiMessageType } from 'message/ui_message'
+
 import { settings } from 'settings'
 
+import { StringFactory } from 'strings/string_factory'
+
+import { ui } from 'ui'
+import { TooltipType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
-import { Box2 } from 'util/box'
-import { defined } from 'util/common'
 import { Fns } from 'util/fns'
-import { Vec, Vec2, Vec3 } from 'util/vector'
 
 export class Crate extends EntityBase implements Entity, EquipEntity {
 
@@ -33,6 +36,7 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 
 	private _canOpen : boolean;
 	private _opened : boolean;
+	private _showTooltip : boolean;
 	private _equipType : EntityType;
 	private _altEquipType : EntityType;
 
@@ -47,6 +51,7 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 
 		this._canOpen = false;
 		this._opened = false;
+		this._showTooltip = false;
 		this._equipType = EntityType.SNIPER;
 		this._altEquipType = EntityType.SCOUTER;
 
@@ -77,7 +82,7 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: BodyFactory.defaultDensity,
 					render: {
-						fillStyle: "#FF0000",
+						fillStyle: ColorFactory.crateRed.toString(),
 					}
 				});
 			},
@@ -166,9 +171,17 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 
 	equipType() : EntityType { return this._equipType; }
 	altEquipType() : EntityType { return this._altEquipType; }
+	equipList() : string {
+		return StringFactory.getEntityTypeName(this._equipType).base() + " and " + StringFactory.getEntityTypeName(this._altEquipType).base();
+	}
 
+	showTooltip() : void { this._showTooltip = true; }
 	canOpen() : boolean { return this._canOpen; }
 	setCanOpen(canOpen : boolean) {
+		if (!canOpen) {
+			this._showTooltip = false;
+		}
+
 		if (this._canOpen === canOpen) {
 			return;
 		}
@@ -178,6 +191,8 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 		this._nameTag.setVisible(this._canOpen);
 	}
 	open() : void {
+		this.setCanOpen(false);
+
 		this._opened = true;
 
 		if (this.isSource()) {
@@ -200,9 +215,21 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 		}
 	}
 
+	override postPhysics(stepData : StepData) : void {
+		super.postPhysics(stepData);
+
+		this._nameTag.model().translation().copyVec(this._profile.pos());
+	}
+
 	override preRender() : void {
 		super.preRender();
 
-		this._nameTag.model().translation().copyVec(this._profile.pos());
+		if (this._showTooltip && this._canOpen) {
+			let msg = new UiMessage(UiMessageType.TOOLTIP);
+			msg.setTtl(50);
+			msg.setTooltipType(TooltipType.OPEN_CRATE);
+			msg.setNames([this.equipList()]);
+			ui.handleMessage(msg);
+		}
 	}
 }

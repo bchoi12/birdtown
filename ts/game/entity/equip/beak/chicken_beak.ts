@@ -6,12 +6,9 @@ import { MeshType } from 'game/factory/api'
 
 export class ChickenBeak extends Beak {
 
-	private static readonly _equipName = "chicken beak";
-
 	constructor(options : EntityOptions) {
 		super(EntityType.CHICKEN_BEAK, options);
 	}
 
-	override equipName() : string { return ChickenBeak._equipName; }
 	override meshType() : MeshType { return MeshType.CHICKEN_BEAK; }
 }

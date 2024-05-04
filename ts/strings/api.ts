@@ -1,0 +1,10 @@
+
+
+export enum StringType {
+	UNKNOWN,
+
+	ENTITY_BAZOOKA,
+	ENTITY_JETPACK,
+	ENTITY_SCOUTER,
+	ENTITY_SNIPER,
+}

@@ -28,6 +28,10 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	private _occluded : boolean;
 	private _visible : boolean;
 
+	private _textColor : string;
+	private _textBackgroundColor : string;
+	private _pointerColor : string;
+
 	protected _model : Model;
 
 	constructor(entityOptions : EntityOptions) {
@@ -36,6 +40,10 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		this._displayName = "";
 		this._occluded = false;
 		this._visible = true;
+
+		this._textColor = "#ffffff";
+		this._textBackgroundColor = "#333333";
+		this._pointerColor = "#ff0000";
 
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
@@ -64,7 +72,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 					width: textureWidth,
 					height: textureHeight,
 				}, game.scene());
-				texture.drawText(text, /*x=*/null, /*y=*/null, NameTag._font, "#ffffff", "#333333", /*invertY=*/false);
+				texture.drawText(text, /*x=*/null, /*y=*/null, NameTag._font, this._textColor, this._textBackgroundColor, /*invertY=*/false);
 
 				let material = new BABYLON.StandardMaterial(this.name() + "-material");
 				material.diffuseTexture = texture;
@@ -92,7 +100,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 				}, game.scene());
 				let pointerMaterial = new BABYLON.StandardMaterial(this.name() + "-pointer-mat");
 				pointerMaterial.disableLighting = true;
-				pointerMaterial.emissiveColor = BABYLON.Color3.Red();
+				pointerMaterial.emissiveColor = BABYLON.Color3.FromHexString(this._pointerColor);
 				pointer.material = pointerMaterial;
 
 				model.registerSubMesh(NameTag._pointerId, pointer);
@@ -112,6 +120,28 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 			pointer.position.y = this.owner().profile().scaledDim().y - NameTag._height / 2 - NameTag._pointerHeight / 2;
 			pointer.rotation.z = - Math.PI / 2;
 		})
+	}
+
+	setTextColor(color : string) : void {
+		if (this.initialized()) {
+			console.error("Error: cannot set text color of initialized %s", this.name());
+			return;
+		}
+		this._textColor = color;
+	}
+	setTextBackgroundColor(color : string) : void {
+		if (this.initialized()) {
+			console.error("Error: cannot set text background color of initialized %s", this.name());
+			return;
+		}
+		this._textBackgroundColor = color;
+	}
+	setPointerColor(color : string) : void {
+		if (this.initialized()) {
+			console.error("Error: cannot set text background color of initialized %s", this.name());
+			return;
+		}
+		this._pointerColor = color;
 	}
 
 	hasDisplayName() : boolean { return this._displayName.length > 0; }
@@ -142,7 +172,6 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	}
 
 	override attachType() : AttachType { return AttachType.ROOT; }
-	override equipName() : string { return "Name tag"; }
 
 	override preRender() : void {
 		super.preRender();

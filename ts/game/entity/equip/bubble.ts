@@ -15,6 +15,7 @@ import { StepData } from 'game/game_object'
 export class Bubble extends Equip<Player> {
 
 	private static readonly _alpha = 0.3;
+	private static readonly _popDuration = 300;
 
 	private _material : BABYLON.StandardMaterial;
 	private _popped : boolean;
@@ -53,9 +54,8 @@ export class Bubble extends Equip<Player> {
 		this._popped = true;
 
 		this.owner().setAttribute(AttributeType.FLOATING, false);
-		this.owner().setAttribute(AttributeType.INVINCIBLE, false);
 
-		this.setTTL(300);
+		this.setTTL(Bubble._popDuration);
 	}
 
 	override initialize() : void {
@@ -63,6 +63,12 @@ export class Bubble extends Equip<Player> {
 
 		this.owner().setAttribute(AttributeType.FLOATING, true);
 		this.owner().setAttribute(AttributeType.INVINCIBLE, true);
+	}
+
+	override delete() : void {
+		super.delete();
+
+		this.owner().setAttribute(AttributeType.INVINCIBLE, false);
 	}
 
 	override update(stepData : StepData) : void {
@@ -88,6 +94,5 @@ export class Bubble extends Equip<Player> {
 		}
 	}
 
-	override equipName() : string { return "bubble"; }
 	override attachType() : AttachType { return AttachType.ROOT; }
 }

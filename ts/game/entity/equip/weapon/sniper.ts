@@ -23,6 +23,16 @@ import { Vec3 } from 'util/vector'
 
 export class Sniper extends Weapon {
 
+	private static readonly _chargedConfig = {
+		bursts: 1,
+		reloadTime: 500,
+	};
+	private static readonly _config = {
+		bursts: 3,
+		burstTime: 80,
+		reloadTime: 300,
+	}
+
 	private static readonly _chargedThreshold = 1000;
 	private static readonly _boltTTL = 750;
 
@@ -30,7 +40,6 @@ export class Sniper extends Weapon {
 		super(EntityType.SNIPER, options);
 	}
 
-	override equipName() : string { return "thonker"; }
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.SMALL; }
 	override meshType() : MeshType { return MeshType.SNIPER; }
@@ -38,18 +47,7 @@ export class Sniper extends Weapon {
 	override charged() : boolean { return this.getCounter(CounterType.CHARGE) >= Sniper._chargedThreshold; }
 
 	override shotConfig() : ShotConfig {
-		if (this.charged()) {
-			return {
-				bursts: 1,
-				reloadTime: 500,
-			}
-		}
-
-		return {
-			bursts: 3,
-			burstTime: 80,
-			reloadTime: 300,
-		}
+		return this.charged() ? Sniper._chargedConfig : Sniper._config;
 	}
 
 	override shoot() : void {

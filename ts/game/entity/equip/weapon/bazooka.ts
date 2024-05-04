@@ -17,20 +17,21 @@ import { Vec3 } from 'util/vector'
 
 export class Bazooka extends Weapon {
 
+	private static readonly _config = {
+		bursts: 1,
+		reloadTime: 1000,
+	};
+
 	constructor(options : EntityOptions) {
 		super(EntityType.BAZOOKA, options);
 	}
 
-	override equipName() : string { return "booty blaster 3000"; }
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
 
 	override shotConfig() : ShotConfig {
-		return {
-			bursts: 1,
-			reloadTime: 1000,
-		}
+		return Bazooka._config;
 	}
 
 	override shoot() : void {

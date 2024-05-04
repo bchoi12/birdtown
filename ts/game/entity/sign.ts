@@ -12,6 +12,7 @@ import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { UiMessage, UiMessageType } from 'message/ui_message'
@@ -20,35 +21,28 @@ import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { KeyType, KeyState, TooltipType } from 'ui/api'
-import { KeyNames } from 'ui/common/key_names'
 
-import { ChangeTracker } from 'util/change_tracker'
+import { Optional } from 'util/optional'
 
-// TODO: turn into abstract class
-export class Sign extends EntityBase implements Entity, EquipEntity {
+export abstract class Sign extends EntityBase implements Entity, EquipEntity {
 
 	private _active : boolean;
 	private _hasCollision : boolean;
-	private _tooltipType : TooltipType;
+	private _interacting : boolean;
 
-	private _nameTag : NameTag;
+	private _nameTag : Optional<NameTag>;
 
 	private _model : Model;
 	private _profile : Profile;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.SIGN, entityOptions);
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
+		this.addType(EntityType.SIGN);
 
 		this._active = false;
 		this._hasCollision = false;
-		this._tooltipType = entityOptions.tooltipType ? entityOptions.tooltipType : TooltipType.JUST_A_SIGN;
 
-		this._nameTag = null;
-
-		this.addProp<TooltipType>({
-			export: () => { return this._tooltipType; },
-			import: (obj : TooltipType) => { this._tooltipType = obj; },
-		});
+		this._nameTag = new Optional();
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => {
@@ -79,6 +73,11 @@ export class Sign extends EntityBase implements Entity, EquipEntity {
 	override initialize() : void {
 		super.initialize();
 
+		const text = this.nameTagText();
+		if (text.length === 0) {
+			return;
+		}
+
 		const [nameTag, hasNameTag] = this.addEntity<NameTag>(EntityType.NAME_TAG, {
 			associationInit: {
 				owner: this,
@@ -92,9 +91,13 @@ export class Sign extends EntityBase implements Entity, EquipEntity {
 			return;
 		}
 
-		this._nameTag = nameTag;
-		this._nameTag.setDisplayName("Start Game");
+		nameTag.setDisplayName(text);
+		nameTag.setPointerColor(ColorFactory.signGray.toString());
+		this._nameTag.set(nameTag);
 	}
+
+	abstract nameTagText() : string;
+	abstract tooltipType() : TooltipType;
 
 	equip(equip : Equip<Entity & EquipEntity>) : void {
 		if (equip.type() !== EntityType.NAME_TAG) {
@@ -110,6 +113,10 @@ export class Sign extends EntityBase implements Entity, EquipEntity {
 		});
 	}
 
+	interact() : void {
+		this._interacting = true;
+	}
+
 	setActive(active : boolean) : void {
 		if (this._active === active) {
 			return;
@@ -117,10 +124,14 @@ export class Sign extends EntityBase implements Entity, EquipEntity {
 
 		this._active = active;
 
+		if (!this._nameTag.has()) {
+			return;
+		}
+
 		if (this._active) {
-			this._nameTag.setVisible(false);
+			this._nameTag.get().setVisible(false);
 		} else {
-			this._nameTag.setVisible(true);
+			this._nameTag.get().setVisible(true);
 		}
 	}
 
@@ -137,7 +148,7 @@ export class Sign extends EntityBase implements Entity, EquipEntity {
 			return;
 		}
 
-		if (!game.lakitu().hasTargetEntity() || game.lakitu().targetEntity().id() !== other.id()) {
+		if (!other.isLakituTarget()) {
 			return;
 		}
 
@@ -149,22 +160,18 @@ export class Sign extends EntityBase implements Entity, EquipEntity {
 
 		this.setActive(this._hasCollision);
 
-		if (this._active) {
+		if (this._active && !this._interacting) {
 			let msg = new UiMessage(UiMessageType.TOOLTIP);
 			msg.setTtl(100);
-			msg.setTooltipType(this._tooltipType);
+			msg.setTooltipType(this.tooltipType());
 			ui.handleMessage(msg);
 
 			if (this.key(KeyType.INTERACT, KeyState.PRESSED)) {
-				switch (this._tooltipType) {
-				case TooltipType.START_GAME:
-					// TODO: show dialog instead
-					if (this.isSource()) {
-						game.controller().startGame(GameMode.DUEL);
-					}
-					break;
-				}
+				this.interact();
 			}
+		} else if (!this._active && this._interacting) {
+			// Allow interaction after moving away from sign
+			this._interacting = false;
 		}
 	}
 }

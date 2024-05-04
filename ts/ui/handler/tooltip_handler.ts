@@ -47,6 +47,12 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		const type = msg.getTooltipType();
 		const ttl = msg.getTtlOr(TooltipHandler._defaultTTL);
 
+		const html = this.getHtml(msg);
+		if (html.length === 0) {
+			console.error("Error: not showing empty tooltip ", TooltipType[type]);
+			return;
+		}
+
 		let wrapper;
 		if (this._tooltips.has(type)) {
 			wrapper = this._tooltips.get(type);
@@ -66,13 +72,14 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			this._tooltipsElm.appendChild(wrapper.elm());
 		}
 
-		wrapper.elm().innerHTML = this.getHtml(msg);
+
+		wrapper.elm().innerHTML = html;
 		wrapper.setTTL(ttl, () => {
 			this._tooltips.delete(type);
 		});
 	}
 
-	private getHtml(msg : UiMessage) : string{
+	private getHtml(msg : UiMessage) : string {
 		const type = msg.getTooltipType();
 		const names = msg.getNamesOr([]);
 		switch (type) {
@@ -80,18 +87,23 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return "Error: failed to save dialog input!";
 		case TooltipType.JUST_A_SIGN:
 			return "Just a sign...nothing to see here."
+		case TooltipType.OPEN_CRATE:
+			if (names.length !== 1) {
+				return "";
+			}
+			return KeyNames.boxed(settings.interactKeyCode) + " Equip " + names[0];
 		case TooltipType.SPAWN:
 			return "Press [any key] to deploy."
 		case TooltipType.SPECTATING:
 			if (names.length !== 1) {
-				return "Spectating";
+				return "";
 			}
 			return "Spectating " + names[0];
 		case TooltipType.START_GAME:
 			if (!game.isHost()) {
 				return "When you\'re ready, ask the host to start a game.";
 			}
-			return "Press " + KeyNames.boxed(settings.interactKeyCode) + " to start a game.\n(2+ players required)";
+			return KeyNames.boxed(settings.interactKeyCode) + " Start a game.\n(2+ players required)";
 		default:
 			return "Missing tooltip text for type " + type;
 		}

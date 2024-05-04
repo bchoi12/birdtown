@@ -16,6 +16,9 @@ import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { GameObject, GameObjectBase, StepData } from 'game/game_object'
 
+import { StringFactory } from 'strings/string_factory'
+import { ParamString } from 'strings/param_string'
+
 import { KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { defined } from 'util/common'
@@ -37,8 +40,6 @@ export type EntityOptions = {
 	hexColorsInit? : HexColorsInitOptions;
 	modelInit? : ModelInitOptions;
 	profileInit? : ProfileInitOptions
-
-	tooltipType? : TooltipType;
 }
 
 export interface Entity extends GameObject {
@@ -49,6 +50,7 @@ export interface Entity extends GameObject {
 	hasClientId() : boolean;
 	clientId() : number;
 	clientIdMatches() : boolean;
+	isLakituTarget() : boolean;
 
 	hasLevelVersion() : boolean;
 	levelVersion() : number;
@@ -103,6 +105,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	protected _type : EntityType;
 	protected _allTypes : Set<EntityType>;
+	protected _entityName : ParamString;
 	protected _ttlTimer : Optional<Timer>;
 
 	protected _levelVersion : number;
@@ -123,6 +126,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this._type = type;
 		this._allTypes = new Set();
 		this._allTypes.add(type);
+		this._entityName = StringFactory.getEntityName(this);
 		this._ttlTimer = new Optional();
 
 		if (entityOptions.offline) {
@@ -182,6 +186,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	hasClientId() : boolean { return this._clientId > 0; }
 	clientId() : number { return this._clientId; }
 	clientIdMatches() : boolean { return this.hasClientId() && this.clientId() === game.clientId() }
+	isLakituTarget() : boolean { return game.lakitu().hasTargetEntity() && this._id === game.lakitu().targetEntity().id(); }
 
 	type() : EntityType { return this._type; }
 	addType(type : EntityType) { this._allTypes.add(type); }
