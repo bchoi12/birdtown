@@ -14,6 +14,7 @@ import { defined, isLocalhost } from 'util/common'
 export interface System extends GameObject {
 	type() : SystemType;
 
+	validTargetEntity() : boolean;
 	hasTargetEntity() : boolean;
 	targetEntity<T extends Entity>() : T;
 	setTargetEntity<T extends Entity>(entity : T) : void;
@@ -35,11 +36,6 @@ export abstract class SystemBase extends GameObjectBase implements System {
 		this._type = type;
 	}
 
-	override ready() : boolean {
-		this.maybePrintUnready(/*interval=*/300);
-		return true;
-	}
-
 	type() : SystemType { return this._type; }
 
 	addSubSystem<T extends System>(id : number, system : T) : T {
@@ -48,7 +44,8 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	hasSubSystem(type : SystemType) : boolean { return this.hasChild(type); }
 	subSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
 
-	hasTargetEntity() : boolean { return this._targetEntity !== null && this._targetEntity.initialized() && !this._targetEntity.deleted(); }
+	hasTargetEntity() : boolean { return this._targetEntity !== null; }
+	validTargetEntity() : boolean { return this.hasTargetEntity() && this._targetEntity.initialized() && !this._targetEntity.deleted(); }
 	targetEntity<T extends Entity>() : T { return <T>this._targetEntity; }
 	setTargetEntity<T extends Entity>(entity : T) : void {
 		this._targetEntity = entity;

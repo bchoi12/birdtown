@@ -65,12 +65,10 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		})
 	}
 
-	override ready() : boolean { return super.ready() && this._association.hasAssociation(AssociationType.OWNER); }
-	override hasClientId() : boolean { return this._owner ? this._owner.hasClientId() : super.hasClientId(); }
-	override clientId() : number { return this._owner ? this._owner.clientId() : super.clientId(); }
-
-	override initialize() : void {
-		super.initialize();
+	override ready() : boolean {
+		if (!super.ready() || !this._association.hasAssociation(AssociationType.OWNER)) {
+			return false;
+		}
 
 		this._ownerId = this._association.getAssociation(AssociationType.OWNER);
 		
@@ -80,8 +78,16 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		if (!foundOwner) {
 			console.error("Error: could not find owner %d for equip", this._ownerId, this.name());
 			this.delete();
-			return;
+			return false;
 		}
+
+		return true;
+	}
+	override hasClientId() : boolean { return this.hasOwner() ? this._owner.hasClientId() : super.hasClientId(); }
+	override clientId() : number { return this.hasOwner() ? this._owner.clientId() : super.clientId(); }
+
+	override initialize() : void {
+		super.initialize();
 
 		this._owner.equip(this);
 	}

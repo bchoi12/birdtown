@@ -36,9 +36,7 @@ export class Bolt extends Projectile {
 		}));
 
 		this._model = this.addComponent<Model>(new Model({
-			readyFn: () => {
-				return this._profile.ready();
-			},
+			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				const dim = this._profile.unscaledDim();
 				const depth = (dim.x + dim.y) / 2;

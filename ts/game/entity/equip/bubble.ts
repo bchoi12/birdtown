@@ -55,9 +55,7 @@ export class Bubble extends Equip<Player> {
 
 		this._popped = true;
 
-		if (this.hasOwner()) {
-			this.owner().setAttribute(AttributeType.FLOATING, false);
-		}
+		this.owner().setAttribute(AttributeType.FLOATING, false);
 
 		this.setTTL(Bubble._popDuration);
 	}
@@ -72,7 +70,7 @@ export class Bubble extends Equip<Player> {
 	override delete() : void {
 		super.delete();
 
-		if (this.hasOwner()) {
+		if (this._popped) {
 			this.owner().setAttribute(AttributeType.INVINCIBLE, false);
 		}
 	}

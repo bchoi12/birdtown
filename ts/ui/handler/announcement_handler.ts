@@ -57,10 +57,6 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		if (!game.tablet().initialized()) {
-			return;
-		}
-
 		this._announcements.push(msg);
 		if (!this._active) {
 			this.popAnnouncement();

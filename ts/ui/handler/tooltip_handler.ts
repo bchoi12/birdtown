@@ -83,6 +83,8 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		const type = msg.getTooltipType();
 		const names = msg.getNamesOr([]);
 		switch (type) {
+		case TooltipType.CONTROLS:
+			return KeyNames.boxed(settings.interactKeyCode) + " View the controls.";
 		case TooltipType.FAILED_DIALOG_SYNC:
 			return "Error: failed to save dialog input!";
 		case TooltipType.JUST_A_SIGN:

@@ -139,7 +139,7 @@ export class Physics extends SystemBase implements System {
 	override render() : void {
 		super.render();
 
-		if (!game.lakitu().hasTargetEntity()) {
+		if (!game.lakitu().validTargetEntity()) {
 			this._minimap.style.visibility = "hidden";
 			MATTER.Render.stop(this._render);
 			return;

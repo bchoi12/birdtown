@@ -28,9 +28,7 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 	}
 
 	override ready() : boolean {
-		this.maybePrintUnready();
-
-		return this._entity.has();
+		return super.ready() && this._entity.has();
 	}
 
 	addSubComponent<T extends Component>(component : T) : T {

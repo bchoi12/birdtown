@@ -263,7 +263,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 
 		this._headSubProfile = this._profile.registerSubComponent<Profile>(SubProfile.HEAD, new Profile({
-			readyFn: (head : Profile) => { return this._profile.initialized(); },
 			bodyFn: (head : Profile) => {
 				return BodyFactory.rectangle(head.pos(), head.unscaledDim(), {
 					isSensor: true,
@@ -377,7 +376,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 		game.keys(this.clientId()).setTargetEntity(this);
 
-
 		const [nameTag, hasNameTag] = this.addEntity<NameTag>(EntityType.NAME_TAG, {
 			associationInit: {
 				owner: this,
@@ -388,14 +386,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		if (hasNameTag) {
 			nameTag.setDisplayName(this.displayName());
 		}
-
-		this.updateLoadout();
 	}
 
 	displayName() : string { return game.tablet(this.clientId()).displayName(); }
 	respawn(spawn : Vec2) : void {
-		// TODO: try just calling reset()?
-
 		this.setAttribute(AttributeType.GROUNDED, false);
 		this._canJump = false;
 		this._canJumpTimer.reset();

@@ -15,7 +15,7 @@ export class PlayerStates extends ClientSystemManager implements System {
 
 	numSpawnedPlayers() : number {
 		return this.findAll((playerState : PlayerState) => {
-			return playerState.hasTargetEntity();
+			return playerState.validTargetEntity();
 		}).length;
 	}
 

@@ -128,7 +128,7 @@ export class Keys extends ClientSideSystem implements System {
 		const mouseWorld = this.computeMouseWorld();
 		this._mouse.copyVec({ x: mouseWorld.x, y: mouseWorld.y });
 
-		if (this.hasTargetEntity()) {
+		if (this.validTargetEntity()) {
 			const profile = this.targetEntity().profile();
 			this._dir = this._mouse.clone().sub(profile.pos()).normalize();
 		}

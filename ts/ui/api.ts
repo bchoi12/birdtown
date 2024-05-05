@@ -56,6 +56,7 @@ export enum KeyState {
 
 export enum TooltipType {
 	UNKNOWN,
+	CONTROLS,
 	FAILED_DIALOG_SYNC,
 	JUST_A_SIGN,
 	OPEN_CRATE,

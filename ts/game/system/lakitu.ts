@@ -266,7 +266,7 @@ export class Lakitu extends SystemBase implements System {
 			break;
 		}
 
-		if (this.hasTargetEntity()) {
+		if (this.validTargetEntity()) {
 			this.anchorToTarget();
 		} else {
 			this.setAnchor(game.level().defaultSpawn().toBabylon3());
@@ -276,7 +276,7 @@ export class Lakitu extends SystemBase implements System {
 	override preRender() : void {
 		super.preRender();
 
-		if (!this.hasTargetEntity()) {
+		if (!this.validTargetEntity()) {
 			return;
 		}
 

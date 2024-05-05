@@ -191,6 +191,8 @@ export class CircleMap<K, V> {
 		}).matches;
 	}
 	matchAll(predicate : (v : V, k : K) => boolean) : boolean {
+		if (this.empty()) { return true; }
+
 		return this.executeHelper({
 			execute: () => {},
 			predicate: predicate,

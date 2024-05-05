@@ -23,10 +23,8 @@ export class Audio extends SystemBase implements System {
 		}, (player : Player) => {
 			return player.initialized() && !player.deleted();
 		});
-		if (game.lakitu().hasTargetEntity()
-			&& game.lakitu().targetEntity().hasProfile()
-			&& game.lakitu().targetEntity().initialized()
-			&& !game.lakitu().targetEntity().deleted()) {
+		if (game.lakitu().validTargetEntity()
+			&& game.lakitu().targetEntity().hasProfile()) {
 			ui.updatePos(game.clientId(), game.lakitu().targetEntity().profile().getRenderPos())
 		}
 	}

@@ -82,7 +82,7 @@ export class PlayerState extends ClientSystem implements System {
 	}
 
 	die() : void {
-		if (this.hasTargetEntity()) {
+		if (this.validTargetEntity()) {
 			this.targetEntity<Player>().die();
 		}
 	}
@@ -164,7 +164,7 @@ export class PlayerState extends ClientSystem implements System {
 			}
 			break;
 		case GameMessageType.LEVEL_LOAD:
-			if (this.hasTargetEntity()) {
+			if (this.validTargetEntity()) {
 				game.level().spawnPlayer(this.targetEntity<Player>());
 			}
 			break;
@@ -212,6 +212,10 @@ export class PlayerState extends ClientSystem implements System {
 		    		this.setTargetEntity(player);
 		    		this._targetId = player.id();
 			    	this.setRole(PlayerRole.GAMING);
+
+					if (isLocalhost()) {
+						console.log("%s: created player for %d", this.name(), this.clientId());
+					}
 		    	}
 			} else {
 				this.setRole(PlayerRole.SPECTATING);
@@ -246,7 +250,7 @@ export class PlayerState extends ClientSystem implements System {
 	override postUpdate(stepData : StepData) : void {
 		super.postUpdate(stepData);
 
-		if (!this.isSource() || !this.hasTargetEntity()) {
+		if (!this.isSource() || !this.validTargetEntity()) {
 			return;
 		}
 

@@ -64,6 +64,7 @@ export interface GameObject {
 	delete() : void;
 	deleted() : boolean;
 	dispose() : void;
+	disposed() : boolean;
 
 	canStep() : boolean;
 	preUpdate(stepData : StepData) : void
@@ -114,13 +115,14 @@ export interface GameObject {
 
 export abstract class GameObjectBase {
 
-	private static readonly _readyPrintInterval = 100;
+	private static readonly _readyPrintInterval = 120;
 
 	protected _name : string;
 	protected _nameParams : NameParams;
 	protected _initialized : boolean;
 	protected _offline : boolean;
 	protected _deleted : boolean;
+	protected _disposed : boolean;
 	protected _state : GameObjectState;
 	protected _readyCalls : number;
 
@@ -142,6 +144,7 @@ export abstract class GameObjectBase {
 		this._initialized = false;
 		this._offline = false;
 		this._deleted = false;
+		this._disposed = false;
 		this._readyCalls = 0;
 		this._state = GameObjectState.NORMAL;
 		this._readyCalls = 0;
@@ -174,11 +177,8 @@ export abstract class GameObjectBase {
 		}
 	}
 
-	protected maybePrintUnready(interval? : number) : void {
-		if (!interval) {
-			interval = GameObjectBase._readyPrintInterval;
-		}
-		if (this._readyCalls <= 0 || this._readyCalls % interval !== 0) {
+	private maybePrintUnready() : void {
+		if (this._readyCalls <= 0 || this._readyCalls % GameObjectBase._readyPrintInterval !== 0) {
 			return;
 		}
 
@@ -187,17 +187,35 @@ export abstract class GameObjectBase {
 		}).map((child : GameObject) => {
 			return child.name();
 		});
-		console.error("Warning: %s not ready, bad components: %s", this.name(), unready.join(","));
+
+		if (unready.length > 0) {
+			console.error("Warning: %s not ready, bad objects: %s", this.name(), unready.join(","));
+		} else {
+			console.error("Warning: %s not ready", this.name());
+		}
 	}
 
 	ready() : boolean {
 		this._readyCalls++;
-		return true;
+
+		const ready = this.matchAll((obj : GameObject) => {
+			return obj.ready();
+		});
+
+		if (!ready) {
+			this.maybePrintUnready();
+		}
+		return ready;
 	}
 	initialize() : void {
 		if (this._initialized) {
 			return;
 		}
+		this.updateObjects((obj : GameObject) => {
+			if (!obj.initialized() && obj.ready()) {
+				obj.initialize();
+			}
+		});
 		this._initialized = true;
 	}
 	initialized() : boolean {return this._initialized; }
@@ -227,10 +245,15 @@ export abstract class GameObjectBase {
 	}
 	deleted() : boolean { return this._deleted; }
 	dispose() : void {
+		if (this._disposed) {
+			return;
+		}
 		this.updateObjects((obj : GameObject) => {
 			obj.dispose();
 		});
+		this._disposed = true;
 	}
+	disposed() : boolean { return this._disposed; }
 
 	canStep() : boolean { return this.initialized() && this.state() !== GameObjectState.DEACTIVATED && !this.deleted(); }
 	preUpdate(stepData : StepData) : void {
@@ -306,19 +329,16 @@ export abstract class GameObjectBase {
 	}
 	cleanup() : void {
 		this.updateObjects((obj : GameObject, id : number) => {
-			if (obj.initialized()) {
-				obj.cleanup();
+			obj.cleanup();
 
-				if (obj.deleted()) {
-					obj.dispose();
-					this.unregisterChild(id);
-				}
-			} else if (obj.deleted()) {
-				// Object deleted during initialization
-				obj.dispose();
+			if (obj.disposed()) {
 				this.unregisterChild(id);
 			}
 		});
+
+		if (this.deleted()) {
+			this.dispose();
+		}
 	}
 
 	addProp<T extends Object>(handler : PropHandler<T>) : void {

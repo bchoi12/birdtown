@@ -41,9 +41,7 @@ export class Rocket extends Projectile {
 		}));
 
 		this._model = this.addComponent<Model>(new Model({
-			readyFn: () => {
-				return this._profile.ready();
-			},
+			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.ROCKET, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];

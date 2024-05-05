@@ -138,7 +138,7 @@ export abstract class Block extends EntityBase {
 			this._occludedEntities.add(other);
 		}
 
-		if (!game.lakitu().hasTargetEntity()) {
+		if (!game.lakitu().validTargetEntity()) {
 			return;
 		}
 
