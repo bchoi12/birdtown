@@ -485,6 +485,16 @@ export class Profile extends ComponentBase implements Component {
 
 		return true;
 	}
+	overlap(other : Profile) : Vec2 {
+		return this.pos().clone().sub(other.pos()).abs().sub({
+			x: this.scaledDim().x / 2 + other.scaledDim().x / 2,
+			y: this.scaledDim().y / 2 + other.scaledDim().y / 2,
+		}).mult({
+			x: -1 / this.scaledDim().x,
+			y: -1 / this.scaledDim().y,
+		});
+	}
+
 	moveTo(point : Vec, params : MoveToParams) : void {
 		if (params.millis <= 0) { return; }
 
@@ -643,14 +653,7 @@ export class Profile extends ComponentBase implements Component {
 
 		// Find overlap of rectangle bounding boxes.
 		if (other.getAttribute(AttributeType.SOLID) && otherProfile.body().isStatic) {
-			let overlap = this.pos().clone().sub(otherProfile.pos()).abs().sub({
-				x: this.scaledDim().x / 2 + otherProfile.scaledDim().x / 2,
-				y: this.scaledDim().y / 2 + otherProfile.scaledDim().y / 2,
-			}).mult({
-				x: 1 / this.scaledDim().x,
-				y: 1 / this.scaledDim().y,
-			});
-
+			let overlap = this.overlap(other.profile());
 			let vel = this.vel();
 			const yCollision = Math.abs(overlap.x * vel.y) >= Math.abs(overlap.y * vel.x);
 			if (yCollision) {
@@ -710,10 +713,10 @@ export class Profile extends ComponentBase implements Component {
 
 		// Fix getting stuck on small corners
 		const millis = stepData.millis;
-		if (this._collisionBuffer.hasRecords() && this._collisionBuffer.fixed()) {
+		if (this.entity().type() === EntityType.PLAYER && this._collisionBuffer.hasRecords() && this._collisionBuffer.fixed()) {
 			{
 				const record = this._collisionBuffer.record(RecordType.MAX_PEN_X);
-				if (record.collision.penetration.x <= 0 && this.vel().x > 0) {
+				if (record.collision.penetration.x <= 0 && this.vel().x > 0 && this.overlap(record.entity.profile()).y < 5e-2) {
 					MATTER.Body.setVelocity(this._body, {
 						x: this.vel().x,
 						y: this._body.velocity.y,
@@ -726,7 +729,7 @@ export class Profile extends ComponentBase implements Component {
 			}
 			{
 				const record = this._collisionBuffer.record(RecordType.MIN_PEN_X);
-				if (record.collision.penetration.x >= 0 && this.vel().x < 0) {
+				if (record.collision.penetration.x >= 0 && this.vel().x < 0 && this.overlap(record.entity.profile()).y < 5e-2) {
 					MATTER.Body.setVelocity(this._body, {
 						x: this.vel().x,
 						y: this._body.velocity.y,
@@ -738,9 +741,10 @@ export class Profile extends ComponentBase implements Component {
 				}
 			}
 
+			/*
 			{
 				const record = this._collisionBuffer.record(RecordType.MAX_PEN_Y);
-				if (record.collision.penetration.y <= 0 && this.vel().y > 0) {
+				if (record.collision.penetration.y < 0 && this.vel().y > 0) {
 					MATTER.Body.setVelocity(this._body, {
 						x: this._body.velocity.x,
 						y: this.vel().y,
@@ -754,7 +758,7 @@ export class Profile extends ComponentBase implements Component {
 
 			{
 				const record = this._collisionBuffer.record(RecordType.MIN_PEN_Y);
-				if (record.collision.penetration.y >= 0 && this.vel().y < 0) {
+				if (record.collision.penetration.y > 0 && this.vel().y < 0) {
 					MATTER.Body.setVelocity(this._body, {
 						x: this._body.velocity.x,
 						y: this.vel().y,
@@ -765,6 +769,7 @@ export class Profile extends ComponentBase implements Component {
 					});
 				}
 			}
+			*/
 		}
 
 		if (this._postPhysicsFn) {

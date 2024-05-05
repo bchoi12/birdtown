@@ -18,6 +18,10 @@ import { Vec2 } from 'util/vector'
 
 export class NameTag extends Equip<Entity & EquipEntity> {
 
+	private static readonly _defaultTextColor = "#ffffff";
+	private static readonly _defaultTextBackgroundColor = "#333333";
+	private static readonly _defaultPointerColor = "#ff0000";
+
 	private static readonly _height = 0.4;
 	private static readonly _pointerHeight = 0.1;
 
@@ -41,9 +45,9 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		this._occluded = false;
 		this._visible = true;
 
-		this._textColor = "#ffffff";
-		this._textBackgroundColor = "#333333";
-		this._pointerColor = "#ff0000";
+		this._textColor = NameTag._defaultTextColor;
+		this._textBackgroundColor = NameTag._defaultTextBackgroundColor;
+		this._pointerColor = NameTag._defaultPointerColor;
 
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },

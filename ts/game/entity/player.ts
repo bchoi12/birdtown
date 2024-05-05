@@ -153,11 +153,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._boneOrigins = new Map();
 		this._eyeShifter = new MaterialShifter();
 
-		this._canJump = true;
+		this._canJump = false;
 		this._canJumpTimer = this.newTimer({
 			canInterrupt: true,
 		});
-		this._canDoubleJump = true;
+		this._canDoubleJump = false;
 		this._deadTracker = new ChangeTracker(() => {
 			return this.dead();
 		}, (dead : boolean) => {
@@ -615,10 +615,14 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		const millis = stepData.millis;
 
 		const buffer = this._profile.collisionBuffer();
-		if (buffer.hasRecords() && buffer.record(RecordType.MAX_NORMAL_Y).collision.normal.y > 0.8) {
-			this._canJump = true;
-			this._canDoubleJump = true;
-			this._canJumpTimer.start(Player._jumpGracePeriod);
+		if (buffer.hasRecords()) {
+			const record = buffer.record(RecordType.MAX_NORMAL_Y);
+
+			if (record.collision.normal.y > 0.8 && this._profile.overlap(record.entity.profile()).x > 0) {
+				this._canJump = true;
+				this._canDoubleJump = true;
+				this._canJumpTimer.start(Player._jumpGracePeriod);
+			}
 		}
 
 		// Check for nearby crates
