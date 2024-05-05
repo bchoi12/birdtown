@@ -106,7 +106,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		return super.key(type, state);
 	}
 
-	private hasOwner() : boolean { return this._owner !== null; }
+	protected hasOwner() : boolean { return this._owner !== null; }
 	owner() : E { return this._owner; }
 	ownerId() : number { return this._ownerId; }
 

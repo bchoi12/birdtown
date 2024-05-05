@@ -23,16 +23,6 @@ import { Vec3 } from 'util/vector'
 
 export class Sniper extends Weapon {
 
-	private static readonly _chargedConfig = {
-		bursts: 1,
-		reloadTime: 500,
-	};
-	private static readonly _config = {
-		bursts: 3,
-		burstTime: 80,
-		reloadTime: 300,
-	}
-
 	private static readonly _chargedThreshold = 1000;
 	private static readonly _boltTTL = 750;
 
@@ -47,7 +37,17 @@ export class Sniper extends Weapon {
 	override charged() : boolean { return this.getCounter(CounterType.CHARGE) >= Sniper._chargedThreshold; }
 
 	override shotConfig() : ShotConfig {
-		return this.charged() ? Sniper._chargedConfig : Sniper._config;
+		if (this.charged()) {
+			return {
+				bursts: 1,
+				reloadTime: 500,
+			};
+		}
+		return {
+			bursts: 3,
+			burstTime: 80,
+			reloadTime: 300,
+		};
 	}
 
 	override shoot() : void {

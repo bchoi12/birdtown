@@ -24,6 +24,6 @@ export class SignStartGame extends Sign {
 	override interact() : void {
 		super.interact();
 
-		
+		game.controller().startGame(GameMode.DUEL);		
 	}
 }

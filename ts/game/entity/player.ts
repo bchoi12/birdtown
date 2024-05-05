@@ -28,7 +28,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
 import { DepthType } from 'game/system/api'
-import { CollisionBuffer, RecordType } from 'game/util/collision_buffer'
+import { RecordType } from 'game/util/collision_buffer'
 import { MaterialShifter } from 'game/util/material_shifter'
 
 import { GameGlobals } from 'global/game_globals'
@@ -505,6 +505,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this.equips().execute((equip : Equip<Player>) => {
 			pos.add(equip.cameraOffset());
 		});
+		this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).executeFirst((bubble : Bubble) => {
+			pos.add({ y: -3 * (1 - bubble.ttlElapsed()) });
+		}, (bubble : Bubble) => {
+			return true;
+		});
 		return pos;
 	}
 
@@ -606,6 +611,18 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					this._armRecoil = 0;
 				}
 			}
+		}
+	}
+
+	override collide(collision : MATTER.Collision, other : Entity) : void {
+		super.collide(collision, other);
+
+		if (this._entityTrackers.hasEntityType(EntityType.BUBBLE)
+			&& other.getAttribute(AttributeType.SOLID)
+			&& other.type() !== EntityType.PLAYER) {
+			this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).execute((bubble : Bubble) => {
+				bubble.pop();
+			});
 		}
 	}
 

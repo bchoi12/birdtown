@@ -1,11 +1,12 @@
 
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { AttributeType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Model } from 'game/component/model'
-import { EntityOptions } from 'game/entity'
+import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
@@ -15,12 +16,13 @@ import { StepData } from 'game/game_object'
 export class Bubble extends Equip<Player> {
 
 	private static readonly _alpha = 0.3;
-	private static readonly _popDuration = 300;
+	private static readonly _popDuration = 500;
 
 	private _material : BABYLON.StandardMaterial;
 	private _popped : boolean;
 
 	private _model : Model;
+	private _profile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.BUBBLE, entityOptions);
@@ -53,7 +55,9 @@ export class Bubble extends Equip<Player> {
 
 		this._popped = true;
 
-		this.owner().setAttribute(AttributeType.FLOATING, false);
+		if (this.hasOwner()) {
+			this.owner().setAttribute(AttributeType.FLOATING, false);
+		}
 
 		this.setTTL(Bubble._popDuration);
 	}
@@ -68,7 +72,9 @@ export class Bubble extends Equip<Player> {
 	override delete() : void {
 		super.delete();
 
-		this.owner().setAttribute(AttributeType.INVINCIBLE, false);
+		if (this.hasOwner()) {
+			this.owner().setAttribute(AttributeType.INVINCIBLE, false);
+		}
 	}
 
 	override update(stepData : StepData) : void {
@@ -84,14 +90,6 @@ export class Bubble extends Equip<Player> {
 		this._model.scaling().x = scaling;
 		this._model.scaling().y = scaling;
 		this._model.scaling().z = scaling;
-	}
-
-	override postUpdate(stepData : StepData) : void {
-		super.update(stepData);
-
-		if (this.owner().getAttribute(AttributeType.GROUNDED)) {
-			this.pop();
-		}
 	}
 
 	override attachType() : AttachType { return AttachType.ROOT; }
