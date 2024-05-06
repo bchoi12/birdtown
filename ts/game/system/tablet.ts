@@ -1,5 +1,6 @@
 
 import { game } from 'game'
+import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 import { ClientSystem, System } from 'game/system'
 import { SystemType, ScoreType } from 'game/system/api'
@@ -17,6 +18,7 @@ export class Tablet extends ClientSystem implements System {
 	private _roundScore : number;
 
 	private _displayName : string;
+	private _color : string;
 	private _scores : Map<ScoreType, number>;
 	private _scoreChanged : boolean;
 
@@ -25,6 +27,7 @@ export class Tablet extends ClientSystem implements System {
 
 		this._roundScore = 0;
 		this._displayName = "";
+		this._color = "";
 		this._scores = new Map();
 		this._scoreChanged = false;
 
@@ -32,6 +35,12 @@ export class Tablet extends ClientSystem implements System {
 			has: () => { return this._displayName.length > 0; },
 			export: () => { return this._displayName; },
 			import: (obj: string) => { this.setDisplayName(obj); },
+		});
+
+		this.addProp<string>({
+			has: () => { return this._color.length > 0; },
+			export: () => { return this._color; },
+			import: (obj: string) => { this.setColor(obj); },
 		});
 
 		for (const stringScore in ScoreType) {
@@ -91,6 +100,16 @@ export class Tablet extends ClientSystem implements System {
 		}
 		this.setScore(type, (this.hasScore ? this.score(type) : 0) + delta);
 	}
+
+	hasColor() : boolean { return this._color.length > 0; }
+	setColor(color : string) : void {
+		if (color.length === 0) {
+			console.error("Error: trying to set empty color");
+		}
+
+		this._color = color;
+	}
+	color() : string { return this.hasColor() ? this._color : ColorFactory.playerColor(this.clientId()).toString(); }
 
 	setDisplayName(displayName : string) : void {
 		if (displayName.length === 0) {

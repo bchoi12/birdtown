@@ -4,10 +4,11 @@ import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
 
 import { DialogType } from 'ui/api'
-import { GameDialogWrapper } from 'ui/wrapper/game_dialog_wrapper'
+import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
+import { ClientDialogWrapper } from 'ui/wrapper/dialog/client_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
-export class LoadoutDialogWrapper extends GameDialogWrapper {
+export class LoadoutDialogWrapper extends ClientDialogWrapper {
 
 	constructor() {
 		super(DialogType.LOADOUT);
@@ -21,44 +22,48 @@ export class LoadoutDialogWrapper extends GameDialogWrapper {
 	private addModifierPage() : void {
 		let pageWrapper = this.addPage();
 		{
-			let buttonWrapper = pageWrapper.addButton();
+			let buttonWrapper = new ButtonWrapper();
 			buttonWrapper.setText("BIG");
 			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setPlayerType(ModifierPlayerType.BIG);
 				pageWrapper.submit();
 			});
+			pageWrapper.elm().appendChild(buttonWrapper.elm());
 		}
 
 		{
-			let buttonWrapper = pageWrapper.addButton();
+			let buttonWrapper = new ButtonWrapper();
 			buttonWrapper.setText("NORMAL");
 			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setPlayerType(ModifierPlayerType.NONE);
 				pageWrapper.submit();
 			});
+			pageWrapper.elm().appendChild(buttonWrapper.elm());
 		}
 	}
 
 	private addWeaponPage() : void {
 		let pageWrapper = this.addPage();
 		{
-			let buttonWrapper = pageWrapper.addButton();
+			let buttonWrapper = new ButtonWrapper();
 			buttonWrapper.setText("Bazooka");
 			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setEquipType(EntityType.BAZOOKA);
 				this.dialogMessage().setAltEquipType(EntityType.JETPACK);
 				pageWrapper.submit();
 			});
+			pageWrapper.elm().appendChild(buttonWrapper.elm());
 		}
 
 		{
-			let buttonWrapper = pageWrapper.addButton();
+			let buttonWrapper = new ButtonWrapper();
 			buttonWrapper.setText("Sniper");
 			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setEquipType(EntityType.SNIPER);
 				this.dialogMessage().setAltEquipType(EntityType.SCOUTER);
 				pageWrapper.submit();
 			});
+			pageWrapper.elm().appendChild(buttonWrapper.elm());
 		}
 	}
 }

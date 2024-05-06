@@ -2,6 +2,7 @@
 import { game } from 'game'
 import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
+import { ColorFactory } from 'game/factory/color_factory'
 
 import { settings } from 'settings'
 import { FullscreenSetting } from 'settings/api'
@@ -11,10 +12,10 @@ import { DialogType } from 'ui/api'
 import { LoginNames } from 'ui/common/login_names'
 import { Html } from 'ui/html'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
-import { GameDialogWrapper } from 'ui/wrapper/game_dialog_wrapper'
+import { ClientDialogWrapper } from 'ui/wrapper/dialog/client_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
-export class InitDialogWrapper extends GameDialogWrapper {
+export class InitDialogWrapper extends ClientDialogWrapper {
 
 	constructor() {
 		super(DialogType.INIT);
@@ -30,8 +31,11 @@ export class InitDialogWrapper extends GameDialogWrapper {
 		nameInput.placeholder = "[Enter your name]";
 		pageWrapper.elm().appendChild(nameInput);
 
+		pageWrapper.elm().appendChild(Html.br());
+
 		let colorInput = Html.input();
 		colorInput.type = "color";
+		colorInput.value = ColorFactory.playerColor(game.clientId()).toString();
 		pageWrapper.elm().appendChild(colorInput);
 
 		let buttonWrapper = new ButtonWrapper();

@@ -9,7 +9,7 @@ import { Html, HtmlWrapper } from 'ui/html'
 
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 
-export abstract class GameDialogWrapper extends DialogWrapper {
+export abstract class ClientDialogWrapper extends DialogWrapper {
 
 	private _dialogType : DialogType;
 

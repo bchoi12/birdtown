@@ -27,6 +27,7 @@ export enum DialogType {
 	UNKNOWN,
 	INIT,
 	LOADOUT,
+	START_GAME,
 }
 
 export enum KeyType {

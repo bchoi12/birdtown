@@ -13,11 +13,17 @@ import { Player } from 'game/entity/player'
 import { BodyFactory } from 'game/factory/body_factory'
 import { StepData } from 'game/game_object'
 
+import { DialogType } from 'ui/api'
+
+import { Vec3 } from 'util/vector'
+
 export class Bubble extends Equip<Player> {
 
 	private static readonly _alpha = 0.3;
+	private static readonly _cameraOffset = -1.5;
 	private static readonly _popDuration = 500;
 
+	private _cameraOffset : Vec3;
 	private _material : BABYLON.StandardMaterial;
 	private _popped : boolean;
 
@@ -26,6 +32,8 @@ export class Bubble extends Equip<Player> {
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.BUBBLE, entityOptions);
+
+		this._cameraOffset = new Vec3({ x: 0, y: Bubble._cameraOffset, z: 0 });
 
 		this._material = new BABYLON.StandardMaterial(this.name() + "-material", game.scene());
 		this._material.alpha = Bubble._alpha;
@@ -40,6 +48,8 @@ export class Bubble extends Equip<Player> {
 				let bubble = BABYLON.MeshBuilder.CreateSphere(this.name(), {
 					diameter: 2 * Math.max(ownerDim.x, ownerDim.y),
 				}, game.scene());
+
+				this._material.diffuseColor = BABYLON.Color3.FromHexString(this.clientColorOr("#000000"));
 
 				bubble.material = this._material;
 				model.setMesh(bubble);
@@ -73,6 +83,11 @@ export class Bubble extends Equip<Player> {
 		if (this._popped) {
 			this.owner().setAttribute(AttributeType.INVINCIBLE, false);
 		}
+	}
+
+	override cameraOffset() : Vec3 {
+		this._cameraOffset.y = Bubble._cameraOffset * (1 - this.ttlElapsed());
+		return this._cameraOffset;
 	}
 
 	override update(stepData : StepData) : void {

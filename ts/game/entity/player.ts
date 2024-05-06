@@ -111,6 +111,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _armRecoveryTime = 500;
 	private static readonly _crateCheckInterval = 250;
 
+	private static readonly _defaultColor = "#ffffff";
+
 	private static readonly _animations = new Map<AnimationGroup, Set<string>>([
 		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.WALK, Animation.JUMP])],
 	]);
@@ -240,6 +242,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					plugin: {
 						zIndex: DepthType.PLAYER,
 					},
+					render: {
+						fillStyle: this.clientColorOr(Player._defaultColor),
+					}
 				});
 			},
 			init: entityOptions.profileInit,
@@ -385,6 +390,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 		if (hasNameTag) {
 			nameTag.setDisplayName(this.displayName());
+			nameTag.setPointerColor(this.clientColorOr(Player._defaultColor));
 		}
 	}
 
@@ -500,7 +506,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			pos.add(equip.cameraOffset());
 		});
 		this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).executeFirst((bubble : Bubble) => {
-			pos.add({ y: -3 * (1 - bubble.ttlElapsed()) });
+			pos.add(bubble.cameraOffset());
 		}, (bubble : Bubble) => {
 			return true;
 		});

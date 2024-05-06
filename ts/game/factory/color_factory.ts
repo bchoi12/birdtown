@@ -40,6 +40,21 @@ export namespace ColorFactory {
 	export const crateRed = HexColor.fromHex(0xfa493c);
 	export const crateYellow = HexColor.fromHex(0xf6ff56);
 
+	export const playerRed = HexColor.fromHex(0xfc1f0f);
+	export const playerOrange = HexColor.fromHex(0xfcb10f);
+	export const playerYellow = HexColor.fromHex(0xfcf40f);
+	export const playerGreen = HexColor.fromHex(0x1bfc0f);
+	export const playerAqua = HexColor.fromHex(0x0ffce8);
+	export const playerBlue = HexColor.fromHex(0x0f52fc);
+	export const playerPurple = HexColor.fromHex(0xa50ffc);
+	export const playerPink = HexColor.fromHex(0xfc0fbd);
+	export const playerWhite = HexColor.fromHex(0xfbfbfb);
+	export const playerColors = [
+		playerRed, playerOrange, playerYellow,
+		playerGreen, playerAqua, playerBlue,
+		playerPurple, playerPink, playerWhite,
+	];
+
 	export const signGray = HexColor.fromHex(0x8b8b8b);
 
 	export const sparkBlue = HexColor.fromHex(0xc2f8ff);
@@ -68,6 +83,10 @@ export namespace ColorFactory {
 			console.error("Warning: empty color map generated for %d", type);
 			return new Map();
 		}
+	}
+
+	export function playerColor(id : number) : HexColor {
+		return playerColors[Math.abs(id - 1) % playerColors.length];
 	}
 
 	function color(type : EntityType, index : number) : HexColor {

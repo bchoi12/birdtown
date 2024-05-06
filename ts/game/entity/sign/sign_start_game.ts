@@ -5,8 +5,10 @@ import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Sign } from 'game/entity/sign'
 
+import { UiMessage, UiMessageType } from 'message/ui_message'
+
 import { ui } from 'ui'
-import { TooltipType } from 'ui/api'
+import { DialogType, TooltipType } from 'ui/api'
 
 export class SignStartGame extends Sign {
 
@@ -17,9 +19,12 @@ export class SignStartGame extends Sign {
 	override nameTagText() : string { return "Start Game"; }
 	override tooltipType() : TooltipType { return TooltipType.START_GAME; }
 
+	override interactable() : boolean { return this.isHost(); }
 	override interact() : void {
 		super.interact();
 
-		game.controller().startGame(GameMode.DUEL);		
+		let msg = new UiMessage(UiMessageType.DIALOG);
+		msg.setDialogType(DialogType.START_GAME);
+		ui.handleMessage(msg);
 	}
 }

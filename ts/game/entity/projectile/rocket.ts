@@ -39,6 +39,9 @@ export class Rocket extends Projectile {
 			},
 			init: entityOptions.profileInit,
 		}));
+		this._profile.setOutOfBoundsFn((profile : Profile) => {
+			this.delete();
+		});
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },

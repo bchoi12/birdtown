@@ -32,6 +32,13 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			...GameConfigMessage._defaultProps,
 			[GameConfigProp.TIME_GAME, { optional: true }],
 		)],
+		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
+			...GameConfigMessage._defaultProps,
+		)],
+		[GameMode.SURVIVAL, MessageBase.fieldDescriptor(
+			...GameConfigMessage._defaultProps,
+			[GameConfigProp.TIME_GAME, { optional: true }],
+		)],
 	]);
 
 	private constructor(mode : GameMode) { super(mode); }
@@ -60,6 +67,12 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setPlayersMin(2);
 			break;
 		case GameMode.FREE_FOR_ALL:
+			this.setPlayersMin(2);
+			break;
+		case GameMode.PRACTICE:
+			this.setPlayersMin(1);
+			break;
+		case GameMode.SURVIVAL:
 			this.setPlayersMin(2);
 			break;
 		}

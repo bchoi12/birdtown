@@ -87,7 +87,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 				}
 				if (this._stagingMsg.getVersion() >= this._message.getVersionOr(0)) {
 					this._message.merge(this._stagingMsg);
-					this.propagate();
+					this.propagateIfHost();
 				}
 			},
 			options: {
@@ -99,13 +99,14 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		});
 	}
 
-	private propagate() : void {
+	private propagateIfHost() : void {
 		if (!this.isHost()) {
 			return;
 		}
 
 		switch(this._message.type()) {
 		case DialogType.INIT:
+			game.tablet(this.clientId()).setColor(this._message.getColor());
 			game.tablet(this.clientId()).setDisplayName(this._message.getDisplayName());
 			break;
 		}
@@ -143,9 +144,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		this._message.setVersion(this._message.getVersionOr(0) + 1);
 		this.setDialogState(DialogState.PENDING);
 
-		if (this.isHost()) {
-			this.propagate();
-		}
+		this.propagateIfHost();
 	}
 
 	showDialog() : void {

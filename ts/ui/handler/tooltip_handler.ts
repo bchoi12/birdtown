@@ -84,18 +84,18 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		const names = msg.getNamesOr([]);
 		switch (type) {
 		case TooltipType.CONTROLS:
-			return KeyNames.boxed(settings.interactKeyCode) + " View the controls.";
+			return KeyNames.boxed(settings.interactKeyCode) + " View the controls";
 		case TooltipType.FAILED_DIALOG_SYNC:
 			return "Error: failed to save dialog input!";
 		case TooltipType.JUST_A_SIGN:
-			return "Just a sign...nothing to see here."
+			return "Just a sign...nothing to see here"
 		case TooltipType.OPEN_CRATE:
 			if (names.length !== 1) {
 				return "";
 			}
 			return KeyNames.boxed(settings.interactKeyCode) + " Equip " + names[0];
 		case TooltipType.SPAWN:
-			return "Press [any key] to deploy."
+			return "Press [any key] to deploy"
 		case TooltipType.SPECTATING:
 			if (names.length !== 1) {
 				return "";
@@ -103,9 +103,9 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return "Spectating " + names[0];
 		case TooltipType.START_GAME:
 			if (!game.isHost()) {
-				return "When you\'re ready, ask the host to start a game.";
+				return "When you\'re ready, ask the host to start a game";
 			}
-			return KeyNames.boxed(settings.interactKeyCode) + " Start a game.\n(2+ players required)";
+			return KeyNames.boxed(settings.interactKeyCode) + " Start a game";
 		default:
 			return "Missing tooltip text for type " + type;
 		}

@@ -10,11 +10,18 @@ import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
-import { InitDialogWrapper } from 'ui/wrapper/dialog/game/init_dialog_wrapper'
-import { LoadoutDialogWrapper } from 'ui/wrapper/dialog/game/loadout_dialog_wrapper'
+import { InitDialogWrapper } from 'ui/wrapper/dialog/client/init_dialog_wrapper'
+import { LoadoutDialogWrapper } from 'ui/wrapper/dialog/client/loadout_dialog_wrapper'
+import { StartGameDialogWrapper } from 'ui/wrapper/dialog/start_game_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
 export class DialogHandler extends HandlerBase implements Handler {
+
+	private static readonly _createDialogFns = new Map<DialogType, () => DialogWrapper>([
+		[DialogType.INIT, () => { return new InitDialogWrapper()}],
+		[DialogType.LOADOUT, () => { return new LoadoutDialogWrapper()}],
+		[DialogType.START_GAME, () => { return new StartGameDialogWrapper()}],
+	]);
 
 	private _dialogsElm : HTMLElement;
 	private _dialogs : Array<DialogWrapper>;
@@ -43,19 +50,13 @@ export class DialogHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		let dialogWrapper;
-		switch (msg.getDialogType()) {
-		case DialogType.INIT:
-			dialogWrapper = new InitDialogWrapper();
-			break;
-		case DialogType.LOADOUT:
-			dialogWrapper = new LoadoutDialogWrapper();
-			break;
-		default:
+		const dialogType = msg.getDialogType();
+		if (!DialogHandler._createDialogFns.has(dialogType)) {
 			console.error("Error: not showing unknown dialog type", DialogType[msg.getDialogType()], msg);
 			return;
 		}
 
+		let dialogWrapper = DialogHandler._createDialogFns.get(dialogType)();
 		dialogWrapper.addOnSubmit(() => {
 			this.popDialog(dialogWrapper);
 		});

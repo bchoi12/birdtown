@@ -75,11 +75,8 @@ export class GameMaker extends SystemBase implements System {
 		}
 	}
 
-	setMode(mode : GameMode, config? : GameConfigMessage) : boolean {
-		this._config.resetToDefault(mode);
-		if (config) {
-			this._config.merge(config);
-		}
+	setConfig(config : GameConfigMessage) : boolean {
+		this._config = config;
 
 		if (!this._config.valid()) {
 			console.error("Error: invalid config", this._config);
@@ -91,7 +88,7 @@ export class GameMaker extends SystemBase implements System {
 		}
 
 		this.addNameParams({
-			type: GameMode[mode],
+			type: GameMode[this._config.type()],
 		});
 
 		if (isLocalhost()) {

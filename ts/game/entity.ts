@@ -338,4 +338,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			this.profile().collide(collision, other);
 		}
 	}
+
+	protected clientColorOr(or : string) : string {
+		if (this.hasClientId() && game.tablets().hasTablet(this.clientId())) {
+			return game.tablet(this.clientId()).color();
+		}
+		return or;
+	}
 }

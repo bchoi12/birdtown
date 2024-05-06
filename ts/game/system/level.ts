@@ -75,14 +75,14 @@ export class Level extends SystemBase implements System {
 	version() : number { return this._levelMsg.getLevelVersionOr(0); }
 	bounds() : Box2 { return this._bounds; }
 	isCircle() : boolean { return this.levelLayout() === LevelLayout.CIRCLE; }
-	clampPos(vec : Vec) : void {
+	clampPos(pos : Vec) : void {
 		if (this.isCircle()) {
-			vec.x = Fns.wrap(this._bounds.min.x, vec.x, this._bounds.max.x);
+			pos.x = Fns.wrap(this._bounds.min.x, pos.x, this._bounds.max.x);
 		} else {
-			vec.x = Fns.clamp(this._bounds.min.x, vec.x, this._bounds.max.x);
+			pos.x = Fns.clamp(this._bounds.min.x, pos.x, this._bounds.max.x);
 		}
 
-		vec.y = Math.min(vec.y, this._bounds.max.y);
+		pos.y = Math.min(pos.y, this._bounds.max.y);
 	}
 
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }

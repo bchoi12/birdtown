@@ -30,6 +30,8 @@ export enum GameMode {
 
 	DUEL,
 	FREE_FOR_ALL,
+	PRACTICE,
+	SURVIVAL,
 }
 
 export enum GameObjectState {

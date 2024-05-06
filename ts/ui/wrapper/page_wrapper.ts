@@ -23,10 +23,4 @@ export class PageWrapper extends HtmlWrapper<HTMLElement> {
 
 	setOnSubmit(fn : OnSubmitFn) : void { this._onSubmit = fn; }
 	submit() : void { this._onSubmit(); }
-
-	addButton() : ButtonWrapper {
-		let buttonWrapper = new ButtonWrapper();
-		this.elm().appendChild(buttonWrapper.elm());
-		return buttonWrapper;
-	}
 }

@@ -113,9 +113,8 @@ export abstract class Sign extends EntityBase implements Entity, EquipEntity {
 		});
 	}
 
-	interact() : void {
-		this._interacting = true;
-	}
+	interactable() : boolean { return true; }
+	interact() : void { this._interacting = true; }
 
 	setActive(active : boolean) : void {
 		if (this._active === active) {
@@ -166,7 +165,7 @@ export abstract class Sign extends EntityBase implements Entity, EquipEntity {
 			msg.setTooltipType(this.tooltipType());
 			ui.handleMessage(msg);
 
-			if (this.key(KeyType.INTERACT, KeyState.PRESSED)) {
+			if (this.key(KeyType.INTERACT, KeyState.PRESSED) && this.interactable()) {
 				this.interact();
 			}
 		} else if (!this._active && this._interacting) {

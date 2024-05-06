@@ -11,14 +11,13 @@ import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { CollisionBuffer, RecordType } from 'game/util/collision_buffer'
 
-import { GameGlobals } from 'global/game_globals'
-
 import { settings } from 'settings'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
+import { Optional } from 'util/optional'
 import { Smoother } from 'util/smoother'
 import { Vec, Vec2 } from 'util/vector'
 import { SmoothVec2 } from 'util/vector/smooth_vector'
@@ -27,6 +26,7 @@ type ReadyFn = (profile : Profile) => boolean;
 type BodyFn = (profile : Profile) => MATTER.Body;
 type OnBodyFn = (profile : Profile) => void;
 type PhysicsFn = (profile : Profile) => void;
+type ModifyProfileFn = (profile : Profile) => void;
 
 export type ProfileInitOptions = {
 	pos? : Vec;
@@ -55,8 +55,6 @@ export type MoveToParams = {
 	maxAccel : number;
 }
 
-type LimitFn = (profile : Profile) => void;
-
 enum RenderMode {
 	UNKNOWN,
 
@@ -83,8 +81,9 @@ export class Profile extends ComponentBase implements Component {
 	private _collisionBuffer : CollisionBuffer;
 	private _constraints : Map<number, MATTER.Constraint>;
 	private _forces : Buffer<Vec>;
-	private _limitFn : LimitFn;
-	private _tempLimitFns : Map<number, LimitFn>;
+	private _limitFn : Optional<ModifyProfileFn>;
+	private _tempLimitFns : Map<number, ModifyProfileFn>;
+	private _outOfBoundsFn : Optional<ModifyProfileFn>;
 	private _smoother : Smoother;
 	private _scaleFactor : Vec2;
 	private _renderMode : RenderMode;
@@ -115,8 +114,9 @@ export class Profile extends ComponentBase implements Component {
 		this._collisionBuffer = new CollisionBuffer();
 		this._constraints = new Map();
 		this._forces = new Buffer();
-		this._limitFn = () => {};
+		this._limitFn = new Optional();
 		this._tempLimitFns = new Map();
+		this._outOfBoundsFn = new Optional();
 		this._scaleFactor = Vec2.one();
 		this._smoother = new Smoother();
 		this._renderMode = RenderMode.ALWAYS;
@@ -562,22 +562,29 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	private vecEpsilon() : number { return this._degraded ? Profile._degradedVecEpsilon : Profile._vecEpsilon; }
-	setLimitFn(limitFn : LimitFn) { this._limitFn = limitFn; }
-	addTempLimitFn(limitFn : LimitFn) : number {
+	setLimitFn(limitFn : ModifyProfileFn) { this._limitFn.set(limitFn); }
+	addTempLimitFn(limitFn : ModifyProfileFn) : number {
 		const index = this._tempLimitFns.size + 1;
 		this._tempLimitFns.set(index, limitFn);
 		return index;
 	}
 	deleteTempLimitFn(index : number) : void { this._tempLimitFns.delete(index); }
 	clearTempLimitFns() : void { this._tempLimitFns.clear(); }
+	setOutOfBoundsFn(outOfBoundsFn : ModifyProfileFn) : void { this._outOfBoundsFn.set(outOfBoundsFn); }
 	private applyLimits() : void {
 		if (this.hasVel()) {
 			this.vel().zeroEpsilon(Profile._minQuantization);
 		}
+
+		if (this._outOfBoundsFn.has() && !game.level().bounds().contains(this.pos())) {
+			this._outOfBoundsFn.get()(this);
+		}
 		game.level().clampPos(this.pos());
 
-		this._limitFn(this);
-		this._tempLimitFns.forEach((fn : LimitFn) => {
+		if (this._limitFn.has()) {
+			this._limitFn.get()(this);
+		}
+		this._tempLimitFns.forEach((fn : ModifyProfileFn) => {
 			fn(this);
 		});
 	}

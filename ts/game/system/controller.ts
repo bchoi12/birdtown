@@ -49,12 +49,12 @@ export class Controller extends SystemBase implements System {
 	round() : number { return this._gameMaker.round(); }
 
 	gameMode() : GameMode { return this._gameMaker.mode(); }
-	startGame(mode : GameMode, config? : GameConfigMessage) {
+	startGame(config : GameConfigMessage) {
 		if (this.gameState() !== GameState.FREE) {
-			console.error("Error: trying to start %s in state %s", GameMode[mode], GameState[this.gameState()]);
+			console.error("Error: trying to start %s in state %s", GameMode[config.type()], GameState[this.gameState()]);
 			return;
 		}
-		if (this._gameMaker.setMode(mode, config)) {
+		if (this._gameMaker.setConfig(config)) {
 			this.setGameState(GameState.SETUP);
 		}
 	}
