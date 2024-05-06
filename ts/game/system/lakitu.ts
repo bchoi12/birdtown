@@ -38,8 +38,6 @@ export class Lakitu extends SystemBase implements System {
 	// Formula: deg = 2 * arctan(0.5 * horizontal_length / offset_length)
 	private static readonly _horizontalFov = 46.8052155 * Math.PI / 180;
 
-	private static readonly _playerRateLimit = 250;
-
 	private static readonly _panTime = 1000;
 	private static readonly _offsets = new Map<OffsetType, Vec3>([
 		[OffsetType.ANCHOR, Vec3.zero()],

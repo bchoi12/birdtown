@@ -85,6 +85,8 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		switch (type) {
 		case TooltipType.CONTROLS:
 			return KeyNames.boxed(settings.interactKeyCode) + " View the controls";
+		case TooltipType.COPIED_URL:
+			return "Copied URL to clipboard!";
 		case TooltipType.FAILED_DIALOG_SYNC:
 			return "Error: failed to save dialog input!";
 		case TooltipType.JUST_A_SIGN:

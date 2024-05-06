@@ -61,20 +61,20 @@ export class HandlerBase {
 			return;
 		}
 
-		this.onEnable();
-		ui.setMode(this._mode.get());
 		this._enabled = true;
+		ui.setMode(this._mode.get());
+		this.onEnable();
 	}
 	disable() : void {
 		if (!this._enabled) {
 			return;
 		}
 
-		this.onDisable();
+		this._enabled = false;
 		if (ui.mode() === this._mode.get()) {
 			ui.setMode(UiMode.GAME);
 		}
-		this._enabled = false;
+		this.onDisable();
 	}
 	onEnable() : void {}
 	onDisable() : void {}

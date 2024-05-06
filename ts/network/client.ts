@@ -19,7 +19,7 @@ export class Client extends Netcode {
 	private _udp : DataConnection;
 
 	constructor(room : string) {
-		super(room, /*isHost=*/false);
+		super(room);
 	}
 
 	override isHost() : boolean { return false; }
@@ -102,11 +102,12 @@ export class Client extends Netcode {
 			if (!this._voiceEnabled) { return; }
 
 			const clients = new Map<number, string>();
-			console.log("Receive voice map", msg);
 			Object.entries(msg.getClientMap()).forEach(([gameId, name] : [string, string]) => {
 				clients.set(Number(gameId), name);
 			});
-			this.callAll(clients);
+			this.callAll(clients, () => {
+				this.sendChat("Joined voice chat!");
+			});
 		});
 	}
 

@@ -62,15 +62,12 @@ export abstract class Netcode {
 	// TODO: delete?
 	protected _audioContext : Optional<AudioContext>;
 
-	constructor(room : string, isHost : boolean) {
+	constructor(room : string) {
 		this._room = room;
 		this._clientId = 0;
 		this._initialized = false;
 		this._dataFormat = DataFormat.UNKNOWN;
-		this._peer = new Peer(isHost ? this.hostName() : "", {
-			debug: 2,
-			pingInterval: 5000,
-		});
+		this._peer = null;
 
 		this._connections = new Map();
 		this._pinger = new Pinger();
@@ -87,6 +84,11 @@ export abstract class Netcode {
 	}
 
 	initialize() : void {
+		this._peer = new Peer(this.isHost() ? this.hostName() : "", {
+			debug: 2,
+			pingInterval: 5000,
+		});
+
 		this.addMessageCallback(NetworkMessageType.GAME, (msg : NetworkMessage) => {
 			game.runner().importData(msg.getData(), msg.getSeqNum());
 		});
@@ -334,7 +336,7 @@ export abstract class Netcode {
 		return true;
 	}
 
-	callAll(clients : Map<number, string>) : void {
+	callAll(clients : Map<number, string>, onMicSuccess : () => void) : void {
 		const callFn = () => {
 			clients.delete(this.clientId());
 			clients.forEach((id : string, clientId : number) => {
@@ -355,7 +357,7 @@ export abstract class Netcode {
 				stream = null;
 				callFn();
 			}, (e) => {
-				ui.chat("Error: failed to get microphone permissions");
+				ui.chat("Error: failed to enable microphone. Please check that you have a device connected and have allowed permissions.");
 				console.error(e);
 			});
 		} else {

@@ -7,8 +7,6 @@ type OnSubmitFn = () => void;
 
 export class PageWrapper extends HtmlWrapper<HTMLElement> {
 
-	private _buttonGroups : Map<number, Array<ButtonWrapper>>;
-	private _lastGroupId : number;
 	private _onSubmit : OnSubmitFn;
 
 	constructor() {
@@ -16,8 +14,6 @@ export class PageWrapper extends HtmlWrapper<HTMLElement> {
 
 		this.elm().classList.add(Html.classDialogPage);
 
-		this._buttonGroups = new Map();
-		this._lastGroupId = 0;
 		this._onSubmit = () => {};
 	}
 

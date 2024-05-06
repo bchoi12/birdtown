@@ -47,6 +47,8 @@ export namespace Html {
 	export const classNoSelect = "no-select";
 
 	export const classButton = "button";
+	export const classButtonSelect = "button-select";
+	export const classButtonSelected = "button-selected";
 	export const classSetting = "setting";
 	export const classCounter = "counter";
 	export const classDialog = "dialog";

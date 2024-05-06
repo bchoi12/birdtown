@@ -14,6 +14,7 @@ export enum IconType {
 	VOLUME_NONE,
 	VOLUME_LOW,
 	VOLUME_HIGH,
+	SHARE,
 
 	BOLT,
 	HEART,
@@ -24,21 +25,22 @@ export enum IconType {
 export namespace Icon {
 
 	const classMap = new Map<IconType, string>([
-		[IconType.PERSON, "fa-user"],
+		[IconType.BOLT, "fa-bolt"],
+		[IconType.HEART, "fa-heart"],
 		[IconType.MIC, "fa-microphone"],
+		[IconType.MINUS, "fa-minus"],
 		[IconType.MUTED_MIC, "fa-microphone-slash"],
 		[IconType.MOUSE, "fa-computer-mouse"],
 		[IconType.KICK, "fa-ban"],
+		[IconType.PERSON, "fa-user"],
 		[IconType.PLUS, "fa-plus"],
-		[IconType.MINUS, "fa-minus"],
-		[IconType.VOLUME_X, "fa-volume-xmark"],
-		[IconType.VOLUME_NONE, "fa-volume-off"],
-		[IconType.VOLUME_LOW, "fa-volume-low"],
-		[IconType.VOLUME_HIGH, "fa-volume-high"],
-		[IconType.BOLT, "fa-bolt"],
-		[IconType.HEART, "fa-heart"],
 		[IconType.ROCKET, "fa-rocket"],
+		[IconType.SHARE, "fa-share-nodes"],
 		[IconType.TRUCK_FAST, "fa-truck-fast"],
+		[IconType.VOLUME_HIGH, "fa-volume-high"],
+		[IconType.VOLUME_LOW, "fa-volume-low"],
+		[IconType.VOLUME_NONE, "fa-volume-off"],
+		[IconType.VOLUME_X, "fa-volume-xmark"],
 	]);
 
 	function baseElement() : HTMLElement {

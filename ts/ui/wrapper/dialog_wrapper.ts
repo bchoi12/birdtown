@@ -7,6 +7,7 @@ import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 
+import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { FooterWrapper } from 'ui/wrapper/footer_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
@@ -36,6 +37,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	private _footer : FooterWrapper;
 
 	private _onNextPageFns : Array<OnSubmitFn>;
+	private _onNextPageOnceFns : Array<OnSubmitFn>;
 	private _onSubmitFns : Array<OnSubmitFn>;
 
 	constructor() {
@@ -65,6 +67,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._pageIndex = 0;
 
 		this._onNextPageFns = new Array();
+		this._onNextPageOnceFns = new Array();
 		this._onSubmitFns = new Array();
 	}
 
@@ -89,11 +92,27 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		return page;
 	}
 
-	addOnNextPageh(fn : OnSubmitFn) : void { this._onNextPageFns.push(fn); }
+	addOKButton() : ButtonWrapper {
+		let buttonWrapper = new ButtonWrapper();
+		buttonWrapper.setText("OK");
+		buttonWrapper.elm().style.float = "right";
+
+		this.footerElm().appendChild(buttonWrapper.elm());
+
+		return buttonWrapper;
+	}
+
+	addOnNextPage(fn : OnSubmitFn) : void { this._onNextPageFns.push(fn); }
+	addOnNextPageOnce(fn : OnSubmitFn) : void { this._onNextPageOnceFns.push(fn); }
 	nextPage() : void {
 		this._onNextPageFns.forEach((onNextPage : OnSubmitFn) => {
 			onNextPage();
 		});
+
+		this._onNextPageOnceFns.forEach((onNextPageOnce : OnSubmitFn) => {
+			onNextPageOnce();
+		});
+		this._onNextPageOnceFns.length = 0;;
 
 		if (this._pageIndex >= this._pages.length - 1) {
 			this.submit();

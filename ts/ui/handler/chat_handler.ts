@@ -106,9 +106,9 @@ export class ChatHandler extends HandlerBase implements Handler {
 		case "/die":
 			game.playerState().die();
 			break;
-		case "/debug":
+		case "/lookup":
 			if (pieces.length !== 2) {
-				console.error("Usage: /debug [EntityId]");
+				console.error("Usage: %s [EntityId]", pieces[0]);
 			} else {
 				const [entity, ok] = game.entities().getEntity(Number(pieces[1]));
 				if (ok) {
@@ -118,6 +118,12 @@ export class ChatHandler extends HandlerBase implements Handler {
 				}
 			}
 			break;
+		case "/speed":
+			if (pieces.length !== 2) {
+				console.error("Usage: %s [Number]", pieces[0])
+			} else {
+				game.runner().setUpdateMultiplier(Number(pieces[1]));
+			}
 		default:
 			console.error("Unknown command:", message);
 		}

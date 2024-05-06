@@ -35,10 +35,12 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 	override setup() : void {	
 		this._buttonHostElm.onclick = () => {
-			this.createRoom(/*host=*/true);
+			const room = Html.trimmedValue(this._roomInputElm);
+			this.startGame(room, /*isHost=*/true);
 		};
 		this._buttonJoinElm.onclick = () => {
-			this.createRoom(/*host=*/false);
+			const room = Html.trimmedValue(this._roomInputElm);
+			this.startGame(room, /*isHost=*/false);
 		};
 
 		this.enable();
@@ -51,6 +53,15 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._roomInputElm.style.display = "block";
 		this._loginButtonsElm.style.display = "block";
 		this._roomInputElm.focus();
+
+		const urlParams = new URLSearchParams(window.location.search);
+		if (urlParams.has("r")) {
+			const room = urlParams.get("r");
+			if (room.length > 0) {
+				this._roomInputElm.value = room;
+				this.startGame(room, /*isHost=*/false);
+			}
+		}
 	}
 
 	override onDisable() : void {
@@ -59,12 +70,12 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginElm.style.display = "none";
 	}
 
-	private createRoom(isHost : boolean) : void {
+	private startGame(room : string, isHost : boolean) : void {
 		if (!this.enabled()) {
+			console.error("Error: tried to start/join %s when not enabled", room);
 			return;
 		}
 
-		const room = Html.trimmedValue(this._roomInputElm);
 		if (room.length === 0) {
 			console.error("Error: room should not be empty");
 			return;

@@ -27,6 +27,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		this._onUnselectFns = new Array();
 
 		this.elm().classList.add(Html.classButton);
+		this.elm().classList.add(Html.classNoSelect);
 		this.elm().onclick = (e) => {
 			e.preventDefault();
 			this.click();
@@ -35,7 +36,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	setText(text : string) : void {
-		this.elm().textContent = "[" + text + "]";
+		this.elm().textContent = text;
 	}
 
 	addOnClick(fn : OnClickFn) : void { this._onClickFns.push(fn); }
@@ -48,6 +49,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		});
 	}
 
+	selected() : boolean { return this._state === ButtonState.SELECTED; }
 	select() : void {
 		if (this._state === ButtonState.SELECTED) {
 			return;
@@ -57,6 +59,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 			fn();
 		});
 		this._state = ButtonState.SELECTED;
+		this.elm().classList.add(Html.classButtonSelected);
 	}
 
 	unselect() : void {
@@ -68,5 +71,6 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 			fn();
 		});
 		this._state = ButtonState.UNSELECTED;
+		this.elm().classList.remove(Html.classButtonSelected);
 	}
 }

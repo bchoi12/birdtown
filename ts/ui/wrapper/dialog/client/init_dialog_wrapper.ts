@@ -38,15 +38,13 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		colorInput.value = ColorFactory.playerColor(game.clientId()).toString();
 		pageWrapper.elm().appendChild(colorInput);
 
-		let buttonWrapper = new ButtonWrapper();
-		buttonWrapper.setText("OK");
-		buttonWrapper.addOnClick(() => {
+		let okButton = this.addOKButton();
+		okButton.addOnClick(() => {
 			const name = nameInput.value.length > 0 ? nameInput.value : LoginNames.randomName();
 			this.dialogMessage().setDisplayName(name);
 			this.dialogMessage().setColor(colorInput.value);
 			this.nextPage();
 		});
-		this.footerElm().appendChild(buttonWrapper.elm());
 
 		this.addOnSubmit(() => {
 			ui.applySettings();

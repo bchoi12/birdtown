@@ -18,7 +18,7 @@ import { isLocalhost } from 'util/common'
 export class Host extends Netcode {
 
 	constructor(room : string) {
-		super(room, /*isHost=*/true);
+		super(room);
 	}
 
 	override isHost() : boolean { return true; }
@@ -95,7 +95,6 @@ export class Host extends Netcode {
 				let voiceMapMsg = new NetworkMessage(NetworkMessageType.VOICE_MAP);
 				voiceMapMsg.setClientMap(Object.fromEntries(this.getVoiceMap()));
 				this.send(msg.name(), ChannelType.TCP, voiceMapMsg);
-				this.sendMessage(connection.displayName() + " hopped into voice chat");
 			} else {
 				this.closeMediaConnection(msg.getClientId());
 			}
@@ -118,8 +117,9 @@ export class Host extends Netcode {
 		this.broadcast(ChannelType.TCP, outgoing);
 
 		if (this._voiceEnabled) {
-			this.sendMessage(game.tablet(this.clientId()).displayName() + " hopped into voice chat");
-			this.callAll(this.getVoiceMap());
+			this.callAll(this.getVoiceMap(), () => {
+				this.sendChat("Joined voice chat!");
+			});
 		} else {
 			this.closeMediaConnections();
 		}

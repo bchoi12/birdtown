@@ -1,4 +1,8 @@
 
+import { game } from 'game'
+
+import { UiMessage, UiMessageType } from 'message/ui_message'
+
 import { settings } from 'settings'
 import {
 	FullscreenSetting,
@@ -6,7 +10,8 @@ import {
 } from 'settings/api'
 
 import { ui } from 'ui'
-import { UiMode } from 'ui/api'
+import { UiMode, TooltipType } from 'ui/api'
+import { Icon, IconType } from 'ui/common/icon'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
@@ -104,9 +109,21 @@ export class MenuHandler extends HandlerBase implements Handler {
 
 		this._dialogWrapper.footerElm().appendChild(this._voiceWrapper.elm());
 
+		let shareURL = new ButtonWrapper();
+		shareURL.elm().appendChild(Icon.create(IconType.SHARE));
+		shareURL.addOnClick(() => {
+			navigator.clipboard.writeText(window.location.href + "?r=" + game.netcode().room());
+
+			let msg = new UiMessage(UiMessageType.TOOLTIP);
+			msg.setTtl(3000);
+			msg.setTooltipType(TooltipType.COPIED_URL);
+			ui.handleMessage(msg);
+		});
+		this._dialogWrapper.footerElm().appendChild(shareURL.elm());
+
 		let miniContinue = new ButtonWrapper();
 		miniContinue.elm().style.float = "right";
-		miniContinue.setText("Continue");
+		miniContinue.setText("[Continue]");
 		miniContinue.addOnClick(() => {
 			this.disable();
 		});
@@ -114,7 +131,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 
 		let fullMenu = new ButtonWrapper();
 		fullMenu.elm().style.float = "right";
-		fullMenu.setText("Full Menu");
+		fullMenu.setText("[Full Menu]");
 		fullMenu.addOnClick(() => {
 			this._dialogWrapper.elm().style.visibility = "hidden";
 			this._menuElm.style.visibility = "visible";
