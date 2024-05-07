@@ -159,17 +159,20 @@ export abstract class Sign extends EntityBase implements Entity, EquipEntity {
 
 		this.setActive(this._hasCollision);
 
-		if (this._active && !this._interacting) {
-			let msg = new UiMessage(UiMessageType.TOOLTIP);
-			msg.setTtl(100);
-			msg.setTooltipType(this.tooltipType());
-			ui.handleMessage(msg);
+		if (this._active) {
+			if (!this._interacting) {
+				let msg = new UiMessage(UiMessageType.TOOLTIP);
+				msg.setTtl(100);
+				msg.setTooltipType(this.tooltipType());
+				ui.handleMessage(msg);
+			}
 
 			if (this.key(KeyType.INTERACT, KeyState.PRESSED) && this.interactable()) {
 				this.interact();
 			}
-		} else if (!this._active && this._interacting) {
-			// Allow interaction after moving away from sign
+		}
+
+		if (!this._hasCollision) {
 			this._interacting = false;
 		}
 	}
