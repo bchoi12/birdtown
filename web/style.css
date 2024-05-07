@@ -337,7 +337,11 @@ body {
     margin: 6px 12px 6px 12px;
 }
 
-.slightly-transparent {
+.transparent-05 {
+    opacity: 0.5;
+}
+
+.transparent-07 {
     opacity: 0.7;
 }
 

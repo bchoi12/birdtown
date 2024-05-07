@@ -59,7 +59,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 	override onEnable() : void {
 		super.onEnable();
 
-		this._chatElm.classList.remove(Html.classSlightlyTransparent);
+		this._chatElm.classList.remove(Html.classTransparent05);
 		this._chatElm.classList.remove(Html.classNoSelect);
 		this._chatElm.style.bottom = "2em";
 		this._chatElm.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
@@ -72,7 +72,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 	override onDisable() : void {
 		super.onDisable();
 
-		this._chatElm.classList.add(Html.classSlightlyTransparent);
+		this._chatElm.classList.add(Html.classTransparent05);
 		this._chatElm.classList.add(Html.classNoSelect);
 		this._chatElm.style.bottom = "1em";
 		this._chatElm.style.backgroundColor = "";

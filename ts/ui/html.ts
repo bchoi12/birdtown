@@ -42,9 +42,10 @@ export namespace Html {
 	export const fieldsetSettings = "fieldset-settings";
 	export const fieldsetKeyBind = "fieldset-key-bind";
 
-	export const classSlightlyTransparent = "slightly-transparent";
 	export const classSpaced = "spaced";
 	export const classNoSelect = "no-select";
+	export const classTransparent05 = "transparent-05"
+	export const classTransparent07= "transparent-07";
 
 	export const classButton = "button";
 	export const classButtonSelect = "button-select";
