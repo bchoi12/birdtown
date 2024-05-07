@@ -10,7 +10,7 @@ import { Entity, EquipEntity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
-import { MaterialType, MeshType } from 'game/factory/api'
+import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -81,9 +81,10 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: BodyFactory.defaultDensity,
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.SOLID),
 					render: {
 						fillStyle: ColorFactory.crateRed.toString(),
-					}
+					},
 				});
 			},
 			init: {...entityOptions.profileInit, degraded: true },

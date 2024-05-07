@@ -5,6 +5,27 @@ export enum SoundType {
 	EXPLOSION,
 }
 
+export enum CollisionGroup {
+	NEVER_COLLIDE = -1,
+
+	// Use category & mask
+	MAYBE_COLLIDE = 0,
+
+	// Only collides if both bodies have same group
+	ALWAYS_COLLIDE = 1,
+}
+
+export enum CollisionCategory {
+	UNKNOWN,
+
+	BOUND,
+	FOREGROUND,
+	OFFSET,
+	PLAYER,
+	HIT_BOX,
+	SOLID,
+}
+
 export enum ColorType {
 	UNKNOWN,
 	BASE,

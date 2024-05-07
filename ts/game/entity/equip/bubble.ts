@@ -10,7 +10,6 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { BodyFactory } from 'game/factory/body_factory'
 import { StepData } from 'game/game_object'
 
 import { DialogType } from 'ui/api'

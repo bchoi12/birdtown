@@ -10,7 +10,7 @@ import { Entity, EquipEntity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
-import { MeshType } from 'game/factory/api'
+import { CollisionCategory, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -63,6 +63,7 @@ export abstract class Sign extends EntityBase implements Entity, EquipEntity {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
 					isSensor: true,
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.FOREGROUND),
 				});
 			},
 			init: entityOptions.profileInit,

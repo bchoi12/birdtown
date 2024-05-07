@@ -14,7 +14,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { MeshType } from 'game/factory/api'
+import { CollisionCategory, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -85,9 +85,7 @@ export abstract class Block extends EntityBase {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
 					isStatic: true,
-					collisionFilter: {
-						group: BodyFactory.ignoreBoundGroup,
-					},
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.FOREGROUND),
 					render: {
 						fillStyle: this._hexColors.color(ColorType.BASE).toString(),
 					}

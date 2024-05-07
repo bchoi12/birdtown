@@ -8,7 +8,7 @@ import { EntityOptions } from 'game/entity'
 import { Particle } from 'game/entity/particle'
 import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
-import { ParticleType } from 'game/factory/api'
+import { CollisionCategory, ParticleType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 
 import { FnGlobals, InterpType } from 'global/fn_globals'
@@ -30,7 +30,7 @@ export class ParticleCube extends Particle {
 
 	override bodyFn(profile : Profile) : MATTER.Body {
 		return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
-			isSensor: true,
+			collisionFilter: BodyFactory.customCollisionFilter(CollisionCategory.HIT_BOX, [CollisionCategory.BOUND, CollisionCategory.SOLID]),
 		});
 	}
 

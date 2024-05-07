@@ -9,7 +9,7 @@ import { Profile } from 'game/component/profile'
 import { SoundPlayer } from 'game/component/sound_player'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { SoundType } from 'game/factory/api'
+import { CollisionCategory, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 
@@ -33,6 +33,7 @@ export class Explosion extends EntityBase implements Entity {
 				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
 					isSensor: true,
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
 			},
 			init: entityOptions.profileInit,

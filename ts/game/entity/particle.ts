@@ -85,6 +85,7 @@ export abstract class Particle extends EntityBase implements Entity {
 	protected bodyFn(profile : Profile) : MATTER.Body {
 		return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
 			isSensor: true,
+			collisionFilter: BodyFactory.neverCollideFilter(),
 		});
 	}
 

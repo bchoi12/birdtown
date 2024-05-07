@@ -9,7 +9,7 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Explosion } from 'game/entity/explosion'
 import { Projectile } from 'game/entity/projectile'
-import { MaterialType, MeshType } from 'game/factory/api'
+import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
@@ -35,6 +35,7 @@ export class Rocket extends Projectile {
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
 			},
 			init: entityOptions.profileInit,

@@ -23,7 +23,7 @@ import { Bubble } from 'game/entity/equip/bubble'
 import { Headwear } from 'game/entity/equip/headwear'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Weapon } from 'game/entity/equip/weapon'
-import { MeshType, TextureType } from 'game/factory/api'
+import { CollisionCategory, MeshType, TextureType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
@@ -227,7 +227,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		this._expression = this.addComponent<Expression<Emotion>>(new Expression({ defaultValue: Emotion.NORMAL }));
 
-		const collisionGroup = MATTER.Body.nextGroup(/*ignoreCollisions=*/true);
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
@@ -236,9 +235,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 						radius: 0.05,
 					},
 					friction: 0,
-					collisionFilter: {
-						group: collisionGroup,
-					},
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.PLAYER),
 					plugin: {
 						zIndex: DepthType.PLAYER,
 					},
@@ -271,9 +268,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			bodyFn: (head : Profile) => {
 				return BodyFactory.rectangle(head.pos(), head.unscaledDim(), {
 					isSensor: true,
-					collisionFilter: {
-						group: collisionGroup,
-					},
+					collisionFilter: BodyFactory.customCollisionFilter(CollisionCategory.PLAYER, [
+						CollisionCategory.HIT_BOX,
+						CollisionCategory.SOLID,
+					]),
 				});
 			},
 			init: {
