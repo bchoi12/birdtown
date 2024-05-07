@@ -267,7 +267,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._headSubProfile = this._profile.registerSubComponent<Profile>(SubProfile.HEAD, new Profile({
 			bodyFn: (head : Profile) => {
 				return BodyFactory.rectangle(head.pos(), head.unscaledDim(), {
-					isSensor: true,
 					collisionFilter: BodyFactory.customCollisionFilter(CollisionCategory.PLAYER, [
 						CollisionCategory.HIT_BOX,
 						CollisionCategory.SOLID,

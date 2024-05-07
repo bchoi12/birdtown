@@ -41,7 +41,7 @@ export abstract class Weapon extends Equip<Player> {
 	protected _burstTimer : Timer;
 	protected _reloadTimer : Timer;
 
-	protected _shoot : BABYLON.TransformNode;
+	protected _shootNode : BABYLON.TransformNode;
 
 	protected _model : Model;
 
@@ -57,7 +57,7 @@ export abstract class Weapon extends Equip<Player> {
 		this._burstTimer = this.newTimer({ canInterrupt: false });
 		this._reloadTimer = this.newTimer({ canInterrupt: false });
 
-		this._shoot = null;
+		this._shootNode = null;
 
 		this.addProp<WeaponState>({
 			has: () => { return this._weaponState !== WeaponState.UNKNOWN; },
@@ -72,7 +72,7 @@ export abstract class Weapon extends Equip<Player> {
 
 					result.transformNodes.forEach((node : BABYLON.TransformNode) => {
 						if (node.name === Weapon._shootNodeName) {
-							this._shoot = node;
+							this._shootNode = node;
 						}
 					});
 
@@ -84,7 +84,7 @@ export abstract class Weapon extends Equip<Player> {
 	}
 
 	abstract meshType() : MeshType;
-	shootNode() : BABYLON.TransformNode { return this._shoot !== null ? this._shoot : this._model.mesh(); }
+	shootNode() : BABYLON.TransformNode { return this._shootNode !== null ? this._shootNode : this._model.mesh(); }
 	reloadTimeLeft() : number { return this._reloadTimer.timeLeft(); }
 
 	charged() : boolean { return false; }
