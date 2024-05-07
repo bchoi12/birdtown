@@ -578,7 +578,8 @@ export class Profile extends ComponentBase implements Component {
 
 		if (this._outOfBoundsFn.has() && !game.level().bounds().contains(this.pos())) {
 			this._outOfBoundsFn.get()(this);
-		}
+		} 
+
 		game.level().clampPos(this.pos());
 
 		if (this._limitFn.has()) {

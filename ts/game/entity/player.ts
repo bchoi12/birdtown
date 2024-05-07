@@ -220,7 +220,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._attributes.setAttribute(AttributeType.GROUNDED, false);
+		this._attributes.setAttribute(AttributeType.GROUNDED, !this.clientIdMatches());
 		this._attributes.setAttribute(AttributeType.SOLID, true);
 
 		this._entityTrackers = this.addComponent<EntityTrackers>(new EntityTrackers());
@@ -267,10 +267,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._headSubProfile = this._profile.registerSubComponent<Profile>(SubProfile.HEAD, new Profile({
 			bodyFn: (head : Profile) => {
 				return BodyFactory.rectangle(head.pos(), head.unscaledDim(), {
-					collisionFilter: BodyFactory.customCollisionFilter(CollisionCategory.PLAYER, [
-						CollisionCategory.HIT_BOX,
-						CollisionCategory.SOLID,
-					]),
+					collisionFilter: BodyFactory.customCollisionFilter(CollisionCategory.PLAYER, [CollisionCategory.HIT_BOX]),
 				});
 			},
 			init: {

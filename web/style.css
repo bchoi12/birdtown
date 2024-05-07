@@ -361,7 +361,7 @@ body {
 }
 
 .button-select {
-    transition: border-left ease-out 0.2s, padding-left ease-out 0.2s;
+    transition: border-left ease-out 0.1s, padding-left ease-out 0.1s;
     border-left: 0em solid;
 }
 
