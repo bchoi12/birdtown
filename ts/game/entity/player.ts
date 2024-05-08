@@ -37,6 +37,7 @@ import { DialogType, KeyType, KeyState } from 'ui/api'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
+import { CardinalDir } from 'util/cardinal'
 import { ChangeTracker } from 'util/change_tracker'
 import { CircleMap } from 'util/circle_map'
 import { Fns } from 'util/fns'
@@ -110,6 +111,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	private static readonly _armRecoveryTime = 500;
 	private static readonly _crateCheckInterval = 250;
+	private static readonly _walkSmokeInterval = 500;
 
 	private static readonly _defaultColor = "#ffffff";
 
@@ -132,6 +134,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
 	private _groundedTracker : ChangeTracker<boolean>;
+	private _walkSmokeRateLimiter : RateLimiter;
 
 	private _nearestCrate : Optional<Crate>;
 	private _crateRateLimiter : RateLimiter;
@@ -204,6 +207,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				}
 			}
 		});
+		this._walkSmokeRateLimiter = new RateLimiter(Player._walkSmokeInterval);
 
 		this._nearestCrate = new Optional();
 		this._crateRateLimiter = new RateLimiter(Player._crateCheckInterval);
@@ -683,7 +687,40 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			let crate = this._nearestCrate.get();
 			this.createEquips(crate.equipType(), crate.altEquipType());
 			crate.open();
-			this._crateRateLimiter.reset();
+			this._crateRateLimiter.prime();
+		}
+
+		// Animation
+		if (this._model.hasMesh()) {
+			if (!this._attributes.getAttribute(AttributeType.GROUNDED) || this.dead()) {
+				this._model.playAnimation(Animation.JUMP);
+			} else if (Math.abs(this._profile.acc().x) > 1e-2) {
+				this._model.playAnimation(Animation.WALK, {
+					speedRatio: 0.3 + Math.abs(this._profile.vel().x / Player._maxHorizontalVel),
+				});
+
+				if (this._walkSmokeRateLimiter.check(millis)) {
+					const scale = 0.3 + 0.1 * Math.random();
+					this.addEntity(EntityType.PARTICLE_SMOKE, {
+						offline: true,
+						ttl: 500,
+						profileInit: {
+							pos: this._profile.relativePos(CardinalDir.BOTTOM, { x: scale, y: scale }),
+							vel: { x: -0.05 * Math.sign(this._profile.vel().x), y: 0 },
+							acc: { x: 0.05 * Math.sign(this._profile.vel().x), y: 0.1 },
+							scaling: { x: scale, y: scale },
+						},
+						modelInit: {
+							transforms: {
+								translate: { z: this._model.mesh().position.z + 0.3 },
+							}
+						}
+					});
+				}
+			} else {
+				this._model.playAnimation(Animation.IDLE);
+				this._walkSmokeRateLimiter.reset();
+			}
 		}
 	}
 
@@ -713,18 +750,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 		});
 
-		// Animation and expression
-		if (!this._attributes.getAttribute(AttributeType.GROUNDED) || this.dead()) {
-			this._model.playAnimation(Animation.JUMP);
-		} else {
-			if (Math.abs(this._profile.acc().x) < 0.01) {
-				this._model.playAnimation(Animation.IDLE);
-			} else {
-				this._model.playAnimation(Animation.WALK, {
-					speedRatio: 0.3 + Math.abs(this._profile.vel().x / Player._maxHorizontalVel),
-				});
-			}
-		}
+		// Expression
 		this._eyeShifter.offset(this._expression.emotion());
 
 		if (this.clientIdMatches() && !this.dead()) {
