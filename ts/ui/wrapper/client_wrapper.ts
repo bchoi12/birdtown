@@ -57,4 +57,8 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 	updatePos(pos : Vec) : void {
 		this._voiceWrapper.updatePos(pos);
 	}
+
+	handleVoiceError() : void {
+		this._voiceWrapper.handleVoiceError();
+	}
 }

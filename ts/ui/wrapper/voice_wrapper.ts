@@ -14,8 +14,12 @@ import { Vec } from 'util/vector'
 
 export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 
-	private _micButton : HTMLElement;
+	private _self : boolean;
 	private _audioControls : Array<HTMLElement>;
+
+	private _micButton : HTMLElement;
+	private _openMic : HTMLElement;
+	private _mutedMic : HTMLElement;
 
 	private _stream : MediaStream;
 	private _panner : PannerNode;
@@ -23,24 +27,24 @@ export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 	constructor(self : boolean) {
 		super(Html.span());
 
-		if (self) {
+		this._self = self;
+
+		if (this._self) {
 			this._micButton = Html.span();
-			this._micButton.append(Icon.create(IconType.MUTED_MIC));
+			this._openMic = Icon.create(IconType.MIC);
+			this._mutedMic = Icon.create(IconType.MUTED_MIC);
+			this.updateIcons();
+
+			this._micButton.appendChild(this._openMic);
+			this._micButton.appendChild(this._mutedMic);
 			this._micButton.classList.add(Html.classButton);
 
 			this.elm().onclick = (e) => {
 				e.stopPropagation();
 
-				const enabled = game.netcode().toggleVoice();
-				while(this._micButton.firstChild) {
-					this._micButton.removeChild(this._micButton.firstChild);
-				}
-
-				if (enabled) {
-					this._micButton.append(Icon.create(IconType.MIC));
-				} else {
-					this._micButton.append(Icon.create(IconType.MUTED_MIC));
-				}
+				const shouldEnable = !game.netcode().voiceEnabled();
+				game.netcode().setVoiceEnabled(shouldEnable);
+				this.updateIcons();
 			};
 			this.elm().append(this._micButton);
 		}
@@ -59,6 +63,22 @@ export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 
 		if (defined(pos.z)) {
 			this._panner.positionZ.setValueAtTime(pos.z, context.currentTime);
+		}
+	}
+
+	private updateIcons() : void {
+		if (game.initialized() && game.netcode().voiceEnabled()) {
+			this._openMic.style.display = "block";
+			this._mutedMic.style.display = "none";
+		} else {
+			this._openMic.style.display = "none";
+			this._mutedMic.style.display = "block";
+		}
+	}
+
+	handleVoiceError() : void {
+		if (this._self) {
+			this.updateIcons();
 		}
 	}
 

@@ -28,14 +28,15 @@ serializableRegex.add("LevelLayout");
 //
 const version = "2.1";
 
-const enumClass = "DialogProp";
+const enumClass = "GameConfigProp";
 const map = new Map<string, string>([
-    ["ALT_EQUIP_TYPE", "number"],
-    ["COLOR", "string"],
-    ["DISPLAY_NAME", "string"],
-    ["EQUIP_TYPE", "number"],
-    ["PLAYER_TYPE", "number"],
-    ["VERSION", "number"],
+    ["LIVES", "number"],
+    ["PLAYERS_MIN", "number"],
+    ["TIME_SETUP", "number"],
+    ["TIME_GAME", "number"],
+    ["TIME_FINISH", "number"],
+    ["TIME_VICTORY", "number"],
+    ["TIME_ERROR", "number"],
 ]);
 //
 // End params

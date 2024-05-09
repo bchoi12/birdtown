@@ -85,4 +85,13 @@ export class ClientsHandler extends HandlerBase implements Handler {
 			client.removeStream();
 		});
 	}
+
+	handleVoiceError() : void {
+		if (!this._clients.has(game.clientId())) {
+			return;
+		}
+
+		this._clients.get(game.clientId()).handleVoiceError();
+	}
+
 }

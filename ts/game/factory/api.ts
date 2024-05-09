@@ -19,7 +19,7 @@ export enum CollisionCategory {
 	UNKNOWN,
 
 	BOUND,
-	FOREGROUND,
+	INTERACTABLE,
 	OFFSET,
 	PLAYER,
 	HIT_BOX,

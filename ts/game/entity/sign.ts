@@ -63,7 +63,7 @@ export abstract class Sign extends EntityBase implements Entity, EquipEntity {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
 					isSensor: true,
-					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.FOREGROUND),
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE),
 				});
 			},
 			init: entityOptions.profileInit,

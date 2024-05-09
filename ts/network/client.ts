@@ -66,25 +66,27 @@ export class Client extends Netcode {
 		this.send(this.hostName(), ChannelType.TCP, msg);
 	}
 
-	override setVoiceEnabled(voiceEnabled : boolean) : boolean {
+	override setVoiceEnabled(voiceEnabled : boolean) : void {
 		if (this._voiceEnabled === voiceEnabled) {
-			return this._voiceEnabled;
+			return;
 		}
 
 		let outgoing = new NetworkMessage(NetworkMessageType.VOICE);
 		outgoing.setClientId(this.clientId());
 		outgoing.setVoiceEnabled(voiceEnabled);
 
-		const sent = this.send(this.hostName(), ChannelType.TCP, outgoing);
-		if (sent) {
-			this._voiceEnabled = voiceEnabled;
-		}
-
-		if (!this._voiceEnabled) {
+		if (voiceEnabled) {
+			this.queryMic((stream : MediaStream) => {
+				this.send(this.hostName(), ChannelType.TCP, outgoing);
+			}, (e) => {
+				this._voiceEnabled = false;
+				ui.handleVoiceError(this.clientId());
+			});
+		} else {
+			this.send(this.hostName(), ChannelType.TCP, outgoing);
+			this._voiceEnabled = false;
 			this.closeMediaConnections();
-		} 
-
-		return this._voiceEnabled;
+		}
 	}
 
 	private registerCallbacks() : void {
@@ -107,6 +109,9 @@ export class Client extends Netcode {
 			});
 			this.callAll(clients, () => {
 				this.sendChat("Joined voice chat!");
+			}, () => {
+				this._voiceEnabled = false;
+				ui.handleVoiceError(this.clientId());
 			});
 		});
 	}

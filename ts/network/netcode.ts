@@ -118,7 +118,7 @@ export abstract class Netcode {
 
 	abstract ready() : boolean;
 	abstract isHost() : boolean;
-	abstract setVoiceEnabled(enabled : boolean) : boolean;
+	abstract setVoiceEnabled(enabled : boolean) : void;
 	abstract sendChat(message : string) : void;
 
 	id() : string { return this._peer.id; }
@@ -127,7 +127,6 @@ export abstract class Netcode {
 	hasClientId() : boolean { return this._clientId > 0; }
 	setClientId(id : number) { this._clientId = id; }
 	clientId() : number { return this._clientId; }
-	toggleVoice() : boolean { return this.setVoiceEnabled(!this._voiceEnabled); }
 	voiceEnabled() : boolean { return this._voiceEnabled; }
 
 	peer() : Peer { return this._peer; }
@@ -336,7 +335,7 @@ export abstract class Netcode {
 		return true;
 	}
 
-	callAll(clients : Map<number, string>, onMicSuccess : () => void) : void {
+	callAll(clients : Map<number, string>, onSuccess : () => void, onError : () => void) : void {
 		const callFn = () => {
 			clients.delete(this.clientId());
 			clients.forEach((id : string, clientId : number) => {
@@ -356,12 +355,14 @@ export abstract class Netcode {
 			this.queryMic((stream : MediaStream) => {
 				stream = null;
 				callFn();
+				onSuccess();
 			}, (e) => {
-				ui.chat("Error: failed to enable microphone. Please check that you have a device connected and have allowed permissions.");
 				console.error(e);
+				onError();
 			});
 		} else {
 			callFn();
+			onSuccess();
 		}
 	}
 

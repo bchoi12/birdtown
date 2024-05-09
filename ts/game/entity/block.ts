@@ -85,7 +85,7 @@ export abstract class Block extends EntityBase {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
 					isStatic: true,
-					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.FOREGROUND),
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE),
 					render: {
 						fillStyle: this._hexColors.color(ColorType.BASE).toString(),
 					}

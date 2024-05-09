@@ -50,16 +50,16 @@ export namespace BodyFactory {
 		[CollisionCategory.HIT_BOX, [
 			CollisionCategory.BOUND, CollisionCategory.PLAYER, CollisionCategory.SOLID
 		]],
-		[CollisionCategory.FOREGROUND, [
+		[CollisionCategory.INTERACTABLE, [
 			CollisionCategory.PLAYER, CollisionCategory.SOLID,
 		]],
 		[CollisionCategory.OFFSET, [CollisionCategory.BOUND]],
 		[CollisionCategory.PLAYER, [CollisionCategory.BOUND,
-			CollisionCategory.FOREGROUND, CollisionCategory.HIT_BOX, 
+			CollisionCategory.INTERACTABLE, CollisionCategory.HIT_BOX, 
 			CollisionCategory.PLAYER, CollisionCategory.SOLID,
 		]],
 		[CollisionCategory.SOLID, [
-			CollisionCategory.BOUND, CollisionCategory.FOREGROUND, CollisionCategory.HIT_BOX,
+			CollisionCategory.BOUND, CollisionCategory.INTERACTABLE, CollisionCategory.HIT_BOX,
 			CollisionCategory.PLAYER, CollisionCategory.SOLID,
 		]],
 	]);

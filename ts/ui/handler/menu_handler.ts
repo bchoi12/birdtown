@@ -143,6 +143,8 @@ export class MenuHandler extends HandlerBase implements Handler {
 		}
 	}
 
+	handleVoiceError() : void { this._voiceWrapper.handleVoiceError(); }
+
 	override onEnable() : void {
 		super.onEnable();
 

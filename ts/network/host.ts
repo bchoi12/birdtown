@@ -104,9 +104,9 @@ export class Host extends Netcode {
 	override sendChat(message : string) : void { this.handleChat(this.id(), message); }
 
 	// TODO: de-duplicate code here and above. Probably need to add self as a connection and add some code in send() to trigger callbacks immediately
-	override setVoiceEnabled(enabled : boolean) : boolean {
+	override setVoiceEnabled(enabled : boolean) : void {
 		if (this._voiceEnabled === enabled) {
-			return this._voiceEnabled;
+			return;
 		}
 
 		this._voiceEnabled = enabled;
@@ -119,11 +119,13 @@ export class Host extends Netcode {
 		if (this._voiceEnabled) {
 			this.callAll(this.getVoiceMap(), () => {
 				this.sendChat("Joined voice chat!");
+			}, () => {
+				this._voiceEnabled = false;
+				ui.handleVoiceError(this.clientId());
 			});
 		} else {
 			this.closeMediaConnections();
 		}
-		return this._voiceEnabled;
 	}
 
 	private handleChat(fromId : string, message : string) : void {

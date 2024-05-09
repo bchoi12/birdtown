@@ -576,8 +576,11 @@ export class Profile extends ComponentBase implements Component {
 			this.vel().zeroEpsilon(Profile._minQuantization);
 		}
 
-		if (this._outOfBoundsFn.has() && !game.level().bounds().contains(this.pos())) {
-			this._outOfBoundsFn.get()(this);
+		if (this._outOfBoundsFn.has()) {
+			const bounds = game.level().bounds();
+			if (bounds.ySide(this.pos()) !== 0 || !game.level().isCircle() && bounds.xSide(this.pos()) !== 0) {
+				this._outOfBoundsFn.get()(this);
+			} 
 		} 
 
 		game.level().clampPos(this.pos());

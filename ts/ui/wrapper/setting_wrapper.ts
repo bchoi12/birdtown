@@ -1,6 +1,4 @@
 
-import { settings } from 'settings'
-
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 import { LabelButtonWrapper } from 'ui/wrapper/label_button_wrapper'
@@ -30,6 +28,8 @@ export class SettingWrapper<T extends number> extends LabelButtonWrapper {
 			this.setText(this._options.text(this._options.get()));
 		}
 	}
+
+	refresh() : void { this._options.get(); }
 
 	override setText(text : string) : void {
 		super.setText("[" + text + "]");

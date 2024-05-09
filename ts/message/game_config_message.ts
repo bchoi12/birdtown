@@ -4,6 +4,7 @@ import { Message, MessageBase, Descriptor, FieldDescriptor } from 'message'
 
 enum GameConfigProp {
 	UNKNOWN,
+	LIVES,
 	PLAYERS_MIN,
 	TIME_SETUP,
 	TIME_GAME,
@@ -37,6 +38,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		)],
 		[GameMode.SURVIVAL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._defaultProps,
+			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
 		)],
 	]);
@@ -73,14 +75,20 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setPlayersMin(1);
 			break;
 		case GameMode.SURVIVAL:
+			this.setLives(2);
 			this.setPlayersMin(2);
 			break;
 		}
 		return this;
 	}
 
-    // Begin auto-generated code (v2.0)
+    // Begin auto-generated code (v2.1)
     override serializable() { return true; }
+
+    hasLives() : boolean { return this.has(GameConfigProp.LIVES); }
+    getLives() : number { return this.get<number>(GameConfigProp.LIVES); }
+    getLivesOr(value : number) : number { return this.getOr<number>(GameConfigProp.LIVES, value); }
+    setLives(value : number) : void { this.set<number>(GameConfigProp.LIVES, value); }
 
     hasPlayersMin() : boolean { return this.has(GameConfigProp.PLAYERS_MIN); }
     getPlayersMin() : number { return this.get<number>(GameConfigProp.PLAYERS_MIN); }
@@ -114,6 +122,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 
     /*
     const enumClass = "GameConfigProp";
+    ["LIVES", "number"],
     ["PLAYERS_MIN", "number"],
     ["TIME_SETUP", "number"],
     ["TIME_GAME", "number"],
@@ -121,5 +130,5 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     ["TIME_VICTORY", "number"],
     ["TIME_ERROR", "number"],
     */
-    // End auto-generated code (v2.0)
+    // End auto-generated code (v2.1)
 }

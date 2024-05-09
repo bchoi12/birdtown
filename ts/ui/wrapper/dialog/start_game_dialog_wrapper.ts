@@ -12,6 +12,7 @@ import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
+import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
 
 export class StartGameDialogWrapper extends DialogWrapper {
 
@@ -83,6 +84,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			if (this._mode !== GameMode.UNKNOWN) {
 				this._configMsg = GameConfigMessage.defaultConfig(this._mode);
 
+				// TODO: check if enough players or something
+
 				switch (this._mode) {
 				case GameMode.SURVIVAL:
 					this.addSurvivalPage();
@@ -91,11 +94,31 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 	}
 
-
-
 	private addSurvivalPage() : void {
 		let pageWrapper = this.addPage();
 
-		pageWrapper.elm().textContent = "STUFF";
+		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
+		columnsWrapper.elm().style.fontSize = "0.9em";
+
+		let leftElm = columnsWrapper.columnElm(0);
+		let rightElm = columnsWrapper.columnElm(1);
+
+		let lives = new SettingWrapper<number>({
+			name: "Lives",
+			get: () => { return this._configMsg.getLives(); },
+			click: (current : number) => {
+				current++;
+				if (current > 5) {
+					current = 1;
+				}
+				this._configMsg.setLives(current);
+			},
+			text: (current : number) => {
+				return "" + current;
+			},
+		});
+		leftElm.appendChild(lives.elm());
+
+		pageWrapper.elm().appendChild(columnsWrapper.elm());
 	}
 }

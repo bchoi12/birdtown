@@ -180,6 +180,13 @@ class UI {
 	addStream(clientId : number, stream : MediaStream) : void { this._clientsHandler.addStream(clientId, stream); }
 	removeStream(clientId : number) : void { this._clientsHandler.removeStream(clientId); }
 	removeStreams() : void { this._clientsHandler.removeStreams(); }
+	handleVoiceError(clientId : number) : void {
+		if (clientId === game.clientId()) {
+			ui.chat("Error: failed to enable microphone. Please check that you have a device connected and have allowed permissions.");
+			this._clientsHandler.handleVoiceError();
+			this._menuHandler.handleVoiceError();
+		}
+	}
 }
 
 export const ui = new UI();
