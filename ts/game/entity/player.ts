@@ -93,7 +93,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	// blockdudes3 = 18.0
 	private static readonly _sideAcc = 0.5;
 	private static readonly _jumpVel = 0.33;
-	private static readonly _maxHorizontalVel = 0.25;
+	private static readonly _maxHorizontalVel = 0.6;
+	private static readonly _maxWalkingVel = 0.25;
 	private static readonly _maxVerticalVel = 0.6;
 	private static readonly _maxFloatingVel = 0.1;
 	private static readonly _minSpeed = 5e-4;
@@ -110,6 +111,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _jumpGracePeriod = 160;
 
 	private static readonly _armRecoveryTime = 500;
+	private static readonly _knockbackRecoveryTime = 250;
 	private static readonly _crateCheckInterval = 250;
 	private static readonly _walkSmokeInterval = 500;
 
@@ -134,6 +136,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
 	private _groundedTracker : ChangeTracker<boolean>;
+	private _knockbackRecoveryTimer : Timer;
 	private _walkSmokeRateLimiter : RateLimiter;
 
 	private _nearestCrate : Optional<Crate>;
@@ -207,6 +210,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				}
 			}
 		});
+		this._knockbackRecoveryTimer = this.newTimer({
+			canInterrupt: true,
+		});
 		this._walkSmokeRateLimiter = new RateLimiter(Player._walkSmokeInterval);
 
 		this._nearestCrate = new Optional();
@@ -258,8 +264,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.setAcc({x: 0, y: 0});
 
 		this._profile.setLimitFn((profile : Profile) => {
-			if (Math.abs(profile.vel().x) > Player._maxHorizontalVel) {
-				profile.vel().x = Math.sign(profile.vel().x) * Player._maxHorizontalVel;
+			const maxHorizontalVel = this._knockbackRecoveryTimer.hasTimeLeft() ? Player._maxHorizontalVel : Player._maxWalkingVel;
+			if (Math.abs(profile.vel().x) > maxHorizontalVel) {
+				profile.vel().x = Math.sign(profile.vel().x) * maxHorizontalVel;
 			}
 
 			const maxVerticalVel = this.getAttribute(AttributeType.FLOATING) ? Player._maxFloatingVel : Player._maxVerticalVel;
@@ -511,6 +518,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		return pos;
 	}
 
+	override addForce(force : Vec) : void {
+		super.addForce(force);
+
+		this._knockbackRecoveryTimer.start(Player._knockbackRecoveryTime);
+	}
 	override takeDamage(amount : number, from : Entity) : void {
 		super.takeDamage(amount, from);
 
@@ -554,7 +566,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			// Accel multipliers
-			if (sideAcc !== 0) {
+			if (sideAcc !== 0 && !this._knockbackRecoveryTimer.hasTimeLeft()) {
 				const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
 				const sideSpeed = Math.abs(this._profile.vel().x);
 
@@ -591,7 +603,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		// Friction and air resistance
 		if (Math.abs(this._profile.vel().x) < Player._minSpeed) {
 			this._profile.setVel({x: 0});
-		} else if (Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x)) {
+		} else if (!this._knockbackRecoveryTimer.hasTimeLeft()
+			&& Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x)) {
 			let sideVel = this._profile.vel().x;
 			if (this.getAttribute(AttributeType.GROUNDED)) {
 				sideVel *= 1 / (1 + Player._friction * millis / 1000);
@@ -696,7 +709,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._model.playAnimation(Animation.JUMP);
 			} else if (Math.abs(this._profile.acc().x) > 1e-2) {
 				this._model.playAnimation(Animation.WALK, {
-					speedRatio: 0.3 + Math.abs(this._profile.vel().x / Player._maxHorizontalVel),
+					speedRatio: 0.3 + Math.abs(this._profile.vel().x / Player._maxWalkingVel),
 				});
 
 				if (this._walkSmokeRateLimiter.check(millis)) {

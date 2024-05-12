@@ -6,11 +6,13 @@ enum GameConfigProp {
 	UNKNOWN,
 	LIVES,
 	PLAYERS_MIN,
+	POINTS,
 	TIME_SETUP,
 	TIME_GAME,
 	TIME_FINISH,
 	TIME_VICTORY,
 	TIME_ERROR,
+	VICTORIES,
 }
 
 export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> implements Message<GameMode, GameConfigProp> {
@@ -28,10 +30,13 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.DUEL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._defaultProps,
 			[GameConfigProp.TIME_GAME, { optional: true }],
+			[GameConfigProp.VICTORIES, {}],
 		)],
 		[GameMode.FREE_FOR_ALL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._defaultProps,
+			[GameConfigProp.POINTS, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
+			[GameConfigProp.VICTORIES, {}],
 		)],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._defaultProps,
@@ -40,6 +45,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			...GameConfigMessage._defaultProps,
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
+			[GameConfigProp.VICTORIES, {}],
 		)],
 	]);
 
@@ -95,6 +101,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getPlayersMinOr(value : number) : number { return this.getOr<number>(GameConfigProp.PLAYERS_MIN, value); }
     setPlayersMin(value : number) : void { this.set<number>(GameConfigProp.PLAYERS_MIN, value); }
 
+    hasPoints() : boolean { return this.has(GameConfigProp.POINTS); }
+    getPoints() : number { return this.get<number>(GameConfigProp.POINTS); }
+    getPointsOr(value : number) : number { return this.getOr<number>(GameConfigProp.POINTS, value); }
+    setPoints(value : number) : void { this.set<number>(GameConfigProp.POINTS, value); }
+
     hasTimeSetup() : boolean { return this.has(GameConfigProp.TIME_SETUP); }
     getTimeSetup() : number { return this.get<number>(GameConfigProp.TIME_SETUP); }
     getTimeSetupOr(value : number) : number { return this.getOr<number>(GameConfigProp.TIME_SETUP, value); }
@@ -120,15 +131,22 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getTimeErrorOr(value : number) : number { return this.getOr<number>(GameConfigProp.TIME_ERROR, value); }
     setTimeError(value : number) : void { this.set<number>(GameConfigProp.TIME_ERROR, value); }
 
+    hasVictories() : boolean { return this.has(GameConfigProp.VICTORIES); }
+    getVictories() : number { return this.get<number>(GameConfigProp.VICTORIES); }
+    getVictoriesOr(value : number) : number { return this.getOr<number>(GameConfigProp.VICTORIES, value); }
+    setVictories(value : number) : void { this.set<number>(GameConfigProp.VICTORIES, value); }
+
     /*
     const enumClass = "GameConfigProp";
     ["LIVES", "number"],
     ["PLAYERS_MIN", "number"],
+    ["POINTS", "number"],
     ["TIME_SETUP", "number"],
     ["TIME_GAME", "number"],
     ["TIME_FINISH", "number"],
     ["TIME_VICTORY", "number"],
     ["TIME_ERROR", "number"],
+    ["VICTORIES", "number"],
     */
     // End auto-generated code (v2.1)
 }

@@ -84,9 +84,8 @@ export class Explosion extends EntityBase implements Entity {
 			return;
 		}
 
-		const otherProfile = other.profile();
-		let force = otherProfile.pos().clone().sub(this._profile.pos()).normalize();
-		otherProfile.addForce(force);
+		let force = other.profile().pos().clone().sub(this._profile.pos()).normalize();
+		other.addForce(force);
 
 		this._hit.add(other.id());
 	}

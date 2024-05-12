@@ -105,7 +105,9 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		if (player.dead()) {
 			return false;
 		}
-		if (player.getAttribute(AttributeType.INVINCIBLE)) {
+
+		// TODO: probably need attribute specific to disabling equips in the future
+		if (player.getAttribute(AttributeType.FLOATING)) {
 			return false;
 		}
 

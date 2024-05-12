@@ -32,6 +32,7 @@ export enum EntityType {
 	CRATE,
 	EXPLOSION,
 	FLOOR,
+	HEADBAND,
 	JETPACK,
 	NAME_TAG,
 	PARTICLE_CUBE,

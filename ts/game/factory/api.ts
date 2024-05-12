@@ -64,6 +64,7 @@ export enum MeshType {
 	SNIPER,
 	ROCKET,
 
+	HEADBAND,
 	JETPACK,
 	SCOUTER,
 

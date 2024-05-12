@@ -24,7 +24,7 @@ import { KeyType, KeyState, TooltipType } from 'ui/api'
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
-import { Vec2, Vec3 } from 'util/vector'
+import { Vec, Vec2, Vec3 } from 'util/vector'
 
 export type EntityOptions = {
 	id? : number;
@@ -87,7 +87,7 @@ export interface Entity extends GameObject {
 	getAssociations() : Map<AssociationType, number>;
 	matchAssociations(types : AssociationType[], other : Entity) : boolean;
 
-	// Stats methods
+	addForce(force : Vec) : void;
 	takeDamage(amount : number, from : Entity) : void;
 
 	// Profile methods
@@ -323,6 +323,13 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this.getComponent<Counters>(ComponentType.COUNTERS).setCounter(type, value);	
 	}
 
+	addForce(force : Vec) : void {
+		if (!this.hasProfile()) {
+			return;
+		}
+
+		this.profile().addForce(force);
+	}
 	takeDamage(delta : number, from? : Entity) : void {
 		if (!this.hasComponent(ComponentType.STATS)) { return; }
 

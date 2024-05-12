@@ -70,7 +70,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		{
 			let buttonWrapper = modeButtons.addButtonSelect();
 			buttonWrapper.elm().style.width = "100%";
-			buttonWrapper.setText("[Coming soon] Practice mode");
+			buttonWrapper.setText("Practice mode");
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.PRACTICE;
 
@@ -116,10 +116,23 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		leftElm.appendChild(lives.elm());
 
+		let victories = new LabelNumberWrapper({
+			label: "First to N wins",
+			value: 3,
+			plus: (current : number) => {
+				return Math.min(current + 1, 5);
+			},
+			minus: (current : number) => {
+				return Math.max(1, current - 1);
+			},
+		});
+		leftElm.appendChild(victories.elm());
+
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		this.addOnNextPageOnce(() => {
 			this._configMsg.setLives(lives.value());
+			this._configMsg.setVictories(victories.value());
 		});
 	}
 }

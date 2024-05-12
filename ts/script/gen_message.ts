@@ -32,11 +32,13 @@ const enumClass = "GameConfigProp";
 const map = new Map<string, string>([
     ["LIVES", "number"],
     ["PLAYERS_MIN", "number"],
+    ["POINTS", "number"],
     ["TIME_SETUP", "number"],
     ["TIME_GAME", "number"],
     ["TIME_FINISH", "number"],
     ["TIME_VICTORY", "number"],
     ["TIME_ERROR", "number"],
+    ["VICTORIES", "number"],
 ]);
 //
 // End params

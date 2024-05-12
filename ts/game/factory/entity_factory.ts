@@ -14,6 +14,7 @@ import { Bubble } from 'game/entity/equip/bubble'
 import { BoobyHair } from 'game/entity/equip/headwear/booby_hair'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { BirdBrain } from 'game/entity/equip/bird_brain'
+import { Headband } from 'game/entity/equip/headband'
 import { Jetpack } from 'game/entity/equip/jetpack'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Scouter } from 'game/entity/equip/scouter'
@@ -53,6 +54,7 @@ export namespace EntityFactory {
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
+		[EntityType.HEADBAND, (options : EntityOptions) => { return new Headband(options); }],
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
 		[EntityType.PARTICLE_CUBE, (options : EntityOptions) => { return new ParticleCube(options); }],

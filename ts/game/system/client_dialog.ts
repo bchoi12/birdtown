@@ -28,7 +28,7 @@ export class ClientDialog extends ClientSideSystem implements System {
 
 		let loadout = this.message(DialogType.LOADOUT);
 		loadout.setEquipType(EntityType.BAZOOKA);
-		loadout.setAltEquipType(EntityType.JETPACK);
+		loadout.setAltEquipType(EntityType.HEADBAND);
 		loadout.setPlayerType(ModifierPlayerType.NONE);
 	}
 

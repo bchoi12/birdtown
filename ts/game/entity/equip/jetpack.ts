@@ -32,7 +32,7 @@ export class Jetpack extends Equip<Player> {
 
 	private _enabled : boolean;
 	private _juice : number;
-	private _canChargeTimer : Timer;
+	private _chargeDelayTimer : Timer;
 	private _chargeRate : number;
 	private _smoker : RateLimiter;
 
@@ -45,7 +45,7 @@ export class Jetpack extends Equip<Player> {
 
 		this._enabled = false;
 		this._juice = 0;
-		this._canChargeTimer = this.newTimer({
+		this._chargeDelayTimer = this.newTimer({
 			canInterrupt: true,
 		});
 		this._chargeRate = 0;
@@ -105,7 +105,7 @@ export class Jetpack extends Equip<Player> {
 
 			this._enabled = true;
 			this._chargeRate = 0;
-			this._canChargeTimer.start(Jetpack._chargeDelay);
+			this._chargeDelayTimer.start(Jetpack._chargeDelay);
 
 			let ownerProfile = this.owner().profile();
 			ownerProfile.addVel({ y: this.computeAcc(ownerProfile.vel().y) * millis / 1000, });
@@ -113,7 +113,7 @@ export class Jetpack extends Equip<Player> {
 			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
 				// Touch ground to unlock faster charge rate.
 				this._chargeRate = Math.max(this._chargeRate, Jetpack._groundChargeRate);
-			} else if (!this._canChargeTimer.hasTimeLeft()) {
+			} else if (!this._chargeDelayTimer.hasTimeLeft()) {
 				this._chargeRate = Math.max(this._chargeRate, Jetpack._chargeRate);
 			}
 		}
