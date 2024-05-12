@@ -12,6 +12,7 @@ import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
+import { LabelNumberWrapper } from 'ui/wrapper/label_number_wrapper'
 import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
 
 export class StartGameDialogWrapper extends DialogWrapper {
@@ -71,7 +72,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.elm().style.width = "100%";
 			buttonWrapper.setText("[Coming soon] Practice mode");
 			buttonWrapper.addOnClick(() => {
-				this._mode = GameMode.UNKNOWN;
+				this._mode = GameMode.PRACTICE;
 
 				infoElm.textContent = "No requirements\r\n\r\nDo whatever you want."
 			});
@@ -103,22 +104,22 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let leftElm = columnsWrapper.columnElm(0);
 		let rightElm = columnsWrapper.columnElm(1);
 
-		let lives = new SettingWrapper<number>({
-			name: "Lives",
-			get: () => { return this._configMsg.getLives(); },
-			click: (current : number) => {
-				current++;
-				if (current > 5) {
-					current = 1;
-				}
-				this._configMsg.setLives(current);
+		let lives = new LabelNumberWrapper({
+			label: "Lives",
+			value: 2,
+			plus: (current : number) => {
+				return Math.min(current + 1, 5);
 			},
-			text: (current : number) => {
-				return "" + current;
+			minus: (current : number) => {
+				return Math.max(1, current - 1);
 			},
 		});
 		leftElm.appendChild(lives.elm());
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
+
+		this.addOnNextPageOnce(() => {
+			this._configMsg.setLives(lives.value());
+		});
 	}
 }

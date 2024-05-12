@@ -331,7 +331,7 @@ export class ArchBlueprint extends Blueprint {
 			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
 				let block = building.block(j);
 
-				this.rng().setChance(0.9, (n : number) => { return n - 0.3; });
+				this.rng().setChance(0.5, (n : number) => { return n - 0.4; });
 				block.addCrates(this.rng());
 			}
 		}

@@ -35,9 +35,8 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		};
 	}
 
-	setText(text : string) : void {
-		this.elm().textContent = text;
-	}
+	setHtml(html : string ) : void { this.elm().innerHTML = html; }
+	setText(text : string) : void { this.elm().textContent = text;}
 
 	addOnClick(fn : OnClickFn) : void { this._onClickFns.push(fn); }
 	addOnSelect(fn : OnClickFn) : void { this._onSelectFns.push(fn); }

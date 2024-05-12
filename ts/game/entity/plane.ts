@@ -10,6 +10,8 @@ import { MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
+import { SeededRandom } from 'util/seeded_random'
+import { RateLimiter } from 'util/rate_limiter'
 import { Vec, Vec2 } from 'util/vector'
 
 enum Animation {
@@ -22,12 +24,18 @@ export class Plane extends EntityBase implements Entity {
 	private static readonly _animations = new Set<string>([Animation.FLYING, Animation.ON]);
 	private static readonly _speed = 0.2;
 	private static readonly _turnRate = 3;
+	private static readonly _crateSpawnInterval = 3000;
+
+	private _crateSpawner : RateLimiter;
+	private _rng : SeededRandom;
 
 	private _model : Model;
 	private _profile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PLANE, entityOptions);
+
+		this._crateSpawner = new RateLimiter(Plane._crateSpawnInterval);
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
@@ -89,6 +97,22 @@ export class Plane extends EntityBase implements Entity {
 			rotation.y = Math.min(0, rotation.y + Plane._turnRate * millis / 1000);
 		} else {
 			rotation.y = Math.max(-Math.PI, rotation.y - Plane._turnRate * millis / 1000);
+		}
+
+		if (this.isSource() && this._crateSpawner.check(millis)) {
+			const numCrates = game.entities().getMap(EntityType.CRATE).numEntities();
+			const numPlayers = game.entities().getMap(EntityType.PLAYER).numEntities();
+
+			if (numCrates <= 2 * numPlayers + 8) {
+				this.addEntity(EntityType.CRATE, {
+					profileInit: {
+						pos: this._profile.pos(),
+						dim: { x: 1, y: 1 },
+						vel: this._profile.vel(),
+						angle: Math.random() * 360,
+					}
+				});
+			}
 		}
 	}
 }

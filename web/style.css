@@ -328,6 +328,20 @@ body {
     display: block;
 }
 
+.setting-label {
+    max-width: 60%;
+    white-space: nowrap;
+    overflow-x: hidden;
+    float: left;
+}
+
+.setting-value {
+    max-width: 40%;
+    white-space: nowrap;
+    overflow-x: hidden;
+    float: right;
+}
+
 #cursor, #aim {
     position: absolute;
     visibility: hidden;
@@ -350,8 +364,10 @@ body {
 }
 
 .button, .button-select {
-    padding: 0.1em;
-    margin: 0.2em;
+    padding-left: 0.1em;
+    padding-right: 0.1em;
+    margin-left: 0.2em;
+    margin-right: 0.2em;
     display: inline-block;
 }
 

@@ -93,10 +93,6 @@ export class GameMaker extends SystemBase implements System {
 
 		if (isLocalhost()) {
 			console.log("%s: config is", this.name(), this._config.dataMap());
-
-			if (config) {
-				console.log("%s: applied override", this.name(), config);
-			}
 		}
 		return true;
 	}

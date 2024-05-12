@@ -159,9 +159,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	override dispose() : void {
 		super.dispose();
 
-		if (!this.isOffline()) {
-			game.entities().unregisterEntity(this.id());
-		}
+		game.entities().unregisterEntity(this.id());
 	}
 
 	override prePhysics(stepData : StepData) : void {

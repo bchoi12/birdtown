@@ -282,7 +282,8 @@ export class Lakitu extends SystemBase implements System {
 		ui.updateCounters(this.targetEntity().getCounts());
 
 		// TODO: rate limit?
-		if (game.playerState().role() === PlayerRole.SPECTATING) {
+		if (game.playerState().role() === PlayerRole.SPECTATING
+			&& game.tablets().hasTablet(this.targetEntity().clientId())) {
 			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
 			tooltipMsg.setTooltipType(TooltipType.SPECTATING);
 			tooltipMsg.setTtl(100);

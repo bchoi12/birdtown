@@ -48,12 +48,12 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		// TODO: rate limited poll for updates
 		if (this._scoreboardElm.style.visibility === "visible") {
 			return;
 		}
 
 		// TODO: use ScoreWrapper, this sucks
+		// TODO: have tablet update this directly
 		this._tempElm.textContent = "";
 		for (const score of game.tablets().scores()) {
 			this._tempElm.textContent += "\t" + score.displayName + ": " + score.roundScore + "\r\n";

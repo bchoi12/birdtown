@@ -40,11 +40,11 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 	private _equipType : EntityType;
 	private _altEquipType : EntityType;
 
+	private _nameTag : NameTag;
+
 	private _attributes : Attributes;
 	private _profile : Profile;
 	private _model : Model;
-
-	private _nameTag : NameTag;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.CRATE, entityOptions);
@@ -54,6 +54,8 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 		this._showTooltip = false;
 		this._equipType = EntityType.SNIPER;
 		this._altEquipType = EntityType.SCOUTER;
+
+		this._nameTag = null;
 
 		this.addProp<boolean>({
 			has: () => { return this._opened; },
@@ -87,7 +89,7 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 					},
 				});
 			},
-			init: {...entityOptions.profileInit, degraded: true },
+			init: {...entityOptions.profileInit },
 		}));
 		this._profile.setAcc({ y: GameGlobals.gravity });
 		if (!this._profile.hasAngle()) {

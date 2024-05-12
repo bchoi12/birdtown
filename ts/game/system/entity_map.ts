@@ -40,6 +40,7 @@ export class EntityMap extends SystemBase implements System {
 		return this.registerChild<T>(entity.id(), entity);
 	}
 	hasEntity(id : number) : boolean { return this.hasChild(id); }
+	numEntities() : number { return this.numChildren(); }
 	getEntity<T extends Entity>(id : number) : T { return this.getChild<T>(id); }
 	deleteEntity(id : number) : void {
 		if (!this.hasEntity(id)) {

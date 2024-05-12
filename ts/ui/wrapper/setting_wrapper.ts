@@ -31,7 +31,5 @@ export class SettingWrapper<T extends number> extends LabelButtonWrapper {
 
 	refresh() : void { this._options.get(); }
 
-	override setText(text : string) : void {
-		super.setText("[" + text + "]");
-	}
+	override setText(text : string) : void { super.setText("[" + text + "]"); }
 }
