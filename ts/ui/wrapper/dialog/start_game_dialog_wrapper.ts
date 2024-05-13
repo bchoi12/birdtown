@@ -89,7 +89,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 				switch (this._mode) {
 				case GameMode.SURVIVAL:
+					console.log("ADD SURVIVAL PAGE");
 					this.addSurvivalPage();
+					break;
 				}
 			}
 		});
@@ -130,9 +132,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
+		console.log(this, "ADD SETTINGS TO CONFIG MSG");
+		// TODO: this doesn't work???????
 		this.addOnNextPageOnce(() => {
 			this._configMsg.setLives(lives.value());
 			this._configMsg.setVictories(victories.value());
+
+			console.log("DONE")
 		});
 	}
 }

@@ -6,10 +6,11 @@ import { GameMode } from 'game/api'
 import { StepData } from 'game/game_object'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EquipEntity, EntityBase, EntityOptions } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
+import { Interactable } from 'game/entity/interactable'
 import { CollisionCategory, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -24,25 +25,22 @@ import { KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { Optional } from 'util/optional'
 
-export abstract class Sign extends EntityBase implements Entity, EquipEntity {
+export abstract class Sign extends Interactable implements Entity, EquipEntity {
 
-	private _active : boolean;
-	private _hasCollision : boolean;
-	private _interacting : boolean;
+	protected _showTooltip : boolean;
 
-	private _nameTag : Optional<NameTag>;
+	protected _nameTag : NameTag;
 
-	private _model : Model;
-	private _profile : Profile;
+	protected _model : Model;
+	protected _profile : Profile;
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
 		this.addType(EntityType.SIGN);
 
-		this._active = false;
-		this._hasCollision = false;
+		this._showTooltip = false;
 
-		this._nameTag = new Optional();
+		this._nameTag = null;
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => {
@@ -94,7 +92,15 @@ export abstract class Sign extends EntityBase implements Entity, EquipEntity {
 
 		nameTag.setDisplayName(text);
 		nameTag.setPointerColor(ColorFactory.signGray.toString());
-		this._nameTag.set(nameTag);
+		this._nameTag = nameTag;
+	}
+
+	override delete() : void {
+		super.delete();
+
+		if (this._nameTag !== null) {
+			this._nameTag.delete();
+		}
 	}
 
 	abstract nameTagText() : string;
@@ -114,67 +120,37 @@ export abstract class Sign extends EntityBase implements Entity, EquipEntity {
 		});
 	}
 
-	interactable() : boolean { return true; }
-	interact() : void { this._interacting = true; }
-
-	setActive(active : boolean) : void {
-		if (this._active === active) {
-			return;
-		}
-
-		this._active = active;
-
-		if (!this._nameTag.has()) {
-			return;
-		}
-
-		if (this._active) {
-			this._nameTag.get().setVisible(false);
-		} else {
-			this._nameTag.get().setVisible(true);
-		}
+	override canInteractWith(entity : Entity) : boolean {
+		return entity.clientIdMatches() && super.canInteractWith(entity);
 	}
 
-	override prePhysics(stepData : StepData) : void {
-		super.prePhysics(stepData);
+	override setInteractableWith(entity : Entity, interactable : boolean) : void {
+		super.setInteractableWith(entity, interactable);
 
-		this._hasCollision = false;
-	}
+		if (entity.isLakituTarget()) {
+			this._showTooltip = interactable;
 
-	override collide(collision : MATTER.Collision, other : Entity) : void {
-		super.collide(collision, other);
-
-		if (other.type() !== EntityType.PLAYER) {
-			return;
-		}
-
-		if (!other.isLakituTarget()) {
-			return;
-		}
-
-		this._hasCollision = true;
-	}
-
-	override postPhysics(stepData : StepData) : void {
-		super.postPhysics(stepData);
-
-		this.setActive(this._hasCollision);
-
-		if (this._active) {
-			if (!this._interacting) {
-				let msg = new UiMessage(UiMessageType.TOOLTIP);
-				msg.setTtl(100);
-				msg.setTooltipType(this.tooltipType());
-				ui.handleMessage(msg);
-			}
-
-			if (this.key(KeyType.INTERACT, KeyState.PRESSED) && this.interactable()) {
-				this.interact();
+			if (this._nameTag !== null) {
+				this._nameTag.setVisible(!interactable);
 			}
 		}
+	}
+	override interactWith(entity : Entity) : void {
+		if (!entity.clientIdMatches()) {
+			return;
+		}
 
-		if (!this._hasCollision) {
-			this._interacting = false;
+		this._showTooltip = false;
+	}
+
+	override preRender() : void {
+		super.preRender();
+
+		if (this._showTooltip) {
+			let msg = new UiMessage(UiMessageType.TOOLTIP);
+			msg.setTtl(100);
+			msg.setTooltipType(this.tooltipType());
+			ui.handleMessage(msg);
 		}
 	}
 }

@@ -18,7 +18,7 @@ import { Vec3 } from 'util/vector'
 export class Headband extends Equip<Player> {
 
 	private static readonly _chargeDelay = 500;
-	private static readonly _maxJuice = 200;
+	private static readonly _maxJuice = 100;
 
 	private _juice : number;
 	private _chargeDelayTimer : Timer;
@@ -67,7 +67,7 @@ export class Headband extends Equip<Player> {
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {
-			this._juice = Math.min(Headband._maxJuice, this._juice + Headband._maxJuice * millis / 1000);
+			this._juice = Math.min(Headband._maxJuice, this._juice + 2 * Headband._maxJuice * millis / 1000);
 		}
 	}
 }

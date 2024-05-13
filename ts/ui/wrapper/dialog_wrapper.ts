@@ -103,16 +103,18 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	addOnNextPage(fn : OnSubmitFn) : void { this._onNextPageFns.push(fn); }
-	addOnNextPageOnce(fn : OnSubmitFn) : void { this._onNextPageOnceFns.push(fn); }
+	addOnNextPageOnce(fn : OnSubmitFn) : void { this._onNextPageOnceFns.push(fn); console.log("add once", this._onNextPageOnceFns); }
 	nextPage() : void {
 		this._onNextPageFns.forEach((onNextPage : OnSubmitFn) => {
 			onNextPage();
 		});
 
+		console.log("NEXT PAGE", this._onNextPageOnceFns);
 		this._onNextPageOnceFns.forEach((onNextPageOnce : OnSubmitFn) => {
+			console.log("ON NEXT PAGE ONCE");
 			onNextPageOnce();
 		});
-		this._onNextPageOnceFns.length = 0;;
+		this._onNextPageOnceFns.length = 0;
 
 		if (this._pageIndex >= this._pages.length - 1) {
 			this.submit();

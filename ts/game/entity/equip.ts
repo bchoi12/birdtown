@@ -48,7 +48,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
-		this._allTypes.add(EntityType.EQUIP);
+		this.addType(EntityType.EQUIP);
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));

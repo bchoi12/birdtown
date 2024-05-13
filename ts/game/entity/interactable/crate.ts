@@ -6,10 +6,12 @@ import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EquipEntity, EntityBase, EntityOptions } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
+import { Interactable } from 'game/entity/interactable'
+import { Player } from 'game/entity/player'
 import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -30,11 +32,10 @@ import { KeyNames } from 'ui/common/key_names'
 
 import { Fns } from 'util/fns'
 
-export class Crate extends EntityBase implements Entity, EquipEntity {
+export class Crate extends Interactable implements Entity, EquipEntity {
 
 	private static _maxSpeed = 0.6;
 
-	private _canOpen : boolean;
 	private _opened : boolean;
 	private _showTooltip : boolean;
 	private _equipType : EntityType;
@@ -49,7 +50,6 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.CRATE, entityOptions);
 
-		this._canOpen = false;
 		this._opened = false;
 		this._showTooltip = false;
 		this._equipType = EntityType.SNIPER;
@@ -61,7 +61,7 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 			has: () => { return this._opened; },
 			export: () => { return this._opened; },
 			import: (obj : boolean) => {
-				this._opened = obj;
+				this.open();
 				this.delete();
 			},
 		});
@@ -178,31 +178,36 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 		return StringFactory.getEntityTypeName(this._equipType).base() + " and " + StringFactory.getEntityTypeName(this._altEquipType).base();
 	}
 
-	showTooltip() : void { this._showTooltip = true; }
-	canOpen() : boolean { return this._canOpen; }
-	setCanOpen(canOpen : boolean) {
-		if (!canOpen) {
-			this._showTooltip = false;
-		}
+	override setInteractableWith(entity : Entity, interactable : boolean) : void {
+		super.setInteractableWith(entity, interactable);
 
-		if (this._canOpen === canOpen) {
+		if (entity.isLakituTarget()) {
+			this._showTooltip = interactable;
+
+			if (this._nameTag !== null) {
+				this._nameTag.setVisible(interactable);
+			}
+		}
+	}
+	override interactWith(entity : Entity) : void {
+		if (entity.type() !== EntityType.PLAYER) {
 			return;
 		}
 
-		this._canOpen = canOpen;
+		const player = <Player>entity;
+		player.createEquips(this.equipType(), this.altEquipType());
 
-		this._nameTag.setVisible(this._canOpen);
-	}
-	open() : void {
-		this.setCanOpen(false);
-
-		this._opened = true;
+		this.open();
 
 		if (this.isSource()) {
 			this.delete();
 		}
 	}
-
+	private open() : void {
+		this.clearInteractable();
+		this._opened = true;
+	}
+	
 	equip(equip : Equip<Entity & EquipEntity>) : void {
 		if (equip.type() !== EntityType.NAME_TAG) {
 			console.error("Error: trying to attach %s to %s", equip.name(), this.name());
@@ -227,7 +232,7 @@ export class Crate extends EntityBase implements Entity, EquipEntity {
 	override preRender() : void {
 		super.preRender();
 
-		if (this._showTooltip && this._canOpen) {
+		if (this._showTooltip) {
 			let msg = new UiMessage(UiMessageType.TOOLTIP);
 			msg.setTtl(50);
 			msg.setTooltipType(TooltipType.OPEN_CRATE);

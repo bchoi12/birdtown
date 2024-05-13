@@ -83,6 +83,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		case GameMode.SURVIVAL:
 			this.setLives(2);
 			this.setPlayersMin(2);
+			this.setVictories(3);
 			break;
 		}
 		return this;

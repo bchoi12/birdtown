@@ -21,6 +21,7 @@ export class Bubble extends Equip<Player> {
 	private static readonly _alpha = 0.3;
 	private static readonly _cameraOffset = -1.5;
 	private static readonly _popDuration = 500;
+	private static readonly _bubbleDuration = 15000;
 
 	private _cameraOffset : Vec3;
 	private _material : BABYLON.StandardMaterial;
@@ -57,6 +58,8 @@ export class Bubble extends Equip<Player> {
 		}));
 	}
 
+	private interpWeight() : number { return this._popped ? (1 - this.ttlElapsed()) : 1; }
+
 	pop() : void {
 		if (this._popped) {
 			return;
@@ -64,7 +67,9 @@ export class Bubble extends Equip<Player> {
 
 		this._popped = true;
 
-		this.owner().setAttribute(AttributeType.FLOATING, false);
+		if (this.hasOwner()) {
+			this.owner().setAttribute(AttributeType.FLOATING, false);
+		}
 
 		this.setTTL(Bubble._popDuration);
 	}
@@ -74,18 +79,21 @@ export class Bubble extends Equip<Player> {
 
 		this.owner().setAttribute(AttributeType.FLOATING, true);
 		this.owner().setAttribute(AttributeType.INVINCIBLE, true);
+
+		this.setTTL(Bubble._bubbleDuration);
 	}
 
 	override delete() : void {
 		super.delete();
 
-		if (this._popped) {
+		if (this.hasOwner()) {
+			this.owner().setAttribute(AttributeType.FLOATING, false);
 			this.owner().setAttribute(AttributeType.INVINCIBLE, false);
 		}
 	}
 
 	override cameraOffset() : Vec3 {
-		this._cameraOffset.y = Bubble._cameraOffset * (1 - this.ttlElapsed());
+		this._cameraOffset.y = Bubble._cameraOffset * this.interpWeight();
 		return this._cameraOffset;
 	}
 
@@ -96,7 +104,7 @@ export class Bubble extends Equip<Player> {
 			return;
 		}
 
-		this._material.alpha = Bubble._alpha * (1 - this.ttlElapsed());
+		this._material.alpha = Bubble._alpha * this.interpWeight();
 
 		const scaling = 1 + this.ttlElapsed();
 		this._model.scaling().x = scaling;

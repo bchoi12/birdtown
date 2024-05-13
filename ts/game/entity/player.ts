@@ -14,9 +14,9 @@ import { Modifiers } from 'game/component/modifiers'
 import { Profile } from 'game/component/profile'
 import { StatInitOptions } from 'game/component/stat'
 import { Stats } from 'game/component/stats'
-import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EquipEntity, InteractEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { Crate } from 'game/entity/crate'
+import { Crate } from 'game/entity/interactable/crate'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Beak } from 'game/entity/equip/beak'
 import { Bubble } from 'game/entity/equip/bubble'
@@ -112,7 +112,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	private static readonly _armRecoveryTime = 500;
 	private static readonly _knockbackRecoveryTime = 250;
-	private static readonly _crateCheckInterval = 250;
+	private static readonly _interactCheckInterval = 250;
 	private static readonly _walkSmokeInterval = 500;
 
 	private static readonly _defaultColor = "#ffffff";
@@ -139,8 +139,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _knockbackRecoveryTimer : Timer;
 	private _walkSmokeRateLimiter : RateLimiter;
 
-	private _nearestCrate : Optional<Crate>;
-	private _crateRateLimiter : RateLimiter;
+	private _nearestInteractable : Optional<InteractEntity>;
+	private _interactRateLimiter : RateLimiter;
 
 	private _association : Association;
 	private _attributes : Attributes;
@@ -215,8 +215,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 		this._walkSmokeRateLimiter = new RateLimiter(Player._walkSmokeInterval);
 
-		this._nearestCrate = new Optional();
-		this._crateRateLimiter = new RateLimiter(Player._crateCheckInterval);
+		this._nearestInteractable = new Optional();
+		this._interactRateLimiter = new RateLimiter(Player._interactCheckInterval);
 
 		this.addProp<boolean>({
 			export: () => { return this._canDoubleJump; },
@@ -614,13 +614,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this._profile.setVel({x: sideVel });
 		}
 
-		if (this._model.hasMesh()) {
-			// Cosmetic stuff
-			if (this._armRecoil > 0) {
-				this._armRecoil -= Math.abs(millis / Player._armRecoveryTime);
-				if (this._armRecoil < 0) {
-					this._armRecoil = 0;
-				}
+		// Cosmetic stuff
+		if (this._armRecoil > 0) {
+			this._armRecoil -= Math.abs(millis / Player._armRecoveryTime);
+			if (this._armRecoil < 0) {
+				this._armRecoil = 0;
 			}
 		}
 	}
@@ -653,8 +651,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 		}
 
-		// Check for nearby crates
-		if (this._crateRateLimiter.check(millis)) {
+		// Check for nearby interactables
+		if (this._interactRateLimiter.check(millis)) {
 			// Need to use render position for circular levels
 			const pos = this._profile.pos();
 			const width = this._profile.width();
@@ -667,40 +665,42 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			]);
 			const bodies = MATTER.Query.region(game.physics().world().bodies, bounds);
 
-			let nearestCrate : Crate = null;
+			let nearestInteractable : InteractEntity = null;
 			let currentDistSq : number = null;
 			for (let i = 0; i < bodies.length; ++i) {
 				const [entity, ok] = game.physics().queryEntity(bodies[i]);
-				if (!ok || entity.type() !== EntityType.CRATE) {
+				if (!ok || !entity.allTypes().has(EntityType.INTERACTABLE)) {
 					continue;
 				}
+				const interactable = <InteractEntity>entity;
+
 				const distSq = pos.distSq(entity.profile().pos());
-				if (nearestCrate === null || distSq < currentDistSq) {
-					nearestCrate = <Crate>entity;
+				if (nearestInteractable === null || distSq < currentDistSq) {
+					nearestInteractable = interactable;
 					currentDistSq = distSq
 				}
 			}
 
-			if (this._nearestCrate.has()) {
-				this._nearestCrate.get().setCanOpen(false);
-				this._nearestCrate.clear();
+			// Swap nearest interactable, if any.
+			if (this._nearestInteractable.has()) {
+				this._nearestInteractable.get().setInteractableWith(this, false);
+				this._nearestInteractable.clear();
 			}
-			if (nearestCrate !== null) {
-				nearestCrate.setCanOpen(true);
-				if (this.isLakituTarget()) {
-					nearestCrate.showTooltip();
-				}
-				this._nearestCrate.set(nearestCrate);
+			if (nearestInteractable !== null) {
+				nearestInteractable.setInteractableWith(this, true);
+				this._nearestInteractable.set(nearestInteractable);
 			}
 		}
 
-		// Open crates
+		// Interact with stuff
 		// TODO: put in update?
-		if (this.isSource() && this.key(KeyType.INTERACT, KeyState.PRESSED) && this._nearestCrate.has()) {
-			let crate = this._nearestCrate.get();
-			this.createEquips(crate.equipType(), crate.altEquipType());
-			crate.open();
-			this._crateRateLimiter.prime();
+		// TODO: move isSource() check to canInteractWith?
+		if (this.isSource()
+			&& this._nearestInteractable.has()
+			&& this._nearestInteractable.get().canInteractWith(this)
+			&& this.key(KeyType.INTERACT, KeyState.PRESSED)) {
+			this._nearestInteractable.get().interactWith(this);
+			this._interactRateLimiter.prime();
 		}
 
 		// Animation

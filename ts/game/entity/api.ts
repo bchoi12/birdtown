@@ -11,6 +11,7 @@ export enum EntityType {
 	BOUND,
 	EQUIP,
 	HEADWEAR,
+	INTERACTABLE,
 	PARTICLE,
 	PROJECTILE,
 	SIGN,

@@ -12,6 +12,7 @@ enum DisplayType {
 
 	COOLDOWN,
 	INTEGER,
+	PERCENT,
 }
 type IconMetadata = {
 	iconType : IconType;
@@ -34,7 +35,7 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 		}],
 		[CounterType.JUICE, {
 			iconType: IconType.TRUCK_FAST,
-			displayType: DisplayType.INTEGER,
+			displayType: DisplayType.PERCENT,
 			delay: 0,
 		}],
 		[CounterType.ROCKET, {
@@ -118,7 +119,8 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 			break;
 		case DisplayType.INTEGER:
 			return "" + Math.ceil(count);
-			break;
+		case DisplayType.PERCENT:
+			return Math.ceil(count) + "%";
 		}
 		return "";
 	}
