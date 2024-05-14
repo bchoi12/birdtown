@@ -22,6 +22,15 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 
 		this.titleElm().textContent = "Welcome to Birdtown";
 		this.addNamePage();
+
+		let okButton = this.addOKButton();
+		okButton.addOnClick(() => {
+			this.nextPage();
+		});
+
+		this.addOnSubmit(() => {
+			ui.applySettings();
+		});
 	}
 
 	private addNamePage() : void {
@@ -38,16 +47,10 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		colorInput.value = ColorFactory.playerColor(game.clientId()).toString();
 		pageWrapper.elm().appendChild(colorInput);
 
-		let okButton = this.addOKButton();
-		okButton.addOnClick(() => {
+		pageWrapper.setOnSubmit(() => {
 			const name = nameInput.value.length > 0 ? nameInput.value : LoginNames.randomName();
 			this.dialogMessage().setDisplayName(name);
 			this.dialogMessage().setColor(colorInput.value);
-			this.nextPage();
-		});
-
-		this.addOnSubmit(() => {
-			ui.applySettings();
 		});
 	}
 }

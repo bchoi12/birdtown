@@ -14,6 +14,7 @@ import { StepData } from 'game/game_object'
 
 import { DialogType } from 'ui/api'
 
+import { Timer } from 'util/timer'
 import { Vec3 } from 'util/vector'
 
 export class Bubble extends Equip<Player> {
@@ -21,11 +22,12 @@ export class Bubble extends Equip<Player> {
 	private static readonly _alpha = 0.3;
 	private static readonly _cameraOffset = -1.5;
 	private static readonly _popDuration = 500;
-	private static readonly _bubbleDuration = 15000;
+	private static readonly _lifeDuration = 10000;
 
 	private _cameraOffset : Vec3;
 	private _material : BABYLON.StandardMaterial;
 	private _popped : boolean;
+	private _popTimer : Timer;
 
 	private _model : Model;
 	private _profile : Profile;
@@ -40,6 +42,9 @@ export class Bubble extends Equip<Player> {
 		this._material.needDepthPrePass = true;
 
 		this._popped = false;
+		this._popTimer = this.newTimer({
+			canInterrupt: false,
+		});
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
@@ -57,8 +62,6 @@ export class Bubble extends Equip<Player> {
 			init: entityOptions.modelInit,
 		}));
 	}
-
-	private interpWeight() : number { return this._popped ? (1 - this.ttlElapsed()) : 1; }
 
 	pop() : void {
 		if (this._popped) {
@@ -80,7 +83,9 @@ export class Bubble extends Equip<Player> {
 		this.owner().setAttribute(AttributeType.FLOATING, true);
 		this.owner().setAttribute(AttributeType.INVINCIBLE, true);
 
-		this.setTTL(Bubble._bubbleDuration);
+		this._popTimer.start(Bubble._lifeDuration, () => {
+			this.pop();
+		});
 	}
 
 	override delete() : void {
@@ -113,4 +118,6 @@ export class Bubble extends Equip<Player> {
 	}
 
 	override attachType() : AttachType { return AttachType.ROOT; }
+
+	private interpWeight() : number { return this._popped ? (1 - this.ttlElapsed()) : 1; }
 }

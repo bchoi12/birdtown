@@ -35,6 +35,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 
 		this.addOnSubmit(() => {
+			// TODO: show tooltip on error
 			if (this._configMsg !== null) {
 				game.controller().startGame(this._configMsg);
 			}
@@ -81,7 +82,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		modeElm.appendChild(modeButtons.elm());
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
-		this.addOnNextPageOnce(() => {
+		pageWrapper.setOnSubmit(() => {
 			if (this._mode !== GameMode.UNKNOWN) {
 				this._configMsg = GameConfigMessage.defaultConfig(this._mode);
 
@@ -89,7 +90,6 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 				switch (this._mode) {
 				case GameMode.SURVIVAL:
-					console.log("ADD SURVIVAL PAGE");
 					this.addSurvivalPage();
 					break;
 				}
@@ -132,13 +132,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
-		console.log(this, "ADD SETTINGS TO CONFIG MSG");
-		// TODO: this doesn't work???????
-		this.addOnNextPageOnce(() => {
+		pageWrapper.setOnSubmit(() => {
 			this._configMsg.setLives(lives.value());
 			this._configMsg.setVictories(victories.value());
-
-			console.log("DONE")
 		});
 	}
 }

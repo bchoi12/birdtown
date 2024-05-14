@@ -26,7 +26,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 			buttonWrapper.setText("BIG");
 			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setPlayerType(ModifierPlayerType.BIG);
-				pageWrapper.submit();
+				this.nextPage();
 			});
 			pageWrapper.elm().appendChild(buttonWrapper.elm());
 		}
@@ -36,7 +36,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 			buttonWrapper.setText("NORMAL");
 			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setPlayerType(ModifierPlayerType.NONE);
-				pageWrapper.submit();
+				this.nextPage();
 			});
 			pageWrapper.elm().appendChild(buttonWrapper.elm());
 		}
@@ -50,7 +50,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setEquipType(EntityType.BAZOOKA);
 				this.dialogMessage().setAltEquipType(EntityType.JETPACK);
-				pageWrapper.submit();
+				this.nextPage();
 			});
 			pageWrapper.elm().appendChild(buttonWrapper.elm());
 		}
@@ -61,7 +61,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this.dialogMessage().setEquipType(EntityType.SNIPER);
 				this.dialogMessage().setAltEquipType(EntityType.SCOUTER);
-				pageWrapper.submit();
+				this.nextPage();
 			});
 			pageWrapper.elm().appendChild(buttonWrapper.elm());
 		}

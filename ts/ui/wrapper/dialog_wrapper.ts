@@ -37,7 +37,6 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	private _footer : FooterWrapper;
 
 	private _onNextPageFns : Array<OnSubmitFn>;
-	private _onNextPageOnceFns : Array<OnSubmitFn>;
 	private _onSubmitFns : Array<OnSubmitFn>;
 
 	constructor() {
@@ -67,7 +66,6 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._pageIndex = 0;
 
 		this._onNextPageFns = new Array();
-		this._onNextPageOnceFns = new Array();
 		this._onSubmitFns = new Array();
 	}
 
@@ -78,11 +76,6 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	addPage() : PageWrapper {
 		let page = new PageWrapper();
 
-		if (this._pages.length > 0) {
-			this._pages[this._pages.length - 1].setOnSubmit(() => { this.nextPage(); });
-		}
-
-		page.setOnSubmit(() => { this.submit(); });
 		this._pages.push(page);
 		this._contentElm.appendChild(page.elm());
 
@@ -103,26 +96,19 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	addOnNextPage(fn : OnSubmitFn) : void { this._onNextPageFns.push(fn); }
-	addOnNextPageOnce(fn : OnSubmitFn) : void { this._onNextPageOnceFns.push(fn); console.log("add once", this._onNextPageOnceFns); }
 	nextPage() : void {
 		this._onNextPageFns.forEach((onNextPage : OnSubmitFn) => {
 			onNextPage();
 		});
 
-		console.log("NEXT PAGE", this._onNextPageOnceFns);
-		this._onNextPageOnceFns.forEach((onNextPageOnce : OnSubmitFn) => {
-			console.log("ON NEXT PAGE ONCE");
-			onNextPageOnce();
-		});
-		this._onNextPageOnceFns.length = 0;
+		let currentPage = this._pages[this._pageIndex];
+		currentPage.submit();
+		currentPage.elm().style.display = "none";
 
 		if (this._pageIndex >= this._pages.length - 1) {
 			this.submit();
 			return;
 		}
-
-		let currentPage = this._pages[this._pageIndex];
-		currentPage.elm().style.display = "none";
 
 		this._pageIndex++;
 		this._pages[this._pageIndex].elm().style.display = "block";

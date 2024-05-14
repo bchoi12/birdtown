@@ -106,7 +106,7 @@ export class Plane extends EntityBase implements Entity {
 			if (numCrates <= 2 * numPlayers + 8) {
 				this.addEntity(EntityType.CRATE, {
 					profileInit: {
-						pos: this._profile.pos(),
+						pos: this._profile.pos().clone().add({ x: Math.sign(this._profile.vel().x) * 2 }),
 						dim: { x: 1, y: 1 },
 						vel: this._profile.vel(),
 						angle: Math.random() * 360,
