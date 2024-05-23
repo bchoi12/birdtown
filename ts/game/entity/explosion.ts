@@ -17,6 +17,8 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Explosion extends EntityBase implements Entity {
 
+	private static readonly _nominalDiameter = 3;
+
 	private _profile : Profile;
 	private _model : Model;
 	private _soundPlayer : SoundPlayer;
@@ -84,7 +86,8 @@ export class Explosion extends EntityBase implements Entity {
 			return;
 		}
 
-		let force = other.profile().pos().clone().sub(this._profile.pos()).normalize();
+		const magnitude = this._profile.unscaledDim().x / Explosion._nominalDiameter;
+		const force = other.profile().pos().clone().sub(this._profile.pos()).setLength(magnitude);
 		other.addForce(force);
 
 		this._hit.add(other.id());

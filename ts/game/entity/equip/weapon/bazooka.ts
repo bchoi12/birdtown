@@ -39,8 +39,14 @@ export class Bazooka extends Weapon {
 		let vel = unitDir.clone().scale(0.05);
 		let acc = unitDir.clone().scale(1.5);
 		let [rocket, hasRocket] = this.addEntity<Rocket>(EntityType.ROCKET, {
+			ttl: 850,
 			associationInit: {
 				owner: this,
+			},
+			modelInit: {
+				transforms: {
+					translate: { z: pos.z, },
+				},
 			},
 			profileInit: {
 				pos: pos,
@@ -51,14 +57,10 @@ export class Bazooka extends Weapon {
 
 		if (hasRocket) {
 			this.recordUse();
-			rocket.setTTL(850, () => {
-				rocket.explode();
-			});
-			rocket.model().transforms().setTranslation({ z: pos.z });
 		}
 	}
 
-	override reload() : void {}
+	override onReload() : void {}
 
 	override getCounts() : Map<CounterType, number> {
 		let counts = super.getCounts();

@@ -28,15 +28,27 @@ export enum AttachType {
 }
 
 export enum RecoilType {
-	UNKNOWN = 0,
+	UNKNOWN,
 
-	NONE = 0,
-	SMALL = 0.1,
-	MEDIUM = 0.2,
-	LARGE = 0.3,
+	NONE,
+	SMALL,
+	MEDIUM,
+	LARGE,
+
+	THROW,
 }
 
+type DistAndAngle = [number, number];
+
 export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
+
+	private static readonly _recoil = new Map<RecoilType, DistAndAngle>([
+		[RecoilType.NONE, [0, 0]],
+		[RecoilType.SMALL, [0.1, 0]],
+		[RecoilType.MEDIUM, [0.2, 0]],
+		[RecoilType.LARGE, [0.3, 0]],
+		[RecoilType.THROW, [0.1, Math.PI / 4]],
+	]);
 
 	protected _association : Association;
 	protected _attributes : Attributes;
@@ -62,7 +74,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 			has: () => { return this._uses.count() > 0; },
 			export: () => { return this._uses.count(); },
 			import: (obj : number) => { this._uses.set(obj); },
-		})
+		});
 	}
 
 	override ready() : boolean {
@@ -121,7 +133,9 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	// Record instance of equip use. Only needed if some action is performed on use (e.g. recoil)
 	protected recordUse() : void { this._uses.add(1); }
 	popUses() : number { return this._uses.save(); }
-	recoilType() : number { return RecoilType.NONE; }
+
+	recoil() : DistAndAngle { return Equip._recoil.get(this.recoilType()); }
+	protected recoilType() : number { return RecoilType.NONE; }
 
 	abstract attachType() : AttachType;
 }

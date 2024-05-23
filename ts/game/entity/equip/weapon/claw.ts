@@ -19,43 +19,32 @@ import { KeyType, KeyState } from 'ui/api'
 import { defined } from 'util/common'
 import { Vec3 } from 'util/vector'
 
-export class Sniper extends Weapon {
+export class Claw extends Weapon {
 
-	private static readonly _chargedThreshold = 1000;
-	private static readonly _boltTTL = 750;
+	private static readonly _starTTL = 1000;
 
 	constructor(options : EntityOptions) {
-		super(EntityType.SNIPER, options);
+		super(EntityType.CLAW, options);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
-	override recoilType() : RecoilType { return RecoilType.SMALL; }
-	override meshType() : MeshType { return MeshType.SNIPER; }
-
-	override charged() : boolean { return this.getCounter(CounterType.CHARGE) >= Sniper._chargedThreshold; }
+	override recoilType() : RecoilType { return RecoilType.THROW; }
+	override meshType() : MeshType { return MeshType.GLOVE; }
 
 	override shotConfig() : ShotConfig {
-		if (this.charged()) {
-			return {
-				bursts: 1,
-				reloadTime: 500,
-			};
-		}
 		return {
-			bursts: 3,
-			burstTime: 80,
-			reloadTime: 300,
+			bursts: 4,
+			burstTime: 125,
+			reloadTime: 750,
 		};
 	}
 
 	override shoot() : void {
 		const charged = this.charged();
 		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
-		const unitDir = this.inputDir().clone().normalize();
-
-		let vel = unitDir.clone().scale(charged ? 1 : 0.7);
-		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, {
-			ttl: Sniper._boltTTL,
+		const vel = this.inputDir().clone().setLength(0.7);
+		let [star, hasStar] = this.addEntity<Bolt>(EntityType.STAR, {
+			ttl: Claw._starTTL,
 			associationInit: {
 				owner: this,
 			},
@@ -63,34 +52,17 @@ export class Sniper extends Weapon {
 				transforms: {
 					translate: { z: pos.z },
 				},
-				materialType: charged ? MaterialType.BOLT_ORANGE : MaterialType.BOLT_BLUE,
 			},
 			profileInit: {
 				pos: pos,
 				vel: vel,
-				angle: vel.angleRad(),
 			},
 		});
 
-		if (hasBolt) {
-			if (charged) {
-				bolt.setAttribute(AttributeType.CHARGED, true);
-				bolt.profile().setScaleFactor(1.5);
-			}
-
+		if (hasStar) {
 			this.recordUse();
 		}
 	}
 
-	override onReload() : void {
-		if (this.charged()) {
-			this.setCounter(CounterType.CHARGE, 0);
-		}
-	}
-
-	override getCounts() : Map<CounterType, number> {
-		let counts = super.getCounts();
-		counts.set(CounterType.CHARGE, Math.min(100, Math.floor(this.getCounter(CounterType.CHARGE) / 10)));
-		return counts;
-	}
+	override onReload() : void {}
 }

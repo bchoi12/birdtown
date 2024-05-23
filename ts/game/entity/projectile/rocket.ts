@@ -57,7 +57,7 @@ export class Rocket extends Projectile {
 		}));
 	}
 
-	override damage() : number { return 50; }
+	override hitDamage() : number { return 50; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
@@ -102,9 +102,9 @@ export class Rocket extends Projectile {
 				materialType: MaterialType.ROCKET_EXPLOSION,
 			},
 		});
+		this.delete();
 	}
 
-	override onFizzle() : void {
-		this.onHit();
-	}
+	override onMiss() : void { this.onHit(); }
+	override onExpire() : void { this.onHit(); }
 }

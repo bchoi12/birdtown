@@ -87,6 +87,9 @@ export class Vec2 implements Vec {
 
         return this;
     }
+    setLength(len : number) : Vec2 {
+        return this.normalize().scale(len);
+    }
 
     abs() : Vec2 {
         this.x = Math.abs(this.x);
@@ -138,6 +141,15 @@ export class Vec2 implements Vec {
         }
         if (vec.hasOwnProperty("y")) {
             this.y *= vec.y;
+        }
+        return this;
+    }
+    div(vec : Vec) : Vec2 {
+        if (vec.hasOwnProperty("x")) {
+            this.x /= vec.x;
+        }
+        if (vec.hasOwnProperty("y")) {
+            this.y /= vec.y;
         }
         return this;
     }
@@ -329,6 +341,10 @@ export class Vec3 extends Vec2 implements Vec {
 
         return this;
     }
+    override setLength(len : number) : Vec3 {
+        return this.normalize().scale(len);
+    }
+
 
     override add(vec : Vec) : Vec3 {
         super.add(vec);
@@ -348,6 +364,13 @@ export class Vec3 extends Vec2 implements Vec {
         super.mult(vec);
         if (vec.hasOwnProperty("z")) {
             this.z *= vec.z;
+        }
+        return this;
+    }
+    override div(vec : Vec) : Vec3 {
+        super.div(vec);
+        if (vec.hasOwnProperty("z")) {
+            this.z /= vec.z;
         }
         return this;
     }

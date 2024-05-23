@@ -19,6 +19,7 @@ import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
 import { Smoother } from 'util/smoother'
+import { Timer } from 'util/timer'
 import { Vec, Vec2 } from 'util/vector'
 import { SmoothVec2 } from 'util/vector/smooth_vector'
 
@@ -69,6 +70,8 @@ export class Profile extends ComponentBase implements Component {
 	private static readonly _vecEpsilon = 3 * Profile._minQuantization;
 	private static readonly _degradedVecEpsilon = 10 * Profile._vecEpsilon;
 	private static readonly _angleEpsilon = 1e-1;
+	private static readonly _knockbackTimeMin = 250;
+	private static readonly _knockbackTimeVariance = 250;
 
 	private _degraded : boolean;
 	private _bodyFn : BodyFn;
@@ -78,9 +81,12 @@ export class Profile extends ComponentBase implements Component {
 	private _postPhysicsFn : PhysicsFn;
 
 	private _applyScaling : boolean;
+	private _attachId : Optional<number>;
+	private _attachOffset : Vec2;
 	private _collisionBuffer : CollisionBuffer;
 	private _constraints : Map<number, MATTER.Constraint>;
 	private _forces : Buffer<Vec>;
+	private _knockbackTimer : Timer;
 	private _limitFn : Optional<ModifyProfileFn>;
 	private _tempLimitFns : Map<number, ModifyProfileFn>;
 	private _outOfBoundsFn : Optional<ModifyProfileFn>;
@@ -111,9 +117,14 @@ export class Profile extends ComponentBase implements Component {
 		if (profileOptions.postPhysicsFn) { this._postPhysicsFn = profileOptions.postPhysicsFn; }
 
 		this._applyScaling = false;
+		this._attachId = new Optional();
+		this._attachOffset = Vec2.zero();
 		this._collisionBuffer = new CollisionBuffer();
 		this._constraints = new Map();
 		this._forces = new Buffer();
+		this._knockbackTimer = this.newTimer({
+			canInterrupt: true,
+		});
 		this._limitFn = new Optional();
 		this._tempLimitFns = new Map();
 		this._outOfBoundsFn = new Optional();
@@ -126,6 +137,17 @@ export class Profile extends ComponentBase implements Component {
 		}
 
 		this._body = null;
+
+		this.addProp<number>({
+			has: () => { return this._attachId.has(); },
+			export: () => { return this._attachId.get(); },
+			import: (obj : number) => { this._attachId.set(obj); }
+		});
+		this.addProp<Vec>({
+			has: () => { return !this._attachOffset.isZero(); },
+			export: () => { return this._attachOffset.toVec(); },
+			import: (obj : Vec) => { this._attachOffset.copyVec(obj); }
+		});
 
 		this.addProp<Vec>({
 			has: () => { return this.hasPos(); },
@@ -478,23 +500,80 @@ export class Profile extends ComponentBase implements Component {
 			buffer = 0;
 		}
 
-		if (profile.pos().x + profile.scaledDim().x / 2 > this._pos.x + this._dim.x / 2 + buffer) { return false; }
-		if (profile.pos().x - profile.scaledDim().x / 2 < this._pos.x - this._dim.x / 2 - buffer) { return false; }
-		if (profile.pos().y + profile.scaledDim().y / 2 > this._pos.y + this._dim.y / 2 + buffer) { return false; }
-		if (profile.pos().y - profile.scaledDim().y / 2 < this._pos.y - this._dim.y / 2 - buffer) { return false; }
+		const dim = profile.scaledDim();
+
+		if (profile.pos().x + dim.x / 2 > this._pos.x + this._dim.x / 2 + buffer) { return false; }
+		if (profile.pos().x - dim.x / 2 < this._pos.x - this._dim.x / 2 - buffer) { return false; }
+		if (profile.pos().y + dim.y / 2 > this._pos.y + this._dim.y / 2 + buffer) { return false; }
+		if (profile.pos().y - dim.y / 2 < this._pos.y - this._dim.y / 2 - buffer) { return false; }
 
 		return true;
 	}
 	overlap(other : Profile) : Vec2 {
-		return this.pos().clone().sub(other.pos()).abs().sub({
-			x: this.scaledDim().x / 2 + other.scaledDim().x / 2,
-			y: this.scaledDim().y / 2 + other.scaledDim().y / 2,
-		}).mult({
-			x: -1 / this.scaledDim().x,
-			y: -1 / this.scaledDim().y,
-		});
+		const dim = this.scaledDim();
+		const otherDim = other.scaledDim();
+
+		const dist = this.pos().clone().sub(other.pos()).abs();
+		const minOverlapDist = Vec2.fromVec(dim).add(otherDim);
+
+		return minOverlapDist.sub(dist).div(dim);
+	}
+	isXCollision(overlap : Vec, vel : Vec) : boolean {
+		return overlap.x > 0 && overlap.y > 0 && !this.isYCollision(overlap, vel);
+	}
+	isYCollision(overlap : Vec, vel : Vec) : boolean {
+		return overlap.x > 0 && overlap.y > 0 && Math.abs(overlap.x * vel.y) >= Math.abs(overlap.y * vel.x);
 	}
 
+	attached() : boolean { return this._attachId.has(); }
+	attachId() : number { return this._attachId.get(); }
+	attachTo(id : number, offset : Vec) : void {
+		this._attachId.set(id);
+		this._attachOffset.copyVec(offset);
+	}
+	unattach() : void { this._attachId.clear(); }
+	// Return true if successfully attached
+	private updateAttachment() : boolean {
+		if (!this._attachId.has()) {
+			return false;
+		}
+
+		const [entity, ok] = game.entities().getEntity(this._attachId.get());
+		if (!ok || !entity.hasProfile()) {
+			this._attachId.clear();
+			return false;
+		}
+
+		this.stop();
+		this.setPos({
+			x: entity.profile().pos().x + this._attachOffset.x,
+			y: entity.profile().pos().y + this._attachOffset.y,
+		});
+	}
+	snapTo(profile : Profile) : void {
+		const overlap = this.overlap(profile);
+		const relativeVel = this.vel().clone().sub(profile.vel());
+		console.log(overlap, relativeVel);
+		if (this.isXCollision(overlap, relativeVel)) {
+			const dir = -Math.sign(relativeVel.x);
+			const desired = profile.pos().x + dir * (profile.scaledDim().x + this.scaledDim().x) / 2 
+			const offset = desired - this.pos().x;
+
+			this.setPos({
+				x: desired,
+				y: this.pos().y + offset * this.vel().y / this.vel().x,
+			});
+		} else if (this.isYCollision(overlap, relativeVel)) {
+			const dir = -Math.sign(relativeVel.y);
+			const desired = profile.pos().y + dir * (profile.scaledDim().y + this.scaledDim().y) / 2 
+			const offset = desired - this.pos().y;
+
+			this.setPos({
+				x: this.pos().x + offset * this.vel().x / this.vel().y,
+				y: desired,
+			});
+		}
+	}
 	moveTo(point : Vec, params : MoveToParams) : void {
 		if (params.millis <= 0) { return; }
 
@@ -554,12 +633,15 @@ export class Profile extends ComponentBase implements Component {
 		while(!this._forces.empty()) {
 			totalForce.add(this._forces.pop());
 		}
-		this.addVel({
-			x: totalForce.x / this._body.mass,
-			y: totalForce.y / this._body.mass,
-		})
+		totalForce.scale(1 / this._body.mass);
+		this.addVel(totalForce)
+
+		const weight = Math.min(totalForce.lengthSq(), 1);
+		this._knockbackTimer.start(Math.max(this._knockbackTimer.timeLeft(), Profile._knockbackTimeMin + weight * Profile._knockbackTimeVariance));
+
 		this._forces.clear();
 	}
+	knockbackTime() : number { return this._knockbackTimer.timeLeft(); }
 
 	private vecEpsilon() : number { return this._degraded ? Profile._degradedVecEpsilon : Profile._vecEpsilon; }
 	setLimitFn(limitFn : ModifyProfileFn) { this._limitFn.set(limitFn); }
@@ -613,33 +695,38 @@ export class Profile extends ComponentBase implements Component {
 			MATTER.Body.setInertia(this._body, this.inertia());
 		}
 
-		let weight = 0;
-		if (settings.predictionTime() > 0) {
-			this._smoother.setDiff(game.runner().seqNumDiff());
-			weight = this._smoother.weight();
-		}
-		this.vel().snap(weight);
-		if (this.pos().snapDistSq(weight) > 1) {
-			this.pos().snap(0);
-		} else {
-			this.pos().snap(weight);
-		}
+		const attached = this.updateAttachment();
 
-		if (this.hasAcc()) {
-			const acc = this.acc();
-			if (!acc.isZero()) {
-				const scale = millis / 1000;
-				this.addVel({
-					x: acc.x * scale,
-					y: acc.y * scale,
-				});
+		if (!attached) {
+			let weight = 0;
+			if (settings.predictionTime() > 0) {
+				this._smoother.setDiff(game.runner().seqNumDiff());
+				weight = this._smoother.weight();
 			}
-		}
+			this.vel().snap(weight);
+			if (this.pos().snapDistSq(weight) > 1) {
+				this.pos().snap(0);
+			} else {
+				this.pos().snap(weight);
+			}
 
-		this.applyForces();
-		this.applyLimits();
-		if (this.hasVel()) {
-			MATTER.Body.setVelocity(this._body, this.vel());
+			if (this.hasAcc()) {
+				const acc = this.acc();
+				if (!acc.isZero()) {
+					const scale = millis / 1000;
+					this.addVel({
+						x: acc.x * scale,
+						y: acc.y * scale,
+					});
+				}
+			}
+
+			this.applyForces();
+			this.applyLimits();
+
+			if (this.hasVel()) {
+				MATTER.Body.setVelocity(this._body, this.vel());
+			}
 		}
 
 		MATTER.Body.setPosition(this._body, this.pos());
@@ -663,10 +750,11 @@ export class Profile extends ComponentBase implements Component {
 		let fixed = false;
 
 		// Find overlap of rectangle bounding boxes.
-		if (other.getAttribute(AttributeType.SOLID) && otherProfile.body().isStatic) {
+		// Skip attached profiles since it doesn't matter.
+		if (other.getAttribute(AttributeType.SOLID) && otherProfile.body().isStatic && !this._attachId.has()) {
 			let overlap = this.overlap(other.profile());
 			let vel = this.vel();
-			const yCollision = Math.abs(overlap.x * vel.y) >= Math.abs(overlap.y * vel.x);
+			const yCollision = this.isYCollision(overlap, vel);
 			if (yCollision) {
 				pen.x = 0;
 				normal.x = 0;
@@ -724,7 +812,11 @@ export class Profile extends ComponentBase implements Component {
 
 		// Fix getting stuck on small corners
 		const millis = stepData.millis;
-		if (this.entity().type() === EntityType.PLAYER && this._collisionBuffer.hasRecords() && this._collisionBuffer.fixed()) {
+		if (this._collisionBuffer.hasRecords()
+			&& this._collisionBuffer.fixed()
+			&& !this._attachId.has()) {
+
+			// Only fix x collisions since y collisions might cause fall through floor.
 			{
 				const record = this._collisionBuffer.record(RecordType.MAX_PEN_X);
 				if (record.collision.penetration.x <= 0 && this.vel().x > 0 && this.overlap(record.entity.profile()).y < 5e-2) {
@@ -751,56 +843,31 @@ export class Profile extends ComponentBase implements Component {
 					});
 				}
 			}
-
-			/*
-			{
-				const record = this._collisionBuffer.record(RecordType.MAX_PEN_Y);
-				if (record.collision.penetration.y < 0 && this.vel().y > 0) {
-					MATTER.Body.setVelocity(this._body, {
-						x: this._body.velocity.x,
-						y: this.vel().y,
-					});
-					MATTER.Body.setPosition(this._body, {
-						x: this._body.position.x,
-						y: this._body.position.y + this.vel().y * millis / 1000,
-					});
-				}
-			}
-
-			{
-				const record = this._collisionBuffer.record(RecordType.MIN_PEN_Y);
-				if (record.collision.penetration.y > 0 && this.vel().y < 0) {
-					MATTER.Body.setVelocity(this._body, {
-						x: this._body.velocity.x,
-						y: this.vel().y,
-					});
-					MATTER.Body.setPosition(this._body, {
-						x: this._body.position.x,
-						y: this._body.position.y + this.vel().y * millis / 1000,
-					});
-				}
-			}
-			*/
 		}
 
 		if (this._postPhysicsFn) {
 			this._postPhysicsFn(this);
-		} 
+		}
 		
 		if (this.hasAngle()) {
 			this.setAngle(this._body.angle);
 		}
-		if (this.hasVel()) {
-			this.setVel(this._body.velocity);
 
-			if (!this.isSource()) {
-				this._vel.setPredict(this._body.velocity);
+		const attached = this.updateAttachment();
+
+		if (!attached) {
+			if (this.hasVel()) {
+				this.setVel(this._body.velocity);
+
+				if (!this.isSource()) {
+					this._vel.setPredict(this._body.velocity);
+				}
 			}
-		}
 
-		this.setPos(this._body.position);
-		if (!this.isSource()) {
-			this._pos.setPredict(this._body.position);
+			this.setPos(this._body.position);
+			if (!this.isSource()) {
+				this._pos.setPredict(this._body.position);
+			}
 		}
 
 		// Update child objects afterwards.

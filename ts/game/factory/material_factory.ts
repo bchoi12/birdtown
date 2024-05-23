@@ -78,6 +78,12 @@ export namespace MaterialFactory {
 			mat.emissiveColor = ColorFactory.sparkBlue.toBabylonColor3();
 		});
 
+		standardMaterial(MaterialType.STAR_EXPLOSION, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.7;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.starExplosionPurple.toBabylonColor3();
+		});
+
 		initialized = true;
 	}
 

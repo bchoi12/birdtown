@@ -29,6 +29,7 @@ export enum EntityType {
 	BUBBLE,
 	CHICKEN_BEAK,
 	CHICKEN_HAIR,
+	CLAW,
 	CLOUD,
 	CRATE,
 	EXPLOSION,
@@ -47,5 +48,6 @@ export enum EntityType {
 	SIGN_START_GAME,
 	SNIPER,
 	SPAWN_POINT,
+	STAR,
 	WALL,
 }

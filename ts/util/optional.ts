@@ -25,6 +25,11 @@ export class Optional<T> {
 	}
 	has() : boolean { return this._has; }
 	get() : T { return this._value; }
+	pop() : [T, boolean] {
+		const ok = this.has();
+		this.clear();
+		return [this.get(), ok];
+	}
 
 	hasAnd(fn : (value : T) => boolean) : boolean {
 		if (!this.has()) {

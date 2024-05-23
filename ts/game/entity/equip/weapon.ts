@@ -90,7 +90,7 @@ export abstract class Weapon extends Equip<Player> {
 	charged() : boolean { return false; }
 	abstract shotConfig() : ShotConfig;
 	abstract shoot() : void;
-	abstract reload() : void;
+	abstract onReload() : void;
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
@@ -130,9 +130,9 @@ export abstract class Weapon extends Equip<Player> {
 				if (this._shotConfig.bursts > 0) {
 					this._burstTimer.start(this._shotConfig.burstTime);
 				} else {
-					this.reload();
 					this._weaponState = WeaponState.RELOADING;
 					this._reloadTimer.start(this._shotConfig.reloadTime);
+					this.onReload();
 				}
 			}
 		}

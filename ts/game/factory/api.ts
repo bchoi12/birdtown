@@ -49,11 +49,13 @@ export enum MaterialType {
 	CRATE_RED,
 	CRATE_YELLOW,
 	ROCKET_EXPLOSION,
+	STAR_EXPLOSION,
 	SPARK_BLUE,
 }
 
 export enum MeshType {
 	UNKNOWN,
+
 	BIRD,
 	BOOBY_BEAK,
 	BOOBY_HAIR,
@@ -61,8 +63,11 @@ export enum MeshType {
 	CHICKEN_HAIR,
 
 	BAZOOKA,
+	GLOVE,
 	SNIPER,
+
 	ROCKET,
+	STAR,
 
 	HEADBAND,
 	JETPACK,

@@ -8,13 +8,11 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
 
-import { Optional } from 'util/optional'
 import { Vec2 } from 'util/vector'
 
 export abstract class Projectile extends EntityBase {
 
 	protected _hits : Set<number>;
-	protected _maxPenetration : Optional<Vec2>;
 
 	protected _association : Association;
 	protected _attributes : Attributes;
@@ -24,7 +22,6 @@ export abstract class Projectile extends EntityBase {
 		this.addType(EntityType.PROJECTILE);
 
 		this._hits = new Set();
-		this._maxPenetration = new Optional();
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
@@ -37,15 +34,13 @@ export abstract class Projectile extends EntityBase {
 	override delete() : void {
 		super.delete();
 
-		if (this._hits.size === 0) {
-			this.onFizzle();
+		if (this.initialized()) {
+			if (this._hits.size === 0) {
+				this.onMiss();
+			} else if (this.ttlElapsed() >= 1) {
+				this.onExpire();
+			}
 		}
-	}
-
-	override prePhysics(stepData : StepData) : void {
-		super.prePhysics(stepData);
-
-		this._maxPenetration.clear();
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {
@@ -63,14 +58,41 @@ export abstract class Projectile extends EntityBase {
 			return;
 		}
 
-		if (this._maxPenetration.has() && this.hasProfile()) {
-			this.profile().pos().sub(this._maxPenetration.get());
-		}
 		this.onHit();
-		this.delete();
 	}
 
-	explode(entityOptions? : EntityOptions) : void {
+	hits() : Set<number> { return this._hits; }
+
+	protected canHit(collision : MATTER.Collision, other : Entity) : boolean {
+		if (this.matchAssociations([AssociationType.OWNER], other)) {
+			return false;
+		}
+		if (other.getAttribute(AttributeType.INVINCIBLE)) {
+			return false;
+		}
+		return other.getAttribute(AttributeType.SOLID);
+	}
+	protected hit(collision : MATTER.Collision, other : Entity) : void {
+		if (this._hits.has(other.id())) {
+			return;
+		}
+
+		// Snap to bound
+		if (this.hasProfile() && other.allTypes().has(EntityType.BOUND)) {
+			this.profile().snapTo(other.profile());
+			MATTER.Body.setPosition(this.profile().body(), {
+				x: this.profile().pos().x,
+				y: this.profile().pos().y,
+			});
+		}
+
+		if (this.hitDamage() !== 0) {
+			other.takeDamage(this.hitDamage(), this);
+		}
+		this._hits.add(other.id());
+	}
+
+	protected explode(entityOptions? : EntityOptions) : void {
 		if (!this.hasProfile() || !this.profile().initialized()) {
 			return;
 		}
@@ -85,31 +107,8 @@ export abstract class Projectile extends EntityBase {
 		});
 	}
 
-	canHit(collision : MATTER.Collision, other : Entity) : boolean {
-		if (this.matchAssociations([AssociationType.OWNER], other)) {
-			return false;
-		}
-		if (other.getAttribute(AttributeType.INVINCIBLE)) {
-			return false;
-		}
-		return other.getAttribute(AttributeType.SOLID);
-	}
-	hit(collision : MATTER.Collision, other : Entity) : void {
-		if (this._hits.has(other.id())) {
-			return;
-		}
-
-		const penetration = Vec2.fromVec(collision.penetration);
-		if (this.profile().vel().dot(penetration) < 0 &&
-			(!this._maxPenetration.has() || penetration.lengthSq() > this._maxPenetration.get().lengthSq())) {
-			this._maxPenetration.set(penetration);
-		}
-		other.takeDamage(this.damage(), this);
-		this._hits.add(other.id());
-	}
-	hits() : Set<number> { return this._hits; }
-
-	abstract damage() : number;
+	abstract hitDamage() : number;
 	abstract onHit() : void;
-	abstract onFizzle() : void;
+	abstract onMiss() : void;
+	abstract onExpire() : void;
 }

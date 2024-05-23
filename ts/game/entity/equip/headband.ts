@@ -54,6 +54,12 @@ export class Headband extends Equip<Player> {
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
+
+		// Only allow source to jump since otherwise it's jittery.
+		if (!this.isSource()) {
+			return;
+		}
+
 		const millis = stepData.millis;
 
 		if (this._juice >= 100 && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED)) {

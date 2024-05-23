@@ -7,6 +7,7 @@ import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Floor } from 'game/entity/bound/floor'
 import { Wall } from 'game/entity/bound/wall'
 import { Cloud } from 'game/entity/cloud'
+import { Explosion } from 'game/entity/explosion'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { Bubble } from 'game/entity/equip/bubble'
@@ -17,7 +18,9 @@ import { Headband } from 'game/entity/equip/headband'
 import { Jetpack } from 'game/entity/equip/jetpack'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Scouter } from 'game/entity/equip/scouter'
-import { Explosion } from 'game/entity/explosion'
+import { Bazooka } from 'game/entity/equip/weapon/bazooka'
+import { Claw } from 'game/entity/equip/weapon/claw'
+import { Sniper } from 'game/entity/equip/weapon/sniper'
 import { Crate } from 'game/entity/interactable/crate'
 import { SignControls } from 'game/entity/interactable/sign/sign_controls'
 import { SignStartGame } from 'game/entity/interactable/sign/sign_start_game'
@@ -28,9 +31,8 @@ import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Rocket } from 'game/entity/projectile/rocket'
+import { Star } from 'game/entity/projectile/star'
 import { SpawnPoint } from 'game/entity/spawn_point'
-import { Bazooka } from 'game/entity/equip/weapon/bazooka'
-import { Sniper } from 'game/entity/equip/weapon/sniper'
 
 import { Vec } from 'util/vector'
 
@@ -50,6 +52,7 @@ export namespace EntityFactory {
 		[EntityType.BUBBLE, (options : EntityOptions) => { return new Bubble(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
+		[EntityType.CLAW, (options : EntityOptions) => { return new Claw(options); }],
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],
@@ -68,6 +71,7 @@ export namespace EntityFactory {
 		[EntityType.SIGN_START_GAME, (options : EntityOptions) => { return new SignStartGame(options); }],
 		[EntityType.SNIPER, (options : EntityOptions) => { return new Sniper(options); }],
 		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
+		[EntityType.STAR, (options : EntityOptions) => { return new Star(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 	]);
 
@@ -85,6 +89,7 @@ export namespace EntityFactory {
 		[EntityType.ROCKET, { x: 0.3, y: 0.3, z: 0.3 }],
 		[EntityType.SIGN, {x: 3, y: 2, z: 0.2 }],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],
+		[EntityType.STAR, {x: 0.4, y: 0.4, z: 0.1 }],
 	]);
 
 	// Also includes dimensions that can change.

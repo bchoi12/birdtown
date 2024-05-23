@@ -20,6 +20,7 @@ export namespace BodyFactory {
 		friction: defaultFriction,
 		frictionAir: defaultFrictionAir,
 		density: defaultDensity,
+		collisionFilter: neverCollideFilter(),
 	};
 
 	export function rectangle(pos : Vec, dim : Vec, options? : Object) : MATTER.Body {

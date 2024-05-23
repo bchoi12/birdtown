@@ -110,7 +110,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _rotationOffset = -0.1;
 	private static readonly _jumpGracePeriod = 160;
 
-	private static readonly _armRecoveryTime = 500;
+	private static readonly _armRecoveryTime = 300;
 	private static readonly _knockbackRecoveryTime = 250;
 	private static readonly _interactCheckInterval = 250;
 	private static readonly _walkSmokeInterval = 500;
@@ -126,7 +126,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	// TODO: package in struct, Pose, PlayerPose?
 	private _armDir : Vec2;
-	private _armRecoil : number;
+	private _armRecoil : [number, number];
 	private _headDir : Vec2;
 	private _boneOrigins : Map<Bone, BABYLON.Vector3>;
 	private _eyeShifter : MaterialShifter;
@@ -136,7 +136,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
 	private _groundedTracker : ChangeTracker<boolean>;
-	private _knockbackRecoveryTimer : Timer;
 	private _walkSmokeRateLimiter : RateLimiter;
 
 	private _nearestInteractable : Optional<InteractEntity>;
@@ -156,7 +155,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		super(EntityType.PLAYER, entityOptions);
 
 		this._armDir = Vec2.i();
-		this._armRecoil = 0;
+		this._armRecoil = [0, 0];
 		this._headDir = Vec2.i();
 		this._boneOrigins = new Map();
 		this._eyeShifter = new MaterialShifter();
@@ -210,9 +209,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				}
 			}
 		});
-		this._knockbackRecoveryTimer = this.newTimer({
-			canInterrupt: true,
-		});
 		this._walkSmokeRateLimiter = new RateLimiter(Player._walkSmokeInterval);
 
 		this._nearestInteractable = new Optional();
@@ -264,7 +260,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.setAcc({x: 0, y: 0});
 
 		this._profile.setLimitFn((profile : Profile) => {
-			const maxHorizontalVel = this._knockbackRecoveryTimer.hasTimeLeft() ? Player._maxHorizontalVel : Player._maxWalkingVel;
+			const maxHorizontalVel = profile.knockbackTime() > 0 ? Player._maxHorizontalVel : Player._maxWalkingVel;
 			if (Math.abs(profile.vel().x) > maxHorizontalVel) {
 				profile.vel().x = Math.sign(profile.vel().x) * maxHorizontalVel;
 			}
@@ -285,13 +281,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				pos: {x: 0, y: 0},
 				dim: {x: 0.96, y: 1.06},
 			},
-			prePhysicsFn: (head : Profile) => {
-				head.setPos(this._profile.pos().clone().add({y: 0.22}));
-			},
-			postPhysicsFn: (head : Profile) => {
-				head.setPos(this._profile.pos().clone().add({y: 0.22}));
-			},
 		}));
+		this._headSubProfile.attachTo(this.id(), { y: 0.22 });
 		this._headSubProfile.setRenderNever();
 		this._headSubProfile.setAngle(0);
 
@@ -518,11 +509,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		return pos;
 	}
 
-	override addForce(force : Vec) : void {
-		super.addForce(force);
-
-		this._knockbackRecoveryTimer.start(Player._knockbackRecoveryTime);
-	}
 	override takeDamage(amount : number, from : Entity) : void {
 		super.takeDamage(amount, from);
 
@@ -566,7 +552,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			// Accel multipliers
-			if (sideAcc !== 0 && !this._knockbackRecoveryTimer.hasTimeLeft()) {
+			if (sideAcc !== 0 && this._profile.knockbackTime() === 0) {
 				const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
 				const sideSpeed = Math.abs(this._profile.vel().x);
 
@@ -603,7 +589,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		// Friction and air resistance
 		if (Math.abs(this._profile.vel().x) < Player._minSpeed) {
 			this._profile.setVel({x: 0});
-		} else if (!this._knockbackRecoveryTimer.hasTimeLeft()
+		} else if (this._profile.knockbackTime() === 0
 			&& Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x)) {
 			let sideVel = this._profile.vel().x;
 			if (this.getAttribute(AttributeType.GROUNDED)) {
@@ -615,12 +601,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 
 		// Cosmetic stuff
-		if (this._armRecoil > 0) {
-			this._armRecoil -= Math.abs(millis / Player._armRecoveryTime);
-			if (this._armRecoil < 0) {
-				this._armRecoil = 0;
-			}
-		}
+		this._armRecoil[0] = Math.max(0, this._armRecoil[0] - millis / Player._armRecoveryTime);
+		this._armRecoil[1] = Math.max(0, this._armRecoil[1] - millis / Player._armRecoveryTime);
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {
@@ -712,7 +694,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					speedRatio: 0.3 + Math.abs(this._profile.vel().x / Player._maxWalkingVel),
 				});
 
-				if (this._walkSmokeRateLimiter.check(millis)) {
+				if (Math.abs(this._profile.vel().x) > 0.1 && this._walkSmokeRateLimiter.check(millis)) {
 					const scale = 0.3 + 0.1 * Math.random();
 					this.addEntity(EntityType.PARTICLE_SMOKE, {
 						offline: true,
@@ -750,7 +732,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			if (uses > 0) {
 				switch(equip.attachType()) {
 				case AttachType.ARM:
-					this._armRecoil = equip.recoilType();
+					const recoil = equip.recoil();
+					// Make copy
+					this._armRecoil[0] = recoil[0];
+					this._armRecoil[1] = recoil[1];
 
 					// TODO: move emote value to equip
 					this._expression.emote(Emotion.MAD, {
@@ -789,10 +774,13 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		} else {
 			armRotation = -armRotation + Math.PI / 2;
 		}
-		arm.rotation = new BABYLON.Vector3(armRotation, Math.PI, 0);
+		arm.rotation = new BABYLON.Vector3(armRotation, Math.PI, -this._armRecoil[1]);
 
 		// Compute arm position
-		let recoil = new BABYLON.Vector3(0, -Math.cos(armRotation) * this._armRecoil, Math.sin(armRotation) * this._armRecoil);
+		let recoil = new BABYLON.Vector3(
+			-0.5 * Math.sin(this._armRecoil[1]),
+			-Math.cos(armRotation) * this._armRecoil[0],
+			Math.sin(armRotation) * this._armRecoil[0]);
 		arm.position = this._boneOrigins.get(Bone.ARM).add(recoil);
 	}
 

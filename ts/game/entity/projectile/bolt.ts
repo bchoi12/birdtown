@@ -57,7 +57,7 @@ export class Bolt extends Projectile {
 		}));
 	}
 
-	override damage() : number { return this.getAttribute(AttributeType.CHARGED) ? 70 : 12; }
+	override hitDamage() : number { return this.getAttribute(AttributeType.CHARGED) ? 70 : 12; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
@@ -97,9 +97,10 @@ export class Bolt extends Projectile {
 				});
 			}
 		}
+		this.delete();
 	}
 
-	override onFizzle() : void {
+	override onMiss() : void {
 		if (this.getAttribute(AttributeType.CHARGED)) {
 			this.explode({
 				modelInit: {
@@ -107,5 +108,9 @@ export class Bolt extends Projectile {
 				},
 			});
 		}
+	}
+
+	override onExpire() : void {
+		this.onMiss();
 	}
 }
