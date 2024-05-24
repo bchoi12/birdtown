@@ -65,5 +65,16 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 			});
 			pageWrapper.elm().appendChild(buttonWrapper.elm());
 		}
+
+		{
+			let buttonWrapper = new ButtonWrapper();
+			buttonWrapper.setText("Claw");
+			buttonWrapper.addOnClick(() => {
+				this.dialogMessage().setEquipType(EntityType.CLAW);
+				this.dialogMessage().setAltEquipType(EntityType.HEADBAND);
+				this.nextPage();
+			});
+			pageWrapper.elm().appendChild(buttonWrapper.elm());
+		}
 	}
 }

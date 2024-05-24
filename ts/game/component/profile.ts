@@ -82,9 +82,11 @@ export class Profile extends ComponentBase implements Component {
 
 	private _applyScaling : boolean;
 	private _attachId : Optional<number>;
+	private _attachConstraint : Optional<MATTER.Constraint>;
 	private _attachOffset : Vec2;
 	private _collisionBuffer : CollisionBuffer;
 	private _constraints : Map<number, MATTER.Constraint>;
+	private _constraintNextId : number;
 	private _forces : Buffer<Vec>;
 	private _knockbackTimer : Timer;
 	private _limitFn : Optional<ModifyProfileFn>;
@@ -118,9 +120,11 @@ export class Profile extends ComponentBase implements Component {
 
 		this._applyScaling = false;
 		this._attachId = new Optional();
+		this._attachConstraint = new Optional();
 		this._attachOffset = Vec2.zero();
 		this._collisionBuffer = new CollisionBuffer();
 		this._constraints = new Map();
+		this._constraintNextId = 1;
 		this._forces = new Buffer();
 		this._knockbackTimer = this.newTimer({
 			canInterrupt: true,
@@ -351,14 +355,16 @@ export class Profile extends ComponentBase implements Component {
 
 	collisionBuffer() : CollisionBuffer { return this._collisionBuffer; }
 
-	addConstraint(constraint : MATTER.Constraint) : [MATTER.Constraint, number] {
-		const id = this._constraints.size + 1;
+	constraint(id : number) : MATTER.Constraint { return this._constraints.get(id); }
+	hasConstraint(id : number) : boolean { return this._constraints.has(id); }
+	addConstraint(constraint : MATTER.Constraint) : number {
 		MATTER.Composite.add(game.physics().world(), constraint);
-		this._constraints.set(id, constraint);
-		return [constraint, id];
+		this._constraints.set(this._constraintNextId, constraint);
+		this._constraintNextId++;
+		return this._constraintNextId - 1;
 	}
 	deleteConstraint(id : number) : void {
-		if (!this._constraints.has(id)) {
+		if (!this.hasConstraint(id)) {
 			console.error("Error: trying to delete nonexistent constraint", id);
 			return;
 		}
@@ -426,9 +432,10 @@ export class Profile extends ComponentBase implements Component {
 	height() : number { return this.scaledDim().y; }
 	scaledDim() : Vec2 { return this.hasScaling() ? this.unscaledDim().clone().mult(this.scaling()) : this.unscaledDim(); }
 	setDim(vec : Vec) : void {
-		if (defined(this._dim) && Vec2.approxEquals(this._dim.toVec(), vec, this.vecEpsilon())) { return; }
 		if (this.hasDim()) {
-			console.error("Error: dimension is already initialized for", this.name());
+			if (!Vec2.approxEquals(this._dim.toVec(), vec, this.vecEpsilon())) {
+				console.error("Error: dimension is already initialized for", this.name());
+			}
 			return;
 		}
 		this._dim = Vec2.fromVec(vec);
@@ -488,10 +495,12 @@ export class Profile extends ComponentBase implements Component {
 			buffer = 0;
 		}
 
-		if (point.x > this._pos.x + this._dim.x / 2 + buffer) { return false; }
-		if (point.x < this._pos.x - this._dim.x / 2 - buffer) { return false; }
-		if (point.y > this._pos.y + this._dim.y / 2 + buffer) { return false; }
-		if (point.y < this._pos.y - this._dim.y / 2 - buffer) { return false; }
+		const dim = this.scaledDim();
+
+		if (point.x > this._pos.x + dim.x / 2 + buffer) { return false; }
+		if (point.x < this._pos.x - dim.x / 2 - buffer) { return false; }
+		if (point.y > this._pos.y + dim.y / 2 + buffer) { return false; }
+		if (point.y < this._pos.y - dim.y / 2 - buffer) { return false; }
 
 		return true;
 	}
@@ -502,10 +511,10 @@ export class Profile extends ComponentBase implements Component {
 
 		const dim = profile.scaledDim();
 
-		if (profile.pos().x + dim.x / 2 > this._pos.x + this._dim.x / 2 + buffer) { return false; }
-		if (profile.pos().x - dim.x / 2 < this._pos.x - this._dim.x / 2 - buffer) { return false; }
-		if (profile.pos().y + dim.y / 2 > this._pos.y + this._dim.y / 2 + buffer) { return false; }
-		if (profile.pos().y - dim.y / 2 < this._pos.y - this._dim.y / 2 - buffer) { return false; }
+		if (profile.pos().x + dim.x / 2 > this._pos.x + dim.x / 2 + buffer) { return false; }
+		if (profile.pos().x - dim.x / 2 < this._pos.x - dim.x / 2 - buffer) { return false; }
+		if (profile.pos().y + dim.y / 2 > this._pos.y + dim.y / 2 + buffer) { return false; }
+		if (profile.pos().y - dim.y / 2 < this._pos.y - dim.y / 2 - buffer) { return false; }
 
 		return true;
 	}
@@ -527,52 +536,105 @@ export class Profile extends ComponentBase implements Component {
 
 	attached() : boolean { return this._attachId.has(); }
 	attachId() : number { return this._attachId.get(); }
-	attachTo(id : number, offset : Vec) : void {
-		this._attachId.set(id);
+	attachTo(profile : Profile, offset : Vec) : boolean {
+		if (!profile.initialized()) {
+			return false;
+		}
+
+		this._attachId.set(profile.entity().id());
 		this._attachOffset.copyVec(offset);
+
+		profile.onBody((parent : Profile) => {
+			this.onBody((self : Profile) => {
+				const constraint = MATTER.Constraint.create({
+					bodyA: parent.body(),
+					bodyB: self.body(),
+					pointA: this._attachOffset,
+					stiffness: 1,
+					length: 0,
+					render: {
+						visible: false,
+					},
+				});
+				this._attachConstraint.set(constraint)
+				this.addConstraint(constraint);
+			});
+		});
+		this.stop();
+		return true;
 	}
-	unattach() : void { this._attachId.clear(); }
+	unattach() : void {
+		this._attachId.clear();
+		if (this._attachConstraint.has()) {
+			MATTER.World.remove(game.physics().world(), this._attachConstraint.get());
+		}
+	}
 	// Return true if successfully attached
-	private updateAttachment() : boolean {
-		if (!this._attachId.has()) {
+	private checkAttachment() : boolean {
+		if (!this.attached()) {
+			this.unattach();
 			return false;
 		}
 
 		const [entity, ok] = game.entities().getEntity(this._attachId.get());
 		if (!ok || !entity.hasProfile()) {
-			this._attachId.clear();
+			this.unattach();
 			return false;
 		}
 
-		this.stop();
-		this.setPos({
-			x: entity.profile().pos().x + this._attachOffset.x,
-			y: entity.profile().pos().y + this._attachOffset.y,
-		});
+		if (!this.isSource() && this.attached() && !this._attachConstraint.has()) {
+			return this.attachTo(entity.profile(), this._attachOffset);
+		}
+		return true;
 	}
-	snapTo(profile : Profile) : void {
+	snapTo(profile : Profile, snapLimit? : number) : void {
 		const overlap = this.overlap(profile);
 		const relativeVel = this.vel().clone().sub(profile.vel());
-		console.log(overlap, relativeVel);
 		if (this.isXCollision(overlap, relativeVel)) {
 			const dir = -Math.sign(relativeVel.x);
 			const desired = profile.pos().x + dir * (profile.scaledDim().x + this.scaledDim().x) / 2 
 			const offset = desired - this.pos().x;
+			const otherOffset = offset * this.vel().y / this.vel().x;
+
+			if (snapLimit > 0 && offset * offset + otherOffset * otherOffset > snapLimit * snapLimit) {
+				return;
+			}
 
 			this.setPos({
 				x: desired,
-				y: this.pos().y + offset * this.vel().y / this.vel().x,
+				y: this.pos().y + otherOffset,
 			});
 		} else if (this.isYCollision(overlap, relativeVel)) {
 			const dir = -Math.sign(relativeVel.y);
 			const desired = profile.pos().y + dir * (profile.scaledDim().y + this.scaledDim().y) / 2 
 			const offset = desired - this.pos().y;
+			const otherOffset = offset * this.vel().x / this.vel().y;
+
+			if (snapLimit > 0 && offset * offset + otherOffset * otherOffset > snapLimit * snapLimit) {
+				return;
+			}
 
 			this.setPos({
-				x: this.pos().x + offset * this.vel().x / this.vel().y,
+				x: this.pos().x + otherOffset,
 				y: desired,
 			});
+		} else {
+			return;
 		}
+
+		if (this._body !== null) {
+			MATTER.Body.setPosition(this._body, {
+				x: this.pos().x,
+				y: this.pos().y,
+			});
+		}
+	}
+	snapWithOffset(profile : Profile, offset : Vec) : void {
+		let angledOffset = Vec2.fromVec(offset).setAngleRad(profile.angle());
+		this.setPos({
+			x: profile.pos().x + angledOffset.x,
+			y: profile.pos().y + angledOffset.y,
+		});
 	}
 	moveTo(point : Vec, params : MoveToParams) : void {
 		if (params.millis <= 0) { return; }
@@ -695,7 +757,7 @@ export class Profile extends ComponentBase implements Component {
 			MATTER.Body.setInertia(this._body, this.inertia());
 		}
 
-		const attached = this.updateAttachment();
+		const attached = this.checkAttachment();
 
 		if (!attached) {
 			let weight = 0;
@@ -727,9 +789,9 @@ export class Profile extends ComponentBase implements Component {
 			if (this.hasVel()) {
 				MATTER.Body.setVelocity(this._body, this.vel());
 			}
-		}
 
-		MATTER.Body.setPosition(this._body, this.pos());
+			MATTER.Body.setPosition(this._body, this.pos());
+		}
 
 		this._collisionBuffer.reset();
 
@@ -853,21 +915,17 @@ export class Profile extends ComponentBase implements Component {
 			this.setAngle(this._body.angle);
 		}
 
-		const attached = this.updateAttachment();
+		if (this.hasVel()) {
+			this.setVel(this._body.velocity);
 
-		if (!attached) {
-			if (this.hasVel()) {
-				this.setVel(this._body.velocity);
-
-				if (!this.isSource()) {
-					this._vel.setPredict(this._body.velocity);
-				}
-			}
-
-			this.setPos(this._body.position);
 			if (!this.isSource()) {
-				this._pos.setPredict(this._body.position);
+				this._vel.setPredict(this._body.velocity);
 			}
+		}
+
+		this.setPos(this._body.position);
+		if (!this.isSource()) {
+			this._pos.setPredict(this._body.position);
 		}
 
 		// Update child objects afterwards.
@@ -879,9 +937,12 @@ export class Profile extends ComponentBase implements Component {
 
 		// Wrap the object for visualization if we're in a circle level
 		// Putting this here introduces some minimap flicker since MATTER.Render is synced with RequestAnimationFrame, not render()
+		// Disabled because it complicates a lot of stuff.
+		/*
 		if (game.level().isCircle()) {
 			MATTER.Body.setPosition(this._body, this.getRenderPos());
 		}
+		*/
 
 		if (this._renderMode === RenderMode.CHECK_OCCLUSION) {
 			this._body.render.visible = !this.entity().getAttribute(AttributeType.OCCLUDED);

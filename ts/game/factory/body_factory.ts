@@ -43,28 +43,27 @@ export namespace BodyFactory {
 		};
 	}
 
-	const collisionMap = new Map<CollisionCategory, CollisionCategory[]>([
-		[CollisionCategory.BOUND, [
-			CollisionCategory.BOUND, CollisionCategory.HIT_BOX, CollisionCategory.OFFSET,
-			CollisionCategory.PLAYER, CollisionCategory.SOLID
-		]],
-		[CollisionCategory.HIT_BOX, [
-			CollisionCategory.BOUND, CollisionCategory.PLAYER, CollisionCategory.SOLID
-		]],
-		[CollisionCategory.INTERACTABLE, [
-			CollisionCategory.PLAYER, CollisionCategory.SOLID,
-		]],
-		[CollisionCategory.OFFSET, [CollisionCategory.BOUND]],
-		[CollisionCategory.PLAYER, [CollisionCategory.BOUND,
-			CollisionCategory.INTERACTABLE, CollisionCategory.HIT_BOX, 
-			CollisionCategory.PLAYER, CollisionCategory.SOLID,
-		]],
-		[CollisionCategory.SOLID, [
-			CollisionCategory.BOUND, CollisionCategory.INTERACTABLE, CollisionCategory.HIT_BOX,
-			CollisionCategory.PLAYER, CollisionCategory.SOLID,
-		]],
-	]);
+	let collisionMap = new Map<CollisionCategory, CollisionCategory[]>();
 	export function collisionFilter(category : CollisionCategory) : Object {
+		if (collisionMap.size === 0) {
+			addCollisionPair(CollisionCategory.BOUND, CollisionCategory.BOUND);
+			addCollisionPair(CollisionCategory.BOUND, CollisionCategory.HIT_BOX);
+			addCollisionPair(CollisionCategory.BOUND, CollisionCategory.OFFSET);
+			addCollisionPair(CollisionCategory.BOUND, CollisionCategory.PLAYER);
+			addCollisionPair(CollisionCategory.BOUND, CollisionCategory.SOLID);
+
+			addCollisionPair(CollisionCategory.HIT_BOX, CollisionCategory.PLAYER);
+			addCollisionPair(CollisionCategory.HIT_BOX, CollisionCategory.SOLID);
+
+			addCollisionPair(CollisionCategory.INTERACTABLE, CollisionCategory.PLAYER);
+			addCollisionPair(CollisionCategory.INTERACTABLE, CollisionCategory.SOLID);
+
+			addCollisionPair(CollisionCategory.PLAYER, CollisionCategory.PLAYER);
+			addCollisionPair(CollisionCategory.PLAYER, CollisionCategory.SOLID);
+
+			addCollisionPair(CollisionCategory.SOLID, CollisionCategory.SOLID);
+		}
+
 		const filter = {
 			category: toBinary(category),
 			mask: createMask(collisionMap.get(category)),
@@ -98,6 +97,21 @@ export namespace BodyFactory {
 			categoryList.push(category);
 		}
 		return categoryList;
+	}
+
+	function addCollisionPair(first : CollisionCategory, second : CollisionCategory) : void {
+		if (!collisionMap.has(first)) {
+			collisionMap.set(first, new Array());
+		}
+		if (!collisionMap.has(second)) {
+			collisionMap.set(second, new Array());
+		}
+
+		collisionMap.get(first).push(second);
+
+		if (first !== second) {
+			collisionMap.get(second).push(first);
+		}
 	}
 
 	function createMask(collideWith : CollisionCategory[]) : number {

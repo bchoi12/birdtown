@@ -89,7 +89,7 @@ export namespace EntityFactory {
 		[EntityType.ROCKET, { x: 0.3, y: 0.3, z: 0.3 }],
 		[EntityType.SIGN, {x: 3, y: 2, z: 0.2 }],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],
-		[EntityType.STAR, {x: 0.4, y: 0.4, z: 0.1 }],
+		[EntityType.STAR, {x: 0.35, y: 0.35, z: 0.1 }],
 	]);
 
 	// Also includes dimensions that can change.

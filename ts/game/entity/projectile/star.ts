@@ -70,18 +70,16 @@ export class Star extends Projectile {
 		});
 	}
 
-	stick(id : number) : void {
+	stick(entity : Entity) : boolean {
 		if (this._profile.attached()) {
-			return;
+			return false;
 		}
-
-		const [entity, ok] = game.entities().getEntity(id);
-		if (!ok || !entity.hasProfile()) {
-			return;
+		if (!entity.hasProfile()) {
+			return false;
 		}
 
 		const offset = this._profile.pos().clone().sub(entity.profile().pos());
-		this._profile.attachTo(id, offset);
+		return this._profile.attachTo(entity.profile(), offset);
 	}
 
 	override update(stepData : StepData) : void {
@@ -102,8 +100,10 @@ export class Star extends Projectile {
 	}
 	override onHit() : void {
 		for (const id of this.hits()) {
-			this.stick(id);
-			break;
+			const [entity, ok] = game.entities().getEntity(id);
+			if (ok && this.stick(entity)) {
+				break;
+			}
 		}
 	}
 

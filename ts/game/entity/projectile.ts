@@ -64,10 +64,10 @@ export abstract class Projectile extends EntityBase {
 	hits() : Set<number> { return this._hits; }
 
 	protected canHit(collision : MATTER.Collision, other : Entity) : boolean {
-		if (this.matchAssociations([AssociationType.OWNER], other)) {
+		if (other.getAttribute(AttributeType.INVINCIBLE)) {
 			return false;
 		}
-		if (other.getAttribute(AttributeType.INVINCIBLE)) {
+		if (this.matchAssociations([AssociationType.OWNER], other)) {
 			return false;
 		}
 		return other.getAttribute(AttributeType.SOLID);
@@ -79,11 +79,7 @@ export abstract class Projectile extends EntityBase {
 
 		// Snap to bound
 		if (this.hasProfile() && other.allTypes().has(EntityType.BOUND)) {
-			this.profile().snapTo(other.profile());
-			MATTER.Body.setPosition(this.profile().body(), {
-				x: this.profile().pos().x,
-				y: this.profile().pos().y,
-			});
+			this.profile().snapTo(other.profile(), /*limit=*/1);
 		}
 
 		if (this.hitDamage() !== 0) {

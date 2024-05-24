@@ -281,8 +281,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				pos: {x: 0, y: 0},
 				dim: {x: 0.96, y: 1.06},
 			},
+			prePhysicsFn: (profile : Profile) => { profile.snapWithOffset(this._profile, { y: 0.22 }); },
 		}));
-		this._headSubProfile.attachTo(this.id(), { y: 0.22 });
 		this._headSubProfile.setRenderNever();
 		this._headSubProfile.setAngle(0);
 
@@ -370,7 +370,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		super.initialize();
 
 		this._profile.setInertia(Infinity);
-		this._headSubProfile.setInertia(Infinity);
 
 		if (this.clientIdMatches()) {
 			game.lakitu().setTargetEntity(this);
