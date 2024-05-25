@@ -124,6 +124,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			} else {
 				game.runner().setUpdateMultiplier(Number(pieces[1]));
 			}
+			break;
 		default:
 			console.error("Unknown command:", message);
 		}

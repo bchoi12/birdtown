@@ -1,5 +1,6 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
+import earcut from 'earcut'
 
 import { game } from 'game'
 import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
@@ -15,6 +16,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
+import { MaterialFactory } from 'game/factory/material_factory'
 import { StepData } from 'game/game_object'
 
 import { GameGlobals } from 'global/game_globals'
@@ -24,11 +26,23 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Star extends Projectile {
 
+	private static readonly _trailVertices = [
+        new BABYLON.Vector3(0, 0, 0.1),
+        new BABYLON.Vector3(-0.8, 0, 0),
+        new BABYLON.Vector3(0, 0, -0.1),
+	];
+
+	private _spinning : boolean;
+	private _trail : Optional<BABYLON.Mesh>;
+
 	private _model : Model;
 	private _profile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.STAR, entityOptions);
+
+		this._spinning = true;
+		this._trail = new Optional();
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -54,6 +68,17 @@ export class Star extends Projectile {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					mesh.rotation.y = Math.PI / 2;
 					model.setMesh(mesh);
+
+					const dim = EntityFactory.getStaticDimension(this.type());
+					let trail = BABYLON.MeshBuilder.ExtrudePolygon(this.name() + "-trail", {
+						shape: Star._trailVertices,
+						depth: 0.1,
+					}, game.scene(), earcut);
+					trail.rotation.x = Math.PI / 2;
+					trail.material = MaterialFactory.material(MaterialType.STAR_TRAIL);
+					trail.isVisible = false;
+					trail.parent = model.root();
+					this._trail.set(trail);
 				});
 			},
 			init: entityOptions.modelInit,
@@ -90,9 +115,17 @@ export class Star extends Projectile {
 			return;
 		}
 
-		if (!this._profile.attached()) {
-			this._model.mesh().rotation.x += 6 * Math.PI * millis / 1000;
+		if (this._profile.attached()) {
+			this._spinning = false;
 		}
+		if (this._spinning) {
+			this._model.mesh().rotation.x += Math.sign(this._profile.vel().x) * 6 * Math.PI * millis / 1000;
+		}
+		if (this._trail.has()) {
+			this._trail.get().isVisible = this._spinning;
+			this._trail.get().scaling.x = Math.min(10 * this._profile.vel().lengthSq(), 1);
+		}
+		this._model.rotation().z = this._profile.vel().angleRad();
 	}
 
 	override canHit(collision : MATTER.Collision, other : Entity) : boolean {

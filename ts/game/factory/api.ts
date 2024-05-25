@@ -50,6 +50,7 @@ export enum MaterialType {
 	CRATE_YELLOW,
 	ROCKET_EXPLOSION,
 	STAR_EXPLOSION,
+	STAR_TRAIL,
 	SPARK_BLUE,
 }
 

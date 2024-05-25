@@ -83,6 +83,10 @@ export namespace MaterialFactory {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.starExplosionPurple.toBabylonColor3();
 		});
+		standardMaterial(MaterialType.STAR_TRAIL, (mat : BABYLON.StandardMaterial) => {
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.starPurple.toBabylonColor3();
+		});
 
 		initialized = true;
 	}
