@@ -27,8 +27,8 @@ export class ClientDialog extends ClientSideSystem implements System {
 		}
 
 		let loadout = this.message(DialogType.LOADOUT);
-		loadout.setEquipType(EntityType.CLAW);
-		loadout.setAltEquipType(EntityType.HEADBAND);
+		loadout.setEquipType(EntityType.SNIPER);
+		loadout.setAltEquipType(EntityType.SCOUTER);
 		loadout.setPlayerType(ModifierPlayerType.NONE);
 	}
 

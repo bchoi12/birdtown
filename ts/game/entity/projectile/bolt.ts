@@ -13,6 +13,7 @@ import { Projectile } from 'game/entity/projectile'
 import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
+import { MaterialFactory } from 'game/factory/material_factory'
 
 import { defined } from 'util/common'
 import { Fns } from 'util/fns'
@@ -50,6 +51,15 @@ export class Bolt extends Projectile {
 					height: dim.y,
 					depth: depth,
 				}, game.scene());
+
+				const border = 0.02;
+				let outline = BABYLON.MeshBuilder.CreateBox(this.name(), {
+					width: dim.x,
+					height: dim.y + 2 * border,
+					depth: border,
+				}, game.scene());
+				outline.material = MaterialFactory.material(MaterialType.BOLT_LIGHT_BLUE);
+				outline.parent = mesh;
 
 				model.setMesh(mesh);
 			},

@@ -589,12 +589,13 @@ export class Profile extends ComponentBase implements Component {
 	}
 	snapTo(profile : Profile, snapLimit? : number) : void {
 		const overlap = this.overlap(profile);
-		const relativeVel = this.vel().clone().sub(profile.vel());
+		const vel = this.vel();
+		const relativeVel = vel.clone().sub(profile.vel());
 		if (this.isXCollision(overlap, relativeVel)) {
 			const dir = -Math.sign(relativeVel.x);
 			const desired = profile.pos().x + dir * (profile.scaledDim().x + this.scaledDim().x) / 2 
 			const offset = desired - this.pos().x;
-			const otherOffset = offset * this.vel().y / this.vel().x;
+			const otherOffset = offset * vel.y / vel.x;
 
 			if (snapLimit > 0 && offset * offset + otherOffset * otherOffset > snapLimit * snapLimit) {
 				return;
@@ -608,7 +609,7 @@ export class Profile extends ComponentBase implements Component {
 			const dir = -Math.sign(relativeVel.y);
 			const desired = profile.pos().y + dir * (profile.scaledDim().y + this.scaledDim().y) / 2 
 			const offset = desired - this.pos().y;
-			const otherOffset = offset * this.vel().x / this.vel().y;
+			const otherOffset = offset * vel.x / vel.y;
 
 			if (snapLimit > 0 && offset * offset + otherOffset * otherOffset > snapLimit * snapLimit) {
 				return;
@@ -651,7 +652,10 @@ export class Profile extends ComponentBase implements Component {
 
 		const dt = params.millis / 1000;
 		const distVec = this.pos().clone().sub(point).negate();
-		if (this._vel.length() * dt >= distVec.length() || distVec.length() < params.posEpsilon) {
+		if (!this.hasVel()) {
+			this.setVel({x: 0, y: 0});
+		}
+		if (this.vel().length() * dt >= distVec.length() || distVec.length() < params.posEpsilon) {
 			this.setPos(point);
 			this.stop();
 			return;
@@ -813,7 +817,7 @@ export class Profile extends ComponentBase implements Component {
 
 		// Find overlap of rectangle bounding boxes.
 		// Skip attached profiles since it doesn't matter.
-		if (other.getAttribute(AttributeType.SOLID) && otherProfile.body().isStatic && !this._attachId.has()) {
+		if (other.allTypes().has(EntityType.BOUND) && otherProfile.body().isStatic && !this._attachId.has()) {
 			let overlap = this.overlap(other.profile());
 			let vel = this.vel();
 			const yCollision = this.isYCollision(overlap, vel);

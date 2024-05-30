@@ -64,7 +64,7 @@ export abstract class Particle extends EntityBase implements Entity {
 		*/
 	}
 
-	setUpdateFn(updateFn : UpdateFn) : void {
+	overrideUpdateFn(updateFn : UpdateFn) : void {
 		this._updateFn.set(updateFn);
 	}
 

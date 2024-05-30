@@ -7,14 +7,16 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { MeshType } from 'game/factory/api'
+import { ParticleCube } from 'game/entity/particle/particle_cube'
+import { MaterialType, MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
 
 import { KeyType, KeyState } from 'ui/api'
 
-import { Timer} from 'util/timer'
-import { Vec2 } from 'util/vector'
+import { RateLimiter } from 'util/rate_limiter'
+import { Timer } from 'util/timer'
+import { Vec2, Vec3 } from 'util/vector'
 
 enum WeaponState {
 	UNKNOWN,
@@ -35,11 +37,13 @@ export type ShotConfig = {
 export abstract class Weapon extends Equip<Player> {
 
 	private static readonly _shootNodeName = "shoot";
+	private static readonly _chargeInterval = 250;
 
 	protected _weaponState : WeaponState;
 	protected _shotConfig : ShotConfig;
 	protected _burstTimer : Timer;
 	protected _reloadTimer : Timer;
+	protected _chargeRateLimiter : RateLimiter;
 
 	protected _shootNode : BABYLON.TransformNode;
 
@@ -56,6 +60,7 @@ export abstract class Weapon extends Equip<Player> {
 		};
 		this._burstTimer = this.newTimer({ canInterrupt: false });
 		this._reloadTimer = this.newTimer({ canInterrupt: false });
+		this._chargeRateLimiter = new RateLimiter(Weapon._chargeInterval);
 
 		this._shootNode = null;
 
@@ -76,6 +81,10 @@ export abstract class Weapon extends Equip<Player> {
 						}
 					});
 
+					if (this._shootNode === null) {
+						console.error("Error: no shoot node for %s", this.name());
+					}
+
 					model.setMesh(mesh);
 				});
 			},
@@ -94,6 +103,7 @@ export abstract class Weapon extends Equip<Player> {
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
+		const millis = stepData.millis;
 
 		if (!this._model.hasMesh()) {
 			return;
@@ -133,6 +143,47 @@ export abstract class Weapon extends Equip<Player> {
 					this._weaponState = WeaponState.RELOADING;
 					this._reloadTimer.start(this._shotConfig.reloadTime);
 					this.onReload();
+				}
+			}
+		}
+
+		if (this.getAttribute(AttributeType.CHARGING)) {
+			if (this._chargeRateLimiter.check(millis)) {
+				const offset = Vec2.unitFromDeg(Math.random() * 360).scale(0.4);
+				const pos = Vec3.fromBabylon3(this._shootNode.getAbsolutePosition());
+
+				// TODO: don't hardcode 1000 as max
+				const size = 0.05 + 0.3 * (Math.min(1000, this.getCounter(CounterType.CHARGE)) / 1000);
+				const [cube, hasCube] = this.addEntity<ParticleCube>(EntityType.PARTICLE_CUBE, {
+					offline: true,
+					ttl: 1.5 * Weapon._chargeInterval,
+					profileInit: {
+						pos: pos.clone().add(offset),
+						vel: {
+							x: 0.05 * offset.y,
+							y: 0.05 * offset.x,
+						},
+						angle: 0,
+					},
+					modelInit: {
+						transforms: {
+							translate: { z: pos.z + size / 2 },
+							scale: { x: size, y: size, z: size },
+						},
+						materialType: MaterialType.BOLT_ORANGE,
+					}
+				});
+
+				if (hasCube) {
+					cube.profile().setAngularVelocity(-0.1 * Math.sign(offset.x));
+					cube.overrideUpdateFn((stepData : StepData, particle : ParticleCube) => {
+						particle.profile().moveTo(pos, {
+							millis: stepData.millis,
+							posEpsilon: 0.05,
+							maxAccel: 0.05,
+						});
+						particle.model().scaling().setScalar(size * (1 - particle.ttlElapsed()));
+					});
 				}
 			}
 		}

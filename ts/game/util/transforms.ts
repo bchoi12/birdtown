@@ -40,7 +40,7 @@ export class Transforms {
 				this.setRotation(transformOptions.rotate);
 			}
 			if (transformOptions.scale) {
-				this.setTranslation(transformOptions.scale);
+				this.setScaling(transformOptions.scale);
 			}
 		}
 	}

@@ -41,9 +41,19 @@ export namespace MaterialFactory {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.boltBlue.toBabylonColor3();
 		});
+		standardMaterial(MaterialType.BOLT_LIGHT_BLUE, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.7;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.boltLightOrange.toBabylonColor3();
+		});
 		standardMaterial(MaterialType.BOLT_ORANGE, (mat : BABYLON.StandardMaterial) => {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.boltOrange.toBabylonColor3();
+		});
+		standardMaterial(MaterialType.BOLT_LIGHT_ORANGE, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.7;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.boltLightOrange.toBabylonColor3();
 		});
 		standardMaterial(MaterialType.BOLT_EXPLOSION, (mat : BABYLON.StandardMaterial) => {
 			mat.alpha = 0.7;
