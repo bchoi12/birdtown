@@ -51,7 +51,9 @@ export enum BoostType {
 export enum CounterType {
 	UNKOWN,
 	CHARGE,
+	DASH,
 	HEALTH,
+	JETPACK,
 	JUICE,
 	ROCKET,
 }

@@ -17,7 +17,9 @@ export enum IconType {
 	SHARE,
 
 	BOLT,
+	DASH,
 	HEART,
+	JET,
 	ROCKET,
 	TRUCK_FAST,
 }
@@ -26,7 +28,9 @@ export namespace Icon {
 
 	const classMap = new Map<IconType, string>([
 		[IconType.BOLT, "fa-bolt"],
+		[IconType.DASH, "fa-person-running"],
 		[IconType.HEART, "fa-heart"],
+		[IconType.JET, "fa-jet-fighter-up"],
 		[IconType.MIC, "fa-microphone"],
 		[IconType.MINUS, "fa-minus"],
 		[IconType.MUTED_MIC, "fa-microphone-slash"],

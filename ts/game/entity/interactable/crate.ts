@@ -34,6 +34,12 @@ import { Fns } from 'util/fns'
 
 export class Crate extends Interactable implements Entity, EquipEntity {
 
+	private static readonly _equipPairs = [
+		[EntityType.CLAW, EntityType.HEADBAND],
+		[EntityType.SNIPER, EntityType.SCOUTER],
+		[EntityType.BAZOOKA, EntityType.JETPACK],
+	];
+
 	private static _maxSpeed = 0.6;
 
 	private _opened : boolean;
@@ -52,8 +58,14 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 
 		this._opened = false;
 		this._showTooltip = false;
-		this._equipType = EntityType.SNIPER;
-		this._altEquipType = EntityType.SCOUTER;
+		this._equipType = EntityType.UNKNOWN;
+		this._altEquipType = EntityType.UNKNOWN;
+
+		if (this.isSource()) {
+			const index = Math.floor(Math.random() * Crate._equipPairs.length);
+			this._equipType = Crate._equipPairs[index][0];
+			this._altEquipType = Crate._equipPairs[index][1];
+		}
 
 		this._nameTag = null;
 

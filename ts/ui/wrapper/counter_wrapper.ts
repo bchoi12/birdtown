@@ -28,10 +28,20 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 			displayType: DisplayType.INTEGER,
 			delay: 0,
 		}],
+		[CounterType.DASH, {
+			iconType: IconType.DASH,
+			displayType: DisplayType.PERCENT,
+			delay: 0,
+		}],
 		[CounterType.HEALTH, {
 			iconType: IconType.HEART,
 			displayType: DisplayType.INTEGER,
 			delay: 250,
+		}],
+		[CounterType.JETPACK, {
+			iconType: IconType.JET,
+			displayType: DisplayType.PERCENT,
+			delay: 0,
 		}],
 		[CounterType.JUICE, {
 			iconType: IconType.TRUCK_FAST,

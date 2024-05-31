@@ -75,7 +75,7 @@ export class Headband extends Equip<Player> {
 
 	override getCounts() : Map<CounterType, number> {
 		return new Map([
-			[CounterType.JUICE, Math.ceil(this._juice)],
+			[CounterType.DASH, Math.ceil(this._juice)],
 		]);
 	}
 

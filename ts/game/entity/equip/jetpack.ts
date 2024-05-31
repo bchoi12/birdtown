@@ -158,7 +158,7 @@ export class Jetpack extends Equip<Player> {
 
 	override getCounts() : Map<CounterType, number> {
 		return new Map([
-			[CounterType.JUICE, Math.ceil(this._juice)],
+			[CounterType.JETPACK, Math.ceil(this._juice)],
 		]);
 	}
 
