@@ -8,8 +8,7 @@ import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
 import { ParticleType } from 'game/factory/api'
 
-import { FnGlobals, InterpType } from 'global/fn_globals'
-
+import { Fns, InterpType } from 'util/fns'
 import { Vec2 } from 'util/vector'
 
 export class ParticleSpark extends Particle {
@@ -40,7 +39,7 @@ export class ParticleSpark extends Particle {
 	override updateParticle(stepData : StepData) : void {
 		this._profile.setAngle(this._profile.vel().angleRad());
 
-		const weight = FnGlobals.interp(InterpType.NEGATIVE_SQUARE, this.ttlElapsed());
+		const weight = Fns.interp(InterpType.NEGATIVE_SQUARE, this.ttlElapsed());
 		this._profile.vel().copyVec(this._initialVel).scale(1 - weight);
 		this._profile.scaling().y = this._initialScale.y * (1 - weight);
 		this._model.mesh().scaling.z = this._profile.scaling().y;

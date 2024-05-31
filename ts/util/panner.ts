@@ -1,6 +1,5 @@
 
-import { FnGlobals, InterpType } from 'global/fn_globals'
-
+import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
 import { Vec, Vec3 } from 'util/vector'
 
@@ -25,7 +24,7 @@ export class Panner {
 		this._timer = new Timer({
 			canInterrupt: true,
 		});
-		this._interpFn = FnGlobals.interpFns.get(InterpType.LINEAR);
+		this._interpFn = Fns.interpFns.get(InterpType.LINEAR);
 	}
 
 	base() : Vec3 { return this._base; }
@@ -53,6 +52,6 @@ export class Panner {
 		this._base.copy(this.current());
 		this._goal.copyVec(options.goal);
 		this._timer.start(options.millis);	
-		this._interpFn = FnGlobals.interpFns.get(options.interpType ? options.interpType : InterpType.LINEAR);
+		this._interpFn = Fns.interpFns.get(options.interpType ? options.interpType : InterpType.LINEAR);
 	}
 }

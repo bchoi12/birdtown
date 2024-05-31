@@ -10,10 +10,9 @@ import { Player } from 'game/entity/player'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { FnGlobals, InterpType } from 'global/fn_globals'
-
 import { KeyType, KeyState } from 'ui/api'
 
+import { Fns, InterpType } from 'util/fns'
 import { Vec3 } from 'util/vector'
 
 export class Scouter extends Equip<Player> {
@@ -83,7 +82,7 @@ export class Scouter extends Equip<Player> {
 		if (this._lookWeight <= 0) {
 			return super.cameraOffset();
 		}
-		const weight = FnGlobals.interp(InterpType.NEGATIVE_SQUARE, Math.min(1, this._lookWeight / Scouter._lookPanTime));
+		const weight = Fns.interp(InterpType.NEGATIVE_SQUARE, Math.min(1, this._lookWeight / Scouter._lookPanTime));
 		return this._look.clone().scale(weight);
 	}
 

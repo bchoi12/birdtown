@@ -3,8 +3,7 @@ import { Component, ComponentBase } from 'game/component'
 import { ComponentType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 
-import { FnGlobals, InterpType } from 'global/fn_globals'
-
+import { Fns, InterpType } from 'util/fns'
 import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
 
@@ -117,7 +116,7 @@ export class Expression<T extends number> extends ComponentBase implements Compo
 				return;
 			}
 
-			const value = emotion.value * FnGlobals.interpFns.get(emotion.fn)(1 - emotion.timer.percentElapsed());
+			const value = emotion.value * Fns.interpFns.get(emotion.fn)(1 - emotion.timer.percentElapsed());
 			if (value > max) {
 				this._current = type;
 				max = value;

@@ -10,8 +10,6 @@ import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType, PlayerRole } from 'game/system/api'
 
-import { InterpType } from 'global/fn_globals'
-
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { UiMessage, UiMessageType } from 'message/ui_message'
 
@@ -22,6 +20,7 @@ import { KeyType, TooltipType } from 'ui/api'
 
 import { CircleMap } from 'util/circle_map'
 import { isLocalhost } from 'util/common'
+import { Fns, InterpType } from 'util/fns'
 import { Panner } from 'util/panner'
 import { Vec, Vec2, Vec3 } from 'util/vector'
 

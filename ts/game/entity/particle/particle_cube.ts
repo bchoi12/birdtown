@@ -11,10 +11,9 @@ import { StepData } from 'game/game_object'
 import { CollisionCategory, ParticleType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 
-import { FnGlobals, InterpType } from 'global/fn_globals'
 import { GameGlobals } from 'global/game_globals'
 
-import { Fns } from 'util/fns'
+import { Fns, InterpType } from 'util/fns'
 import { Vec2 } from 'util/vector'
 
 export class ParticleCube extends Particle {
@@ -50,7 +49,7 @@ export class ParticleCube extends Particle {
 	}
 
 	override updateParticle(stepData : StepData) : void {
-		const weight = 1 - FnGlobals.interp(InterpType.LINEAR, this.ttlElapsed());
+		const weight = 1 - Fns.interp(InterpType.LINEAR, this.ttlElapsed());
 		this._profile.setScaling({
 			x: this._initialScale.x * weight,
 			y: this._initialScale.y * weight,

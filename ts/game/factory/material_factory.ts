@@ -76,6 +76,12 @@ export namespace MaterialFactory {
 			mat.diffuseColor = ColorFactory.crateYellow.toBabylonColor3();
 		});
 
+		standardMaterial(MaterialType.DASH_TRAIL, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.7;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.starPurple.toBabylonColor3();
+		});
+
 		standardMaterial(MaterialType.ROCKET_EXPLOSION, (mat : BABYLON.StandardMaterial) => {
 			mat.alpha = 0.7;
 			mat.disableLighting = true;
@@ -129,12 +135,20 @@ export namespace MaterialFactory {
 	function standardMaterial(type : MaterialType, fn : MaterialFn<BABYLON.StandardMaterial>) : void {
 		let mat = new BABYLON.StandardMaterial(MaterialType[type], game.scene());
 		fn(mat);
+
+		if (materials.has(type)) {
+			console.error("Warning: overwriting material", MaterialType[type]);
+		}
 		materials.set(type, mat);
 	}
 
 	function customMaterial(type : MaterialType, fn : MaterialFn<CustomMaterial>) : void {
 		let mat = new CustomMaterial(MaterialType[type], game.scene());
 		fn(mat);
+
+		if (materials.has(type)) {
+			console.error("Warning: overwriting material", MaterialType[type]);
+		}
 		materials.set(type, mat);
 	}
 }

@@ -51,3 +51,16 @@ export enum EntityType {
 	STAR,
 	WALL,
 }
+
+export enum BoneType {
+	ARM = "arm.R",
+	ARMATURE = "Armature",
+	BACK = "back",
+	BEAK = "beak",
+	EYE = "eye.R",
+	FOREHEAD = "forehead",
+	HEAD = "head",
+	MESH = "mesh",
+	NECK = "neck",
+	SPINE = "spine",
+}

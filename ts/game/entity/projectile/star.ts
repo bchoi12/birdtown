@@ -78,6 +78,7 @@ export class Star extends Projectile {
 					trail.material = MaterialFactory.material(MaterialType.STAR_TRAIL);
 					trail.isVisible = false;
 					trail.parent = model.root();
+
 					this._trail.set(trail);
 				});
 			},
@@ -85,7 +86,7 @@ export class Star extends Projectile {
 		}));
 	}
 
-	override hitDamage() : number { return 5; }
+	override hitDamage() : number { return 2; }
 
 	override initialize() : void {
 		super.initialize();
@@ -160,7 +161,7 @@ export class Star extends Projectile {
 		if (this._profile.attached()) {
 			const [parent, ok] = game.entities().getEntity(this._profile.attachId());
 			if (ok) {
-				parent.takeDamage(20, this);
+				parent.takeDamage(18, this);
 			}
 		}
 

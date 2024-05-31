@@ -105,6 +105,12 @@ export class Rocket extends Projectile {
 		this.delete();
 	}
 
-	override onMiss() : void { this.onHit(); }
-	override onExpire() : void { this.onHit(); }
+	override onMiss() : void {
+		this.explode({
+			modelInit: {
+				materialType: MaterialType.ROCKET_EXPLOSION,
+			},
+		});
+	}
+	override onExpire() : void { this.onMiss(); }
 }

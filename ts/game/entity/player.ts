@@ -15,7 +15,7 @@ import { Profile } from 'game/component/profile'
 import { StatInitOptions } from 'game/component/stat'
 import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity, InteractEntity } from 'game/entity'
-import { EntityType } from 'game/entity/api'
+import { EntityType, BoneType } from 'game/entity/api'
 import { Crate } from 'game/entity/interactable/crate'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Beak } from 'game/entity/equip/beak'
@@ -56,19 +56,6 @@ enum Animation {
 	IDLE = "Idle",
 	WALK = "Walk",
 	JUMP = "Jump",
-}
- 
-enum Bone {
-	ARM = "arm.R",
-	ARMATURE = "Armature",
-	BACK = "back",
-	BEAK = "beak",
-	EYE = "eye.R",
-	FOREHEAD = "forehead",
-	HEAD = "head",
-	MESH = "mesh",
-	NECK = "neck",
-	SPINE = "spine",
 }
 
 enum Material {
@@ -121,14 +108,14 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.WALK, Animation.JUMP])],
 	]);
 	private static readonly _controllableBones = new Set<string>([
-		Bone.ARM, Bone.ARMATURE, Bone.BACK, Bone.BEAK, Bone.EYE, Bone.FOREHEAD, Bone.HEAD, Bone.NECK,
+		BoneType.ARM, BoneType.ARMATURE, BoneType.BACK, BoneType.BEAK, BoneType.EYE, BoneType.FOREHEAD, BoneType.HEAD, BoneType.NECK,
 	]);
 
 	// TODO: package in struct, Pose, PlayerPose?
 	private _armDir : Vec2;
 	private _armRecoil : [number, number];
 	private _headDir : Vec2;
-	private _boneOrigins : Map<Bone, BABYLON.Vector3>;
+	private _boneOrigins : Map<BoneType, BABYLON.Vector3>;
 	private _eyeShifter : MaterialShifter;
 
 	private _canJump : boolean;
@@ -337,11 +324,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 							console.error("Error: missing bone %s for %s", name, this.name());
 							return;
 						}
-						const bone = <Bone>name;
+						const bone = <BoneType>name;
 						this._boneOrigins.set(bone, model.getBone(bone).getTransformNode().position);
 					})
 
-					let armature = model.getBone(Bone.ARMATURE).getTransformNode();
+					let armature = model.getBone(BoneType.ARMATURE).getTransformNode();
 					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + Player._rotationOffset, 0);
 					const dim = this._profile.unscaledDim();
 					armature.position.y -= dim.y / 2;
@@ -414,7 +401,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			switch(equip.attachType()) {
 			case AttachType.ARM:
-				const arm = m.getBone(Bone.ARM);
+				const arm = m.getBone(BoneType.ARM);
 				equipModel.onLoad((em : Model) => {
 					em.root().attachToBone(arm, m.mesh());
 					em.mesh().rotation.x = 3 * Math.PI / 2;
@@ -422,38 +409,38 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				});
 				break;
 			case AttachType.ARMATURE:
-				const armature = m.getBone(Bone.ARMATURE);
+				const armature = m.getBone(BoneType.ARMATURE);
 				equipModel.onLoad((em : Model) => {
 					em.root().attachToBone(armature, m.mesh());
 				});
 				break;
 			case AttachType.BACK:
-				const back = m.getBone(Bone.BACK);
+				const back = m.getBone(BoneType.BACK);
 				equipModel.onLoad((em : Model) => {
 					em.root().attachToBone(back, m.mesh());
 				});
 				break;
 			case AttachType.BEAK:
-				const beak = m.getBone(Bone.BEAK);
+				const beak = m.getBone(BoneType.BEAK);
 				equipModel.onLoad((em : Model) => {
 					em.root().attachToBone(beak, m.mesh());
 					em.mesh().rotation.y = Math.PI;
 				});
 				break;
 			case AttachType.EYE:
-				const eye = m.getBone(Bone.EYE);
+				const eye = m.getBone(BoneType.EYE);
 				equipModel.onLoad((em : Model) => {
 					em.root().attachToBone(eye, m.mesh());
 				});
 				break;
 			case AttachType.FOREHEAD:
-				const forehead = m.getBone(Bone.FOREHEAD);
+				const forehead = m.getBone(BoneType.FOREHEAD);
 				equipModel.onLoad((em : Model) => {
 					em.root().attachToBone(forehead, m.mesh());
 				});
 				break;
 			case AttachType.HEAD:
-				const head = m.getBone(Bone.HEAD);
+				const head = m.getBone(BoneType.HEAD);
 				equipModel.onLoad((em : Model) => {
 					em.root().attachToBone(head, m.mesh());
 				});
@@ -762,11 +749,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		} else {
 			neckAngle += Math.PI;
 		}
-		let neck = this._model.getBone(Bone.NECK).getTransformNode();
+		let neck = this._model.getBone(BoneType.NECK).getTransformNode();
 		neck.rotation = new BABYLON.Vector3(neckAngle, neck.rotation.y, neck.rotation.z);
 
 		// Compute arm rotation
-		let arm = this._model.getBone(Bone.ARM).getTransformNode();
+		let arm = this._model.getBone(BoneType.ARM).getTransformNode();
 		let armRotation = this._armDir.angleRad();
 		if (headSign > 0) {
 			armRotation -= Math.PI / 2;
@@ -780,7 +767,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			-0.5 * Math.sin(this._armRecoil[1]),
 			-Math.cos(armRotation) * this._armRecoil[0],
 			Math.sin(armRotation) * this._armRecoil[0]);
-		arm.position = this._boneOrigins.get(Bone.ARM).add(recoil);
+		arm.position = this._boneOrigins.get(BoneType.ARM).add(recoil);
 	}
 
 	override getCounts() : Map<CounterType, number> {
