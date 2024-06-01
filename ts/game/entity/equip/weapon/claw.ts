@@ -46,7 +46,7 @@ export class Claw extends Weapon {
 		let [star, hasStar] = this.addEntity<Bolt>(EntityType.STAR, {
 			ttl: Claw._starTTL,
 			associationInit: {
-				owner: this,
+				owner: this.owner(),
 			},
 			modelInit: {
 				transforms: {

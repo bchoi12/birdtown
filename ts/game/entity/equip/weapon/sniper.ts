@@ -57,7 +57,7 @@ export class Sniper extends Weapon {
 		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, {
 			ttl: Sniper._boltTTL,
 			associationInit: {
-				owner: this,
+				owner: this.owner(),
 			},
 			modelInit: {
 				transforms: {

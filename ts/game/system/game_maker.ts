@@ -22,8 +22,6 @@ import { isLocalhost } from 'util/common'
 
 export class GameMaker extends SystemBase implements System {
 
-	private static readonly _noWinner : string = "no one";
-
 	private _config : GameConfigMessage;
 	private _round : number;
 	private _lastStateChange : number;

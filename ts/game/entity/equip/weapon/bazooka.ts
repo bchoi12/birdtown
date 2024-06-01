@@ -41,7 +41,7 @@ export class Bazooka extends Weapon {
 		let [rocket, hasRocket] = this.addEntity<Rocket>(EntityType.ROCKET, {
 			ttl: 850,
 			associationInit: {
-				owner: this,
+				owner: this.owner(),
 			},
 			modelInit: {
 				transforms: {
