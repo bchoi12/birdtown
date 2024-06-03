@@ -339,6 +339,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	takeDamage(delta : number, from? : Entity) : void {
 		if (!this.hasComponent(ComponentType.STATS)) { return; }
 
+		if (delta >= 0 && this.getAttribute(AttributeType.INVINCIBLE)) {
+			return;
+		}
+
 		this.getComponent<Stats>(ComponentType.STATS).updateStat(StatType.HEALTH, {
 			delta: -delta,
 			entity: from,

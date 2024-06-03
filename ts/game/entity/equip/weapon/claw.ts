@@ -58,10 +58,6 @@ export class Claw extends Weapon {
 				vel: vel,
 			},
 		});
-
-		if (hasStar) {
-			this.recordUse();
-		}
 	}
 
 	override onReload() : void {}

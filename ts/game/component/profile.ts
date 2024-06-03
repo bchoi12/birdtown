@@ -536,6 +536,11 @@ export class Profile extends ComponentBase implements Component {
 
 	attached() : boolean { return this._attachId.has(); }
 	attachId() : number { return this._attachId.get(); }
+	attachEntity() : [Entity, boolean] {
+		if (!this.attached()) { return [null, false]; }
+
+		return game.entities().getEntity(this.attachId());
+	}
 	attachTo(profile : Profile, offset : Vec) : boolean {
 		if (!profile.initialized()) {
 			return false;

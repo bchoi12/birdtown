@@ -103,6 +103,7 @@ body {
 }
 
 #div-chat {
+    visibility: hidden;
     position: absolute;
     left: 0;
     
@@ -140,8 +141,8 @@ body {
 
     right: 0;
     bottom: 0;
-    width: 15em;
-    height: 9em;
+    width: 12.4em;
+    height: 7em;
 
     background-color: rgba(0, 0, 0, 0.3);
 }

@@ -135,6 +135,7 @@ export abstract class Weapon extends Equip<Player> {
 		if (this._weaponState === WeaponState.BURSTING) {
 			if (!this._burstTimer.hasTimeLeft()) {
 				this.shoot();
+				this.recordUse();
 				this._shotConfig.bursts--;
 
 				if (this._shotConfig.bursts > 0) {

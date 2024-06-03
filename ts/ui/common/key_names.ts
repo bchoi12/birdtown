@@ -274,4 +274,8 @@ export class KeyNames {
 	static boxed(keyCode : number) : string {
 		return "[" + KeyNames.get(keyCode) + "]";
 	}
+
+	static boxedLower(keyCode : number) : string {
+		return KeyNames.boxed(keyCode).toLowerCase();
+	}
 }

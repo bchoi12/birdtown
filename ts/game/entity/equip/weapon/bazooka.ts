@@ -54,10 +54,6 @@ export class Bazooka extends Weapon {
 				acc: acc,
 			},
 		});
-
-		if (hasRocket) {
-			this.recordUse();
-		}
 	}
 
 	override onReload() : void {}

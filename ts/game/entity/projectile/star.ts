@@ -118,6 +118,13 @@ export class Star extends Projectile {
 
 		if (this._profile.attached()) {
 			this._spinning = false;
+
+			const [parent, hasParent] = this._profile.attachEntity();
+			if (hasParent) {
+				if (parent.getAttribute(AttributeType.INVINCIBLE)) {
+					this.delete();
+				}
+			}
 		}
 		if (this._spinning) {
 			this._model.mesh().rotation.x += Math.sign(this._profile.vel().x) * 6 * Math.PI * millis / 1000;

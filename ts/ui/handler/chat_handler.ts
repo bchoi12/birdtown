@@ -40,6 +40,8 @@ export class ChatHandler extends HandlerBase implements Handler {
 	override setup() : void {
 		this._messageInputElm.style.width = this._chatElm.offsetWidth + "px";
 
+		this.chat("Press " + KeyNames.boxedLower(settings.chatKeyCode) + " to chat");
+
 		document.addEventListener("keydown", (e : any) => {
 			if (e.repeat) return;
 
@@ -56,6 +58,14 @@ export class ChatHandler extends HandlerBase implements Handler {
 		});		
 	}
 
+	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
+		super.onModeChange(mode, oldMode);
+
+		if (mode === UiMode.GAME) {
+			this._chatElm.style.visibility = "visible";
+		}
+	}
+
 	override onEnable() : void {
 		super.onEnable();
 
@@ -66,7 +76,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 
 		this._messageElm.style.visibility = "visible";
 		this._messageInputElm.focus();
-		this._messageInputElm.placeholder = "Press " + KeyNames.boxed(settings.chatKeyCode) + " to send";
+		this._messageInputElm.placeholder = "Press " + KeyNames.boxedLower(settings.chatKeyCode) + " to send";
 	}
 
 	override onDisable() : void {

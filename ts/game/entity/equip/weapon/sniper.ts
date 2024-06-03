@@ -77,8 +77,6 @@ export class Sniper extends Weapon {
 				bolt.setAttribute(AttributeType.CHARGED, true);
 				bolt.profile().setScaleFactor(1.5);
 			}
-
-			this.recordUse();
 		}
 	}
 
