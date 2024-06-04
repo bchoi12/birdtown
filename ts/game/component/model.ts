@@ -236,7 +236,7 @@ export class Model extends ComponentBase implements Component {
 		this._root.position.y += pos.y;
 
 		if (profile.hasAngle()) {
-			this._root.rotation.z = profile.angle();
+			this._root.rotation.z += profile.angle();
 		}
 
 		this._root.scaling.x *= profile.scaling().x;

@@ -64,6 +64,8 @@ export namespace ColorFactory {
 	export const starExplosionPurple = HexColor.fromHex(0xa465e2);
 	export const starPurple = HexColor.fromHex(0x7d3abf);
 
+	export const sweatBlue = HexColor.fromHex(0xe3fcff);
+
 	export const baseColors = new Map<EntityType, Buffer<HexColor>>([
 		[EntityType.ARCH_BLOCK, Buffer.from(archRed, archOrange, archYellow, archGreen, archBlue, archPurple)],
 	]);

@@ -69,12 +69,12 @@ export class Modifiers extends ComponentBase implements Component {
 				stats.addStat(StatType.HEALTH);
 			}
 			let health = stats.getStat(StatType.HEALTH);
-			if (health.getMax().has()) {
-				health.getMax().get().addBoost(BoostType.ADD_BASE, (value : number) => {
+			if (health.max().has()) {
+				health.max().get().addBoost(BoostType.ADD_BASE, (value : number) => {
 					return value + 25;
 				});
 			}
-			health.getStatNumber().addBoost(BoostType.ADD_BASE, (value : number) => {
+			health.statNumber().addBoost(BoostType.ADD_BASE, (value : number) => {
 				return value + 25;
 			});
 
@@ -82,7 +82,7 @@ export class Modifiers extends ComponentBase implements Component {
 				stats.addStat(StatType.SCALING, { stat: 1 });
 			}
 			let scaling = stats.getStat(StatType.SCALING);
-			scaling.getStatNumber().addBoost(BoostType.ADD_BASE, (value : number) => {
+			scaling.statNumber().addBoost(BoostType.ADD_BASE, (value : number) => {
 				return value + 0.4;
 			});
 			break;

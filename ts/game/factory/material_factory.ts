@@ -104,6 +104,10 @@ export namespace MaterialFactory {
 			mat.emissiveColor = ColorFactory.starPurple.toBabylonColor3();
 		});
 
+		standardMaterial(MaterialType.SWEAT, (mat : BABYLON.StandardMaterial) => {
+			mat.diffuseColor = ColorFactory.sweatBlue.toBabylonColor3();
+		});
+
 		initialized = true;
 	}
 

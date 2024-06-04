@@ -290,7 +290,7 @@ export class Profile extends ComponentBase implements Component {
 
 		let stats = <Stats>component;
 		if (stats.hasStat(StatType.SCALING)) {
-			const scaling = stats.getStat(StatType.SCALING).getCurrent();
+			const scaling = stats.getStat(StatType.SCALING).current();
 			this.setScaling({x: scaling, y: scaling });
 		}
 	}
@@ -509,12 +509,13 @@ export class Profile extends ComponentBase implements Component {
 			buffer = 0;
 		}
 
-		const dim = profile.scaledDim();
-
-		if (profile.pos().x + dim.x / 2 > this._pos.x + dim.x / 2 + buffer) { return false; }
-		if (profile.pos().x - dim.x / 2 < this._pos.x - dim.x / 2 - buffer) { return false; }
-		if (profile.pos().y + dim.y / 2 > this._pos.y + dim.y / 2 + buffer) { return false; }
-		if (profile.pos().y - dim.y / 2 < this._pos.y - dim.y / 2 - buffer) { return false; }
+		const dim = this.scaledDim();
+		const otherPos = profile.pos();
+		const otherDim = profile.scaledDim();
+		if (otherPos.x + otherDim.x / 2 > this._pos.x + dim.x / 2 + buffer) { return false; }
+		if (otherPos.x - otherDim.x / 2 < this._pos.x - dim.x / 2 - buffer) { return false; }
+		if (otherPos.y + otherDim.y / 2 > this._pos.y + dim.y / 2 + buffer) { return false; }
+		if (otherPos.y - otherDim.y / 2 < this._pos.y - dim.y / 2 - buffer) { return false; }
 
 		return true;
 	}

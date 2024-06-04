@@ -23,7 +23,7 @@ import { Bubble } from 'game/entity/equip/bubble'
 import { Headwear } from 'game/entity/equip/headwear'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Weapon } from 'game/entity/equip/weapon'
-import { CollisionCategory, MeshType, TextureType } from 'game/factory/api'
+import { CollisionCategory, MaterialType, MeshType, TextureType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
@@ -100,6 +100,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _armRecoveryTime = 300;
 	private static readonly _knockbackRecoveryTime = 250;
 	private static readonly _interactCheckInterval = 250;
+	private static readonly _sweatInterval = 800;
 	private static readonly _walkSmokeInterval = 500;
 
 	private static readonly _defaultColor = "#ffffff";
@@ -123,6 +124,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _canDoubleJump : boolean;
 	private _deadTracker : ChangeTracker<boolean>;
 	private _groundedTracker : ChangeTracker<boolean>;
+	private _sweatRateLimiter : RateLimiter;
 	private _walkSmokeRateLimiter : RateLimiter;
 
 	private _nearestInteractable : Optional<InteractEntity>;
@@ -196,6 +198,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				}
 			}
 		});
+		this._sweatRateLimiter = new RateLimiter(Player._sweatInterval);
 		this._walkSmokeRateLimiter = new RateLimiter(Player._walkSmokeInterval);
 
 		this._nearestInteractable = new Optional();
@@ -669,6 +672,46 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			&& this.key(KeyType.INTERACT, KeyState.PRESSED)) {
 			this._nearestInteractable.get().interactWith(this);
 			this._interactRateLimiter.prime();
+		}
+
+		// Sweat
+		const healthPercent = this._stats.healthPercent();
+		if (this._sweatRateLimiter.checkPercent(millis, Math.max(0.2, healthPercent))) {
+			const dim = this._profile.scaledDim();
+			for (let i = 0; i < 4; ++i) {
+				let particlePos = this._profile.pos().clone();
+				const dir = {
+					x: i < 2 ? -1 : 1,
+					y: 1,
+				}
+				particlePos.add({
+					x: dir.x * dim.x / 2,
+					y: dir.y * dim.y / 2,
+				});
+				particlePos.add({
+					x: (i % 2 === 0 ? -1 : 1) * 0.1 * dim.x,
+					y: (i % 2 === 0 ? 1 : -1) * 0.1 * dim.y,
+				});
+
+				this.addEntity(EntityType.PARTICLE_SWEAT, {
+					offline: true,
+					ttl: 300,
+					profileInit: {
+						pos: particlePos,
+						vel: {
+							x: 0.1 * dir.x,
+							y: 0.1 * dir.y,
+						},
+						scaling: { x: 0.4, y: 0.4 },
+					},
+					modelInit: {
+						transforms: {
+							translate: { z: this._model.mesh().position.z },
+						},
+						materialType: MaterialType.SWEAT,
+					}
+				});	
+			}
 		}
 
 		// Animation

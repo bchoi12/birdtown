@@ -103,10 +103,10 @@ export class Stat extends ComponentBase implements Component {
 
 	atMin() : boolean { return this._min.has() && this._stat.get() <= this._min.get().get(); }
 	atMax() : boolean { return this._max.has() && this._stat.get() >= this._max.get().get(); }
-	getMin() : Optional<StatNumber> { return this._min; }
-	getMax() : Optional<StatNumber> { return this._max; }
-	getStatNumber() : StatNumber { return this._stat; }
-	getCurrent() : number { return this._stat.get(); }
+	min() : Optional<StatNumber> { return this._min; }
+	max() : Optional<StatNumber> { return this._max; }
+	statNumber() : StatNumber { return this._stat; }
+	current() : number { return this._stat.get(); }
 
 	updateStat(update : StatUpdate) : void {
 		if (update.delta < 0) {

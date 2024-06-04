@@ -55,6 +55,7 @@ export enum MaterialType {
 	STAR_EXPLOSION,
 	STAR_TRAIL,
 	SPARK_BLUE,
+	SWEAT,
 }
 
 export enum MeshType {
@@ -92,6 +93,7 @@ export enum ParticleType {
 	CUBE,
 	SMOKE,
 	SPARK,
+	TEAR,
 }
 
 export enum TextureType {

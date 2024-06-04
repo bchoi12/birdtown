@@ -8,6 +8,8 @@ import { Floor } from 'game/entity/bound/floor'
 import { Wall } from 'game/entity/bound/wall'
 import { Cloud } from 'game/entity/cloud'
 import { Explosion } from 'game/entity/explosion'
+import { Plane } from 'game/entity/plane'
+import { Player } from 'game/entity/player'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { Bubble } from 'game/entity/equip/bubble'
@@ -27,8 +29,7 @@ import { SignStartGame } from 'game/entity/interactable/sign/sign_start_game'
 import { ParticleCube } from 'game/entity/particle/particle_cube'
 import { ParticleSmoke } from 'game/entity/particle/particle_smoke'
 import { ParticleSpark } from 'game/entity/particle/particle_spark'
-import { Plane } from 'game/entity/plane'
-import { Player } from 'game/entity/player'
+import { ParticleSweat } from 'game/entity/particle/particle_sweat'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Star } from 'game/entity/projectile/star'
@@ -63,6 +64,7 @@ export namespace EntityFactory {
 		[EntityType.PARTICLE_CUBE, (options : EntityOptions) => { return new ParticleCube(options); }],
 		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],
 		[EntityType.PARTICLE_SPARK, (options : EntityOptions) => { return new ParticleSpark(options); }],
+		[EntityType.PARTICLE_SWEAT, (options : EntityOptions) => { return new ParticleSweat(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
@@ -84,6 +86,7 @@ export namespace EntityFactory {
 		[EntityType.PARTICLE_CUBE, { x: 1, y: 1, z: 1}],
 		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],
 		[EntityType.PARTICLE_SPARK, { x: 1, y: 1, z: 1 }],
+		[EntityType.PARTICLE_SWEAT, { x: 1, y: 1, z: 1 }],
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],
 		[EntityType.ROCKET, { x: 0.3, y: 0.3, z: 0.3 }],

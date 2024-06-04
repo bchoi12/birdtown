@@ -26,9 +26,12 @@ export class RateLimiter {
 	}
 
 	check(num : number) : boolean {
+		return this.checkPercent(num, 1);
+	}
+	checkPercent(num : number, ratio : number) : boolean {
 		this._current += num;
 
-		if (this._current >= this._limit) {
+		if (this._current >= ratio * this._limit) {
 			this.reset();
 			return true;
 		}

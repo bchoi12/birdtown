@@ -116,6 +116,7 @@ export interface GameObject {
 export abstract class GameObjectBase {
 
 	private static readonly _readyPrintInterval = 120;
+	private static readonly _numObjectsToPrint = 6;
 
 	protected _name : string;
 	protected _nameParams : NameParams;
@@ -189,7 +190,11 @@ export abstract class GameObjectBase {
 		});
 
 		if (unready.length > 0) {
-			console.error("Warning: %s not ready, bad objects: %s", this.name(), unready.join(","));
+			const extra = Math.max(0, unready.length - GameObjectBase._numObjectsToPrint)
+			const objectNames = unready.length > GameObjectBase._numObjectsToPrint
+				? unready.slice(0, GameObjectBase._numObjectsToPrint - 1).join(",")
+				: unready.join(",");
+			console.error("Warning: %s not ready, bad objects: %s, and %d more", this.name(), objectNames, extra);
 		} else {
 			console.error("Warning: %s not ready", this.name());
 		}

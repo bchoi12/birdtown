@@ -12,9 +12,10 @@ export namespace ParticleFactory {
 		[ParticleType.CUBE, createCube],
 		[ParticleType.SMOKE, createSphere],
 		[ParticleType.SPARK, createCube],
+		[ParticleType.TEAR, createTear],
 	]);
-	let cache = new Map<ParticleType, ObjectCache<BABYLON.Mesh>>; 
 
+	let cache = new Map<ParticleType, ObjectCache<BABYLON.Mesh>>; 
 	export function borrowMesh(type : ParticleType, onLoad? : ObjectCacheOnLoadFn<BABYLON.Mesh>) : BABYLON.Mesh {
 		if (!cache.has(type)) {
 			createCache(type);
@@ -52,5 +53,22 @@ export namespace ParticleFactory {
 		let cube = BABYLON.MeshBuilder.CreateBox("particle-cube", { width: 1, height: 1, depth: 1, }, game.scene());
 		cube.material = new BABYLON.StandardMaterial(name, game.scene());
 		return cube;
+	}
+
+	let tearShape = [];
+	function createTear(index : number) : BABYLON.Mesh {
+		if (tearShape.length === 0) {
+			const tearSegments = 10;
+			for (let i = 0; i <= tearSegments; ++i) {
+				let t = i / tearSegments * Math.PI;
+				let x = Math.sin(t / 2);
+				tearShape.push(new BABYLON.Vector3(0.5 * Math.sin(t) * x * x, 0.5 * Math.cos(t), 0));
+			}
+		}
+
+		const name = "particle-tear-" + index;
+		let tear = BABYLON.MeshBuilder.CreateLathe("particle-tear", { shape: tearShape }, game.scene());
+		tear.material = new BABYLON.StandardMaterial(name, game.scene());
+		return tear;
 	}
 }

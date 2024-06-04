@@ -30,6 +30,7 @@ export class Optional<T> {
 		this.clear();
 		return [this.get(), ok];
 	}
+	or(value : T) : T { return this.has() ? this.get() : value; }
 
 	hasAnd(fn : (value : T) => boolean) : boolean {
 		if (!this.has()) {

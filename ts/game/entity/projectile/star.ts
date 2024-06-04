@@ -125,7 +125,10 @@ export class Star extends Projectile {
 					this.delete();
 				}
 			}
+		} else {
+			this._profile.setAcc({ y: GameGlobals.gravity });
 		}
+
 		if (this._spinning) {
 			this._model.mesh().rotation.x += Math.sign(this._profile.vel().x) * 6 * Math.PI * millis / 1000;
 		}

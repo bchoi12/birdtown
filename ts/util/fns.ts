@@ -25,6 +25,10 @@ export namespace Fns {
 		return Math.max(min, Math.min(n, max));
 	}
 
+	export function lerpRange(min : number, weight : number, max : number) : number {
+		return min + weight * (max - min);
+	}
+
 	export function randomRange(min : number, max : number) : number {
 		return min + Math.random() * (max - min);
 	}
