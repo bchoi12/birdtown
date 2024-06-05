@@ -155,7 +155,7 @@ export abstract class Weapon extends Equip<Player> {
 
 				// TODO: don't hardcode 1000 as max
 				const size = 0.05 + 0.3 * (Math.min(1000, this.getCounter(CounterType.CHARGE)) / 1000);
-				const [cube, hasCube] = this.addEntity<ParticleCube>(EntityType.PARTICLE_CUBE, {
+				const [cube, hasCube] = this.addEntity<ParticleCube>(EntityType.PARTICLE_ENERGY_CUBE, {
 					offline: true,
 					ttl: 1.5 * Weapon._chargeInterval,
 					profileInit: {

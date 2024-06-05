@@ -27,6 +27,7 @@ import { Crate } from 'game/entity/interactable/crate'
 import { SignControls } from 'game/entity/interactable/sign/sign_controls'
 import { SignStartGame } from 'game/entity/interactable/sign/sign_start_game'
 import { ParticleCube } from 'game/entity/particle/particle_cube'
+import { ParticleEnergyCube } from 'game/entity/particle/particle_energy_cube'
 import { ParticleSmoke } from 'game/entity/particle/particle_smoke'
 import { ParticleSpark } from 'game/entity/particle/particle_spark'
 import { ParticleSweat } from 'game/entity/particle/particle_sweat'
@@ -62,6 +63,7 @@ export namespace EntityFactory {
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
 		[EntityType.PARTICLE_CUBE, (options : EntityOptions) => { return new ParticleCube(options); }],
+		[EntityType.PARTICLE_ENERGY_CUBE, (options : EntityOptions) => { return new ParticleEnergyCube(options); }],
 		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],
 		[EntityType.PARTICLE_SPARK, (options : EntityOptions) => { return new ParticleSpark(options); }],
 		[EntityType.PARTICLE_SWEAT, (options : EntityOptions) => { return new ParticleSweat(options); }],
@@ -84,6 +86,7 @@ export namespace EntityFactory {
 		[EntityType.BACKGROUND_ARCH_ROOM, { x: 12, y: 6 }],
 		[EntityType.BOLT, { x: 0.36, y: 0.12, z : 0.12 }],
 		[EntityType.PARTICLE_CUBE, { x: 1, y: 1, z: 1}],
+		[EntityType.PARTICLE_ENERGY_CUBE, { x: 1, y: 1, z: 1}],
 		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],
 		[EntityType.PARTICLE_SPARK, { x: 1, y: 1, z: 1 }],
 		[EntityType.PARTICLE_SWEAT, { x: 1, y: 1, z: 1 }],

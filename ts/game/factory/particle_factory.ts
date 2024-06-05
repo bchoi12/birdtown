@@ -10,6 +10,7 @@ type CreateFn = (index : number) => BABYLON.Mesh;
 export namespace ParticleFactory {
 	const createFns = new Map<ParticleType, CreateFn>([
 		[ParticleType.CUBE, createCube],
+		[ParticleType.ENERGY_CUBE, createCube],
 		[ParticleType.SMOKE, createSphere],
 		[ParticleType.SPARK, createCube],
 		[ParticleType.TEAR, createTear],

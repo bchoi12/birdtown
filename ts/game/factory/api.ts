@@ -91,6 +91,7 @@ export enum ParticleType {
 	UNKNOWN,
 
 	CUBE,
+	ENERGY_CUBE,
 	SMOKE,
 	SPARK,
 	TEAR,
