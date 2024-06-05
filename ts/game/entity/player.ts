@@ -100,10 +100,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _armRecoveryTime = 300;
 	private static readonly _knockbackRecoveryTime = 250;
 	private static readonly _interactCheckInterval = 250;
-	private static readonly _sweatInterval = 800;
+	private static readonly _sweatInterval = 3000;
 	private static readonly _walkSmokeInterval = 500;
 
 	private static readonly _defaultColor = "#ffffff";
+	private static readonly _headDim = {x: 0.96, y: 1.06};
+	private static readonly _sweatDegs = [40, 50, 130, 140];
 
 	private static readonly _animations = new Map<AnimationGroup, Set<string>>([
 		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.WALK, Animation.JUMP])],
@@ -126,9 +128,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _groundedTracker : ChangeTracker<boolean>;
 	private _sweatRateLimiter : RateLimiter;
 	private _walkSmokeRateLimiter : RateLimiter;
-
 	private _nearestInteractable : Optional<InteractEntity>;
 	private _interactRateLimiter : RateLimiter;
+
+	private _baseMaterial : Optional<BABYLON.PBRMaterial>;
 
 	private _association : Association;
 	private _attributes : Attributes;
@@ -200,9 +203,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 		this._sweatRateLimiter = new RateLimiter(Player._sweatInterval);
 		this._walkSmokeRateLimiter = new RateLimiter(Player._walkSmokeInterval);
-
 		this._nearestInteractable = new Optional();
 		this._interactRateLimiter = new RateLimiter(Player._interactCheckInterval);
+
+		this._baseMaterial = new Optional();
 
 		this.addProp<boolean>({
 			export: () => { return this._canDoubleJump; },
@@ -269,7 +273,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			},
 			init: {
 				pos: {x: 0, y: 0},
-				dim: {x: 0.96, y: 1.06},
+				dim: Player._headDim,
 			},
 			prePhysicsFn: (profile : Profile) => { profile.snapWithOffset(this._profile, { y: 0.22 }); },
 		}));
@@ -285,8 +289,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 						if (!mesh.material || !(mesh.material instanceof BABYLON.PBRMaterial)) { return; }
 
 						if (mesh.material.name === Material.BASE) {
+							this._baseMaterial.set(mesh.material);
 							const texture = this.clientId() % 1 === 0 ? TextureType.BIRD_CHICKEN : TextureType.BIRD_BOOBY;
-
 							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(texture));
 						} else if (mesh.material.name === Material.EYE) {
 							const texture = this.clientId() % 1 === 0 ? TextureType.CHICKEN_EYE : TextureType.BOOBY_EYE;
@@ -501,6 +505,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override takeDamage(amount : number, from : Entity) : void {
 		super.takeDamage(amount, from);
 
+		this._entityTrackers.getEntities<Beak>(EntityType.BEAK).execute((beak : Beak) => {
+			beak.takeDamage(amount, from);
+		});
+
 		this._expression.emote(Emotion.SAD, {
 			max: 1.0,
 			delta: Fns.clamp(0, amount / 100, 1),
@@ -675,34 +683,29 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 
 		// Sweat
+		// TODO: move this and other particles to ParticleFactory
 		const healthPercent = this._stats.healthPercent();
-		if (this._sweatRateLimiter.checkPercent(millis, Math.max(0.2, healthPercent))) {
+		if (!this.dead() && healthPercent <= 0.7 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.3, healthPercent))) {
+			const weight = 1 - healthPercent;
+
 			const dim = this._profile.scaledDim();
+			const headAngle = this._headSubProfile.angleDeg();
+			const forward = Vec2.fromVec({ x: 1.3, y: 0 }).rotateDeg(headAngle);
 			for (let i = 0; i < 4; ++i) {
-				let particlePos = this._profile.pos().clone();
-				const dir = {
-					x: i < 2 ? -1 : 1,
-					y: 1,
-				}
-				particlePos.add({
-					x: dir.x * dim.x / 2,
-					y: dir.y * dim.y / 2,
-				});
-				particlePos.add({
-					x: (i % 2 === 0 ? -1 : 1) * 0.1 * dim.x,
-					y: (i % 2 === 0 ? 1 : -1) * 0.1 * dim.y,
-				});
+				const sign = forward.x < 0 ? -1 : 1;
+				const dir = forward.clone().rotateDeg(sign * Player._sweatDegs[i]);
+				const pos = dir.clone().add(this._profile.pos());
 
 				this.addEntity(EntityType.PARTICLE_SWEAT, {
 					offline: true,
 					ttl: 300,
 					profileInit: {
-						pos: particlePos,
+						pos: pos,
 						vel: {
-							x: 0.1 * dir.x,
-							y: 0.1 * dir.y,
+							x: Fns.lerpRange(0.05, weight, 0.1) * dir.x,
+							y: Fns.lerpRange(0.05, weight, 0.1) * dir.y,
 						},
-						scaling: { x: 0.4, y: 0.4 },
+						scaling: { x: Fns.lerpRange(0.2, weight, 0.4), y: Fns.lerpRange(0.2, weight, 0.4) },
 					},
 					modelInit: {
 						transforms: {
@@ -834,11 +837,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			if (!this._entityTrackers.hasEntityType(EntityType.BEAK)) {
 				const beakType = this.clientId() % 1 === 0 ? EntityType.CHICKEN_BEAK : EntityType.BOOBY_BEAK;
 				const [beak, hasBeak] = this.addEntity<Beak>(beakType, {
-				associationInit: {
-					owner: this,
-				},
-				clientId: this.clientId(),
-			});
+					associationInit: {
+						owner: this,
+					},
+					clientId: this.clientId(),
+				});
 				if (hasBeak) {
 					this._entityTrackers.trackEntity<Beak>(EntityType.BEAK, beak);
 				}
@@ -847,11 +850,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			if (!this._entityTrackers.hasEntityType(EntityType.HEADWEAR)) {
 				const hairType = this.clientId() % 1 === 0 ? EntityType.CHICKEN_HAIR : EntityType.BOOBY_HAIR;
 				const [headwear, hasHeadwear] = this.addEntity<Headwear>(hairType, {
-				associationInit: {
-					owner: this,
-				},
-				clientId: this.clientId(),
-			});
+					associationInit: {
+						owner: this,
+					},
+					clientId: this.clientId(),
+				});
 				if (hasHeadwear) {
 					this._entityTrackers.trackEntity<Headwear>(EntityType.HEADWEAR, headwear);
 				}

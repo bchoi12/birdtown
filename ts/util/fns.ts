@@ -21,6 +21,15 @@ export namespace Fns {
         return n;
 	}
 
+	// [0, 2pi)
+	export function normalizeRad(rad : number) : number {
+		return rad - 2 * Math.PI * Math.floor(rad / (2 * Math.PI));
+	}
+	// [0, 360)
+	export function normalizeDeg(deg : number) : number {
+		return deg - 360 * Math.floor(deg / 360);
+	}
+
 	export function clamp(min : number, n : number, max : number) : number {
 		return Math.max(min, Math.min(n, max));
 	}

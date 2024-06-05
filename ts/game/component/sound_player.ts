@@ -90,6 +90,14 @@ export class SoundPlayer extends ComponentBase implements Component {
 		let sound = this.prepareSound(id, options);
 		sound.play();
 	}
+	stop(id : number) : void {
+		if (!this.hasSound(id)) {
+			console.error("Error: tried to stop non-existent sound %d", id);
+			return;
+		}
+
+		this.sound(id).stop();
+	}
 
 	private prepareSound(id : number, options? : BABYLON.ISoundOptions) : BABYLON.Sound {
 		let sound = this.sound(id);

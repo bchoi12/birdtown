@@ -230,6 +230,17 @@ export class Vec2 implements Vec {
         return rad;
     }
     angleDeg() : number { return this.angleRad() * 180 / Math.PI; }
+    rotateRad(rad : number) : Vec2 {
+        const x = this.x;
+        const y = this.y;
+
+        this.x = Math.cos(rad) * x - Math.sin(rad) * y;
+        this.y = Math.sin(rad) * x + Math.cos(rad) * y;
+        return this;
+    }
+    rotateDeg(deg : number) : Vec2 {
+        return this.rotateRad(deg * Math.PI / 180);
+    }
 
     interpolate(vec : Vec, t : number, interpFn : (t : number) => number) : Vec2 {
         if (vec.hasOwnProperty("x")) {

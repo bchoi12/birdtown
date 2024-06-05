@@ -17,6 +17,7 @@ import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
 import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
+import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
 import { Smoother } from 'util/smoother'
 import { Timer } from 'util/timer'
@@ -443,7 +444,8 @@ export class Profile extends ComponentBase implements Component {
 
 	hasAngle() : boolean { return defined(this._angle); }
 	angle() : number { return this.hasAngle() ? this._angle : 0; }
-	setAngle(angle : number) : void { this._angle = angle; }
+	angleDeg() : number { return this.angle() * 180 / Math.PI; }
+	setAngle(angle : number) : void { this._angle = Fns.normalizeRad(angle); }
 	setAngularVelocity(vel : number) : void {
 		if (!this.hasAngle()) { this.setAngle(0); }
 

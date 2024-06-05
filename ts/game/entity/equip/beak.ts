@@ -3,7 +3,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import { game } from 'game'
 import { Model } from 'game/component/model'
 import { SoundPlayer } from 'game/component/sound_player'
-import { EntityOptions } from 'game/entity'
+import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
@@ -75,8 +75,26 @@ export abstract class Beak extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.BEAK; }
 
+	override takeDamage(amount : number, from : Entity) : void {
+		super.takeDamage(amount, from);
+
+		if (!this.isSource() || this.owner().dead()) {
+			return;
+		}
+
+		if (amount > 70 * Math.random()) {
+			this.setSquawking(true);
+		}
+	}
+
 	override update(stepData : StepData) : void {
 		super.update(stepData);
+
+		if (this.owner().dead()) {
+			this._soundPlayer.stop(SoundType.BAWK);
+			this._squawking = false;
+			this._squawkTimer.finish();
+		}
 
 		if (!this.isSource()) {
 			return;
@@ -90,7 +108,7 @@ export abstract class Beak extends Equip<Player> {
 
 		if (!this._model.hasMesh()) { return; }
 
-		if (this._squawking || this._owner.dead()) {
+		if (this._squawking || this.owner().dead()) {
 			this._model.playAnimation(Animation.SQUAWK);
 		} else {
 			this._model.playAnimation(Animation.IDLE);
