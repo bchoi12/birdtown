@@ -221,10 +221,10 @@ export class Lakitu extends SystemBase implements System {
 			case PlayerRole.GAMING:
 				this.targetPlayer();
 				break;
+			case PlayerRole.WAITING:
 			case PlayerRole.SPAWNING:
 				this.targetPlane();
 				break;
-			case PlayerRole.WAITING:
 			case PlayerRole.SPECTATING:
 				if (this._players.empty()) {
 					this.targetPlane();

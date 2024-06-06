@@ -60,6 +60,17 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		{
 			let buttonWrapper = modeButtons.addButtonSelect();
 			buttonWrapper.elm().style.width = "100%";
+			buttonWrapper.setText("Free for all");
+			buttonWrapper.addOnClick(() => {
+				this._mode = GameMode.FREE_FOR_ALL;
+
+				infoElm.textContent = "2+ players required\r\n\r\nRack up the most points to win. It's everyone for themselves.";
+			});
+		}
+
+		{
+			let buttonWrapper = modeButtons.addButtonSelect();
+			buttonWrapper.elm().style.width = "100%";
 			buttonWrapper.setText("Survival");
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.SURVIVAL;
@@ -92,8 +103,39 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				case GameMode.SURVIVAL:
 					this.addSurvivalPage();
 					break;
+				case GameMode.FREE_FOR_ALL:
+					this.addFreeForAllPage();
+					break;
 				}
 			}
+		});
+	}
+
+	private addFreeForAllPage() : void {
+		let pageWrapper = this.addPage();
+
+		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
+		columnsWrapper.elm().style.fontSize = "0.9em";
+
+		let leftElm = columnsWrapper.columnElm(0);
+		let rightElm = columnsWrapper.columnElm(1);
+
+		let victories = new LabelNumberWrapper({
+			label: "First to N wins",
+			value: 5,
+			plus: (current : number) => {
+				return Math.min(current + 1, 10);
+			},
+			minus: (current : number) => {
+				return Math.max(1, current - 1);
+			},
+		});
+		leftElm.appendChild(victories.elm());
+
+		pageWrapper.elm().appendChild(columnsWrapper.elm());
+
+		pageWrapper.setOnSubmit(() => {
+			this._configMsg.setVictories(victories.value());
 		});
 	}
 
