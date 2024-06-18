@@ -313,9 +313,13 @@ export class Profile extends ComponentBase implements Component {
 		}
 		return adjustedPos;
 	}
-	createRelativeInit(cardinal : CardinalDir, objectDim : Vec) : ProfileInitOptions {
+	createRelativeInit(cardinal : CardinalDir, objectDim : Vec, offset? : Vec) : ProfileInitOptions {
+		let pos = this.relativePos(cardinal, objectDim);
+		if (offset) {
+			pos.add(offset);
+		}
 		return {
-			pos: this.relativePos(cardinal, objectDim),
+			pos: pos,
 			dim: Vec2.fromVec(objectDim),
 		}
 	}

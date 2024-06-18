@@ -34,9 +34,12 @@ export class ArchBalcony extends ArchBase implements Entity {
 			});
 
 			this.addFloor(
-				this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {
-					x: this._profile.scaledDim().x + this.thickness(),
-					y: this.thickness() }));
+				this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {
+					x: this._profile.scaledDim().x,
+					y: this.thickness(),
+				}, {
+					x: -0.1,
+				}));
 			this.addWall(
 				this._profile.createRelativeInit(CardinalDir.RIGHT, {
 					x: ArchBalcony._sideWallScale * this.thickness(),
@@ -48,10 +51,14 @@ export class ArchBalcony extends ArchBase implements Entity {
 				model.mesh().rotation.y = -Math.PI / 2;
 			});
 
+			// Add thickness as buffer to prevent gaps.
 			this.addFloor(
-				this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {
-					x: this._profile.scaledDim().x + this.thickness(),
-					y: this.thickness() }));
+				this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {
+					x: this._profile.scaledDim().x,
+					y: this.thickness(),
+				}, {
+					x: 0.1,
+				}));
 			this.addWall(
 				this._profile.createRelativeInit(CardinalDir.LEFT, {
 					x: ArchBalcony._sideWallScale * this.thickness(),
