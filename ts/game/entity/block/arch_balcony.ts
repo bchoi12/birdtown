@@ -35,7 +35,7 @@ export class ArchBalcony extends ArchBase implements Entity {
 
 			this.addFloor(
 				this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {
-					x: this._profile.scaledDim().x - this.thickness(),
+					x: this._profile.scaledDim().x + this.thickness(),
 					y: this.thickness() }));
 			this.addWall(
 				this._profile.createRelativeInit(CardinalDir.RIGHT, {
@@ -50,7 +50,7 @@ export class ArchBalcony extends ArchBase implements Entity {
 
 			this.addFloor(
 				this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {
-					x: this._profile.scaledDim().x - this.thickness(),
+					x: this._profile.scaledDim().x + this.thickness(),
 					y: this.thickness() }));
 			this.addWall(
 				this._profile.createRelativeInit(CardinalDir.LEFT, {

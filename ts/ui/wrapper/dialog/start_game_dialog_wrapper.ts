@@ -120,11 +120,23 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let leftElm = columnsWrapper.columnElm(0);
 		let rightElm = columnsWrapper.columnElm(1);
 
-		let victories = new LabelNumberWrapper({
-			label: "First to N wins",
+		let points = new LabelNumberWrapper({
+			label: "Points for a win",
 			value: 5,
 			plus: (current : number) => {
 				return Math.min(current + 1, 10);
+			},
+			minus: (current : number) => {
+				return Math.max(1, current - 1);
+			},
+		});
+		leftElm.appendChild(points.elm());
+
+		let victories = new LabelNumberWrapper({
+			label: "First to N wins",
+			value: 3,
+			plus: (current : number) => {
+				return Math.min(current + 1, 5);
 			},
 			minus: (current : number) => {
 				return Math.max(1, current - 1);
@@ -135,6 +147,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setOnSubmit(() => {
+			this._configMsg.setPoints(points.value());
 			this._configMsg.setVictories(victories.value());
 		});
 	}
