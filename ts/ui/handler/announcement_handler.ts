@@ -105,6 +105,11 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 				sub: "The game may still work, but no new players can connect",
 			};
 		case AnnouncementType.GAME_FINISH:
+			if (names.length <= 0) {
+				return {
+					main: "No one won",
+				}
+			}
 			if (names.length === 1) {
 				return {
 					main: names.join(", ") + " wins the round!",

@@ -55,7 +55,7 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 		// TODO: use ScoreWrapper, this sucks
 		// TODO: have tablet update this directly
 		this._tempElm.textContent = "";
-		for (const score of game.tablets().scores()) {
+		for (const [id, score] of game.tablets().scores()) {
 			this._tempElm.textContent += "\t" + score.displayName + ": " + score.roundScore + "\r\n";
 		}
 		this._scoreboardElm.style.visibility = "visible";

@@ -67,7 +67,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 
 		this.setTimeSetup(15000);
 		this.setTimeFinish(3000);
-		this.setTimeVictory(10000);
+		this.setTimeVictory(8000);
 		this.setTimeError(5000);
 
 		switch (mode) {

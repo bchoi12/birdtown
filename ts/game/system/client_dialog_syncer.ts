@@ -125,6 +125,8 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		if (!this.isSource()) { return; }
 
 		if (this._dialogState === DialogState.OPEN || this._dialogState === DialogState.PENDING) {
+			console.error("Warning: force submitting dialog %s for %s", DialogType[this._dialogType], this.name());
+
 			this.submit();
 			this.setDialogState(DialogState.ERROR);
 

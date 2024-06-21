@@ -18,8 +18,12 @@ type Score = {
 
 export class Tablets extends ClientSystemManager implements System {
 
+	private _scores : Map<number, Score>;
+
 	constructor() {
 		super(SystemType.TABLETS);
+
+		this._scores = new Map();
 
 		this.setFactoryFn((clientId : number) => { return this.addTablet(new Tablet(clientId)); })
 	}
@@ -33,29 +37,15 @@ export class Tablets extends ClientSystemManager implements System {
 	hasTablet(clientId : number) : boolean { return this.hasChild(clientId); }
 	getTablet(clientId? : number) : Tablet { return this.getChild<Tablet>(defined(clientId) ? clientId : game.clientId()); }
 
-	scores() : Array<Score> {
-		return this.mapAll<Tablet, Score>((tablet : Tablet) => {
-			return {
+	scores() : Map<number, Score> {
+		this.execute((tablet : Tablet) => {
+			this._scores.set(tablet.clientId(), {
 				displayName: tablet.displayName(),
 				roundScore: tablet.roundScore(),
 				scores: tablet.scores(),
-			}
+			});
 		});
-	}
-
-	override handleMessage(msg : GameMessage) : void {
-		super.handleMessage(msg);
-
-		switch (msg.type()) {
-		case GameMessageType.GAME_STATE:
-			switch (msg.getGameState()) {
-			case GameState.FREE:
-			case GameState.SETUP:
-				this.reset();
-				break;
-			}
-			break;
-		}
+		return this._scores;
 	}
 
 	override postUpdate(stepData : StepData) : void {

@@ -126,7 +126,7 @@ export class Lakitu extends SystemBase implements System {
 		return false;
 	}
 	private targetPlane() : boolean {
-		if (this.targetEntityType() === EntityType.PLANE) {
+		if (this.targetEntityType() === EntityType.PLANE && this.validTargetEntity()) {
 			return true;
 		}
 
@@ -210,7 +210,6 @@ export class Lakitu extends SystemBase implements System {
 		super.postPhysics(stepData);
 		const millis = stepData.millis;
 
-		// Move during postPhysics so we can do camera position-based smoothing in preRender
 		switch (game.controller().gameState()) {
 		case GameState.SETUP:
 			this.targetPlane();

@@ -11,14 +11,22 @@ import { UiMessage, UiMessageType } from 'message/ui_message'
 import { ui } from 'ui'
 import { AnnouncementType } from 'ui/api'
 
+import { Optional } from 'util/optional'
+
 export class Tablet extends ClientSystem implements System {
+
+	private static readonly _roundResetTypes = new Set([
+		ScoreType.DEATH,
+		ScoreType.KILL,
+	]);
 
 	private static readonly _displayNameMaxLength = 16;
 
 	private _roundScore : number;
 
-	private _displayName : string;
 	private _color : string;
+	private _lives : Optional<number>;
+	private _displayName : string;
 	private _scores : Map<ScoreType, number>;
 	private _scoreChanged : boolean;
 
@@ -26,8 +34,9 @@ export class Tablet extends ClientSystem implements System {
 		super(SystemType.TABLET, clientId);
 
 		this._roundScore = 0;
-		this._displayName = "";
 		this._color = "";
+		this._lives = Optional.empty(0);
+		this._displayName = "";
 		this._scores = new Map();
 		this._scoreChanged = false;
 
@@ -36,11 +45,15 @@ export class Tablet extends ClientSystem implements System {
 			export: () => { return this._displayName; },
 			import: (obj: string) => { this.setDisplayName(obj); },
 		});
-
 		this.addProp<string>({
 			has: () => { return this._color.length > 0; },
 			export: () => { return this._color; },
 			import: (obj: string) => { this.setColor(obj); },
+		});
+		this.addProp<number>({
+			has: () => { return this._lives.has(); },
+			export: () => { return this._lives.get(); },
+			import: (obj: number) => { this._lives.set(obj); },
 		});
 
 		for (const stringScore in ScoreType) {
@@ -63,6 +76,13 @@ export class Tablet extends ClientSystem implements System {
 		this._roundScore = 0;
 		this._scores.forEach((score : number, type : ScoreType) => {
 			this._scores.set(type, 0);
+		});
+	}
+	resetRound() : void {
+		Tablet._roundResetTypes.forEach((type : ScoreType) => {
+			if (this.hasScore(type)) {
+				this.setScore(type, 0);
+			}
 		});
 	}
 
@@ -94,11 +114,7 @@ export class Tablet extends ClientSystem implements System {
 		this._scoreChanged = true;
 	}
 	addScore(type : ScoreType, delta : number) : void {
-		if (!this.hasScore(type)) {
-			this.setScore(type, delta);
-			return;
-		}
-		this.setScore(type, (this.hasScore ? this.score(type) : 0) + delta);
+		this.setScore(type, (this.hasScore(type) ? this.score(type) : 0) + delta);
 	}
 
 	hasColor() : boolean { return this._color.length > 0; }
@@ -110,6 +126,24 @@ export class Tablet extends ClientSystem implements System {
 		this._color = color;
 	}
 	color() : string { return this.hasColor() ? this._color : ColorFactory.playerColor(this.clientId()).toString(); }
+
+	hasLives() : boolean { return this._lives.has(); }
+	setLives(lives : number) : void { this._lives.set(lives); }
+	lives() : number { return this._lives.get(); }
+	outOfLives() : boolean { return this.hasLives() && this.lives() <= 0; }
+	loseLife() : void {
+		this.addScore(ScoreType.DEATH, 1);		
+
+		if (!this.hasLives()) {
+			return;
+		}
+		if (this.outOfLives()) {
+			console.error("Error: lost a life at when out of lives for %s", this.name());
+			return;
+		}
+		this.setLives(this.lives() - 1);
+	}
+	clearLives() : void { this._lives.clear(); }
 
 	setDisplayName(displayName : string) : void {
 		if (displayName.length === 0) {

@@ -86,7 +86,7 @@ export class Star extends Projectile {
 		}));
 	}
 
-	override hitDamage() : number { return 2; }
+	override hitDamage() : number { return 0; }
 
 	override initialize() : void {
 		super.initialize();
@@ -171,7 +171,7 @@ export class Star extends Projectile {
 		if (this._profile.attached()) {
 			const [parent, ok] = game.entities().getEntity(this._profile.attachId());
 			if (ok) {
-				parent.takeDamage(18, this);
+				parent.takeDamage(20, this);
 			}
 		}
 

@@ -20,6 +20,10 @@ import { Timer} from 'util/timer'
 
 export class PlayerState extends ClientSystem implements System {
 
+	private static readonly _disallowRoleChangeStates = new Set([
+		GameState.FINISH, GameState.VICTORY, GameState.ERROR,
+	]);
+
 	private static readonly _spawnKeys = [
 		KeyType.LEFT,
 		KeyType.RIGHT,
@@ -93,6 +97,10 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
+		if (PlayerState._disallowRoleChangeStates.has(game.controller().gameState())) {
+			return;
+		}
+
 		this._role = role;
 		this.applyRole();
 
@@ -113,10 +121,23 @@ export class PlayerState extends ClientSystem implements System {
 		let player = this.targetEntity<Player>();
 
 		switch (this._role) {
-		case PlayerRole.SPECTATING:
 		case PlayerRole.WAITING:
+			// TODO: move this to GameMaker somehow
+			if (game.controller().gameState() === GameState.SETUP
+				|| game.controller().gameState() === GameState.GAME) {
+				game.clientDialog(this.clientId()).showDialog(DialogType.LOADOUT);
+			}
+			player.setState(GameObjectState.DEACTIVATED);
+			break;
     	case PlayerRole.SPAWNING:
-	    	player.setState(GameObjectState.DEACTIVATED);
+    		player.setState(GameObjectState.DEACTIVATED);
+    		break;
+		case PlayerRole.SPECTATING:
+			if (game.tablet(this.clientId()).outOfLives()) {
+		    	player.setState(GameObjectState.DISABLE_INPUT);
+			} else {
+				player.setState(GameObjectState.DEACTIVATED);
+			}
     		break;   		
     	case PlayerRole.GAMING:
 			game.level().spawnPlayer(player);
@@ -125,13 +146,13 @@ export class PlayerState extends ClientSystem implements System {
 		}
 	}
 
-	private updateTablet(player : Player) : void {
+	private processKillOn(player : Player) : void {
 		if (!this.isSource()) {
 			return;
 		}
 
 		let tablet = game.tablet(player.clientId());
-		tablet.addScore(ScoreType.DEATH, 1);		
+		tablet.loseLife();
 
 		const [log, hasLog] = player.stats().lastDamager(PlayerState._lastDamageTime);
 		if (!hasLog || !log.hasEntityLog()) {
@@ -259,16 +280,21 @@ export class PlayerState extends ClientSystem implements System {
 		// Respawn logic
 		if (player.dead() && !this._respawnTimer.hasTimeLeft() && this.role() === PlayerRole.GAMING) {
 			switch (game.controller().gameState()) {
-			case GameState.GAME:
-				this.updateTablet(player);
-				this._respawnTimer.start(PlayerState._respawnTime, () => {
-					this.setRole(PlayerRole.WAITING);
-				});
-				break;
-			default:
+			case GameState.FREE:
 				this._respawnTimer.start(PlayerState._respawnTime, () => {
 					game.level().spawnPlayer(player);
 				});
+				break;
+			case GameState.GAME:
+				this.processKillOn(player);
+
+				this._respawnTimer.start(PlayerState._respawnTime, () => {
+					if (!game.tablet(this.clientId()).outOfLives()) {
+						this.setRole(PlayerRole.WAITING);
+					} else {
+						this.setRole(PlayerRole.SPECTATING);
+					}
+				});	
 				break;
 			}
 		}

@@ -15,7 +15,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 
 		this.titleElm().textContent = "Pick Your Loadout";
 
-		this.addModifierPage();
+		// this.addModifierPage();
 		this.addWeaponPage();
 	}
 

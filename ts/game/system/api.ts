@@ -67,6 +67,7 @@ export enum PlayerRole {
 export enum ScoreType {
 	UNKNOWN,
 
-	KILL,
 	DEATH,
+	KILL,
+	VICTORY,
 }

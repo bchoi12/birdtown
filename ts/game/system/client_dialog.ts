@@ -51,16 +51,6 @@ export class ClientDialog extends ClientSideSystem implements System {
 				break;
 			}
 			break;
-		case GameMessageType.PLAYER_STATE:
-			if (msg.getClientId() !== this.clientId()) {
-				return;
-			}
-
-			switch (msg.getPlayerRole()) {
-			case PlayerRole.WAITING:
-				this.showDialog(DialogType.LOADOUT);
-				break;
-			}
 		}
 	}
 
