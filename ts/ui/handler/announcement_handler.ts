@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 
-import { UiMessage, UiMessageType } from 'message/ui_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
 import { AnnouncementType } from 'ui/api'
@@ -24,7 +24,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 	private _announcementElm : HTMLElement;
 	private _mainAnnouncementElm : HTMLElement;
 	private _subAnnouncementElm : HTMLElement;
-	private _announcements : Array<UiMessage>;
+	private _announcements : Array<GameMessage>;
 
 	constructor() {
 		super(HandlerType.ANNOUNCEMENT);
@@ -33,7 +33,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		this._announcementElm = Html.elm(Html.divAnnouncement);
 		this._mainAnnouncementElm = Html.elm(Html.divMainAnnouncement);
 		this._subAnnouncementElm = Html.elm(Html.divSubAnnouncement);
-		this._announcements = new Array<UiMessage>();
+		this._announcements = new Array<GameMessage>();
 	}
 
 	override reset() : void {
@@ -50,10 +50,8 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		this.reset();
 	}
 
-	override handleMessage(msg : UiMessage) : void {
-		super.handleMessage(msg);
-
-		if (msg.type() !== UiMessageType.ANNOUNCEMENT) {
+	override handleMessage(msg : GameMessage) : void {
+		if (msg.type() !== GameMessageType.ANNOUNCEMENT) {
 			return;
 		}
 
@@ -77,21 +75,15 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		this._announcementElm.style.visibility = "visible";
 		this._active = true;
 
-		let timeout;
-		if (announcement.hasTtl()) {
-			timeout = announcement.getTtl();
-		} else {
-			timeout = AnnouncementHandler._defaultTTL;
-		}
-
+		let timeout = announcement.getTtlOr(AnnouncementHandler._defaultTTL); 
 		setTimeout(() => {
 			this.popAnnouncement();
 		}, timeout);
 	}
 
-	private getHtmls(announcement : UiMessage) : AnnouncementHTML {
-		const type = announcement.getAnnouncementType()
-		const names = announcement.getNamesOr([]);
+	private getHtmls(msg : GameMessage) : AnnouncementHTML {
+		const type = msg.getAnnouncementType();
+		const names = msg.getNamesOr([]);
 
 		switch (type) {
 		case AnnouncementType.DISCONNECTED:
@@ -104,10 +96,18 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 				main: "Lost connection to signaling server",
 				sub: "The game may still work, but no new players can connect",
 			};
+		case AnnouncementType.GAME_ERROR:
+			if (names.length === 1) {
+				return {
+					main: "A game ending error occurred",
+					sub: names[0],
+				};
+			}
+			break;
 		case AnnouncementType.GAME_FINISH:
 			if (names.length <= 0) {
 				return {
-					main: "No one won",
+					main: "No one won?",
 				}
 			}
 			if (names.length === 1) {
@@ -116,11 +116,15 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 				};
 			}
 			break;
-		case AnnouncementType.GAME_ERROR:
+		case AnnouncementType.GAME_VICTORY:
+			if (names.length <= 0) {
+				return {
+					main: "No one won???",
+				}
+			}
 			if (names.length === 1) {
 				return {
-					main: "A game ending error occurred",
-					sub: names[0],
+					main: names.join(", ") + " is victorious!",
 				};
 			}
 			break;

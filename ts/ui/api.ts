@@ -15,8 +15,9 @@ export enum AnnouncementType {
 	UNKNOWN,
 	DISCONNECTED,
 	DISCONNECTED_SIGNALING,
-	GAME_FINISH,
 	GAME_ERROR,
+	GAME_FINISH,
+	GAME_VICTORY,
 	LEVEL,
 	PLAYER_JOINED,
 	PLAYER_LEFT,
@@ -65,4 +66,10 @@ export enum TooltipType {
 	SPAWN,
 	SPECTATING,
 	START_GAME,
+}
+
+export type TooltipOptions = {
+	type: TooltipType;
+	ttl?: number;
+	names?: Array<string>;
 }

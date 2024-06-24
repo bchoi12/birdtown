@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 
-import { UiMessage, UiMessageType } from 'message/ui_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
 import { HandlerType } from 'ui/handler/api'
@@ -25,8 +25,8 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._clients = new Map();
 	}
 
-	override handleMessage(msg : UiMessage) : void {
-		if (msg.type() === UiMessageType.CLIENT_INIT) {
+	override handleMessage(msg : GameMessage) : void {
+		if (msg.type() === GameMessageType.CLIENT_INIT) {
 			const clientId = msg.getClientId();
 
 			// Support name changes for existing clients
@@ -41,7 +41,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 
 			ui.chat(clientWrapper.displayName() + " joined!");
 
-		} else if (msg.type() === UiMessageType.CLIENT_DISCONNECT) {
+		} else if (msg.type() === GameMessageType.CLIENT_DISCONNECT) {
 			const clientId = msg.getClientId();
 
 			if (!this._clients.has(clientId)) {

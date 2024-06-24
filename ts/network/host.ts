@@ -4,7 +4,6 @@ import { game } from 'game'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { NetworkMessage, NetworkMessageType } from 'message/network_message'
-import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ChannelType } from 'network/api'
 import { Connection } from 'network/connection'
@@ -58,10 +57,10 @@ export class Host extends Netcode {
 		    })
 
 		    peer.on("error", (e) => {
-		    	const uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-		    	uiMsg.setAnnouncementType(AnnouncementType.DISCONNECTED_SIGNALING);
-		    	uiMsg.setTtl(15 * 1000);
-		    	ui.handleMessage(uiMsg);
+		    	const msg = new GameMessage(GameMessageType.ANNOUNCEMENT);
+		    	msg.setAnnouncementType(AnnouncementType.DISCONNECTED_SIGNALING);
+		    	msg.setTtl(15 * 1000);
+		    	ui.handleMessage(msg);
 		    });
 
 		    this.registerCallbacks();

@@ -8,7 +8,6 @@ import { SystemType } from 'game/system/api'
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { DialogMessage } from 'message/dialog_message'
-import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { DialogType, TooltipType } from 'ui/api'
@@ -130,9 +129,9 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 			this.submit();
 			this.setDialogState(DialogState.ERROR);
 
-			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
-			tooltipMsg.setTooltipType(TooltipType.FAILED_DIALOG_SYNC);
-			ui.handleMessage(tooltipMsg);
+			ui.showTooltip({
+				type: TooltipType.FAILED_DIALOG_SYNC,
+			});
 		}
 	}
 	inSync() : boolean {
@@ -153,9 +152,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		this.setDialogState(DialogState.OPEN);
 
 		if (this.isSource()) {
-			let msg = new UiMessage(UiMessageType.DIALOG);
-			msg.setDialogType(this._dialogType);
-			ui.handleMessage(msg);
+			ui.pushDialog(this._dialogType);
 		}
 	}
 }

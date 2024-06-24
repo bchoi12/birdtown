@@ -2,7 +2,7 @@ import { Peer, DataConnection } from 'peerjs'
 
 import { game } from 'game'
 
-import { UiMessage, UiMessageType } from 'message/ui_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ChannelType } from 'network/api'
 import { NetworkMessage, NetworkMessageType } from 'message/network_message'
@@ -45,10 +45,10 @@ export class Client extends Netcode {
 		});
 
 		peer.on("error", (e) => {
-	    	const uiMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-	    	uiMsg.setAnnouncementType(AnnouncementType.DISCONNECTED);
-	    	uiMsg.setTtl(60 * 1000);
-	    	ui.handleMessage(uiMsg);
+	    	const msg = new GameMessage(GameMessageType.ANNOUNCEMENT);
+	    	msg.setAnnouncementType(AnnouncementType.DISCONNECTED);
+	    	msg.setTtl(60 * 1000);
+	    	ui.handleMessage(msg);
 		});
 
 		peer.on("disconnected", () => {

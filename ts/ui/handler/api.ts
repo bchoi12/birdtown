@@ -5,6 +5,7 @@ export enum HandlerType {
 	COUNTERS,
 	CLIENTS,
 	DIALOGS,
+	FEED,
 	INPUT,
 	KEY_BIND,
 	LOGIN,

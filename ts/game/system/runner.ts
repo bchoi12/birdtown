@@ -80,6 +80,7 @@ export class Runner extends SystemBase implements System  {
 		case GameMessageType.GAME_STATE:
 			switch (msg.getGameState()) {
 			case GameState.FINISH:
+			case GameState.VICTORY:
 			case GameState.ERROR:
 				this._gameStepper.setUpdateSpeed(0.3);
 				break;

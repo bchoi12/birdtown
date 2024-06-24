@@ -5,12 +5,16 @@ import { LevelType, LevelLayout, PlayerRole } from 'game/system/api'
 
 import { SpeedSetting } from 'settings/api'
 
+import { AnnouncementType } from 'ui/api'
+
 import { Box } from 'util/box'
 
 export enum GameMessageType {
 	UNKNOWN,
 
+	ANNOUNCEMENT,
 	CLIENT_DISCONNECT,
+    CLIENT_INIT,
 	CLIENT_JOIN,
 	LEVEL_LOAD,
 	GAME_STATE,
@@ -21,6 +25,7 @@ export enum GameMessageType {
 enum GameProp {
 	UNKNOWN,
 
+	ANNOUNCEMENT_TYPE,
 	CLIENT_ID,
 	DISPLAY_NAME,
 	GAME_SPEED,
@@ -30,16 +35,27 @@ enum GameProp {
 	LEVEL_TYPE,
 	LEVEL_SEED,
 	LEVEL_VERSION,
+	NAMES,
 	PLAYER_ROLE,
 	RENDER_SPEED,
+	TTL,
 }
 
 export class GameMessage extends MessageBase<GameMessageType, GameProp> implements Message<GameMessageType, GameProp> {
 
 	private static readonly _messageDescriptor = new Map<GameMessageType, FieldDescriptor>([
+		[GameMessageType.ANNOUNCEMENT, MessageBase.fieldDescriptor(
+			[GameProp.ANNOUNCEMENT_TYPE, {}],
+			[GameProp.NAMES, { optional: true }],
+			[GameProp.TTL, { optional: true }],
+		)],
 		[GameMessageType.CLIENT_DISCONNECT, MessageBase.fieldDescriptor(
 			[GameProp.CLIENT_ID, {}],
 		)],
+        [GameMessageType.CLIENT_INIT, MessageBase.fieldDescriptor(
+            [GameProp.CLIENT_ID, {}],
+            [GameProp.DISPLAY_NAME, {}],
+        )],
 		[GameMessageType.CLIENT_JOIN, MessageBase.fieldDescriptor(
 			[GameProp.CLIENT_ID, {}],
 		)],
@@ -71,6 +87,11 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 
     // Begin auto-generated code (v2.1)
     override serializable() { return true; }
+
+    hasAnnouncementType() : boolean { return this.has(GameProp.ANNOUNCEMENT_TYPE); }
+    getAnnouncementType() : AnnouncementType { return this.get<AnnouncementType>(GameProp.ANNOUNCEMENT_TYPE); }
+    getAnnouncementTypeOr(value : AnnouncementType) : AnnouncementType { return this.getOr<AnnouncementType>(GameProp.ANNOUNCEMENT_TYPE, value); }
+    setAnnouncementType(value : AnnouncementType) : void { this.set<AnnouncementType>(GameProp.ANNOUNCEMENT_TYPE, value); }
 
     hasClientId() : boolean { return this.has(GameProp.CLIENT_ID); }
     getClientId() : number { return this.get<number>(GameProp.CLIENT_ID); }
@@ -117,6 +138,11 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getLevelVersionOr(value : number) : number { return this.getOr<number>(GameProp.LEVEL_VERSION, value); }
     setLevelVersion(value : number) : void { this.set<number>(GameProp.LEVEL_VERSION, value); }
 
+    hasNames() : boolean { return this.has(GameProp.NAMES); }
+    getNames() : Array<string> { return this.get<Array<string>>(GameProp.NAMES); }
+    getNamesOr(value : Array<string>) : Array<string> { return this.getOr<Array<string>>(GameProp.NAMES, value); }
+    setNames(value : Array<string>) : void { this.set<Array<string>>(GameProp.NAMES, value); }
+
     hasPlayerRole() : boolean { return this.has(GameProp.PLAYER_ROLE); }
     getPlayerRole() : PlayerRole { return this.get<PlayerRole>(GameProp.PLAYER_ROLE); }
     getPlayerRoleOr(value : PlayerRole) : PlayerRole { return this.getOr<PlayerRole>(GameProp.PLAYER_ROLE, value); }
@@ -127,9 +153,14 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getRenderSpeedOr(value : SpeedSetting) : SpeedSetting { return this.getOr<SpeedSetting>(GameProp.RENDER_SPEED, value); }
     setRenderSpeed(value : SpeedSetting) : void { this.set<SpeedSetting>(GameProp.RENDER_SPEED, value); }
 
+    hasTtl() : boolean { return this.has(GameProp.TTL); }
+    getTtl() : number { return this.get<number>(GameProp.TTL); }
+    getTtlOr(value : number) : number { return this.getOr<number>(GameProp.TTL, value); }
+    setTtl(value : number) : void { this.set<number>(GameProp.TTL, value); }
 
     /*
     const enumClass = "GameProp";
+    ["ANNOUNCEMENT_TYPE", "AnnouncementType"],
     ["CLIENT_ID", "number"],
     ["DISPLAY_NAME", "string"],
     ["GAME_SPEED", "SpeedSetting"],
@@ -139,8 +170,10 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["LEVEL_SEED", "number"],
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],
+    ["NAMES", "Array<string>"],
     ["PLAYER_ROLE", "PlayerRole"],
     ["RENDER_SPEED", "SpeedSetting"],
+    ["TTL", "number"],
     */
     // End auto-generated code (v2.1)
 }

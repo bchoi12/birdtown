@@ -1,4 +1,4 @@
-import { UiMessage } from 'message/ui_message'
+import { GameMessage } from 'message/game_message'
 
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'
@@ -11,7 +11,7 @@ export interface Handler {
 	setup() : void;
 	clear() : void;
 	reset() : void;
-	handleMessage(msg : UiMessage) : void;
+	handleMessage(msg : GameMessage) : void;
 
 	enabled() : boolean;
 	enable() : void;
@@ -48,7 +48,7 @@ export class HandlerBase {
 	setup() : void {}
 	clear() : void {}
 	reset() : void {}
-	handleMessage(msg : UiMessage) : void {}
+	handleMessage(msg : GameMessage) : void {}
 
 	enabled() : boolean { return this._enabled && ui.mode() === this._mode.get(); }
 	enable() : void {

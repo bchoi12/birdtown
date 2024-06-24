@@ -11,7 +11,6 @@ import { System, SystemBase } from 'game/system'
 import { SystemType, PlayerRole } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
-import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { settings } from 'settings'
 
@@ -282,11 +281,12 @@ export class Lakitu extends SystemBase implements System {
 		// TODO: rate limit?
 		if (game.playerState().role() === PlayerRole.SPECTATING
 			&& game.tablets().hasTablet(this.targetEntity().clientId())) {
-			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
-			tooltipMsg.setTooltipType(TooltipType.SPECTATING);
-			tooltipMsg.setTtl(100);
-			tooltipMsg.setNames([game.tablet(this.targetEntity().clientId()).displayName()]);
-			ui.handleMessage(tooltipMsg);
+
+			ui.showTooltip({
+				type: TooltipType.SPECTATING,
+				ttl: 100,
+				names: [game.tablet(this.targetEntity().clientId()).displayName()],
+			});
 		}
 	}
 }

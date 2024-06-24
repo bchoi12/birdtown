@@ -16,8 +16,6 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { UiMessage, UiMessageType } from 'message/ui_message'
-
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -147,10 +145,10 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 		super.preRender();
 
 		if (this._showTooltip) {
-			let msg = new UiMessage(UiMessageType.TOOLTIP);
-			msg.setTtl(100);
-			msg.setTooltipType(this.tooltipType());
-			ui.handleMessage(msg);
+			ui.showTooltip({
+				type: this.tooltipType(),
+				ttl: 100,
+			});
 		}
 	}
 }

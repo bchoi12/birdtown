@@ -2,11 +2,11 @@
 import { game } from 'game'
 import { CounterType } from 'game/component/api'
 
-import { UiMessage, UiMessageType } from 'message/ui_message'
+import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { settings } from 'settings'
 
-import { KeyType, UiMode } from 'ui/api'
+import { AnnouncementType, DialogType, KeyType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
 import { Handler } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 
@@ -15,6 +15,7 @@ import { ChatHandler } from 'ui/handler/chat_handler'
 import { ClientsHandler } from 'ui/handler/clients_handler'
 import { CountersHandler } from 'ui/handler/counters_handler'
 import { DialogHandler } from 'ui/handler/dialog_handler'
+import { FeedHandler } from 'ui/handler/feed_handler'
 import { InputHandler } from 'ui/handler/input_handler'
 import { KeyBindHandler } from 'ui/handler/key_bind_handler'
 import { LoginHandler } from 'ui/handler/login_handler'
@@ -40,6 +41,7 @@ class UI {
 	private _clientsHandler : ClientsHandler;
 	private _countersHandler : CountersHandler;
 	private _dialogHandler : DialogHandler;
+	private _feedHandler : FeedHandler;
 	private _inputHandler : InputHandler;
 	private _keyBindHandler : KeyBindHandler;
 	private _loginHandler : LoginHandler;
@@ -60,6 +62,7 @@ class UI {
 		this._clientsHandler = this.add(new ClientsHandler());
 		this._countersHandler = this.add(new CountersHandler());
 		this._dialogHandler = this.add(new DialogHandler());
+		this._feedHandler = this.add(new FeedHandler());
 		this._inputHandler = this.add(new InputHandler());
 		this._keyBindHandler = this.add<KeyBindHandler>(new KeyBindHandler());
 		this._loginHandler = this.add<LoginHandler>(new LoginHandler());
@@ -76,7 +79,7 @@ class UI {
 		});
 	}
 
-	handleMessage(msg : UiMessage) : void {
+	handleMessage(msg : GameMessage) : void {
 		if (!msg.valid()) {
 			console.error("Error: invalid message", msg);
 			return;
@@ -163,7 +166,10 @@ class UI {
 			this._clientsHandler.getClient(clientId).updatePos(pos);
 		}
 	}
+
 	updateCounters(counters : Map<CounterType, number>) : void { this._countersHandler.updateCounters(counters); }
+	pushDialog(type : DialogType) : void { this._dialogHandler.pushDialog(type); }
+	showTooltip(options : TooltipOptions) : void { this._tooltipHandler.showTooltip(options); }
 
 	chat(msg : string) : void { this._chatHandler.chat(msg); }
 	clear() : void {

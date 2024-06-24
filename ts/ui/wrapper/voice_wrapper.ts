@@ -3,8 +3,6 @@ import { game } from 'game'
 
 import { MediaGlobals } from 'global/media_globals'
 
-import { UiMessage } from 'message/ui_message'
-
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon, IconType } from 'ui/common/icon'

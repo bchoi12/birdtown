@@ -1,8 +1,6 @@
 
 import { game } from 'game'
 
-import { UiMessage, UiMessageType } from 'message/ui_message'
-
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'

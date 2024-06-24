@@ -34,6 +34,17 @@ export class RingBuffer<T> {
 		return this._buffer[this.wrapIndex(this._index - 1)];
 	}
 
+	popFirst() : T {
+		if (this.empty()) {
+			return null;
+		}
+
+		const index = this.wrapIndex(this._index - this._size);
+		const obj = this._buffer[index]
+		this._size--;
+		return obj;
+	}
+
 	pop() : T {
 		if (this.empty()) {
 			return null;

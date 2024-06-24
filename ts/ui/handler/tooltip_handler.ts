@@ -1,12 +1,10 @@
 
 import { game } from 'game'
 
-import { UiMessage, UiMessageType } from 'message/ui_message'
-
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { TooltipType, UiMode } from 'ui/api'
+import { TooltipType, TooltipOptions, UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -39,15 +37,11 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			});
 		});
 	}
-	override handleMessage(msg : UiMessage) : void {
-		if (msg.type() !== UiMessageType.TOOLTIP) {
-			return;
-		}
+	showTooltip(options : TooltipOptions) : void {
+		const type = options.type;
+		const ttl = options.ttl ? options.ttl : TooltipHandler._defaultTTL;
 
-		const type = msg.getTooltipType();
-		const ttl = msg.getTtlOr(TooltipHandler._defaultTTL);
-
-		const html = this.getHtml(msg);
+		const html = this.getHtml(options);
 		if (html.length === 0) {
 			console.error("Error: not showing empty tooltip ", TooltipType[type]);
 			return;
@@ -79,9 +73,9 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		});
 	}
 
-	private getHtml(msg : UiMessage) : string {
-		const type = msg.getTooltipType();
-		const names = msg.getNamesOr([]);
+	private getHtml(options : TooltipOptions) : string {
+		const type = options.type;
+		const names = options.names ? options.names : [];
 		switch (type) {
 		case TooltipType.CONTROLS:
 			return KeyNames.boxed(settings.interactKeyCode) + " View the controls";

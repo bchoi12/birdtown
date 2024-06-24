@@ -25,6 +25,8 @@ export namespace Html {
 	export const divMinimap = "div-minimap";
 	export const canvasPhysics = "canvas-physics";
 
+	export const divFeed = "div-feed";
+
 	export const divCounters = "div-counters";
 
 	export const divTooltips = "div-tooltips";

@@ -13,7 +13,6 @@ import { Tablet } from 'game/system/tablet'
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType} from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
-import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { AnnouncementType, DialogType } from 'ui/api'
@@ -137,9 +136,6 @@ export class GameMaker extends SystemBase implements System {
 				this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
 					return tablet.roundScore() >= this._config.getPoints();
 				});
-				if (this._winners.length >= 1) {
-					return GameState.FINISH;
-				}
 			}
 			break;
 		case GameState.FINISH:
@@ -211,23 +207,22 @@ export class GameMaker extends SystemBase implements System {
 				tablet.addScore(ScoreType.VICTORY, 1);
 			});
 
-	    	let winnerMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+	    	let winnerMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	winnerMsg.setAnnouncementType(AnnouncementType.GAME_FINISH);
 	    	winnerMsg.setNames(this._winners.map((tablet : Tablet) => { return tablet.displayName(); }));
-	    	game.announcer().announce(winnerMsg);
+	    	game.announcer().broadcast(winnerMsg);
 			break;
 		case GameState.VICTORY:
-	    	let victorMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-	    	// TODO: fix this
-	    	victorMsg.setAnnouncementType(AnnouncementType.GAME_FINISH);
+	    	let victorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
+	    	victorMsg.setAnnouncementType(AnnouncementType.GAME_VICTORY);
 	    	victorMsg.setNames(this._winners.map((tablet : Tablet) => { return tablet.displayName(); }));
-	    	game.announcer().announce(victorMsg);
+	    	game.announcer().broadcast(victorMsg);
 			break;
 		case GameState.ERROR:
-	    	let errorMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+	    	let errorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	errorMsg.setAnnouncementType(AnnouncementType.GAME_ERROR);
 	    	errorMsg.setNames(["TODO: add the error message here"]);
-	    	game.announcer().announce(errorMsg);
+	    	game.announcer().broadcast(errorMsg);
 	    	break;
 		}
 	}

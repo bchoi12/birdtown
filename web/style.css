@@ -154,32 +154,48 @@ body {
     transform: scale(1, -1);
 }
 
-#div-counters {
-    position:  absolute;
-
-    right: 0;
+#div-feed, #div-counters {
+    position: absolute;
     top: 25%;
+}
+
+#div-feed {
+    left: 0;
+}
+
+#div-counters {
+    right: 0;
+}
+
+.feed, .counter {
+    margin-bottom: 0.2em;
+    color: #f2f2f2;
+    min-width: 5.5em;
+
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+
+    background: linear-gradient(to right, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
+}
+
+.feed {
+    text-align: left;
+
+    border-top-right-radius: 0.1em;
+    border-bottom-right-radius: 0.1em;
 }
 
 .counter {
     font-size: 1.5em;
     font-weight: bold;
     text-align: right;
-    margin-bottom: 0.2em;
     letter-spacing: 0.1em;
-    color: #f2f2f2;
 
     border-top-left-radius: 0.1em;
     border-bottom-left-radius: 0.1em;
 
-    padding-top: 0.3em;
-    padding-bottom: 0.3em;
     padding-left: 0.3em;
-    min-width: 5.5em;
-
     overflow: hidden;
-
-    background: linear-gradient(to right, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
 }
 
 #div-tooltips {

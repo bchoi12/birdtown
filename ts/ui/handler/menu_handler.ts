@@ -1,8 +1,6 @@
 
 import { game } from 'game'
 
-import { UiMessage, UiMessageType } from 'message/ui_message'
-
 import { settings } from 'settings'
 import {
 	FullscreenSetting,
@@ -114,10 +112,10 @@ export class MenuHandler extends HandlerBase implements Handler {
 		shareURL.addOnClick(() => {
 			navigator.clipboard.writeText(window.location.href + "?r=" + game.netcode().room());
 
-			let msg = new UiMessage(UiMessageType.TOOLTIP);
-			msg.setTtl(3000);
-			msg.setTooltipType(TooltipType.COPIED_URL);
-			ui.handleMessage(msg);
+			ui.showTooltip({
+				type: TooltipType.COPIED_URL,
+				ttl: 3000,
+			})
 		});
 		this._dialogWrapper.footerElm().appendChild(shareURL.elm());
 

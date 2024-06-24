@@ -1,8 +1,6 @@
 
 import { game } from 'game'
 
-import { UiMessage, UiMessageType } from 'message/ui_message'
-
 import { settings } from 'settings'
 import {
 	AntiAliasSetting,

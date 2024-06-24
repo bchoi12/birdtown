@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 
-import { UiMessage } from 'message/ui_message'
+import { GameMessage } from 'message/game_message'
 
 import { ui } from 'ui'
 import { Icon, IconType } from 'ui/common/icon'
@@ -16,7 +16,7 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 	private _nameElm : HTMLElement;
 	private _voiceWrapper : VoiceWrapper;
 
-	constructor(msg : UiMessage) {
+	constructor(msg : GameMessage) {
 		super(Html.div());
 
 		this._clientId = msg.getClientId();

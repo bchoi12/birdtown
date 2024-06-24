@@ -20,8 +20,6 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { UiMessage, UiMessageType } from 'message/ui_message'
-
 import { settings } from 'settings'
 
 import { StringFactory } from 'strings/string_factory'
@@ -245,11 +243,11 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		super.preRender();
 
 		if (this._showTooltip) {
-			let msg = new UiMessage(UiMessageType.TOOLTIP);
-			msg.setTtl(50);
-			msg.setTooltipType(TooltipType.OPEN_CRATE);
-			msg.setNames([this.equipList()]);
-			ui.handleMessage(msg);
+			ui.showTooltip({
+				type: TooltipType.OPEN_CRATE,
+				ttl: 50,
+				names: [this.equipList()],
+			});
 		}
 	}
 }

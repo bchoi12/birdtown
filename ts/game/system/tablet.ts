@@ -6,7 +6,6 @@ import { ClientSystem, System } from 'game/system'
 import { SystemType, ScoreType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
-import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { AnnouncementType } from 'ui/api'
@@ -90,10 +89,10 @@ export class Tablet extends ClientSystem implements System {
 		super.delete();
 
 		if (this.hasDisplayName()) {
-    		let announcementMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
+    		let announcementMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
     		announcementMsg.setAnnouncementType(AnnouncementType.PLAYER_LEFT);
     		announcementMsg.setNames([this.displayName()]);
-	    	ui.handleMessage(announcementMsg);			
+    		game.announcer().broadcast(announcementMsg);
 		}
 	}
 
@@ -163,17 +162,13 @@ export class Tablet extends ClientSystem implements System {
 		});
 
 		if (announce) {
-	    	let announcementMsg = new UiMessage(UiMessageType.ANNOUNCEMENT);
-	    	if (this.clientIdMatches()) {
-	    		announcementMsg.setAnnouncementType(AnnouncementType.WELCOME);
-	    	} else {
-		    	announcementMsg.setAnnouncementType(AnnouncementType.PLAYER_JOINED);
-	    	}
+	    	let announcementMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	announcementMsg.setNames([this.displayName()]);
-	    	ui.handleMessage(announcementMsg);
+	    	announcementMsg.setAnnouncementType(AnnouncementType.PLAYER_JOINED);
+	    	game.announcer().broadcast(announcementMsg);
 		}
 
-		const initMsg = new UiMessage(UiMessageType.CLIENT_INIT);
+		const initMsg = new GameMessage(GameMessageType.CLIENT_INIT);
 		initMsg.setClientId(this.clientId());
 		initMsg.setDisplayName(this.displayName());
 		ui.handleMessage(initMsg);

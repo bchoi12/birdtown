@@ -10,7 +10,6 @@ import { System, ClientSystem } from 'game/system'
 import { SystemType, PlayerRole, ScoreType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
-import { UiMessage, UiMessageType } from 'message/ui_message'
 
 import { ui } from 'ui'
 import { DialogType, KeyType, KeyState, TooltipType } from 'ui/api'
@@ -79,10 +78,6 @@ export class PlayerState extends ClientSystem implements System {
 		if (this.hasTargetEntity()) {
 			this.targetEntity().delete();
 		}
-
-		const uiMsg = new UiMessage(UiMessageType.CLIENT_DISCONNECT);
-		uiMsg.setClientId(this.clientId());
-		ui.handleMessage(uiMsg);
 	}
 
 	die() : void {
@@ -205,10 +200,10 @@ export class PlayerState extends ClientSystem implements System {
 
 		// Show tooltip if we can spawn
 		if (this.clientIdMatches() && this.role() === PlayerRole.SPAWNING) {
-			let tooltipMsg = new UiMessage(UiMessageType.TOOLTIP);
-			tooltipMsg.setTooltipType(TooltipType.SPAWN);
-			tooltipMsg.setTtl(100);
-			ui.handleMessage(tooltipMsg);
+			ui.showTooltip({
+				type: TooltipType.SPAWN,
+				ttl: 100,
+			});
 		}
 
 		if (!this.isSource()) {

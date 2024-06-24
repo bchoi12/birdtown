@@ -1,6 +1,4 @@
 
-import { UiMessage, UiMessageType } from 'message/ui_message'
-
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -43,20 +41,13 @@ export class DialogHandler extends HandlerBase implements Handler {
 		}
 	}
 
-	override handleMessage(msg : UiMessage) : void {
-		super.handleMessage(msg);
-
-		if (msg.type() !== UiMessageType.DIALOG) {
+	pushDialog(type : DialogType) : void {
+		if (!DialogHandler._createDialogFns.has(type)) {
+			console.error("Error: not showing unknown dialog type", DialogType[type]);
 			return;
 		}
 
-		const dialogType = msg.getDialogType();
-		if (!DialogHandler._createDialogFns.has(dialogType)) {
-			console.error("Error: not showing unknown dialog type", DialogType[msg.getDialogType()], msg);
-			return;
-		}
-
-		let dialogWrapper = DialogHandler._createDialogFns.get(dialogType)();
+		let dialogWrapper = DialogHandler._createDialogFns.get(type)();
 		dialogWrapper.addOnSubmit(() => {
 			this.popDialog(dialogWrapper);
 		});
