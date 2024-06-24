@@ -123,10 +123,6 @@ export class Runner extends SystemBase implements System  {
 
 		this._renderSpeed = speed;
 		this._renderTargetStep = Runner._targetSteps.get(this._renderSpeed);
-
-		let speedMsg = new GameMessage(GameMessageType.RUNNER_SPEED);
-		speedMsg.setRenderSpeed(speed);
-		game.handleMessage(speedMsg);
 	}
 
 	setUpdateMultiplier(mult : number) : void { this._gameStepper.setUpdateSpeed(mult); }

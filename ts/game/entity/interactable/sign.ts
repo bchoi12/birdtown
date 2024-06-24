@@ -145,8 +145,7 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 		super.preRender();
 
 		if (this._showTooltip) {
-			ui.showTooltip({
-				type: this.tooltipType(),
+			ui.showTooltip(this.tooltipType(), {
 				ttl: 100,
 			});
 		}

@@ -112,8 +112,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 		shareURL.addOnClick(() => {
 			navigator.clipboard.writeText(window.location.href + "?r=" + game.netcode().room());
 
-			ui.showTooltip({
-				type: TooltipType.COPIED_URL,
+			ui.showTooltip(TooltipType.COPIED_URL, {
 				ttl: 3000,
 			})
 		});

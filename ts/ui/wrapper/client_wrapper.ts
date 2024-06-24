@@ -35,7 +35,6 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 
 			kickButton.onclick = (e) => {
 				e.stopPropagation();
-
 				game.netcode().kick(this._clientId);
 			}
 

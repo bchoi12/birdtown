@@ -8,7 +8,7 @@ import { SystemType, ScoreType } from 'game/system/api'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
-import { AnnouncementType } from 'ui/api'
+import { AnnouncementType, FeedType } from 'ui/api'
 
 import { Optional } from 'util/optional'
 
@@ -89,10 +89,10 @@ export class Tablet extends ClientSystem implements System {
 		super.delete();
 
 		if (this.hasDisplayName()) {
-    		let announcementMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-    		announcementMsg.setAnnouncementType(AnnouncementType.PLAYER_LEFT);
-    		announcementMsg.setNames([this.displayName()]);
-    		game.announcer().broadcast(announcementMsg);
+	    	let msg = new GameMessage(GameMessageType.FEED);
+	    	msg.setNames([this.displayName()]);
+	    	msg.setFeedType(FeedType.LEAVE);
+	    	game.announcer().broadcast(msg);
 		}
 	}
 
@@ -154,18 +154,18 @@ export class Tablet extends ClientSystem implements System {
 			displayName = displayName.substring(0, Tablet._displayNameMaxLength);
 		}
 
-		// Announce new players and welcome self.
-		const announce = !this.hasDisplayName() && game.clientId() <= this.clientId();
+		// Announce new players.
+		const announce = !this.hasDisplayName() && game.clientId() < this.clientId();
 		this._displayName = displayName;
 		this.addNameParams({
 			type: this.displayName(),
 		});
 
 		if (announce) {
-	    	let announcementMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-	    	announcementMsg.setNames([this.displayName()]);
-	    	announcementMsg.setAnnouncementType(AnnouncementType.PLAYER_JOINED);
-	    	game.announcer().broadcast(announcementMsg);
+	    	let msg = new GameMessage(GameMessageType.FEED);
+	    	msg.setNames([this.displayName()]);
+	    	msg.setFeedType(FeedType.JOIN);
+	    	game.announcer().broadcast(msg);
 		}
 
 		const initMsg = new GameMessage(GameMessageType.CLIENT_INIT);

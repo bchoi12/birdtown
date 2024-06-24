@@ -169,7 +169,7 @@ class UI {
 
 	updateCounters(counters : Map<CounterType, number>) : void { this._countersHandler.updateCounters(counters); }
 	pushDialog(type : DialogType) : void { this._dialogHandler.pushDialog(type); }
-	showTooltip(options : TooltipOptions) : void { this._tooltipHandler.showTooltip(options); }
+	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }
 
 	chat(msg : string) : void { this._chatHandler.chat(msg); }
 	clear() : void {

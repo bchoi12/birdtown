@@ -2,12 +2,16 @@
 export enum IconType {
 	UNKNOWN,
 
-	PERSON,
+	// Player related
+	JOIN,
+	KICK,
 	MIC,
 	MUTED_MIC,
 	MOUSE,
-	KICK,
+	PERSON,
+	PERSON_SLASH,
 
+	// Menu
 	PLUS,
 	MINUS,
 	VOLUME_X,
@@ -16,6 +20,11 @@ export enum IconType {
 	VOLUME_HIGH,
 	SHARE,
 
+	// Feed
+	GUN,
+	SKULL,
+
+	// Counters
 	BOLT,
 	DASH,
 	HEART,
@@ -29,17 +38,21 @@ export namespace Icon {
 	const classMap = new Map<IconType, string>([
 		[IconType.BOLT, "fa-bolt"],
 		[IconType.DASH, "fa-person-running"],
+		[IconType.GUN, "fa-gun"],
 		[IconType.HEART, "fa-heart"],
 		[IconType.JET, "fa-jet-fighter-up"],
+		[IconType.JOIN, "fa-right-to-bracket"],
 		[IconType.MIC, "fa-microphone"],
 		[IconType.MINUS, "fa-minus"],
 		[IconType.MUTED_MIC, "fa-microphone-slash"],
 		[IconType.MOUSE, "fa-computer-mouse"],
 		[IconType.KICK, "fa-ban"],
 		[IconType.PERSON, "fa-user"],
+		[IconType.PERSON_SLASH, "fa-user-slash"],
 		[IconType.PLUS, "fa-plus"],
 		[IconType.ROCKET, "fa-rocket"],
 		[IconType.SHARE, "fa-share-nodes"],
+		[IconType.SKULL, "fa-skull"],
 		[IconType.TRUCK_FAST, "fa-truck-fast"],
 		[IconType.VOLUME_HIGH, "fa-volume-high"],
 		[IconType.VOLUME_LOW, "fa-volume-low"],

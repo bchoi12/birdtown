@@ -41,17 +41,17 @@ export class LinkedList<T> {
 	head() : LinkedNode<T> { return this._head; }
 	tail() : LinkedNode<T> { return this._tail; }
 
-	peekFirst() : T { return this._head !== null ? this._head.value() : null; }
-	peekLast() : T { return this._tail !== null ? this._tail.value() : null; }
-	popFirst() : T { return this.delete(this._head); }
-	popBack() : T { return this.delete(this._tail); }
+	peekFirst() : LinkedNode<T> { return this._head !== null ? this._head : null; }
+	peekLast() : LinkedNode<T> { return this._tail !== null ? this._tail : null; }
+	popFirst() : LinkedNode<T> { return this.delete(this._head); }
+	popBack() : LinkedNode<T> { return this.delete(this._tail); }
 
-	push(value : T) : T {
+	push(value : T) : LinkedNode<T> {
 		if (this._head === null) {
 			this._head = new LinkedNode<T>(value);
 			this._tail = this._head;
 			this._size = 1;
-			return this._head.value();
+			return this._head;
 		}
 
 		const node = new LinkedNode<T>(value);
@@ -59,10 +59,10 @@ export class LinkedList<T> {
 		this._tail.setNext(node);
 		this._tail = node;
 		this._size++;
-		return node.value();
+		return node;
 	}
 
-	insert(value : T, comparator : ComparatorFn<T>) : T {
+	insert(value : T, comparator : ComparatorFn<T>) : LinkedNode<T> {
 		if (this.empty()) { return this.push(value); }
 
 		let current = this._head;
@@ -83,10 +83,10 @@ export class LinkedList<T> {
 		node.setNext(current);
 
 		this._size++;
-		return node.value();
+		return node;
 	}
 
-	delete(node : LinkedNode<T>) : T {
+	delete(node : LinkedNode<T>) : LinkedNode<T> {
 		if (this.empty()) { return null; }
 
 		if (node.hasPrev()) {
@@ -104,6 +104,6 @@ export class LinkedList<T> {
 		}
 
 		this._size--;
-		return node.value();
+		return node;
 	}
 }

@@ -31,6 +31,16 @@ export enum DialogType {
 	START_GAME,
 }
 
+export enum FeedType {
+	UNKNOWN,
+
+	JOIN,
+	KICK,
+	KILL,
+	LEAVE,
+	SUICIDE,
+}
+
 export enum KeyType {
 	UNKNOWN,
 	LEFT,
@@ -69,7 +79,6 @@ export enum TooltipType {
 }
 
 export type TooltipOptions = {
-	type: TooltipType;
 	ttl?: number;
 	names?: Array<string>;
 }

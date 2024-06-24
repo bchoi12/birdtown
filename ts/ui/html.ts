@@ -52,14 +52,15 @@ export namespace Html {
 	export const classButton = "button";
 	export const classButtonSelect = "button-select";
 	export const classButtonSelected = "button-selected";
-	export const classSetting = "setting";
-	export const classSettingLabel = "setting-label";
-	export const classSettingValue = "setting-value";
 	export const classCounter = "counter";
 	export const classDialog = "dialog";
 	export const classDialogContainer = "dialog-container";
 	export const classDialogPage = "dialog-page";
 	export const classDialogTitle = "dialog-title";
+	export const classFeed = "feed";
+	export const classSetting = "setting";
+	export const classSettingLabel = "setting-label";
+	export const classSettingValue = "setting-value";
 	export const classTooltip = "tooltip";
 	export const classTooltipShow = "tooltip-show";
 

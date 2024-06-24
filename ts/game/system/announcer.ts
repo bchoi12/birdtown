@@ -14,21 +14,25 @@ import { LinkedList } from 'util/linked_list'
 
 export class Announcer extends SystemBase implements System {
 
+	private static readonly _supportedTypes = new Set([
+		GameMessageType.ANNOUNCEMENT, GameMessageType.FEED,
+	]);
+
 	// Queue for exporting one announcement per frame.
-	private _announcements : LinkedList<GameMessage>
+	private _messages : LinkedList<GameMessage>
 
 	constructor() {
 		super(SystemType.ANNOUNCER);
 
-		this._announcements = new LinkedList();
+		this._messages = new LinkedList();
 
 		this.addProp<MessageObject>({
-			has: () => { return !this._announcements.empty(); },
-			export: () => { return this._announcements.popFirst().exportObject(); },
+			has: () => { return !this._messages.empty(); },
+			export: () => { return this._messages.popFirst().value().exportObject(); },
 			import: (obj : MessageObject) => {
-				const announcement = new GameMessage(GameMessageType.ANNOUNCEMENT);
-				announcement.parseObject(obj);
-				this.announce(announcement);
+				const msg = new GameMessage(GameMessageType.UNKNOWN);
+				msg.parseObject(obj);
+				this.publishMessage(msg);
 			},
 
 			options: {
@@ -37,26 +41,29 @@ export class Announcer extends SystemBase implements System {
 		});
 	}
 
-	announce(announcement : GameMessage) : boolean {
-		if (announcement.type() !== GameMessageType.ANNOUNCEMENT || !announcement.valid()) {
-			console.error("Error: skipping invalid announcement", announcement);
-			return false;
-		}
-
-		ui.handleMessage(announcement);
-		return true;
-	}
-
-	broadcast(announcement : GameMessage) : void {
+	broadcast(msg : GameMessage) : void {
 		if (!this.isSource()) {
 			return;
 		}
 
-		if (!this.announce(announcement)) {
-			return;
+		if (this.publishMessage(msg)) {
+			// Add announcement to be exported.
+			this._messages.push(msg);
+		}
+	}
+
+	private publishMessage(msg : GameMessage) : boolean {
+		if (!Announcer._supportedTypes.has(msg.type())) {
+			console.error("Error: cannot broadcast message type", GameMessageType[msg.type()]);
+			return false;
 		}
 
-		// Add announcement to be exported.
-		this._announcements.push(announcement);
+		if (!msg.valid()) {
+			console.error("Error: skipping invalid message", msg);
+			return false;
+		}
+
+		ui.handleMessage(msg);
+		return true;
 	}
 }

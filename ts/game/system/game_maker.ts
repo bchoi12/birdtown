@@ -25,6 +25,7 @@ export class GameMaker extends SystemBase implements System {
 	private _round : number;
 	private _lastStateChange : number;
 	private _winners : Array<Tablet>;
+	private _errorMsg : string;
 
 	constructor() {
 		super(SystemType.GAME_MAKER);
@@ -33,6 +34,7 @@ export class GameMaker extends SystemBase implements System {
 		this._round = 0;
 		this._lastStateChange = Date.now();
 		this._winners = new Array();
+		this._errorMsg = "";
 
 		this.addProp<MessageObject>({
 			export: () => { return this._config.exportObject(); },
@@ -95,19 +97,21 @@ export class GameMaker extends SystemBase implements System {
 		return true;
 	}
 
-	valid(current : GameState) : boolean {
+	valid(current : GameState) : [boolean, string] {
 		switch (current) {
 		case GameState.SETUP:
 		case GameState.GAME:
 			if (this._config.hasPlayersMin() && game.playerStates().numSpawnedPlayers() < this._config.getPlayersMin()) {
-				return false;
+				return [false, "Not enough players left in the game"];
 			}
 			break;
 		}
-		return true;
+		return [true, ""];
 	}
 	queryState(current : GameState) : GameState {
-		if (!this.valid(current)) {
+		const [valid, error] = this.valid(current);
+		if (!valid) {
+			this._errorMsg = error;
 			return GameState.ERROR;
 		}
 
@@ -221,7 +225,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.ERROR:
 	    	let errorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	errorMsg.setAnnouncementType(AnnouncementType.GAME_ERROR);
-	    	errorMsg.setNames(["TODO: add the error message here"]);
+	    	errorMsg.setNames([this._errorMsg]);
 	    	game.announcer().broadcast(errorMsg);
 	    	break;
 		}

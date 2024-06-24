@@ -129,9 +129,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 			this.submit();
 			this.setDialogState(DialogState.ERROR);
 
-			ui.showTooltip({
-				type: TooltipType.FAILED_DIALOG_SYNC,
-			});
+			ui.showTooltip(TooltipType.FAILED_DIALOG_SYNC, {});
 		}
 	}
 	inSync() : boolean {

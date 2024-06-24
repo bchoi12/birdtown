@@ -37,11 +37,10 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			});
 		});
 	}
-	showTooltip(options : TooltipOptions) : void {
-		const type = options.type;
+	showTooltip(type : TooltipType, options : TooltipOptions) : void {
 		const ttl = options.ttl ? options.ttl : TooltipHandler._defaultTTL;
 
-		const html = this.getHtml(options);
+		const html = this.getHtml(type, options);
 		if (html.length === 0) {
 			console.error("Error: not showing empty tooltip ", TooltipType[type]);
 			return;
@@ -73,8 +72,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		});
 	}
 
-	private getHtml(options : TooltipOptions) : string {
-		const type = options.type;
+	private getHtml(type : TooltipType, options : TooltipOptions) : string {
 		const names = options.names ? options.names : [];
 		switch (type) {
 		case TooltipType.CONTROLS:

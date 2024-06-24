@@ -282,8 +282,7 @@ export class Lakitu extends SystemBase implements System {
 		if (game.playerState().role() === PlayerRole.SPECTATING
 			&& game.tablets().hasTablet(this.targetEntity().clientId())) {
 
-			ui.showTooltip({
-				type: TooltipType.SPECTATING,
+			ui.showTooltip(TooltipType.SPECTATING, {
 				ttl: 100,
 				names: [game.tablet(this.targetEntity().clientId()).displayName()],
 			});

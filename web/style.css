@@ -174,8 +174,6 @@ body {
 
     padding-top: 0.3em;
     padding-bottom: 0.3em;
-
-    background: linear-gradient(to right, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
 }
 
 .feed {
@@ -183,6 +181,13 @@ body {
 
     border-top-right-radius: 0.1em;
     border-bottom-right-radius: 0.1em;
+
+    opacity: 0;
+    margin-left: -5.5em;
+    height: 100%;
+
+    transition: opacity 0.3s ease-in, height 0.3s ease-in, margin-left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: linear-gradient(to left, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
 }
 
 .counter {
@@ -196,6 +201,8 @@ body {
 
     padding-left: 0.3em;
     overflow: hidden;
+
+    background: linear-gradient(to right, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
 }
 
 #div-tooltips {

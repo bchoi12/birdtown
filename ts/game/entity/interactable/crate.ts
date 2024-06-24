@@ -243,8 +243,7 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		super.preRender();
 
 		if (this._showTooltip) {
-			ui.showTooltip({
-				type: TooltipType.OPEN_CRATE,
+			ui.showTooltip(TooltipType.OPEN_CRATE, {
 				ttl: 50,
 				names: [this.equipList()],
 			});

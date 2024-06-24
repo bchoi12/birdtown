@@ -12,7 +12,7 @@ import { SystemType, PlayerRole, ScoreType } from 'game/system/api'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
-import { DialogType, KeyType, KeyState, TooltipType } from 'ui/api'
+import { DialogType, FeedType, KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 import { Timer} from 'util/timer'
@@ -151,6 +151,10 @@ export class PlayerState extends ClientSystem implements System {
 
 		const [log, hasLog] = player.stats().lastDamager(PlayerState._lastDamageTime);
 		if (!hasLog || !log.hasEntityLog()) {
+			let feed = new GameMessage(GameMessageType.FEED);
+			feed.setFeedType(FeedType.SUICIDE);
+			feed.setNames([tablet.displayName()]);
+			game.announcer().broadcast(feed);
 			return;
 		}
 
@@ -160,8 +164,14 @@ export class PlayerState extends ClientSystem implements System {
 			const damagerId = associations.get(AssociationType.OWNER);
 			const [damager, hasDamager] = game.entities().getEntity(damagerId);
 
-			if (hasDamager) {
-				game.tablet(damager.clientId()).addScore(ScoreType.KILL, 1);
+			if (hasDamager && game.tablets().hasTablet(damager.clientId())) {
+				const damagerTablet = game.tablet(damager.clientId())
+				damagerTablet.addScore(ScoreType.KILL, 1);
+
+				let feed = new GameMessage(GameMessageType.FEED);
+				feed.setFeedType(FeedType.KILL);
+				feed.setNames([damagerTablet.displayName(), tablet.displayName()]);
+				game.announcer().broadcast(feed);
 			}
 		}
 	}
@@ -200,8 +210,7 @@ export class PlayerState extends ClientSystem implements System {
 
 		// Show tooltip if we can spawn
 		if (this.clientIdMatches() && this.role() === PlayerRole.SPAWNING) {
-			ui.showTooltip({
-				type: TooltipType.SPAWN,
+			ui.showTooltip(TooltipType.SPAWN, {
 				ttl: 100,
 			});
 		}
@@ -282,7 +291,6 @@ export class PlayerState extends ClientSystem implements System {
 				break;
 			case GameState.GAME:
 				this.processKillOn(player);
-
 				this._respawnTimer.start(PlayerState._respawnTime, () => {
 					if (!game.tablet(this.clientId()).outOfLives()) {
 						this.setRole(PlayerRole.WAITING);

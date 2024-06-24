@@ -3,9 +3,7 @@ import { Message, MessageBase, FieldDescriptor } from 'message'
 
 import { LevelType, LevelLayout, PlayerRole } from 'game/system/api'
 
-import { SpeedSetting } from 'settings/api'
-
-import { AnnouncementType } from 'ui/api'
+import { AnnouncementType, FeedType } from 'ui/api'
 
 import { Box } from 'util/box'
 
@@ -17,9 +15,9 @@ export enum GameMessageType {
     CLIENT_INIT,
 	CLIENT_JOIN,
 	LEVEL_LOAD,
+    FEED,
 	GAME_STATE,
 	PLAYER_STATE,
-	RUNNER_SPEED,
 }
 
 enum GameProp {
@@ -28,7 +26,7 @@ enum GameProp {
 	ANNOUNCEMENT_TYPE,
 	CLIENT_ID,
 	DISPLAY_NAME,
-	GAME_SPEED,
+    FEED_TYPE,
 	GAME_STATE,
 	LEVEL_BOUNDS,
 	LEVEL_LAYOUT,
@@ -37,7 +35,6 @@ enum GameProp {
 	LEVEL_VERSION,
 	NAMES,
 	PLAYER_ROLE,
-	RENDER_SPEED,
 	TTL,
 }
 
@@ -59,6 +56,11 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 		[GameMessageType.CLIENT_JOIN, MessageBase.fieldDescriptor(
 			[GameProp.CLIENT_ID, {}],
 		)],
+        [GameMessageType.FEED, MessageBase.fieldDescriptor(
+            [GameProp.FEED_TYPE, {}],
+            [GameProp.NAMES, { optional: true }],
+            [GameProp.TTL, { optional: true }],
+        )],
 		[GameMessageType.LEVEL_LOAD, MessageBase.fieldDescriptor(
 			[GameProp.LEVEL_TYPE, { min: 1 }],
 			[GameProp.LEVEL_BOUNDS, {}],
@@ -73,10 +75,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 		[GameMessageType.PLAYER_STATE, MessageBase.fieldDescriptor(
 			[GameProp.PLAYER_ROLE, {}],
 			[GameProp.CLIENT_ID, {}],
-		)],
-		[GameMessageType.RUNNER_SPEED, MessageBase.fieldDescriptor(
-			[GameProp.GAME_SPEED, { optional: true }],
-			[GameProp.RENDER_SPEED, { optional: true }],
 		)],
 	]);
 
@@ -103,10 +101,10 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getDisplayNameOr(value : string) : string { return this.getOr<string>(GameProp.DISPLAY_NAME, value); }
     setDisplayName(value : string) : void { this.set<string>(GameProp.DISPLAY_NAME, value); }
 
-    hasGameSpeed() : boolean { return this.has(GameProp.GAME_SPEED); }
-    getGameSpeed() : SpeedSetting { return this.get<SpeedSetting>(GameProp.GAME_SPEED); }
-    getGameSpeedOr(value : SpeedSetting) : SpeedSetting { return this.getOr<SpeedSetting>(GameProp.GAME_SPEED, value); }
-    setGameSpeed(value : SpeedSetting) : void { this.set<SpeedSetting>(GameProp.GAME_SPEED, value); }
+    hasFeedType() : boolean { return this.has(GameProp.FEED_TYPE); }
+    getFeedType() : FeedType { return this.get<FeedType>(GameProp.FEED_TYPE); }
+    getFeedTypeOr(value : FeedType) : FeedType { return this.getOr<FeedType>(GameProp.FEED_TYPE, value); }
+    setFeedType(value : FeedType) : void { this.set<FeedType>(GameProp.FEED_TYPE, value); }
 
     hasGameState() : boolean { return this.has(GameProp.GAME_STATE); }
     getGameState() : number { return this.get<number>(GameProp.GAME_STATE); }
@@ -148,11 +146,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getPlayerRoleOr(value : PlayerRole) : PlayerRole { return this.getOr<PlayerRole>(GameProp.PLAYER_ROLE, value); }
     setPlayerRole(value : PlayerRole) : void { this.set<PlayerRole>(GameProp.PLAYER_ROLE, value); }
 
-    hasRenderSpeed() : boolean { return this.has(GameProp.RENDER_SPEED); }
-    getRenderSpeed() : SpeedSetting { return this.get<SpeedSetting>(GameProp.RENDER_SPEED); }
-    getRenderSpeedOr(value : SpeedSetting) : SpeedSetting { return this.getOr<SpeedSetting>(GameProp.RENDER_SPEED, value); }
-    setRenderSpeed(value : SpeedSetting) : void { this.set<SpeedSetting>(GameProp.RENDER_SPEED, value); }
-
     hasTtl() : boolean { return this.has(GameProp.TTL); }
     getTtl() : number { return this.get<number>(GameProp.TTL); }
     getTtlOr(value : number) : number { return this.getOr<number>(GameProp.TTL, value); }
@@ -163,6 +156,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["ANNOUNCEMENT_TYPE", "AnnouncementType"],
     ["CLIENT_ID", "number"],
     ["DISPLAY_NAME", "string"],
+    ["FEED_TYPE", "FeedType"],
     ["GAME_SPEED", "SpeedSetting"],
     ["GAME_STATE", "number"],
     ["LEVEL_BOUNDS", "Box"],
