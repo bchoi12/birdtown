@@ -1,6 +1,6 @@
 
 import { game } from 'game'
-import { AssociationType, AttributeType, ComponentType, CounterType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
 import { Association } from 'game/component/association'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'

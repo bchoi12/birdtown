@@ -2,114 +2,106 @@
 import { CounterType } from 'game/component/api'
 
 import { ui } from 'ui'
+import { CounterOptions } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon, IconType } from 'ui/common/icon'
 
-import { defined } from 'util/common'
+import { Fns } from 'util/fns'
+import { Optional } from 'util/optional'
 
-enum DisplayType {
-	UNKNOWN,
-
-	COOLDOWN,
-	INTEGER,
-	PERCENT,
-}
 type IconMetadata = {
 	iconType : IconType;
-	displayType : DisplayType;
 	delay : number;
 }
 
 export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 
+	private static readonly _minPercent = 20;
+	private static readonly _maxPercent = 80;
 	private static readonly _iconMetadata = new Map<CounterType, IconMetadata>([
 		[CounterType.CHARGE, {
 			iconType: IconType.BOLT,
-			displayType: DisplayType.INTEGER,
 			delay: 0,
 		}],
 		[CounterType.DASH, {
 			iconType: IconType.DASH,
-			displayType: DisplayType.PERCENT,
 			delay: 0,
 		}],
 		[CounterType.HEALTH, {
 			iconType: IconType.HEART,
-			displayType: DisplayType.INTEGER,
 			delay: 250,
 		}],
 		[CounterType.JETPACK, {
 			iconType: IconType.JET,
-			displayType: DisplayType.PERCENT,
 			delay: 0,
 		}],
 		[CounterType.JUICE, {
 			iconType: IconType.TRUCK_FAST,
-			displayType: DisplayType.PERCENT,
 			delay: 0,
 		}],
 		[CounterType.ROCKET, {
 			iconType: IconType.ROCKET,
-			displayType: DisplayType.COOLDOWN,
 			delay: 0,
 		}],
 	])
 
 	private _type : CounterType;
-	private _counterElm : HTMLElement;
+	private _textElm : HTMLElement;
 	private _iconElm : HTMLElement;
 
-	private _lastCount : number;
 	private _count : number;
-	private _lastUpdateTime : number;
+	private _initialized : boolean;
+	private _lastCount : Optional<number>;
+	private _countUpdateTime : number;
 
 	constructor(type : CounterType) {
 		super(Html.div());
 
 		this._type = type;
-		this._counterElm = Html.span();
-		this._counterElm.classList.add(Html.classSpaced);
-		this._counterElm.textContent = "?";
+
+		this._textElm = Html.span();
+		this._textElm.classList.add(Html.classSpaced);
+		this._textElm.textContent = "?";
+
 		this._iconElm = Icon.create(this.iconType());
 		this._iconElm.classList.add(Html.classSpaced);
 
+		this._count = 0;
+		this._lastCount = Optional.empty(0);
+		this._countUpdateTime = Date.now();
+
 		this.elm().classList.add(Html.classCounter);
 
-		this.elm().appendChild(this._counterElm);
+		this.elm().appendChild(this._textElm);
 		this.elm().appendChild(this._iconElm);
 	}
 
-	iconType() : IconType { return CounterWrapper._iconMetadata.get(this._type).iconType; }
-	private displayType() : DisplayType { return CounterWrapper._iconMetadata.get(this._type).displayType; }
+	private iconType() : IconType { return CounterWrapper._iconMetadata.get(this._type).iconType; }
 	private delay() : number { return CounterWrapper._iconMetadata.get(this._type).delay; }
 
-	setCounter(count : number) : void {
-		this._lastCount = count;
-		this._count = count;
-		this._lastUpdateTime = Date.now();
-		this._counterElm.textContent = this.getDisplayText(this._count);
-	}
-
-	updateCounter(count : number) : void {
-		if (!defined(this._count)) {
-			this.setCounter(count);
-			return;
+	updateCounter(options : CounterOptions) : void {
+		if (this._count !== options.count) {
+			if (this._lastCount.has()) {
+				this._lastCount.set(this._count);
+			} else {
+				this._lastCount.set(options.count);
+			}
+			this._count = options.count;
+			this._countUpdateTime = Date.now();
 		}
 
-		if (this._count !== count) {
-			this._lastCount = this._count;
-			this._count = count;
-			this._lastUpdateTime = Date.now();
+		let color = options.color ? options.color : "#000000";
+		this.elm().style.background = this.getBackgroundCss(options.percentGone, color);
+
+		if (this._lastCount.has()) {
+			const delay = this.delay();
+			const elapsed = Date.now() - this._countUpdateTime;
+			this._textElm.textContent = "" + Math.ceil(delay > 0 ?
+				Math.floor(this._lastCount.get() + Math.min(1, elapsed / delay) * (this._count - this._lastCount.get())) :
+				this._count);
+		} else {
+			this._textElm.textContent = options.text ? options.text : "?";
 		}
-
-
-		const delay = this.delay();
-		const elapsed = Date.now() - this._lastUpdateTime;
-		let displayCount = delay > 0 ?
-			Math.floor(this._lastCount + Math.min(1, elapsed / delay) * (this._count - this._lastCount)) :
-			this._count;
-
-		this._counterElm.textContent = this.getDisplayText(displayCount);
 	}
 
 	delete(onDelete : () => void) : void {
@@ -117,21 +109,10 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 		onDelete();
 	}
 
-	private getDisplayText(count : number) : string {
-		switch (this.displayType()) {
-		case DisplayType.COOLDOWN:
-			let disp = Math.ceil(10 * count) / 10;
-			if (disp > 0) {
-				return "" + disp;
-			} else {
-				return "RDY"
-			}
-			break;
-		case DisplayType.INTEGER:
-			return "" + Math.ceil(count);
-		case DisplayType.PERCENT:
-			return Math.ceil(count) + "%";
-		}
-		return "";
+	private getBackgroundCss(percentGone : number, color : string) : string {
+		percentGone = Fns.clamp(0, percentGone, 1);
+		let lerp = Math.ceil(Fns.lerpRange(CounterWrapper._minPercent, percentGone, CounterWrapper._maxPercent));
+
+		return `linear-gradient(to right, ${color}00, ${color}64 ${lerp}%, #000000b4 90%)`;
 	}
 }

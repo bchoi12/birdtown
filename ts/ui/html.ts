@@ -28,6 +28,7 @@ export namespace Html {
 	export const divFeed = "div-feed";
 
 	export const divCounters = "div-counters";
+	export const divCountersContainer = "div-counters-container";
 
 	export const divTooltips = "div-tooltips";
 	export const divAnnouncement = "div-announcement";

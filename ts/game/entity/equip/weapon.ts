@@ -54,10 +54,7 @@ export abstract class Weapon extends Equip<Player> {
 		this.addType(EntityType.WEAPON);
 
 		this._weaponState = WeaponState.READY;
-		this._shotConfig = {
-			bursts: 1,
-			reloadTime: 1000,
-		};
+		this._shotConfig = this.shotConfig();
 		this._burstTimer = this.newTimer({ canInterrupt: false });
 		this._reloadTimer = this.newTimer({ canInterrupt: false });
 		this._chargeRateLimiter = new RateLimiter(Weapon._chargeInterval);

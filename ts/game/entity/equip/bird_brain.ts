@@ -14,15 +14,15 @@ import { Player } from 'game/entity/player'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { KeyType, KeyState } from 'ui/api'
+import { CounterOptions, KeyType, KeyState } from 'ui/api'
 
-import { defined } from 'util/common'
 import { Optional } from 'util/optional'
 import { Timer} from 'util/timer'
 import { Vec2 } from 'util/vector'
 
 export class BirdBrain extends Equip<Player> {
 
+	private static readonly _maxJuice = 100;
 	private static readonly _densityAdjustment = 0.1;
 	private static readonly _pickableTypes = new Set<EntityType>([
 		EntityType.CRATE,
@@ -44,7 +44,7 @@ export class BirdBrain extends Equip<Player> {
 			canInterrupt: false,
 		});
 		this._canCharge = false;
-		this._juice = 100;
+		this._juice = BirdBrain._maxJuice;
 
 		this.addProp<number>({
 			export: () => { return this._juice; },
@@ -59,7 +59,7 @@ export class BirdBrain extends Equip<Player> {
 		const millis = stepData.millis;
 
 		if (this._canCharge) {
-			this._juice = Math.min(100, this._juice + 1.6);
+			this._juice = Math.min(BirdBrain._maxJuice, this._juice + 1.6);
 		}	
 
 		if (this._juice <= 0 || !this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
@@ -112,9 +112,12 @@ export class BirdBrain extends Equip<Player> {
 		}
 	}
 
-	override getCounts() : Map<CounterType, number> {
+	override getCounts() : Map<CounterType, CounterOptions> {
 		let counts = super.getCounts();
-		counts.set(CounterType.JUICE, this._juice);
+		counts.set(CounterType.JUICE, {
+			percentGone: 1 - this._juice / BirdBrain._maxJuice,
+			count: this._juice,
+		});
 		return counts;
 	}
 

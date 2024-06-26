@@ -33,7 +33,7 @@ import { MaterialShifter } from 'game/util/material_shifter'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { DialogType, KeyType, KeyState } from 'ui/api'
+import { CounterOptions, DialogType, KeyType, KeyState } from 'ui/api'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -819,13 +819,17 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		arm.position = this._boneOrigins.get(BoneType.ARM).add(recoil);
 	}
 
-	override getCounts() : Map<CounterType, number> {
+	override getCounts() : Map<CounterType, CounterOptions> {
 		let counts = super.getCounts();
-		counts.set(CounterType.HEALTH, this._stats.health());
+		counts.set(CounterType.HEALTH, {
+			percentGone: 1 - this._stats.healthPercent(),
+			count: this._stats.health(),
+			color: this.clientColorOr("#000000"),
+		});
 
 		this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP).execute((equip : Equip<Player>) => {
-			equip.getCounts().forEach((count : number, type : CounterType) => {
-				counts.set(type, count);
+			equip.getCounts().forEach((counter : CounterOptions, type : CounterType) => {
+				counts.set(type, counter);
 			});
 		});
 		return counts;

@@ -140,6 +140,9 @@ export class GameMaker extends SystemBase implements System {
 				this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
 					return tablet.roundScore() >= this._config.getPoints();
 				});
+				if (this._winners.length >= 1) {
+					return GameState.FINISH;
+				}
 			}
 			break;
 		case GameState.FINISH:

@@ -11,10 +11,11 @@ import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Weapon, ShotConfig } from 'game/entity/equip/weapon'
 import { MaterialType, MeshType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
 
-import { KeyType, KeyState } from 'ui/api'
+import { CounterOptions, KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Vec3 } from 'util/vector'
@@ -86,9 +87,13 @@ export class Sniper extends Weapon {
 		}
 	}
 
-	override getCounts() : Map<CounterType, number> {
+	override getCounts() : Map<CounterType, CounterOptions> {
 		let counts = super.getCounts();
-		counts.set(CounterType.CHARGE, Math.min(100, Math.floor(this.getCounter(CounterType.CHARGE) / 10)));
+		counts.set(CounterType.CHARGE, {
+			percentGone: 1 - this.getCounter(CounterType.CHARGE) / Sniper._chargedThreshold,
+			text: this.charged() ? "1/1" : "0/1",
+			color: ColorFactory.boltDarkOrange.toString(),
+		});
 		return counts;
 	}
 }

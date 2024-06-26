@@ -154,8 +154,8 @@ export class Tablet extends ClientSystem implements System {
 			displayName = displayName.substring(0, Tablet._displayNameMaxLength);
 		}
 
-		// Announce new players.
-		const announce = !this.hasDisplayName() && game.clientId() < this.clientId();
+		// Announce new players and self.
+		const announce = !this.hasDisplayName() && game.clientId() <= this.clientId();
 		this._displayName = displayName;
 		this.addNameParams({
 			type: this.displayName(),

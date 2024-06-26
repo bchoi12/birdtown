@@ -9,13 +9,16 @@ import { AttachType, RecoilType } from 'game/entity/equip'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Weapon, ShotConfig } from 'game/entity/equip/weapon'
 import { MeshType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 
-import { KeyType, KeyState } from 'ui/api'
+import { CounterOptions, KeyType, KeyState } from 'ui/api'
 
 import { Vec3 } from 'util/vector'
 
 export class Bazooka extends Weapon {
+
+	private static readonly _reloadTime = 1000;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.BAZOOKA, options);
@@ -28,7 +31,7 @@ export class Bazooka extends Weapon {
 	override shotConfig() : ShotConfig {
 		return {
 			bursts: 1,
-			reloadTime: 1000,
+			reloadTime: Bazooka._reloadTime,
 		};
 	}
 
@@ -58,9 +61,13 @@ export class Bazooka extends Weapon {
 
 	override onReload() : void {}
 
-	override getCounts() : Map<CounterType, number> {
+	override getCounts() : Map<CounterType, CounterOptions> {
 		let counts = super.getCounts();
-		counts.set(CounterType.ROCKET, this.reloadTimeLeft() / 1000);
+		counts.set(CounterType.ROCKET, {
+			percentGone: this.reloadTimeLeft() / Bazooka._reloadTime,
+			text: this.reloadTimeLeft() > 0 ? "0/1" : "1/1",
+			color: ColorFactory.bazookaRed.toString(),
+		});
 		return counts;
 	}
 }

@@ -2,7 +2,6 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { GameState } from 'game/api'
-import { CounterType } from 'game/component/api'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'

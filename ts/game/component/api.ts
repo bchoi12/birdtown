@@ -57,6 +57,7 @@ export enum CounterType {
 	JUICE,
 	ROCKET,
 }
+
 export enum ModifierType {
 	UNKNOWN,
 

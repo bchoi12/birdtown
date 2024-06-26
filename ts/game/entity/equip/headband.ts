@@ -11,10 +11,11 @@ import { BoneType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 import { MaterialType, MeshType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { KeyType, KeyState } from 'ui/api'
+import { CounterOptions, KeyType, KeyState } from 'ui/api'
 
 import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
@@ -73,10 +74,14 @@ export class Headband extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.FOREHEAD; }
 
-	override getCounts() : Map<CounterType, number> {
-		return new Map([
-			[CounterType.DASH, Math.ceil(this._juice)],
-		]);
+	override getCounts() : Map<CounterType, CounterOptions> {
+		let counts = super.getCounts();
+		counts.set(CounterType.DASH, {
+			percentGone: 1 - this._juice / Headband._maxJuice,
+			text: this.canDash() ? "1/1" : "0/1",
+			color: ColorFactory.starPurple.toString(),
+		});
+		return counts;
 	}
 
 	override initialize() : void {
@@ -93,12 +98,14 @@ export class Headband extends Equip<Player> {
 		this._trail.dispose();
 	}
 
+	private canDash() : boolean { return this._juice >= Headband._maxJuice; }
+
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
 		const millis = stepData.millis;
 
-		if (this._juice >= 100 && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED)) {
+		if (this.canDash() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED)) {
 			this.owner().profile().setVel({x: 0, y: 0});
 
 			this._dir = this.inputDir();
@@ -108,7 +115,7 @@ export class Headband extends Equip<Player> {
 				this.owner().addForce(this._dir.clone().scale(0.8));
 			}
 
-			this._juice = Math.max(0, this._juice - 100);
+			this._juice = Math.max(0, this._juice - Headband._maxJuice);
 			this._chargeDelayTimer.start(Headband._chargeDelay);
 			this._dashTimer.start(Headband._dashTime);
 		}

@@ -19,7 +19,7 @@ import { GameObject, GameObjectBase, StepData } from 'game/game_object'
 import { StringFactory } from 'strings/string_factory'
 import { ParamString } from 'strings/param_string'
 
-import { KeyType, KeyState, TooltipType } from 'ui/api'
+import { CounterOptions, KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
@@ -62,7 +62,7 @@ export interface Entity extends GameObject {
 	getComponent<T extends Component>(type : ComponentType) : T;
 
 	// Methods spanning components
-	getCounts() : Map<CounterType, number>;
+	getCounts() : Map<CounterType, CounterOptions>;
 	setTTL(ttl : number, onDelete? : () => void);
 	ttlElapsed() : number;
 	key(type : KeyType, state : KeyState) : boolean;
@@ -203,7 +203,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	hasComponent(type : ComponentType) : boolean { return this.hasChild(type); }
 	getComponent<T extends Component>(type : ComponentType) : T { return this.getChild<T>(type); }
 
-	getCounts() : Map<CounterType, number> { return new Map(); }
+	getCounts() : Map<CounterType, CounterOptions> { return new Map(); }
 	setTTL(ttl : number, onDelete? : () => void) : void {
 		if (!this._ttlTimer.has()) {
 			this._ttlTimer.set(this.newTimer({

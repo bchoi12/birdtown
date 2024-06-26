@@ -8,9 +8,10 @@ import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 import { MeshType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { KeyType, KeyState } from 'ui/api'
+import { CounterOptions, KeyType, KeyState } from 'ui/api'
 
 import { Fns } from 'util/fns'
 import { RateLimiter } from 'util/rate_limiter'
@@ -156,10 +157,14 @@ export class Jetpack extends Equip<Player> {
 		}
 	}
 
-	override getCounts() : Map<CounterType, number> {
-		return new Map([
-			[CounterType.JETPACK, Math.ceil(this._juice)],
-		]);
+	override getCounts() : Map<CounterType, CounterOptions> {
+		let counts = super.getCounts();
+		counts.set(CounterType.JETPACK, {
+			percentGone: 1 - this._juice / Jetpack._maxJuice,
+			count: this._juice,
+			color: ColorFactory.bazookaRed.toString(),
+		});
+		return counts;
 	}
 
 	private computeAcc(currentVel : number) : number {

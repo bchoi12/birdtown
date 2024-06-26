@@ -78,6 +78,18 @@ export enum TooltipType {
 	START_GAME,
 }
 
+export type CounterOptions = {
+	// Default to 0
+	percentGone? : number;
+
+	// Override count with text if set. Otherwise count = 0
+	count? : number;
+	text? : string;
+
+	// HTML color
+	color? : string;
+}
+
 export type TooltipOptions = {
 	ttl?: number;
 	names?: Array<string>;
