@@ -41,6 +41,17 @@ export enum FeedType {
 	SUICIDE,
 }
 
+export enum InfoType {
+	UNKNOWN,
+
+	DEATHS,
+	LIVES,
+	KILLS,
+	NAME,
+	PING,
+	SCORE,
+}
+
 export enum KeyType {
 	UNKNOWN,
 	LEFT,

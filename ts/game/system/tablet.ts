@@ -8,7 +8,7 @@ import { SystemType, ScoreType } from 'game/system/api'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
-import { AnnouncementType, FeedType } from 'ui/api'
+import { AnnouncementType, FeedType, InfoType } from 'ui/api'
 
 import { Optional } from 'util/optional'
 
@@ -50,9 +50,9 @@ export class Tablet extends ClientSystem implements System {
 			import: (obj: string) => { this.setColor(obj); },
 		});
 		this.addProp<number>({
-			has: () => { return this._lives.has(); },
-			export: () => { return this._lives.get(); },
-			import: (obj: number) => { this._lives.set(obj); },
+			has: () => { return this.hasLives(); },
+			export: () => { return this.lives(); },
+			import: (obj: number) => { this.setLives(obj); },
 		});
 
 		for (const stringScore in ScoreType) {
@@ -103,6 +103,8 @@ export class Tablet extends ClientSystem implements System {
 	setRoundScore(value : number) : void {
 		this._roundScore = value;
 		this._scoreChanged = false;
+
+		ui.updateInfo(this.clientId(), InfoType.SCORE, this._roundScore);
 	}
 
 	scores() : Map<ScoreType, number> { return this._scores; }
@@ -172,6 +174,8 @@ export class Tablet extends ClientSystem implements System {
 		initMsg.setClientId(this.clientId());
 		initMsg.setDisplayName(this.displayName());
 		ui.handleMessage(initMsg);
+
+		ui.updateInfo(this.clientId(), InfoType.NAME, this.displayName());
 	}
 	hasDisplayName() : boolean { return this._displayName.length > 0; }
 	displayName() : string { return (this.hasDisplayName() ? this._displayName : "unknown") + " #" + this.clientId(); }

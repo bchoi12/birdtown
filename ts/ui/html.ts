@@ -79,6 +79,10 @@ export namespace Html {
 	export function label() : HTMLElement { return document.createElement("label"); }
 	export function audio() : HTMLAudioElement { return <HTMLAudioElement>document.createElement("audio"); }
 	export function button() : HTMLButtonElement { return document.createElement("button"); }
+	export function table() : HTMLElement { return document.createElement("table"); }
+	export function td() : HTMLElement { return document.createElement("td"); }
+	export function th() : HTMLElement { return document.createElement("th"); }
+	export function tr() : HTMLElement { return document.createElement("tr"); }
 	export function icon() : HTMLElement { return document.createElement("i"); }
 	export function range() : HTMLInputElement {
 		let range = <HTMLInputElement>document.createElement("input");

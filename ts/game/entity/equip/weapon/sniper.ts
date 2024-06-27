@@ -90,7 +90,7 @@ export class Sniper extends Weapon {
 	override getCounts() : Map<CounterType, CounterOptions> {
 		let counts = super.getCounts();
 		counts.set(CounterType.CHARGE, {
-			percentGone: 1 - this.getCounter(CounterType.CHARGE) / Sniper._chargedThreshold,
+			percentGone: this.getCounter(CounterType.CHARGE) / Sniper._chargedThreshold,
 			text: this.charged() ? "1/1" : "0/1",
 			color: ColorFactory.boltDarkOrange.toString(),
 		});

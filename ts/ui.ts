@@ -6,7 +6,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { settings } from 'settings'
 
-import { AnnouncementType, CounterOptions, DialogType, KeyType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
+import { AnnouncementType, CounterOptions, DialogType, InfoType, KeyType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
 import { Handler } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 
@@ -168,6 +168,7 @@ class UI {
 	}
 
 	updateCounters(counters : Map<CounterType, CounterOptions>) : void { this._countersHandler.updateCounters(counters); }
+	updateInfo(id : number, type : InfoType, value : number | string) : void { this._scoreboardHandler.updateInfo(id, type, value); }
 	pushDialog(type : DialogType) : void { this._dialogHandler.pushDialog(type); }
 	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }
 
