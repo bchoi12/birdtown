@@ -9,6 +9,7 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 	private static readonly _order = new Array(
 		InfoType.NAME,
 		InfoType.SCORE,
+		InfoType.VICTORIES,
 		InfoType.LIVES,
 		InfoType.KILLS,
 		InfoType.DEATHS,
@@ -22,6 +23,7 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 		[InfoType.KILLS, "Kills"],
 		[InfoType.DEATHS, "Deaths"],
 		[InfoType.PING, "Ping"],
+		[InfoType.VICTORIES, "Wins"],
 	]);
 
 	private _headerElm : HTMLElement;
@@ -30,6 +32,8 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 
 	constructor() {
 		super(Html.table());
+
+		this.elm().classList.add(Html.classInfoTable);
 
 		this._headerElm = Html.tr();
 		this._headerCells = new Map();
@@ -57,10 +61,48 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 			this.sort();
 		}
 
-		this._headerCells.get(type).style.display = "table-cell";
+		let headerCell = this._headerCells.get(type);
+		headerCell.style.display = "table-cell";
+
+		if (type === InfoWrapper._order[0]) {
+			headerCell.style.textAlign = "left";
+		} else {
+			headerCell.style.textAlign = "right";
+		}
 
 		let row = this._rows.get(id);
 		row.updateCell(type, value);
+	}
+
+	clearInfo(id : number, type : InfoType) : void {
+		if (!this._rows.has(id)) {
+			console.error("Warning: not clearing %s for %d", InfoType[type], id);
+			return;
+		}
+
+		let row = this._rows.get(id);
+		row.clearContent(type);
+
+		let hideColumn = true;
+		for (const [unusedId, row] of Object.entries(this._rows)) {
+			if (row.hasContent(type)) {
+				hideColumn = false;
+				break;
+			}
+		}
+
+		if (hideColumn) {
+			this.hideColumn(type);
+		}
+	}
+
+	private hideColumn(type : InfoType) : void {
+		let headerCell = this._headerCells.get(type);
+		headerCell.style.display = "none";
+
+		this._rows.forEach((row : InfoRowWrapper) => {
+			row.hideCell(type);
+		});
 	}
 
 	private sort() : void {

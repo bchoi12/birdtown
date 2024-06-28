@@ -3,14 +3,16 @@ import { ui } from 'ui'
 import { TooltipType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 
-import { defined } from 'util/common'
+import { Optional } from 'util/optional'
 
 export class TooltipWrapper extends HtmlWrapper<HTMLElement> {
 
-	private _timeoutId : number;
+	private _timeoutId : Optional<number>;
 
 	constructor() {
 		super(Html.div());
+
+		this._timeoutId = new Optional();
 
 		this.elm().classList.add(Html.classTooltip);
 
@@ -20,13 +22,13 @@ export class TooltipWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	setTTL(ttl : number, onDelete : () => void) : void {
-		if (defined(this._timeoutId)) {
-			window.clearTimeout(this._timeoutId);
+		if (this._timeoutId.has()) {
+			window.clearTimeout(this._timeoutId.get());
 		}
 
-		this._timeoutId = window.setTimeout(() => {
+		this._timeoutId.set(window.setTimeout(() => {
 			this.delete(onDelete);
-		}, ttl);
+		}, ttl));
 	}
 
 	delete(onDelete : () => void) : void {

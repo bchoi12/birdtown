@@ -14,6 +14,7 @@ import { InfoWrapper } from 'ui/wrapper/info_wrapper'
 export class ScoreboardHandler extends HandlerBase implements Handler {
 
 	private _scoreboardElm : HTMLElement;
+	private _containerElm : HTMLElement;
 	private _infoWrapper : InfoWrapper;
 
 	constructor() {
@@ -21,8 +22,12 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 
 		this._scoreboardElm = Html.elm(Html.divScoreboard);
 
+		this._containerElm = Html.div();
+		this._containerElm.classList.add(Html.classDialogContainer);
+		this._scoreboardElm.appendChild(this._containerElm);
+
 		this._infoWrapper = new InfoWrapper();
-		this._scoreboardElm.appendChild(this._infoWrapper.elm());
+		this._containerElm.appendChild(this._infoWrapper.elm());
 	}
 
 	override setup() : void {
@@ -44,6 +49,9 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 
 	updateInfo(id : number, type : InfoType, value : number | string) : void {
 		this._infoWrapper.updateInfo(id, type, value);
+	}
+	clearInfo(id : number, type : InfoType) : void {
+		this._infoWrapper.clearInfo(id, type);
 	}
 
 	private show() : void {

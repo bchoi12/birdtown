@@ -7,12 +7,12 @@ import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { System, ClientSystem } from 'game/system'
-import { SystemType, PlayerRole, ScoreType } from 'game/system/api'
+import { SystemType, PlayerRole } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
-import { DialogType, FeedType, KeyType, KeyState, TooltipType } from 'ui/api'
+import { DialogType, FeedType, KeyType, KeyState, InfoType, TooltipType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 import { Timer} from 'util/timer'
@@ -166,7 +166,7 @@ export class PlayerState extends ClientSystem implements System {
 
 			if (hasDamager && game.tablets().hasTablet(damager.clientId())) {
 				const damagerTablet = game.tablet(damager.clientId())
-				damagerTablet.addScore(ScoreType.KILL, 1);
+				damagerTablet.addInfo(InfoType.KILLS, 1);
 
 				let feed = new GameMessage(GameMessageType.FEED);
 				feed.setFeedType(FeedType.KILL);

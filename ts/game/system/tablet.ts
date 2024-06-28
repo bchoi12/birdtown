@@ -3,7 +3,7 @@ import { game } from 'game'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 import { ClientSystem, System } from 'game/system'
-import { SystemType, ScoreType } from 'game/system/api'
+import { SystemType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 
@@ -14,30 +14,40 @@ import { Optional } from 'util/optional'
 
 export class Tablet extends ClientSystem implements System {
 
+/*
+export enum InfoType {
+	UNKNOWN,
+
+	DEATHS,
+	LIVES,
+	KILLS,
+	NAME,
+	PING,
+	SCORE,
+}
+*/
+
 	private static readonly _roundResetTypes = new Set([
-		ScoreType.DEATH,
-		ScoreType.KILL,
+		InfoType.DEATHS,
+		InfoType.KILLS,
+		InfoType.LIVES,
+		InfoType.SCORE,
 	]);
 
 	private static readonly _displayNameMaxLength = 16;
 
-	private _roundScore : number;
-
 	private _color : string;
-	private _lives : Optional<number>;
 	private _displayName : string;
-	private _scores : Map<ScoreType, number>;
-	private _scoreChanged : boolean;
+	private _infoMap : Map<InfoType, number>;
 
 	constructor(clientId : number) {
 		super(SystemType.TABLET, clientId);
 
-		this._roundScore = 0;
 		this._color = "";
-		this._lives = Optional.empty(0);
 		this._displayName = "";
-		this._scores = new Map();
-		this._scoreChanged = false;
+		this._infoMap = new Map();
+
+		this.resetRound();
 
 		this.addProp<string>({
 			has: () => { return this._displayName.length > 0; },
@@ -49,22 +59,17 @@ export class Tablet extends ClientSystem implements System {
 			export: () => { return this._color; },
 			import: (obj: string) => { this.setColor(obj); },
 		});
-		this.addProp<number>({
-			has: () => { return this.hasLives(); },
-			export: () => { return this.lives(); },
-			import: (obj: number) => { this.setLives(obj); },
-		});
 
-		for (const stringScore in ScoreType) {
-			const scoreType = Number(ScoreType[stringScore]);
+		for (const stringScore in InfoType) {
+			const scoreType = Number(InfoType[stringScore]);
 			if (Number.isNaN(scoreType) || scoreType <= 0) {
 				continue;
 			}
 
 			this.addProp<number>({
-				has: () => { return this.hasScore(scoreType); },
-				export: () => { return this.score(scoreType); },
-				import: (obj : number) => { this.setScore(scoreType, obj); },
+				has: () => { return this.hasInfo(scoreType); },
+				export: () => { return this.getInfo(scoreType); },
+				import: (obj : number) => { this.setInfo(scoreType, obj); },
 			})
 		}
 	}
@@ -72,16 +77,12 @@ export class Tablet extends ClientSystem implements System {
 	override reset() : void {
 		super.reset();
 
-		this._roundScore = 0;
-		this._scores.forEach((score : number, type : ScoreType) => {
-			this._scores.set(type, 0);
-		});
+		this._infoMap.clear();
+		this.resetRound();
 	}
 	resetRound() : void {
-		Tablet._roundResetTypes.forEach((type : ScoreType) => {
-			if (this.hasScore(type)) {
-				this.setScore(type, 0);
-			}
+		Tablet._roundResetTypes.forEach((type : InfoType) => {
+			this.setInfo(type, 0);
 		});
 	}
 
@@ -98,24 +99,38 @@ export class Tablet extends ClientSystem implements System {
 
 	isSetup() : boolean { return this.hasDisplayName() && !this.deleted(); }
 
-	scoreChanged() : boolean { return this._scoreChanged; }
-	roundScore() : number { return this._roundScore; }
-	setRoundScore(value : number) : void {
-		this._roundScore = value;
-		this._scoreChanged = false;
+	infoMap() : Map<InfoType, number> { return this._infoMap; }
+	getInfo(type : InfoType) : number { return this.hasInfo(type) ? this._infoMap.get(type) : 0; }
+	hasInfo(type : InfoType) : boolean { return this._infoMap.has(type); }
+	setInfo(type : InfoType, value : number) : void {
+		this._infoMap.set(type, value);
 
-		ui.updateInfo(this.clientId(), InfoType.SCORE, this._roundScore);
+		ui.updateInfo(this.clientId(), type, value);
+
+		if (type === InfoType.KILLS) {
+			this.setInfo(InfoType.SCORE, value);
+		}
+	}
+	addInfo(type : InfoType, delta : number) : void {
+		this.setInfo(type, (this.hasInfo(type) ? this.getInfo(type) : 0) + delta);
+	}
+	clearInfo(type : InfoType) : void {
+		this._infoMap.delete(type);
+		ui.clearInfo(this.clientId(), type);
 	}
 
-	scores() : Map<ScoreType, number> { return this._scores; }
-	score(type : ScoreType) : number { return this.hasScore(type) ? this._scores.get(type) : 0; }
-	hasScore(type : ScoreType) : boolean { return this._scores.has(type); }
-	setScore(type : ScoreType, value : number) : void {
-		this._scores.set(type, value);
-		this._scoreChanged = true;
-	}
-	addScore(type : ScoreType, delta : number) : void {
-		this.setScore(type, (this.hasScore(type) ? this.score(type) : 0) + delta);
+	outOfLives() : boolean { return this.hasInfo(InfoType.LIVES) && this.getInfo(InfoType.LIVES) <= 0; }
+	loseLife() : void {
+		this.addInfo(InfoType.DEATHS, 1);		
+
+		if (!this.hasInfo(InfoType.LIVES)) {
+			return;
+		}
+		if (this.outOfLives()) {
+			console.error("Error: lost a life at when out of lives for %s", this.name());
+			return;
+		}
+		this.addInfo(InfoType.LIVES, -1);
 	}
 
 	hasColor() : boolean { return this._color.length > 0; }
@@ -127,24 +142,6 @@ export class Tablet extends ClientSystem implements System {
 		this._color = color;
 	}
 	color() : string { return this.hasColor() ? this._color : ColorFactory.playerColor(this.clientId()).toString(); }
-
-	hasLives() : boolean { return this._lives.has(); }
-	setLives(lives : number) : void { this._lives.set(lives); }
-	lives() : number { return this._lives.get(); }
-	outOfLives() : boolean { return this.hasLives() && this.lives() <= 0; }
-	loseLife() : void {
-		this.addScore(ScoreType.DEATH, 1);		
-
-		if (!this.hasLives()) {
-			return;
-		}
-		if (this.outOfLives()) {
-			console.error("Error: lost a life at when out of lives for %s", this.name());
-			return;
-		}
-		this.setLives(this.lives() - 1);
-	}
-	clearLives() : void { this._lives.clear(); }
 
 	setDisplayName(displayName : string) : void {
 		if (displayName.length === 0) {

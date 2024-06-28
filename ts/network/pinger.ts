@@ -1,10 +1,14 @@
 
+import { game } from 'game'
+
 import { ChannelType } from 'network/api'
 import { Netcode } from 'network/netcode'
 import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { defined } from 'util/common'
 import { NumberRingBuffer } from 'util/buffer/number_ring_buffer'
+
+import { InfoType } from 'ui/api'
 
 type PingData = {
 	seqNum : number;
@@ -32,7 +36,7 @@ export class Pinger {
 		this._lastReceivedTime = new Map();
 	}
 
-	ping() : number { return this._pingTimes.average(); }
+	ping() : number { return Math.ceil(this._pingTimes.average()); }
 	pingLoss() : number { return this._pingLoss.average(); }
 
 	// TODO: change to disconnected
@@ -65,6 +69,10 @@ export class Pinger {
 
 			this._pingLoss.push(0);
 			this._pingTimes.push(Date.now() - this._lastSentTime);
+
+			if (game.tablets().hasTablet(client.clientId())) {
+				game.tablet(client.clientId()).setInfo(InfoType.PING, this.ping());
+			}
 		});
 
 		this.pingLoop(client, client.hostName(), Pinger._pingInterval);

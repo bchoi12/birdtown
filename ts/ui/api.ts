@@ -50,6 +50,7 @@ export enum InfoType {
 	NAME,
 	PING,
 	SCORE,
+	VICTORIES,
 }
 
 export enum KeyType {

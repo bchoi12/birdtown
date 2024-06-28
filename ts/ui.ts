@@ -25,7 +25,7 @@ import { SettingsHandler } from 'ui/handler/settings_handler'
 import { StatsHandler } from 'ui/handler/stats_handler'
 import { TooltipHandler } from 'ui/handler/tooltip_handler'
 
-import { defined, isLocalhost } from 'util/common'
+import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -169,6 +169,7 @@ class UI {
 
 	updateCounters(counters : Map<CounterType, CounterOptions>) : void { this._countersHandler.updateCounters(counters); }
 	updateInfo(id : number, type : InfoType, value : number | string) : void { this._scoreboardHandler.updateInfo(id, type, value); }
+	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }
 	pushDialog(type : DialogType) : void { this._dialogHandler.pushDialog(type); }
 	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }
 

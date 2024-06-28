@@ -63,11 +63,3 @@ export enum PlayerRole {
 	// Player is actively participating in the game
 	GAMING,
 }
-
-export enum ScoreType {
-	UNKNOWN,
-
-	DEATH,
-	KILL,
-	VICTORY,
-}

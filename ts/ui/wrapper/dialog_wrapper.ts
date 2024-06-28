@@ -15,19 +15,6 @@ type OnSubmitFn = () => void;
 
 export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
-	private static readonly _containerCss = `
-		margin: 0em 2em;
-	`
-
-	private static readonly _titleCss = `
-		padding: 0.3em;
-	`
-
-	private static readonly _contentCss = `
-	    overflow-y: scroll;
-	    padding: 0em 1em;
-	`
-
 	private _containerElm : HTMLElement;
 	private _titleElm : HTMLElement;
 	private _contentElm : HTMLElement;
@@ -46,17 +33,14 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._containerElm = Html.div();
 		this._containerElm.classList.add(Html.classDialogContainer);
-		this._containerElm.style.cssText = DialogWrapper._containerCss;
 		this.elm().appendChild(this._containerElm);
 
 		this._titleElm = Html.div();
 		this._titleElm.classList.add(Html.classDialogTitle);
-		this._titleElm.style.cssText = DialogWrapper._titleCss;
 		this._containerElm.appendChild(this._titleElm);
 
 		this._contentElm = Html.div();
-		this._contentElm.style.cssText = DialogWrapper._contentCss;
-
+		this._contentElm.classList.add(Html.classDialogContent);
 		this._containerElm.appendChild(this._contentElm);
 
 		this._footer = new FooterWrapper();

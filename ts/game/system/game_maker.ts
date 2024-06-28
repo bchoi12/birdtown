@@ -5,7 +5,7 @@ import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { SystemBase, System } from 'game/system'
-import { SystemType, LevelType, LevelLayout, PlayerRole, ScoreType } from 'game/system/api'
+import { SystemType, LevelType, LevelLayout, PlayerRole } from 'game/system/api'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
@@ -15,7 +15,7 @@ import { GameMessage, GameMessageType} from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
 
 import { ui } from 'ui'
-import { AnnouncementType, DialogType } from 'ui/api'
+import { AnnouncementType, DialogType, InfoType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -138,7 +138,7 @@ export class GameMaker extends SystemBase implements System {
 				}
 			} else if (this._config.hasPoints()) {
 				this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
-					return tablet.roundScore() >= this._config.getPoints();
+					return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints();
 				});
 				if (this._winners.length >= 1) {
 					return GameState.FINISH;
@@ -149,7 +149,7 @@ export class GameMaker extends SystemBase implements System {
 			if (this.timeLimitReached(current)) {
 				if (this._config.hasVictories()) {
 					this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
-						return tablet.score(ScoreType.VICTORY) >= this._config.getVictories();
+						return tablet.getInfo(InfoType.VICTORIES) >= this._config.getVictories();
 					});
 					if (this._winners.length >= 1) {
 						return GameState.VICTORY;
@@ -197,9 +197,9 @@ export class GameMaker extends SystemBase implements System {
 			game.tablets().execute<Tablet>((tablet : Tablet) => {
 				tablet.resetRound();
 				if (this._config.hasLives()) {
-					tablet.setLives(this._config.getLives());
+					tablet.setInfo(InfoType.LIVES, this._config.getLives());
 				} else {
-					tablet.clearLives();
+					tablet.clearInfo(InfoType.LIVES);
 				}
 			});
 
@@ -211,7 +211,7 @@ export class GameMaker extends SystemBase implements System {
 			break;
 		case GameState.FINISH:
 			this._winners.forEach((tablet : Tablet) => {
-				tablet.addScore(ScoreType.VICTORY, 1);
+				tablet.addInfo(InfoType.VICTORIES, 1);
 			});
 
 	    	let winnerMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);

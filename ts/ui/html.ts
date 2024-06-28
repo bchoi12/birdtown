@@ -56,9 +56,12 @@ export namespace Html {
 	export const classCounter = "counter";
 	export const classDialog = "dialog";
 	export const classDialogContainer = "dialog-container";
+	export const classDialogContent = "dialog-content";
 	export const classDialogPage = "dialog-page";
 	export const classDialogTitle = "dialog-title";
 	export const classFeed = "feed";
+	export const classFooter = "footer";
+	export const classInfoTable = "info-table";
 	export const classSetting = "setting";
 	export const classSettingLabel = "setting-label";
 	export const classSettingValue = "setting-value";
