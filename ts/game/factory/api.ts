@@ -81,6 +81,7 @@ export enum MeshType {
 	ARCH_ROOM,
 	ARCH_ROOF,
 	ARCH_BALCONY,
+	BILLBOARD,
 	CRATE,
 
 	PLANE,

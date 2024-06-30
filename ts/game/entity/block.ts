@@ -21,7 +21,7 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { Cardinal, CardinalDir, CardinalType } from 'util/cardinal'
 import { HexColor } from 'util/hex_color'
 import { Optional } from 'util/optional'
-import { Vec, Vec2 } from 'util/vector'
+import { Vec, Vec2, Vec3 } from 'util/vector'
 
 enum MaterialProp {
 	UNKNOWN = "",
@@ -47,7 +47,7 @@ type MaterialFn = (material : BABYLON.StandardMaterial) => void;
 
 export abstract class Block extends EntityBase {
 
-	protected static readonly _minOpacity = 0.1;
+	protected static readonly _minOpacity = 0.15;
 	protected static readonly _transitionMillis = 300;
 	protected static readonly _minPenetrationSq = 0.1;
 	protected static readonly _backColorScale = 0.7;
@@ -103,7 +103,8 @@ export abstract class Block extends EntityBase {
 				MeshFactory.load(this.meshType(), (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					this.processMesh(mesh);
-					mesh.position.y = -this._profile.unscaledDim().y / 2;
+
+					model.translation().copyVec(this.meshOffset());
 					model.setMesh(mesh);
 				});
 			},
@@ -112,6 +113,7 @@ export abstract class Block extends EntityBase {
 	}
 
 	abstract meshType() : MeshType;
+	meshOffset() : Vec { return Vec3.zero(); }
 	abstract thickness() : number;
 
 	hasOpenings() : boolean { return this._cardinals.hasCardinal(CardinalType.OPENINGS); }
@@ -128,7 +130,7 @@ export abstract class Block extends EntityBase {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (this._transparentFrontMeshes.length === 0) {
+		if (this._frontMaterials.size === 0 && this._transparentFrontMeshes.length === 0) {
 			return;
 		}
 
@@ -145,9 +147,7 @@ export abstract class Block extends EntityBase {
 			return;
 		}
 
-		const targetProfile = target.profile();
-		const feet = targetProfile.pos().clone().sub({y: targetProfile.scaledDim().y / 2});
-		if (!this._profile.contains(feet)) {
+		if (!this._profile.contains(target.profile().pos())) {
 			return;
 		}
 
@@ -158,8 +158,8 @@ export abstract class Block extends EntityBase {
 		super.postPhysics(stepData);
 		const millis = stepData.millis;
 
-		this.setAttribute(AttributeType.OCCLUDED, this._transparent);
-		if (this._transparent) {
+		this.setAttribute(AttributeType.OCCLUDED, this.transparent());
+		if (this.transparent()) {
 			this._frontMaterials.forEach((name : string) => {
 				const cached = this._materialCache.get(name);
 				cached.material.alpha = Math.max(Block._minOpacity, cached.material.alpha - millis / Block._transitionMillis);

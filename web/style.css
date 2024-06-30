@@ -219,6 +219,7 @@ body {
 }
 
 .info-table {
+    margin: 0 auto;
 }
 
 #div-tooltips {

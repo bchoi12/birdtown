@@ -29,10 +29,14 @@ export enum SystemType {
 }
 
 export enum DepthType {
-	WALL = 2,
-	FLOOR = 1,
+	BACKGROUND = 4,
+	WALL = 3,
+	FLOOR = 2,
+	BEHIND = 1,
 	DEFAULT = 0,
 	PLAYER = -1,
+	FRONT = -2,
+	FOREGROUND = -3,
 }
 
 export enum LevelType {

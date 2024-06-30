@@ -68,6 +68,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 
 		if (mode === UiMode.GAME) {
 			this._chatElm.style.visibility = "visible";
+			this.hide();
 		}
 	}
 
@@ -97,13 +98,21 @@ export class ChatHandler extends HandlerBase implements Handler {
 		this._messageElm.style.visibility = "hidden";
 		this._messageInputElm.blur();
 
+		this.hide();
+	}
+
+	private hide(delay? : number) : void {
+		if (!delay) {
+			delay = ChatHandler._hideDelay;
+		}
+
 		if (this._hideTimeout.has()) {
 			window.clearTimeout(this._hideTimeout.get());
 		}
 
 		this._hideTimeout.set(window.setTimeout(() => {
 			this._chatElm.style.visibility = "hidden";
-		}, ChatHandler._hideDelay));
+		}, delay));
 	}
 
 	private flushMessage() : void {

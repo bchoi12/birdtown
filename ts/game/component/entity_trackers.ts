@@ -16,6 +16,11 @@ export class EntityTrackers extends ComponentBase implements Component {
 	}
 
 	trackEntity<T extends Entity>(type : EntityType, entity : T) : void {
+		if (!entity.allTypes().has(type)) {
+			console.error("Error: cannot track entity (not %s)", EntityType[type], entity);
+			return;
+		}
+
 		if (!this.hasEntityType(type)) {
 			this.addEntityTracker<T>(type);
 		}

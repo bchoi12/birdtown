@@ -232,7 +232,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: BodyFactory.playerDensity,
 					chamfer: {
-						radius: 0.05,
+						radius: 0.03,
 					},
 					friction: 0,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.PLAYER),
@@ -527,10 +527,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this.die();
 		}
 
-		if (this.isSource() || this.clientIdMatches()) {
-			this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.timeLeft() > Player._jumpGracePeriod / 2);
-		}
-
 		this._deadTracker.check();
 	}
 
@@ -631,6 +627,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._canDoubleJump = true;
 				this._canJumpTimer.start(Player._jumpGracePeriod);
 			}
+		}
+
+		if (this.isSource() || this.clientIdMatches()) {
+			this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.timeLeft() > Player._jumpGracePeriod / 2);
 		}
 
 		// Check for nearby interactables

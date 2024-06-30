@@ -94,6 +94,9 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: BodyFactory.defaultDensity,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.SOLID),
+					chamfer: {
+						radius: 0.05
+					},
 					render: {
 						fillStyle: ColorFactory.crateRed.toString(),
 					},

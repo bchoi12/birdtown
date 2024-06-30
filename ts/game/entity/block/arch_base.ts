@@ -5,6 +5,8 @@ import { EntityType } from 'game/entity/api'
 import { Block } from 'game/entity/block'
 import { ColorType } from 'game/factory/api'
 
+import { Vec } from 'util/vector'
+
 export abstract class ArchBase extends Block {
 
 	protected static readonly _doorHeight = 1.5;
@@ -15,6 +17,7 @@ export abstract class ArchBase extends Block {
 		this._allTypes.add(EntityType.ARCH_BLOCK);
 	}
 
+	override meshOffset() : Vec { return {y: -this.profile().scaledDim().y / 2}; }
 	override thickness() : number { return 0.5; }
 	override ready() { return super.ready() && this.hasOpenings() && this._hexColors.hasColor(ColorType.BASE) && this._hexColors.hasColor(ColorType.SECONDARY); }
 

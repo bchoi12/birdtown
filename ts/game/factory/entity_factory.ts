@@ -4,6 +4,7 @@ import { BackgroundArchRoom } from 'game/entity/background/background_arch_room'
 import { ArchBalcony } from 'game/entity/block/arch_balcony'
 import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
+import { Billboard } from 'game/entity/block/billboard'
 import { Floor } from 'game/entity/bound/floor'
 import { Wall } from 'game/entity/bound/wall'
 import { Cloud } from 'game/entity/cloud'
@@ -47,6 +48,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOF, (options : EntityOptions) => { return new ArchRoof(options); }],
 		[EntityType.BACKGROUND_ARCH_ROOM, (options : EntityOptions) => { return new BackgroundArchRoom(options); }],
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
+		[EntityType.BILLBOARD, (options : EntityOptions) => { return new Billboard(options); }],
 		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
 		[EntityType.BOOBY_BEAK, (options : EntityOptions) => { return new BoobyBeak(options); }],
@@ -84,6 +86,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOM, { x: 12, y: 6, z: 8 }],
 		[EntityType.ARCH_ROOF, { x: 12, y: 1, z: 8 }],
 		[EntityType.BACKGROUND_ARCH_ROOM, { x: 12, y: 6 }],
+		[EntityType.BILLBOARD, { x: 8, y: 6.4, z: 0.5 }],
 		[EntityType.BOLT, { x: 0.36, y: 0.12, z : 0.12 }],
 		[EntityType.PARTICLE_CUBE, { x: 1, y: 1, z: 1}],
 		[EntityType.PARTICLE_ENERGY_CUBE, { x: 1, y: 1, z: 1}],

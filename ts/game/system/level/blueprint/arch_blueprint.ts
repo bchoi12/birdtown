@@ -84,15 +84,18 @@ class Building {
 
 	private _initPos : Vec2;
 	private _pos : Vec2;
+	private _height : number;
 	private _blocks : Array<ArchBlueprintBlock>;
 
-	constructor(pos : Vec) {
+	constructor(pos : Vec, height : number) {
 		this._initPos = Vec2.fromVec(pos);
 		this._pos = this._initPos.clone();
+		this._height = height;
 		this._blocks = new Array();
 	}
 
 	initPos() : Vec2 { return this._initPos; }
+	height() : number { return this._height; }
 	numBlocks() : number { return this._blocks.length; }
 	hasBlock(i : number) : boolean { return i >= 0 && i < this._blocks.length; }
 	block(i : number) : ArchBlueprintBlock { return this._blocks[i]; }
@@ -170,6 +173,7 @@ export class ArchBlueprint extends Blueprint {
 
 	private _buildings : Array<Building>;
 	private _pos : Vec2;
+	private _maxHeight : number;
 
 	constructor(options : BlueprintOptions) {
 		super(options);
@@ -178,6 +182,7 @@ export class ArchBlueprint extends Blueprint {
 
 		this._buildings = new Array();
 		this._pos = Vec2.zero();
+		this._maxHeight = 0;
 	}
 
 	static baseType() : EntityType { return EntityType.ARCH_ROOM; }
@@ -205,6 +210,8 @@ export class ArchBlueprint extends Blueprint {
 		}
 	}
 
+	maxHeight() : number { return this._maxHeight; }
+
 	buildings() : Array<Building> { return this._buildings; }
 	numBuildings() : number { return this._buildings.length; }
 	hasBuilding(i : number) : boolean { return i >= 0 && i < this._buildings.length; }
@@ -221,6 +228,8 @@ export class ArchBlueprint extends Blueprint {
 		const prevHeight = i > 0 ? plans[i-1].height : 0;
 		const nextHeight = i < plans.length - 1 ? plans[i+1].height : 0;
 
+		this._maxHeight = Math.max(height, this._maxHeight);
+
 		if (this._buildings.length === 0) {
 			this._pos.x += ArchBlueprint.baseDim().x / 2;
 		} else {
@@ -232,7 +241,7 @@ export class ArchBlueprint extends Blueprint {
 			return;
 		}
 
-		let building = new Building(this._pos);
+		let building = new Building(this._pos, height);
 		const colors = ColorFactory.generateColorMap(ArchBlueprint.blockType(), this._buildings.length);
 		const options = {
 			hexColorsInit: {
@@ -306,16 +315,28 @@ export class ArchBlueprint extends Blueprint {
 			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
 				let block = building.block(j);
 
-				if (i === Math.floor(this.numBuildings() / 2) && block.type() === ArchBlueprint.roofType()) {
-					block.pushEntityOptions(EntityType.SIGN_START_GAME, {
-						profileInit: {
-							pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
-							dim: EntityFactory.getDimension(EntityType.SIGN),
-						},
-					});
-				} else {
-					this.rng().setChance(0.9, (n : number) => { return n - 0.3; });
-					block.addCrates(this.rng());
+				if (block.type() === ArchBlueprint.roofType()) {
+					console.log(building.numBlocks());
+
+					if (i === Math.floor(this.numBuildings() / 2)) {
+						block.pushEntityOptions(EntityType.SIGN_START_GAME, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
+								dim: EntityFactory.getDimension(EntityType.SIGN),
+							},
+						});
+					} else {
+						this.rng().setChance(1, (n : number) => { return n - 0.3; });
+						block.addCrates(this.rng());
+					}
+
+					if (building.height() === this.maxHeight()) {
+						block.pushEntityOptions(EntityType.BILLBOARD, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.BILLBOARD).y / 2 }),
+							}
+						});
+					}
 				}
 			}
 		}
@@ -333,6 +354,16 @@ export class ArchBlueprint extends Blueprint {
 
 				this.rng().setChance(0.5, (n : number) => { return n - 0.4; });
 				block.addCrates(this.rng());
+
+				if (block.type() === ArchBlueprint.roofType()) {
+					if (building.height() === 3 && this.rng().le(0.7) || building.height() === 2 && this.rng().le(0.2)) {
+						block.pushEntityOptions(EntityType.BILLBOARD, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.BILLBOARD).y / 2 }),
+							}
+						});
+					}
+				}
 			}
 		}
 	}
