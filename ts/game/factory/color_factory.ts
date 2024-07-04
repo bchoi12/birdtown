@@ -23,6 +23,8 @@ export namespace ColorFactory {
 	export const archPurple = HexColor.fromHex(0x910ffc);
 	export const archWhite = HexColor.fromHex(0xeeeeee);
 
+	export const archWood = HexColor.fromHex(0xa1662f);
+
 	export const archBackgroundRed = HexColor.fromHex(0xcc807a);
 	export const archBackgroundOrange = HexColor.fromHex(0xccab7a);
 	export const archBackgroundYellow = HexColor.fromHex(0xcccc7a);

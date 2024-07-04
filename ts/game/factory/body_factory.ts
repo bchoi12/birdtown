@@ -37,6 +37,17 @@ export namespace BodyFactory {
 		return MATTER.Bodies.circle(pos.x, pos.y, /*radius=*/dim.x / 2, {...defaultOptions, ...options});
 	}
 
+	export function parts(parts : MATTER.Body[], options? : Object) : MATTER.Body {
+		if (!defined(options)) {
+			options = {};
+		}
+		return MATTER.Body.create({
+			parts: parts,
+			...defaultOptions,
+			...options
+		});
+	}
+
 	export function neverCollideFilter() : Object {
 		return {
 			group: CollisionGroup.NEVER_COLLIDE,

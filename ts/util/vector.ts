@@ -72,6 +72,7 @@ export class Vec2 implements Vec {
         return xDist * xDist + yDist * yDist;
     }
     dist(other : Vec) : number { return Math.sqrt(this.distSq(other)); }
+    static lengthSq(vec : Vec) : number { return vec.x * vec.x + vec.y * vec.y; }
     lengthSq() : number { return this.x * this.x + this.y * this.y; }
     length() : number { return Math.sqrt(this.lengthSq()); }
     normalize() : Vec2 {
@@ -171,6 +172,11 @@ export class Vec2 implements Vec {
 
     dot(vec : Vec) : number { return this.x * vec.x + this.y * vec.y; }
 
+    sign() : Vec2 {
+        this.x = Math.sign(this.x);
+        this.y = Math.sign(this.y);
+        return this;
+    }
     negate() : Vec2 {
         this.x = -this.x;
         this.y = -this.y;
@@ -335,6 +341,7 @@ export class Vec3 extends Vec2 implements Vec {
         return super.distSq(other) + zDist;
     }
     override dist(other : Vec) : number { return Math.sqrt(this.distSq(other)); }
+    static override lengthSq(vec : Vec) : number { return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z; }
     override lengthSq() : number { return this.x * this.x + this.y * this.y + this.z * this.z; }
     override length() : number { return Math.sqrt(this.lengthSq()); }
     override normalize() : Vec3 {
@@ -355,7 +362,6 @@ export class Vec3 extends Vec2 implements Vec {
     override setLength(len : number) : Vec3 {
         return this.normalize().scale(len);
     }
-
 
     override add(vec : Vec) : Vec3 {
         super.add(vec);
@@ -385,6 +391,18 @@ export class Vec3 extends Vec2 implements Vec {
         }
         return this;
     }
+
+    override sign() : Vec3 {
+        super.sign();
+        this.z = Math.sign(this.z);
+        return this;
+    }
+    override negate() : Vec3 {
+        super.negate();
+        this.z = -this.z;
+        return this;
+    }
+
 
     override scale(s : number) : Vec3 {
         super.scale(s);

@@ -9,6 +9,7 @@ import { Floor } from 'game/entity/bound/floor'
 import { Wall } from 'game/entity/bound/wall'
 import { Cloud } from 'game/entity/cloud'
 import { Explosion } from 'game/entity/explosion'
+import { Pergola } from 'game/entity/pergola'
 import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
@@ -69,6 +70,7 @@ export namespace EntityFactory {
 		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],
 		[EntityType.PARTICLE_SPARK, (options : EntityOptions) => { return new ParticleSpark(options); }],
 		[EntityType.PARTICLE_SWEAT, (options : EntityOptions) => { return new ParticleSweat(options); }],
+		[EntityType.PERGOLA, (options : EntityOptions) => { return new Pergola(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
@@ -93,6 +95,7 @@ export namespace EntityFactory {
 		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],
 		[EntityType.PARTICLE_SPARK, { x: 1, y: 1, z: 1 }],
 		[EntityType.PARTICLE_SWEAT, { x: 1, y: 1, z: 1 }],
+		[EntityType.PERGOLA, { x: 4, y: 4, z: 4 }],
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],
 		[EntityType.ROCKET, { x: 0.3, y: 0.3, z: 0.3 }],

@@ -316,13 +316,16 @@ export class ArchBlueprint extends Blueprint {
 				let block = building.block(j);
 
 				if (block.type() === ArchBlueprint.roofType()) {
-					console.log(building.numBlocks());
-
 					if (i === Math.floor(this.numBuildings() / 2)) {
 						block.pushEntityOptions(EntityType.SIGN_START_GAME, {
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
 								dim: EntityFactory.getDimension(EntityType.SIGN),
+							},
+						});
+						block.pushEntityOptions(EntityType.PERGOLA, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.PERGOLA).y / 2 + 1 }),
 							},
 						});
 					} else {

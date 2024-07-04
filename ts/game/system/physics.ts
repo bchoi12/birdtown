@@ -75,20 +75,26 @@ export class Physics extends SystemBase implements System {
 		const entities = game.entities();
 		const collisions = MATTER.Detector.collisions(this._engine.detector);
 		collisions.forEach((collision) => {
-			if (!collision.pair) return;
-
-			const pair = collision.pair;
-			if (!pair.bodyA || !pair.bodyA.label || !pair.bodyB || !pair.bodyB.label) {
+			if (!collision.bodyA || !collision.bodyA.label || !collision.bodyB || !collision.bodyB.label) {
+				console.error("Error: pair missing body or label", collision);
 				return;
 			}
 
-			const idA = pair.bodyA.label;
-			const idB = pair.bodyB.label;
-			const [entityA, hasEntityA] = this.queryEntity(pair.bodyA);
-			const [entityB, hasEntityB] = this.queryEntity(pair.bodyB);
+			const idA = collision.bodyA.label;
+			const idB = collision.bodyB.label;
+			const [entityA, hasEntityA] = this.queryEntity(collision.bodyA);
+			const [entityB, hasEntityB] = this.queryEntity(collision.bodyB);
 
 			if (!hasEntityA || !hasEntityB) {
 				console.error("Error: skipping collision with missing entity", idA, hasEntityA, idB, hasEntityB);
+				return;
+			}
+
+			if (entityA.id() === entityB.id()) {
+				return;
+			}
+
+			if (entityA.deleted() || entityB.deleted()) {
 				return;
 			}
 
@@ -97,15 +103,8 @@ export class Physics extends SystemBase implements System {
 				return;
 			}
 
-			if (entityA.deleted() || entityB.deleted()) {
-				return;
-			}
-
-			if (entityA.id() === entityB.id()) {
-				return;
-			}
-
 			if (!entityA.hasProfile() || !entityB.hasProfile()) {
+				console.error("Error: one or more entities is missing a profile", entityA.name(), entityB.name());
 				return;
 			}
 
@@ -118,12 +117,8 @@ export class Physics extends SystemBase implements System {
 
 			entityA.collide(collision, entityB);
 
-			if (collision.penetration.x === 0 && collision.penetration.y === 0) {
-				return;
-			}
-
 			// Create a partial record for the backwards collision. Only set fields are supported.
-			let reverseCollision = MATTER.Collision.create(pair.bodyB, pair.bodyA);
+			let reverseCollision = MATTER.Collision.create(collision.bodyB, collision.bodyA);
 			reverseCollision.collided = true;
 			reverseCollision.normal.x = -1 * collision.normal.x;
 			reverseCollision.normal.y = -1 * collision.normal.y;

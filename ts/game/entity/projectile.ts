@@ -12,6 +12,7 @@ import { Vec2 } from 'util/vector'
 
 export abstract class Projectile extends EntityBase {
 
+	protected _collisions : Array<[MATTER.Collision, Entity]>;
 	protected _hits : Set<number>;
 
 	protected _association : Association;
@@ -21,6 +22,7 @@ export abstract class Projectile extends EntityBase {
 		super(entityType, entityOptions);
 		this.addType(EntityType.PROJECTILE);
 
+		this._collisions = new Array();
 		this._hits = new Set();
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
@@ -47,39 +49,69 @@ export abstract class Projectile extends EntityBase {
 		super.collide(collision, other);
 
 		if (this.canHit(collision, other)) {
-			this.hit(collision, other);
+			this._collisions.push([collision, other]);
 		}
 	}
 
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
 
-		if (this.hits().size === 0) {
+		if (this._collisions.length === 0) {
 			return;
 		}
 
-		this.onHit();
+		let bestDot = 0;
+		let firstCollision = null;
+		for (let i = 0; i < this._collisions.length; ++i) {
+			const collision = this._collisions[i];
+			const dot = Math.abs(Vec2.fromVec(collision[0].penetration).dot(this.profile().vel()));
+ 
+ 			// Pick first collision
+			if (firstCollision === null) {
+				bestDot = dot;
+				firstCollision = collision;
+			} else if (bestDot > 0) {
+				// Projectile went past object
+				if (dot > bestDot) {
+					bestDot = dot;
+					firstCollision = collision;	
+				}
+			} else {
+				if (dot < bestDot) {
+					bestDot = dot;
+					firstCollision = collision;
+				}
+			}
+		}
+
+		if (firstCollision !== null) {
+			this.hit(firstCollision[0], firstCollision[1]);
+			this.onHit();
+		}
+
+		this._collisions = [];
 	}
 
 	hits() : Set<number> { return this._hits; }
 
 	protected canHit(collision : MATTER.Collision, other : Entity) : boolean {
+		if (this._hits.has(other.id())) {
+			return false;
+		}
 		if (other.getAttribute(AttributeType.INVINCIBLE)) {
 			return false;
 		}
 		if (this.matchAssociations([AssociationType.OWNER], other)) {
 			return false;
 		}
-		return other.getAttribute(AttributeType.SOLID);
+		return true;
 	}
 	protected hit(collision : MATTER.Collision, other : Entity) : void {
-		if (this._hits.has(other.id())) {
-			return;
-		}
-
-		// Snap to bound
-		if (this.hasProfile() && other.allTypes().has(EntityType.BOUND)) {
-			this.profile().snapTo(other.profile(), /*limit=*/1);
+		if (this.hasProfile()) {
+			// Snap to solids
+			if (other.getAttribute(AttributeType.SOLID)) {
+				this.profile().snapTo(other.profile(), /*limit=*/1);
+			}
 		}
 
 		if (this.hitDamage() !== 0) {

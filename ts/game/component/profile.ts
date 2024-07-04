@@ -550,6 +550,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 	attachTo(profile : Profile, offset : Vec) : boolean {
 		if (!profile.initialized()) {
+			console.error("Error: cannot attach %s to uninitialized %s", this.name(), profile.name());
 			return false;
 		}
 
