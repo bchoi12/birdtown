@@ -104,7 +104,7 @@ export class Model extends ComponentBase implements Component {
 
 		this._options.meshFn(this);
 
-		if (this._options.init && !this._options.init.disableShadows) {
+		if (!this._options.init || !this._options.init.disableShadows) {
 			this.onLoad((loaded : Model) => {
 				game.world().renderShadows(loaded.mesh());
 			});
