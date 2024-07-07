@@ -323,11 +323,6 @@ export class ArchBlueprint extends Blueprint {
 								dim: EntityFactory.getDimension(EntityType.SIGN),
 							},
 						});
-						block.pushEntityOptions(EntityType.PERGOLA, {
-							profileInit: {
-								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.PERGOLA).y / 2 + 1 }),
-							},
-						});
 					} else {
 						this.rng().setChance(1, (n : number) => { return n - 0.3; });
 						block.addCrates(this.rng());
@@ -359,12 +354,37 @@ export class ArchBlueprint extends Blueprint {
 				block.addCrates(this.rng());
 
 				if (block.type() === ArchBlueprint.roofType()) {
-					if (building.height() === 3 && this.rng().le(0.7) || building.height() === 2 && this.rng().le(0.2)) {
-						block.pushEntityOptions(EntityType.BILLBOARD, {
-							profileInit: {
-								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.BILLBOARD).y / 2 }),
-							}
-						});
+					const next = this.rng().next();
+					if (building.height() === 3) {
+						if (next <= 0.7) {
+							block.pushEntityOptions(EntityType.BILLBOARD, {
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.BILLBOARD).y / 2 }),
+								}
+							});
+						}
+					} else if (building.height() === 2) {
+						if (next <= 0.2) {
+							block.pushEntityOptions(EntityType.BILLBOARD, {
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.BILLBOARD).y / 2 }),
+								}
+							});
+						} else if (next <= 0.6) {
+							block.pushEntityOptions(EntityType.PERGOLA, {
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.PERGOLA).y / 2 + 1}),
+								},
+							});
+						}
+					} else if (building.height() === 1) {
+						if (next <= 0.4) {
+							block.pushEntityOptions(EntityType.PERGOLA, {
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.PERGOLA).y / 2 + 1}),
+								},
+							});
+						}
 					}
 				}
 			}
