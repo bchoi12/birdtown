@@ -125,6 +125,7 @@ export abstract class GameObjectBase {
 	protected _deleted : boolean;
 	protected _disposed : boolean;
 	protected _state : GameObjectState;
+	protected _updateCalls : number;
 	protected _readyCalls : number;
 
 	protected _data : GameData;
@@ -148,6 +149,7 @@ export abstract class GameObjectBase {
 		this._disposed = false;
 		this._readyCalls = 0;
 		this._state = GameObjectState.NORMAL;
+		this._updateCalls = 0;
 		this._readyCalls = 0;
 
 		this._data = new GameData();
@@ -260,6 +262,7 @@ export abstract class GameObjectBase {
 	}
 	disposed() : boolean { return this._disposed; }
 
+	protected updateCalls() : number { return this._updateCalls; }
 	canStep() : boolean { return this.initialized() && this.state() !== GameObjectState.DEACTIVATED && !this.deleted(); }
 	preUpdate(stepData : StepData) : void {
 		const millis = stepData.millis;
@@ -267,6 +270,9 @@ export abstract class GameObjectBase {
 			timer.elapse(millis);
 		});
 
+		if (this.initialized()) {
+			this._updateCalls++;
+		}
 		this.updateObjects((obj : GameObject) => {
 			if (!obj.initialized() && obj.ready()) {
 				obj.initialize();

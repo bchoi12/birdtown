@@ -86,7 +86,6 @@ export abstract class Projectile extends EntityBase {
 
 		if (firstCollision !== null) {
 			this.hit(firstCollision[0], firstCollision[1]);
-			this.onHit();
 		}
 
 		this._collisions = [];
@@ -108,8 +107,13 @@ export abstract class Projectile extends EntityBase {
 	}
 	protected hit(collision : MATTER.Collision, other : Entity) : void {
 		if (this.hasProfile()) {
-			// Snap to solids
-			if (other.getAttribute(AttributeType.SOLID)) {
+			let correction = Vec2.fromVec(collision.penetration);
+			correction.x = -Math.sign(this.profile().vel().x) * Math.abs(correction.x);
+			correction.y = -Math.sign(this.profile().vel().y) * Math.abs(correction.y);
+			this.profile().pos().sub(correction);
+
+			// Snap to bounds
+			if (other.allTypes().has(EntityType.BOUND)) {
 				this.profile().snapTo(other.profile(), /*limit=*/1);
 			}
 		}
@@ -118,6 +122,7 @@ export abstract class Projectile extends EntityBase {
 			other.takeDamage(this.hitDamage(), this);
 		}
 		this._hits.add(other.id());
+		this.onHit();
 	}
 
 	protected explode(entityOptions? : EntityOptions) : void {

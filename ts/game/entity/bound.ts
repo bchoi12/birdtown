@@ -1,7 +1,7 @@
 
 import { ComponentType, AttributeType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
-import { Profile } from 'game/component/profile'
+import { Profile, MinimapOptions } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { CollisionCategory } from 'game/factory/api'
@@ -24,9 +24,6 @@ export abstract class Bound extends EntityBase implements Entity {
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
-					chamfer: {
-						radius: 0.03,
-					},
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.BOUND),
 				});
 			},
@@ -35,12 +32,8 @@ export abstract class Bound extends EntityBase implements Entity {
 		this._profile.setRenderNever();
 	}
 
-	protected setMinimapRender(color : string, depthType : DepthType) : void {
-		this._profile.onBody((profile : Profile) => {
-			profile.body().render.fillStyle = color;
-			profile.body().render.strokeStyle = color;
-			profile.body().plugin.zIndex = depthType;
-		});
+	protected setMinimapOptions(options : MinimapOptions) : void {
+		this._profile.setMinimapOptions(options);
 		this._profile.setRenderUnoccluded();
 	}
 }

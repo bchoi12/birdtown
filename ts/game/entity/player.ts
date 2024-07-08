@@ -231,9 +231,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: BodyFactory.playerDensity,
-					chamfer: {
-						radius: 0.03,
-					},
 					friction: 0,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.PLAYER),
 					plugin: {
@@ -604,12 +601,17 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (this._entityTrackers.hasEntityType(EntityType.BUBBLE)
-			&& other.getAttribute(AttributeType.SOLID)
-			&& other.type() !== EntityType.PLAYER) {
-			this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).execute((bubble : Bubble) => {
-				bubble.pop();
-			});
+		if (other.getAttribute(AttributeType.SOLID) && collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 1e-2) {
+			this._canJump = true;
+			this._canDoubleJump = true;
+			this._canJumpTimer.start(Player._jumpGracePeriod);
+
+			if (this._entityTrackers.hasEntityType(EntityType.BUBBLE)
+				&& other.type() !== EntityType.PLAYER) {
+				this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).execute((bubble : Bubble) => {
+					bubble.pop();
+				});
+			}
 		}
 	}
 
@@ -617,18 +619,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		super.postPhysics(stepData);
 
 		const millis = stepData.millis;
-
-		const buffer = this._profile.collisionBuffer();
-		if (buffer.hasRecords()) {
-			const record = buffer.record(RecordType.MAX_NORMAL_Y);
-
-			if (record.collision.normal.y > 0.8 && this._profile.overlap(record.entity.profile()).x > 0) {
-				this._canJump = true;
-				this._canDoubleJump = true;
-				this._canJumpTimer.start(Player._jumpGracePeriod);
-			}
-		}
-
 		if (this.isSource() || this.clientIdMatches()) {
 			this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.timeLeft() > Player._jumpGracePeriod / 2);
 		}

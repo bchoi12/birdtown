@@ -15,13 +15,10 @@ import { CollisionCategory, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
-
-import { settings } from 'settings'
+import { DepthType } from 'game/system/api'
 
 import { ui } from 'ui'
-import { KeyType, KeyState, TooltipType } from 'ui/api'
-
-import { Optional } from 'util/optional'
+import { TooltipType } from 'ui/api'
 
 export abstract class Sign extends Interactable implements Entity, EquipEntity {
 

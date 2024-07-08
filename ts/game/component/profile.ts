@@ -9,6 +9,7 @@ import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
+import { DepthType } from 'game/system/api'
 import { CollisionBuffer, RecordType } from 'game/util/collision_buffer'
 
 import { settings } from 'settings'
@@ -55,6 +56,11 @@ export type MoveToParams = {
 	millis : number;
 	posEpsilon : number;
 	maxAccel : number;
+}
+
+export type MinimapOptions = {
+	color : string;
+	depthType? : DepthType;
 }
 
 enum RenderMode {
@@ -337,6 +343,16 @@ export class Profile extends ComponentBase implements Component {
 	setRenderAlways() : void { this.setRenderMode(RenderMode.ALWAYS); }
 	setRenderUnoccluded() : void { this.setRenderMode(RenderMode.CHECK_OCCLUSION); }
 	setRenderNever() : void { this.setRenderMode(RenderMode.NEVER); }
+	setMinimapOptions(options : MinimapOptions) : void {
+		this.onBody((profile : Profile) => {
+			profile.body().render.fillStyle = options.color;
+			profile.body().render.strokeStyle = options.color;
+
+			if (options.depthType) {
+				profile.body().plugin.zIndex = options.depthType;
+			}
+		});
+	}
 	private setRenderMode(mode : RenderMode) : void {
 		if (this._renderMode === mode) {
 			return;
@@ -803,7 +819,7 @@ export class Profile extends ComponentBase implements Component {
 			this.applyForces();
 			this.applyLimits();
 
-			if (this.hasVel()) {
+			if (this.updateCalls() > 1 && this.hasVel()) {
 				MATTER.Body.setVelocity(this._body, this.vel());
 			}
 
@@ -830,7 +846,7 @@ export class Profile extends ComponentBase implements Component {
 
 		// Find overlap of rectangle bounding boxes.
 		// Skip attached profiles since it doesn't matter.
-		if (other.allTypes().has(EntityType.BOUND) && otherProfile.body().isStatic && !this._attachId.has()) {
+		if (other.allTypes().has(EntityType.BOUND) && !this._attachId.has()) {
 			let overlap = this.overlap(other.profile());
 			let vel = this.vel();
 			const yCollision = this.isYCollision(overlap, vel);
@@ -843,34 +859,32 @@ export class Profile extends ComponentBase implements Component {
 					// Moving away from the collision
 					pen.scale(0);
 					fixed = true;
-				} else if (Math.abs(overlap.x) < 0.04 || Math.abs(normal.x) > 0.99) {
+				} else if (Math.abs(overlap.x) < 0.01 || Math.abs(normal.x) > 0.99) {
 					// Either overlap in other dimension is too small or collision direction is in disagreement.
 					pen.scale(0);
 					fixed = true;
 				}
 			} else {
-				pen.y = 0;
-				normal.x = Math.sign(normal.x);
-				normal.y = 0;
-
-				if (Math.sign(vel.x) === Math.sign(this.pos().x - otherProfile.pos().x)) {
-					// Moving away from the collision
-					pen.scale(0);
-					fixed = true;
-				} if (Math.abs(overlap.y) < 0.04 || Math.abs(normal.y) > 0.99) {
-					// Either overlap in other dimension is too small or collision direction is in disagreement.
-					pen.scale(0);
-					fixed = true;
-				}
-			}
-
-			if (other.allTypes().has(EntityType.FLOOR)) {
-				if (Math.abs(normal.x) > 0 || Math.abs(pen.x) > 0) {
+				if (other.allTypes().has(EntityType.FLOOR)) {
 					pen.x = 0;
 					normal.x = 0;
 					normal.y = Math.sign(normal.y);
 					fixed = true;
-				}
+				} else {
+					pen.y = 0;
+					normal.x = Math.sign(normal.x);
+					normal.y = 0;
+
+					if (Math.sign(vel.x) === Math.sign(this.pos().x - otherProfile.pos().x)) {
+						// Moving away from the collision
+						pen.scale(0);
+						fixed = true;
+					} else if (Math.abs(overlap.y) < 0.01 || Math.abs(normal.y) > 0.99) {
+						// Either overlap in other dimension is too small or collision direction is in disagreement.
+						pen.scale(0);
+						fixed = true;
+					}
+				} 
 			}
 		}
 
@@ -898,26 +912,26 @@ export class Profile extends ComponentBase implements Component {
 			// Only fix x collisions since y collisions might cause fall through floor.
 			{
 				const record = this._collisionBuffer.record(RecordType.MAX_PEN_X);
-				if (record.collision.penetration.x <= 0 && this.vel().x > 0 && this.overlap(record.entity.profile()).y < 5e-2) {
+				if (record.collision.penetration.x <= 0 && this.vel().x > 0) {
 					MATTER.Body.setVelocity(this._body, {
-						x: this.vel().x,
+						x: Math.max(this.vel().x, this._body.velocity.x),
 						y: this._body.velocity.y,
 					});
 					MATTER.Body.setPosition(this._body, {
-						x: this._body.position.x + this.vel().x * millis / 1000,
+						x: this._body.position.x + this._body.velocity.x * millis / 1000,
 						y: this._body.position.y,
 					});
 				}
 			}
 			{
 				const record = this._collisionBuffer.record(RecordType.MIN_PEN_X);
-				if (record.collision.penetration.x >= 0 && this.vel().x < 0 && this.overlap(record.entity.profile()).y < 5e-2) {
+				if (record.collision.penetration.x >= 0 && this.vel().x < 0) {
 					MATTER.Body.setVelocity(this._body, {
-						x: this.vel().x,
+						x: Math.min(this.vel().x, this._body.velocity.x),
 						y: this._body.velocity.y,
 					});
 					MATTER.Body.setPosition(this._body, {
-						x: this._body.position.x + this.vel().x * millis / 1000,
+						x: this._body.position.x + this._body.velocity.x * millis / 1000,
 						y: this._body.position.y,
 					});
 				}
@@ -932,7 +946,7 @@ export class Profile extends ComponentBase implements Component {
 			this.setAngle(this._body.angle);
 		}
 
-		if (this.hasVel()) {
+		if (this.updateCalls() > 1 && this.hasVel()) {
 			this.setVel(this._body.velocity);
 
 			if (!this.isSource()) {

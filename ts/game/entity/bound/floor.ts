@@ -21,7 +21,10 @@ export class Floor extends Bound {
 		super.initialize();
 
 		if (this._hexColors.hasMainColor()) {
-			this.setMinimapRender(this._hexColors.mainColor().toString(), DepthType.FLOOR);
+			this.setMinimapOptions({
+				color: this._hexColors.mainColor().toString(),
+				depthType: DepthType.FLOOR
+			});
 		}
 	}
 }

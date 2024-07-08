@@ -110,7 +110,10 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 				model.registerSubMesh(NameTag._pointerId, pointer);
 				model.setMesh(mesh);
 			},
-			init: entityOptions.modelInit,
+			init: {
+				...entityOptions.modelInit,
+				disableShadows: true,
+			},
 		}));
 	}
 

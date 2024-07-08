@@ -28,10 +28,10 @@ export class Physics extends SystemBase implements System {
 			gravity: { y: 0 },
 			// default = 2
 			constraintIterations: 3,
-			// default = 6
+			// default = 8
 			positionIterations: 8,
 			// default = 4
-			velocityIterations: 6,
+			velocityIterations: 4,
 		});
 
 		this._minimap = Html.elm(Html.divMinimap);
