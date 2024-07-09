@@ -8,7 +8,6 @@ import { Billboard } from 'game/entity/block/billboard'
 import { Floor } from 'game/entity/bound/floor'
 import { Wall } from 'game/entity/bound/wall'
 import { Cloud } from 'game/entity/cloud'
-import { Explosion } from 'game/entity/explosion'
 import { Pergola } from 'game/entity/pergola'
 import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
@@ -25,6 +24,9 @@ import { Scouter } from 'game/entity/equip/scouter'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Claw } from 'game/entity/equip/weapon/claw'
 import { Sniper } from 'game/entity/equip/weapon/sniper'
+import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
+import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
+import { StarExplosion } from 'game/entity/explosion/star_explosion'
 import { Crate } from 'game/entity/interactable/crate'
 import { SignControls } from 'game/entity/interactable/sign/sign_controls'
 import { SignStartGame } from 'game/entity/interactable/sign/sign_start_game'
@@ -52,6 +54,7 @@ export namespace EntityFactory {
 		[EntityType.BILLBOARD, (options : EntityOptions) => { return new Billboard(options); }],
 		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
+		[EntityType.BOLT_EXPLOSION, (options : EntityOptions) => { return new BoltExplosion(options); }],
 		[EntityType.BOOBY_BEAK, (options : EntityOptions) => { return new BoobyBeak(options); }],
 		[EntityType.BOOBY_HAIR, (options : EntityOptions) => { return new BoobyHair(options); }],
 		[EntityType.BUBBLE, (options : EntityOptions) => { return new Bubble(options); }],
@@ -60,7 +63,6 @@ export namespace EntityFactory {
 		[EntityType.CLAW, (options : EntityOptions) => { return new Claw(options); }],
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
-		[EntityType.EXPLOSION, (options : EntityOptions) => { return new Explosion(options); }],
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
 		[EntityType.HEADBAND, (options : EntityOptions) => { return new Headband(options); }],
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
@@ -74,12 +76,14 @@ export namespace EntityFactory {
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
+		[EntityType.ROCKET_EXPLOSION, (options : EntityOptions) => { return new RocketExplosion(options); }],
 		[EntityType.SCOUTER, (options : EntityOptions) => { return new Scouter(options); }],
 		[EntityType.SIGN_CONTROLS, (options : EntityOptions) => { return new SignControls(options); }],
 		[EntityType.SIGN_START_GAME, (options : EntityOptions) => { return new SignStartGame(options); }],
 		[EntityType.SNIPER, (options : EntityOptions) => { return new Sniper(options); }],
 		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
 		[EntityType.STAR, (options : EntityOptions) => { return new Star(options); }],
+		[EntityType.STAR_EXPLOSION, (options : EntityOptions) => { return new StarExplosion(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 	]);
 
@@ -107,17 +111,20 @@ export namespace EntityFactory {
 	// Also includes dimensions that can change.
 	export const dimensions = new Map<EntityType, Vec>([
 		...staticDimensions,
+		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.CRATE, {x: 1, y: 1, z: 1 }],
+		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],
+		[EntityType.STAR_EXPLOSION, {x: 0.7, y: 0.7, z: 0.7 }],
 	]);
 
 	export function hasCreateFn(type : EntityType) : boolean { return createFns.has(type); }
 	export function create<T extends Entity>(type : EntityType, options : EntityOptions) : T {
-		if (hasStaticDimension(type)) {
+		if (hasDimension(type)) {
 			if (!options.profileInit) {
 				options.profileInit = {};
 			}
 			if (!options.profileInit.dim) {
-				options.profileInit.dim = getStaticDimension(type);
+				options.profileInit.dim = getDimension(type);
 			}
 		}
 		return <T>createFns.get(type)(options);

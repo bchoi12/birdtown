@@ -153,18 +153,7 @@ export class Star extends Projectile {
 
 	override onMiss() : void {
 		const dim = EntityFactory.getStaticDimension(this.type());
-		this.explode({
-			profileInit: {
-				pos: this.profile().pos(),
-				dim: {
-					x: 2 * dim.x,
-					y: 2 * dim.y,
-				},
-			},
-			modelInit: {
-				materialType: MaterialType.STAR_EXPLOSION,
-			},
-		});
+		this.explode(EntityType.STAR_EXPLOSION, {});
 	}
 
 	override onExpire() : void {

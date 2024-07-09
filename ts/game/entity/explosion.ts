@@ -2,6 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { StepData } from 'game/game_object'
 import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -9,26 +10,35 @@ import { Profile } from 'game/component/profile'
 import { SoundPlayer } from 'game/component/sound_player'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { CollisionCategory, SoundType } from 'game/factory/api'
+import { CollisionCategory, MaterialType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 
+import { Fns } from 'util/fns'
+import { Timer } from 'util/timer'
 import { Vec, Vec2 } from 'util/vector'
 
-export class Explosion extends EntityBase implements Entity {
+export abstract class Explosion extends EntityBase implements Entity {
 
-	private static readonly _nominalDiameter = 3;
+	protected static readonly _nominalDiameter = 3;
+	protected static readonly _fadePercent = 0.7;
 
-	private _profile : Profile;
-	private _model : Model;
-	private _soundPlayer : SoundPlayer;
+	protected _hits : Set<number>;
+	protected _lifeTimer : Timer;
 
-	private _hit : Set<number>;
+	protected _profile : Profile;
+	protected _model : Model;
+	protected _soundPlayer : SoundPlayer;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.EXPLOSION, entityOptions);
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
 
-		this._hit = new Set();
+		this.allTypes().add(EntityType.EXPLOSION);
+
+		this._lifeTimer = this.newTimer({
+			canInterrupt: false,
+		});
+		this._hits = new Set();
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -40,6 +50,9 @@ export class Explosion extends EntityBase implements Entity {
 			},
 			init: entityOptions.profileInit,
 		}));
+		this._profile.setMinimapOptions({
+			color: this.color(),
+		});
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: (model: Model) => { return this._profile.ready(); },
@@ -50,34 +63,56 @@ export class Explosion extends EntityBase implements Entity {
 			},
 			init: {
 				disableShadows: true, 
+				materialType: this.materialType(),
 				...entityOptions.modelInit,
 			},
 		}));
 
 		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
 		this._soundPlayer.registerSound(SoundType.EXPLOSION, SoundType.EXPLOSION);
-
-		this._model.onLoad((model: Model) => {
-			if (!this._model.hasMaterialType()) {
-				return;
-			}
-			const material = MaterialFactory.material<BABYLON.StandardMaterial>(this._model.materialType());
-			this._profile.setMinimapOptions({
-				color: material.emissiveColor.toHexString(),
-			});
-		});
 	}
+
+	abstract force() : number;
+	abstract materialType() : MaterialType;
+	ttl() : number { return 200; }
+	color() : string { return MaterialFactory.material<BABYLON.StandardMaterial>(this.materialType()).emissiveColor.toHexString(); }
+	fading() : boolean { return this._lifeTimer.percentElapsed() > Explosion._fadePercent; }
 
 	override initialize() : void {
 		super.initialize();
 
 		this._soundPlayer.playFromSelf(SoundType.EXPLOSION);
+		this._lifeTimer.start(this.ttl() * 2, () => {
+			this.delete();
+		});
+	}
+
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+
+		const percent = this._lifeTimer.percentElapsed();
+
+		if (!this.fading()) {
+			const weight = Fns.clamp(0, 4 * percent / Explosion._fadePercent, 1);
+			this._model.scaling().setScalar(weight);
+		} else {
+			const weight = Fns.clamp(0, 1 - (percent - Explosion._fadePercent) / (1 - Explosion._fadePercent), 1);
+			this._model.scaling().setScalar(weight);
+		}
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (this._hit.has(other.id())) {
+		if (this.fading()) {
+			return;
+		}
+
+		if (this._hits.has(other.id())) {
+			return;
+		}
+
+		if (collision.bodyB.isStatic || collision.bodyB.isSensor) {
 			return;
 		}
 
@@ -85,11 +120,12 @@ export class Explosion extends EntityBase implements Entity {
 			return;
 		}
 
-		const magnitude = this._profile.unscaledDim().x / Explosion._nominalDiameter;
-		const force = other.profile().pos().clone().sub(this._profile.pos()).setLength(magnitude);
+		const magnitude = this.force();
+		// Use body to handle multi-body profiles.
+		const force = Vec2.fromVec(collision.bodyB.position).sub(collision.bodyA.position).setLength(magnitude);
 		other.addForce(force);
 
-		this._hit.add(other.id());
+		this._hits.add(other.id());
 	}
 
 }

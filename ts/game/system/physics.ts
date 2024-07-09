@@ -19,7 +19,6 @@ export class Physics extends SystemBase implements System {
 	private _minimap : HTMLElement;
 	private _canvas : HTMLCanvasElement;
 	private _render : MATTER.Render;
-	private _lastRender : number;
 
 	constructor() {
 		super(SystemType.PHYSICS);
@@ -45,7 +44,6 @@ export class Physics extends SystemBase implements System {
 				wireframes: false,
 			},
 		});
-		this._lastRender = Date.now();
 	}
 
 	override initialize() : void {

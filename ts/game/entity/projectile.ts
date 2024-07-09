@@ -14,6 +14,7 @@ export abstract class Projectile extends EntityBase {
 
 	protected _collisions : Array<[MATTER.Collision, Entity]>;
 	protected _hits : Set<number>;
+	protected _prevPos : Vec2;
 
 	protected _association : Association;
 	protected _attributes : Attributes;
@@ -24,6 +25,7 @@ export abstract class Projectile extends EntityBase {
 
 		this._collisions = new Array();
 		this._hits = new Set();
+		this._prevPos = Vec2.zero();
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
@@ -42,6 +44,14 @@ export abstract class Projectile extends EntityBase {
 			} else if (this.ttlElapsed() >= 1) {
 				this.onExpire();
 			}
+		}
+	}
+
+	override prePhysics(stepData : StepData) : void {
+		super.prePhysics(stepData);
+
+		if (this.hasProfile()) {
+			this._prevPos.copyVec(this.profile().pos())
 		}
 	}
 
@@ -107,14 +117,12 @@ export abstract class Projectile extends EntityBase {
 	}
 	protected hit(collision : MATTER.Collision, other : Entity) : void {
 		if (this.hasProfile()) {
-			let correction = Vec2.fromVec(collision.penetration);
-			correction.x = -Math.sign(this.profile().vel().x) * Math.abs(correction.x);
-			correction.y = -Math.sign(this.profile().vel().y) * Math.abs(correction.y);
-			this.profile().pos().sub(correction);
-
 			// Snap to bounds
 			if (other.allTypes().has(EntityType.BOUND)) {
 				this.profile().snapTo(other.profile(), /*limit=*/1);
+
+				// Little hack to snap explosion to right spot
+				this._prevPos.copyVec(this.profile().pos());
 			}
 		}
 
@@ -125,16 +133,14 @@ export abstract class Projectile extends EntityBase {
 		this.onHit();
 	}
 
-	protected explode(entityOptions? : EntityOptions) : void {
+	protected explode(type : EntityType, entityOptions? : EntityOptions) : void {
 		if (!this.hasProfile() || !this.profile().initialized()) {
 			return;
 		}
 
-		this.addEntity(EntityType.EXPLOSION, {
-			ttl: 200,
+		this.addEntity(type, {
 			profileInit: {
-				pos: this.profile().pos(),
-				dim: {x: 3, y: 3},
+				pos: this._prevPos,
 			},
 			...entityOptions,
 		});
