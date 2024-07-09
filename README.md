@@ -17,11 +17,9 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 ## Screenshots
 
-![devlog039](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog039.png?raw=true)
+![devlog043](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog043.png?raw=true)
 
-![devlog032](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog032.png?raw=true)
-
-![devlog035](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog035.png?raw=true)
+![devlog046](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog046.png?raw=true)
 
 ## Game Engine Highlights
  * Custom built for the web with nearly instant load times

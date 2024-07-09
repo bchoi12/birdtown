@@ -84,6 +84,7 @@ export enum MeshType {
 	BILLBOARD,
 	CRATE,
 	PERGOLA,
+	TABLE,
 
 	PLANE,
 	SIGN,

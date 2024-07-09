@@ -56,6 +56,7 @@ export enum EntityType {
 	SPAWN_POINT,
 	STAR,
 	STAR_EXPLOSION,
+	TABLE,
 	WALL,
 }
 

@@ -53,11 +53,15 @@ export class Pergola extends EntityBase implements Entity {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setRenderUnoccluded();
+		this._profile.setMinimapOptions({
+			color: ColorFactory.archWhite.toString(),
+			depthType: DepthType.BACKGROUND,
+		});
 
 		this._subProfile = this._profile.addSubComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				let topDim = { x: profile.unscaledDim().x, y: 0.5 };
-				return BodyFactory.rectangle(profile.relativePos(CardinalDir.TOP, topDim), topDim, {
+				return BodyFactory.rectangle(this._profile.relativePos(CardinalDir.TOP, topDim), topDim, {
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.SOLID),
 				});
 			},
@@ -69,25 +73,21 @@ export class Pergola extends EntityBase implements Entity {
 				profile.setAngle(this._profile.angle());
 			},
 		}));
+		this._subProfile.setInertia(Infinity);
+		this._subProfile.setRenderUnoccluded();
+		this._subProfile.setMinimapOptions({
+			color: ColorFactory.archWood.toString(),
+			depthType: DepthType.FLOOR,
+		});
 		this._subProfile.onBody((subProfile : Profile) => {
 			this._profile.onBody((profile : Profile) => {
 				profile.setAngle(0);
 				subProfile.attachTo(profile, { x: 0, y: 1.75 });
 
 				profile.stop();
-				profile.setAcc({ y: GameGlobals.gravity });
 				subProfile.stop();
-
-				profile.body().render.fillStyle = ColorFactory.archWhite.toString();
-				profile.body().render.strokeStyle = ColorFactory.archWhite.toString();
-				profile.body().plugin.zIndex = DepthType.BACKGROUND;
-
-				subProfile.body().render.fillStyle = ColorFactory.archWood.toString();
-				subProfile.body().render.strokeStyle = ColorFactory.archWood.toString();
-				subProfile.body().plugin.zIndex = DepthType.FLOOR;
+				profile.setAcc({ y: GameGlobals.gravity });
 			});
 		});
-		this._subProfile.setRenderUnoccluded();
-		this._subProfile.setInertia(Infinity);
 	}
 }

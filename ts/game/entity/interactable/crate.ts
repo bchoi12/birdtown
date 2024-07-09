@@ -38,7 +38,7 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		[EntityType.BAZOOKA, EntityType.JETPACK],
 	];
 
-	private static _maxSpeed = 0.6;
+	private static readonly _maxSpeed = 0.6;
 
 	private _opened : boolean;
 	private _showTooltip : boolean;
@@ -110,7 +110,7 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		}
 		this._profile.setRenderUnoccluded();
 		this._profile.setLimitFn((profile : Profile) => {
-			profile.capSpeed(0.6);
+			profile.capSpeed(Crate._maxSpeed);
 		});
 
 		this._model = this.addComponent<Model>(new Model({

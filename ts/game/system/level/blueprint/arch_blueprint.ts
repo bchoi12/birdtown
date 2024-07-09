@@ -335,6 +335,14 @@ export class ArchBlueprint extends Blueprint {
 							}
 						});
 					}
+				} else if (block.type() === ArchBlueprint.baseType()) {
+					if (this.rng().le(0.5)) {
+						block.pushEntityOptions(EntityType.TABLE, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.TABLE).y / 2 }),
+							},
+						});
+					}
 				}
 			}
 		}
@@ -349,9 +357,6 @@ export class ArchBlueprint extends Blueprint {
 
 			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
 				let block = building.block(j);
-
-				this.rng().setChance(0.5, (n : number) => { return n - 0.4; });
-				block.addCrates(this.rng());
 
 				if (block.type() === ArchBlueprint.roofType()) {
 					const next = this.rng().next();
@@ -385,6 +390,18 @@ export class ArchBlueprint extends Blueprint {
 								},
 							});
 						}
+					}
+
+					this.rng().setChance(0.5, (n : number) => { return n - 0.4; });
+					block.addCrates(this.rng());
+
+				} else if (block.type() === ArchBlueprint.baseType()) {
+					if (this.rng().le(0.5)) {
+						block.pushEntityOptions(EntityType.TABLE, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.TABLE).y / 2 }),
+							},
+						});
 					}
 				}
 			}

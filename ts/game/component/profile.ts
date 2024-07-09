@@ -436,6 +436,11 @@ export class Profile extends ComponentBase implements Component {
 			this._vel.normalize().scale(speed);
 		}
 	}
+	zeroSpeed(speed : number) : void {
+		if (this.hasVel()) {
+			this.vel().zeroEpsilon(speed);
+		}
+	}
 
 	hasAcc() : boolean { return defined(this._acc); }
 	acc() : Vec2 { return this.hasAcc() ? this._acc : Vec2.zero(); }
@@ -465,7 +470,11 @@ export class Profile extends ComponentBase implements Component {
 	hasAngle() : boolean { return defined(this._angle); }
 	angle() : number { return this.hasAngle() ? this._angle : 0; }
 	angleDeg() : number { return this.angle() * 180 / Math.PI; }
+	addAngle(delta : number) : void { this.setAngle(this.angle() + delta); }
+	addAngleDeg(delta : number) : void { this.setAngle(this.angle() + delta * Math.PI / 180); }
 	setAngle(angle : number) : void { this._angle = Fns.normalizeRad(angle); }
+	setAngleDeg(angle : number) : void { this.setAngle(angle * Math.PI / 180); }
+	angularVelocity() : number { return this._body !== null ? this._body.angularVelocity : 0; }
 	setAngularVelocity(vel : number) : void {
 		if (!this.hasAngle()) { this.setAngle(0); }
 
@@ -749,9 +758,7 @@ export class Profile extends ComponentBase implements Component {
 	clearTempLimitFns() : void { this._tempLimitFns.clear(); }
 	setOutOfBoundsFn(outOfBoundsFn : ModifyProfileFn) : void { this._outOfBoundsFn.set(outOfBoundsFn); }
 	private applyLimits() : void {
-		if (this.hasVel()) {
-			this.vel().zeroEpsilon(Profile._minQuantization);
-		}
+		this.zeroSpeed(Profile._minQuantization);
 
 		if (this._outOfBoundsFn.has()) {
 			const bounds = game.level().bounds();

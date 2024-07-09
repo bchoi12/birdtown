@@ -28,6 +28,7 @@ import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
 import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
 import { StarExplosion } from 'game/entity/explosion/star_explosion'
 import { Crate } from 'game/entity/interactable/crate'
+import { Table } from 'game/entity/interactable/table'
 import { SignControls } from 'game/entity/interactable/sign/sign_controls'
 import { SignStartGame } from 'game/entity/interactable/sign/sign_start_game'
 import { ParticleCube } from 'game/entity/particle/particle_cube'
@@ -84,6 +85,7 @@ export namespace EntityFactory {
 		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
 		[EntityType.STAR, (options : EntityOptions) => { return new Star(options); }],
 		[EntityType.STAR_EXPLOSION, (options : EntityOptions) => { return new StarExplosion(options); }],
+		[EntityType.TABLE, (options : EntityOptions) => { return new Table(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 	]);
 
@@ -106,6 +108,7 @@ export namespace EntityFactory {
 		[EntityType.SIGN, {x: 3, y: 2, z: 0.2 }],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],
 		[EntityType.STAR, {x: 0.35, y: 0.35, z: 0.1 }],
+		[EntityType.TABLE, { x: 3, y: 1.2, z: 2 }],
 	]);
 
 	// Also includes dimensions that can change.

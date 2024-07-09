@@ -69,6 +69,8 @@ export namespace ColorFactory {
 
 	export const sweatBlue = HexColor.fromHex(0xe3fcff);
 
+	export const tableWood = HexColor.fromHex(0xc98f40);
+
 	export const baseColors = new Map<EntityType, Buffer<HexColor>>([
 		[EntityType.ARCH_BLOCK, Buffer.from(archRed, archOrange, archYellow, archGreen, archBlue, archPurple)],
 	]);
