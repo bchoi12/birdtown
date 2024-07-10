@@ -2,6 +2,8 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
+import { game } from 'game'
+import { StepData } from 'game/game_object'
 import { AttributeType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
@@ -89,5 +91,13 @@ export class Pergola extends EntityBase implements Entity {
 				profile.setAcc({ y: GameGlobals.gravity });
 			});
 		});
+	}
+
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+
+		if (this._profile.pos().y < game.level().bounds().min.y) {
+			this.delete();
+		}
 	}
 }

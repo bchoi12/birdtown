@@ -336,13 +336,11 @@ export class ArchBlueprint extends Blueprint {
 						});
 					}
 				} else if (block.type() === ArchBlueprint.baseType()) {
-					if (this.rng().le(0.5)) {
-						block.pushEntityOptions(EntityType.TABLE, {
-							profileInit: {
-								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.TABLE).y / 2 }),
-							},
-						});
-					}
+					block.pushEntityOptions(EntityType.TABLE, {
+						profileInit: {
+							pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.TABLE).y / 2 }),
+						},
+					});
 				}
 			}
 		}

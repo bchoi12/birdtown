@@ -80,7 +80,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	// blockdudes3 = 18.0
 	private static readonly _sideAcc = 0.5;
 	private static readonly _jumpVel = 0.33;
-	private static readonly _maxHorizontalVel = 0.6;
+	private static readonly _maxHorizontalVel = 0.5;
 	private static readonly _maxWalkingVel = 0.25;
 	private static readonly _maxVerticalVel = 0.6;
 	private static readonly _maxFloatingVel = 0.1;

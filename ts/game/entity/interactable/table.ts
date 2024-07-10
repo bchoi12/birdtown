@@ -29,16 +29,20 @@ import { TooltipType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
 import { CardinalDir } from 'util/cardinal'
+import { Fns } from 'util/fns'
 import { Timer } from 'util/timer'
 
 export class Table extends Interactable implements Entity, EquipEntity {
 
+	private static readonly _degPerSecond = 360;
 	private static readonly _interactLockout = 400;
 
 	private static readonly _maxSpeed = 0.6;
+	private static readonly _minSpeed = 5e-2;
 
 	private _dir : number;
-	private _interactTimer : Timer;
+	private _target : number;
+	private _turnTimer : Timer;
 	private _nameTag : NameTag;
 
 	private _attributes : Attributes;
@@ -50,14 +54,19 @@ export class Table extends Interactable implements Entity, EquipEntity {
 		super(EntityType.TABLE, entityOptions);
 
 		this._dir = 0;
-		this._interactTimer = this.newTimer({
-			canInterrupt: true,
+		this._target = 0;
+		this._turnTimer = this.newTimer({
+			canInterrupt: false,
 		});
 		this._nameTag = null;
 
 		this.addProp<number>({
 			export: () => { return this._dir; },
-			import: (obj : number) => { this._dir = obj; },
+			import: (obj : number) => { this.setDir(obj); },
+		});
+		this.addProp<number>({
+			export: () => { return this._target; },
+			import: (obj : number) => { this._target = obj; },
 		});
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
@@ -79,7 +88,7 @@ export class Table extends Interactable implements Entity, EquipEntity {
 		this._profile.setAcc({ y: GameGlobals.gravity });
 		this._profile.setLimitFn((profile : Profile) => {
 			profile.capSpeed(Table._maxSpeed);
-			if (Math.abs(profile.vel().x) < 0.05) {
+			if (Math.abs(profile.vel().x) < Table._minSpeed) {
 				profile.vel().x = 0;
 			}
 		});
@@ -91,7 +100,7 @@ export class Table extends Interactable implements Entity, EquipEntity {
 
 		this._subProfile = this._profile.addSubComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				let topDim = { x: 3, y: 0.5 };
+				let topDim = { x: this._profile.unscaledDim().x, y: 0.5 };
 				return BodyFactory.rectangle(this._profile.relativePos(CardinalDir.TOP, topDim), topDim, {
 					density: 1.2 * BodyFactory.defaultDensity,
 					friction: 1.5 * BodyFactory.defaultFriction,
@@ -112,10 +121,10 @@ export class Table extends Interactable implements Entity, EquipEntity {
 				subProfile.attachTo(profile, { x: 0, y: 0.35 });
 			});
 		});
-		this._subProfile.setInertia(Infinity);
+		// this._subProfile.setInertia(Infinity);
 		this._subProfile.setLimitFn((profile : Profile) => {
 			profile.capSpeed(Table._maxSpeed);
-			if (Math.abs(profile.vel().x) < 0.05) {
+			if (Math.abs(profile.vel().x) < Table._minSpeed) {
 				profile.vel().x = 0;
 			}
 		});
@@ -165,6 +174,17 @@ export class Table extends Interactable implements Entity, EquipEntity {
 		}
 	}
 
+	setDir(dir : number) : void {
+		if (this._dir === dir) {
+			return;
+		}
+
+		this._dir = dir;
+		if (this._dir !== 0) {
+			this._turnTimer.start(Table._interactLockout);
+		}
+	}
+
 	equip(equip : Equip<Entity & EquipEntity>) : void {
 		if (equip.type() !== EntityType.NAME_TAG) {
 			console.error("Error: trying to attach %s to %s", equip.name(), this.name());
@@ -172,7 +192,7 @@ export class Table extends Interactable implements Entity, EquipEntity {
 	}
 
 	override canInteractWith(entity : Entity) : boolean {
-		return !this._interactTimer.hasTimeLeft() && super.canInteractWith(entity);
+		return !this._turnTimer.hasTimeLeft() && super.canInteractWith(entity);
 	}
 
 	override setInteractableWith(entity : Entity, interactable : boolean) : void {
@@ -192,8 +212,9 @@ export class Table extends Interactable implements Entity, EquipEntity {
 			return;
 		}
 
-		this._interactTimer.start(Table._interactLockout);
-		this._dir = entity.profile().pos().x > this._profile.pos().x ? 1 : -1;
+		this.setDir(entity.profile().pos().x > this._profile.pos().x ? 1 : -1);
+		const angle = this._profile.angleDeg() + 90 * this._dir;
+		this._target = Fns.normalizeDeg(90 * Math.round(angle / 90))
 	}
 
 	override update(stepData : StepData) : void {
@@ -204,17 +225,17 @@ export class Table extends Interactable implements Entity, EquipEntity {
 			this.delete();
 		}
 
+		if (!this._turnTimer.hasTimeLeft()) {
+			this.setDir(0);
+		}
+
 		if (this._dir !== 0) {
-			const delta = millis / 3;
+			const delta = Table._degPerSecond * millis / 1000;
 
-			if (Math.abs(this._profile.angleDeg() - 90) < delta || Math.abs(this._profile.angleDeg() - 270) < delta) {
-				if (Math.abs(this._profile.angleDeg() - 90) < delta) {
-					this._profile.setAngleDeg(90);
-				} else {
-					this._profile.setAngleDeg(270);
-				}
+			if (Math.abs(this._profile.angleDeg() - this._target) < delta) {
+				this.setDir(0);
 
-				this._dir = 0;
+				this._profile.setAngleDeg(this._target);
 				this._profile.setAngularVelocity(0);
 				this._profile.setVel({x: 0, y: 0});
 				this._subProfile.setVel({x: 0, y: 0});
