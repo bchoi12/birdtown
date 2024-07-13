@@ -121,7 +121,6 @@ export class Table extends Interactable implements Entity, EquipEntity {
 				subProfile.attachTo(profile, { x: 0, y: 0.35 });
 			});
 		});
-		// this._subProfile.setInertia(Infinity);
 		this._subProfile.setLimitFn((profile : Profile) => {
 			profile.capSpeed(Table._maxSpeed);
 			if (Math.abs(profile.vel().x) < Table._minSpeed) {

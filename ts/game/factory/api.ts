@@ -3,6 +3,7 @@ export enum SoundType {
 	UNKNOWN,
 	BAWK,
 	EXPLOSION,
+	THROW,
 }
 
 export enum CollisionGroup {

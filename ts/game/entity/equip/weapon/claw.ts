@@ -4,13 +4,14 @@ import { AssociationType, AttributeType, ComponentType } from 'game/component/ap
 import { Association } from 'game/component/association'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
+import { SoundPlayer } from 'game/component/sound_player'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Weapon, ShotConfig } from 'game/entity/equip/weapon'
-import { MaterialType, MeshType } from 'game/factory/api'
+import { MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
 
@@ -23,8 +24,13 @@ export class Claw extends Weapon {
 
 	private static readonly _starTTL = 1000;
 
+	private _soundPlayer : SoundPlayer;
+
 	constructor(options : EntityOptions) {
 		super(EntityType.CLAW, options);
+
+		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
+		this._soundPlayer.registerSound(SoundType.THROW, SoundType.THROW);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
@@ -58,6 +64,8 @@ export class Claw extends Weapon {
 				vel: vel,
 			},
 		});
+
+		this._soundPlayer.playFromEntity(SoundType.THROW, this.owner());
 	}
 
 	override onReload() : void {}

@@ -29,6 +29,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.THROW, {
+			path: "throw.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 	]);
 
 	function initCache(type : SoundType) : void {

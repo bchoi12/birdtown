@@ -23,6 +23,10 @@ export class SoundPlayer extends ComponentBase implements Component {
 		super.dispose();
 
 		this._sounds.forEach((sound : BABYLON.Sound) => {
+			if (sound.loop) {
+				sound.stop();
+			}
+
 			if (sound.metadata && sound.metadata.type) {
 				SoundFactory.unload(sound.metadata.type, sound);
 			}
@@ -54,12 +58,7 @@ export class SoundPlayer extends ComponentBase implements Component {
 	}
 
 	playFromEntity(id : number, entity : Entity, options? : BABYLON.ISoundOptions) : void {
-		const isTarget = game.lakitu().hasTargetEntity()
-			&& game.lakitu().targetEntity().hasClientId()
-			&& entity.hasClientId()
-			&& game.lakitu().targetEntity().clientId() === entity.clientId();
-
-		if (isTarget) {
+		if (entity.isLakituTarget()) {
 			// Disable spatial sound when originating from the target.
 			const resolvedOptions = {
 				spatialSound: false,				
