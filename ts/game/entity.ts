@@ -92,6 +92,9 @@ export interface Entity extends GameObject {
 
 	// Profile methods
 	collide(collision : MATTER.Collision, other : Entity) : void;
+
+	// Sound playback rate
+	playbackRate() : number;
 }
 
 export interface EquipEntity extends Entity {
@@ -231,7 +234,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 
 		const keys = game.keys(clientId);
-		return keys.getKey(type).keyState() === state;
+		return keys.getKey(type).checkState(state);
 	}
 	inputDir() : Vec2 {
 		const clientId = this.hasClientId() ? this.clientId() : game.clientId();
@@ -354,6 +357,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 	}
 
+	playbackRate() : number { return 1; }
 	protected clientColorOr(or : string) : string {
 		if (this.hasClientId() && game.tablets().hasTablet(this.clientId())) {
 			return game.tablet(this.clientId()).color();

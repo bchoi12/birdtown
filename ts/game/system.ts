@@ -141,7 +141,7 @@ export abstract class ClientSystem extends SystemBase implements System {
 			return false;
 		}
 		const keys = game.keys(this.clientId());
-		return keys.getKey(type).keyState() === state;
+		return keys.getKey(type).checkState(state);
 	}
 
 	override networkBehavior() : NetworkBehavior {

@@ -23,8 +23,32 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.CHARGE, {
+			path: "charge.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
+		[SoundType.CHARGED_LASER, {
+			path: "charged_laser.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.EXPLOSION, {
 			path: "explosion.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
+		[SoundType.LASER, {
+			path: "laser.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
+		[SoundType.ROCKET, {
+			path: "rocket.mp3",
 			options: {
 				spatialSound: true,
 			},

@@ -58,10 +58,16 @@ export class SoundPlayer extends ComponentBase implements Component {
 	}
 
 	playFromEntity(id : number, entity : Entity, options? : BABYLON.ISoundOptions) : void {
+		if (!this.hasSound(id)) {
+			console.error("Error: %s tried to play non-existent sound %d on %s", this.name(), id, entity.name());
+			return;
+		}
+
 		if (entity.isLakituTarget()) {
 			// Disable spatial sound when originating from the target.
 			const resolvedOptions = {
-				spatialSound: false,				
+				spatialSound: false,
+				playbackRate: entity.playbackRate() * Math.max(0.7, game.runner().updateSpeed()),
 				...(options ? options : {}),
 			}
 			let sound = this.prepareSound(id, resolvedOptions);
@@ -82,7 +88,7 @@ export class SoundPlayer extends ComponentBase implements Component {
 	}
 	play(id : number, options? : BABYLON.ISoundOptions) : void {
 		if (!this.hasSound(id)) {
-			console.error("Error: tried to play non-existent sound %d", id);
+			console.error("Error: %s tried to play non-existent sound %d", this.name(), id);
 			return;
 		}
 
@@ -91,7 +97,7 @@ export class SoundPlayer extends ComponentBase implements Component {
 	}
 	stop(id : number) : void {
 		if (!this.hasSound(id)) {
-			console.error("Error: tried to stop non-existent sound %d", id);
+			console.error("Error: %s tried to stop non-existent sound %d", this.name(), id);
 			return;
 		}
 

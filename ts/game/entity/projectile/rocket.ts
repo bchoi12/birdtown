@@ -31,6 +31,18 @@ export class Rocket extends Projectile {
 
 		this._smoker = new RateLimiter(24);
 
+		this._model = this.addComponent<Model>(new Model({
+			readyFn: () => { return this._profile.ready(); },
+			meshFn: (model : Model) => {
+				MeshFactory.load(MeshType.ROCKET, (result : LoadResult) => {
+					let mesh = <BABYLON.Mesh>result.meshes[0];
+					mesh.rotation.y = Math.PI / 2;
+					model.setMesh(mesh);
+				});
+			},
+			init: entityOptions.modelInit,
+		}));
+
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
@@ -43,18 +55,6 @@ export class Rocket extends Projectile {
 		this._profile.setOutOfBoundsFn((profile : Profile) => {
 			this.delete();
 		});
-
-		this._model = this.addComponent<Model>(new Model({
-			readyFn: () => { return this._profile.ready(); },
-			meshFn: (model : Model) => {
-				MeshFactory.load(MeshType.ROCKET, (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
-					mesh.rotation.y = Math.PI / 2;
-					model.setMesh(mesh);
-				});
-			},
-			init: entityOptions.modelInit,
-		}));
 	}
 
 	override hitDamage() : number { return 50; }

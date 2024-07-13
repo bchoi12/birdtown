@@ -4,13 +4,14 @@ import { AssociationType, AttributeType, ComponentType, CounterType } from 'game
 import { Association } from 'game/component/association'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
+import { SoundPlayer } from 'game/component/sound_player'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Weapon, ShotConfig } from 'game/entity/equip/weapon'
-import { MaterialType, MeshType } from 'game/factory/api'
+import { MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
@@ -25,8 +26,14 @@ export class Sniper extends Weapon {
 	private static readonly _chargedThreshold = 1000;
 	private static readonly _boltTTL = 750;
 
+	private _soundPlayer : SoundPlayer;
+
 	constructor(options : EntityOptions) {
 		super(EntityType.SNIPER, options);
+
+		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
+		this._soundPlayer.registerSound(SoundType.LASER, SoundType.LASER);
+		this._soundPlayer.registerSound(SoundType.CHARGED_LASER, SoundType.CHARGED_LASER);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
@@ -79,6 +86,8 @@ export class Sniper extends Weapon {
 				bolt.profile().setScaleFactor(1.5);
 			}
 		}
+
+		this._soundPlayer.playFromEntity(charged ? SoundType.CHARGED_LASER : SoundType.LASER, this.owner());
 	}
 
 	override onReload() : void {

@@ -128,7 +128,7 @@ export abstract class Beak extends Equip<Player> {
 			this._soundPlayer.onEnded(SoundType.BAWK).addOnce(() => {
 				this._squawking = false;
 			});
-			this._soundPlayer.playFromSelf(SoundType.BAWK);
+			this._soundPlayer.playFromEntity(SoundType.BAWK, this.owner());
 			this._squawkTimer.start(Beak._squawkCooldown);
 		}
 	}

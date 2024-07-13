@@ -47,6 +47,7 @@ export class Stepper {
 
 	seqNum() : number { return this._seqNum; }
 	setSeqNum(seqNum : number) : void { this._seqNum = seqNum; }
+	updateSpeed() : number { return this._updateSpeed; }
 	setUpdateSpeed(speed : number) : void { this._updateSpeed = speed; }
 
 	lastStepsPerSecond() : number { return this._stepsCounter.saved(); }

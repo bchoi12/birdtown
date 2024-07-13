@@ -125,7 +125,8 @@ export class Runner extends SystemBase implements System  {
 		this._renderTargetStep = Runner._targetSteps.get(this._renderSpeed);
 	}
 
-	setUpdateMultiplier(mult : number) : void { this._gameStepper.setUpdateSpeed(mult); }
+	updateSpeed() : number { return this._gameStepper.updateSpeed(); }
+	setUpdateSpeed(mult : number) : void { this._gameStepper.setUpdateSpeed(mult); }
  	gameTargetStep() : number {return Runner._targetSteps.get(this._gameSpeed); }
  	gameTargetFPS() : number { return Math.floor(1000 / Runner._targetSteps.get(this._gameSpeed)); }
  	renderTargetStep() : number { return Runner._targetSteps.get(this._renderSpeed); }

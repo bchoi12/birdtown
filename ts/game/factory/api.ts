@@ -1,11 +1,4 @@
 
-export enum SoundType {
-	UNKNOWN,
-	BAWK,
-	EXPLOSION,
-	THROW,
-}
-
 export enum CollisionGroup {
 	NEVER_COLLIDE = -1,
 
@@ -99,6 +92,18 @@ export enum ParticleType {
 	SMOKE,
 	SPARK,
 	TEAR,
+}
+
+export enum SoundType {
+	UNKNOWN,
+
+	BAWK,
+	CHARGE,
+	CHARGED_LASER,
+	EXPLOSION,
+	LASER,
+	ROCKET,
+	THROW,
 }
 
 export enum TextureType {

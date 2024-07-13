@@ -156,7 +156,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			if (pieces.length !== 2) {
 				console.error("Usage: %s [Number]", pieces[0])
 			} else {
-				game.runner().setUpdateMultiplier(Number(pieces[1]));
+				game.runner().setUpdateSpeed(Number(pieces[1]));
 			}
 			break;
 		default:

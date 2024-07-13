@@ -35,13 +35,18 @@ export class Key extends ClientSideSystem implements System {
 
 	keyType() : KeyType { return this._keyType; }
 	diff() : number { return this._counter - this._networkCounter; }
-	keyState() : KeyState {
-		if (this.released()) { return KeyState.RELEASED; }
-		if (this.up()) { return KeyState.UP; }
-		if (this.pressed()) { return KeyState.PRESSED; }
-		if (this.down()) { return KeyState.DOWN; }
-
-		return KeyState.UNKNOWN;
+	checkState(state : KeyState) : boolean {
+		switch (state) {
+		case KeyState.RELEASED:
+			return this.released();
+		case KeyState.UP:
+			return this.up();
+		case KeyState.PRESSED:
+			return this.pressed();
+		case KeyState.DOWN:
+			return this.down();
+		}
+		return false;
 	}
 	up() : boolean { return this._counter % 2 === 0; }
 	released() : boolean { return this.up() && this._changed; }
