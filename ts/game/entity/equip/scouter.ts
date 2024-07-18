@@ -58,7 +58,7 @@ export class Scouter extends Equip<Player> {
 		const millis = stepData.millis;
 
 		this._weapons = this.owner().equips().findAll((equip : Equip<Player>) => {
-			return equip.allTypes().has(EntityType.WEAPON);
+			return equip.allTypes().has(EntityType.WEAPON) && equip.initialized();
 		});
 
 		if (this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED)) {

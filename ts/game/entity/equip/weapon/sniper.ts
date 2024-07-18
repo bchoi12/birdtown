@@ -24,7 +24,7 @@ import { Vec3 } from 'util/vector'
 export class Sniper extends Weapon {
 
 	private static readonly _chargedThreshold = 1000;
-	private static readonly _boltTTL = 750;
+	private static readonly _boltTTL = 550;
 
 	private _soundPlayer : SoundPlayer;
 

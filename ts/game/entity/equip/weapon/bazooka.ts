@@ -48,7 +48,7 @@ export class Bazooka extends Weapon {
 		let vel = unitDir.clone().scale(0.05);
 		let acc = unitDir.clone().scale(1.5);
 		let [rocket, hasRocket] = this.addEntity<Rocket>(EntityType.ROCKET, {
-			ttl: 850,
+			ttl: 800,
 			associationInit: {
 				owner: this.owner(),
 			},
