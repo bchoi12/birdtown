@@ -63,12 +63,16 @@ export class SoundPlayer extends ComponentBase implements Component {
 			return;
 		}
 
+		if (!options) {
+			options = {};
+		}
+		options.playbackRate = entity.playbackRate() * Math.max(0.7, game.runner().updateSpeed());
+
 		if (entity.isLakituTarget()) {
-			// Disable spatial sound when originating from the target.
+			// Default to no spatial sound when originating from the target.
 			const resolvedOptions = {
 				spatialSound: false,
-				playbackRate: entity.playbackRate() * Math.max(0.7, game.runner().updateSpeed()),
-				...(options ? options : {}),
+				...options
 			}
 			let sound = this.prepareSound(id, resolvedOptions);
 			sound.play();

@@ -53,6 +53,7 @@ export namespace Html {
 	export const classButton = "button";
 	export const classButtonSelect = "button-select";
 	export const classButtonSelected = "button-selected";
+	export const classContainer = "container";
 	export const classCounter = "counter";
 	export const classDialog = "dialog";
 	export const classDialogContainer = "dialog-container";

@@ -192,7 +192,6 @@ class UI {
 		if (clientId === game.clientId()) {
 			ui.chat("Error: failed to enable microphone. Please check that you have a device connected and have allowed permissions.");
 			this._clientsHandler.handleVoiceError();
-			this._menuHandler.handleVoiceError();
 		}
 	}
 }

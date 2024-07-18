@@ -77,8 +77,6 @@ export class Client extends Netcode {
 
 		this._voiceEnabled = enabled;
 
-		console.log("voiceEnabled", this._voiceEnabled);
-
 		if (enabled) {
 			this.queryMic((stream : MediaStream) => {
 				this.send(this.hostName(), ChannelType.TCP, outgoing);

@@ -6,15 +6,16 @@ import { GameMessage } from 'message/game_message'
 import { ui } from 'ui'
 import { Icon, IconType } from 'ui/common/icon'
 import { Html, HtmlWrapper } from 'ui/html'
-import { VoiceWrapper } from 'ui/wrapper/voice_wrapper'
+import { VoiceControlsWrapper } from 'ui/wrapper/voice_controls_wrapper'
 
+import { Optional } from 'util/optional'
 import { Vec } from 'util/vector'
 
 export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _clientId : number;
 	private _nameElm : HTMLElement;
-	private _voiceWrapper : VoiceWrapper;
+	private _voiceControlsWrapper : Optional<VoiceControlsWrapper>;
 
 	constructor(msg : GameMessage) {
 		super(Html.div());
@@ -25,8 +26,11 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 		this.setDisplayName(msg.getDisplayNameOr("unknown"));
 		this.elm().appendChild(this._nameElm);
 
-		this._voiceWrapper = new VoiceWrapper(/*self=*/this._clientId === game.clientId());
-		this.elm().appendChild(this._voiceWrapper.elm());
+		this._voiceControlsWrapper = new Optional();
+		if (this._clientId !== game.clientId()) {
+			this._voiceControlsWrapper.set(new VoiceControlsWrapper());
+			this.elm().appendChild(this._voiceControlsWrapper.get().elm());
+		}
 
 		if (game.isHost() && this._clientId !== game.clientId()) {
 			let kickButton = Html.span();
@@ -46,18 +50,20 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 	displayName() : string { return this._nameElm.textContent; }
 
 	addStream(stream : MediaStream) : void {
-		this._voiceWrapper.enable(stream);
+		if (this._voiceControlsWrapper.has()) {
+			this._voiceControlsWrapper.get().enable(stream);
+		}
 	}
 
 	removeStream() : void {
-		this._voiceWrapper.disable();
+		if (this._voiceControlsWrapper.has()) {
+			this._voiceControlsWrapper.get().disable();
+		}
 	}
 
 	updatePos(pos : Vec) : void {
-		this._voiceWrapper.updatePos(pos);
-	}
-
-	handleVoiceError() : void {
-		this._voiceWrapper.handleVoiceError();
+		if (this._voiceControlsWrapper.has()) {
+			this._voiceControlsWrapper.get().updatePos(pos);
+		}
 	}
 }

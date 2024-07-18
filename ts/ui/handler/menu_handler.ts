@@ -21,8 +21,6 @@ import { VoiceWrapper } from 'ui/wrapper/voice_wrapper'
 export class MenuHandler extends HandlerBase implements Handler {
 
 	private _modalsElm : HTMLElement;
-	private _dialogWrapper : DialogWrapper;
-	private _voiceWrapper : VoiceWrapper;
 	private _menuElm : HTMLElement;
 	private _continueElm : HTMLElement;
 
@@ -34,14 +32,8 @@ export class MenuHandler extends HandlerBase implements Handler {
 		});
 
 		this._modalsElm = Html.elm(Html.divModals);
-		this._dialogWrapper = new DialogWrapper();
-		this._voiceWrapper = new VoiceWrapper(/*self=*/true);
 		this._menuElm = Html.elm(Html.divMenu);
 		this._continueElm = Html.elm(Html.menuContinue);
-
-		this._dialogWrapper.titleElm().textContent = "Menu";
-		this._dialogWrapper.elm().style.visibility = "hidden";
-		this._modalsElm.prepend(this._dialogWrapper.elm());
 
 		this._canMenu = true;
 	}
@@ -76,82 +68,20 @@ export class MenuHandler extends HandlerBase implements Handler {
 			}
 		});
 
-		let fullscreen = new SettingWrapper<FullscreenSetting>({
-			name: "Fullscreen Mode",
-			get: () => { return settings.fullscreenSetting; },
-			click: (current : FullscreenSetting) => {
-				if (current === FullscreenSetting.WINDOWED) {
-					settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
-				} else {
-					settings.fullscreenSetting = FullscreenSetting.WINDOWED;
-				}
-			},
-			text: (current : FullscreenSetting) => {
-				return FullscreenSetting[current];
-			},
-		});
-		this._dialogWrapper.contentElm().appendChild(fullscreen.elm());
-
-		let pointer = new SettingWrapper<PointerSetting>({
-			name: "In-game Cursor",
-			get: () => { return settings.pointerSetting; },
-			click: (current : PointerSetting) => {
-				settings.pointerSetting = current === PointerSetting.LOCKED ? PointerSetting.NORMAL : PointerSetting.LOCKED;
-			},
-			text: (current : PointerSetting) => {
-				return PointerSetting[current];
-			},
-		});
-		this._dialogWrapper.contentElm().appendChild(pointer.elm());
-
-
-		this._dialogWrapper.footerElm().appendChild(this._voiceWrapper.elm());
-
-		let shareURL = new ButtonWrapper();
-		shareURL.elm().appendChild(Icon.create(IconType.SHARE));
-		shareURL.addOnClick(() => {
-			navigator.clipboard.writeText(window.location.href + "?r=" + game.netcode().room());
-
-			ui.showTooltip(TooltipType.COPIED_URL, {
-				ttl: 3000,
-			})
-		});
-		this._dialogWrapper.footerElm().appendChild(shareURL.elm());
-
-		let miniContinue = new ButtonWrapper();
-		miniContinue.elm().style.float = "right";
-		miniContinue.setText("[Continue]");
-		miniContinue.addOnClick(() => {
-			this.disable();
-		});
-		this._dialogWrapper.footerElm().appendChild(miniContinue.elm());
-
-		let fullMenu = new ButtonWrapper();
-		fullMenu.elm().style.float = "right";
-		fullMenu.setText("[Full Menu]");
-		fullMenu.addOnClick(() => {
-			this._dialogWrapper.elm().style.visibility = "hidden";
-			this._menuElm.style.visibility = "visible";
-		});
-		this._dialogWrapper.footerElm().appendChild(fullMenu.elm());
-
 		this._continueElm.onclick = (e : any) => {
 			this.disable();
 		}
 	}
 
-	handleVoiceError() : void { this._voiceWrapper.handleVoiceError(); }
-
 	override onEnable() : void {
 		super.onEnable();
 
-		this._dialogWrapper.elm().style.visibility = "visible";
+		this._menuElm.style.visibility = "visible";
 	}
 
 	override onDisable() : void {
 		super.onDisable();
 
-		this._dialogWrapper.elm().style.visibility = "hidden";
 		this._menuElm.style.visibility = "hidden";
 	}
 

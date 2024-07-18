@@ -41,6 +41,34 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			e.stopPropagation();
 		};
 
+		let fullscreen = new SettingWrapper<FullscreenSetting>({
+			name: "Fullscreen Mode",
+			get: () => { return settings.fullscreenSetting; },
+			click: (current : FullscreenSetting) => {
+				if (current === FullscreenSetting.WINDOWED) {
+					settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
+				} else {
+					settings.fullscreenSetting = FullscreenSetting.WINDOWED;
+				}
+			},
+			text: (current : FullscreenSetting) => {
+				return FullscreenSetting[current];
+			},
+		});
+		this._settingsElm.appendChild(fullscreen.elm());
+
+		let pointer = new SettingWrapper<PointerSetting>({
+			name: "In-game Cursor",
+			get: () => { return settings.pointerSetting; },
+			click: (current : PointerSetting) => {
+				settings.pointerSetting = current === PointerSetting.LOCKED ? PointerSetting.NORMAL : PointerSetting.LOCKED;
+			},
+			text: (current : PointerSetting) => {
+				return PointerSetting[current];
+			},
+		});
+		this._settingsElm.appendChild(pointer.elm());
+
 		let frameRate = new SettingWrapper<SpeedSetting>({
 			name: "FPS Cap",
 			get: () => { return settings.fpsSetting; },
@@ -99,7 +127,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm.appendChild(clientPrediction.elm());
 
 		let inspector = new SettingWrapper<InspectorSetting>({
-			name: "[D] Inspector",
+			name: "[Debug] Inspector",
 			get: () => { return settings.inspectorSetting; },
 			click: (current : InspectorSetting) => {
 				settings.inspectorSetting = current === InspectorSetting.OFF ? InspectorSetting.ON : InspectorSetting.OFF;
@@ -110,53 +138,55 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(inspector.elm());
 
-		let delay = new SettingWrapper<DelaySetting>({
-			name: "[D] Delay",
-			get: () => { return settings.delaySetting; },
-			click: (current : DelaySetting) => {
-				if (current === DelaySetting.GLOBAL) {
-					settings.delaySetting = DelaySetting.NONE;
-				} else {
-					settings.delaySetting++;
-				}
-			},
-			text: (current : DelaySetting) => {
-				return DelaySetting[current];
-			},
-		});
-		this._settingsElm.appendChild(delay.elm());
+		if (isLocalhost()) {
+			let delay = new SettingWrapper<DelaySetting>({
+				name: "[Debug] Delay",
+				get: () => { return settings.delaySetting; },
+				click: (current : DelaySetting) => {
+					if (current === DelaySetting.GLOBAL) {
+						settings.delaySetting = DelaySetting.NONE;
+					} else {
+						settings.delaySetting++;
+					}
+				},
+				text: (current : DelaySetting) => {
+					return DelaySetting[current];
+				},
+			});
+			this._settingsElm.appendChild(delay.elm());
 
-		let jitter = new SettingWrapper<JitterSetting>({
-			name: "[D] Jitter",
-			get: () => { return settings.jitterSetting; },
-			click: (current : JitterSetting) => {
-				if (current === JitterSetting.TERRIBLE) {
-					settings.jitterSetting = JitterSetting.NONE;
-				} else {
-					settings.jitterSetting++;
-				}
-			},
-			text: (current : JitterSetting) => {
-				return JitterSetting[current];
-			},
-		});
-		this._settingsElm.appendChild(jitter.elm());
+			let jitter = new SettingWrapper<JitterSetting>({
+				name: "[Debug] Jitter",
+				get: () => { return settings.jitterSetting; },
+				click: (current : JitterSetting) => {
+					if (current === JitterSetting.TERRIBLE) {
+						settings.jitterSetting = JitterSetting.NONE;
+					} else {
+						settings.jitterSetting++;
+					}
+				},
+				text: (current : JitterSetting) => {
+					return JitterSetting[current];
+				},
+			});
+			this._settingsElm.appendChild(jitter.elm());
 
-		let networkStability = new SettingWrapper<NetworkStabilitySetting>({
-			name: "[D] Network Stability",
-			get: () => { return settings.networkStabilitySetting; },
-			click: (current : NetworkStabilitySetting) => {
-				if (current === NetworkStabilitySetting.TERRIBLE) {
-					settings.networkStabilitySetting = NetworkStabilitySetting.PERFECT;
-				} else {
-					settings.networkStabilitySetting++;
-				}
-			},
-			text: (current : NetworkStabilitySetting) => {
-				return NetworkStabilitySetting[current];
-			},
-		});
-		this._settingsElm.appendChild(networkStability.elm());
+			let networkStability = new SettingWrapper<NetworkStabilitySetting>({
+				name: "[Debug] Network Stability",
+				get: () => { return settings.networkStabilitySetting; },
+				click: (current : NetworkStabilitySetting) => {
+					if (current === NetworkStabilitySetting.TERRIBLE) {
+						settings.networkStabilitySetting = NetworkStabilitySetting.PERFECT;
+					} else {
+						settings.networkStabilitySetting++;
+					}
+				},
+				text: (current : NetworkStabilitySetting) => {
+					return NetworkStabilitySetting[current];
+				},
+			});
+			this._settingsElm.appendChild(networkStability.elm());
+		}
 	}
 
 	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
