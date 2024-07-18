@@ -40,6 +40,8 @@ export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 			this.elm().onclick = (e) => {
 				e.stopPropagation();
 
+				console.log("CLICK VOICE");
+
 				const shouldEnable = !game.netcode().voiceEnabled();
 				game.netcode().setVoiceEnabled(shouldEnable);
 				this.updateIcons();

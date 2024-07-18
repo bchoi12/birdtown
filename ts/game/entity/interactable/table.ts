@@ -110,9 +110,11 @@ export class Table extends Interactable implements Entity, EquipEntity {
 			init: entityOptions.profileInit,
 			prePhysicsFn: (profile : Profile) => {
 				profile.setAngle(this._profile.angle());
+				profile.setAngularVelocity(this._profile.angularVelocity());
 			},
 			postPhysicsFn: (profile : Profile) => {
 				profile.setAngle(this._profile.angle());
+				profile.setAngularVelocity(this._profile.angularVelocity());
 			},
 		}));
 		this._subProfile.onBody((subProfile : Profile) => {

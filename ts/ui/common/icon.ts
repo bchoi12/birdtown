@@ -67,6 +67,15 @@ export namespace Icon {
 	}
 
 	export function create(type : IconType) : HTMLElement {
+		/*
+		if (type === IconType.HEART) {
+			let html = document.createElement("i");
+			html.classList.add("material-icons");
+			html.innerHTML = "favorite";
+			return html;
+		}
+		*/
+
 		let html = baseElement();
 		if (classMap.has(type)) {
 			html.classList.add(classMap.get(type));

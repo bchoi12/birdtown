@@ -66,16 +66,20 @@ export class Client extends Netcode {
 		this.send(this.hostName(), ChannelType.TCP, msg);
 	}
 
-	override setVoiceEnabled(voiceEnabled : boolean) : void {
-		if (this._voiceEnabled === voiceEnabled) {
+	override setVoiceEnabled(enabled : boolean) : void {
+		if (this._voiceEnabled === enabled) {
 			return;
 		}
 
 		let outgoing = new NetworkMessage(NetworkMessageType.VOICE);
 		outgoing.setClientId(this.clientId());
-		outgoing.setVoiceEnabled(voiceEnabled);
+		outgoing.setVoiceEnabled(enabled);
 
-		if (voiceEnabled) {
+		this._voiceEnabled = enabled;
+
+		console.log("voiceEnabled", this._voiceEnabled);
+
+		if (enabled) {
 			this.queryMic((stream : MediaStream) => {
 				this.send(this.hostName(), ChannelType.TCP, outgoing);
 			}, (e) => {
@@ -84,7 +88,6 @@ export class Client extends Netcode {
 			});
 		} else {
 			this.send(this.hostName(), ChannelType.TCP, outgoing);
-			this._voiceEnabled = false;
 			this.closeMediaConnections();
 		}
 	}

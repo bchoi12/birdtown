@@ -122,9 +122,9 @@ export class Model extends ComponentBase implements Component {
 
 		this._root.dispose();
 
-		if (this.hasMesh()) {
-			this.mesh().dispose();
-		}
+		this.onLoad((model : Model) => {
+			model.mesh().dispose();
+		});
 	}
 
 	hasMaterialType() : boolean { return this._materialType.has(); }
