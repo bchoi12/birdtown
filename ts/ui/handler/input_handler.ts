@@ -185,11 +185,13 @@ export class InputHandler extends HandlerBase implements Handler {
 				const ratioY = touch.clientY / this.inputHeight();
 
 				if (ratioY < 0.2) {
-					if (ratioX < 0.2 || ratioX > 0.85) {
+					if (ratioX < 0.2 || ratioX > 0.8) {
 						keyMap.set(KeyType.MOUSE_CLICK, true);
+					} else if (ratioX > 0.4 && ratioX < 0.6) {
+						keyMap.set(KeyType.INTERACT, true);
 					}
 				} else if (ratioY > 0.8) {
-					if (ratioX < 0.15 || ratioX > 0.85) {
+					if (ratioX < 0.2 || ratioX > 0.8) {
 						keyMap.set(KeyType.ALT_MOUSE_CLICK, true);
 					} else {
 						keyMap.set(KeyType.JUMP, true);
