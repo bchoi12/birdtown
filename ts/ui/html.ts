@@ -35,6 +35,7 @@ export namespace Html {
 	export const divMainAnnouncement = "div-main-announcement";
 	export const divSubAnnouncement = "div-sub-announcement";
 	export const divScoreboard = "div-scoreboard";
+	export const divTimer = "div-timer";
 	export const divDialogs = "div-dialogs"
 
 	export const divModals = "div-modals";

@@ -601,7 +601,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (other.getAttribute(AttributeType.SOLID) && collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 1e-2) {
+		if (other.getAttribute(AttributeType.SOLID) && collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 5e-2) {
 			this._canJump = true;
 			this._canDoubleJump = true;
 			this._canJumpTimer.start(Player._jumpGracePeriod);

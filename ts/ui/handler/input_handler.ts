@@ -162,10 +162,12 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	private updateTouch(e : any, type : TouchType) : void {
+		let keys = new Set();
 		let keyMap = new Map<KeyType, boolean>([
 			[KeyType.LEFT, false],
 			[KeyType.RIGHT, false],
 			[KeyType.JUMP, false],
+			[KeyType.INTERACT, false],
 			[KeyType.ALT_MOUSE_CLICK, false],
 			[KeyType.MOUSE_CLICK, false],
 		]);

@@ -13,5 +13,6 @@ export enum HandlerType {
 	SCOREBOARD,
 	SETTINGS,
 	STATS,
+	TIMER,
 	TOOLTIPS,
 }
