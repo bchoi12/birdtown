@@ -70,7 +70,8 @@ export class Timer {
 	}
 
 	hasTimeLeft() : boolean { return this._state === TimerState.RUNNING && this._millisLeft > 0; }
-	timeLeft() : number { return this.hasTimeLeft() ? this._millisLeft : 0; }
+	millisLeft() : number { return this.hasTimeLeft() ? this._millisLeft : 0; }
+	secondsLeft() : number { return Math.ceil(this.millisLeft() / 1000); }
 	done() : boolean { return this._state === TimerState.DONE; }
 	percentElapsed() : number {
 		if (this._state === TimerState.NOT_STARTED) {
@@ -79,6 +80,6 @@ export class Timer {
 		if (this._state === TimerState.DONE) {
 			return 1;
 		}
-		return Fns.clamp(0, this._totalMillis > 0 ? 1 - this.timeLeft() / this._totalMillis : 0, 1);
+		return Fns.clamp(0, this._totalMillis > 0 ? 1 - this.millisLeft() / this._totalMillis : 0, 1);
 	}
 }

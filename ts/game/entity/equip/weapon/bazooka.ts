@@ -72,8 +72,8 @@ export class Bazooka extends Weapon {
 	override getCounts() : Map<CounterType, CounterOptions> {
 		let counts = super.getCounts();
 		counts.set(CounterType.ROCKET, {
-			percentGone: this.reloadTimeLeft() / Bazooka._reloadTime,
-			text: this.reloadTimeLeft() > 0 ? "0/1" : "1/1",
+			percentGone: this.reloadMillis() / Bazooka._reloadTime,
+			text: this.reloadMillis() > 0 ? "0/1" : "1/1",
 			color: ColorFactory.bazookaRed.toString(),
 		});
 		return counts;

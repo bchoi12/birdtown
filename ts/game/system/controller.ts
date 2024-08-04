@@ -12,22 +12,27 @@ import { GameMaker } from 'game/system/game_maker'
 import { GameConfigMessage } from 'message/game_config_message'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
+import { ui } from 'ui'
 import { KeyType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
-import { Timer} from 'util/timer'
+import { Stopwatch } from 'util/stopwatch'
 
 export class Controller extends SystemBase implements System {
 
+	private static readonly _maxTimeLimit = 999 * 1000;
+
 	private _gameState : GameState;
 	private _gameMaker : GameMaker; 
+	private _stopwatch : Stopwatch;
 
 	constructor() {
 		super(SystemType.CONTROLLER);
 
 		this._gameState = GameState.UNKNOWN;
 		this._gameMaker = this.addSubSystem<GameMaker>(SystemType.GAME_MAKER, new GameMaker());
+		this._stopwatch = new Stopwatch();
 
 		this.addProp<GameState>({
 			export: () => { return this.gameState(); },
@@ -35,6 +40,10 @@ export class Controller extends SystemBase implements System {
 			options: {
 				filters: GameData.tcpFilters,
 			},
+		});
+		this.addProp<number>({
+			export: () => { return this._stopwatch.seconds(); },
+			import: (obj : number) => { this.updateTimeLimit(obj * 1000); },
 		});
 	}
 
@@ -59,12 +68,14 @@ export class Controller extends SystemBase implements System {
 		}
 	}
 
+	stateMillis() : number { return this._stopwatch.millis(); }
 	gameState() : GameState { return this._gameState; }
 	setGameState(state : GameState) : void {
 		if (this._gameState === state) {
 			return;
 		}
 
+		this._stopwatch.reset();
 		this._gameState = state;
 		this._gameMaker.setGameState(state);
 
@@ -85,6 +96,19 @@ export class Controller extends SystemBase implements System {
 			return;
 		}
 
+		this._stopwatch.elapse(stepData.realMillis);
+		this.updateTimeLimit(this._stopwatch.millis());
 		this.setGameState(this._gameMaker.queryState(this.gameState()));
+	}
+
+	private updateTimeLimit(elapsed : number) : void {
+		const timeLimit = this._gameMaker.timeLimit(this._gameState);
+
+		if (timeLimit > Controller._maxTimeLimit) {
+			ui.clearTimer();
+			return;
+		}
+
+		ui.setTimer(Math.max(0, timeLimit - elapsed));
 	}
 }

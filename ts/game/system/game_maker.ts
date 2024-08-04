@@ -4,6 +4,7 @@ import { GameMode, GameState } from 'game/api'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
+import { StepData } from 'game/game_object'
 import { SystemBase, System } from 'game/system'
 import { SystemType, LevelType, LevelLayout, PlayerRole } from 'game/system/api'
 import { Controller } from 'game/system/controller'
@@ -21,9 +22,12 @@ import { isLocalhost } from 'util/common'
 
 export class GameMaker extends SystemBase implements System {
 
+	private static readonly _timeLimitBuffer = new Map([
+		[GameState.SETUP, 2000],
+	]);
+
 	private _config : GameConfigMessage;
 	private _round : number;
-	private _lastStateChange : number;
 	private _winners : Array<Tablet>;
 	private _errorMsg : string;
 
@@ -32,7 +36,6 @@ export class GameMaker extends SystemBase implements System {
 
 		this._config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
 		this._round = 0;
-		this._lastStateChange = Date.now();
 		this._winners = new Array();
 		this._errorMsg = "";
 
@@ -54,24 +57,25 @@ export class GameMaker extends SystemBase implements System {
 
 	mode() : GameMode { return this._config.type(); }
 	round() : number { return this._round; }
-	timeLimitReached(state : GameState) : boolean {
-		const elapsed = Date.now() - this._lastStateChange;
-
+	timeLimit(state : GameState) : number {
 		switch (state) {
 		case GameState.SETUP:
-			return this._config.hasTimeSetup() && elapsed >= this._config.getTimeSetup();
+			return this._config.getTimeSetupOr(Infinity);
 		case GameState.GAME:
-			return this._config.hasTimeGame() && elapsed >= this._config.getTimeGame();
+			return this._config.getTimeGameOr(Infinity);
 		case GameState.FINISH:
-			return this._config.hasTimeFinish() && elapsed >= this._config.getTimeFinish();
+			return this._config.getTimeFinishOr(Infinity);
 		case GameState.VICTORY:
-			return this._config.hasTimeVictory() && elapsed >= this._config.getTimeVictory();
+			return this._config.getTimeVictoryOr(Infinity);
 		case GameState.ERROR:
-			return this._config.hasTimeError() && elapsed >= this._config.getTimeError();
+			return this._config.getTimeErrorOr(Infinity);
 		default:
-			console.error("Warning: queried time limit of unknown type %s", GameState[state]);
-			return false;
+			return Infinity;
 		}
+	}
+	private timeLimitReached(state : GameState) : boolean {
+		const buffer = GameMaker._timeLimitBuffer.has(state) ? GameMaker._timeLimitBuffer.get(state) : 0;
+		return game.controller().stateMillis() >= this.timeLimit(state) + buffer;
 	}
 
 	setConfig(config : GameConfigMessage) : boolean {
@@ -171,8 +175,6 @@ export class GameMaker extends SystemBase implements System {
 		return current;
 	}
 	setGameState(state : GameState) : void {
-		this._lastStateChange = Date.now();
-
 		if (!this.isSource()) {
 			return;
 		}

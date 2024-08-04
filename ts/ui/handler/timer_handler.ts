@@ -14,19 +14,38 @@ import { Optional } from 'util/optional'
 
 export class TimerHandler extends HandlerBase implements Handler {
 
-	private _seconds : number;
+	private static readonly _infinity = "∞";
+	private static readonly _maxMillis = 999 * 1000;
+
 	private _timerElm : HTMLElement;
-	private _timerId : Optional<number>;
+	private _timerEnabled : boolean;
 
 	constructor() {
-		super(HandlerType.SCOREBOARD);
+		super(HandlerType.TIMER);
 
-		this._seconds = 0;
 		this._timerElm = Html.elm(Html.divTimer);
-		this._timerId = new Optional();
+		this._timerEnabled = false;
 	}
 
-	setTimer(millis : number) : void {
-		
+	setTime(millis : number) : void {
+		if (millis > TimerHandler._maxMillis) {
+			this._timerElm.textContent = TimerHandler._infinity;
+		} else {
+			this._timerElm.textContent = "" + Math.ceil(millis / 1000);
+		}
+
+		if (!this._timerEnabled) {
+			this._timerElm.style.top = "0";
+			this._timerEnabled = true;
+		}
+	}
+
+	clear() : void {
+		if (!this._timerEnabled) {
+			return;
+		}
+
+		this._timerElm.style.top = "-3em";
+		this._timerEnabled = false;
 	}
 }

@@ -91,7 +91,7 @@ export abstract class Weapon extends Equip<Player> {
 
 	abstract meshType() : MeshType;
 	shootNode() : BABYLON.TransformNode { return this._shootNode !== null ? this._shootNode : this._model.mesh(); }
-	reloadTimeLeft() : number { return this._reloadTimer.timeLeft(); }
+	reloadMillis() : number { return this._reloadTimer.millisLeft(); }
 
 	charged() : boolean { return false; }
 	abstract shotConfig() : ShotConfig;

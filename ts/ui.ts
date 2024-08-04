@@ -23,6 +23,7 @@ import { MenuHandler } from 'ui/handler/menu_handler'
 import { ScoreboardHandler } from 'ui/handler/scoreboard_handler'
 import { SettingsHandler } from 'ui/handler/settings_handler'
 import { StatsHandler } from 'ui/handler/stats_handler'
+import { TimerHandler } from 'ui/handler/timer_handler'
 import { TooltipHandler } from 'ui/handler/tooltip_handler'
 
 import { isLocalhost } from 'util/common'
@@ -49,6 +50,7 @@ class UI {
 	private _scoreboardHandler : ScoreboardHandler;
 	private _settingsHandler : SettingsHandler;
 	private _statsHandler : StatsHandler;
+	private _timerHandler : TimerHandler;
 	private _tooltipHandler : TooltipHandler;
 
 	constructor() {
@@ -70,6 +72,7 @@ class UI {
 		this._scoreboardHandler = this.add<ScoreboardHandler>(new ScoreboardHandler());
 		this._settingsHandler = this.add<SettingsHandler>(new SettingsHandler());
 		this._statsHandler = this.add<StatsHandler>(new StatsHandler());
+		this._timerHandler = this.add<TimerHandler>(new TimerHandler());
 		this._tooltipHandler = this.add<TooltipHandler>(new TooltipHandler());
 	}
 
@@ -167,6 +170,8 @@ class UI {
 		}
 	}
 
+	setTimer(millis : number) : void { this._timerHandler.setTime(millis); }
+	clearTimer() : void { this._timerHandler.clear(); }
 	updateCounters(counters : Map<CounterType, CounterOptions>) : void { this._countersHandler.updateCounters(counters); }
 	updateInfo(id : number, type : InfoType, value : number | string) : void { this._scoreboardHandler.updateInfo(id, type, value); }
 	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }

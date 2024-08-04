@@ -251,7 +251,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.setAcc({x: 0, y: 0});
 
 		this._profile.setLimitFn((profile : Profile) => {
-			const maxHorizontalVel = profile.knockbackTime() > 0 ? Player._maxHorizontalVel : Player._maxWalkingVel;
+			const maxHorizontalVel = profile.knockbackMillis() > 0 ? Player._maxHorizontalVel : Player._maxWalkingVel;
 			if (Math.abs(profile.vel().x) > maxHorizontalVel) {
 				profile.vel().x = Math.sign(profile.vel().x) * maxHorizontalVel;
 			}
@@ -545,7 +545,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			// Accel multipliers
-			if (sideAcc !== 0 && this._profile.knockbackTime() === 0) {
+			if (sideAcc !== 0 && this._profile.knockbackMillis() === 0) {
 				const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
 				const sideSpeed = Math.abs(this._profile.vel().x);
 
@@ -582,7 +582,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		// Friction and air resistance
 		if (Math.abs(this._profile.vel().x) < Player._minSpeed) {
 			this._profile.setVel({x: 0});
-		} else if (this._profile.knockbackTime() === 0
+		} else if (this._profile.knockbackMillis() === 0
 			&& Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x)) {
 			let sideVel = this._profile.vel().x;
 			if (this.getAttribute(AttributeType.GROUNDED)) {
@@ -620,7 +620,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		const millis = stepData.millis;
 		if (this.isSource() || this.clientIdMatches()) {
-			this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.timeLeft() > Player._jumpGracePeriod / 2);
+			this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.millisLeft() > Player._jumpGracePeriod / 2);
 		}
 
 		// Check for nearby interactables

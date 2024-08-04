@@ -243,7 +243,7 @@ body {
 
     top: 20%;
     padding: 1em;
-    border-radius: 10px;
+    border-radius: 1em;
 
     white-space: pre-line;
 
@@ -291,7 +291,7 @@ body {
     top: 15%;
     left: 15%;
 
-    border-radius: 50px;
+    border-radius: 2em;
     background-color: rgba(0.1,0.1,0.1,0.9);
     color: #f2f2f2;
 }
@@ -315,6 +315,28 @@ body {
     text-align: center;
     font-size: 2em;
     padding: 0.3em;
+}
+
+#div-timer {
+    text-align: center;
+    position: absolute;
+    top: -3em;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    background-color: rgba(0, 0, 0, 0.5);
+
+    width: 3em;
+
+    color: #f2f2f2;
+    font-size: 1em;
+    letter-spacing: 0.1em;
+    padding: 0.3em 0.6em 0.5em 0.6em;
+
+    border-bottom-left-radius: 0.3em;
+    border-bottom-right-radius: 0.3em;
+
+    transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 #div-scoreboard {
@@ -426,7 +448,7 @@ body {
 }
 
 .button-select {
-    transition: border-left ease-out 0.1s, padding-left ease-out 0.1s, font-size ease-out 0.1s;
+    transition: border-left 0.1s ease-out, padding-left 0.1s ease-out, font-size 0.1s ease-out;
     border-left: 0em solid;
 }
 

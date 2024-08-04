@@ -741,11 +741,11 @@ export class Profile extends ComponentBase implements Component {
 		this.addVel(totalForce)
 
 		const weight = Math.min(totalForce.lengthSq(), 1);
-		this._knockbackTimer.start(Math.max(this._knockbackTimer.timeLeft(), Profile._knockbackTimeMin + weight * Profile._knockbackTimeVariance));
+		this._knockbackTimer.start(Math.max(this._knockbackTimer.millisLeft(), Profile._knockbackTimeMin + weight * Profile._knockbackTimeVariance));
 
 		this._forces.clear();
 	}
-	knockbackTime() : number { return this._knockbackTimer.timeLeft(); }
+	knockbackMillis() : number { return this._knockbackTimer.millisLeft(); }
 
 	private vecEpsilon() : number { return this._degraded ? Profile._degradedVecEpsilon : Profile._vecEpsilon; }
 	setLimitFn(limitFn : ModifyProfileFn) { this._limitFn.set(limitFn); }
@@ -857,7 +857,12 @@ export class Profile extends ComponentBase implements Component {
 			let overlap = this.overlap(other.profile());
 			let vel = this.vel();
 			const yCollision = this.isYCollision(overlap, vel);
-			if (yCollision) {
+			if (other.allTypes().has(EntityType.FLOOR) && pen.x !== 0) {
+				pen.x = 0;
+				normal.x = 0;
+				normal.y = Math.sign(normal.y);
+				fixed = true;
+			} else if (yCollision) {
 				pen.x = 0;
 				normal.x = 0;
 				normal.y = Math.sign(normal.y);
@@ -872,26 +877,19 @@ export class Profile extends ComponentBase implements Component {
 					fixed = true;
 				}
 			} else {
-				if (other.allTypes().has(EntityType.FLOOR)) {
-					pen.x = 0;
-					normal.x = 0;
-					normal.y = Math.sign(normal.y);
-					fixed = true;
-				} else {
-					pen.y = 0;
-					normal.x = Math.sign(normal.x);
-					normal.y = 0;
+				pen.y = 0;
+				normal.x = Math.sign(normal.x);
+				normal.y = 0;
 
-					if (Math.sign(vel.x) === Math.sign(this.pos().x - otherProfile.pos().x)) {
-						// Moving away from the collision
-						pen.scale(0);
-						fixed = true;
-					} else if (Math.abs(overlap.y) < 0.01 || Math.abs(normal.y) > 0.99) {
-						// Either overlap in other dimension is too small or collision direction is in disagreement.
-						pen.scale(0);
-						fixed = true;
-					}
-				} 
+				if (Math.sign(vel.x) === Math.sign(this.pos().x - otherProfile.pos().x)) {
+					// Moving away from the collision
+					pen.scale(0);
+					fixed = true;
+				} else if (Math.abs(overlap.y) < 0.01 || Math.abs(normal.y) > 0.99) {
+					// Either overlap in other dimension is too small or collision direction is in disagreement.
+					pen.scale(0);
+					fixed = true;
+				}
 			}
 		}
 

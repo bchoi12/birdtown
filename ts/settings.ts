@@ -57,7 +57,7 @@ class Settings {
 		this.pointerSetting = PointerSetting.NORMAL;
 
 		this.fpsSetting = isMobile() ? SpeedSetting.SLOW : SpeedSetting.NORMAL;
-		this.antiAliasSetting = isMobile() ? AntiAliasSetting.LOW : AntiAliasSetting.MEDIUM;
+		this.antiAliasSetting = isMobile() ? AntiAliasSetting.NONE : AntiAliasSetting.MEDIUM;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 
 		// Debug properties
