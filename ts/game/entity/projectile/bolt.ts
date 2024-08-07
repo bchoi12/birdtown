@@ -52,14 +52,9 @@ export class Bolt extends Projectile {
 					depth: depth,
 				}, game.scene());
 
-				const border = 0.02;
-				let outline = BABYLON.MeshBuilder.CreateBox(this.name(), {
-					width: dim.x,
-					height: dim.y + 2 * border,
-					depth: border,
-				}, game.scene());
-				outline.material = MaterialFactory.material(MaterialType.BOLT_LIGHT_BLUE);
-				outline.parent = mesh;
+				game.world().glow(mesh, {
+					intensity: 0.5,
+				});
 
 				model.setMesh(mesh);
 			},
@@ -85,14 +80,14 @@ export class Bolt extends Projectile {
 			for (let i = 0; i < 3; ++i) {
 				this.addEntity(EntityType.PARTICLE_SPARK, {
 					offline: true,
-					ttl: 300,
+					ttl: 400,
 					profileInit: {
 						pos: this._profile.pos(),
-						vel: Vec2.fromVec(this._profile.vel()).negate().normalize().scaleVec({
-							x: Fns.randomRange(0.05, 0.2),
-							y: Fns.randomRange(0.05, 0.2),
+						vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
+							x: Fns.randomRange(0.1, 0.2),
+							y: Fns.randomRange(0.1, 0.2),
 						}),
-						scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.12 },
+						scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.15 },
 					},
 					modelInit: {
 						transforms: {

@@ -33,10 +33,12 @@ export class ParticleEnergyCube extends Particle {
 	override particleType() : ParticleType { return ParticleType.CUBE; }
 	override processModel(model : Model) : void {
 		model.mesh().receiveShadows = false;
+		game.world().glow(model.mesh(), { intensity: 0.6 });
 	}
 	override resetModel(model : Model) : void {
 		model.mesh().receiveShadows = true;
 		model.mesh().scaling.set(1, 1, 1);
+		game.world().removeGlow(model.mesh());
 	}
 
 	override updateParticle(stepData : StepData) : void {

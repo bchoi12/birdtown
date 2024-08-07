@@ -57,9 +57,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: (model: Model) => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
-				model.setMesh(BABYLON.MeshBuilder.CreateSphere(this.name(), {
-					diameter: this._profile.unscaledDim().x,
-				}, game.scene()));
+				model.setMesh(this.meshFn());
 			},
 			init: {
 				disableShadows: true, 
@@ -70,6 +68,12 @@ export abstract class Explosion extends EntityBase implements Entity {
 
 		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
 		this._soundPlayer.registerSound(SoundType.EXPLOSION, SoundType.EXPLOSION);
+	}
+
+	meshFn() : BABYLON.Mesh {
+		return BABYLON.MeshBuilder.CreateSphere(this.name(), {
+			diameter: this._profile.unscaledDim().x,
+		}, game.scene())
 	}
 
 	abstract force() : number;

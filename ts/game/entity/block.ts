@@ -216,7 +216,7 @@ export abstract class Block extends EntityBase {
 
 		if (meshProps.has(MeshProp.WINDOWS)) {
 			this._transparentFrontMeshes.push(mesh);
-			game.world().excludeHighlight(mesh, true);
+			game.world().excludeHighlight(mesh);
 		}
 
 		if (this._materialCache.has(mesh.material.name)) {

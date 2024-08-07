@@ -177,6 +177,7 @@ class UI {
 	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }
 	pushDialog(type : DialogType) : void { this._dialogHandler.pushDialog(type); }
 	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }
+	setDebugStats(enabled : boolean) : void { this._statsHandler.setDebug(enabled); }
 
 	chat(msg : string) : void { this._chatHandler.chat(msg); }
 	clear() : void {

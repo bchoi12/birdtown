@@ -10,12 +10,16 @@ import { SystemType } from 'game/system/api'
 
 enum LayerType {
 	UNKNOWN,
+	GLOW,
 	HIGHLIGHT,
 }
 
 export type HighlightParams = {
-	enabled : boolean;
-	color? : BABYLON.Color3;
+	color : BABYLON.Color3;
+}
+
+export type GlowParams = {
+	intensity : number;
 }
 
 export class World extends SystemBase implements System {
@@ -114,22 +118,41 @@ export class World extends SystemBase implements System {
 
 	highlight(mesh : BABYLON.Mesh, params : HighlightParams) : void {
 		let layer = this.getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT);
-		if (params.enabled) {
-			let color = params.color ? params.color : BABYLON.Color3.Red();
-			layer.addMesh(mesh, color);
-		} else {
-			layer.removeMesh(mesh);
-		}
+		layer.addMesh(mesh, params.color);
 	}
-	excludeHighlight(mesh : BABYLON.Mesh, excluded : boolean) : void {
+	removeHighlight(mesh : BABYLON.Mesh) : void {
 		let layer = this.getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT);
-		if (excluded) {
-			layer.addExcludedMesh(mesh)
-		} else {
-			layer.removeExcludedMesh(mesh);
-		}
+		layer.removeMesh(mesh);
+	}
+	excludeHighlight(mesh : BABYLON.Mesh) : void {
+		let layer = this.getLayer<BABYLON.HighlightLayer>(LayerType.HIGHLIGHT);
+		layer.addExcludedMesh(mesh)
 	}
 
+	glow(mesh : BABYLON.Mesh, params : GlowParams) : void {
+		if (!this.hasLayer(LayerType.GLOW)) {
+			let glow = new BABYLON.GlowLayer("glow", this._scene, {
+				blurKernelSize: 64,
+			});
+			this._layers.set(LayerType.GLOW, glow);
+		}
+
+		let glow = this.getLayer<BABYLON.GlowLayer>(LayerType.GLOW);
+		glow.intensity = 1;
+		glow.setEffectIntensity(mesh, params.intensity);
+		glow.addIncludedOnlyMesh(mesh);
+	}
+	removeGlow(mesh : BABYLON.Mesh) : void {
+		if (!this.hasLayer(LayerType.GLOW)) {
+			console.error("Warning: removeGlow() called but no GlowLayer exists");
+			return;
+		}
+
+		let glow = this.getLayer<BABYLON.GlowLayer>(LayerType.GLOW);
+		glow.removeIncludedOnlyMesh(mesh);
+	}
+
+	hasLayer(type : LayerType) : boolean { return this._layers.has(type); }
 	getLayer<T extends BABYLON.EffectLayer>(type : LayerType) : T { return <T>this._layers.get(type); }
 
 	override preRender() : void {

@@ -159,6 +159,9 @@ export class ChatHandler extends HandlerBase implements Handler {
 				game.runner().setUpdateSpeed(Number(pieces[1]));
 			}
 			break;
+		case "/stats":
+
+			break;
 		default:
 			console.error("Unknown command:", message);
 		}

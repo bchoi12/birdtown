@@ -418,8 +418,6 @@ export class Profile extends ComponentBase implements Component {
 		if (!this.hasVel()) { this._vel = SmoothVec2.zero(); }
 
 		this._vel.copyVec(vec);
-		this._vel.zeroEpsilon(Profile._minQuantization);
-		this._vel.roundToEpsilon(Profile._minQuantization);
 	}
 	addVel(delta : Vec) : void {
 		if (!this.hasVel()) { this._vel = SmoothVec2.zero(); }
@@ -448,8 +446,6 @@ export class Profile extends ComponentBase implements Component {
 		if (!this.hasAcc()) { this._acc = Vec2.zero(); }
 
 		this._acc.copyVec(vec);
-		this._acc.zeroEpsilon(Profile._minQuantization);
-		this._acc.roundToEpsilon(Profile._minQuantization);
 	}
 
 	private hasDim() : boolean { return defined(this._dim); }
@@ -758,8 +754,6 @@ export class Profile extends ComponentBase implements Component {
 	clearTempLimitFns() : void { this._tempLimitFns.clear(); }
 	setOutOfBoundsFn(outOfBoundsFn : ModifyProfileFn) : void { this._outOfBoundsFn.set(outOfBoundsFn); }
 	private applyLimits() : void {
-		this.zeroSpeed(Profile._minQuantization);
-
 		if (this._outOfBoundsFn.has()) {
 			const bounds = game.level().bounds();
 			if (bounds.ySide(this.pos()) !== 0 || !game.level().isCircle() && bounds.xSide(this.pos()) !== 0) {
@@ -822,14 +816,15 @@ export class Profile extends ComponentBase implements Component {
 					});
 				}
 			}
+		}
 
-			this.applyForces();
-			this.applyLimits();
+		this.applyForces();
+		this.applyLimits();
 
+		if (!attached) {
 			if (this.updateCalls() > 1 && this.hasVel()) {
 				MATTER.Body.setVelocity(this._body, this.vel());
 			}
-
 			MATTER.Body.setPosition(this._body, this.pos());
 		}
 
@@ -857,38 +852,43 @@ export class Profile extends ComponentBase implements Component {
 			let overlap = this.overlap(other.profile());
 			let vel = this.vel();
 			const yCollision = this.isYCollision(overlap, vel);
-			if (other.allTypes().has(EntityType.FLOOR) && pen.x !== 0) {
-				pen.x = 0;
-				normal.x = 0;
-				normal.y = Math.sign(normal.y);
-				fixed = true;
-			} else if (yCollision) {
-				pen.x = 0;
-				normal.x = 0;
-				normal.y = Math.sign(normal.y);
-
-				if (Math.sign(vel.y) === Math.sign(this.pos().y - otherProfile.pos().y)) {
-					// Moving away from the collision
-					pen.scale(0);
-					fixed = true;
-				} else if (Math.abs(overlap.x) < 0.01 || Math.abs(normal.x) > 0.99) {
-					// Either overlap in other dimension is too small or collision direction is in disagreement.
-					pen.scale(0);
+			if (other.allTypes().has(EntityType.FLOOR)) {
+				if (pen.x !== 0) {
+					normal.x = 0;
+					normal.y = this.pos().y > other.profile().pos().y ? 1 : -1;
+					pen.x = 0;
+					pen.y = -normal.y * overlap.y
 					fixed = true;
 				}
 			} else {
-				pen.y = 0;
-				normal.x = Math.sign(normal.x);
-				normal.y = 0;
+				if (yCollision) {
+					pen.x = 0;
+					normal.x = 0;
+					normal.y = Math.sign(normal.y);
 
-				if (Math.sign(vel.x) === Math.sign(this.pos().x - otherProfile.pos().x)) {
-					// Moving away from the collision
-					pen.scale(0);
-					fixed = true;
-				} else if (Math.abs(overlap.y) < 0.01 || Math.abs(normal.y) > 0.99) {
-					// Either overlap in other dimension is too small or collision direction is in disagreement.
-					pen.scale(0);
-					fixed = true;
+					if (Math.sign(vel.y) === Math.sign(this.pos().y - otherProfile.pos().y)) {
+						// Moving away from the collision
+						pen.scale(0);
+						fixed = true;
+					} else if (Math.abs(overlap.x) < 0.01 || Math.abs(normal.x) > 0.99) {
+						// Either overlap in other dimension is too small or collision direction is in disagreement.
+						pen.scale(0);
+						fixed = true;
+					}
+				} else {
+					pen.y = 0;
+					normal.x = Math.sign(normal.x);
+					normal.y = 0;
+
+					if (Math.sign(vel.x) === Math.sign(this.pos().x - otherProfile.pos().x)) {
+						// Moving away from the collision
+						pen.scale(0);
+						fixed = true;
+					} else if (Math.abs(overlap.y) < 0.01 || Math.abs(normal.y) > 0.99) {
+						// Either overlap in other dimension is too small or collision direction is in disagreement.
+						pen.scale(0);
+						fixed = true;
+					}
 				}
 			}
 		}
@@ -915,31 +915,18 @@ export class Profile extends ComponentBase implements Component {
 			&& !this._attachId.has()) {
 
 			// Only fix x collisions since y collisions might cause fall through floor.
-			{
-				const record = this._collisionBuffer.record(RecordType.MAX_PEN_X);
-				if (record.collision.penetration.x <= 0 && this.vel().x > 0) {
-					MATTER.Body.setVelocity(this._body, {
-						x: Math.max(this.vel().x, this._body.velocity.x),
-						y: this._body.velocity.y,
-					});
-					MATTER.Body.setPosition(this._body, {
-						x: this._body.position.x + this._body.velocity.x * millis / 1000,
-						y: this._body.position.y,
-					});
-				}
-			}
-			{
-				const record = this._collisionBuffer.record(RecordType.MIN_PEN_X);
-				if (record.collision.penetration.x >= 0 && this.vel().x < 0) {
-					MATTER.Body.setVelocity(this._body, {
-						x: Math.min(this.vel().x, this._body.velocity.x),
-						y: this._body.velocity.y,
-					});
-					MATTER.Body.setPosition(this._body, {
-						x: this._body.position.x + this._body.velocity.x * millis / 1000,
-						y: this._body.position.y,
-					});
-				}
+			const maxRecord = this._collisionBuffer.record(RecordType.MAX_PEN_X);
+			const minRecord = this._collisionBuffer.record(RecordType.MIN_PEN_X);
+			if (maxRecord.collision.penetration.x <= 0 && this.vel().x > 0
+				|| minRecord.collision.penetration.x >= 0 && this.vel().x < 0) {
+				MATTER.Body.setVelocity(this._body, {
+					x: Math.sign(this.vel().x) * Math.max(Math.abs(this.vel().x), Math.abs(this._body.velocity.x)),
+					y: this._body.velocity.y,
+				});
+				MATTER.Body.setPosition(this._body, {
+					x: this._body.position.x + this._body.velocity.x * millis / 1000,
+					y: this._body.position.y + this.vel().y * millis / 1000,
+				});
 			}
 		}
 
