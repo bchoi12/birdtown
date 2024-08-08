@@ -36,6 +36,7 @@ export class TimerHandler extends HandlerBase implements Handler {
 
 		if (!this._timerEnabled) {
 			this._timerElm.style.top = "0";
+			this._timerElm.style.visibility = "visible";
 			this._timerEnabled = true;
 		}
 	}

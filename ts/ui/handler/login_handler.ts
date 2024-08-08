@@ -47,7 +47,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 	override onEnable() : void {
 		super.onEnable();
 
-		this._legendElm.textContent = "Birdtown (alpha v0.1)";
+		this._legendElm.textContent = "alpha 0.1";
 
 		this._loginInfoElm.style.display = "none";
 		this._roomInputElm.style.display = "block";

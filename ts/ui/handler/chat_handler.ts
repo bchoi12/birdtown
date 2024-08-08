@@ -160,7 +160,10 @@ export class ChatHandler extends HandlerBase implements Handler {
 			}
 			break;
 		case "/stats":
-
+			ui.setDebugStats(true);
+			break;
+		case "/nostats":
+			ui.setDebugStats(false);
 			break;
 		default:
 			console.error("Unknown command:", message);
