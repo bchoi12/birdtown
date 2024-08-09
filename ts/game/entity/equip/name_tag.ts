@@ -184,7 +184,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		super.preRender();
 
 		let occluded = false;
-		if (this.owner().getAttribute(AttributeType.OCCLUDED)) {
+		if (this.owner().hasProfile() && !this.owner().profile().visible()) {
 			occluded = true;
 		} else if (this.owner().type() === EntityType.PLAYER) {
 			if (game.playerStates().hasPlayerState(this.owner().clientId())

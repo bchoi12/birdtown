@@ -14,7 +14,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { CollisionCategory, MeshType } from 'game/factory/api'
+import { CollisionCategory, DepthType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -76,6 +76,7 @@ export abstract class Block extends EntityBase {
 		this._frontMaterials = new Set();
 		this._transparentFrontMeshes = new Array();
 
+		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._cardinals = this.addComponent<Cardinals>(new Cardinals(entityOptions.cardinalsInit));
 		this._entityTrackers = this.addComponent<EntityTrackers>(new EntityTrackers());
 		this._hexColors = this.addComponent<HexColors>(new HexColors(entityOptions.hexColorsInit));
@@ -86,14 +87,11 @@ export abstract class Block extends EntityBase {
 					isSensor: true,
 					isStatic: true,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE),
-					render: {
-						fillStyle: this._hexColors.color(ColorType.BASE).toString(),
-					}
 				});
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setRenderNever();
+		this._profile.setVisible(false);
 
 		this._model = this.addComponent(new Model({
 			readyFn: () => {
@@ -110,6 +108,20 @@ export abstract class Block extends EntityBase {
 			},
 			init: entityOptions.modelInit,
 		}));
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		// Set up minimap rendering after processing mesh
+		this._model.onLoad(() => {
+			if (this._hexColors.hasColor(ColorType.BASE) && this.canOcclude()) {
+				this._profile.setMinimapOptions({
+					color: this._hexColors.color(ColorType.BASE).toString(),
+					depthType: DepthType.FRONT,
+				});
+			}
+		});
 	}
 
 	abstract meshType() : MeshType;
@@ -130,7 +142,7 @@ export abstract class Block extends EntityBase {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (this._frontMaterials.size === 0 && this._transparentFrontMeshes.length === 0) {
+		if (!this.canOcclude()) {
 			return;
 		}
 
@@ -158,7 +170,7 @@ export abstract class Block extends EntityBase {
 		super.postPhysics(stepData);
 		const millis = stepData.millis;
 
-		this.setAttribute(AttributeType.OCCLUDED, this.transparent());
+		this._profile.setVisible(this.canOcclude() && !this.transparent());
 		if (this.transparent()) {
 			this._frontMaterials.forEach((name : string) => {
 				const cached = this._materialCache.get(name);
@@ -169,7 +181,7 @@ export abstract class Block extends EntityBase {
 			});
 		} else {
 			this._occludedEntities.forEach((entity : Entity) => {
-				entity.setAttribute(AttributeType.OCCLUDED, true);
+				entity.profile().setVisible(!this.transparent());
 			});
 			this._frontMaterials.forEach((name : string) => {
 				const cached = this._materialCache.get(name);
@@ -271,4 +283,6 @@ export abstract class Block extends EntityBase {
 
 		mesh.material.markDirty(true);
 	}
+
+	protected canOcclude() : boolean { return !(this._frontMaterials.size === 0 && this._transparentFrontMeshes.length === 0); }
 }

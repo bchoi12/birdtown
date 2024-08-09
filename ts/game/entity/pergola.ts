@@ -10,11 +10,10 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { CollisionCategory, MeshType } from 'game/factory/api'
+import { CollisionCategory, DepthType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
-import { DepthType } from 'game/system/api'
 
 import { GameGlobals } from 'global/game_globals'
 
@@ -47,14 +46,13 @@ export class Pergola extends EntityBase implements Entity {
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
-					density: 0.1 * BodyFactory.defaultDensity,
+					density: 0.2 * BodyFactory.defaultDensity,
 					friction: 1.5 * BodyFactory.defaultFriction,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.OFFSET),
 				});
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setRenderUnoccluded();
 		this._profile.setMinimapOptions({
 			color: ColorFactory.archWhite.toString(),
 			depthType: DepthType.BACKGROUND,
@@ -76,7 +74,6 @@ export class Pergola extends EntityBase implements Entity {
 			},
 		}));
 		this._subProfile.setInertia(Infinity);
-		this._subProfile.setRenderUnoccluded();
 		this._subProfile.setMinimapOptions({
 			color: ColorFactory.archWood.toString(),
 			depthType: DepthType.FLOOR,

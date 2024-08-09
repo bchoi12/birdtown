@@ -7,9 +7,9 @@ import { ComponentType, AttributeType, StatType } from 'game/component/api'
 import { Stats } from 'game/component/stats'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { DepthType } from 'game/factory/api'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
-import { DepthType } from 'game/system/api'
 import { CollisionBuffer, RecordType } from 'game/util/collision_buffer'
 
 import { settings } from 'settings'
@@ -63,14 +63,6 @@ export type MinimapOptions = {
 	depthType? : DepthType;
 }
 
-enum RenderMode {
-	UNKNOWN,
-
-	ALWAYS,
-	NEVER,
-	CHECK_OCCLUSION,
-}
-
 export class Profile extends ComponentBase implements Component {
 
 	private static readonly _minQuantization = 1e-3;
@@ -101,7 +93,6 @@ export class Profile extends ComponentBase implements Component {
 	private _outOfBoundsFn : Optional<ModifyProfileFn>;
 	private _smoother : Smoother;
 	private _scaleFactor : Vec2;
-	private _renderMode : RenderMode;
 
 	private _pos : SmoothVec2;
 	private _vel : SmoothVec2;
@@ -141,7 +132,6 @@ export class Profile extends ComponentBase implements Component {
 		this._outOfBoundsFn = new Optional();
 		this._scaleFactor = Vec2.one();
 		this._smoother = new Smoother();
-		this._renderMode = RenderMode.ALWAYS;
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -340,38 +330,22 @@ export class Profile extends ComponentBase implements Component {
 			this._onBodyFns.push(fn);
 		}
 	}
-	setRenderAlways() : void { this.setRenderMode(RenderMode.ALWAYS); }
-	setRenderUnoccluded() : void { this.setRenderMode(RenderMode.CHECK_OCCLUSION); }
-	setRenderNever() : void { this.setRenderMode(RenderMode.NEVER); }
+	visible() : boolean { return this.hasBody() && this.body().render.visible; }
+	setVisible(visible : boolean) : void {
+		this.onBody((profile : Profile) => {
+			profile.body().render.visible = visible;
+		});
+	}
 	setMinimapOptions(options : MinimapOptions) : void {
 		this.onBody((profile : Profile) => {
 			profile.body().render.fillStyle = options.color;
 			profile.body().render.strokeStyle = options.color;
+			profile.body().render.visible = true;
 
 			if (options.depthType) {
 				profile.body().plugin.zIndex = options.depthType;
 			}
 		});
-	}
-	private setRenderMode(mode : RenderMode) : void {
-		if (this._renderMode === mode) {
-			return;
-		}
-
-		this._renderMode = mode;
-		switch (mode) {
-			case RenderMode.ALWAYS:
-			case RenderMode.CHECK_OCCLUSION:
-				this.onBody((profile : Profile) => {
-					profile.body().render.visible = true;
-				});
-				break;
-			case RenderMode.NEVER:
-				this.onBody((profile : Profile) => {
-					profile.body().render.visible = false;
-				});
-				break;
-		}
 	}
 
 	collisionBuffer() : CollisionBuffer { return this._collisionBuffer; }
@@ -432,11 +406,6 @@ export class Profile extends ComponentBase implements Component {
 
 		if (this._vel.lengthSq() > speed * speed) {
 			this._vel.normalize().scale(speed);
-		}
-	}
-	zeroSpeed(speed : number) : void {
-		if (this.hasVel()) {
-			this.vel().zeroEpsilon(speed);
 		}
 	}
 
@@ -966,9 +935,5 @@ export class Profile extends ComponentBase implements Component {
 			MATTER.Body.setPosition(this._body, this.getRenderPos());
 		}
 		*/
-
-		if (this._renderMode === RenderMode.CHECK_OCCLUSION) {
-			this._body.render.visible = !this.entity().getAttribute(AttributeType.OCCLUDED);
-		}
 	}
 } 

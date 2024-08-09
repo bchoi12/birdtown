@@ -24,10 +24,10 @@ import { Headwear } from 'game/entity/equip/headwear'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Weapon } from 'game/entity/equip/weapon'
 import { CollisionCategory, MaterialType, MeshType, TextureType } from 'game/factory/api'
+import { DepthType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
-import { DepthType } from 'game/system/api'
 import { RecordType } from 'game/util/collision_buffer'
 import { MaterialShifter } from 'game/util/material_shifter'
 
@@ -243,9 +243,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			},
 			init: entityOptions.profileInit,
 		}));
-		if (!this.clientIdMatches()) {
-			this._profile.setRenderUnoccluded();
-		}
 		this._profile.setAngle(0);
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
@@ -274,7 +271,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			},
 			prePhysicsFn: (profile : Profile) => { profile.snapWithOffset(this._profile, { y: 0.22 }); },
 		}));
-		this._headSubProfile.setRenderNever();
+		this._headSubProfile.setVisible(false);
 		this._headSubProfile.setAngle(0);
 
 		this._model = this.addComponent<Model>(new Model({

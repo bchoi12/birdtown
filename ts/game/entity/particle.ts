@@ -49,7 +49,7 @@ export abstract class Particle extends EntityBase implements Entity {
 			bodyFn: this.bodyFn,
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setRenderNever();
+		this._profile.setVisible(false);
 	}
 
 	override dispose() : void {

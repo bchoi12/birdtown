@@ -30,6 +30,6 @@ export class SpawnPoint extends EntityBase implements Entity {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setRenderNever();
+		this._profile.setVisible(false);
 	}
 }

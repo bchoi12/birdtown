@@ -75,7 +75,7 @@ export class Table extends Interactable implements Entity, EquipEntity {
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
-					density: 1.2 * BodyFactory.defaultDensity,
+					density: 0.5 * BodyFactory.defaultDensity,
 					friction: 1.5 * BodyFactory.defaultFriction,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.OFFSET),
 					chamfer: {
@@ -85,7 +85,6 @@ export class Table extends Interactable implements Entity, EquipEntity {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setAcc({ y: GameGlobals.gravity });
 		this._profile.setLimitFn((profile : Profile) => {
 			profile.capSpeed(Table._maxSpeed);
 			if (Math.abs(profile.vel().x) < Table._minSpeed) {
@@ -93,7 +92,6 @@ export class Table extends Interactable implements Entity, EquipEntity {
 			}
 		});
 
-		this._profile.setRenderUnoccluded();
 		this._profile.setMinimapOptions({
 			color: ColorFactory.tableWood.toString(),
 		});
@@ -119,6 +117,10 @@ export class Table extends Interactable implements Entity, EquipEntity {
 			this._profile.onBody((profile : Profile) => {
 				profile.setAngle(0);
 				subProfile.attachTo(profile, { x: 0, y: 0.35 });
+
+				profile.stop();
+				subProfile.stop();
+				profile.setAcc({ y: GameGlobals.gravity });
 			});
 		});
 		this._subProfile.setLimitFn((profile : Profile) => {
@@ -128,7 +130,6 @@ export class Table extends Interactable implements Entity, EquipEntity {
 			}
 		});
 
-		this._subProfile.setRenderUnoccluded();
 		this._subProfile.setMinimapOptions({
 			color: ColorFactory.tableWood.toString(),
 		});

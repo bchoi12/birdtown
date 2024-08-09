@@ -108,7 +108,6 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		if (!this._profile.hasAngle()) {
 			this._profile.setAngle(0);
 		}
-		this._profile.setRenderUnoccluded();
 		this._profile.setLimitFn((profile : Profile) => {
 			profile.capSpeed(Crate._maxSpeed);
 		});

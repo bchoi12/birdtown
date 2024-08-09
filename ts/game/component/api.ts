@@ -35,7 +35,6 @@ export enum AttributeType {
 	FLOATING,
 	GROUNDED,
 	INVINCIBLE,
-	OCCLUDED,
 	SOLID,
 }
 

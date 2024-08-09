@@ -171,14 +171,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		game.entities().unregisterEntity(this.id());
 	}
 
-	override prePhysics(stepData : StepData) : void {
-		super.prePhysics(stepData);
-
-		if (this.hasAttribute(AttributeType.OCCLUDED)) {
-			this.setAttribute(AttributeType.OCCLUDED, false);
-		}
-	}
-
 	id() : number { return this._id; }
 	hasClientId() : boolean { return this._clientId > 0; }
 	clientId() : number { return this._clientId; }

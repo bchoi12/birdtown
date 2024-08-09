@@ -26,6 +26,17 @@ export enum ColorType {
 	SECONDARY,
 }
 
+export enum DepthType {
+	BACKGROUND = 4,
+	WALL = 3,
+	FLOOR = 2,
+	BEHIND = 1,
+	DEFAULT = 0,
+	PLAYER = -1,
+	FRONT = -2,
+	FOREGROUND = -3,
+}
+
 export enum MaterialType {
 	UNKNOWN,
 

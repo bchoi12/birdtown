@@ -44,12 +44,14 @@ export class Cloud extends EntityBase implements Entity {
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
+					friction: 0,
+					frictionAir: 0,
 					collisionFilter: BodyFactory.neverCollideFilter(),
 				});
 			},
 			init: {...entityOptions.profileInit, degraded: true },
 		}));
-		this._profile.setRenderNever();
+		this._profile.setVisible(false);
 	}
 
 	override initialize() : void {

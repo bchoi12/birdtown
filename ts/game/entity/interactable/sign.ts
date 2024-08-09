@@ -11,11 +11,10 @@ import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Interactable } from 'game/entity/interactable'
-import { CollisionCategory, MeshType } from 'game/factory/api'
+import { CollisionCategory, DepthType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
-import { DepthType } from 'game/system/api'
 
 import { ui } from 'ui'
 import { TooltipType } from 'ui/api'
@@ -61,7 +60,7 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setRenderNever();
+		this._profile.setVisible(false);
 	}
 
 	override initialize() : void {

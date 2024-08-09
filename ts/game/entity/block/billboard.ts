@@ -3,9 +3,8 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Block } from 'game/entity/block'
-import { ColorType, MeshType } from 'game/factory/api'
+import { ColorType, DepthType, MeshType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
-import { DepthType } from 'game/system/api'
 
 import { Vec } from 'util/vector'
 
@@ -25,7 +24,6 @@ export class Billboard extends Block {
 			profile.body().render.strokeStyle = this._hexColors.color(ColorType.BASE).toString();
 			profile.body().plugin.zIndex = DepthType.FRONT;
 		});
-		this._profile.setRenderUnoccluded();
 	}
 
 	override meshType() : MeshType { return MeshType.BILLBOARD; }
