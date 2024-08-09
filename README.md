@@ -4,12 +4,9 @@ Demo: https://brianchoi.net/birdtown
 
 ## Overview
 
-birdtown is an experiment to connect friends through accessible, real-time multiplayer by leveraging new features from modern web browsers.
+birdtown is a multiplayer arena shooter built for the web
 
-Key features include
- * WebGPU/BabylonJS for 3D graphics with minimal load times
- * WebRTC/PeerJS for low cost peer-to-peer netcode that can reliably support fast-paced cross-platform gameplay
- * HTML5 spatial audio nodes (and WebRTC) for integrated proximity voice chat
+Play against your friends in multiple different modes and yell at each other through proximity voice chat.
 
 ## Status
 
@@ -17,18 +14,22 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 ## Screenshots
 
-![devlog043](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog043.png?raw=true)
+![Multiplayer gaming](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog043.png?raw=true)
 
-![devlog046](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog046.png?raw=true)
+![Table cover](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog049.png?raw=true)
 
-## Game Engine Highlights
- * Custom built for the web with nearly instant load times
+![Login screen](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog048.png?raw=true)
+
+## Nerd Stuff
+
+Engine Highlights
+ * Custom built for the web with nearly instant load times. All assets are streamed to you on-demand.
  * Cross platform support - play with any device that can run a modern web browser, including your phone
- * 3D rendering thanks to Babylon.js and WebGL
+ * Peer-to-peer netcode, but also server authoritative (one client serves as host)
+ * Netcode is optimized for P2P browser action and configurable client prediction can smooth network hiccups
  * Fully featured voice chat with spatialized audio (and text chat)
- * Peer-to-peer, but also server authoritative (one client serves as host)
- * Configurable client prediction for smoothing network hiccups
- * Game states are diff-based, compressed, and selectively sent using both reliable (TCP-like) and unreliable (UDP-like) protocols for fast and consistent gameplay
+ * 3D rendering thanks to Babylon.js and WebGL
+ * Game states are diff-based, compressed, and selectively sent using both reliable (TCP-like) and fast (UDP-like) protocols for smooth consistent gameplay
  * Levels are procedurally generated, deterministic, and synced over the network
 
 ## Credits
