@@ -113,6 +113,6 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 		percentGone = Fns.clamp(0, percentGone, 1);
 		let lerp = Math.ceil(Fns.lerpRange(CounterWrapper._minPercent, percentGone, CounterWrapper._maxPercent));
 
-		return `linear-gradient(to right, ${color}00, ${color}64 ${lerp}%, #000000b4 90%)`;
+		return `linear-gradient(to right, #00000000, #00000064 ${lerp}%, #000000b4 96%, ${color}bb 96%, ${color}bb 100%)`;
 	}
 }

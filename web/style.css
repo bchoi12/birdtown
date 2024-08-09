@@ -121,6 +121,7 @@ body {
 
     overflow-y: scroll;
     scrollbar-width: none;
+    color: #000000;
 }
 #input-message {
     padding: 2px;
@@ -221,6 +222,7 @@ body {
     border-bottom-left-radius: 0.3em;
 
     padding-left: 0.2em;
+    padding-right: 0.2em;
     overflow-x: clip;
 
     background: linear-gradient(to right, #ffffff00, #c8c8c832 10%, #000000b2 90%);

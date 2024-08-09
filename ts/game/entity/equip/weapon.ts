@@ -151,7 +151,7 @@ export abstract class Weapon extends Equip<Player> {
 				const pos = Vec3.fromBabylon3(this._shootNode.getAbsolutePosition());
 
 				// TODO: don't hardcode 1000 as max
-				const size = 0.05 + 0.3 * (Math.min(1000, this.getCounter(CounterType.CHARGE)) / 1000);
+				const size = 0.05 + 0.45 * (Math.min(1000, this.getCounter(CounterType.CHARGE)) / 1000);
 				const [cube, hasCube] = this.addEntity<ParticleCube>(EntityType.PARTICLE_ENERGY_CUBE, {
 					offline: true,
 					ttl: 1.5 * Weapon._chargeInterval,

@@ -186,7 +186,7 @@ export class Table extends Interactable implements Entity, EquipEntity {
 
 	equip(equip : Equip<Entity & EquipEntity>) : void {
 		if (equip.type() !== EntityType.NAME_TAG) {
-			console.error("Error: trying to attach %s to %s", equip.name(), this.name());
+			console.error("Error: trying to equip %s to %s", equip.name(), this.name());
 		}
 	}
 
