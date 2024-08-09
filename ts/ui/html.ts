@@ -9,6 +9,7 @@ export namespace Html {
 	export const legendLogin = "legend-login";
 	export const inputRoom = "input-room";
 	export const loginInfo = "login-info";
+	export const loginError = "login-error";
 	export const formLogin = "form-login";
 	export const divLoginButtons = "div-login-buttons";
 	export const buttonHost = "button-host";

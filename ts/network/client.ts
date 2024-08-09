@@ -25,8 +25,8 @@ export class Client extends Netcode {
 	override isHost() : boolean { return false; }
 
 	override ready() : boolean { return this.initialized() && this._tcp.open && this._udp.open; }
-	override initialize() : void {
-		super.initialize();
+	override initialize(onSuccess : () => void, onError : () => void) : void {
+		super.initialize(onSuccess, onError);
 
 		this.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
 			const clientId = msg.getClientId();
@@ -41,14 +41,18 @@ export class Client extends Netcode {
 
 			this.registerCallbacks();
 			this._pinger.initializeForClient(this);
-			this.initTCP();
+			this.initTCP(onSuccess);
 		});
 
 		peer.on("error", (e) => {
-	    	const msg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-	    	msg.setAnnouncementType(AnnouncementType.DISCONNECTED);
-	    	msg.setTtl(60 * 1000);
-	    	ui.handleMessage(msg);
+			if (this._initialized) {
+	    		const msg = new GameMessage(GameMessageType.ANNOUNCEMENT);
+	    		msg.setAnnouncementType(AnnouncementType.DISCONNECTED);
+		    	msg.setTtl(60 * 1000);
+		    	ui.handleMessage(msg);
+			} else {
+				onError();
+			}
 		});
 
 		peer.on("disconnected", () => {
@@ -117,7 +121,7 @@ export class Client extends Netcode {
 		});
 	}
 
-	private initTCP() : void {
+	private initTCP(onSuccess : () => void) : void {
 		let peer = this.peer();
 
 		this._tcp = peer.connect(this.hostName(), {
@@ -128,7 +132,7 @@ export class Client extends Netcode {
 
 		this._tcp.on("open", () => {
 			this.register(this._tcp);
-			this.initUDP();
+			this.initUDP(onSuccess);
 		});
 
 		this._tcp.on("error", (error) => {
@@ -146,7 +150,7 @@ export class Client extends Netcode {
 		});
 	}
 
-	private initUDP() : void {
+	private initUDP(onSuccess : () => void) : void {
 		let peer = this.peer();
 
 		this._udp = peer.connect(this.hostName(), {
@@ -158,6 +162,7 @@ export class Client extends Netcode {
 		this._udp.on("open", () => {
 			this.register(this._udp);
 			this._initialized = true;
+			onSuccess();
 		});
 
 		this._udp.on("error", (error) => {

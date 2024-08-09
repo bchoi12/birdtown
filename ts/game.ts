@@ -34,6 +34,9 @@ import { Html } from 'ui/html'
 export type GameOptions = {
 	room : string;
 	isHost : boolean;
+	
+	netcodeSuccess : () => void;
+	netcodeError : () => void;
 }
 
 class Game {
@@ -70,52 +73,54 @@ class Game {
 	initialize(gameOptions : GameOptions) {
 		this._options = gameOptions;
 
-		this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false, {
-			audioEngine: true,
-			stencil: true,
-		});
-		window.onresize = () => { this._engine.resize(); };
-
-		this._runner = new Runner();
-		this._announcer = new Announcer();
-		this._audio = new Audio();
-		this._clientDialogs = new ClientDialogs();
-		this._entities = new Entities();
-		this._controller = new Controller();
-		this._input = new Input();
-		this._level = new Level();
-		this._physics = new Physics();
-		this._playerStates = new PlayerStates();
-		this._tablets = new Tablets();
-
-		this._world = new World(this._engine);
-		this._lakitu = new Lakitu(this._world.scene());
-		this._pipeline = new Pipeline(this._engine, this._world.scene(), this._lakitu.camera());
-
-		// Order of insertion is order of execution
-		this._runner.push(this._clientDialogs);
-		this._runner.push(this._controller);
-		this._runner.push(this._playerStates);
-		this._runner.push(this._level);
-		this._runner.push(this._input);
-		this._runner.push(this._entities);
-		this._runner.push(this._physics);
-		this._runner.push(this._tablets);
-		this._runner.push(this._lakitu);
-		this._runner.push(this._pipeline);
-		this._runner.push(this._world);
-		this._runner.push(this._announcer);
-		this._runner.push(this._audio);
-
 		if (this._options.isHost) {
 			this._netcode = new Host(this._options.room);
 		} else {
 			this._netcode = new Client(this._options.room);
 		}
-		this._netcode.initialize();
-		this._runner.runGameLoop();
-		this._runner.runRenderLoop();
-	    this._initialized = true;
+		this._netcode.initialize(() => {
+			this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false, {
+				audioEngine: true,
+				stencil: true,
+			});
+			window.onresize = () => { this._engine.resize(); };
+
+			this._runner = new Runner();
+			this._announcer = new Announcer();
+			this._audio = new Audio();
+			this._clientDialogs = new ClientDialogs();
+			this._entities = new Entities();
+			this._controller = new Controller();
+			this._input = new Input();
+			this._level = new Level();
+			this._physics = new Physics();
+			this._playerStates = new PlayerStates();
+			this._tablets = new Tablets();
+
+			this._world = new World(this._engine);
+			this._lakitu = new Lakitu(this._world.scene());
+			this._pipeline = new Pipeline(this._engine, this._world.scene(), this._lakitu.camera());
+
+			// Order of insertion is order of execution
+			this._runner.push(this._clientDialogs);
+			this._runner.push(this._controller);
+			this._runner.push(this._playerStates);
+			this._runner.push(this._level);
+			this._runner.push(this._input);
+			this._runner.push(this._entities);
+			this._runner.push(this._physics);
+			this._runner.push(this._tablets);
+			this._runner.push(this._lakitu);
+			this._runner.push(this._pipeline);
+			this._runner.push(this._world);
+			this._runner.push(this._announcer);
+			this._runner.push(this._audio);
+
+			this._runner.runGameLoop();
+			this._runner.runRenderLoop();
+		    this._initialized = true;
+			this._options.netcodeSuccess();
+		}, this._options.netcodeError);
 	}
 
 	initialized() : boolean { return this._initialized; }

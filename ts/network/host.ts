@@ -22,8 +22,8 @@ export class Host extends Netcode {
 
 	override isHost() : boolean { return true; }
 	override ready() : boolean { return this.initialized() && this.peer().open; }
-	override initialize() : void {
-		super.initialize();
+	override initialize(onSuccess : () => void, onError : () => void) : void {
+		super.initialize(onSuccess, onError);
 
 		this.addRegisterCallback((connection : Connection) => {
 			const clientId = game.nextClientId();
@@ -54,26 +54,31 @@ export class Host extends Netcode {
 
 		    peer.on("close", () => {
 		    	console.error("Server closed!");
-		    })
-
-		    peer.on("error", (e) => {
-		    	const msg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-		    	msg.setAnnouncementType(AnnouncementType.DISCONNECTED_SIGNALING);
-		    	msg.setTtl(15 * 1000);
-		    	ui.handleMessage(msg);
 		    });
 
 		    this.registerCallbacks();
 			this._pinger.initializeForHost(this);
 			this._initialized = true;
+
+			onSuccess();
+			game.setClientId(1);
 		});
+
+	    peer.on("error", (e) => {
+	    	if (this._initialized) {
+	    		const msg = new GameMessage(GameMessageType.ANNOUNCEMENT);
+		    	msg.setAnnouncementType(AnnouncementType.DISCONNECTED_SIGNALING);
+		    	msg.setTtl(15 * 1000);
+		    	ui.handleMessage(msg);
+	    	} else {
+	    		onError();
+	    	}
+	    });
 
 		peer.on("disconnected", (e) => {
 			// TODO: reconnect?
 			console.error(e);
 		});
-
-		game.setClientId(1);
 	}
 
 	private registerCallbacks() : void {

@@ -83,7 +83,7 @@ export abstract class Netcode {
 		this._audioContext = new Optional();
 	}
 
-	initialize() : void {
+	initialize(onSuccess : () => void, onError: () => void) : void {
 		this._peer = new Peer(this.isHost() ? this.hostName() : "", {
 			debug: 2,
 			pingInterval: 5000,
@@ -366,10 +366,10 @@ export abstract class Netcode {
 		}
 	}
 
-	protected queryMic(successCb : (stream : MediaStream) => void, failureCb : (e) => void) : void {
+	protected queryMic(onSuccess : (stream : MediaStream) => void, failureCb : (e) => void) : void {
 		navigator.mediaDevices.getUserMedia(MediaGlobals.mediaConstraints).then((stream : MediaStream) => {
 			this._audioContext.set(new AudioContext());
-			successCb(stream);
+			onSuccess(stream);
 		}).catch((e) => {
 			failureCb(e);
 		});

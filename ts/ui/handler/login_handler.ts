@@ -12,6 +12,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 	private _loginElm : HTMLElement;
 	private _legendElm : HTMLElement;
 	private _loginInfoElm : HTMLElement;
+	private _loginErrorElm : HTMLElement;
 	private _roomInputElm : HTMLInputElement;
 	private _loginButtonsElm : HTMLElement;
 	private _buttonHostElm : HTMLInputElement;
@@ -25,6 +26,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginElm = Html.elm(Html.divLogin);
 		this._legendElm = Html.elm(Html.legendLogin);
 		this._loginInfoElm = Html.elm(Html.loginInfo);
+		this._loginErrorElm = Html.elm(Html.loginError);
 		this._roomInputElm = Html.inputElm(Html.inputRoom);
 		this._loginButtonsElm = Html.elm(Html.divLoginButtons);
 		this._buttonHostElm = Html.inputElm(Html.buttonHost);
@@ -41,6 +43,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 			this.startGame(room, /*isHost=*/false);
 		};
 
+		this.showInfo("Loading...");
 		this.enable();
 	}
 
@@ -49,10 +52,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 		this._legendElm.textContent = "alpha 0.1";
 
-		this._loginInfoElm.style.display = "none";
-		this._roomInputElm.style.display = "block";
-		this._loginButtonsElm.style.display = "block";
-		this._roomInputElm.focus();
+		this.showLogin();
 
 		const urlParams = new URLSearchParams(window.location.search);
 		if (urlParams.has("r")) {
@@ -68,6 +68,32 @@ export class LoginHandler extends HandlerBase implements Handler {
 		super.onDisable();
 
 		this._loginElm.style.display = "none";
+		document.body.style.background = "black";
+	}
+
+	private showInfo(info : string) : void {
+		this._loginInfoElm.style.display = "block";
+		this._roomInputElm.style.display = "none";
+		this._loginButtonsElm.style.display = "none";
+
+		this._loginInfoElm.textContent = info;
+	}
+	private showLogin() : void {
+		this._loginInfoElm.style.display = "none";
+		this._roomInputElm.style.display = "block";
+		this._loginButtonsElm.style.display = "block";
+		this._roomInputElm.focus();
+	}
+
+	private handleError(error : string) : void {
+		this._loginErrorElm.style.display = "block";
+		this._loginErrorElm.textContent = error;
+
+
+	}
+
+	private hideError() : void {
+		this._loginErrorElm.style.display = "none";
 	}
 
 	private startGame(room : string, isHost : boolean) : void {
@@ -81,11 +107,23 @@ export class LoginHandler extends HandlerBase implements Handler {
 			return;
 		}
 
+		this.hideError();
+		this.showInfo("Connecting...");
 		game.initialize({
 		    room: room,
 		    isHost: isHost,
+		    netcodeSuccess: () => {
+		    	console.log("Successfully initialized netcode");
+		    	this.disable();
+		    },
+		    netcodeError: () => {
+		    	if (isHost) {
+		    		this.handleError(`Failed to create room ${room}. Please try again later with a different code.`);
+		    	} else {
+		    		this.handleError(`Failed to connect to ${room}. Please double check the code and try again.`);
+		    	}
+		    	this.showLogin();
+		    }
 		});
-
-		this.disable();
 	}
 }
