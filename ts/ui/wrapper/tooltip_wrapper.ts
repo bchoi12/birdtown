@@ -15,9 +15,10 @@ export class TooltipWrapper extends HtmlWrapper<HTMLElement> {
 		this._timeoutId = new Optional();
 
 		this.elm().classList.add(Html.classTooltip);
+		this.elm().classList.add(Html.classPopup);
 
 		setTimeout(() => {
-			this.elm().classList.add(Html.classTooltipShow);
+			this.elm().classList.add(Html.classPopupShow);
 		}, 5);
 	}
 

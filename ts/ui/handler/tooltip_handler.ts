@@ -15,7 +15,7 @@ import { defined } from 'util/common'
 
 export class TooltipHandler extends HandlerBase implements Handler {
 
-	private static readonly _defaultTTL : number = 3000;
+	private static readonly _defaultTTL : number = 500;
 	private static readonly _maxTooltips : number = 3;
 
 	private _tooltipsElm : HTMLElement;
@@ -38,6 +38,10 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		});
 	}
 	showTooltip(type : TooltipType, options : TooltipOptions) : void {
+		if (ui.mode() !== UiMode.GAME) {
+			return;
+		}
+
 		const ttl = options.ttl ? options.ttl : TooltipHandler._defaultTTL;
 
 		const html = this.getHtml(type, options);

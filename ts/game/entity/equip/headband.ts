@@ -105,7 +105,7 @@ export class Headband extends Equip<Player> {
 
 		const millis = stepData.millis;
 
-		if (this.canDash() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED)) {
+		if (this.canDash() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			this.owner().profile().setVel({x: 0, y: 0});
 
 			this._dir = this.inputDir();

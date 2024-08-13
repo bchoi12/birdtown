@@ -9,8 +9,8 @@ export abstract class LabelWrapper extends HtmlWrapper<HTMLElement> {
 	constructor() {
 		super(Html.div());
 
-		this.elm().classList.add(Html.classSetting);
 		this.elm().classList.add(Html.classButton);
+		this.elm().classList.add(Html.classSetting);
 		this.elm().style.display = "block";
 
 		this._labelElm = Html.div();

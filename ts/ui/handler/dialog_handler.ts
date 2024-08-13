@@ -51,7 +51,10 @@ export class DialogHandler extends HandlerBase implements Handler {
 		dialogWrapper.addOnSubmit(() => {
 			this.popDialog(dialogWrapper);
 		});
-		dialogWrapper.display("none");
+		dialogWrapper.addOnCancel(() => {
+			this.popDialog(dialogWrapper);
+		});
+		dialogWrapper.hide();
 
 		this._dialogs.push(dialogWrapper);
 		this._dialogsElm.appendChild(dialogWrapper.elm());
@@ -74,6 +77,6 @@ export class DialogHandler extends HandlerBase implements Handler {
 		}
 
 		this.enable();
-		this._dialogs[this._dialogs.length - 1].display("block");
+		this._dialogs[this._dialogs.length - 1].show();
 	}
 }

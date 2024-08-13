@@ -36,7 +36,7 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 			delay: 0,
 		}],
 		[CounterType.JUICE, {
-			iconType: IconType.TRUCK_FAST,
+			iconType: IconType.TELEKENESIS,
 			delay: 0,
 		}],
 		[CounterType.ROCKET, {
@@ -64,7 +64,8 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 		this._textElm.textContent = "?";
 
 		this._iconElm = Icon.create(this.iconType());
-		this._iconElm.classList.add(Html.classSpaced);
+		this._iconElm.style.paddingLeft = "0.2em";
+		this._iconElm.style.paddingRight = "0.2em";
 
 		this._count = 0;
 		this._lastCount = Optional.empty(0);

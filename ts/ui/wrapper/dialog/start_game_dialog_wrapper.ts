@@ -34,6 +34,11 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			this.nextPage();
 		});
 
+		let cancelButton = this.addCancelButton();
+		cancelButton.addOnClick(() => {
+			this.cancel();
+		});
+
 		this.addOnSubmit(() => {
 			// TODO: show tooltip on error
 			if (this._configMsg !== null) {

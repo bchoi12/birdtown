@@ -11,9 +11,40 @@ body {
     font-size: 3vmin;
 
     align-items: center;
-    background: url("img/henry.png") no-repeat, linear-gradient(#fbfbfb, #bfbfbf);
+    background: url("img/henry.png") no-repeat, linear-gradient(#fbfbfb, #9b9b9b);
     background-size: contain;
     color: #f2f2f2;
+}
+
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url("icons.woff2") format('woff2');
+}
+
+.material-icons {
+    font-family: 'Material Icons';
+    font-style: normal;
+    line-height: 1;
+    font-size: 1.2em;
+    vertical-align: bottom;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+}
+
+.material-icons {
+    font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
 }
 
 #div-screen {
@@ -64,8 +95,8 @@ body {
 #fieldset-login {
     width: 100%;
 
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 1em;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 0.5em;
     border: 1px solid #000;
 }
 #legend-login {
@@ -90,11 +121,27 @@ body {
 #input-room, #div-login-buttons {
     margin: 0 auto;
     display: none;
+    border-radius: 0.2em;
 }
 
 #button-join, #button-host {
-    margin: 3vw;
+    background: #000;
+    margin: 3vw 2vw 0vw 2vw;
     padding: 2vw 3vw;
+    border-radius: 0.5em;
+    border: 0;
+    color: #f2f2f2;
+
+    transition: border-radius 0.3s;
+}
+#button-join:hover, #button-host:hover {
+    background: #222;
+    border-radius: 0.2em;
+    cursor: pointer;
+    text-shadow: 0px 0px 7px #BBBBBB;
+}
+#button-join:active:hover, #button-host:active:hover {
+    background: #111
 }
 
 .form-input {
@@ -138,6 +185,7 @@ body {
     resize: none;
     outline: none;
     background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 0.2em;
 }
 #div-message {
     position: absolute;
@@ -193,7 +241,6 @@ body {
 
 .feed, .counter {
     margin-bottom: 0.2em;
-    color: #f2f2f2;
 
     padding-top: 0.3em;
     padding-bottom: 0.3em;
@@ -208,11 +255,11 @@ body {
     border-top-right-radius: 0.2em;
     border-bottom-right-radius: 0.2em;
 
-    opacity: 0;
+    opacity: 0.2;
     margin-left: -5.5em;
     height: 100%;
 
-    transition: opacity 0.3s ease-in, height 0.3s ease-in, margin-left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: opacity 0.2s ease-in, height 0.3s ease-in, margin-left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     background: linear-gradient(to left, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
 }
 
@@ -247,8 +294,6 @@ body {
 
     bottom: 5%;
     left: 20%;
-
-    color: #f2f2f2;
 }
 
 .tooltip {
@@ -265,14 +310,18 @@ body {
     white-space: pre-line;
 
     background-color: rgba(0,0,0,0.4);
-    color: #f2f2f2;
-
-    transition: opacity 0.3s ease-in, margin-bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    opacity: 0.2;
-    margin-bottom: -3em;
 }
 
-.tooltip.tooltip-show {
+.popup {
+    visibility: hidden;
+    opacity: 0.2;
+    margin-bottom: -3em;
+
+    transition: opacity 0.2s ease-in, margin-bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.popup-show {
+    visibility: visible;
     opacity: 1.0;
     margin-bottom: 0;
 }
@@ -288,7 +337,6 @@ body {
     padding-top: 0.75em;
     padding-bottom: 0.75em;
 
-    color: #f2f2f2;
     background: linear-gradient(to left, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7) 40%, rgba(0, 0, 0, 0.7) 60%, rgba(200, 200, 200, 0.1));
 }
 
@@ -309,8 +357,7 @@ body {
     left: 15%;
 
     border-radius: 2em;
-    background-color: rgba(0.1,0.1,0.1,0.9);
-    color: #f2f2f2;
+    background-color: rgba(0.1, 0.1, 0.1, 0.9);
 }
 
 .dialog-container {
@@ -331,7 +378,7 @@ body {
 .dialog-title {
     text-align: center;
     font-size: 2em;
-    padding: 0.3em;
+    padding: 0.5em 0.3em 0.3em 0.3em;
 }
 
 #div-timer {
@@ -346,7 +393,6 @@ body {
 
     width: 3em;
 
-    color: #f2f2f2;
     font-size: 1em;
     letter-spacing: 0.1em;
     padding: 0.3em 0.6em 0.5em 0.6em;
@@ -355,10 +401,6 @@ body {
     border-bottom-right-radius: 0.3em;
 
     transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-#div-scoreboard {
-    visibility: hidden;
 }
 
 #div-menu {
@@ -371,7 +413,6 @@ body {
   left: 0;
   background-color: rgba(0,0,0,0.7);
 
-  color: #f2f2f2;
   font-size: 1.5em;
   padding-top: 5%;
 }
@@ -408,28 +449,6 @@ body {
     padding-left: 0.15em;
 }
 
-.setting {
-    padding: 0.2em;
-    font-size: 1em;
-    height: 1em;
-    margin-bottom: 0.3em;
-    display: block;
-}
-
-.setting-label {
-    max-width: 60%;
-    white-space: nowrap;
-    overflow-x: hidden;
-    float: left;
-}
-
-.setting-value {
-    max-width: 40%;
-    white-space: nowrap;
-    overflow-x: hidden;
-    float: right;
-}
-
 #cursor, #aim {
     position: absolute;
     visibility: hidden;
@@ -452,28 +471,59 @@ body {
 }
 
 .button, .button-select {
-    padding: 0.1em 0;
-    margin-left: 0.2em;
-    margin-right: 0.2em;
     line-height: 1.1em;
     vertical-align: middle;
     display: inline-block;
+    transition: border-radius 0.3s;
 }
 
-.button:hover, .button-select:hover {
-  text-shadow: 0px 0px 7px #BBBBBB;
-  cursor: pointer;
+.button {
+    border-radius: 1em;
+    padding: 0.3em 0.6em;
 }
 
 .button-select {
-    transition: border-left 0.1s ease-out, padding-left 0.1s ease-out, font-size 0.1s ease-out;
-    border-left: 0em solid;
+    padding: 0;
+    transition: background 0.1s;
+    border-radius: 0;
 }
 
-.button-select:hover, .button-select.button-selected {
-    border-left: 0.2em solid;
-    padding-left: 0.2em;
-    font-size: 1.1em;
+.button:hover {
+    border-radius: 0.3em;
+}
+
+.button:hover, .button-select:hover, .button-select:hover {
+    background: #666;
+    text-shadow: 0px 0px 7px #BBBBBB;
+    cursor: pointer;
+}
+
+.button:active:hover, .button-select:active:hover, .button-select.button-selected {
+    background: #444;
+    text-shadow: 0px 0px 7px #BBBBBB;
+}
+
+.setting {
+    padding: 0.1em;
+    margin: 0.1em;
+    border-radius: 0;
+    font-size: 1em;
+    height: 1em;
+    display: block;
+}
+
+.setting-label {
+    max-width: 60%;
+    white-space: nowrap;
+    overflow-x: hidden;
+    float: left;
+}
+
+.setting-value {
+    max-width: 40%;
+    white-space: nowrap;
+    overflow-x: hidden;
+    float: right;
 }
 
 .container {

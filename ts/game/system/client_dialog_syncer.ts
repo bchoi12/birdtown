@@ -10,7 +10,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 import { DialogMessage } from 'message/dialog_message'
 
 import { ui } from 'ui'
-import { DialogType, TooltipType } from 'ui/api'
+import { DialogType, FeedType, TooltipType } from 'ui/api'
 
 enum DialogState {
 	UNKNOWN,
@@ -107,6 +107,12 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		case DialogType.INIT:
 			game.tablet(this.clientId()).setColor(this._message.getColor());
 			game.tablet(this.clientId()).setDisplayName(this._message.getDisplayName());
+			break;
+		case DialogType.LOADOUT:
+	    	let msg = new GameMessage(GameMessageType.FEED);
+	    	msg.setNames([game.tablet(this.clientId()).displayName()]);
+	    	msg.setFeedType(FeedType.READY);
+	    	game.announcer().broadcast(msg);
 			break;
 		}
 	}

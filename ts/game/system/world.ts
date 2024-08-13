@@ -65,11 +65,11 @@ export class World extends SystemBase implements System {
 		this._shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight, /*useFullFloatFirst=*/true);
 
 		this._skyBox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 500.0 }, this._scene);
-		this._skyBox.position.y = -100;
+		this._skyBox.position.y = -150;
 		let skyMaterial = new SkyMaterial("skyMaterial", this._scene);
 		skyMaterial.backFaceCulling = false;
 		skyMaterial.inclination = 0;
-		skyMaterial.luminance = 1.0;
+		skyMaterial.luminance = 0.9;
 		skyMaterial.turbidity = 2.5;
 		this._skyBox.material = skyMaterial;
 
@@ -95,6 +95,13 @@ export class World extends SystemBase implements System {
 		mesh.receiveShadows = true;
 		mesh.getChildMeshes().forEach((child : BABYLON.AbstractMesh) => {
 			child.receiveShadows = true;
+		});
+	}
+	disableShadows(mesh : BABYLON.AbstractMesh) : void {
+		this._shadowGenerator.addShadowCaster(mesh, false);
+		mesh.receiveShadows = false;
+		mesh.getChildMeshes().forEach((child : BABYLON.AbstractMesh) => {
+			child.receiveShadows = false;
 		});
 	}
 

@@ -14,19 +14,6 @@ import { Optional } from 'util/optional'
 
 export class Tablet extends ClientSystem implements System {
 
-/*
-export enum InfoType {
-	UNKNOWN,
-
-	DEATHS,
-	LIVES,
-	KILLS,
-	NAME,
-	PING,
-	SCORE,
-}
-*/
-
 	private static readonly _roundResetTypes = new Set([
 		InfoType.DEATHS,
 		InfoType.KILLS,

@@ -16,6 +16,7 @@ export class ParticleSmoke extends Particle {
 		super(EntityType.PARTICLE_SMOKE, entityOptions);
 	}
 
+	override renderShadows() : boolean { return true; }
 	override particleType() : ParticleType { return ParticleType.SMOKE; }
 	override processModel(model : Model) : void {}
 	override resetModel(model : Model) : void {

@@ -41,9 +41,15 @@ export abstract class Particle extends EntityBase implements Entity {
 			meshFn: (model : Model) => {
 				let mesh = ParticleFactory.borrowMesh(this.particleType());
 				model.setMesh(mesh);
-				this.processModel(model);
+
+				model.onLoad(() => {
+					this.processModel(model);
+				})
 			},
-			init: entityOptions.modelInit,
+			init: {
+				...entityOptions.modelInit,
+				disableShadows: !this.renderShadows(),
+			},
 		}));
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: this.bodyFn,
@@ -89,6 +95,7 @@ export abstract class Particle extends EntityBase implements Entity {
 		});
 	}
 
+	renderShadows() : boolean { return false; }
 	abstract particleType() : ParticleType;
 	abstract processModel(model : Model) : void;
 	abstract resetModel(model : Model) : void;

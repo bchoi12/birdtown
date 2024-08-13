@@ -9,12 +9,13 @@ import { InfoType, UiMode } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
+import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { InfoWrapper } from 'ui/wrapper/info_wrapper'
 
 export class ScoreboardHandler extends HandlerBase implements Handler {
 
 	private _scoreboardElm : HTMLElement;
-	private _containerElm : HTMLElement;
+	private _scoreboard : DialogWrapper;
 	private _infoWrapper : InfoWrapper;
 
 	constructor() {
@@ -22,12 +23,14 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 
 		this._scoreboardElm = Html.elm(Html.divScoreboard);
 
-		this._containerElm = Html.div();
-		this._containerElm.classList.add(Html.classDialogContainer);
-		this._scoreboardElm.appendChild(this._containerElm);
+		this._scoreboard = new DialogWrapper();
+		this._scoreboard.titleElm().textContent = "Scoreboard";
+		this._scoreboard.elm().style.opacity = "1";
 
 		this._infoWrapper = new InfoWrapper();
-		this._containerElm.appendChild(this._infoWrapper.elm());
+
+		this._scoreboardElm.appendChild(this._scoreboard.elm());
+		this._scoreboard.contentElm().appendChild(this._infoWrapper.elm());
 	}
 
 	override setup() : void {
@@ -58,10 +61,11 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 		if (!game.initialized()) {
 			return;
 		}
-		this._scoreboardElm.style.visibility = "visible";
+
+		this._scoreboard.show();
 	}
 
 	private hide() : void {
-		this._scoreboardElm.style.visibility = "hidden";
+		this._scoreboard.hide();	
 	}
 }

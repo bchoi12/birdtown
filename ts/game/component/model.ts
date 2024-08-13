@@ -102,13 +102,13 @@ export class Model extends ComponentBase implements Component {
 
 		this._root.name = this.entity().name() + "-root";
 
-		this._options.meshFn(this);
-
 		if (!this._options.init || !this._options.init.disableShadows) {
 			this.onLoad((loaded : Model) => {
 				game.world().renderShadows(loaded.mesh());
 			});
 		}
+
+		this._options.meshFn(this);
 	}
 
 	override setState(state : GameObjectState) : void {

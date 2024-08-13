@@ -6,7 +6,7 @@ import { DialogMessage } from 'message/dialog_message'
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
-
+import { IconType } from 'ui/common/icon'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { FooterWrapper } from 'ui/wrapper/footer_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
@@ -23,6 +23,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	private _pageIndex : number;
 	private _footer : FooterWrapper;
 
+	private _onCancelFns : Array<OnSubmitFn>;
 	private _onNextPageFns : Array<OnSubmitFn>;
 	private _onSubmitFns : Array<OnSubmitFn>;
 
@@ -30,6 +31,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		super(Html.div());
 
 		this.elm().classList.add(Html.classDialog);
+		this.elm().classList.add(Html.classPopup);
 
 		this._containerElm = Html.div();
 		this._containerElm.classList.add(Html.classDialogContainer);
@@ -49,8 +51,18 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._pages = new Array();
 		this._pageIndex = 0;
 
+		this._onCancelFns = new Array();
 		this._onNextPageFns = new Array();
 		this._onSubmitFns = new Array();
+	}
+
+	show() : void {
+		setTimeout(() => {
+			this.elm().classList.add(Html.classPopupShow);
+		}, 5);
+	}
+	hide() : void {
+		this.elm().classList.remove(Html.classPopupShow);
 	}
 
 	titleElm() : HTMLElement { return this._titleElm; }
@@ -64,14 +76,25 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._contentElm.appendChild(page.elm());
 
 		if (this._pages.length > 1) {
-			page.elm().style.display = "none";
+			page.elm().style.visibility = "hidden";
 		}
 		return page;
 	}
 
 	addOKButton() : ButtonWrapper {
 		let buttonWrapper = new ButtonWrapper();
+		buttonWrapper.setIcon(IconType.CHECK);
 		buttonWrapper.setText("OK");
+		buttonWrapper.elm().style.float = "right";
+
+		this.footerElm().appendChild(buttonWrapper.elm());
+
+		return buttonWrapper;
+	}
+	addCancelButton() : ButtonWrapper {
+		let buttonWrapper = new ButtonWrapper();
+		buttonWrapper.setIcon(IconType.CANCEL);
+		buttonWrapper.setText("Cancel");
 		buttonWrapper.elm().style.float = "right";
 
 		this.footerElm().appendChild(buttonWrapper.elm());
@@ -87,7 +110,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 		let currentPage = this._pages[this._pageIndex];
 		currentPage.submit();
-		currentPage.elm().style.display = "none";
+		currentPage.elm().style.visibility = "hidden";
 
 		if (this._pageIndex >= this._pages.length - 1) {
 			this.submit();
@@ -95,13 +118,20 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		}
 
 		this._pageIndex++;
-		this._pages[this._pageIndex].elm().style.display = "block";
+		this._pages[this._pageIndex].elm().style.visibility = "visible";
 	}
 
 	addOnSubmit(fn : OnSubmitFn) : void { this._onSubmitFns.push(fn); }
 	submit() : void {
 		this._onSubmitFns.forEach((onSubmit : OnSubmitFn) => {
 			onSubmit();
+		});
+	}
+
+	addOnCancel(fn : OnSubmitFn) : void { this._onCancelFns.push(fn); }
+	cancel() : void {
+		this._onCancelFns.forEach((onCancel : OnSubmitFn) => {
+			onCancel();
 		});
 	}
 }

@@ -12,8 +12,6 @@
     <meta property="og:title" content="Birdtown" />
 
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Lato:regular,italic,bold,bolditalic" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <script src="https://kit.fontawesome.com/b400bccf87.js" crossorigin="anonymous"></script>
 </head>
 
 <body><div id="div-screen">
@@ -25,7 +23,7 @@
         <div id="div-message" class="no-select spaced">
             <form action="about:blank" target="iframe-empty" onsubmit="return false;">
                 <input id="input-message" type="text" maxlength="256">
-                <input id="button-message" type="submit" value="" style="display: none;">
+                <input id="button-message" type="submit" value="">
             </form>
         </div>
         <div id="div-minimap" class="no-select transparent-07 spaced">
@@ -41,17 +39,15 @@
             <div id="div-sub-announcement" class="no-select"></div>
         </div>
         <div id="div-timer" class="no-select">100</div>
-        <div id="div-scoreboard" class="dialog">
-            <div id="scoreboard-title" class="dialog-title">Scoreboard</div>
-        </div>
+        <div id="div-scoreboard"></div>
     </div>
-    <div id="div-dialogs"></div>
     <div id="div-modals">
+        <div id="div-dialogs"></div>
         <div id="div-menu">
             <div id="menu-title" class="bold">Menu</div>
             <div id="menu-fieldsets">
                 <fieldset id="fieldset-clients" class="spaced">
-                    <legend id="legend-clients">Players</legend>
+                    <legend id="legend-clients">Options</legend>
                 </fieldset>
                 <fieldset id="fieldset-settings" class="spaced">
                     <legend id="legend-settings">Settings</legend>
@@ -71,8 +67,8 @@
                 <div id="login-error"></div>
                 <input id="input-room" class="form-input" type="text" placeholder="Enter room code" maxlength="10" required>
                 <div id="div-login-buttons">
-                    <input id="button-host" type="submit" value="Host">
-                    <input id="button-join" type="submit" value="Join">
+                    <button id="button-host" type="submit"><span class="material-icons">home</span> Host</button>
+                    <button id="button-join" type="submit"><span class="material-icons">login</span> Join</button>
                 </div>
             </form>
         </fieldset>

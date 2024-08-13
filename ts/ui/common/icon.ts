@@ -1,27 +1,29 @@
 
+// TODO: move to api class?
 export enum IconType {
 	UNKNOWN,
 
 	// Player related
-	JOIN,
 	KICK,
 	MIC,
 	MUTED_MIC,
-	MOUSE,
-	PERSON,
+	PERSON_PLUS,
 	PERSON_SLASH,
 
 	// Menu
-	PLUS,
+	CANCEL,
+	CHECK,
 	MINUS,
+	PLUS,
+	SHARE,
 	VOLUME_X,
 	VOLUME_NONE,
 	VOLUME_LOW,
 	VOLUME_HIGH,
-	SHARE,
 
 	// Feed
-	GUN,
+	READY,
+	SKILLET,
 	SKULL,
 
 	// Counters
@@ -30,55 +32,48 @@ export enum IconType {
 	HEART,
 	JET,
 	ROCKET,
-	TRUCK_FAST,
+	TELEKENESIS,
 }
 
 export namespace Icon {
 
-	const classMap = new Map<IconType, string>([
-		[IconType.BOLT, "fa-bolt"],
-		[IconType.DASH, "fa-person-running"],
-		[IconType.GUN, "fa-gun"],
-		[IconType.HEART, "fa-heart"],
-		[IconType.JET, "fa-jet-fighter-up"],
-		[IconType.JOIN, "fa-right-to-bracket"],
-		[IconType.MIC, "fa-microphone"],
-		[IconType.MINUS, "fa-minus"],
-		[IconType.MUTED_MIC, "fa-microphone-slash"],
-		[IconType.MOUSE, "fa-computer-mouse"],
-		[IconType.KICK, "fa-ban"],
-		[IconType.PERSON, "fa-user"],
-		[IconType.PERSON_SLASH, "fa-user-slash"],
-		[IconType.PLUS, "fa-plus"],
-		[IconType.ROCKET, "fa-rocket"],
-		[IconType.SHARE, "fa-share-nodes"],
-		[IconType.SKULL, "fa-skull"],
-		[IconType.TRUCK_FAST, "fa-truck-fast"],
-		[IconType.VOLUME_HIGH, "fa-volume-high"],
-		[IconType.VOLUME_LOW, "fa-volume-low"],
-		[IconType.VOLUME_NONE, "fa-volume-off"],
-		[IconType.VOLUME_X, "fa-volume-xmark"],
+	const names = new Map<IconType, string>([
+		[IconType.BOLT, "bolt"],
+		[IconType.CHECK, "check_circle"],
+		[IconType.DASH, "sprint"],
+		[IconType.HEART, "favorite"],
+		[IconType.JET, "flight_takeoff"],
+		[IconType.MIC, "mic"],
+		[IconType.MINUS, "keyboard_arrow_down"],
+		[IconType.MUTED_MIC, "mic_off"],
+		[IconType.KICK, "block"],
+		[IconType.PERSON_PLUS, "person_add"],
+		[IconType.PERSON_SLASH, "person_off"],
+		[IconType.PLUS, "keyboard_arrow_up"],
+		[IconType.READY, "checklist"],
+		[IconType.ROCKET, "rocket"],
+		[IconType.SHARE, "share"],
+		[IconType.SKILLET, "skillet"],
+		[IconType.SKULL, "skull"],
+		[IconType.TELEKENESIS, "move_selection_right"],
+		[IconType.VOLUME_HIGH, "volume_up"],
+		[IconType.VOLUME_LOW, "volume_down"],
+		[IconType.VOLUME_NONE, "volume_mute"],
+		[IconType.VOLUME_X, "no_sound"],
 	]);
 
 	function baseElement() : HTMLElement {
 		let html = document.createElement("i");
-		html.classList.add("fa-solid");
+		html.classList.add("material-icons");
 		return html;
 	}
 
 	export function create(type : IconType) : HTMLElement {
-		/*
-		if (type === IconType.HEART) {
-			let html = document.createElement("i");
-			html.classList.add("material-icons");
-			html.innerHTML = "favorite";
-			return html;
-		}
-		*/
-
 		let html = baseElement();
-		if (classMap.has(type)) {
-			html.classList.add(classMap.get(type));
+		if (names.has(type)) {
+			html.innerHTML = names.get(type);
+		} else {
+			console.error("Error: missing mapping for icon type %s", IconType[type]);
 		}
 		return html;
 	}

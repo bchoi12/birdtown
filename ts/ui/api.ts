@@ -38,6 +38,7 @@ export enum FeedType {
 	KICK,
 	KILL,
 	LEAVE,
+	READY,
 	SUICIDE,
 }
 

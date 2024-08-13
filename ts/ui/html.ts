@@ -65,11 +65,12 @@ export namespace Html {
 	export const classFeed = "feed";
 	export const classFooter = "footer";
 	export const classInfoTable = "info-table";
+	export const classPopup = "popup";
+	export const classPopupShow = "popup-show";
 	export const classSetting = "setting";
 	export const classSettingLabel = "setting-label";
 	export const classSettingValue = "setting-value";
 	export const classTooltip = "tooltip";
-	export const classTooltipShow = "tooltip-show";
 
 	export const cursor = "cursor";
 	export const aim = "aim";

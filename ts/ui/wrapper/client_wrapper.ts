@@ -6,6 +6,7 @@ import { GameMessage } from 'message/game_message'
 import { ui } from 'ui'
 import { Icon, IconType } from 'ui/common/icon'
 import { Html, HtmlWrapper } from 'ui/html'
+import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { VoiceControlsWrapper } from 'ui/wrapper/voice_controls_wrapper'
 
 import { Optional } from 'util/optional'
@@ -33,16 +34,13 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 		}
 
 		if (game.isHost() && this._clientId !== game.clientId()) {
-			let kickButton = Html.span();
-			kickButton.append(Icon.create(IconType.KICK));
-			kickButton.classList.add(Html.classButton);
-
-			kickButton.onclick = (e) => {
-				e.stopPropagation();
+			let kickButton = new ButtonWrapper();
+			kickButton.setIcon(IconType.KICK);
+			kickButton.addOnClick(() => {
 				game.netcode().kick(this._clientId);
-			}
+			});
 
-			this.elm().appendChild(kickButton);
+			this.elm().appendChild(kickButton.elm());
 		}
 	}
 

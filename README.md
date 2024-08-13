@@ -18,7 +18,7 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 ![Table cover](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog049.png?raw=true)
 
-![Login screen](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog048.png?raw=true)
+![Login screen](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog050.png?raw=true)
 
 ## Nerd Stuff
 

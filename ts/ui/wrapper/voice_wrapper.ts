@@ -7,9 +7,8 @@ import { Icon, IconType } from 'ui/common/icon'
 
 import { Vec } from 'util/vector'
 
+// TODO: extend from ButtonWrapper
 export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
-
-	private _audioControls : Array<HTMLElement>;
 
 	private _openMic : HTMLElement;
 	private _mutedMic : HTMLElement;
@@ -18,8 +17,6 @@ export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 	constructor() {
 		super(Html.div());
 		this.elm().classList.add(Html.classButton);
-
-		this._audioControls = new Array<HTMLElement>();
 
 		this._openMic = Icon.create(IconType.MIC);
 		this._openMic.classList.add(Html.classSpaced);
@@ -46,11 +43,11 @@ export class VoiceWrapper extends HtmlWrapper<HTMLElement> {
 		if (game.initialized() && game.netcode().voiceEnabled()) {
 			this._openMic.style.display = "inline";
 			this._mutedMic.style.display = "none";
-			this._text.textContent = "[Voice chat on]"
+			this._text.textContent = "[Proximity voice chat on]"
 		} else {
 			this._openMic.style.display = "none";
 			this._mutedMic.style.display = "inline";
-			this._text.textContent = "[Voice chat off]"
+			this._text.textContent = "[Proximity voice chat off]"
 		}
 	}
 

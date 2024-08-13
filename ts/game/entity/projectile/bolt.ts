@@ -58,7 +58,10 @@ export class Bolt extends Projectile {
 
 				model.setMesh(mesh);
 			},
-			init: entityOptions.modelInit,
+			init: {
+				disableShadows: true,
+				...entityOptions.modelInit,
+			},
 		}));
 	}
 

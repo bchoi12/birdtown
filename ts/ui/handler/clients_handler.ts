@@ -46,20 +46,11 @@ export class ClientsHandler extends HandlerBase implements Handler {
 	override setup() : void {
 		super.setup();
 
-		// TODO: turn this into wrapper
 		let inviteButton = new ButtonWrapper();
-
-		let icon = Icon.create(IconType.SHARE);
-		icon.classList.add(Html.classSpaced);
-		inviteButton.elm().appendChild(icon);
-
-		let description = Html.span();
-		description.textContent = "[Copy invite link]";
-		inviteButton.elm().appendChild(description);
-
+		inviteButton.setIcon(IconType.SHARE);
+		inviteButton.setText("[Copy invite link]");
 		inviteButton.addOnClick(() => {
 			navigator.clipboard.writeText(window.location.href + "?r=" + game.netcode().room());
-
 			ui.showTooltip(TooltipType.COPIED_URL, {
 				ttl: 3000,
 			})

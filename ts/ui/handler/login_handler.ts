@@ -12,6 +12,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 	private _loginElm : HTMLElement;
 	private _legendElm : HTMLElement;
 	private _loginInfoElm : HTMLElement;
+	private _infoTextElm : HTMLElement;
+	private _infoDotsElm : HTMLElement;
 	private _loginErrorElm : HTMLElement;
 	private _roomInputElm : HTMLInputElement;
 	private _loginButtonsElm : HTMLElement;
@@ -26,11 +28,16 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginElm = Html.elm(Html.divLogin);
 		this._legendElm = Html.elm(Html.legendLogin);
 		this._loginInfoElm = Html.elm(Html.loginInfo);
+		this._infoTextElm = Html.span();
+		this._infoDotsElm = Html.span();
 		this._loginErrorElm = Html.elm(Html.loginError);
 		this._roomInputElm = Html.inputElm(Html.inputRoom);
 		this._loginButtonsElm = Html.elm(Html.divLoginButtons);
 		this._buttonHostElm = Html.inputElm(Html.buttonHost);
 		this._buttonJoinElm = Html.inputElm(Html.buttonJoin);
+
+		this._loginInfoElm.appendChild(this._infoTextElm);
+		this._loginInfoElm.appendChild(this._infoDotsElm);
 	}
 
 	override setup() : void {	
@@ -43,7 +50,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 			this.startGame(room, /*isHost=*/false);
 		};
 
-		this.showInfo("Loading...");
+		this.showInfo("Loading");
 		this.enable();
 	}
 
@@ -76,20 +83,33 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._roomInputElm.style.display = "none";
 		this._loginButtonsElm.style.display = "none";
 
-		this._loginInfoElm.textContent = info;
+		this._infoTextElm.textContent = info;
+		this._infoDotsElm.textContent = "";
+
+		// TODO: ensure 1 interval
+		setInterval(() => {
+			if (this._loginInfoElm.style.display === "none") {
+				return;
+			}
+			if (this._infoDotsElm.textContent.length >= 3) {
+				this._infoDotsElm.textContent = ".";
+			} else {
+				this._infoDotsElm.textContent += ".";
+			}
+		}, 1000);
 	}
 	private showLogin() : void {
 		this._loginInfoElm.style.display = "none";
 		this._roomInputElm.style.display = "block";
 		this._loginButtonsElm.style.display = "block";
 		this._roomInputElm.focus();
+
+		this._infoTextElm.textContent = "";
 	}
 
 	private handleError(error : string) : void {
 		this._loginErrorElm.style.display = "block";
 		this._loginErrorElm.textContent = error;
-
-
 	}
 
 	private hideError() : void {
@@ -108,7 +128,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		}
 
 		this.hideError();
-		this.showInfo("Connecting...");
+		this.showInfo("Connecting");
 		game.initialize({
 		    room: room,
 		    isHost: isHost,

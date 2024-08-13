@@ -9,10 +9,11 @@ import { Html, HtmlWrapper } from 'ui/html'
 export class FeedWrapper extends HtmlWrapper<HTMLElement> {
 
 	private static readonly _iconMap = new Map<FeedType, IconType>([
-		[FeedType.JOIN, IconType.PERSON],
+		[FeedType.JOIN, IconType.PERSON_PLUS],
 		[FeedType.KICK, IconType.KICK],
-		[FeedType.KILL, IconType.GUN],
+		[FeedType.KILL, IconType.SKILLET],
 		[FeedType.LEAVE, IconType.PERSON_SLASH],
+		[FeedType.READY, IconType.READY],
 		[FeedType.SUICIDE, IconType.SKULL], 
 	]);
 	private static readonly _heightDelay = 500;
@@ -38,7 +39,7 @@ export class FeedWrapper extends HtmlWrapper<HTMLElement> {
 		const type = msg.getFeedType();
 		if (FeedWrapper._iconMap.has(type)) {
 			let icon = Icon.create(FeedWrapper._iconMap.get(type));
-			icon.classList.add(Html.classSpaced);
+			icon.style.padding = "0 0.2em";
 			html.push(icon.outerHTML);
 		}
 
