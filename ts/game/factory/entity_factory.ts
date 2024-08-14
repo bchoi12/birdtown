@@ -108,7 +108,7 @@ export namespace EntityFactory {
 		[EntityType.SIGN, {x: 3, y: 2, z: 0.2 }],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],
 		[EntityType.STAR, {x: 0.35, y: 0.35, z: 0.1 }],
-		[EntityType.TABLE, { x: 2, y: 1.2, z: 3 }],
+		[EntityType.TABLE, { x: 2, y: 1.25, z: 3 }],
 	]);
 
 	// Also includes dimensions that can change.

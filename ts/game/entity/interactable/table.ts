@@ -46,9 +46,9 @@ export class Table extends Interactable implements Entity, EquipEntity {
 	private _nameTag : NameTag;
 
 	private _attributes : Attributes;
+	private _model : Model;
 	private _profile : Profile;
 	private _subProfile : Profile;
-	private _model : Model;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.TABLE, entityOptions);
@@ -72,15 +72,21 @@ export class Table extends Interactable implements Entity, EquipEntity {
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 		this._attributes.setAttribute(AttributeType.SOLID, true);
 
+		this._model = this.addComponent<Model>(new Model({
+			readyFn: () => { return this._profile.ready(); },
+			meshFn: (model : Model) => {
+				MeshFactory.load(MeshType.TABLE, (result : LoadResult) => {
+					model.setMesh(<BABYLON.Mesh>result.meshes[0]);
+				});
+			},
+			init: entityOptions.modelInit,
+		}));
+
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: 0.5 * BodyFactory.defaultDensity,
-					friction: 1.5 * BodyFactory.defaultFriction,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.OFFSET),
-					chamfer: {
-						radius: 0.03
-					},
 				});
 			},
 			init: entityOptions.profileInit,
@@ -100,7 +106,7 @@ export class Table extends Interactable implements Entity, EquipEntity {
 			bodyFn: (profile : Profile) => {
 				let topDim = { x: this._profile.unscaledDim().x, y: 0.5 };
 				return BodyFactory.rectangle(this._profile.relativePos(CardinalDir.TOP, topDim), topDim, {
-					density: 1.2 * BodyFactory.defaultDensity,
+					density: 2 * BodyFactory.defaultDensity,
 					friction: 1.5 * BodyFactory.defaultFriction,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.SOLID),
 				});
@@ -113,6 +119,7 @@ export class Table extends Interactable implements Entity, EquipEntity {
 				profile.setAngle(this._profile.angle());
 			},
 		}));
+		this._subProfile.setInertia(Infinity);
 		this._subProfile.onBody((subProfile : Profile) => {
 			this._profile.onBody((profile : Profile) => {
 				profile.setAngle(0);
@@ -133,16 +140,6 @@ export class Table extends Interactable implements Entity, EquipEntity {
 		this._subProfile.setMinimapOptions({
 			color: ColorFactory.tableWood.toString(),
 		});
-
-		this._model = this.addComponent<Model>(new Model({
-			readyFn: () => { return this._profile.ready(); },
-			meshFn: (model : Model) => {
-				MeshFactory.load(MeshType.TABLE, (result : LoadResult) => {
-					model.setMesh(<BABYLON.Mesh>result.meshes[0]);
-				});
-			},
-			init: entityOptions.modelInit,
-		}));
 	}
 
 	override initialize() : void {

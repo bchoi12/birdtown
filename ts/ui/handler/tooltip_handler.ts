@@ -15,6 +15,10 @@ import { defined } from 'util/common'
 
 export class TooltipHandler extends HandlerBase implements Handler {
 
+	private static readonly _nonGameTypes = new Set([
+		TooltipType.COPIED_URL,
+	]);
+
 	private static readonly _defaultTTL : number = 500;
 	private static readonly _maxTooltips : number = 3;
 
@@ -38,7 +42,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		});
 	}
 	showTooltip(type : TooltipType, options : TooltipOptions) : void {
-		if (ui.mode() !== UiMode.GAME) {
+		if (ui.mode() !== UiMode.GAME && !TooltipHandler._nonGameTypes.has(type)) {
 			return;
 		}
 
