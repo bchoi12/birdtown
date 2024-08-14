@@ -91,8 +91,10 @@ export class Profile extends ComponentBase implements Component {
 	private _limitFn : Optional<ModifyProfileFn>;
 	private _tempLimitFns : Map<number, ModifyProfileFn>;
 	private _outOfBoundsFn : Optional<ModifyProfileFn>;
-	private _smoother : Smoother;
 	private _scaleFactor : Vec2;
+	private _smoother : Smoother;
+	private _occluded : boolean;
+	private _visible : boolean;
 
 	private _pos : SmoothVec2;
 	private _vel : SmoothVec2;
@@ -132,6 +134,8 @@ export class Profile extends ComponentBase implements Component {
 		this._outOfBoundsFn = new Optional();
 		this._scaleFactor = Vec2.one();
 		this._smoother = new Smoother();
+		this._occluded = false;
+		this._visible = true;
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -330,10 +334,17 @@ export class Profile extends ComponentBase implements Component {
 			this._onBodyFns.push(fn);
 		}
 	}
-	visible() : boolean { return this.hasBody() && this.body().render.visible; }
+	visible() : boolean { return this.hasBody() && this._visible && !this._occluded; }
 	setVisible(visible : boolean) : void {
+		this._visible = visible;
 		this.onBody((profile : Profile) => {
-			profile.body().render.visible = visible;
+			profile.body().render.visible = this.visible();
+		});
+	}
+	setOccluded(occluded : boolean) : void {
+		this._occluded = occluded;
+		this.onBody((profile : Profile) => {
+			profile.body().render.visible = this.visible();
 		});
 	}
 	setMinimapOptions(options : MinimapOptions) : void {
@@ -748,6 +759,8 @@ export class Profile extends ComponentBase implements Component {
 		if (this._prePhysicsFn) {
 			this._prePhysicsFn(this);
 		}
+
+		this._occluded = false;
 
 		if (this._applyScaling) {
 			MATTER.Body.scale(this._body, this._scaleFactor.x, this._scaleFactor.y);

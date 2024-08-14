@@ -1,5 +1,6 @@
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 import { EntityType } from 'game/entity/api'
 import { GameData, DataFilter } from 'game/game_data'
 import { ClientSideSystem, System } from 'game/system'
@@ -109,10 +110,12 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 			game.tablet(this.clientId()).setDisplayName(this._message.getDisplayName());
 			break;
 		case DialogType.LOADOUT:
-	    	let msg = new GameMessage(GameMessageType.FEED);
-	    	msg.setNames([game.tablet(this.clientId()).displayName()]);
-	    	msg.setFeedType(FeedType.READY);
-	    	game.announcer().broadcast(msg);
+			if (game.controller().gameState() === GameState.SETUP) {
+	    		let msg = new GameMessage(GameMessageType.FEED);
+	    		msg.setNames([game.tablet(this.clientId()).displayName()]);
+		    	msg.setFeedType(FeedType.READY);
+		    	game.announcer().broadcast(msg);
+			}
 			break;
 		}
 	}

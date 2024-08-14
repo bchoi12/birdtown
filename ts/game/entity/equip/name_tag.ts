@@ -29,7 +29,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	private static readonly _font = "64px " + UiGlobals.font;
 
 	private _displayName : string;
-	private _occluded : boolean;
+	private _enabled : boolean;
 	private _visible : boolean;
 
 	private _textColor : string;
@@ -42,7 +42,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		super(EntityType.NAME_TAG, entityOptions);
 
 		this._displayName = "";
-		this._occluded = false;
+		this._enabled = true;
 		this._visible = true;
 
 		this._textColor = NameTag._defaultTextColor;
@@ -167,15 +167,15 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		}
 
 		this._visible = visible;
-		this._model.setVisible(this._visible && !this._occluded);
+		this._model.setVisible(this._visible && this._enabled);
 	}
-	private setOccluded(occluded : boolean) : void {
-		if (this._occluded === occluded) {
+	private setEnabled(enabled : boolean) : void {
+		if (this._enabled === enabled) {
 			return;
 		}
 
-		this._occluded = occluded;
-		this._model.setVisible(this._visible && !this._occluded);
+		this._enabled = enabled;
+		this._model.setVisible(this._visible && this._enabled);
 	}
 
 	override attachType() : AttachType { return AttachType.ROOT; }
@@ -183,15 +183,15 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	override preRender() : void {
 		super.preRender();
 
-		let occluded = false;
+		let enabled = true;
 		if (this.owner().hasProfile() && !this.owner().profile().visible()) {
-			occluded = true;
+			enabled = false;
 		} else if (this.owner().type() === EntityType.PLAYER) {
 			if (game.playerStates().hasPlayerState(this.owner().clientId())
 				&& game.playerState(this.owner().clientId()).role() !== PlayerRole.GAMING) {
-				occluded = true;
+				enabled = false;
 			}
 		}
-		this.setOccluded(occluded);
+		this.setEnabled(enabled);
 	}
 }

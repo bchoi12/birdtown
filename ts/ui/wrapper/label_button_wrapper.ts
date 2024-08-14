@@ -10,6 +10,9 @@ export class LabelButtonWrapper extends LabelWrapper {
 	constructor() {
 		super();
 
+		this.elm().classList.add(Html.classButton);
+		this.elm().classList.add(Html.classNoSelect);
+
 		this._textElm = Html.div();
 		this._textElm.classList.add(Html.classSettingValue);
 		this.elm().appendChild(this._textElm);

@@ -60,7 +60,10 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setVisible(false);
+		this._profile.setMinimapOptions({
+			color: ColorFactory.archWood.toString(),
+			depthType: DepthType.BEHIND,
+		});
 	}
 
 	override initialize() : void {
@@ -87,6 +90,8 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 		nameTag.setDisplayName(text);
 		nameTag.setPointerColor(ColorFactory.signGray.toString());
 		this._nameTag = nameTag;
+
+		console.log(this._nameTag);
 	}
 
 	override delete() : void {
@@ -123,10 +128,6 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 
 		if (entity.isLakituTarget()) {
 			this._showTooltip = interactable;
-
-			if (this._nameTag !== null) {
-				this._nameTag.setVisible(!interactable);
-			}
 		}
 	}
 	override interactWith(entity : Entity) : void {
@@ -139,6 +140,11 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 
 	override preRender() : void {
 		super.preRender();
+
+		// Don't clutter screen if tooltip is up
+		if (this._nameTag !== null) {
+			this._nameTag.setVisible(!this._showTooltip);
+		}
 
 		if (this._showTooltip) {
 			ui.showTooltip(this.tooltipType(), {

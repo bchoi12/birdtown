@@ -26,7 +26,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this._mode = GameMode.UNKNOWN;
 		this._configMsg = null;
 
-		this.titleElm().textContent = "Start a game";
+		this.titleElm().textContent = "Select a mode";
 		this.addGameModePage();
 
 		let okButton = this.addOKButton();
@@ -57,7 +57,6 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let infoElm = columnsWrapper.columnElm(1);
 
 		// Enable line breaks.
-		infoElm.style.whiteSpace = "pre";
 		infoElm.textContent = "Select a game mode on the left.";
 
 		let modeButtons = new ButtonGroupWrapper();
@@ -118,6 +117,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 	private addFreeForAllPage() : void {
 		let pageWrapper = this.addPage();
+		this.titleElm().textContent = "Free for All";
 
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
 		columnsWrapper.elm().style.fontSize = "0.9em";
@@ -159,6 +159,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 	private addSurvivalPage() : void {
 		let pageWrapper = this.addPage();
+		this.titleElm().textContent = "Survival";
 
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
 		columnsWrapper.elm().style.fontSize = "0.9em";

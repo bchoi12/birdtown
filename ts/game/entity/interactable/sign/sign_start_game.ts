@@ -8,6 +8,7 @@ import { Sign } from 'game/entity/interactable/sign'
 import { ui } from 'ui'
 import { DialogType, TooltipType } from 'ui/api'
 
+// TODO: rename StartGameSign?
 export class SignStartGame extends Sign {
 
 	constructor(entityOptions : EntityOptions) {

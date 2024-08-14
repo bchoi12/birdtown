@@ -76,7 +76,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._contentElm.appendChild(page.elm());
 
 		if (this._pages.length > 1) {
-			page.elm().style.visibility = "hidden";
+			page.elm().style.display = "none";
 		}
 		return page;
 	}
@@ -110,7 +110,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 		let currentPage = this._pages[this._pageIndex];
 		currentPage.submit();
-		currentPage.elm().style.visibility = "hidden";
+		currentPage.elm().style.display = "none";
 
 		if (this._pageIndex >= this._pages.length - 1) {
 			this.submit();
@@ -118,7 +118,7 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		}
 
 		this._pageIndex++;
-		this._pages[this._pageIndex].elm().style.visibility = "visible";
+		this._pages[this._pageIndex].elm().style.display = "block";
 	}
 
 	addOnSubmit(fn : OnSubmitFn) : void { this._onSubmitFns.push(fn); }

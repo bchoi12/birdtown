@@ -20,6 +20,8 @@ export class ColumnsWrapper extends HtmlWrapper<HTMLElement> {
 		for (let i = 0; i < columnWeights.length; ++i) {
 			let column = Html.div();
 			column.style.flex = "" + columnWeights[i];
+			column.style.padding = "0 0.3em";
+			column.style.whiteSpace = "pre-wrap";
 
 			this.appendColumn(column);
 		}

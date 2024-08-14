@@ -90,12 +90,6 @@ export abstract class Beak extends Equip<Player> {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (this.owner().dead()) {
-			this._soundPlayer.stop(SoundType.BAWK);
-			this._squawking = false;
-			this._squawkTimer.finish();
-		}
-
 		if (!this.isSource()) {
 			return;
 		}

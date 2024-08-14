@@ -105,7 +105,7 @@ export namespace EntityFactory {
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],
 		[EntityType.ROCKET, { x: 0.3, y: 0.3, z: 0.3 }],
-		[EntityType.SIGN, {x: 3, y: 2, z: 0.2 }],
+		[EntityType.SIGN, {x: 1, y: 2, z: 0.2 }],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],
 		[EntityType.STAR, {x: 0.35, y: 0.35, z: 0.1 }],
 		[EntityType.TABLE, { x: 2, y: 1.25, z: 3 }],

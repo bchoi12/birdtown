@@ -181,7 +181,7 @@ export abstract class Block extends EntityBase {
 			});
 		} else {
 			this._occludedEntities.forEach((entity : Entity) => {
-				entity.profile().setVisible(!this.transparent());
+				entity.profile().setOccluded(true);
 			});
 			this._frontMaterials.forEach((name : string) => {
 				const cached = this._materialCache.get(name);

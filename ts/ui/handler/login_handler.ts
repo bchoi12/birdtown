@@ -9,6 +9,8 @@ import { Html } from 'ui/html'
 
 export class LoginHandler extends HandlerBase implements Handler {
 
+	private static readonly _version = "alpha 0.21";
+
 	private _loginElm : HTMLElement;
 	private _legendElm : HTMLElement;
 	private _loginInfoElm : HTMLElement;
@@ -57,7 +59,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 	override onEnable() : void {
 		super.onEnable();
 
-		this._legendElm.textContent = "alpha 0.1";
+		this._legendElm.textContent = LoginHandler._version;
 
 		this.showLogin();
 

@@ -49,9 +49,6 @@ export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isStatic: true,
 					isSensor: true,
-					render: {
-						visible: false,
-					},
 				});
 			},
 			init: entityOptions.profileInit,
