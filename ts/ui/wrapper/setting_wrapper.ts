@@ -20,16 +20,16 @@ export class SettingWrapper<T extends number> extends LabelButtonWrapper {
 
 		this._options = options;
 
-		this.setLabel(this._options.name);
-		this.setText(this._options.text(this._options.get()));
+		this.setName(this._options.name);
+		this.setButtonText(this._options.text(this._options.get()));
 
 		this.elm().onclick = (e) => {
 			this._options.click(this._options.get());
-			this.setText(this._options.text(this._options.get()));
+			this.setButtonText(this._options.text(this._options.get()));
 		}
 	}
 
 	refresh() : void { this._options.get(); }
 
-	override setText(text : string) : void { super.setText("[" + text + "]"); }
+	override setButtonText(text : string) : void { super.setButtonText("[" + text + "]"); }
 }

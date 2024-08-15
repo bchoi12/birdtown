@@ -48,7 +48,10 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	hasIcon() : boolean { return this._iconElm.has(); }
 	setIcon(type : IconType) : void {
 		let icon = Icon.create(type);
-		icon.style.paddingRight = "0.2em";
+
+		if (this._textElm.textContent.length > 0) {
+			icon.style.paddingRight = "0.2em";
+		}
 
 		if (!this._iconElm.has()) {
 			this.elm().prepend(icon);
@@ -65,7 +68,13 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		this._iconElm.clear();
 	}
 	setHtml(html : string ) : void { this.elm().innerHTML = html; }
-	setText(text : string) : void { this._textElm.textContent = text;}
+	setText(text : string) : void {
+		this._textElm.textContent = text;
+
+		if (this._textElm.textContent.length > 0 && this._iconElm.has()) {
+			this._iconElm.get().style.paddingRight = "0.2em";
+		}
+	}
 
 	addOnClick(fn : OnClickFn) : void { this._onClickFns.push(fn); }
 	addOnSelect(fn : OnClickFn) : void { this._onSelectFns.push(fn); }

@@ -20,7 +20,7 @@ export class KeyBindWrapper extends LabelButtonWrapper {
 	constructor(options : KeyBindWrapperOptions) {
 		super();
 
-		this.setLabel(options.name);
+		this.setName(options.name);
 
 		this._active = false;
 		this._update = options.update;
@@ -52,10 +52,10 @@ export class KeyBindWrapper extends LabelButtonWrapper {
 
 	update() : void {
 		if (this._active) {
-			this.setText("[Press a key]");
+			this.setButtonText("[Press a key]");
 		} else {
 			let key = KeyNames.get(this._get());
-			this.setText("[" + key + "]");
+			this.setButtonText("[" + key + "]");
 		}
 	}
 }

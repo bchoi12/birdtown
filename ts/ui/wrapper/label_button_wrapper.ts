@@ -5,7 +5,7 @@ import { LabelWrapper } from 'ui/wrapper/label_wrapper'
 
 export class LabelButtonWrapper extends LabelWrapper {
 
-	protected _textElm : HTMLElement;
+	protected _buttonTextElm : HTMLElement;
 
 	constructor() {
 		super();
@@ -13,9 +13,9 @@ export class LabelButtonWrapper extends LabelWrapper {
 		this.elm().classList.add(Html.classButton);
 		this.elm().classList.add(Html.classNoSelect);
 
-		this._textElm = Html.div();
-		this._textElm.classList.add(Html.classSettingValue);
-		this.elm().appendChild(this._textElm);
+		this._buttonTextElm = this.addValueElm();
+		this.elm().appendChild(this._buttonTextElm);
 	}
-	setText(text : string) : void { this._textElm.textContent = text; }
+
+	setButtonText(text : string) : void { this._buttonTextElm.textContent = text; }
 }

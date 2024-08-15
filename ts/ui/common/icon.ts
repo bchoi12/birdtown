@@ -13,6 +13,7 @@ export enum IconType {
 	// Menu
 	CANCEL,
 	CHECK,
+	DICE,
 	MINUS,
 	PLUS,
 	RESET_SETTINGS,
@@ -40,8 +41,10 @@ export namespace Icon {
 
 	const names = new Map<IconType, string>([
 		[IconType.BOLT, "bolt"],
+		[IconType.CANCEL, "cancel"],
 		[IconType.CHECK, "check_circle"],
 		[IconType.DASH, "sprint"],
+		[IconType.DICE, "casino"],
 		[IconType.HEART, "favorite"],
 		[IconType.JET, "flight_takeoff"],
 		[IconType.MIC, "mic"],

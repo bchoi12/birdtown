@@ -9,9 +9,10 @@ import { FullscreenSetting } from 'settings/api'
 
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
-import { LoginNames } from 'ui/common/login_names'
 import { Html } from 'ui/html'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
+import { ClientNameWrapper } from 'ui/wrapper/client_name_wrapper'
+import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { ClientDialogWrapper } from 'ui/wrapper/dialog/client_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
@@ -36,21 +37,29 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 	private addNamePage() : void {
 		let pageWrapper = this.addPage();
 
-		let nameInput = Html.input();
-		nameInput.placeholder = "[Enter your name]";
-		pageWrapper.elm().appendChild(nameInput);
+		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
+		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
-		pageWrapper.elm().appendChild(Html.br());
+		let bio = columnsWrapper.column(0);
+		bio.setLegend("Bio");
+		let nameWrapper = new ClientNameWrapper();
+		bio.contentElm().appendChild(nameWrapper.elm());
 
+		let bird = columnsWrapper.column(1);
+		bird.setLegend("Bird");
+
+		bird.contentElm().textContent = "TODO"
+
+		/*
 		let colorInput = Html.input();
 		colorInput.type = "color";
 		colorInput.value = ColorFactory.playerColor(game.clientId()).toString();
 		pageWrapper.elm().appendChild(colorInput);
+		*/
 
 		pageWrapper.setOnSubmit(() => {
-			const name = nameInput.value.length > 0 ? nameInput.value : LoginNames.randomName();
-			this.dialogMessage().setDisplayName(name);
-			this.dialogMessage().setColor(colorInput.value);
+			this.dialogMessage().setDisplayName(nameWrapper.name());
+			this.dialogMessage().setColor(ColorFactory.playerColor(game.clientId()).toString());
 		});
 	}
 }

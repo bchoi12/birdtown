@@ -50,14 +50,16 @@ export class StartGameDialogWrapper extends DialogWrapper {
 	private addGameModePage() : void {
 		let pageWrapper = this.addPage();
 
-		let columnsWrapper = ColumnsWrapper.withWeights([4, 6]);
+		let columnsWrapper = ColumnsWrapper.withWeights([3, 6]);
 		columnsWrapper.elm().style.fontSize = "0.7em";
 
-		let modeElm = columnsWrapper.columnElm(0);
-		let infoElm = columnsWrapper.columnElm(1);
+		let mode = columnsWrapper.column(0);
+		mode.setLegend("Mode");
+		let info = columnsWrapper.column(1);
+		info.setLegend("Description");
 
 		// Enable line breaks.
-		infoElm.textContent = "Select a game mode on the left.";
+		info.contentElm().textContent = "Select a game mode on the left.";
 
 		let modeButtons = new ButtonGroupWrapper();
 
@@ -68,7 +70,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.FREE_FOR_ALL;
 
-				infoElm.textContent = "2+ players required\r\n\r\nRack up the most points to win. It's everyone for themselves.";
+				info.contentElm().textContent = "2+ players required\r\n\r\nRack up the most points to win. It's everyone for themselves.";
 			});
 		}
 
@@ -79,7 +81,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.SURVIVAL;
 
-				infoElm.textContent = "2+ players required\r\n\r\nTry not to die.";
+				info.contentElm().textContent = "2+ players required\r\n\r\nTry not to die.";
 			});
 		}
 
@@ -90,11 +92,11 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.PRACTICE;
 
-				infoElm.textContent = "No requirements\r\n\r\nDo whatever you want."
+				info.contentElm().textContent = "No requirements\r\n\r\nDo whatever you want."
 			});
 		}
 
-		modeElm.appendChild(modeButtons.elm());
+		mode.contentElm().appendChild(modeButtons.elm());
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setOnSubmit(() => {
@@ -122,8 +124,11 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
 		columnsWrapper.elm().style.fontSize = "0.9em";
 
-		let leftElm = columnsWrapper.columnElm(0);
-		let rightElm = columnsWrapper.columnElm(1);
+		let options = columnsWrapper.column(0);
+		options.setLegend("Options");
+
+		let players = columnsWrapper.column(1);
+		players.setLegend("Players");
 
 		let points = new LabelNumberWrapper({
 			label: "Points for a win",
@@ -135,7 +140,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				return Math.max(1, current - 1);
 			},
 		});
-		leftElm.appendChild(points.elm());
+		options.contentElm().appendChild(points.elm());
 
 		let victories = new LabelNumberWrapper({
 			label: "First to N wins",
@@ -147,13 +152,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				return Math.max(1, current - 1);
 			},
 		});
-		leftElm.appendChild(victories.elm());
+		options.contentElm().appendChild(victories.elm());
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setOnSubmit(() => {
-			this._configMsg.setPoints(points.value());
-			this._configMsg.setVictories(victories.value());
+			this._configMsg.setPoints(points.number());
+			this._configMsg.setVictories(victories.number());
 		});
 	}
 
@@ -164,8 +169,11 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
 		columnsWrapper.elm().style.fontSize = "0.9em";
 
-		let leftElm = columnsWrapper.columnElm(0);
-		let rightElm = columnsWrapper.columnElm(1);
+		let options = columnsWrapper.column(0);
+		options.setLegend("Options");
+
+		let players = columnsWrapper.column(1);
+		players.setLegend("Players");
 
 		let lives = new LabelNumberWrapper({
 			label: "Lives",
@@ -177,7 +185,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				return Math.max(1, current - 1);
 			},
 		});
-		leftElm.appendChild(lives.elm());
+		options.contentElm().appendChild(lives.elm());
 
 		let victories = new LabelNumberWrapper({
 			label: "First to N wins",
@@ -189,13 +197,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				return Math.max(1, current - 1);
 			},
 		});
-		leftElm.appendChild(victories.elm());
+		options.contentElm().appendChild(victories.elm());
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setOnSubmit(() => {
-			this._configMsg.setLives(lives.value());
-			this._configMsg.setVictories(victories.value());
+			this._configMsg.setLives(lives.number());
+			this._configMsg.setVictories(victories.number());
 		});
 	}
 }

@@ -1,13 +1,16 @@
 
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
+import { ColumnWrapper } from 'ui/wrapper/column_wrapper'
 
 export class ColumnsWrapper extends HtmlWrapper<HTMLElement> {
 
-	private _columns : Array<HTMLElement>;
+	private _columns : Array<ColumnWrapper>;
 
 	private constructor(columnWeights : Array<number>) {
 		super(Html.div());
+
+		this.elm().classList.add(Html.classColumns);
 
 		this._columns = new Array();
 
@@ -18,11 +21,8 @@ export class ColumnsWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().style.display = "flex";
 
 		for (let i = 0; i < columnWeights.length; ++i) {
-			let column = Html.div();
-			column.style.flex = "" + columnWeights[i];
-			column.style.padding = "0 0.3em";
-			column.style.whiteSpace = "pre-wrap";
-
+			let column = new ColumnWrapper();
+			column.elm().style.flex = columnWeights[i] + " 0";
 			this.appendColumn(column);
 		}
 	}
@@ -37,14 +37,14 @@ export class ColumnsWrapper extends HtmlWrapper<HTMLElement> {
 		return new ColumnsWrapper(weights);
 	}
 
-	private appendColumn(column : HTMLElement) : void {
+	private appendColumn(column : ColumnWrapper) : void {
 		this._columns.push(column);
-		this.elm().appendChild(column);
+		this.elm().appendChild(column.elm());
 	}
 
-	hasColumnElm(index : number) : boolean { return index >= 0 && index < this._columns.length; }
-	columnElm(index : number) : HTMLElement {
-		if (!this.hasColumnElm(index)) {
+	hasColumn(index : number) : boolean { return index >= 0 && index < this._columns.length; }
+	column(index : number) : ColumnWrapper {
+		if (!this.hasColumn(index)) {
 			console.error("Error: querying for non-existent column %d", index);
 			return null;
 		}

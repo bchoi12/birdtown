@@ -55,6 +55,8 @@ export namespace Html {
 	export const classButton = "button";
 	export const classButtonSelect = "button-select";
 	export const classButtonSelected = "button-selected";
+	export const classColumn = "column";
+	export const classColumns = "columns";
 	export const classContainer = "container";
 	export const classCounter = "counter";
 	export const classDialog = "dialog";
@@ -67,9 +69,9 @@ export namespace Html {
 	export const classInfoTable = "info-table";
 	export const classPopup = "popup";
 	export const classPopupShow = "popup-show";
-	export const classSetting = "setting";
-	export const classSettingLabel = "setting-label";
-	export const classSettingValue = "setting-value";
+	export const classLabel = "label";
+	export const classLabelName = "label-name";
+	export const classLabelValue = "label-value";
 	export const classTooltip = "tooltip";
 
 	export const cursor = "cursor";
@@ -82,8 +84,10 @@ export namespace Html {
 	export function div() : HTMLElement { return document.createElement("div"); }
 	export function span() : HTMLElement { return document.createElement("span"); }
 	export function br() : HTMLElement { return document.createElement("br"); }
+	export function fieldset() : HTMLElement { return document.createElement("fieldset"); }
 	export function input() : HTMLInputElement { return <HTMLInputElement>document.createElement("input"); }
 	export function label() : HTMLElement { return document.createElement("label"); }
+	export function legend() : HTMLElement { return document.createElement("legend"); }
 	export function audio() : HTMLAudioElement { return <HTMLAudioElement>document.createElement("audio"); }
 	export function button() : HTMLButtonElement { return document.createElement("button"); }
 	export function table() : HTMLElement { return document.createElement("table"); }

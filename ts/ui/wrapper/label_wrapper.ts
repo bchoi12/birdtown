@@ -4,18 +4,23 @@ import { Html, HtmlWrapper } from 'ui/html'
 
 export abstract class LabelWrapper extends HtmlWrapper<HTMLElement> {
 
-	protected _labelElm : HTMLElement;
+	protected _nameElm : HTMLElement;
 
 	constructor() {
 		super(Html.div());
 
-		this.elm().classList.add(Html.classSetting);
-		this.elm().style.display = "block";
+		this.elm().classList.add(Html.classLabel);
 
-		this._labelElm = Html.div();
-		this._labelElm.classList.add(Html.classSettingLabel);
-		this.elm().appendChild(this._labelElm);
+		this._nameElm = Html.div();
+		this._nameElm.classList.add(Html.classLabelName);
+		this.elm().appendChild(this._nameElm);
 	}
 
-	setLabel(name : string) : void { this._labelElm.textContent = name; }
+	setName(name : string) : void { this._nameElm.textContent = name; }
+	addValueElm() : HTMLElement {
+		let elm = Html.div();
+		elm.classList.add(Html.classLabelValue);
+		this.elm().appendChild(elm);
+		return elm;
+	}
 }

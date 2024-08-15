@@ -90,8 +90,6 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 		nameTag.setDisplayName(text);
 		nameTag.setPointerColor(ColorFactory.signGray.toString());
 		this._nameTag = nameTag;
-
-		console.log(this._nameTag);
 	}
 
 	override delete() : void {

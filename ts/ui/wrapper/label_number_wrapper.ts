@@ -16,18 +16,17 @@ export type LabelNumberOptions = {
 export class LabelNumberWrapper extends LabelWrapper {
 
 	private _settingElm : HTMLElement;
-	private _valueElm : HTMLElement;
-	private _value : number;
+	private _numberElm : HTMLElement;
+	private _number : number;
 
 	constructor(options : LabelNumberOptions) {
 		super();
 
-		this._settingElm = Html.div();
-		this._settingElm.classList.add(Html.classSettingValue);
+		this._settingElm = this.addValueElm();
 		this.elm().appendChild(this._settingElm);
 
-		this._valueElm = Html.span();
-		this._settingElm.appendChild(this._valueElm);
+		this._numberElm = Html.span();
+		this._settingElm.appendChild(this._numberElm);
 
 		const separator = Html.span();
 		separator.innerHTML = "&nbsp;&nbsp;|&nbsp;";
@@ -39,26 +38,26 @@ export class LabelNumberWrapper extends LabelWrapper {
 		const minus = new ButtonWrapper();
 		minus.elm().appendChild(Icon.create(IconType.MINUS));
 		minus.addOnClick(() => {
-			this.setValue(options.minus(this.value()));
+			this.setNumber(options.minus(this.number()));
 		});
 		buttons.appendChild(minus.elm());
 
 		const plus = new ButtonWrapper();
 		plus.elm().appendChild(Icon.create(IconType.PLUS));
 		plus.addOnClick(() => {
-			this.setValue(options.plus(this.value()));
+			this.setNumber(options.plus(this.number()));
 		});
 		buttons.appendChild(plus.elm());
 
 		this._settingElm.appendChild(buttons);
 
-		this.setLabel(options.label);
-		this.setValue(options.value);
+		this.setName(options.label);
+		this.setNumber(options.value);
 	}
 
-	value() : number { return this._value; }
-	setValue(value : number) : void {
-		this._valueElm.textContent = "" + value;
-		this._value = value;
+	number() : number { return this._number; }
+	setNumber(value : number) : void {
+		this._numberElm.textContent = "" + value;
+		this._number = value;
 	}
 }
