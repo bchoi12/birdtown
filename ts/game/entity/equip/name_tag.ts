@@ -6,6 +6,7 @@ import { Model } from 'game/component/model'
 import { Entity, EquipEntity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, Equip } from 'game/entity/equip'
+import { Player } from 'game/entity/player'
 import { MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
@@ -187,8 +188,9 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		if (this.owner().hasProfile() && !this.owner().profile().visible()) {
 			enabled = false;
 		} else if (this.owner().type() === EntityType.PLAYER) {
-			if (game.playerStates().hasPlayerState(this.owner().clientId())
-				&& game.playerState(this.owner().clientId()).role() !== PlayerRole.GAMING) {
+			const player = <Player>this.owner();
+			if (player.dead() || game.playerStates().hasPlayerState(player.clientId())
+				&& game.playerState(player.clientId()).role() !== PlayerRole.GAMING) {
 				enabled = false;
 			}
 		}

@@ -101,6 +101,13 @@ export class GameMaker extends SystemBase implements System {
 		return true;
 	}
 
+	static canStart(mode : GameMode) : [boolean, string] {
+		const config = GameConfigMessage.defaultConfig(mode);
+		if (config.hasPlayersMin() && game.tablets().numSetup() < config.getPlayersMin()) {
+			return [false, "Need " + config.getPlayersMin() + " players for this game mode, but only " + game.tablets().numSetup() + " player(s) are ready!"];
+		}
+		return [true, ""];
+	}
 	valid(current : GameState) : [boolean, string] {
 		switch (current) {
 		case GameState.SETUP:

@@ -22,7 +22,6 @@ export class ClientNameWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._randomize = new ButtonWrapper();
 		this._randomize.elm().style.padding = "0.1em";
-		this._randomize.elm().style.float = "right";
 		this._randomize.setIcon(IconType.DICE);
 		this._randomize.addOnClick(() => {
 			this._nameElm.value = LoginNames.randomName();

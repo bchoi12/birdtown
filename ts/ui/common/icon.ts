@@ -27,6 +27,7 @@ export enum IconType {
 	READY,
 	SKILLET,
 	SKULL,
+	TROPHY,
 
 	// Counters
 	BOLT,
@@ -44,7 +45,7 @@ export namespace Icon {
 		[IconType.CANCEL, "cancel"],
 		[IconType.CHECK, "check_circle"],
 		[IconType.DASH, "sprint"],
-		[IconType.DICE, "casino"],
+		[IconType.DICE, "ifl"],
 		[IconType.HEART, "favorite"],
 		[IconType.JET, "flight_takeoff"],
 		[IconType.MIC, "mic"],
@@ -61,6 +62,7 @@ export namespace Icon {
 		[IconType.SKILLET, "skillet"],
 		[IconType.SKULL, "skull"],
 		[IconType.TELEKENESIS, "move_selection_right"],
+		[IconType.TROPHY, "trophy"],
 		[IconType.VOLUME_HIGH, "volume_up"],
 		[IconType.VOLUME_LOW, "volume_down"],
 		[IconType.VOLUME_NONE, "volume_mute"],

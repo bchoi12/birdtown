@@ -105,7 +105,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return "Spectating " + names[0];
 		case TooltipType.START_GAME:
 			if (!game.isHost()) {
-				return "When you\'re ready, ask the host to start a game";
+				return "Only the host can start a game";
 			}
 			return KeyNames.boxed(settings.interactKeyCode) + " Start a game";
 		default:

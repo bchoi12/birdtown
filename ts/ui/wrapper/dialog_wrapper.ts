@@ -104,11 +104,16 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 	addOnNextPage(fn : OnSubmitFn) : void { this._onNextPageFns.push(fn); }
 	nextPage() : void {
+		let currentPage = this._pages[this._pageIndex];
+
+		if (!currentPage.canSubmit()) {
+			return;
+		}
+
 		this._onNextPageFns.forEach((onNextPage : OnSubmitFn) => {
 			onNextPage();
 		});
 
-		let currentPage = this._pages[this._pageIndex];
 		currentPage.submit();
 		currentPage.elm().style.display = "none";
 

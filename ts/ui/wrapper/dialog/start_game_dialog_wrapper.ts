@@ -1,12 +1,16 @@
 
 import { game } from 'game'
 import { GameMode } from 'game/api'
+import { GameMaker } from 'game/system/game_maker'
 
 import { GameConfigMessage } from 'message/game_config_message'
+
+import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
+import { KeyNames } from 'ui/common/key_names'
 
 import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
@@ -51,18 +55,27 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let pageWrapper = this.addPage();
 
 		let columnsWrapper = ColumnsWrapper.withWeights([3, 6]);
-		columnsWrapper.elm().style.fontSize = "0.7em";
 
 		let mode = columnsWrapper.column(0);
 		mode.setLegend("Mode");
+		mode.contentElm().style.fontSize = "0.7em";
 		let info = columnsWrapper.column(1);
 		info.setLegend("Description");
+		info.contentElm().style.fontSize = "0.7em";
 
-		// Enable line breaks.
-		info.contentElm().textContent = "Select a game mode on the left.";
+		let description = Html.div();
+		let requirements = Html.div();
+		let error = Html.div();
+
+		info.contentElm().appendChild(description);
+		info.contentElm().appendChild(Html.br());
+		info.contentElm().appendChild(requirements);
+		info.contentElm().appendChild(Html.br());
+		info.contentElm().appendChild(error);
+
+		description.textContent = "Select a game mode on the left.";
 
 		let modeButtons = new ButtonGroupWrapper();
-
 		{
 			let buttonWrapper = modeButtons.addButtonSelect();
 			buttonWrapper.elm().style.width = "100%";
@@ -70,7 +83,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.FREE_FOR_ALL;
 
-				info.contentElm().textContent = "2+ players required\r\n\r\nRack up the most points to win. It's everyone for themselves.";
+				requirements.innerHTML = "<li>2+ players required</li>"
+
+				description.textContent =
+					"It's every bird for themselves. Score points by cooking other players. " +
+					"The first player to reach the score limit or have the most points when time runs out wins the round"
+
+				error.textContent = "";
 			});
 		}
 
@@ -81,7 +100,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.SURVIVAL;
 
-				info.contentElm().textContent = "2+ players required\r\n\r\nTry not to die.";
+				requirements.innerHTML = "<li>2+ players required</li>"
+
+				description.textContent =
+					"Be the last bird standing. " + 
+					"Each player starts with the same number of lives. " +
+					"The last player standing wins the round. If time runs out, the round ends in a draw."
+				error.textContent = "";
 			});
 		}
 
@@ -92,18 +117,30 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.PRACTICE;
 
-				info.contentElm().textContent = "No requirements\r\n\r\nDo whatever you want."
+				requirements.innerHTML = "<li>No requirements</li>"
+
+				description.textContent = "There are no rules. If you get bored, press " + KeyNames.boxed(settings.menuKeyCode) + " to return to the lobby.";
+
+				error.textContent = "";
 			});
 		}
 
 		mode.contentElm().appendChild(modeButtons.elm());
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
+		pageWrapper.setCanSubmit(() => {
+			if (this._mode === GameMode.UNKNOWN) {
+				error.textContent = "No game mode selected!";
+				return false;
+			}
+			const [canSubmit, submitError] = GameMaker.canStart(this._mode);
+			error.textContent = submitError;
+			return canSubmit;
+		})
+
 		pageWrapper.setOnSubmit(() => {
 			if (this._mode !== GameMode.UNKNOWN) {
 				this._configMsg = GameConfigMessage.defaultConfig(this._mode);
-
-				// TODO: check if enough players or something
 
 				switch (this._mode) {
 				case GameMode.SURVIVAL:
