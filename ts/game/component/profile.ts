@@ -760,7 +760,9 @@ export class Profile extends ComponentBase implements Component {
 			this._prePhysicsFn(this);
 		}
 
-		this._occluded = false;
+		if (this._visible && this._occluded) {
+			this.setOccluded(false);
+		}
 
 		if (this._applyScaling) {
 			MATTER.Body.scale(this._body, this._scaleFactor.x, this._scaleFactor.y);
