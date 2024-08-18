@@ -91,6 +91,15 @@ export class Vec2 implements Vec {
     setLength(len : number) : Vec2 {
         return this.normalize().scale(len);
     }
+    project(other : Vec) : Vec2 {
+        const dot = this.dot(other);
+        const len = dot / Math.sqrt(other.x * other.x + other.y * other.y);
+
+        this.x = other.x;
+        this.y = other.y;
+        this.setLength(len);
+        return this;
+    }
 
     abs() : Vec2 {
         this.x = Math.abs(this.x);

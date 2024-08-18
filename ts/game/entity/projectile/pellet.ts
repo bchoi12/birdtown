@@ -19,17 +19,17 @@ import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Vec, Vec2 } from 'util/vector'
 
-export class Bolt extends Projectile {
+export class Pellet extends Projectile {
 
 	private _model : Model;
 	private _profile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.BOLT, entityOptions);
+		super(EntityType.PELLET, entityOptions);
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
@@ -37,7 +37,7 @@ export class Bolt extends Projectile {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setMinimapOptions({
-			color: ColorFactory.boltBlue.toString(),
+			color: ColorFactory.pelletYellow.toString(),
 		})
 		this._profile.setOutOfBoundsFn((profile : Profile) => {
 			this.delete();
@@ -47,71 +47,52 @@ export class Bolt extends Projectile {
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				const dim = this._profile.unscaledDim();
-				const depth = (dim.x + dim.y) / 2;
-
-				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {
-					width: dim.x,
-					height: dim.y,
-					depth: depth,
+				let mesh = BABYLON.MeshBuilder.CreateSphere(this.name(), {
+					diameterX: dim.x,
+					diameterY: dim.y,
+					diameterZ: 0.1,
 				}, game.scene());
 
 				game.world().glow(mesh, {
-					intensity: 0.5,
+					intensity: 0.6,
 				});
-
 				model.setMesh(mesh);
 			},
 			init: {
 				disableShadows: true,
+				materialType: MaterialType.PELLET_YELLOW,
 				...entityOptions.modelInit,
 			},
 		}));
 	}
 
-	override hitDamage() : number { return this.getAttribute(AttributeType.CHARGED) ? 70 : 12; }
-
-	override update(stepData : StepData) : void {
-		super.update(stepData);
-
-		const vel = this._profile.vel();
-		if (!vel.isZero()) {
-			this._profile.setAngle(vel.angleRad());
-		}
-	}
+	override hitDamage() : number { return 6; }
 
 	override onHit() : void {
-		if (this.getAttribute(AttributeType.CHARGED)) {
-			this.explode(EntityType.BOLT_EXPLOSION, {});
-		} else {
-			for (let i = 0; i < 3; ++i) {
-				this.addEntity(EntityType.PARTICLE_SPARK, {
-					offline: true,
-					ttl: 400,
-					profileInit: {
-						pos: this._profile.pos(),
-						vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
-							x: Fns.randomRange(0.1, 0.2),
-							y: Fns.randomRange(0.1, 0.2),
-						}),
-						scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.15 },
+		for (let i = 0; i < 3; ++i) {
+			this.addEntity(EntityType.PARTICLE_SPARK, {
+				offline: true,
+				ttl: 400,
+				profileInit: {
+					pos: this._profile.pos(),
+					vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
+						x: Fns.randomRange(0.1, 0.2),
+						y: Fns.randomRange(0.1, 0.2),
+					}),
+					scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.15 },
+				},
+				modelInit: {
+					transforms: {
+						translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1), },
 					},
-					modelInit: {
-						transforms: {
-							translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1), },
-						},
-						materialType: MaterialType.SPARK_BLUE,
-					}
-				});
-			}
+					materialType: MaterialType.SPARK_YELLOW,
+				}
+			});
 		}
 		this.delete();
 	}
 
-	override onMiss() : void {
-		if (this.getAttribute(AttributeType.CHARGED)) {
-			this.explode(EntityType.BOLT_EXPLOSION, {});
-		}
-	}
+	override onMiss() : void {}
 
 	override onExpire() : void {
 		this.onMiss();

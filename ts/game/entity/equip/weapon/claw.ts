@@ -45,7 +45,7 @@ export class Claw extends Weapon {
 		};
 	}
 
-	override shoot() : void {
+	override shoot(stepData : StepData) : void {
 		const charged = this.charged();
 		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const vel = this.inputDir().clone().setLength(0.7);

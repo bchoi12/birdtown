@@ -49,9 +49,6 @@ export class Star extends Projectile {
 				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
-					render: {
-						fillStyle: ColorFactory.starPurple.toString(),
-					},
 				});
 			},
 			init: entityOptions.profileInit,
@@ -60,6 +57,9 @@ export class Star extends Projectile {
 		this._profile.setOutOfBoundsFn((profile : Profile) => {
 			this.delete();
 		});
+		this._profile.setMinimapOptions({
+			color: ColorFactory.starPurple.toString(),
+		})
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },

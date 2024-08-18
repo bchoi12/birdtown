@@ -23,6 +23,7 @@ import { NameTag } from 'game/entity/equip/name_tag'
 import { Scouter } from 'game/entity/equip/scouter'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Claw } from 'game/entity/equip/weapon/claw'
+import { Gatling } from 'game/entity/equip/weapon/gatling'
 import { Sniper } from 'game/entity/equip/weapon/sniper'
 import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
 import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
@@ -37,6 +38,7 @@ import { ParticleSmoke } from 'game/entity/particle/particle_smoke'
 import { ParticleSpark } from 'game/entity/particle/particle_spark'
 import { ParticleSweat } from 'game/entity/particle/particle_sweat'
 import { Bolt } from 'game/entity/projectile/bolt'
+import { Pellet } from 'game/entity/projectile/pellet'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Star } from 'game/entity/projectile/star'
 import { SpawnPoint } from 'game/entity/spawn_point'
@@ -65,6 +67,7 @@ export namespace EntityFactory {
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
+		[EntityType.GATLING, (options : EntityOptions) => { return new Gatling(options); }],
 		[EntityType.HEADBAND, (options : EntityOptions) => { return new Headband(options); }],
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
@@ -73,6 +76,7 @@ export namespace EntityFactory {
 		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],
 		[EntityType.PARTICLE_SPARK, (options : EntityOptions) => { return new ParticleSpark(options); }],
 		[EntityType.PARTICLE_SWEAT, (options : EntityOptions) => { return new ParticleSweat(options); }],
+		[EntityType.PELLET, (options : EntityOptions) => { return new Pellet(options); }],
 		[EntityType.PERGOLA, (options : EntityOptions) => { return new Pergola(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
@@ -101,6 +105,7 @@ export namespace EntityFactory {
 		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],
 		[EntityType.PARTICLE_SPARK, { x: 1, y: 1, z: 1 }],
 		[EntityType.PARTICLE_SWEAT, { x: 1, y: 1, z: 1 }],
+		[EntityType.PELLET, { x: 0.5, y: 0.15, z : 0.15 }],
 		[EntityType.PERGOLA, { x: 4, y: 4, z: 4 }],
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],

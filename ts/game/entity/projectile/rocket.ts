@@ -11,6 +11,7 @@ import { Explosion } from 'game/entity/explosion'
 import { Projectile } from 'game/entity/projectile'
 import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
 
@@ -54,6 +55,9 @@ export class Rocket extends Projectile {
 		}));
 		this._profile.setOutOfBoundsFn((profile : Profile) => {
 			this.delete();
+		});
+		this._profile.setMinimapOptions({
+			color: ColorFactory.bazookaRed.toString(),
 		});
 	}
 

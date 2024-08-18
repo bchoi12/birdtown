@@ -82,6 +82,12 @@ export namespace MaterialFactory {
 			mat.emissiveColor = ColorFactory.starPurple.toBabylonColor3();
 		});
 
+		standardMaterial(MaterialType.PELLET_YELLOW, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.7;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.pelletYellow.toBabylonColor3();
+		});
+
 		standardMaterial(MaterialType.ROCKET_EXPLOSION, (mat : BABYLON.StandardMaterial) => {
 			mat.alpha = 0.7;
 			mat.disableLighting = true;
@@ -92,6 +98,12 @@ export namespace MaterialFactory {
 			mat.alpha = 0.7;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.sparkBlue.toBabylonColor3();
+		});
+
+		standardMaterial(MaterialType.SPARK_YELLOW, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.7;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.sparkYellow.toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.STAR_EXPLOSION, (mat : BABYLON.StandardMaterial) => {

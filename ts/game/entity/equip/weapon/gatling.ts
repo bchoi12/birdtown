@@ -18,51 +18,46 @@ import { StepData } from 'game/game_object'
 import { CounterOptions, KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
-import { Vec3 } from 'util/vector'
+import { Fns } from 'util/fns'
+import { Vec, Vec3 } from 'util/vector'
 
-export class Sniper extends Weapon {
+export class Gatling extends Weapon {
 
 	private static readonly _chargedThreshold = 1000;
-	private static readonly _boltTTL = 550;
+	private static readonly _projectileTTL = 550;
+
+	private static readonly _recoilVel = { x: 3, y: 8};
+	private static readonly _maxSpeed = { x: 0.6, y: 0.4 };
 
 	private _soundPlayer : SoundPlayer;
 
 	constructor(options : EntityOptions) {
-		super(EntityType.SNIPER, options);
+		super(EntityType.GATLING, options);
 
 		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
 		this._soundPlayer.registerSound(SoundType.LASER, SoundType.LASER);
-		this._soundPlayer.registerSound(SoundType.CHARGED_LASER, SoundType.CHARGED_LASER);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
-	override recoilType() : RecoilType { return RecoilType.SMALL; }
-	override meshType() : MeshType { return MeshType.SNIPER; }
-
-	override charged() : boolean { return this.getCounter(CounterType.CHARGE) >= Sniper._chargedThreshold; }
+	override recoilType() : RecoilType { return RecoilType.MEDIUM; }
+	override meshType() : MeshType { return MeshType.GATLING; }
 
 	override shotConfig() : ShotConfig {
-		if (this.charged()) {
-			return {
-				bursts: 1,
-				reloadTime: 500,
-			};
-		}
 		return {
-			bursts: 3,
-			burstTime: 80,
-			reloadTime: 300,
+			bursts: 1,
+			reloadTime: 80,
 		};
 	}
 
 	override shoot(stepData : StepData) : void {
-		const charged = this.charged();
+		const millis = stepData.millis;
+
 		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = this.inputDir().clone().normalize();
 
-		let vel = unitDir.clone().scale(charged ? 1 : 0.7);
-		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, {
-			ttl: Sniper._boltTTL,
+		let vel = unitDir.clone().scale(0.7);
+		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.PELLET, {
+			ttl: Gatling._projectileTTL,
 			associationInit: {
 				owner: this.owner(),
 			},
@@ -70,7 +65,6 @@ export class Sniper extends Weapon {
 				transforms: {
 					translate: { z: pos.z },
 				},
-				materialType: charged ? MaterialType.BOLT_ORANGE : MaterialType.BOLT_BLUE,
 			},
 			profileInit: {
 				pos: pos,
@@ -79,29 +73,29 @@ export class Sniper extends Weapon {
 			},
 		});
 
-		if (hasBolt) {
-			if (charged) {
-				bolt.setAttribute(AttributeType.CHARGED, true);
-				bolt.profile().setScaleFactor(1.5);
-			}
+		let recoilVel = unitDir.clone().negate().mult(Gatling._recoilVel).scale(millis / 1000);
+		let ownerProfile = this.owner().profile();
+		if (Math.sign(recoilVel.x) === Math.sign(ownerProfile.vel().x)) {
+			recoilVel.x *= Math.abs(ownerProfile.vel().x / Gatling._maxSpeed.x);
 		}
+		recoilVel.y = this.computeVerticalAcc(recoilVel, ownerProfile.vel());
+		ownerProfile.addVel(recoilVel);
 
-		this._soundPlayer.playFromEntity(charged ? SoundType.CHARGED_LASER : SoundType.LASER, this.owner());
-	}
-
-	override onReload() : void {
-		if (this.charged()) {
-			this.setCounter(CounterType.CHARGE, 0);
-		}
+		this._soundPlayer.playFromEntity(SoundType.LASER, this.owner());
 	}
 
 	override getCounts() : Map<CounterType, CounterOptions> {
 		let counts = super.getCounts();
 		counts.set(CounterType.CHARGE, {
-			percentGone: 1 - this.getCounter(CounterType.CHARGE) / Sniper._chargedThreshold,
-			text: this.charged() ? "1/1" : "0/1",
+			percentGone: 0,
+			text: "N/A",
 			color: ColorFactory.boltDarkOrange.toString(),
 		});
 		return counts;
+	}
+
+	private computeVerticalAcc(recoilVel : Vec, ownerVel : Vec) : number {
+		// Handle y velocity like jetpack to allow hovering, but not jump boosting.
+		return recoilVel.y * Fns.clamp(0, Math.abs(Gatling._maxSpeed.y - ownerVel.y) / (2 * Gatling._maxSpeed.y), 1);
 	}
 }

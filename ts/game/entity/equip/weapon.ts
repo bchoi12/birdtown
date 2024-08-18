@@ -95,8 +95,8 @@ export abstract class Weapon extends Equip<Player> {
 
 	charged() : boolean { return false; }
 	abstract shotConfig() : ShotConfig;
-	abstract shoot() : void;
-	abstract onReload() : void;
+	abstract shoot(stepData : StepData) : void;
+	onReload() : void {}
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
@@ -131,7 +131,7 @@ export abstract class Weapon extends Equip<Player> {
 
 		if (this._weaponState === WeaponState.BURSTING) {
 			if (!this._burstTimer.hasTimeLeft()) {
-				this.shoot();
+				this.shoot(stepData);
 				this.recordUse();
 				this._shotConfig.bursts--;
 

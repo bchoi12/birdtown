@@ -45,6 +45,8 @@ export namespace ColorFactory {
 	export const crateRed = HexColor.fromHex(0xfa493c);
 	export const crateYellow = HexColor.fromHex(0xf6ff56);
 
+	export const pelletYellow = HexColor.fromHex(0xffef61);
+
 	export const playerRed = HexColor.fromHex(0xfc1f0f);
 	export const playerOrange = HexColor.fromHex(0xfcb10f);
 	export const playerYellow = HexColor.fromHex(0xfcf40f);
@@ -63,6 +65,7 @@ export namespace ColorFactory {
 	export const signGray = HexColor.fromHex(0x8b8b8b);
 
 	export const sparkBlue = HexColor.fromHex(0xc2f8ff);
+	export const sparkYellow = HexColor.fromHex(0xfff6c2);
 
 	export const starExplosionPurple = HexColor.fromHex(0xa465e2);
 	export const starPurple = HexColor.fromHex(0x7d3abf);

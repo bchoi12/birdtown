@@ -68,7 +68,7 @@
             <form id="form-login" action="about:blank" target="iframe-empty" onsubmit="return false;">
                 <div id="login-info"></div>
                 <div id="login-error"></div>
-                <input id="input-room" class="form-input" type="text" placeholder="Enter room code" maxlength="10" required>
+                <input id="input-room" class="form-input" type="text" pattern="[a-zA-Z0-9]+" placeholder="Enter room code" maxlength="10" required>
                 <div id="div-login-buttons">
                     <button id="button-host" type="submit"><span class="material-icons">home</span> Host</button>
                     <button id="button-join" type="submit"><span class="material-icons">login</span> Join</button>
