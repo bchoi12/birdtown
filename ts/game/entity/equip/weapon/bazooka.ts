@@ -8,7 +8,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
 import { Rocket } from 'game/entity/projectile/rocket'
-import { Weapon, ShotConfig } from 'game/entity/equip/weapon'
+import { Weapon, WeaponConfig, WeaponState } from 'game/entity/equip/weapon'
 import { MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
@@ -19,7 +19,13 @@ import { Vec3 } from 'util/vector'
 
 export class Bazooka extends Weapon {
 
-	private static readonly _reloadTime = 1000;
+	private static readonly _config = {
+		times: new Map([
+			[WeaponState.RELOADING, 1000],
+		]),
+		bursts: 1,
+	};
+	private static readonly _rocketTTL = 800;
 
 	private _soundPlayer : SoundPlayer;
 
@@ -34,11 +40,8 @@ export class Bazooka extends Weapon {
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
 
-	override shotConfig() : ShotConfig {
-		return {
-			bursts: 1,
-			reloadTime: Bazooka._reloadTime,
-		};
+	override weaponConfig() : WeaponConfig {
+		return Bazooka._config;
 	}
 
 	override shoot(stepData : StepData) : void {
@@ -48,7 +51,7 @@ export class Bazooka extends Weapon {
 		let vel = unitDir.clone().scale(0.05);
 		let acc = unitDir.clone().scale(1.5);
 		let [rocket, hasRocket] = this.addEntity<Rocket>(EntityType.ROCKET, {
-			ttl: 800,
+			ttl: Bazooka._rocketTTL,
 			associationInit: {
 				owner: this.owner(),
 			},
@@ -67,12 +70,10 @@ export class Bazooka extends Weapon {
 		this._soundPlayer.playFromEntity(SoundType.ROCKET, this.owner());
 	}
 
-	override onReload() : void {}
-
 	override getCounts() : Map<CounterType, CounterOptions> {
 		let counts = super.getCounts();
 		counts.set(CounterType.ROCKET, {
-			percentGone: this.reloadMillis() / Bazooka._reloadTime,
+			percentGone: this.reloadMillis() / this.getTime(WeaponState.RELOADING),
 			text: this.reloadMillis() > 0 ? "0/1" : "1/1",
 			color: ColorFactory.bazookaRed.toString(),
 		});

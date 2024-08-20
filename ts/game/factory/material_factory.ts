@@ -37,6 +37,12 @@ export namespace MaterialFactory {
 		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_BLUE, ColorFactory.archBackgroundBlue);
 		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_PURPLE, ColorFactory.archBackgroundPurple);
 
+		standardMaterial(MaterialType.BLACK_HOLE, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.5;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.black.toBabylonColor3();
+		});
+
 		standardMaterial(MaterialType.BOLT_BLUE, (mat : BABYLON.StandardMaterial) => {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.boltBlue.toBabylonColor3();

@@ -10,7 +10,7 @@ import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
-import { Weapon, ShotConfig } from 'game/entity/equip/weapon'
+import { Weapon, WeaponConfig, WeaponState } from 'game/entity/equip/weapon'
 import { MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -25,13 +25,25 @@ import { Vec, Vec3 } from 'util/vector'
 
 export class Gatling extends Weapon {
 
-	private static readonly _chargedThreshold = 1000;
+	private static readonly _revTime = 300;
+	private static readonly _bursts = 33;
+	private static readonly _config = {
+		times: new Map([
+			[WeaponState.REVVING, Gatling._revTime],
+			[WeaponState.FIRING, 80],
+			[WeaponState.RELOADING, 500],
+		]),
+		bursts: Gatling._bursts,
+		interruptable: true,
+	};
 	private static readonly _projectileTTL = 550;
 	private static readonly _spinnerName = "spinner";
 
 	private static readonly _recoilVel = { x: 3, y: 8};
 	private static readonly _maxSpeed = { x: 0.6, y: 0.4 };
+	private static readonly _maxRotateRate = 5 * Math.PI;
 
+	private _rotateRad : number;
 	private _spinner : BABYLON.Mesh;
 
 	private _soundPlayer : SoundPlayer;
@@ -39,6 +51,7 @@ export class Gatling extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.GATLING, options);
 
+		this._rotateRad = 0;
 		this._spinner = null;
 
 		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
@@ -62,12 +75,7 @@ export class Gatling extends Weapon {
 		}
 	}
 
-	override shotConfig() : ShotConfig {
-		return {
-			bursts: 1,
-			reloadTime: 80,
-		};
-	}
+	override weaponConfig() : WeaponConfig { return Gatling._config; }
 
 	override shoot(stepData : StepData) : void {
 		const millis = stepData.millis;
@@ -75,7 +83,7 @@ export class Gatling extends Weapon {
 		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = this.inputDir().clone().normalize();
 
-		let vel = unitDir.clone().scale(0.7);
+		let vel = unitDir.clone().scale(0.8);
 		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.PELLET, {
 			ttl: Gatling._projectileTTL,
 			associationInit: {
@@ -108,17 +116,28 @@ export class Gatling extends Weapon {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		if (this._spinner !== null) {
-			this._spinner.addRotation(0, 0, 7 * Math.PI * millis / 1000);
+		if (this._spinner === null) {
+			return;
 		}
+
+		if (this.weaponState() === WeaponState.REVVING) {
+			this._rotateRad = this.timer().percentElapsed() * Gatling._maxRotateRate;
+		} else if (this.weaponState() === WeaponState.FIRING) {
+			this._rotateRad = Gatling._maxRotateRate;
+		} else {
+			this._rotateRad -= Gatling._maxRotateRate * millis / Gatling._revTime;
+			this._rotateRad = Math.max(0, this._rotateRad);
+		}
+
+		this._spinner.addRotation(0, 0, this._rotateRad * millis / 1000);
 	}
 
 	override getCounts() : Map<CounterType, CounterOptions> {
 		let counts = super.getCounts();
-		counts.set(CounterType.CHARGE, {
-			percentGone: 0,
-			text: "N/A",
-			color: ColorFactory.boltDarkOrange.toString(),
+		counts.set(CounterType.GATLING, {
+			percentGone: 1 - this.bursts() / Gatling._bursts,
+			text: "" + this.bursts(),
+			color: ColorFactory.pelletYellow.toString(),
 		});
 		return counts;
 	}

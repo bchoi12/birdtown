@@ -117,6 +117,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	// TODO: package in struct, Pose, PlayerPose?
 	private _armDir : Vec2;
 	private _armRecoil : [number, number];
+	private _baseMaterial : Optional<BABYLON.PBRMaterial>;
 	private _headDir : Vec2;
 	private _boneOrigins : Map<BoneType, BABYLON.Vector3>;
 	private _eyeShifter : MaterialShifter;
@@ -124,14 +125,14 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _canJump : boolean;
 	private _canJumpTimer : Timer;
 	private _canDoubleJump : boolean;
+	private _equipType : EntityType;
+	private _altEquipType : EntityType;
 	private _deadTracker : ChangeTracker<boolean>;
 	private _groundedTracker : ChangeTracker<boolean>;
 	private _sweatRateLimiter : RateLimiter;
 	private _walkSmokeRateLimiter : RateLimiter;
 	private _nearestInteractable : Optional<InteractEntity>;
 	private _interactRateLimiter : RateLimiter;
-
-	private _baseMaterial : Optional<BABYLON.PBRMaterial>;
 
 	private _association : Association;
 	private _attributes : Attributes;
@@ -148,6 +149,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		this._armDir = Vec2.i();
 		this._armRecoil = [0, 0];
+		this._baseMaterial = new Optional();
 		this._headDir = Vec2.i();
 		this._boneOrigins = new Map();
 		this._eyeShifter = new MaterialShifter();
@@ -157,6 +159,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			canInterrupt: true,
 		});
 		this._canDoubleJump = false;
+		this._equipType = EntityType.UNKNOWN;
+		this._altEquipType = EntityType.UNKNOWN;
 		this._deadTracker = new ChangeTracker(() => {
 			return this.dead();
 		}, (dead : boolean) => {
@@ -206,11 +210,17 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._nearestInteractable = new Optional();
 		this._interactRateLimiter = new RateLimiter(Player._interactCheckInterval);
 
-		this._baseMaterial = new Optional();
-
 		this.addProp<boolean>({
 			export: () => { return this._canDoubleJump; },
 			import: (obj : boolean) => { this._canDoubleJump = obj; },
+		});
+		this.addProp<EntityType>({
+			export: () => { return this._equipType; },
+			import: (obj : EntityType) => { this._equipType = obj; },
+		});
+		this.addProp<EntityType>({
+			export: () => { return this._altEquipType; },
+			import: (obj : EntityType) => { this._altEquipType = obj; },
 		});
 		this.addProp<GameObjectState>({
 			export: () => { return this.state(); },
@@ -398,6 +408,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	}
 	dead() : boolean { return this._stats.dead(); }
 
+	equipType() : EntityType { return this._equipType; }
+	altEquipType() : EntityType { return this._altEquipType; }
 	equips() : CircleMap<number, Equip<Player>> { return this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP); }
 	equip(equip : Equip<Player>) : void {
 		this._model.onLoad((m : Model) => {
@@ -470,6 +482,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 		if (hasEquip) {
 			this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, equip);
+			this._equipType = equipType;
 		}
 
 		if (altEquipType) {
@@ -482,6 +495,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			});
 			if (hasAltEquip) {
 				this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, altEquip);
+				this._altEquipType = altEquipType;
 			}
 		}
 	}

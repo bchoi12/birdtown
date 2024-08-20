@@ -26,6 +26,7 @@ import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Claw } from 'game/entity/equip/weapon/claw'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
 import { Sniper } from 'game/entity/equip/weapon/sniper'
+import { BlackHole } from 'game/entity/explosion/black_hole'
 import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
 import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
 import { StarExplosion } from 'game/entity/explosion/star_explosion'
@@ -58,6 +59,7 @@ export namespace EntityFactory {
 		[EntityType.BILLBOARD, (options : EntityOptions) => { return new Billboard(options); }],
 		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
+		[EntityType.BLACK_HOLE, (options : EntityOptions) => { return new BlackHole(options); }],
 		[EntityType.BOLT_EXPLOSION, (options : EntityOptions) => { return new BoltExplosion(options); }],
 		[EntityType.BOOBY_BEAK, (options : EntityOptions) => { return new BoobyBeak(options); }],
 		[EntityType.BOOBY_HAIR, (options : EntityOptions) => { return new BoobyHair(options); }],
@@ -121,6 +123,7 @@ export namespace EntityFactory {
 	// Also includes dimensions that can change.
 	export const dimensions = new Map<EntityType, Vec>([
 		...staticDimensions,
+		[EntityType.BLACK_HOLE, { x: 6, y: 6, z: 6 }],
 		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.CRATE, {x: 1, y: 1, z: 1 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],

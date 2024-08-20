@@ -67,7 +67,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().removeChild(this._iconElm.get());
 		this._iconElm.clear();
 	}
-	setHtml(html : string ) : void { this.elm().innerHTML = html; }
+	overwriteHTML(html : string ) : void { this.elm().innerHTML = html; }
 	setText(text : string) : void {
 		this._textElm.textContent = text;
 

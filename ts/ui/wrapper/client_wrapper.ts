@@ -27,12 +27,6 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 		this.setDisplayName(msg.getDisplayNameOr("unknown"));
 		this.elm().appendChild(this._nameElm);
 
-		this._voiceControlsWrapper = new Optional();
-		if (this._clientId !== game.clientId()) {
-			this._voiceControlsWrapper.set(new VoiceControlsWrapper());
-			this.elm().appendChild(this._voiceControlsWrapper.get().elm());
-		}
-
 		if (game.isHost() && this._clientId !== game.clientId()) {
 			let kickButton = new ButtonWrapper();
 			kickButton.setIcon(IconType.KICK);
@@ -41,6 +35,12 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 			});
 
 			this.elm().appendChild(kickButton.elm());
+		}
+
+		this._voiceControlsWrapper = new Optional();
+		if (this._clientId !== game.clientId()) {
+			this._voiceControlsWrapper.set(new VoiceControlsWrapper());
+			this.elm().appendChild(this._voiceControlsWrapper.get().elm());
 		}
 	}
 

@@ -51,6 +51,7 @@ export enum CounterType {
 	UNKOWN,
 	CHARGE,
 	DASH,
+	GATLING,
 	HEALTH,
 	JETPACK,
 	JUICE,

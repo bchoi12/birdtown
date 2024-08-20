@@ -9,7 +9,8 @@ import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
-import { Weapon, ShotConfig } from 'game/entity/equip/weapon'
+import { Weapon, WeaponConfig, WeaponState } from 'game/entity/equip/weapon'
+import { ParticleCube } from 'game/entity/particle/particle_cube'
 import { MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -18,17 +19,36 @@ import { StepData } from 'game/game_object'
 import { CounterOptions, KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
-import { Vec3 } from 'util/vector'
+import { RateLimiter } from 'util/rate_limiter'
+import { Vec2, Vec3 } from 'util/vector'
 
 export class Sniper extends Weapon {
 
+	private static readonly _config = {
+		times: new Map([
+			[WeaponState.FIRING, 80],
+			[WeaponState.RELOADING, 300],
+		]),
+		bursts: 3,
+	};
+	private static readonly _chargedConfig = {
+		times: new Map([
+			[WeaponState.RELOADING, 500],
+		]),
+		bursts: 1,
+	};
+
 	private static readonly _chargedThreshold = 1000;
+	private static readonly _chargeInterval = 250;
 	private static readonly _boltTTL = 550;
 
+	private _chargeRateLimiter : RateLimiter;
 	private _soundPlayer : SoundPlayer;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.SNIPER, options);
+
+		this._chargeRateLimiter = new RateLimiter(Sniper._chargeInterval);
 
 		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
 		this._soundPlayer.registerSound(SoundType.LASER, SoundType.LASER);
@@ -41,18 +61,54 @@ export class Sniper extends Weapon {
 
 	override charged() : boolean { return this.getCounter(CounterType.CHARGE) >= Sniper._chargedThreshold; }
 
-	override shotConfig() : ShotConfig {
-		if (this.charged()) {
-			return {
-				bursts: 1,
-				reloadTime: 500,
-			};
+	override weaponConfig() : WeaponConfig {
+		return this.charged() ? Sniper._chargedConfig : Sniper._config;
+	}
+
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+		const millis = stepData.millis;
+
+		if (this.getAttribute(AttributeType.CHARGING)) {
+			if (this._chargeRateLimiter.check(millis)) {
+				const offset = Vec2.unitFromDeg(Math.random() * 360).scale(0.4);
+				const pos = Vec3.fromBabylon3(this._shootNode.getAbsolutePosition());
+
+				// TODO: don't hardcode 1000 as max
+				const size = 0.05 + 0.45 * (Math.min(1000, this.getCounter(CounterType.CHARGE)) / 1000);
+				const [cube, hasCube] = this.addEntity<ParticleCube>(EntityType.PARTICLE_ENERGY_CUBE, {
+					offline: true,
+					ttl: 1.5 * Sniper._chargeInterval,
+					profileInit: {
+						pos: pos.clone().add(offset),
+						vel: {
+							x: 0.05 * offset.y,
+							y: 0.05 * offset.x,
+						},
+						angle: 0,
+					},
+					modelInit: {
+						transforms: {
+							translate: { z: pos.z + size / 2 },
+							scale: { x: size, y: size, z: size },
+						},
+						materialType: MaterialType.BOLT_ORANGE,
+					}
+				});
+
+				if (hasCube) {
+					cube.profile().setAngularVelocity(-0.1 * Math.sign(offset.x));
+					cube.overrideUpdateFn((stepData : StepData, particle : ParticleCube) => {
+						particle.profile().moveTo(pos, {
+							millis: stepData.millis,
+							posEpsilon: 0.05,
+							maxAccel: 0.05,
+						});
+						particle.model().scaling().setScalar(size * (1 - particle.ttlElapsed()));
+					});
+				}
+			}
 		}
-		return {
-			bursts: 3,
-			burstTime: 80,
-			reloadTime: 300,
-		};
 	}
 
 	override shoot(stepData : StepData) : void {

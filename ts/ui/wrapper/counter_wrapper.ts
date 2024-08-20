@@ -27,6 +27,10 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 			iconType: IconType.DASH,
 			delay: 0,
 		}],
+		[CounterType.GATLING, {
+			iconType: IconType.GATLING,
+			delay: 0,
+		}],
 		[CounterType.HEALTH, {
 			iconType: IconType.HEART,
 			delay: 250,

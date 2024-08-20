@@ -1,4 +1,6 @@
 
+import { Html } from 'ui/html'
+
 // TODO: move to api class?
 export enum IconType {
 	UNKNOWN,
@@ -32,6 +34,7 @@ export enum IconType {
 	// Counters
 	BOLT,
 	DASH,
+	GATLING,
 	HEART,
 	JET,
 	ROCKET,
@@ -46,6 +49,7 @@ export namespace Icon {
 		[IconType.CHECK, "check_circle"],
 		[IconType.DASH, "sprint"],
 		[IconType.DICE, "ifl"],
+		[IconType.GATLING, "clear_all"],
 		[IconType.HEART, "favorite"],
 		[IconType.JET, "flight_takeoff"],
 		[IconType.MIC, "mic"],
@@ -70,8 +74,9 @@ export namespace Icon {
 	]);
 
 	function baseElement() : HTMLElement {
-		let html = document.createElement("i");
+		let html = Html.icon();
 		html.classList.add("material-icons");
+		html.classList.add(Html.classNoSelect);
 		return html;
 	}
 

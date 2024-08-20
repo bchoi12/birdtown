@@ -33,17 +33,16 @@ import { Fns } from 'util/fns'
 export class Crate extends Interactable implements Entity, EquipEntity {
 
 	private static readonly _equipPairs = [
-		[EntityType.CLAW, EntityType.HEADBAND],
-		[EntityType.SNIPER, EntityType.SCOUTER],
 		[EntityType.BAZOOKA, EntityType.JETPACK],
+		[EntityType.CLAW, EntityType.HEADBAND],
+		[EntityType.GATLING, EntityType.HEADPHONES],
+		[EntityType.SNIPER, EntityType.SCOUTER],
 	];
 
 	private static readonly _maxSpeed = 0.6;
 
 	private _opened : boolean;
-	private _showTooltip : boolean;
-	private _equipType : EntityType;
-	private _altEquipType : EntityType;
+	private _index : number;
 
 	private _nameTag : NameTag;
 
@@ -55,14 +54,10 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		super(EntityType.CRATE, entityOptions);
 
 		this._opened = false;
-		this._showTooltip = false;
-		this._equipType = EntityType.UNKNOWN;
-		this._altEquipType = EntityType.UNKNOWN;
 
+		this._index = 0;
 		if (this.isSource()) {
-			const index = Math.floor(Math.random() * Crate._equipPairs.length);
-			this._equipType = Crate._equipPairs[index][0];
-			this._altEquipType = Crate._equipPairs[index][1];
+			this._index = Math.floor(Math.random() * Crate._equipPairs.length);
 		}
 
 		this._nameTag = null;
@@ -75,15 +70,9 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 				this.delete();
 			},
 		});
-		this.addProp<EntityType>({
-			has: () => { return this._equipType !== EntityType.UNKNOWN; },
-			export: () => { return this._equipType; },
-			import: (obj : EntityType) => { this._equipType = obj; },
-		});
-		this.addProp<EntityType>({
-			has: () => { return this._altEquipType !== EntityType.UNKNOWN; },
-			export: () => { return this._altEquipType; },
-			import: (obj : EntityType) => { this._altEquipType = obj; },
+		this.addProp<number>({
+			export: () => { return this._index; },
+			import: (obj : EntityType) => { this._index = obj; },
 		});
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
@@ -184,17 +173,44 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		}
 	}
 
-	equipType() : EntityType { return this._equipType; }
-	altEquipType() : EntityType { return this._altEquipType; }
-	equipList() : string {
-		return StringFactory.getEntityTypeName(this._equipType).base() + " and " + StringFactory.getEntityTypeName(this._altEquipType).base();
+	private getIndex(playerEquipType : EntityType) : EntityType {
+		let index = this._index;
+		const pair = Crate._equipPairs[index];
+		if (pair[0] === playerEquipType) {
+			index++;
+		}
+
+		if (index >= Crate._equipPairs.length) {
+			index = 0;
+		}
+		return index;
+	}
+	equipType(playerEquipType : EntityType) : EntityType {
+		return Crate._equipPairs[this.getIndex(playerEquipType)][0];
+	}
+	altEquipType(playerEquipType : EntityType) : EntityType {
+		return Crate._equipPairs[this.getIndex(playerEquipType)][1];
+	}
+	equipList(playerEquipType : EntityType) : string {
+		return StringFactory.getEntityTypeName(this.equipType(playerEquipType)).base()
+		+ " and "
+		+ StringFactory.getEntityTypeName(this.altEquipType(playerEquipType)).base();
 	}
 
 	override setInteractableWith(entity : Entity, interactable : boolean) : void {
 		super.setInteractableWith(entity, interactable);
 
-		if (entity.isLakituTarget()) {
-			this._showTooltip = interactable;
+		if (entity.type() !== EntityType.PLAYER) {
+			return;
+		}
+
+		const player = <Player>entity;
+
+		if (player.isLakituTarget()) {
+			ui.showTooltip(TooltipType.OPEN_CRATE, {
+				ttl: 500,
+				names: [this.equipList(player.equipType())],
+			});
 
 			if (this._nameTag !== null) {
 				this._nameTag.setVisible(interactable);
@@ -207,7 +223,8 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		}
 
 		const player = <Player>entity;
-		player.createEquips(this.equipType(), this.altEquipType());
+
+		player.createEquips(this.equipType(player.equipType()), this.altEquipType(player.equipType()));
 
 		this.open();
 
@@ -239,16 +256,5 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		super.postPhysics(stepData);
 
 		this._nameTag.model().translation().copyVec(this._profile.pos());
-	}
-
-	override preRender() : void {
-		super.preRender();
-
-		if (this._showTooltip) {
-			ui.showTooltip(TooltipType.OPEN_CRATE, {
-				ttl: 50,
-				names: [this.equipList()],
-			});
-		}
 	}
 }

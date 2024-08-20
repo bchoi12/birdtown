@@ -261,6 +261,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 	// TODO: make this more flexible than match any
 	matchAssociations(types : AssociationType[], other : Entity) : boolean {
+		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
+			return false;
+		}
+
 		const association = this.getAssociations();
 		const otherAssociation = other.getAssociations();
 

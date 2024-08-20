@@ -11,6 +11,7 @@ export namespace StringFactory {
 
 	// Passed by reference
 	const strings = new Map<StringType, Type>([
+		[StringType.UNKNOWN, ParamString.base("unknown")],
 		[StringType.ENTITY_BAZOOKA, ParamString.base("bazooka").set(ParamType.COLOR, ColorFactory.bazookaRed.toString())],
 		[StringType.ENTITY_JETPACK, ParamString.base("jetpack")],
 		[StringType.ENTITY_SCOUTER, ParamString.base("scouter")],
@@ -18,6 +19,7 @@ export namespace StringFactory {
 	]);
 
 	const entityNames = new Map<EntityType, StringType>([
+		[EntityType.UNKNOWN, StringType.ENTITY_UNKNOWN],
 		[EntityType.BAZOOKA, StringType.ENTITY_BAZOOKA],
 		[EntityType.JETPACK, StringType.ENTITY_JETPACK],
 		[EntityType.SCOUTER, StringType.ENTITY_SCOUTER],

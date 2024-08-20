@@ -3,7 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { StepData } from 'game/game_object'
-import { AttributeType, ComponentType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
@@ -121,6 +121,10 @@ export abstract class Explosion extends EntityBase implements Entity {
 		}
 
 		if (!other.getAttribute(AttributeType.SOLID)) {
+			return;
+		}
+
+		if (this.matchAssociations([AssociationType.OWNER], other)) {
 			return;
 		}
 

@@ -66,7 +66,7 @@ export class Pellet extends Projectile {
 		}));
 	}
 
-	override hitDamage() : number { return 6; }
+	override hitDamage() : number { return 8; }
 
 	override onHit() : void {
 		for (let i = 0; i < 3; ++i) {
