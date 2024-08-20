@@ -7,6 +7,7 @@ import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { SystemBase, System } from 'game/system'
 import { SystemType, LevelType, LevelLayout, PlayerRole } from 'game/system/api'
+import { ClientDialog } from 'game/system/client_dialog'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
@@ -21,6 +22,8 @@ import { AnnouncementType, DialogType, InfoType } from 'ui/api'
 import { isLocalhost } from 'util/common'
 
 export class GameMaker extends SystemBase implements System {
+
+	private static readonly _loadTimeLimit = 3000;
 
 	private static readonly _timeLimitBuffer = new Map([
 		[GameState.SETUP, 2000],
@@ -59,6 +62,8 @@ export class GameMaker extends SystemBase implements System {
 	round() : number { return this._round; }
 	timeLimit(state : GameState) : number {
 		switch (state) {
+		case GameState.LOAD:
+			return GameMaker._loadTimeLimit;
 		case GameState.SETUP:
 			return this._config.getTimeSetupOr(Infinity);
 		case GameState.GAME:
@@ -86,7 +91,7 @@ export class GameMaker extends SystemBase implements System {
 			return false;
 		}
 
-		if (!this.valid(GameState.SETUP)) {
+		if (!this.valid(GameState.LOAD)) {
 			return false;
 		}
 
@@ -110,6 +115,7 @@ export class GameMaker extends SystemBase implements System {
 	}
 	valid(current : GameState) : [boolean, string] {
 		switch (current) {
+		case GameState.LOAD:
 		case GameState.SETUP:
 		case GameState.GAME:
 			if (this._config.hasPlayersMin() && game.playerStates().numSpawnedPlayers() < this._config.getPlayersMin()) {
@@ -126,7 +132,12 @@ export class GameMaker extends SystemBase implements System {
 			return GameState.ERROR;
 		}
 
-		switch(current) {		
+		switch(current) {
+		case GameState.LOAD:
+			if (this.timeLimitReached(current)) {
+				return GameState.SETUP;
+			}
+			break;
 		case GameState.SETUP:
 			if (this.timeLimitReached(current)) {
 				return GameState.GAME;
@@ -166,7 +177,7 @@ export class GameMaker extends SystemBase implements System {
 						return GameState.VICTORY;
 					}					
 				}
-				return GameState.SETUP;
+				return GameState.LOAD;
 			}
 			break;
 		case GameState.VICTORY:
@@ -182,6 +193,12 @@ export class GameMaker extends SystemBase implements System {
 		return current;
 	}
 	setGameState(state : GameState) : void {
+		switch (state) {
+		case GameState.SETUP:
+			game.clientDialog().showDialog(DialogType.LOADOUT);
+			break;
+		}
+
 		if (!this.isSource()) {
 			return;
 		}
@@ -195,14 +212,8 @@ export class GameMaker extends SystemBase implements System {
 				seed: Math.floor(Math.random() * 10000),
 			});
 			break;
-		case GameState.SETUP:
+		case GameState.LOAD:
 			this._round++;
-			game.level().loadLevel({
-				type: LevelType.BIRDTOWN,
-				layout: LevelLayout.CIRCLE,
-				seed: Math.floor(Math.random() * 10000),
-			});
-
 			game.tablets().execute<Tablet>((tablet : Tablet) => {
 				tablet.resetRound();
 				if (this._config.hasLives()) {
@@ -211,12 +222,23 @@ export class GameMaker extends SystemBase implements System {
 					tablet.clearInfo(InfoType.LIVES);
 				}
 			});
-
 			game.playerStates().execute((playerState : PlayerState) => {
 				playerState.setRole(PlayerRole.WAITING);
 			});
+			game.level().loadLevel({
+				type: LevelType.BIRDTOWN,
+				layout: LevelLayout.CIRCLE,
+				seed: Math.floor(Math.random() * 10000),
+			});
+			break;
+		case GameState.SETUP:
 			break;
 		case GameState.GAME:
+			game.playerStates().execute((playerState : PlayerState) => {
+				if (playerState.validTargetEntity()) {
+					game.level().spawnPlayer(playerState.targetEntity());
+				}
+			});
 			break;
 		case GameState.FINISH:
 			this._winners.forEach((tablet : Tablet) => {

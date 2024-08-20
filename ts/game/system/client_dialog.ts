@@ -28,7 +28,7 @@ export class ClientDialog extends ClientSideSystem implements System {
 
 		let loadout = this.message(DialogType.LOADOUT);
 		loadout.setEquipType(EntityType.GATLING);
-		loadout.setAltEquipType(EntityType.SCOUTER);
+		loadout.setAltEquipType(EntityType.HEADPHONES);
 		loadout.setPlayerType(ModifierPlayerType.NONE);
 	}
 

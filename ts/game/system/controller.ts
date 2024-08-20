@@ -22,6 +22,9 @@ import { Stopwatch } from 'util/stopwatch'
 export class Controller extends SystemBase implements System {
 
 	private static readonly _maxTimeLimit = 999 * 1000;
+	private static readonly _showTimerStates = new Set([
+		GameState.SETUP, GameState.GAME,
+	]);
 
 	private _gameState : GameState;
 	private _gameMaker : GameMaker; 
@@ -64,7 +67,7 @@ export class Controller extends SystemBase implements System {
 			return;
 		}
 		if (this._gameMaker.setConfig(config)) {
-			this.setGameState(GameState.SETUP);
+			this.setGameState(GameState.LOAD);
 		}
 	}
 
@@ -102,6 +105,11 @@ export class Controller extends SystemBase implements System {
 	}
 
 	private updateTimeLimit(elapsed : number) : void {
+		if (!Controller._showTimerStates.has(this._gameState)) {
+			ui.clearTimer();
+			return;
+		}
+
 		const timeLimit = this._gameMaker.timeLimit(this._gameState);
 
 		if (timeLimit > Controller._maxTimeLimit) {

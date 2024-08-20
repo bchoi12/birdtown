@@ -17,7 +17,6 @@ export class Tablet extends ClientSystem implements System {
 	private static readonly _roundResetTypes = new Set([
 		InfoType.DEATHS,
 		InfoType.KILLS,
-		InfoType.LIVES,
 		InfoType.SCORE,
 	]);
 

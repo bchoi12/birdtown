@@ -38,6 +38,7 @@ export enum EntityType {
 	FLOOR,
 	GATLING,
 	HEADBAND,
+	HEADPHONES,
 	JETPACK,
 	NAME_TAG,
 	PARTICLE_CUBE,

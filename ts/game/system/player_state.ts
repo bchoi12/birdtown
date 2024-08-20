@@ -118,8 +118,7 @@ export class PlayerState extends ClientSystem implements System {
 		switch (this._role) {
 		case PlayerRole.WAITING:
 			// TODO: move this to GameMaker somehow
-			if (game.controller().gameState() === GameState.SETUP
-				|| game.controller().gameState() === GameState.GAME) {
+			if (game.controller().gameState() === GameState.GAME) {
 				game.clientDialog(this.clientId()).showDialog(DialogType.LOADOUT);
 			}
 			player.setState(GameObjectState.DEACTIVATED);
@@ -188,12 +187,6 @@ export class PlayerState extends ClientSystem implements System {
 				}
 				break;
 			}
-			break;
-		case GameMessageType.LEVEL_LOAD:
-			if (this.validTargetEntity()) {
-				game.level().spawnPlayer(this.targetEntity<Player>());
-			}
-			break;
 		}
 	}
 
@@ -206,13 +199,6 @@ export class PlayerState extends ClientSystem implements System {
 			if (hasPlayer) {
 				this.setTargetEntity(player);
 			}
-		}
-
-		// Show tooltip if we can spawn
-		if (this.clientIdMatches() && this.role() === PlayerRole.SPAWNING) {
-			ui.showTooltip(TooltipType.SPAWN, {
-				ttl: 100,
-			});
 		}
 
 		if (!this.isSource()) {
@@ -265,9 +251,16 @@ export class PlayerState extends ClientSystem implements System {
 		}
 
 		// Allow player to spawn by pressing a key
-		if (this.role() === PlayerRole.SPAWNING) {
+		if (this.role() === PlayerRole.SPAWNING && game.controller().gameState() === GameState.GAME) {
 			if (this.anyKey(PlayerState._spawnKeys, KeyState.PRESSED)) {
 				this.setRole(PlayerRole.GAMING);
+			}
+
+			// Show tooltip if we can spawn
+			if (this.clientIdMatches()) {
+				ui.showTooltip(TooltipType.SPAWN, {
+					ttl: 100,
+				});
 			}
 		}
 	}

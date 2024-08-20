@@ -598,16 +598,17 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override collide(collision : MATTER.Collision, other : Entity) : void {
 		super.collide(collision, other);
 
-		if (other.getAttribute(AttributeType.SOLID) && collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 0.1) {
-			this._canJump = true;
-			this._canDoubleJump = true;
-			this._canJumpTimer.start(Player._jumpGracePeriod);
-
-			if (this._entityTrackers.hasEntityType(EntityType.BUBBLE)
-				&& other.type() !== EntityType.PLAYER) {
+		if (other.getAttribute(AttributeType.SOLID)) {
+			if (this._entityTrackers.hasEntityType(EntityType.BUBBLE)) {
 				this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).execute((bubble : Bubble) => {
 					bubble.pop();
 				});
+			}
+
+			if (collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 0.1) {
+				this._canJump = true;
+				this._canDoubleJump = true;
+				this._canJumpTimer.start(Player._jumpGracePeriod);
 			}
 		}
 	}

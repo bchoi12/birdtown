@@ -73,7 +73,10 @@ export class Scouter extends Equip<Player> {
 			this._weapons.forEach((weapon : Equip<Player>) => {
 				if (weapon.getCounter(CounterType.CHARGE) <= 0) {
 					this._soundPlayer.stop(SoundType.CHARGE);
-					this._soundPlayer.playFromEntity(SoundType.CHARGE, weapon.owner());
+
+					if (this.owner().isLakituTarget()) {
+						this._soundPlayer.playFromEntity(SoundType.CHARGE, weapon.owner());
+					}
 				}
 				weapon.setAttribute(AttributeType.CHARGING, true);
 				weapon.addCounter(CounterType.CHARGE, millis);

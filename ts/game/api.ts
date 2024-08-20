@@ -6,7 +6,10 @@ export enum GameState {
 	// Waiting to meet criteria to start a game
 	FREE,
 
-	// Load level and wait for client input if necessary
+	// Load level
+	LOAD,
+
+	// Setup for the game and wait for client input if necessary
 	SETUP,
 	
 	// All setup finished, everyone is gaming

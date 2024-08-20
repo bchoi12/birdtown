@@ -1,3 +1,4 @@
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { AttributeType, CounterType } from 'game/component/api'
@@ -13,6 +14,7 @@ import { Weapon, ShotConfig } from 'game/entity/equip/weapon'
 import { MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
+import { LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
 
 import { CounterOptions, KeyType, KeyState } from 'ui/api'
@@ -25,14 +27,19 @@ export class Gatling extends Weapon {
 
 	private static readonly _chargedThreshold = 1000;
 	private static readonly _projectileTTL = 550;
+	private static readonly _spinnerName = "spinner";
 
 	private static readonly _recoilVel = { x: 3, y: 8};
 	private static readonly _maxSpeed = { x: 0.6, y: 0.4 };
+
+	private _spinner : BABYLON.Mesh;
 
 	private _soundPlayer : SoundPlayer;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.GATLING, options);
+
+		this._spinner = null;
 
 		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
 		this._soundPlayer.registerSound(SoundType.LASER, SoundType.LASER);
@@ -41,6 +48,19 @@ export class Gatling extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.MEDIUM; }
 	override meshType() : MeshType { return MeshType.GATLING; }
+	override processMesh(mesh : BABYLON.Mesh, result : LoadResult) : void {
+		super.processMesh(mesh, result);
+
+		result.meshes.forEach((mesh : BABYLON.Mesh) => {
+			if (mesh.name === Gatling._spinnerName) {
+				this._spinner = mesh;
+			}
+		});
+
+		if (this._spinner === null) {
+			console.error("Warning: no spinner found for %s", this.name());
+		}
+	}
 
 	override shotConfig() : ShotConfig {
 		return {
@@ -82,6 +102,15 @@ export class Gatling extends Weapon {
 		ownerProfile.addVel(recoilVel);
 
 		this._soundPlayer.playFromEntity(SoundType.LASER, this.owner());
+	}
+
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+		const millis = stepData.millis;
+
+		if (this._spinner !== null) {
+			this._spinner.addRotation(0, 0, 7 * Math.PI * millis / 1000);
+		}
 	}
 
 	override getCounts() : Map<CounterType, CounterOptions> {

@@ -83,6 +83,7 @@ export enum MeshType {
 	STAR,
 
 	HEADBAND,
+	HEADPHONES,
 	JETPACK,
 	SCOUTER,
 

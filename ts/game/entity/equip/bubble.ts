@@ -3,6 +3,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 import { AttributeType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Model } from 'game/component/model'
@@ -23,11 +24,12 @@ export class Bubble extends Equip<Player> {
 	private static readonly _cameraOffset = -1.5;
 	private static readonly _popDuration = 500;
 	private static readonly _lifeDuration = 10000;
+	private static readonly _invincibleDuration = 3000;
 
 	private _cameraOffset : Vec3;
 	private _material : BABYLON.StandardMaterial;
 	private _popped : boolean;
-	private _popTimer : Timer;
+	private _lifeTimer : Timer;
 
 	private _model : Model;
 	private _profile : Profile;
@@ -42,7 +44,7 @@ export class Bubble extends Equip<Player> {
 		this._material.needDepthPrePass = true;
 
 		this._popped = false;
-		this._popTimer = this.newTimer({
+		this._lifeTimer = this.newTimer({
 			canInterrupt: false,
 		});
 
@@ -67,6 +69,9 @@ export class Bubble extends Equip<Player> {
 		if (this._popped) {
 			return;
 		}
+		if (game.controller().gameState() !== GameState.FREE && this._lifeTimer.millisElapsed() <= Bubble._invincibleDuration) {
+			return;
+		}
 
 		this._popped = true;
 
@@ -83,7 +88,7 @@ export class Bubble extends Equip<Player> {
 		this.owner().setAttribute(AttributeType.FLOATING, true);
 		this.owner().setAttribute(AttributeType.INVINCIBLE, true);
 
-		this._popTimer.start(Bubble._lifeDuration, () => {
+		this._lifeTimer.start(Bubble._lifeDuration, () => {
 			this.pop();
 		});
 	}

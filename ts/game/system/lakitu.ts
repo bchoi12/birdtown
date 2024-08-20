@@ -209,6 +209,7 @@ export class Lakitu extends SystemBase implements System {
 		const millis = stepData.millis;
 
 		switch (game.controller().gameState()) {
+		case GameState.LOAD:
 		case GameState.SETUP:
 			this.targetPlane();
 			break;

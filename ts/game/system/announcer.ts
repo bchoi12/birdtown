@@ -2,7 +2,7 @@
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
-import { SystemType } from 'game/system/api'
+import { SystemType, LevelType } from 'game/system/api'
 
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -39,6 +39,22 @@ export class Announcer extends SystemBase implements System {
 				filters: GameData.tcpFilters,
 			},
 		});
+	}
+
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		switch (msg.type()) {
+		case GameMessageType.LEVEL_LOAD:
+			if (msg.getLevelType() !== LevelType.LOBBY) {
+				// Announce level locally
+				const announcement = new GameMessage(GameMessageType.ANNOUNCEMENT);
+				announcement.setAnnouncementType(AnnouncementType.LEVEL);
+				announcement.setNames([msg.getDisplayName()]);
+				ui.handleMessage(announcement);
+				break;
+			}
+		}
 	}
 
 	broadcast(msg : GameMessage) : void {

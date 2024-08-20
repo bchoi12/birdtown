@@ -71,17 +71,7 @@ export abstract class Weapon extends Equip<Player> {
 			meshFn: (model : Model) => {
 				MeshFactory.load(this.meshType(), (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
-
-					result.transformNodes.forEach((node : BABYLON.TransformNode) => {
-						if (node.name === Weapon._shootNodeName) {
-							this._shootNode = node;
-						}
-					});
-
-					if (this._shootNode === null) {
-						console.error("Error: no shoot node for %s", this.name());
-					}
-
+					this.processMesh(mesh, result);
 					model.setMesh(mesh);
 				});
 			},
@@ -90,6 +80,17 @@ export abstract class Weapon extends Equip<Player> {
 	}
 
 	abstract meshType() : MeshType;
+	processMesh(mesh : BABYLON.Mesh, result : LoadResult) : void {
+		result.transformNodes.forEach((node : BABYLON.TransformNode) => {
+			if (node.name === Weapon._shootNodeName) {
+				this._shootNode = node;
+			}
+		});
+
+		if (this._shootNode === null) {
+			console.error("Error: no shoot node for %s", this.name());
+		}
+	}
 	shootNode() : BABYLON.TransformNode { return this._shootNode !== null ? this._shootNode : this._model.mesh(); }
 	reloadMillis() : number { return this._reloadTimer.millisLeft(); }
 

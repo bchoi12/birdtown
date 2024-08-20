@@ -65,6 +65,7 @@ export class Timer {
 
 		this._millisLeft -= millis;
 		if (this._millisLeft <= 0) {
+			this._millisLeft = 0;
 			this.finish();
 		}
 	}
@@ -73,6 +74,8 @@ export class Timer {
 	millisLeft() : number { return this.hasTimeLeft() ? this._millisLeft : 0; }
 	secondsLeft() : number { return Math.ceil(this.millisLeft() / 1000); }
 	done() : boolean { return this._state === TimerState.DONE; }
+	millisElapsed() : number { return this._state === TimerState.NOT_STARTED ? 0 : (this._totalMillis - this.millisLeft()); }
+	secondsElapsed() : number { return Math.floor(this.millisElapsed() / 1000); }
 	percentElapsed() : number {
 		if (this._state === TimerState.NOT_STARTED) {
 			return 0;
