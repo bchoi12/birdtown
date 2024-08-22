@@ -15,6 +15,7 @@ export enum AnnouncementType {
 	UNKNOWN,
 	DISCONNECTED,
 	DISCONNECTED_SIGNALING,
+	GAME_END,
 	GAME_ERROR,
 	GAME_FINISH,
 	GAME_VICTORY,
@@ -28,6 +29,7 @@ export enum DialogType {
 	UNKNOWN,
 	INIT,
 	LOADOUT,
+	RETURN_TO_LOBBY,
 	START_GAME,
 }
 

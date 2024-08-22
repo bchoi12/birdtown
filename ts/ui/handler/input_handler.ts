@@ -103,7 +103,7 @@ export class InputHandler extends HandlerBase implements Handler {
 	    		this.recordMouse(e);
 	    	});
 	    	document.addEventListener("mousedown", (e: any) => {
-	    		if (ui.mode() !== UiMode.GAME) return;
+	    		if (ui.mode() !== UiMode.GAME || ui.usingTray()) return;
 
 	    		this.mouseDown(e);
 	    	});

@@ -21,6 +21,9 @@ export enum GameState {
 	// Game is completely won
 	VICTORY,
 
+	// Game was requested to be ended
+	END,
+
 	// Reached error state and need to restart
 	ERROR,
 

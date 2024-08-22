@@ -29,6 +29,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { isLocalhost } from 'util/common'
+
 import { Html } from 'ui/html'
 
 export type GameOptions = {
@@ -119,6 +120,7 @@ class Game {
 			this._runner.runGameLoop();
 			this._runner.runRenderLoop();
 		    this._initialized = true;
+
 			this._options.netcodeSuccess();
 		}, this._options.netcodeError);
 	}

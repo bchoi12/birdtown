@@ -30,6 +30,7 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
 			[DialogProp.VERSION, {}],
 		)],
         [DialogType.START_GAME, MessageBase.fields()],
+        [DialogType.RETURN_TO_LOBBY, MessageBase.fields()],
 	]);
 
 	constructor(type : DialogType) {

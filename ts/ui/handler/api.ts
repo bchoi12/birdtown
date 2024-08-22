@@ -15,4 +15,5 @@ export enum HandlerType {
 	STATS,
 	TIMER,
 	TOOLTIPS,
+	TRAY,
 }

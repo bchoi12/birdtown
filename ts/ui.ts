@@ -25,6 +25,7 @@ import { SettingsHandler } from 'ui/handler/settings_handler'
 import { StatsHandler } from 'ui/handler/stats_handler'
 import { TimerHandler } from 'ui/handler/timer_handler'
 import { TooltipHandler } from 'ui/handler/tooltip_handler'
+import { TrayHandler } from 'ui/handler/tray_handler'
 
 import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
@@ -52,6 +53,7 @@ class UI {
 	private _statsHandler : StatsHandler;
 	private _timerHandler : TimerHandler;
 	private _tooltipHandler : TooltipHandler;
+	private _trayHandler : TrayHandler;
 
 	constructor() {
 		this._mode = UiMode.UNKNOWN;
@@ -74,11 +76,17 @@ class UI {
 		this._statsHandler = this.add<StatsHandler>(new StatsHandler());
 		this._timerHandler = this.add<TimerHandler>(new TimerHandler());
 		this._tooltipHandler = this.add<TooltipHandler>(new TooltipHandler());
+		this._trayHandler = this.add<TrayHandler>(new TrayHandler());
 	}
 
 	setup() : void {
 		this._handlers.forEach((handler) => {
 			handler.setup();
+		});
+	}
+	onPlayerInitialized() : void {
+		this._handlers.forEach((handler) => {
+			handler.onPlayerInitialized();
 		});
 	}
 
@@ -114,6 +122,8 @@ class UI {
 			handler.onModeChange(mode, oldMode);
 		});	
 	}
+
+	openMenu() : void { this._menuHandler.enable(); }
 	applySettings() : void {
 		if (settings.useInspector()) {
 			game.scene().debugLayer.show();
@@ -178,6 +188,7 @@ class UI {
 	pushDialog(type : DialogType) : void { this._dialogHandler.pushDialog(type); }
 	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }
 	setDebugStats(enabled : boolean) : void { this._statsHandler.setDebug(enabled); }
+	usingTray() : boolean { return this._trayHandler.hasMouse(); }
 
 	chat(msg : string) : void { this._chatHandler.chat(msg); }
 	clear() : void {
@@ -197,7 +208,7 @@ class UI {
 	handleVoiceError(clientId : number) : void {
 		if (clientId === game.clientId()) {
 			ui.chat("Error: failed to enable microphone. Please check that you have a device connected and have allowed permissions.");
-			this._clientsHandler.handleVoiceError();
+			this._trayHandler.handleVoiceError();
 		}
 	}
 }

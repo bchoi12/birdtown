@@ -170,18 +170,21 @@ body {
     position: absolute;
     left: 0;
     
+    font-size: 1.3vw;
+    padding: 0.5vw;
     bottom: 1em;
-    width: 20em;
-    height: 8em;
+    width: 25vw;
+    height: 10vw;
 
     overflow-y: scroll;
     scrollbar-width: none;
     color: #000000;
+    border-radius: 0.2em;
 }
 #input-message {
-    padding: 2px;
     margin: 0;
-    font-size: 1em;
+    font-size: 1.3vw;
+    width: 26vw;
     border: none;
     resize: none;
     outline: none;
@@ -192,12 +195,25 @@ body {
     position: absolute;
     visibility: hidden;
     bottom: 0;
-
-    width: 20em;
+    width: 26vw;
 }
 
 #button-message {
     display: none;
+}
+
+#div-tray {
+    position: absolute;
+    visibility: hidden;
+
+    font-size: 0.8em;
+    border-radius: 0.1vw;
+
+    right: 20vw;
+    bottom: 0;   
+    background-color: rgba(0, 0, 0, 0.5);
+
+    transition: width 0.3s ease-in;
 }
 
 #div-minimap {
@@ -206,8 +222,9 @@ body {
 
     right: 0;
     bottom: 0;
-    width: 12.4em;
-    height: 7em;
+    width: 20vw;
+    height: 12vw;
+    border-top-left-radius: 0.3vw;
 
     background-color: rgba(0, 0, 0, 0.3);
 }
@@ -291,10 +308,10 @@ body {
     position: absolute;
     display: block;
     text-align: center;
-    width: 60%;
+    width: 60vw;
 
-    bottom: 5%;
-    left: 20%;
+    bottom: 8vh;
+    left: 20vw;
 }
 
 .tooltip {

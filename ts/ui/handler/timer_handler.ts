@@ -47,6 +47,8 @@ export class TimerHandler extends HandlerBase implements Handler {
 		}
 
 		this._timerElm.style.top = "-3em";
+		this._timerElm.style.visibility = "hidden";
+		this._timerElm.textContent = TimerHandler._infinity;
 		this._timerEnabled = false;
 	}
 }

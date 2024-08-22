@@ -96,6 +96,12 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 				main: "Lost connection to signaling server",
 				sub: "The game may still work, but no new players can connect",
 			};
+		case AnnouncementType.GAME_END:
+			return {
+				main: "Current game has been terminated",
+				sub: "Returning all players to the lobby",
+			};
+			break;
 		case AnnouncementType.GAME_ERROR:
 			if (names.length === 1) {
 				return {

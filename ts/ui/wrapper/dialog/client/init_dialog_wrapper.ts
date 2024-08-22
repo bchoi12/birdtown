@@ -31,6 +31,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 
 		this.addOnSubmit(() => {
 			ui.applySettings();
+			ui.onPlayerInitialized();
 		});
 	}
 

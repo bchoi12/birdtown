@@ -23,6 +23,8 @@ export namespace Html {
 	export const divMessage = "div-message";
 	export const inputMessage = "input-message";
 
+	export const divTray = "div-tray";
+
 	export const divMinimap = "div-minimap";
 	export const canvasPhysics = "canvas-physics";
 

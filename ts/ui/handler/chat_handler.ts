@@ -43,14 +43,12 @@ export class ChatHandler extends HandlerBase implements Handler {
 	}
 
 	override setup() : void {
-		this._messageInputElm.style.width = this._chatElm.offsetWidth + "px";
-
 		this.chat("Press " + KeyNames.boxedLower(settings.chatKeyCode) + " to chat");
 
 		document.addEventListener("keydown", (e : any) => {
 			if (e.repeat) return;
 
-			if (e.keyCode === settings.chatKeyCode) {
+			if (e.keyCode === settings.chatKeyCode || this.enabled() && e.keyCode === settings.menuKeyCode) {
 				e.preventDefault();
 
 				if (ui.mode() === UiMode.GAME) {

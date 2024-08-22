@@ -119,7 +119,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 				requirements.innerHTML = "<li>No requirements</li>"
 
-				description.textContent = "There are no rules. If you get bored, press " + KeyNames.boxed(settings.menuKeyCode) + " to return to the lobby.";
+				description.textContent = "There are no rules. If you get bored, use the return to lobby button in the icon tray on the bottom right.";
 
 				error.textContent = "";
 			});

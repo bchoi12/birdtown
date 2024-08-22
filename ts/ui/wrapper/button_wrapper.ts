@@ -12,14 +12,16 @@ enum ButtonState {
 	UNSELECTED,
 }
 
-type OnClickFn = () => void;
+type OnEventFn = () => void;
 
 export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _state : ButtonState;
-	private _onClickFns : Array<OnClickFn>;
-	private _onSelectFns : Array<OnClickFn>;
-	private _onUnselectFns : Array<OnClickFn>;
+	private _onClickFns : Array<OnEventFn>;
+	private _onMouseEnterFns : Array<OnEventFn>;
+	private _onMouseLeaveFns : Array<OnEventFn>;
+	private _onSelectFns : Array<OnEventFn>;
+	private _onUnselectFns : Array<OnEventFn>;
 	private _iconElm : Optional<HTMLElement>;
 	private _textElm : HTMLElement;
 
@@ -28,6 +30,8 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._state = ButtonState.UNKNOWN;
 		this._onClickFns = new Array();
+		this._onMouseEnterFns = new Array();
+		this._onMouseLeaveFns = new Array();
 		this._onSelectFns = new Array();
 		this._onUnselectFns = new Array();
 		this._iconElm = new Optional();
@@ -38,10 +42,21 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().classList.add(Html.classButton);
 		this.elm().classList.add(Html.classNoSelect);
 		this.elm().onclick = (e) => {
+			e.stopPropagation();
 			e.preventDefault();
 			this.click();
 			this.select();
 		};
+
+		this.elm().onmouseenter = (e) => {
+			e.preventDefault();
+			this.mouseEnter();
+		}
+
+		this.elm().onmouseleave = (e) => {
+			e.preventDefault();
+			this.mouseLeave();
+		}
 	}
 
 	icon() : HTMLElement { return this._iconElm.get(); }
@@ -76,23 +91,38 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		}
 	}
 
-	addOnClick(fn : OnClickFn) : void { this._onClickFns.push(fn); }
-	addOnSelect(fn : OnClickFn) : void { this._onSelectFns.push(fn); }
-	addOnUnselect(fn : OnClickFn) : void { this._onUnselectFns.push(fn); }
+	addOnClick(fn : OnEventFn) : void { this._onClickFns.push(fn); }
+	addOnMouseEnter(fn : OnEventFn) : void { this._onMouseEnterFns.push(fn); }
+	addOnMouseLeave(fn : OnEventFn) : void { this._onMouseLeaveFns.push(fn); }
+	addOnSelect(fn : OnEventFn) : void { this._onSelectFns.push(fn); }
+	addOnUnselect(fn : OnEventFn) : void { this._onUnselectFns.push(fn); }
 
 	click() : void {
-		this._onClickFns.forEach((fn : OnClickFn) => {
+		this._onClickFns.forEach((fn : OnEventFn) => {
 			fn();
 		});
+	}
+	mouseEnter() : void {
+		this._onMouseEnterFns.forEach((fn : OnEventFn) => {
+			fn();
+		});
+	}
+	mouseLeave() : void {
+		this._onMouseLeaveFns.forEach((fn : OnEventFn) => {
+			fn();
+		})
 	}
 
 	selected() : boolean { return this._state === ButtonState.SELECTED; }
 	select() : void {
+		if (this._onSelectFns.length === 0 && this._onUnselectFns.length === 0) {
+			return;
+		}
 		if (this._state === ButtonState.SELECTED) {
 			return;
 		}
 
-		this._onSelectFns.forEach((fn : OnClickFn) => {
+		this._onSelectFns.forEach((fn : OnEventFn) => {
 			fn();
 		});
 		this._state = ButtonState.SELECTED;
@@ -100,11 +130,14 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	unselect() : void {
+		if (this._onSelectFns.length === 0 && this._onUnselectFns.length === 0) {
+			return;
+		}
 		if (this._state !== ButtonState.SELECTED) {
 			return;
 		}
 
-		this._onUnselectFns.forEach((fn : OnClickFn) => {
+		this._onUnselectFns.forEach((fn : OnEventFn) => {
 			fn();
 		});
 		this._state = ButtonState.UNSELECTED;

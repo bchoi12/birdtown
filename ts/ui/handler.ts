@@ -19,6 +19,7 @@ export interface Handler {
 	onEnable() : void;
 	onDisable() : void;
 	onModeChange(mode : UiMode, oldMode : UiMode) : void;
+	onPlayerInitialized() : void;
 }
 
 export type HandlerOptions = {
@@ -83,4 +84,6 @@ export class HandlerBase {
 			this.disable();
 		}
 	}
+
+	onPlayerInitialized() : void {}
 }

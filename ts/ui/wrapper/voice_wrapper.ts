@@ -26,10 +26,8 @@ export class VoiceWrapper extends ButtonWrapper {
 	private updateHTML() : void {
 		if (game.initialized() && game.netcode().voiceEnabled()) {
 			this.setIcon(IconType.MIC);
-			this.setText("[Proximity voice chat on]");
 		} else {
 			this.setIcon(IconType.MUTED_MIC);
-			this.setText("[Proximity voice chat off]");
 		}
 	}
 }

@@ -36,14 +36,14 @@ export class LabelNumberWrapper extends LabelWrapper {
 		buttons.style.fontSize = "0.8em";
 
 		const minus = new ButtonWrapper();
-		minus.elm().appendChild(Icon.create(IconType.MINUS));
+		minus.elm().appendChild(Icon.create(IconType.ARROW_DOWN));
 		minus.addOnClick(() => {
 			this.setNumber(options.minus(this.number()));
 		});
 		buttons.appendChild(minus.elm());
 
 		const plus = new ButtonWrapper();
-		plus.elm().appendChild(Icon.create(IconType.PLUS));
+		plus.elm().appendChild(Icon.create(IconType.ARROW_UP));
 		plus.addOnClick(() => {
 			this.setNumber(options.plus(this.number()));
 		});

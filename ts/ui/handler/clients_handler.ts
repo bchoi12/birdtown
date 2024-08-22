@@ -12,16 +12,12 @@ import { Icon, IconType } from 'ui/common/icon'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { ClientWrapper } from 'ui/wrapper/client_wrapper'
 import { ContainerWrapper } from 'ui/wrapper/container_wrapper'
-import { FooterWrapper } from 'ui/wrapper/footer_wrapper'
-import { VoiceWrapper } from 'ui/wrapper/voice_wrapper'
 
 export class ClientsHandler extends HandlerBase implements Handler {
 
 	private _clientsElm : HTMLElement;
 	private _clients : Map<number, ClientWrapper>;
 	private _containerWrapper : ContainerWrapper;
-	private _footerWrapper : FooterWrapper;
-	private _voiceWrapper : VoiceWrapper;
 
 	private _stream : MediaStream;
 
@@ -33,29 +29,6 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._clients = new Map();
 		this._containerWrapper = new ContainerWrapper();
 		this._clientsElm.appendChild(this._containerWrapper.elm());
-
-		this._footerWrapper = new FooterWrapper();
-		this._footerWrapper.elm().style.fontSize = "1.2em";
-
-		this._voiceWrapper = new VoiceWrapper();
-		this._footerWrapper.elm().appendChild(this._voiceWrapper.elm());
-
-		this._containerWrapper.elm().appendChild(this._footerWrapper.elm());
-	}
-
-	override setup() : void {
-		super.setup();
-
-		let inviteButton = new ButtonWrapper();
-		inviteButton.setIcon(IconType.SHARE);
-		inviteButton.setText("[Copy invite link]");
-		inviteButton.addOnClick(() => {
-			navigator.clipboard.writeText(window.location.href + "?r=" + game.netcode().room());
-			ui.showTooltip(TooltipType.COPIED_URL, {
-				ttl: 3000,
-			})
-		});
-		this._footerWrapper.elm().appendChild(inviteButton.elm());
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -119,9 +92,5 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._clients.forEach((client : ClientWrapper) => {
 			client.removeStream();
 		});
-	}
-
-	handleVoiceError() : void {
-		this._voiceWrapper.handleVoiceError();
 	}
 }

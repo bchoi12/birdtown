@@ -23,7 +23,7 @@ export class Controller extends SystemBase implements System {
 
 	private static readonly _maxTimeLimit = 999 * 1000;
 	private static readonly _showTimerStates = new Set([
-		GameState.SETUP, GameState.GAME,
+		GameState.SETUP, GameState.GAME, GameState.END,
 	]);
 
 	private _gameState : GameState;
@@ -91,6 +91,7 @@ export class Controller extends SystemBase implements System {
 			console.log("%s: game state is %s", this.name(), GameState[state]);
 		}
 	}
+	returnToLobby() : void { this.setGameState(GameState.END); }
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);

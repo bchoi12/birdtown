@@ -23,6 +23,7 @@ import { isLocalhost } from 'util/common'
 
 export class GameMaker extends SystemBase implements System {
 
+	private static readonly _endTimeLimit = 3000;
 	private static readonly _loadTimeLimit = 3000;
 
 	private static readonly _timeLimitBuffer = new Map([
@@ -72,6 +73,8 @@ export class GameMaker extends SystemBase implements System {
 			return this._config.getTimeFinishOr(Infinity);
 		case GameState.VICTORY:
 			return this._config.getTimeVictoryOr(Infinity);
+		case GameState.END:
+			return GameMaker._endTimeLimit;
 		case GameState.ERROR:
 			return this._config.getTimeErrorOr(Infinity);
 		default:
@@ -181,14 +184,12 @@ export class GameMaker extends SystemBase implements System {
 			}
 			break;
 		case GameState.VICTORY:
-			if (this.timeLimitReached(current)) {
-				return GameState.FREE;
-			}
-			break;
+		case GameState.END:
 		case GameState.ERROR:
 			if (this.timeLimitReached(current)) {
 				return GameState.FREE;
 			}
+			break;
 		}
 		return current;
 	}
@@ -256,6 +257,11 @@ export class GameMaker extends SystemBase implements System {
 	    	victorMsg.setNames(this._winners.map((tablet : Tablet) => { return tablet.displayName(); }));
 	    	game.announcer().broadcast(victorMsg);
 			break;
+		case GameState.END:
+	    	let endMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
+	    	endMsg.setAnnouncementType(AnnouncementType.GAME_END);
+	    	game.announcer().broadcast(endMsg);
+	    	break;
 		case GameState.ERROR:
 	    	let errorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	errorMsg.setAnnouncementType(AnnouncementType.GAME_ERROR);
