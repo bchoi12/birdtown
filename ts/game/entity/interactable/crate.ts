@@ -17,6 +17,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
+import { EquipPairs } from 'game/util/equip_pairs'
 
 import { GameGlobals } from 'global/game_globals'
 
@@ -31,13 +32,6 @@ import { KeyNames } from 'ui/common/key_names'
 import { Fns } from 'util/fns'
 
 export class Crate extends Interactable implements Entity, EquipEntity {
-
-	private static readonly _equipPairs = [
-		[EntityType.BAZOOKA, EntityType.JETPACK],
-		[EntityType.CLAW, EntityType.HEADBAND],
-		[EntityType.GATLING, EntityType.HEADPHONES],
-		[EntityType.SNIPER, EntityType.SCOUTER],
-	];
 
 	private static readonly _maxSpeed = 0.6;
 
@@ -57,7 +51,7 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 
 		this._index = 0;
 		if (this.isSource()) {
-			this._index = Math.floor(Math.random() * Crate._equipPairs.length);
+			this._index = EquipPairs.randomIndex();
 		}
 
 		this._nameTag = null;
@@ -173,23 +167,11 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		}
 	}
 
-	private getIndex(playerEquipType : EntityType) : EntityType {
-		let index = this._index;
-		const pair = Crate._equipPairs[index];
-		if (pair[0] === playerEquipType) {
-			index++;
-		}
-
-		if (index >= Crate._equipPairs.length) {
-			index = 0;
-		}
-		return index;
-	}
 	equipType(playerEquipType : EntityType) : EntityType {
-		return Crate._equipPairs[this.getIndex(playerEquipType)][0];
+		return EquipPairs.getDefaultPairExcluding(this._index, playerEquipType)[0]
 	}
 	altEquipType(playerEquipType : EntityType) : EntityType {
-		return Crate._equipPairs[this.getIndex(playerEquipType)][1];
+		return EquipPairs.getDefaultPairExcluding(this._index, playerEquipType)[1];
 	}
 	equipList(playerEquipType : EntityType) : string {
 		return StringFactory.getEntityTypeName(this.equipType(playerEquipType)).base()

@@ -81,7 +81,7 @@ export namespace Icon {
 		[IconType.VOLUME_X, "no_sound"],
 	]);
 
-	function baseElement() : HTMLElement {
+	export function baseElement() : HTMLElement {
 		let html = Html.icon();
 		html.classList.add("material-icons");
 		html.classList.add(Html.classNoSelect);
@@ -89,12 +89,15 @@ export namespace Icon {
 	}
 
 	export function create(type : IconType) : HTMLElement {
-		let html = baseElement();
+		return change(baseElement(), type);
+	}
+
+	export function change(elm : HTMLElement, type : IconType) : HTMLElement {
 		if (names.has(type)) {
-			html.innerHTML = names.get(type);
+			elm.innerHTML = names.get(type);
 		} else {
 			console.error("Error: missing mapping for icon type %s", IconType[type]);
 		}
-		return html;
+		return elm;
 	}
 }

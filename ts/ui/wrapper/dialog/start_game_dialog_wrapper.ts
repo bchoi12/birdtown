@@ -30,7 +30,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this._mode = GameMode.UNKNOWN;
 		this._configMsg = null;
 
-		this.titleElm().textContent = "Select a mode";
+		this.setTitle("Select a mode");
 		this.addGameModePage();
 
 		let okButton = this.addOKButton();
@@ -86,7 +86,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				requirements.innerHTML = "<li>2+ players required</li>"
 
 				description.textContent =
-					"It's every bird for themselves. Score points by cooking other players. " +
+					"It's everyone for themselves. Score points by cooking other players. " +
 					"The first player to reach the score limit or have the most points when time runs out wins the round"
 
 				error.textContent = "";
@@ -156,7 +156,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 	private addFreeForAllPage() : void {
 		let pageWrapper = this.addPage();
-		this.titleElm().textContent = "Free for All";
+		this.setTitle("Free for All");
 
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
 		columnsWrapper.elm().style.fontSize = "0.9em";
@@ -201,7 +201,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 	private addSurvivalPage() : void {
 		let pageWrapper = this.addPage();
-		this.titleElm().textContent = "Survival";
+		this.setTitle("Survival");
 
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
 		columnsWrapper.elm().style.fontSize = "0.9em";

@@ -21,7 +21,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 	constructor() {
 		super(DialogType.INIT);
 
-		this.titleElm().textContent = "Welcome to Birdtown";
+		this.setTitle("Welcome to Birdtown");
 		this.addNamePage();
 
 		let okButton = this.addOKButton();

@@ -9,7 +9,7 @@ import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
-import { VoiceWrapper } from 'ui/wrapper/voice_wrapper'
+import { VoiceWrapper } from 'ui/wrapper/button/voice_wrapper'
 
 import { Optional } from 'util/optional'
 

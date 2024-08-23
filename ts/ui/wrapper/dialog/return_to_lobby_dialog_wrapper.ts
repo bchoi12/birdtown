@@ -13,7 +13,7 @@ export class ReturnToLobbyDialogWrapper extends DialogWrapper {
 	constructor() {
 		super();
 
-		this.titleElm().textContent = "Quit Game";
+		this.setTitle("Quit Game");
 
 		let pageWrapper = this.addPage();
 

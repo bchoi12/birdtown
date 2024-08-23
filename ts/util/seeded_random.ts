@@ -59,8 +59,19 @@ export class SeededRandom {
     	return num;
     }
 
+	shuffle(array : Array<Object>) : void {
+	    for (let i = array.length - 1; i > 0; i--) {
+	        let j = Math.floor(this.next()) * (i + 1);
+	        let temp = array[i];
+	        array[i] = array[j];
+	        array[j] = temp;
+	    }
+	}
+
     gt(test : number) : boolean { return this.next() > test; }
     ge(test : number) : boolean { return this.next() >= test; }
     lt(test : number) : boolean { return this.next() < test; }
     le(test : number) : boolean { return this.next() <= test; }
 }
+
+export const globalRandom = new SeededRandom(Math.floor(222333 * Math.random()));

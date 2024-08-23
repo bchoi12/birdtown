@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { versionString } from 'index'
+
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -8,8 +10,6 @@ import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 
 export class LoginHandler extends HandlerBase implements Handler {
-
-	private static readonly _version = "alpha 0.21";
 
 	private _loginElm : HTMLElement;
 	private _legendElm : HTMLElement;
@@ -59,7 +59,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 	override onEnable() : void {
 		super.onEnable();
 
-		this._legendElm.textContent = LoginHandler._version;
+		this._legendElm.textContent = versionString;
 
 		this.showLogin();
 

@@ -21,8 +21,17 @@ export class ColumnWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().appendChild(this._contentElm);
 	}
 
-	legendElm() : HTMLElement { return this._legendElm; }
-	setLegend(name : string) : void { this._legendElm.textContent = name; }
+	setLegend(name : string) : void {
+		this._legendElm.textContent = name;
+
+		if (name.length > 0) {
+			this.elm().style.borderTop = "1px solid";
+		} else {
+			this.elm().style.borderTop = "0";
+		}
+
+		this._legendElm.style.visibility = name.length > 0 ? "visible" : "hidden";
+	}
 
 	contentElm() : HTMLElement { return this._contentElm; }
 }

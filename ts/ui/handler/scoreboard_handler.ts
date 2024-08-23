@@ -24,7 +24,7 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 		this._scoreboardElm = Html.elm(Html.divScoreboard);
 
 		this._scoreboard = new DialogWrapper();
-		this._scoreboard.titleElm().textContent = "Scoreboard";
+		this._scoreboard.setTitle("Scoreboard");
 		this._scoreboard.elm().style.opacity = "1";
 
 		this._infoWrapper = new InfoWrapper();

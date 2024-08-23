@@ -65,7 +65,10 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().classList.remove(Html.classPopupShow);
 	}
 
-	titleElm() : HTMLElement { return this._titleElm; }
+	setTitle(text : string) : void {
+		this._titleElm.textContent = text;
+	}
+
 	contentElm() : HTMLElement { return this._contentElm; }
 	footerElm() : HTMLElement { return this._footer.elm(); }
 

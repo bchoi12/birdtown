@@ -69,6 +69,7 @@ export namespace Html {
 	export const classFeed = "feed";
 	export const classFooter = "footer";
 	export const classInfoTable = "info-table";
+	export const classLoadoutButton = "loadout-button";
 	export const classPopup = "popup";
 	export const classPopupShow = "popup-show";
 	export const classLabel = "label";

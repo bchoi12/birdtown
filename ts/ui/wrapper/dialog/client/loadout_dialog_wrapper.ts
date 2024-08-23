@@ -2,9 +2,11 @@
 import { game } from 'game'
 import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
+import { EquipPairs } from 'game/util/equip_pairs'
 
 import { DialogType } from 'ui/api'
-import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
+import { LoadoutButtonWrapper } from 'ui/wrapper/button/loadout_button_wrapper'
+import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { ClientDialogWrapper } from 'ui/wrapper/dialog/client_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
@@ -13,68 +15,32 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 	constructor() {
 		super(DialogType.LOADOUT);
 
-		this.titleElm().textContent = "Pick Your Loadout";
+		this.setTitle("Loadout");
 
-		// this.addModifierPage();
 		this.addWeaponPage();
-	}
-
-	private addModifierPage() : void {
-		let pageWrapper = this.addPage();
-		{
-			let buttonWrapper = new ButtonWrapper();
-			buttonWrapper.setText("BIG");
-			buttonWrapper.addOnClick(() => {
-				this.dialogMessage().setPlayerType(ModifierPlayerType.BIG);
-				this.nextPage();
-			});
-			pageWrapper.elm().appendChild(buttonWrapper.elm());
-		}
-
-		{
-			let buttonWrapper = new ButtonWrapper();
-			buttonWrapper.setText("NORMAL");
-			buttonWrapper.addOnClick(() => {
-				this.dialogMessage().setPlayerType(ModifierPlayerType.NONE);
-				this.nextPage();
-			});
-			pageWrapper.elm().appendChild(buttonWrapper.elm());
-		}
 	}
 
 	private addWeaponPage() : void {
 		let pageWrapper = this.addPage();
-		{
-			let buttonWrapper = new ButtonWrapper();
-			buttonWrapper.setText("Bazooka");
-			buttonWrapper.addOnClick(() => {
-				this.dialogMessage().setEquipType(EntityType.BAZOOKA);
-				this.dialogMessage().setAltEquipType(EntityType.JETPACK);
-				this.nextPage();
-			});
-			pageWrapper.elm().appendChild(buttonWrapper.elm());
-		}
 
-		{
-			let buttonWrapper = new ButtonWrapper();
-			buttonWrapper.setText("Sniper");
-			buttonWrapper.addOnClick(() => {
-				this.dialogMessage().setEquipType(EntityType.SNIPER);
-				this.dialogMessage().setAltEquipType(EntityType.SCOUTER);
-				this.nextPage();
-			});
-			pageWrapper.elm().appendChild(buttonWrapper.elm());
-		}
+		const num = 3;
 
-		{
-			let buttonWrapper = new ButtonWrapper();
-			buttonWrapper.setText("Claw");
-			buttonWrapper.addOnClick(() => {
-				this.dialogMessage().setEquipType(EntityType.CLAW);
-				this.dialogMessage().setAltEquipType(EntityType.HEADBAND);
+		let columns = ColumnsWrapper.withColumns(num);
+		pageWrapper.elm().appendChild(columns.elm());
+
+		const pairs = EquipPairs.randomN(num);
+
+		for (let i = 0; i < num; ++i) {
+			let column = columns.column(i);
+
+			let button = new LoadoutButtonWrapper();
+			button.setEquipPair(pairs[i])
+			button.addOnClick(() => {
+				this.dialogMessage().setEquipType(pairs[i][0]);
+				this.dialogMessage().setAltEquipType(pairs[i][1]);
 				this.nextPage();
 			});
-			pageWrapper.elm().appendChild(buttonWrapper.elm());
+			column.elm().appendChild(button.elm());
 		}
 	}
 }
