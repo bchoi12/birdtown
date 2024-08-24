@@ -1,4 +1,6 @@
 
+import { Strings } from 'strings'
+
 export enum ParamType {
 	UNKNOWN,
 
@@ -19,11 +21,18 @@ export class ParamString {
 		this._strings = null;
 	}
 
-	static base(base : string) : ParamString {
+	static of(base : string) : ParamString {
 		return new ParamString(base);
 	}
 
-	base() : string { return this._base; }
+	private base() : string { return this._base; }
+	toString() : string {
+		// TODO: add formatting or something
+		return this._base;
+	}
+	toTitleString() : string {
+		return Strings.toTitleCase(this.toString());
+	}
 	valid() : boolean { return this._unfulfilled === null || this._unfulfilled.size === 0; }
 
 	require(specs : ParamType[]) : ParamString {

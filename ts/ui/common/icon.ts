@@ -1,4 +1,6 @@
 
+import { EntityType } from 'game/entity/api'
+
 import { Html } from 'ui/html'
 
 // TODO: move to api class?
@@ -22,6 +24,7 @@ export enum IconType {
 	DICE,
 	INFINITY,
 	MENU_OPEN,
+	MOUSE,
 	RESET_SETTINGS,
 	SHARE,
 	VOLUME_X,
@@ -63,6 +66,7 @@ export namespace Icon {
 		[IconType.JET, "flight_takeoff"],
 		[IconType.MENU_OPEN, "menu_open"],
 		[IconType.MIC, "mic"],
+		[IconType.MOUSE, "mouse"],
 		[IconType.MUTED_MIC, "mic_off"],
 		[IconType.KICK, "block"],
 		[IconType.PERSON_PLUS, "person_add"],
@@ -99,5 +103,21 @@ export namespace Icon {
 			console.error("Error: missing mapping for icon type %s", IconType[type]);
 		}
 		return elm;
+	}
+
+	const entityIcons = new Map<EntityType, IconType>([
+		[EntityType.BAZOOKA, IconType.ROCKET],
+		[EntityType.CLAW, IconType.DASH],
+		[EntityType.GATLING, IconType.GATLING],
+		[EntityType.SNIPER, IconType.BOLT],
+	]);
+
+	export function getEntityIconType(type : EntityType) : IconType {
+		if (!entityIcons.has(type)) {
+			console.error("Error: no icon type for %s", EntityType[type]);
+			return IconType.UNKNOWN;
+		}
+
+		return entityIcons.get(type);
 	}
 }

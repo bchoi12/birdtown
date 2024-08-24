@@ -70,6 +70,10 @@ export namespace Html {
 	export const classFooter = "footer";
 	export const classInfoTable = "info-table";
 	export const classLoadoutButton = "loadout-button";
+	export const classLoadoutButtonDescription = "loadout-button-description";
+	export const classLoadoutButtonPlus = "loadout-button-plus";
+	export const classLoadoutButtonPicture = "loadout-button-picture";
+	export const classLoadoutButtonTitle = "loadout-button-title";
 	export const classPopup = "popup";
 	export const classPopupShow = "popup-show";
 	export const classLabel = "label";

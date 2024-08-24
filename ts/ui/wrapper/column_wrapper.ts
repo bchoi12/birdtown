@@ -18,6 +18,7 @@ export class ColumnWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._contentElm = Html.div();
 		this._contentElm.style.overflow = "scroll";
+		this._contentElm.style.height = "100%";
 		this.elm().appendChild(this._contentElm);
 	}
 

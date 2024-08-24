@@ -174,9 +174,9 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		return EquipPairs.getDefaultPairExcluding(this._index, playerEquipType)[1];
 	}
 	equipList(playerEquipType : EntityType) : string {
-		return StringFactory.getEntityTypeName(this.equipType(playerEquipType)).base()
+		return StringFactory.getEntityTypeName(this.equipType(playerEquipType)).toString()
 		+ " and "
-		+ StringFactory.getEntityTypeName(this.altEquipType(playerEquipType)).base();
+		+ StringFactory.getEntityTypeName(this.altEquipType(playerEquipType)).toString();
 	}
 
 	override setInteractableWith(entity : Entity, interactable : boolean) : void {

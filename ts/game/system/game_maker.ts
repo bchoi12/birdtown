@@ -33,6 +33,7 @@ export class GameMaker extends SystemBase implements System {
 	private _config : GameConfigMessage;
 	private _round : number;
 	private _winners : Array<Tablet>;
+	private _winnerId : number;
 	private _errorMsg : string;
 
 	constructor() {
@@ -41,11 +42,19 @@ export class GameMaker extends SystemBase implements System {
 		this._config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
 		this._round = 0;
 		this._winners = new Array();
+		this._winnerId = 0;
 		this._errorMsg = "";
 
 		this.addProp<MessageObject>({
 			export: () => { return this._config.exportObject(); },
 			import: (obj : MessageObject) => { this._config.parseObject(obj); },
+			options: {
+				filters: GameData.tcpFilters,
+			},
+		});
+		this.addProp<number>({
+			export: () => { return this._winnerId; },
+			import: (obj : number) => { this._winnerId = obj; },
 			options: {
 				filters: GameData.tcpFilters,
 			},
@@ -61,6 +70,7 @@ export class GameMaker extends SystemBase implements System {
 
 	mode() : GameMode { return this._config.type(); }
 	round() : number { return this._round; }
+	winnerId() : number { return this._winnerId; }
 	timeLimit(state : GameState) : number {
 		switch (state) {
 		case GameState.LOAD:
@@ -159,6 +169,7 @@ export class GameMaker extends SystemBase implements System {
 					return !tablet.outOfLives();
 				});
 				if (this._winners.length <= 1) {
+					this._winnerId = this._winners[0].clientId();
 					return GameState.FINISH;
 				}
 			} else if (this._config.hasPoints()) {
@@ -166,6 +177,7 @@ export class GameMaker extends SystemBase implements System {
 					return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints();
 				});
 				if (this._winners.length >= 1) {
+					this._winnerId = this._winners[0].clientId();
 					return GameState.FINISH;
 				}
 			}

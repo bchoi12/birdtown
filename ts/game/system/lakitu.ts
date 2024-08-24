@@ -107,7 +107,10 @@ export class Lakitu extends SystemBase implements System {
 		return this.targetEntity().type();
 	}
 	private targetPlayer() : boolean {
-		if (game.playerState().hasTargetEntity()) {
+		if (game.controller().gameState() === GameState.FINISH
+			|| game.controller().gameState() === GameState.VICTORY) {
+			
+		} else if (game.playerState().hasTargetEntity()) {
 			if (this.hasTargetEntity() && this.targetEntity().id() === game.playerState().targetEntity().id()) {
 				return true;
 			}

@@ -23,6 +23,8 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 	private addWeaponPage() : void {
 		let pageWrapper = this.addPage();
 
+		this.setTitle("Pick a Weapon");
+
 		const num = 3;
 
 		let columns = ColumnsWrapper.withColumns(num);
@@ -32,6 +34,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 
 		for (let i = 0; i < num; ++i) {
 			let column = columns.column(i);
+			column.elm().style.textAlign = "center";
 
 			let button = new LoadoutButtonWrapper();
 			button.setEquipPair(pairs[i])
@@ -40,7 +43,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 				this.dialogMessage().setAltEquipType(pairs[i][1]);
 				this.nextPage();
 			});
-			column.elm().appendChild(button.elm());
+			column.contentElm().appendChild(button.elm());
 		}
 	}
 }
