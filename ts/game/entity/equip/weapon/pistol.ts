@@ -29,7 +29,7 @@ export class Pistol extends Weapon {
 		interruptable: true,
 		allowPartialClip: true,
 	};
-	private static readonly _bulletTTL = 800;
+	private static readonly _bulletTTL = 600;
 
 	private _soundPlayer : SoundPlayer;
 

@@ -27,6 +27,10 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 			iconType: IconType.DASH,
 			delay: 0,
 		}],
+		[CounterType.BLACK_HOLE, {
+			iconType: IconType.EARTH,
+			delay: 0,
+		}],		
 		[CounterType.BULLETS, {
 			iconType: IconType.GATLING,
 			delay: 0,

@@ -41,6 +41,7 @@ export enum IconType {
 	// Counters
 	BOLT,
 	DASH,
+	EARTH,
 	GATLING,
 	HEART,
 	JET,
@@ -62,6 +63,7 @@ export namespace Icon {
 		[IconType.CHECK, "check_circle"],
 		[IconType.DASH, "sprint"],
 		[IconType.DICE, "ifl"],
+		[IconType.EARTH, "public"],
 		[IconType.GATLING, "clear_all"],
 		[IconType.HEART, "favorite"],
 		[IconType.INFINITY, "all_inclusive"],

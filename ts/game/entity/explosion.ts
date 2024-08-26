@@ -67,7 +67,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 		}));
 
 		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
-		this._soundPlayer.registerSound(SoundType.EXPLOSION, SoundType.EXPLOSION);
+		this._soundPlayer.registerSound(this.soundType(), this.soundType());
 	}
 
 	meshFn() : BABYLON.Mesh {
@@ -78,6 +78,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 
 	abstract force() : number;
 	abstract materialType() : MaterialType;
+	soundType() : SoundType { return SoundType.EXPLOSION; }
 	ttl() : number { return 180; }
 	color() : string { return MaterialFactory.material<BABYLON.StandardMaterial>(this.materialType()).emissiveColor.toHexString(); }
 	fading() : boolean { return this._lifeTimer.percentElapsed() > Explosion._fadePercent; }
@@ -85,7 +86,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 	override initialize() : void {
 		super.initialize();
 
-		this._soundPlayer.playFromSelf(SoundType.EXPLOSION);
+		this._soundPlayer.playFromSelf(this.soundType());
 		this._lifeTimer.start(this.ttl() * 2, () => {
 			this.delete();
 		});

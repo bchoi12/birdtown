@@ -38,7 +38,7 @@ export namespace StringFactory {
 		[EntityType.COWBOY_HAT, ParamString.of("Quickly roll and reload")],
 		[EntityType.GATLING, ParamString.of("Hold to rev up a barrage of bullets")],
 		[EntityType.HEADBAND, ParamString.of("Dash in the direction of your cursor")],
-		[EntityType.HEADPHONES, ParamString.of("Launch something, idk ")],
+		[EntityType.HEADPHONES, ParamString.of("Manifests a dying star that collapses into a black hole")],
 		[EntityType.JETPACK, ParamString.of("Lift yourself into the air")],
 		[EntityType.PISTOL, ParamString.of("Fire a single bullet")],
 		[EntityType.SCOUTER, ParamString.of("Hold to look ahead and charge your weapon")],

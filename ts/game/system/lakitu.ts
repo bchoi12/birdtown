@@ -31,15 +31,15 @@ enum OffsetType {
 }
 
 export class Lakitu extends SystemBase implements System {
-	// Horizontal length = 28 units, needs to be updated if offsets are changed
+	// Horizontal length = 30 units, needs to be updated if offsets are changed
 	// Formula: deg = 2 * arctan(0.5 * horizontal_length / offset_length)
-	private static readonly _horizontalFov = 46.8052155 * Math.PI / 180;
+	private static readonly _horizontalFov = 48.868 * Math.PI / 180;
 
 	private static readonly _panTime = 1000;
 	private static readonly _offsets = new Map<OffsetType, Vec3>([
 		[OffsetType.ANCHOR, Vec3.zero()],
 		[OffsetType.TARGET, new Vec3({ y: 0.5 })],
-		[OffsetType.CAMERA, new Vec3({ y: 1.5, z: 31.15 })],
+		[OffsetType.CAMERA, new Vec3({ y: 1.5, z: 33 })],
 	]);
 
 	private _camera : BABYLON.UniversalCamera;

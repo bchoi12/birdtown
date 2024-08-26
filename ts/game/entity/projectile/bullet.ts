@@ -89,7 +89,7 @@ export class Bullet extends Projectile {
 		}));
 	}
 
-	override hitDamage() : number { return 25; }
+	override hitDamage() : number { return 18; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);

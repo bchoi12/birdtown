@@ -8,6 +8,7 @@ import { Billboard } from 'game/entity/block/billboard'
 import { Floor } from 'game/entity/bound/floor'
 import { Wall } from 'game/entity/bound/wall'
 import { Cloud } from 'game/entity/cloud'
+import { DyingStar } from 'game/entity/dying_star'
 import { Pergola } from 'game/entity/pergola'
 import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
@@ -74,6 +75,7 @@ export namespace EntityFactory {
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.COWBOY_HAT, (options : EntityOptions) => { return new CowboyHat(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
+		[EntityType.DYING_STAR, (options : EntityOptions) => { return new DyingStar(options); }],
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
 		[EntityType.GATLING, (options : EntityOptions) => { return new Gatling(options); }],
 		[EntityType.HEADBAND, (options : EntityOptions) => { return new Headband(options); }],
@@ -133,6 +135,7 @@ export namespace EntityFactory {
 		[EntityType.BLACK_HOLE, { x: 6, y: 6, z: 6 }],
 		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.CRATE, {x: 1, y: 1, z: 1 }],
+		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.STAR_EXPLOSION, {x: 0.7, y: 0.7, z: 0.7 }],
 	]);

@@ -59,6 +59,7 @@ export enum MaterialType {
 	CRATE_RED,
 	CRATE_YELLOW,
 	DASH_TRAIL,
+	DYING_STAR,
 	PELLET_YELLOW,
 	ROCKET_EXPLOSION,
 	STAR_EXPLOSION,
@@ -124,6 +125,7 @@ export enum SoundType {
 	LASER,
 	PISTOL,
 	ROCKET,
+	SCREAM,
 	THROW,
 }
 

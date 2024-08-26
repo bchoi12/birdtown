@@ -38,6 +38,7 @@ export enum EntityType {
 	CLOUD,
 	COWBOY_HAT,
 	CRATE,
+	DYING_STAR,
 	FLOOR,
 	GATLING,
 	HEADBAND,

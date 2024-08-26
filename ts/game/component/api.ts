@@ -50,6 +50,7 @@ export enum BoostType {
 // TODO: move to ui/api
 export enum CounterType {
 	UNKOWN,
+	BLACK_HOLE,
 	CHARGE,
 	DASH,
 	BULLETS,

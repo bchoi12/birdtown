@@ -98,6 +98,12 @@ export namespace MaterialFactory {
 			mat.emissiveColor = ColorFactory.starPurple.toBabylonColor3();
 		});
 
+		standardMaterial(MaterialType.DYING_STAR, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.5;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.black.toBabylonColor3();
+		});
+
 		standardMaterial(MaterialType.PELLET_YELLOW, (mat : BABYLON.StandardMaterial) => {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.pelletYellow.toBabylonColor3();

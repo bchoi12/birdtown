@@ -7,12 +7,13 @@ import { SoundPlayer } from 'game/component/sound_player'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
-import { BlackHole } from 'game/entity/explosion/black_hole'
+import { DyingStar } from 'game/entity/dying_star'
 import { Player } from 'game/entity/player'
 import { MeshType, SoundType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { KeyType, KeyState } from 'ui/api'
+import { KeyType, KeyState, CounterOptions } from 'ui/api'
 
 import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
@@ -20,7 +21,7 @@ import { Vec3 } from 'util/vector'
 
 export class Headphones extends Equip<Player> {
 
-	private static readonly _reloadTime = 500;
+	private static readonly _reloadTime = 2400;
 
 	private _timer : Timer;
 
@@ -46,22 +47,37 @@ export class Headphones extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.FOREHEAD; }
 
+	override getCounts() : Map<CounterType, CounterOptions> {
+		let counts = super.getCounts();
+		counts.set(CounterType.BLACK_HOLE, {
+			percentGone: 1 - this._timer.percentElapsed(),
+			text: this.canUse() ? "1/1" : "0/1",
+			color: ColorFactory.black.toString(),
+		});
+		return counts;
+	}
+
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		if (!this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED) || this._timer.hasTimeLeft()) {
+		if (!this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN) || !this.canUse()) {
 			return;
 		}
 
-		this.addEntity<BlackHole>(EntityType.BLACK_HOLE, {
-			associationInit: {
-				owner: this.owner(),
-			},
+		const [star, ok] = this.addEntity<DyingStar>(EntityType.DYING_STAR, {
 			profileInit: {
 				pos: this.owner().profile().pos(),
 			},
 		});
+
+		if (ok) {
+			star.setTTL(800);
+			star.setTarget(this.inputMouse());
+		}
+
 		this._timer.start(Headphones._reloadTime);
 	}
+
+	private canUse() : boolean { return !this._timer.hasTimeLeft(); }
 }
