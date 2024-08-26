@@ -34,12 +34,16 @@ export namespace ColorFactory {
 
 	export const bazookaRed = HexColor.fromHex(0xdc5a3a);
 
+	export const bulletYellow = HexColor.fromHex(0xffef61);
+
 	export const boltBlue = HexColor.fromHex(0x7cf2f0);
 	export const boltLightBlue = HexColor.fromHex(0xc7fffe);
 	export const boltOrange = HexColor.fromHex(0xffb163);
 	export const boltDarkOrange = HexColor.fromHex(0xe68525);
 	export const boltLightOrange = HexColor.fromHex(0xffe6d4);
 	export const boltExplosion = HexColor.fromHex(0xffc361);
+
+	export const cowboyBrown = HexColor.fromHex(0x966336);
 
 	export const crateBlue = HexColor.fromHex(0x3c5ffa);
 	export const crateRed = HexColor.fromHex(0xfa493c);

@@ -33,7 +33,6 @@ export class Headband extends Equip<Player> {
 	private static readonly _dashTime = 250;
 	private static readonly _maxJuice = 100;
 
-	private _dir : Vec2;
 	private _juice : number;
 	private _chargeDelayTimer : Timer;
 	private _dashTimer : Timer;
@@ -44,7 +43,6 @@ export class Headband extends Equip<Player> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.HEADBAND, entityOptions);
 
-		this._dir = Vec2.i();
 		this._juice = Headband._maxJuice;
 		this._chargeDelayTimer = this.newTimer({
 			canInterrupt: true,
@@ -108,11 +106,10 @@ export class Headband extends Equip<Player> {
 		if (this.canDash() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			this.owner().profile().setVel({x: 0, y: 0});
 
-			this._dir = this.inputDir();
-
 			// Only allow source to jump since otherwise it's jittery.
 			if (this.isSource()) {
-				this.owner().addForce(this._dir.clone().scale(0.8));
+				let force = this.inputDir().clone().scale(0.8);
+				this.owner().addForce(force);
 			}
 
 			this._juice = Math.max(0, this._juice - Headband._maxJuice);

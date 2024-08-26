@@ -9,6 +9,7 @@ export namespace EquipPairs {
 		[EntityType.BAZOOKA, [EntityType.JETPACK]],
 		[EntityType.CLAW, [EntityType.HEADBAND]],
 		[EntityType.GATLING, [EntityType.HEADPHONES]],
+		[EntityType.PISTOL, [EntityType.COWBOY_HAT]],
 		[EntityType.SNIPER, [EntityType.SCOUTER]],
 	]);
 
@@ -17,8 +18,11 @@ export namespace EquipPairs {
 	// [0, 1, 2, 3, ...]
 	let indices = Array.from(Array(weapons.length).keys());	
 
+	export function random() : [EntityType, EntityType] {
+		return randomN(1)[0];
+	}
 	export function randomN(n : number) : [EntityType, EntityType][] {
-		globalRandom.shuffle(indices);
+		globalRandom.shuffle(indices, n);
 
 		let pairs = [];
 

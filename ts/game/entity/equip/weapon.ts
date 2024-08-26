@@ -28,6 +28,11 @@ export enum WeaponState {
 export type WeaponConfig = {
 	times : Map<WeaponState, number>;
 	bursts : number;
+
+	// If true, do not reload until the clip is empty
+	allowPartialClip? : boolean;
+
+	// If true, stop firing when mouse releases even if clip is not empty
 	interruptable? : boolean;
 }
 
@@ -115,6 +120,16 @@ export abstract class Weapon extends Equip<Player> {
 	}
 	abstract shoot(stepData : StepData) : void;
 	onReload() : void {}
+	quickReload(millis? : number) : void {
+		this._bursts = this.weaponConfig().bursts;
+		if (millis <= 0) {
+			this.setWeaponState(WeaponState.IDLE);
+			this._stateTimer.reset();
+		} else {
+			this.setWeaponState(WeaponState.RELOADING);
+			this._stateTimer.start(millis);
+		}
+	}
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
@@ -130,9 +145,12 @@ export abstract class Weapon extends Equip<Player> {
 				this.setCounter(CounterType.CHARGE, 0);
 			}
 
-			this._bursts = Math.max(this._bursts, Math.floor(this._stateTimer.percentElapsed() * this.weaponConfig().bursts));
+			if (!this.weaponConfig().allowPartialClip) {
+				this._bursts = Math.max(this._bursts, Math.floor(this._stateTimer.percentElapsed() * this.weaponConfig().bursts));
+			}
 			if (!this._stateTimer.hasTimeLeft()) {
 				this.setWeaponState(WeaponState.IDLE);
+				this._bursts = this.weaponConfig().bursts;
 			}
 		}
 
@@ -145,7 +163,9 @@ export abstract class Weapon extends Equip<Player> {
 		if (this._weaponState === WeaponState.REVVING) {
 			if (!this._stateTimer.hasTimeLeft()) {
 				// Reset again in case the config changed.
-				this._bursts = this.weaponConfig().bursts;
+				if (!this.weaponConfig().allowPartialClip) {
+					this._bursts = this.weaponConfig().bursts;
+				}
 
 				this.fire(stepData);
 				this.setWeaponState(WeaponState.FIRING);
@@ -153,8 +173,14 @@ export abstract class Weapon extends Equip<Player> {
 		}
 
 		if (this._weaponState === WeaponState.FIRING) {
-			if (this._bursts <= 0 || this.weaponConfig().interruptable && !this.firing()) {
+			if (this._bursts <= 0) {
 				this.setWeaponState(WeaponState.RELOADING);
+			} else if (!this.firing() && this.weaponConfig().interruptable) {
+				if (this.weaponConfig().allowPartialClip) {
+					this.setWeaponState(WeaponState.IDLE);
+				} else {
+					this.setWeaponState(WeaponState.RELOADING);
+				}
 			} else if (!this._stateTimer.hasTimeLeft()) {
 				this.fire(stepData);
 

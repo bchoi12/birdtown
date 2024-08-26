@@ -7,6 +7,7 @@ import { Counters } from 'game/component/counters'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
+import { Recoil } from 'game/util/recoil'
 
 import { KeyType, KeyState } from 'ui/api'
 
@@ -36,18 +37,18 @@ export enum RecoilType {
 	LARGE,
 
 	THROW,
+	WHIP,
 }
-
-type DistAndAngle = [number, number];
 
 export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
-	private static readonly _recoil = new Map<RecoilType, DistAndAngle>([
-		[RecoilType.NONE, [0, 0]],
-		[RecoilType.SMALL, [0.1, 0]],
-		[RecoilType.MEDIUM, [0.2, 0]],
-		[RecoilType.LARGE, [0.3, 0]],
-		[RecoilType.THROW, [0.1, Math.PI / 4]],
+	private static readonly _recoil = new Map<RecoilType, Recoil>([
+		[RecoilType.NONE, new Recoil()],
+		[RecoilType.SMALL, new Recoil().setDist(0.1)],
+		[RecoilType.MEDIUM, new Recoil().setDist(0.2)],
+		[RecoilType.LARGE, new Recoil().setDist(0.3)],
+		[RecoilType.THROW, new Recoil().setDist(0.1).setRotation({ y: Math.PI / 4 })],
+		[RecoilType.WHIP, new Recoil().setDist(0.2).setRotation({ z: Math.PI / 5 })],
 	]);
 
 	protected _association : Association;
@@ -134,7 +135,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	protected recordUse() : void { this._uses.add(1); }
 	popUses() : number { return this._uses.save(); }
 
-	recoil() : DistAndAngle { return Equip._recoil.get(this.recoilType()); }
+	recoil() : Recoil { return Equip._recoil.get(this.recoilType()); }
 	protected recoilType() : number { return RecoilType.NONE; }
 
 	abstract attachType() : AttachType;

@@ -134,7 +134,7 @@ export class Gatling extends Weapon {
 
 	override getCounts() : Map<CounterType, CounterOptions> {
 		let counts = super.getCounts();
-		counts.set(CounterType.GATLING, {
+		counts.set(CounterType.BULLETS, {
 			percentGone: 1 - this.bursts() / Gatling._bursts,
 			text: "" + this.bursts(),
 			color: ColorFactory.pelletYellow.toString(),

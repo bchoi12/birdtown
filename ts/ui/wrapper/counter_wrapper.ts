@@ -27,7 +27,7 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 			iconType: IconType.DASH,
 			delay: 0,
 		}],
-		[CounterType.GATLING, {
+		[CounterType.BULLETS, {
 			iconType: IconType.GATLING,
 			delay: 0,
 		}],
@@ -45,6 +45,10 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 		}],
 		[CounterType.ROCKET, {
 			iconType: IconType.ROCKET,
+			delay: 0,
+		}],
+		[CounterType.ROLL, {
+			iconType: IconType.ROLL,
 			delay: 0,
 		}],
 	])

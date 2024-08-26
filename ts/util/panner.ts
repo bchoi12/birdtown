@@ -49,7 +49,10 @@ export class Panner {
 		this._base.copy(this._goal);
 	}
 	pan(options : PanOptions) : void {
-		this._base.copy(this.current());
+		this.panFrom(this.current(), options);
+	}
+	panFrom(current : Vec3, options : PanOptions) : void {
+		this._base.copy(current);
 		this._goal.copyVec(options.goal);
 		this._timer.start(options.millis);	
 		this._interpFn = Fns.interpFns.get(options.interpType ? options.interpType : InterpType.LINEAR);

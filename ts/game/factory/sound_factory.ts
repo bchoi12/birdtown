@@ -47,6 +47,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.PISTOL, {
+			path: "pistol.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.ROCKET, {
 			path: "rocket.mp3",
 			options: {

@@ -1,6 +1,6 @@
 
 import { Entity } from 'game/entity'
-import { EntityLog } from 'game/entity/util/entity_log'
+import { EntityLog } from 'game/util/entity_log'
 
 import { Optional } from 'util/optional'
 

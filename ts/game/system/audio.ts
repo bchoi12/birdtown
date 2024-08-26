@@ -44,7 +44,7 @@ export class Audio extends SystemBase implements System {
 		if (target.hasModel() && target.model().hasMesh()) {
 			ui.updatePos(game.clientId(), target.model().mesh().position);
 		} else if (target.hasProfile()) {
-			ui.updatePos(game.clientId(), game.lakitu().targetEntity().profile().getRenderPos())
+			ui.updatePos(game.clientId(), target.profile().getRenderPos())
 		}
 	}
 }

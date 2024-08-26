@@ -85,6 +85,15 @@ export class Tablet extends ClientSystem implements System {
 
 	isSetup() : boolean { return this.hasDisplayName() && !this.deleted(); }
 
+	entityId() : number {
+		if (!game.playerStates().hasPlayerState(this.clientId())) {
+			return 0;
+		}
+		if (!game.playerState(this.clientId()).validTargetEntity()) {
+			return 0;
+		}
+		return game.playerState(this.clientId()).targetEntity().id();
+	}
 	infoMap() : Map<InfoType, number> { return this._infoMap; }
 	getInfo(type : InfoType) : number { return this.hasInfo(type) ? this._infoMap.get(type) : 0; }
 	hasInfo(type : InfoType) : boolean { return this._infoMap.has(type); }

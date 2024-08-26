@@ -7,7 +7,7 @@ import { Stat, StatUpdate, StatInitOptions } from 'game/component/stat'
 import { StatLog } from 'game/component/util/stat_log'
 
 import { Entity } from 'game/entity'
-import { EntityLog } from 'game/entity/util/entity_log'
+import { EntityLog } from 'game/util/entity_log'
 
 import { RingBuffer } from 'util/buffer/ring_buffer'
 import { defined } from 'util/common'

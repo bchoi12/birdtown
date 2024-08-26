@@ -1,6 +1,6 @@
 
 import { game } from 'game'
-import { GameState, GameObjectState } from 'game/api'
+import { GameMode, GameState, GameObjectState } from 'game/api'
 import { AssociationType, ComponentType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
@@ -207,7 +207,9 @@ export class PlayerState extends ClientSystem implements System {
 
 		// Handle if no target entity yet
 		if (!this.hasTargetEntity()) {
-			if (game.controller().gameState() === GameState.FREE && game.tablet(this.clientId()).isSetup()) {
+			if (game.tablet(this.clientId()).isSetup()
+				&& (game.controller().gameState() === GameState.FREE
+					|| game.controller().gameMode() === GameMode.PRACTICE)) {
 				let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
 					clientId: this.clientId(),
 					associationInit: {

@@ -169,7 +169,7 @@ export class GameMaker extends SystemBase implements System {
 					return !tablet.outOfLives();
 				});
 				if (this._winners.length <= 1) {
-					this._winnerId = this._winners[0].clientId();
+					this._winnerId = this._winners[0].entityId();
 					return GameState.FINISH;
 				}
 			} else if (this._config.hasPoints()) {
@@ -177,7 +177,7 @@ export class GameMaker extends SystemBase implements System {
 					return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints();
 				});
 				if (this._winners.length >= 1) {
-					this._winnerId = this._winners[0].clientId();
+					this._winnerId = this._winners[0].entityId();
 					return GameState.FINISH;
 				}
 			}

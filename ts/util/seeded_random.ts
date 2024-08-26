@@ -59,9 +59,20 @@ export class SeededRandom {
     	return num;
     }
 
-	shuffle(array : Array<Object>) : void {
-	    for (let i = array.length - 1; i > 0; i--) {
-	        let j = Math.floor(this.next()) * (i + 1);
+	shuffle(array : Array<Object>, n? : number) : void {
+		if (n <= 0) {
+			n = array.length;
+		} else if (n > array.length) {
+			n = array.length;
+		}
+
+	    for (let i = 0; i < n; ++i) {
+	        let j = i + Math.min(array.length - i - 1, Math.floor(this.next() * (array.length - i)));
+
+	        if (i === j) {
+	        	continue;
+	        }
+
 	        let temp = array[i];
 	        array[i] = array[j];
 	        array[j] = temp;

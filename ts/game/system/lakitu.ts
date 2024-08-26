@@ -107,10 +107,7 @@ export class Lakitu extends SystemBase implements System {
 		return this.targetEntity().type();
 	}
 	private targetPlayer() : boolean {
-		if (game.controller().gameState() === GameState.FINISH
-			|| game.controller().gameState() === GameState.VICTORY) {
-			
-		} else if (game.playerState().hasTargetEntity()) {
+	 if (game.playerState().hasTargetEntity()) {
 			if (this.hasTargetEntity() && this.targetEntity().id() === game.playerState().targetEntity().id()) {
 				return true;
 			}
@@ -125,6 +122,30 @@ export class Lakitu extends SystemBase implements System {
 			return true;
 		}
 		return false;
+	}
+	private targetWinner() : boolean {
+		const winnerId = game.controller().winnerId();
+		if (this.hasTargetEntity() && this.targetEntity().id() === winnerId) {
+			console.log("viewing " + winnerId);
+			return true;
+		}
+		const [winner, hasWinner] = game.entities().getEntity(winnerId);
+		if (!hasWinner) {
+			console.log("cant find " + winnerId);
+			return false;
+		}
+		let panner = this._panners.get(OffsetType.CAMERA);
+		// TODO: might be slightly off...
+		let offset = Vec3.fromBabylon3(this._camera.position).sub(winner.profile().pos());
+		panner.panFrom(offset, {
+			goal: Lakitu._offsets.get(OffsetType.CAMERA),
+			millis: Lakitu._panTime / 2,
+			interpType: InterpType.NEGATIVE_SQUARE,
+		});
+		this.setTargetEntity(winner);
+		console.log("pan to " + winnerId, offset);
+
+		return true;
 	}
 	private targetPlane() : boolean {
 		if (this.targetEntityType() === EntityType.PLANE && this.validTargetEntity()) {
@@ -254,10 +275,9 @@ export class Lakitu extends SystemBase implements System {
 			}
 			break;
 		case GameState.FINISH:
-			// TODO: pan to spotlighted player
-			break;
 		case GameState.VICTORY:
-			// TODO: pan to winner
+			// Pan to a winning player
+			this.targetWinner();
 			break;
 		case GameState.ERROR:
 			this.clearTargetEntity();

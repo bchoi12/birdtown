@@ -6,6 +6,7 @@ import { EntityType } from 'game/entity/api'
 import { ClientSideSystem, System } from 'game/system'
 import { SystemType, PlayerRole } from 'game/system/api'
 import { ClientDialogSyncer } from 'game/system/client_dialog_syncer'
+import { EquipPairs } from 'game/util/equip_pairs'
 
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -27,8 +28,9 @@ export class ClientDialog extends ClientSideSystem implements System {
 		}
 
 		let loadout = this.message(DialogType.LOADOUT);
-		loadout.setEquipType(EntityType.GATLING);
-		loadout.setAltEquipType(EntityType.HEADPHONES);
+		const pair = EquipPairs.random();
+		loadout.setEquipType(EntityType.PISTOL);
+		loadout.setAltEquipType(EntityType.COWBOY_HAT);
 		loadout.setPlayerType(ModifierPlayerType.NONE);
 	}
 

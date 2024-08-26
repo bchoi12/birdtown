@@ -59,6 +59,7 @@ export class Controller extends SystemBase implements System {
 	}
 
 	round() : number { return this._gameMaker.round(); }
+	winnerId() : number { return this._gameMaker.winnerId(); }
 
 	gameMode() : GameMode { return this._gameMaker.mode(); }
 	startGame(config : GameConfigMessage) {

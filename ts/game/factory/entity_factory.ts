@@ -11,20 +11,22 @@ import { Cloud } from 'game/entity/cloud'
 import { Pergola } from 'game/entity/pergola'
 import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
-import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
-import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { Bubble } from 'game/entity/equip/bubble'
-import { BoobyHair } from 'game/entity/equip/headwear/booby_hair'
-import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { BirdBrain } from 'game/entity/equip/bird_brain'
+import { CowboyHat } from 'game/entity/equip/cowboy_hat'
 import { Headband } from 'game/entity/equip/headband'
 import { Headphones } from 'game/entity/equip/headphones'
 import { Jetpack } from 'game/entity/equip/jetpack'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Scouter } from 'game/entity/equip/scouter'
+import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
+import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
+import { BoobyHair } from 'game/entity/equip/headwear/booby_hair'
+import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Claw } from 'game/entity/equip/weapon/claw'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
+import { Pistol } from 'game/entity/equip/weapon/pistol'
 import { Sniper } from 'game/entity/equip/weapon/sniper'
 import { BlackHole } from 'game/entity/explosion/black_hole'
 import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
@@ -40,6 +42,7 @@ import { ParticleSmoke } from 'game/entity/particle/particle_smoke'
 import { ParticleSpark } from 'game/entity/particle/particle_spark'
 import { ParticleSweat } from 'game/entity/particle/particle_sweat'
 import { Bolt } from 'game/entity/projectile/bolt'
+import { Bullet } from 'game/entity/projectile/bullet'
 import { Pellet } from 'game/entity/projectile/pellet'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Star } from 'game/entity/projectile/star'
@@ -64,10 +67,12 @@ export namespace EntityFactory {
 		[EntityType.BOOBY_BEAK, (options : EntityOptions) => { return new BoobyBeak(options); }],
 		[EntityType.BOOBY_HAIR, (options : EntityOptions) => { return new BoobyHair(options); }],
 		[EntityType.BUBBLE, (options : EntityOptions) => { return new Bubble(options); }],
+		[EntityType.BULLET, (options : EntityOptions) => { return new Bullet(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
 		[EntityType.CLAW, (options : EntityOptions) => { return new Claw(options); }],
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
+		[EntityType.COWBOY_HAT, (options : EntityOptions) => { return new CowboyHat(options); }],
 		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
 		[EntityType.GATLING, (options : EntityOptions) => { return new Gatling(options); }],
@@ -84,6 +89,7 @@ export namespace EntityFactory {
 		[EntityType.PERGOLA, (options : EntityOptions) => { return new Pergola(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
+		[EntityType.PISTOL, (options : EntityOptions) => { return new Pistol(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
 		[EntityType.ROCKET_EXPLOSION, (options : EntityOptions) => { return new RocketExplosion(options); }],
 		[EntityType.SCOUTER, (options : EntityOptions) => { return new Scouter(options); }],
@@ -104,6 +110,7 @@ export namespace EntityFactory {
 		[EntityType.BACKGROUND_ARCH_ROOM, { x: 12, y: 6 }],
 		[EntityType.BILLBOARD, { x: 8, y: 6.4, z: 0.5 }],
 		[EntityType.BOLT, { x: 0.36, y: 0.12, z : 0.12 }],
+		[EntityType.BULLET, { x: 0.36, y: 0.12, z : 0.12 }],
 		[EntityType.PARTICLE_CUBE, { x: 1, y: 1, z: 1}],
 		[EntityType.PARTICLE_ENERGY_CUBE, { x: 1, y: 1, z: 1}],
 		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],

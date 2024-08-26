@@ -101,39 +101,29 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 				main: "Current game has been terminated",
 				sub: "Returning all players to the lobby",
 			};
-			break;
 		case AnnouncementType.GAME_ERROR:
-			if (names.length === 1) {
-				return {
-					main: "Returning to the lobby...",
-					sub: names[0],
-				};
-			}
-			break;
+			return {
+				main: names.length === 1 ? names[0] : "An unexpected error occurred...",
+				sub: "Returning all players to the lobby",
+			};
 		case AnnouncementType.GAME_FINISH:
 			if (names.length <= 0) {
 				return {
 					main: "No one won?",
 				}
 			}
-			if (names.length === 1) {
-				return {
-					main: names.join(", ") + " wins the round!",
-				};
-			}
-			break;
+			return {
+				main: names.join(", ") + " wins the round!",
+			};
 		case AnnouncementType.GAME_VICTORY:
 			if (names.length <= 0) {
 				return {
 					main: "No one won???",
 				}
 			}
-			if (names.length === 1) {
-				return {
-					main: names.join(", ") + " is victorious!",
-				};
-			}
-			break;
+			return {
+				main: names.join(", ") + (names.length > 1 ? " are" : " is") + " victorious!",
+			};
 		case AnnouncementType.LEVEL:
 			if (names.length === 1) {
 				return {

@@ -45,6 +45,8 @@ export enum IconType {
 	HEART,
 	JET,
 	ROCKET,
+	ROCKING_HORSE,
+	ROLL,
 	TELEKENESIS,
 }
 
@@ -74,6 +76,8 @@ export namespace Icon {
 		[IconType.READY, "checklist"],
 		[IconType.RESET_SETTINGS, "reset_settings"],
 		[IconType.ROCKET, "rocket"],
+		[IconType.ROCKING_HORSE, "bedroom_baby"],
+		[IconType.ROLL, "cached"],
 		[IconType.SHARE, "share"],
 		[IconType.SKILLET, "skillet"],
 		[IconType.SKULL, "skull"],
@@ -109,6 +113,7 @@ export namespace Icon {
 		[EntityType.BAZOOKA, IconType.ROCKET],
 		[EntityType.CLAW, IconType.DASH],
 		[EntityType.GATLING, IconType.GATLING],
+		[EntityType.PISTOL, IconType.ROCKING_HORSE],
 		[EntityType.SNIPER, IconType.BOLT],
 	]);
 

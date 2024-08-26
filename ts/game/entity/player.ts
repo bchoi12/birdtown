@@ -30,6 +30,7 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
 import { RecordType } from 'game/util/collision_buffer'
 import { MaterialShifter } from 'game/util/material_shifter'
+import { Recoil } from 'game/util/recoil'
 
 import { GameGlobals } from 'global/game_globals'
 
@@ -97,7 +98,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _rotationOffset = -0.1;
 	private static readonly _jumpGracePeriod = 160;
 
-	private static readonly _armRecoveryTime = 300;
+	private static readonly _armRecoveryTime = 100;
 	private static readonly _knockbackRecoveryTime = 250;
 	private static readonly _interactCheckInterval = 250;
 	private static readonly _sweatInterval = 3000;
@@ -116,7 +117,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	// TODO: package in struct, Pose, PlayerPose?
 	private _armDir : Vec2;
-	private _armRecoil : [number, number];
+	private _armRecoil : Recoil;
 	private _baseMaterial : Optional<BABYLON.PBRMaterial>;
 	private _headDir : Vec2;
 	private _boneOrigins : Map<BoneType, BABYLON.Vector3>;
@@ -148,7 +149,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		super(EntityType.PLAYER, entityOptions);
 
 		this._armDir = Vec2.i();
-		this._armRecoil = [0, 0];
+		this._armRecoil = new Recoil();
 		this._baseMaterial = new Optional();
 		this._headDir = Vec2.i();
 		this._boneOrigins = new Map();
@@ -605,8 +606,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 
 		// Cosmetic stuff
-		this._armRecoil[0] = Math.max(0, this._armRecoil[0] - millis / Player._armRecoveryTime);
-		this._armRecoil[1] = Math.max(0, this._armRecoil[1] - millis / Player._armRecoveryTime);
+		this._armRecoil.recover(millis / Player._armRecoveryTime);
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {
@@ -769,10 +769,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			if (uses > 0) {
 				switch(equip.attachType()) {
 				case AttachType.ARM:
-					const recoil = equip.recoil();
-					// Make copy
-					this._armRecoil[0] = recoil[0];
-					this._armRecoil[1] = recoil[1];
+					this._armRecoil.copy(equip.recoil());
 
 					// TODO: move emote value to equip
 					this._expression.emote(Emotion.MAD, {
@@ -811,13 +808,14 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		} else {
 			armRotation = -armRotation + Math.PI / 2;
 		}
-		arm.rotation = new BABYLON.Vector3(armRotation, Math.PI, -this._armRecoil[1]);
+		const recoilRotation = this._armRecoil.rotation();
+		arm.rotation = new BABYLON.Vector3(armRotation + recoilRotation.z, Math.PI, -recoilRotation.y);
 
 		// Compute arm position
 		let recoil = new BABYLON.Vector3(
-			-0.5 * Math.sin(this._armRecoil[1]),
-			-Math.cos(armRotation) * this._armRecoil[0],
-			Math.sin(armRotation) * this._armRecoil[0]);
+			-0.5 * Math.sin(recoilRotation.y),
+			-Math.cos(armRotation) * this._armRecoil.dist(),
+			Math.sin(armRotation) * this._armRecoil.dist());
 		arm.position = this._boneOrigins.get(BoneType.ARM).add(recoil);
 	}
 

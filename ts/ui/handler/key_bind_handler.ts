@@ -39,7 +39,7 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		});
 
 		this.addKeyBind({
-			name: "Jump / double jump",
+			name: "Jump / Double jump",
 			get: () => { return settings.jumpKeyCode; },
 			update: (keyCode : number) => { settings.jumpKeyCode = keyCode; },
 		});
