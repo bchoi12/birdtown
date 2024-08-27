@@ -52,14 +52,14 @@ export class World extends SystemBase implements System {
 	    this._lightDir = new BABYLON.Vector3(1, -3, -4);
 	    this._lightDir.normalize();
 	    this._hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", this._lightDir.scale(-1), this._scene);
-	    this._hemisphericLight.diffuse = new BABYLON.Color3(0.8, 0.8, 0.8);
+	    this._hemisphericLight.diffuse = new BABYLON.Color3(1, 1, 1);
 	    this._hemisphericLight.specular = new BABYLON.Color3(1, 1, 1);
-	    this._hemisphericLight.groundColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+	    this._hemisphericLight.groundColor = new BABYLON.Color3(0.5, 0.5, 0.5);
 	    this._hemisphericLight.intensity = 0.7;
 
 	    this._directionalLight = new BABYLON.DirectionalLight("directionalLight", this._lightDir, this._scene);
 	    this._directionalLight.diffuse = new BABYLON.Color3(1, 1, 1);
-	    this._directionalLight.intensity = 1.1;
+	    this._directionalLight.intensity = 1.3;
 	    this._directionalLight.autoUpdateExtends = false;
 	    this._directionalLight.autoCalcShadowZBounds = false;
 		this._shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight, /*useFullFloatFirst=*/true);
