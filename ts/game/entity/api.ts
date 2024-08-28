@@ -43,6 +43,7 @@ export enum EntityType {
 	GATLING,
 	HEADBAND,
 	HEADPHONES,
+	HEALTH_CRATE,
 	JETPACK,
 	NAME_TAG,
 	PARTICLE_CUBE,
@@ -66,6 +67,7 @@ export enum EntityType {
 	STAR_EXPLOSION,
 	TABLE,
 	WALL,
+	WEAPON_CRATE,
 }
 
 export enum BoneType {
@@ -79,4 +81,13 @@ export enum BoneType {
 	MESH = "mesh",
 	NECK = "neck",
 	SPINE = "spine",
+}
+
+export enum FrequencyType {
+	UNKNOWN,
+
+	NEVER,
+	LOW,
+	MEDIUM,
+	HIGH,
 }

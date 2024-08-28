@@ -33,7 +33,8 @@ import { BlackHole } from 'game/entity/explosion/black_hole'
 import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
 import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
 import { StarExplosion } from 'game/entity/explosion/star_explosion'
-import { Crate } from 'game/entity/interactable/crate'
+import { HealthCrate } from 'game/entity/interactable/crate/health_crate'
+import { WeaponCrate } from 'game/entity/interactable/crate/weapon_crate'
 import { Table } from 'game/entity/interactable/table'
 import { SignControls } from 'game/entity/interactable/sign/sign_controls'
 import { SignStartGame } from 'game/entity/interactable/sign/sign_start_game'
@@ -74,12 +75,12 @@ export namespace EntityFactory {
 		[EntityType.CLAW, (options : EntityOptions) => { return new Claw(options); }],
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.COWBOY_HAT, (options : EntityOptions) => { return new CowboyHat(options); }],
-		[EntityType.CRATE, (options : EntityOptions) => { return new Crate(options); }],
 		[EntityType.DYING_STAR, (options : EntityOptions) => { return new DyingStar(options); }],
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
 		[EntityType.GATLING, (options : EntityOptions) => { return new Gatling(options); }],
 		[EntityType.HEADBAND, (options : EntityOptions) => { return new Headband(options); }],
 		[EntityType.HEADPHONES, (options : EntityOptions) => { return new Headphones(options); }],
+		[EntityType.HEALTH_CRATE, (options : EntityOptions) => { return new HealthCrate(options); }],
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
 		[EntityType.PARTICLE_CUBE, (options : EntityOptions) => { return new ParticleCube(options); }],
@@ -103,6 +104,7 @@ export namespace EntityFactory {
 		[EntityType.STAR_EXPLOSION, (options : EntityOptions) => { return new StarExplosion(options); }],
 		[EntityType.TABLE, (options : EntityOptions) => { return new Table(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
+		[EntityType.WEAPON_CRATE, (options : EntityOptions) => { return new WeaponCrate(options); }],
 	]);
 
 	export const staticDimensions = new Map<EntityType, Vec>([
@@ -134,10 +136,11 @@ export namespace EntityFactory {
 		...staticDimensions,
 		[EntityType.BLACK_HOLE, { x: 6, y: 6, z: 6 }],
 		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
-		[EntityType.CRATE, {x: 1, y: 1, z: 1 }],
 		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],
+		[EntityType.HEALTH_CRATE, {x: 1, y: 1, z: 1 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.STAR_EXPLOSION, {x: 0.7, y: 0.7, z: 0.7 }],
+		[EntityType.WEAPON_CRATE, {x: 1, y: 1, z: 1 }],
 	]);
 
 	export function hasCreateFn(type : EntityType) : boolean { return createFns.has(type); }

@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 import { GameMode, GameState } from 'game/api'
-import { EntityType } from 'game/entity/api'
+import { EntityType, FrequencyType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
@@ -24,10 +24,17 @@ import { isLocalhost } from 'util/common'
 export class GameMaker extends SystemBase implements System {
 
 	private static readonly _endTimeLimit = 3000;
-	private static readonly _loadTimeLimit = 3000;
+	private static readonly _loadTimeLimit = 1500;
 
-	private static readonly _timeLimitBuffer = new Map([
+	private static readonly _timeLimitBuffer = new Map<GameState, number>([
 		[GameState.SETUP, 2000],
+	]);
+
+	private static readonly _limitPerPlayer = new Map<FrequencyType, number>([
+		[FrequencyType.NEVER, 0],
+		[FrequencyType.LOW, 0.67],
+		[FrequencyType.MEDIUM, 1.5],
+		[FrequencyType.HIGH, 2],
 	]);
 
 	private _config : GameConfigMessage;
@@ -94,6 +101,17 @@ export class GameMaker extends SystemBase implements System {
 	private timeLimitReached(state : GameState) : boolean {
 		const buffer = GameMaker._timeLimitBuffer.has(state) ? GameMaker._timeLimitBuffer.get(state) : 0;
 		return game.controller().stateMillis() >= this.timeLimit(state) + buffer;
+	}
+
+	entityLimit(type : EntityType) : number {
+		switch (type) {
+		case EntityType.HEALTH_CRATE:
+			return game.playerStates().numSpawnedPlayers() * GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawn());
+		case EntityType.WEAPON_CRATE:
+			return game.playerStates().numSpawnedPlayers() * GameMaker._limitPerPlayer.get(this._config.getWeaponCrateSpawn());
+		default:
+			return Infinity;
+		}
 	}
 
 	setConfig(config : GameConfigMessage) : boolean {

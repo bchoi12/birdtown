@@ -91,11 +91,11 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return "Error: failed to save dialog input!";
 		case TooltipType.JUST_A_SIGN:
 			return "Just a sign...nothing to see here"
-		case TooltipType.OPEN_CRATE:
+		case TooltipType.HEALTH_CRATE:
 			if (names.length !== 1) {
 				return "";
 			}
-			return KeyNames.boxed(settings.interactKeyCode) + " Equip " + names[0];
+			return KeyNames.boxed(settings.interactKeyCode) + " Recover " + names[0] + " health";
 		case TooltipType.SPAWN:
 			return "Press [any key] to deploy"
 		case TooltipType.SPECTATING:
@@ -108,6 +108,11 @@ export class TooltipHandler extends HandlerBase implements Handler {
 				return "Only the host can start a game";
 			}
 			return KeyNames.boxed(settings.interactKeyCode) + " Start a game";
+		case TooltipType.WEAPON_CRATE:
+			if (names.length !== 1) {
+				return "";
+			}
+			return KeyNames.boxed(settings.interactKeyCode) + " Equip " + names[0];
 		default:
 			return "Missing tooltip text for type " + type;
 		}

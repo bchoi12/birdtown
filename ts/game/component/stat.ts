@@ -127,12 +127,8 @@ export class Stat extends ComponentBase implements Component {
 					update.delta = 0;
 				}
 
-				update.delta = Math.max(max.get() - this._stat.get(), update.delta);
+				update.delta = Math.min(max.get() - this._stat.get(), update.delta);
 			}
-		}
-
-		if (update.delta === 0) {
-			return;
 		}
 
 		if (this.isSource()) {

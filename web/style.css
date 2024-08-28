@@ -610,8 +610,8 @@ body {
 
 .label {
     width: 100%;
-    padding: 0.1em;
-    margin: 0.1em 0.1em 0.3em 0.1em;
+    padding: 0.3em 0;
+    margin: 0;
     font-size: 1em;
     height: 1em;
     display: block;

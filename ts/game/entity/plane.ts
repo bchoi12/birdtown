@@ -28,6 +28,7 @@ export class Plane extends EntityBase implements Entity {
 	private static readonly _crateSpawnInterval = 3000;
 
 	private _crateSpawner : RateLimiter;
+	private _lastCrateType : EntityType;
 	private _rng : SeededRandom;
 
 	private _model : Model;
@@ -37,6 +38,7 @@ export class Plane extends EntityBase implements Entity {
 		super(EntityType.PLANE, entityOptions);
 
 		this._crateSpawner = new RateLimiter(Plane._crateSpawnInterval);
+		this._lastCrateType = EntityType.UNKNOWN;
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
@@ -104,19 +106,28 @@ export class Plane extends EntityBase implements Entity {
 		}
 
 		if (this.isSource() && this._crateSpawner.check(millis)) {
-			const numCrates = game.entities().getMap(EntityType.CRATE).numEntities();
-			const numPlayers = game.entities().getMap(EntityType.PLAYER).numEntities();
-
-			if (numCrates <= 2 * numPlayers + 8) {
-				this.addEntity(EntityType.CRATE, {
-					profileInit: {
-						pos: this._profile.pos().clone().add({ x: Math.sign(this._profile.vel().x) * 2 }),
-						dim: { x: 1, y: 1 },
-						vel: this._profile.vel(),
-						angle: Math.random() * 360,
-					}
-				});
-			}
+			this.maybeDropCrate();
+			this._crateSpawner.setLimit(Plane._crateSpawnInterval + Math.random() * Plane._crateSpawnInterval);
 		}
+	}
+
+	private maybeDropCrate() : void {
+
+		let crateType = this._lastCrateType === EntityType.HEALTH_CRATE ? EntityType.WEAPON_CRATE : EntityType.HEALTH_CRATE;
+
+		const numCrates = game.entities().getMap(crateType).numEntities();
+
+		if (numCrates < game.controller().entityLimit(crateType)) {
+			this.addEntity(crateType, {
+				profileInit: {
+					pos: this._profile.pos().clone().add({ x: Math.sign(this._profile.vel().x) * 2 }),
+					dim: { x: 1, y: 1 },
+					vel: this._profile.vel(),
+					angle: Math.random() * 360,
+				}
+			});
+		}
+
+		this._lastCrateType = crateType;
 	}
 }

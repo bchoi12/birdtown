@@ -87,10 +87,11 @@ export enum TooltipType {
 	COPIED_URL,
 	FAILED_DIALOG_SYNC,
 	JUST_A_SIGN,
-	OPEN_CRATE,
+	HEALTH_CRATE,
 	SPAWN,
 	SPECTATING,
 	START_GAME,
+	WEAPON_CRATE,
 }
 
 export type CounterOptions = {

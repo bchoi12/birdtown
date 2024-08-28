@@ -11,13 +11,12 @@ import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Interactable } from 'game/entity/interactable'
-import { Player } from 'game/entity/player'
 import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
-import { EquipPairs } from 'game/util/equip_pairs'
+import { MaterialShifter } from 'game/util/material_shifter'
 
 import { GameGlobals } from 'global/game_globals'
 
@@ -29,30 +28,29 @@ import { ui } from 'ui'
 import { TooltipType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
+import { Box2 } from 'util/box'
 import { Fns } from 'util/fns'
 
-export class Crate extends Interactable implements Entity, EquipEntity {
+export abstract class Crate extends Interactable implements Entity, EquipEntity {
 
 	private static readonly _maxSpeed = 0.6;
 
+	private _materialShifter : MaterialShifter;
 	private _opened : boolean;
-	private _index : number;
 
 	private _nameTag : NameTag;
 
-	private _attributes : Attributes;
-	private _profile : Profile;
-	private _model : Model;
+	protected _attributes : Attributes;
+	protected _profile : Profile;
+	protected _model : Model;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.CRATE, entityOptions);
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
 
+		this.allTypes().add(EntityType.CRATE);
+
+		this._materialShifter = new MaterialShifter();
 		this._opened = false;
-
-		this._index = 0;
-		if (this.isSource()) {
-			this._index = EquipPairs.randomIndex();
-		}
 
 		this._nameTag = null;
 
@@ -63,10 +61,6 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 				this.open();
 				this.delete();
 			},
-		});
-		this.addProp<number>({
-			export: () => { return this._index; },
-			import: (obj : EntityType) => { this._index = obj; },
 		});
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
@@ -79,9 +73,6 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.SOLID),
 					chamfer: {
 						radius: 0.05
-					},
-					render: {
-						fillStyle: ColorFactory.crateRed.toString(),
 					},
 				});
 			},
@@ -107,7 +98,24 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 						x: this._profile.scaledDim().x / modelDimension.x,
 						y: this._profile.scaledDim().y / modelDimension.y,
 					}
+
 					mesh.scaling.set(scaling.x, scaling.y, (scaling.x + scaling.y) / 2);
+
+					mesh.getChildMeshes().forEach((mesh : BABYLON.Mesh) => {
+						if (!mesh.material || !(mesh.material instanceof BABYLON.PBRMaterial)) { return; }
+
+						if (mesh.material.name === "crate") {
+							this._materialShifter.setMaterial(mesh.material, Box2.fromBox({
+								min: {x: 0, y: 0},
+								max: {x: 1, y: 2},
+							}));
+
+							this._materialShifter.registerOffset(EntityType.HEALTH_CRATE, {x: 0, y: 0});
+							this._materialShifter.registerOffset(EntityType.WEAPON_CRATE, {x: 0, y: 1});
+							this._materialShifter.offset(this.type());
+						}
+					});
+
 					model.setMesh(mesh);
 				});
 			},
@@ -167,57 +175,21 @@ export class Crate extends Interactable implements Entity, EquipEntity {
 		}
 	}
 
-	equipType(playerEquipType : EntityType) : EntityType {
-		return EquipPairs.getDefaultPairExcluding(this._index, playerEquipType)[0]
-	}
-	altEquipType(playerEquipType : EntityType) : EntityType {
-		return EquipPairs.getDefaultPairExcluding(this._index, playerEquipType)[1];
-	}
-	equipList(playerEquipType : EntityType) : string {
-		return StringFactory.getEntityTypeName(this.equipType(playerEquipType)).toString()
-		+ " and "
-		+ StringFactory.getEntityTypeName(this.altEquipType(playerEquipType)).toString();
-	}
-
 	override setInteractableWith(entity : Entity, interactable : boolean) : void {
 		super.setInteractableWith(entity, interactable);
 
-		if (entity.type() !== EntityType.PLAYER) {
-			return;
-		}
-
-		const player = <Player>entity;
-
-		if (player.isLakituTarget()) {
-			ui.showTooltip(TooltipType.OPEN_CRATE, {
-				ttl: 500,
-				names: [this.equipList(player.equipType())],
-			});
-
+		if (entity.isLakituTarget()) {
 			if (this._nameTag !== null) {
 				this._nameTag.setVisible(interactable);
 			}
 		}
 	}
-	override interactWith(entity : Entity) : void {
-		if (entity.type() !== EntityType.PLAYER) {
-			return;
-		}
 
-		const player = <Player>entity;
-
-		player.createEquips(this.equipType(player.equipType()), this.altEquipType(player.equipType()));
-
-		this.open();
-
-		if (this.isSource()) {
-			this.delete();
-		}
-	}
-	private open() : void {
+	protected open() : void {
 		this.clearInteractable();
 		this._opened = true;
 	}
+	opened() : boolean { return this._opened; }
 	
 	equip(equip : Equip<Entity & EquipEntity>) : void {
 		if (equip.type() !== EntityType.NAME_TAG) {

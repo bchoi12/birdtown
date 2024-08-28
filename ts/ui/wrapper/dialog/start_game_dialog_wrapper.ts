@@ -1,6 +1,7 @@
 
 import { game } from 'game'
 import { GameMode } from 'game/api'
+import { FrequencyType } from 'game/entity/api'
 import { GameMaker } from 'game/system/game_maker'
 
 import { GameConfigMessage } from 'message/game_config_message'
@@ -159,10 +160,10 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.setTitle("Free for All");
 
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
-		columnsWrapper.elm().style.fontSize = "0.9em";
 
 		let options = columnsWrapper.column(0);
 		options.setLegend("Options");
+		options.contentElm().style.fontSize = "0.6em";
 
 		let players = columnsWrapper.column(1);
 		players.setLegend("Players");
@@ -191,11 +192,47 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		options.contentElm().appendChild(victories.elm());
 
+		let healthCrateSpawn = this._configMsg.getHealthCrateSpawn();
+		let healthCrates = new SettingWrapper<FrequencyType>({
+			name: "Health Crate Spawn Rate",
+			get: () => { return healthCrateSpawn; },
+			click: (current : FrequencyType) => {
+				if (healthCrateSpawn === FrequencyType.HIGH) {
+					healthCrateSpawn = FrequencyType.NEVER;
+				} else {
+					healthCrateSpawn++;
+				}
+			},
+			text: (current : FrequencyType) => {
+				return FrequencyType[current];
+			},
+		});
+		options.contentElm().appendChild(healthCrates.elm());
+
+		let weaponCrateSpawn = this._configMsg.getWeaponCrateSpawn();
+		let weaponCrates = new SettingWrapper<FrequencyType>({
+			name: "Weapon Crate Spawn Rate",
+			get: () => { return weaponCrateSpawn; },
+			click: (current : FrequencyType) => {
+				if (weaponCrateSpawn === FrequencyType.HIGH) {
+					weaponCrateSpawn = FrequencyType.NEVER;
+				} else {
+					weaponCrateSpawn++;
+				}
+			},
+			text: (current : FrequencyType) => {
+				return FrequencyType[current];
+			},
+		});
+		options.contentElm().appendChild(weaponCrates.elm());
+
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setOnSubmit(() => {
 			this._configMsg.setPoints(points.number());
 			this._configMsg.setVictories(victories.number());
+			this._configMsg.setHealthCrateSpawn(healthCrateSpawn);
+			this._configMsg.setWeaponCrateSpawn(weaponCrateSpawn);
 		});
 	}
 
@@ -204,10 +241,10 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.setTitle("Survival");
 
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
-		columnsWrapper.elm().style.fontSize = "0.9em";
 
 		let options = columnsWrapper.column(0);
 		options.setLegend("Options");
+		options.contentElm().style.fontSize = "0.6em";
 
 		let players = columnsWrapper.column(1);
 		players.setLegend("Players");
@@ -236,11 +273,47 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		options.contentElm().appendChild(victories.elm());
 
+		let healthCrateSpawn = this._configMsg.getHealthCrateSpawn();
+		let healthCrates = new SettingWrapper<FrequencyType>({
+			name: "Health Crate Spawn Rate",
+			get: () => { return healthCrateSpawn; },
+			click: (current : FrequencyType) => {
+				if (healthCrateSpawn === FrequencyType.HIGH) {
+					healthCrateSpawn = FrequencyType.NEVER;
+				} else {
+					healthCrateSpawn++;
+				}
+			},
+			text: (current : FrequencyType) => {
+				return FrequencyType[current];
+			},
+		});
+		options.contentElm().appendChild(healthCrates.elm());
+
+		let weaponCrateSpawn = this._configMsg.getWeaponCrateSpawn();
+		let weaponCrates = new SettingWrapper<FrequencyType>({
+			name: "Weapon Crate Spawn Rate",
+			get: () => { return weaponCrateSpawn; },
+			click: (current : FrequencyType) => {
+				if (weaponCrateSpawn === FrequencyType.HIGH) {
+					weaponCrateSpawn = FrequencyType.NEVER;
+				} else {
+					weaponCrateSpawn++;
+				}
+			},
+			text: (current : FrequencyType) => {
+				return FrequencyType[current];
+			},
+		});
+		options.contentElm().appendChild(weaponCrates.elm());
+
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setOnSubmit(() => {
 			this._configMsg.setLives(lives.number());
 			this._configMsg.setVictories(victories.number());
+			this._configMsg.setHealthCrateSpawn(healthCrateSpawn);
+			this._configMsg.setWeaponCrateSpawn(weaponCrateSpawn);
 		});
 	}
 }

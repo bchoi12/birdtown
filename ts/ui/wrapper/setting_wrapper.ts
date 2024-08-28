@@ -29,7 +29,7 @@ export class SettingWrapper<T extends number> extends LabelButtonWrapper {
 		}
 	}
 
-	refresh() : void { this._options.get(); }
+	refresh() : void { this.setButtonText(this._options.text(this._options.get())); }
 
 	override setButtonText(text : string) : void { super.setButtonText("[" + text + "]"); }
 }

@@ -63,13 +63,13 @@ class ArchBlueprintBlock extends BlueprintBlock {
 		});
 	}
 
-	addCrates(rng : SeededRandom) : void {
+	addWeaponCrates(rng : SeededRandom) : void {
 		if (this.type() === ArchBlueprint.backgroundType()) {
 			return;
 		}
 
 		while(rng.testChance()) {
-			this.pushEntityOptions(EntityType.CRATE, {
+			this.pushEntityOptions(EntityType.WEAPON_CRATE, {
 				profileInit: {
 					pos: Vec2.fromVec(this.pos()).addRandomOffset({x: ArchBlueprint.baseDim().x / 3 }, rng),
 					dim: { x: 1, y: 1 },
@@ -325,7 +325,7 @@ export class ArchBlueprint extends Blueprint {
 						});
 					} else {
 						this.rng().setChance(1, (n : number) => { return n - 0.3; });
-						block.addCrates(this.rng());
+						block.addWeaponCrates(this.rng());
 					}
 
 					if (building.height() === this.maxHeight()) {
@@ -389,10 +389,6 @@ export class ArchBlueprint extends Blueprint {
 							});
 						}
 					}
-
-					this.rng().setChance(0.5, (n : number) => { return n - 0.4; });
-					block.addCrates(this.rng());
-
 				} else if (block.type() === ArchBlueprint.baseType()) {
 					if (this.rng().le(0.5)) {
 						block.pushEntityOptions(EntityType.TABLE, {

@@ -1,10 +1,12 @@
 
 import { GameMode } from 'game/api'
+import { FrequencyType } from 'game/entity/api'
 import { Message, MessageBase, Descriptor, FieldDescriptor } from 'message'
 
 enum GameConfigProp {
 	UNKNOWN,
 	LIVES,
+	HEALTH_CRATE_SPAWN,
 	PLAYERS_MIN,
 	POINTS,
 	TIME_SETUP,
@@ -13,16 +15,19 @@ enum GameConfigProp {
 	TIME_VICTORY,
 	TIME_ERROR,
 	VICTORIES,
+	WEAPON_CRATE_SPAWN,
 }
 
 export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> implements Message<GameMode, GameConfigProp> {
 
 	private static readonly _defaultProps : [number, Descriptor][] = [
+		[GameConfigProp.HEALTH_CRATE_SPAWN, {}],
 		[GameConfigProp.PLAYERS_MIN, {}],
 		[GameConfigProp.TIME_SETUP, {}],
 		[GameConfigProp.TIME_FINISH, {}],
 		[GameConfigProp.TIME_VICTORY, {}],
-		[GameConfigProp.TIME_ERROR, {}]
+		[GameConfigProp.TIME_ERROR, {}],
+		[GameConfigProp.WEAPON_CRATE_SPAWN, {}],
 	];
 
 	private static readonly _messageDescriptor = new Map<GameMode, FieldDescriptor>([
@@ -70,19 +75,27 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		this.setTimeVictory(7000);
 		this.setTimeError(5000);
 
+		this.setHealthCrateSpawn(FrequencyType.NEVER);
+		this.setWeaponCrateSpawn(FrequencyType.NEVER);
+
 		switch (mode) {
 		case GameMode.DUEL:
 			this.setPlayersMin(2);
 			break;
 		case GameMode.FREE_FOR_ALL:
 			this.setPlayersMin(2);
+			this.setHealthCrateSpawn(FrequencyType.LOW);
+			this.setWeaponCrateSpawn(FrequencyType.LOW);
 			break;
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);
+			this.setHealthCrateSpawn(FrequencyType.HIGH);
+			this.setWeaponCrateSpawn(FrequencyType.HIGH);
 			break;
 		case GameMode.SURVIVAL:
 			this.setLives(2);
 			this.setPlayersMin(2);
+			this.setHealthCrateSpawn(FrequencyType.LOW);
 			break;
 		}
 		return this;
@@ -90,6 +103,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 
     // Begin auto-generated code (v2.1)
     override serializable() { return true; }
+
+    hasHealthCrateSpawn() : boolean { return this.has(GameConfigProp.HEALTH_CRATE_SPAWN); }
+    getHealthCrateSpawn() : FrequencyType { return this.get<FrequencyType>(GameConfigProp.HEALTH_CRATE_SPAWN); }
+    getHealthCrateSpawnOr(value : FrequencyType) : FrequencyType { return this.getOr<FrequencyType>(GameConfigProp.HEALTH_CRATE_SPAWN, value); }
+    setHealthCrateSpawn(value : FrequencyType) : void { this.set<FrequencyType>(GameConfigProp.HEALTH_CRATE_SPAWN, value); }
 
     hasLives() : boolean { return this.has(GameConfigProp.LIVES); }
     getLives() : number { return this.get<number>(GameConfigProp.LIVES); }
@@ -136,8 +154,14 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getVictoriesOr(value : number) : number { return this.getOr<number>(GameConfigProp.VICTORIES, value); }
     setVictories(value : number) : void { this.set<number>(GameConfigProp.VICTORIES, value); }
 
+    hasWeaponCrateSpawn() : boolean { return this.has(GameConfigProp.WEAPON_CRATE_SPAWN); }
+    getWeaponCrateSpawn() : FrequencyType { return this.get<FrequencyType>(GameConfigProp.WEAPON_CRATE_SPAWN); }
+    getWeaponCrateSpawnOr(value : FrequencyType) : FrequencyType { return this.getOr<FrequencyType>(GameConfigProp.WEAPON_CRATE_SPAWN, value); }
+    setWeaponCrateSpawn(value : FrequencyType) : void { this.set<FrequencyType>(GameConfigProp.WEAPON_CRATE_SPAWN, value); }
+
     /*
     const enumClass = "GameConfigProp";
+    ["HEALTH_CRATE_SPAWN", "FrequencyType"],
     ["LIVES", "number"],
     ["PLAYERS_MIN", "number"],
     ["POINTS", "number"],
@@ -147,6 +171,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     ["TIME_VICTORY", "number"],
     ["TIME_ERROR", "number"],
     ["VICTORIES", "number"],
+    ["WEAPON_CRATE_SPAWN", "FrequencyType"],
     */
     // End auto-generated code (v2.1)
 }
