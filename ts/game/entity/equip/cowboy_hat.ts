@@ -98,7 +98,7 @@ export class CowboyHat extends Equip<Player> {
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {
-			this._juice = Math.min(CowboyHat._maxJuice, this._juice + 0.5 * CowboyHat._maxJuice * millis / 1000);
+			this._juice = Math.min(CowboyHat._maxJuice, this._juice + 0.6 * CowboyHat._maxJuice * millis / 1000);
 		}
 	}
 

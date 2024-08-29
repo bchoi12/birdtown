@@ -22,12 +22,10 @@ export class Pistol extends Weapon {
 	private static readonly _bursts = 3;
 	private static readonly _config = {
 		times: new Map([
-			[WeaponState.FIRING, 275],
+			[WeaponState.FIRING, 225],
 			[WeaponState.RELOADING, 1000],
 		]),
 		bursts: Pistol._bursts,
-		interruptable: true,
-		allowPartialClip: true,
 	};
 	private static readonly _bulletTTL = 600;
 

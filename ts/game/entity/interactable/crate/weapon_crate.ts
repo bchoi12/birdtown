@@ -40,6 +40,8 @@ export class WeaponCrate extends Crate {
 		})
 	}
 
+	override outerMaterial() : MaterialType { return MaterialType.CRATE_BLUE; }
+
 	equipType(playerEquipType : EntityType) : EntityType {
 		return EquipPairs.getDefaultPairExcluding(this._index, playerEquipType)[0]
 	}

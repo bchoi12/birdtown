@@ -164,7 +164,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 						transforms: {
 							translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1) },
 						},
-						materialType: i % 2 === 1 ? MaterialType.CRATE_YELLOW : MaterialType.CRATE_RED,
+						materialType: i % 2 === 1 ? MaterialType.CRATE_YELLOW : this.outerMaterial(),
 					}
 				});
 			}
@@ -185,6 +185,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 		}
 	}
 
+	abstract outerMaterial() : MaterialType;
 	protected open() : void {
 		this.clearInteractable();
 		this._opened = true;

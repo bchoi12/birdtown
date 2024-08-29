@@ -28,6 +28,8 @@ export class HealthCrate extends Crate {
 		})
 	}
 
+	override outerMaterial() : MaterialType { return MaterialType.CRATE_RED; }
+
 	amount() : number { return 10; }
 
 	override setInteractableWith(entity : Entity, interactable : boolean) : void {
