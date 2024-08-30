@@ -6,7 +6,7 @@ export namespace MediaGlobals {
 	export const distanceModel = "linear";
 	export const refDistance = 10;
 	export const maxDistance = 40;
-	export const rolloffFactor = 2.5;
+	export const rolloffFactor = 2.2;
 
 	export const gameOptions : BABYLON.ISoundOptions = {
 	    distanceModel: distanceModel,

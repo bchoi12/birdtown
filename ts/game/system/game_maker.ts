@@ -245,6 +245,8 @@ export class GameMaker extends SystemBase implements System {
 			break;
 		case GameState.LOAD:
 			this._round++;
+
+			// TODO: use client config to handle connects mid-game
 			game.tablets().execute<Tablet>((tablet : Tablet) => {
 				tablet.resetRound();
 				if (this._config.hasLives()) {

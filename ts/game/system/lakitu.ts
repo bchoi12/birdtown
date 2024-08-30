@@ -126,20 +126,17 @@ export class Lakitu extends SystemBase implements System {
 	private targetWinner() : boolean {
 		const winnerId = game.controller().winnerId();
 		if (this.hasTargetEntity() && this.targetEntity().id() === winnerId) {
-			console.log("viewing " + winnerId);
 			return true;
 		}
 		const [winner, hasWinner] = game.entities().getEntity(winnerId);
 		if (!hasWinner) {
-			console.log("cant find " + winnerId);
 			return false;
 		}
-		let panner = this._panners.get(OffsetType.CAMERA);
-		// TODO: might be slightly off...
-		let offset = Vec3.fromBabylon3(this._camera.position).sub(winner.profile().pos());
+		let panner = this._panners.get(OffsetType.ANCHOR);
+		let offset = Vec3.fromBabylon3(this._anchor).sub(winner.profile().pos());
 		panner.panFrom(offset, {
-			goal: Lakitu._offsets.get(OffsetType.CAMERA),
-			millis: Lakitu._panTime / 2,
+			goal: Lakitu._offsets.get(OffsetType.ANCHOR),
+			millis: 2 * Lakitu._panTime,
 			interpType: InterpType.NEGATIVE_SQUARE,
 		});
 		this.setTargetEntity(winner);
@@ -201,7 +198,7 @@ export class Lakitu extends SystemBase implements System {
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
-		const millis = stepData.millis;
+		const millis = stepData.realMillis;
 
 		this._panners.forEach((panner : Panner, offsetType : OffsetType) => {
 			if (panner.update(millis) && offsetType === OffsetType.CAMERA) {
@@ -230,7 +227,7 @@ export class Lakitu extends SystemBase implements System {
 
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
-		const millis = stepData.millis;
+		const millis = stepData.realMillis;
 
 		switch (game.controller().gameState()) {
 		case GameState.LOAD:
@@ -254,6 +251,10 @@ export class Lakitu extends SystemBase implements System {
 				}
 				if (!this.hasTargetEntity()) {
 					this.setTargetEntity(this._players.getHead());
+				} else if (game.playerStates().hasPlayerState(this.targetEntity().clientId())) {
+					if (game.playerState(this.targetEntity().clientId()).role() !== PlayerRole.GAMING) {
+						this.targetPlane();
+					}
 				}
 
 				if (game.keys().getKey(KeyType.LEFT).pressed()) {

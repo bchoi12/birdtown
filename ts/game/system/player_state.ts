@@ -34,11 +34,13 @@ export class PlayerState extends ClientSystem implements System {
 	];
 
 	private static readonly _lastDamageTime = 10000;
+	private static readonly _planeSpawnTime = 7000;
 	private static readonly _respawnTime = 1500;
 
 	private _targetId : number;
 	private _role : PlayerRole;
 
+	private _spawnTimer : Timer;
 	private _respawnTimer : Timer;
 
 	constructor(clientId : number) {
@@ -46,6 +48,9 @@ export class PlayerState extends ClientSystem implements System {
 
 		this._targetId = 0;
 		this._role = PlayerRole.UNKNOWN;
+		this._spawnTimer = this.newTimer({
+			canInterrupt: true,
+		});
 		this._respawnTimer = this.newTimer({
 			canInterrupt: false,
 		});
@@ -87,6 +92,7 @@ export class PlayerState extends ClientSystem implements System {
 	}
 
 	role() : PlayerRole { return this._role; }
+	inGame() : boolean { return this._role === PlayerRole.SPAWNING || this._role === PlayerRole.GAMING; }
 	setRole(role : PlayerRole) : void {
 		if (this._role === role) {
 			return;
@@ -124,6 +130,7 @@ export class PlayerState extends ClientSystem implements System {
 			player.setState(GameObjectState.DEACTIVATED);
 			break;
     	case PlayerRole.SPAWNING:
+    		this._spawnTimer.start(PlayerState._planeSpawnTime);
     		player.setState(GameObjectState.DEACTIVATED);
     		break;
 		case PlayerRole.SPECTATING:
@@ -134,6 +141,7 @@ export class PlayerState extends ClientSystem implements System {
 			}
     		break;   		
     	case PlayerRole.GAMING:
+			this._spawnTimer.reset();
 			game.level().spawnPlayer(player);
 			player.setState(GameObjectState.NORMAL);
    			break;
@@ -212,11 +220,6 @@ export class PlayerState extends ClientSystem implements System {
 					|| game.controller().gameMode() === GameMode.PRACTICE)) {
 				let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
 					clientId: this.clientId(),
-					associationInit: {
-						associations: new Map([
-							[AssociationType.TEAM, 1 + (this.clientId() % 2)],
-						]),
-					},
 					profileInit: {
 		    			pos: game.level().defaultSpawn(),
 					},
@@ -254,15 +257,8 @@ export class PlayerState extends ClientSystem implements System {
 
 		// Allow player to spawn by pressing a key
 		if (this.role() === PlayerRole.SPAWNING && game.controller().gameState() === GameState.GAME) {
-			if (this.anyKey(PlayerState._spawnKeys, KeyState.PRESSED)) {
+			if (this.anyKey(PlayerState._spawnKeys, KeyState.PRESSED) || this._spawnTimer.done()) {
 				this.setRole(PlayerRole.GAMING);
-			}
-
-			// Show tooltip if we can spawn
-			if (this.clientIdMatches()) {
-				ui.showTooltip(TooltipType.SPAWN, {
-					ttl: 100,
-				});
 			}
 		}
 	}
@@ -295,6 +291,21 @@ export class PlayerState extends ClientSystem implements System {
 				});	
 				break;
 			}
+		}
+	}
+
+	override preRender() : void {
+		super.preRender();
+
+		if (!this.clientIdMatches()) {
+			return;
+		}
+
+		// Show tooltip if we can spawn
+		if (this.role() === PlayerRole.SPAWNING && game.controller().gameState() === GameState.GAME) {
+			ui.showTooltip(TooltipType.SPAWN, {
+				ttl: 100,
+			});
 		}
 	}
 }

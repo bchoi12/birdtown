@@ -102,7 +102,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			if (names.length !== 1) {
 				return "";
 			}
-			return "Spectating " + names[0];
+			return KeyNames.boxed(settings.leftKeyCode) + "/" + KeyNames.boxed(settings.rightKeyCode) + " Spectating " + names[0];
 		case TooltipType.START_GAME:
 			if (!game.isHost()) {
 				return "Only the host can start a game";
