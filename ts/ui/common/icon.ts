@@ -49,6 +49,7 @@ export enum IconType {
 	ROCKING_HORSE,
 	ROLL,
 	TELEKENESIS,
+	SPRAY,
 }
 
 export namespace Icon {
@@ -83,6 +84,7 @@ export namespace Icon {
 		[IconType.SHARE, "share"],
 		[IconType.SKILLET, "skillet"],
 		[IconType.SKULL, "skull"],
+		[IconType.SPRAY, "household_supplies"],
 		[IconType.TELEKENESIS, "move_selection_right"],
 		[IconType.TROPHY, "trophy"],
 		[IconType.VOLUME_HIGH, "volume_up"],
@@ -116,6 +118,7 @@ export namespace Icon {
 		[EntityType.CLAW, IconType.DASH],
 		[EntityType.GATLING, IconType.GATLING],
 		[EntityType.PISTOL, IconType.ROCKING_HORSE],
+		[EntityType.SHOTGUN, IconType.SPRAY],
 		[EntityType.SNIPER, IconType.BOLT],
 	]);
 

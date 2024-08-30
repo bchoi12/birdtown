@@ -78,13 +78,11 @@ export class Gatling extends Weapon {
 	override weaponConfig() : WeaponConfig { return Gatling._config; }
 
 	override shoot(stepData : StepData) : void {
-		const millis = stepData.millis;
-
 		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = this.inputDir().clone().normalize();
 
 		let vel = unitDir.clone().scale(0.8);
-		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.PELLET, {
+		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.CALIBER, {
 			ttl: Gatling._projectileTTL,
 			associationInit: {
 				owner: this.owner(),
@@ -101,7 +99,7 @@ export class Gatling extends Weapon {
 			},
 		});
 
-		let recoilVel = unitDir.clone().negate().mult(Gatling._recoilVel).scale(millis / 1000);
+		let recoilVel = unitDir.clone().negate().mult(Gatling._recoilVel).scale(16 / 1000);
 		let ownerProfile = this.owner().profile();
 		if (Math.sign(recoilVel.x) === Math.sign(ownerProfile.vel().x)) {
 			recoilVel.x *= Math.abs(ownerProfile.vel().x / Gatling._maxSpeed.x);
@@ -137,7 +135,7 @@ export class Gatling extends Weapon {
 		counts.set(CounterType.BULLETS, {
 			percentGone: 1 - this.bursts() / Gatling._bursts,
 			text: "" + this.bursts(),
-			color: ColorFactory.pelletYellow.toString(),
+			color: ColorFactory.caliberYellow.toString(),
 		});
 		return counts;
 	}

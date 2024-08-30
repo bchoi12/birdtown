@@ -28,6 +28,7 @@ import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Claw } from 'game/entity/equip/weapon/claw'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
 import { Pistol } from 'game/entity/equip/weapon/pistol'
+import { Shotgun } from 'game/entity/equip/weapon/shotgun'
 import { Sniper } from 'game/entity/equip/weapon/sniper'
 import { BlackHole } from 'game/entity/explosion/black_hole'
 import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
@@ -45,6 +46,7 @@ import { ParticleSpark } from 'game/entity/particle/particle_spark'
 import { ParticleSweat } from 'game/entity/particle/particle_sweat'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Bullet } from 'game/entity/projectile/bullet'
+import { Caliber } from 'game/entity/projectile/caliber'
 import { Pellet } from 'game/entity/projectile/pellet'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Star } from 'game/entity/projectile/star'
@@ -70,6 +72,7 @@ export namespace EntityFactory {
 		[EntityType.BOOBY_HAIR, (options : EntityOptions) => { return new BoobyHair(options); }],
 		[EntityType.BUBBLE, (options : EntityOptions) => { return new Bubble(options); }],
 		[EntityType.BULLET, (options : EntityOptions) => { return new Bullet(options); }],
+		[EntityType.CALIBER, (options : EntityOptions) => { return new Caliber(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
 		[EntityType.CLAW, (options : EntityOptions) => { return new Claw(options); }],
@@ -96,6 +99,7 @@ export namespace EntityFactory {
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
 		[EntityType.ROCKET_EXPLOSION, (options : EntityOptions) => { return new RocketExplosion(options); }],
 		[EntityType.SCOUTER, (options : EntityOptions) => { return new Scouter(options); }],
+		[EntityType.SHOTGUN, (options : EntityOptions) => { return new Shotgun(options); }],
 		[EntityType.SIGN_CONTROLS, (options : EntityOptions) => { return new SignControls(options); }],
 		[EntityType.SIGN_START_GAME, (options : EntityOptions) => { return new SignStartGame(options); }],
 		[EntityType.SNIPER, (options : EntityOptions) => { return new Sniper(options); }],
@@ -115,12 +119,13 @@ export namespace EntityFactory {
 		[EntityType.BILLBOARD, { x: 8, y: 6.4, z: 0.5 }],
 		[EntityType.BOLT, { x: 0.36, y: 0.12, z : 0.12 }],
 		[EntityType.BULLET, { x: 0.36, y: 0.12, z : 0.12 }],
+		[EntityType.CALIBER, { x: 0.5, y: 0.15, z : 0.15 }],
 		[EntityType.PARTICLE_CUBE, { x: 1, y: 1, z: 1}],
 		[EntityType.PARTICLE_ENERGY_CUBE, { x: 1, y: 1, z: 1}],
 		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],
 		[EntityType.PARTICLE_SPARK, { x: 1, y: 1, z: 1 }],
 		[EntityType.PARTICLE_SWEAT, { x: 1, y: 1, z: 1 }],
-		[EntityType.PELLET, { x: 0.5, y: 0.15, z : 0.15 }],
+		[EntityType.PELLET, { x: 0.2, y: 0.2, z : 0.2 }],
 		[EntityType.PERGOLA, { x: 4, y: 4, z: 4 }],
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],

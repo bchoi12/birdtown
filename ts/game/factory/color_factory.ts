@@ -43,13 +43,15 @@ export namespace ColorFactory {
 	export const boltLightOrange = HexColor.fromHex(0xffe6d4);
 	export const boltExplosion = HexColor.fromHex(0xffc361);
 
+	export const caliberYellow = HexColor.fromHex(0xffef61);
+
 	export const cowboyBrown = HexColor.fromHex(0x966336);
 
 	export const crateBlue = HexColor.fromHex(0x3c5ffa);
 	export const crateRed = HexColor.fromHex(0xfa493c);
 	export const crateYellow = HexColor.fromHex(0xf6ff56);
 
-	export const pelletYellow = HexColor.fromHex(0xffef61);
+	export const pelletYellow = HexColor.fromHex(0xffdb66);
 
 	export const playerRed = HexColor.fromHex(0xfc1f0f);
 	export const playerOrange = HexColor.fromHex(0xfcb10f);

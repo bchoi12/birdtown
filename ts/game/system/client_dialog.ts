@@ -29,8 +29,8 @@ export class ClientDialog extends ClientSideSystem implements System {
 
 		let loadout = this.message(DialogType.LOADOUT);
 		const pair = EquipPairs.random();
-		loadout.setEquipType(EntityType.GATLING);
-		loadout.setAltEquipType(EntityType.HEADPHONES);
+		loadout.setEquipType(EntityType.SHOTGUN);
+		loadout.setAltEquipType(EntityType.COWBOY_HAT);
 		loadout.setPlayerType(ModifierPlayerType.NONE);
 	}
 
