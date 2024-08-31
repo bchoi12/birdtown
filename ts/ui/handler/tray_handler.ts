@@ -9,6 +9,7 @@ import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
+import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
 import { VoiceWrapper } from 'ui/wrapper/button/voice_wrapper'
 
 import { Optional } from 'util/optional'
@@ -96,16 +97,9 @@ export class TrayHandler extends HandlerBase implements Handler {
 		});
 		this._buttonsElm.appendChild(menu.elm())
 
-		let share = new ButtonWrapper();
-		share.setIcon(IconType.SHARE);
+		let share = new ShareWrapper();
 		share.addOnMouseEnter(() => {
-			this.showDescription("Copy invite URL to clipboard");
-		});
-		share.addOnClick(() => {
-			navigator.clipboard.writeText(window.location.href + "?r=" + game.netcode().room());
-			ui.showTooltip(TooltipType.COPIED_URL, {
-				ttl: 2000,
-			})
+			this.showDescription("Copy invite link to clipboard");
 		});
 		this._buttonsElm.appendChild(share.elm())
 		

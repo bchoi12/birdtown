@@ -10,9 +10,11 @@ import { FullscreenSetting } from 'settings/api'
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 import { Html } from 'ui/html'
+import { IconType } from 'ui/common/icon'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { ClientNameWrapper } from 'ui/wrapper/client_name_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
+import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
 import { ClientDialogWrapper } from 'ui/wrapper/dialog/client_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
@@ -28,6 +30,11 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		okButton.addOnClick(() => {
 			this.nextPage();
 		});
+
+		let shareWrapper = new ShareWrapper();
+		shareWrapper.setText("[Copy invite link to clipboard]");
+		shareWrapper.elm().style.float = "left";
+		this.footerElm().appendChild(shareWrapper.elm());
 
 		this.addOnSubmit(() => {
 			ui.applySettings();

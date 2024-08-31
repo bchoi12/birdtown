@@ -184,6 +184,10 @@ export namespace MaterialFactory {
 		let mat = new BABYLON.StandardMaterial(MaterialType[type], game.scene());
 		fn(mat);
 
+		if (!mat.needDepthPrePass) {
+			mat.freeze();
+		}
+
 		if (materials.has(type)) {
 			console.error("Warning: overwriting material", MaterialType[type]);
 		}
@@ -193,6 +197,9 @@ export namespace MaterialFactory {
 	function customMaterial(type : MaterialType, fn : MaterialFn<CustomMaterial>) : void {
 		let mat = new CustomMaterial(MaterialType[type], game.scene());
 		fn(mat);
+		if (!mat.needDepthPrePass) {
+			mat.freeze();
+		}
 
 		if (materials.has(type)) {
 			console.error("Warning: overwriting material", MaterialType[type]);

@@ -140,7 +140,6 @@ export class Lakitu extends SystemBase implements System {
 			interpType: InterpType.NEGATIVE_SQUARE,
 		});
 		this.setTargetEntity(winner);
-		console.log("pan to " + winnerId, offset);
 
 		return true;
 	}

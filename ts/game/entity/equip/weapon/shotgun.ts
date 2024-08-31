@@ -24,8 +24,8 @@ export class Shotgun extends Weapon {
 	private static readonly _spreadDeg = 15;
 	private static readonly _config = {
 		times: new Map([
-			[WeaponState.FIRING, 180],
-			[WeaponState.RELOADING, 900],
+			[WeaponState.FIRING, 200],
+			[WeaponState.RELOADING, 1000],
 		]),
 		bursts: Shotgun._bursts,
 	};

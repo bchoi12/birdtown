@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 
-import { versionString } from 'index'
+import { UiGlobals } from 'global/ui_globals'
 
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'
@@ -59,13 +59,13 @@ export class LoginHandler extends HandlerBase implements Handler {
 	override onEnable() : void {
 		super.onEnable();
 
-		this._legendElm.textContent = versionString;
+		this._legendElm.textContent = UiGlobals.versionString;
 
 		this.showLogin();
 
 		const urlParams = new URLSearchParams(window.location.search);
-		if (urlParams.has("r")) {
-			const room = urlParams.get("r");
+		if (urlParams.has(UiGlobals.roomParam)) {
+			const room = urlParams.get(UiGlobals.roomParam);
 			if (room.length > 0) {
 				this._roomInputElm.value = room;
 				this.startGame(room, /*isHost=*/false);

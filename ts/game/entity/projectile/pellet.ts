@@ -95,27 +95,24 @@ export class Pellet extends Projectile {
 	}
 
 	override onHit() : void {
-
-		for (let i = 0; i < 2; ++i) {
-			this.addEntity(EntityType.PARTICLE_CUBE, {
-				offline: true,
-				ttl: 1000,
-				profileInit: {
-					pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.1, 0.1), y: Fns.randomRange(-0.1, 0.1), }),
-					vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
-						x: Fns.randomRange(0.05, 0.1),
-						y: Fns.randomRange(0.05, 0.1),
-					}),
-					scaling: { x: 0.1, y: 0.1 },
+		this.addEntity(EntityType.PARTICLE_CUBE, {
+			offline: true,
+			ttl: 600,
+			profileInit: {
+				pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.1, 0.1), y: Fns.randomRange(-0.1, 0.1), }),
+				vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
+					x: Fns.randomRange(0.05, 0.1),
+					y: Fns.randomRange(0.05, 0.1),
+				}),
+				scaling: { x: 0.1, y: 0.1 },
+			},
+			modelInit: {
+				transforms: {
+					translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1) },
 				},
-				modelInit: {
-					transforms: {
-						translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1) },
-					},
-					materialType: MaterialType.PELLET_YELLOW,
-				}
-			});
-		}
+				materialType: MaterialType.PELLET_YELLOW,
+			}
+		});
 		this.delete();
 	}
 
