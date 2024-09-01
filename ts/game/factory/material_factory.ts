@@ -1,5 +1,6 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import { CustomMaterial } from '@babylonjs/materials/custom/customMaterial'
+import { GradientMaterial } from '@babylonjs/materials/Gradient'
 
 import { game } from 'game'
 import { AttributeType } from 'game/component/api'
@@ -125,6 +126,28 @@ export namespace MaterialFactory {
 			mat.emissiveColor = ColorFactory.bazookaRed.toBabylonColor3();
 		});
 
+		gradientMaterial(MaterialType.SKY_DAY, (mat : GradientMaterial) => {
+		    mat.topColor = ColorFactory.skyDayTop.toBabylonColor3();
+		    mat.bottomColor = ColorFactory.skyDayBottom.toBabylonColor3();
+
+			mat.backFaceCulling = false;
+		    mat.offset = 0;
+		    mat.smoothness = 1;
+		    mat.scale = 0.03
+		    mat.disableLighting = true;
+		})
+
+		gradientMaterial(MaterialType.SKY_EVENING, (mat : GradientMaterial) => {
+		    mat.topColor = ColorFactory.skyEveningTop.toBabylonColor3();
+		    mat.bottomColor = ColorFactory.skyEveningBottom.toBabylonColor3();
+
+			mat.backFaceCulling = false;
+		    mat.offset = 0;
+		    mat.smoothness = 1;
+		    mat.scale = 0.03
+		    mat.disableLighting = true;
+		})
+
 		standardMaterial(MaterialType.SPARK_BLUE, (mat : BABYLON.StandardMaterial) => {
 			mat.alpha = 0.7;
 			mat.disableLighting = true;
@@ -196,6 +219,19 @@ export namespace MaterialFactory {
 
 	function customMaterial(type : MaterialType, fn : MaterialFn<CustomMaterial>) : void {
 		let mat = new CustomMaterial(MaterialType[type], game.scene());
+		fn(mat);
+		if (!mat.needDepthPrePass) {
+			mat.freeze();
+		}
+
+		if (materials.has(type)) {
+			console.error("Warning: overwriting material", MaterialType[type]);
+		}
+		materials.set(type, mat);
+	}
+
+	function gradientMaterial(type : MaterialType, fn : MaterialFn<GradientMaterial>) : void {
+		let mat = new GradientMaterial(MaterialType[type], game.scene());
 		fn(mat);
 		if (!mat.needDepthPrePass) {
 			mat.freeze();

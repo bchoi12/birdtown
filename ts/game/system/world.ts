@@ -1,8 +1,11 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
-import { SkyMaterial } from '@babylonjs/materials/Sky'
+import { GradientMaterial } from '@babylonjs/materials/Gradient'
 
 import { game } from 'game'	
 import { Entity } from 'game/entity'
+import { GameData } from 'game/game_data'
+import { MaterialType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { CloudGenerator } from 'game/system/generator/cloud_generator'
 import { System, SystemBase } from 'game/system'
@@ -12,6 +15,25 @@ enum LayerType {
 	UNKNOWN,
 	GLOW,
 	HIGHLIGHT,
+}
+
+// TODO: make public
+enum TimeType {
+	UNKNOWN,
+
+	DAY,
+	EVENING,
+}
+
+type TimeSetting = {
+	skyMaterial : MaterialType;
+	lightDir : BABYLON.Vector3;
+
+	hemisphericIntensity : number;
+	directionalIntensity : number;
+
+	hemisphericDiffuse : BABYLON.Color3;
+	hemisphericBottomColor : BABYLON.Color3;
 }
 
 export type HighlightParams = {
@@ -24,9 +46,30 @@ export type GlowParams = {
 
 export class World extends SystemBase implements System {
 
+	private static readonly _timeSettings = new Map<TimeType, TimeSetting>([
+		[TimeType.DAY, {
+			skyMaterial: MaterialType.SKY_DAY,
+			lightDir: new BABYLON.Vector3(1, -3, -4).normalize(),
+			hemisphericIntensity: 0.7,
+			directionalIntensity: 1.3,
+			hemisphericDiffuse: new BABYLON.Color3(1, 1, 1),
+			hemisphericBottomColor: new BABYLON.Color3(0.7, 0.7, 0.7),
+		}],
+		[TimeType.EVENING, {
+			skyMaterial: MaterialType.SKY_EVENING,
+			lightDir: new BABYLON.Vector3(4, -1, -6).normalize(),
+			hemisphericIntensity: 0.5,
+			directionalIntensity: 1,
+			hemisphericDiffuse: ColorFactory.skyEveningTop.toBabylonColor3(),
+			hemisphericBottomColor: ColorFactory.skyEveningBottom.toBabylonColor3(),
+		}],
+	]);
+
 	private _scene : BABYLON.Scene;
 	private _layers : Map<LayerType, BABYLON.EffectLayer>;
 
+	private _currentTime : TimeType;
+	private _desiredTime : TimeType;
 	private _lightDir : BABYLON.Vector3;
 	private _hemisphericLight : BABYLON.HemisphericLight;
 	private _directionalLight : BABYLON.DirectionalLight;
@@ -49,12 +92,15 @@ export class World extends SystemBase implements System {
         	mainTextureRatio: 4,
 		}));
 
+		this._currentTime = TimeType.UNKNOWN;
+		this._desiredTime = TimeType.UNKNOWN;
+
 	    this._lightDir = new BABYLON.Vector3(1, -3, -4);
 	    this._lightDir.normalize();
 	    this._hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", this._lightDir.scale(-1), this._scene);
 	    this._hemisphericLight.diffuse = new BABYLON.Color3(1, 1, 1);
 	    this._hemisphericLight.specular = new BABYLON.Color3(1, 1, 1);
-	    this._hemisphericLight.groundColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+	    this._hemisphericLight.groundColor = new BABYLON.Color3(0.7, 0.7, 0.7);
 	    this._hemisphericLight.intensity = 0.7;
 
 	    this._directionalLight = new BABYLON.DirectionalLight("directionalLight", this._lightDir, this._scene);
@@ -62,24 +108,35 @@ export class World extends SystemBase implements System {
 	    this._directionalLight.intensity = 1.3;
 	    this._directionalLight.autoUpdateExtends = false;
 	    this._directionalLight.autoCalcShadowZBounds = false;
-		this._shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight, /*useFullFloatFirst=*/true);
+		this._shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight);
 
-		this._skyBox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 500.0 }, this._scene);
-		this._skyBox.position.y = -150;
-		let skyMaterial = new SkyMaterial("skyMaterial", this._scene);
-		skyMaterial.backFaceCulling = false;
+		this._skyBox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 200.0 }, this._scene);
+	    /*
+	    // Old sky settings
 		skyMaterial.inclination = 0;
 		skyMaterial.luminance = 0.9;
 		skyMaterial.turbidity = 2.5;
-		this._skyBox.material = skyMaterial;
+		*/
 
 		this._cloudGenerator = this.addSubSystem<CloudGenerator>(SystemType.CLOUD_GENERATOR, new CloudGenerator());
+
+		this.addProp<TimeType>({
+			has: () => { return this._desiredTime !== TimeType.UNKNOWN; },
+			export: () => { return this._desiredTime; },
+			import: (obj : TimeType) => { this.setTime(obj); },
+			options: {
+				filters: GameData.tcpFilters,
+			},
+		});
 	}
 
 	override initialize() : void {
 		super.initialize();
 
 		MaterialFactory.initialize();
+		if (this.isSource()) {
+			this.setTime(TimeType.DAY);
+		}
 
 		this._shadowGenerator.bias = 1.5e-3;
 		this._shadowGenerator.transparencyShadow = true;
@@ -88,6 +145,28 @@ export class World extends SystemBase implements System {
 		this._shadowGenerator.usePercentageCloserFiltering = true;
 		// TODO: option for shadow quality
 		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
+	}
+
+	setTime(type : TimeType) : void {
+		if (!World._timeSettings.has(type)) {
+			return;
+		}
+		if (this._desiredTime === type) {
+			return;
+		}
+		this._desiredTime = type;
+	}
+	applyTime() : void {
+		const settings = World._timeSettings.get(this._desiredTime);
+
+		this._skyBox.material = MaterialFactory.material(settings.skyMaterial);
+		this._directionalLight.direction.copyFrom(settings.lightDir);
+		this._directionalLight.intensity = settings.directionalIntensity;
+		this._hemisphericLight.intensity = settings.hemisphericIntensity;
+	    this._hemisphericLight.diffuse = settings.hemisphericDiffuse;
+	    this._hemisphericLight.groundColor = settings.hemisphericBottomColor;
+
+	    this._currentTime = this._desiredTime;
 	}
 
 	renderShadows(mesh : BABYLON.AbstractMesh) : void {
@@ -164,6 +243,10 @@ export class World extends SystemBase implements System {
 
 	override preRender() : void {
 		super.preRender();
+
+		if (this._currentTime !== this._desiredTime) {
+			this.applyTime();
+		}
 
 		const dist = game.lakitu().camera().position.subtract(game.lakitu().target()).length();
 		this._directionalLight.shadowMinZ = 0;
