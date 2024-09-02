@@ -3,7 +3,7 @@ import { settings } from 'settings'
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 import { KeyNames } from 'ui/common/key_names'
-import { LabelButtonWrapper } from 'ui/wrapper/label_button_wrapper'
+import { LabelButtonWrapper } from 'ui/wrapper/label/label_button_wrapper'
 
 export type KeyBindWrapperOptions = {
 	name : string;

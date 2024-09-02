@@ -66,7 +66,7 @@ export class Caliber extends Projectile {
 		}));
 	}
 
-	override hitDamage() : number { return 8; }
+	override hitDamage() : number { return 7; }
 
 	override onHit() : void {
 		for (let i = 0; i < 3; ++i) {

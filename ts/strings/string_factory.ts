@@ -43,7 +43,7 @@ export namespace StringFactory {
 		[EntityType.JETPACK, ParamString.of("Lift yourself into the air")],
 		[EntityType.PISTOL, ParamString.of("Fire a single bullet")],
 		[EntityType.SCOUTER, ParamString.of("Hold to look ahead and charge your weapon")],
-		[EntityType.SHOTGUN, ParamString.of("Blasts two quick recoiling spreads")],
+		[EntityType.SHOTGUN, ParamString.of("Sprays two quick recoiling blasts")],
 		[EntityType.SNIPER, ParamString.of("Fire a short burst of high-energy bolts")],
 	]);
 

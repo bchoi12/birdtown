@@ -11,6 +11,7 @@ import { ClientDialog } from 'game/system/client_dialog'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
+import { ClientConfig } from 'game/util/client_config'
 
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType} from 'message/game_message'
@@ -38,6 +39,7 @@ export class GameMaker extends SystemBase implements System {
 	]);
 
 	private _config : GameConfigMessage;
+	private _clientConfig : ClientConfig;
 	private _round : number;
 	private _winners : Array<Tablet>;
 	private _winnerId : number;
@@ -47,6 +49,7 @@ export class GameMaker extends SystemBase implements System {
 		super(SystemType.GAME_MAKER);
 
 		this._config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
+		this._clientConfig = ClientConfig.empty();
 		this._round = 0;
 		this._winners = new Array();
 		this._winnerId = 0;
@@ -106,16 +109,17 @@ export class GameMaker extends SystemBase implements System {
 	entityLimit(type : EntityType) : number {
 		switch (type) {
 		case EntityType.HEALTH_CRATE:
-			return game.playerStates().numSpawnedPlayers() * GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawn());
+			return this._clientConfig.numPlayers() * GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawn());
 		case EntityType.WEAPON_CRATE:
-			return game.playerStates().numSpawnedPlayers() * GameMaker._limitPerPlayer.get(this._config.getWeaponCrateSpawn());
+			return this._clientConfig.numPlayers() * GameMaker._limitPerPlayer.get(this._config.getWeaponCrateSpawn());
 		default:
 			return Infinity;
 		}
 	}
 
-	setConfig(config : GameConfigMessage) : boolean {
+	setConfig(config : GameConfigMessage, clientConfig : ClientConfig) : boolean {
 		this._config = config;
+		this._clientConfig = clientConfig;
 
 		if (!this._config.valid()) {
 			console.error("Error: invalid config", this._config);
@@ -133,13 +137,14 @@ export class GameMaker extends SystemBase implements System {
 
 		if (isLocalhost()) {
 			console.log("%s: config is", this.name(), this._config.dataMap());
+			console.log("%s: client config is ", this.name(), this._clientConfig.clientMap());
 		}
 		return true;
 	}
 
 	static canStart(mode : GameMode) : [boolean, string] {
 		const config = GameConfigMessage.defaultConfig(mode);
-		if (config.hasPlayersMin() && game.tablets().numSetup() < config.getPlayersMin()) {
+		if (game.tablets().numSetup() < config.getPlayersMinOr(1)) {
 			return [false, "Need " + config.getPlayersMin() + " players for this game mode, but only " + game.tablets().numSetup() + " player(s) are ready!"];
 		}
 		return [true, ""];
@@ -149,7 +154,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.LOAD:
 		case GameState.SETUP:
 		case GameState.GAME:
-			if (this._config.hasPlayersMin() && game.playerStates().numSpawnedPlayers() < this._config.getPlayersMin()) {
+			if (this._clientConfig.numPlayers() < this._config.getPlayersMinOr(1)) {
 				return [false, "Not enough players left in the game"];
 			}
 			break;
@@ -184,7 +189,7 @@ export class GameMaker extends SystemBase implements System {
 
 			if (this._config.hasLives()) {
 				this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
-					return !tablet.outOfLives();
+					return this._clientConfig.isPlayer(tablet.clientId()) && !tablet.outOfLives();
 				});
 				if (this._winners.length <= 1) {
 					this._winnerId = this._winners[0].entityId();
@@ -192,7 +197,7 @@ export class GameMaker extends SystemBase implements System {
 				}
 			} else if (this._config.hasPoints()) {
 				this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
-					return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints();
+					return this._clientConfig.isPlayer(tablet.clientId()) && tablet.getInfo(InfoType.SCORE) >= this._config.getPoints();
 				});
 				if (this._winners.length >= 1) {
 					this._winnerId = this._winners[0].entityId();
@@ -246,17 +251,20 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.LOAD:
 			this._round++;
 
-			// TODO: use client config to handle connects mid-game
-			game.tablets().execute<Tablet>((tablet : Tablet) => {
+			game.tablets().executeIf<Tablet>((tablet : Tablet) => {
 				tablet.resetRound();
 				if (this._config.hasLives()) {
 					tablet.setInfo(InfoType.LIVES, this._config.getLives());
 				} else {
 					tablet.clearInfo(InfoType.LIVES);
 				}
+			}, (tablet : Tablet) => {
+				return this._clientConfig.isPlayer(tablet.clientId());
 			});
-			game.playerStates().execute((playerState : PlayerState) => {
-				playerState.setRole(PlayerRole.WAITING);
+			game.playerStates().executeIf((playerState : PlayerState) => {
+				playerState.setRole(this._clientConfig.role(playerState.clientId()));
+			}, (playerState : PlayerState) => {
+				return this._clientConfig.isPlayer(playerState.clientId());
 			});
 			game.level().loadLevel({
 				type: LevelType.BIRDTOWN,

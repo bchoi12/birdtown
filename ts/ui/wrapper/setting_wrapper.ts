@@ -1,7 +1,7 @@
 
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
-import { LabelButtonWrapper } from 'ui/wrapper/label_button_wrapper'
+import { LabelButtonWrapper } from 'ui/wrapper/label/label_button_wrapper'
 
 export type SettingWrapperOptions<T extends number> = {
 	name: string;

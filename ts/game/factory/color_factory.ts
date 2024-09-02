@@ -71,7 +71,7 @@ export namespace ColorFactory {
 	export const signGray = HexColor.fromHex(0x8b8b8b);
 
 	export const skyDayTop = HexColor.fromHex(0xdef1ff);
-	export const skyDayBottom = HexColor.fromHex(0xf0fbff);
+	export const skyDayBottom = HexColor.fromHex(0xf3fbff);
 
 	export const skyEveningTop = HexColor.fromHex(0xffd4b5);
 	export const skyEveningBottom = HexColor.fromHex(0xffecd4);

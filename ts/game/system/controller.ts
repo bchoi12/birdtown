@@ -8,6 +8,7 @@ import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 import { GameMaker } from 'game/system/game_maker'
+import { ClientConfig } from 'game/util/client_config'
 
 import { GameConfigMessage } from 'message/game_config_message'
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -63,12 +64,12 @@ export class Controller extends SystemBase implements System {
 	entityLimit(type : EntityType) : number { return this._gameMaker.entityLimit(type); }
 
 	gameMode() : GameMode { return this._gameMaker.mode(); }
-	startGame(config : GameConfigMessage) {
+	startGame(config : GameConfigMessage, clientConfig : ClientConfig) {
 		if (this.gameState() !== GameState.FREE) {
 			console.error("Error: trying to start %s in state %s", GameMode[config.type()], GameState[this.gameState()]);
 			return;
 		}
-		if (this._gameMaker.setConfig(config)) {
+		if (this._gameMaker.setConfig(config, clientConfig)) {
 			this.setGameState(GameState.LOAD);
 		}
 	}

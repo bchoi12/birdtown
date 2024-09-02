@@ -2,7 +2,9 @@
 import { game } from 'game'
 import { GameMode } from 'game/api'
 import { FrequencyType } from 'game/entity/api'
+import { PlayerRole } from 'game/system/api'
 import { GameMaker } from 'game/system/game_maker'
+import { ClientConfig, ClientInfo } from 'game/util/client_config'
 
 import { GameConfigMessage } from 'message/game_config_message'
 
@@ -17,7 +19,7 @@ import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
-import { LabelNumberWrapper } from 'ui/wrapper/label_number_wrapper'
+import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
 import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
 
 export class StartGameDialogWrapper extends DialogWrapper {
@@ -47,7 +49,12 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.addOnSubmit(() => {
 			// TODO: show tooltip on error
 			if (this._configMsg !== null) {
-				game.controller().startGame(this._configMsg);
+				let clientConfig = ClientConfig.fromSetup();
+				clientConfig.clientMap().forEach((info : ClientInfo) => {
+					info.role = PlayerRole.WAITING;
+				});
+
+				game.controller().startGame(this._configMsg, clientConfig);
 			}
 		});
 	}

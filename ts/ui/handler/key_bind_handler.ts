@@ -6,7 +6,7 @@ import { UiMode } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
-import { KeyBindWrapper, KeyBindWrapperOptions } from 'ui/wrapper/key_bind_wrapper'
+import { KeyBindWrapper, KeyBindWrapperOptions } from 'ui/wrapper/label/key_bind_wrapper'
 
 export class KeyBindHandler extends HandlerBase implements Handler {
 	private _keyBindElm : HTMLElement;
