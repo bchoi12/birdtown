@@ -1,6 +1,7 @@
 
 import { game } from 'game'
 import { PlayerRole } from 'game/system/api'
+import { ClientDialog } from 'game/system/client_dialog'
 import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
 
@@ -40,7 +41,7 @@ export class ClientConfig {
 
 	addClient(id : number) : void {
 		this._clients.set(id, {
-			role: PlayerRole.SPECTATING,
+			role: PlayerRole.WAITING,
 			team: 0,
 			disconnected: false,
 		});
@@ -49,7 +50,7 @@ export class ClientConfig {
 	deleteClient(id : number) : void { this._clients.delete(id); }
 	clientMap() : Map<number, ClientInfo> { return this._clients; }
 
-	role(id : number) : PlayerRole { return this.hasClient(id) ? this._clients.get(id).role : PlayerRole.UNKNOWN; }
+	role(id : number) : PlayerRole { return this.hasClient(id) ? this._clients.get(id).role : PlayerRole.SPECTATING; }
 	setRole(id : number, role : PlayerRole) : void {
 		if (!this.validId(id) || role === PlayerRole.UNKNOWN) {
 			console.error("Error: failed to set role %s for %d", PlayerRole[role], id);
@@ -97,6 +98,9 @@ export class ClientConfig {
 	private tablet(id : number) : [Tablet, boolean] {
 		return [game.tablet(id), game.tablets().hasTablet(id)];
 	}
+	private clientDialog(id : number) : [ClientDialog, boolean] {
+		return [game.clientDialog(id), game.clientDialogs().hasClientDialog(id)];
+	}
 
 	// Can play
 	isPlayer(id : number) : boolean {
@@ -108,6 +112,17 @@ export class ClientConfig {
 		if (client.disconnected || client.role === PlayerRole.SPECTATING) {
 			return false;
 		}
+
+		if (!game.playerStates().hasPlayerState(id)) {
+			return false;
+		}
+		if (!game.tablets().hasTablet(id)) {
+			return false;
+		}
+		if (!game.clientDialogs().hasClientDialog(id)) {
+			return false;
+		}
+
 		return true;
 	}
 	numPlayers() : number {

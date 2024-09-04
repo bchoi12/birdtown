@@ -1,5 +1,6 @@
 
 import { game } from 'game'
+import { PlayerRole } from 'game/system/api'
 
 import { settings } from 'settings'
 
@@ -150,11 +151,24 @@ export class ChatHandler extends HandlerBase implements Handler {
 				}
 			}
 			break;
+		case "/role":
+			if (pieces.length !== 2) {
+				console.error("Usage: %s [clientId]", pieces[0]);
+			} else {
+				const clientId = Number(pieces[1]);
+				if (game.playerStates().hasPlayerState(clientId)) {
+					this.chat(PlayerRole[game.playerState(clientId).role()])
+				} else {
+					this.chat("Cannot find client " + clientId);
+				}
+			}
+			break;
 		case "/speed":
 			if (pieces.length !== 2) {
 				console.error("Usage: %s [Number]", pieces[0])
 			} else {
 				game.runner().setUpdateSpeed(Number(pieces[1]));
+				this.chat("Set speed to " + Number(pieces[1]));
 			}
 			break;
 		case "/stats":

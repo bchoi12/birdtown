@@ -86,6 +86,7 @@ export class Level extends SystemBase implements System {
 	}
 
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }
+	
 	spawnPlayer(player : Player) : void {
 		if (!this.isSource() && player.initialized()) {
 			player.respawn(player.profile().pos());

@@ -136,6 +136,11 @@ export class LoginHandler extends HandlerBase implements Handler {
 		    isHost: isHost,
 		    netcodeSuccess: () => {
 		    	console.log("Successfully initialized netcode");
+
+				const url = new URL(window.location.href);
+				url.searchParams.set(UiGlobals.roomParam, room);
+				window.history.replaceState(null, null, url);
+
 		    	this.disable();
 		    },
 		    netcodeError: () => {

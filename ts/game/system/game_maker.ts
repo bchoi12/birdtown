@@ -1,6 +1,7 @@
 
 import { game } from 'game'
 import { GameMode, GameState } from 'game/api'
+import { AssociationType } from 'game/component/api'
 import { EntityType, FrequencyType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
@@ -18,14 +19,16 @@ import { GameMessage, GameMessageType} from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
 
 import { ui } from 'ui'
-import { AnnouncementType, DialogType, InfoType } from 'ui/api'
+import { AnnouncementType, DialogType, FeedType, InfoType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
 export class GameMaker extends SystemBase implements System {
 
+	private static readonly _lastDamageTime = 10000;
 	private static readonly _endTimeLimit = 3000;
 	private static readonly _loadTimeLimit = 1500;
+	private static readonly _respawnTime = 3000;
 
 	private static readonly _timeLimitBuffer = new Map<GameState, number>([
 		[GameState.SETUP, 2000],
@@ -76,6 +79,18 @@ export class GameMaker extends SystemBase implements System {
 				filters: GameData.tcpFilters,
 			},
 		});
+	}
+
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		if (msg.type() !== GameMessageType.CLIENT_DISCONNECT) {
+			return;
+		}
+
+		if (this._clientConfig.hasClient(msg.getClientId())) {
+			this._clientConfig.setDisconnected(msg.getClientId(), true);
+		}
 	}
 
 	mode() : GameMode { return this._config.type(); }
@@ -141,7 +156,6 @@ export class GameMaker extends SystemBase implements System {
 		}
 		return true;
 	}
-
 	static canStart(mode : GameMode) : [boolean, string] {
 		const config = GameConfigMessage.defaultConfig(mode);
 		if (game.tablets().numSetup() < config.getPlayersMinOr(1)) {
@@ -204,6 +218,34 @@ export class GameMaker extends SystemBase implements System {
 					return GameState.FINISH;
 				}
 			}
+			game.playerStates().executeIf((playerState : PlayerState) => {
+				const clientId = playerState.clientId();
+
+				// TODO: can probably just force submit on client side using a dialog timer
+				if (!game.clientDialog(clientId).inSync(DialogType.LOADOUT)) {
+					game.clientDialog(clientId).pushForceSubmit(DialogType.LOADOUT);
+				}
+
+				const player = playerState.targetEntity<Player>();
+				if (!player.dead()) {
+					return;
+				}
+
+				this.processKillOn(player);
+				if (!game.tablet(clientId).outOfLives()) {
+					playerState.respawnAfter(player, GameMaker._respawnTime, () => {
+						if (game.clientDialogs().hasClientDialog(clientId)) {
+							game.clientDialog(clientId).pushShowDialog(DialogType.LOADOUT);
+						}
+					});
+				} else {
+					playerState.setRole(PlayerRole.SPECTATING);
+				}
+			}, (playerState : PlayerState) => {
+				return this._clientConfig.isPlayer(playerState.clientId())
+					&& playerState.validTargetEntity()
+					&& playerState.role() === PlayerRole.GAMING;
+			});
 			break;
 		case GameState.FINISH:
 			if (this.timeLimitReached(current)) {
@@ -229,12 +271,6 @@ export class GameMaker extends SystemBase implements System {
 		return current;
 	}
 	setGameState(state : GameState) : void {
-		switch (state) {
-		case GameState.SETUP:
-			game.clientDialog().showDialog(DialogType.LOADOUT);
-			break;
-		}
-
 		if (!this.isSource()) {
 			return;
 		}
@@ -246,6 +282,9 @@ export class GameMaker extends SystemBase implements System {
 				type: LevelType.LOBBY,
 				layout: LevelLayout.CIRCLE,
 				seed: Math.floor(Math.random() * 10000),
+			});
+			game.playerStates().execute((playerState : PlayerState) => {
+				playerState.setRole(PlayerRole.GAMING);
 			});
 			break;
 		case GameState.LOAD:
@@ -261,10 +300,8 @@ export class GameMaker extends SystemBase implements System {
 			}, (tablet : Tablet) => {
 				return this._clientConfig.isPlayer(tablet.clientId());
 			});
-			game.playerStates().executeIf((playerState : PlayerState) => {
+			game.playerStates().execute((playerState : PlayerState) => {
 				playerState.setRole(this._clientConfig.role(playerState.clientId()));
-			}, (playerState : PlayerState) => {
-				return this._clientConfig.isPlayer(playerState.clientId());
 			});
 			game.level().loadLevel({
 				type: LevelType.BIRDTOWN,
@@ -273,12 +310,22 @@ export class GameMaker extends SystemBase implements System {
 			});
 			break;
 		case GameState.SETUP:
+			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
+				clientDialog.pushShowDialog(DialogType.LOADOUT);
+			}, (clientDialog : ClientDialog) => {
+				return this._clientConfig.isPlayer(clientDialog.clientId());
+			});
 			break;
 		case GameState.GAME:
-			game.playerStates().execute((playerState : PlayerState) => {
-				if (playerState.validTargetEntity()) {
-					game.level().spawnPlayer(playerState.targetEntity());
-				}
+			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
+				clientDialog.pushForceSubmit(DialogType.LOADOUT);
+			}, (clientDialog : ClientDialog) => {
+				return this._clientConfig.isPlayer(clientDialog.clientId()) && !clientDialog.inSync(DialogType.LOADOUT);
+			});
+			game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
+				playerState.setRole(PlayerRole.SPAWNING);
+			}, (playerState : PlayerState) => {
+				return this._clientConfig.isPlayer(playerState.clientId());
 			});
 			break;
 		case GameState.FINISH:
@@ -308,6 +355,37 @@ export class GameMaker extends SystemBase implements System {
 	    	errorMsg.setNames([this._errorMsg]);
 	    	game.announcer().broadcast(errorMsg);
 	    	break;
+		}
+	}
+
+	private processKillOn(player : Player) : void {
+		let tablet = game.tablet(player.clientId());
+		tablet.loseLife();
+
+		const [log, hasLog] = player.stats().lastDamager(GameMaker._lastDamageTime);
+		if (!hasLog || !log.hasEntityLog()) {
+			let feed = new GameMessage(GameMessageType.FEED);
+			feed.setFeedType(FeedType.SUICIDE);
+			feed.setNames([tablet.displayName()]);
+			game.announcer().broadcast(feed);
+			return;
+		}
+
+		// Update tablet for last damager.
+		const associations = log.entityLog().associations();
+		if (associations.has(AssociationType.OWNER)) {
+			const damagerId = associations.get(AssociationType.OWNER);
+			const [damager, hasDamager] = game.entities().getEntity(damagerId);
+
+			if (hasDamager && game.tablets().hasTablet(damager.clientId())) {
+				const damagerTablet = game.tablet(damager.clientId())
+				damagerTablet.addInfo(InfoType.KILLS, 1);
+
+				let feed = new GameMessage(GameMessageType.FEED);
+				feed.setFeedType(FeedType.KILL);
+				feed.setNames([damagerTablet.displayName(), tablet.displayName()]);
+				game.announcer().broadcast(feed);
+			}
 		}
 	}
 }

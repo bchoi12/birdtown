@@ -22,30 +22,39 @@ export class GameData {
 	public static readonly udp = DataFilter.UDP;
 	public static readonly tcp = DataFilter.TCP;
 
-	private _propData : Map<number, GameProp<Object>>;
+	private _gameProps : Map<number, GameProp<Object>>;
 
 	constructor() {
-		this._propData = new Map();
+		this._gameProps = new Map();
 	}
 
-	empty() : boolean { return this._propData.size === 0; }
-	has(key : number) : boolean { return this._propData.has(key); }
-	get(key : number) : GameProp<Object> { return this._propData.get(key); }
-	getValue<T extends Object>(key : number) : T { return <T>this._propData.get(key).get(); }
-	set(key : number, value : Object, seqNum : number) : boolean {
+	empty() : boolean { return this._gameProps.size === 0; }
+	has(key : number) : boolean { return this._gameProps.has(key); }
+	get(key : number) : GameProp<Object> { return this._gameProps.get(key); }
+	getValue<T extends Object>(key : number) : T { return <T>this._gameProps.get(key).get(); }
+
+	import(key : number, value : Object, seqNum : number) : boolean {
 		if (!this.has(key)) {
 			return false;
 		}
 
-		return this._propData.get(key).set(value, seqNum);
+		return this._gameProps.get(key).import(value, seqNum);
+	}
+	update(key : number, value : Object, seqNum : number) : boolean {
+		if (!this.has(key)) {
+			return false;
+		}
+
+		return this._gameProps.get(key).update(value, seqNum);
 	}
 
+
 	registerProp<T extends Object>(prop : number, propOptions : GamePropOptions<T>) : void {
-		this._propData.set(prop, new GameProp<T>(propOptions));
+		this._gameProps.set(prop, new GameProp<T>(propOptions));
 	}
 
 	equals(key : number, value : Object) : boolean {
-		return this._propData.get(key).equals(value);
+		return this._gameProps.get(key).equals(value);
 	}
 
 	rollback(key : number, value : Object, seqNum : number) : boolean {
@@ -56,7 +65,7 @@ export class GameData {
 			return false;
 		}
 
-		return this._propData.get(key).rollback(value, seqNum);
+		return this._gameProps.get(key).rollback(value, seqNum);
 	}
 
 	filtered(filter : DataFilter, seqNum : number) : [DataMap, boolean] {
@@ -66,7 +75,7 @@ export class GameData {
 
 		let filtered : DataMap = {};
 		let hasData = false;
-		this._propData.forEach((prop : GameProp<Object>, key : number) => {
+		this._gameProps.forEach((prop : GameProp<Object>, key : number) => {
 			const [value, shouldPublish] = prop.publish(filter, seqNum);
 			if (shouldPublish) {
 				filtered[key] = value;
@@ -78,7 +87,7 @@ export class GameData {
 
 	toObject() : DataMap {
 		let obj = {};
-		this._propData.forEach((prop : GameProp<Object>, key : number) => {
+		this._gameProps.forEach((prop : GameProp<Object>, key : number) => {
 			obj[key] = prop.get();
 		});
 		return obj;

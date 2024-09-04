@@ -79,12 +79,12 @@ export class CircleMap<K, V> {
 	next(key : K) : K { return this._map.has(key) ? this._map.get(key).next : null; }
 	hasPrev(key : K) : boolean { return this._map.has(key) && this._map.has(this._map.get(key).prev); }
 	prev(key : K) : K { return this._map.has(key) ? this._map.get(key).prev : null; }
-	deleteAndNext(key : K) : K {
+	nextAndDelete(key : K) : K {
 		const next = this.next(key);
 		this.delete(key);
 		return next !== key ? next : null;
 	}
-	deleteAndPrev(key : K) : K {
+	prevAndDelete(key : K) : K {
 		const prev = this.prev(key);
 		this.delete(key);
 		return prev !== key ? prev : null;
@@ -93,12 +93,12 @@ export class CircleMap<K, V> {
 		if (!this.hasNext(key)) {
 			return [null, false];
 		}
-		let current = matchFn(this.get(key)) ? this.next(key) : this.deleteAndNext(key);
+		let current = matchFn(this.get(key)) ? this.next(key) : this.nextAndDelete(key);
 		while (current !== key) {
 			if (matchFn(this.get(current))) {
 				return [current, true];
 			}
-			current = this.deleteAndNext(current);
+			current = this.nextAndDelete(current);
 		}
 		return [null, false];
 	}
@@ -107,12 +107,12 @@ export class CircleMap<K, V> {
 			return [null, false];
 		}
 
-		let current = matchFn(this.get(key)) ? this.prev(key) : this.deleteAndPrev(key);
+		let current = matchFn(this.get(key)) ? this.prev(key) : this.prevAndDelete(key);
 		while (current !== key) {
 			if (matchFn(this.get(current))) {
 				return [current, true];
 			}
-			current = this.deleteAndPrev(current);
+			current = this.prevAndDelete(current);
 		}
 		return [null, false];
 	}
@@ -217,6 +217,14 @@ export class CircleMap<K, V> {
 			recordType: RecordType.OBJECT,
 		}).objects.map(map);
 	}
+	mapIf<O>(map : (v : V) => O, predicate : (v : V, k : K) => boolean) : O[] {
+		return this.executeHelper({
+			execute: () => {},
+			predicate: predicate,
+			stopType: StopType.NONE,
+			recordType: RecordType.OBJECT,
+		}).objects.map(map);
+	}
 
 	findAll(predicate : (v : V, k : K) => boolean) : V[] {
 		return this.executeHelper({
@@ -259,6 +267,19 @@ export class CircleMap<K, V> {
 			stopType: StopType.FIRST,
 			recordType: RecordType.NONE,
 		});
+	}
+
+	deleteIf(predicate : (v : V, k : K) => boolean) : void {
+		this.executeHelper({
+			execute: (v : V, k : K) => {
+				if (predicate(v, k)) {
+					this.delete(k);
+				}
+			},
+			predicate: predicate,
+			stopType: StopType.NONE,
+			recordType: RecordType.NONE,
+		})
 	}
 
 	private executeHelper(executeParams : ExecuteParams<K, V>) : ExecuteResult<K, V> {

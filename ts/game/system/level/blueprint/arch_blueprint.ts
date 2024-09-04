@@ -132,7 +132,7 @@ class Building {
 		return block;
 	}
 
-	addBackgroundBuilding(height : number, options : EntityOptions) : ArchBlueprintBlock {
+	addBackgroundBuilding(height : number, rng : SeededRandom, options : EntityOptions) : ArchBlueprintBlock {
 		if (height <= 0) {
 			return;
 		}
@@ -140,7 +140,7 @@ class Building {
 		const extras = 3;
 
 		let pos = this._initPos.clone();
-		pos.add({ x: ArchBlueprint.baseDim().x / 3 });
+		pos.add({ x: ArchBlueprint.baseDim().x / 3, y: rng.next() * ArchBlueprint.baseDim().y / 2 });
 		pos.sub({ y: (extras - 1.66) * ArchBlueprint.baseDim().y });
 		let block = new ArchBlueprintBlock(ArchBlueprint.backgroundType(), {
 			profileInit: {
@@ -289,7 +289,7 @@ export class ArchBlueprint extends Blueprint {
 		]);
 
 		const materialTypes = MaterialFactory.archBackgroundMaterials()
-		building.addBackgroundBuilding(backgroundHeight, {
+		building.addBackgroundBuilding(backgroundHeight, this.rng(), {
 			modelInit: {
 				materialType: materialTypes[i % materialTypes.length]
 			},

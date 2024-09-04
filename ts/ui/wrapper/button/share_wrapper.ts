@@ -17,7 +17,9 @@ export class ShareWrapper extends ButtonWrapper {
 		this.setIcon(IconType.SHARE);
 
 		this.addOnClick(() => {
-			navigator.clipboard.writeText(window.location.href + "?" + UiGlobals.roomParam + "=" + game.netcode().room());
+			const url = new URL(window.location.href);
+			url.searchParams.set(UiGlobals.roomParam, game.netcode().room());
+			navigator.clipboard.writeText(url.toString());
 			ui.showTooltip(TooltipType.COPIED_URL, {
 				ttl: 2000,
 			})

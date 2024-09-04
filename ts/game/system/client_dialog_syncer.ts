@@ -13,6 +13,8 @@ import { DialogMessage } from 'message/dialog_message'
 import { ui } from 'ui'
 import { DialogType, FeedType, TooltipType } from 'ui/api'
 
+import { isLocalhost } from 'util/common'
+
 enum DialogState {
 	UNKNOWN,
 
@@ -138,7 +140,9 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 			this.submit();
 			this.setDialogState(DialogState.ERROR);
 
-			ui.showTooltip(TooltipType.FAILED_DIALOG_SYNC, {});
+			ui.showTooltip(TooltipType.FAILED_DIALOG_SYNC, {
+				ttl: 3000,
+			});
 		}
 	}
 	inSync() : boolean {
@@ -159,6 +163,10 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		this.setDialogState(DialogState.OPEN);
 
 		if (this.isSource()) {
+			if (isLocalhost()) {
+				console.log("%s: show dialog %s", this.name(), DialogType[this._dialogType]);
+			}
+
 			ui.pushDialog(this._dialogType);
 		}
 	}

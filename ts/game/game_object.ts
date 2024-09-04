@@ -94,6 +94,7 @@ export interface GameObject {
 	findAll<T extends GameObject>(predicate : (t : T) => boolean) : T[];
 	findN<T extends GameObject>(predicate : (t : T) => boolean, limit : number) : T[];
 	mapAll<T extends GameObject, O>(map : (t : T) => O) : O[];
+	mapIf<T extends GameObject, O>(map : (t : T) => O, predicate : (t :T) => boolean) : O[];
 	matchAll<T extends GameObject>(predicate : (t : T) => boolean) : boolean;
 	execute<T extends GameObject>(execute : ChildExecute<T>) : void;
 	executeIf<T extends GameObject>(execute : ChildExecute<T>, predicate : (t : T) => boolean) : void;
@@ -417,6 +418,7 @@ export abstract class GameObjectBase {
 	findN<T extends GameObject>(predicate : ChildPredicate<T>, limit : number) : T[] { return <T[]>this._childObjects.findN(predicate, limit); }
 	matchAll<T extends GameObject>(predicate : ChildPredicate<T>) : boolean { return this._childObjects.matchAll(predicate); }
 	mapAll<T extends GameObject, O>(map : (t : T) => O) : O[] { return this._childObjects.mapAll(map); }
+	mapIf<T extends GameObject, O>(map : (t : T) => O, predicate : (t : T) => boolean) : O[] { return this._childObjects.mapIf(map, predicate); }
 	execute<T extends GameObject>(execute : ChildExecute<T>) : void { this._childObjects.execute(execute); }
 	executeIf<T extends GameObject>(execute : ChildExecute<T>, predicate : ChildPredicate<T>) : void { this._childObjects.executeIf(execute, predicate); }
 
@@ -508,7 +510,7 @@ export abstract class GameObjectBase {
 		if (this.shouldBroadcast()) {
 			this._propHandlers.forEach((handler : PropHandler<Object>, prop : number) => {
 				if (!handler.has || handler.has()) {
-					this._data.set(prop, handler.export(), seqNum)
+					this._data.update(prop, handler.export(), seqNum)
 				}
 			});
 		}
@@ -534,9 +536,8 @@ export abstract class GameObjectBase {
 						handler.validate(value);
 					}
 				} else {
-					if (this._data.set(prop, value, seqNum)) {
-						handler.import(this._data.getValue(prop));
-					}
+					this._data.import(prop, value, seqNum)
+					handler.import(this._data.getValue(prop));
 				}
 			} else {
 				const id = this.propToId(prop);

@@ -34,9 +34,9 @@ export class Announcer extends SystemBase implements System {
 				msg.parseObject(obj);
 				this.publishMessage(msg);
 			},
-
 			options: {
 				filters: GameData.tcpFilters,
+				clearAfterPublish: true,
 			},
 		});
 	}

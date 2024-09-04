@@ -19,7 +19,6 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		TooltipType.COPIED_URL,
 	]);
 
-	private static readonly _defaultTTL : number = 500;
 	private static readonly _maxTooltips : number = 3;
 
 	private _tooltipsElm : HTMLElement;
@@ -45,8 +44,6 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		if (ui.mode() !== UiMode.GAME && !TooltipHandler._nonGameTypes.has(type)) {
 			return;
 		}
-
-		const ttl = options.ttl ? options.ttl : TooltipHandler._defaultTTL;
 
 		const html = this.getHtml(type, options);
 		if (html.length === 0) {
@@ -75,7 +72,18 @@ export class TooltipHandler extends HandlerBase implements Handler {
 
 
 		wrapper.elm().innerHTML = html;
-		wrapper.setTTL(ttl, () => {
+		if (options.ttl) {
+			wrapper.setTTL(options.ttl, () => {
+				this._tooltips.delete(type);
+			});
+		}
+	}
+	hideTooltip(type : TooltipType) : void {
+		if (!this._tooltips.has(type)) {
+			return;
+		}
+
+		this._tooltips.get(type).delete(() => {
 			this._tooltips.delete(type);
 		});
 	}
@@ -99,10 +107,10 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		case TooltipType.SPAWN:
 			return "Press [any key] to deploy"
 		case TooltipType.SPECTATING:
-			if (names.length !== 1) {
+			if (names.length > 1) {
 				return "";
 			}
-			return KeyNames.boxed(settings.leftKeyCode) + "/" + KeyNames.boxed(settings.rightKeyCode) + " Spectating " + names[0];
+			return "Spectating" + (names.length === 1 ? " " + names[0] : "");
 		case TooltipType.START_GAME:
 			if (!game.isHost()) {
 				return "Only the host can start a game";

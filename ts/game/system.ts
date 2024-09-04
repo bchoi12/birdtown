@@ -147,10 +147,7 @@ export abstract class ClientSystem extends SystemBase implements System {
 	override networkBehavior() : NetworkBehavior {
 		if (this.isHost()) {
 			return NetworkBehavior.SOURCE;
-		} else if (this.clientIdMatches()) {
-			return NetworkBehavior.RELAY;
 		}
-
 		return NetworkBehavior.COPY;
 	}
 }

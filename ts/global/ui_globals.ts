@@ -4,5 +4,5 @@ export namespace UiGlobals {
 
 	export const roomParam = "room";
 
-	export const versionString = "alpha 0.42"
+	export const versionString = "alpha 0.43"
 }

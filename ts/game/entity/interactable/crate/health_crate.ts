@@ -43,8 +43,8 @@ export class HealthCrate extends Crate {
 
 		if (player.isLakituTarget() && interactable) {
 			ui.showTooltip(TooltipType.HEALTH_CRATE, {
-				ttl: 500,
 				names: ["" + this.amount()],
+				ttl: 500,
 			});
 		}
 	}

@@ -10,8 +10,9 @@ export type GamePropOptions<T extends Object> = {
 	conditionalInterval? : IntervalFn<T>;
 	minInterval? : number;
 	refreshInterval? : number;
-	udpRedundancies? : number;
 	equals? : (oldValue : T, newValue : T) => boolean;
+	clearAfterPublish? : boolean;
+	onPublishFn? : () => void;
 
 	filters? : Set<DataFilter>;
 }
@@ -25,6 +26,7 @@ type PublishInfo<T extends Object> = {
 
 export class GameProp<T extends Object> {
 
+	private static readonly _udpRedundancies = 1;
 	private static readonly numberEpsilon = 1e-2;
 
 	private _value : Optional<T>;
@@ -38,9 +40,9 @@ export class GameProp<T extends Object> {
 	private _minInterval : number;
 	private _conditionalInterval : Optional<IntervalFn<T>>;
 	private _refreshInterval : Optional<number>;
-	private _udpRedundancies : number;
-	private _manualUpdate : boolean;
 	private _equals : EqualsFn<T>;
+	private _clearAfterPublish : boolean;
+	private _onPublishFn : () => void;
 
 	private _filters : Set<DataFilter>;
 
@@ -56,7 +58,8 @@ export class GameProp<T extends Object> {
 		this._minInterval = assignOr(propOptions.minInterval, 0);
 		this._refreshInterval = new Optional(assignOr(propOptions.refreshInterval, null));
 		this._conditionalInterval = new Optional(assignOr(propOptions.conditionalInterval, null));
-		this._udpRedundancies = assignOr(propOptions.udpRedundancies, 1);
+		this._clearAfterPublish = assignOr(propOptions.clearAfterPublish, false);
+		this._onPublishFn = assignOr(propOptions.onPublishFn, null);
 		this._equals = assignOr(propOptions.equals, (a : T, b : T) => { return GameProp.equals(a, b); });
 		this._filters = assignOr(propOptions.filters, GameData.allFilters);
 	}
@@ -106,29 +109,35 @@ export class GameProp<T extends Object> {
 		return seqNum >= this._lastChanged;
 	}
 	get() : T { return this._value.get(); }
+	clear() : void { this._value.clear(); }
 
 	equals(value : T) : boolean {
-		if (!this._value.has()) {
+		if (!this.has()) {
 			return false;
 		}
 		return this._equals(value, this._value.get());
 	}
 
-	set(value : T, seqNum : number) : boolean {
-		if (seqNum < this._seqNum) {
-			return false;
-		}
-		if (value === null) {
+	import(value : T, seqNum : number) : boolean {
+		if (seqNum < this._seqNum || value === null) {
 			return false;
 		}
 
-		const seqNumEqual = this._seqNum === seqNum;
+		this._value.set(value);
+		this._seqNum = seqNum;
+		return true;
+	}
+	update(value : T, seqNum : number) : boolean {
+		if (seqNum < this._seqNum || value === null) {
+			return false;
+		}
 
-		// Reset if there is a gap in setting value
-		if (seqNum - this._seqNum > game.runner().lastStep()) {
+		// Reset if there is a gap in setting value or if value was cleared
+		if (seqNum - this._seqNum > game.runner().lastStep() || !this.has()) {
 			this._consecutiveChanges = 0;
 		}
 
+		const seqNumEqual = this._seqNum === seqNum;
 		if (this.equals(value)) {
 			if (!seqNumEqual) {
 				this._consecutiveChanges = Math.min(-1, this._consecutiveChanges - 1);
@@ -166,11 +175,18 @@ export class GameProp<T extends Object> {
 		if (!this._filters.has(filter)) {
 			return false;
 		}
-		if (filter === DataFilter.INIT || !this._lastPublished.has(filter)) {
+
+		// Send it since we don't have publishing metadata
+		if (!this._lastPublished.has(filter)) {
 			return true;
 		}
 
-		if (filter === DataFilter.UDP && seqNum - this._lastChanged <= this._udpRedundancies) {
+		// Resend all non-expired data during init
+		if (filter === DataFilter.INIT) {
+			return true;
+		}
+
+		if (filter === DataFilter.UDP && seqNum - this._lastChanged <= GameProp._udpRedundancies) {
 			return true;
 		}
 
@@ -201,6 +217,14 @@ export class GameProp<T extends Object> {
 			let publishInfo = this._lastPublished.get(filter);
 			publishInfo.seqNum = Math.max(publishInfo.seqNum, seqNum);
 			publishInfo.millis = Date.now();
+		}
+
+		if (this._clearAfterPublish) {
+			this.clear();
+		}
+
+		if (this._onPublishFn !== null) {
+			this._onPublishFn();
 		}
 
 		return [value, true];

@@ -619,7 +619,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				});
 			}
 
-			if (collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 0.1) {
+			if (collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 0.12) {
 				this._canJump = true;
 				this._canDoubleJump = true;
 				this._canJumpTimer.start(Player._jumpGracePeriod);
@@ -690,7 +690,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		// Sweat
 		// TODO: move this and other particles to ParticleFactory
 		const healthPercent = this._stats.healthPercent();
-		if (!this.dead() && healthPercent <= 0.7 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.3, healthPercent))) {
+		if (!this.dead() && healthPercent <= 0.7 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.2, healthPercent))) {
 			const weight = 1 - healthPercent;
 
 			const dim = this._profile.scaledDim();
@@ -710,7 +710,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 							x: Fns.lerpRange(0.05, weight, 0.1) * dir.x,
 							y: Fns.lerpRange(0.05, weight, 0.1) * dir.y,
 						},
-						scaling: { x: Fns.lerpRange(0.2, weight, 0.4), y: Fns.lerpRange(0.2, weight, 0.4) },
+						scaling: { x: Fns.lerpRange(0.2, weight, 0.5), y: Fns.lerpRange(0.2, weight, 0.5) },
 					},
 					modelInit: {
 						transforms: {

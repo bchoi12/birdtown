@@ -12,7 +12,7 @@ import { SystemType, PlayerRole } from 'game/system/api'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
-import { DialogType, FeedType, KeyType, KeyState, InfoType, TooltipType } from 'ui/api'
+import { KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 import { Timer} from 'util/timer'
@@ -33,9 +33,8 @@ export class PlayerState extends ClientSystem implements System {
 		KeyType.ALT_MOUSE_CLICK,
 	];
 
-	private static readonly _lastDamageTime = 10000;
 	private static readonly _planeSpawnTime = 7000;
-	private static readonly _respawnTime = 1500;
+	private static readonly _respawnTime = 1000;
 
 	private _targetId : number;
 	private _role : PlayerRole;
@@ -85,14 +84,8 @@ export class PlayerState extends ClientSystem implements System {
 		}
 	}
 
-	die() : void {
-		if (this.validTargetEntity()) {
-			this.targetEntity<Player>().die();
-		}
-	}
-
 	role() : PlayerRole { return this._role; }
-	inGame() : boolean { return this._role === PlayerRole.SPAWNING || this._role === PlayerRole.GAMING; }
+	inGame() : boolean { return this._role === PlayerRole.WAITING || this._role === PlayerRole.SPAWNING || this._role === PlayerRole.GAMING; }
 	setRole(role : PlayerRole) : void {
 		if (this._role === role) {
 			return;
@@ -102,13 +95,13 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
+		if (role === PlayerRole.UNKNOWN) {
+			console.error("Warning: skipping setting role to UNKNOWN for %s", this.name());
+			return;
+		}
+
 		this._role = role;
 		this.applyRole();
-
-		let playerStateMsg = new GameMessage(GameMessageType.PLAYER_STATE);
-		playerStateMsg.setPlayerRole(this._role);
-		playerStateMsg.setClientId(this.clientId());
-		game.handleMessage(playerStateMsg);
 
 		if (isLocalhost()) {
 			console.log("%s: player role is %s", this.name(), PlayerRole[role]);
@@ -123,23 +116,18 @@ export class PlayerState extends ClientSystem implements System {
 
 		switch (this._role) {
 		case PlayerRole.WAITING:
-			// TODO: move this to GameMaker somehow
-			if (game.controller().gameState() === GameState.GAME) {
-				game.clientDialog(this.clientId()).showDialog(DialogType.LOADOUT);
-			}
-			player.setState(GameObjectState.DEACTIVATED);
-			break;
-    	case PlayerRole.SPAWNING:
-    		this._spawnTimer.start(PlayerState._planeSpawnTime);
-    		player.setState(GameObjectState.DEACTIVATED);
-    		break;
 		case PlayerRole.SPECTATING:
-			if (game.tablet(this.clientId()).outOfLives()) {
+			if (player.dead()) {
 		    	player.setState(GameObjectState.DISABLE_INPUT);
 			} else {
 				player.setState(GameObjectState.DEACTIVATED);
 			}
-    		break;   		
+			break;
+    	case PlayerRole.SPAWNING:
+    		// TODO: move force spawn logic to GameMaker
+    		this._spawnTimer.start(PlayerState._planeSpawnTime);
+    		player.setState(GameObjectState.DEACTIVATED);
+    		break;
     	case PlayerRole.GAMING:
 			this._spawnTimer.reset();
 			game.level().spawnPlayer(player);
@@ -148,53 +136,27 @@ export class PlayerState extends ClientSystem implements System {
 		}
 	}
 
-	private processKillOn(player : Player) : void {
-		if (!this.isSource()) {
-			return;
-		}
+	// Player can spawn && we should show prompt since they need to press a button.
+	private promptSpawn() : boolean { return this.role() === PlayerRole.SPAWNING && game.controller().gameState() === GameState.GAME; }
+	respawnAfter(player : Player, millis : number, cb? : () => void) : void {
+		if (!this._respawnTimer.hasTimeLeft()) {
+			this.setRole(PlayerRole.WAITING);
+			this._respawnTimer.start(PlayerState._respawnTime, () => {
+				if (game.controller().gameState() === GameState.FREE) {
+					this.setRole(PlayerRole.GAMING);
+				} else {
+					this.setRole(PlayerRole.SPAWNING);
+				}
 
-		let tablet = game.tablet(player.clientId());
-		tablet.loseLife();
-
-		const [log, hasLog] = player.stats().lastDamager(PlayerState._lastDamageTime);
-		if (!hasLog || !log.hasEntityLog()) {
-			let feed = new GameMessage(GameMessageType.FEED);
-			feed.setFeedType(FeedType.SUICIDE);
-			feed.setNames([tablet.displayName()]);
-			game.announcer().broadcast(feed);
-			return;
-		}
-
-		// Update tablet for last damager.
-		const associations = log.entityLog().associations();
-		if (associations.has(AssociationType.OWNER)) {
-			const damagerId = associations.get(AssociationType.OWNER);
-			const [damager, hasDamager] = game.entities().getEntity(damagerId);
-
-			if (hasDamager && game.tablets().hasTablet(damager.clientId())) {
-				const damagerTablet = game.tablet(damager.clientId())
-				damagerTablet.addInfo(InfoType.KILLS, 1);
-
-				let feed = new GameMessage(GameMessageType.FEED);
-				feed.setFeedType(FeedType.KILL);
-				feed.setNames([damagerTablet.displayName(), tablet.displayName()]);
-				game.announcer().broadcast(feed);
-			}
+				if (cb) {
+					cb();
+				}
+			});
 		}
 	}
-
-	override handleMessage(msg : GameMessage) : void {
-		super.handleMessage(msg);
-
-		switch (msg.type()) {
-		case GameMessageType.GAME_STATE:
-			switch (msg.getGameState()) {
-			case GameState.FREE:
-				if (this.hasTargetEntity()) {
-					this.setRole(PlayerRole.GAMING);
-				}
-				break;
-			}
+	die() : void {
+		if (this.validTargetEntity()) {
+			this.targetEntity<Player>().die();
 		}
 	}
 
@@ -213,7 +175,7 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
-		// Handle if no target entity yet
+		// Spawn the player if we meet a long list of criteria.
 		if (!this.hasTargetEntity()) {
 			if (game.tablet(this.clientId()).isSetup()
 				&& (game.controller().gameState() === GameState.FREE
@@ -233,8 +195,6 @@ export class PlayerState extends ClientSystem implements System {
 						console.log("%s: created player for %d", this.name(), this.clientId());
 					}
 		    	}
-			} else {
-				this.setRole(PlayerRole.SPECTATING);
 			}
 		}
 	}
@@ -246,17 +206,8 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
-		let player = this.targetEntity<Player>();
-
-		if (this.role() === PlayerRole.WAITING) {
-			if (game.controller().gameState() === GameState.GAME
-				&& game.clientDialog(player.clientId()).inSync(DialogType.LOADOUT)) {
-				this.setRole(PlayerRole.SPAWNING);
-			}
-		}
-
 		// Allow player to spawn by pressing a key
-		if (this.role() === PlayerRole.SPAWNING && game.controller().gameState() === GameState.GAME) {
+		if (this.promptSpawn()) {
 			if (this.anyKey(PlayerState._spawnKeys, KeyState.PRESSED) || this._spawnTimer.done()) {
 				this.setRole(PlayerRole.GAMING);
 			}
@@ -272,25 +223,9 @@ export class PlayerState extends ClientSystem implements System {
 
 		let player = this.targetEntity<Player>();
 
-		// Respawn logic
-		if (player.dead() && !this._respawnTimer.hasTimeLeft() && this.role() === PlayerRole.GAMING) {
-			switch (game.controller().gameState()) {
-			case GameState.FREE:
-				this._respawnTimer.start(PlayerState._respawnTime, () => {
-					game.level().spawnPlayer(player);
-				});
-				break;
-			case GameState.GAME:
-				this.processKillOn(player);
-				this._respawnTimer.start(PlayerState._respawnTime, () => {
-					if (!game.tablet(this.clientId()).outOfLives()) {
-						this.setRole(PlayerRole.WAITING);
-					} else {
-						this.setRole(PlayerRole.SPECTATING);
-					}
-				});	
-				break;
-			}
+		// Free respawn in the lobby
+		if (player.dead() && game.controller().gameState() === GameState.FREE) {
+			this.respawnAfter(player, PlayerState._respawnTime);
 		}
 	}
 
@@ -301,11 +236,10 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
-		// Show tooltip if we can spawn
-		if (this.role() === PlayerRole.SPAWNING && game.controller().gameState() === GameState.GAME) {
-			ui.showTooltip(TooltipType.SPAWN, {
-				ttl: 100,
-			});
+		if (this.promptSpawn()) {
+			ui.showTooltip(TooltipType.SPAWN, {});
+		} else {
+			ui.hideTooltip(TooltipType.SPAWN);
 		}
 	}
 }

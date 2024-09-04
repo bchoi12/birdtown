@@ -25,7 +25,6 @@ import { settings } from 'settings'
 import { StringFactory } from 'strings/string_factory'
 
 import { ui } from 'ui'
-import { TooltipType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
 import { Box2 } from 'util/box'

@@ -1,7 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
-import { GameState } from 'game/api'
+import { GameState, GameObjectState } from 'game/api'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
@@ -35,7 +35,9 @@ export class Lakitu extends SystemBase implements System {
 	// Formula: deg = 2 * arctan(0.5 * horizontal_length / offset_length)
 	private static readonly _horizontalFov = 48.868 * Math.PI / 180;
 
-	private static readonly _panTime = 1000;
+	private static readonly _quickPan = 250;
+	private static readonly _normalPan = 1000;
+	private static readonly _slowPan = 5000;
 	private static readonly _offsets = new Map<OffsetType, Vec3>([
 		[OffsetType.ANCHOR, Vec3.zero()],
 		[OffsetType.TARGET, new Vec3({ y: 0.5 })],
@@ -44,6 +46,7 @@ export class Lakitu extends SystemBase implements System {
 
 	private _camera : BABYLON.UniversalCamera;
 	private _players : CircleMap<number, Player>;
+	private _spectateClientId : number;
 
 	private _panners : Map<OffsetType, Panner>;
 	private _anchor : BABYLON.Vector3;
@@ -57,6 +60,7 @@ export class Lakitu extends SystemBase implements System {
 		this._camera.fov = Lakitu._horizontalFov;
     	this._camera.fovMode = BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED;
     	this._players = new CircleMap();
+    	this._spectateClientId = 0;
 
     	this._panners = new Map();
     	Lakitu._offsets.forEach((offset : Vec3, type : OffsetType) => {
@@ -100,24 +104,33 @@ export class Lakitu extends SystemBase implements System {
 		this._camera.position.addInPlaceFromFloats(cameraOffset.x, cameraOffset.y, cameraOffset.z);
 		this._camera.setTarget(this._target);
 	}
+	private resetPan(millis : number) : void {
+		this._panners.forEach((panner : Panner, type : OffsetType) => {
+			panner.pan({
+				goal: Lakitu._offsets.get(type),
+				millis: millis,
+				interpType: InterpType.NEGATIVE_SQUARE,
+			});
+		});
+	}
 
 	private targetEntityType() : EntityType {
 		if (!this.hasTargetEntity()) { return EntityType.UNKNOWN; }
 
 		return this.targetEntity().type();
 	}
+	private static validPlayer(player : Player) : boolean {
+		return player.initialized()
+			&& !player.deleted()
+			&& game.playerStates().hasPlayerState(player.clientId())
+			&& (player.state() !== GameObjectState.DEACTIVATED || game.playerState(player.clientId()).inGame());
+	}
 	private targetPlayer() : boolean {
 	 if (game.playerState().hasTargetEntity()) {
 			if (this.hasTargetEntity() && this.targetEntity().id() === game.playerState().targetEntity().id()) {
 				return true;
 			}
-			this._panners.forEach((panner : Panner, type : OffsetType) => {
-				panner.pan({
-					goal: Lakitu._offsets.get(type),
-					millis: 5 * Lakitu._panTime,
-					interpType: InterpType.NEGATIVE_SQUARE,
-				});
-			});
+			this.resetPan(Lakitu._slowPan);
 			this.setTargetEntity(game.playerState().targetEntity());
 			return true;
 		}
@@ -132,13 +145,19 @@ export class Lakitu extends SystemBase implements System {
 		if (!hasWinner) {
 			return false;
 		}
-		let panner = this._panners.get(OffsetType.ANCHOR);
-		let offset = Vec3.fromBabylon3(this._anchor).sub(winner.profile().pos());
-		panner.panFrom(offset, {
-			goal: Lakitu._offsets.get(OffsetType.ANCHOR),
-			millis: 2 * Lakitu._panTime,
-			interpType: InterpType.NEGATIVE_SQUARE,
+
+		this._panners.forEach((panner : Panner, type : OffsetType) => {
+			let goal = Lakitu._offsets.get(type);
+			if (type === OffsetType.ANCHOR) {
+				goal = Vec3.fromBabylon3(this._anchor).sub(winner.profile().pos());
+			}
+			panner.pan({
+				goal: Lakitu._offsets.get(type),
+				millis: Lakitu._normalPan,
+				interpType: InterpType.NEGATIVE_SQUARE,
+			});
 		});
+
 		this.setTargetEntity(winner);
 
 		return true;
@@ -153,14 +172,19 @@ export class Lakitu extends SystemBase implements System {
 		}, 1);
 		if (plane.length === 1) {
 			this.setTargetEntity(plane[0]);
+			this._panners.get(OffsetType.ANCHOR).pan({
+				goal: {x: 0, y: 0, z: 0},
+				millis: Lakitu._normalPan,
+				interpType: InterpType.NEGATIVE_SQUARE,
+			});
 			this._panners.get(OffsetType.TARGET).pan({
 				goal: {x: 0, y: -8, z: 0},
-				millis: Lakitu._panTime,
+				millis: Lakitu._normalPan,
 				interpType: InterpType.NEGATIVE_SQUARE,
 			});
 			this._panners.get(OffsetType.CAMERA).pan({
 				goal: {x: 0, y: 0, z: 80 },
-				millis: Lakitu._panTime,
+				millis: Lakitu._normalPan,
 				interpType: InterpType.NEGATIVE_SQUARE,
 			});
 			return true;
@@ -207,23 +231,6 @@ export class Lakitu extends SystemBase implements System {
 		});
 	}
 
-	override postUpdate(stepData : StepData) : void {
-		super.postUpdate(stepData);
-
-		if (game.playerState().role() === PlayerRole.WAITING || game.playerState().role() === PlayerRole.SPECTATING) {
-			// TODO: get a map from PlayerStates in postPhysics, delete this
-			game.entities().getMap(EntityType.PLAYER).executeIf<Player>((player : Player) => {
-				if (!this._players.has(player.id())) {
-					this._players.push(player.id(), player);
-				}
-			}, (player : Player) => {
-				return player.initialized() && !player.deleted();
-			});
-		} else {
-			this._players.clear();
-		}
-	}
-
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
 		const millis = stepData.realMillis;
@@ -236,39 +243,62 @@ export class Lakitu extends SystemBase implements System {
 		case GameState.FREE:
 		case GameState.GAME:
 			switch (game.playerState().role()) {
-			case PlayerRole.GAMING:
-				this.targetPlayer();
-				break;
 			case PlayerRole.WAITING:
+				if (!this.targetPlayer()) {
+					this.targetPlane();
+				}
+				break;
 			case PlayerRole.SPAWNING:
 				this.targetPlane();
 				break;
+			case PlayerRole.GAMING:
+				this.targetPlayer();
+				break;
 			case PlayerRole.SPECTATING:
-				if (this._players.empty()) {
-					this.targetPlane();
-					break;
-				}
-				if (!this.hasTargetEntity()) {
-					this.setTargetEntity(this._players.getHead());
-				} else if (game.playerStates().hasPlayerState(this.targetEntity().clientId())) {
-					if (game.playerState(this.targetEntity().clientId()).role() !== PlayerRole.GAMING) {
-						this.targetPlane();
+				// Add any missing players
+				game.entities().getMap(EntityType.PLAYER).executeIf<Player>((player : Player) => {
+					if (!this._players.has(player.id())) {
+						this._players.push(player.clientId(), player);
 					}
-				}
+				}, (player : Player) => {
+					return Lakitu.validPlayer(player);
+				});
 
-				if (game.keys().getKey(KeyType.LEFT).pressed()) {
-					const [targetId, ok] = this._players.rewindAndDelete(this.targetEntity().id(), (player : Player) => {
-						return player.initialized() && !player.deleted();
-					});
-					if (ok) {
-						this.setTargetEntity(this._players.get(targetId));
+				// Remove invalid players
+				this._players.deleteIf((player : Player) => {
+					return !Lakitu.validPlayer(player);
+				});
+
+				if (this._players.empty()) {
+					this._spectateClientId = 0;
+					this.targetPlane();
+				} else {
+					// Force reassign target if invalid
+					if (this.targetEntityType() !== EntityType.PLAYER
+						|| this.targetEntity().clientId() !== this._spectateClientId) {
+						if (!this._players.has(this._spectateClientId)) {
+							this._spectateClientId = this._players.head();
+						}
+						this.resetPan(Lakitu._slowPan);
+						this.setTargetEntity(this._players.get(this._spectateClientId));
 					}
-				} else if (game.keys().getKey(KeyType.RIGHT).pressed()) {
-					const [targetId, ok] = this._players.seekAndDelete(this.targetEntity().id(), (player : Player) => {
-						return player.initialized() && !player.deleted();
-					});
-					if (ok) {
-						this.setTargetEntity(this._players.get(targetId));
+
+					let newClientId = null;
+					if (game.keys().getKey(KeyType.RIGHT).pressed()
+						|| !this._players.has(this._spectateClientId)) {
+						newClientId = this._players.nextAndDelete(this._spectateClientId);
+					} else if (game.keys().getKey(KeyType.LEFT).pressed()) {
+						newClientId = this._players.prevAndDelete(this._spectateClientId);
+					}
+
+					if (newClientId !== null && this._spectateClientId !== newClientId) {
+						this._spectateClientId = newClientId;
+						this.resetPan(Lakitu._quickPan);
+						this.setTargetEntity(this._players.get(this._spectateClientId));
+					}
+
+					if (this.targetEntity().state() === GameObjectState.DEACTIVATED) {
+						this.targetPlane();
 					}
 				}
 				break;
@@ -279,8 +309,11 @@ export class Lakitu extends SystemBase implements System {
 			// Pan to a winning player
 			this.targetWinner();
 			break;
+		case GameState.END:
 		case GameState.ERROR:
-			this.clearTargetEntity();
+			if (!this.targetPlayer()) {
+				this.resetPan(Lakitu._quickPan);
+			}
 			break;
 		}
 
@@ -303,12 +336,16 @@ export class Lakitu extends SystemBase implements System {
 
 		// TODO: rate limit?
 		if (game.playerState().role() === PlayerRole.SPECTATING
-			&& game.tablets().hasTablet(this.targetEntity().clientId())) {
+			&& game.controller().gameState() !== GameState.FINISH
+			&& game.controller().gameState() !== GameState.VICTORY) {
 
 			ui.showTooltip(TooltipType.SPECTATING, {
-				ttl: 100,
-				names: [game.tablet(this.targetEntity().clientId()).displayName()],
+				names: game.tablets().hasTablet(this._spectateClientId)
+					? [game.tablet(this._spectateClientId).displayName()]
+					: [],
 			});
+		} else {
+			ui.hideTooltip(TooltipType.SPECTATING);
 		}
 	}
 }
