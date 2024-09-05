@@ -13,7 +13,9 @@ import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
 type OnSubmitFn = () => void;
 
-export class DialogWrapper extends HtmlWrapper<HTMLElement> {
+export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
+
+	private _visible : boolean;
 
 	private _containerElm : HTMLElement;
 	private _titleElm : HTMLElement;
@@ -32,6 +34,8 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 		this.elm().classList.add(Html.classDialog);
 		this.elm().classList.add(Html.classPopup);
+
+		this._visible = false;
 
 		this._containerElm = Html.div();
 		this._containerElm.classList.add(Html.classDialogContainer);
@@ -57,13 +61,16 @@ export class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	show() : void {
+		this._visible = true;
 		setTimeout(() => {
 			this.elm().classList.add(Html.classPopupShow);
 		}, 5);
 	}
 	hide() : void {
+		this._visible = false;
 		this.elm().classList.remove(Html.classPopupShow);
 	}
+	visible() : boolean { return this._visible; }
 
 	setTitle(text : string) : void {
 		this._titleElm.textContent = text;

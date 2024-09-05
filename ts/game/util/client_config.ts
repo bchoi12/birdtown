@@ -6,6 +6,7 @@ import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
 
 export type ClientInfo = {
+	displayName: string;
 	role : PlayerRole;
 	team : number;
 	disconnected : boolean;
@@ -40,7 +41,13 @@ export class ClientConfig {
 	}
 
 	addClient(id : number) : void {
+		if (!this.canAdd(id)) {
+			console.error("Error: couldn't add client", id);
+			return;
+		}
+
 		this._clients.set(id, {
+			displayName: game.tablet(id).displayName(),
 			role: PlayerRole.WAITING,
 			team: 0,
 			disconnected: false,
@@ -77,17 +84,27 @@ export class ClientConfig {
 
 		this._clients.get(id).disconnected = disconnected;
 	}
+	private canAdd(id : number) : boolean {
+		if (!game.playerStates().hasPlayerState(id)) {
+			console.error("Error: client %d does not have PlayerState", id);
+			return false;
+		}
+		if (!game.tablets().hasTablet(id)) {
+			console.error("Error: client %d does not have Tablet", id);
+			return false;
+		}
+		if (!game.clientDialogs().hasClientDialog(id)) {
+			console.error("Error: client %d does not have ClientDialog", id);
+			return false;
+		}
+		return true;
+	}
 	private validId(id : number) : boolean {
 		if (!this._clients.has(id)) {
 			console.error("Error: client %d does not exist", id);
 			return false;
 		}
-		if (!game.playerStates().hasPlayerState(id)) {
-			console.error("Error: client %d does not have PlayerState", id);
-			return false;
-		}
-		if (!game.playerState(id).validTargetEntity()) {
-			console.error("Error: PlayerState for %d has no valid target", id);
+		if (!this.canAdd(id)) {
 			return false;
 		}
 		return true;

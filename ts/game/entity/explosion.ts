@@ -129,10 +129,12 @@ export abstract class Explosion extends EntityBase implements Entity {
 			return;
 		}
 
-		const magnitude = this.force();
-		// Use body to handle multi-body profiles.
-		const force = Vec2.fromVec(collision.bodyB.position).sub(collision.bodyA.position).setLength(magnitude);
-		other.addForce(force);
+		if (!other.getAttribute(AttributeType.INVINCIBLE)) {
+			const magnitude = this.force();
+			// Use body to handle multi-body profiles.
+			const force = Vec2.fromVec(collision.bodyB.position).sub(collision.bodyA.position).setLength(magnitude);
+			other.addForce(force);
+		}
 
 		this._hits.add(other.id());
 	}

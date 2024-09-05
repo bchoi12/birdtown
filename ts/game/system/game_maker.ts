@@ -284,7 +284,7 @@ export class GameMaker extends SystemBase implements System {
 				seed: Math.floor(Math.random() * 10000),
 			});
 			game.playerStates().execute((playerState : PlayerState) => {
-				playerState.setRole(PlayerRole.GAMING);
+				playerState.resetForLobby();
 			});
 			break;
 		case GameState.LOAD:

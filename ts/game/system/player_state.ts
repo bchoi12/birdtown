@@ -138,6 +138,15 @@ export class PlayerState extends ClientSystem implements System {
 
 	// Player can spawn && we should show prompt since they need to press a button.
 	private promptSpawn() : boolean { return this.role() === PlayerRole.SPAWNING && game.controller().gameState() === GameState.GAME; }
+	resetForLobby() : void {
+		if (this.validTargetEntity()) {
+			this.setRole(PlayerRole.GAMING);
+
+			let player = this.targetEntity<Player>();
+			game.level().spawnPlayer(player);
+			player.setState(GameObjectState.NORMAL);
+		}
+	}
 	respawnAfter(player : Player, millis : number, cb? : () => void) : void {
 		if (!this._respawnTimer.hasTimeLeft()) {
 			this.setRole(PlayerRole.WAITING);

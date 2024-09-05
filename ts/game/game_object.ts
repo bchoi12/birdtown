@@ -536,8 +536,9 @@ export abstract class GameObjectBase {
 						handler.validate(value);
 					}
 				} else {
-					this._data.import(prop, value, seqNum)
-					handler.import(this._data.getValue(prop));
+					if (this._data.import(prop, value, seqNum)) {
+						handler.import(this._data.getValue(prop));
+					}
 				}
 			} else {
 				const id = this.propToId(prop);

@@ -11,7 +11,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 import { DialogMessage } from 'message/dialog_message'
 
 import { ui } from 'ui'
-import { DialogType, FeedType, TooltipType } from 'ui/api'
+import { DialogType, FeedType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -135,14 +135,8 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		if (!this.isSource()) { return; }
 
 		if (this._dialogState === DialogState.OPEN || this._dialogState === DialogState.PENDING) {
-			console.error("Warning: force submitting dialog %s for %s", DialogType[this._dialogType], this.name());
-
-			this.submit();
 			this.setDialogState(DialogState.ERROR);
-
-			ui.showTooltip(TooltipType.FAILED_DIALOG_SYNC, {
-				ttl: 3000,
-			});
+			ui.forceSubmitDialog(this._dialogType);
 		}
 	}
 	inSync() : boolean {

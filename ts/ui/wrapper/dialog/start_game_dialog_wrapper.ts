@@ -17,6 +17,7 @@ import { KeyNames } from 'ui/common/key_names'
 
 import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
+import { ClientConfigWrapper } from 'ui/wrapper/client_config_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
@@ -26,12 +27,14 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 	private _mode : GameMode;
 	private _configMsg : GameConfigMessage;
+	private _clientConfig : ClientConfig;
 
 	constructor() {
 		super();
 
 		this._mode = GameMode.UNKNOWN;
 		this._configMsg = null;
+		this._clientConfig = ClientConfig.empty();
 
 		this.setTitle("Select a mode");
 		this.addGameModePage();
@@ -47,14 +50,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 
 		this.addOnSubmit(() => {
-			// TODO: show tooltip on error
 			if (this._configMsg !== null) {
-				let clientConfig = ClientConfig.fromSetup();
-				clientConfig.clientMap().forEach((info : ClientInfo) => {
-					info.role = PlayerRole.WAITING;
-				});
-
-				game.controller().startGame(this._configMsg, clientConfig);
+				game.controller().startGame(this._configMsg, this._clientConfig);
 			}
 		});
 	}
@@ -172,9 +169,6 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		options.setLegend("Options");
 		options.contentElm().style.fontSize = "0.6em";
 
-		let players = columnsWrapper.column(1);
-		players.setLegend("Players");
-
 		let points = new LabelNumberWrapper({
 			label: "Points for a win",
 			value: 5,
@@ -199,16 +193,16 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		options.contentElm().appendChild(victories.elm());
 
-		let healthCrateSpawn = this._configMsg.getHealthCrateSpawn();
 		let healthCrates = new SettingWrapper<FrequencyType>({
 			name: "Health Crate Spawn Rate",
-			get: () => { return healthCrateSpawn; },
+			value: this._configMsg.getHealthCrateSpawn(),
 			click: (current : FrequencyType) => {
-				if (healthCrateSpawn === FrequencyType.HIGH) {
-					healthCrateSpawn = FrequencyType.NEVER;
+				if (current === FrequencyType.HIGH) {
+					current = FrequencyType.NEVER;
 				} else {
-					healthCrateSpawn++;
+					current++;
 				}
+				return current;
 			},
 			text: (current : FrequencyType) => {
 				return FrequencyType[current];
@@ -216,16 +210,16 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		options.contentElm().appendChild(healthCrates.elm());
 
-		let weaponCrateSpawn = this._configMsg.getWeaponCrateSpawn();
 		let weaponCrates = new SettingWrapper<FrequencyType>({
 			name: "Weapon Crate Spawn Rate",
-			get: () => { return weaponCrateSpawn; },
+			value: this._configMsg.getWeaponCrateSpawn(),
 			click: (current : FrequencyType) => {
-				if (weaponCrateSpawn === FrequencyType.HIGH) {
-					weaponCrateSpawn = FrequencyType.NEVER;
+				if (current === FrequencyType.HIGH) {
+					current = FrequencyType.NEVER;
 				} else {
-					weaponCrateSpawn++;
+					current++;
 				}
+				return current;
 			},
 			text: (current : FrequencyType) => {
 				return FrequencyType[current];
@@ -233,13 +227,22 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		options.contentElm().appendChild(weaponCrates.elm());
 
+		let players = columnsWrapper.column(1);
+		players.setLegend("Players");
+		players.contentElm().style.fontSize = "0.6em";
+
+		let clientConfigWrapper = new ClientConfigWrapper();
+		players.contentElm().appendChild(clientConfigWrapper.elm());
+
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setOnSubmit(() => {
 			this._configMsg.setPoints(points.number());
 			this._configMsg.setVictories(victories.number());
-			this._configMsg.setHealthCrateSpawn(healthCrateSpawn);
-			this._configMsg.setWeaponCrateSpawn(weaponCrateSpawn);
+			this._configMsg.setHealthCrateSpawn(healthCrates.value());
+			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
+
+			this._clientConfig = clientConfigWrapper.config();
 		});
 	}
 
@@ -252,9 +255,6 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let options = columnsWrapper.column(0);
 		options.setLegend("Options");
 		options.contentElm().style.fontSize = "0.6em";
-
-		let players = columnsWrapper.column(1);
-		players.setLegend("Players");
 
 		let lives = new LabelNumberWrapper({
 			label: "Lives",
@@ -280,16 +280,16 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		options.contentElm().appendChild(victories.elm());
 
-		let healthCrateSpawn = this._configMsg.getHealthCrateSpawn();
 		let healthCrates = new SettingWrapper<FrequencyType>({
 			name: "Health Crate Spawn Rate",
-			get: () => { return healthCrateSpawn; },
+			value: this._configMsg.getHealthCrateSpawn(),
 			click: (current : FrequencyType) => {
-				if (healthCrateSpawn === FrequencyType.HIGH) {
-					healthCrateSpawn = FrequencyType.NEVER;
+				if (current === FrequencyType.HIGH) {
+					current = FrequencyType.NEVER;
 				} else {
-					healthCrateSpawn++;
+					current++;
 				}
+				return current;
 			},
 			text: (current : FrequencyType) => {
 				return FrequencyType[current];
@@ -297,16 +297,16 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		options.contentElm().appendChild(healthCrates.elm());
 
-		let weaponCrateSpawn = this._configMsg.getWeaponCrateSpawn();
 		let weaponCrates = new SettingWrapper<FrequencyType>({
 			name: "Weapon Crate Spawn Rate",
-			get: () => { return weaponCrateSpawn; },
+			value: this._configMsg.getWeaponCrateSpawn(),
 			click: (current : FrequencyType) => {
-				if (weaponCrateSpawn === FrequencyType.HIGH) {
-					weaponCrateSpawn = FrequencyType.NEVER;
+				if (current === FrequencyType.HIGH) {
+					current = FrequencyType.NEVER;
 				} else {
-					weaponCrateSpawn++;
+					current++;
 				}
+				return current;
 			},
 			text: (current : FrequencyType) => {
 				return FrequencyType[current];
@@ -314,13 +314,22 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		options.contentElm().appendChild(weaponCrates.elm());
 
+		let players = columnsWrapper.column(1);
+		players.setLegend("Players");
+		players.contentElm().style.fontSize = "0.6em";
+
+		let clientConfigWrapper = new ClientConfigWrapper();
+		players.contentElm().appendChild(clientConfigWrapper.elm());
+
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setOnSubmit(() => {
 			this._configMsg.setLives(lives.number());
 			this._configMsg.setVictories(victories.number());
-			this._configMsg.setHealthCrateSpawn(healthCrateSpawn);
-			this._configMsg.setWeaponCrateSpawn(weaponCrateSpawn);
+			this._configMsg.setHealthCrateSpawn(healthCrates.value());
+			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
+
+			this._clientConfig = clientConfigWrapper.config();
 		});
 	}
 }

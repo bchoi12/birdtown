@@ -43,13 +43,14 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 		let fullscreen = new SettingWrapper<FullscreenSetting>({
 			name: "Fullscreen Mode",
-			get: () => { return settings.fullscreenSetting; },
+			value: settings.fullscreenSetting,
 			click: (current : FullscreenSetting) => {
 				if (current === FullscreenSetting.WINDOWED) {
 					settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
 				} else {
 					settings.fullscreenSetting = FullscreenSetting.WINDOWED;
 				}
+				return settings.fullscreenSetting;
 			},
 			text: (current : FullscreenSetting) => {
 				return FullscreenSetting[current];
@@ -59,9 +60,10 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 		let pointer = new SettingWrapper<PointerSetting>({
 			name: "In-game Cursor",
-			get: () => { return settings.pointerSetting; },
+			value: settings.pointerSetting,
 			click: (current : PointerSetting) => {
 				settings.pointerSetting = current === PointerSetting.LOCKED ? PointerSetting.NORMAL : PointerSetting.LOCKED;
+				return settings.pointerSetting;
 			},
 			text: (current : PointerSetting) => {
 				return PointerSetting[current];
@@ -71,13 +73,14 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 		let frameRate = new SettingWrapper<SpeedSetting>({
 			name: "FPS Cap",
-			get: () => { return settings.fpsSetting; },
+			value: settings.fpsSetting,
 			click: (current : SpeedSetting) => {
 				if (current === SpeedSetting.FAST) {
 					settings.fpsSetting = SpeedSetting.SLOW;
 				} else {
 					settings.fpsSetting++;
 				}
+				return settings.fpsSetting;
 			},
 			text: (current : SpeedSetting) => {
 				switch (current) {
@@ -96,13 +99,14 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 		let antiAlias = new SettingWrapper<AntiAliasSetting>({
 			name: "Anti-aliasing",
-			get: () => { return settings.antiAliasSetting; },
+			value: settings.antiAliasSetting,
 			click: (current : AntiAliasSetting) => {
 				if (current === AntiAliasSetting.HIGH) {
 					settings.antiAliasSetting = AntiAliasSetting.NONE;
 				} else {
 					settings.antiAliasSetting++;
 				}
+				return settings.antiAliasSetting;
 			},
 			text: (current : AntiAliasSetting) => {
 				return AntiAliasSetting[current];
@@ -112,13 +116,14 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 		let clientPrediction = new SettingWrapper<ClientPredictionSetting>({
 			name: "Client-side Prediction",
-			get: () => { return settings.clientPredictionSetting; },
+			value: settings.clientPredictionSetting,
 			click: (current : ClientPredictionSetting) => {
 				if (current === ClientPredictionSetting.HIGH) {
 					settings.clientPredictionSetting = ClientPredictionSetting.NONE;
 				} else {
 					settings.clientPredictionSetting++;
 				}
+				return settings.clientPredictionSetting;
 			},
 			text: (current : ClientPredictionSetting) => {
 				return ClientPredictionSetting[current];
@@ -128,9 +133,10 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 		let inspector = new SettingWrapper<InspectorSetting>({
 			name: "[Debug] Inspector",
-			get: () => { return settings.inspectorSetting; },
+			value: settings.inspectorSetting,
 			click: (current : InspectorSetting) => {
 				settings.inspectorSetting = current === InspectorSetting.OFF ? InspectorSetting.ON : InspectorSetting.OFF;
+				return settings.inspectorSetting;
 			},
 			text: (current : InspectorSetting) => {
 				return InspectorSetting[current];
@@ -141,13 +147,14 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		if (isLocalhost()) {
 			let delay = new SettingWrapper<DelaySetting>({
 				name: "[Debug] Delay",
-				get: () => { return settings.delaySetting; },
+				value: settings.delaySetting,
 				click: (current : DelaySetting) => {
 					if (current === DelaySetting.GLOBAL) {
 						settings.delaySetting = DelaySetting.NONE;
 					} else {
 						settings.delaySetting++;
 					}
+					return settings.delaySetting;
 				},
 				text: (current : DelaySetting) => {
 					return DelaySetting[current];
@@ -157,13 +164,14 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 			let jitter = new SettingWrapper<JitterSetting>({
 				name: "[Debug] Jitter",
-				get: () => { return settings.jitterSetting; },
+				value: settings.jitterSetting,
 				click: (current : JitterSetting) => {
 					if (current === JitterSetting.TERRIBLE) {
 						settings.jitterSetting = JitterSetting.NONE;
 					} else {
 						settings.jitterSetting++;
 					}
+					return settings.jitterSetting;
 				},
 				text: (current : JitterSetting) => {
 					return JitterSetting[current];
@@ -173,13 +181,14 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 			let networkStability = new SettingWrapper<NetworkStabilitySetting>({
 				name: "[Debug] Network Stability",
-				get: () => { return settings.networkStabilitySetting; },
+				value: settings.networkStabilitySetting,
 				click: (current : NetworkStabilitySetting) => {
 					if (current === NetworkStabilitySetting.TERRIBLE) {
 						settings.networkStabilitySetting = NetworkStabilitySetting.PERFECT;
 					} else {
 						settings.networkStabilitySetting++;
 					}
+					return settings.networkStabilitySetting;
 				},
 				text: (current : NetworkStabilitySetting) => {
 					return NetworkStabilitySetting[current];

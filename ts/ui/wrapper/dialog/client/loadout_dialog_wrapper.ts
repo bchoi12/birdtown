@@ -32,6 +32,9 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 
 		const pairs = EquipPairs.randomN(num);
 
+		this.dialogMessage().setEquipType(pairs[0][0]);
+		this.dialogMessage().setAltEquipType(pairs[0][1]);
+
 		for (let i = 0; i < num; ++i) {
 			let column = columns.column(i);
 			column.elm().style.textAlign = "center";

@@ -9,28 +9,21 @@ import { InfoType, UiMode } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
-import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
+import { ScoreboardWrapper } from 'ui/wrapper/dialog/scoreboard_wrapper'
 import { InfoWrapper } from 'ui/wrapper/info_wrapper'
 
 export class ScoreboardHandler extends HandlerBase implements Handler {
 
 	private _scoreboardElm : HTMLElement;
-	private _scoreboard : DialogWrapper;
-	private _infoWrapper : InfoWrapper;
+	private _scoreboard : ScoreboardWrapper;
 
 	constructor() {
 		super(HandlerType.SCOREBOARD);
 
 		this._scoreboardElm = Html.elm(Html.divScoreboard);
-
-		this._scoreboard = new DialogWrapper();
-		this._scoreboard.setTitle("Scoreboard");
-		this._scoreboard.elm().style.opacity = "1";
-
-		this._infoWrapper = new InfoWrapper();
+		this._scoreboard = new ScoreboardWrapper();
 
 		this._scoreboardElm.appendChild(this._scoreboard.elm());
-		this._scoreboard.contentElm().appendChild(this._infoWrapper.elm());
 	}
 
 	override setup() : void {
@@ -51,10 +44,10 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 	}
 
 	updateInfo(id : number, type : InfoType, value : number | string) : void {
-		this._infoWrapper.updateInfo(id, type, value);
+		this._scoreboard.infoWrapper().updateInfo(id, type, value);
 	}
 	clearInfo(id : number, type : InfoType) : void {
-		this._infoWrapper.clearInfo(id, type);
+		this._scoreboard.infoWrapper().clearInfo(id, type);
 	}
 
 	private show() : void {

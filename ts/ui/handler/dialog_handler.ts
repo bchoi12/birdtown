@@ -2,7 +2,7 @@
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { UiMode, DialogType } from 'ui/api'
+import { UiMode, DialogType, TooltipType } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -14,6 +14,8 @@ import { ReturnToLobbyDialogWrapper } from 'ui/wrapper/dialog/return_to_lobby_di
 import { StartGameDialogWrapper } from 'ui/wrapper/dialog/start_game_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
+import { Optional } from 'util/optional'
+
 export class DialogHandler extends HandlerBase implements Handler {
 
 	private static readonly _createDialogFns = new Map<DialogType, () => DialogWrapper>([
@@ -24,7 +26,8 @@ export class DialogHandler extends HandlerBase implements Handler {
 	]);
 
 	private _dialogsElm : HTMLElement;
-	private _dialogs : Array<DialogWrapper>;
+	private _dialogQueue : Array<DialogType>;
+	private _dialogs : Map<DialogType, DialogWrapper>;
 
 	constructor() {
 		super(HandlerType.DIALOGS, {
@@ -32,53 +35,92 @@ export class DialogHandler extends HandlerBase implements Handler {
 		});
 
 		this._dialogsElm = Html.elm(Html.divDialogs);
-		this._dialogs = new Array();
+		this._dialogQueue = new Array();
+		this._dialogs = new Map();
 	}
 
 	override clear() : void {
 		super.clear();
 
-		while(this._dialogs.length > 0) {
-			this.popDialog(this._dialogs.pop());
-		}
+		this._dialogQueue = [];
+		this._dialogs.forEach((wrapper : DialogWrapper, type : DialogType) => {
+			this.removeWrapper(type, wrapper);
+		});
 	}
 
 	pushDialog(type : DialogType) : void {
 		if (!DialogHandler._createDialogFns.has(type)) {
-			console.error("Error: not showing unknown dialog type", DialogType[type]);
+			console.error("Error: not queuing unknown dialog type", DialogType[type]);
+			return;
+		}
+		if (this._dialogs.has(type)) {
+			console.error("Error: dialog queue already contains", DialogType[type]);
 			return;
 		}
 
 		let dialogWrapper = DialogHandler._createDialogFns.get(type)();
 		dialogWrapper.addOnSubmit(() => {
-			this.popDialog(dialogWrapper);
+			this.removeDialog(type);
 		});
 		dialogWrapper.addOnCancel(() => {
-			this.popDialog(dialogWrapper);
+			this.removeDialog(type);
 		});
 		dialogWrapper.hide();
 
-		this._dialogs.push(dialogWrapper);
-		this._dialogsElm.appendChild(dialogWrapper.elm());
+		this._dialogs.set(type, dialogWrapper);
+		this._dialogQueue.push(type);
+		this._dialogsElm.prepend(dialogWrapper.elm());
 
-		this.showDialog();
+		this.updateDialog();
 	}
-
-	popDialog(dialogWrapper : DialogWrapper) : void {
-		if (this._dialogsElm.contains(dialogWrapper.elm())) {
-			this._dialogsElm.removeChild(dialogWrapper.elm());
+	forceSubmitDialog(type : DialogType) : void {
+		if (!this._dialogs.has(type)) {
+			return;
 		}
-		this._dialogs.pop();
-		this.showDialog();
+
+		let wrapper = this._dialogs.get(type);
+		wrapper.submit();
+
+		this.removeDialog(type);
+
+		ui.showTooltip(TooltipType.FORCE_SUBMIT, {
+			ttl: 3000,
+		});
+	}
+	private removeDialog(type : DialogType) : void {
+		if (!this._dialogs.has(type)) {
+			return;
+		}
+
+		const wrapper = this._dialogs.get(type);
+		this.removeWrapper(type, wrapper);
+		this._dialogs.delete(type);
+
+		if (wrapper.visible()) {
+			this.updateDialog();
+		}
 	}
 
-	showDialog() : void {
-		if (this._dialogs.length === 0) {
+	private removeWrapper(type : DialogType, wrapper : DialogWrapper) : void {
+		if (this._dialogsElm.contains(wrapper.elm())) {
+			this._dialogsElm.removeChild(wrapper.elm());
+		}
+	}
+
+	private updateDialog() : void {
+		if (this._dialogQueue.length === 0) {
 			this.disable();
 			return;
 		}
 
+		const type = this._dialogQueue.pop();
+		if (!this._dialogs.has(type)) {
+			console.error("Warning: missing dialog %s", DialogType[type]);
+			this.updateDialog();
+			return;
+		}
+
+		this._dialogs.get(type).show();
 		this.enable();
-		this._dialogs[this._dialogs.length - 1].show();
 	}
 }
