@@ -187,8 +187,7 @@ export class PlayerState extends ClientSystem implements System {
 		// Spawn the player if we meet a long list of criteria.
 		if (!this.hasTargetEntity()) {
 			if (game.tablet(this.clientId()).isSetup()
-				&& (game.controller().gameState() === GameState.FREE
-					|| game.controller().gameMode() === GameMode.PRACTICE)) {
+				&& game.controller().gameState() === GameState.FREE) {
 				let [player, hasPlayer] = game.entities().addEntity<Player>(EntityType.PLAYER, {
 					clientId: this.clientId(),
 					profileInit: {

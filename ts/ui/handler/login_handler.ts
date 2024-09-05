@@ -5,6 +5,7 @@ import { UiGlobals } from 'global/ui_globals'
 
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'
+import { LoginNames } from 'ui/common/login_names'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
@@ -44,7 +45,11 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 	override setup() : void {	
 		this._buttonHostElm.onclick = () => {
-			const room = Html.trimmedValue(this._roomInputElm);
+			let room = Html.trimmedValue(this._roomInputElm);
+			if (room.length === 0) {
+				room = LoginNames.randomRoom();
+			}
+
 			this.startGame(room, /*isHost=*/true);
 		};
 		this._buttonJoinElm.onclick = () => {
@@ -112,6 +117,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 	private handleError(error : string) : void {
 		this._loginErrorElm.style.display = "block";
 		this._loginErrorElm.textContent = error;
+		this._roomInputElm.value = "";
 	}
 
 	private hideError() : void {

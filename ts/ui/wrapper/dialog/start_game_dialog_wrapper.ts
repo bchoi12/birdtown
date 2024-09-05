@@ -34,7 +34,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		this._mode = GameMode.UNKNOWN;
 		this._configMsg = null;
-		this._clientConfig = ClientConfig.empty();
+		this._clientConfig = null;
 
 		this.setTitle("Select a mode");
 		this.addGameModePage();
@@ -50,7 +50,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 
 		this.addOnSubmit(() => {
-			if (this._configMsg !== null) {
+			if (this._configMsg !== null && this._clientConfig !== null) {
 				game.controller().startGame(this._configMsg, this._clientConfig);
 			}
 		});
@@ -148,6 +148,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				this._configMsg = GameConfigMessage.defaultConfig(this._mode);
 
 				switch (this._mode) {
+				case GameMode.PRACTICE:
+					this._clientConfig = ClientConfig.fromSetup();
+					break;
 				case GameMode.SURVIVAL:
 					this.addSurvivalPage();
 					break;

@@ -43,4 +43,14 @@ export namespace LoginNames {
 	export function randomName() : string {
 		return birdNames[Math.floor(Math.random() * birdNames.length)];
 	}
+
+	const roomLetters = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+
+	export function randomRoom() : string {
+		let room = "";
+		for (let i = 0; i < 4; ++i) {
+			room += roomLetters.charAt(Math.floor(Math.random() * roomLetters.length));
+		}
+		return room;
+	}
 }
