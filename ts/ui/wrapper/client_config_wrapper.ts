@@ -29,12 +29,12 @@ export class ClientConfigWrapper extends HtmlWrapper<HTMLElement> {
 				name: info.displayName,
 				value: info.role,
 				click: (current : PlayerRole) => {
-					const role = current === PlayerRole.WAITING ? PlayerRole.SPECTATING : PlayerRole.WAITING;
+					const role = current === PlayerRole.PREPARING ? PlayerRole.SPECTATING : PlayerRole.PREPARING;
 					info.role = role;
 					return role;
 				},
 				text: (current : PlayerRole) => {
-					return current === PlayerRole.WAITING ? "PLAYING" : "SPECTATING";
+					return current === PlayerRole.PREPARING ? "PLAYING" : "SPECTATING ONLY";
 				},
 			});
 

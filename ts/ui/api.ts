@@ -33,6 +33,10 @@ export enum DialogType {
 	START_GAME,
 }
 
+export type DialogOptions = {
+	ttl? : number;
+}
+
 export enum FeedType {
 	UNKNOWN,
 

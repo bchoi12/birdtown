@@ -85,11 +85,11 @@ class Settings {
 	predictionTime() : number {
 		switch (this.clientPredictionSetting) {
 		case ClientPredictionSetting.LOW:
-			return 250;
-		case ClientPredictionSetting.MEDIUM:
 			return 500;
-		case ClientPredictionSetting.HIGH:
+		case ClientPredictionSetting.MEDIUM:
 			return 1000;
+		case ClientPredictionSetting.HIGH:
+			return 2000;
 		default:
 			return 0;
 		}

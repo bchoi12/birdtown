@@ -109,7 +109,10 @@ export class GameProp<T extends Object> {
 		return seqNum >= this._lastChanged;
 	}
 	get() : T { return this._value.get(); }
-	clear() : void { this._value.clear(); }
+	clear() : void {
+		this._consecutiveChanges = 0;
+		this._value.clear();
+	}
 
 	equals(value : T) : boolean {
 		if (!this.has()) {
@@ -133,7 +136,7 @@ export class GameProp<T extends Object> {
 		}
 
 		// Reset if there is a gap in setting value or if value was cleared
-		if (seqNum - this._seqNum > game.runner().lastStep() || !this.has()) {
+		if (seqNum - this._seqNum > game.runner().lastStep()) {
 			this._consecutiveChanges = 0;
 		}
 

@@ -1,5 +1,6 @@
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
 import { EquipPairs } from 'game/util/equip_pairs'
@@ -26,6 +27,8 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 		this.setTitle("Pick a Weapon");
 
 		const num = 3;
+
+		this.addSubmitTimer(game.controller().timeLimit(GameState.SETUP));
 
 		let columns = ColumnsWrapper.withColumns(num);
 		pageWrapper.elm().appendChild(columns.elm());

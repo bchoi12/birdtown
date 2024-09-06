@@ -40,8 +40,8 @@ export class Lakitu extends SystemBase implements System {
 	private static readonly _slowPan = 5000;
 	private static readonly _offsets = new Map<OffsetType, Vec3>([
 		[OffsetType.ANCHOR, Vec3.zero()],
-		[OffsetType.TARGET, new Vec3({ y: 0.5 })],
-		[OffsetType.CAMERA, new Vec3({ y: 1.5, z: 33 })],
+		[OffsetType.TARGET, new Vec3({ y: 1 })],
+		[OffsetType.CAMERA, new Vec3({ y: 1, z: 33 })],
 	]);
 
 	private _camera : BABYLON.UniversalCamera;
@@ -123,7 +123,7 @@ export class Lakitu extends SystemBase implements System {
 		return player.initialized()
 			&& !player.deleted()
 			&& game.playerStates().hasPlayerState(player.clientId())
-			&& (player.state() !== GameObjectState.DEACTIVATED || game.playerState(player.clientId()).inGame());
+			&& game.playerState(player.clientId()).inGame();
 	}
 	private targetPlayer() : boolean {
 	 if (game.playerState().hasTargetEntity()) {
@@ -243,16 +243,17 @@ export class Lakitu extends SystemBase implements System {
 		case GameState.FREE:
 		case GameState.GAME:
 			switch (game.playerState().role()) {
-			case PlayerRole.WAITING:
-				if (!this.targetPlayer()) {
-					this.targetPlane();
-				}
-				break;
+			case PlayerRole.PREPARING:
 			case PlayerRole.SPAWNING:
 				this.targetPlane();
 				break;
 			case PlayerRole.GAMING:
 				this.targetPlayer();
+				break;
+			case PlayerRole.WAITING:
+				if (!this.targetPlayer()) {
+					this.targetPlane();
+				}
 				break;
 			case PlayerRole.SPECTATING:
 				// Add any missing players

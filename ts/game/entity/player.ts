@@ -728,7 +728,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._model.playAnimation(Animation.JUMP);
 			} else if (Math.abs(this._profile.acc().x) > 1e-2) {
 				this._model.playAnimation(Animation.WALK, {
-					speedRatio: 0.3 + Math.abs(this._profile.vel().x / Player._maxWalkingVel),
+					speedRatio: 0.3 + 1.2 * Math.abs(this._profile.vel().x / Player._maxWalkingVel),
 				});
 
 				if (Math.abs(this._profile.vel().x) > 0.1 && this._walkSmokeRateLimiter.check(millis)) {

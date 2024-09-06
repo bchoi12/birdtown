@@ -48,6 +48,9 @@ export class LoginHandler extends HandlerBase implements Handler {
 			let room = Html.trimmedValue(this._roomInputElm);
 			if (room.length === 0) {
 				room = LoginNames.randomRoom();
+
+				// Avoid browser validation nag
+				this._roomInputElm.value = room;
 			}
 
 			this.startGame(room, /*isHost=*/true);
@@ -117,7 +120,6 @@ export class LoginHandler extends HandlerBase implements Handler {
 	private handleError(error : string) : void {
 		this._loginErrorElm.style.display = "block";
 		this._loginErrorElm.textContent = error;
-		this._roomInputElm.value = "";
 	}
 
 	private hideError() : void {
@@ -152,6 +154,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		    netcodeError: () => {
 		    	if (isHost) {
 		    		this.handleError(`Failed to create room ${room}. Please try again later with a different code.`);
+					this._roomInputElm.value = "";
 		    	} else {
 		    		this.handleError(`Failed to connect to ${room}. Please double check the code and try again.`);
 		    	}

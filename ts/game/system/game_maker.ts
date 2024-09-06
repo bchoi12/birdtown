@@ -28,10 +28,12 @@ export class GameMaker extends SystemBase implements System {
 	private static readonly _lastDamageTime = 10000;
 	private static readonly _endTimeLimit = 3000;
 	private static readonly _loadTimeLimit = 1500;
-	private static readonly _respawnTime = 3000;
+	private static readonly _respawnTime = 2000;
+	private static readonly _spawnTime = 5000;
 
 	private static readonly _timeLimitBuffer = new Map<GameState, number>([
-		[GameState.SETUP, 2000],
+		// Large buffer to allow dialogs to cleanly force submit and sync
+		[GameState.SETUP, 5000],
 	]);
 
 	private static readonly _limitPerPlayer = new Map<FrequencyType, number>([
@@ -220,31 +222,39 @@ export class GameMaker extends SystemBase implements System {
 			}
 			game.playerStates().executeIf((playerState : PlayerState) => {
 				const clientId = playerState.clientId();
-
-				// TODO: can probably just force submit on client side using a dialog timer
-				if (!game.clientDialog(clientId).inSync(DialogType.LOADOUT)) {
-					game.clientDialog(clientId).pushForceSubmit(DialogType.LOADOUT);
-				}
-
 				const player = playerState.targetEntity<Player>();
-				if (!player.dead()) {
-					return;
-				}
 
-				this.processKillOn(player);
-				if (!game.tablet(clientId).outOfLives()) {
-					playerState.respawnAfter(player, GameMaker._respawnTime, () => {
-						if (game.clientDialogs().hasClientDialog(clientId)) {
-							game.clientDialog(clientId).pushShowDialog(DialogType.LOADOUT);
-						}
-					});
-				} else {
-					playerState.setRole(PlayerRole.SPECTATING);
+				if (playerState.role() === PlayerRole.GAMING) {
+					if (!game.clientDialog(clientId).inSync(DialogType.LOADOUT)) {
+						game.clientDialog(clientId).queueForceSubmit(DialogType.LOADOUT);
+					}
+
+					if (!player.dead()) {
+						return;
+					}
+
+					this.processKillOn(player);
+					if (!game.tablet(clientId).outOfLives()) {
+						playerState.setRole(PlayerRole.WAITING);
+						playerState.setRoleAfter(PlayerRole.PREPARING, GameMaker._respawnTime, () => {
+							if (game.clientDialogs().hasClientDialog(clientId)) {
+								game.clientDialog(clientId).queueDialog(DialogType.LOADOUT);
+							}
+						});
+					} else {
+						playerState.setRole(PlayerRole.SPECTATING);
+					}
+				} else if (playerState.role() === PlayerRole.PREPARING) {
+					if (game.clientDialog(clientId).inSync(DialogType.LOADOUT)) {
+						playerState.setRole(PlayerRole.SPAWNING);
+					}
+					playerState.setRoleAfter(PlayerRole.SPAWNING, this.timeLimit(GameState.SETUP));
+				} else if (playerState.role() === PlayerRole.SPAWNING) {
+					playerState.setRoleAfter(PlayerRole.GAMING, GameMaker._spawnTime);
 				}
 			}, (playerState : PlayerState) => {
 				return this._clientConfig.isPlayer(playerState.clientId())
-					&& playerState.validTargetEntity()
-					&& playerState.role() === PlayerRole.GAMING;
+					&& playerState.validTargetEntity();
 			});
 			break;
 		case GameState.FINISH:
@@ -311,14 +321,14 @@ export class GameMaker extends SystemBase implements System {
 			break;
 		case GameState.SETUP:
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
-				clientDialog.pushShowDialog(DialogType.LOADOUT);
+				clientDialog.queueDialog(DialogType.LOADOUT);
 			}, (clientDialog : ClientDialog) => {
 				return this._clientConfig.isPlayer(clientDialog.clientId());
 			});
 			break;
 		case GameState.GAME:
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
-				clientDialog.pushForceSubmit(DialogType.LOADOUT);
+				clientDialog.queueForceSubmit(DialogType.LOADOUT);
 			}, (clientDialog : ClientDialog) => {
 				return this._clientConfig.isPlayer(clientDialog.clientId()) && !clientDialog.inSync(DialogType.LOADOUT);
 			});
@@ -329,6 +339,11 @@ export class GameMaker extends SystemBase implements System {
 			});
 			break;
 		case GameState.FINISH:
+			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
+				clientDialog.queueForceSubmit(DialogType.LOADOUT);
+			}, (clientDialog : ClientDialog) => {
+				return this._clientConfig.isPlayer(clientDialog.clientId()) && !clientDialog.inSync(DialogType.LOADOUT);
+			});
 			this._winners.forEach((tablet : Tablet) => {
 				tablet.addInfo(InfoType.VICTORIES, 1);
 			});

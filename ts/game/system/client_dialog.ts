@@ -76,7 +76,7 @@ export class ClientDialog extends ClientSystem implements System {
 		}
 	}
 
-	pushShowDialog(type : DialogType) : void {
+	queueDialog(type : DialogType) : void {
 		if (this.clientIdMatches()) {
 			this.showDialog(type);
 		} else if (this.isSource()) {
@@ -85,7 +85,7 @@ export class ClientDialog extends ClientSystem implements System {
 	}
 	private showDialog(type : DialogType) : void { this.syncer(type).showDialog(); }
 
-	pushForceSubmit(type : DialogType) : void {
+	queueForceSubmit(type : DialogType) : void {
 		if (this.clientIdMatches()) {
 			this.forceSubmit(type);			
 		} else if (this.isSource()) {

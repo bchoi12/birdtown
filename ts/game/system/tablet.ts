@@ -29,7 +29,7 @@ export class Tablet extends ClientSystem implements System {
 	constructor(clientId : number) {
 		super(SystemType.TABLET, clientId);
 
-		this._color = "";
+		this._color = "#FFFFFF";
 		this._displayName = "";
 		this._infoMap = new Map();
 
@@ -130,8 +130,9 @@ export class Tablet extends ClientSystem implements System {
 
 	hasColor() : boolean { return this._color.length > 0; }
 	setColor(color : string) : void {
-		if (color.length === 0) {
+		if (color === null || color.length === 0) {
 			console.error("Error: trying to set empty color");
+			return;
 		}
 
 		this._color = color;

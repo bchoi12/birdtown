@@ -10,7 +10,7 @@ export class Key extends ClientSideSystem implements System {
 
 	private _keyType : KeyType;
 	private _counter : number;
-	// Counter from network connection, either behind (if host) or ahead ()
+	// Counter from network connection. Behind if source, otherwise ahead.
 	private _networkCounter : number;
 	private _changed : boolean;
 
@@ -28,8 +28,8 @@ export class Key extends ClientSideSystem implements System {
 
 		this.addProp<number>({
 			export: () => { return this._counter; },
-			import: (obj : number) => { this._networkCounter = obj; },
-			validate: (obj : number) => { this._networkCounter = obj; },
+			import: (obj : number) => { this._networkCounter = Math.max(this._networkCounter, obj); },
+			validate: (obj : number) => { this._networkCounter = Math.max(this._networkCounter, obj); },
 		});
 	}
 
@@ -70,6 +70,8 @@ export class Key extends ClientSideSystem implements System {
 				} else {
 					this.release();
 				}
+			} else {
+				this._counter = this._networkCounter;
 			}
 		}
 	}

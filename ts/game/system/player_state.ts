@@ -22,6 +22,9 @@ export class PlayerState extends ClientSystem implements System {
 	private static readonly _disallowRoleChangeStates = new Set([
 		GameState.FINISH, GameState.VICTORY, GameState.ERROR,
 	]);
+	private static readonly _gameRoles = new Set([
+		PlayerRole.PREPARING, PlayerRole.SPAWNING, PlayerRole.GAMING, PlayerRole.WAITING,
+	]);
 
 	private static readonly _spawnKeys = [
 		KeyType.LEFT,
@@ -33,24 +36,20 @@ export class PlayerState extends ClientSystem implements System {
 		KeyType.ALT_MOUSE_CLICK,
 	];
 
-	private static readonly _planeSpawnTime = 7000;
 	private static readonly _respawnTime = 1000;
+	private static readonly _planeSpawnTime = 7000;
 
 	private _targetId : number;
 	private _role : PlayerRole;
 
-	private _spawnTimer : Timer;
-	private _respawnTimer : Timer;
+	private _roleTimer : Timer;
 
 	constructor(clientId : number) {
 		super(SystemType.PLAYER_STATE, clientId);
 
 		this._targetId = 0;
 		this._role = PlayerRole.UNKNOWN;
-		this._spawnTimer = this.newTimer({
-			canInterrupt: true,
-		});
-		this._respawnTimer = this.newTimer({
+		this._roleTimer = this.newTimer({
 			canInterrupt: false,
 		});
 
@@ -85,7 +84,19 @@ export class PlayerState extends ClientSystem implements System {
 	}
 
 	role() : PlayerRole { return this._role; }
-	inGame() : boolean { return this._role === PlayerRole.WAITING || this._role === PlayerRole.SPAWNING || this._role === PlayerRole.GAMING; }
+	inGame() : boolean { return PlayerState._gameRoles.has(this._role); }
+	setRoleAfter(role : PlayerRole, millis : number, cb? : () => void) : void {
+		if (this._roleTimer.hasTimeLeft()) {
+			return;
+		}
+
+		this._roleTimer.start(millis, () => {
+			this.setRole(role);
+			if (cb) {
+				cb();
+			}
+		});
+	}
 	setRole(role : PlayerRole) : void {
 		if (this._role === role) {
 			return;
@@ -99,6 +110,8 @@ export class PlayerState extends ClientSystem implements System {
 			console.error("Warning: skipping setting role to UNKNOWN for %s", this.name());
 			return;
 		}
+
+		this._roleTimer.reset();
 
 		this._role = role;
 		this.applyRole();
@@ -115,6 +128,16 @@ export class PlayerState extends ClientSystem implements System {
 		let player = this.targetEntity<Player>();
 
 		switch (this._role) {
+		case PlayerRole.PREPARING:
+			player.setState(GameObjectState.DEACTIVATED);
+			break;
+    	case PlayerRole.SPAWNING:
+    		player.setState(GameObjectState.DEACTIVATED);
+    		break;
+    	case PlayerRole.GAMING:
+			game.level().spawnPlayer(player);
+			player.setState(GameObjectState.NORMAL);
+   			break;
 		case PlayerRole.WAITING:
 		case PlayerRole.SPECTATING:
 			if (player.dead()) {
@@ -123,16 +146,6 @@ export class PlayerState extends ClientSystem implements System {
 				player.setState(GameObjectState.DEACTIVATED);
 			}
 			break;
-    	case PlayerRole.SPAWNING:
-    		// TODO: move force spawn logic to GameMaker
-    		this._spawnTimer.start(PlayerState._planeSpawnTime);
-    		player.setState(GameObjectState.DEACTIVATED);
-    		break;
-    	case PlayerRole.GAMING:
-			this._spawnTimer.reset();
-			game.level().spawnPlayer(player);
-			player.setState(GameObjectState.NORMAL);
-   			break;
 		}
 	}
 
@@ -145,22 +158,6 @@ export class PlayerState extends ClientSystem implements System {
 			let player = this.targetEntity<Player>();
 			game.level().spawnPlayer(player);
 			player.setState(GameObjectState.NORMAL);
-		}
-	}
-	respawnAfter(player : Player, millis : number, cb? : () => void) : void {
-		if (!this._respawnTimer.hasTimeLeft()) {
-			this.setRole(PlayerRole.WAITING);
-			this._respawnTimer.start(PlayerState._respawnTime, () => {
-				if (game.controller().gameState() === GameState.FREE) {
-					this.setRole(PlayerRole.GAMING);
-				} else {
-					this.setRole(PlayerRole.SPAWNING);
-				}
-
-				if (cb) {
-					cb();
-				}
-			});
 		}
 	}
 	die() : void {
@@ -216,7 +213,7 @@ export class PlayerState extends ClientSystem implements System {
 
 		// Allow player to spawn by pressing a key
 		if (this.promptSpawn()) {
-			if (this.anyKey(PlayerState._spawnKeys, KeyState.PRESSED) || this._spawnTimer.done()) {
+			if (this.anyKey(PlayerState._spawnKeys, KeyState.PRESSED)) {
 				this.setRole(PlayerRole.GAMING);
 			}
 		}
@@ -233,7 +230,8 @@ export class PlayerState extends ClientSystem implements System {
 
 		// Free respawn in the lobby
 		if (player.dead() && game.controller().gameState() === GameState.FREE) {
-			this.respawnAfter(player, PlayerState._respawnTime);
+			this.setRole(PlayerRole.WAITING);
+			this.setRoleAfter(PlayerRole.GAMING, PlayerState._respawnTime);
 		}
 	}
 

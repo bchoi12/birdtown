@@ -79,13 +79,9 @@ export class DialogHandler extends HandlerBase implements Handler {
 		}
 
 		let wrapper = this._dialogs.get(type);
-		wrapper.submit();
+		wrapper.forceSubmit();
 
 		this.removeDialog(type);
-
-		ui.showTooltip(TooltipType.FORCE_SUBMIT, {
-			ttl: 3000,
-		});
 	}
 	private removeDialog(type : DialogType) : void {
 		if (!this._dialogs.has(type)) {

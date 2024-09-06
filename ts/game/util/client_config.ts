@@ -48,7 +48,7 @@ export class ClientConfig {
 
 		this._clients.set(id, {
 			displayName: game.tablet(id).displayName(),
-			role: PlayerRole.WAITING,
+			role: PlayerRole.PREPARING,
 			team: 0,
 			disconnected: false,
 		});

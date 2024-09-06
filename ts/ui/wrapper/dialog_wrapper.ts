@@ -1,19 +1,21 @@
 
-import { game } from 'game'
-
 import { DialogMessage } from 'message/dialog_message'
 
 import { ui } from 'ui'
-import { DialogType } from 'ui/api'
+import { DialogType, TooltipType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { IconType } from 'ui/common/icon'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { FooterWrapper } from 'ui/wrapper/footer_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
+import { Optional } from 'util/optional'
+
 type OnSubmitFn = () => void;
 
 export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
+
+	private static readonly _submitTimeBuffer = 1500;
 
 	private _visible : boolean;
 
@@ -25,6 +27,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	private _pageIndex : number;
 	private _footer : FooterWrapper;
 
+	private _submitTime : Optional<number>;
 	private _onCancelFns : Array<OnSubmitFn>;
 	private _onNextPageFns : Array<OnSubmitFn>;
 	private _onSubmitFns : Array<OnSubmitFn>;
@@ -55,6 +58,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._pages = new Array();
 		this._pageIndex = 0;
 
+		this._submitTime = new Optional();
 		this._onCancelFns = new Array();
 		this._onNextPageFns = new Array();
 		this._onSubmitFns = new Array();
@@ -89,6 +93,38 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 			page.elm().style.display = "none";
 		}
 		return page;
+	}
+
+	addSubmitTimer(millis : number) : void {
+		if (this._submitTime.has() || millis <= 0 || millis >= 999 * 1000) {
+			return;
+		}
+
+		let timer = new ButtonWrapper();
+		timer.setIcon(IconType.TIMER);
+		timer.elm().style.float = "left";
+		this.footerElm().appendChild(timer.elm());
+
+		this._submitTime.set(Date.now() + millis);
+		this.updateTimer(timer);
+	}
+	private updateTimer(timer : ButtonWrapper) : void {
+		if (!this._submitTime.has()) {
+			this.footerElm().removeChild(timer.elm());
+			return;
+		}
+
+		const timeLeft = this._submitTime.get() - Date.now();
+		timer.setText("Auto submitting in " + Math.max(0, Math.ceil(timeLeft / 1000)) + "s");
+
+		if (timeLeft <= -DialogWrapper._submitTimeBuffer) {
+			this.forceSubmit();
+			return;
+		}
+
+		setTimeout(() => {
+			this.updateTimer(timer);
+		}, 1000);
 	}
 
 	addOKButton() : ButtonWrapper {
@@ -138,9 +174,16 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 	addOnSubmit(fn : OnSubmitFn) : void { this._onSubmitFns.push(fn); }
 	submit() : void {
+		this._submitTime.clear();
 		this._onSubmitFns.forEach((onSubmit : OnSubmitFn) => {
 			onSubmit();
 		});
+	}
+	forceSubmit() : void {
+		ui.showTooltip(TooltipType.FORCE_SUBMIT, {
+			ttl: 3000,
+		});
+		this.submit();
 	}
 
 	addOnCancel(fn : OnSubmitFn) : void { this._onCancelFns.push(fn); }

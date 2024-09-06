@@ -41,6 +41,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 
 		this.elm().classList.add(Html.classButton);
 		this.elm().classList.add(Html.classNoSelect);
+		this.elm().style.cursor = "auto";
 		this.elm().onclick = (e) => {
 			e.stopPropagation();
 			e.preventDefault();
@@ -91,10 +92,16 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		}
 	}
 
-	addOnClick(fn : OnEventFn) : void { this._onClickFns.push(fn); }
+	addOnClick(fn : OnEventFn) : void {
+		this.elm().style.cursor = "pointer";
+		this._onClickFns.push(fn);
+	}
 	addOnMouseEnter(fn : OnEventFn) : void { this._onMouseEnterFns.push(fn); }
 	addOnMouseLeave(fn : OnEventFn) : void { this._onMouseLeaveFns.push(fn); }
-	addOnSelect(fn : OnEventFn) : void { this._onSelectFns.push(fn); }
+	addOnSelect(fn : OnEventFn) : void {
+		this.elm().style.cursor = "pointer";
+		this._onSelectFns.push(fn);
+	}
 	addOnUnselect(fn : OnEventFn) : void { this._onUnselectFns.push(fn); }
 
 	click() : void {

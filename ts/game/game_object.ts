@@ -535,7 +535,13 @@ export abstract class GameObjectBase {
 					if (handler.validate) {
 						handler.validate(value);
 					}
+				} else if (this.shouldBroadcast()){
+					// If relaying data, check for equality using update()
+					if (this._data.update(prop, value, seqNum)) {
+						handler.import(this._data.getValue(prop));
+					}
 				} else {
+					// Copying data, just do basic import
 					if (this._data.import(prop, value, seqNum)) {
 						handler.import(this._data.getValue(prop));
 					}
