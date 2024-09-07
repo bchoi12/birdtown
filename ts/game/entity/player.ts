@@ -4,7 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { GameState, GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
-import { AssociationType, AttributeType, ComponentType, CounterType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
 import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
 import { EntityTrackers } from 'game/component/entity_trackers'
@@ -34,7 +34,7 @@ import { Recoil } from 'game/util/recoil'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { CounterOptions, DialogType, KeyType, KeyState } from 'ui/api'
+import { CounterType, CounterOptions, DialogType, KeyType, KeyState } from 'ui/api'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'

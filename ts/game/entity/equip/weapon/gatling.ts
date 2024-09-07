@@ -1,7 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
-import { AttributeType, CounterType } from 'game/component/api'
+import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { SoundPlayer } from 'game/component/sound_player'
@@ -17,7 +17,7 @@ import { EntityFactory } from 'game/factory/entity_factory'
 import { LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
 
-import { CounterOptions, KeyType, KeyState } from 'ui/api'
+import { CounterType, CounterOptions } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Fns } from 'util/fns'

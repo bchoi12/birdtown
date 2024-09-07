@@ -3,7 +3,6 @@ import earcut from 'earcut'
 
 import { game } from 'game'
 import { StepData } from 'game/game_object'
-import { CounterType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
@@ -15,7 +14,7 @@ import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { CounterOptions, KeyType, KeyState } from 'ui/api'
+import { CounterType, CounterOptions, KeyType, KeyState } from 'ui/api'
 
 import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'

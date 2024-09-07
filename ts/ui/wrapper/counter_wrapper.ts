@@ -1,8 +1,6 @@
 
-import { CounterType } from 'game/component/api'
-
 import { ui } from 'ui'
-import { CounterOptions } from 'ui/api'
+import { CounterType, CounterOptions } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon, IconType } from 'ui/common/icon'
 

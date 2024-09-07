@@ -1,7 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
-import { AttributeType, CounterType } from 'game/component/api'
+import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Entity, EquipEntity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -13,6 +13,8 @@ import { StepData } from 'game/game_object'
 import { PlayerRole } from 'game/system/api'
 
 import { UiGlobals } from 'global/ui_globals'
+
+import { CounterType } from 'ui/api'
 
 import { ChangeTracker } from 'util/change_tracker'
 import { Vec2 } from 'util/vector'

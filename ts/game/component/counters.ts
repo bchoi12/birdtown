@@ -1,7 +1,9 @@
 
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
-import { ComponentType, CounterType } from 'game/component/api'
+import { ComponentType } from 'game/component/api'
+
+import { CounterType } from 'ui/api'
 
 export type CountersInitOptions = {
 	counters? : Map<CounterType, number>;

@@ -1,7 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
-import { AttributeType, CounterType } from 'game/component/api'
+import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -11,7 +11,7 @@ import { MaterialType, MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
 
-import { KeyType, KeyState } from 'ui/api'
+import { CounterType, KeyType, KeyState } from 'ui/api'
 
 import { Timer } from 'util/timer'
 import { Vec2, Vec3 } from 'util/vector'

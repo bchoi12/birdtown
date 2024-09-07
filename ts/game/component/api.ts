@@ -47,20 +47,6 @@ export enum BoostType {
 	MULT_TOTAL,
 }
 
-// TODO: move to ui/api
-export enum CounterType {
-	UNKOWN,
-	BLACK_HOLE,
-	CHARGE,
-	DASH,
-	BULLETS,
-	HEALTH,
-	JETPACK,
-	JUICE,
-	ROCKET,
-	ROLL,
-}
-
 export enum ModifierType {
 	UNKNOWN,
 

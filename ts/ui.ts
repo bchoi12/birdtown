@@ -1,12 +1,11 @@
 
 import { game } from 'game'
-import { CounterType } from 'game/component/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { settings } from 'settings'
 
-import { AnnouncementType, CounterOptions, DialogType, InfoType, KeyType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
+import { AnnouncementType, CounterType, CounterOptions, DialogType, InfoType, KeyType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
 import { Handler } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 

@@ -3,7 +3,7 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { StepData } from 'game/game_object'
-import { AttributeType, ComponentType, CounterType } from 'game/component/api'
+import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
@@ -14,7 +14,7 @@ import { Player } from 'game/entity/player'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { CounterOptions, KeyType, KeyState } from 'ui/api'
+import { CounterType, CounterOptions, KeyType, KeyState } from 'ui/api'
 
 import { Optional } from 'util/optional'
 import { Timer} from 'util/timer'

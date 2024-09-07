@@ -2,7 +2,6 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { CounterType } from 'game/component/api'
 import { SoundPlayer } from 'game/component/sound_player'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -13,7 +12,7 @@ import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 
-import { CounterOptions, KeyType, KeyState } from 'ui/api'
+import { CounterType, CounterOptions } from 'ui/api'
 
 import { Vec3 } from 'util/vector'
 

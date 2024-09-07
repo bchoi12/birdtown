@@ -253,7 +253,7 @@ body {
     height: 12vw;
     border-top-left-radius: 0.3vw;
 
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 #canvas-physics {

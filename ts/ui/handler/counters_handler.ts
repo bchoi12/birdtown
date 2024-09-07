@@ -1,8 +1,7 @@
 import { game } from 'game'
-import { CounterType } from 'game/component/api'
 
 import { ui } from 'ui'
-import { CounterOptions } from 'ui/api'
+import { CounterType, CounterOptions } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'

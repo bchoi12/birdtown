@@ -25,6 +25,19 @@ export enum AnnouncementType {
 	WELCOME,
 }
 
+export enum CounterType {
+	UNKOWN,
+	BLACK_HOLE,
+	CHARGE,
+	DASH,
+	BULLETS,
+	HEALTH,
+	JETPACK,
+	JUICE,
+	ROCKET,
+	ROLL,
+}
+
 export enum DialogType {
 	UNKNOWN,
 	INIT,
