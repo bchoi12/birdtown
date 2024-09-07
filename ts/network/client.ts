@@ -9,7 +9,7 @@ import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
-import { AnnouncementType } from 'ui/api'
+import { StatusType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -46,10 +46,7 @@ export class Client extends Netcode {
 
 		peer.on("error", (e) => {
 			if (this._initialized) {
-	    		const msg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-	    		msg.setAnnouncementType(AnnouncementType.DISCONNECTED);
-		    	msg.setTtl(60 * 1000);
-		    	ui.handleMessage(msg);
+		    	ui.showStatus(StatusType.DISCONNECTED);
 			} else {
 				onError();
 			}

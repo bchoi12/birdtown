@@ -33,6 +33,8 @@ export namespace Html {
 	export const divCounters = "div-counters";
 	export const divCountersContainer = "div-counters-container";
 
+	export const divStatus = "div-status";
+
 	export const divTooltips = "div-tooltips";
 	export const divAnnouncement = "div-announcement";
 	export const divMainAnnouncement = "div-main-announcement";
@@ -69,6 +71,9 @@ export namespace Html {
 	export const classFeed = "feed";
 	export const classFooter = "footer";
 	export const classInfoTable = "info-table";
+	export const classLabel = "label";
+	export const classLabelName = "label-name";
+	export const classLabelValue = "label-value";
 	export const classLoadoutButton = "loadout-button";
 	export const classLoadoutButtonDescription = "loadout-button-description";
 	export const classLoadoutButtonPlus = "loadout-button-plus";
@@ -76,9 +81,7 @@ export namespace Html {
 	export const classLoadoutButtonTitle = "loadout-button-title";
 	export const classPopup = "popup";
 	export const classPopupShow = "popup-show";
-	export const classLabel = "label";
-	export const classLabelName = "label-name";
-	export const classLabelValue = "label-value";
+	export const classStatusMessage = "status-message";
 	export const classTooltip = "tooltip";
 
 	export const cursor = "cursor";

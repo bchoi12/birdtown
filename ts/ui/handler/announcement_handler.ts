@@ -86,16 +86,6 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		const names = msg.getNamesOr([]);
 
 		switch (type) {
-		case AnnouncementType.DISCONNECTED:
-			return {
-				main: "Lost connection to server",
-				sub: "Please refresh the page",
-			};
-		case AnnouncementType.DISCONNECTED_SIGNALING:
-			return {
-				main: "Lost connection to signaling server",
-				sub: "The game may still work, but no new players can connect",
-			};
 		case AnnouncementType.GAME_END:
 			return {
 				main: "Current game has been terminated",

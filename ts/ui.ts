@@ -5,7 +5,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { settings } from 'settings'
 
-import { AnnouncementType, CounterType, CounterOptions, DialogType, InfoType, KeyType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
+import { AnnouncementType, CounterType, CounterOptions, DialogType, InfoType, KeyType, StatusType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
 import { Handler } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 
@@ -22,6 +22,7 @@ import { MenuHandler } from 'ui/handler/menu_handler'
 import { ScoreboardHandler } from 'ui/handler/scoreboard_handler'
 import { SettingsHandler } from 'ui/handler/settings_handler'
 import { StatsHandler } from 'ui/handler/stats_handler'
+import { StatusHandler } from 'ui/handler/status_handler'
 import { TimerHandler } from 'ui/handler/timer_handler'
 import { TooltipHandler } from 'ui/handler/tooltip_handler'
 import { TrayHandler } from 'ui/handler/tray_handler'
@@ -50,6 +51,7 @@ class UI {
 	private _scoreboardHandler : ScoreboardHandler;
 	private _settingsHandler : SettingsHandler;
 	private _statsHandler : StatsHandler;
+	private _statusHandler : StatusHandler;
 	private _timerHandler : TimerHandler;
 	private _tooltipHandler : TooltipHandler;
 	private _trayHandler : TrayHandler;
@@ -73,6 +75,7 @@ class UI {
 		this._scoreboardHandler = this.add<ScoreboardHandler>(new ScoreboardHandler());
 		this._settingsHandler = this.add<SettingsHandler>(new SettingsHandler());
 		this._statsHandler = this.add<StatsHandler>(new StatsHandler());
+		this._statusHandler = this.add<StatusHandler>(new StatusHandler());
 		this._timerHandler = this.add<TimerHandler>(new TimerHandler());
 		this._tooltipHandler = this.add<TooltipHandler>(new TooltipHandler());
 		this._trayHandler = this.add<TrayHandler>(new TrayHandler());
@@ -189,6 +192,8 @@ class UI {
 	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }
 	hideTooltip(type : TooltipType) : void { this._tooltipHandler.hideTooltip(type); }
 	setDebugStats(enabled : boolean) : void { this._statsHandler.setDebug(enabled); }
+	showStatus(type : StatusType) : void { this._statusHandler.showStatus(type); }
+	hideStatus(type : StatusType) : void { this._statusHandler.hideStatus(type); }
 	usingTray() : boolean { return this._trayHandler.hasMouse(); }
 
 	chat(msg : string) : void { this._chatHandler.chat(msg); }

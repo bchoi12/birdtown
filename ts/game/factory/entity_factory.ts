@@ -139,7 +139,7 @@ export namespace EntityFactory {
 	// Also includes dimensions that can change.
 	export const dimensions = new Map<EntityType, Vec>([
 		...staticDimensions,
-		[EntityType.BLACK_HOLE, { x: 6, y: 6, z: 6 }],
+		[EntityType.BLACK_HOLE, { x: 7, y: 7, z: 7 }],
 		[EntityType.PARTICLE_ORANGE, { x: 3, y: 3, z: 3 }],
 		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],
 		[EntityType.HEALTH_CRATE, {x: 1, y: 1, z: 1 }],

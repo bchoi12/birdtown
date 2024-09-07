@@ -17,7 +17,8 @@ import { ArchBlueprint } from 'game/system/level/blueprint/arch_blueprint'
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
-import { TooltipType } from 'ui/api'
+import { ui } from 'ui'
+import { StatusType } from 'ui/api'
 
 import { Box, Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -160,6 +161,12 @@ export class Level extends SystemBase implements System {
 		this._levelMsg.setLevelBounds(this._bounds.toBox());
 
     	game.runner().handleMessage(this._levelMsg);
+
+    	if (level === LevelType.LOBBY) {
+    		ui.showStatus(StatusType.LOBBY);
+    	} else {
+    		ui.hideStatus(StatusType.LOBBY);
+    	}
 
 		if (isLocalhost()) {
 			console.log("%s: loaded level %s with seed %d, version %d", this.name(), LevelType[level], seed, version);

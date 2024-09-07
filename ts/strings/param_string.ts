@@ -5,6 +5,7 @@ export enum ParamType {
 	UNKNOWN,
 
 	COLOR,
+	ROOM,
 }
 
 export class ParamString {

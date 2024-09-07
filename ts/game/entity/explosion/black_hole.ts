@@ -15,7 +15,7 @@ export class BlackHole extends Explosion {
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 	}
 
-	override force() : number { return -0.8; }
+	override force() : number { return -1; }
 	override ttl() : number { return 300; }
 	override materialType() : MaterialType { return MaterialType.BLACK_HOLE; }
 	override soundType() : SoundType { return SoundType.SCREAM; }

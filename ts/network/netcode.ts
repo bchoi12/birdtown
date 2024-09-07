@@ -17,6 +17,7 @@ import { Pinger } from 'network/pinger'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
+import { StatusType } from 'ui/api'
 
 import { Buffer } from 'util/buffer'
 import { defined, isLocalhost } from 'util/common'
@@ -209,6 +210,10 @@ export abstract class Netcode {
 			if (this._pinger.millisSincePing(id) >= Netcode._pingTimeoutMillis) {
 				console.error("Connection to " + id + " timed out");
 				this.disconnect(id);
+
+				if (!this.isHost()) {
+					ui.showStatus(StatusType.DISCONNECTED);
+				}
 			}
 		});
 

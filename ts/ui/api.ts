@@ -13,8 +13,6 @@ export enum UiMode {
 
 export enum AnnouncementType {
 	UNKNOWN,
-	DISCONNECTED,
-	DISCONNECTED_SIGNALING,
 	GAME_END,
 	GAME_ERROR,
 	GAME_FINISH,
@@ -44,10 +42,6 @@ export enum DialogType {
 	LOADOUT,
 	RETURN_TO_LOBBY,
 	START_GAME,
-}
-
-export type DialogOptions = {
-	ttl? : number;
 }
 
 export enum FeedType {
@@ -96,6 +90,14 @@ export enum KeyState {
 	DOWN,
 	PRESSED,
 	RELEASED,
+}
+
+export enum StatusType {
+	UNKNOWN,
+
+	DISCONNECTED,
+	DISCONNECTED_SIGNALING,
+	LOBBY,
 }
 
 export enum TooltipType {
