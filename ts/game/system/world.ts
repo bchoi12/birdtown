@@ -4,7 +4,7 @@ import { GradientMaterial } from '@babylonjs/materials/Gradient'
 import { game } from 'game'	
 import { Entity } from 'game/entity'
 import { GameData } from 'game/game_data'
-import { MaterialType } from 'game/factory/api'
+import { ColorType, MaterialType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { CloudGenerator } from 'game/system/generator/cloud_generator'
@@ -60,8 +60,8 @@ export class World extends SystemBase implements System {
 			lightDir: new BABYLON.Vector3(4, -1, -6).normalize(),
 			hemisphericIntensity: 0.5,
 			directionalIntensity: 1,
-			hemisphericDiffuse: ColorFactory.skyEveningTop.toBabylonColor3(),
-			hemisphericBottomColor: ColorFactory.skyEveningBottom.toBabylonColor3(),
+			hemisphericDiffuse: ColorFactory.color(ColorType.SKY_EVENING_TOP).toBabylonColor3(),
+			hemisphericBottomColor: ColorFactory.color(ColorType.SKY_EVENING_BOTTOM).toBabylonColor3(),
 		}],
 	]);
 

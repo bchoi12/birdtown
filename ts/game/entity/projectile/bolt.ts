@@ -10,7 +10,7 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Projectile } from 'game/entity/projectile'
-import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
+import { CollisionCategory, ColorType, MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
@@ -37,7 +37,7 @@ export class Bolt extends Projectile {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setMinimapOptions({
-			color: ColorFactory.boltBlue.toString(),
+			color: ColorFactory.color(ColorType.SHOOTER_BLUE).toString(),
 		})
 		this._profile.setOutOfBoundsFn((profile : Profile) => {
 			this.delete();
@@ -81,7 +81,7 @@ export class Bolt extends Projectile {
 
 	override onHit() : void {
 		if (this.getAttribute(AttributeType.CHARGED)) {
-			this.explode(EntityType.BOLT_EXPLOSION, {});
+			this.explode(EntityType.PARTICLE_ORANGE, {});
 		} else {
 			for (let i = 0; i < 3; ++i) {
 				this.addEntity(EntityType.PARTICLE_SPARK, {
@@ -99,7 +99,7 @@ export class Bolt extends Projectile {
 						transforms: {
 							translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1), },
 						},
-						materialType: MaterialType.SPARK_BLUE,
+						materialType: MaterialType.PARTICLE_BLUE,
 					}
 				});
 			}
@@ -109,7 +109,7 @@ export class Bolt extends Projectile {
 
 	override onMiss() : void {
 		if (this.getAttribute(AttributeType.CHARGED)) {
-			this.explode(EntityType.BOLT_EXPLOSION, {});
+			this.explode(EntityType.PARTICLE_ORANGE, {});
 		}
 	}
 

@@ -8,7 +8,7 @@ import { Model } from 'game/component/model'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
-import { CollisionCategory, MaterialType } from 'game/factory/api'
+import { CollisionCategory, ColorType, MaterialType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
@@ -49,7 +49,7 @@ export class DyingStar extends EntityBase {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setMinimapOptions({
-			color: ColorFactory.black.toString(),
+			color: ColorFactory.color(ColorType.BLACK).toString(),
 		})
 		this._profile.setOutOfBoundsFn((profile : Profile) => {
 			this.delete();
@@ -70,7 +70,7 @@ export class DyingStar extends EntityBase {
 					ring.rotation.x = 2 * Math.PI * Math.random();
 					ring.rotation.y = 2 * Math.PI * Math.random();
 					ring.rotation.z = 2 * Math.PI * Math.random();
-					ring.material = MaterialFactory.material(MaterialType.DYING_STAR);
+					ring.material = MaterialFactory.material(MaterialType.BLACK_HOLE);
 
 					mesh.addChild(ring);
 				}
@@ -79,7 +79,7 @@ export class DyingStar extends EntityBase {
 			},
 			init: {
 				disableShadows: true,
-				materialType: MaterialType.DYING_STAR,
+				materialType: MaterialType.BLACK_HOLE,
 				...entityOptions.modelInit,
 			},
 		}));

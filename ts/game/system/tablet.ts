@@ -1,5 +1,6 @@
 
 import { game } from 'game'
+import { EntityType } from 'game/entity/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 import { ClientSystem, System } from 'game/system'
@@ -137,7 +138,7 @@ export class Tablet extends ClientSystem implements System {
 
 		this._color = color;
 	}
-	color() : string { return this.hasColor() ? this._color : ColorFactory.playerColor(this.clientId()).toString(); }
+	color() : string { return this.hasColor() ? this._color : ColorFactory.entityColor(EntityType.PLAYER, this.clientId()).toString(); }
 
 	setDisplayName(displayName : string) : void {
 		if (displayName.length === 0) {

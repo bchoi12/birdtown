@@ -7,7 +7,7 @@ import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { MeshType } from 'game/factory/api'
+import { ColorType, MeshType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -77,18 +77,6 @@ export class Jetpack extends Equip<Player> {
 			},
 			init: entityOptions.modelInit,
 		}));
-
-		// TODO: is this needed?
-		/*
-		this.addProp<boolean>({
-			export: () => { return this._enabled; },
-			import: (obj : boolean) => { this._enabled = obj; },
-		});
-		this.addProp<number>({
-			export: () => { return this._juice; },
-			import: (obj : number) => { this._juice = obj; },
-		});
-		*/
 	}
 
 	override attachType() : AttachType { return AttachType.BACK; }
@@ -165,7 +153,7 @@ export class Jetpack extends Equip<Player> {
 		counts.set(CounterType.JETPACK, {
 			percentGone: 1 - this._juice / Jetpack._maxJuice,
 			count: this._juice,
-			color: ColorFactory.bazookaRed.toString(),
+			color: ColorFactory.color(ColorType.BLASTER_RED).toString(),
 		});
 		return counts;
 	}

@@ -9,17 +9,17 @@ export namespace StringFactory {
 	// Passed by reference
 	const entityNames = new Map<EntityType, ParamString>([
 		[EntityType.UNKNOWN, ParamString.of("unknown")],
-		[EntityType.BAZOOKA, ParamString.of("bazooka").set(ParamType.COLOR, ColorFactory.bazookaRed.toString())],
-		[EntityType.CLAW, ParamString.of("claw")],
-		[EntityType.COWBOY_HAT, ParamString.of("yeehaw hat")],
-		[EntityType.GATLING, ParamString.of("gatling gun")],
-		[EntityType.HEADBAND, ParamString.of("headband")],
-		[EntityType.HEADPHONES, ParamString.of("headphones")],
-		[EntityType.JETPACK, ParamString.of("jetpack")],
-		[EntityType.PISTOL, ParamString.of("pistol")],
-		[EntityType.SCOUTER, ParamString.of("scouter")],
-		[EntityType.SHOTGUN, ParamString.of("shotgun")],
-		[EntityType.SNIPER, ParamString.of("sniper")],
+		[EntityType.BAZOOKA, ParamString.of("bazooka").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.BAZOOKA).toString())],
+		[EntityType.CLAW, ParamString.of("claw").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.CLAW).toString())],
+		[EntityType.COWBOY_HAT, ParamString.of("yeehaw hat").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.COWBOY_HAT).toString())],
+		[EntityType.GATLING, ParamString.of("gatling gun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.GATLING).toString())],
+		[EntityType.HEADBAND, ParamString.of("headband").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.HEADBAND).toString())],
+		[EntityType.HEADPHONES, ParamString.of("headphones").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.HEADPHONES).toString())],
+		[EntityType.JETPACK, ParamString.of("jetpack").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.JETPACK).toString())],
+		[EntityType.PISTOL, ParamString.of("pistol").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.PISTOL).toString())],
+		[EntityType.SCOUTER, ParamString.of("scouter").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SCOUTER).toString())],
+		[EntityType.SHOTGUN, ParamString.of("shotgun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SHOTGUN).toString())],
+		[EntityType.SNIPER, ParamString.of("sniper").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SNIPER).toString())],
 	]);
 
 	export function getEntityName(entity : Entity) : ParamString {

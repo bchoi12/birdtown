@@ -10,7 +10,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { BoneType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { MaterialType, MeshType } from 'game/factory/api'
+import { ColorType, MaterialType, MeshType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -56,7 +56,7 @@ export class Headband extends Equip<Player> {
 		}, game.scene(), earcut);
 		this._trail.rotation.x = Math.PI / 2;
 		this._trail.rotation.y = -Math.PI / 2;
-		this._trail.material = MaterialFactory.material(MaterialType.DASH_TRAIL);
+		this._trail.material = MaterialFactory.material(MaterialType.EASTERN_PURPLE_TRAIL);
 		this._trail.isVisible = false;
 
 		this._model = this.addComponent<Model>(new Model({
@@ -77,7 +77,7 @@ export class Headband extends Equip<Player> {
 		counts.set(CounterType.DASH, {
 			percentGone: 1 - this._juice / Headband._maxJuice,
 			text: this.canDash() ? "1/1" : "0/1",
-			color: ColorFactory.starPurple.toString(),
+			color: ColorFactory.color(ColorType.EASTERN_PURPLE).toString(),
 		});
 		return counts;
 	}

@@ -1,127 +1,150 @@
 
 import { EntityType } from 'game/entity/api'
-import { ColorType } from 'game/factory/api'
+import { ColorCategory, ColorType } from 'game/factory/api'
 
 import { Buffer } from 'util/buffer'
 import { HexColor } from 'util/hex_color'
 import { SeededRandom } from 'util/seeded_random'
 
-export type ColorMap = Map<number, HexColor>;
-
 export namespace ColorFactory {
 
-	export const white = HexColor.fromHex(0xffffff);
-	export const black = HexColor.fromHex(0x0);
+	const colorMap = new Map<ColorType, HexColor>([
+		// Basic series
+		[ColorType.WHITE, HexColor.fromHex(0xffffff)],
+		[ColorType.GRAY, HexColor.fromHex(0x808080)],
+		[ColorType.BLACK, HexColor.fromHex(0x0)],
+		[ColorType.RED, HexColor.fromHex(0xff0000)],
+		[ColorType.YELLOW, HexColor.fromHex(0xffff00)],
+		[ColorType.GREEN, HexColor.fromHex(0x00ff00)],
+		[ColorType.BLUE, HexColor.fromHex(0x0000ff)],
+		[ColorType.PURPLE, HexColor.fromHex(0xff00ff)],
+		[ColorType.AQUA, HexColor.fromHex(0x00ffff)],
 
-	export const transparentWindow = HexColor.fromHex(0xa8ccd7);
+		// Level series (bright, not too saturated)
+		[ColorType.LEVEL_RED, HexColor.fromHex(0xfc1f0f)],
+		[ColorType.LEVEL_ORANGE, HexColor.fromHex(0xfc910f)],
+		[ColorType.LEVEL_YELLOW, HexColor.fromHex(0xfcf40f)],
+		[ColorType.LEVEL_GREEN, HexColor.fromHex(0x0ffc89)],
+		[ColorType.LEVEL_BLUE, HexColor.fromHex(0x0fdcfc)],
+		[ColorType.LEVEL_PURPLE, HexColor.fromHex(0x910ffc)],
+		[ColorType.LEVEL_BROWN, HexColor.fromHex(0xa1662f)],
+		[ColorType.LEVEL_WHITE, HexColor.fromHex(0xeeeeee)],
+		[ColorType.LEVEL_GRAY, HexColor.fromHex(0x8b8b8b)],
+		[ColorType.LEVEL_BLACK, HexColor.fromHex(0x111111)],
 
-	export const archRed = HexColor.fromHex(0xfc1f0f);
-	export const archOrange = HexColor.fromHex(0xfc910f);
-	export const archYellow = HexColor.fromHex(0xfcf40f);
-	export const archGreen = HexColor.fromHex(0x0ffc89);
-	export const archBlue = HexColor.fromHex(0x0fdcfc);
-	export const archPurple = HexColor.fromHex(0x910ffc);
-	export const archWhite = HexColor.fromHex(0xeeeeee);
+		// Background series (minimal saturation)
+		[ColorType.LEVEL_BACKGROUND_RED, HexColor.fromHex(0xcc807a)],
+		[ColorType.LEVEL_BACKGROUND_ORANGE, HexColor.fromHex(0xccab7a)],
+		[ColorType.LEVEL_BACKGROUND_YELLOW, HexColor.fromHex(0xcccc7a)],
+		[ColorType.LEVEL_BACKGROUND_GREEN, HexColor.fromHex(0x8fcc7a)],
+		[ColorType.LEVEL_BACKGROUND_BLUE, HexColor.fromHex(0x7aa3cc)],
+		[ColorType.LEVEL_BACKGROUND_PURPLE, HexColor.fromHex(0xaa7acc)],
 
-	export const archWood = HexColor.fromHex(0xa1662f);
+		// Player series (not too saturated, but distinct from level)
+		[ColorType.PLAYER_RED, HexColor.fromHex(0xfc1f0f)],
+		[ColorType.PLAYER_ORANGE, HexColor.fromHex(0xfcb10f)],
+		[ColorType.PLAYER_YELLOW, HexColor.fromHex(0xfcf40f)],
+		[ColorType.PLAYER_GREEN, HexColor.fromHex(0x1bfc0f)],
+		[ColorType.PLAYER_AQUA, HexColor.fromHex(0x0ffce8)],
+		[ColorType.PLAYER_BLUE, HexColor.fromHex(0x0f52fc)],
+		[ColorType.PLAYER_PURPLE, HexColor.fromHex(0xa50ffc)],
+		[ColorType.PLAYER_PINK, HexColor.fromHex(0xfc0fbd)],
+		[ColorType.PLAYER_WHITE, HexColor.fromHex(0xfbfbfb)],
 
-	export const archBackgroundRed = HexColor.fromHex(0xcc807a);
-	export const archBackgroundOrange = HexColor.fromHex(0xccab7a);
-	export const archBackgroundYellow = HexColor.fromHex(0xcccc7a);
-	export const archBackgroundGreen = HexColor.fromHex(0x8fcc7a);
-	export const archBackgroundBlue = HexColor.fromHex(0x7aa3cc);
-	export const archBackgroundPurple = HexColor.fromHex(0xaa7acc);
+		// Western series (rugged?)
+		[ColorType.WESTERN_YELLOW, HexColor.fromHex(0xffef61)],
+		[ColorType.WESTERN_BROWN, HexColor.fromHex(0x966336)],
+		[ColorType.WESTERN_BLACK, HexColor.fromHex(0x1c1a18)],
 
-	export const bazookaRed = HexColor.fromHex(0xdc5a3a);
+		// Eastern series (showy?)
+		[ColorType.EASTERN_PURPLE, HexColor.fromHex(0x7d3abf)],
 
-	export const bulletYellow = HexColor.fromHex(0xffef61);
+		// Blaster series (bold, darker colors)
+		[ColorType.BLASTER_RED, HexColor.fromHex(0xbd2804)],
+		[ColorType.BLASTER_YELLOW, HexColor.fromHex(0xf4fa4b)],
 
-	export const boltBlue = HexColor.fromHex(0x7cf2f0);
-	export const boltLightBlue = HexColor.fromHex(0xc7fffe);
-	export const boltOrange = HexColor.fromHex(0xffb163);
-	export const boltDarkOrange = HexColor.fromHex(0xe68525);
-	export const boltLightOrange = HexColor.fromHex(0xffe6d4);
-	export const boltExplosion = HexColor.fromHex(0xffc361);
+		// Shooter series (sleek, lighter colors)
+		[ColorType.SHOOTER_BLUE, HexColor.fromHex(0x7cf2f0)],
+		[ColorType.SHOOTER_LIGHT_BLUE, HexColor.fromHex(0xc7fffe)],
+		[ColorType.SHOOTER_ORANGE, HexColor.fromHex(0xffb163)],
+		[ColorType.SHOOTER_DARK_ORANGE, HexColor.fromHex(0xe68525)],
+		[ColorType.SHOOTER_LIGHT_ORANGE, HexColor.fromHex(0xffe6d4)],
+		[ColorType.SHOOTER_YELLOW, HexColor.fromHex(0xffef61)],
 
-	export const caliberYellow = HexColor.fromHex(0xffef61);
+		// Pickup series (saturated, stand out from level)
+		[ColorType.PICKUP_BLUE, HexColor.fromHex(0x3c5ffa)],
+		[ColorType.PICKUP_RED, HexColor.fromHex(0xfa493c)],
+		[ColorType.PICKUP_YELLOW, HexColor.fromHex(0xf6ff56)],
 
-	export const cowboyBrown = HexColor.fromHex(0x966336);
+		// Environment series
+		[ColorType.SKY_DAY_TOP, HexColor.fromHex(0xdef1ff)],
+		[ColorType.SKY_DAY_BOTTOM, HexColor.fromHex(0xf3fbff)],
+		[ColorType.SKY_EVENING_TOP, HexColor.fromHex(0xffd4b5)],
+		[ColorType.SKY_EVENING_BOTTOM, HexColor.fromHex(0xffecd4)],
 
-	export const crateBlue = HexColor.fromHex(0x3c5ffa);
-	export const crateRed = HexColor.fromHex(0xfa493c);
-	export const crateYellow = HexColor.fromHex(0xf6ff56);
+		// Particle series (light and works well with opacity)
+		[ColorType.PARTICLE_RED, HexColor.fromHex(0xdc5a3a)],
+		[ColorType.PARTICLE_BLUE, HexColor.fromHex(0xc2f8ff)],
+		[ColorType.PARTICLE_YELLOW, HexColor.fromHex(0xfff6c2)],
+		[ColorType.PARTICLE_PURPLE, HexColor.fromHex(0xa465e2)],
+		[ColorType.PARTICLE_ORANGE, HexColor.fromHex(0xffc361)],
 
-	export const pelletYellow = HexColor.fromHex(0xffdb66);
-
-	export const playerRed = HexColor.fromHex(0xfc1f0f);
-	export const playerOrange = HexColor.fromHex(0xfcb10f);
-	export const playerYellow = HexColor.fromHex(0xfcf40f);
-	export const playerGreen = HexColor.fromHex(0x1bfc0f);
-	export const playerAqua = HexColor.fromHex(0x0ffce8);
-	export const playerBlue = HexColor.fromHex(0x0f52fc);
-	export const playerPurple = HexColor.fromHex(0xa50ffc);
-	export const playerPink = HexColor.fromHex(0xfc0fbd);
-	export const playerWhite = HexColor.fromHex(0xfbfbfb);
-	export const playerColors = [
-		playerRed, playerOrange, playerYellow,
-		playerGreen, playerAqua, playerBlue,
-		playerPurple, playerPink, playerWhite,
-	];
-
-	export const signGray = HexColor.fromHex(0x8b8b8b);
-
-	export const skyDayTop = HexColor.fromHex(0xdef1ff);
-	export const skyDayBottom = HexColor.fromHex(0xf3fbff);
-
-	export const skyEveningTop = HexColor.fromHex(0xffd4b5);
-	export const skyEveningBottom = HexColor.fromHex(0xffecd4);
-
-	export const sparkBlue = HexColor.fromHex(0xc2f8ff);
-	export const sparkYellow = HexColor.fromHex(0xfff6c2);
-
-	export const starExplosionPurple = HexColor.fromHex(0xa465e2);
-	export const starPurple = HexColor.fromHex(0x7d3abf);
-
-	export const sweatBlue = HexColor.fromHex(0xe3fcff);
-
-	export const tableWood = HexColor.fromHex(0xc98f40);
-
-	export const baseColors = new Map<EntityType, Buffer<HexColor>>([
-		[EntityType.ARCH_BLOCK, Buffer.from(archRed, archOrange, archYellow, archGreen, archBlue, archPurple)],
+		// Material series
+		[ColorType.SWEAT, HexColor.fromHex(0xe3fcff)],
+		[ColorType.TABLE, HexColor.fromHex(0xc98f40)],
+		[ColorType.WINDOW, HexColor.fromHex(0xa8ccd7)],
 	]);
 
-	export function shuffleColors(type : EntityType, rng? : SeededRandom) : void {
-		if (!baseColors.has(type)) {
+	const entityColorMap = new Map<EntityType, Array<ColorType>>([
+		[EntityType.ARCH_BLOCK, [
+			ColorType.LEVEL_RED, ColorType.LEVEL_ORANGE, ColorType.LEVEL_YELLOW,
+			ColorType.LEVEL_GREEN, ColorType.LEVEL_BLUE, ColorType.LEVEL_PURPLE
+		]],
+		[EntityType.BAZOOKA, [ColorType.BLASTER_RED, ColorType.BLASTER_YELLOW]],
+		[EntityType.CLAW, [ColorType.EASTERN_PURPLE]],
+		[EntityType.COWBOY_HAT, [ColorType.WESTERN_BROWN]],
+		[EntityType.GATLING, [ColorType.WESTERN_YELLOW]],
+		[EntityType.HEADBAND, [ColorType.EASTERN_PURPLE]],
+		[EntityType.HEADPHONES, [ColorType.SHOOTER_YELLOW]],
+		[EntityType.JETPACK, [ColorType.BLASTER_RED]],
+		[EntityType.PISTOL, [ColorType.WESTERN_BLACK]],
+		[EntityType.SCOUTER, [ColorType.SHOOTER_ORANGE]],
+		[EntityType.SHOTGUN, [ColorType.WESTERN_BROWN]],
+		[EntityType.SNIPER, [ColorType.SHOOTER_BLUE]],
+		[EntityType.PLAYER, [
+			ColorType.PLAYER_RED, ColorType.PLAYER_ORANGE, ColorType.PLAYER_YELLOW,
+			ColorType.PLAYER_GREEN, ColorType.PLAYER_AQUA, ColorType.PLAYER_BLUE,
+			ColorType.PLAYER_PURPLE, ColorType.PLAYER_PINK, ColorType.PLAYER_WHITE,
+		]],
+	]);
+
+	export function color(type : ColorType) : HexColor {
+		return colorMap.get(type);
+	}
+	export function entityColors(type : EntityType) : Array<ColorType> {
+		if (!entityColorMap.has(type)) {
+			console.error("Warning: missing colors for", EntityType[type]);
+			return [];
+		}
+		return entityColorMap.get(type);
+	}
+	export function entityColor(type : EntityType, index? : number) : HexColor {
+		if (!entityColorMap.has(type)) {
+			console.error("Warning: missing colors for", EntityType[type]);
+			return colorMap.get(ColorType.WHITE);
+		}
+		if (!index) {
+			index = 0;
+		}
+		const colorTypes = entityColorMap.get(type);
+		return colorMap.get(colorTypes[index % colorTypes.length]);
+	}
+	export function shuffleEntityColors(type : EntityType, rng : SeededRandom) : void {
+		if (!entityColorMap.has(type)) {
+			console.error("Warning: missing colors for", EntityType[type]);
 			return;
 		}
-		baseColors.get(type).shuffle(rng);
-	}
 
-	export function generateColorMap(type : EntityType, index? : number) : ColorMap {
-		if (!index || index < 0 ) { index = 0; }
-
-		switch (type) {
-		case EntityType.ARCH_BLOCK:
-			return new Map([
-				[ColorType.BASE, color(EntityType.ARCH_BLOCK, index)],
-				[ColorType.SECONDARY, archWhite],
-			]);
-		default:
-			console.error("Warning: empty color map generated for %d", type);
-			return new Map();
-		}
-	}
-
-	export function playerColor(id : number) : HexColor {
-		return playerColors[Math.abs(id - 1) % playerColors.length];
-	}
-
-	function color(type : EntityType, index : number) : HexColor {
-		if (!baseColors.has(type)) {
-			console.error("Warning: missing colors for type %d", type);
-			return black;
-		}
-		const colors = baseColors.get(type);
-		return colors.get(index % colors.size());
+		rng.shuffle(entityColorMap.get(type));
 	}
 }

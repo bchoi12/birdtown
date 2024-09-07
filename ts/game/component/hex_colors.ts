@@ -1,5 +1,5 @@
 
-import { ColorType } from 'game/factory/api'
+import { ColorCategory } from 'game/factory/api'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType } from 'game/component/api'
 
@@ -9,13 +9,13 @@ import { Optional } from 'util/optional'
 
 export type HexColorsInitOptions = {
 	color? : HexColor;
-	colors? : Map<ColorType, HexColor>;
+	colors? : Map<ColorCategory, HexColor>;
 }
 
 export class HexColors extends ComponentBase implements Component {
 
 	private _mainColor : Optional<HexColor>;
-	private _colors : Map<ColorType, HexColor>;
+	private _colors : Map<ColorCategory, HexColor>;
 
 	constructor(init? : HexColorsInitOptions) {
 		super(ComponentType.HEX_COLORS);
@@ -29,8 +29,8 @@ export class HexColors extends ComponentBase implements Component {
 
 		this._colors = new Map();
 		if (init.colors) {
-			init.colors.forEach((color : HexColor, type : ColorType) => {
-				this.setColor(type, color.toHex());
+			init.colors.forEach((color : HexColor, category : ColorCategory) => {
+				this.setColor(category, color.toHex());
 			});
 		}
 
@@ -40,8 +40,8 @@ export class HexColors extends ComponentBase implements Component {
 			import: (obj : number) => { this.setMainColor(obj); },
 		})
 
-		for (const stringColor in ColorType) {
-			const color = Number(ColorType[stringColor]);
+		for (const stringColor in ColorCategory) {
+			const color = Number(ColorCategory[stringColor]);
 			if (Number.isNaN(color) || color <= 0) {
 				continue;
 			}
@@ -64,13 +64,13 @@ export class HexColors extends ComponentBase implements Component {
 	hasMainColor() : boolean { return this._mainColor.has(); }
 	mainColor() : HexColor { return this._mainColor.get(); }
 
-	setColor(type : ColorType, hex : number) : void {
-		if (!this._colors.has(type)) {
-			this._colors.set(type, HexColor.fromHex(hex));
+	setColor(category : ColorCategory, hex : number) : void {
+		if (!this._colors.has(category)) {
+			this._colors.set(category, HexColor.fromHex(hex));
 		} else {
-			this._colors.get(type).copyHex(hex);
+			this._colors.get(category).copyHex(hex);
 		}
 	}
-	hasColor(type : ColorType) : boolean { return this._colors.has(type); }
-	color(type : ColorType) : HexColor { return this._colors.get(type); }
+	hasColor(category : ColorCategory) : boolean { return this._colors.has(category); }
+	color(category : ColorCategory) : HexColor { return this._colors.get(category); }
 }

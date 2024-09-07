@@ -9,7 +9,7 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Explosion } from 'game/entity/explosion'
 import { Projectile } from 'game/entity/projectile'
-import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
+import { CollisionCategory, ColorType, MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -57,7 +57,7 @@ export class Rocket extends Projectile {
 			this.delete();
 		});
 		this._profile.setMinimapOptions({
-			color: ColorFactory.bazookaRed.toString(),
+			color: ColorFactory.color(ColorType.BLASTER_RED).toString(),
 		});
 	}
 

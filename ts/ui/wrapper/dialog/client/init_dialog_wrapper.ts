@@ -2,6 +2,7 @@
 import { game } from 'game'
 import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
+import { ColorType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
 import { settings } from 'settings'
@@ -16,6 +17,7 @@ import { ClientNameWrapper } from 'ui/wrapper/client_name_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
 import { ClientDialogWrapper } from 'ui/wrapper/dialog/client_dialog_wrapper'
+import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
 export class InitDialogWrapper extends ClientDialogWrapper {
@@ -58,6 +60,25 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 
 		bird.contentElm().textContent = "TODO"
 
+		const playerColors = ColorFactory.entityColors(EntityType.PLAYER);
+		let color = new SettingWrapper<number>({
+			name: "Favorite Color",
+			value: Math.floor(Math.random() * playerColors.length),
+			click: (current : number) => {
+				current++;
+				if (current >= playerColors.length) {
+					current = 0;
+				}
+				return current;
+			},
+			text: (current : number) => {
+				// Kind of jank but whatever
+				const tokens = ColorType[playerColors[current]].split("_");
+				return tokens.length === 2 ? tokens[1] : "???";
+			},
+		});
+		bio.contentElm().appendChild(color.elm());
+
 		/*
 		let colorInput = Html.input();
 		colorInput.type = "color";
@@ -67,7 +88,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 
 		pageWrapper.setOnSubmit(() => {
 			this.dialogMessage().setDisplayName(nameWrapper.name());
-			this.dialogMessage().setColor(ColorFactory.playerColor(game.clientId()).toString());
+			this.dialogMessage().setColor(ColorFactory.entityColor(EntityType.PLAYER, color.value()).toString());
 		});
 	}
 }

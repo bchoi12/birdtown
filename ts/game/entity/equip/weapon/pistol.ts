@@ -9,7 +9,7 @@ import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
 import { Bullet } from 'game/entity/projectile/bullet'
 import { Weapon, WeaponConfig, WeaponState } from 'game/entity/equip/weapon'
-import { MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 
@@ -73,7 +73,7 @@ export class Pistol extends Weapon {
 		counts.set(CounterType.BULLETS, {
 			percentGone: 1 - this.bursts() / Pistol._bursts,
 			text: "" + this.bursts(),
-			color: ColorFactory.caliberYellow.toString(),
+			color: ColorFactory.color(ColorType.SHOOTER_YELLOW).toString(),
 		});
 		return counts;
 	}

@@ -11,7 +11,7 @@ import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Weapon, WeaponConfig, WeaponState } from 'game/entity/equip/weapon'
 import { ParticleCube } from 'game/entity/particle/particle_cube'
-import { MaterialType, MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
@@ -92,7 +92,7 @@ export class Sniper extends Weapon {
 							translate: { z: pos.z + size / 2 },
 							scale: { x: size, y: size, z: size },
 						},
-						materialType: MaterialType.BOLT_ORANGE,
+						materialType: MaterialType.SHOOTER_ORANGE,
 					}
 				});
 
@@ -126,7 +126,7 @@ export class Sniper extends Weapon {
 				transforms: {
 					translate: { z: pos.z },
 				},
-				materialType: charged ? MaterialType.BOLT_ORANGE : MaterialType.BOLT_BLUE,
+				materialType: charged ? MaterialType.SHOOTER_ORANGE : MaterialType.SHOOTER_BLUE,
 			},
 			profileInit: {
 				pos: pos,
@@ -156,7 +156,7 @@ export class Sniper extends Weapon {
 		counts.set(CounterType.CHARGE, {
 			percentGone: 1 - this.getCounter(CounterType.CHARGE) / Sniper._chargedThreshold,
 			text: this.charged() ? "1/1" : "0/1",
-			color: ColorFactory.boltDarkOrange.toString(),
+			color: ColorFactory.color(ColorType.SHOOTER_DARK_ORANGE).toString(),
 		});
 		return counts;
 	}

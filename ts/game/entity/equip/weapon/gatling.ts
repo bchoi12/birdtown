@@ -11,7 +11,7 @@ import { AttachType, RecoilType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Weapon, WeaponConfig, WeaponState } from 'game/entity/equip/weapon'
-import { MaterialType, MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { LoadResult } from 'game/factory/mesh_factory'
@@ -135,7 +135,7 @@ export class Gatling extends Weapon {
 		counts.set(CounterType.BULLETS, {
 			percentGone: 1 - this.bursts() / Gatling._bursts,
 			text: "" + this.bursts(),
-			color: ColorFactory.caliberYellow.toString(),
+			color: ColorFactory.color(ColorType.SHOOTER_YELLOW).toString(),
 		});
 		return counts;
 	}

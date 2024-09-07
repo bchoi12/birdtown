@@ -4,7 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { StepData } from 'game/game_object'
 import { ColorFactory } from 'game/factory/color_factory'
-import { ColorType } from 'game/factory/api'
+import { ColorCategory } from 'game/factory/api'
 import { ComponentType, AttributeType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Cardinals } from 'game/component/cardinals'
@@ -14,7 +14,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { CollisionCategory, DepthType, MeshType } from 'game/factory/api'
+import { CollisionCategory, ColorType, DepthType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -115,9 +115,9 @@ export abstract class Block extends EntityBase {
 
 		// Set up minimap rendering after processing mesh
 		this._model.onLoad(() => {
-			if (this._hexColors.hasColor(ColorType.BASE) && this.canOcclude()) {
+			if (this._hexColors.hasColor(ColorCategory.BASE) && this.canOcclude()) {
 				this._profile.setMinimapOptions({
-					color: this._hexColors.color(ColorType.BASE).toString(),
+					color: this._hexColors.color(ColorCategory.BASE).toString(),
 					depthType: DepthType.FRONT,
 				});
 			}
@@ -241,19 +241,19 @@ export abstract class Block extends EntityBase {
 		let materialProps = new Set<string>(mesh.material.name.split("-"));
 		let diffuse = new Optional<HexColor>();
 		if (materialProps.has(MaterialProp.BASE)) {
-			if (!this._hexColors.hasColor(ColorType.BASE)) {
+			if (!this._hexColors.hasColor(ColorCategory.BASE)) {
 				console.error("Warning: missing base color for %s", this.name());
 			} else {
-				diffuse.set(this._hexColors.color(ColorType.BASE));
+				diffuse.set(this._hexColors.color(ColorCategory.BASE));
 			}
 		} else if (materialProps.has(MaterialProp.SECONDARY)) {
-			if (!this._hexColors.hasColor(ColorType.SECONDARY)) {
+			if (!this._hexColors.hasColor(ColorCategory.SECONDARY)) {
 				console.error("Warning: missing secondary color for %s", this.name());
 			} else {
-				diffuse.set(this._hexColors.color(ColorType.SECONDARY));
+				diffuse.set(this._hexColors.color(ColorCategory.SECONDARY));
 			}
 		} else if (meshProps.has(MeshProp.WINDOWS)) {
-			diffuse.set(ColorFactory.transparentWindow);
+			diffuse.set(ColorFactory.color(ColorType.WINDOW));
 		}
 
 		if (diffuse.has()) {

@@ -11,7 +11,7 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Explosion } from 'game/entity/explosion'
 import { Projectile } from 'game/entity/projectile'
-import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
+import { CollisionCategory, ColorType, MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -58,7 +58,7 @@ export class Star extends Projectile {
 			this.delete();
 		});
 		this._profile.setMinimapOptions({
-			color: ColorFactory.starPurple.toString(),
+			color: ColorFactory.color(ColorType.EASTERN_PURPLE).toString(),
 		})
 
 		this._model = this.addComponent<Model>(new Model({
@@ -75,7 +75,7 @@ export class Star extends Projectile {
 						depth: 0.1,
 					}, game.scene(), earcut);
 					trail.rotation.x = Math.PI / 2;
-					trail.material = MaterialFactory.material(MaterialType.STAR_TRAIL);
+					trail.material = MaterialFactory.material(MaterialType.EASTERN_PURPLE_SOLID_TRAIL);
 					trail.isVisible = false;
 					trail.parent = model.root();
 
@@ -153,7 +153,7 @@ export class Star extends Projectile {
 
 	override onMiss() : void {
 		const dim = EntityFactory.getStaticDimension(this.type());
-		this.explode(EntityType.STAR_EXPLOSION, {});
+		this.explode(EntityType.PARTICLE_PURPLE, {});
 	}
 
 	override onExpire() : void {

@@ -11,7 +11,7 @@ import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Interactable } from 'game/entity/interactable'
-import { CollisionCategory, DepthType, MeshType } from 'game/factory/api'
+import { CollisionCategory, ColorType, DepthType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -61,7 +61,7 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setMinimapOptions({
-			color: ColorFactory.archWood.toString(),
+			color: ColorFactory.color(ColorType.LEVEL_BROWN).toString(),
 			depthType: DepthType.BEHIND,
 		});
 	}
@@ -88,7 +88,7 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 		}
 
 		nameTag.setDisplayName(text);
-		nameTag.setPointerColor(ColorFactory.signGray.toString());
+		nameTag.setPointerColor(ColorFactory.color(ColorType.LEVEL_GRAY).toString());
 		this._nameTag = nameTag;
 	}
 

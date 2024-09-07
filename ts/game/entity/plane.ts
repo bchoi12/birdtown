@@ -6,7 +6,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { DepthType, MeshType } from 'game/factory/api'
+import { ColorType, DepthType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -70,7 +70,7 @@ export class Plane extends EntityBase implements Entity {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setMinimapOptions({
-			color: ColorFactory.archRed.toString(),
+			color: ColorFactory.color(ColorType.RED).toString(),
 			depthType: DepthType.BEHIND,
 		});
 		this._profile.setVel({x: Plane._speed, y: 0});

@@ -9,7 +9,7 @@ import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Crate } from 'game/entity/interactable/crate'
 import { Player } from 'game/entity/player'
-import { MaterialType } from 'game/factory/api'
+import { ColorType, MaterialType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EquipPairs } from 'game/util/equip_pairs'
 
@@ -24,11 +24,11 @@ export class HealthCrate extends Crate {
 		super(EntityType.HEALTH_CRATE, entityOptions);
 
 		this._profile.setMinimapOptions({
-			color: ColorFactory.crateRed.toString(),
+			color: ColorFactory.color(ColorType.PICKUP_RED).toString(),
 		})
 	}
 
-	override outerMaterial() : MaterialType { return MaterialType.CRATE_RED; }
+	override outerMaterial() : MaterialType { return MaterialType.PICKUP_RED; }
 
 	amount() : number { return 10; }
 

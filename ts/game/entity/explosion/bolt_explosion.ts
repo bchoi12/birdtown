@@ -9,7 +9,7 @@ import { MaterialType } from 'game/factory/api'
 export class BoltExplosion extends Explosion {
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.BOLT_EXPLOSION, entityOptions);
+		super(EntityType.PARTICLE_ORANGE, entityOptions);
 
 	}
 
@@ -20,5 +20,5 @@ export class BoltExplosion extends Explosion {
 	}
 
 	override force() : number { return 1; }
-	override materialType() : MaterialType { return MaterialType.BOLT_EXPLOSION; }
+	override materialType() : MaterialType { return MaterialType.PARTICLE_ORANGE; }
 }

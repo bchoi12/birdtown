@@ -4,7 +4,7 @@ import { Profile } from 'game/component/profile'
 import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Bound } from 'game/entity/bound'
-import { ColorType, DepthType } from 'game/factory/api'
+import { ColorCategory, DepthType } from 'game/factory/api'
 
 export class Floor extends Bound {
 

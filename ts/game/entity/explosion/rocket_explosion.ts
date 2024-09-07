@@ -11,5 +11,5 @@ export class RocketExplosion extends Explosion {
 	}
 
 	override force() : number { return 1; }
-	override materialType() : MaterialType { return MaterialType.ROCKET_EXPLOSION; }
+	override materialType() : MaterialType { return MaterialType.PARTICLE_RED; }
 }

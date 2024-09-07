@@ -9,7 +9,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/equip/weapon'
 import { Player } from 'game/entity/player'
-import { MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -63,7 +63,7 @@ export class CowboyHat extends Equip<Player> {
 		counts.set(CounterType.ROLL, {
 			percentGone: 1 - percent,
 			text: Math.floor(percent) + "/1",
-			color: ColorFactory.cowboyBrown.toString(),
+			color: ColorFactory.color(ColorType.WESTERN_BROWN).toString(),
 		});
 		return counts;
 	}

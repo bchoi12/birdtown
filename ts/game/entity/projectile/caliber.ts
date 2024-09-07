@@ -10,7 +10,7 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Projectile } from 'game/entity/projectile'
-import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
+import { CollisionCategory, ColorType, MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
@@ -37,7 +37,7 @@ export class Caliber extends Projectile {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setMinimapOptions({
-			color: ColorFactory.caliberYellow.toString(),
+			color: ColorFactory.color(ColorType.SHOOTER_YELLOW).toString(),
 		})
 		this._profile.setOutOfBoundsFn((profile : Profile) => {
 			this.delete();
@@ -60,7 +60,7 @@ export class Caliber extends Projectile {
 			},
 			init: {
 				disableShadows: true,
-				materialType: MaterialType.CALIBER_YELLOW,
+				materialType: MaterialType.SHOOTER_YELLOW,
 				...entityOptions.modelInit,
 			},
 		}));
@@ -85,7 +85,7 @@ export class Caliber extends Projectile {
 					transforms: {
 						translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1), },
 					},
-					materialType: MaterialType.SPARK_YELLOW,
+					materialType: MaterialType.PARTICLE_YELLOW,
 				}
 			});
 		}

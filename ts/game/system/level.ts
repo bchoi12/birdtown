@@ -171,9 +171,9 @@ export class Level extends SystemBase implements System {
 	private displayName() : string {
 		switch (this.levelType()) {
 		case LevelType.LOBBY:
-			return "Birdtown Lobby";
+			return "the Lobby";
 		case LevelType.BIRDTOWN:
-			return "Birdtown #" + this.seed();
+			return "Birdtown";
 		}
 		return "Unknown Level";
 	}

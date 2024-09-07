@@ -9,7 +9,7 @@ import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Weapon, WeaponConfig, WeaponState } from 'game/entity/equip/weapon'
-import { MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 
@@ -75,7 +75,7 @@ export class Bazooka extends Weapon {
 		counts.set(CounterType.ROCKET, {
 			percentGone: this.reloadMillis() / this.getTime(WeaponState.RELOADING),
 			text: this.reloadMillis() > 0 ? "0/1" : "1/1",
-			color: ColorFactory.bazookaRed.toString(),
+			color: ColorFactory.color(ColorType.BLASTER_RED).toString(),
 		});
 		return counts;
 	}

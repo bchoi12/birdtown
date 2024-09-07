@@ -1,7 +1,7 @@
 
 import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { MaterialType } from 'game/factory/api'
+import { ColorCategory, ColorType, MaterialType } from 'game/factory/api'
 import { CardinalFactory } from 'game/factory/cardinal_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -12,6 +12,7 @@ import { Blueprint, BlueprintBlock, BlueprintOptions } from 'game/system/level/b
 import { TooltipType } from 'ui/api'
 
 import { Cardinal, CardinalDir } from 'util/cardinal'
+import { HexColor } from 'util/hex_color'
 import { Fns } from 'util/fns'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
@@ -179,7 +180,7 @@ export class ArchBlueprint extends Blueprint {
 	constructor(options : BlueprintOptions) {
 		super(options);
 
-		ColorFactory.shuffleColors(ArchBlueprint.blockType(), this.rng());
+		ColorFactory.shuffleEntityColors(ArchBlueprint.blockType(), this.rng());
 
 		this._buildings = new Array();
 		this._pos = Vec2.zero();
@@ -194,6 +195,16 @@ export class ArchBlueprint extends Blueprint {
 	static baseDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.baseType()); }
 	static roofDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.roofType()); }
 	static balconyDim() : Vec { return EntityFactory.getDimension(ArchBlueprint.balconyType()); }
+
+	static generateColorMap(type : EntityType, index? : number) : Map<number, HexColor> {
+		if (!index || index < 0 ) { index = 0; }
+
+		return new Map([
+			[ColorCategory.BASE, ColorFactory.entityColor(EntityType.ARCH_BLOCK, index)],
+			[ColorCategory.SECONDARY, ColorFactory.color(ColorType.LEVEL_WHITE)],
+		]);
+	}
+
 
 	override load() : void {
 		const options = this.options();
@@ -243,7 +254,7 @@ export class ArchBlueprint extends Blueprint {
 		}
 
 		let building = new Building(this._pos, height);
-		const colors = ColorFactory.generateColorMap(ArchBlueprint.blockType(), this._buildings.length);
+		const colors = ArchBlueprint.generateColorMap(ArchBlueprint.blockType(), this._buildings.length);
 		const options = {
 			hexColorsInit: {
 				colors: colors,
@@ -289,7 +300,7 @@ export class ArchBlueprint extends Blueprint {
 			[0.6, () => { backgroundHeight--; }],
 		]);
 
-		const materialTypes = MaterialFactory.archBackgroundMaterials()
+		const materialTypes = MaterialFactory.levelBackgroundMaterials()
 		building.addBackgroundBuilding(backgroundHeight, this.rng(), {
 			modelInit: {
 				materialType: materialTypes[i % materialTypes.length]

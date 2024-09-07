@@ -10,6 +10,16 @@ import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 
+enum CreateMode {
+	UNKNOWN,
+
+	HOST,
+	JOIN,
+
+	// Joining failed, so try hosting
+	HOST_AFTER_JOIN,
+}
+
 export class LoginHandler extends HandlerBase implements Handler {
 
 	private _loginElm : HTMLElement;
@@ -137,8 +147,31 @@ export class LoginHandler extends HandlerBase implements Handler {
 			return;
 		}
 
+		this.initializeGame(room, isHost ? CreateMode.HOST : CreateMode.JOIN);
+	}
+
+	private initializeGame(room : string, mode : CreateMode) : void {
+		let isHost = false;
+		switch (mode) {
+		case CreateMode.HOST:
+			isHost = true;
+			this.showInfo("Creating new room " + room)
+			break;
+		case CreateMode.JOIN:
+			isHost = false;
+			this.showInfo("Connecting to room " + room);
+			break;
+		case CreateMode.HOST_AFTER_JOIN:
+			isHost = true;
+			this.showInfo("Failed to join " + room + ", creating a new room");
+			break;
+		default:
+			console.error("Unknown mode!", CreateMode[mode]);
+			return;
+		}
+
 		this.hideError();
-		this.showInfo("Connecting");
+
 		game.initialize({
 		    room: room,
 		    isHost: isHost,
@@ -152,11 +185,17 @@ export class LoginHandler extends HandlerBase implements Handler {
 		    	this.disable();
 		    },
 		    netcodeError: () => {
-		    	if (isHost) {
+				if (mode === CreateMode.JOIN) {
+		    		this.initializeGame(room, CreateMode.HOST_AFTER_JOIN);
+		    		return;
+		    	}
+
+		    	if (mode === CreateMode.HOST) {
 		    		this.handleError(`Failed to create room ${room}. Please try again later with a different code.`);
 					this._roomInputElm.value = "";
-		    	} else {
-		    		this.handleError(`Failed to connect to ${room}. Please double check the code and try again.`);
+		    	} else if (mode === CreateMode.HOST_AFTER_JOIN) {
+		    		this.handleError(`Failed to either join or create room ${room}. Please try again in a few minutes.`);
+					this._roomInputElm.value = "";
 		    	}
 		    	this.showLogin();
 		    }

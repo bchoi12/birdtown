@@ -12,7 +12,7 @@ import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Interactable } from 'game/entity/interactable'
 import { Player } from 'game/entity/player'
-import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
+import { CollisionCategory, ColorType, MaterialType, MeshType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -99,7 +99,7 @@ export class Table extends Interactable implements Entity, EquipEntity {
 		});
 
 		this._profile.setMinimapOptions({
-			color: ColorFactory.tableWood.toString(),
+			color: ColorFactory.color(ColorType.TABLE).toString(),
 		});
 
 		this._subProfile = this._profile.addSubComponent<Profile>(new Profile({
@@ -138,7 +138,7 @@ export class Table extends Interactable implements Entity, EquipEntity {
 		});
 
 		this._subProfile.setMinimapOptions({
-			color: ColorFactory.tableWood.toString(),
+			color: ColorFactory.color(ColorType.TABLE).toString(),
 		});
 	}
 
