@@ -14,7 +14,7 @@ import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
-import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
+import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { VoiceWrapper } from 'ui/wrapper/button/voice_wrapper'
 

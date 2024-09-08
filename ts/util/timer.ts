@@ -83,6 +83,6 @@ export class Timer {
 		if (this._state === TimerState.DONE) {
 			return 1;
 		}
-		return Fns.clamp(0, this._totalMillis > 0 ? 1 - this.millisLeft() / this._totalMillis : 0, 1);
+		return Fns.clamp(0, this._totalMillis > 0 ? (1 - this.millisLeft() / this._totalMillis) : 0, 1);
 	}
 }

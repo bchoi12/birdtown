@@ -333,7 +333,7 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		this.anchorToTarget();
-		ui.updateCounters(this.targetEntity().getCounts());
+		ui.updateHud(this.targetEntity().getHudData());
 
 		// TODO: rate limit?
 		if (game.playerState().role() === PlayerRole.SPECTATING

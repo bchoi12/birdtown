@@ -19,7 +19,7 @@ import { GameObject, GameObjectBase, StepData } from 'game/game_object'
 import { StringFactory } from 'strings/string_factory'
 import { ParamString } from 'strings/param_string'
 
-import { CounterType, CounterOptions, KeyType, KeyState, TooltipType } from 'ui/api'
+import { HudType, HudOptions, KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Optional } from 'util/optional'
@@ -62,7 +62,7 @@ export interface Entity extends GameObject {
 	getComponent<T extends Component>(type : ComponentType) : T;
 
 	// Methods spanning components
-	getCounts() : Map<CounterType, CounterOptions>;
+	getHudData() : Map<HudType, HudOptions>;
 	setTTL(ttl : number, onDelete? : () => void);
 	ttlElapsed() : number;
 	key(type : KeyType, state : KeyState) : boolean;
@@ -79,9 +79,9 @@ export interface Entity extends GameObject {
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
 	attributeLastChange(type : AttributeType) : Optional<number>;
-	getCounter(type : CounterType) : number;
-	addCounter(type : CounterType, value : number) : void;
-	setCounter(type : CounterType, value : number) : void;
+	getCounter(type : HudType) : number;
+	addCounter(type : HudType, value : number) : void;
+	setCounter(type : HudType, value : number) : void;
 
 	// Match associations
 	getAssociations() : Map<AssociationType, number>;
@@ -95,6 +95,8 @@ export interface Entity extends GameObject {
 
 	// Sound playback rate
 	playbackRate() : number;
+
+	clientColorOr(color : string) : string;
 }
 
 export interface EquipEntity extends Entity {
@@ -198,7 +200,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	hasComponent(type : ComponentType) : boolean { return this.hasChild(type); }
 	getComponent<T extends Component>(type : ComponentType) : T { return this.getChild<T>(type); }
 
-	getCounts() : Map<CounterType, CounterOptions> { return new Map(); }
+	getHudData() : Map<HudType, HudOptions> { return new Map(); }
 	setTTL(ttl : number, onDelete? : () => void) : void {
 		if (!this._ttlTimer.has()) {
 			this._ttlTimer.set(this.newTimer({
@@ -306,12 +308,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		return this.getComponent<Attributes>(ComponentType.ATTRIBUTES).lastChange(type);
 	}
 
-	getCounter(type : CounterType) : number {
+	getCounter(type : HudType) : number {
 		if (!this.hasComponent(ComponentType.COUNTERS)) { return 0; }
 
 		return this.getComponent<Counters>(ComponentType.COUNTERS).getCounter(type);
 	}
-	addCounter(type : CounterType, value : number) : void {
+	addCounter(type : HudType, value : number) : void {
 		if (!this.hasComponent(ComponentType.COUNTERS)) {
 			console.error("Warning: %s missing Counters component", this.name());
 			return;
@@ -319,7 +321,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		this.getComponent<Counters>(ComponentType.COUNTERS).addCounter(type, value);		
 	}
-	setCounter(type : CounterType, value : number) : void {
+	setCounter(type : HudType, value : number) : void {
 		if (!this.hasComponent(ComponentType.COUNTERS)) {
 			console.error("Warning: %s missing Counters component", this.name());
 			return;
@@ -354,7 +356,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 
 	playbackRate() : number { return 1; }
-	protected clientColorOr(or : string) : string {
+	clientColorOr(or : string) : string {
 		if (this.hasClientId() && game.tablets().hasTablet(this.clientId())) {
 			return game.tablet(this.clientId()).color();
 		}

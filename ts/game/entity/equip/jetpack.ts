@@ -11,7 +11,7 @@ import { ColorType, MeshType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { CounterType, CounterOptions, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { Fns } from 'util/fns'
 import { RateLimiter } from 'util/rate_limiter'
@@ -148,14 +148,15 @@ export class Jetpack extends Equip<Player> {
 		}
 	}
 
-	override getCounts() : Map<CounterType, CounterOptions> {
-		let counts = super.getCounts();
-		counts.set(CounterType.JETPACK, {
+	override getHudData() : Map<HudType, HudOptions> {
+		let hudData = super.getHudData();
+		hudData.set(HudType.JETPACK, {
+			charging: this._juice <= 0,
 			percentGone: 1 - this._juice / Jetpack._maxJuice,
 			count: this._juice,
 			color: ColorFactory.color(ColorType.BLASTER_RED).toString(),
 		});
-		return counts;
+		return hudData;
 	}
 
 	private computeAcc(currentVel : number) : number {

@@ -2,7 +2,7 @@
 import { game } from 'game'
 
 import { ui } from 'ui'
-import { CounterType, CounterOptions, StatusType } from 'ui/api'
+import { StatusType } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -38,6 +38,15 @@ export class StatusHandler extends HandlerBase implements Handler {
 
 	override reset() : void {
 		super.reset();
+
+		for (const stringStatus in StatusType) {
+			const type = Number(StatusType[stringStatus]);
+			if (Number.isNaN(type) || type <= 0) {
+				continue;
+			}
+
+			this.hideStatus(type);
+		}
 	}
 
 	showStatus(type : StatusType) : void {

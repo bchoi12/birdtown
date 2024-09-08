@@ -31,9 +31,14 @@ export namespace Html {
 	export const divFeed = "div-feed";
 
 	export const divCounters = "div-counters";
-	export const divCountersContainer = "div-counters-container";
+	export const divCountersContainer = "counters-container";
 
 	export const divStatus = "div-status";
+
+	export const divHud = "div-hud";
+	export const divHudLeft = "hud-left";
+	export const divHudCenter = "hud-center";
+	export const divHudRight = "hud-right";
 
 	export const divTooltips = "div-tooltips";
 	export const divAnnouncement = "div-announcement";
@@ -44,7 +49,6 @@ export namespace Html {
 	export const divDialogs = "div-dialogs"
 
 	export const divModals = "div-modals";
-	export const divMenuDialog = "div-menu-dialog";
 	export const divMenu = "div-menu";
 	export const menuContinue = "menu-continue";
 	export const fieldsetClients = "fieldset-clients";
@@ -70,6 +74,9 @@ export namespace Html {
 	export const classDialogTitle = "dialog-title";
 	export const classFeed = "feed";
 	export const classFooter = "footer";
+	export const classHudBlock = "hud-block";
+	export const classHudBlockCharging = "hud-block-charging";
+	export const classHudContainer = "hud-container";
 	export const classInfoTable = "info-table";
 	export const classLabel = "label";
 	export const classLabelName = "label-name";
@@ -81,6 +88,7 @@ export namespace Html {
 	export const classLoadoutButtonTitle = "loadout-button-title";
 	export const classPopup = "popup";
 	export const classPopupShow = "popup-show";
+	export const classProgress = "progress";
 	export const classStatusMessage = "status-message";
 	export const classTooltip = "tooltip";
 

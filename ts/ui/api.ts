@@ -23,19 +23,6 @@ export enum AnnouncementType {
 	WELCOME,
 }
 
-export enum CounterType {
-	UNKOWN,
-	BLACK_HOLE,
-	CHARGE,
-	DASH,
-	BULLETS,
-	HEALTH,
-	JETPACK,
-	JUICE,
-	ROCKET,
-	ROLL,
-}
-
 export enum DialogType {
 	UNKNOWN,
 	INIT,
@@ -53,6 +40,38 @@ export enum FeedType {
 	LEAVE,
 	READY,
 	SUICIDE,
+}
+
+export enum HudType {
+	UNKOWN,
+	BLACK_HOLE,
+	CHARGE,
+	DASH,
+	BULLETS,
+	HEALTH,
+	JETPACK,
+	JUICE,
+	ROCKET,
+	ROLL,
+	SPRAY,
+	SQUAWK,
+	STAR,
+}
+
+export type HudOptions = {
+	// Default to false
+	charging? : boolean;
+
+	// Default to 0
+	percentGone? : number;
+
+	// If empty, do not set anything. Override count with text if set. Otherwise try count.
+	empty? : boolean;
+	text? : string;
+	count? : number;
+
+	// HTML color
+	color? : string;
 }
 
 export enum InfoType {
@@ -111,18 +130,6 @@ export enum TooltipType {
 	SPECTATING,
 	START_GAME,
 	WEAPON_CRATE,
-}
-
-export type CounterOptions = {
-	// Default to 0
-	percentGone? : number;
-
-	// Override count with text if set. Otherwise count = 0
-	count? : number;
-	text? : string;
-
-	// HTML color
-	color? : string;
 }
 
 export type TooltipOptions = {

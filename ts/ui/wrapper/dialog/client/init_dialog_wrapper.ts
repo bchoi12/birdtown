@@ -17,7 +17,7 @@ import { ClientNameWrapper } from 'ui/wrapper/client_name_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
 import { ClientDialogWrapper } from 'ui/wrapper/dialog/client_dialog_wrapper'
-import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
+import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
 export class InitDialogWrapper extends ClientDialogWrapper {
@@ -61,6 +61,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		bird.contentElm().textContent = "TODO"
 
 		const playerColors = ColorFactory.entityColors(EntityType.PLAYER);
+		let colorSpan = Html.span();
 		let color = new SettingWrapper<number>({
 			name: "Favorite Color",
 			value: Math.floor(Math.random() * playerColors.length),
@@ -71,20 +72,21 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 				}
 				return current;
 			},
-			text: (current : number) => {
+			html: (current : number) => {
 				// Kind of jank but whatever
-				const tokens = ColorType[playerColors[current]].split("_");
-				return tokens.length === 2 ? tokens[1] : "???";
+				const currentType = playerColors[current];
+				colorSpan.style.color = ColorFactory.color(currentType).toString();
+
+				const tokens = ColorType[currentType].split("_");
+				if (tokens.length === 2) {
+					colorSpan.textContent = tokens[1];
+				} else {
+					colorSpan.textContent = "???";
+				}
+				return colorSpan.outerHTML;
 			},
 		});
 		bio.contentElm().appendChild(color.elm());
-
-		/*
-		let colorInput = Html.input();
-		colorInput.type = "color";
-		colorInput.value = ColorFactory.playerColor(game.clientId()).toString();
-		pageWrapper.elm().appendChild(colorInput);
-		*/
 
 		pageWrapper.setOnSubmit(() => {
 			this.dialogMessage().setDisplayName(nameWrapper.name());

@@ -18,4 +18,5 @@ export class LabelButtonWrapper extends LabelWrapper {
 	}
 
 	setButtonText(text : string) : void { this._buttonTextElm.textContent = text; }
+	setButtonHTML(html : string) : void { this._buttonTextElm.innerHTML = html; }
 }

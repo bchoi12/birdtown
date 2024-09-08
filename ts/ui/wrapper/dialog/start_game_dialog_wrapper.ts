@@ -21,7 +21,7 @@ import { ClientConfigWrapper } from 'ui/wrapper/client_config_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
-import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
+import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 
 export class StartGameDialogWrapper extends DialogWrapper {
 

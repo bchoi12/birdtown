@@ -13,7 +13,7 @@ import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { CounterType, CounterOptions, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
@@ -47,14 +47,15 @@ export class Headphones extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.FOREHEAD; }
 
-	override getCounts() : Map<CounterType, CounterOptions> {
-		let counts = super.getCounts();
-		counts.set(CounterType.BLACK_HOLE, {
-			percentGone: 1 - this._timer.percentElapsed(),
-			text: this.canUse() ? "1/1" : "0/1",
+	override getHudData() : Map<HudType, HudOptions> {
+		let hudData = super.getHudData();
+		hudData.set(HudType.BLACK_HOLE, {
+			charging: !this.canUse(),
+			percentGone: this.canUse() ? 0 : (1 - this._timer.percentElapsed()),
+			empty: true,
 			color: ColorFactory.color(ColorType.BLACK).toString(),
 		});
-		return counts;
+		return hudData;
 	}
 
 	override update(stepData : StepData) : void {

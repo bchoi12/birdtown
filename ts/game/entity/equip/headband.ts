@@ -14,7 +14,7 @@ import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { CounterType, CounterOptions, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
@@ -71,14 +71,15 @@ export class Headband extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.FOREHEAD; }
 
-	override getCounts() : Map<CounterType, CounterOptions> {
-		let counts = super.getCounts();
-		counts.set(CounterType.DASH, {
+	override getHudData() : Map<HudType, HudOptions> {
+		let hudData = super.getHudData();
+		hudData.set(HudType.DASH, {
+			charging: this._juice <= Headband._maxJuice,
 			percentGone: 1 - this._juice / Headband._maxJuice,
-			text: this.canDash() ? "1/1" : "0/1",
+			empty: true,
 			color: ColorFactory.color(ColorType.EASTERN_PURPLE).toString(),
 		});
-		return counts;
+		return hudData;
 	}
 
 	override initialize() : void {

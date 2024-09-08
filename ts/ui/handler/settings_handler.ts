@@ -19,7 +19,7 @@ import { ui } from 'ui'
 import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
-import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
+import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 import { Html } from 'ui/html'
 
 import { isLocalhost } from 'util/common'

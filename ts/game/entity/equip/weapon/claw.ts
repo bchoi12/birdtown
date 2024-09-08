@@ -15,7 +15,7 @@ import { MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
 
-import { KeyType, KeyState } from 'ui/api'
+import { HudType, KeyType, KeyState } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Vec3 } from 'util/vector'
@@ -41,6 +41,7 @@ export class Claw extends Weapon {
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
+	override hudType() : HudType { return HudType.STAR; }
 	override recoilType() : RecoilType { return RecoilType.THROW; }
 	override meshType() : MeshType { return MeshType.GLOVE; }
 

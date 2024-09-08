@@ -14,7 +14,7 @@ import { Player } from 'game/entity/player'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { CounterType, CounterOptions, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { Optional } from 'util/optional'
 import { Timer} from 'util/timer'
@@ -112,13 +112,13 @@ export class BirdBrain extends Equip<Player> {
 		}
 	}
 
-	override getCounts() : Map<CounterType, CounterOptions> {
-		let counts = super.getCounts();
-		counts.set(CounterType.JUICE, {
+	override getHudData() : Map<HudType, HudOptions> {
+		let hudData = super.getHudData();
+		hudData.set(HudType.JUICE, {
 			percentGone: 1 - this._juice / BirdBrain._maxJuice,
 			count: this._juice,
 		});
-		return counts;
+		return hudData;
 	}
 
 	private resetTarget(id? : number) : void {

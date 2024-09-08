@@ -40,18 +40,20 @@ export enum IconType {
 	SKULL,
 	TROPHY,
 
-	// Counters
+	// HUD
 	BOLT,
 	DASH,
 	EARTH,
 	GATLING,
 	HEART,
 	JET,
+	MUSIC_NOTE,
 	ROCKET,
 	ROCKING_HORSE,
 	ROLL,
 	TELEKENESIS,
 	SPRAY,
+	STAR,
 }
 
 export namespace Icon {
@@ -75,6 +77,7 @@ export namespace Icon {
 		[IconType.MENU_OPEN, "menu_open"],
 		[IconType.MIC, "mic"],
 		[IconType.MOUSE, "mouse"],
+		[IconType.MUSIC_NOTE, "music_note"],
 		[IconType.MUTED_MIC, "mic_off"],
 		[IconType.KICK, "block"],
 		[IconType.PERSON_PLUS, "person_add"],
@@ -88,6 +91,7 @@ export namespace Icon {
 		[IconType.SKILLET, "skillet"],
 		[IconType.SKULL, "skull"],
 		[IconType.SPRAY, "household_supplies"],
+		[IconType.STAR, "star"],
 		[IconType.TELEKENESIS, "move_selection_right"],
 		[IconType.TIMER, "timer"],
 		[IconType.TROPHY, "trophy"],

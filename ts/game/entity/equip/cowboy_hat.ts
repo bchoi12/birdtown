@@ -13,7 +13,7 @@ import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { CounterType, CounterOptions, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
@@ -57,15 +57,16 @@ export class CowboyHat extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.HEAD; }
 
-	override getCounts() : Map<CounterType, CounterOptions> {
-		let counts = super.getCounts();
+	override getHudData() : Map<HudType, HudOptions> {
+		let hudData = super.getHudData();
 		let percent = this._juice / CowboyHat._maxJuice;
-		counts.set(CounterType.ROLL, {
+		hudData.set(HudType.ROLL, {
+			charging: percent < 1,
 			percentGone: 1 - percent,
-			text: Math.floor(percent) + "/1",
+			empty: true,
 			color: ColorFactory.color(ColorType.WESTERN_BROWN).toString(),
 		});
-		return counts;
+		return hudData;
 	}
 
 	override update(stepData : StepData) : void {

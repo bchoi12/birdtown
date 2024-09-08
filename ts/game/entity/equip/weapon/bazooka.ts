@@ -12,7 +12,7 @@ import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 
-import { CounterType, CounterOptions } from 'ui/api'
+import { HudType, HudOptions } from 'ui/api'
 
 import { Vec3 } from 'util/vector'
 
@@ -36,6 +36,7 @@ export class Bazooka extends Weapon {
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
+	override hudType() : HudType { return HudType.ROCKET; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
 
@@ -67,15 +68,5 @@ export class Bazooka extends Weapon {
 		});
 
 		this._soundPlayer.playFromEntity(SoundType.ROCKET, this.owner());
-	}
-
-	override getCounts() : Map<CounterType, CounterOptions> {
-		let counts = super.getCounts();
-		counts.set(CounterType.ROCKET, {
-			percentGone: this.reloadMillis() / this.getTime(WeaponState.RELOADING),
-			text: this.reloadMillis() > 0 ? "0/1" : "1/1",
-			color: ColorFactory.color(ColorType.BLASTER_RED).toString(),
-		});
-		return counts;
 	}
 }

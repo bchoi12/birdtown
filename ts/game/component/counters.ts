@@ -3,15 +3,15 @@ import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType } from 'game/component/api'
 
-import { CounterType } from 'ui/api'
+import { HudType } from 'ui/api'
 
 export type CountersInitOptions = {
-	counters? : Map<CounterType, number>;
+	counters? : Map<HudType, number>;
 }
 
 export class Counters extends ComponentBase implements Component {
 
-	private _counters : Map<CounterType, number>;
+	private _counters : Map<HudType, number>;
 
 	constructor(init? : CountersInitOptions) {
 		super(ComponentType.COUNTERS);
@@ -24,8 +24,8 @@ export class Counters extends ComponentBase implements Component {
 			})
 		}
 
-		for (const stringCounter in CounterType) {
-			const counter = Number(CounterType[stringCounter]);
+		for (const stringCounter in HudType) {
+			const counter = Number(HudType[stringCounter]);
 			if (Number.isNaN(counter) || counter <= 0) {
 				continue;
 			}
@@ -38,13 +38,13 @@ export class Counters extends ComponentBase implements Component {
 		}
 	}
 
-	hasCounter(counter : CounterType) : boolean { return this._counters.has(counter); }
-	getCounter(counter : CounterType) : number {
+	hasCounter(counter : HudType) : boolean { return this._counters.has(counter); }
+	getCounter(counter : HudType) : number {
 		if (!this.hasCounter(counter)) {
 			return 0;
 		}
 		return this._counters.get(counter);
 	}
-	addCounter(counter : CounterType, value : number) : void { this._counters.set(counter, this.getCounter(counter) + value); }
-	setCounter(counter : CounterType, value : number) : void { this._counters.set(counter, value); }
+	addCounter(counter : HudType, value : number) : void { this._counters.set(counter, this.getCounter(counter) + value); }
+	setCounter(counter : HudType, value : number) : void { this._counters.set(counter, value); }
 }

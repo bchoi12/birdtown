@@ -11,7 +11,7 @@ import { Player } from 'game/entity/player'
 import { MeshType, SoundType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { CounterType, KeyType, KeyState } from 'ui/api'
+import { HudType, KeyType, KeyState } from 'ui/api'
 
 import { Fns, InterpType } from 'util/fns'
 import { Vec3 } from 'util/vector'
@@ -71,7 +71,7 @@ export class Scouter extends Equip<Player> {
 			this._lookWeight = Math.min(Scouter._lookPanTime, this._lookWeight + millis);
 
 			this._weapons.forEach((weapon : Equip<Player>) => {
-				if (weapon.getCounter(CounterType.CHARGE) <= 0) {
+				if (weapon.getCounter(HudType.CHARGE) <= 0) {
 					this._soundPlayer.stop(SoundType.CHARGE);
 
 					if (this.owner().isLakituTarget()) {
@@ -79,7 +79,7 @@ export class Scouter extends Equip<Player> {
 					}
 				}
 				weapon.setAttribute(AttributeType.CHARGING, true);
-				weapon.addCounter(CounterType.CHARGE, millis);
+				weapon.addCounter(HudType.CHARGE, millis);
 			});
 		} else {
 			this._lookWeight = Math.max(0, this._lookWeight - 1.5 * millis);
@@ -87,7 +87,7 @@ export class Scouter extends Equip<Player> {
 			this._weapons.forEach((weapon : Equip<Player>) => {
 				weapon.setAttribute(AttributeType.CHARGING, false);
 
-				weapon.setCounter(CounterType.CHARGE, 0);
+				weapon.setCounter(HudType.CHARGE, 0);
 				this._soundPlayer.stop(SoundType.CHARGE);
 			});
 		}

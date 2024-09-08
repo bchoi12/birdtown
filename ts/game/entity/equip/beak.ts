@@ -7,12 +7,13 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MeshType, SoundType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 
-import { KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { Timer} from 'util/timer'
 
@@ -85,6 +86,17 @@ export abstract class Beak extends Equip<Player> {
 		if (amount > 60 * Math.random() + 10) {
 			this.setSquawking(true);
 		}
+	}
+
+	override getHudData() : Map<HudType, HudOptions> {
+		let hudData = super.getHudData();
+		hudData.set(HudType.SQUAWK, {
+			charging: this._squawkTimer.hasTimeLeft(),
+			empty: true,
+			percentGone: this._squawkTimer.hasTimeLeft() ? (1 - this._squawkTimer.percentElapsed()) : 0,
+			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
+		});
+		return hudData;
 	}
 
 	override update(stepData : StepData) : void {

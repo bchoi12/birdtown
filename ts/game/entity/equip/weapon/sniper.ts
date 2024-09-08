@@ -16,7 +16,7 @@ import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
 
-import { CounterType, CounterOptions } from 'ui/api'
+import { HudType, HudOptions } from 'ui/api'
 
 import { defined } from 'util/common'
 import { RateLimiter } from 'util/rate_limiter'
@@ -24,12 +24,13 @@ import { Vec2, Vec3 } from 'util/vector'
 
 export class Sniper extends Weapon {
 
+	private static readonly _bursts = 3;
 	private static readonly _config = {
 		times: new Map([
 			[WeaponState.FIRING, 80],
 			[WeaponState.RELOADING, 300],
 		]),
-		bursts: 3,
+		bursts: Sniper._bursts,
 	};
 	private static readonly _chargedConfig = {
 		times: new Map([
@@ -59,7 +60,7 @@ export class Sniper extends Weapon {
 	override recoilType() : RecoilType { return RecoilType.SMALL; }
 	override meshType() : MeshType { return MeshType.SNIPER; }
 
-	override charged() : boolean { return this.getCounter(CounterType.CHARGE) >= Sniper._chargedThreshold; }
+	override charged() : boolean { return this.getCounter(HudType.CHARGE) >= Sniper._chargedThreshold; }
 
 	override weaponConfig() : WeaponConfig {
 		return this.charged() ? Sniper._chargedConfig : Sniper._config;
@@ -75,7 +76,7 @@ export class Sniper extends Weapon {
 				const pos = Vec3.fromBabylon3(this._shootNode.getAbsolutePosition());
 
 				// TODO: don't hardcode 1000 as max
-				const size = 0.05 + 0.45 * (Math.min(1000, this.getCounter(CounterType.CHARGE)) / 1000);
+				const size = 0.05 + 0.45 * (Math.min(1000, this.getCounter(HudType.CHARGE)) / 1000);
 				const [cube, hasCube] = this.addEntity<ParticleCube>(EntityType.PARTICLE_ENERGY_CUBE, {
 					offline: true,
 					ttl: 1.5 * Sniper._chargeInterval,
@@ -147,17 +148,18 @@ export class Sniper extends Weapon {
 
 	override onReload() : void {
 		if (this.charged()) {
-			this.setCounter(CounterType.CHARGE, 0);
+			this.setCounter(HudType.CHARGE, 0);
 		}
 	}
 
-	override getCounts() : Map<CounterType, CounterOptions> {
-		let counts = super.getCounts();
-		counts.set(CounterType.CHARGE, {
-			percentGone: 1 - this.getCounter(CounterType.CHARGE) / Sniper._chargedThreshold,
-			text: this.charged() ? "1/1" : "0/1",
+	override getHudData() : Map<HudType, HudOptions> {
+		let hudData = super.getHudData();
+		hudData.set(HudType.CHARGE, {
+			charging: !this.charged(),
+			percentGone: 1 - this.getCounter(HudType.CHARGE) / Sniper._chargedThreshold,
+			empty: true,
 			color: ColorFactory.color(ColorType.SHOOTER_DARK_ORANGE).toString(),
 		});
-		return counts;
+		return hudData;
 	}
 }

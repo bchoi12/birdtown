@@ -1,6 +1,6 @@
 
 import { ui } from 'ui'
-import { CounterType, CounterOptions } from 'ui/api'
+import { HudType, HudOptions } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon, IconType } from 'ui/common/icon'
 
@@ -16,46 +16,46 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 
 	private static readonly _minPercent = 20;
 	private static readonly _maxPercent = 80;
-	private static readonly _iconMetadata = new Map<CounterType, IconMetadata>([
-		[CounterType.CHARGE, {
+	private static readonly _iconMetadata = new Map<HudType, IconMetadata>([
+		[HudType.CHARGE, {
 			iconType: IconType.BOLT,
 			delay: 0,
 		}],
-		[CounterType.DASH, {
+		[HudType.DASH, {
 			iconType: IconType.DASH,
 			delay: 0,
 		}],
-		[CounterType.BLACK_HOLE, {
+		[HudType.BLACK_HOLE, {
 			iconType: IconType.EARTH,
 			delay: 0,
 		}],		
-		[CounterType.BULLETS, {
+		[HudType.BULLETS, {
 			iconType: IconType.GATLING,
 			delay: 0,
 		}],
-		[CounterType.HEALTH, {
+		[HudType.HEALTH, {
 			iconType: IconType.HEART,
 			delay: 250,
 		}],
-		[CounterType.JETPACK, {
+		[HudType.JETPACK, {
 			iconType: IconType.JET,
 			delay: 0,
 		}],
-		[CounterType.JUICE, {
+		[HudType.JUICE, {
 			iconType: IconType.TELEKENESIS,
 			delay: 0,
 		}],
-		[CounterType.ROCKET, {
+		[HudType.ROCKET, {
 			iconType: IconType.ROCKET,
 			delay: 0,
 		}],
-		[CounterType.ROLL, {
+		[HudType.ROLL, {
 			iconType: IconType.ROLL,
 			delay: 0,
 		}],
 	])
 
-	private _type : CounterType;
+	private _type : HudType;
 	private _textElm : HTMLElement;
 	private _iconElm : HTMLElement;
 
@@ -64,7 +64,7 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 	private _lastCount : Optional<number>;
 	private _countUpdateTime : number;
 
-	constructor(type : CounterType) {
+	constructor(type : HudType) {
 		super(Html.div());
 
 		this._type = type;
@@ -90,7 +90,7 @@ export class CounterWrapper extends HtmlWrapper<HTMLElement> {
 	private iconType() : IconType { return CounterWrapper._iconMetadata.get(this._type).iconType; }
 	private delay() : number { return CounterWrapper._iconMetadata.get(this._type).delay; }
 
-	updateCounter(options : CounterOptions) : void {
+	updateCounter(options : HudOptions) : void {
 		if (this._count !== options.count) {
 			if (this._lastCount.has()) {
 				this._lastCount.set(this._count);

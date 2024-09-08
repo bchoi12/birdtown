@@ -7,11 +7,12 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { MaterialType, MeshType } from 'game/factory/api'
+import { ColorType, MaterialType, MeshType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
 
-import { CounterType, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { Timer } from 'util/timer'
 import { Vec2, Vec3 } from 'util/vector'
@@ -90,6 +91,7 @@ export abstract class Weapon extends Equip<Player> {
 	}
 	shootNode() : BABYLON.TransformNode { return this._shootNode !== null ? this._shootNode : this._model.mesh(); }
 	reloadMillis() : number { return this._weaponState === WeaponState.RELOADING ? this._stateTimer.millisLeft() : 0; }
+	reloadPercent() : number { return this._weaponState === WeaponState.RELOADING ? this._stateTimer.percentElapsed() : 1; }
 
 	weaponState() : WeaponState { return this._weaponState; }
 	abstract weaponConfig() : WeaponConfig;
@@ -104,6 +106,7 @@ export abstract class Weapon extends Equip<Player> {
 	}
 
 	charged() : boolean { return false; }
+	reloading() : boolean { return this._weaponState === WeaponState.RELOADING; }
 
 	protected firing() : boolean {
 		const charging = this.getAttribute(AttributeType.CHARGING) && !this.charged();
@@ -131,6 +134,18 @@ export abstract class Weapon extends Equip<Player> {
 		}
 	}
 
+	hudType() : HudType { return HudType.BULLETS; }
+	override getHudData() : Map<HudType, HudOptions> {
+		let hudData = super.getHudData();
+		hudData.set(this.hudType(), {
+			charging: this.reloading(),
+			count: this.reloading() ? 0 : this.bursts(),
+			percentGone: 1 - this.reloadPercent(),
+			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
+		});
+		return hudData;
+	}
+
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
@@ -141,8 +156,8 @@ export abstract class Weapon extends Equip<Player> {
 
 		if (this._weaponState === WeaponState.RELOADING) {
 			// TODO: click sound on key press
-			if (this.getCounter(CounterType.CHARGE) > 0) {
-				this.setCounter(CounterType.CHARGE, 0);
+			if (this.getCounter(HudType.CHARGE) > 0) {
+				this.setCounter(HudType.CHARGE, 0);
 			}
 
 			if (!this.weaponConfig().allowPartialClip) {
@@ -212,4 +227,6 @@ export abstract class Weapon extends Equip<Player> {
 			break;
 		}
 	}
+
+
 }

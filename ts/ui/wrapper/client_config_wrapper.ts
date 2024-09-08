@@ -5,7 +5,7 @@ import { ClientConfig, ClientInfo } from 'game/util/client_config'
 
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
-import { SettingWrapper } from 'ui/wrapper/setting_wrapper'
+import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 
 export class ClientConfigWrapper extends HtmlWrapper<HTMLElement> {
 

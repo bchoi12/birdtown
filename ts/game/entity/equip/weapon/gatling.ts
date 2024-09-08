@@ -17,7 +17,7 @@ import { EntityFactory } from 'game/factory/entity_factory'
 import { LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
 
-import { CounterType, CounterOptions } from 'ui/api'
+import { HudType, HudOptions } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Fns } from 'util/fns'
@@ -128,16 +128,6 @@ export class Gatling extends Weapon {
 		}
 
 		this._spinner.addRotation(0, 0, this._rotateRad * millis / 1000);
-	}
-
-	override getCounts() : Map<CounterType, CounterOptions> {
-		let counts = super.getCounts();
-		counts.set(CounterType.BULLETS, {
-			percentGone: 1 - this.bursts() / Gatling._bursts,
-			text: "" + this.bursts(),
-			color: ColorFactory.color(ColorType.SHOOTER_YELLOW).toString(),
-		});
-		return counts;
 	}
 
 	private computeVerticalAcc(recoilVel : Vec, ownerVel : Vec) : number {

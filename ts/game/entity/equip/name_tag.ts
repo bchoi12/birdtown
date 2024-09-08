@@ -14,7 +14,7 @@ import { PlayerRole } from 'game/system/api'
 
 import { UiGlobals } from 'global/ui_globals'
 
-import { CounterType } from 'ui/api'
+import { HudType } from 'ui/api'
 
 import { ChangeTracker } from 'util/change_tracker'
 import { Vec2 } from 'util/vector'

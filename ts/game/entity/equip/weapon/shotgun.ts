@@ -12,7 +12,7 @@ import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 
-import { CounterType, CounterOptions } from 'ui/api'
+import { HudType } from 'ui/api'
 
 import { Vec3 } from 'util/vector'
 
@@ -40,6 +40,7 @@ export class Shotgun extends Weapon {
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
+	override hudType() : HudType { return HudType.SPRAY; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.SHOTGUN; }
 
@@ -80,15 +81,4 @@ export class Shotgun extends Weapon {
 
 		this._soundPlayer.playFromEntity(SoundType.PISTOL, this.owner());
 	}
-
-	override getCounts() : Map<CounterType, CounterOptions> {
-		let counts = super.getCounts();
-		counts.set(CounterType.BULLETS, {
-			percentGone: 1 - this.bursts() / Shotgun._bursts,
-			text: "" + this.bursts(),
-			color: ColorFactory.color(ColorType.SHOOTER_YELLOW).toString(),
-		});
-		return counts;
-	}
-
 }
