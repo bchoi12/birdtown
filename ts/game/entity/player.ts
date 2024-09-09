@@ -231,7 +231,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._attributes.setAttribute(AttributeType.GROUNDED, !this.clientIdMatches());
 		this._attributes.setAttribute(AttributeType.SOLID, true);
 
 		this._entityTrackers = this.addComponent<EntityTrackers>(new EntityTrackers());
@@ -390,7 +389,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	displayName() : string { return game.tablet(this.clientId()).displayName(); }
 	respawn(spawn : Vec2) : void {
-		this.setAttribute(AttributeType.GROUNDED, false);
+		if (this.isSource() || this.clientIdMatches()) {
+			this.setAttribute(AttributeType.GROUNDED, false);
+		}
 		this._canJump = false;
 		this._canJumpTimer.reset();
 		this._canDoubleJump = false;

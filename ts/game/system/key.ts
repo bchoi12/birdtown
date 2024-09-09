@@ -8,6 +8,9 @@ import { KeyType, KeyState } from 'ui/api'
 
 export class Key extends ClientSideSystem implements System {
 
+	// Max key press/release to replay
+	private static readonly _maxReplay = 3;
+
 	private _keyType : KeyType;
 	private _counter : number;
 	// Counter from network connection. Behind if source, otherwise ahead.
@@ -65,6 +68,10 @@ export class Key extends ClientSideSystem implements System {
 			}
 		} else {
 			if (this._networkCounter > this._counter) {
+				if (this._networkCounter > this._counter + 2 * Key._maxReplay) {
+					this._counter = this._networkCounter - 2 * Key._maxReplay;
+				}
+
 				if (this.up()) {
 					this.press();
 				} else {
