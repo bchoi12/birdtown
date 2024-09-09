@@ -27,4 +27,8 @@ export class ProgressWrapper extends HtmlWrapper<HTMLElement> {
 
 		this.elm().style.width = Math.min(Math.max(0, 100 * percent), 100) + "%";
 	}
+
+	setColor(color : string) : void {
+		this.elm().style.backgroundColor = color;
+	}
 }

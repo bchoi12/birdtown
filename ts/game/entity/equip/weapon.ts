@@ -140,8 +140,9 @@ export abstract class Weapon extends Equip<Player> {
 		hudData.set(this.hudType(), {
 			charging: this.reloading(),
 			count: this.reloading() ? 0 : this.bursts(),
-			percentGone: 1 - this.reloadPercent(),
+			percentGone: 1 - (this.reloading() ? this.reloadPercent() : (this.bursts() / this.weaponConfig().bursts)),
 			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
+			keyType: KeyType.MOUSE_CLICK,
 		});
 		return hudData;
 	}

@@ -1,5 +1,11 @@
-export class KeyNames {
-	private static readonly _keys = [
+
+import { KeyType } from 'ui/api'
+import { Icon, IconType } from 'ui/common/icon'
+
+import { settings } from 'settings'
+
+export namespace KeyNames {
+	const keys = [
 	  "", // [0]
 	  "", // [1]
 	  "", // [2]
@@ -8,7 +14,7 @@ export class KeyNames {
 	  "", // [5]
 	  "HELP", // [6]
 	  "", // [7]
-	  "BACK_SPACE", // [8]
+	  "BACK", // [8]
 	  "TAB", // [9]
 	  "", // [10]
 	  "", // [11]
@@ -17,24 +23,24 @@ export class KeyNames {
 	  "ENTER_SPECIAL", // [14]
 	  "", // [15]
 	  "SHIFT", // [16]
-	  "CONTROL", // [17]
+	  "CTRL", // [17]
 	  "ALT", // [18]
 	  "PAUSE", // [19]
-	  "CAPS_LOCK", // [20]
+	  "CAPS", // [20]
 	  "KANA", // [21]
 	  "EISU", // [22]
 	  "JUNJA", // [23]
 	  "FINAL", // [24]
 	  "HANJA", // [25]
 	  "", // [26]
-	  "ESCAPE", // [27]
+	  "ESC", // [27]
 	  "CONVERT", // [28]
 	  "NONCONVERT", // [29]
 	  "ACCEPT", // [30]
 	  "MODECHANGE", // [31]
 	  "SPACE", // [32]
-	  "PAGE_UP", // [33]
-	  "PAGE_DOWN", // [34]
+	  "PGUP", // [33]
+	  "PGDOWN", // [34]
 	  "END", // [35]
 	  "HOME", // [36]
 	  "LEFT", // [37]
@@ -44,9 +50,9 @@ export class KeyNames {
 	  "SELECT", // [41]
 	  "PRINT", // [42]
 	  "EXECUTE", // [43]
-	  "PRINTSCREEN", // [44]
-	  "INSERT", // [45]
-	  "DELETE", // [46]
+	  "PRTSCRN", // [44]
+	  "INS", // [45]
+	  "DEL", // [46]
 	  "", // [47]
 	  "0", // [48]
 	  "1", // [49]
@@ -58,12 +64,12 @@ export class KeyNames {
 	  "7", // [55]
 	  "8", // [56]
 	  "9", // [57]
-	  "COLON", // [58]
-	  "SEMICOLON", // [59]
-	  "LESS_THAN", // [60]
-	  "EQUALS", // [61]
-	  "GREATER_THAN", // [62]
-	  "QUESTION_MARK", // [63]
+	  ":", // [58]
+	  ";", // [59]
+	  "<", // [60]
+	  "=", // [61]
+	  ">", // [62]
+	  "?", // [63]
 	  "AT", // [64]
 	  "A", // [65]
 	  "B", // [66]
@@ -93,25 +99,25 @@ export class KeyNames {
 	  "Z", // [90]
 	  "OS_KEY", // [91] Windows Key (Windows) or Command Key (Mac)
 	  "", // [92]
-	  "CONTEXT_MENU", // [93]
+	  "MENU", // [93]
 	  "", // [94]
 	  "SLEEP", // [95]
-	  "NUMPAD0", // [96]
-	  "NUMPAD1", // [97]
-	  "NUMPAD2", // [98]
-	  "NUMPAD3", // [99]
-	  "NUMPAD4", // [100]
-	  "NUMPAD5", // [101]
-	  "NUMPAD6", // [102]
-	  "NUMPAD7", // [103]
-	  "NUMPAD8", // [104]
-	  "NUMPAD9", // [105]
-	  "MULTIPLY", // [106]
-	  "ADD", // [107]
-	  "SEPARATOR", // [108]
-	  "SUBTRACT", // [109]
-	  "DECIMAL", // [110]
-	  "DIVIDE", // [111]
+	  "NUM_0", // [96]
+	  "NUM_1", // [97]
+	  "NUM_2", // [98]
+	  "NUM_3", // [99]
+	  "NUM_4", // [100]
+	  "NUM_5", // [101]
+	  "NUM_6", // [102]
+	  "NUM_7", // [103]
+	  "NUM_8", // [104]
+	  "NUM_9", // [105]
+	  "*", // [106]
+	  "+", // [107]
+	  "|", // [108]
+	  "-", // [109]
+	  ".", // [110]
+	  "/", // [111]
 	  "F1", // [112]
 	  "F2", // [113]
 	  "F3", // [114]
@@ -161,22 +167,22 @@ export class KeyNames {
 	  "", // [158]
 	  "", // [159]
 	  "CIRCUMFLEX", // [160]
-	  "EXCLAMATION", // [161]
-	  "DOUBLE_QUOTE", // [162]
-	  "HASH", // [163]
-	  "DOLLAR", // [164]
-	  "PERCENT", // [165]
-	  "AMPERSAND", // [166]
-	  "UNDERSCORE", // [167]
-	  "OPEN_PAREN", // [168]
-	  "CLOSE_PAREN", // [169]
-	  "ASTERISK", // [170]
-	  "PLUS", // [171]
-	  "PIPE", // [172]
-	  "HYPHEN_MINUS", // [173]
-	  "OPEN_CURLY_BRACKET", // [174]
-	  "CLOSE_CURLY_BRACKET", // [175]
-	  "TILDE", // [176]
+	  "!", // [161]
+	  "\"", // [162]
+	  "#", // [163]
+	  "$", // [164]
+	  "%", // [165]
+	  "&", // [166]
+	  "_", // [167]
+	  "(", // [168]
+	  ")", // [169]
+	  "*", // [170]
+	  "+", // [171]
+	  "|", // [172]
+	  "-", // [173]
+	  "{", // [174]
+	  "}", // [175]
+	  "~", // [176]
 	  "", // [177]
 	  "", // [178]
 	  "", // [179]
@@ -186,13 +192,13 @@ export class KeyNames {
 	  "VOLUME_UP", // [183]
 	  "", // [184]
 	  "", // [185]
-	  "SEMICOLON", // [186]
-	  "EQUALS", // [187]
-	  "COMMA", // [188]
-	  "MINUS", // [189]
-	  "PERIOD", // [190]
-	  "SLASH", // [191]
-	  "BACK_QUOTE", // [192]
+	  ";", // [186]
+	  "=", // [187]
+	  ",", // [188]
+	  "-", // [189]
+	  ".", // [190]
+	  "/", // [191]
+	  "`", // [192]
 	  "", // [193]
 	  "", // [194]
 	  "", // [195]
@@ -219,10 +225,10 @@ export class KeyNames {
 	  "", // [216]
 	  "", // [217]
 	  "", // [218]
-	  "OPEN_BRACKET", // [219]
-	  "BACK_SLASH", // [220]
-	  "CLOSE_BRACKET", // [221]
-	  "QUOTE", // [222]
+	  "[", // [219]
+	  "\\", // [220]
+	  "]", // [221]
+	  "\"", // [222]
 	  "", // [223]
 	  "META", // [224]
 	  "ALTGR", // [225]
@@ -258,24 +264,44 @@ export class KeyNames {
 	  "" // [255]
 	];
 
-	static get(keyCode : number) : string {
+	export function get(keyCode : number) : string {
 		keyCode = Math.floor(keyCode);
 		if (keyCode < 0 || keyCode >= 256) {
 			return "";
 		}
 
-		let key = this._keys[keyCode];
+		let key = keys[keyCode];
 		if (key.length > 0) {
 			return key;
 		}
 		return "?";
 	}
 
-	static boxed(keyCode : number) : string {
+	export function boxed(keyCode : number) : string {
 		return "[" + KeyNames.get(keyCode) + "]";
 	}
 
-	static boxedLower(keyCode : number) : string {
+	export function boxedLower(keyCode : number) : string {
 		return KeyNames.boxed(keyCode).toLowerCase();
+	}
+
+	export function keyTypeHTML(type : KeyType) : string {
+		switch (type) {
+		case KeyType.LEFT:
+			return get(settings.leftKeyCode);
+		case KeyType.RIGHT:
+			return get(settings.rightKeyCode);
+		case KeyType.JUMP:
+			return get(settings.jumpKeyCode);
+		case KeyType.INTERACT:
+			return get(settings.interactKeyCode);
+		case KeyType.SQUAWK:
+			return get(settings.squawkKeyCode);
+		case KeyType.MOUSE_CLICK:
+		case KeyType.ALT_MOUSE_CLICK:
+			return Icon.create(IconType.MOUSE).outerHTML;
+		}
+
+		return "?";
 	}
 }

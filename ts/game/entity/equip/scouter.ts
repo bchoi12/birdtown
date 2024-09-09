@@ -46,7 +46,6 @@ export class Scouter extends Equip<Player> {
 			init: entityOptions.modelInit,
 		}));
 
-		// TODO: consider keying sound on weapon IDs for multi-weapon support
 		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
 		this._soundPlayer.registerSound(SoundType.CHARGE, SoundType.CHARGE);
 	}

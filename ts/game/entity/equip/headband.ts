@@ -74,10 +74,10 @@ export class Headband extends Equip<Player> {
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
 		hudData.set(HudType.DASH, {
-			charging: this._juice <= Headband._maxJuice,
+			charging: this._juice < Headband._maxJuice,
 			percentGone: 1 - this._juice / Headband._maxJuice,
 			empty: true,
-			color: ColorFactory.color(ColorType.EASTERN_PURPLE).toString(),
+			color: this.clientColorOr(ColorFactory.color(ColorType.EASTERN_PURPLE).toString()),
 		});
 		return hudData;
 	}

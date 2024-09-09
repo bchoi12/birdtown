@@ -296,8 +296,8 @@ export class ArchBlueprint extends Blueprint {
 
 		let backgroundHeight = height;
 		this.rng().switch([
-			[0.4, () => { backgroundHeight++; }],
-			[0.6, () => { backgroundHeight--; }],
+			[0.5, () => { backgroundHeight++; }],
+			[0.6, () => { backgroundHeight+=2; }],
 		]);
 
 		const materialTypes = MaterialFactory.levelBackgroundMaterials()

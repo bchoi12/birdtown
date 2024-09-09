@@ -64,7 +64,8 @@ export class CowboyHat extends Equip<Player> {
 			charging: percent < 1,
 			percentGone: 1 - percent,
 			empty: true,
-			color: ColorFactory.color(ColorType.WESTERN_BROWN).toString(),
+			color: this.clientColorOr(ColorFactory.color(ColorType.WESTERN_BROWN).toString()),
+			keyType: KeyType.ALT_MOUSE_CLICK,
 		});
 		return hudData;
 	}

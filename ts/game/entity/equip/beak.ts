@@ -25,7 +25,7 @@ enum Animation {
 export abstract class Beak extends Equip<Player> {
 
 	private static readonly _animations = new Set<string>([Animation.IDLE, Animation.SQUAWK]);
-	private static readonly _squawkCooldown = 1000;
+	private static readonly _squawkCooldown = 3000;
 
 	private _squawking : boolean;
 	private _squawkTimer : Timer;
@@ -95,6 +95,7 @@ export abstract class Beak extends Equip<Player> {
 			empty: true,
 			percentGone: this._squawkTimer.hasTimeLeft() ? (1 - this._squawkTimer.percentElapsed()) : 0,
 			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
+			keyType: KeyType.SQUAWK,
 		});
 		return hudData;
 	}

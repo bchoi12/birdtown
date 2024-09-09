@@ -827,13 +827,13 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			color: this.clientColorOr("#000000"),
 		});
 
-		this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP).execute((equip : Equip<Player>) => {
-			equip.getHudData().forEach((counter : HudOptions, type : HudType) => {
+		this._entityTrackers.getEntities<Beak>(EntityType.BEAK).execute((beak : Beak) => {
+			beak.getHudData().forEach((counter : HudOptions, type : HudType) => {
 				hudData.set(type, counter);
 			});
 		});
-		this._entityTrackers.getEntities<Beak>(EntityType.BEAK).execute((beak : Beak) => {
-			beak.getHudData().forEach((counter : HudOptions, type : HudType) => {
+		this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP).execute((equip : Equip<Player>) => {
+			equip.getHudData().forEach((counter : HudOptions, type : HudType) => {
 				hudData.set(type, counter);
 			});
 		});

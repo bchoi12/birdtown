@@ -2,6 +2,7 @@
 import { ui } from 'ui'
 import { HudType, HudOptions } from 'ui/api'
 import { IconType } from 'ui/common/icon'
+import { KeyNames } from 'ui/common/key_names'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -74,7 +75,13 @@ export class HudHandler extends HandlerBase implements Handler {
 					block.setText(options.text);
 				} else {
 					block.setText("" + Math.ceil(options.count));
-				}				
+				}
+			}
+
+			if (options.keyType) {
+				block.setKeyHTML(KeyNames.keyTypeHTML(options.keyType));
+			} else if (options.keyHTML) {
+				block.setKeyHTML(options.keyHTML);
 			}
 
 			currentTypes.add(type);

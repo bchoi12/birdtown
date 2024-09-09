@@ -8,13 +8,10 @@ import { defined } from 'util/common'
 
 export class Input extends ClientSystemManager implements System {
 
-	private _keys : Map<number, Keys>;
-
 	constructor() {
 		super(SystemType.INPUT);
 
 		this.setFactoryFn((clientId : number) => { return this.addKeys(new Keys(clientId)); })
-		this._keys = new Map();
 	}
 
 	addKeys(keys : Keys) : Keys { return this.registerChild(keys.clientId(), keys); }

@@ -40,7 +40,6 @@ export class Shotgun extends Weapon {
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
-	override hudType() : HudType { return HudType.SPRAY; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.SHOTGUN; }
 

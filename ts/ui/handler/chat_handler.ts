@@ -139,6 +139,9 @@ export class ChatHandler extends HandlerBase implements Handler {
 		case "/die":
 			game.playerState().die();
 			break;
+		case "/gamestate":
+			console.log(game);
+			break;
 		case "/lookup":
 			if (pieces.length !== 2) {
 				console.error("Usage: %s [EntityId]", pieces[0]);

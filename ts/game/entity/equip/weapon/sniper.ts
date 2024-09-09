@@ -16,7 +16,7 @@ import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
 
-import { HudType, HudOptions } from 'ui/api'
+import { KeyType, HudType, HudOptions } from 'ui/api'
 
 import { defined } from 'util/common'
 import { RateLimiter } from 'util/rate_limiter'
@@ -158,7 +158,8 @@ export class Sniper extends Weapon {
 			charging: !this.charged(),
 			percentGone: 1 - this.getCounter(HudType.CHARGE) / Sniper._chargedThreshold,
 			empty: true,
-			color: ColorFactory.color(ColorType.SHOOTER_DARK_ORANGE).toString(),
+			color: this.clientColorOr(ColorFactory.color(ColorType.SHOOTER_DARK_ORANGE).toString()),
+			keyType: KeyType.ALT_MOUSE_CLICK,
 		});
 		return hudData;
 	}

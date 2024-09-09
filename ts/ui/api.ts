@@ -72,6 +72,10 @@ export type HudOptions = {
 
 	// HTML color
 	color? : string;
+
+	// Only set one
+	keyType? : KeyType;
+	keyHTML? : string;
 }
 
 export enum InfoType {
@@ -95,11 +99,6 @@ export enum KeyType {
 	SQUAWK,
 	MOUSE_CLICK,
 	ALT_MOUSE_CLICK,
-
-	// TODO: implement these
-	MENU,
-	CHAT,
-	SCOREBOARD,
 }
 
 export enum KeyState {

@@ -53,7 +53,8 @@ export class Headphones extends Equip<Player> {
 			charging: !this.canUse(),
 			percentGone: this.canUse() ? 0 : (1 - this._timer.percentElapsed()),
 			empty: true,
-			color: ColorFactory.color(ColorType.BLACK).toString(),
+			color: this.clientColorOr(ColorFactory.color(ColorType.BLACK).toString()),
+			keyType: KeyType.ALT_MOUSE_CLICK,
 		});
 		return hudData;
 	}
