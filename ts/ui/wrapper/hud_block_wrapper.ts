@@ -7,7 +7,9 @@ import { ProgressWrapper } from 'ui/wrapper/progress_wrapper'
 
 export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 
+	private _charging : boolean;
 	private _iconType : IconType;
+	private _lives : number;
 	private _width : number;
 
 	private _containerElm : HTMLElement;
@@ -24,7 +26,9 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 
 		this.elm().classList.add(Html.classHudContainer);
 
+		this._charging = false;
 		this._iconType = IconType.UNKNOWN;
+		this._lives = 0;
 		this._width = 0;
 
 		this._blockElm = Html.div();
@@ -56,10 +60,18 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	setCharging(charging : boolean) : void {
-		if (charging) {
+		if (this._charging === charging) {
+			return;
+		}
+
+		this._charging = charging;
+
+		if (this._charging) {
 			this._blockElm.classList.add(Html.classHudBlockCharging);
+			this.elm().classList.add(Html.classHudContainerCharging);
 		} else {
 			this._blockElm.classList.remove(Html.classHudBlockCharging);
+			this.elm().classList.remove(Html.classHudContainerCharging);
 		}
 	}
 
@@ -73,6 +85,18 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 
 	setKeyHTML(html : string) : void {
 		this._keyElm.innerHTML = html;
+	}
+
+	setLives(lives : number) : void {
+		if (this._lives === lives) {
+			return;
+		}
+
+		this._lives = lives;
+		this._keyElm.innerHTML = "";
+		for (let i = 0; i < this._lives; ++i) {
+			this._keyElm.innerHTML += Icon.create(IconType.BIRD).outerHTML;
+		}
 	}
 
 	setText(text : string) : void {

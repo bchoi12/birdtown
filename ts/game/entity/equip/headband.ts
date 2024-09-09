@@ -77,6 +77,7 @@ export class Headband extends Equip<Player> {
 			charging: this._juice < Headband._maxJuice,
 			percentGone: 1 - this._juice / Headband._maxJuice,
 			empty: true,
+			keyType: KeyType.ALT_MOUSE_CLICK,
 			color: this.clientColorOr(ColorFactory.color(ColorType.EASTERN_PURPLE).toString()),
 		});
 		return hudData;

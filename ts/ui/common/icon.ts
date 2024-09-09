@@ -41,6 +41,7 @@ export enum IconType {
 	TROPHY,
 
 	// HUD
+	BIRD,
 	BOLT,
 	DASH,
 	EARTH,
@@ -63,6 +64,7 @@ export namespace Icon {
 		[IconType.ARROW_LEFT, "keyboard_arrow_left"],
 		[IconType.ARROW_RIGHT, "keyboard_arrow_right"],
 		[IconType.ARROW_UP, "keyboard_arrow_up"],
+		[IconType.BIRD, "raven"],
 		[IconType.BOLT, "bolt"],
 		[IconType.CANCEL, "cancel"],
 		[IconType.CHECK, "check_circle"],

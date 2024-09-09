@@ -116,6 +116,11 @@ export abstract class Projectile extends EntityBase {
 		return true;
 	}
 	protected hit(collision : MATTER.Collision, other : Entity) : void {
+		if (other.getAttribute(AttributeType.INVINCIBLE)) {
+			this._hits.add(other.id());
+			return;
+		}
+
 		if (this.hasProfile()) {
 			// Snap to bounds
 			if (other.allTypes().has(EntityType.BOUND)) {

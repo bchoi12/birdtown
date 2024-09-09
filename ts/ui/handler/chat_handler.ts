@@ -44,7 +44,13 @@ export class ChatHandler extends HandlerBase implements Handler {
 	}
 
 	override setup() : void {
+		super.setup();
+
 		this.chat("Press " + KeyNames.boxedLower(settings.chatKeyCode) + " to chat");
+	}
+
+	override onPlayerInitialized() : void {
+		super.onPlayerInitialized();
 
 		document.addEventListener("keydown", (e : any) => {
 			if (e.repeat) return;

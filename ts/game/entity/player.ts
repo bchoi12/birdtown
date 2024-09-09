@@ -34,7 +34,7 @@ import { Recoil } from 'game/util/recoil'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { HudType, HudOptions, DialogType, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, DialogType, KeyType, KeyState, InfoType } from 'ui/api'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -821,10 +821,13 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
+
+		const tablet = game.tablet(this.clientId());
 		hudData.set(HudType.HEALTH, {
 			percentGone: 1 - this._stats.healthPercent(),
 			count: this._stats.health(),
 			color: this.clientColorOr("#000000"),
+			keyLives: tablet.getInfo(InfoType.LIVES),
 		});
 
 		this._entityTrackers.getEntities<Beak>(EntityType.BEAK).execute((beak : Beak) => {

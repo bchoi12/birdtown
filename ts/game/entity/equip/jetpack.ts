@@ -154,6 +154,7 @@ export class Jetpack extends Equip<Player> {
 			charging: this._juice <= 0,
 			percentGone: 1 - this._juice / Jetpack._maxJuice,
 			color: this.clientColorOr(ColorFactory.color(ColorType.BLASTER_RED).toString()),
+			empty: true,
 			keyType: KeyType.ALT_MOUSE_CLICK,
 		});
 		return hudData;

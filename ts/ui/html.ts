@@ -77,6 +77,7 @@ export namespace Html {
 	export const classHudBlock = "hud-block";
 	export const classHudBlockCharging = "hud-block-charging";
 	export const classHudContainer = "hud-container";
+	export const classHudContainerCharging = "hud-container-charging";
 	export const classHudText = "hud-text";
 	export const classHudKey = "hud-key";
 	export const classInfoTable = "info-table";

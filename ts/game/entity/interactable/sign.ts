@@ -139,9 +139,13 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 	override preRender() : void {
 		super.preRender();
 
-		// Don't clutter screen if tooltip is up
+		// Don't clutter screen in certain conditions
 		if (this._nameTag !== null) {
-			this._nameTag.setVisible(!this._showTooltip);
+			if (this._showTooltip || !game.playerState().validTargetEntity()) {
+				this._nameTag.setVisible(false);
+			} else {
+				this._nameTag.setVisible(true);
+			}
 		}
 
 		if (this._showTooltip) {

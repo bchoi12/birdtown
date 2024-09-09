@@ -75,7 +75,7 @@ export type HudOptions = {
 
 	// Only set one
 	keyType? : KeyType;
-	keyHTML? : string;
+	keyLives? : number;
 }
 
 export enum InfoType {

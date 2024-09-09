@@ -80,8 +80,8 @@ export class HudHandler extends HandlerBase implements Handler {
 
 			if (options.keyType) {
 				block.setKeyHTML(KeyNames.keyTypeHTML(options.keyType));
-			} else if (options.keyHTML) {
-				block.setKeyHTML(options.keyHTML);
+			} else if (options.keyLives) {
+				block.setLives(options.keyLives);
 			}
 
 			currentTypes.add(type);
