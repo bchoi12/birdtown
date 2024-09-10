@@ -18,20 +18,17 @@ import { RateLimiter } from 'util/rate_limiter'
 import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
-export class Jetpack extends Equip<Player> {
+export class Booster extends Equip<Player> {
 
 	private static readonly _fireMeshName = "fire";
+
 	private static readonly _maxJuice = 100;
-	private static readonly _useRate = 100;
-	private static readonly _chargeRate = 150;
-	private static readonly _groundChargeRate = 300;
-	private static readonly _chargeDelay = 300;
+	private static readonly _chargeRate = 30;
+	private static readonly _groundChargeRate = 60;
+	private static readonly _chargeDelay = 360;
 	private static readonly _smokeDelay = 30;
+	private static readonly _upwardForce = 2;
 
-	private static readonly _maxAcc = 4.5;
-	private static readonly _ownerMaxVel = 0.3;
-
-	private _enabled : boolean;
 	private _juice : number;
 	private _chargeDelayTimer : Timer;
 	private _chargeRate : number;
@@ -42,31 +39,30 @@ export class Jetpack extends Equip<Player> {
 	private _model : Model;
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.JETPACK, entityOptions);
+		super(EntityType.BOOSTER, entityOptions);
 
-		this._enabled = false;
 		this._juice = 0;
 		this._chargeDelayTimer = this.newTimer({
 			canInterrupt: true,
 		});
 		this._chargeRate = 0;
-		this._smoker = new RateLimiter(Jetpack._smokeDelay);
+		this._smoker = new RateLimiter(Booster._smokeDelay);
 
 		this._fire = null;
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
-				MeshFactory.load(MeshType.JETPACK, (result : LoadResult) => {
+				MeshFactory.load(MeshType.BOOSTER, (result : LoadResult) => {
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 
 					result.meshes.forEach((fireMesh : BABYLON.Mesh) => {
-						if (fireMesh.name === Jetpack._fireMeshName) {
+						if (fireMesh.name === Booster._fireMeshName) {
 							this._fire = fireMesh;
 						}
 					});
 
 					if (this._fire === null) {
-						console.error("Error: jetpack model missing fire");
+						console.error("Error: booster model missing fire");
 						this.delete();
 						return;
 					}
@@ -84,42 +80,40 @@ export class Jetpack extends Equip<Player> {
 	override initialize() : void {
 		super.initialize();
 
-		this._juice = Jetpack._maxJuice;
+		this._juice = Booster._maxJuice;
 	}
 	
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		this._enabled = false;
-		if (this._juice > 0 && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
-			this._juice = Math.max(this._juice - Jetpack._useRate * millis / 1000, 0);
+		if (this._juice >= Booster._maxJuice && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+			this._juice = 0;
 
-			this._enabled = true;
 			this._chargeRate = 0;
-			this._chargeDelayTimer.start(Jetpack._chargeDelay);
+			this._chargeDelayTimer.start(Booster._chargeDelay);
 
 			let ownerProfile = this.owner().profile();
-			ownerProfile.addVel({ y: this.computeAcc(ownerProfile.vel().y) * millis / 1000, });
+			ownerProfile.addForce({ y: Booster._upwardForce });
 		} else if (!this._chargeDelayTimer.hasTimeLeft()) {
 			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
 				// Touch ground to unlock faster charge rate.
-				this._chargeRate = Math.max(this._chargeRate, Jetpack._groundChargeRate);
-			} else {
-				this._chargeRate = Math.max(this._chargeRate, Jetpack._chargeRate);
+				this._chargeRate = Math.max(this._chargeRate, Booster._groundChargeRate);
+			} else if (!this._chargeDelayTimer.hasTimeLeft()) {
+				this._chargeRate = Math.max(this._chargeRate, Booster._chargeRate);
 			}
 		}
 
 		if (this._chargeRate > 0) {
 			this._juice += this._chargeRate * millis / 1000;
-			this._juice = Math.min(this._juice, Jetpack._maxJuice);
+			this._juice = Math.min(this._juice, Booster._maxJuice);
 		}
 
-		if (this._model.hasMesh() && this._enabled && this._smoker.check(millis)) {
-			const scale = 0.2 + 0.2 * Math.random();
+		if (this._fire !== null && this._chargeDelayTimer.hasTimeLeft() && this._smoker.check(millis)) {
+			const scale = 0.3 + 0.3 * Math.random();
 			this.addEntity(EntityType.PARTICLE_SMOKE, {
 				offline: true,
-				ttl: Fns.randomRange(1500, 2000),
+				ttl: Fns.randomRange(2500, 3000),
 				profileInit: {
 					pos: Vec2.fromBabylon3(this._fire.getAbsolutePosition()).add({ x: Fns.randomRange(-0.1, 0.1), y: -0.3, }),
 					scaling: { x: scale, y : scale },
@@ -140,9 +134,8 @@ export class Jetpack extends Equip<Player> {
 			return;
 		}
 
-		if (this._enabled) {
-			this._fire.scaling.y = 1 + 3 * Math.random();
-
+		if (this._chargeDelayTimer.hasTimeLeft()) {
+			this._fire.scaling.y = 2 + 4 * Math.random();
 		} else {
 			this._fire.scaling.y = 0;
 		}
@@ -150,17 +143,13 @@ export class Jetpack extends Equip<Player> {
 
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
-		hudData.set(HudType.JETPACK, {
-			charging: this._juice <= 0,
-			percentGone: 1 - this._juice / Jetpack._maxJuice,
-			color: this.clientColorOr(ColorFactory.color(ColorType.BLASTER_RED).toString()),
+		hudData.set(HudType.BOOSTER, {
+			charging: this._juice < Booster._maxJuice,
+			percentGone: 1 - this._juice / Booster._maxJuice,
+			color: this.clientColorOr(ColorFactory.color(ColorType.SHOOTER_BLUE).toString()),
 			empty: true,
 			keyType: KeyType.ALT_MOUSE_CLICK,
 		});
 		return hudData;
-	}
-
-	private computeAcc(currentVel : number) : number {
-		return Jetpack._maxAcc * Fns.clamp(0, (Jetpack._ownerMaxVel - currentVel) / (2 * Jetpack._ownerMaxVel), 1);
 	}
 }

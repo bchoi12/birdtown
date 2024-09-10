@@ -7,7 +7,7 @@ import { MaterialType } from 'game/factory/api'
 export class StarExplosion extends Explosion {
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.PARTICLE_PURPLE, entityOptions);
+		super(EntityType.STAR_EXPLOSION, entityOptions);
 	}
 
 	override force() : number { return 0.3; }

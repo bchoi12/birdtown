@@ -14,6 +14,7 @@ import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
 import { Bubble } from 'game/entity/equip/bubble'
 import { BirdBrain } from 'game/entity/equip/bird_brain'
+import { Booster } from 'game/entity/equip/booster'
 import { CowboyHat } from 'game/entity/equip/cowboy_hat'
 import { Headband } from 'game/entity/equip/headband'
 import { Headphones } from 'game/entity/equip/headphones'
@@ -66,8 +67,9 @@ export namespace EntityFactory {
 		[EntityType.BILLBOARD, (options : EntityOptions) => { return new Billboard(options); }],
 		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
+		[EntityType.BOOSTER, (options : EntityOptions) => { return new Booster(options); }],
 		[EntityType.BLACK_HOLE, (options : EntityOptions) => { return new BlackHole(options); }],
-		[EntityType.PARTICLE_ORANGE, (options : EntityOptions) => { return new BoltExplosion(options); }],
+		[EntityType.BOLT_EXPLOSION, (options : EntityOptions) => { return new BoltExplosion(options); }],
 		[EntityType.BOOBY_BEAK, (options : EntityOptions) => { return new BoobyBeak(options); }],
 		[EntityType.BOOBY_HAIR, (options : EntityOptions) => { return new BoobyHair(options); }],
 		[EntityType.BUBBLE, (options : EntityOptions) => { return new Bubble(options); }],
@@ -105,7 +107,7 @@ export namespace EntityFactory {
 		[EntityType.SNIPER, (options : EntityOptions) => { return new Sniper(options); }],
 		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
 		[EntityType.STAR, (options : EntityOptions) => { return new Star(options); }],
-		[EntityType.PARTICLE_PURPLE, (options : EntityOptions) => { return new StarExplosion(options); }],
+		[EntityType.STAR_EXPLOSION, (options : EntityOptions) => { return new StarExplosion(options); }],
 		[EntityType.TABLE, (options : EntityOptions) => { return new Table(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 		[EntityType.WEAPON_CRATE, (options : EntityOptions) => { return new WeaponCrate(options); }],
@@ -140,11 +142,11 @@ export namespace EntityFactory {
 	export const dimensions = new Map<EntityType, Vec>([
 		...staticDimensions,
 		[EntityType.BLACK_HOLE, { x: 7, y: 7, z: 7 }],
-		[EntityType.PARTICLE_ORANGE, { x: 3, y: 3, z: 3 }],
+		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],
 		[EntityType.HEALTH_CRATE, {x: 1, y: 1, z: 1 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],
-		[EntityType.PARTICLE_PURPLE, {x: 0.7, y: 0.7, z: 0.7 }],
+		[EntityType.STAR_EXPLOSION, {x: 0.7, y: 0.7, z: 0.7 }],
 		[EntityType.WEAPON_CRATE, {x: 1, y: 1, z: 1 }],
 	]);
 

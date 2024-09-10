@@ -81,7 +81,7 @@ export class Bolt extends Projectile {
 
 	override onHit() : void {
 		if (this.getAttribute(AttributeType.CHARGED)) {
-			this.explode(EntityType.PARTICLE_ORANGE, {});
+			this.explode(EntityType.BOLT_EXPLOSION, {});
 		} else {
 			for (let i = 0; i < 3; ++i) {
 				this.addEntity(EntityType.PARTICLE_SPARK, {
@@ -109,7 +109,7 @@ export class Bolt extends Projectile {
 
 	override onMiss() : void {
 		if (this.getAttribute(AttributeType.CHARGED)) {
-			this.explode(EntityType.PARTICLE_ORANGE, {});
+			this.explode(EntityType.BOLT_EXPLOSION, {});
 		}
 	}
 

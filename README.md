@@ -14,9 +14,9 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 ## Screenshots
 
-![Multiplayer gaming](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog043.png?raw=true)
+![Recent screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog060.png?raw=true)
 
-![Table cover](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog049.png?raw=true)
+![Multiplayer action](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog061.png?raw=true)
 
 ![Login screen](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog050.png?raw=true)
 

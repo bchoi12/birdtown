@@ -45,6 +45,7 @@ export enum FeedType {
 export enum HudType {
 	UNKOWN,
 	BLACK_HOLE,
+	BOOSTER,
 	CHARGE,
 	DASH,
 	BULLETS,

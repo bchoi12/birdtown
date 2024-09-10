@@ -153,7 +153,7 @@ export class Star extends Projectile {
 
 	override onMiss() : void {
 		const dim = EntityFactory.getStaticDimension(this.type());
-		this.explode(EntityType.PARTICLE_PURPLE, {});
+		this.explode(EntityType.STAR_EXPLOSION, {});
 	}
 
 	override onExpire() : void {

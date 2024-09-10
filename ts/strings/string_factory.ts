@@ -10,6 +10,7 @@ export namespace StringFactory {
 	const entityNames = new Map<EntityType, ParamString>([
 		[EntityType.UNKNOWN, ParamString.of("unknown")],
 		[EntityType.BAZOOKA, ParamString.of("bazooka").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.BAZOOKA).toString())],
+		[EntityType.BOOSTER, ParamString.of("booster").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.BOOSTER).toString())],
 		[EntityType.CLAW, ParamString.of("claw").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.CLAW).toString())],
 		[EntityType.COWBOY_HAT, ParamString.of("yeehaw hat").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.COWBOY_HAT).toString())],
 		[EntityType.GATLING, ParamString.of("gatling gun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.GATLING).toString())],
@@ -35,6 +36,7 @@ export namespace StringFactory {
 	const entityUsage = new Map<EntityType, ParamString>([
 		[EntityType.UNKNOWN, ParamString.of("???")],
 		[EntityType.BAZOOKA, ParamString.of("Fire an exploding rocket")],
+		[EntityType.BOOSTER, ParamString.of("Boost yourself into the skies")],
 		[EntityType.CLAW, ParamString.of("Toss 4 stars that explode after a short delay")],
 		[EntityType.COWBOY_HAT, ParamString.of("Quickly roll and reload")],
 		[EntityType.GATLING, ParamString.of("Hold to rev up a barrage of bullets")],

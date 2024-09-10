@@ -9,7 +9,7 @@ import { MaterialType } from 'game/factory/api'
 export class BoltExplosion extends Explosion {
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.PARTICLE_ORANGE, entityOptions);
+		super(EntityType.BOLT_EXPLOSION, entityOptions);
 
 	}
 

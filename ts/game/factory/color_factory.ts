@@ -101,6 +101,7 @@ export namespace ColorFactory {
 			ColorType.LEVEL_GREEN, ColorType.LEVEL_BLUE, ColorType.LEVEL_PURPLE
 		]],
 		[EntityType.BAZOOKA, [ColorType.BLASTER_RED, ColorType.BLASTER_YELLOW]],
+		[EntityType.BOOSTER, [ColorType.SHOOTER_BLUE, ColorType.SHOOTER_YELLOW]],
 		[EntityType.CLAW, [ColorType.EASTERN_PURPLE]],
 		[EntityType.COWBOY_HAT, [ColorType.WESTERN_BROWN]],
 		[EntityType.GATLING, [ColorType.WESTERN_YELLOW]],

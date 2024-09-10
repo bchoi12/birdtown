@@ -19,6 +19,7 @@ enum PositionType {
 export class HudHandler extends HandlerBase implements Handler {
 
 	private static readonly _icons = new Map<HudType, IconType>([
+		[HudType.BOOSTER, IconType.ROCKET_LAUNCH],
 		[HudType.CHARGE, IconType.BOLT],
 		[HudType.DASH, IconType.DASH],
 		[HudType.BLACK_HOLE, IconType.EARTH],

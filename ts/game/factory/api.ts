@@ -173,6 +173,7 @@ export enum MeshType {
 	ROCKET,
 	STAR,
 
+	BOOSTER,
 	COWBOY_HAT,
 	HEADBAND,
 	HEADPHONES,

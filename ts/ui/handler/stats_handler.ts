@@ -10,8 +10,6 @@ import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 
-import { isLocalhost } from 'util/common'
-
 export class StatsHandler extends HandlerBase implements Handler {
 	private static readonly _interval = 500;
 
@@ -24,7 +22,7 @@ export class StatsHandler extends HandlerBase implements Handler {
 
 		this._statsElm = Html.elm(Html.divStats);
 		this._customStats = Html.span();
-		this._showDebug = isLocalhost();
+		this._showDebug = false;;
 
 		this._statsElm.append(this._customStats);
 	}
