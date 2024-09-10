@@ -16,6 +16,23 @@ body {
     color: #f2f2f2;
 }
 
+kbd {
+    background-color: #eee;
+    border-radius: 0.2em;
+    border: 0.1em solid #b4b4b4;
+    box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.2),
+    0 2px 0 0 rgba(255, 255, 255, 0.7) inset;
+    color: #333;
+    display: inline-block;
+    font-size: 0.8em;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0.1em 0.3em;
+    text-shadow: none;
+    white-space: nowrap;
+}
+
 @font-face {
     font-display: block;
     font-family: 'Material Icons';
@@ -341,7 +358,7 @@ body {
     bottom: 8%;
     width: 44vw;
     left: 28%;
-    height: 10vh;
+    height: 6vh;
 
     font-weight: bold;
     letter-spacing: 0.15em;
@@ -376,7 +393,7 @@ body {
     position: relative;
     display: flex;
     height: 100%;
-    align-items: end;
+    align-items: start;
 }
 
 .hud-container {
@@ -467,7 +484,7 @@ body {
     width: 40%;
 }
 
-.status-message {
+.onscreen-message {
     font-size: 0.7em;
     font-weight: bold;
     white-space: pre;

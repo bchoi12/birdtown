@@ -10,14 +10,23 @@ import { StatusWrapper } from 'ui/wrapper/status_wrapper'
 
 export class StatusHandler extends HandlerBase implements Handler {
 
+	// Statuses to clear when displayed
+	private static readonly _clear = new Map<StatusType, Set<StatusType>>([
+		[StatusType.DISCONNECTED, new Set([StatusType.DISCONNECTED_SIGNALING, StatusType.LOBBY])],
+		[StatusType.DISCONNECTED_SIGNALING, new Set([StatusType.LOBBY])],
+		[StatusType.LOBBY, new Set()],
+	]);
+
 	private _statusElm : HTMLElement;
 	private _statusWrappers : Map<StatusType, StatusWrapper>;
+	private _current : Set<StatusType>;
 
 	constructor() {
 		super(HandlerType.STATUS);
 
 		this._statusElm = Html.elm(Html.divStatus);
 		this._statusWrappers = new Map();
+		this._current = new Set();
 	}
 
 	override setup() : void {
@@ -54,15 +63,29 @@ export class StatusHandler extends HandlerBase implements Handler {
 			return;
 		}
 
+		let valid = true;
+		this._current.forEach((currentType : StatusType) => {
+			if (!StatusHandler._clear.has(currentType)) {
+				console.error("Error: missing clear map for", StatusType[currentType]);
+				return;
+			}
+
+			if (StatusHandler._clear.get(currentType).has(type)) {
+				valid = false;
+			}
+		});
+
+		if (!valid) {
+			return;
+		}
+
 		let wrapper = this._statusWrappers.get(type);
 		switch (type) {
 		case StatusType.DISCONNECTED:
 			wrapper.setText("Disconnected from the server.\r\nPlease refresh the page.");
-			this.hideStatus(StatusType.DISCONNECTED_SIGNALING, StatusType.LOBBY);
 			break;
 		case StatusType.DISCONNECTED_SIGNALING:
 			wrapper.setText("Lost connection to matchmaking server.\r\nNo new players can join.");
-			this.hideStatus(StatusType.LOBBY);
 			break;
 		case StatusType.LOBBY:
 			wrapper.setText("Birdtown Lobby\r\nRoom: " + game.netcode().room());
@@ -70,6 +93,8 @@ export class StatusHandler extends HandlerBase implements Handler {
 		}
 
 		wrapper.show();
+		this._current.add(type);
+		this.hideStatus(...StatusHandler._clear.get(type));
 	}
 
 	hideStatus(...types : StatusType[]) : void {
@@ -79,6 +104,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 			}
 
 			this._statusWrappers.get(types[i]).hide();
+			this._current.delete(types[i]);
 	    }
 	}
 }

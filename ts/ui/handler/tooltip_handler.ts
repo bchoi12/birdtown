@@ -92,7 +92,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		const names = options.names ? options.names : [];
 		switch (type) {
 		case TooltipType.CONTROLS:
-			return KeyNames.boxed(settings.interactKeyCode) + " View the controls";
+			return KeyNames.kbd(settings.interactKeyCode) + " View the controls";
 		case TooltipType.COPIED_URL:
 			return "Copied invite link to clipboard!";
 		case TooltipType.FORCE_SUBMIT:
@@ -103,9 +103,9 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			if (names.length !== 1) {
 				return "";
 			}
-			return KeyNames.boxed(settings.interactKeyCode) + " Recover " + names[0] + " health";
+			return KeyNames.kbd(settings.interactKeyCode) + " Recover " + names[0] + " health";
 		case TooltipType.SPAWN:
-			return "Press [any key] to deploy"
+			return "Press <kbd>any key</kbd> to deploy"
 		case TooltipType.SPECTATING:
 			if (names.length > 1) {
 				return "";
@@ -115,12 +115,12 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			if (!game.isHost()) {
 				return "Only the host can start a game";
 			}
-			return KeyNames.boxed(settings.interactKeyCode) + " Start a game";
+			return KeyNames.kbd(settings.interactKeyCode) + " Start a game";
 		case TooltipType.WEAPON_CRATE:
 			if (names.length !== 1) {
 				return "";
 			}
-			return KeyNames.boxed(settings.interactKeyCode) + " Equip " + names[0];
+			return KeyNames.kbd(settings.interactKeyCode) + " Equip " + names[0];
 		default:
 			return "Missing tooltip text for type " + type;
 		}

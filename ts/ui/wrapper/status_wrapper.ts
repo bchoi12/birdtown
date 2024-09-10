@@ -8,7 +8,7 @@ export class StatusWrapper extends HtmlWrapper<HTMLElement> {
 	constructor() {
 		super(Html.div());
 
-		this.elm().classList.add(Html.classStatusMessage);
+		this.elm().classList.add(Html.classOnscreenMessage);
 	}
 
 	setText(text : string) : void {

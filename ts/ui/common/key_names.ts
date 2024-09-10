@@ -285,18 +285,22 @@ export namespace KeyNames {
 		return KeyNames.boxed(keyCode).toLowerCase();
 	}
 
+	export function kbd(keyCode : number) : string {
+		return "<kbd>" + KeyNames.get(keyCode) + "</kbd>";
+	}
+
 	export function keyTypeHTML(type : KeyType) : string {
 		switch (type) {
 		case KeyType.LEFT:
-			return get(settings.leftKeyCode);
+			return kbd(settings.leftKeyCode);
 		case KeyType.RIGHT:
-			return get(settings.rightKeyCode);
+			return kbd(settings.rightKeyCode);
 		case KeyType.JUMP:
-			return get(settings.jumpKeyCode);
+			return kbd(settings.jumpKeyCode);
 		case KeyType.INTERACT:
-			return get(settings.interactKeyCode);
+			return kbd(settings.interactKeyCode);
 		case KeyType.SQUAWK:
-			return get(settings.squawkKeyCode);
+			return kbd(settings.squawkKeyCode);
 		case KeyType.MOUSE_CLICK:
 		case KeyType.ALT_MOUSE_CLICK:
 			return Icon.create(IconType.MOUSE).outerHTML;

@@ -62,7 +62,6 @@ export class HudHandler extends HandlerBase implements Handler {
 	}
 
 	updateHud(blocks : Map<HudType, HudOptions>) : void {
-
 		let currentTypes = new Set<HudType>();
 		blocks.forEach((options : HudOptions, type : HudType) => {
 			let block = this.getOrAddBlock(type);

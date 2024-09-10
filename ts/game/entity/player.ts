@@ -632,12 +632,14 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		super.postPhysics(stepData);
 
 		const millis = stepData.millis;
+		const realMillis = stepData.realMillis;
+
 		if (this.isSource() || this.clientIdMatches()) {
 			this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.millisLeft() > 0);
 		}
 
 		// Check for nearby interactables
-		if (this._interactRateLimiter.check(millis)) {
+		if (this._interactRateLimiter.check(realMillis)) {
 			// Need to use render position for circular levels
 			const pos = this._profile.pos();
 			const width = this._profile.width();
@@ -691,7 +693,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		// Sweat
 		// TODO: move this and other particles to ParticleFactory
 		const healthPercent = this._stats.healthPercent();
-		if (!this.dead() && healthPercent <= 0.7 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.2, healthPercent))) {
+		if (!this.dead() && healthPercent <= 0.7 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.3, healthPercent))) {
 			const weight = 1 - healthPercent;
 
 			const dim = this._profile.scaledDim();

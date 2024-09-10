@@ -150,18 +150,18 @@ export class Tablet extends ClientSystem implements System {
 			displayName = displayName.substring(0, Tablet._displayNameMaxLength);
 		}
 
-		// Announce new players and self.
-		const announce = !this.hasDisplayName() && game.clientId() <= this.clientId();
+		// Announce new players locally.
+		const announce = !this.hasDisplayName() && game.clientId() < this.clientId();
 		this._displayName = displayName;
 		this.addNameParams({
 			type: this.displayName(),
 		});
 
 		if (announce) {
-	    	let msg = new GameMessage(GameMessageType.FEED);
-	    	msg.setNames([this.displayName()]);
-	    	msg.setFeedType(FeedType.JOIN);
-	    	game.announcer().broadcast(msg);
+	    	let feedMsg = new GameMessage(GameMessageType.FEED);
+	    	feedMsg.setNames([this.displayName()]);
+	    	feedMsg.setFeedType(FeedType.JOIN);
+	    	ui.handleMessage(feedMsg);
 		}
 
 		const initMsg = new GameMessage(GameMessageType.CLIENT_INIT);

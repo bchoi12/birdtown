@@ -89,10 +89,10 @@ export namespace Html {
 	export const classLoadoutButtonPlus = "loadout-button-plus";
 	export const classLoadoutButtonPicture = "loadout-button-picture";
 	export const classLoadoutButtonTitle = "loadout-button-title";
+	export const classOnscreenMessage = "onscreen-message";
 	export const classPopup = "popup";
 	export const classPopupShow = "popup-show";
 	export const classProgress = "progress";
-	export const classStatusMessage = "status-message";
 	export const classTooltip = "tooltip";
 
 	export const cursor = "cursor";

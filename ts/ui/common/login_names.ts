@@ -44,7 +44,7 @@ export namespace LoginNames {
 		return birdNames[Math.floor(Math.random() * birdNames.length)];
 	}
 
-	const roomLetters = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+	const roomLetters = "BCDFGHJKLMNPQRSTVWXYZ"
 
 	export function randomRoom() : string {
 		let room = "";
