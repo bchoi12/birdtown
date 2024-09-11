@@ -17,6 +17,7 @@ body {
 }
 
 kbd {
+    font-family: 'Lato';
     background-color: #eee;
     border-radius: 0.2em;
     border: 0.1em solid #b4b4b4;

@@ -13,6 +13,7 @@
     "@types/earcut": "^2.1.4",
     "@types/matter-js": "^0.19.1",
     "@types/msgpack": "^0.0.32",
+    "electron": "^32.0.2",
     "ts-loader": "^9.5.0",
     "typescript": "^5.2.2",
     "webpack": "^5.88.2",

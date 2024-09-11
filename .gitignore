@@ -1,3 +1,5 @@
 node_modules/
 js/
 web/main*
+web/node_modules/
+web/out/
