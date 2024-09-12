@@ -784,10 +784,10 @@ export class Profile extends ComponentBase implements Component {
 				weight = this._smoother.weight();
 			}
 			this.vel().snap(weight);
-			if (this.pos().snapDistSq(weight) > 1) {
+			if (this.pos().snapDistSq(weight) > 10) {
 				this.pos().snap(0);
 			} else {
-				this.pos().snap(weight);
+				this.pos().snap(Math.min(weight, 1));
 			}
 
 			if (this.hasAcc()) {

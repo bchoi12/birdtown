@@ -36,7 +36,7 @@ export class EntityMap extends SystemBase implements System {
 
 	entityType() : EntityType { return this._entityType; }
 
-	addEntity<T extends Entity>(entity : T) : T {
+	createEntity<T extends Entity>(entity : T) : T {
 		return this.registerChild<T>(entity.id(), entity);
 	}
 	hasEntity(id : number) : boolean { return this.hasChild(id); }

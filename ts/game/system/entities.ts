@@ -54,10 +54,6 @@ export class Entities extends SystemBase implements System {
 
 		const idType = entityOptions.offline ? IdType.OFFLINE : IdType.NORMAL;
 		if (!entityOptions.id) {
-			// Only allow source to create new objects
-			if (!this.isSource() && idType === IdType.NORMAL) {
-				return [null, false];
-			}
 			entityOptions.id = this.nextId(idType);
 		} else {
 			this.updateLastId(idType, entityOptions.id);
@@ -85,7 +81,7 @@ export class Entities extends SystemBase implements System {
 		if (!this.hasMap(type)) {
 			this.addMap(new EntityMap(type));
 		}
-		this.getMap(type).addEntity(entity);
+		this.getMap(type).createEntity(entity);
 		return [entity, true];
 	}
 

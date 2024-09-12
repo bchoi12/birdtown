@@ -101,6 +101,7 @@ export interface GameObject {
 
 	newTimer(options : TimerOptions) : Timer;
 
+	networkBehavior() : NetworkBehavior;
 	shouldBroadcast() : boolean;
 	isHost() : boolean;
 	isSource() : boolean;

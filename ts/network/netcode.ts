@@ -64,7 +64,7 @@ export abstract class Netcode {
 	protected _audioContext : Optional<AudioContext>;
 
 	constructor(room : string) {
-		this._room = room;
+		this._room = room.toUpperCase();
 		this._clientId = 0;
 		this._initialized = false;
 		this._dataFormat = DataFormat.UNKNOWN;

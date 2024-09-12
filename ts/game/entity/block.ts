@@ -195,6 +195,7 @@ export abstract class Block extends EntityBase {
 
 	protected addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {
 		const [entity, hasEntity] = this.addEntity<T>(type, options);
+	
 		if (hasEntity) {
 			this._entityTrackers.trackEntity(type, entity);
 		}

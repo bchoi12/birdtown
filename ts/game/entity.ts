@@ -187,6 +187,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	levelVersion() : number { return this.hasLevelVersion() ? this._levelVersion : 0; }
 
 	addEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {
+		if (!this.isSource() && !options.offline) {
+			return [null, false];
+		}
+
 		if (this.hasLevelVersion()) {
 			options = {...options, levelVersion: this.levelVersion() };
 		}

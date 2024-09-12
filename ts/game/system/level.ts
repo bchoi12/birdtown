@@ -261,9 +261,9 @@ export class Level extends SystemBase implements System {
 		this.setBounds(bounds.toBox());
 	}
 
-	private addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : [T, boolean] {
+	override addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : [T, boolean] {
 		entityOptions.levelVersion = this.version();
-		return game.entities().addEntity<T>(type, entityOptions);
+		return super.addEntity<T>(type, entityOptions);
 	}
 }
 		

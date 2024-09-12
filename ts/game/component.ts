@@ -31,6 +31,10 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 		return super.ready() && this._entity.has();
 	}
 
+	override networkBehavior() : NetworkBehavior {
+		return this._entity.has() ? this._entity.get().networkBehavior() : super.networkBehavior();
+	}
+
 	addSubComponent<T extends Component>(component : T) : T {
 		return this.addChild<T>(this.populateSubComponent<T>(component, /*nameParams=*/{}));
 	}

@@ -848,6 +848,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	private updateLoadout() : void {
 		if (!this.isSource()) {
+			console.log("SKIP LOADOUT", this.clientId(), game.clientId());
 			return;
 		}
 

@@ -1,6 +1,7 @@
 import { game } from 'game'
 import { GameObject, GameObjectBase } from 'game/game_object'
 import { Entity, EntityOptions } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { LevelType, SystemType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -43,6 +44,14 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	}
 	hasSubSystem(type : SystemType) : boolean { return this.hasChild(type); }
 	subSystem<T extends System>(type : SystemType) : T { return this.getChild<T>(type); }
+
+	addEntity<T extends Entity>(type : EntityType, entityOptions : EntityOptions) : [T, boolean] {
+		if (!this.isSource() && !entityOptions.offline) {
+			return [null, false];
+		}
+
+		return game.entities().addEntity<T>(type, entityOptions);
+	}
 
 	hasTargetEntity() : boolean { return this._targetEntity !== null; }
 	validTargetEntity() : boolean { return this.hasTargetEntity() && this._targetEntity.initialized() && !this._targetEntity.deleted(); }
