@@ -58,7 +58,6 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 			export: () => { return this._opened; },
 			import: (obj : boolean) => {
 				this.open();
-				this.delete();
 			},
 		});
 

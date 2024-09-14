@@ -17,6 +17,7 @@ export enum AnnouncementType {
 	GAME_ERROR,
 	GAME_FINISH,
 	GAME_VICTORY,
+	GENERIC,
 	LEVEL,
 	PLAYER_JOINED,
 	PLAYER_LEFT,
@@ -68,7 +69,6 @@ export type HudOptions = {
 
 	// If empty, do not set anything. Override count with text if set. Otherwise try count.
 	empty? : boolean;
-	text? : string;
 	count? : number;
 
 	// HTML color
@@ -116,6 +116,9 @@ export enum StatusType {
 
 	DISCONNECTED,
 	DISCONNECTED_SIGNALING,
+	SPECTATING,
+	LOADING,
+	SETUP,
 	LOBBY,
 }
 
@@ -127,7 +130,6 @@ export enum TooltipType {
 	JUST_A_SIGN,
 	HEALTH_CRATE,
 	SPAWN,
-	SPECTATING,
 	START_GAME,
 	WEAPON_CRATE,
 }

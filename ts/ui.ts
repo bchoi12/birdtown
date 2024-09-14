@@ -12,7 +12,6 @@ import { HandlerType } from 'ui/handler/api'
 import { AnnouncementHandler } from 'ui/handler/announcement_handler'
 import { ChatHandler } from 'ui/handler/chat_handler'
 import { ClientsHandler } from 'ui/handler/clients_handler'
-import { CountersHandler } from 'ui/handler/counters_handler'
 import { DialogHandler } from 'ui/handler/dialog_handler'
 import { FeedHandler } from 'ui/handler/feed_handler'
 import { HudHandler } from 'ui/handler/hud_handler'
@@ -185,6 +184,7 @@ class UI {
 
 	setTimer(millis : number) : void { this._timerHandler.setTime(millis); }
 	clearTimer() : void { this._timerHandler.clear(); }
+	setName(name : string) : void { this._hudHandler.setName(name); }
 	updateHud(huds : Map<HudType, HudOptions>) : void { this._hudHandler.updateHud(huds); }
 	updateInfo(id : number, type : InfoType, value : number | string) : void { this._scoreboardHandler.updateInfo(id, type, value); }
 	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }

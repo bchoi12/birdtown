@@ -531,9 +531,7 @@ export class Profile extends ComponentBase implements Component {
 		const otherDim = other.scaledDim();
 
 		const dist = this.pos().clone().sub(other.pos()).abs();
-		const minOverlapDist = Vec2.fromVec(dim).add(otherDim);
-
-		return minOverlapDist.sub(dist).div(dim);
+		return Vec2.fromVec(dim).add(otherDim).scale(0.5).sub(dist).div(dim);
 	}
 	isXCollision(overlap : Vec, vel : Vec) : boolean {
 		return overlap.x > 0 && overlap.y > 0 && !this.isYCollision(overlap, vel);

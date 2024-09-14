@@ -14,7 +14,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { KeyType, TooltipType } from 'ui/api'
+import { KeyType, StatusType } from 'ui/api'
 
 import { CircleMap } from 'util/circle_map'
 import { isLocalhost } from 'util/common'
@@ -333,20 +333,19 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		this.anchorToTarget();
-		ui.updateHud(this.targetEntity().getHudData());
 
-		// TODO: rate limit?
+		if (this.targetEntityType() === EntityType.PLAYER) {
+			// TODO: refactor these two methods into this.targetEntity().updateHud()
+			ui.updateHud(this.targetEntity().getHudData());
+			ui.setName(this.targetEntity().displayName());
+		}
+
 		if (game.playerState().role() === PlayerRole.SPECTATING
 			&& game.controller().gameState() !== GameState.FINISH
 			&& game.controller().gameState() !== GameState.VICTORY) {
-
-			ui.showTooltip(TooltipType.SPECTATING, {
-				names: game.tablets().hasTablet(this._spectateClientId)
-					? [game.tablet(this._spectateClientId).displayName()]
-					: [],
-			});
+			ui.showStatus(StatusType.SPECTATING);
 		} else {
-			ui.hideTooltip(TooltipType.SPECTATING);
+			ui.hideStatus(StatusType.SPECTATING);
 		}
 	}
 }

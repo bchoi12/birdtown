@@ -41,6 +41,7 @@ export class HudHandler extends HandlerBase implements Handler {
 	private _leftElm : HTMLElement;
 	private _centerElm : HTMLElement;
 	private _rightElm : HTMLElement;
+	private _nameElm : HTMLElement;
 	private _blocks : Map<HudType, HudBlockWrapper>;
 
 	constructor() {
@@ -50,6 +51,7 @@ export class HudHandler extends HandlerBase implements Handler {
 		this._leftElm = Html.elm(Html.divHudLeft);
 		this._centerElm = Html.elm(Html.divHudCenter);
 		this._rightElm = Html.elm(Html.divHudRight);
+		this._nameElm = Html.elm(Html.divHudName);
 		this._blocks = new Map();
 
 	}
@@ -62,6 +64,9 @@ export class HudHandler extends HandlerBase implements Handler {
 		});
 	}
 
+	setName(name : string) : void {
+		this._nameElm.textContent = name;
+	}
 	updateHud(blocks : Map<HudType, HudOptions>) : void {
 		let currentTypes = new Set<HudType>();
 		blocks.forEach((options : HudOptions, type : HudType) => {
@@ -71,11 +76,7 @@ export class HudHandler extends HandlerBase implements Handler {
 			block.setPercent(1 - options.percentGone);
 
 			if (!options.empty) {
-				if (options.text) {
-					block.setText(options.text);
-				} else {
-					block.setText("" + Math.ceil(options.count));
-				}
+				block.setText("" + Math.ceil(options.count));
 			}
 
 			if (options.keyType) {

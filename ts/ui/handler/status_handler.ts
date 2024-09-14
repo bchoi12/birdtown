@@ -1,8 +1,11 @@
 
 import { game } from 'game'
 
+import { settings } from 'settings'
+
 import { ui } from 'ui'
 import { StatusType } from 'ui/api'
+import { KeyNames } from 'ui/common/key_names'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -12,8 +15,11 @@ export class StatusHandler extends HandlerBase implements Handler {
 
 	// Statuses to clear when displayed
 	private static readonly _clear = new Map<StatusType, Set<StatusType>>([
-		[StatusType.DISCONNECTED, new Set([StatusType.DISCONNECTED_SIGNALING, StatusType.LOBBY])],
+		[StatusType.DISCONNECTED, new Set([StatusType.DISCONNECTED_SIGNALING, StatusType.SPECTATING, StatusType.SETUP, StatusType.LOBBY])],
 		[StatusType.DISCONNECTED_SIGNALING, new Set([StatusType.LOBBY])],
+		[StatusType.SPECTATING, new Set()],
+		[StatusType.LOADING, new Set()],
+		[StatusType.SETUP, new Set([StatusType.LOADING])],
 		[StatusType.LOBBY, new Set()],
 	]);
 
@@ -87,8 +93,21 @@ export class StatusHandler extends HandlerBase implements Handler {
 		case StatusType.DISCONNECTED_SIGNALING:
 			wrapper.setText("Lost connection to matchmaking server.\r\nNo new players can join.");
 			break;
+		case StatusType.LOADING:
+			wrapper.setText("Loading...");
+			break;
+		case StatusType.SETUP:
+			wrapper.setText("Waiting for all players to be ready...");
+			break;
+		case StatusType.SPECTATING:
+			wrapper.setHTML("Spectating\r\nPress " + KeyNames.kbd(settings.leftKeyCode) + " or " + KeyNames.kbd(settings.rightKeyCode) + " to change players");
+			break;
 		case StatusType.LOBBY:
-			wrapper.setText("Birdtown Lobby\r\nRoom: " + game.netcode().room());
+			if (game.isHost()) {
+				wrapper.setText("Birdtown Lobby\r\nRoom: " + game.netcode().room());
+			} else {
+				wrapper.setText("Waiting for host to start a game...\r\nRoom: " + game.netcode().room());
+			}
 			break;
 		}
 

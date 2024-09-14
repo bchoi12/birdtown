@@ -620,7 +620,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				});
 			}
 
-			if (collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 0.12) {
+			if (collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 0.1) {
 				this._canJump = true;
 				this._canDoubleJump = true;
 				this._canJumpTimer.start(Player._jumpGracePeriod);

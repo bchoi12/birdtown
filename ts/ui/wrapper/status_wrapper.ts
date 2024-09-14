@@ -15,6 +15,10 @@ export class StatusWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().textContent = text;
 	}
 
+	setHTML(html : string) : void {
+		this.elm().innerHTML = html;
+	}
+
 	show() : void {
 		this.elm().style.display = "block";
 	}

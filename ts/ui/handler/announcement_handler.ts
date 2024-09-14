@@ -114,6 +114,11 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 			return {
 				main: names.join(", ") + (names.length > 1 ? " are" : " is") + " victorious!",
 			};
+		case AnnouncementType.GENERIC:
+			return {
+				main: names.length >= 1 ? names[0] : "",
+				sub: names.length >= 2 ? names[1] : "",
+			}
 		case AnnouncementType.LEVEL:
 			if (names.length === 1) {
 				return {

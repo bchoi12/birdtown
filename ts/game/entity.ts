@@ -96,6 +96,8 @@ export interface Entity extends GameObject {
 	// Sound playback rate
 	playbackRate() : number;
 
+	// For UI
+	displayName() : string;
 	clientColorOr(color : string) : string;
 }
 
@@ -178,6 +180,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	clientId() : number { return this._clientId; }
 	clientIdMatches() : boolean { return this.hasClientId() && this.clientId() === game.clientId() }
 	isLakituTarget() : boolean { return game.lakitu().hasTargetEntity() && this._id === game.lakitu().targetEntity().id(); }
+	displayName() : string {
+		if (game.tablets().hasTablet(this.clientId())) {
+			return game.tablet(this.clientId()).displayName();
+		}
+		return EntityType[this._type].toLowerCase();
+	}
 
 	type() : EntityType { return this._type; }
 	addType(type : EntityType) { this._allTypes.add(type); }

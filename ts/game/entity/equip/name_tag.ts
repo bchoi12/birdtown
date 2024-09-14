@@ -187,7 +187,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		super.preRender();
 
 		let enabled = true;
-		if (this.owner().hasProfile() && !this.owner().profile().visible()) {
+		if (this.owner().hasProfile() && !this.owner().profile().visible() || this.owner().isLakituTarget()) {
 			enabled = false;
 		} else if (this.owner().type() === EntityType.PLAYER) {
 			const player = <Player>this.owner();

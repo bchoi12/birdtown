@@ -41,22 +41,6 @@ export class Announcer extends SystemBase implements System {
 		});
 	}
 
-	override handleMessage(msg : GameMessage) : void {
-		super.handleMessage(msg);
-
-		switch (msg.type()) {
-		case GameMessageType.LEVEL_LOAD:
-			if (msg.getLevelType() !== LevelType.LOBBY) {
-				// Announce level locally
-				const announcement = new GameMessage(GameMessageType.ANNOUNCEMENT);
-				announcement.setAnnouncementType(AnnouncementType.LEVEL);
-				announcement.setNames([msg.getDisplayName()]);
-				ui.handleMessage(announcement);
-				break;
-			}
-		}
-	}
-
 	broadcast(msg : GameMessage) : void {
 		if (!this.isSource()) {
 			return;

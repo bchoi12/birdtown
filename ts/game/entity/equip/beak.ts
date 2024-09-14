@@ -115,7 +115,7 @@ export abstract class Beak extends Equip<Player> {
 
 		if (!this._model.hasMesh()) { return; }
 
-		if (this._squawking || this.owner().dead()) {
+		if (this._squawking && this._squawkTimer.hasTimeLeft() || this.owner().dead()) {
 			this._model.playAnimation(Animation.SQUAWK);
 		} else {
 			this._model.playAnimation(Animation.IDLE);

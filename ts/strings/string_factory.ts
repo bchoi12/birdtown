@@ -43,7 +43,7 @@ export namespace StringFactory {
 		[EntityType.HEADBAND, ParamString.of("Dash in the direction of your cursor")],
 		[EntityType.HEADPHONES, ParamString.of("Manifests a dying star that collapses into a black hole")],
 		[EntityType.JETPACK, ParamString.of("Lift yourself into the air")],
-		[EntityType.PISTOL, ParamString.of("Fire a single bullet")],
+		[EntityType.PISTOL, ParamString.of("Fires 3 quick shots")],
 		[EntityType.SCOUTER, ParamString.of("Hold to look ahead and charge your weapon")],
 		[EntityType.SHOTGUN, ParamString.of("Sprays two quick recoiling blasts")],
 		[EntityType.SNIPER, ParamString.of("Fire a short burst of high-energy bolts")],

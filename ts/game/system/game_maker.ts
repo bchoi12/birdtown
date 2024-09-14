@@ -19,7 +19,7 @@ import { GameMessage, GameMessageType} from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
 
 import { ui } from 'ui'
-import { AnnouncementType, DialogType, FeedType, InfoType } from 'ui/api'
+import { AnnouncementType, DialogType, FeedType, InfoType, StatusType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -161,9 +161,23 @@ export class GameMaker extends SystemBase implements System {
 	static canStart(mode : GameMode) : [boolean, string] {
 		const config = GameConfigMessage.defaultConfig(mode);
 		if (game.tablets().numSetup() < config.getPlayersMinOr(1)) {
-			return [false, "Need " + config.getPlayersMin() + " players for this game mode, but only " + game.tablets().numSetup() + " player(s) are ready!"];
+			return [false, "Need " + config.getPlayersMin() + " players for this game mode! Current number of players: " + game.tablets().numSetup()];
 		}
 		return [true, ""];
+	}
+	static nameAndGoal(config : GameConfigMessage) : [string, string] {
+		switch (config.type()) {
+		case GameMode.DUEL:
+			return ["Duel", "Win the 1v1"];
+		case GameMode.FREE_FOR_ALL:
+			return ["Free for All", "Be the first to reach " + config.getPoints() + " points"];
+		case GameMode.PRACTICE:
+			return ["Practice", "Use the tray to exit practice mode"];
+		case GameMode.SURVIVAL:
+			return ["Survival", "Be the last one standing"];
+		default:
+			return ["Unknown Game Mode", "???"];
+		}
 	}
 	valid(current : GameState) : [boolean, string] {
 		switch (current) {
@@ -281,6 +295,18 @@ export class GameMaker extends SystemBase implements System {
 		return current;
 	}
 	setGameState(state : GameState) : void {
+		if (state === GameState.LOAD) {
+			ui.showStatus(StatusType.LOADING);
+		} else {
+			ui.hideStatus(StatusType.LOADING);
+		}
+
+		if (state === GameState.SETUP) {
+			ui.showStatus(StatusType.SETUP);
+		} else {
+			ui.hideStatus(StatusType.SETUP);
+		}
+
 		if (!this.isSource()) {
 			return;
 		}
@@ -337,6 +363,14 @@ export class GameMaker extends SystemBase implements System {
 			}, (playerState : PlayerState) => {
 				return this._clientConfig.isPlayer(playerState.clientId());
 			});
+
+			const nameAndGoal = GameMaker.nameAndGoal(this._config);
+			nameAndGoal[0] += " (Round " + this._round + ")";
+
+	    	let startGameMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
+	    	startGameMsg.setAnnouncementType(AnnouncementType.GENERIC);
+	    	startGameMsg.setNames(nameAndGoal);
+	    	game.announcer().broadcast(startGameMsg);
 			break;
 		case GameState.FINISH:
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {

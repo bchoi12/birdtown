@@ -79,7 +79,7 @@ export class CowboyHat extends Equip<Player> {
 			return equip.allTypes().has(EntityType.WEAPON) && equip.initialized();
 		});
 
-		if (this.canDash() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED)) {
+		if (this.canDash() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			this.owner().profile().setVel({x: 0, y: 0});
 
 			let force = this.inputDir().clone().scale(0.6);

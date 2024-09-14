@@ -353,13 +353,16 @@ kbd {
 
 #div-hud {
     position: absolute;
-    display: flex;
-    flex-wrap: nowrap;
 
     bottom: 8%;
     width: 44vw;
     left: 28%;
     height: 6vh;
+}
+
+#hud-sections {
+    display: flex;
+    flex-wrap: nowrap;
 
     font-weight: bold;
     letter-spacing: 0.15em;
@@ -378,6 +381,12 @@ kbd {
 
 #hud-left, #hud-right {
     flex: 3;
+}
+
+#hud-name {
+    width: 100%;
+    text-align: center;
+    padding: 0.5em 0;
 }
 
 #hud-center {

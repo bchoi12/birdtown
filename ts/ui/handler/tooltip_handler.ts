@@ -106,11 +106,6 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return KeyNames.kbd(settings.interactKeyCode) + " Recover " + names[0] + " health";
 		case TooltipType.SPAWN:
 			return "Press <kbd>any key</kbd> to deploy"
-		case TooltipType.SPECTATING:
-			if (names.length > 1) {
-				return "";
-			}
-			return "Spectating" + (names.length === 1 ? " " + names[0] : "");
 		case TooltipType.START_GAME:
 			if (!game.isHost()) {
 				return "Only the host can start a game";

@@ -89,6 +89,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			break;
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);
+			this.setTimeSetup(Infinity);
 			this.setHealthCrateSpawn(FrequencyType.HIGH);
 			this.setWeaponCrateSpawn(FrequencyType.HIGH);
 			break;
