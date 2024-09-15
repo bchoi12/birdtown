@@ -15,6 +15,8 @@ import { Vec2 } from 'util/vector'
 
 export class Physics extends SystemBase implements System {
 
+	private static readonly _enableMinimap = false;
+
 	private _engine : MATTER.Engine;
 	private _minimap : HTMLElement;
 	private _canvas : HTMLCanvasElement;
@@ -33,21 +35,27 @@ export class Physics extends SystemBase implements System {
 			velocityIterations: 4,
 		});
 
-		this._minimap = Html.elm(Html.divMinimap);
-		this._canvas = Html.canvasElm(Html.canvasPhysics);
-		this._render = MATTER.Render.create({
-			canvas: this._canvas,
-			engine: this._engine,
-			options: {
-				background: "transparent",
-				hasBounds: true,
-				wireframes: false,
-			},
-		});
+		if (Physics._enableMinimap) {
+			this._minimap = Html.elm(Html.divMinimap);
+			this._canvas = Html.canvasElm(Html.canvasPhysics);
+			this._render = MATTER.Render.create({
+				canvas: this._canvas,
+				engine: this._engine,
+				options: {
+					background: "transparent",
+					hasBounds: true,
+					wireframes: false,
+				},
+			});
+		}
 	}
 
 	override initialize() : void {
 		super.initialize();
+
+		if (!Physics._enableMinimap) {
+			return;
+		}
 
 		MATTER.Events.on(this._engine.world, "afterAdd", (items) => {
 			if (items.object.plugin.zIndex == 0) {
@@ -131,6 +139,10 @@ export class Physics extends SystemBase implements System {
 
 	override render() : void {
 		super.render();
+
+		if (!Physics._enableMinimap) {
+			return;
+		}
 
 		if (!game.lakitu().validTargetEntity()) {
 			this._minimap.style.visibility = "hidden";

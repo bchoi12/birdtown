@@ -52,6 +52,7 @@ export namespace Html {
 	export const divModals = "div-modals";
 	export const divMenu = "div-menu";
 	export const menuContinue = "menu-continue";
+	export const menuQuit = "menu-quit";
 	export const fieldsetClients = "fieldset-clients";
 	export const fieldsetSettings = "fieldset-settings";
 	export const fieldsetKeyBind = "fieldset-key-bind";

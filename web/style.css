@@ -254,11 +254,16 @@ kbd {
     font-size: 0.8em;
     border-radius: 0.1vw;
 
-    right: 20vw;
+    right: 0;
     bottom: 0;   
     background-color: rgba(0, 0, 0, 0.5);
 
     transition: width 0.3s ease-in;
+}
+
+#div-scoreboard {
+    right: 0;
+    top: 30%;
 }
 
 #div-minimap {
@@ -281,7 +286,7 @@ kbd {
     transform: scale(1, -1);
 }
 
-#div-feed, #div-counters {
+#div-feed, #div-scoreboard {
     position: absolute;
     top: 30%;
 }
@@ -290,29 +295,19 @@ kbd {
     left: 0;
 }
 
-#div-counters {
+#div-scoreboard {
     right: 0;
     display: none;
 }
 
-#counters-container {
-    position: relative;
-    text-align: right;
-
-    min-width: 8em;
-    max-width: 8em;
-}
-
-.feed, .counter {
+.feed {
     margin-bottom: 0.2em;
 
     padding-top: 0.3em;
     padding-bottom: 0.3em;
 
     white-space: nowrap;
-}
 
-.feed {
     text-align: left;
     min-width: 5.5em;
     font-size: 0.8em;
@@ -326,25 +321,6 @@ kbd {
 
     transition: opacity 0.2s ease-in, height 0.3s ease-in, margin-left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     background: linear-gradient(to left, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
-}
-
-.counter {
-    font-size: 1.5em;
-    font-weight: bold;
-    text-align: right;
-    letter-spacing: 0.1em;
-
-    position: relative;
-    margin-left: auto;
-
-    border-top-left-radius: 0.3em;
-    border-bottom-left-radius: 0.3em;
-
-    padding-left: 0.2em;
-    padding-right: 0.2em;
-    overflow-x: clip;
-
-    background: linear-gradient(to right, #ffffff00, #c8c8c832 10%, #000000b2 90%);
 }
 
 .info-table {
@@ -595,23 +571,24 @@ kbd {
   background-color: rgba(0,0,0,0.7);
 
   font-size: 1.5em;
-  padding-top: 5%;
+  padding-top: 3%;
 }
 
-#menu-title {
+.menu-heading {
+    font-size: 1.4em;
+    margin: 0 auto;
+    font-weight: bold;
+}
+
+.menu-button-container {
     width: 100%;
-    font-size: 1.5em;
-    padding-bottom: 0.3em;
-}
-
-#menu-continue {
-    font-size: 1.5em;
+    text-align: center;
 }
 
 #menu-fieldsets {
     display: flex;
     width: 85%;
-    margin: 1em auto;
+    margin: 0.5em auto;
     height: 55%;
 }
 

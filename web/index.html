@@ -35,9 +35,7 @@
             <canvas id="canvas-physics">Physics</canvas>
         </div>
         <div id="div-feed" class="no-select"></div>
-        <div id="div-counters" class="no-select">
-            <div id="counters-container"></div>
-        </div>
+        <div id="div-scoreboard" class="no-select"></div>
         <div id="div-timer" class="no-select"></div>
         <div id="div-hud" class="no-select">
             <div id="hud-sections">
@@ -54,12 +52,11 @@
             <div id="div-sub-announcement" class="no-select"></div>
         </div>
         <div id="div-tray" class="no-select"></div>
-        <div id="div-scoreboard"></div>
     </div>
     <div id="div-modals">
         <div id="div-dialogs"></div>
         <div id="div-menu">
-            <div id="menu-title" class="bold">Menu</div>
+            <div class="menu-heading">Menu</div>
             <div id="menu-fieldsets">
                 <fieldset id="fieldset-clients" class="spaced">
                     <legend id="legend-clients">Players</legend>
@@ -71,7 +68,8 @@
                     <legend id="legend-key-bind">Keys</legend>
                 </fieldset>
             </div>
-            <div id="menu-continue" class="bold button">Continue</div>
+            <div class="menu-button-container"><div id="menu-continue" class="menu-heading button">Continue</div></div>
+            <div class="menu-button-container"><div id="menu-quit" class="menu-heading button">Quit</div></div>
         </div>
     </div>
     <div id="div-login">

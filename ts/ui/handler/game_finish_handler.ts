@@ -12,13 +12,13 @@ import { HandlerType } from 'ui/handler/api'
 import { ScoreboardWrapper } from 'ui/wrapper/dialog/scoreboard_wrapper'
 import { InfoWrapper } from 'ui/wrapper/info_wrapper'
 
-export class ScoreboardHandler extends HandlerBase implements Handler {
+export class GameFinishHandler extends HandlerBase implements Handler {
 
 	private _scoreboardElm : HTMLElement;
 	private _scoreboard : ScoreboardWrapper;
 
 	constructor() {
-		super(HandlerType.SCOREBOARD);
+		super(HandlerType.GAME_FINISH);
 
 		this._scoreboardElm = Html.elm(Html.divScoreboard);
 		this._scoreboard = new ScoreboardWrapper();
@@ -27,7 +27,6 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 	}
 
 	override setup() : void {
-		/*
 		document.addEventListener("keyup", (e : any) => {
 			if (e.keyCode !== settings.scoreboardKeyCode) return;
 
@@ -41,8 +40,7 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 			e.preventDefault();
 
 			this.show();
-		});
-		*/
+		})
 	}
 
 	updateInfo(id : number, type : InfoType, value : number | string) : void {

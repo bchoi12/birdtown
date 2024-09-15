@@ -6,6 +6,7 @@ export enum HandlerType {
 	CLIENTS,
 	DIALOGS,
 	FEED,
+	GAME_FINISH,
 	HUD,
 	INPUT,
 	KEY_BIND,

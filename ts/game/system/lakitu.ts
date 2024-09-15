@@ -312,10 +312,8 @@ export class Lakitu extends SystemBase implements System {
 			break;
 		case GameState.END:
 		case GameState.ERROR:
-			if (!this.targetPlayer()) {
-				this.resetPan(Lakitu._quickPan);
-			}
-			break;
+			this.clearTargetEntity();
+			return;
 		}
 
 		if (this.validTargetEntity()) {

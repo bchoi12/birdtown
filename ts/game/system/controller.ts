@@ -90,6 +90,7 @@ export class Controller extends SystemBase implements System {
 		let msg = new GameMessage(GameMessageType.GAME_STATE);
 		msg.setGameState(this._gameState);
 		game.handleMessage(msg);
+		ui.handleMessage(msg);
 
 		if (isLocalhost()) {
 			console.log("%s: game state is %s", this.name(), GameState[state]);

@@ -18,8 +18,11 @@ import { MessageObject } from 'message'
 import { GameMessage, GameMessageType} from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
 
+import { settings } from 'settings'
+
 import { ui } from 'ui'
 import { AnnouncementType, DialogType, FeedType, InfoType, StatusType } from 'ui/api'
+import { KeyNames } from 'ui/common/key_names'
 
 import { isLocalhost } from 'util/common'
 
@@ -172,7 +175,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameMode.FREE_FOR_ALL:
 			return ["Free for All", "Be the first to reach " + config.getPoints() + " points"];
 		case GameMode.PRACTICE:
-			return ["Practice", "Use the tray to exit practice mode"];
+			return ["Practice", "Press " + KeyNames.kbd(settings.menuKeyCode) + " to exit"];
 		case GameMode.SURVIVAL:
 			return ["Survival", "Be the last one standing"];
 		default:

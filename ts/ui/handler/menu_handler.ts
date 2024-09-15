@@ -1,5 +1,8 @@
 
 import { game } from 'game'
+import { GameState } from 'game/api'
+
+import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { settings } from 'settings'
 import {
@@ -8,7 +11,7 @@ import {
 } from 'settings/api'
 
 import { ui } from 'ui'
-import { UiMode, TooltipType } from 'ui/api'
+import { UiMode, DialogType, TooltipType } from 'ui/api'
 import { Icon, IconType } from 'ui/common/icon'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -23,6 +26,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 	private _modalsElm : HTMLElement;
 	private _menuElm : HTMLElement;
 	private _continueElm : HTMLElement;
+	private _quitElm : HTMLElement;
 
 	private _canMenu : boolean;
 
@@ -34,6 +38,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 		this._modalsElm = Html.elm(Html.divModals);
 		this._menuElm = Html.elm(Html.divMenu);
 		this._continueElm = Html.elm(Html.menuContinue);
+		this._quitElm = Html.elm(Html.menuQuit);
 
 		this._canMenu = true;
 	}
@@ -70,6 +75,28 @@ export class MenuHandler extends HandlerBase implements Handler {
 
 		this._continueElm.onclick = (e : any) => {
 			this.disable();
+		}
+
+		this._quitElm.onclick = (e : any) => {
+			this.disable();
+
+			if (game.isHost() && game.controller().gameState() !== GameState.FREE) {
+				ui.pushDialog(DialogType.RETURN_TO_LOBBY);
+			}
+		}
+	}
+
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		if (msg.type() !== GameMessageType.GAME_STATE || !game.isHost()) {
+			return;
+		}
+
+		if (msg.getGameState() === GameState.FREE) {
+			this._quitElm.textContent = "Quit";
+		} else {
+			this._quitElm.textContent = "Return to Lobby";
 		}
 	}
 

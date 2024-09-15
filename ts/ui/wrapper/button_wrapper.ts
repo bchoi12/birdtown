@@ -91,6 +91,13 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 			this._iconElm.get().style.paddingRight = "0.2em";
 		}
 	}
+	setTextHTML(html : string) : void {
+		this._textElm.innerHTML = html;
+
+		if (this._textElm.textContent.length > 0 && this._iconElm.has()) {
+			this._iconElm.get().style.paddingRight = "0.2em";
+		}
+	}
 
 	addOnClick(fn : OnEventFn) : void {
 		this.elm().style.cursor = "pointer";

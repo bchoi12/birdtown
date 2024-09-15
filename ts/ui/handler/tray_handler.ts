@@ -16,7 +16,7 @@ import { Optional } from 'util/optional'
 
 export class TrayHandler extends HandlerBase implements Handler {
 
-	private static readonly _initialTTL = 10000;
+	private static readonly _initialTTL = 1;
 	private static readonly _ttl = 2000;
 
 	private _trayElm : HTMLElement;
@@ -109,7 +109,8 @@ export class TrayHandler extends HandlerBase implements Handler {
 		this._buttonsElm.appendChild(this._voiceWrapper.elm());
 
 		let toggle = new ButtonWrapper();
-		toggle.setIcon(IconType.ARROW_LEFT);
+		toggle.setIcon(IconType.MENU_OPEN);
+		toggle.setText("Commands");
 		toggle.addOnMouseEnter(() => {
 			this.show();
 		});
