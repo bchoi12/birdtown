@@ -4,7 +4,6 @@ export enum ComponentType {
 	ASSOCIATION,
 	ATTRIBUTES,
 	CARDINALS,
-	COUNTERS,
 	ENTITY_TRACKER,
 	ENTITY_TRACKERS,
 	EXPRESSION,
@@ -16,7 +15,6 @@ export enum ComponentType {
 	SOUND_PLAYER,
 	STAT,
 	STATS,
-	TRANSFORMS,
 }
 
 export enum AssociationType {
@@ -30,7 +28,6 @@ export enum AttributeType {
 	UNKNOWN,
 
 	BRAINED,
-	CHARGING,
 	CHARGED,
 	FLOATING,
 	GROUNDED,

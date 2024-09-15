@@ -495,7 +495,7 @@ kbd {
 }
 
 .onscreen-message {
-    font-size: 0.7em;
+    font-size: 0.75em;
     font-weight: bold;
     white-space: pre;
     text-shadow: 0px 0px 4px #000;

@@ -61,7 +61,9 @@ export class ClientDialog extends ClientSystem implements System {
 		}
 
 		// TESTING ONLY
-		const pair = this.isSource() && isLocalhost() ? [EntityType.GATLING, EntityType.BOOSTER] : EquipPairs.random();
+		const pair = this.isSource() && isLocalhost()
+			? [EntityType.PISTOL, EntityType.SCOUTER]
+			: EquipPairs.random();
 		let loadout = this.message(DialogType.LOADOUT);
 		loadout.setEquipType(pair[0]);
 		loadout.setAltEquipType(pair[1]);

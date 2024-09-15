@@ -7,10 +7,10 @@ import { AssociationType, AttributeType, ComponentType, StatType } from 'game/co
 import { Association, AssociationInitOptions } from 'game/component/association'
 import { Attributes, AttributesInitOptions } from 'game/component/attributes'
 import { CardinalsInitOptions } from 'game/component/cardinals'
-import { Counters, CountersInitOptions } from 'game/component/counters'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { Model, ModelInitOptions } from 'game/component/model'
 import { Profile, ProfileInitOptions } from 'game/component/profile'
+import { SoundPlayer } from 'game/component/sound_player'
 import { Stats } from 'game/component/stats'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
@@ -36,7 +36,6 @@ export type EntityOptions = {
 	associationInit? : AssociationInitOptions;
 	attributesInit? : AttributesInitOptions;
 	cardinalsInit? : CardinalsInitOptions;
-	countersInit? : CountersInitOptions;
 	hexColorsInit? : HexColorsInitOptions;
 	modelInit? : ModelInitOptions;
 	profileInit? : ProfileInitOptions
@@ -78,10 +77,7 @@ export interface Entity extends GameObject {
 	hasAttribute(type : AttributeType) : boolean;
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
-	attributeLastChange(type : AttributeType) : Optional<number>;
-	getCounter(type : HudType) : number;
-	addCounter(type : HudType, value : number) : void;
-	setCounter(type : HudType, value : number) : void;
+	soundPlayer() : SoundPlayer;
 
 	// Match associations
 	getAssociations() : Map<AssociationType, number>;
@@ -295,6 +291,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	model() : Model { return this.getComponent<Model>(ComponentType.MODEL); }
 	hasProfile() : boolean { return this.hasComponent(ComponentType.PROFILE); }
 	profile() : Profile { return this.getComponent<Profile>(ComponentType.PROFILE); }
+	soundPlayer() : SoundPlayer {
+		if (!this.hasComponent(ComponentType.SOUND_PLAYER)) {
+			this.addComponent(new SoundPlayer());
+		}
+		return this.getComponent<SoundPlayer>(ComponentType.SOUND_PLAYER);
+	}
 
 	hasAttribute(type : AttributeType) : boolean {
 		if (!this.hasComponent(ComponentType.ATTRIBUTES)) { return false; }
@@ -312,34 +314,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 
 		this.getComponent<Attributes>(ComponentType.ATTRIBUTES).setAttribute(type, value);
-	}
-	attributeLastChange(type : AttributeType) : Optional<number> {
-		if (!this.hasComponent(ComponentType.ATTRIBUTES)) {
-			return Optional.empty();
-		}
-		return this.getComponent<Attributes>(ComponentType.ATTRIBUTES).lastChange(type);
-	}
-
-	getCounter(type : HudType) : number {
-		if (!this.hasComponent(ComponentType.COUNTERS)) { return 0; }
-
-		return this.getComponent<Counters>(ComponentType.COUNTERS).getCounter(type);
-	}
-	addCounter(type : HudType, value : number) : void {
-		if (!this.hasComponent(ComponentType.COUNTERS)) {
-			console.error("Warning: %s missing Counters component", this.name());
-			return;
-		}
-
-		this.getComponent<Counters>(ComponentType.COUNTERS).addCounter(type, value);		
-	}
-	setCounter(type : HudType, value : number) : void {
-		if (!this.hasComponent(ComponentType.COUNTERS)) {
-			console.error("Warning: %s missing Counters component", this.name());
-			return;
-		}
-
-		this.getComponent<Counters>(ComponentType.COUNTERS).setCounter(type, value);	
 	}
 
 	addForce(force : Vec) : void {

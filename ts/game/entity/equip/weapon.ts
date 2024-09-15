@@ -7,13 +7,14 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { ColorType, MaterialType, MeshType } from 'game/factory/api'
+import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
 
 import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
+import { Stopwatch } from 'util/stopwatch'
 import { Timer } from 'util/timer'
 import { Vec2, Vec3 } from 'util/vector'
 
@@ -41,6 +42,8 @@ export abstract class Weapon extends Equip<Player> {
 
 	private static readonly _shootNodeName = "shoot";
 
+	protected _charging : boolean;
+	protected _charger : Stopwatch;
 	protected _weaponState : WeaponState;
 	protected _stateTimer : Timer;
 	protected _bursts : number;
@@ -53,6 +56,8 @@ export abstract class Weapon extends Equip<Player> {
 		super(entityType, entityOptions);
 		this.addType(EntityType.WEAPON);
 
+		this._charging = false;
+		this._charger = new Stopwatch();
 		this._weaponState = WeaponState.IDLE;
 		this._stateTimer = this.newTimer({ canInterrupt: true });
 		this._bursts = this.weaponConfig().bursts;
@@ -75,6 +80,8 @@ export abstract class Weapon extends Equip<Player> {
 			},
 			init: entityOptions.modelInit,
 		}));
+
+		this.soundPlayer().registerSound(SoundType.CHARGE, SoundType.CHARGE);
 	}
 
 	abstract meshType() : MeshType;
@@ -105,12 +112,30 @@ export abstract class Weapon extends Equip<Player> {
 		return 0;
 	}
 
-	charged() : boolean { return false; }
+	chargedThreshold() : number { return 1000; }
+	charged() : boolean { return this.chargeMillis() >= this.chargedThreshold(); }
+	chargeMillis() : number { return this._charger.millis(); }
+	charging() : boolean { return this._charging; }
+	setCharging(charging : boolean) : void {
+		if (this._charging === charging) {
+			return;
+		}
+
+		if (this.reloading() && charging) {
+			return;
+		}
+
+		this._charging = charging;
+
+		if (!this._charging) {
+			this._charger.reset();
+		}
+	}
+
 	reloading() : boolean { return this._weaponState === WeaponState.RELOADING; }
 
 	protected firing() : boolean {
-		const charging = this.getAttribute(AttributeType.CHARGING) && !this.charged();
-		return this.key(KeyType.MOUSE_CLICK, KeyState.DOWN) && !charging;
+		return this.key(KeyType.MOUSE_CLICK, KeyState.DOWN) && (this.charged() || !this.charging());
 	}
 	protected fire(stepData : StepData) : void {
 		if (this._bursts <= 0) {
@@ -144,7 +169,23 @@ export abstract class Weapon extends Equip<Player> {
 			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
 			keyType: KeyType.MOUSE_CLICK,
 		});
+
 		return hudData;
+	}
+
+	override preUpdate(stepData : StepData) : void {
+		super.preUpdate(stepData);
+		const millis = stepData.millis;
+
+		if (this._charging) {
+			if (this._charger.millis() === 0) {
+				this.soundPlayer().playFromEntity(SoundType.CHARGE, this.owner());
+			}
+			this._charger.elapse(millis);
+		} else {
+			this.soundPlayer().stop(SoundType.CHARGE);
+			this._charger.reset();
+		}
 	}
 
 	override update(stepData : StepData) : void {
@@ -156,10 +197,7 @@ export abstract class Weapon extends Equip<Player> {
 		}
 
 		if (this._weaponState === WeaponState.RELOADING) {
-			// TODO: click sound on key press
-			if (this.getCounter(HudType.CHARGE) > 0) {
-				this.setCounter(HudType.CHARGE, 0);
-			}
+			this.setCharging(false);
 
 			if (!this.weaponConfig().allowPartialClip) {
 				this._bursts = Math.max(this._bursts, Math.floor(this._stateTimer.percentElapsed() * this.weaponConfig().bursts));
@@ -171,6 +209,7 @@ export abstract class Weapon extends Equip<Player> {
 		}
 
 		if (this._weaponState === WeaponState.IDLE) {
+			this._bursts = this.weaponConfig().bursts;
 			if (this.firing()) {
 				this.setWeaponState(WeaponState.REVVING);
 			}
@@ -178,11 +217,6 @@ export abstract class Weapon extends Equip<Player> {
 
 		if (this._weaponState === WeaponState.REVVING) {
 			if (!this._stateTimer.hasTimeLeft()) {
-				// Reset again in case the config changed.
-				if (!this.weaponConfig().allowPartialClip) {
-					this._bursts = this.weaponConfig().bursts;
-				}
-
 				this.fire(stepData);
 				this.setWeaponState(WeaponState.FIRING);
 			}

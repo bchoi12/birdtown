@@ -2,7 +2,6 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { SoundPlayer } from 'game/component/sound_player'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
@@ -26,13 +25,10 @@ export class Bazooka extends Weapon {
 	};
 	private static readonly _rocketTTL = 800;
 
-	private _soundPlayer : SoundPlayer;
-
 	constructor(options : EntityOptions) {
 		super(EntityType.BAZOOKA, options);
 
-		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
-		this._soundPlayer.registerSound(SoundType.ROCKET, SoundType.ROCKET);
+		this.soundPlayer().registerSound(SoundType.ROCKET, SoundType.ROCKET);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
@@ -67,6 +63,6 @@ export class Bazooka extends Weapon {
 			},
 		});
 
-		this._soundPlayer.playFromEntity(SoundType.ROCKET, this.owner());
+		this.soundPlayer().playFromEntity(SoundType.ROCKET, this.owner());
 	}
 }

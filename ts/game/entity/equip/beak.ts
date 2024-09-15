@@ -2,7 +2,6 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { Model } from 'game/component/model'
-import { SoundPlayer } from 'game/component/sound_player'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
@@ -31,7 +30,6 @@ export abstract class Beak extends Equip<Player> {
 	private _squawkTimer : Timer;
 
 	private _model : Model;
-	private _soundPlayer : SoundPlayer;
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
@@ -68,8 +66,7 @@ export abstract class Beak extends Equip<Player> {
 			init: entityOptions.modelInit,
 		}));
 
-		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
-		this._soundPlayer.registerSound(SoundType.BAWK, SoundType.BAWK);
+		this.soundPlayer().registerSound(SoundType.BAWK, SoundType.BAWK);
 	}
 
 	abstract meshType() : MeshType;
@@ -132,10 +129,10 @@ export abstract class Beak extends Equip<Player> {
 		this._squawking = squawking;
 
 		if (this._squawking) {
-			this._soundPlayer.onEnded(SoundType.BAWK).addOnce(() => {
+			this.soundPlayer().onEnded(SoundType.BAWK).addOnce(() => {
 				this._squawking = false;
 			});
-			this._soundPlayer.playFromEntity(SoundType.BAWK, this.owner());
+			this.soundPlayer().playFromEntity(SoundType.BAWK, this.owner());
 			this._squawkTimer.start(Beak._squawkCooldown);
 		}
 	}

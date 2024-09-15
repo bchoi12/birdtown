@@ -2,7 +2,6 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { SoundPlayer } from 'game/component/sound_player'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
@@ -30,13 +29,10 @@ export class Shotgun extends Weapon {
 	};
 	private static readonly _bulletTTL = 500;
 
-	private _soundPlayer : SoundPlayer;
-
 	constructor(options : EntityOptions) {
 		super(EntityType.SHOTGUN, options);
 
-		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
-		this._soundPlayer.registerSound(SoundType.PISTOL, SoundType.PISTOL);
+		this.soundPlayer().registerSound(SoundType.PISTOL, SoundType.PISTOL);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
@@ -78,6 +74,6 @@ export class Shotgun extends Weapon {
 		let recoil = unitDir.clone().negate().scale(0.3);
 		this.owner().profile().addForce(recoil);
 
-		this._soundPlayer.playFromEntity(SoundType.PISTOL, this.owner());
+		this.soundPlayer().playFromEntity(SoundType.PISTOL, this.owner());
 	}
 }

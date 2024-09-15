@@ -9,7 +9,7 @@ export namespace EquipPairs {
 		[EntityType.BAZOOKA, [EntityType.JETPACK, EntityType.COWBOY_HAT]],
 		[EntityType.CLAW, [EntityType.HEADBAND]],
 		[EntityType.GATLING, [EntityType.BOOSTER, EntityType.HEADPHONES]],
-		[EntityType.PISTOL, [EntityType.COWBOY_HAT]],
+		[EntityType.PISTOL, [EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.SHOTGUN, [EntityType.COWBOY_HAT, EntityType.HEADBAND]],
 		[EntityType.SNIPER, [EntityType.SCOUTER]],
 	]);

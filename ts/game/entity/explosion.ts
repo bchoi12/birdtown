@@ -7,7 +7,6 @@ import { AssociationType, AttributeType, ComponentType } from 'game/component/ap
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { SoundPlayer } from 'game/component/sound_player'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { CollisionCategory, MaterialType, SoundType } from 'game/factory/api'
@@ -28,7 +27,6 @@ export abstract class Explosion extends EntityBase implements Entity {
 
 	protected _profile : Profile;
 	protected _model : Model;
-	protected _soundPlayer : SoundPlayer;
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
@@ -66,8 +64,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 			},
 		}));
 
-		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
-		this._soundPlayer.registerSound(this.soundType(), this.soundType());
+		this.soundPlayer().registerSound(this.soundType(), this.soundType());
 	}
 
 	meshFn() : BABYLON.Mesh {
@@ -86,7 +83,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 	override initialize() : void {
 		super.initialize();
 
-		this._soundPlayer.playFromSelf(this.soundType());
+		this.soundPlayer().playFromSelf(this.soundType());
 		this._lifeTimer.start(this.ttl() * 2, () => {
 			this.delete();
 		});

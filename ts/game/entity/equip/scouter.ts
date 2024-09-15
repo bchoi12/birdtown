@@ -3,38 +3,43 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import { StepData } from 'game/game_object'
 import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
-import { SoundPlayer } from 'game/component/sound_player'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
+import { Weapon } from 'game/entity/equip/weapon'
+import { ParticleCube } from 'game/entity/particle/particle_cube'
 import { Player } from 'game/entity/player'
-import { MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MaterialType, MeshType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { HudType, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { Fns, InterpType } from 'util/fns'
-import { Vec3 } from 'util/vector'
+import { RateLimiter } from 'util/rate_limiter'
+import { Vec2, Vec3 } from 'util/vector'
 
 export class Scouter extends Equip<Player> {
 
 	private static readonly _lookVertical = 5;
 	private static readonly _lookHorizontal = 10;
 	private static readonly _lookPanTime = 200;
+	private static readonly _particleInterval = 250;
 
 	private _look : Vec3;
 	private _lookWeight : number;
-	private _weapons : Equip<Player>[];
+	private _weapon : Weapon;
+	private _particleLimiter : RateLimiter;
 
 	private _model : Model;
-	private _soundPlayer : SoundPlayer;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.SCOUTER, entityOptions);
 
 		this._look = Vec3.zero();
 		this._lookWeight = 0;
-		this._weapons = [];
+		this._weapon = null;
+		this._particleLimiter = new RateLimiter(Scouter._particleInterval);
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
@@ -45,9 +50,6 @@ export class Scouter extends Equip<Player> {
 			},
 			init: entityOptions.modelInit,
 		}));
-
-		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
-		this._soundPlayer.registerSound(SoundType.CHARGE, SoundType.CHARGE);
 	}
 
 	override attachType() : AttachType { return AttachType.EYE; }
@@ -56,9 +58,17 @@ export class Scouter extends Equip<Player> {
 		super.preUpdate(stepData);
 		const millis = stepData.millis;
 
-		this._weapons = this.owner().equips().findAll((equip : Equip<Player>) => {
-			return equip.allTypes().has(EntityType.WEAPON) && equip.initialized();
-		});
+		if (this._weapon === null || this._weapon.deleted()) {
+			const weapons = <Weapon[]>this.owner().equips().findN((equip : Equip<Player>) => {
+				return equip.allTypes().has(EntityType.WEAPON) && equip.initialized();
+			}, 1);
+
+			if (weapons.length < 1) {
+				return;
+			}
+
+			this._weapon = weapons[0];
+		}
 
 		if (this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED)) {
 			this._look = Vec3.fromVec(this.inputDir()).normalize();
@@ -68,26 +78,62 @@ export class Scouter extends Equip<Player> {
 
 		if (this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			this._lookWeight = Math.min(Scouter._lookPanTime, this._lookWeight + millis);
-
-			this._weapons.forEach((weapon : Equip<Player>) => {
-				if (weapon.getCounter(HudType.CHARGE) <= 0) {
-					this._soundPlayer.stop(SoundType.CHARGE);
-
-					if (this.owner().isLakituTarget()) {
-						this._soundPlayer.playFromEntity(SoundType.CHARGE, weapon.owner());
-					}
-				}
-				weapon.setAttribute(AttributeType.CHARGING, true);
-				weapon.addCounter(HudType.CHARGE, millis);
-			});
+			this._weapon.setCharging(true);
 		} else {
 			this._lookWeight = Math.max(0, this._lookWeight - 1.5 * millis);
+			this._weapon.setCharging(false);
+		}
+	}
 
-			this._weapons.forEach((weapon : Equip<Player>) => {
-				weapon.setAttribute(AttributeType.CHARGING, false);
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+		const millis = stepData.millis;
 
-				weapon.setCounter(HudType.CHARGE, 0);
-				this._soundPlayer.stop(SoundType.CHARGE);
+		if (this._weapon === null || this._weapon.deleted()) {
+			return;
+		}
+
+		if (!this._particleLimiter.check(millis)) {
+			return;
+		}
+
+		if (!this._weapon.charging() || !this._weapon.model().hasMesh()) {
+			return;
+		}
+
+		const offset = Vec2.unitFromDeg(Math.random() * 360).scale(0.4);
+		const pos = Vec3.fromBabylon3(this._weapon.shootNode().getAbsolutePosition());
+
+		const size = 0.05 + 0.45 * (Math.min(this._weapon.chargedThreshold(), this._weapon.chargeMillis()) / 1000);
+		const [cube, hasCube] = this.addEntity<ParticleCube>(EntityType.PARTICLE_ENERGY_CUBE, {
+			offline: true,
+			ttl: 1.5 * this._weapon.chargedThreshold(),
+			profileInit: {
+				pos: pos.clone().add(offset),
+				vel: {
+					x: 0.05 * offset.y,
+					y: 0.05 * offset.x,
+				},
+				angle: 0,
+			},
+			modelInit: {
+				transforms: {
+					translate: { z: pos.z + size / 2 },
+					scale: { x: size, y: size, z: size },
+				},
+				materialType: MaterialType.SHOOTER_ORANGE,
+			}
+		});
+
+		if (hasCube) {
+			cube.profile().setAngularVelocity(-0.1 * Math.sign(offset.x));
+			cube.overrideUpdateFn((stepData : StepData, particle : ParticleCube) => {
+				particle.profile().moveTo(pos, {
+					millis: stepData.millis,
+					posEpsilon: 0.05,
+					maxAccel: 0.05,
+				});
+				particle.model().scaling().setScalar(size * (1 - particle.ttlElapsed()));
 			});
 		}
 	}
@@ -100,4 +146,19 @@ export class Scouter extends Equip<Player> {
 		return this._look.clone().scale(weight);
 	}
 
+	override getHudData() : Map<HudType, HudOptions> {
+		if (this._weapon === null || this._weapon.deleted()) {
+			return super.getHudData();
+		}
+
+		let hudData = super.getHudData();
+		hudData.set(HudType.CHARGE, {
+			charging: !this._weapon.charged(),
+			percentGone: 1 - this._weapon.chargeMillis() / this._weapon.chargedThreshold(),
+			empty: true,
+			color: this.clientColorOr(ColorFactory.color(ColorType.SHOOTER_DARK_ORANGE).toString()),
+			keyType: KeyType.ALT_MOUSE_CLICK,
+		});
+		return hudData;
+	}
 }

@@ -4,7 +4,6 @@ import { game } from 'game'
 import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { SoundPlayer } from 'game/component/sound_player'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
@@ -46,16 +45,13 @@ export class Gatling extends Weapon {
 	private _rotateRad : number;
 	private _spinner : BABYLON.Mesh;
 
-	private _soundPlayer : SoundPlayer;
-
 	constructor(options : EntityOptions) {
 		super(EntityType.GATLING, options);
 
 		this._rotateRad = 0;
 		this._spinner = null;
 
-		this._soundPlayer = this.addComponent<SoundPlayer>(new SoundPlayer());
-		this._soundPlayer.registerSound(SoundType.LASER, SoundType.LASER);
+		this.soundPlayer().registerSound(SoundType.LASER, SoundType.LASER);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
@@ -107,7 +103,7 @@ export class Gatling extends Weapon {
 		recoilVel.y = this.computeVerticalAcc(recoilVel, ownerProfile.vel());
 		ownerProfile.addVel(recoilVel);
 
-		this._soundPlayer.playFromEntity(SoundType.LASER, this.owner());
+		this.soundPlayer().playFromEntity(SoundType.LASER, this.owner());
 	}
 
 	override update(stepData : StepData) : void {
