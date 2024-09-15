@@ -8,19 +8,23 @@ import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
-export class ReturnToLobbyDialogWrapper extends DialogWrapper {
+export class QuitDialogWrapper extends DialogWrapper {
 
 	constructor() {
 		super();
 
-		this.setTitle("Return to Lobby");
+		this.setTitle("Quit");
 
 		let pageWrapper = this.addPage();
 
-		pageWrapper.elm().textContent = "Are you sure?\r\n\r\nThis will end the current game and all players will return to the lobby."
+		if (game.isHost()) {
+			pageWrapper.elm().textContent = "Are you sure?\r\n\r\nThis will end the game for all players."
+		} else {
+			pageWrapper.elm().textContent = "Are you sure?"			
+		}
 
 		pageWrapper.setOnSubmit(() => {
-			game.controller().returnToLobby();
+			window.location.replace(location.pathname);
 		});
 
 		let okButton = this.addOKButton();

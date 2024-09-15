@@ -30,6 +30,7 @@ export enum DialogType {
 	LOADOUT,
 	RETURN_TO_LOBBY,
 	START_GAME,
+	QUIT,
 }
 
 export enum FeedType {

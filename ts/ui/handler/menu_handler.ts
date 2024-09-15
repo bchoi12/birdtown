@@ -82,6 +82,8 @@ export class MenuHandler extends HandlerBase implements Handler {
 
 			if (game.isHost() && game.controller().gameState() !== GameState.FREE) {
 				ui.pushDialog(DialogType.RETURN_TO_LOBBY);
+			} else {
+				ui.pushDialog(DialogType.QUIT);
 			}
 		}
 	}
