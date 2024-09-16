@@ -10,6 +10,8 @@ import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 
+import { Optional } from 'util/optional'
+
 enum CreateMode {
 	UNKNOWN,
 
@@ -33,6 +35,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 	private _buttonHostElm : HTMLInputElement;
 	private _buttonJoinElm : HTMLInputElement;
 
+	private _timeoutId : Optional<number>;
+
 	constructor() {
 		super(HandlerType.LOGIN, {
 			mode: UiMode.LOGIN,
@@ -48,6 +52,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginButtonsElm = Html.elm(Html.divLoginButtons);
 		this._buttonHostElm = Html.inputElm(Html.buttonHost);
 		this._buttonJoinElm = Html.inputElm(Html.buttonJoin);
+
+		this._timeoutId = new Optional();
 
 		this._loginInfoElm.appendChild(this._infoTextElm);
 		this._loginInfoElm.appendChild(this._infoDotsElm);
@@ -106,8 +112,11 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._infoTextElm.textContent = info;
 		this._infoDotsElm.textContent = "";
 
-		// TODO: ensure 1 interval
-		setInterval(() => {
+		if (this._timeoutId.has()) {
+			window.clearTimeout(this._timeoutId.get());
+		}
+
+		this._timeoutId.set(window.setInterval(() => {
 			if (this._loginInfoElm.style.display === "none") {
 				return;
 			}
@@ -116,7 +125,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 			} else {
 				this._infoDotsElm.textContent += ".";
 			}
-		}, 1000);
+		}, 500));
 	}
 	private showLogin() : void {
 		this._loginInfoElm.style.display = "none";

@@ -20,19 +20,30 @@ import { TooltipType } from 'ui/api'
 
 export class WeaponCrate extends Crate {
 
-	private _index : number;
+	private _equipType : EntityType;
+	private _altEquipType : EntityType;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.WEAPON_CRATE, entityOptions);
 
-		this._index = 0;
+		this._equipType = EntityType.UNKNOWN;
+		this._altEquipType = EntityType.UNKNOWN;
+
 		if (this.isSource()) {
-			this._index = EquipPairs.randomIndex();
+			const pair = EquipPairs.random();
+			this._equipType = pair[0];
+			this._altEquipType = pair[1];
 		}
 
-		this.addProp<number>({
-			export: () => { return this._index; },
-			import: (obj : EntityType) => { this._index = obj; },
+		this.addProp<EntityType>({
+			has: () => { return this._equipType !== EntityType.UNKNOWN; },
+			export: () => { return this._equipType; },
+			import: (obj : EntityType) => { this._equipType = obj; },
+		});
+		this.addProp<EntityType>({
+			has: () => { return this._altEquipType !== EntityType.UNKNOWN; },
+			export: () => { return this._altEquipType; },
+			import: (obj : EntityType) => { this._altEquipType = obj; },
 		});
 
 		this._profile.setMinimapOptions({
@@ -40,18 +51,16 @@ export class WeaponCrate extends Crate {
 		})
 	}
 
+	override ready() : boolean { return super.ready() && this._equipType !== EntityType.UNKNOWN && this._altEquipType !== EntityType.UNKNOWN; }
+
 	override outerMaterial() : MaterialType { return MaterialType.PICKUP_BLUE; }
 
-	equipType(playerEquipType : EntityType) : EntityType {
-		return EquipPairs.getDefaultPairExcluding(this._index, playerEquipType)[0]
-	}
-	altEquipType(playerEquipType : EntityType) : EntityType {
-		return EquipPairs.getDefaultPairExcluding(this._index, playerEquipType)[1];
-	}
-	equipList(playerEquipType : EntityType) : string {
-		return StringFactory.getEntityTypeName(this.equipType(playerEquipType)).toString()
+	equipType() : EntityType { return this._equipType; }
+	altEquipType() : EntityType { return this._altEquipType; }
+	equipList() : string {
+		return StringFactory.getEntityTypeName(this._equipType).toString()
 		+ " and "
-		+ StringFactory.getEntityTypeName(this.altEquipType(playerEquipType)).toString();
+		+ StringFactory.getEntityTypeName(this._altEquipType).toString();
 	}
 
 	override setInteractableWith(entity : Entity, interactable : boolean) : void {
@@ -66,7 +75,7 @@ export class WeaponCrate extends Crate {
 		if (player.isLakituTarget() && interactable) {
 			ui.showTooltip(TooltipType.WEAPON_CRATE, {
 				ttl: 500,
-				names: [this.equipList(player.equipType())],
+				names: [this.equipList()],
 			});
 		}
 	}
@@ -77,7 +86,7 @@ export class WeaponCrate extends Crate {
 
 		const player = <Player>entity;
 
-		player.createEquips(this.equipType(player.equipType()), this.altEquipType(player.equipType()));
+		player.createEquips(this.equipType(), this.altEquipType());
 
 		this.open();
 
