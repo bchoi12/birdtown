@@ -28,6 +28,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 	private _continueElm : HTMLElement;
 	private _quitElm : HTMLElement;
 
+	private _menuKeyPressed : boolean;
 	private _canMenu : boolean;
 
 	constructor() {
@@ -40,36 +41,26 @@ export class MenuHandler extends HandlerBase implements Handler {
 		this._continueElm = Html.elm(Html.menuContinue);
 		this._quitElm = Html.elm(Html.menuQuit);
 
+		this._menuKeyPressed = false;
 		this._canMenu = true;
 	}
 
 	override setup() : void {
 		document.addEventListener("keyup", (e : any) => {
-			if (e.keyCode !== settings.menuKeyCode) return;
-
-			this._canMenu = true;
+			if (e.keyCode === settings.menuKeyCode) {
+				this._menuKeyPressed = false;
+				this._canMenu = true;
+			}
 		});
 
 		document.addEventListener("keydown", (e : any) => {
-			if (e.keyCode !== settings.menuKeyCode || !this._canMenu) return;
+			if (e.keyCode === settings.menuKeyCode) {
+				this._menuKeyPressed = true;
 
-			if (ui.mode() === UiMode.GAME) {
-				this.enable();
-				this._canMenu = false;
-				e.preventDefault();
-			}
-		});
-
-		document.addEventListener("fullscreenchange", (e: any) => {
-			if (ui.mode() !== UiMode.GAME) { return; }
-			if (settings.fullscreen() && !ui.isFullscreen()) {
-				this.enable();
-			}
-		});
-		document.addEventListener("pointerlockchange", (e : any) => {
-			if (ui.mode() !== UiMode.GAME) { return; }
-			if (settings.pointerLocked() && !ui.isPointerLocked()) {
-				this.enable();
+				if (this._canMenu && ui.mode() === UiMode.GAME) {
+					this.enable();
+					this._canMenu = false;
+				}
 			}
 		});
 
@@ -78,13 +69,13 @@ export class MenuHandler extends HandlerBase implements Handler {
 		}
 
 		this._quitElm.onclick = (e : any) => {
-			this.disable();
-
 			if (game.isHost() && game.controller().gameState() !== GameState.FREE) {
 				ui.pushDialog(DialogType.RETURN_TO_LOBBY);
 			} else {
 				ui.pushDialog(DialogType.QUIT);
 			}
+
+			this.disable();
 		}
 	}
 
@@ -112,21 +103,5 @@ export class MenuHandler extends HandlerBase implements Handler {
 		super.onDisable();
 
 		this._menuElm.style.visibility = "hidden";
-	}
-
-	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
-		super.onModeChange(mode, oldMode);
-
-		if (mode === UiMode.GAME) {
-			if (settings.pointerLocked()) {
-				ui.requestPointerLock();
-			}
-			if (settings.fullscreen()) {
-				ui.requestFullscreen();
-			}
-		} else {
-			ui.exitPointerLock();
-			ui.exitFullscreen();
-		}
 	}
 }

@@ -104,6 +104,8 @@ export class TooltipHandler extends HandlerBase implements Handler {
 				return "";
 			}
 			return KeyNames.kbd(settings.interactKeyCode) + " Recover " + names[0] + " health";
+		case TooltipType.POINTER_LOCK:
+			return "Press " + KeyNames.kbd(settings.pointerLockKeyCode) + " to unlock your mouse";
 		case TooltipType.SPAWN:
 			return "Press <kbd>any key</kbd> to deploy"
 		case TooltipType.START_GAME:

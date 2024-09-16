@@ -42,7 +42,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		};
 
 		let fullscreen = new SettingWrapper<FullscreenSetting>({
-			name: "Fullscreen Mode",
+			name: "Window Mode",
 			value: settings.fullscreenSetting,
 			click: (current : FullscreenSetting) => {
 				if (current === FullscreenSetting.WINDOWED) {
@@ -58,24 +58,11 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(fullscreen.elm());
 
-		let pointer = new SettingWrapper<PointerSetting>({
-			name: "In-game Cursor",
-			value: settings.pointerSetting,
-			click: (current : PointerSetting) => {
-				settings.pointerSetting = current === PointerSetting.LOCKED ? PointerSetting.NORMAL : PointerSetting.LOCKED;
-				return settings.pointerSetting;
-			},
-			text: (current : PointerSetting) => {
-				return PointerSetting[current];
-			},
-		});
-		this._settingsElm.appendChild(pointer.elm());
-
 		let frameRate = new SettingWrapper<SpeedSetting>({
-			name: "FPS Cap",
+			name: "Render Cap",
 			value: settings.fpsSetting,
 			click: (current : SpeedSetting) => {
-				if (current === SpeedSetting.FAST) {
+				if (current >= SpeedSetting.NORMAL) {
 					settings.fpsSetting = SpeedSetting.SLOW;
 				} else {
 					settings.fpsSetting++;

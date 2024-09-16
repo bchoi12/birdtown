@@ -27,19 +27,19 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		};
 
 		this.addKeyBind({
-			name: "Move left",
+			name: "Move Left",
 			get: () => { return settings.leftKeyCode; },
 			update: (keyCode : number) => { settings.leftKeyCode = keyCode; },
 		});
 
 		this.addKeyBind({
-			name: "Move right",
+			name: "Move Right",
 			get: () => { return settings.rightKeyCode; },
 			update: (keyCode : number) => { settings.rightKeyCode = keyCode; },
 		});
 
 		this.addKeyBind({
-			name: "Jump / Double jump",
+			name: "Jump / Double Jump",
 			get: () => { return settings.jumpKeyCode; },
 			update: (keyCode : number) => { settings.jumpKeyCode = keyCode; },
 		});
@@ -63,7 +63,7 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		});
 
 		this.addKeyBind({
-			name: "Use equip (RMB)",
+			name: "Use Equip (RMB)",
 			get: () => { return settings.altMouseClickKeyCode; },
 			update: (keyCode : number) => { settings.altMouseClickKeyCode = keyCode; },
 		});
@@ -79,9 +79,14 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 			update: (keyCode : number) => { settings.chatKeyCode = keyCode; },
 		});
 		this.addKeyBind({
-			name: "Show scoreboard",
+			name: "Show Scoreboard",
 			get: () => { return settings.scoreboardKeyCode; },
 			update: (keyCode : number) => { settings.scoreboardKeyCode = keyCode; },
+		});
+		this.addKeyBind({
+			name: "Lock Mouse",
+			get: () => { return settings.pointerLockKeyCode; },
+			update: (keyCode : number) => { settings.pointerLockKeyCode = keyCode; },
 		});
 	}
 

@@ -4,7 +4,7 @@ import { game } from 'game'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { KeyType, UiMode } from 'ui/api'
+import { KeyType, TooltipType, UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
@@ -296,7 +296,7 @@ export class InputHandler extends HandlerBase implements Handler {
 	private recordMouse(e : any) : void {
 		const screen = this.screenRect();
 
-		if (!ui.isPointerLocked()) {
+		if (!ui.pointerLocked()) {
 			this._mouse.x = e.clientX;
 			this._mouse.y = e.clientY;
 		} else {
@@ -307,7 +307,7 @@ export class InputHandler extends HandlerBase implements Handler {
 			this._mouse.min({x: screen.width, y:screen.height });
     	}
 
-		if (ui.isPointerLocked()) {
+		if (ui.pointerLocked()) {
 			this._cursorElm.style.visibility = "visible";
 			this._cursorElm.style.left = (this._mouse.x - InputHandler._cursorWidth / 2) + "px";
 			this._cursorElm.style.top = (this._mouse.y - InputHandler._cursorHeight / 2) + "px";

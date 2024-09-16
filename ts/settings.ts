@@ -12,7 +12,7 @@ import {
 	NetworkStabilitySetting,
 } from 'settings/api'
 
-import { isMobile } from 'util/common'
+import { isElectron, isMobile } from 'util/common'
 
 class Settings {
 	
@@ -27,9 +27,9 @@ class Settings {
 	public scoreboardKeyCode : number;
 	public menuKeyCode : number;
 	public chatKeyCode : number;
+	public pointerLockKeyCode : number;
 
 	public fullscreenSetting : FullscreenSetting;
-	public pointerSetting : PointerSetting;
 
 	public fpsSetting : SpeedSetting;
 	public antiAliasSetting : AntiAliasSetting;
@@ -52,9 +52,9 @@ class Settings {
 		this.menuKeyCode = 27;
 		this.chatKeyCode = 13;
 		this.scoreboardKeyCode = 9;
+		this.pointerLockKeyCode = 67;
 
-		this.fullscreenSetting = isMobile() ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
-		this.pointerSetting = PointerSetting.NORMAL;
+		this.fullscreenSetting = (isMobile() || isElectron()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 
 		this.fpsSetting = isMobile() ? SpeedSetting.SLOW : SpeedSetting.NORMAL;
 		this.antiAliasSetting = isMobile() ? AntiAliasSetting.NONE : AntiAliasSetting.MEDIUM;
@@ -68,7 +68,6 @@ class Settings {
 	}
 
 	fullscreen() : boolean { return this.fullscreenSetting === FullscreenSetting.FULLSCREEN; }
-	pointerLocked() : boolean { return this.pointerSetting === PointerSetting.LOCKED; }
 
 	fxaaSamples() : number {
 		switch (this.antiAliasSetting) {

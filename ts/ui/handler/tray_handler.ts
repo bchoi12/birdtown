@@ -2,9 +2,12 @@
 import { game } from 'game'
 import { GameState } from 'game/api'
 
+import { settings } from 'settings'
+
 import { ui } from 'ui'
 import { DialogType, TooltipType, UiMode } from 'ui/api'
 import { IconType } from 'ui/common/icon'
+import { KeyNames } from 'ui/common/key_names'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
@@ -115,6 +118,14 @@ export class TrayHandler extends HandlerBase implements Handler {
 			this.show();
 		});
 		this._toggleElm.appendChild(toggle.elm());
+
+		document.addEventListener("pointerlockchange", (e : any) => {
+			if (ui.pointerLocked()) {
+				toggle.setTextHTML(KeyNames.kbd(settings.pointerLockKeyCode));
+			} else {
+				toggle.setText("Commands");
+			}
+		});
 
 		this._trayElm.style.visibility = "visible";
 		this.hide(TrayHandler._initialTTL);
