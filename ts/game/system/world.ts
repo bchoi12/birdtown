@@ -86,6 +86,10 @@ export class World extends SystemBase implements System {
 		this._scene.useRightHandedSystem = true;
 		this._scene.disablePhysicsEngine();
 
+		// Needed to allow mouse events (mousedown) during pointer lock on Firefox
+		this._scene.preventDefaultOnPointerDown = false;
+		this._scene.preventDefaultOnPointerUp = false;
+
 		this._layers = new Map();
 		this._layers.set(LayerType.HIGHLIGHT, new BABYLON.HighlightLayer("highlight", this._scene, {
         	isStroke: true,

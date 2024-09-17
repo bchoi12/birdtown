@@ -582,7 +582,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			// Jumping
 			if (this._canJump && this._canJumpTimer.hasTimeLeft()) {
 				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
-					this._profile.setVel({ y: Player._jumpVel });
+					this._profile.setVel({ y: Math.max(this._profile.vel().y, Player._jumpVel) });
 					this._canJump = false;
 				}
 			} else if (this._canDoubleJump) {

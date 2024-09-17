@@ -36,7 +36,7 @@ export class Sniper extends Weapon {
 	};
 
 	private static readonly _chargedThreshold = 1000;
-	private static readonly _boltTTL = 550;
+	private static readonly _boltTTL = 500;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.SNIPER, options);
