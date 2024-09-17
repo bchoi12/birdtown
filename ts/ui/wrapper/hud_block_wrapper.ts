@@ -50,6 +50,10 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._progressWrapper = new ProgressWrapper();
 		this.elm().appendChild(this._progressWrapper.elm());
+
+		addEventListener("resize", (e) => {
+			this._width = 0;
+		});
 	}
 
 	setIcon(type : IconType) : void {

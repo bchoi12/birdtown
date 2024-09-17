@@ -83,7 +83,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 				let material = new BABYLON.StandardMaterial(this.name() + "-material");
 				material.diffuseTexture = texture;
-				material.alpha = 0.6;
+				material.alpha = 0.7;
 
 				let faceUV = new Array(6);
 				for (let i = 0; i < 6; i++) {

@@ -59,7 +59,6 @@ export class HudHandler extends HandlerBase implements Handler {
 		this._rightElm = Html.elm(Html.divHudRight);
 		this._nameElm = Html.elm(Html.divHudName);
 		this._blocks = new Map();
-
 	}
 
 	override reset() : void {
