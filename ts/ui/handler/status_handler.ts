@@ -18,7 +18,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 		[StatusType.DISCONNECTED, new Set([StatusType.DISCONNECTED_SIGNALING, StatusType.SPECTATING, StatusType.SETUP, StatusType.LOBBY])],
 		[StatusType.DISCONNECTED_SIGNALING, new Set([StatusType.LOBBY])],
 		[StatusType.SPECTATING, new Set()],
-		[StatusType.LOADING, new Set()],
+		[StatusType.LOADING, new Set([StatusType.LOBBY, StatusType.WELCOME])],
 		[StatusType.LOBBY, new Set([StatusType.WELCOME])],
 		[StatusType.SETUP, new Set([StatusType.LOADING])],
 		[StatusType.WELCOME, new Set()],

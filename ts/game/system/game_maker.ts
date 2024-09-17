@@ -30,7 +30,7 @@ export class GameMaker extends SystemBase implements System {
 
 	private static readonly _lastDamageTime = 10000;
 	private static readonly _endTimeLimit = 3000;
-	private static readonly _loadTimeLimit = 1500;
+	private static readonly _loadTimeLimit = 3000;
 	private static readonly _respawnTime = 2000;
 	private static readonly _spawnTime = 5000;
 
@@ -340,6 +340,14 @@ export class GameMaker extends SystemBase implements System {
 				layout: LevelLayout.CIRCLE,
 				seed: Math.floor(Math.random() * 10000),
 			});
+
+			const nameAndGoal = GameMaker.nameAndGoal(this._config);
+			nameAndGoal[0] += " (Round " + this._round + ")";
+
+	    	let startGameMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
+	    	startGameMsg.setAnnouncementType(AnnouncementType.GENERIC);
+	    	startGameMsg.setNames(nameAndGoal);
+	    	game.announcer().broadcast(startGameMsg);
 			break;
 		case GameState.SETUP:
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
@@ -356,14 +364,6 @@ export class GameMaker extends SystemBase implements System {
 			}, (playerState : PlayerState) => {
 				return this._clientConfig.isPlayer(playerState.clientId());
 			});
-
-			const nameAndGoal = GameMaker.nameAndGoal(this._config);
-			nameAndGoal[0] += " (Round " + this._round + ")";
-
-	    	let startGameMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-	    	startGameMsg.setAnnouncementType(AnnouncementType.GENERIC);
-	    	startGameMsg.setNames(nameAndGoal);
-	    	game.announcer().broadcast(startGameMsg);
 			break;
 		case GameState.FINISH:
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {

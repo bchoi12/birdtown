@@ -53,6 +53,7 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 
 		addEventListener("resize", (e) => {
 			this._width = 0;
+			this.elm().style.minWidth = "0";
 		});
 	}
 
