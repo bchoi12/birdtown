@@ -34,6 +34,8 @@ import { Recoil } from 'game/util/recoil'
 
 import { GameGlobals } from 'global/game_globals'
 
+import { settings } from 'settings'
+
 import { ui } from 'ui'
 import { HudType, HudOptions, DialogType, KeyType, KeyState, InfoType, TooltipType } from 'ui/api'
 
@@ -857,6 +859,15 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				hudData.set(type, counter);
 			});
 		});
+
+		if (this._entityTrackers.hasEntityType(EntityType.BEAK) && this.clientIdMatches()) {
+			hudData.set(HudType.MOUSE_LOCK, {
+				empty: true,
+				color: this.clientColorOr("#000000"),
+				keyCode: settings.pointerLockKeyCode,
+			});
+		}
+
 		this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP).execute((equip : Equip<Player>) => {
 			equip.getHudData().forEach((counter : HudOptions, type : HudType) => {
 				hudData.set(type, counter);

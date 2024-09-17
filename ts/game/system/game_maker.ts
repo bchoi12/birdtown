@@ -286,6 +286,11 @@ export class GameMaker extends SystemBase implements System {
 		return current;
 	}
 	setGameState(state : GameState) : void {
+		if (state !== GameState.FREE) {
+			ui.hideStatus(StatusType.LOBBY);
+		}
+
+
 		if (state === GameState.LOAD) {
 			ui.showStatus(StatusType.LOADING);
 		} else {

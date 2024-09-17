@@ -12,7 +12,7 @@ import { SystemType, PlayerRole } from 'game/system/api'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
-import { KeyType, KeyState, TooltipType } from 'ui/api'
+import { KeyType, KeyState, StatusType, TooltipType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 import { Timer} from 'util/timer'
@@ -143,8 +143,7 @@ export class PlayerState extends ClientSystem implements System {
     		player.setState(GameObjectState.DEACTIVATED);
     		break;
     	case PlayerRole.GAMING:
-			game.level().spawnPlayer(player);
-			player.setState(GameObjectState.NORMAL);
+    		this.spawnPlayer(player);
    			break;
 		case PlayerRole.WAITING:
 		case PlayerRole.SPECTATING:
@@ -159,13 +158,25 @@ export class PlayerState extends ClientSystem implements System {
 
 	// Player can spawn && we should show prompt since they need to press a button.
 	private promptSpawn() : boolean { return this.role() === PlayerRole.SPAWNING && game.controller().gameState() === GameState.GAME; }
+	private spawnPlayer(player : Player) : void {
+		game.level().spawnPlayer(player);
+		player.setState(GameObjectState.NORMAL);
+
+		if (this.clientIdMatches() && game.controller().gameState() === GameState.FREE) {
+			ui.showStatus(StatusType.WELCOME);
+			setTimeout(() => {
+				if (game.controller().gameState() === GameState.FREE) {
+					ui.showStatus(StatusType.LOBBY);
+				}
+			}, 7000);
+		}
+	}
 	resetForLobby() : void {
 		if (this.validTargetEntity()) {
 			this.setRole(PlayerRole.GAMING);
 
 			let player = this.targetEntity<Player>();
-			game.level().spawnPlayer(player);
-			player.setState(GameObjectState.NORMAL);
+			this.spawnPlayer(player);
 		}
 	}
 	die() : void {

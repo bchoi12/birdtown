@@ -27,6 +27,7 @@ export class HudHandler extends HandlerBase implements Handler {
 		[HudType.HEALTH, IconType.HEART],
 		[HudType.JETPACK, IconType.JET],
 		[HudType.JUICE, IconType.TELEKENESIS],
+		[HudType.MOUSE_LOCK, IconType.LOCK],
 		[HudType.ROCKET, IconType.ROCKET],
 		[HudType.ROLL, IconType.ROLL],
 		[HudType.SPRAY, IconType.SPRAY],
@@ -81,6 +82,8 @@ export class HudHandler extends HandlerBase implements Handler {
 
 			if (options.keyType) {
 				block.setKeyHTML(KeyNames.keyTypeHTML(options.keyType));
+			} else if (options.keyCode) {
+				block.setKeyHTML(KeyNames.kbd(options.keyCode));
 			} else if (options.keyLives) {
 				block.setLives(options.keyLives);
 			}

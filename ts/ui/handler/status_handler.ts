@@ -19,8 +19,9 @@ export class StatusHandler extends HandlerBase implements Handler {
 		[StatusType.DISCONNECTED_SIGNALING, new Set([StatusType.LOBBY])],
 		[StatusType.SPECTATING, new Set()],
 		[StatusType.LOADING, new Set()],
+		[StatusType.LOBBY, new Set([StatusType.WELCOME])],
 		[StatusType.SETUP, new Set([StatusType.LOADING])],
-		[StatusType.LOBBY, new Set()],
+		[StatusType.WELCOME, new Set()],
 	]);
 
 	private _statusElm : HTMLElement;
@@ -96,18 +97,24 @@ export class StatusHandler extends HandlerBase implements Handler {
 		case StatusType.LOADING:
 			wrapper.setText("Loading...");
 			break;
+		case StatusType.LOBBY:
+			if (game.isHost()) {
+				wrapper.setText("Invite your friends!\r\nRoom: " + game.netcode().room());
+			} else {
+				wrapper.setText("Waiting for host to start a game...\r\nRoom: " + game.netcode().room());
+			}
+			break;
 		case StatusType.SETUP:
 			wrapper.setText("Waiting for all players to be ready...");
 			break;
 		case StatusType.SPECTATING:
 			wrapper.setHTML("Spectating\r\nPress " + KeyNames.kbd(settings.leftKeyCode) + " or " + KeyNames.kbd(settings.rightKeyCode) + " to change players");
 			break;
-		case StatusType.LOBBY:
-			if (game.isHost()) {
-				wrapper.setText("Birdtown Lobby\r\nRoom: " + game.netcode().room());
-			} else {
-				wrapper.setText("Waiting for host to start a game...\r\nRoom: " + game.netcode().room());
-			}
+		case StatusType.WELCOME:
+			wrapper.setHTML(
+				"Use " + KeyNames.kbd(settings.leftKeyCode) + " and " + KeyNames.kbd(settings.rightKeyCode) + " to move\r\n\r\n" +
+				"Press " + KeyNames.kbd(settings.jumpKeyCode) + " to jump/double jump"
+			);
 			break;
 		}
 

@@ -54,6 +54,7 @@ export enum HudType {
 	HEALTH,
 	JETPACK,
 	JUICE,
+	MOUSE_LOCK,
 	ROCKET,
 	ROLL,
 	SPRAY,
@@ -77,6 +78,7 @@ export type HudOptions = {
 
 	// Only set one
 	keyType? : KeyType;
+	keyCode? : number;
 	keyLives? : number;
 }
 
@@ -115,6 +117,7 @@ export enum KeyState {
 export enum StatusType {
 	UNKNOWN,
 
+	WELCOME,
 	DISCONNECTED,
 	DISCONNECTED_SIGNALING,
 	SPECTATING,

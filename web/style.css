@@ -331,8 +331,8 @@ kbd {
     position: absolute;
 
     bottom: 8%;
-    width: 44vw;
-    left: 28%;
+    width: 48%;
+    left: 26%;
     height: 6vh;
 }
 
@@ -366,7 +366,7 @@ kbd {
 }
 
 #hud-center {
-    flex: 4;
+    flex: 5;
 
     justify-content: center;
 }
@@ -597,7 +597,7 @@ kbd {
 #menu-fieldsets fieldset {
     overflow-y: scroll;
     text-align: left;
-    font-size: 0.5em;
+    font-size: 0.45em;
     flex: 1;
 }
 

@@ -162,12 +162,6 @@ export class Level extends SystemBase implements System {
 
     	game.runner().handleMessage(this._levelMsg);
 
-    	if (level === LevelType.LOBBY) {
-    		ui.showStatus(StatusType.LOBBY);
-    	} else {
-    		ui.hideStatus(StatusType.LOBBY);
-    	}
-
 		if (isLocalhost()) {
 			console.log("%s: loaded level %s with seed %d, version %d", this.name(), LevelType[level], seed, version);
 		}
