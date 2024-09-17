@@ -20,7 +20,7 @@ export class HudHandler extends HandlerBase implements Handler {
 
 	private static readonly _icons = new Map<HudType, IconType>([
 		[HudType.BOOSTER, IconType.ROCKET_LAUNCH],
-		[HudType.CHARGE, IconType.BOLT],
+		[HudType.CHARGE, IconType.BATTERY_FULL],
 		[HudType.DASH, IconType.DASH],
 		[HudType.BLACK_HOLE, IconType.EARTH],
 		[HudType.BULLETS, IconType.GATLING],
@@ -33,6 +33,11 @@ export class HudHandler extends HandlerBase implements Handler {
 		[HudType.SPRAY, IconType.SPRAY],
 		[HudType.SQUAWK, IconType.MUSIC_NOTE],
 		[HudType.STAR, IconType.STAR],
+	]);
+
+	private static readonly _chargingIcons = new Map<HudType, IconType>([
+		[HudType.CHARGE, IconType.BATTERY_ERROR],
+		[HudType.MOUSE_LOCK, IconType.UNLOCK],
 	]);
 
 	private static readonly _leftBlocks = new Set([HudType.HEALTH]);
@@ -104,6 +109,10 @@ export class HudHandler extends HandlerBase implements Handler {
 			wrapper.setIcon(HudHandler._icons.get(type));
 		} else {
 			console.error("Warning: missing icon for %s", HudType[type]);
+		}
+
+		if (HudHandler._chargingIcons.has(type)) {
+			wrapper.setChargingIcon(HudHandler._chargingIcons.get(type));
 		}
 
 		this._blocks.set(type, wrapper);

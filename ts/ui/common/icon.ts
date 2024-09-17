@@ -41,6 +41,8 @@ export enum IconType {
 	TROPHY,
 
 	// HUD
+	BATTERY_ERROR,
+	BATTERY_FULL,
 	BIRD,
 	BOLT,
 	DASH,
@@ -55,6 +57,7 @@ export enum IconType {
 	ROCKING_HORSE,
 	ROLL,
 	TELEKENESIS,
+	UNLOCK,
 	SPRAY,
 	STAR,
 }
@@ -66,6 +69,8 @@ export namespace Icon {
 		[IconType.ARROW_LEFT, "keyboard_arrow_left"],
 		[IconType.ARROW_RIGHT, "keyboard_arrow_right"],
 		[IconType.ARROW_UP, "keyboard_arrow_up"],
+		[IconType.BATTERY_ERROR, "battery_error"],
+		[IconType.BATTERY_FULL, "battery_full"],
 		[IconType.BIRD, "raven"],
 		[IconType.BOLT, "bolt"],
 		[IconType.CANCEL, "cancel"],
@@ -101,6 +106,7 @@ export namespace Icon {
 		[IconType.TELEKENESIS, "move_selection_right"],
 		[IconType.TIMER, "timer"],
 		[IconType.TROPHY, "trophy"],
+		[IconType.UNLOCK, "lock_open_right"],
 		[IconType.VOLUME_HIGH, "volume_up"],
 		[IconType.VOLUME_LOW, "volume_down"],
 		[IconType.VOLUME_NONE, "volume_mute"],

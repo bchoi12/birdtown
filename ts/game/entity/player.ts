@@ -862,6 +862,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		if (this._entityTrackers.hasEntityType(EntityType.BEAK) && this.clientIdMatches()) {
 			hudData.set(HudType.MOUSE_LOCK, {
+				charging: !ui.pointerLocked(),
 				empty: true,
 				color: this.clientColorOr("#000000"),
 				keyCode: settings.pointerLockKeyCode,

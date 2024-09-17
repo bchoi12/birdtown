@@ -9,6 +9,7 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _charging : boolean;
 	private _iconType : IconType;
+	private _chargingIconType : IconType;
 	private _lives : number;
 	private _width : number;
 
@@ -28,6 +29,7 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._charging = false;
 		this._iconType = IconType.UNKNOWN;
+		this._chargingIconType = IconType.UNKNOWN;
 		this._lives = 0;
 		this._width = 0;
 
@@ -59,6 +61,14 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 		this._iconType = type;
 	}
 
+	setChargingIcon(type : IconType) : void {
+		if (this._chargingIconType === type) {
+			return;
+		}
+
+		this._chargingIconType = type;
+	}
+
 	setCharging(charging : boolean) : void {
 		if (this._charging === charging) {
 			return;
@@ -67,9 +77,17 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 		this._charging = charging;
 
 		if (this._charging) {
+			if (this._chargingIconType !== IconType.UNKNOWN) {
+				Icon.change(this._iconElm, this._chargingIconType);
+			}
+
 			this._blockElm.classList.add(Html.classHudBlockCharging);
 			this.elm().classList.add(Html.classHudContainerCharging);
 		} else {
+			if (this._chargingIconType !== IconType.UNKNOWN) {
+				Icon.change(this._iconElm, this._iconType);
+			}
+
 			this._blockElm.classList.remove(Html.classHudBlockCharging);
 			this.elm().classList.remove(Html.classHudContainerCharging);
 		}
