@@ -39,6 +39,7 @@ export class PlayerState extends ClientSystem implements System {
 	private static readonly _respawnTime = 1000;
 	private static readonly _planeSpawnTime = 7000;
 
+	private _disconnected : boolean;
 	private _targetId : number;
 	private _role : PlayerRole;
 
@@ -47,6 +48,7 @@ export class PlayerState extends ClientSystem implements System {
 	constructor(clientId : number) {
 		super(SystemType.PLAYER_STATE, clientId);
 
+		this._disconnected = false;
 		this._targetId = 0;
 		this._role = PlayerRole.UNKNOWN;
 		this._roleTimer = this.newTimer({
@@ -55,6 +57,10 @@ export class PlayerState extends ClientSystem implements System {
 
 		this.setRole(PlayerRole.SPECTATING);
 
+		this.addProp<boolean>({
+			export: () => { return this._disconnected; },
+			import: (obj : boolean) => { this._disconnected = obj; },
+		});
 		this.addProp<number>({
 			export: () => { return this._targetId; },
 			import: (obj : number) => { this._targetId = obj; },
@@ -83,6 +89,8 @@ export class PlayerState extends ClientSystem implements System {
 		}
 	}
 
+	disconnected() : boolean { return this._disconnected; }
+	setDisconnected(disconnected : boolean) : void { this._disconnected = disconnected; }
 	role() : PlayerRole { return this._role; }
 	inGame() : boolean { return PlayerState._gameRoles.has(this._role); }
 	setRoleAfter(role : PlayerRole, millis : number, cb? : () => void) : void {
@@ -238,9 +246,11 @@ export class PlayerState extends ClientSystem implements System {
 	override preRender() : void {
 		super.preRender();
 
-		if (!this.clientIdMatches()) {
+		if (!this.clientIdMatches() || !this.validTargetEntity()) {
 			return;
 		}
+
+		let player = this.targetEntity<Player>();
 
 		if (this.promptSpawn()) {
 			ui.showTooltip(TooltipType.SPAWN, {});

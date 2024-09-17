@@ -151,26 +151,4 @@ export class ClientConfig {
 		});
 		return players;
 	}
-
-	// Can play && currently playing (not out of game)
-	isCurrentlyPlaying(id : number) : boolean {
-		if (!this.isPlayer(id)) {
-			return false;
-		}
-
-		const [playerState, ok] = this.playerState(id);
-		if (ok && playerState.inGame()) {
-			return true;
-		}
-		return false;
-	}
-	numCurrentlyPlaying() : number {
-		let playing = 0;
-		this._clients.forEach((client : ClientInfo, id : number) => {
-			if (this.isCurrentlyPlaying(id)) {
-				playing++;
-			}
-		});
-		return playing;
-	}
 }

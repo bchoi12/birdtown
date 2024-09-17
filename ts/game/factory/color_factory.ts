@@ -23,22 +23,22 @@ export namespace ColorFactory {
 		// Level series (bright, not too saturated)
 		[ColorType.LEVEL_RED, HexColor.fromHex(0xfc1f0f)],
 		[ColorType.LEVEL_ORANGE, HexColor.fromHex(0xfc910f)],
-		[ColorType.LEVEL_YELLOW, HexColor.fromHex(0xfcf40f)],
+		[ColorType.LEVEL_YELLOW, HexColor.fromHex(0xede328)],
 		[ColorType.LEVEL_GREEN, HexColor.fromHex(0x0ffc89)],
 		[ColorType.LEVEL_BLUE, HexColor.fromHex(0x0fdcfc)],
-		[ColorType.LEVEL_PURPLE, HexColor.fromHex(0x910ffc)],
+		[ColorType.LEVEL_PURPLE, HexColor.fromHex(0x901bf2)],
 		[ColorType.LEVEL_BROWN, HexColor.fromHex(0xa1662f)],
 		[ColorType.LEVEL_WHITE, HexColor.fromHex(0xeeeeee)],
 		[ColorType.LEVEL_GRAY, HexColor.fromHex(0x8b8b8b)],
 		[ColorType.LEVEL_BLACK, HexColor.fromHex(0x111111)],
 
 		// Background series (minimal saturation)
-		[ColorType.LEVEL_BACKGROUND_RED, HexColor.fromHex(0xcc807a)],
+		[ColorType.LEVEL_BACKGROUND_RED, HexColor.fromHex(0xb36f69)],
 		[ColorType.LEVEL_BACKGROUND_ORANGE, HexColor.fromHex(0xccab7a)],
 		[ColorType.LEVEL_BACKGROUND_YELLOW, HexColor.fromHex(0xcccc7a)],
-		[ColorType.LEVEL_BACKGROUND_GREEN, HexColor.fromHex(0x8fcc7a)],
+		[ColorType.LEVEL_BACKGROUND_GREEN, HexColor.fromHex(0x78a36c)],
 		[ColorType.LEVEL_BACKGROUND_BLUE, HexColor.fromHex(0x7aa3cc)],
-		[ColorType.LEVEL_BACKGROUND_PURPLE, HexColor.fromHex(0xaa7acc)],
+		[ColorType.LEVEL_BACKGROUND_PURPLE, HexColor.fromHex(0x9168ad)],
 
 		// Player series (not too saturated, but distinct from level)
 		[ColorType.PLAYER_RED, HexColor.fromHex(0xfc1f0f)],
@@ -79,8 +79,10 @@ export namespace ColorFactory {
 		// Environment series
 		[ColorType.SKY_DAY_TOP, HexColor.fromHex(0xdef1ff)],
 		[ColorType.SKY_DAY_BOTTOM, HexColor.fromHex(0xf3fbff)],
-		[ColorType.SKY_EVENING_TOP, HexColor.fromHex(0xffd4b5)],
-		[ColorType.SKY_EVENING_BOTTOM, HexColor.fromHex(0xffecd4)],
+		[ColorType.SKY_EVENING_TOP, HexColor.fromHex(0x005594)],
+		[ColorType.SKY_EVENING_BOTTOM, HexColor.fromHex(0xffdec7)],
+		[ColorType.SKY_NIGHT_TOP, HexColor.fromHex(0x004f8a)],
+		[ColorType.SKY_NIGHT_BOTTOM, HexColor.fromHex(0x003d6b)],
 
 		// Particle series (light and works well with opacity)
 		[ColorType.PARTICLE_RED, HexColor.fromHex(0xdc5a3a)],

@@ -125,6 +125,7 @@ export enum StatusType {
 
 export enum TooltipType {
 	UNKNOWN,
+	BUBBLE,
 	CONTROLS,
 	COPIED_URL,
 	FORCE_SUBMIT,

@@ -34,7 +34,8 @@ import { Recoil } from 'game/util/recoil'
 
 import { GameGlobals } from 'global/game_globals'
 
-import { HudType, HudOptions, DialogType, KeyType, KeyState, InfoType } from 'ui/api'
+import { ui } from 'ui'
+import { HudType, HudOptions, DialogType, KeyType, KeyState, InfoType, TooltipType } from 'ui/api'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -590,6 +591,24 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 					this._canDoubleJump = false;
 				}
 			}
+
+			if (this.getAttribute(AttributeType.FLOATING) && this._entityTrackers.hasEntityType(EntityType.BUBBLE)) {
+				if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
+					this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).execute((bubble : Bubble) => {
+						bubble.pop();
+					});
+
+					if (this.isLakituTarget() && this.clientIdMatches()) {
+						ui.hideTooltip(TooltipType.BUBBLE);
+					}
+				} else {
+					if (this.isLakituTarget() && this.clientIdMatches() && game.controller().gameState() === GameState.GAME) {
+						ui.showTooltip(TooltipType.BUBBLE, {});
+					}
+				}
+			} else if (this.isLakituTarget() && this.clientIdMatches()) {
+				ui.hideTooltip(TooltipType.BUBBLE);
+			}
 		}
 
 		// Friction and air resistance
@@ -616,7 +635,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		if (other.getAttribute(AttributeType.SOLID)) {
 			if (this._entityTrackers.hasEntityType(EntityType.BUBBLE)) {
 				this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).execute((bubble : Bubble) => {
-					bubble.pop();
+					bubble.lightPop();
 				});
 			}
 

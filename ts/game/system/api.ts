@@ -59,3 +59,11 @@ export enum PlayerRole {
 	// Player is participating, but cannot game. Usually means dead
 	WAITING,
 }
+
+export enum TimeType {
+	UNKNOWN,
+
+	DAY,
+	EVENING,
+	NIGHT,
+}

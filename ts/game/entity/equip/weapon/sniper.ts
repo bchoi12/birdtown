@@ -23,7 +23,7 @@ export class Sniper extends Weapon {
 	private static readonly _bursts = 3;
 	private static readonly _config = {
 		times: new Map([
-			[WeaponState.FIRING, 80],
+			[WeaponState.FIRING, 60],
 			[WeaponState.RELOADING, 300],
 		]),
 		bursts: Sniper._bursts,
@@ -58,9 +58,9 @@ export class Sniper extends Weapon {
 	override shoot(stepData : StepData) : void {
 		const charged = this.charged();
 		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
-		const unitDir = this.inputDir().clone().normalize();
+		const unitDir = this.getDir();
 
-		let vel = unitDir.clone().scale(charged ? 1 : 0.7);
+		let vel = unitDir.clone().scale(charged ? 1 : 0.75);
 		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, {
 			ttl: Sniper._boltTTL,
 			associationInit: {

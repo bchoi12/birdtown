@@ -118,7 +118,7 @@ export namespace MaterialFactory {
 		    mat.smoothness = 1;
 		    mat.scale = 0.03
 		    mat.disableLighting = true;
-		})
+		});
 
 		gradientMaterial(MaterialType.SKY_EVENING, (mat : GradientMaterial) => {
 		    mat.topColor = ColorFactory.color(ColorType.SKY_EVENING_TOP).toBabylonColor3();
@@ -129,7 +129,18 @@ export namespace MaterialFactory {
 		    mat.smoothness = 1;
 		    mat.scale = 0.03
 		    mat.disableLighting = true;
-		})
+		});
+
+		gradientMaterial(MaterialType.SKY_NIGHT, (mat : GradientMaterial) => {
+		    mat.topColor = ColorFactory.color(ColorType.SKY_NIGHT_TOP).toBabylonColor3();
+		    mat.bottomColor = ColorFactory.color(ColorType.SKY_NIGHT_BOTTOM).toBabylonColor3();
+
+			mat.backFaceCulling = false;
+		    mat.offset = 0;
+		    mat.smoothness = 1;
+		    mat.scale = 0.03
+		    mat.disableLighting = true;
+		});
 
 		standardMaterial(MaterialType.PARTICLE_RED, (mat : BABYLON.StandardMaterial) => {
 			mat.alpha = 0.7;

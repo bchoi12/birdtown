@@ -29,6 +29,8 @@ import { TimerHandler } from 'ui/handler/timer_handler'
 import { TooltipHandler } from 'ui/handler/tooltip_handler'
 import { TrayHandler } from 'ui/handler/tray_handler'
 
+import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
+
 import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
@@ -186,7 +188,7 @@ class UI {
 	updateHud(huds : Map<HudType, HudOptions>) : void { this._hudHandler.updateHud(huds); }
 	updateInfo(id : number, type : InfoType, value : number | string) : void { this._scoreboardHandler.updateInfo(id, type, value); }
 	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }
-	pushDialog(type : DialogType) : void { this._dialogHandler.pushDialog(type); }
+	pushDialog<T extends DialogWrapper>(type : DialogType) : T { return this._dialogHandler.pushDialog(type); }
 	forceSubmitDialog(type : DialogType) : void { this._dialogHandler.forceSubmitDialog(type); }
 	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }
 	hideTooltip(type : TooltipType) : void { this._tooltipHandler.hideTooltip(type); }

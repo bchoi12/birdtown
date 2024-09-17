@@ -185,14 +185,14 @@ class Game {
 	controller() : Controller { return this._controller; }
 	entities() : Entities { return this._entities; }
 	input() : Input { return this._input; }
-	keys(id? : number) : Keys { return this._input.getKeys(id); }
+	keys(id? : number) : Keys { return this._input.keys(id); }
 	lakitu() : Lakitu { return this._lakitu; }
 	level() : Level { return this._level; }
 	physics() : Physics { return this._physics; }
 	playerStates() : PlayerStates { return this._playerStates; }
-	playerState(id? : number) : PlayerState { return this._playerStates.getPlayerState(id); }
+	playerState(id? : number) : PlayerState { return this._playerStates.playerState(id); }
 	tablets() : Tablets { return this._tablets; }
-	tablet(id? : number) : Tablet { return this._tablets.getTablet(id); }
+	tablet(id? : number) : Tablet { return this._tablets.tablet(id); }
 	world() : World { return this._world; }
 
 }

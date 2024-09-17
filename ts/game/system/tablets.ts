@@ -25,5 +25,5 @@ export class Tablets extends ClientSystemManager implements System {
 	}
 	addTablet(tablet : Tablet) : Tablet { return this.registerChild<Tablet>(tablet.clientId(), tablet); }
 	hasTablet(clientId : number) : boolean { return this.hasChild(clientId); }
-	getTablet(clientId? : number) : Tablet { return this.getChild<Tablet>(defined(clientId) ? clientId : game.clientId()); }
+	tablet(clientId? : number) : Tablet { return this.getChild<Tablet>(defined(clientId) ? clientId : game.clientId()); }
 }

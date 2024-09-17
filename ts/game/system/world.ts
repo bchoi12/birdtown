@@ -9,20 +9,12 @@ import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { CloudGenerator } from 'game/system/generator/cloud_generator'
 import { System, SystemBase } from 'game/system'
-import { SystemType } from 'game/system/api'
+import { SystemType, TimeType } from 'game/system/api'
 
 enum LayerType {
 	UNKNOWN,
 	GLOW,
 	HIGHLIGHT,
-}
-
-// TODO: make public
-enum TimeType {
-	UNKNOWN,
-
-	DAY,
-	EVENING,
 }
 
 type TimeSetting = {
@@ -58,10 +50,18 @@ export class World extends SystemBase implements System {
 		[TimeType.EVENING, {
 			skyMaterial: MaterialType.SKY_EVENING,
 			lightDir: new BABYLON.Vector3(4, -1, -6).normalize(),
-			hemisphericIntensity: 0.5,
+			hemisphericIntensity: 1,
 			directionalIntensity: 1,
-			hemisphericDiffuse: ColorFactory.color(ColorType.SKY_EVENING_TOP).toBabylonColor3(),
-			hemisphericBottomColor: ColorFactory.color(ColorType.SKY_EVENING_BOTTOM).toBabylonColor3(),
+			hemisphericDiffuse: new BABYLON.Color3(0.9, 0.9, 0.9),
+			hemisphericBottomColor: new BABYLON.Color3(0.8, 0.8, 0.8),
+		}],
+		[TimeType.NIGHT, {
+			skyMaterial: MaterialType.SKY_NIGHT,
+			lightDir: new BABYLON.Vector3(-1, -3, -4).normalize(),
+			hemisphericIntensity: 0.2,
+			directionalIntensity: 2.5,
+			hemisphericDiffuse: new BABYLON.Color3(0.8, 0.8, 0.8),
+			hemisphericBottomColor: new BABYLON.Color3(0.5, 0.5, 0.5),
 		}],
 	]);
 

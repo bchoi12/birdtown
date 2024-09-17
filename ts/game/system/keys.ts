@@ -59,7 +59,7 @@ export class Keys extends ClientSideSystem implements System {
 	}
 
 	getKey(type : KeyType) : Key { return this.getChild<Key>(type); }
-	getKeys() : Set<KeyType> {
+	keys() : Set<KeyType> {
 		let keys = new Set<KeyType>();
 		if (this.state() === GameObjectState.DEACTIVATED) {
 			return keys;

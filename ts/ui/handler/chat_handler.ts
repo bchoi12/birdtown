@@ -1,6 +1,6 @@
 
 import { game } from 'game'
-import { PlayerRole } from 'game/system/api'
+import { PlayerRole, TimeType } from 'game/system/api'
 
 import { settings } from 'settings'
 
@@ -66,15 +66,9 @@ export class ChatHandler extends HandlerBase implements Handler {
 				}
 			}
 		});		
-	}
 
-	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
-		super.onModeChange(mode, oldMode);
-
-		if (mode === UiMode.GAME) {
-			this._chatElm.style.visibility = "visible";
-			this.hide();
-		}
+		this._chatElm.style.visibility = "visible";
+		this.hide();
 	}
 
 	override onEnable() : void {
@@ -141,6 +135,15 @@ export class ChatHandler extends HandlerBase implements Handler {
 		switch (pieces[0].toLowerCase()) {
 		case "/test":
 			console.log("test");
+			break;
+		case "/day":
+			game.world().setTime(TimeType.DAY);
+			break;
+		case "/evening":
+			game.world().setTime(TimeType.EVENING);
+			break;
+		case "/night":
+			game.world().setTime(TimeType.NIGHT);
 			break;
 		case "/die":
 			game.playerState().die();

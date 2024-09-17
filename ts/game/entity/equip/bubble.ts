@@ -65,11 +65,16 @@ export class Bubble extends Equip<Player> {
 		}));
 	}
 
-	pop() : void {
-		if (this._popped) {
+	lightPop() : void {
+		if (game.controller().gameState() !== GameState.FREE && this._lifeTimer.millisElapsed() <= Bubble._invincibleDuration) {
 			return;
 		}
-		if (game.controller().gameState() !== GameState.FREE && this._lifeTimer.millisElapsed() <= Bubble._invincibleDuration) {
+
+		this.pop();
+	}
+
+	pop() : void {
+		if (this._popped) {
 			return;
 		}
 

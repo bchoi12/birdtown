@@ -67,7 +67,9 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	show() : void {
 		this._visible = true;
 		setTimeout(() => {
-			this.elm().classList.add(Html.classPopupShow);
+			if (this._visible) {
+				this.elm().classList.add(Html.classPopupShow);
+			}
 		}, 5);
 	}
 	hide() : void {

@@ -12,7 +12,7 @@ import { HandlerType } from 'ui/handler/api'
 import { ScoreboardWrapper } from 'ui/wrapper/dialog/scoreboard_wrapper'
 import { InfoWrapper } from 'ui/wrapper/info_wrapper'
 
-export class GameFinishHandler extends HandlerBase implements Handler {
+export class RoundFinishHandler extends HandlerBase implements Handler {
 
 	private _scoreboardElm : HTMLElement;
 	private _scoreboard : ScoreboardWrapper;

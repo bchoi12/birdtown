@@ -424,16 +424,15 @@ kbd {
     position: absolute;
     display: block;
     text-align: center;
-    width: 60vw;
+    width: 100%;
 
     bottom: 20vh;
-    left: 20vw;
 }
 
 .tooltip {
     font-size: 0.8em;
     text-align: center;
-    width: 40%;
+    width: 20%;
     margin-left: auto;
     margin-right: auto;
     margin-top: 0.5em;
@@ -562,17 +561,19 @@ kbd {
 }
 
 #div-menu {
-  text-align: center;
-  position: absolute;
-  visibility: hidden;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background-color: rgba(0,0,0,0.7);
+    text-align: center;
+    position: absolute;
+    visibility: hidden;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(0,0,0,0.7);
 
-  font-size: 1.5em;
-  padding-top: 3%;
+    font-size: 1.5em;
+    padding-top: 3%;
+
+    backdrop-filter: blur(3px);
 }
 
 .menu-heading {

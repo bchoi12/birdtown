@@ -91,14 +91,16 @@ export class TooltipHandler extends HandlerBase implements Handler {
 	private getHtml(type : TooltipType, options : TooltipOptions) : string {
 		const names = options.names ? options.names : [];
 		switch (type) {
+		case TooltipType.BUBBLE:
+			return "Press " + KeyNames.kbd(settings.jumpKeyCode) + " to pop the bubble";
 		case TooltipType.CONTROLS:
-			return KeyNames.kbd(settings.interactKeyCode) + " View the controls";
+			return "Press " + KeyNames.kbd(settings.interactKeyCode) + " to view the controls";
 		case TooltipType.COPIED_URL:
 			return "Copied invite link to clipboard!";
 		case TooltipType.FORCE_SUBMIT:
 			return "Warning: dialog timed out with no client input";
 		case TooltipType.JUST_A_SIGN:
-			return "Just a sign...nothing to see here"
+			return "Just a sign with no purpose"
 		case TooltipType.HEALTH_CRATE:
 			if (names.length !== 1) {
 				return "";
@@ -112,12 +114,12 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			if (!game.isHost()) {
 				return "Only the host can start a game";
 			}
-			return KeyNames.kbd(settings.interactKeyCode) + " Start a game";
+			return "Press " + KeyNames.kbd(settings.interactKeyCode) + " to start a game";
 		case TooltipType.WEAPON_CRATE:
 			if (names.length !== 1) {
 				return "";
 			}
-			return KeyNames.kbd(settings.interactKeyCode) + " Equip " + names[0];
+			return "Press " + KeyNames.kbd(settings.interactKeyCode) + " to equip " + names[0];
 		default:
 			return "Missing tooltip text for type " + type;
 		}

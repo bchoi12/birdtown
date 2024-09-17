@@ -15,8 +15,8 @@ import { Tablet } from 'game/system/tablet'
 import { ClientConfig } from 'game/util/client_config'
 
 import { MessageObject } from 'message'
-import { GameMessage, GameMessageType} from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
+import { GameMessage, GameMessageType} from 'message/game_message'
 
 import { settings } from 'settings'
 
@@ -84,18 +84,6 @@ export class GameMaker extends SystemBase implements System {
 				filters: GameData.tcpFilters,
 			},
 		});
-	}
-
-	override handleMessage(msg : GameMessage) : void {
-		super.handleMessage(msg);
-
-		if (msg.type() !== GameMessageType.CLIENT_DISCONNECT) {
-			return;
-		}
-
-		if (this._clientConfig.hasClient(msg.getClientId())) {
-			this._clientConfig.setDisconnected(msg.getClientId(), true);
-		}
 	}
 
 	mode() : GameMode { return this._config.type(); }
@@ -356,11 +344,8 @@ export class GameMaker extends SystemBase implements System {
 			});
 			break;
 		case GameState.GAME:
-			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
-				clientDialog.queueForceSubmit(DialogType.LOADOUT);
-			}, (clientDialog : ClientDialog) => {
-				return this._clientConfig.isPlayer(clientDialog.clientId()) && !clientDialog.inSync(DialogType.LOADOUT);
-			});
+	    	this.queueForceSubmit(DialogType.LOADOUT);
+
 			game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
 				playerState.setRole(PlayerRole.SPAWNING);
 			}, (playerState : PlayerState) => {
@@ -400,12 +385,16 @@ export class GameMaker extends SystemBase implements System {
 	    	let endMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	endMsg.setAnnouncementType(AnnouncementType.GAME_END);
 	    	game.announcer().broadcast(endMsg);
+
+	    	this.queueForceSubmit(DialogType.LOADOUT);
 	    	break;
 		case GameState.ERROR:
 	    	let errorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	errorMsg.setAnnouncementType(AnnouncementType.GAME_ERROR);
 	    	errorMsg.setNames([this._errorMsg]);
 	    	game.announcer().broadcast(errorMsg);
+
+	    	this.queueForceSubmit(DialogType.LOADOUT);
 	    	break;
 		}
 	}
@@ -439,5 +428,13 @@ export class GameMaker extends SystemBase implements System {
 				game.announcer().broadcast(feed);
 			}
 		}
+	}
+
+	private queueForceSubmit(type : DialogType) : void {
+		game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
+			clientDialog.queueForceSubmit(type);
+		}, (clientDialog : ClientDialog) => {
+			return this._clientConfig.isPlayer(clientDialog.clientId()) && !clientDialog.inSync(type);
+		});
 	}
 }

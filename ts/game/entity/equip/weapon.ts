@@ -47,6 +47,7 @@ export abstract class Weapon extends Equip<Player> {
 	protected _weaponState : WeaponState;
 	protected _stateTimer : Timer;
 	protected _bursts : number;
+	protected _firingTime : number;
 
 	protected _shootNode : BABYLON.TransformNode;
 
@@ -61,6 +62,7 @@ export abstract class Weapon extends Equip<Player> {
 		this._weaponState = WeaponState.IDLE;
 		this._stateTimer = this.newTimer({ canInterrupt: true });
 		this._bursts = this.weaponConfig().bursts;
+		this._firingTime = this.getTime(WeaponState.FIRING);
 
 		this._shootNode = null;
 
@@ -110,6 +112,19 @@ export abstract class Weapon extends Equip<Player> {
 			return config.times.get(state);
 		}
 		return 0;
+	}
+	getDir() : Vec2 {
+		if (this._shootNode === null) {
+			return this.inputDir().clone();
+		}
+
+		const mouse = this.inputMouse();
+		let origin = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
+
+		if (origin.distSq(mouse) <= 0.25) {
+			return this.inputDir().clone();
+		}
+		return origin.sub(mouse).negate().normalize();
 	}
 
 	chargedThreshold() : number { return 1000; }
@@ -216,6 +231,9 @@ export abstract class Weapon extends Equip<Player> {
 		}
 
 		if (this._weaponState === WeaponState.REVVING) {
+			this._bursts = this.weaponConfig().bursts;
+			this._firingTime = this.getTime(WeaponState.FIRING);
+
 			if (!this._stateTimer.hasTimeLeft()) {
 				this.fire(stepData);
 				this.setWeaponState(WeaponState.FIRING);
@@ -235,7 +253,7 @@ export abstract class Weapon extends Equip<Player> {
 				this.fire(stepData);
 
 				if (this._bursts > 0) {
-					this._stateTimer.start(this.getTime(WeaponState.FIRING));
+					this._stateTimer.start(this._firingTime);
 				} else {
 					this.setWeaponState(WeaponState.RELOADING);
 				}

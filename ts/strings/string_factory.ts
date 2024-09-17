@@ -20,7 +20,7 @@ export namespace StringFactory {
 		[EntityType.PISTOL, ParamString.of("pistol").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.PISTOL).toString())],
 		[EntityType.SCOUTER, ParamString.of("scouter").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SCOUTER).toString())],
 		[EntityType.SHOTGUN, ParamString.of("shotgun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SHOTGUN).toString())],
-		[EntityType.SNIPER, ParamString.of("sniper").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SNIPER).toString())],
+		[EntityType.SNIPER, ParamString.of("rifle").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SNIPER).toString())],
 	]);
 
 	export function getEntityName(entity : Entity) : ParamString {
@@ -35,7 +35,7 @@ export namespace StringFactory {
 
 	const entityUsage = new Map<EntityType, ParamString>([
 		[EntityType.UNKNOWN, ParamString.of("???")],
-		[EntityType.BAZOOKA, ParamString.of("Fire an exploding rocket")],
+		[EntityType.BAZOOKA, ParamString.of("Launch an exploding rocket")],
 		[EntityType.BOOSTER, ParamString.of("Boost yourself into the skies")],
 		[EntityType.CLAW, ParamString.of("Toss 4 stars that explode after a short delay")],
 		[EntityType.COWBOY_HAT, ParamString.of("Quickly roll and reload")],
@@ -43,7 +43,7 @@ export namespace StringFactory {
 		[EntityType.HEADBAND, ParamString.of("Dash in the direction of your cursor")],
 		[EntityType.HEADPHONES, ParamString.of("Manifests a dying star that collapses into a black hole")],
 		[EntityType.JETPACK, ParamString.of("Lift yourself into the air")],
-		[EntityType.PISTOL, ParamString.of("Fires 3 quick shots")],
+		[EntityType.PISTOL, ParamString.of("Fire 3 quick ones")],
 		[EntityType.SCOUTER, ParamString.of("Hold to look ahead and charge your weapon")],
 		[EntityType.SHOTGUN, ParamString.of("Sprays two quick recoiling blasts")],
 		[EntityType.SNIPER, ParamString.of("Fire a short burst of high-energy bolts")],

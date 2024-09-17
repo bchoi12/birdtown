@@ -37,7 +37,7 @@ export class Lakitu extends SystemBase implements System {
 
 	private static readonly _quickPan = 250;
 	private static readonly _normalPan = 1000;
-	private static readonly _slowPan = 5000;
+	private static readonly _slowPan = 4000;
 	private static readonly _offsets = new Map<OffsetType, Vec3>([
 		[OffsetType.ANCHOR, Vec3.zero()],
 		[OffsetType.TARGET, new Vec3({ y: 1 })],

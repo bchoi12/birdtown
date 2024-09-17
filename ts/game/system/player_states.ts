@@ -3,6 +3,8 @@ import { System, ClientSystemManager } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { PlayerState } from 'game/system/player_state'
 
+import { GameMessage, GameMessageType} from 'message/game_message'
+
 export class PlayerStates extends ClientSystemManager implements System {
 
 	constructor() {
@@ -11,8 +13,20 @@ export class PlayerStates extends ClientSystemManager implements System {
 		this.setFactoryFn((clientId : number) => { return this.addPlayerState(new PlayerState(clientId)); })
 	}
 
+	override handleMessage(msg : GameMessage) : void {
+		super.handleMessage(msg);
+
+		if (msg.type() !== GameMessageType.CLIENT_DISCONNECT) {
+			return;
+		}
+
+		if (this.hasPlayerState(msg.getClientId())) {
+			this.playerState(msg.getClientId()).setDisconnected(true);
+		}
+	}
+
 	addPlayerState(info : PlayerState) : PlayerState { return this.registerChild<PlayerState>(info.clientId(), info); }
 	hasPlayerState(clientId : number) : boolean { return this.hasChild(clientId); }
-	getPlayerState(clientId? : number) : PlayerState { return this.getChild<PlayerState>(clientId ? clientId : game.clientId()); }
+	playerState(clientId? : number) : PlayerState { return this.getChild<PlayerState>(clientId ? clientId : game.clientId()); }
 	unregisterPlayerState(clientId : number) : void { this.unregisterChild(clientId); }
 }

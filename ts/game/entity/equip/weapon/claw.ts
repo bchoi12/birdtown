@@ -46,7 +46,7 @@ export class Claw extends Weapon {
 	override shoot(stepData : StepData) : void {
 		const charged = this.charged();
 		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
-		const vel = this.inputDir().clone().setLength(0.7);
+		const vel = this.getDir().setLength(0.7);
 		let [star, hasStar] = this.addEntity<Bolt>(EntityType.STAR, {
 			ttl: Claw._starTTL,
 			associationInit: {
