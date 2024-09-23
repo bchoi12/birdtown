@@ -84,6 +84,10 @@ export abstract class Weapon extends Equip<Player> {
 		}));
 
 		this.soundPlayer().registerSound(SoundType.CHARGE, SoundType.CHARGE);
+
+		if (this.reloadSound() !== SoundType.UNKNOWN) {
+			this.soundPlayer().registerSound(this.reloadSound(), this.reloadSound());
+		}
 	}
 
 	abstract meshType() : MeshType;
@@ -99,8 +103,6 @@ export abstract class Weapon extends Equip<Player> {
 		}
 	}
 	shootNode() : BABYLON.TransformNode { return this._shootNode !== null ? this._shootNode : this._model.mesh(); }
-	reloadMillis() : number { return this._weaponState === WeaponState.RELOADING ? this._stateTimer.millisLeft() : 0; }
-	reloadPercent() : number { return this._weaponState === WeaponState.RELOADING ? this._stateTimer.percentElapsed() : 1; }
 
 	weaponState() : WeaponState { return this._weaponState; }
 	abstract weaponConfig() : WeaponConfig;
@@ -147,8 +149,6 @@ export abstract class Weapon extends Equip<Player> {
 		}
 	}
 
-	reloading() : boolean { return this._weaponState === WeaponState.RELOADING; }
-
 	protected firing() : boolean {
 		return this.key(KeyType.MOUSE_CLICK, KeyState.DOWN) && (this.charged() || !this.charging());
 	}
@@ -162,7 +162,18 @@ export abstract class Weapon extends Equip<Player> {
 		this._bursts--;
 	}
 	abstract shoot(stepData : StepData) : void;
-	onReload() : void {}
+
+	reloadSound() : SoundType { return SoundType.UNKNOWN; }
+	reloading() : boolean { return this._weaponState === WeaponState.RELOADING; }
+	reloadMillis() : number { return this._weaponState === WeaponState.RELOADING ? this._stateTimer.millisLeft() : 0; }
+	reloadPercent() : number { return this._weaponState === WeaponState.RELOADING ? this._stateTimer.percentElapsed() : 1; }
+	onReload() : void {
+		if (this.reloadSound() !== SoundType.UNKNOWN && this.owner().isLakituTarget()) {
+			this.soundPlayer().playFromEntity(this.reloadSound(), this.owner(), {
+				playbackRate: 900 / this.getTime(WeaponState.RELOADING),
+			});
+		}
+	}
 	quickReload(millis? : number) : void {
 		this._bursts = this.weaponConfig().bursts;
 		if (millis <= 0) {

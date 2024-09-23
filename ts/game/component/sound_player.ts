@@ -9,6 +9,8 @@ import { Entity } from 'game/entity'
 import { SoundType } from 'game/factory/api'
 import { SoundFactory } from 'game/factory/sound_factory'
 
+import { Vec } from 'util/vector'
+
 export class SoundPlayer extends ComponentBase implements Component {
 
 	private _sounds : Map<number, BABYLON.Sound>;
@@ -66,7 +68,10 @@ export class SoundPlayer extends ComponentBase implements Component {
 		if (!options) {
 			options = {};
 		}
-		options.playbackRate = entity.playbackRate() * Math.max(0.7, game.runner().updateSpeed());
+		if (!options.playbackRate) {
+			options.playbackRate = 1;
+		}
+		options.playbackRate *= entity.playbackRate() * Math.max(0.7, game.runner().updateSpeed());
 
 		if (entity.isLakituTarget()) {
 			// Default to no spatial sound when originating from the target.
@@ -90,6 +95,21 @@ export class SoundPlayer extends ComponentBase implements Component {
 			}
 		}
 	}
+	playFromPos(id : number, pos : Vec, options? : BABYLON.ISoundOptions) : void {
+		if (!this.hasSound(id)) {
+			console.error("Error: %s tried to play non-existent sound %d at", this.name(), id, pos);
+			return;
+		}
+
+		if (!options) {
+			options = {};
+		}
+
+		let sound = this.prepareSound(id, options);
+		sound.setPosition(new BABYLON.Vector3(pos.x, pos.y, pos.z));
+		sound.play();
+	}
+
 	play(id : number, options? : BABYLON.ISoundOptions) : void {
 		if (!this.hasSound(id)) {
 			console.error("Error: %s tried to play non-existent sound %d", this.name(), id);

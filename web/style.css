@@ -256,7 +256,7 @@ kbd {
 
     right: 0;
     bottom: 0;   
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.35);
 
     transition: width 0.3s ease-in;
 }
@@ -386,13 +386,10 @@ kbd {
     position: relative;
 }
 
-.hud-container-charging {
-}
-
 .hud-block {
     display: flex;
     flex-wrap: nowrap;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.35);
     padding: 0.3em;
     border-top-left-radius: 0.2em;
     border-top-right-radius: 0.2em;
@@ -443,7 +440,7 @@ kbd {
 
     white-space: pre-line;
 
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.35);
 }
 
 .popup {
@@ -451,7 +448,7 @@ kbd {
     opacity: 0.2;
     margin-bottom: -3em;
 
-    transition: opacity 0.2s ease-in, margin-bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: opacity 0.2s ease-in, margin-bottom 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .popup-show {

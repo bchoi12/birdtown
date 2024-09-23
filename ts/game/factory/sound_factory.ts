@@ -10,13 +10,15 @@ import { ObjectCache } from 'util/object_cache'
 type SoundMetadata = {
 	path : string;
 	options : BABYLON.ISoundOptions;
+	cacheSize? : number
 }
 
 export namespace SoundFactory {
 
 	let soundCache = new Map<SoundType, ObjectCache<BABYLON.Sound>>();
+	const cacheSize = 5;
 
-	export const metadata = new Map<SoundType, SoundMetadata>([
+	const metadata = new Map<SoundType, SoundMetadata>([
 		[SoundType.BAWK, {
 			path: "bawk.mp3",
 			options: {
@@ -41,6 +43,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.FOOTSTEP, {
+			path: "footstep.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.LASER, {
 			path: "laser.mp3",
 			options: {
@@ -52,6 +60,10 @@ export namespace SoundFactory {
 			options: {
 				spatialSound: true,
 			},
+		}],
+		[SoundType.RELOAD, {
+			path: "reload.mp3",
+			options: {},
 		}],
 		[SoundType.ROCKET, {
 			path: "rocket.mp3",
@@ -71,14 +83,27 @@ export namespace SoundFactory {
 				spatialSound: true,
 			}
 		}],
+		[SoundType.THUD, {
+			path: "thud.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
+		[SoundType.THUD_TRUNK, {
+			path: "thud_trunk.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 	]);
 
 	function initCache(type : SoundType) : void {
+		const meta = metadata.get(type);
 		soundCache.set(type, new ObjectCache<BABYLON.Sound>({
 			createFn: (index : number) => {
 				let sound = new BABYLON.Sound(
 					"sound-" + SoundType[type] + "[" + index + "]",
-					"sound/" + metadata.get(type).path,
+					"sound/" + meta.path,
 					game.scene(),
 					null,
 					MediaGlobals.gameOptions);
@@ -87,7 +112,7 @@ export namespace SoundFactory {
 				};
 				return sound;
 			},
-			maxSize: 3,
+			maxSize: meta.cacheSize > 0 ? meta.cacheSize : cacheSize,
 		}));
 	}
 

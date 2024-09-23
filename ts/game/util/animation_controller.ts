@@ -64,7 +64,7 @@ export class AnimationController {
 
 		if (this._animationSetIds.has(name)) {
 			let set = this._animationSets.get(this._animationSetIds.get(name));
-			set.play(name, options.loop);
+			set.play(name, options);
 		} else {
 			this._animations.get(name).play(options.loop);
 		}

@@ -23,14 +23,14 @@ export class Sniper extends Weapon {
 	private static readonly _bursts = 3;
 	private static readonly _config = {
 		times: new Map([
-			[WeaponState.FIRING, 60],
-			[WeaponState.RELOADING, 300],
+			[WeaponState.FIRING, 70],
+			[WeaponState.RELOADING, 350],
 		]),
 		bursts: Sniper._bursts,
 	};
 	private static readonly _chargeConfig = {
 		times: new Map([
-			[WeaponState.RELOADING, 600],
+			[WeaponState.RELOADING, 700],
 		]),
 		bursts: 1,
 	};

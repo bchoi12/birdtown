@@ -212,11 +212,15 @@ export enum SoundType {
 	CHARGE,
 	CHARGED_LASER,
 	EXPLOSION,
+	FOOTSTEP,
 	LASER,
 	PISTOL,
+	RELOAD,
 	ROCKET,
 	SCREAM,
 	THROW,
+	THUD,
+	THUD_TRUNK,
 }
 
 export enum TextureType {

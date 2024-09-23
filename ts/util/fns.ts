@@ -34,6 +34,10 @@ export namespace Fns {
 		return Math.max(min, Math.min(n, max));
 	}
 
+	export function  normalizeRange(min : number, n : number, max : number) : number {
+		return clamp(0, (n - min) / (max - min), 1);
+	}
+
 	export function lerpRange(min : number, weight : number, max : number) : number {
 		return min + weight * (max - min);
 	}

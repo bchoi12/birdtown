@@ -1,3 +1,5 @@
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+
 import { game } from 'game'
 import { Model } from 'game/component/model'
 import { EntityOptions } from 'game/entity'
@@ -18,9 +20,12 @@ export class ParticleSmoke extends Particle {
 
 	override renderShadows() : boolean { return true; }
 	override particleType() : ParticleType { return ParticleType.SMOKE; }
-	override processModel(model : Model) : void {}
+	override processModel(model : Model) : void {
+		model.material<BABYLON.StandardMaterial>().specularPower = 0;
+	}
 	override resetModel(model : Model) : void {
-		model.mesh().material.alpha = 1;
+		model.material().alpha = 1;
+		model.material<BABYLON.StandardMaterial>().specularPower = 64;
 		model.mesh().scaling.set(1, 1, 1);
 	}
 

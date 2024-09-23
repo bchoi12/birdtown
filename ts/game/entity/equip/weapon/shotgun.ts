@@ -38,6 +38,7 @@ export class Shotgun extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.SHOTGUN; }
+	override reloadSound() : SoundType { return SoundType.RELOAD; }
 
 	override weaponConfig() : WeaponConfig { return Shotgun._config; }
 

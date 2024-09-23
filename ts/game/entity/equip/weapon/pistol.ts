@@ -46,6 +46,7 @@ export class Pistol extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.WHIP; }
 	override meshType() : MeshType { return MeshType.PISTOL; }
+	override reloadSound() : SoundType { return SoundType.RELOAD; }
 
 	override chargedThreshold() : number { return Pistol._chargedThreshold; }
 

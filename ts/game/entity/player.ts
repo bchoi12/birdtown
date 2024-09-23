@@ -24,7 +24,7 @@ import { Headwear } from 'game/entity/equip/headwear'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Weapon } from 'game/entity/equip/weapon'
 import { CollisionCategory, MaterialType, MeshType, TextureType } from 'game/factory/api'
-import { DepthType } from 'game/factory/api'
+import { DepthType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
@@ -353,6 +353,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			init: entityOptions.modelInit,
 		}));
 
+		this.soundPlayer().registerSound(SoundType.FOOTSTEP, SoundType.FOOTSTEP);
+
 		this._modifiers = new Modifiers();
 		this._stats = this.addComponent<Stats>(new Stats({ stats: new Map<StatType, StatInitOptions>([
 			[StatType.HEALTH, {
@@ -586,6 +588,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
 					this._profile.setVel({ y: Math.max(this._profile.vel().y, Player._jumpVel) });
 					this._canJump = false;
+					this._canJumpTimer.reset();
 				}
 			} else if (this._canDoubleJump) {
 				if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
@@ -642,6 +645,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			if (collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 0.1) {
+				if (!this._canJump && this._profile.vel().y < -0.2) {
+					this.soundPlayer().playFromSelf(SoundType.FOOTSTEP, {
+						volume: Fns.normalizeRange(-0.2, this._profile.vel().y, -Player._maxVerticalVel),
+					});
+				}
+
 				this._canJump = true;
 				this._canDoubleJump = true;
 				this._canJumpTimer.start(Player._jumpGracePeriod);

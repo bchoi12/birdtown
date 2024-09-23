@@ -168,6 +168,7 @@ export class Model extends ComponentBase implements Component {
 		this._onLoadFns = [];
 	}
 	mesh() : BABYLON.Mesh { return this._mesh; }
+	material<T extends BABYLON.Material>() : T { return <T>this._mesh.material; }
 
 	registerSubMesh(id : number, subMesh : BABYLON.Mesh) : void {
 		if (this._subMesh.has(id)) {
