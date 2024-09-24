@@ -33,7 +33,7 @@ export class Claw extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.CLAW, options);
 
-		this.soundPlayer().registerSound(SoundType.THROW, SoundType.THROW);
+		this.soundPlayer().registerSound(SoundType.THROW);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }

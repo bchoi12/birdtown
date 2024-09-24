@@ -7,6 +7,8 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
+import { SoundType } from 'game/factory/api'
+import { SoundFactory } from 'game/factory/sound_factory'
 
 import { Vec2 } from 'util/vector'
 
@@ -133,7 +135,13 @@ export abstract class Projectile extends EntityBase {
 
 		if (this.hitDamage() !== 0) {
 			other.takeDamage(this.hitDamage(), this);
+
+			if (other.impactSound() !== SoundType.UNKNOWN) {
+				console.log("HELLO", SoundType[other.impactSound()]);
+				SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
+			}
 		}
+
 		this._hits.add(other.id());
 		this.onHit();
 	}

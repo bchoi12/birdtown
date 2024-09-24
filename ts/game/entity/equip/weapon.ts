@@ -48,6 +48,7 @@ export abstract class Weapon extends Equip<Player> {
 	protected _stateTimer : Timer;
 	protected _bursts : number;
 	protected _firingTime : number;
+	protected _playReloadSound : boolean;
 
 	protected _shootNode : BABYLON.TransformNode;
 
@@ -63,6 +64,7 @@ export abstract class Weapon extends Equip<Player> {
 		this._stateTimer = this.newTimer({ canInterrupt: true });
 		this._bursts = this.weaponConfig().bursts;
 		this._firingTime = this.getTime(WeaponState.FIRING);
+		this._playReloadSound = false;
 
 		this._shootNode = null;
 
@@ -83,10 +85,10 @@ export abstract class Weapon extends Equip<Player> {
 			init: entityOptions.modelInit,
 		}));
 
-		this.soundPlayer().registerSound(SoundType.CHARGE, SoundType.CHARGE);
+		this.soundPlayer().registerSound(SoundType.CHARGE);
 
 		if (this.reloadSound() !== SoundType.UNKNOWN) {
-			this.soundPlayer().registerSound(this.reloadSound(), this.reloadSound());
+			this.soundPlayer().registerSound(this.reloadSound());
 		}
 	}
 
@@ -120,8 +122,16 @@ export abstract class Weapon extends Equip<Player> {
 			return this.inputDir().clone();
 		}
 
-		const mouse = this.inputMouse();
+		let mouse = this.inputMouse().clone();
 		let origin = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
+
+		if (game.level().isCircle()) {
+			if (origin.x - mouse.x > game.level().bounds().width() / 2) {
+				mouse.x += game.level().bounds().width();
+			} else if (mouse.x - origin.x > game.level().bounds().width() / 2) {
+				mouse.x -= game.level().bounds().width();
+			}
+		}
 
 		if (origin.distSq(mouse) <= 0.25) {
 			return this.inputDir().clone();
@@ -169,9 +179,7 @@ export abstract class Weapon extends Equip<Player> {
 	reloadPercent() : number { return this._weaponState === WeaponState.RELOADING ? this._stateTimer.percentElapsed() : 1; }
 	onReload() : void {
 		if (this.reloadSound() !== SoundType.UNKNOWN && this.owner().isLakituTarget()) {
-			this.soundPlayer().playFromEntity(this.reloadSound(), this.owner(), {
-				playbackRate: 900 / this.getTime(WeaponState.RELOADING),
-			});
+			this._playReloadSound = true;
 		}
 	}
 	quickReload(millis? : number) : void {
@@ -182,6 +190,8 @@ export abstract class Weapon extends Equip<Player> {
 		} else {
 			this.setWeaponState(WeaponState.RELOADING);
 			this._stateTimer.start(millis);
+
+			this._playReloadSound = false;
 		}
 	}
 
@@ -231,6 +241,10 @@ export abstract class Weapon extends Equip<Player> {
 			if (!this._stateTimer.hasTimeLeft()) {
 				this.setWeaponState(WeaponState.IDLE);
 				this._bursts = this.weaponConfig().bursts;
+
+				if (this._playReloadSound) {
+					this.soundPlayer().playFromEntity(this.reloadSound(), this.owner(), {});
+				}
 			}
 		}
 
@@ -291,6 +305,4 @@ export abstract class Weapon extends Equip<Player> {
 			break;
 		}
 	}
-
-
 }

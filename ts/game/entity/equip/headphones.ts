@@ -21,7 +21,7 @@ import { Vec3 } from 'util/vector'
 
 export class Headphones extends Equip<Player> {
 
-	private static readonly _reloadTime = 2400;
+	private static readonly _reloadTime = 2000;
 
 	private _timer : Timer;
 

@@ -12,7 +12,7 @@ import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Interactable } from 'game/entity/interactable'
 import { Player } from 'game/entity/player'
-import { CollisionCategory, ColorType, MaterialType, MeshType } from 'game/factory/api'
+import { CollisionCategory, ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -170,6 +170,8 @@ export class Table extends Interactable implements Entity, EquipEntity {
 			this._nameTag.delete();
 		}
 	}
+
+	override impactSound() : SoundType { return SoundType.WOOD_THUD; }
 
 	setDir(dir : number) : void {
 		if (this._dir === dir) {

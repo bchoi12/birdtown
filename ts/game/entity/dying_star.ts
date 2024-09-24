@@ -8,7 +8,7 @@ import { Model } from 'game/component/model'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
-import { CollisionCategory, ColorType, MaterialType } from 'game/factory/api'
+import { CollisionCategory, ColorType, MaterialType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
@@ -83,6 +83,8 @@ export class DyingStar extends EntityBase {
 				...entityOptions.modelInit,
 			},
 		}));
+
+		this.soundPlayer().registerSound(SoundType.CINEMATIC_WOOSH);
 	}
 
 	setTarget(target : Vec2) : void {
@@ -99,6 +101,8 @@ export class DyingStar extends EntityBase {
 		this._initPos.set(this.profile().pos().clone());
 
 		this._dir = this._target.get().clone().sub(this._initPos.get()).sign();
+
+		this.soundPlayer().playFromSelf(SoundType.CINEMATIC_WOOSH);
 	}
 
 	override delete() : void {

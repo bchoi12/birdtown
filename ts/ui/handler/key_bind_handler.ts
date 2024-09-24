@@ -49,11 +49,15 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 			get: () => { return settings.interactKeyCode; },
 			update: (keyCode : number) => { settings.interactKeyCode = keyCode; },
 		});
-
 		this.addKeyBind({
 			name: "Squawk",
 			get: () => { return settings.squawkKeyCode; },
 			update: (keyCode : number) => { settings.squawkKeyCode = keyCode; },
+		});
+		this.addKeyBind({
+			name: "Lock Mouse",
+			get: () => { return settings.pointerLockKeyCode; },
+			update: (keyCode : number) => { settings.pointerLockKeyCode = keyCode; },
 		});
 
 		this.addKeyBind({
@@ -82,11 +86,6 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 			name: "Show Scoreboard",
 			get: () => { return settings.scoreboardKeyCode; },
 			update: (keyCode : number) => { settings.scoreboardKeyCode = keyCode; },
-		});
-		this.addKeyBind({
-			name: "Lock Mouse",
-			get: () => { return settings.pointerLockKeyCode; },
-			update: (keyCode : number) => { settings.pointerLockKeyCode = keyCode; },
 		});
 	}
 

@@ -41,8 +41,8 @@ export class Sniper extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.SNIPER, options);
 
-		this.soundPlayer().registerSound(SoundType.LASER, SoundType.LASER);
-		this.soundPlayer().registerSound(SoundType.CHARGED_LASER, SoundType.CHARGED_LASER);
+		this.soundPlayer().registerSound(SoundType.LASER);
+		this.soundPlayer().registerSound(SoundType.CHARGED_LASER);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }

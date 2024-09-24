@@ -44,7 +44,7 @@ import { Buffer } from 'util/buffer'
 import { CardinalDir } from 'util/cardinal'
 import { ChangeTracker } from 'util/change_tracker'
 import { CircleMap } from 'util/circle_map'
-import { Fns } from 'util/fns'
+import { Fns, InterpType } from 'util/fns'
 import { Optional } from 'util/optional'
 import { RateLimiter } from 'util/rate_limiter'
 import { Timer} from 'util/timer'
@@ -353,7 +353,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			init: entityOptions.modelInit,
 		}));
 
-		this.soundPlayer().registerSound(SoundType.FOOTSTEP, SoundType.FOOTSTEP);
+		this.soundPlayer().registerSound(SoundType.FOOTSTEP);
 
 		this._modifiers = new Modifiers();
 		this._stats = this.addComponent<Stats>(new Stats({ stats: new Map<StatType, StatInitOptions>([
@@ -520,6 +520,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		return pos;
 	}
 
+	override impactSound() : SoundType { return SoundType.THUD; }
+
 	override takeDamage(amount : number, from : Entity) : void {
 		super.takeDamage(amount, from);
 
@@ -645,9 +647,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			if (collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 0.1) {
-				if (!this._canJump && this._profile.vel().y < -0.2) {
-					this.soundPlayer().playFromSelf(SoundType.FOOTSTEP, {
-						volume: Fns.normalizeRange(-0.2, this._profile.vel().y, -Player._maxVerticalVel),
+				if (!this._canJump && this._profile.vel().y < -0.1) {
+					this.soundPlayer().playFromPos(SoundType.FOOTSTEP, this._profile.getRenderPos(), {
+						volume: Fns.interp(InterpType.SQUARE, Fns.normalizeRange(-0.1, this._profile.vel().y, -Player._maxVerticalVel)),
 					});
 				}
 
@@ -835,12 +837,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		// Compute arm rotation
 		let arm = this._model.getBone(BoneType.ARM).getTransformNode();
-		let armRotation = this._armDir.angleRad();
-		if (headSign > 0) {
-			armRotation -= Math.PI / 2;
-		} else {
-			armRotation = -armRotation + Math.PI / 2;
-		}
+		let armRotation = headSign * (this._armDir.angleRad() - Math.PI / 2);
 		const recoilRotation = this._armRecoil.rotation();
 		arm.rotation = new BABYLON.Vector3(armRotation + recoilRotation.z, Math.PI, -recoilRotation.y);
 

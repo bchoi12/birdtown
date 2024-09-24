@@ -13,7 +13,7 @@ import { Vec } from 'util/vector'
 
 export class SoundPlayer extends ComponentBase implements Component {
 
-	private _sounds : Map<number, BABYLON.Sound>;
+	private _sounds : Map<SoundType, BABYLON.Sound>;
 
 	constructor() {
 		super(ComponentType.SOUND_PLAYER);
@@ -35,33 +35,33 @@ export class SoundPlayer extends ComponentBase implements Component {
 		});
 	}
 
-	registerSound(id : number, type : SoundType, options? : BABYLON.ISoundOptions) : void {
-		if (this._sounds.has(id)) {
-			console.error("Error: skipped registering duplicate %s with id %d", SoundType[type], id);
+	registerSound(type : SoundType, options? : BABYLON.ISoundOptions) : void {
+		if (this._sounds.has(type)) {
+			console.error("Error: skipped registering duplicate %s with id %d", SoundType[type], type);
 			return;
 		}
 
-		this._sounds.set(id, SoundFactory.load(type, options));
+		this._sounds.set(type, SoundFactory.load(type, options));
 	}
-	onEnded(id : number) : BABYLON.Observable<BABYLON.Sound> {
-		if (!this.hasSound(id)) {
-			console.error("Error: tried to set onEnded for non-existent sound %d", id);
+	onEnded(type : SoundType) : BABYLON.Observable<BABYLON.Sound> {
+		if (!this.hasSound(type)) {
+			console.error("Error: tried to set onEnded for non-existent sound %d", type);
 			return;
 		}
 
-		return this.sound(id).onEndedObservable;
+		return this.sound(type).onEndedObservable;
 	}
 
-	hasSound(id : number) : boolean { return this._sounds.has(id); }
-	sound(id : number) : BABYLON.Sound { return this._sounds.get(id); }
+	hasSound(type : SoundType) : boolean { return this._sounds.has(type); }
+	sound(type : SoundType) : BABYLON.Sound { return this._sounds.get(type); }
 
-	playFromSelf(id : number, options? : BABYLON.ISoundOptions) : void {
-		this.playFromEntity(id, this.entity(), options);
+	playFromSelf(type : SoundType, options? : BABYLON.ISoundOptions) : void {
+		this.playFromEntity(type, this.entity(), options);
 	}
 
-	playFromEntity(id : number, entity : Entity, options? : BABYLON.ISoundOptions) : void {
-		if (!this.hasSound(id)) {
-			console.error("Error: %s tried to play non-existent sound %d on %s", this.name(), id, entity.name());
+	playFromEntity(type : SoundType, entity : Entity, options? : BABYLON.ISoundOptions) : void {
+		if (!this.hasSound(type)) {
+			console.error("Error: %s tried to play non-existent sound %d on %s", this.name(), type, entity.name());
 			return;
 		}
 
@@ -79,11 +79,11 @@ export class SoundPlayer extends ComponentBase implements Component {
 				spatialSound: false,
 				...options
 			}
-			let sound = this.prepareSound(id, resolvedOptions);
+			let sound = this.prepareSound(type, resolvedOptions);
 			sound.play();
 		} else {
 			// Play sound at distance, prefer following the mesh when possible.
-			let sound = this.prepareSound(id, options);
+			let sound = this.prepareSound(type, options);
 			if (entity.hasModel()) {
 				entity.model().onLoad((model : Model) => {
 					sound.attachToMesh(model.mesh());
@@ -95,9 +95,9 @@ export class SoundPlayer extends ComponentBase implements Component {
 			}
 		}
 	}
-	playFromPos(id : number, pos : Vec, options? : BABYLON.ISoundOptions) : void {
-		if (!this.hasSound(id)) {
-			console.error("Error: %s tried to play non-existent sound %d at", this.name(), id, pos);
+	playFromPos(type : SoundType, pos : Vec, options? : BABYLON.ISoundOptions) : void {
+		if (!this.hasSound(type)) {
+			console.error("Error: %s tried to play non-existent sound %d at", this.name(), type, pos);
 			return;
 		}
 
@@ -105,31 +105,31 @@ export class SoundPlayer extends ComponentBase implements Component {
 			options = {};
 		}
 
-		let sound = this.prepareSound(id, options);
+		let sound = this.prepareSound(type, options);
 		sound.setPosition(new BABYLON.Vector3(pos.x, pos.y, pos.z));
 		sound.play();
 	}
 
-	play(id : number, options? : BABYLON.ISoundOptions) : void {
-		if (!this.hasSound(id)) {
-			console.error("Error: %s tried to play non-existent sound %d", this.name(), id);
+	play(type : SoundType, options? : BABYLON.ISoundOptions) : void {
+		if (!this.hasSound(type)) {
+			console.error("Error: %s tried to play non-existent sound %d", this.name(), type);
 			return;
 		}
 
-		let sound = this.prepareSound(id, options);
+		let sound = this.prepareSound(type, options);
 		sound.play();
 	}
-	stop(id : number) : void {
-		if (!this.hasSound(id)) {
-			console.error("Error: %s tried to stop non-existent sound %d", this.name(), id);
+	stop(type : SoundType) : void {
+		if (!this.hasSound(type)) {
+			console.error("Error: %s tried to stop non-existent sound %d", this.name(), type);
 			return;
 		}
 
-		this.sound(id).stop();
+		this.sound(type).stop();
 	}
 
-	private prepareSound(id : number, options? : BABYLON.ISoundOptions) : BABYLON.Sound {
-		let sound = this.sound(id);
+	private prepareSound(type : SoundType, options? : BABYLON.ISoundOptions) : BABYLON.Sound {
+		let sound = this.sound(type);
 		if (options) {
 			sound.updateOptions(options);
 		}

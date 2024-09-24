@@ -51,7 +51,7 @@ export class Gatling extends Weapon {
 		this._rotateRad = 0;
 		this._spinner = null;
 
-		this.soundPlayer().registerSound(SoundType.LASER, SoundType.LASER);
+		this.soundPlayer().registerSound(SoundType.GATLING);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
@@ -103,7 +103,7 @@ export class Gatling extends Weapon {
 		recoilVel.y = this.computeVerticalAcc(recoilVel, ownerProfile.vel());
 		ownerProfile.addVel(recoilVel);
 
-		this.soundPlayer().playFromEntity(SoundType.LASER, this.owner());
+		this.soundPlayer().playFromEntity(SoundType.GATLING, this.owner());
 	}
 
 	override update(stepData : StepData) : void {

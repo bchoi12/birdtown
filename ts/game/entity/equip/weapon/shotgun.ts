@@ -32,13 +32,13 @@ export class Shotgun extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.SHOTGUN, options);
 
-		this.soundPlayer().registerSound(SoundType.PISTOL, SoundType.PISTOL);
+		this.soundPlayer().registerSound(SoundType.PISTOL);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.SHOTGUN; }
-	override reloadSound() : SoundType { return SoundType.RELOAD; }
+	override reloadSound() : SoundType { return SoundType.QUICK_RELOAD; }
 
 	override weaponConfig() : WeaponConfig { return Shotgun._config; }
 

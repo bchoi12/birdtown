@@ -296,9 +296,13 @@ export class Profile extends ComponentBase implements Component {
 		}
 	}
 
-	relativePos(cardinal : CardinalDir, objectDim : Vec) : Vec2 {
+	relativePos(cardinal : CardinalDir, objectDim? : Vec) : Vec2 {
 		let adjustedPos = this.pos().clone();
 		const dim = this.scaledDim();
+
+		if (!objectDim) {
+			objectDim = { x: 0, y: 0 };
+		}
 
 		if (Cardinal.isLeft(cardinal)) {
 			adjustedPos.add({ x: -dim.x / 2 + objectDim.x / 2});

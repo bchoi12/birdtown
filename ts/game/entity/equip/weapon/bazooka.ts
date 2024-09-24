@@ -28,7 +28,7 @@ export class Bazooka extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.BAZOOKA, options);
 
-		this.soundPlayer().registerSound(SoundType.ROCKET, SoundType.ROCKET);
+		this.soundPlayer().registerSound(SoundType.ROCKET);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }

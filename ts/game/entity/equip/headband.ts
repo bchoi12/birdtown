@@ -9,7 +9,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { BoneType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { ColorType, MaterialType, MeshType } from 'game/factory/api'
+import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -67,6 +67,8 @@ export class Headband extends Equip<Player> {
 			},
 			init: entityOptions.modelInit,
 		}));
+
+		this.soundPlayer().registerSound(SoundType.DASH);
 	}
 
 	override attachType() : AttachType { return AttachType.FOREHEAD; }
@@ -116,6 +118,8 @@ export class Headband extends Equip<Player> {
 			this._juice = Math.max(0, this._juice - Headband._maxJuice);
 			this._chargeDelayTimer.start(Headband._chargeDelay);
 			this._dashTimer.start(Headband._dashTime);
+
+			this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {

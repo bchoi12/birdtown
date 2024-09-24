@@ -11,6 +11,9 @@ import { CloudGenerator } from 'game/system/generator/cloud_generator'
 import { System, SystemBase } from 'game/system'
 import { SystemType, TimeType } from 'game/system/api'
 
+import { settings } from 'settings'
+import { ShadowSetting } from 'settings/api'
+
 enum LayerType {
 	UNKNOWN,
 	GLOW,
@@ -145,10 +148,7 @@ export class World extends SystemBase implements System {
 		this._shadowGenerator.bias = 1.5e-3;
 		this._shadowGenerator.transparencyShadow = true;
 
-		// TODO: option for shadow quality
-		this._shadowGenerator.usePercentageCloserFiltering = true;
-		// TODO: option for shadow quality
-		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
+		this.applyShadowSetting(settings.shadowSetting);
 	}
 
 	setTime(type : TimeType) : void {
@@ -186,6 +186,25 @@ export class World extends SystemBase implements System {
 		mesh.getChildMeshes().forEach((child : BABYLON.AbstractMesh) => {
 			child.receiveShadows = false;
 		});
+	}
+	applyShadowSetting(setting : ShadowSetting) : void {
+		if (setting !== ShadowSetting.NONE) {
+			this._shadowGenerator.usePercentageCloserFiltering = true;
+
+			switch (setting) {
+			case ShadowSetting.LOW:
+				this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_LOW;
+				break;
+			case ShadowSetting.MEDIUM:
+				this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
+				break;
+			case ShadowSetting.HIGH:
+				this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+				break;
+			}
+		} else {
+			this._shadowGenerator.usePercentageCloserFiltering = false;
+		}
 	}
 
 	scene() : BABYLON.Scene { return this._scene; }

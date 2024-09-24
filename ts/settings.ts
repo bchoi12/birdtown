@@ -10,6 +10,7 @@ import {
 	JitterSetting,
 	InspectorSetting,
 	NetworkStabilitySetting,
+	ShadowSetting,
 } from 'settings/api'
 
 import { isElectron, isMobile } from 'util/common'
@@ -30,9 +31,9 @@ class Settings {
 	public pointerLockKeyCode : number;
 
 	public fullscreenSetting : FullscreenSetting;
-
 	public fpsSetting : SpeedSetting;
 	public antiAliasSetting : AntiAliasSetting;
+	public shadowSetting : ShadowSetting;
 	public clientPredictionSetting : ClientPredictionSetting;
 
 	public inspectorSetting : InspectorSetting;
@@ -55,9 +56,9 @@ class Settings {
 		this.pointerLockKeyCode = 67;
 
 		this.fullscreenSetting = (isMobile() || isElectron()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
-
 		this.fpsSetting = isMobile() ? SpeedSetting.SLOW : SpeedSetting.NORMAL;
 		this.antiAliasSetting = isMobile() ? AntiAliasSetting.NONE : AntiAliasSetting.MEDIUM;
+		this.shadowSetting = isMobile() ? ShadowSetting.NONE : ShadowSetting.MEDIUM;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 
 		// Debug properties

@@ -59,3 +59,10 @@ export enum NetworkStabilitySetting {
 	POOR,
 	TERRIBLE,
 }
+
+export enum ShadowSetting {
+	NONE,
+	LOW,
+	MEDIUM,
+	HIGH,
+}

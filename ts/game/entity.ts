@@ -15,6 +15,7 @@ import { Stats } from 'game/component/stats'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { GameObject, GameObjectBase, StepData } from 'game/game_object'
+import { SoundType } from 'game/factory/api'
 
 import { StringFactory } from 'strings/string_factory'
 import { ParamString } from 'strings/param_string'
@@ -91,6 +92,7 @@ export interface Entity extends GameObject {
 
 	// Sound playback rate
 	playbackRate() : number;
+	impactSound() : SoundType;
 
 	// For UI
 	displayName() : string;
@@ -342,6 +344,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 
 	playbackRate() : number { return 1; }
+	impactSound() : SoundType { return SoundType.UNKNOWN; }
 	clientColorOr(or : string) : string {
 		if (this.hasClientId() && game.tablets().hasTablet(this.clientId())) {
 			return game.tablet(this.clientId()).color();

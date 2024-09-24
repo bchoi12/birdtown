@@ -66,7 +66,7 @@ export abstract class Beak extends Equip<Player> {
 			init: entityOptions.modelInit,
 		}));
 
-		this.soundPlayer().registerSound(SoundType.BAWK, SoundType.BAWK);
+		this.soundPlayer().registerSound(SoundType.BAWK);
 	}
 
 	abstract meshType() : MeshType;

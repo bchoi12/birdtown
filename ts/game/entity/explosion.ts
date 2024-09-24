@@ -64,7 +64,9 @@ export abstract class Explosion extends EntityBase implements Entity {
 			},
 		}));
 
-		this.soundPlayer().registerSound(this.soundType(), this.soundType());
+		if (this.soundType() !== SoundType.UNKNOWN) {
+			this.soundPlayer().registerSound(this.soundType());
+		}
 	}
 
 	meshFn() : BABYLON.Mesh {
@@ -83,7 +85,9 @@ export abstract class Explosion extends EntityBase implements Entity {
 	override initialize() : void {
 		super.initialize();
 
-		this.soundPlayer().playFromSelf(this.soundType());
+		if (this.soundType() !== SoundType.UNKNOWN) {
+			this.soundPlayer().playFromSelf(this.soundType());
+		}
 		this._lifeTimer.start(this.ttl() * 2, () => {
 			this.delete();
 		});

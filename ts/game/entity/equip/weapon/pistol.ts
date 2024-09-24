@@ -40,13 +40,13 @@ export class Pistol extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.PISTOL, options);
 
-		this.soundPlayer().registerSound(SoundType.PISTOL, SoundType.PISTOL);
+		this.soundPlayer().registerSound(SoundType.PISTOL);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.WHIP; }
 	override meshType() : MeshType { return MeshType.PISTOL; }
-	override reloadSound() : SoundType { return SoundType.RELOAD; }
+	override reloadSound() : SoundType { return SoundType.QUICK_RELOAD; }
 
 	override chargedThreshold() : number { return Pistol._chargedThreshold; }
 

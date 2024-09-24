@@ -18,5 +18,5 @@ export class BlackHole extends Explosion {
 	override force() : number { return -1; }
 	override ttl() : number { return 300; }
 	override materialType() : MaterialType { return MaterialType.BLACK_HOLE; }
-	override soundType() : SoundType { return SoundType.SCREAM; }
+	override soundType() : SoundType { return SoundType.UNKNOWN; }
 }

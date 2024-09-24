@@ -10,7 +10,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { CollisionCategory, ColorType, DepthType, MeshType } from 'game/factory/api'
+import { CollisionCategory, ColorType, DepthType, MeshType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -89,6 +89,8 @@ export class Pergola extends EntityBase implements Entity {
 			});
 		});
 	}
+
+	override impactSound() : SoundType { return SoundType.WOOD_THUD; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);

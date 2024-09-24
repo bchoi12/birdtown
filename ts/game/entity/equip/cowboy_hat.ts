@@ -53,6 +53,8 @@ export class CowboyHat extends Equip<Player> {
 			},
 			init: entityOptions.modelInit,
 		}));
+
+		this.soundPlayer().registerSound(SoundType.RELOAD);
 	}
 
 	override attachType() : AttachType { return AttachType.HEAD; }
@@ -97,6 +99,8 @@ export class CowboyHat extends Equip<Player> {
 			this._juice = Math.max(0, this._juice - CowboyHat._maxJuice);
 			this._chargeDelayTimer.start(CowboyHat._chargeDelay);
 			this._dashTimer.start(CowboyHat._dashTime);
+
+			this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {

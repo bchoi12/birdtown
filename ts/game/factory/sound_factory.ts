@@ -25,6 +25,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.BOOST, {
+			path: "boost.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.CHARGE, {
 			path: "charge.mp3",
 			options: {
@@ -33,6 +39,18 @@ export namespace SoundFactory {
 		}],
 		[SoundType.CHARGED_LASER, {
 			path: "charged_laser.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
+		[SoundType.CINEMATIC_WOOSH, {
+			path: "cinematic_woosh.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
+		[SoundType.DASH, {
+			path: "dash.mp3",
 			options: {
 				spatialSound: true,
 			},
@@ -49,6 +67,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.GATLING, {
+			path: "gatling.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.LASER, {
 			path: "laser.mp3",
 			options: {
@@ -60,6 +84,10 @@ export namespace SoundFactory {
 			options: {
 				spatialSound: true,
 			},
+		}],
+		[SoundType.QUICK_RELOAD, {
+			path: "quick_reload.mp3",
+			options: {},
 		}],
 		[SoundType.RELOAD, {
 			path: "reload.mp3",
@@ -89,7 +117,7 @@ export namespace SoundFactory {
 				spatialSound: true,
 			}
 		}],
-		[SoundType.THUD_TRUNK, {
+		[SoundType.WOOD_THUD, {
 			path: "thud_trunk.mp3",
 			options: {
 				spatialSound: true,
@@ -114,6 +142,8 @@ export namespace SoundFactory {
 			},
 			maxSize: meta.cacheSize > 0 ? meta.cacheSize : cacheSize,
 		}));
+
+		load(type);
 	}
 
 	export function load(type : SoundType, options? : BABYLON.ISoundOptions) : BABYLON.Sound {
@@ -142,5 +172,26 @@ export namespace SoundFactory {
 			initCache(type);
 		}
 		soundCache.get(type).return(sound);
+	}
+
+	export function play(type : SoundType, options? : BABYLON.ISoundOptions) : void {
+		let sound = load(type, options);
+
+		if (sound !== null) {
+			sound.play();
+
+			unload(type, sound);
+		}
+	}
+
+	export function playFromPos(type : SoundType, pos : BABYLON.Vector3, options? : BABYLON.ISoundOptions) : void {
+		let sound = load(type, options);
+
+		if (sound !== null) {
+			sound.setPosition(pos);
+			sound.play();
+
+			unload(type, sound);
+		}
 	}
 }

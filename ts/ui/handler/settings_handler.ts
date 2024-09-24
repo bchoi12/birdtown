@@ -13,6 +13,7 @@ import {
 	JitterSetting,
 	InspectorSetting,
 	NetworkStabilitySetting,
+	ShadowSetting,
 } from 'settings/api'
 
 import { ui } from 'ui'
@@ -83,6 +84,23 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			},
 		});
 		this._settingsElm.appendChild(frameRate.elm());
+
+		let shadowQuality = new SettingWrapper<ShadowSetting>({
+			name: "Shadow Filtering Quality",
+			value: settings.shadowSetting,
+			click: (current : ShadowSetting) => {
+				if (current === ShadowSetting.HIGH) {
+					settings.shadowSetting = ShadowSetting.NONE;
+				} else {
+					settings.shadowSetting++;
+				}
+				return settings.shadowSetting;
+			},
+			text: (current : ShadowSetting) => {
+				return ShadowSetting[current];
+			},
+		});
+		this._settingsElm.appendChild(shadowQuality.elm());
 
 		let antiAlias = new SettingWrapper<AntiAliasSetting>({
 			name: "Anti-aliasing",

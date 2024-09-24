@@ -4,7 +4,7 @@ import { Attributes } from 'game/component/attributes'
 import { Profile, MinimapOptions } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { CollisionCategory, DepthType } from 'game/factory/api'
+import { CollisionCategory, DepthType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 
 export abstract class Bound extends EntityBase implements Entity {
@@ -34,4 +34,6 @@ export abstract class Bound extends EntityBase implements Entity {
 	protected setMinimapOptions(options : MinimapOptions) : void {
 		this._profile.setMinimapOptions(options);
 	}
+
+	override impactSound() : SoundType { return SoundType.THUD; }
 }
