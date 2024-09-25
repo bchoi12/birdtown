@@ -137,7 +137,6 @@ export abstract class Projectile extends EntityBase {
 			other.takeDamage(this.hitDamage(), this);
 
 			if (other.impactSound() !== SoundType.UNKNOWN) {
-				console.log("HELLO", SoundType[other.impactSound()]);
 				SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
 			}
 		}

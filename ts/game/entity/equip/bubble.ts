@@ -41,6 +41,7 @@ export class Bubble extends Equip<Player> {
 
 		this._material = new BABYLON.StandardMaterial(this.name() + "-material", game.scene());
 		this._material.alpha = Bubble._alpha;
+		this._material.specularPower = 16;
 		this._material.needDepthPrePass = true;
 
 		this._popped = false;

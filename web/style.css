@@ -330,7 +330,7 @@ kbd {
 #div-hud {
     position: absolute;
 
-    bottom: 8%;
+    bottom: 6%;
     width: 48%;
     left: 26%;
     height: 6vh;
@@ -423,7 +423,7 @@ kbd {
     text-align: center;
     width: 100%;
 
-    bottom: 20%;
+    bottom: 18%;
 }
 
 .tooltip {

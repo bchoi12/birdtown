@@ -107,7 +107,7 @@ export class TrayHandler extends HandlerBase implements Handler {
 		this._buttonsElm.appendChild(share.elm())
 		
 		this._voiceWrapper.addOnMouseEnter(() => {
-			this.showDescription("Toggle proximity voice chat");
+			this.showDescription("Toggle in-game proximity voice chat (experimental)");
 		});
 		this._buttonsElm.appendChild(this._voiceWrapper.elm());
 
@@ -121,7 +121,7 @@ export class TrayHandler extends HandlerBase implements Handler {
 
 		document.addEventListener("pointerlockchange", (e : any) => {
 			if (ui.pointerLocked()) {
-				toggle.setTextHTML(KeyNames.kbd(settings.pointerLockKeyCode));
+				toggle.setTextHTML("Press " + KeyNames.kbd(settings.pointerLockKeyCode));
 			} else {
 				toggle.setText("Commands");
 			}

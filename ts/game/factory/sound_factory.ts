@@ -163,6 +163,8 @@ export namespace SoundFactory {
 			...(options ? options : {}),
 		};
 		sound.updateOptions(resolvedOptions);
+		sound.play();
+		sound.stop();
 		return sound;
 	}
 

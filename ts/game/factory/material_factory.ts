@@ -196,6 +196,7 @@ export namespace MaterialFactory {
 				}
 	        `);
 			mat.specularPower = 128;
+			mat.disableLighting = false;
 		});
 	}
 

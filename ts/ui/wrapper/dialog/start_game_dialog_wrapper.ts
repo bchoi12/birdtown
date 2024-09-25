@@ -261,7 +261,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		let lives = new LabelNumberWrapper({
 			label: "Lives",
-			value: 2,
+			value: 1,
 			plus: (current : number) => {
 				return Math.min(current + 1, 5);
 			},

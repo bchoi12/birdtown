@@ -79,7 +79,7 @@ export namespace ColorFactory {
 		// Environment series
 		[ColorType.SKY_DAY_TOP, HexColor.fromHex(0xdef1ff)],
 		[ColorType.SKY_DAY_BOTTOM, HexColor.fromHex(0xf3fbff)],
-		[ColorType.SKY_EVENING_TOP, HexColor.fromHex(0x005594)],
+		[ColorType.SKY_EVENING_TOP, HexColor.fromHex(0xffc094)],
 		[ColorType.SKY_EVENING_BOTTOM, HexColor.fromHex(0xffdec7)],
 		[ColorType.SKY_NIGHT_TOP, HexColor.fromHex(0x004f8a)],
 		[ColorType.SKY_NIGHT_BOTTOM, HexColor.fromHex(0x003d6b)],
