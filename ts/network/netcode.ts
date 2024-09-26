@@ -111,7 +111,7 @@ export abstract class Netcode {
 					console.log("Answered incoming call", incoming);
 				}
 			}, (e) => {
-				ui.chat("Failed to answer incoming call");
+				ui.print("Failed to answer incoming call");
 			});
 		});
 	}
@@ -120,7 +120,8 @@ export abstract class Netcode {
 	abstract ready() : boolean;
 	abstract isHost() : boolean;
 	abstract setVoiceEnabled(enabled : boolean) : void;
-	abstract sendChat(message : string) : void;
+	abstract sendMessage(message : string) : void;
+	abstract sendChat(clientId : number, message : string) : void;
 
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
@@ -350,7 +351,7 @@ export abstract class Netcode {
 						console.log("Calling", id, clientId);
 					}
 				}, (e) => {
-					ui.chat("Error: failed to call peer");
+					ui.print("Error: failed to call peer");
 					console.error(e);
 				});
 			});

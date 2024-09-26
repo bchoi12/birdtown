@@ -7,7 +7,7 @@ import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { ColorType, MeshType } from 'game/factory/api'
+import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -77,6 +77,8 @@ export class Jetpack extends Equip<Player> {
 			},
 			init: entityOptions.modelInit,
 		}));
+
+		this.soundPlayer().registerSound(SoundType.JETPACK);
 	}
 
 	override attachType() : AttachType { return AttachType.BACK; }
@@ -101,13 +103,21 @@ export class Jetpack extends Equip<Player> {
 
 			let ownerProfile = this.owner().profile();
 			ownerProfile.addVel({ y: this.computeAcc(ownerProfile.vel().y) * millis / 1000, });
-		} else if (!this._chargeDelayTimer.hasTimeLeft()) {
-			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
-				// Touch ground to unlock faster charge rate.
-				this._chargeRate = Math.max(this._chargeRate, Jetpack._groundChargeRate);
-			} else {
-				this._chargeRate = Math.max(this._chargeRate, Jetpack._chargeRate);
+
+			if (!this.soundPlayer().sound(SoundType.JETPACK).isPlaying) {
+				this.soundPlayer().playFromEntity(SoundType.JETPACK, this.owner());
 			}
+		} else {
+			if (!this._chargeDelayTimer.hasTimeLeft()) {
+				if (this.owner().getAttribute(AttributeType.GROUNDED)) {
+					// Touch ground to unlock faster charge rate.
+					this._chargeRate = Math.max(this._chargeRate, Jetpack._groundChargeRate);
+				} else {
+					this._chargeRate = Math.max(this._chargeRate, Jetpack._chargeRate);
+				}
+			}
+
+			this.soundPlayer().stop(SoundType.JETPACK);
 		}
 
 		if (this._chargeRate > 0) {

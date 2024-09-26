@@ -26,8 +26,10 @@ enum NetworkProp {
 export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp> implements Message<NetworkMessageType, NetworkProp> {
 
 	private static readonly _messageDescriptor = new Map<NetworkMessageType, FieldDescriptor>([
-		[NetworkMessageType.CHAT, MessageBase.fields(
-			NetworkProp.CHAT_MESSAGE)],
+		[NetworkMessageType.CHAT, MessageBase.fieldDescriptor(
+			[NetworkProp.CHAT_MESSAGE, {}], 
+			[NetworkProp.CLIENT_ID, { optional: true }],
+		)],
 		[NetworkMessageType.GAME, MessageBase.fields(
 			NetworkProp.SEQ_NUM,
 			NetworkProp.DATA)],

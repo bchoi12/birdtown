@@ -11,9 +11,8 @@ import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Interactable } from 'game/entity/interactable'
-import { CollisionCategory, MaterialType, MeshType } from 'game/factory/api'
+import { CollisionCategory, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
-import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { MaterialShifter } from 'game/util/material_shifter'
@@ -21,8 +20,6 @@ import { MaterialShifter } from 'game/util/material_shifter'
 import { GameGlobals } from 'global/game_globals'
 
 import { settings } from 'settings'
-
-import { StringFactory } from 'strings/string_factory'
 
 import { ui } from 'ui'
 import { KeyNames } from 'ui/common/key_names'
@@ -182,6 +179,8 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 			}
 		}
 	}
+
+	override impactSound() : SoundType { return SoundType.WOOD_THUD; }
 
 	abstract outerMaterial() : MaterialType;
 	protected open() : void {

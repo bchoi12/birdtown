@@ -57,13 +57,24 @@ export class Client extends Netcode {
 		});
 	}
 
-	override sendChat(message : string) : void {
+	override sendMessage(message : string) : void {
 		if (message.length <= 0) {
 			return;
 		}
 
 		let msg = new NetworkMessage(NetworkMessageType.CHAT);
 		msg.setChatMessage(message);
+		this.send(this.hostName(), ChannelType.TCP, msg);
+	}
+
+	override sendChat(clientId : number, message : string) : void {
+		if (message.length <= 0) {
+			return;
+		}
+
+		let msg = new NetworkMessage(NetworkMessageType.CHAT);
+		msg.setChatMessage(message);
+		msg.setClientId(clientId);
 		this.send(this.hostName(), ChannelType.TCP, msg);
 	}
 
@@ -93,7 +104,11 @@ export class Client extends Netcode {
 
 	private registerCallbacks() : void {
 		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
-			ui.chat(msg.getChatMessage());
+			if (msg.hasClientId()) {
+				ui.chat(msg.getClientId(), msg.getChatMessage());
+			} else {
+				ui.print(msg.getChatMessage());
+			}
 		});
 
 		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
@@ -110,7 +125,7 @@ export class Client extends Netcode {
 				clients.set(Number(gameId), name);
 			});
 			this.callAll(clients, () => {
-				this.sendChat("Joined voice chat!");
+				this.sendMessage("Joined voice chat!");
 			}, () => {
 				this._voiceEnabled = false;
 				ui.handleVoiceError(this.clientId());

@@ -520,7 +520,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		return pos;
 	}
 
-	override impactSound() : SoundType { return SoundType.THUD; }
+	override impactSound() : SoundType { return SoundType.PLAYER_THUD; }
 
 	override takeDamage(amount : number, from : Entity) : void {
 		super.takeDamage(amount, from);

@@ -312,6 +312,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 	setAttribute(type : AttributeType, value : boolean) : void {
 		if (!this.hasComponent(ComponentType.ATTRIBUTES)) {
+			console.error("Warning: tried to set %s to %d for %s which has no attribute component", AttributeType[type], value, this.name());
 			return;
 		}
 

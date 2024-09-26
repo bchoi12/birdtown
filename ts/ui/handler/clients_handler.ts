@@ -47,7 +47,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 			this._containerWrapper.elm().appendChild(clientWrapper.elm());
 			this._clients.set(clientId, clientWrapper)
 
-			ui.chat(clientWrapper.displayName() + " joined!");
+			ui.print(clientWrapper.displayName() + " joined!");
 
 		} else if (msg.type() === GameMessageType.CLIENT_DISCONNECT) {
 			const clientId = msg.getClientId();
@@ -57,7 +57,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 			}
 
 			let clientWrapper = this._clients.get(clientId);
-			ui.chat(clientWrapper.displayName() + " disconnected");
+			ui.print(clientWrapper.displayName() + " disconnected");
 
 			this._containerWrapper.elm().removeChild(clientWrapper.elm());
 			this._clients.delete(clientId);

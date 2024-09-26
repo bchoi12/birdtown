@@ -84,11 +84,9 @@ export class SoundPlayer extends ComponentBase implements Component {
 		} else {
 			// Play sound at distance, prefer following the mesh when possible.
 			let sound = this.prepareSound(type, options);
-			if (entity.hasModel()) {
-				entity.model().onLoad((model : Model) => {
-					sound.attachToMesh(model.mesh());
-					sound.play();
-				});
+			if (entity.hasModel() && entity.model().hasMesh()) {
+				sound.attachToMesh(entity.model().mesh());
+				sound.play();
 			} else if (entity.hasProfile()) {
 				sound.setPosition(this.entity().profile().getRenderPos().toBabylon3());
 				sound.play();

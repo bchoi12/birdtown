@@ -198,7 +198,8 @@ class UI {
 	hideStatus(type : StatusType) : void { this._statusHandler.hideStatus(type); }
 	usingTray() : boolean { return this._trayHandler.hasMouse(); }
 
-	chat(msg : string) : void { this._chatHandler.chat(msg); }
+	print(msg : string) : void { this._chatHandler.print(msg); }
+	chat(id : number, msg : string) : void { this._chatHandler.chat(id, msg); }
 	clear() : void {
 		this._handlers.forEach((handler) => {
 			handler.clear();
@@ -215,7 +216,7 @@ class UI {
 	removeStreams() : void { this._clientsHandler.removeStreams(); }
 	handleVoiceError(clientId : number) : void {
 		if (clientId === game.clientId()) {
-			ui.chat("Error: failed to enable microphone. Please check that you have a device connected and have allowed permissions.");
+			ui.print("Error: failed to enable microphone. Please check that you have a device connected and have allowed permissions.");
 			this._trayHandler.handleVoiceError();
 		}
 	}

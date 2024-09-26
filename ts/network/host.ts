@@ -102,7 +102,28 @@ export class Host extends Netcode {
 		});
 	}
 
-	override sendChat(message : string) : void { this.handleChat(this.id(), message); }
+	override sendMessage(message : string) : void {
+		if (message.length <= 0) {
+			return;
+		}
+
+		let msg = new NetworkMessage(NetworkMessageType.CHAT);
+		msg.setChatMessage(message);
+		this.broadcast(ChannelType.TCP, msg);
+		ui.print(message);
+	}
+
+	override sendChat(clientId : number, message : string) : void {
+		if (message.length <= 0) {
+			return;
+		}
+
+		let msg = new NetworkMessage(NetworkMessageType.CHAT);
+		msg.setChatMessage(message);
+		msg.setClientId(clientId);
+		this.broadcast(ChannelType.TCP, msg);
+		ui.chat(clientId, message);
+	}
 
 	// TODO: de-duplicate code here and above. Probably need to add self as a connection and add some code in send() to trigger callbacks immediately
 	override setVoiceEnabled(enabled : boolean) : void {
@@ -119,7 +140,7 @@ export class Host extends Netcode {
 
 		if (this._voiceEnabled) {
 			this.callAll(this.getVoiceMap(), () => {
-				this.sendChat("Joined voice chat!");
+				this.sendMessage("Joined voice chat!");
 			}, () => {
 				this._voiceEnabled = false;
 				ui.handleVoiceError(this.clientId());
@@ -134,24 +155,12 @@ export class Host extends Netcode {
 			return;
 		}
 
-		let displayName;
 		if (fromId === this.id()) {
-			displayName = game.tablet().displayName();
+			this.sendChat(game.clientId(), message);
 		} else if (this.hasConnection(fromId)) {
-			displayName = this.connection(fromId).displayName();
+			this.sendChat(this.connection(fromId).clientId(), message);
 		} else {
 			console.error("Error: received message from unknown connection", fromId, message);
-			return;
 		}
-
-		const fullMessage = displayName + ": " + message;
-		this.sendMessage(fullMessage);
-	}
-
-	private sendMessage(fullMessage : string) : void {
-		let msg = new NetworkMessage(NetworkMessageType.CHAT);
-		msg.setChatMessage(fullMessage);
-		this.broadcast(ChannelType.TCP, msg);
-		ui.chat(fullMessage);
 	}
 }

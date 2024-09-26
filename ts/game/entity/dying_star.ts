@@ -70,7 +70,7 @@ export class DyingStar extends EntityBase {
 					ring.rotation.x = 2 * Math.PI * Math.random();
 					ring.rotation.y = 2 * Math.PI * Math.random();
 					ring.rotation.z = 2 * Math.PI * Math.random();
-					ring.material = MaterialFactory.material(MaterialType.BLACK_HOLE);
+					ring.material = MaterialFactory.material(MaterialType.DYING_STAR_RING);
 
 					mesh.addChild(ring);
 				}
@@ -79,7 +79,7 @@ export class DyingStar extends EntityBase {
 			},
 			init: {
 				disableShadows: true,
-				materialType: MaterialType.BLACK_HOLE,
+				materialType: MaterialType.DYING_STAR,
 				...entityOptions.modelInit,
 			},
 		}));
@@ -125,7 +125,7 @@ export class DyingStar extends EntityBase {
 
 		this._profile.setPos(this._initPos.get().interpolateClone(this._target.get(), this.ttlElapsed(), Fns.interpFns.get(InterpType.NEGATIVE_SQUARE)));
 
-		this.model().scaling().setScalar(1 + 0.3 * Math.sin(2 * Math.PI * this.ttlElapsed()));
+		this.model().scaling().setScalar(2 + 0.5 * Math.sin(2 * Math.PI * this.ttlElapsed()));
 
 		this.model().rotation().x += this._dir.x * 5 * millis / 1000;
 		this.model().rotation().y += this._dir.y * 7 * millis / 1000;

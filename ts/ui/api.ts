@@ -24,6 +24,21 @@ export enum AnnouncementType {
 	WELCOME,
 }
 
+// TODO: implement ChatOptions
+export type ChatOptions = {
+	// Add name of client
+	clientId? : number;
+
+	// Parse message contents as HTML
+	html? : boolean;
+
+	// Play sound on message
+	notify? : boolean;
+
+	// Keep ChatHandler hidden
+	keepHidden? : boolean;
+}
+
 export enum DialogType {
 	UNKNOWN,
 	INIT,

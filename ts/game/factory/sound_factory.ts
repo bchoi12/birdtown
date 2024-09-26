@@ -43,6 +43,10 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.CHAT, {
+			path: "chat.mp3",
+			options: {},
+		}],
 		[SoundType.CINEMATIC_WOOSH, {
 			path: "cinematic_woosh.mp3",
 			options: {
@@ -73,6 +77,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.JETPACK, {
+			path: "jetpack.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.LASER, {
 			path: "laser.mp3",
 			options: {
@@ -84,6 +94,12 @@ export namespace SoundFactory {
 			options: {
 				spatialSound: true,
 			},
+		}],
+		[SoundType.PLAYER_THUD, {
+			path: "player_thud.mp3",
+			options: {
+				spatialSound: true,
+			}
 		}],
 		[SoundType.QUICK_RELOAD, {
 			path: "quick_reload.mp3",
@@ -118,7 +134,7 @@ export namespace SoundFactory {
 			}
 		}],
 		[SoundType.WOOD_THUD, {
-			path: "thud_trunk.mp3",
+			path: "wood_thud.mp3",
 			options: {
 				spatialSound: true,
 			}

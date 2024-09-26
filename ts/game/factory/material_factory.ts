@@ -39,9 +39,20 @@ export namespace MaterialFactory {
 		levelBackgroundMaterial(MaterialType.ARCH_BACKGROUND_PURPLE, ColorFactory.color(ColorType.LEVEL_BACKGROUND_PURPLE));
 
 		standardMaterial(MaterialType.BLACK_HOLE, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.5;
+			mat.alpha = 0.9;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.BLACK).toBabylonColor3();
+		});
+
+		standardMaterial(MaterialType.DYING_STAR, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.8;
+			mat.diffuseColor = ColorFactory.color(ColorType.WHITE).toBabylonColor3();
+		});
+
+		standardMaterial(MaterialType.DYING_STAR_RING, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.7;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_ORANGE).toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.SHOOTER_BLUE, (mat : BABYLON.StandardMaterial) => {
