@@ -60,6 +60,9 @@ export class SoundPlayer extends ComponentBase implements Component {
 	}
 
 	playFromEntity(type : SoundType, entity : Entity, options? : BABYLON.ISoundOptions) : void {
+		if (entity === null || !entity.initialized()) {
+			return;
+		}
 		if (!this.hasSound(type)) {
 			console.error("Error: %s tried to play non-existent sound %d on %s", this.name(), type, entity.name());
 			return;
