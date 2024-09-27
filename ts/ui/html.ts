@@ -74,6 +74,7 @@ export namespace Html {
 	export const classDialogContent = "dialog-content";
 	export const classDialogPage = "dialog-page";
 	export const classDialogTitle = "dialog-title";
+	export const classDisplayName = "display-name";
 	export const classFeed = "feed";
 	export const classFooter = "footer";
 	export const classHudBlock = "hud-block";

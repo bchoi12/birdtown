@@ -17,7 +17,7 @@ import { Pinger } from 'network/pinger'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { StatusType } from 'ui/api'
+import { ChatType, StatusType } from 'ui/api'
 
 import { Buffer } from 'util/buffer'
 import { defined, isLocalhost } from 'util/common'
@@ -111,7 +111,10 @@ export abstract class Netcode {
 					console.log("Answered incoming call", incoming);
 				}
 			}, (e) => {
-				ui.print("Failed to answer incoming call");
+				if (game.tablets().hasTablet(incoming.metadata.clientId)) {
+					const name = game.tablet(incoming.metadata.clientId).displayName();
+					ui.chat(ChatType.ERROR, "Failed to answer call from " + name);
+				}
 			});
 		});
 	}
@@ -120,7 +123,6 @@ export abstract class Netcode {
 	abstract ready() : boolean;
 	abstract isHost() : boolean;
 	abstract setVoiceEnabled(enabled : boolean) : void;
-	abstract sendMessage(message : string) : void;
 	abstract sendChat(clientId : number, message : string) : void;
 
 	id() : string { return this._peer.id; }
@@ -351,8 +353,14 @@ export abstract class Netcode {
 						console.log("Calling", id, clientId);
 					}
 				}, (e) => {
-					ui.print("Error: failed to call peer");
-					console.error(e);
+					if (game.tablets().hasTablet(clientId)) {
+						const name = game.tablet(clientId).displayName();
+						ui.chat(ChatType.ERROR, "Failed to call " + name + "!");
+					}
+
+					if (isLocalhost()) {
+						console.error(e);
+					}
 				});
 			});
 		}

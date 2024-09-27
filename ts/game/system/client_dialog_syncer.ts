@@ -89,7 +89,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 				}
 				if (this._stagingMsg.getVersion() >= this._message.getVersionOr(0)) {
 					this._message.merge(this._stagingMsg);
-					this.propagateIfHost();
+					this.propagate();
 				}
 			},
 			options: {
@@ -101,18 +101,16 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		});
 	}
 
-	private propagateIfHost() : void {
-		if (!this.isHost()) {
-			return;
-		}
-
+	private propagate() : void {	
 		switch(this._message.type()) {
 		case DialogType.INIT:
-			game.tablet(this.clientId()).setColor(this._message.getColor());
-			game.tablet(this.clientId()).setDisplayName(this._message.getDisplayName());
+			if (this.isHost() || this.clientIdMatches()) {
+				game.tablet(this.clientId()).setColor(this._message.getColor());
+				game.tablet(this.clientId()).setDisplayName(this._message.getDisplayName());
+			}
 			break;
 		case DialogType.LOADOUT:
-			if (game.controller().gameState() === GameState.SETUP) {
+			if (this.isHost() && game.controller().gameState() === GameState.SETUP) {
 	    		let msg = new GameMessage(GameMessageType.FEED);
 	    		msg.setNames([game.tablet(this.clientId()).displayName()]);
 		    	msg.setFeedType(FeedType.READY);
@@ -150,7 +148,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		this._message.setVersion(this._message.getVersionOr(0) + 1);
 		this.setDialogState(DialogState.PENDING);
 
-		this.propagateIfHost();
+		this.propagate();
 	}
 
 	showDialog() : void {

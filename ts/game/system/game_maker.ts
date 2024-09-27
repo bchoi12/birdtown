@@ -30,7 +30,7 @@ export class GameMaker extends SystemBase implements System {
 
 	private static readonly _lastDamageTime = 10000;
 	private static readonly _endTimeLimit = 3000;
-	private static readonly _loadTimeLimit = 3000;
+	private static readonly _loadTimeLimit = 1500;
 	private static readonly _respawnTime = 2000;
 	private static readonly _spawnTime = 5000;
 

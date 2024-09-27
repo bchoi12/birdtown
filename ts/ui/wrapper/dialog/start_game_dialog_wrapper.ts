@@ -23,6 +23,10 @@ import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
 import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 
+type ModePageOptions = {
+	
+}
+
 export class StartGameDialogWrapper extends DialogWrapper {
 
 	private _mode : GameMode;

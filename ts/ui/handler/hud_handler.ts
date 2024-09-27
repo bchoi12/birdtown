@@ -7,6 +7,7 @@ import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HudBlockWrapper } from 'ui/wrapper/hud_block_wrapper'
+import { NameWrapper } from 'ui/wrapper/name_wrapper'
 
 enum PositionType {
 	UNKNOWN,
@@ -47,7 +48,7 @@ export class HudHandler extends HandlerBase implements Handler {
 	private _leftElm : HTMLElement;
 	private _centerElm : HTMLElement;
 	private _rightElm : HTMLElement;
-	private _nameElm : HTMLElement;
+	private _nameWrapper : NameWrapper;
 	private _blocks : Map<HudType, HudBlockWrapper>;
 
 	constructor() {
@@ -57,7 +58,11 @@ export class HudHandler extends HandlerBase implements Handler {
 		this._leftElm = Html.elm(Html.divHudLeft);
 		this._centerElm = Html.elm(Html.divHudCenter);
 		this._rightElm = Html.elm(Html.divHudRight);
-		this._nameElm = Html.elm(Html.divHudName);
+		this._nameWrapper = new NameWrapper();
+
+		const nameElm = Html.elm(Html.divHudName);
+		nameElm.appendChild(this._nameWrapper.elm());
+
 		this._blocks = new Map();
 	}
 
@@ -69,8 +74,8 @@ export class HudHandler extends HandlerBase implements Handler {
 		});
 	}
 
-	setName(name : string) : void {
-		this._nameElm.textContent = name;
+	setClientId(clientId : number) : void {
+		this._nameWrapper.setClientId(clientId);
 	}
 	updateHud(blocks : Map<HudType, HudOptions>) : void {
 		let currentTypes = new Set<HudType>();

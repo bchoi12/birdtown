@@ -4,7 +4,7 @@ import { game } from 'game'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
-import { TooltipType } from 'ui/api'
+import { ChatType, TooltipType } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -18,6 +18,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 	private _clientsElm : HTMLElement;
 	private _clients : Map<number, ClientWrapper>;
 	private _containerWrapper : ContainerWrapper;
+	private _sendChat : boolean;
 
 	private _stream : MediaStream;
 
@@ -29,6 +30,15 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._clients = new Map();
 		this._containerWrapper = new ContainerWrapper();
 		this._clientsElm.appendChild(this._containerWrapper.elm());
+
+		this._sendChat = false;
+	}
+
+	override onPlayerInitialized() : void {
+		super.onPlayerInitialized();
+
+		this._sendChat = true;
+
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -47,8 +57,11 @@ export class ClientsHandler extends HandlerBase implements Handler {
 			this._containerWrapper.elm().appendChild(clientWrapper.elm());
 			this._clients.set(clientId, clientWrapper)
 
-			ui.print(clientWrapper.displayName() + " joined!");
-
+			if (this._sendChat) {
+				ui.chat(ChatType.PRINT, "just joined!", {
+					clientId: clientId,
+				});
+			}
 		} else if (msg.type() === GameMessageType.CLIENT_DISCONNECT) {
 			const clientId = msg.getClientId();
 
@@ -57,7 +70,12 @@ export class ClientsHandler extends HandlerBase implements Handler {
 			}
 
 			let clientWrapper = this._clients.get(clientId);
-			ui.print(clientWrapper.displayName() + " disconnected");
+
+			if (this._sendChat) {
+				ui.chat(ChatType.PRINT, "disconnected!", {
+					clientId: clientId,
+				});
+			}
 
 			this._containerWrapper.elm().removeChild(clientWrapper.elm());
 			this._clients.delete(clientId);

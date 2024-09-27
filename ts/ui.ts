@@ -5,7 +5,7 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { settings } from 'settings'
 
-import { AnnouncementType, HudType, HudOptions, DialogType, InfoType, KeyType, StatusType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
+import { AnnouncementType, ChatType, ChatOptions, HudType, HudOptions, DialogType, InfoType, KeyType, StatusType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
 import { Handler } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 
@@ -185,7 +185,7 @@ class UI {
 
 	setTimer(millis : number) : void { this._timerHandler.setTime(millis); }
 	clearTimer() : void { this._timerHandler.clear(); }
-	setName(name : string) : void { this._hudHandler.setName(name); }
+	setHudClientId(id : number) : void { this._hudHandler.setClientId(id); }
 	updateHud(huds : Map<HudType, HudOptions>) : void { this._hudHandler.updateHud(huds); }
 	updateInfo(id : number, type : InfoType, value : number | string) : void { this._scoreboardHandler.updateInfo(id, type, value); }
 	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }
@@ -198,8 +198,7 @@ class UI {
 	hideStatus(type : StatusType) : void { this._statusHandler.hideStatus(type); }
 	usingTray() : boolean { return this._trayHandler.hasMouse(); }
 
-	print(msg : string) : void { this._chatHandler.print(msg); }
-	chat(id : number, msg : string) : void { this._chatHandler.chat(id, msg); }
+	chat(type : ChatType, msg : string, options? : ChatOptions) : void { this._chatHandler.chat(type, msg, options); }
 	clear() : void {
 		this._handlers.forEach((handler) => {
 			handler.clear();
@@ -216,7 +215,7 @@ class UI {
 	removeStreams() : void { this._clientsHandler.removeStreams(); }
 	handleVoiceError(clientId : number) : void {
 		if (clientId === game.clientId()) {
-			ui.print("Error: failed to enable microphone. Please check that you have a device connected and have allowed permissions.");
+			ui.chat(ChatType.ERROR, "Couldn't connect to your microphone. Please double check you have granted Birdtown permission to access your mic.");
 			this._trayHandler.handleVoiceError();
 		}
 	}

@@ -10,11 +10,13 @@ import { Connection } from 'network/connection'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
-import { StatusType } from 'ui/api'
+import { ChatType, StatusType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
 export class Host extends Netcode {
+
+	private static readonly _maxChatLength = 64;
 
 	constructor(room : string) {
 		super(room);
@@ -102,27 +104,20 @@ export class Host extends Netcode {
 		});
 	}
 
-	override sendMessage(message : string) : void {
-		if (message.length <= 0) {
-			return;
-		}
-
-		let msg = new NetworkMessage(NetworkMessageType.CHAT);
-		msg.setChatMessage(message);
-		this.broadcast(ChannelType.TCP, msg);
-		ui.print(message);
-	}
-
 	override sendChat(clientId : number, message : string) : void {
 		if (message.length <= 0) {
 			return;
 		}
 
+		message = message.substring(0, Host._maxChatLength);
+
 		let msg = new NetworkMessage(NetworkMessageType.CHAT);
 		msg.setChatMessage(message);
 		msg.setClientId(clientId);
 		this.broadcast(ChannelType.TCP, msg);
-		ui.chat(clientId, message);
+		ui.chat(ChatType.CHAT, message, {
+			clientId: clientId,
+		});
 	}
 
 	// TODO: de-duplicate code here and above. Probably need to add self as a connection and add some code in send() to trigger callbacks immediately
@@ -140,7 +135,7 @@ export class Host extends Netcode {
 
 		if (this._voiceEnabled) {
 			this.callAll(this.getVoiceMap(), () => {
-				this.sendMessage("Joined voice chat!");
+				ui.chat(ChatType.LOG, "Joined voice chat!");
 			}, () => {
 				this._voiceEnabled = false;
 				ui.handleVoiceError(this.clientId());

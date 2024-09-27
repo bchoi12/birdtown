@@ -197,7 +197,6 @@ export namespace SoundFactory {
 
 		if (sound !== null) {
 			sound.play();
-
 			unload(type, sound);
 		}
 	}
@@ -208,7 +207,6 @@ export namespace SoundFactory {
 		if (sound !== null) {
 			sound.setPosition(pos);
 			sound.play();
-
 			unload(type, sound);
 		}
 	}

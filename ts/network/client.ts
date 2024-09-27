@@ -9,7 +9,7 @@ import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
-import { StatusType } from 'ui/api'
+import { ChatType, StatusType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -57,16 +57,6 @@ export class Client extends Netcode {
 		});
 	}
 
-	override sendMessage(message : string) : void {
-		if (message.length <= 0) {
-			return;
-		}
-
-		let msg = new NetworkMessage(NetworkMessageType.CHAT);
-		msg.setChatMessage(message);
-		this.send(this.hostName(), ChannelType.TCP, msg);
-	}
-
 	override sendChat(clientId : number, message : string) : void {
 		if (message.length <= 0) {
 			return;
@@ -104,11 +94,9 @@ export class Client extends Netcode {
 
 	private registerCallbacks() : void {
 		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
-			if (msg.hasClientId()) {
-				ui.chat(msg.getClientId(), msg.getChatMessage());
-			} else {
-				ui.print(msg.getChatMessage());
-			}
+			ui.chat(ChatType.CHAT, msg.getChatMessage(), {
+				clientId: msg.getClientIdOr(0),
+			});
 		});
 
 		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
@@ -125,7 +113,7 @@ export class Client extends Netcode {
 				clients.set(Number(gameId), name);
 			});
 			this.callAll(clients, () => {
-				this.sendMessage("Joined voice chat!");
+				ui.chat(ChatType.LOG, "Joined voice chat!");
 			}, () => {
 				this._voiceEnabled = false;
 				ui.handleVoiceError(this.clientId());

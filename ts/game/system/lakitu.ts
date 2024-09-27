@@ -335,7 +335,7 @@ export class Lakitu extends SystemBase implements System {
 		if (this.targetEntityType() === EntityType.PLAYER) {
 			// TODO: refactor these two methods into this.targetEntity().updateHud()
 			ui.updateHud(this.targetEntity().getHudData());
-			ui.setName(this.targetEntity().displayName());
+			ui.setHudClientId(this.targetEntity().clientId());
 		}
 
 		if (game.playerState().role() === PlayerRole.SPECTATING

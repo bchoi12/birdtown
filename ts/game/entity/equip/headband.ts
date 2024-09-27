@@ -111,7 +111,7 @@ export class Headband extends Equip<Player> {
 
 			// Only allow source to jump since otherwise it's jittery.
 			if (this.isSource()) {
-				let force = this.inputDir().clone().scale(0.8);
+				let force = this.inputDir().clone().scale(0.9);
 				this.owner().addForce(force);
 			}
 

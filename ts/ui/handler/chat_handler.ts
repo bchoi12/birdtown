@@ -7,11 +7,12 @@ import { PlayerRole, TimeType } from 'game/system/api'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { UiMode } from 'ui/api'
+import { UiMode, ChatType, ChatOptions } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
+import { NameWrapper } from 'ui/wrapper/name_wrapper'
 
 import { Optional } from 'util/optional'
 
@@ -36,47 +37,47 @@ export class ChatHandler extends HandlerBase implements Handler {
 		this._hideTimeout = new Optional();
 	}
 
-	chat(id : number, msg : string) : void {
-		let nameSpan = Html.span();
-		nameSpan.textContent = "" + id;
+	chat(type : ChatType, msg : string, options? : ChatOptions) : void {
+		if (options) {
+			let nameWrapper = new NameWrapper();
+			nameWrapper.setClientId(options.clientId);
+			nameWrapper.elm().style.marginRight = "0.3em";
+			this._chatElm.append(nameWrapper.elm());
+		}
 
 		let messageSpan = Html.span();
-		messageSpan.textContent = msg;
+		if (type === ChatType.CHAT) {
+			messageSpan.textContent = msg;
+		} else {
+			messageSpan.innerHTML = msg;
+		}
 
-		this._chatElm.append(nameSpan);
+		switch (type) {
+		case ChatType.LOG:
+			messageSpan.style.color = "#333";
+			break;
+		case ChatType.ERROR:
+			messageSpan.style.color = "#ff0000";
+			break;
+		}
+
 		this._chatElm.append(messageSpan);
 		this._chatElm.append(Html.br());
-		this._chatElm.scrollTop = this._chatElm.scrollHeight;
 
-		if (game.initialized()) {
-			SoundFactory.play(SoundType.CHAT);
+		if (type !== ChatType.LOG) {
+			this.showChat();
+			this.hide();
+
+			if (game.initialized()) {
+				SoundFactory.play(SoundType.CHAT);
+			}
 		}
 	}
 
-	print(msg : string) : void {
-		let messageSpan = Html.span();
-		messageSpan.textContent = msg;
+	override setup() : void {
+		super.setup();
 
-		this._chatElm.append(messageSpan);
-		this._chatElm.append(Html.br());
-		this._chatElm.scrollTop = this._chatElm.scrollHeight;
-
-		if (game.initialized()) {
-			SoundFactory.play(SoundType.CHAT);
-		}
-	}
-
-	printHTML(html : string) : void {
-		let messageSpan = Html.span();
-		messageSpan.innerHTML = html;
-
-		this._chatElm.append(messageSpan);
-		this._chatElm.append(Html.br());
-		this._chatElm.scrollTop = this._chatElm.scrollHeight;
-
-		if (game.initialized()) {
-			SoundFactory.play(SoundType.CHAT);
-		}
+		this.chat(ChatType.LOG, "Press " + KeyNames.kbd(settings.chatKeyCode) + " to chat");
 	}
 
 	override onPlayerInitialized() : void {
@@ -95,26 +96,25 @@ export class ChatHandler extends HandlerBase implements Handler {
 					this.disable();
 				}
 			}
-		});		
+		});	
 
-		this._chatElm.style.visibility = "visible";
-		this.printHTML("Press " + KeyNames.kbd(settings.chatKeyCode) + " to chat");
+		this.showChat();
 		this.hide();
 	}
 
 	override onEnable() : void {
 		super.onEnable();
 
-		this._chatElm.style.visibility = "visible";
-
 		this._chatElm.classList.remove(Html.classTransparent07);
 		this._chatElm.classList.remove(Html.classNoSelect);
 		this._chatElm.style.bottom = "2em";
 		this._chatElm.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
 
+		this.showChat();
+
 		this._messageElm.style.visibility = "visible";
 		this._messageInputElm.focus();
-		this._messageInputElm.placeholder = "Press " + KeyNames.boxedLower(settings.chatKeyCode) + " to send";
+		this._messageInputElm.placeholder = "Press " + KeyNames.boxed(settings.chatKeyCode) + " to send";
 	}
 
 	override onDisable() : void {
@@ -129,6 +129,11 @@ export class ChatHandler extends HandlerBase implements Handler {
 		this._messageInputElm.blur();
 
 		this.hide();
+	}
+
+	private showChat() : void {
+		this._chatElm.style.visibility = "visible";
+		this._chatElm.scrollTop = this._chatElm.scrollHeight;
 	}
 
 	private hide(delay? : number) : void {
@@ -200,9 +205,9 @@ export class ChatHandler extends HandlerBase implements Handler {
 			} else {
 				const clientId = Number(pieces[1]);
 				if (game.playerStates().hasPlayerState(clientId)) {
-					this.print(PlayerRole[game.playerState(clientId).role()])
+					this.chat(ChatType.PRINT, PlayerRole[game.playerState(clientId).role()])
 				} else {
-					this.print("Cannot find client " + clientId);
+					this.chat(ChatType.PRINT, "Cannot find client " + clientId);
 				}
 			}
 			break;
@@ -211,7 +216,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 				console.error("Usage: %s [Number]", pieces[0])
 			} else {
 				game.runner().setUpdateSpeed(Number(pieces[1]));
-				this.print("Set speed to " + Number(pieces[1]));
+				this.chat(ChatType.PRINT, "Set speed to " + Number(pieces[1]));
 			}
 			break;
 		case "/stats":
