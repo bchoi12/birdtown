@@ -194,8 +194,10 @@ class UI {
 	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }
 	hideTooltip(type : TooltipType) : void { this._tooltipHandler.hideTooltip(type); }
 	setDebugStats(enabled : boolean) : void { this._statsHandler.setDebug(enabled); }
+	hasStatus(type : StatusType) : boolean { return this._statusHandler.hasStatus(type); }
 	showStatus(type : StatusType) : void { this._statusHandler.showStatus(type); }
 	hideStatus(type : StatusType) : void { this._statusHandler.hideStatus(type); }
+	disableStatus(type : StatusType) : void { this._statusHandler.disableStatus(type); }
 	usingTray() : boolean { return this._trayHandler.hasMouse(); }
 
 	chat(type : ChatType, msg : string, options? : ChatOptions) : void { this._chatHandler.chat(type, msg, options); }

@@ -15,6 +15,7 @@ export namespace LoginNames {
 		"Duo",
 		"Egghead Jr",
 		"Henny Penny",
+		"Henry Tobasco",
 		"Herkey",
 		"Iago",
 		"Kevin",

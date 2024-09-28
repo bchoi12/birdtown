@@ -40,8 +40,8 @@ export class StatsHandler extends HandlerBase implements Handler {
 			const ping = game.netcode().ping();
 			const pingSuccess = 100 * (1 - game.netcode().pingLoss());
 
-			const gameStats = game.runner().getGameStats();
-			const renderStats = game.runner().getRenderStats();
+			const gameStats = game.runner().computeGameStats();
+			const renderStats = game.runner().computeRenderStats();
 
 			const stats = game.netcode().stats();
 			let text = [game.netcode().room()];

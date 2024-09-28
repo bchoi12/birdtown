@@ -52,12 +52,15 @@ export class ChatHandler extends HandlerBase implements Handler {
 			messageSpan.innerHTML = msg;
 		}
 
+		messageSpan.style.fontSize = "0.9em";
+
 		switch (type) {
 		case ChatType.LOG:
 			messageSpan.style.color = "#333";
 			break;
 		case ChatType.ERROR:
 			messageSpan.style.color = "#ff0000";
+			messageSpan.style.fontWeight = "bold";
 			break;
 		}
 

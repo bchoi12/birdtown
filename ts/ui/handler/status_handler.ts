@@ -15,18 +15,18 @@ export class StatusHandler extends HandlerBase implements Handler {
 
 	// Statuses to clear when displayed
 	private static readonly _clear = new Map<StatusType, Set<StatusType>>([
-		[StatusType.DISCONNECTED, new Set([StatusType.DISCONNECTED_SIGNALING, StatusType.SPECTATING, StatusType.SETUP, StatusType.LOBBY])],
+		[StatusType.DISCONNECTED, new Set([StatusType.DISCONNECTED_SIGNALING, StatusType.HOST_DEGRADED, StatusType.SPECTATING, StatusType.SETUP, StatusType.LOBBY])],
 		[StatusType.DISCONNECTED_SIGNALING, new Set([StatusType.LOBBY])],
-		[StatusType.SPECTATING, new Set()],
+		[StatusType.HOST_DEGRADED, new Set([StatusType.DEGRADED])],
 		[StatusType.LOADING, new Set([StatusType.LOBBY, StatusType.WELCOME])],
 		[StatusType.LOBBY, new Set([StatusType.WELCOME])],
 		[StatusType.SETUP, new Set([StatusType.LOADING])],
-		[StatusType.WELCOME, new Set()],
 	]);
 
 	private _statusElm : HTMLElement;
 	private _statusWrappers : Map<StatusType, StatusWrapper>;
 	private _current : Set<StatusType>;
+	private _disabled : Set<StatusType>;
 
 	constructor() {
 		super(HandlerType.STATUS);
@@ -34,6 +34,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 		this._statusElm = Html.elm(Html.divStatus);
 		this._statusWrappers = new Map();
 		this._current = new Set();
+		this._disabled = new Set();
 	}
 
 	override setup() : void {
@@ -65,15 +66,24 @@ export class StatusHandler extends HandlerBase implements Handler {
 		}
 	}
 
+	hasStatus(type : StatusType) : boolean { return this._current.has(type); }
+	disableStatus(type : StatusType) : void {
+		this.hideStatus(type);
+		this._disabled.add(type);
+	}
+
 	showStatus(type : StatusType) : void {
 		if (!this._statusWrappers.has(type)) {
+			console.error("Error: %s was not initialized", StatusType[type]);
+			return;
+		}
+		if (this._disabled.has(type)) {
 			return;
 		}
 
 		let valid = true;
 		this._current.forEach((currentType : StatusType) => {
 			if (!StatusHandler._clear.has(currentType)) {
-				console.error("Error: missing clear map for", StatusType[currentType]);
 				return;
 			}
 
@@ -88,11 +98,17 @@ export class StatusHandler extends HandlerBase implements Handler {
 
 		let wrapper = this._statusWrappers.get(type);
 		switch (type) {
+		case StatusType.DEGRADED:
+			wrapper.setHTML("Your game is running slowly\r\nPress " + KeyNames.kbd(settings.menuKeyCode) + " to adjust your settings");
+			break;
+		case StatusType.HOST_DEGRADED:
+			wrapper.setText("Your host is currently lagging or tabbed out");
+			break;
 		case StatusType.DISCONNECTED:
-			wrapper.setText("Disconnected from the server.\r\nPlease refresh the page.");
+			wrapper.setText("Disconnected from the server\r\nPlease refresh the page");
 			break;
 		case StatusType.DISCONNECTED_SIGNALING:
-			wrapper.setText("Lost connection to matchmaking server.\r\nNo new players can join.");
+			wrapper.setText("Lost connection to matchmaking server\r\nNo new players can join");
 			break;
 		case StatusType.LOADING:
 			wrapper.setText("Loading...");
@@ -120,7 +136,10 @@ export class StatusHandler extends HandlerBase implements Handler {
 
 		wrapper.show();
 		this._current.add(type);
-		this.hideStatus(...StatusHandler._clear.get(type));
+
+		if (StatusHandler._clear.has(type)) {
+			this.hideStatus(...StatusHandler._clear.get(type));
+		}
 	}
 
 	hideStatus(...types : StatusType[]) : void {

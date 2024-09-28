@@ -38,7 +38,7 @@ export class Stepper {
 
 		this._lastStep = 0;
 		this._stepsCounter = new SavedCounter();;
-		this._stepsPerSecond = new NumberRingBuffer(2);
+		this._stepsPerSecond = new NumberRingBuffer(5);
 		this._stepTimes = new NumberRingBuffer(30);
 		this._stepIntervals = new NumberRingBuffer(30);
 		this._beginStepTime = Date.now();
@@ -50,13 +50,14 @@ export class Stepper {
 	updateSpeed() : number { return this._updateSpeed; }
 	setUpdateSpeed(speed : number) : void { this._updateSpeed = speed; }
 
+	stepsPerSecond() : number { return this._stepsPerSecond.average();}
 	lastStepsPerSecond() : number { return this._stepsCounter.saved(); }
 	lastStep() : number { return this._lastStep; }
 	lastStepTime() : number { return this._endStepTime - this._beginStepTime; }
 	timeSinceBeginStep() : number { return Date.now() - this._beginStepTime; }
 	timeSinceEndStep() : number { return Date.now() - this._endStepTime; }
 
-	stats() : StepperStats {
+	computeStats() : StepperStats {
 		const stats = {
 			stepsPerSecond: this._stepsPerSecond.average(),
 			stepsPerSecondMin: this._stepsPerSecond.min(),

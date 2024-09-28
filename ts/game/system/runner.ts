@@ -15,6 +15,7 @@ import { settings } from 'settings'
 import { SpeedSetting } from 'settings/api'
 
 import { ui } from 'ui'
+import { StatusType } from 'ui/api'
 
 import { NumberRingBuffer } from 'util/buffer/number_ring_buffer'
 import { isFirefox } from 'util/common'
@@ -27,6 +28,10 @@ export class Runner extends SystemBase implements System  {
 
 	// Max speedup is 10%
 	private static readonly _maxSpeedUp = 1.1;
+
+	private static readonly _warmupTime = 15000;
+	private static readonly _degradedThreshold = 0.4;
+	private static readonly _okThreshold = 0.66;
 
 	private static readonly _channelMapping = new Map<DataFilter, ChannelType>([
 		[DataFilter.INIT, ChannelType.TCP],
@@ -51,6 +56,9 @@ export class Runner extends SystemBase implements System  {
 	private _importSeqNum : number;
 	private _seqNumDiffs : NumberRingBuffer;
 	private _sendFullMsg : boolean;
+	private _degraded : boolean;
+	private _hostDegraded : boolean;
+	private _initializeTime : number;
 
 	constructor() {
 		super(SystemType.RUNNER);
@@ -67,10 +75,24 @@ export class Runner extends SystemBase implements System  {
 		this._importSeqNum = 0;
 		this._seqNumDiffs = new NumberRingBuffer(10);
 		this._sendFullMsg = false;
+		this._degraded = false;
+		this._hostDegraded = false;
+		this._initializeTime = 0;
+
+		this.addProp<boolean>({
+			export: () => { return this._degraded; },
+			import: (obj : boolean) => { this.setHostDegraded(obj); }
+		})
 	}
 
 	override ready() : boolean {
 		return super.ready() && game.hasClientId();
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		this._initializeTime = Date.now();
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -134,8 +156,8 @@ export class Runner extends SystemBase implements System  {
  	gameSeqNum() : number { return this._gameStepper.seqNum(); }
 	seqNumDiff() : number { return this.isSource() ? 0 : Math.round(this._seqNumDiffs.peek() / this._gameTargetStep); }
  
- 	getGameStats() : StepperStats { return this._gameStepper.stats(); }
- 	getRenderStats() : StepperStats { return this._renderStepper.stats(); }
+ 	computeGameStats() : StepperStats { return this._gameStepper.computeStats(); }
+ 	computeRenderStats() : StepperStats { return this._renderStepper.computeStats(); }
 
 	runGameLoop() : void {
 	   	if (!this.initialized() && this.ready()) {
@@ -147,6 +169,15 @@ export class Runner extends SystemBase implements System  {
 	   		this._gameStepper.beginStep(this.getGameStep());
 	   		this.gameStep(this._gameStepper.getStepData());
 	   		this._gameStepper.endStep();
+
+	   		if (Date.now() - this._initializeTime > Runner._warmupTime) {
+	   			const ratio = this._gameStepper.stepsPerSecond() / this.gameTargetFPS();
+	   			if (ratio < Runner._degradedThreshold) {
+	   				this.setDegraded(true);
+	   			} else if (ratio > Runner._okThreshold) {
+	   				this.setDegraded(false);
+	   			}
+	   		}
 	   	}
 
 	   	let interval = Math.max(1, Math.floor(this.gameTargetStep() - this._gameStepper.timeSinceBeginStep()));
@@ -218,6 +249,33 @@ export class Runner extends SystemBase implements System  {
 		this.preRender();
 		this.render();
 		this.postRender();
+	}
+
+	private setDegraded(degraded : boolean) : void {
+		if (this._degraded === degraded) {
+			return;
+		}
+
+		this._degraded = degraded;
+
+		if (this._degraded) {
+			ui.showStatus(StatusType.DEGRADED);
+		} else {
+			ui.hideStatus(StatusType.DEGRADED);
+		}
+	}
+	private setHostDegraded(degraded : boolean) : void {
+		if (this._hostDegraded === degraded) {
+			return;
+		}
+
+		this._hostDegraded = degraded;
+
+		if (this._hostDegraded) {
+			ui.showStatus(StatusType.HOST_DEGRADED);
+		} else {
+			ui.hideStatus(StatusType.HOST_DEGRADED);
+		}
 	}
 
 	override importData(data : DataMap, seqNum : number) : void {

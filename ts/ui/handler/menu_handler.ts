@@ -11,7 +11,7 @@ import {
 } from 'settings/api'
 
 import { ui } from 'ui'
-import { UiMode, DialogType, TooltipType } from 'ui/api'
+import { UiMode, DialogType, StatusType, TooltipType } from 'ui/api'
 import { Icon, IconType } from 'ui/common/icon'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -97,6 +97,10 @@ export class MenuHandler extends HandlerBase implements Handler {
 		super.onEnable();
 
 		this._menuElm.style.visibility = "visible";
+
+		if (ui.hasStatus(StatusType.DEGRADED)) {
+			ui.disableStatus(StatusType.DEGRADED);
+		}
 	}
 
 	override onDisable() : void {
