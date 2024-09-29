@@ -162,14 +162,12 @@ export class Runner extends SystemBase implements System  {
 	   		this.gameStep(this._gameStepper.getStepData());
 	   		this._gameStepper.endStep();
 
-	   		if (ui.focused() && ui.timeSinceFocusChange() > Runner._warmupTime) {
-	   			const ratio = this._gameStepper.stepsPerSecond() / this.gameTargetFPS();
-	   			if (ratio < Runner._degradedThreshold) {
-	   				this.setDegraded(true);
-	   			} else if (ratio > Runner._okThreshold) {
-	   				this.setDegraded(false);
-	   			}
-	   		}
+   			const ratio = this._gameStepper.stepsPerSecond() / this.gameTargetFPS();
+   			if (ratio < Runner._degradedThreshold) {
+   				this.setDegraded(true);
+   			} else if (ratio > Runner._okThreshold) {
+   				this.setDegraded(false);
+   			}
 	   	}
 
 	   	let interval = Math.max(1, Math.floor(this.gameTargetStep() - this._gameStepper.timeSinceBeginStep()));
@@ -251,7 +249,9 @@ export class Runner extends SystemBase implements System  {
 		this._degraded = degraded;
 
 		if (this._degraded) {
-			ui.showStatus(StatusType.DEGRADED);
+	   		if (ui.focused() && ui.timeSinceFocusChange() > Runner._warmupTime) {
+				ui.showStatus(StatusType.DEGRADED);
+			}
 		} else {
 			ui.hideStatus(StatusType.DEGRADED);
 		}
