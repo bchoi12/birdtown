@@ -34,7 +34,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		});
 
 		let shareWrapper = new ShareWrapper();
-		shareWrapper.setText("[Copy invite link to clipboard]");
+		shareWrapper.setText("[Copy invite link]");
 		shareWrapper.elm().style.float = "left";
 		this.footerElm().appendChild(shareWrapper.elm());
 
@@ -60,6 +60,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 
 		bird.contentElm().textContent = "TODO"
 
+		// TODO: replace with rainbow color strip
 		const playerColors = ColorFactory.entityColors(EntityType.PLAYER);
 		let colorSpan = Html.span();
 		let color = new SettingWrapper<number>({

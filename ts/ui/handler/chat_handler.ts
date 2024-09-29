@@ -229,7 +229,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			ui.setDebugStats(false);
 			break;
 		default:
-			console.error("Unknown command:", message);
+			this.chat(ChatType.ERROR, "Unknown command: " + message);
 		}
 	}
 }

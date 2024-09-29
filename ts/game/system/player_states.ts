@@ -37,7 +37,7 @@ export class PlayerStates extends ClientSystemManager implements System {
 
 	numPlayers() : number {
 		return this.countIf<PlayerState>((playerState : PlayerState) => {
-			return playerState.isPlayer();
+			return playerState.isPlaying();
 		});
 	}
 

@@ -14,6 +14,8 @@ import { InfoWrapper } from 'ui/wrapper/info_wrapper'
 
 export class ScoreboardHandler extends HandlerBase implements Handler {
 
+	private static readonly _width = "20%";
+
 	private _scoreboardElm : HTMLElement;
 	private _scoreboard : ScoreboardWrapper;
 
@@ -27,25 +29,26 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 	}
 
 	override setup() : void {
-		/*
 		document.addEventListener("keyup", (e : any) => {
 			if (e.keyCode !== settings.scoreboardKeyCode) return;
 
-			e.preventDefault();
 			this.hide();
+			e.preventDefault();
 		});
 
 		document.addEventListener("keydown", (e : any) => {
 			if (e.keyCode !== settings.scoreboardKeyCode) return;
 
-			e.preventDefault();
-
 			this.show();
+			e.preventDefault();
 		});
-		*/
+
+		this._scoreboardElm.style.width = ScoreboardHandler._width;
+		this._scoreboardElm.style.right = "-" + ScoreboardHandler._width;
+		this._scoreboardElm.style.display = "block";
 	}
 
-	updateInfo(id : number, type : InfoType, value : number | string) : void {
+	updateInfo(id : number, type : InfoType, value : number) : void {
 		this._scoreboard.infoWrapper().updateInfo(id, type, value);
 	}
 	clearInfo(id : number, type : InfoType) : void {
@@ -57,10 +60,10 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		this._scoreboard.show();
+		this._scoreboardElm.style.right = "0";
 	}
 
 	private hide() : void {
-		this._scoreboard.hide();	
+		this._scoreboardElm.style.right = "-" + ScoreboardHandler._width;
 	}
 }

@@ -208,7 +208,7 @@ export class GameMaker extends SystemBase implements System {
 
 			if (this._config.hasLives()) {
 				this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
-					return !tablet.outOfLives() && game.playerState(tablet.clientId()).isPlayer();
+					return !tablet.outOfLives() && this.isPlaying(tablet.clientId());
 				});
 				if (this._winners.length <= 1) {
 					this._winnerId = this._winners[0].entityId();
@@ -216,7 +216,7 @@ export class GameMaker extends SystemBase implements System {
 				}
 			} else if (this._config.hasPoints()) {
 				this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
-					return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints() && game.playerState(tablet.clientId()).isPlayer();
+					return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints() && this.isPlaying(tablet.clientId());
 				});
 				if (this._winners.length >= 1) {
 					this._winnerId = this._winners[0].entityId();
@@ -256,7 +256,7 @@ export class GameMaker extends SystemBase implements System {
 					playerState.setRoleAfter(PlayerRole.GAMING, GameMaker._spawnTime);
 				}
 			}, (playerState : PlayerState) => {
-				return playerState.isPlayer() && playerState.validTargetEntity();
+				return playerState.isPlaying() && playerState.validTargetEntity() ;
 			});
 			break;
 		case GameState.FINISH:
@@ -319,6 +319,10 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.LOAD:
 			this._round++;
 
+			if (this._round % 2 === 0) {
+				game.world().incrementTime();
+			}
+
 			game.tablets().executeIf<Tablet>((tablet : Tablet) => {
 				tablet.resetRound();
 				if (this._config.hasLives()) {
@@ -327,7 +331,7 @@ export class GameMaker extends SystemBase implements System {
 					tablet.clearInfo(InfoType.LIVES);
 				}
 			}, (tablet : Tablet) => {
-				return game.playerState(tablet.clientId()).isPlayer();
+				return this.isPlaying(tablet.clientId());
 			});
 			game.playerStates().execute((playerState : PlayerState) => {
 				playerState.onStartRound();
@@ -350,7 +354,7 @@ export class GameMaker extends SystemBase implements System {
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 				clientDialog.queueDialog(DialogType.LOADOUT);
 			}, (clientDialog : ClientDialog) => {
-				return game.playerState(clientDialog.clientId()).isPlayer();
+				return this.isPlaying(clientDialog.clientId());
 			});
 			break;
 		case GameState.GAME:
@@ -359,14 +363,14 @@ export class GameMaker extends SystemBase implements System {
 			game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
 				playerState.setRole(PlayerRole.SPAWNING);
 			}, (playerState : PlayerState) => {
-				return playerState.isPlayer();
+				return playerState.isPlaying();
 			});
 			break;
 		case GameState.FINISH:
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 				clientDialog.queueForceSubmit(DialogType.LOADOUT);
 			}, (clientDialog : ClientDialog) => {
-				return game.playerState(clientDialog.clientId()).isPlayer() && !clientDialog.inSync(DialogType.LOADOUT);
+				return this.isPlaying(clientDialog.clientId()) && !clientDialog.inSync(DialogType.LOADOUT);
 			});
 			this._winners.forEach((tablet : Tablet) => {
 				tablet.addInfo(InfoType.VICTORIES, 1);
@@ -391,7 +395,7 @@ export class GameMaker extends SystemBase implements System {
 	    	this.queueForceSubmit(DialogType.LOADOUT);
 	    	break;
 		case GameState.ERROR:
-	    	let errorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
+	    	let errorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);     
 	    	errorMsg.setAnnouncementType(AnnouncementType.GAME_ERROR);
 	    	errorMsg.setNames([this._errorMsg]);
 	    	game.announcer().broadcast(errorMsg);
@@ -432,11 +436,15 @@ export class GameMaker extends SystemBase implements System {
 		}
 	}
 
+	private isPlaying(clientId : number) : boolean {
+		return game.playerStates().hasPlayerState(clientId) && game.playerState(clientId).isPlaying();
+	}
+
 	private queueForceSubmit(type : DialogType) : void {
 		game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 			clientDialog.queueForceSubmit(type);
 		}, (clientDialog : ClientDialog) => {
-			return game.playerState(clientDialog.clientId()).isPlayer() && !clientDialog.inSync(type);
+			return this.isPlaying(clientDialog.clientId()) && !clientDialog.inSync(type);
 		});
 	}
 }

@@ -14,10 +14,9 @@ export enum GameMessageType {
 	CLIENT_DISCONNECT,
     CLIENT_INIT,
 	CLIENT_JOIN,
-	LEVEL_LOAD,
     FEED,
+	LEVEL_LOAD,
 	GAME_STATE,
-	PLAYER_STATE,
 }
 
 enum GameProp {
@@ -34,7 +33,6 @@ enum GameProp {
 	LEVEL_SEED,
 	LEVEL_VERSION,
 	NAMES,
-	PLAYER_ROLE,
 	TTL,
 }
 
@@ -71,10 +69,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 		)],
 		[GameMessageType.GAME_STATE, MessageBase.fieldDescriptor(
 			[GameProp.GAME_STATE, {}],
-		)],
-		[GameMessageType.PLAYER_STATE, MessageBase.fieldDescriptor(
-			[GameProp.PLAYER_ROLE, {}],
-			[GameProp.CLIENT_ID, {}],
 		)],
 	]);
 
@@ -141,11 +135,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getNamesOr(value : Array<string>) : Array<string> { return this.getOr<Array<string>>(GameProp.NAMES, value); }
     setNames(value : Array<string>) : void { this.set<Array<string>>(GameProp.NAMES, value); }
 
-    hasPlayerRole() : boolean { return this.has(GameProp.PLAYER_ROLE); }
-    getPlayerRole() : PlayerRole { return this.get<PlayerRole>(GameProp.PLAYER_ROLE); }
-    getPlayerRoleOr(value : PlayerRole) : PlayerRole { return this.getOr<PlayerRole>(GameProp.PLAYER_ROLE, value); }
-    setPlayerRole(value : PlayerRole) : void { this.set<PlayerRole>(GameProp.PLAYER_ROLE, value); }
-
     hasTtl() : boolean { return this.has(GameProp.TTL); }
     getTtl() : number { return this.get<number>(GameProp.TTL); }
     getTtlOr(value : number) : number { return this.getOr<number>(GameProp.TTL, value); }
@@ -157,7 +146,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["CLIENT_ID", "number"],
     ["DISPLAY_NAME", "string"],
     ["FEED_TYPE", "FeedType"],
-    ["GAME_SPEED", "SpeedSetting"],
     ["GAME_STATE", "number"],
     ["LEVEL_BOUNDS", "Box"],
     ["LEVEL_LAYOUT", "LevelLayout"],
@@ -165,8 +153,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],
     ["NAMES", "Array<string>"],
-    ["PLAYER_ROLE", "PlayerRole"],
-    ["RENDER_SPEED", "SpeedSetting"],
     ["TTL", "number"],
     */
     // End auto-generated code (v2.1)

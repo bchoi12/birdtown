@@ -163,10 +163,7 @@ export class PlayerState extends ClientSystem implements System {
 			break;
 		}
 	}
-	onStartRound() : void {
-		this.setRole(this._startingRole);
-	}
-	isPlayer() : boolean {
+	isPlaying() : boolean {
 		if (this._disconnected) {
 			return false;
 		}
@@ -208,6 +205,11 @@ export class PlayerState extends ClientSystem implements System {
 			let player = this.targetEntity<Player>();
 			this.spawnPlayer(player);
 		}
+	}
+	onStartRound() : void {
+		this.setRole(this._startingRole);
+
+		// TODO: reset player health
 	}
 	die() : void {
 		if (this.validTargetEntity()) {

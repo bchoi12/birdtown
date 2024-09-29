@@ -19,10 +19,9 @@ export class Billboard extends Block {
 	override initialize() : void {
 		super.initialize();
 
-		this._profile.onBody((profile : Profile) => {
-			profile.body().render.fillStyle = this._hexColors.color(ColorCategory.BASE).toString();
-			profile.body().render.strokeStyle = this._hexColors.color(ColorCategory.BASE).toString();
-			profile.body().plugin.zIndex = DepthType.FRONT;
+		this._profile.setMinimapOptions({
+			color: this._hexColors.color(ColorCategory.BASE).toString(),
+			depthType: DepthType.FRONT,
 		});
 	}
 

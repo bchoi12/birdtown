@@ -91,7 +91,7 @@ export class SoundPlayer extends ComponentBase implements Component {
 				sound.attachToMesh(entity.model().mesh());
 				sound.play();
 			} else if (entity.hasProfile()) {
-				sound.setPosition(this.entity().profile().getRenderPos().toBabylon3());
+				sound.setPosition(entity.profile().getRenderPos().toBabylon3());
 				sound.play();
 			}
 		}

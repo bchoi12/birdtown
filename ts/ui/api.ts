@@ -34,6 +34,7 @@ export enum ChatType {
 
 	// Silent and doesn't show chat
 	LOG,
+
 	PRINT,
 }
 

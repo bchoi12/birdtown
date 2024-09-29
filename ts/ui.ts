@@ -14,6 +14,7 @@ import { ChatHandler } from 'ui/handler/chat_handler'
 import { ClientsHandler } from 'ui/handler/clients_handler'
 import { DialogHandler } from 'ui/handler/dialog_handler'
 import { FeedHandler } from 'ui/handler/feed_handler'
+import { FocusHandler } from 'ui/handler/focus_handler'
 import { FullscreenHandler } from 'ui/handler/fullscreen_handler'
 import { HudHandler } from 'ui/handler/hud_handler'
 import { InputHandler } from 'ui/handler/input_handler'
@@ -47,6 +48,7 @@ class UI {
 	private _clientsHandler : ClientsHandler;
 	private _dialogHandler : DialogHandler;
 	private _feedHandler : FeedHandler;
+	private _focusHandler : FocusHandler;
 	private _fullscreenHandler : FullscreenHandler;
 	private _hudHandler : HudHandler;
 	private _inputHandler : InputHandler;
@@ -73,6 +75,7 @@ class UI {
 		this._clientsHandler = this.add(new ClientsHandler());
 		this._dialogHandler = this.add(new DialogHandler());
 		this._feedHandler = this.add(new FeedHandler());
+		this._focusHandler = this.add(new FocusHandler());
 		this._fullscreenHandler = this.add(new FullscreenHandler());
 		this._hudHandler = this.add(new HudHandler());
 		this._inputHandler = this.add(new InputHandler());
@@ -154,6 +157,8 @@ class UI {
 	inputWidth() : number { return this._inputHandler.inputWidth(); }
 	inputHeight() : number { return this._inputHandler.inputHeight(); }
 	screenRect() : DOMRect { return this._inputHandler.screenRect(); }
+	focused() : boolean { return this._focusHandler.focused(); }
+	timeSinceFocusChange() : number { return Date.now() - this._focusHandler.lastChangeTime(); }
 
 	applyFullscreen() : void { this._fullscreenHandler.applyFullscreen(); }
 	isFullscreen() : boolean { return this._fullscreenHandler.isFullscreen(); }
@@ -187,7 +192,7 @@ class UI {
 	clearTimer() : void { this._timerHandler.clear(); }
 	setHudClientId(id : number) : void { this._hudHandler.setClientId(id); }
 	updateHud(huds : Map<HudType, HudOptions>) : void { this._hudHandler.updateHud(huds); }
-	updateInfo(id : number, type : InfoType, value : number | string) : void { this._scoreboardHandler.updateInfo(id, type, value); }
+	updateInfo(id : number, type : InfoType, value : number) : void { this._scoreboardHandler.updateInfo(id, type, value); }
 	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }
 	pushDialog<T extends DialogWrapper>(type : DialogType) : T { return this._dialogHandler.pushDialog(type); }
 	forceSubmitDialog(type : DialogType) : void { this._dialogHandler.forceSubmitDialog(type); }

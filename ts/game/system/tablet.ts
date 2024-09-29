@@ -117,7 +117,7 @@ export class Tablet extends ClientSystem implements System {
 
 	outOfLives() : boolean { return this.hasInfo(InfoType.LIVES) && this.getInfo(InfoType.LIVES) <= 0; }
 	loseLife() : void {
-		this.addInfo(InfoType.DEATHS, 1);		
+		this.addInfo(InfoType.DEATHS, 1);
 
 		if (!this.hasInfo(InfoType.LIVES)) {
 			return;
@@ -168,8 +168,6 @@ export class Tablet extends ClientSystem implements System {
 		initMsg.setClientId(this.clientId());
 		initMsg.setDisplayName(this.displayName());
 		ui.handleMessage(initMsg);
-
-		ui.updateInfo(this.clientId(), InfoType.NAME, this.displayName());
 	}
 	hasDisplayName() : boolean { return this._displayName.length > 0; }
 	displayName() : string { return (this.hasDisplayName() ? this._displayName : "unknown") + " #" + this.clientId(); }

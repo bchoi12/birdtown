@@ -19,8 +19,6 @@ export class FullscreenHandler extends HandlerBase implements Handler {
 		document.addEventListener("fullscreenchange", (e: any) => {
 			if (ui.mode() !== UiMode.GAME) { return; }
 
-			console.log(e);
-
 			if (settings.fullscreen() && !document.fullscreenElement) {
 				ui.openMenu();
 			}

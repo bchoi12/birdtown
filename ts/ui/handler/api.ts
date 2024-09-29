@@ -6,6 +6,7 @@ export enum HandlerType {
 	CLIENTS,
 	DIALOGS,
 	FEED,
+	FOCUS,
 	FULLSCREEN,
 	GAME_FINISH,
 	HUD,

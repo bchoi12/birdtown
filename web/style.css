@@ -261,11 +261,6 @@ kbd {
     transition: width 0.3s ease-in;
 }
 
-#div-scoreboard {
-    right: 0;
-    top: 30%;
-}
-
 #div-minimap {
     position:  absolute;
     visibility: hidden;
@@ -288,7 +283,7 @@ kbd {
 
 #div-feed, #div-scoreboard {
     position: absolute;
-    top: 30%;
+    top: 28%;
 }
 
 #div-feed {
@@ -296,8 +291,11 @@ kbd {
 }
 
 #div-scoreboard {
-    right: 0;
     display: none;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.35);
+
+    transition: right 0.2s ease-in;
 }
 
 .feed {
@@ -494,7 +492,7 @@ kbd {
     text-align: center;
     width: 100%;
 
-    top: 15%;
+    top: 12%;
     padding-top: 0.75em;
     padding-bottom: 0.75em;
 

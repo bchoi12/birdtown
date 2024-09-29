@@ -164,8 +164,6 @@ export class GameProp<T extends Object> {
 		this._value.set(value);
 		this._seqNum = seqNum;
 
-		// TODO: do I need to set any other properties?
-
 		return true;
 	}
 

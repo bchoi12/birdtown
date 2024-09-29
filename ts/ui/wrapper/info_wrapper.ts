@@ -53,7 +53,7 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 		this._rows = new Map();		
 	}
 
-	updateInfo(id : number, type : InfoType, value : number | string) : void {
+	updateInfo(id : number, type : InfoType, value : number) : void {
 		if (!this._rows.has(id)) {
 			let row = new InfoRowWrapper(InfoWrapper._order);
 			this.elm().appendChild(row.elm());

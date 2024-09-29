@@ -29,7 +29,7 @@ export class Runner extends SystemBase implements System  {
 	// Max speedup is 10%
 	private static readonly _maxSpeedUp = 1.1;
 
-	private static readonly _warmupTime = 15000;
+	private static readonly _warmupTime = 10000;
 	private static readonly _degradedThreshold = 0.5;
 	private static readonly _okThreshold = 0.8;
 
@@ -58,7 +58,6 @@ export class Runner extends SystemBase implements System  {
 	private _sendFullMsg : boolean;
 	private _degraded : boolean;
 	private _hostDegraded : boolean;
-	private _initializeTime : number;
 
 	constructor() {
 		super(SystemType.RUNNER);
@@ -77,7 +76,6 @@ export class Runner extends SystemBase implements System  {
 		this._sendFullMsg = false;
 		this._degraded = false;
 		this._hostDegraded = false;
-		this._initializeTime = 0;
 
 		this.addProp<boolean>({
 			export: () => { return this._degraded; },
@@ -87,12 +85,6 @@ export class Runner extends SystemBase implements System  {
 
 	override ready() : boolean {
 		return super.ready() && game.hasClientId();
-	}
-
-	override initialize() : void {
-		super.initialize();
-
-		this._initializeTime = Date.now();
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -170,7 +162,7 @@ export class Runner extends SystemBase implements System  {
 	   		this.gameStep(this._gameStepper.getStepData());
 	   		this._gameStepper.endStep();
 
-	   		if (Date.now() - this._initializeTime > Runner._warmupTime) {
+	   		if (ui.focused() && ui.timeSinceFocusChange() > Runner._warmupTime) {
 	   			const ratio = this._gameStepper.stepsPerSecond() / this.gameTargetFPS();
 	   			if (ratio < Runner._degradedThreshold) {
 	   				this.setDegraded(true);

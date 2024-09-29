@@ -24,9 +24,10 @@ type TimeSetting = {
 	skyMaterial : MaterialType;
 	lightDir : BABYLON.Vector3;
 
-	hemisphericIntensity : number;
 	directionalIntensity : number;
+	directionalDiffuse : BABYLON.Color3;
 
+	hemisphericIntensity : number;
 	hemisphericDiffuse : BABYLON.Color3;
 	hemisphericBottomColor : BABYLON.Color3;
 }
@@ -45,26 +46,29 @@ export class World extends SystemBase implements System {
 		[TimeType.DAY, {
 			skyMaterial: MaterialType.SKY_DAY,
 			lightDir: new BABYLON.Vector3(1, -3, -4).normalize(),
-			hemisphericIntensity: 0.7,
 			directionalIntensity: 1.3,
+			directionalDiffuse: new BABYLON.Color3(1, 1, 1),
+			hemisphericIntensity: 0.7,
 			hemisphericDiffuse: new BABYLON.Color3(1, 1, 1),
 			hemisphericBottomColor: new BABYLON.Color3(0.7, 0.7, 0.7),
 		}],
 		[TimeType.EVENING, {
 			skyMaterial: MaterialType.SKY_EVENING,
-			lightDir: new BABYLON.Vector3(3, -3, -4).normalize(),
+			lightDir: new BABYLON.Vector3(2, -2, -6).normalize(),
+			directionalIntensity: 1.5,
+			directionalDiffuse: new BABYLON.Color3(1, 0.77, 0.55),
 			hemisphericIntensity: 0.5,
-			directionalIntensity: 1.4,
 			hemisphericDiffuse: new BABYLON.Color3(1, 0.88, 0.77),
 			hemisphericBottomColor: new BABYLON.Color3(0.7, 0.58, 0.44),
 		}],
 		[TimeType.NIGHT, {
 			skyMaterial: MaterialType.SKY_NIGHT,
-			lightDir: new BABYLON.Vector3(-1, -3, -4).normalize(),
-			hemisphericIntensity: 0.1,
-			directionalIntensity: 1.9,
-			hemisphericDiffuse: new BABYLON.Color3(0.8, 0.8, 0.8),
-			hemisphericBottomColor: new BABYLON.Color3(0.5, 0.5, 0.5),
+			lightDir: new BABYLON.Vector3(-1, -4, 4).normalize(),
+			directionalIntensity: 1.3,
+			directionalDiffuse: new BABYLON.Color3(1, 1, 1),
+			hemisphericIntensity: 0.7,
+			hemisphericDiffuse: new BABYLON.Color3(1, 1, 1),
+			hemisphericBottomColor: new BABYLON.Color3(0.3, 0.3, 0.3),
 		}],
 	]);
 
@@ -151,6 +155,13 @@ export class World extends SystemBase implements System {
 		this.applyShadowSetting(settings.shadowSetting);
 	}
 
+	incrementTime() : void {
+		if (this._desiredTime === TimeType.NIGHT) {
+			this.setTime(TimeType.DAY);
+		} else {
+			this.setTime(this._desiredTime + 1);
+		}
+	}
 	setTime(type : TimeType) : void {
 		if (!World._timeSettings.has(type)) {
 			return;
@@ -166,6 +177,7 @@ export class World extends SystemBase implements System {
 		this._skyBox.material = MaterialFactory.material(settings.skyMaterial);
 		this._directionalLight.direction.copyFrom(settings.lightDir);
 		this._directionalLight.intensity = settings.directionalIntensity;
+		this._directionalLight.diffuse = settings.directionalDiffuse;
 		this._hemisphericLight.intensity = settings.hemisphericIntensity;
 	    this._hemisphericLight.diffuse = settings.hemisphericDiffuse;
 	    this._hemisphericLight.groundColor = settings.hemisphericBottomColor;

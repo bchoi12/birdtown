@@ -384,7 +384,7 @@ export class Profile extends ComponentBase implements Component {
 	private hasPos() : boolean { return defined(this._pos); }
 	pos() : SmoothVec2 { return this._pos; }
 	getRenderPos() : Vec2 {
-		let renderPos = this.pos().clone();
+		let renderPos = this.hasPos() ? this.pos().clone() : Vec2.zero();
 		const bounds = game.level().bounds();
 		const target = game.lakitu().target();
 		if (this.pos().x - target.x > bounds.width() / 2) {
