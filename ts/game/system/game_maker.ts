@@ -47,7 +47,6 @@ export class GameMaker extends SystemBase implements System {
 	]);
 
 	private _config : GameConfigMessage;
-	private _clientConfig : ClientConfig;
 	private _round : number;
 	private _winners : Array<Tablet>;
 	private _winnerId : number;
@@ -57,7 +56,6 @@ export class GameMaker extends SystemBase implements System {
 		super(SystemType.GAME_MAKER);
 
 		this._config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
-		this._clientConfig = ClientConfig.empty();
 		this._round = 0;
 		this._winners = new Array();
 		this._winnerId = 0;
@@ -117,9 +115,9 @@ export class GameMaker extends SystemBase implements System {
 	entityLimit(type : EntityType) : number {
 		switch (type) {
 		case EntityType.HEALTH_CRATE:
-			return this._clientConfig.numPlayers() * GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawn());
+			return game.playerStates().numPlayers() * GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawn());
 		case EntityType.WEAPON_CRATE:
-			return this._clientConfig.numPlayers() * GameMaker._limitPerPlayer.get(this._config.getWeaponCrateSpawn());
+			return game.playerStates().numPlayers() * GameMaker._limitPerPlayer.get(this._config.getWeaponCrateSpawn());
 		default:
 			return Infinity;
 		}
@@ -127,7 +125,7 @@ export class GameMaker extends SystemBase implements System {
 
 	setConfig(config : GameConfigMessage, clientConfig : ClientConfig) : boolean {
 		this._config = config;
-		this._clientConfig = clientConfig;
+		game.playerStates().updateClients(clientConfig);
 
 		if (!this._config.valid()) {
 			console.error("Error: invalid config", this._config);
@@ -145,7 +143,7 @@ export class GameMaker extends SystemBase implements System {
 
 		if (isLocalhost()) {
 			console.log("%s: config is", this.name(), this._config.dataMap());
-			console.log("%s: client config is ", this.name(), this._clientConfig.clientMap());
+			console.log("%s: client config is ", this.name(), clientConfig.clientMap());
 		}
 		return true;
 	}
@@ -175,7 +173,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.LOAD:
 		case GameState.SETUP:
 		case GameState.GAME:
-			if (this._clientConfig.numPlayers() < this._config.getPlayersMinOr(1)) {
+			if (game.playerStates().numPlayers() < this._config.getPlayersMinOr(1)) {
 				return [false, "Not enough players left in the game"];
 			}
 			break;
@@ -210,7 +208,7 @@ export class GameMaker extends SystemBase implements System {
 
 			if (this._config.hasLives()) {
 				this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
-					return this._clientConfig.isPlayer(tablet.clientId()) && !tablet.outOfLives();
+					return !tablet.outOfLives() && game.playerState(tablet.clientId()).isPlayer();
 				});
 				if (this._winners.length <= 1) {
 					this._winnerId = this._winners[0].entityId();
@@ -218,7 +216,7 @@ export class GameMaker extends SystemBase implements System {
 				}
 			} else if (this._config.hasPoints()) {
 				this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
-					return this._clientConfig.isPlayer(tablet.clientId()) && tablet.getInfo(InfoType.SCORE) >= this._config.getPoints();
+					return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints() && game.playerState(tablet.clientId()).isPlayer();
 				});
 				if (this._winners.length >= 1) {
 					this._winnerId = this._winners[0].entityId();
@@ -258,8 +256,7 @@ export class GameMaker extends SystemBase implements System {
 					playerState.setRoleAfter(PlayerRole.GAMING, GameMaker._spawnTime);
 				}
 			}, (playerState : PlayerState) => {
-				return this._clientConfig.isPlayer(playerState.clientId())
-					&& playerState.validTargetEntity();
+				return playerState.isPlayer() && playerState.validTargetEntity();
 			});
 			break;
 		case GameState.FINISH:
@@ -330,10 +327,10 @@ export class GameMaker extends SystemBase implements System {
 					tablet.clearInfo(InfoType.LIVES);
 				}
 			}, (tablet : Tablet) => {
-				return this._clientConfig.isPlayer(tablet.clientId());
+				return game.playerState(tablet.clientId()).isPlayer();
 			});
 			game.playerStates().execute((playerState : PlayerState) => {
-				playerState.setRole(this._clientConfig.role(playerState.clientId()));
+				playerState.onStartRound();
 			});
 			game.level().loadLevel({
 				type: LevelType.BIRDTOWN,
@@ -353,7 +350,7 @@ export class GameMaker extends SystemBase implements System {
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 				clientDialog.queueDialog(DialogType.LOADOUT);
 			}, (clientDialog : ClientDialog) => {
-				return this._clientConfig.isPlayer(clientDialog.clientId());
+				return game.playerState(clientDialog.clientId()).isPlayer();
 			});
 			break;
 		case GameState.GAME:
@@ -362,14 +359,14 @@ export class GameMaker extends SystemBase implements System {
 			game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
 				playerState.setRole(PlayerRole.SPAWNING);
 			}, (playerState : PlayerState) => {
-				return this._clientConfig.isPlayer(playerState.clientId());
+				return playerState.isPlayer();
 			});
 			break;
 		case GameState.FINISH:
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 				clientDialog.queueForceSubmit(DialogType.LOADOUT);
 			}, (clientDialog : ClientDialog) => {
-				return this._clientConfig.isPlayer(clientDialog.clientId()) && !clientDialog.inSync(DialogType.LOADOUT);
+				return game.playerState(clientDialog.clientId()).isPlayer() && !clientDialog.inSync(DialogType.LOADOUT);
 			});
 			this._winners.forEach((tablet : Tablet) => {
 				tablet.addInfo(InfoType.VICTORIES, 1);
@@ -439,7 +436,7 @@ export class GameMaker extends SystemBase implements System {
 		game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 			clientDialog.queueForceSubmit(type);
 		}, (clientDialog : ClientDialog) => {
-			return this._clientConfig.isPlayer(clientDialog.clientId()) && !clientDialog.inSync(type);
+			return game.playerState(clientDialog.clientId()).isPlayer() && !clientDialog.inSync(type);
 		});
 	}
 }

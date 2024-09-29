@@ -189,7 +189,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		options.contentElm().appendChild(points.elm());
 
 		let victories = new LabelNumberWrapper({
-			label: "First to N wins",
+			label: "First to",
 			value: 3,
 			plus: (current : number) => {
 				return Math.min(current + 1, 5);
@@ -197,6 +197,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			minus: (current : number) => {
 				return Math.max(1, current - 1);
 			},
+			html: (current : number) => {
+				return current + " win" + (current === 1 ? "" : "s");
+			}
 		});
 		options.contentElm().appendChild(victories.elm());
 
@@ -276,7 +279,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		options.contentElm().appendChild(lives.elm());
 
 		let victories = new LabelNumberWrapper({
-			label: "First to N wins",
+			label: "First to",
 			value: 3,
 			plus: (current : number) => {
 				return Math.min(current + 1, 5);
@@ -284,6 +287,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			minus: (current : number) => {
 				return Math.max(1, current - 1);
 			},
+			html: (current : number) => {
+				return current + " win" + (current === 1 ? "" : "s");
+			}
 		});
 		options.contentElm().appendChild(victories.elm());
 

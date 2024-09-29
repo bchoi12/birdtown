@@ -15,7 +15,8 @@ import { ui } from 'ui'
 import { KeyType, KeyState, StatusType, TooltipType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
-import { Timer} from 'util/timer'
+import { Optional } from 'util/optional'
+import { Timer } from 'util/timer'
 
 export class PlayerState extends ClientSystem implements System {
 
@@ -41,8 +42,8 @@ export class PlayerState extends ClientSystem implements System {
 
 	private _disconnected : boolean;
 	private _targetId : number;
+	private _startingRole : PlayerRole;
 	private _role : PlayerRole;
-
 	private _roleTimer : Timer;
 
 	constructor(clientId : number) {
@@ -55,7 +56,9 @@ export class PlayerState extends ClientSystem implements System {
 			canInterrupt: false,
 		});
 
-		this.setRole(PlayerRole.SPECTATING);
+		this._startingRole = PlayerRole.SPECTATING;
+		this._role = PlayerRole.SPECTATING;
+		this.applyRole();
 
 		this.addProp<boolean>({
 			export: () => { return this._disconnected; },
@@ -64,6 +67,10 @@ export class PlayerState extends ClientSystem implements System {
 		this.addProp<number>({
 			export: () => { return this._targetId; },
 			import: (obj : number) => { this._targetId = obj; },
+		});
+		this.addProp<PlayerRole>({
+			export: () => { return this._startingRole; },
+			import: (obj: PlayerRole) => { this.setStartingRole(obj); },
 		});
 		this.addProp<PlayerRole>({
 			export: () => { return this._role; },
@@ -93,6 +100,7 @@ export class PlayerState extends ClientSystem implements System {
 	setDisconnected(disconnected : boolean) : void { this._disconnected = disconnected; }
 	role() : PlayerRole { return this._role; }
 	inGame() : boolean { return PlayerState._gameRoles.has(this._role); }
+	setStartingRole(role : PlayerRole) : void { this._startingRole = role; }
 	setRoleAfter(role : PlayerRole, millis : number, cb? : () => void) : void {
 		if (this._roleTimer.hasTimeLeft()) {
 			return;
@@ -154,6 +162,28 @@ export class PlayerState extends ClientSystem implements System {
 			}
 			break;
 		}
+	}
+	onStartRound() : void {
+		this.setRole(this._startingRole);
+	}
+	isPlayer() : boolean {
+		if (this._disconnected) {
+			return false;
+		}
+		if (game.controller().gameState() === GameState.FREE) {
+			return true;
+		}
+
+		if (this._startingRole === PlayerRole.SPECTATING) {
+			return false;
+		}
+		if (!game.tablets().hasTablet(this.clientId())) {
+			return false;
+		}
+		if (!game.clientDialogs().hasClientDialog(this.clientId())) {
+			return false;
+		}
+		return true;
 	}
 
 	// Player can spawn && we should show prompt since they need to press a button.

@@ -5,12 +5,15 @@ import { Html, HtmlWrapper } from 'ui/html'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { LabelWrapper } from 'ui/wrapper/label_wrapper'
 
+type HTMLFn = (current : number) => string;
+
 export type LabelNumberOptions = {
 	label: string;
 	value : number;
 
 	plus: (current : number) => number;
 	minus: (current : number) => number;
+	html? : HTMLFn;
 }
 
 export class LabelNumberWrapper extends LabelWrapper {
@@ -18,6 +21,7 @@ export class LabelNumberWrapper extends LabelWrapper {
 	private _settingElm : HTMLElement;
 	private _numberElm : HTMLElement;
 	private _number : number;
+	private _htmlFn : HTMLFn;
 
 	constructor(options : LabelNumberOptions) {
 		super();
@@ -51,13 +55,16 @@ export class LabelNumberWrapper extends LabelWrapper {
 
 		this._settingElm.appendChild(buttons);
 
+		this._htmlFn = options.html ? options.html : (current : number) => { return "" + current; }		
+
 		this.setName(options.label);
 		this.setNumber(options.value);
 	}
 
 	number() : number { return this._number; }
-	setNumber(value : number) : void {
-		this._numberElm.textContent = "" + value;
+
+	private setNumber(value : number) : void {
+		this._numberElm.innerHTML = this._htmlFn(value);
 		this._number = value;
 	}
 }

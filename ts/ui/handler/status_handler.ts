@@ -105,7 +105,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 			wrapper.setText("Your host is currently lagging or tabbed out");
 			break;
 		case StatusType.DISCONNECTED:
-			wrapper.setText("Disconnected from the server\r\nPlease refresh the page");
+			wrapper.setText("Disconnected from host\r\nPlease refresh the page");
 			break;
 		case StatusType.DISCONNECTED_SIGNALING:
 			wrapper.setText("Lost connection to matchmaking server\r\nNo new players can join");

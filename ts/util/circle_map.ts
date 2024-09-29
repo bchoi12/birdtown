@@ -182,7 +182,7 @@ export class CircleMap<K, V> {
 		}
 	}
 
-	matchCount(predicate : (v : V, k : K) => boolean) : number {
+	countIf(predicate : (v : V, k : K) => boolean) : number {
 		return this.executeHelper({
 			execute: () => {},
 			predicate: predicate,

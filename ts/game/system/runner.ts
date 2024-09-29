@@ -30,8 +30,8 @@ export class Runner extends SystemBase implements System  {
 	private static readonly _maxSpeedUp = 1.1;
 
 	private static readonly _warmupTime = 15000;
-	private static readonly _degradedThreshold = 0.4;
-	private static readonly _okThreshold = 0.66;
+	private static readonly _degradedThreshold = 0.5;
+	private static readonly _okThreshold = 0.8;
 
 	private static readonly _channelMapping = new Map<DataFilter, ChannelType>([
 		[DataFilter.INIT, ChannelType.TCP],

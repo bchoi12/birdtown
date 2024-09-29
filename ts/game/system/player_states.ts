@@ -1,7 +1,9 @@
+
 import { game } from 'game'
 import { System, ClientSystemManager } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { PlayerState } from 'game/system/player_state'
+import { ClientConfig } from 'game/util/client_config'
 
 import { GameMessage, GameMessageType} from 'message/game_message'
 
@@ -23,6 +25,20 @@ export class PlayerStates extends ClientSystemManager implements System {
 		if (this.hasPlayerState(msg.getClientId())) {
 			this.playerState(msg.getClientId()).setDisconnected(true);
 		}
+	}
+
+	updateClients(clientConfig : ClientConfig) : void {
+		this.executeIf((playerState : PlayerState) => {
+			playerState.setStartingRole(clientConfig.role(playerState.clientId()));
+		}, (playerState : PlayerState) => {
+			return clientConfig.hasClient(playerState.clientId());
+		})
+	}
+
+	numPlayers() : number {
+		return this.countIf<PlayerState>((playerState : PlayerState) => {
+			return playerState.isPlayer();
+		});
 	}
 
 	addPlayerState(info : PlayerState) : PlayerState { return this.registerChild<PlayerState>(info.clientId(), info); }

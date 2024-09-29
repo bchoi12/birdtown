@@ -84,8 +84,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			break;
 		case GameMode.FREE_FOR_ALL:
 			this.setPlayersMin(2);
-			this.setHealthCrateSpawn(FrequencyType.LOW);
-			this.setWeaponCrateSpawn(FrequencyType.LOW);
+			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			break;
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);
@@ -94,9 +94,10 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setWeaponCrateSpawn(FrequencyType.HIGH);
 			break;
 		case GameMode.SURVIVAL:
-			this.setLives(2);
+			this.setLives(1);
 			this.setPlayersMin(2);
-			this.setHealthCrateSpawn(FrequencyType.LOW);
+			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			break;
 		}
 		return this;

@@ -96,6 +96,7 @@ export namespace Html {
 	export const classPopup = "popup";
 	export const classPopupShow = "popup-show";
 	export const classProgress = "progress";
+	export const classStatusMessage = "status-message";
 	export const classTooltip = "tooltip";
 
 	export const cursor = "cursor";

@@ -9,7 +9,6 @@ export type ClientInfo = {
 	displayName: string;
 	role : PlayerRole;
 	team : number;
-	disconnected : boolean;
 }
 
 export class ClientConfig {
@@ -50,7 +49,6 @@ export class ClientConfig {
 			displayName: game.tablet(id).displayName(),
 			role: PlayerRole.PREPARING,
 			team: 0,
-			disconnected: false,
 		});
 	}
 	hasClient(id : number) : boolean { return this._clients.has(id); }
@@ -74,15 +72,6 @@ export class ClientConfig {
 		}
 
 		this._clients.get(id).team = team;
-	}
-	disconnected(id : number) : boolean { return this.hasClient(id) ? this._clients.get(id).disconnected : true; }
-	setDisconnected(id : number, disconnected : boolean) : void {
-		if (!this._clients.has(id)) {
-			console.error("Error: failed to set disconnected to %d for %d", disconnected, id);
-			return;
-		}
-
-		this._clients.get(id).disconnected = disconnected;
 	}
 	private canAdd(id : number) : boolean {
 		if (!game.playerStates().hasPlayerState(id)) {
@@ -108,47 +97,5 @@ export class ClientConfig {
 			return false;
 		}
 		return true;
-	}
-	private playerState(id : number) : [PlayerState, boolean] {
-		return [game.playerState(id), game.playerStates().hasPlayerState(id)];
-	}
-	private tablet(id : number) : [Tablet, boolean] {
-		return [game.tablet(id), game.tablets().hasTablet(id)];
-	}
-	private clientDialog(id : number) : [ClientDialog, boolean] {
-		return [game.clientDialog(id), game.clientDialogs().hasClientDialog(id)];
-	}
-
-	// Can play
-	isPlayer(id : number) : boolean {
-		if (!this.hasClient(id)) {
-			return false;
-		}
-
-		const client = this._clients.get(id);
-		if (client.disconnected || client.role === PlayerRole.SPECTATING) {
-			return false;
-		}
-
-		if (!game.playerStates().hasPlayerState(id)) {
-			return false;
-		}
-		if (!game.tablets().hasTablet(id)) {
-			return false;
-		}
-		if (!game.clientDialogs().hasClientDialog(id)) {
-			return false;
-		}
-
-		return true;
-	}
-	numPlayers() : number {
-		let players = 0;
-		this._clients.forEach((client : ClientInfo, id : number) => {
-			if (this.isPlayer(id)) {
-				players++;
-			}
-		});
-		return players;
 	}
 }

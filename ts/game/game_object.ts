@@ -91,6 +91,7 @@ export interface GameObject {
 	getChild<T extends GameObject>(id : number) : T;
 	unregisterChild(id : number) : void;
 
+	countIf<T extends GameObject>(predicate : (t : T) => boolean) : number;
 	findAll<T extends GameObject>(predicate : (t : T) => boolean) : T[];
 	findN<T extends GameObject>(predicate : (t : T) => boolean, limit : number) : T[];
 	mapAll<T extends GameObject, O>(map : (t : T) => O) : O[];
@@ -415,6 +416,7 @@ export abstract class GameObjectBase {
 		this._childObjects.delete(id);
 	}
 
+	countIf<T extends GameObject>(predicate : ChildPredicate<T>) : number { return this._childObjects.countIf(predicate); }
 	findAll<T extends GameObject>(predicate : ChildPredicate<T>) : T[] { return <T[]>this._childObjects.findAll(predicate); }
 	findN<T extends GameObject>(predicate : ChildPredicate<T>, limit : number) : T[] { return <T[]>this._childObjects.findN(predicate, limit); }
 	matchAll<T extends GameObject>(predicate : ChildPredicate<T>) : boolean { return this._childObjects.matchAll(predicate); }

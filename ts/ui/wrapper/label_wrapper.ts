@@ -17,6 +17,7 @@ export abstract class LabelWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	setName(name : string) : void { this._nameElm.textContent = name; }
+	setNameHTML(html : string) : void { this._nameElm.innerHTML = html; }
 	addValueElm() : HTMLElement {
 		let elm = Html.div();
 		elm.classList.add(Html.classLabelValue);

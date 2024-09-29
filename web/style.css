@@ -466,6 +466,10 @@ kbd {
     width: 40%;
 }
 
+.status-message {
+    margin-bottom: 0.5em;
+}
+
 .onscreen-message, .display-name {
     font-size: 0.8em;
     font-weight: bold;
