@@ -388,7 +388,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 		if (hasNameTag) {
 			nameTag.setDisplayName(this.displayName());
-			nameTag.setPointerColor(this.clientColorOr(Player._defaultColor));
+			nameTag.forcePointerColor(this.clientColorOr(Player._defaultColor));
 		}
 	}
 

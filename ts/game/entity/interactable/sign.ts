@@ -88,7 +88,6 @@ export abstract class Sign extends Interactable implements Entity, EquipEntity {
 		}
 
 		nameTag.setDisplayName(text);
-		nameTag.setPointerColor(ColorFactory.color(ColorType.LEVEL_GRAY).toString());
 		this._nameTag = nameTag;
 	}
 

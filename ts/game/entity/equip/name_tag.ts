@@ -37,7 +37,8 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 	private _textColor : string;
 	private _textBackgroundColor : string;
-	private _pointerColor : string;
+	private _pointerMaterial : BABYLON.StandardMaterial;
+	private _updatePointerColor : boolean;
 
 	protected _model : Model;
 
@@ -50,7 +51,8 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 		this._textColor = NameTag._defaultTextColor;
 		this._textBackgroundColor = NameTag._defaultTextBackgroundColor;
-		this._pointerColor = NameTag._defaultPointerColor;
+		this._pointerMaterial = new BABYLON.StandardMaterial(this.name() + "-pointer-mat");
+		this._updatePointerColor = true;
 
 		this.addProp<string>({
 			has: () => { return this.hasDisplayName(); },
@@ -105,10 +107,9 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 					sizeY: 1.5 * NameTag._pointerHeight,
 					sizeZ: 1.5 * NameTag._pointerHeight,
 				}, game.scene());
-				let pointerMaterial = new BABYLON.StandardMaterial(this.name() + "-pointer-mat");
-				pointerMaterial.disableLighting = true;
-				pointerMaterial.emissiveColor = BABYLON.Color3.FromHexString(this._pointerColor);
-				pointer.material = pointerMaterial;
+				this._pointerMaterial.disableLighting = true;
+				this._pointerMaterial.emissiveColor = BABYLON.Color3.FromHexString(this.defaultPointerColor());
+				pointer.material = this._pointerMaterial;
 
 				model.registerSubMesh(NameTag._pointerId, pointer);
 				model.setMesh(mesh);
@@ -146,12 +147,17 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		}
 		this._textBackgroundColor = color;
 	}
-	setPointerColor(color : string) : void {
-		if (this.initialized()) {
-			console.error("Error: cannot set text background color of initialized %s", this.name());
-			return;
+	forcePointerColor(color : string) : void {
+		this._pointerMaterial.emissiveColor = BABYLON.Color3.FromHexString(color);
+
+		this._updatePointerColor = false;
+	}
+	private defaultPointerColor() : string {
+		if (game.tablets().hasTablet(game.clientId()) && game.tablet(game.clientId()).hasColor()) {
+			return game.tablet(game.clientId()).color();
 		}
-		this._pointerColor = color;
+
+		return NameTag._defaultPointerColor;
 	}
 
 	hasDisplayName() : boolean { return this._displayName.length > 0; }
@@ -171,6 +177,11 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 		this._visible = visible;
 		this._model.setVisible(this._visible && this._enabled);
+
+		if (this._updatePointerColor && this._visible) {
+			const color = game.lakitu().targetEntity().clientColorOr(this.defaultPointerColor());
+			this._pointerMaterial.emissiveColor = BABYLON.Color3.FromHexString(color);
+		}
 	}
 	private setEnabled(enabled : boolean) : void {
 		if (this._enabled === enabled) {

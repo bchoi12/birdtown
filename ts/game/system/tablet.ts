@@ -30,7 +30,7 @@ export class Tablet extends ClientSystem implements System {
 	constructor(clientId : number) {
 		super(SystemType.TABLET, clientId);
 
-		this._color = "#FFFFFF";
+		this._color = "";
 		this._displayName = "";
 		this._infoMap = new Map();
 
@@ -138,7 +138,7 @@ export class Tablet extends ClientSystem implements System {
 
 		this._color = color;
 	}
-	color() : string { return this.hasColor() ? this._color : ColorFactory.entityColor(EntityType.PLAYER, this.clientId()).toString(); }
+	color() : string { return this.hasColor() ? this._color : "#FFFFFF"; }
 
 	setDisplayName(displayName : string) : void {
 		if (displayName.length === 0) {
