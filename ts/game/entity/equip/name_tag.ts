@@ -108,7 +108,9 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 					sizeZ: 1.5 * NameTag._pointerHeight,
 				}, game.scene());
 				this._pointerMaterial.disableLighting = true;
-				this._pointerMaterial.emissiveColor = BABYLON.Color3.FromHexString(this.defaultPointerColor());
+				if (this._updatePointerColor) {
+					this._pointerMaterial.emissiveColor = BABYLON.Color3.FromHexString(this.defaultPointerColor());
+				}
 				pointer.material = this._pointerMaterial;
 
 				model.registerSubMesh(NameTag._pointerId, pointer);

@@ -117,7 +117,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		}
 
 		const timeLeft = this._submitTime.get() - Date.now();
-		timer.setText("Auto submitting in " + Math.max(0, Math.ceil(timeLeft / 1000)) + "s");
+		timer.setText(Math.max(0, Math.ceil(timeLeft / 1000)) + "s");
 
 		if (timeLeft <= -DialogWrapper._submitTimeBuffer) {
 			this.forceSubmit();
