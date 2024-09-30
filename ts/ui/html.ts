@@ -83,7 +83,7 @@ export namespace Html {
 	export const classHudContainerCharging = "hud-container-charging";
 	export const classHudText = "hud-text";
 	export const classHudKey = "hud-key";
-	export const classInfoTable = "info-table";
+	export const classInfo = "info";
 	export const classLabel = "label";
 	export const classLabelName = "label-name";
 	export const classLabelValue = "label-value";
@@ -96,6 +96,7 @@ export namespace Html {
 	export const classPopup = "popup";
 	export const classPopupShow = "popup-show";
 	export const classProgress = "progress";
+	export const classScoreboardContainer = "scoreboard-container";
 	export const classStatusMessage = "status-message";
 	export const classTooltip = "tooltip";
 

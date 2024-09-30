@@ -50,7 +50,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		this.reset();
 	}
 
-	override handleMessage(msg : GameMessage) : void {
+	pushAnnouncement(msg : GameMessage) : void {
 		if (msg.type() !== GameMessageType.ANNOUNCEMENT) {
 			return;
 		}

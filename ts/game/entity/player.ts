@@ -409,6 +409,9 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this.updateLoadout();
 	}
 	stats() : Stats { return this._stats; }
+	fullHeal() : void {
+		// TODO: implement after Health component exists
+	}
 	die() : void {
 		this.setAttribute(AttributeType.INVINCIBLE, false);
 		this.takeDamage(this._stats.health(), this);

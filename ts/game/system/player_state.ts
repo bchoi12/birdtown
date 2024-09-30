@@ -192,6 +192,7 @@ export class PlayerState extends ClientSystem implements System {
 		if (this.clientIdMatches() && game.controller().gameState() === GameState.FREE) {
 			ui.showStatus(StatusType.WELCOME);
 			setTimeout(() => {
+				ui.hideStatus(StatusType.WELCOME);
 				if (game.controller().gameState() === GameState.FREE) {
 					ui.showStatus(StatusType.LOBBY);
 				}
@@ -207,9 +208,14 @@ export class PlayerState extends ClientSystem implements System {
 		}
 	}
 	onStartRound() : void {
+		if (!this.validTargetEntity()) {
+			return;
+		}
+
 		this.setRole(this._startingRole);
 
 		// TODO: reset player health
+		this.targetEntity<Player>().fullHeal();
 	}
 	die() : void {
 		if (this.validTargetEntity()) {

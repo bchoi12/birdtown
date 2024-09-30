@@ -11,7 +11,7 @@ export interface Handler {
 	setup() : void;
 	clear() : void;
 	reset() : void;
-	handleMessage(msg : GameMessage) : void;
+	handleClientMessage(msg : GameMessage) : void;
 
 	enabled() : boolean;
 	enable() : void;
@@ -49,7 +49,7 @@ export class HandlerBase {
 	setup() : void {}
 	clear() : void {}
 	reset() : void {}
-	handleMessage(msg : GameMessage) : void {}
+	handleClientMessage(msg : GameMessage) : void {}
 
 	enabled() : boolean { return this._enabled && ui.mode() === this._mode.get(); }
 	enable() : void {

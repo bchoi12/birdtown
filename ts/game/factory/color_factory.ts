@@ -91,6 +91,10 @@ export namespace ColorFactory {
 		[ColorType.PARTICLE_PURPLE, HexColor.fromHex(0xa465e2)],
 		[ColorType.PARTICLE_ORANGE, HexColor.fromHex(0xffc361)],
 
+		// UI colors
+		[ColorType.UI_GREEN, HexColor.fromHex(0x46b351)],
+		[ColorType.UI_RED, HexColor.fromHex(0xb34646)],
+
 		// Material series
 		[ColorType.SWEAT, HexColor.fromHex(0xe3fcff)],
 		[ColorType.TABLE, HexColor.fromHex(0xc98f40)],
@@ -123,6 +127,9 @@ export namespace ColorFactory {
 
 	export function color(type : ColorType) : HexColor {
 		return colorMap.get(type);
+	}
+	export function toString(type : ColorType) : string {
+		return colorMap.get(type).toString();
 	}
 	export function entityColors(type : EntityType) : Array<ColorType> {
 		if (!entityColorMap.has(type)) {

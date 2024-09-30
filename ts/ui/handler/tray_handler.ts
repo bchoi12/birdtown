@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 import { GameState } from 'game/api'
+import { ColorType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 
 import { settings } from 'settings'
 
@@ -76,7 +78,8 @@ export class TrayHandler extends HandlerBase implements Handler {
 
 		if (game.isHost()) {
 			this._lobbyButton = new ButtonWrapper();
-			this._lobbyButton.setIcon(IconType.CANCEL);		
+			this._lobbyButton.setIcon(IconType.CANCEL);
+			this._lobbyButton.setHoverColor(ColorFactory.toString(ColorType.UI_RED));
 			this._lobbyButton.addOnMouseEnter(() => {
 				this.showDescription("End the game and return to the lobby");
 			});

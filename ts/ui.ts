@@ -38,6 +38,10 @@ import { Vec, Vec2 } from 'util/vector'
 
 class UI {
 
+	private static readonly _clientMessageTypes = new Set([
+		GameMessageType.CLIENT_INIT, GameMessageType.CLIENT_JOIN, GameMessageType.CLIENT_DISCONNECT
+	])
+
 	private _mode : UiMode;
 	private _audioContext : Optional<AudioContext>;
 
@@ -103,14 +107,14 @@ class UI {
 		});
 	}
 
-	handleMessage(msg : GameMessage) : void {
-		if (!msg.valid()) {
-			console.error("Error: invalid message", msg);
+	handleClientMessage(msg : GameMessage) : void {
+		if (!msg.valid() || !UI._clientMessageTypes.has(msg.type())) {
+			console.error("Error: invalid client message", msg);
 			return;
 		}
 
 		this._handlers.forEach((handler) => {
-			handler.handleMessage(msg);
+			handler.handleClientMessage(msg);
 		});
 	}
 
@@ -188,15 +192,20 @@ class UI {
 		}
 	}
 
+	pushAnnouncement(msg : GameMessage) : void { this._announcementHandler.pushAnnouncement(msg); }
 	setTimer(millis : number) : void { this._timerHandler.setTime(millis); }
 	clearTimer() : void { this._timerHandler.clear(); }
 	setHudClientId(id : number) : void { this._hudHandler.setClientId(id); }
 	updateHud(huds : Map<HudType, HudOptions>) : void { this._hudHandler.updateHud(huds); }
+	showScoreboard() : void { this._scoreboardHandler.stickyShow(); }
+	hideScoreboard() : void { this._scoreboardHandler.hide(); }
 	updateInfo(id : number, type : InfoType, value : number) : void { this._scoreboardHandler.updateInfo(id, type, value); }
 	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }
+	updatePlayers() : void { this._scoreboardHandler.updatePlayers(); }
 	pushDialog<T extends DialogWrapper>(type : DialogType) : T { return this._dialogHandler.pushDialog(type); }
 	forceSubmitDialog(type : DialogType) : void { this._dialogHandler.forceSubmitDialog(type); }
 	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }
+	pushFeed(msg : GameMessage) : void { this._feedHandler.pushFeed(msg); }
 	hideTooltip(type : TooltipType) : void { this._tooltipHandler.hideTooltip(type); }
 	setDebugStats(enabled : boolean) : void { this._statsHandler.setDebug(enabled); }
 	hasStatus(type : StatusType) : boolean { return this._statusHandler.hasStatus(type); }

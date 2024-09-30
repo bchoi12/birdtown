@@ -57,18 +57,18 @@ export class World extends SystemBase implements System {
 			lightDir: new BABYLON.Vector3(2, -2, -6).normalize(),
 			directionalIntensity: 1.5,
 			directionalDiffuse: new BABYLON.Color3(1, 0.77, 0.55),
-			hemisphericIntensity: 0.5,
+			hemisphericIntensity: 0.3,
 			hemisphericDiffuse: new BABYLON.Color3(1, 0.88, 0.77),
 			hemisphericBottomColor: new BABYLON.Color3(0.7, 0.58, 0.44),
 		}],
 		[TimeType.NIGHT, {
 			skyMaterial: MaterialType.SKY_NIGHT,
 			lightDir: new BABYLON.Vector3(-1, -4, 4).normalize(),
-			directionalIntensity: 1.3,
+			directionalIntensity: 1.4,
 			directionalDiffuse: new BABYLON.Color3(1, 1, 1),
-			hemisphericIntensity: 0.7,
+			hemisphericIntensity: 0.8,
 			hemisphericDiffuse: new BABYLON.Color3(1, 1, 1),
-			hemisphericBottomColor: new BABYLON.Color3(0.3, 0.3, 0.3),
+			hemisphericBottomColor: new BABYLON.Color3(0.1, 0.1, 0.1),
 		}],
 	]);
 
@@ -129,7 +129,7 @@ export class World extends SystemBase implements System {
 		skyMaterial.turbidity = 2.5;
 		*/
 
-		this._cloudGenerator = this.addSubSystem<CloudGenerator>(SystemType.CLOUD_GENERATOR, new CloudGenerator());
+	this._cloudGenerator = this.addSubSystem<CloudGenerator>(SystemType.CLOUD_GENERATOR, new CloudGenerator());
 
 		this.addProp<TimeType>({
 			has: () => { return this._desiredTime !== TimeType.UNKNOWN; },

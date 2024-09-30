@@ -25,9 +25,7 @@ export class FeedHandler extends HandlerBase implements Handler {
 		this._feeds = new LinkedList();
 	}
 
-	override handleMessage(msg : GameMessage) : void {
-		super.handleMessage(msg);
-
+	pushFeed(msg : GameMessage) : void {
 		if (msg.type() !== GameMessageType.FEED) {
 			return;
 		}

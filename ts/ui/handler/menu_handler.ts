@@ -79,22 +79,16 @@ export class MenuHandler extends HandlerBase implements Handler {
 		}
 	}
 
-	override handleMessage(msg : GameMessage) : void {
-		super.handleMessage(msg);
-
-		if (msg.type() !== GameMessageType.GAME_STATE || !game.isHost()) {
-			return;
-		}
-
-		if (msg.getGameState() === GameState.FREE) {
-			this._quitElm.textContent = "Quit";
-		} else {
-			this._quitElm.textContent = "Return to Lobby";
-		}
-	}
-
 	override onEnable() : void {
 		super.onEnable();
+
+		if (game.isHost()) {
+			if (game.controller().gameState() === GameState.FREE) {
+				this._quitElm.textContent = "Quit";
+			} else {
+				this._quitElm.textContent = "Return to Lobby";
+			}
+		}
 
 		this._menuElm.style.visibility = "visible";
 

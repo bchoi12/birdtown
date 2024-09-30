@@ -12,7 +12,7 @@ import { ClientDialog } from 'game/system/client_dialog'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
-import { ClientConfig } from 'game/util/client_config'
+import { PlayerConfig } from 'game/util/player_config'
 
 import { MessageObject } from 'message'
 import { GameConfigMessage } from 'message/game_config_message'
@@ -123,9 +123,9 @@ export class GameMaker extends SystemBase implements System {
 		}
 	}
 
-	setConfig(config : GameConfigMessage, clientConfig : ClientConfig) : boolean {
+	setConfig(config : GameConfigMessage, playerConfig : PlayerConfig) : boolean {
 		this._config = config;
-		game.playerStates().updateClients(clientConfig);
+		game.playerStates().updatePlayers(playerConfig);
 
 		if (!this._config.valid()) {
 			console.error("Error: invalid config", this._config);
@@ -143,7 +143,7 @@ export class GameMaker extends SystemBase implements System {
 
 		if (isLocalhost()) {
 			console.log("%s: config is", this.name(), this._config.dataMap());
-			console.log("%s: client config is ", this.name(), clientConfig.clientMap());
+			console.log("%s: client config is ", this.name(), playerConfig.playerMap());
 		}
 		return true;
 	}
@@ -287,7 +287,6 @@ export class GameMaker extends SystemBase implements System {
 			ui.hideStatus(StatusType.LOBBY);
 		}
 
-
 		if (state === GameState.LOAD) {
 			ui.showStatus(StatusType.LOADING);
 		} else {
@@ -298,6 +297,12 @@ export class GameMaker extends SystemBase implements System {
 			ui.showStatus(StatusType.SETUP);
 		} else {
 			ui.hideStatus(StatusType.SETUP);
+		}
+
+		if (state === GameState.FINISH || state === GameState.VICTORY) {
+			ui.showScoreboard();
+		} else {
+			ui.hideScoreboard();
 		}
 
 		if (!this.isSource()) {
@@ -319,7 +324,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.LOAD:
 			this._round++;
 
-			if (this._round % 2 === 0) {
+			if (this._round > 1 && this._round % 2 === 1) {
 				game.world().incrementTime();
 			}
 
@@ -379,12 +384,14 @@ export class GameMaker extends SystemBase implements System {
 	    	let winnerMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	winnerMsg.setAnnouncementType(AnnouncementType.GAME_FINISH);
 	    	winnerMsg.setNames(this._winners.map((tablet : Tablet) => { return tablet.displayName(); }));
+	    	winnerMsg.setTtl(this.timeLimit(GameState.FINISH) - 1000);
 	    	game.announcer().broadcast(winnerMsg);
 			break;
 		case GameState.VICTORY:
 	    	let victorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	victorMsg.setAnnouncementType(AnnouncementType.GAME_VICTORY);
 	    	victorMsg.setNames(this._winners.map((tablet : Tablet) => { return tablet.displayName(); }));
+	    	victorMsg.setTtl(this.timeLimit(GameState.VICTORY) - 1000);
 	    	game.announcer().broadcast(victorMsg);
 			break;
 		case GameState.END:

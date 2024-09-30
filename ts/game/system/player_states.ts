@@ -3,9 +3,11 @@ import { game } from 'game'
 import { System, ClientSystemManager } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { PlayerState } from 'game/system/player_state'
-import { ClientConfig } from 'game/util/client_config'
+import { PlayerConfig } from 'game/util/player_config'
 
 import { GameMessage, GameMessageType} from 'message/game_message'
+
+import { ui } from 'ui'
 
 export class PlayerStates extends ClientSystemManager implements System {
 
@@ -27,11 +29,11 @@ export class PlayerStates extends ClientSystemManager implements System {
 		}
 	}
 
-	updateClients(clientConfig : ClientConfig) : void {
+	updatePlayers(playerConfig : PlayerConfig) : void {
 		this.executeIf((playerState : PlayerState) => {
-			playerState.setStartingRole(clientConfig.role(playerState.clientId()));
+			playerState.setStartingRole(playerConfig.role(playerState.clientId()));
 		}, (playerState : PlayerState) => {
-			return clientConfig.hasClient(playerState.clientId());
+			return playerConfig.hasClient(playerState.clientId());
 		})
 	}
 

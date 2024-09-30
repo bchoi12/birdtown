@@ -4,7 +4,7 @@ import { GameMode } from 'game/api'
 import { FrequencyType } from 'game/entity/api'
 import { PlayerRole } from 'game/system/api'
 import { GameMaker } from 'game/system/game_maker'
-import { ClientConfig, ClientInfo } from 'game/util/client_config'
+import { PlayerConfig, PlayerInfo } from 'game/util/player_config'
 
 import { GameConfigMessage } from 'message/game_config_message'
 
@@ -17,7 +17,7 @@ import { KeyNames } from 'ui/common/key_names'
 
 import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
-import { ClientConfigWrapper } from 'ui/wrapper/client_config_wrapper'
+import { PlayerConfigWrapper } from 'ui/wrapper/player_config_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
@@ -31,14 +31,14 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 	private _mode : GameMode;
 	private _configMsg : GameConfigMessage;
-	private _clientConfig : ClientConfig;
+	private _playerConfig : PlayerConfig;
 
 	constructor() {
 		super();
 
 		this._mode = GameMode.UNKNOWN;
 		this._configMsg = null;
-		this._clientConfig = null;
+		this._playerConfig = null;
 
 		this.setTitle("Select a mode");
 		this.addGameModePage();
@@ -54,8 +54,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 
 		this.addOnSubmit(() => {
-			if (this._configMsg !== null && this._clientConfig !== null) {
-				game.controller().startGame(this._configMsg, this._clientConfig);
+			if (this._configMsg !== null && this._playerConfig !== null) {
+				game.controller().startGame(this._configMsg, this._playerConfig);
 			}
 		});
 	}
@@ -96,7 +96,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 				description.textContent =
 					"It's everyone for themselves.\r\n\r\nScore points by cooking other players. " +
-					"The first player to reach the score limit or have the most points when time runs out wins the round."
+					"Win by reaching the score limit or having the most points when time runs out."
 
 				error.textContent = "";
 			});
@@ -114,7 +114,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				description.textContent =
 					"Be the last bird standing.\r\n\r\n" + 
 					"Each player starts with the same number of lives. " +
-					"The last player standing wins the round. If time runs out, the round ends in a draw."
+					"The last player standing wins the round. If time runs out, it's a draw."
 				error.textContent = "";
 			});
 		}
@@ -241,8 +241,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		players.setLegend("Players");
 		players.contentElm().style.fontSize = "0.6em";
 
-		let clientConfigWrapper = new ClientConfigWrapper();
-		players.contentElm().appendChild(clientConfigWrapper.elm());
+		let playerConfigWrapper = new PlayerConfigWrapper();
+		players.contentElm().appendChild(playerConfigWrapper.elm());
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
@@ -252,7 +252,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			this._configMsg.setHealthCrateSpawn(healthCrates.value());
 			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
 
-			this._clientConfig = clientConfigWrapper.config();
+			this._playerConfig = playerConfigWrapper.config();
 		});
 	}
 
@@ -331,8 +331,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		players.setLegend("Players");
 		players.contentElm().style.fontSize = "0.6em";
 
-		let clientConfigWrapper = new ClientConfigWrapper();
-		players.contentElm().appendChild(clientConfigWrapper.elm());
+		let playerConfigWrapper = new PlayerConfigWrapper();
+		players.contentElm().appendChild(playerConfigWrapper.elm());
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
@@ -342,7 +342,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			this._configMsg.setHealthCrateSpawn(healthCrates.value());
 			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
 
-			this._clientConfig = clientConfigWrapper.config();
+			this._playerConfig = playerConfigWrapper.config();
 		});
 	}
 
@@ -394,8 +394,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		players.setLegend("Players");
 		players.contentElm().style.fontSize = "0.6em";
 
-		let clientConfigWrapper = new ClientConfigWrapper();
-		players.contentElm().appendChild(clientConfigWrapper.elm());
+		let playerConfigWrapper = new PlayerConfigWrapper();
+		players.contentElm().appendChild(playerConfigWrapper.elm());
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
@@ -403,7 +403,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			this._configMsg.setHealthCrateSpawn(healthCrates.value());
 			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
 
-			this._clientConfig = clientConfigWrapper.config();
+			this._playerConfig = playerConfigWrapper.config();
 		});
 	}
 

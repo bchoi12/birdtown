@@ -1,4 +1,6 @@
 
+import { game } from 'game'
+
 import { ui } from 'ui'
 import { HudType, HudOptions } from 'ui/api'
 import { IconType } from 'ui/common/icon'
@@ -76,6 +78,15 @@ export class HudHandler extends HandlerBase implements Handler {
 
 	setClientId(clientId : number) : void {
 		this._nameWrapper.setClientId(clientId);
+
+		// Don't really like this
+		/*
+		if (game.tablets().hasTablet(clientId)) {
+			this._blocks.forEach((wrapper : HudBlockWrapper) => {
+				wrapper.setColor(game.tablet(clientId).color());
+			});
+		}
+		*/
 	}
 	updateHud(blocks : Map<HudType, HudOptions>) : void {
 		let currentTypes = new Set<HudType>();

@@ -1,111 +1,132 @@
 
 import { ui } from 'ui'
 import { InfoType } from 'ui/api'
+import { IconType } from 'ui/common/icon'
 import { Html, HtmlWrapper } from 'ui/html'
-import { InfoRowWrapper } from 'ui/wrapper/info_row_wrapper'
+import { IconWrapper } from 'ui/wrapper/icon_wrapper'
+import { NameWrapper } from 'ui/wrapper/name_wrapper'
 
 export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 
-	private static readonly _order = new Array(
-		InfoType.NAME,
-		InfoType.SCORE,
-		InfoType.VICTORIES,
-		InfoType.LIVES,
-		InfoType.KILLS,
-		InfoType.DEATHS,
-		InfoType.PING,
-	);
+	public static readonly _maxOrderValue = 999;
 
-	private static readonly _names = new Map([
-		[InfoType.NAME, "Name"],
-		[InfoType.SCORE, "Score"],
-		[InfoType.LIVES, "Lives"],
-		[InfoType.KILLS, "Kills"],
-		[InfoType.DEATHS, "Deaths"],
-		[InfoType.PING, "Ping"],
-		[InfoType.VICTORIES, "Wins"],
-	]);
+	private _nameWrapper : NameWrapper;
+	private _iconWrappers : Map<InfoType, IconWrapper>;
 
-	private _headerElm : HTMLElement;
-	private _headerCells : Map<InfoType, HTMLElement>;
-	private _rows : Map<number, InfoRowWrapper>;
+	// For sorting
+	private _values : Map<InfoType, number>; 
 
-	constructor() {
-		super(Html.table());
+	constructor(clientId : number) {
+		super(Html.div());
 
-		this.elm().classList.add(Html.classInfoTable);
+		this.elm().classList.add(Html.classInfo);
 
-		this._headerElm = Html.tr();
-		this._headerCells = new Map();
+		this._nameWrapper = new NameWrapper();
+		this._nameWrapper.setClientId(clientId);
+		this._nameWrapper.elm().style.width = "100%";
+		this.elm().appendChild(this._nameWrapper.elm());
 
-		for (let i = 0; i < InfoWrapper._order.length; ++i) {
-			const type = InfoWrapper._order[i];
-			let cell = Html.th();
-			cell.textContent = InfoWrapper._names.get(type);
-			cell.style.display = "none";
-
-			this._headerCells.set(type, cell);
-			this._headerElm.appendChild(cell);
-		}
-
-		this.elm().appendChild(this._headerElm);
-
-		this._rows = new Map();		
+		this._iconWrappers = new Map();
+		this._values = new Map();
 	}
 
-	updateInfo(id : number, type : InfoType, value : number) : void {
-		if (!this._rows.has(id)) {
-			let row = new InfoRowWrapper(InfoWrapper._order);
-			this.elm().appendChild(row.elm());
-			this._rows.set(id, row);
-			this.sort();
-		}
-
-		let headerCell = this._headerCells.get(type);
-		headerCell.style.display = "table-cell";
-
-		if (type === InfoWrapper._order[0]) {
-			headerCell.style.textAlign = "left";
-		} else {
-			headerCell.style.textAlign = "right";
-		}
-
-		let row = this._rows.get(id);
-		row.updateCell(type, value);
-	}
-
-	clearInfo(id : number, type : InfoType) : void {
-		if (!this._rows.has(id)) {
-			console.error("Warning: not clearing %s for %d", InfoType[type], id);
+	add(type : InfoType) : IconWrapper {
+		if (this._iconWrappers.has(type)) {
+			console.error("Warning: skipping add since %s already exists", InfoType[type]);
 			return;
 		}
 
-		let row = this._rows.get(id);
-		row.clearContent(type);
+		let wrapper = new IconWrapper();
+		wrapper.elm().style.flex = "1";
+		this._iconWrappers.set(type, wrapper);
+		this.elm().appendChild(wrapper.elm());
+		return wrapper;
+	}
+	update(type : InfoType, value : number) : void {
+		this._values.set(type, value);
 
-		let hideColumn = true;
-		for (const [unusedId, row] of Object.entries(this._rows)) {
-			if (row.hasContent(type)) {
-				hideColumn = false;
-				break;
-			}
-		}
-
-		if (hideColumn) {
-			this.hideColumn(type);
+		switch (type) {
+		case InfoType.KILLS:
+			this.setKills(value);
+			break;
+		case InfoType.DEATHS:
+			this.setDeaths(value);
+			break;
+		case InfoType.LIVES:
+			this.setLives(value);
+			break;
+		case InfoType.SCORE:
+			this.setScore(value);
+			break;
+		case InfoType.VICTORIES:
+			this.setVictories(value);
+			break;
+		default:
+			console.error("Error: missing handling for", InfoType[type]);
 		}
 	}
+	clear(type : InfoType) : void {
+		if (!this._iconWrappers.has(type)) {
+			return;
+		}
 
-	private hideColumn(type : InfoType) : void {
-		let headerCell = this._headerCells.get(type);
-		headerCell.style.display = "none";
-
-		this._rows.forEach((row : InfoRowWrapper) => {
-			row.hideCell(type);
-		});
+		this.elm().removeChild(this._iconWrappers.get(type).elm());
+		this._iconWrappers.delete(type);
+		this._values.delete(type);
 	}
 
-	private sort() : void {
+	orderDesc(type : InfoType) : number {
+		return this._values.has(type) ? -this._values.get(type) : InfoWrapper._maxOrderValue;
+	}
 
+	orderAsc(type : InfoType) : number {
+		return this._values.has(type) ? this._values.get(type) : InfoWrapper._maxOrderValue;
+	}
+
+	private setKills(kills : number) : void {
+		if (!this._iconWrappers.has(InfoType.KILLS)) {
+			let wrapper = this.add(InfoType.KILLS);
+			wrapper.setIcon(IconType.SKILLET);
+		}
+
+		let wrapper = this._iconWrappers.get(InfoType.KILLS);
+		wrapper.setText("" + kills);
+	}
+
+	private setDeaths(deaths : number) : void {
+		if (!this._iconWrappers.has(InfoType.DEATHS)) {
+			let wrapper = this.add(InfoType.DEATHS);
+			wrapper.setIcon(IconType.SKULL);
+		}
+
+		let wrapper = this._iconWrappers.get(InfoType.DEATHS);
+		wrapper.setText("" + deaths);
+	}
+
+	private setLives(lives : number) : void {
+		if (!this._iconWrappers.has(InfoType.LIVES)) {
+			this.add(InfoType.LIVES);
+		}
+
+		let wrapper = this._iconWrappers.get(InfoType.LIVES);
+		wrapper.setIconN(IconType.BIRD, lives);
+	}
+
+	private setVictories(victories : number) : void {
+		if (!this._iconWrappers.has(InfoType.VICTORIES)) {
+			this.add(InfoType.VICTORIES);
+		}
+
+		let wrapper = this._iconWrappers.get(InfoType.VICTORIES);
+		wrapper.setIconN(IconType.TROPHY, victories);
+	}
+
+	private setScore(score : number) : void {
+		if (!this._iconWrappers.has(InfoType.SCORE)) {
+			this.add(InfoType.SCORE);
+		}
+
+		let wrapper = this._iconWrappers.get(InfoType.SCORE);
+		wrapper.setText(score + " pts");
 	}
 }

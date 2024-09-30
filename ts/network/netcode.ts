@@ -445,7 +445,7 @@ export abstract class Netcode {
 				let msg = new GameMessage(GameMessageType.CLIENT_DISCONNECT);
 				msg.setClientId(connection.clientId());
 				game.handleMessage(msg);
-				ui.handleMessage(msg);
+				ui.handleClientMessage(msg);
 			}
 		}
 	}

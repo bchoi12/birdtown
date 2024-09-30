@@ -75,8 +75,13 @@ export class ArchRoom extends ArchBase implements Entity {
 			return;
 		}
 
-		if (this._profile.contains(other.profile().pos())) {
-			other.takeDamage(1, this);
+		// Prevent stuck glitches
+		const otherPos = other.profile().body().position;
+		if (this._profile.contains(otherPos)) {
+			MATTER.Body.setPosition(other.profile().body(), {
+				x: otherPos.x,
+				y: otherPos.y + 1,
+			});
 		}
 	}
 }

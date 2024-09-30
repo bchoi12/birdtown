@@ -107,8 +107,6 @@ export enum InfoType {
 	DEATHS,
 	LIVES,
 	KILLS,
-	NAME,
-	PING,
 	SCORE,
 	VICTORIES,
 }

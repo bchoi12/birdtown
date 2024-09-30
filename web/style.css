@@ -295,7 +295,21 @@ kbd {
     right: 0;
     background-color: rgba(0, 0, 0, 0.35);
 
+    padding: 1em;
+    border-top-left-radius: 1em;
+    border-bottom-left-radius: 1em;
+
     transition: right 0.2s ease-in;
+}
+
+.scoreboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0.5em 1em;
+}
+
+.info {
+    width: 100%;
 }
 
 .feed {
@@ -319,10 +333,6 @@ kbd {
 
     transition: opacity 0.2s ease-in, height 0.3s ease-in, margin-left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     background: linear-gradient(to left, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7));
-}
-
-.info-table {
-    margin: 0 auto;
 }
 
 #div-hud {
@@ -661,7 +671,6 @@ kbd {
 }
 
 .button:hover, .button-select:hover, .button-select:hover {
-    background: #555;
     text-shadow: 0px 0px 7px #BBBBBB;
     cursor: pointer;
 }

@@ -1,30 +1,30 @@
 
 import { game } from 'game'
 import { PlayerRole } from 'game/system/api'
-import { ClientConfig, ClientInfo } from 'game/util/client_config'
+import { PlayerConfig, PlayerInfo } from 'game/util/player_config'
 
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 
-export class ClientConfigWrapper extends HtmlWrapper<HTMLElement> {
+export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 
-	private _config : ClientConfig;
+	private _config : PlayerConfig;
 	private _roleMap : Map<number, SettingWrapper<PlayerRole>>;
 
 	constructor() {
 		super(Html.div());
 
-		this._config = ClientConfig.fromSetup();
+		this._config = PlayerConfig.fromSetup();
 		this._roleMap = new Map();
 
 		this.initialize();
 	}
 
-	config() : ClientConfig { return this._config; }
+	config() : PlayerConfig { return this._config; }
 
 	private initialize() : void {
-		this._config.clientMap().forEach((info : ClientInfo, id : number) => {
+		this._config.playerMap().forEach((info : PlayerInfo, id : number) => {
 			let roleWrapper = new SettingWrapper<PlayerRole>({
 				name: info.displayName,
 				value: info.role,

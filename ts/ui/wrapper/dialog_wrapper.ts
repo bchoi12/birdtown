@@ -1,4 +1,7 @@
 
+import { ColorType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
+
 import { DialogMessage } from 'message/dialog_message'
 
 import { ui } from 'ui'
@@ -134,6 +137,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		buttonWrapper.setIcon(IconType.CHECK);
 		buttonWrapper.setText("OK");
 		buttonWrapper.elm().style.float = "right";
+		buttonWrapper.setHoverColor(ColorFactory.toString(ColorType.UI_GREEN));
 
 		this.footerElm().appendChild(buttonWrapper.elm());
 
@@ -144,6 +148,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		buttonWrapper.setIcon(IconType.CANCEL);
 		buttonWrapper.setText("Cancel");
 		buttonWrapper.elm().style.float = "right";
+		buttonWrapper.setHoverColor(ColorFactory.toString(ColorType.UI_RED));
 
 		this.footerElm().appendChild(buttonWrapper.elm());
 

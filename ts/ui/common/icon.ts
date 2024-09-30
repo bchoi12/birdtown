@@ -11,6 +11,7 @@ export enum IconType {
 	KICK,
 	MIC,
 	MUTED_MIC,
+	PERSON,
 	PERSON_PLUS,
 	PERSON_SLASH,
 
@@ -90,6 +91,7 @@ export namespace Icon {
 		[IconType.MUSIC_NOTE, "music_note"],
 		[IconType.MUTED_MIC, "mic_off"],
 		[IconType.KICK, "block"],
+		[IconType.PERSON, "person"],
 		[IconType.PERSON_PLUS, "person_add"],
 		[IconType.PERSON_SLASH, "person_off"],
 		[IconType.READY, "checklist"],

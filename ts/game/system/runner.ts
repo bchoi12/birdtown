@@ -26,11 +26,11 @@ export class Runner extends SystemBase implements System  {
 	// Snap seqNum to host when time diff is above a threshold
 	private static readonly _clientSnapThreshold = 1000;
 
-	// Max speedup is 10%
-	private static readonly _maxSpeedUp = 1.1;
+	// Max speedup is 15%
+	private static readonly _maxSpeedUp = 1.15;
 
 	private static readonly _warmupTime = 10000;
-	private static readonly _degradedThreshold = 0.5;
+	private static readonly _degradedThreshold = 0.6;
 	private static readonly _okThreshold = 0.8;
 
 	private static readonly _channelMapping = new Map<DataFilter, ChannelType>([

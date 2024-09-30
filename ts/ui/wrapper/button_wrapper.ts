@@ -16,6 +16,8 @@ type OnEventFn = () => void;
 
 export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 
+	private static readonly _defaultHoverColor = "#555";
+
 	private _state : ButtonState;
 	private _onClickFns : Array<OnEventFn>;
 	private _onMouseEnterFns : Array<OnEventFn>;
@@ -24,6 +26,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	private _onUnselectFns : Array<OnEventFn>;
 	private _iconElm : Optional<HTMLElement>;
 	private _textElm : HTMLElement;
+	private _hoverColor : string;
 
 	constructor() {
 		super(Html.div());
@@ -36,6 +39,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		this._onUnselectFns = new Array();
 		this._iconElm = new Optional();
 		this._textElm = Html.span();
+		this._hoverColor = ButtonWrapper._defaultHoverColor;
 
 		this.elm().appendChild(this._textElm);
 
@@ -116,12 +120,17 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 			fn();
 		});
 	}
+	setHoverColor(color : string) : void { this._hoverColor = color; }
 	mouseEnter() : void {
+	    this.elm().style.background = this._hoverColor;
+
 		this._onMouseEnterFns.forEach((fn : OnEventFn) => {
 			fn();
 		});
 	}
 	mouseLeave() : void {
+	    this.elm().style.background = "";
+
 		this._onMouseLeaveFns.forEach((fn : OnEventFn) => {
 			fn();
 		})

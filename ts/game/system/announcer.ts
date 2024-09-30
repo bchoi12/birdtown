@@ -63,7 +63,11 @@ export class Announcer extends SystemBase implements System {
 			return false;
 		}
 
-		ui.handleMessage(msg);
+		if (msg.type() === GameMessageType.ANNOUNCEMENT) {
+			ui.pushAnnouncement(msg);
+		} else if (msg.type() === GameMessageType.FEED) {
+			ui.pushFeed(msg);
+		}
 		return true;
 	}
 }

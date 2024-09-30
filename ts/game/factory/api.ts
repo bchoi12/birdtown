@@ -100,6 +100,9 @@ export enum ColorType {
 	PARTICLE_ORANGE,
 	PARTICLE_PURPLE,
 
+	UI_GREEN,
+	UI_RED,
+
 	SWEAT,
 	TABLE,
 	WINDOW,

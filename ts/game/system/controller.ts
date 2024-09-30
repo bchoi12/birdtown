@@ -8,7 +8,7 @@ import { Player } from 'game/entity/player'
 import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 import { GameMaker } from 'game/system/game_maker'
-import { ClientConfig } from 'game/util/client_config'
+import { PlayerConfig } from 'game/util/player_config'
 
 import { GameConfigMessage } from 'message/game_config_message'
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -65,12 +65,12 @@ export class Controller extends SystemBase implements System {
 	timeLimit(state : GameState) : number { return this._gameMaker.timeLimit(state); }
 
 	gameMode() : GameMode { return this._gameMaker.mode(); }
-	startGame(config : GameConfigMessage, clientConfig : ClientConfig) {
+	startGame(config : GameConfigMessage, playerConfig : PlayerConfig) {
 		if (this.gameState() !== GameState.FREE) {
 			console.error("Error: trying to start %s in state %s", GameMode[config.type()], GameState[this.gameState()]);
 			return;
 		}
-		if (this._gameMaker.setConfig(config, clientConfig)) {
+		if (this._gameMaker.setConfig(config, playerConfig)) {
 			this.setGameState(GameState.LOAD);
 		}
 	}
@@ -90,7 +90,6 @@ export class Controller extends SystemBase implements System {
 		let msg = new GameMessage(GameMessageType.GAME_STATE);
 		msg.setGameState(this._gameState);
 		game.handleMessage(msg);
-		ui.handleMessage(msg);
 
 		if (isLocalhost()) {
 			console.log("%s: game state is %s", this.name(), GameState[state]);

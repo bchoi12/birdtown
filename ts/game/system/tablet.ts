@@ -1,5 +1,6 @@
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 import { EntityType } from 'game/entity/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
@@ -20,7 +21,7 @@ export class Tablet extends ClientSystem implements System {
 		InfoType.KILLS,
 		InfoType.SCORE,
 	]);
-
+	private static readonly _defaultColor = "#FFFFFF";
 	private static readonly _displayNameMaxLength = 16;
 
 	private _color : string;
@@ -37,14 +38,14 @@ export class Tablet extends ClientSystem implements System {
 		this.resetRound();
 
 		this.addProp<string>({
-			has: () => { return this._displayName.length > 0; },
-			export: () => { return this._displayName; },
-			import: (obj: string) => { this.setDisplayName(obj); },
-		});
-		this.addProp<string>({
 			has: () => { return this._color.length > 0; },
 			export: () => { return this._color; },
 			import: (obj: string) => { this.setColor(obj); },
+		});
+		this.addProp<string>({
+			has: () => { return this._displayName.length > 0; },
+			export: () => { return this._displayName; },
+			import: (obj: string) => { this.setDisplayName(obj); },
 		});
 
 		for (const stringScore in InfoType) {
@@ -69,7 +70,9 @@ export class Tablet extends ClientSystem implements System {
 	}
 	resetRound() : void {
 		Tablet._roundResetTypes.forEach((type : InfoType) => {
-			this.setInfo(type, 0);
+			if (this.hasInfo(type)) {
+				this.setInfo(type, 0);
+			}
 		});
 	}
 
@@ -101,7 +104,9 @@ export class Tablet extends ClientSystem implements System {
 	setInfo(type : InfoType, value : number) : void {
 		this._infoMap.set(type, value);
 
-		ui.updateInfo(this.clientId(), type, value);
+		if (game.controller().gameState() !== GameState.FREE) {
+			ui.updateInfo(this.clientId(), type, value);
+		}
 
 		if (type === InfoType.KILLS) {
 			this.setInfo(InfoType.SCORE, value);
@@ -138,7 +143,7 @@ export class Tablet extends ClientSystem implements System {
 
 		this._color = color;
 	}
-	color() : string { return this.hasColor() ? this._color : "#FFFFFF"; }
+	color() : string { return this.hasColor() ? this._color : Tablet._defaultColor; }
 
 	setDisplayName(displayName : string) : void {
 		if (displayName.length === 0) {
@@ -161,13 +166,13 @@ export class Tablet extends ClientSystem implements System {
 	    	let feedMsg = new GameMessage(GameMessageType.FEED);
 	    	feedMsg.setNames([this.displayName()]);
 	    	feedMsg.setFeedType(FeedType.JOIN);
-	    	ui.handleMessage(feedMsg);
+	    	ui.pushFeed(feedMsg);
 		}
 
 		const initMsg = new GameMessage(GameMessageType.CLIENT_INIT);
 		initMsg.setClientId(this.clientId());
 		initMsg.setDisplayName(this.displayName());
-		ui.handleMessage(initMsg);
+		ui.handleClientMessage(initMsg);
 	}
 	hasDisplayName() : boolean { return this._displayName.length > 0; }
 	displayName() : string { return (this.hasDisplayName() ? this._displayName : "unknown") + " #" + this.clientId(); }
