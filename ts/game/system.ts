@@ -56,6 +56,12 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	hasTargetEntity() : boolean { return this._targetEntity !== null; }
 	validTargetEntity() : boolean { return this.hasTargetEntity() && this._targetEntity.initialized() && !this._targetEntity.deleted(); }
 	targetEntity<T extends Entity>() : T { return <T>this._targetEntity; }
+	targetClientId() : number {
+		if (!this.hasTargetEntity() || !this.targetEntity().hasClientId()) {
+			return 0;
+		}
+		return this.targetEntity().clientId();
+	}
 	setTargetEntity<T extends Entity>(entity : T) : void {
 		this._targetEntity = entity;
 		this.addNameParams({

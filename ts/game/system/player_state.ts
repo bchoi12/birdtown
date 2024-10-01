@@ -56,9 +56,11 @@ export class PlayerState extends ClientSystem implements System {
 			canInterrupt: false,
 		});
 
-		this._startingRole = PlayerRole.SPECTATING;
-		this._role = PlayerRole.SPECTATING;
-		this.applyRole();
+		this._startingRole = PlayerRole.UNKNOWN;
+		this._role = PlayerRole.UNKNOWN;
+
+		this.setStartingRole(PlayerRole.SPECTATING);
+		this.setRole(PlayerRole.SPECTATING);
 
 		this.addProp<boolean>({
 			export: () => { return this._disconnected; },
@@ -100,7 +102,13 @@ export class PlayerState extends ClientSystem implements System {
 	setDisconnected(disconnected : boolean) : void { this._disconnected = disconnected; }
 	role() : PlayerRole { return this._role; }
 	inGame() : boolean { return PlayerState._gameRoles.has(this._role); }
-	setStartingRole(role : PlayerRole) : void { this._startingRole = role; }
+	setStartingRole(role : PlayerRole) : void {
+		this._startingRole = role;
+
+		if (!this.isPlaying() && game.controller().gameState() !== GameState.FREE) {
+			ui.removePlayer(this.clientId());
+		}
+	}
 	setRoleAfter(role : PlayerRole, millis : number, cb? : () => void) : void {
 		if (this._roleTimer.hasTimeLeft()) {
 			return;
@@ -139,6 +147,10 @@ export class PlayerState extends ClientSystem implements System {
 	applyRole() : void {
 		if (!this.hasTargetEntity()) {
 			return;
+		}
+
+		if (this.isPlaying() || game.controller().gameState() !== GameState.FREE) {
+			ui.addPlayer(this.clientId());
 		}
 
 		let player = this.targetEntity<Player>();

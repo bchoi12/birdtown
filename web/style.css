@@ -1,4 +1,4 @@
-html,
+ html,
 body {
     overflow: hidden;
     width: 100%;
@@ -295,21 +295,73 @@ kbd {
     right: 0;
     background-color: rgba(0, 0, 0, 0.35);
 
-    padding: 1em;
+    padding: 1em 0.3em 1em 1em;
     border-top-left-radius: 1em;
     border-bottom-left-radius: 1em;
 
     transition: right 0.2s ease-in;
+
+    max-height: 50%;
+    overflow-y: scroll;
+}
+
+.scoreboard-title {
+    width: 100%;
+    font-size: 1em;
+    margin-bottom: 0.1em;
 }
 
 .scoreboard-container {
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
-    margin: 0.5em 1em;
+    margin: 0.2em;
+    font-size: 0.8em;
 }
 
 .info {
-    width: 100%;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    margin-bottom: 0.2em;
+    padding: 0.2em 0.2em;
+}
+.info-highlight {
+    border-radius: 0.5em;
+
+    animation-name: flash-white;
+    animation-duration: 0.8s;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+}
+
+@keyframes flash-white {
+  from {
+    background-color: rgba(255, 255, 255, 0);
+  }
+  to {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.info-main {
+    flex: 3;
+    font-size: 0.8em;
+    margin-bottom: 0.2em;
+}
+.info-secondary {
+    flex: 2;
+    font-size: 0.7em;
+    color: #cbcbcb;
+}
+
+.info-block {
+    display: none;
+
+    margin-right: 0.3em;
+    background-color: rgba(0, 0, 0, 0.35);
+    padding: 0.1em 0.3em;
+    border-radius: 0.5em;
 }
 
 .feed {
@@ -478,13 +530,8 @@ kbd {
     margin-bottom: 0.5em;
 }
 
-.onscreen-message, .display-name {
-    font-size: 0.8em;
-    font-weight: bold;
-    white-space: pre;
-    text-shadow: 0px 0px 4px #000000;
+.onscreen-message {
     opacity: 0.9;
-    color: #f2f2f2;
 }
 
 .display-name {
@@ -493,6 +540,14 @@ kbd {
     border-radius: 0.6em;
     margin-top: 0.1em;
     margin-bottom: 0.1em;
+}
+
+.onscreen-message, .display-name {
+    font-size: 0.8em;
+    font-weight: bold;
+    white-space: pre;
+    text-shadow: 0px 0px 3px #000000;
+    color: #f2f2f2;
 }
 
 #div-announcement {

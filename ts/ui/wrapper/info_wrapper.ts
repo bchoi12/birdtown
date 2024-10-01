@@ -3,15 +3,26 @@ import { ui } from 'ui'
 import { InfoType } from 'ui/api'
 import { IconType } from 'ui/common/icon'
 import { Html, HtmlWrapper } from 'ui/html'
-import { IconWrapper } from 'ui/wrapper/icon_wrapper'
+import { InfoBlockWrapper } from 'ui/wrapper/info_block_wrapper'
 import { NameWrapper } from 'ui/wrapper/name_wrapper'
 
 export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 
-	public static readonly _maxOrderValue = 999;
+	private static readonly _maxOrderValue = 999;
+	private static readonly _types = new Array(
+		// Top right (oneof)
+		InfoType.LIVES, InfoType.SCORE,
+		// Bottom left
+		InfoType.VICTORIES,
+		// Bottom right (backwards)
+		InfoType.DEATHS, InfoType.KILLS,
+	);
 
+
+	private _mainElm : HTMLElement;
+	private _secondaryElm : HTMLElement;
 	private _nameWrapper : NameWrapper;
-	private _iconWrappers : Map<InfoType, IconWrapper>;
+	private _blocks : Map<InfoType, InfoBlockWrapper>;
 
 	// For sorting
 	private _values : Map<InfoType, number>; 
@@ -21,28 +32,84 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 
 		this.elm().classList.add(Html.classInfo);
 
+		this._mainElm = Html.div();
+		this._mainElm.classList.add(Html.classInfoMain);
+		this.elm().appendChild(this._mainElm);
+
+		this._secondaryElm = Html.div();
+		this._secondaryElm.classList.add(Html.classInfoSecondary);
+		this._secondaryElm.style.fontSize = "0.7em";
+		this.elm().appendChild(this._secondaryElm);
+
 		this._nameWrapper = new NameWrapper();
 		this._nameWrapper.setClientId(clientId);
-		this._nameWrapper.elm().style.width = "100%";
-		this.elm().appendChild(this._nameWrapper.elm());
+		this._nameWrapper.elm().style.float = "left";
+		this._mainElm.appendChild(this._nameWrapper.elm());
 
-		this._iconWrappers = new Map();
+		this._blocks = new Map();
 		this._values = new Map();
+
+		InfoWrapper._types.forEach((type : InfoType) => {
+			this.add(type);
+		});
 	}
 
-	add(type : InfoType) : IconWrapper {
-		if (this._iconWrappers.has(type)) {
+	private add(type : InfoType) : InfoBlockWrapper {
+		if (this._blocks.has(type)) {
 			console.error("Warning: skipping add since %s already exists", InfoType[type]);
 			return;
 		}
 
-		let wrapper = new IconWrapper();
-		wrapper.elm().style.flex = "1";
-		this._iconWrappers.set(type, wrapper);
-		this.elm().appendChild(wrapper.elm());
-		return wrapper;
+		let wrapper = new InfoBlockWrapper();
+
+		switch (type) {
+		case InfoType.KILLS:
+			wrapper.setIcon(IconType.SKILLET);
+			wrapper.setText("0");
+			wrapper.elm().style.float = "right";
+			this._secondaryElm.appendChild(wrapper.elm());
+			break;
+		case InfoType.DEATHS:
+			wrapper.setIcon(IconType.SKULL);
+			wrapper.setText("0");
+			wrapper.elm().style.float = "right";
+			this._secondaryElm.appendChild(wrapper.elm());
+			break;			
+		case InfoType.LIVES:
+			wrapper.elm().style.float = "right";
+			this._mainElm.appendChild(wrapper.elm());
+			break;
+		case InfoType.SCORE:
+			wrapper.setText("0 pts");
+			wrapper.elm().style.float = "right";
+			this._mainElm.appendChild(wrapper.elm());
+			break;
+		case InfoType.VICTORIES:
+			wrapper.elm().style.float = "left";
+			this._secondaryElm.appendChild(wrapper.elm());
+			break;
+		default:
+			console.error("Error: cannot add", InfoType[type]);
+			return;
+		}
+
+		this._blocks.set(type, wrapper);
+	}
+
+	show(type : InfoType) : void {
+		if (!this._blocks.has(type)) {
+			console.error("Error: cannot show missing block for", InfoType[type]);
+			return;
+		}
+
+		this._blocks.get(type).show();
 	}
 	update(type : InfoType, value : number) : void {
+		if (!this._blocks.has(type)) {
+			console.error("Error: cannot update missing block for", InfoType[type]);
+			return;
+		}
+
 		this._values.set(type, value);
 
 		switch (type) {
@@ -65,14 +132,23 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 			console.error("Error: missing handling for", InfoType[type]);
 		}
 	}
-	clear(type : InfoType) : void {
-		if (!this._iconWrappers.has(type)) {
+
+	highlight() : void { this.elm().classList.add(Html.classInfoHighlight); }
+	removeHighlight() : void { this.elm().classList.remove(Html.classInfoHighlight); }
+
+	hide(type : InfoType) : void {
+		if (!this._blocks.has(type)) {
 			return;
 		}
 
-		this.elm().removeChild(this._iconWrappers.get(type).elm());
-		this._iconWrappers.delete(type);
+		let wrapper = this._blocks.get(type);
+		wrapper.hide();
 		this._values.delete(type);
+	}
+	hideAll() : void {
+		this._blocks.forEach((wrapper : InfoBlockWrapper, type : InfoType) => {
+			this.hide(type);
+		});
 	}
 
 	orderDesc(type : InfoType) : number {
@@ -84,49 +160,32 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	private setKills(kills : number) : void {
-		if (!this._iconWrappers.has(InfoType.KILLS)) {
-			let wrapper = this.add(InfoType.KILLS);
-			wrapper.setIcon(IconType.SKILLET);
-		}
-
-		let wrapper = this._iconWrappers.get(InfoType.KILLS);
+		let wrapper = this._blocks.get(InfoType.KILLS);
 		wrapper.setText("" + kills);
 	}
 
 	private setDeaths(deaths : number) : void {
-		if (!this._iconWrappers.has(InfoType.DEATHS)) {
-			let wrapper = this.add(InfoType.DEATHS);
-			wrapper.setIcon(IconType.SKULL);
-		}
-
-		let wrapper = this._iconWrappers.get(InfoType.DEATHS);
+		let wrapper = this._blocks.get(InfoType.DEATHS);
 		wrapper.setText("" + deaths);
 	}
 
 	private setLives(lives : number) : void {
-		if (!this._iconWrappers.has(InfoType.LIVES)) {
-			this.add(InfoType.LIVES);
-		}
+		let wrapper = this._blocks.get(InfoType.LIVES);
 
-		let wrapper = this._iconWrappers.get(InfoType.LIVES);
-		wrapper.setIconN(IconType.BIRD, lives);
+		if (lives === 0) {
+			wrapper.setIcon(IconType.SKULL);
+		} else {
+			wrapper.setIconN(IconType.BIRD, lives);
+		}
 	}
 
 	private setVictories(victories : number) : void {
-		if (!this._iconWrappers.has(InfoType.VICTORIES)) {
-			this.add(InfoType.VICTORIES);
-		}
-
-		let wrapper = this._iconWrappers.get(InfoType.VICTORIES);
+		let wrapper = this._blocks.get(InfoType.VICTORIES);
 		wrapper.setIconN(IconType.TROPHY, victories);
 	}
 
 	private setScore(score : number) : void {
-		if (!this._iconWrappers.has(InfoType.SCORE)) {
-			this.add(InfoType.SCORE);
-		}
-
-		let wrapper = this._iconWrappers.get(InfoType.SCORE);
+		let wrapper = this._blocks.get(InfoType.SCORE);
 		wrapper.setText(score + " pts");
 	}
 }

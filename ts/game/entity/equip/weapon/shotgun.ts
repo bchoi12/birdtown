@@ -23,7 +23,7 @@ export class Shotgun extends Weapon {
 	private static readonly _config = {
 		times: new Map([
 			[WeaponState.FIRING, 200],
-			[WeaponState.RELOADING, 1000],
+			[WeaponState.RELOADING, 1250],
 		]),
 		bursts: Shotgun._bursts,
 	};

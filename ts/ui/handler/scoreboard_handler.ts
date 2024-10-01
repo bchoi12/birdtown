@@ -1,6 +1,6 @@
 
 import { game } from 'game'
-import { GameState } from 'game/api'
+import { GameMode, GameState } from 'game/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 
@@ -15,8 +15,8 @@ import { ScoreboardWrapper } from 'ui/wrapper/dialog/scoreboard_wrapper'
 
 export class ScoreboardHandler extends HandlerBase implements Handler {
 
-	private static readonly _width = "30%";
-	private static readonly _hideWidth = "40%";
+	private static readonly _width = "25%";
+	private static readonly _hideWidth = "35%";
 
 	private _scoreboardElm : HTMLElement;
 	private _scoreboard : ScoreboardWrapper;
@@ -55,25 +55,17 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 		this._scoreboardElm.style.display = "block";
 	}
 
-	override handleClientMessage(msg : GameMessage) : void {
-		super.handleClientMessage(msg);
-
-		// TODO: fire onPlayerInitialized() from Tablet so color is guaranteed to exist
-		if (msg.type() === GameMessageType.CLIENT_INIT) {
-			this.addPlayer(msg.getClientId())
-		} else if (msg.type() === GameMessageType.CLIENT_DISCONNECT) {
-			this.removePlayer(msg.getClientId())
-		}
-	}
-
 	addPlayer(id : number) : void {
 		this._scoreboard.addPlayer(id);
+	}
+	highlightPlayer(id : number) : void {
+		this._scoreboard.highlightPlayer(game.controller().winnerClientId())
 	}
 	removePlayer(id : number) : void {
 		this._scoreboard.removePlayer(id);
 	}
-	updatePlayers() : void {
-		this._scoreboard.updatePlayers();
+	setGameMode(mode : GameMode) : void {
+		this._scoreboard.setGameMode(mode);
 	}
 	updateInfo(id : number, type : InfoType, value : number) : void {
 		this._scoreboard.updateInfo(id, type, value);
@@ -88,16 +80,19 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 		}
 
 		this._scoreboardElm.style.right = "0";
+		this._scoreboard.onShow();
 	}
 
 	stickyShow() : void {
 		this.show();
+
 		this._stickyShow = true;
 	}
 
 	hide() : void {
 		this._scoreboardElm.style.right = "-" + ScoreboardHandler._hideWidth;
 
+		this._scoreboard.removeHighlights();
 		this._stickyShow = false;
 	}
 }

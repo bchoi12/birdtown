@@ -106,6 +106,8 @@ export class HudHandler extends HandlerBase implements Handler {
 				block.setKeyHTML(KeyNames.kbd(options.keyCode));
 			} else if (options.keyLives) {
 				block.setLives(options.keyLives);
+			} else {
+				block.clearKey();
 			}
 
 			currentTypes.add(type);

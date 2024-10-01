@@ -24,7 +24,7 @@ export class Booster extends Equip<Player> {
 
 	private static readonly _maxJuice = 100;
 	private static readonly _chargeRate = 30;
-	private static readonly _groundChargeRate = 60;
+	private static readonly _groundChargeRate = 75;
 	private static readonly _chargeDelay = 360;
 	private static readonly _smokeDelay = 30;
 	private static readonly _upwardForce = 2;

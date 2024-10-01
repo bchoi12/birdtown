@@ -99,7 +99,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		case AnnouncementType.GAME_FINISH:
 			if (names.length <= 0) {
 				return {
-					main: "No one won?",
+					main: "No one won?!",
 				}
 			}
 			return {
@@ -108,11 +108,11 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		case AnnouncementType.GAME_VICTORY:
 			if (names.length <= 0) {
 				return {
-					main: "No one won???",
+					main: "No one won?!?!?!",
 				}
 			}
 			return {
-				main: names.join(", ") + (names.length > 1 ? " are" : " is") + " victorious!",
+				main: names.join(", ") + (names.length > 1 ? " WIN" : " WINS") + " IT ALL!",
 			};
 		case AnnouncementType.GENERIC:
 			return {

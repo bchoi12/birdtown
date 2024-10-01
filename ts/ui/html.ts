@@ -84,6 +84,10 @@ export namespace Html {
 	export const classHudText = "hud-text";
 	export const classHudKey = "hud-key";
 	export const classInfo = "info";
+	export const classInfoMain = "info-main";
+	export const classInfoSecondary = "info-secondary";
+	export const classInfoBlock = "info-block";
+	export const classInfoHighlight = "info-highlight";
 	export const classLabel = "label";
 	export const classLabelName = "label-name";
 	export const classLabelValue = "label-value";
@@ -97,6 +101,7 @@ export namespace Html {
 	export const classPopupShow = "popup-show";
 	export const classProgress = "progress";
 	export const classScoreboardContainer = "scoreboard-container";
+	export const classScoreboardTitle = "scoreboard-title";
 	export const classStatusMessage = "status-message";
 	export const classTooltip = "tooltip";
 
@@ -111,16 +116,17 @@ export namespace Html {
 	export function span() : HTMLElement { return document.createElement("span"); }
 	export function br() : HTMLElement { return document.createElement("br"); }
 	export function fieldset() : HTMLElement { return document.createElement("fieldset"); }
-	export function input() : HTMLInputElement { return <HTMLInputElement>document.createElement("input"); }
+	export function kbd() : HTMLElement { return document.createElement("kbd"); }
 	export function label() : HTMLElement { return document.createElement("label"); }
 	export function legend() : HTMLElement { return document.createElement("legend"); }
-	export function audio() : HTMLAudioElement { return <HTMLAudioElement>document.createElement("audio"); }
-	export function button() : HTMLButtonElement { return document.createElement("button"); }
 	export function table() : HTMLElement { return document.createElement("table"); }
 	export function td() : HTMLElement { return document.createElement("td"); }
 	export function th() : HTMLElement { return document.createElement("th"); }
 	export function tr() : HTMLElement { return document.createElement("tr"); }
 	export function icon() : HTMLElement { return document.createElement("i"); }
+	export function audio() : HTMLAudioElement { return <HTMLAudioElement>document.createElement("audio"); }
+	export function button() : HTMLButtonElement { return document.createElement("button"); }
+	export function input() : HTMLInputElement { return <HTMLInputElement>document.createElement("input"); }
 	export function range() : HTMLInputElement {
 		let range = <HTMLInputElement>document.createElement("input");
 		range.type = "range";

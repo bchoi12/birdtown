@@ -1,5 +1,6 @@
 
 import { game } from 'game'
+import { GameMode } from 'game/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 
@@ -139,6 +140,7 @@ class UI {
 			handler.onModeChange(mode, oldMode);
 		});	
 	}
+	setGameMode(mode : GameMode) : void { this._scoreboardHandler.setGameMode(mode); }
 
 	openMenu() : void { this._menuHandler.enable(); }
 	applySettings() : void {
@@ -197,11 +199,13 @@ class UI {
 	clearTimer() : void { this._timerHandler.clear(); }
 	setHudClientId(id : number) : void { this._hudHandler.setClientId(id); }
 	updateHud(huds : Map<HudType, HudOptions>) : void { this._hudHandler.updateHud(huds); }
+	addPlayer(clientId : number) : void { this._scoreboardHandler.addPlayer(clientId); }
+	removePlayer(clientId : number) : void { this._scoreboardHandler.removePlayer(clientId); }
+	highlightPlayer(clientId : number) : void { this._scoreboardHandler.highlightPlayer(clientId); }
 	showScoreboard() : void { this._scoreboardHandler.stickyShow(); }
 	hideScoreboard() : void { this._scoreboardHandler.hide(); }
 	updateInfo(id : number, type : InfoType, value : number) : void { this._scoreboardHandler.updateInfo(id, type, value); }
 	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }
-	updatePlayers() : void { this._scoreboardHandler.updatePlayers(); }
 	pushDialog<T extends DialogWrapper>(type : DialogType) : T { return this._dialogHandler.pushDialog(type); }
 	forceSubmitDialog(type : DialogType) : void { this._dialogHandler.forceSubmitDialog(type); }
 	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }

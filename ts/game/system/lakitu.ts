@@ -137,14 +137,16 @@ export class Lakitu extends SystemBase implements System {
 		return false;
 	}
 	private targetWinner() : boolean {
-		const winnerId = game.controller().winnerId();
-		if (this.hasTargetEntity() && this.targetEntity().id() === winnerId) {
+		const winnerClientId = game.controller().winnerClientId();
+		if (this.targetClientId() === winnerClientId) {
 			return true;
 		}
-		const [winner, hasWinner] = game.entities().getEntity(winnerId);
-		if (!hasWinner) {
-			return false;
+
+		if (!game.playerStates().hasPlayerState(winnerClientId) || !game.playerState(winnerClientId).validTargetEntity()) {
+			return;
 		}
+
+		const winner = game.playerState(winnerClientId).targetEntity<Player>();
 
 		this._panners.forEach((panner : Panner, type : OffsetType) => {
 			let goal = Lakitu._offsets.get(type);

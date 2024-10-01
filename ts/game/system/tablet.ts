@@ -16,6 +16,13 @@ import { Optional } from 'util/optional'
 
 export class Tablet extends ClientSystem implements System {
 
+	private static readonly _lobbyClearTypes = new Set([
+		InfoType.DEATHS,
+		InfoType.KILLS,
+		InfoType.LIVES,
+		InfoType.SCORE,
+		InfoType.VICTORIES,
+	]);
 	private static readonly _roundResetTypes = new Set([
 		InfoType.DEATHS,
 		InfoType.KILLS,
@@ -35,7 +42,7 @@ export class Tablet extends ClientSystem implements System {
 		this._displayName = "";
 		this._infoMap = new Map();
 
-		this.resetRound();
+		this.resetForLobby();
 
 		this.addProp<string>({
 			has: () => { return this._color.length > 0; },
@@ -66,9 +73,16 @@ export class Tablet extends ClientSystem implements System {
 		super.reset();
 
 		this._infoMap.clear();
-		this.resetRound();
+		this.resetForRound();
 	}
-	resetRound() : void {
+	resetForLobby() : void {
+		Tablet._lobbyClearTypes.forEach((type : InfoType) => {
+			if (this.hasInfo(type)) {
+				this.setInfo(type, 0);
+			}
+		});
+	}
+	resetForRound() : void {
 		Tablet._roundResetTypes.forEach((type : InfoType) => {
 			if (this.hasInfo(type)) {
 				this.setInfo(type, 0);
@@ -89,24 +103,13 @@ export class Tablet extends ClientSystem implements System {
 
 	isSetup() : boolean { return this.hasDisplayName() && !this.deleted(); }
 
-	entityId() : number {
-		if (!game.playerStates().hasPlayerState(this.clientId())) {
-			return 0;
-		}
-		if (!game.playerState(this.clientId()).validTargetEntity()) {
-			return 0;
-		}
-		return game.playerState(this.clientId()).targetEntity().id();
-	}
 	infoMap() : Map<InfoType, number> { return this._infoMap; }
 	getInfo(type : InfoType) : number { return this.hasInfo(type) ? this._infoMap.get(type) : 0; }
 	hasInfo(type : InfoType) : boolean { return this._infoMap.has(type); }
 	setInfo(type : InfoType, value : number) : void {
 		this._infoMap.set(type, value);
 
-		if (game.controller().gameState() !== GameState.FREE) {
-			ui.updateInfo(this.clientId(), type, value);
-		}
+		ui.updateInfo(this.clientId(), type, value);
 
 		if (type === InfoType.KILLS) {
 			this.setInfo(InfoType.SCORE, value);

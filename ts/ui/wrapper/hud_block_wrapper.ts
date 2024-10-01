@@ -109,6 +109,9 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 	setKeyHTML(html : string) : void {
 		this._keyElm.innerHTML = html;
 	}
+	clearKey() : void {
+		this._keyElm.innerHTML = "";
+	}
 
 	setLives(lives : number) : void {
 		if (this._lives === lives) {

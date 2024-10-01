@@ -3,6 +3,7 @@ import earcut from 'earcut'
 
 import { game } from 'game'
 import { StepData } from 'game/game_object'
+import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
@@ -29,10 +30,13 @@ export class Headband extends Equip<Player> {
 	];
 
 	private static readonly _chargeDelay = 500;
+	private static readonly _cooldown = 1000;
+	private static readonly _groundCooldown = 500;
 	private static readonly _dashTime = 250;
 	private static readonly _maxJuice = 100;
 
 	private _juice : number;
+	private _cooldown : number;
 	private _chargeDelayTimer : Timer;
 	private _dashTimer : Timer;
 	private _trail : BABYLON.Mesh;
@@ -43,6 +47,7 @@ export class Headband extends Equip<Player> {
 		super(EntityType.HEADBAND, entityOptions);
 
 		this._juice = Headband._maxJuice;
+		this._cooldown = Headband._cooldown;
 		this._chargeDelayTimer = this.newTimer({
 			canInterrupt: true,
 		});
@@ -116,6 +121,7 @@ export class Headband extends Equip<Player> {
 			}
 
 			this._juice = Math.max(0, this._juice - Headband._maxJuice);
+			this._cooldown = Headband._cooldown;
 			this._chargeDelayTimer.start(Headband._chargeDelay);
 			this._dashTimer.start(Headband._dashTime);
 
@@ -123,7 +129,11 @@ export class Headband extends Equip<Player> {
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {
-			this._juice = Math.min(Headband._maxJuice, this._juice + 2 * Headband._maxJuice * millis / 1000);
+			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
+				// Touch ground to unlock faster charge rate.
+				this._cooldown = Math.min(this._cooldown, Headband._groundCooldown);
+			}
+			this._juice = Math.min(Headband._maxJuice, this._juice + Headband._maxJuice * millis / this._cooldown);
 		}
 	}
 

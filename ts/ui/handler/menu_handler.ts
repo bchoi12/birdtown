@@ -60,6 +60,10 @@ export class MenuHandler extends HandlerBase implements Handler {
 				if (this._canMenu && ui.mode() === UiMode.GAME) {
 					this.enable();
 					this._canMenu = false;
+
+					if (ui.hasStatus(StatusType.DEGRADED)) {
+						ui.disableStatus(StatusType.DEGRADED);
+					}
 				}
 			}
 		});
@@ -91,10 +95,6 @@ export class MenuHandler extends HandlerBase implements Handler {
 		}
 
 		this._menuElm.style.visibility = "visible";
-
-		if (ui.hasStatus(StatusType.DEGRADED)) {
-			ui.disableStatus(StatusType.DEGRADED);
-		}
 	}
 
 	override onDisable() : void {

@@ -6,18 +6,19 @@ import { Html, HtmlWrapper } from 'ui/html'
 export class IconWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _iconElm : HTMLElement;
-	private _contentElm : HTMLElement;
+	private _textElm : HTMLElement;
 
 	constructor() {
-		super(Html.span());
+		super(Html.div());
 
 		this._iconElm = Html.span();
-		this._contentElm = Html.span();
+		this._textElm = Html.span();
 
 		this.elm().appendChild(this._iconElm);
-		this.elm().appendChild(this._contentElm);
+		this.elm().appendChild(this._textElm);
 	}
 
+	protected iconElm() : HTMLElement { return this._iconElm; }
 	setIcon(type : IconType) : void { this.setIcons(type); }
 	setIcons(...types : IconType[]) : void {
 		this._iconElm.innerHTML = "";
@@ -34,22 +35,23 @@ export class IconWrapper extends HtmlWrapper<HTMLElement> {
 		}
 	}
 
+	protected textElm() : HTMLElement { return this._textElm; }
 	setText(text : string) : void {
-		if (text.length === 0) {
-			this._contentElm.style.paddingLeft = "";
+		if (text.length === 0 || this._iconElm.innerHTML === "") {
+			this._textElm.style.paddingLeft = "";
 		} else {
-			this._contentElm.style.paddingLeft = "0.3em";
+			this._textElm.style.paddingLeft = "0.3em";
 		}
 
-		this._contentElm.textContent = text;
+		this._textElm.textContent = text;
 	}
 	setHTML(html : string) : void {
-		if (html.length === 0) {
-			this._contentElm.style.paddingLeft = "";
+		if (html.length === 0 || this._iconElm.innerHTML === "") {
+			this._textElm.style.paddingLeft = "";
 		} else {
-			this._contentElm.style.paddingLeft = "0.3em";
+			this._textElm.style.paddingLeft = "0.3em";
 		}
 
-		this._contentElm.innerHTML = html;
+		this._textElm.innerHTML = html;
 	}
 }

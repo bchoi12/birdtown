@@ -22,6 +22,7 @@ import { Vec3 } from 'util/vector'
 export class CowboyHat extends Equip<Player> {
 
 	private static readonly _chargeDelay = 600;
+	private static readonly _cooldown = 1500;
 	private static readonly _dashTime = 275;
 	private static readonly _maxJuice = 100;
 
@@ -104,7 +105,7 @@ export class CowboyHat extends Equip<Player> {
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {
-			this._juice = Math.min(CowboyHat._maxJuice, this._juice + 0.6 * CowboyHat._maxJuice * millis / 1000);
+			this._juice = Math.min(CowboyHat._maxJuice, this._juice + CowboyHat._maxJuice * millis / CowboyHat._cooldown);
 		}
 	}
 
