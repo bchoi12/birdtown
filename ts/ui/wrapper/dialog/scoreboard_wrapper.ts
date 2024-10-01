@@ -154,7 +154,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 			break;
 		default:
 			this._infoWrappers.forEach((wrapper : InfoWrapper) => {
-				wrapper.elm().style.order = "" + wrapper.orderAsc(InfoType.SCORE);
+				wrapper.elm().style.order = "" + wrapper.orderDesc(InfoType.SCORE);
 			});
 		}
 	}
