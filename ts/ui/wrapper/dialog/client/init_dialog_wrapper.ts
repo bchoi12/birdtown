@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 import { ModifierPlayerType } from 'game/component/api'
-import { EntityType } from 'game/entity/api'
+import { EntityType, BirdType } from 'game/entity/api'
 import { ColorType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
@@ -58,7 +58,22 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		let bird = columnsWrapper.column(1);
 		bird.setLegend("Bird");
 
-		bird.contentElm().textContent = "TODO"
+		let birdType = new SettingWrapper<BirdType>({
+			name: "Species",
+			value: BirdType.CHICKEN,
+			click: (current : BirdType) => {
+				if (current === BirdType.CHICKEN) {
+					current = BirdType.BOOBY;
+				} else {
+					current++;
+				}
+				return current;
+			},
+			text: (current : BirdType) => {
+				return BirdType[current];
+			},
+		});
+		bird.contentElm().appendChild(birdType.elm());
 
 		// TODO: replace with rainbow color strip
 		const playerColors = ColorFactory.entityColors(EntityType.PLAYER);
@@ -90,6 +105,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		bio.contentElm().appendChild(color.elm());
 
 		pageWrapper.setOnSubmit(() => {
+			this.dialogMessage().setBirdType(birdType.value());
 			this.dialogMessage().setDisplayName(nameWrapper.name());
 			this.dialogMessage().setColor(ColorFactory.entityColor(EntityType.PLAYER, color.value()).toString());
 		});

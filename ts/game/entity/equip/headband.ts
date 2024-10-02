@@ -34,6 +34,7 @@ export class Headband extends Equip<Player> {
 	private static readonly _groundCooldown = 500;
 	private static readonly _dashTime = 250;
 	private static readonly _maxJuice = 100;
+	private static readonly _force = 0.8;
 
 	private _juice : number;
 	private _cooldown : number;
@@ -116,7 +117,7 @@ export class Headband extends Equip<Player> {
 
 			// Only allow source to jump since otherwise it's jittery.
 			if (this.isSource()) {
-				let force = this.inputDir().clone().scale(0.9);
+				let force = this.inputDir().clone().scale(Headband._force);
 				this.owner().addForce(force);
 			}
 

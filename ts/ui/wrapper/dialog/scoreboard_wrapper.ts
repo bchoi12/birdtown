@@ -27,7 +27,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 	constructor() {
 		super(Html.div());
 
-		let titleContainer = Html.span();
+		let titleContainer = Html.div();
 		titleContainer.classList.add(Html.classScoreboardTitle);
 
 		this._titleElm = Html.span();
@@ -36,6 +36,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._keyElm = Html.kbd();
 		this._keyElm.style.float = "right";
+		this._keyElm.style.marginRight = "0.5em";
 		titleContainer.appendChild(this._keyElm);
 		this.elm().appendChild(titleContainer);
 

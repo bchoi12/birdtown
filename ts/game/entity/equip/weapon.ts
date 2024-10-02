@@ -43,6 +43,7 @@ export abstract class Weapon extends Equip<Player> {
 	private static readonly _shootNodeName = "shoot";
 
 	protected _charging : boolean;
+	protected _charged : boolean;
 	protected _charger : Stopwatch;
 	protected _weaponState : WeaponState;
 	protected _stateTimer : Timer;
@@ -59,6 +60,7 @@ export abstract class Weapon extends Equip<Player> {
 		this.addType(EntityType.WEAPON);
 
 		this._charging = false;
+		this._charged = false;
 		this._charger = new Stopwatch();
 		this._weaponState = WeaponState.IDLE;
 		this._stateTimer = this.newTimer({ canInterrupt: true });
@@ -68,11 +70,15 @@ export abstract class Weapon extends Equip<Player> {
 
 		this._shootNode = null;
 
+		this.addProp<boolean>({
+			export: () => { return this._charged; },
+			import: (obj : boolean) => { this._charged = obj; },
+		})
 		this.addProp<WeaponState>({
 			has: () => { return this._weaponState !== WeaponState.UNKNOWN; },
 			export: () => { return this._weaponState; },
 			import: (obj : WeaponState) => { this._weaponState = obj; },
-		})
+		});
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
@@ -140,7 +146,7 @@ export abstract class Weapon extends Equip<Player> {
 	}
 
 	chargedThreshold() : number { return 1000; }
-	charged() : boolean { return this.chargeMillis() >= this.chargedThreshold(); }
+	charged() : boolean { return this._charged; }
 	chargeMillis() : number { return this._charger.millis(); }
 	charging() : boolean { return this._charging; }
 	setCharging(charging : boolean) : void {
@@ -155,6 +161,7 @@ export abstract class Weapon extends Equip<Player> {
 		this._charging = charging;
 
 		if (!this._charging) {
+			this._charged = false;
 			this._charger.reset();
 		}
 	}
@@ -221,6 +228,11 @@ export abstract class Weapon extends Equip<Player> {
 		} else {
 			this.soundPlayer().stop(SoundType.CHARGE);
 			this._charger.reset();
+			this._charged = false;
+		}
+
+		if (this.isSource() && this.chargeMillis() >= this.chargedThreshold()) {
+			this._charged = true;
 		}
 	}
 

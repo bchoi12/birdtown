@@ -73,6 +73,13 @@ export enum EntityType {
 	WEAPON_CRATE,
 }
 
+export enum BirdType {
+	UNKNOWN,
+
+	BOOBY,
+	CHICKEN,
+}
+
 export enum BoneType {
 	ARM = "arm.R",
 	ARMATURE = "Armature",

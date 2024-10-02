@@ -15,14 +15,13 @@ import { Profile } from 'game/component/profile'
 import { StatInitOptions } from 'game/component/stat'
 import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity, InteractEntity } from 'game/entity'
-import { EntityType, BoneType } from 'game/entity/api'
+import { EntityType, BirdType, BoneType } from 'game/entity/api'
 import { Crate } from 'game/entity/interactable/crate'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Beak } from 'game/entity/equip/beak'
 import { Bubble } from 'game/entity/equip/bubble'
 import { Headwear } from 'game/entity/equip/headwear'
 import { NameTag } from 'game/entity/equip/name_tag'
-import { Weapon } from 'game/entity/equip/weapon'
 import { CollisionCategory, MaterialType, MeshType, TextureType } from 'game/factory/api'
 import { DepthType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
@@ -104,7 +103,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _armRecoveryTime = 100;
 	private static readonly _knockbackRecoveryTime = 250;
 	private static readonly _interactCheckInterval = 125;
-	private static readonly _sweatInterval = 3000;
+	private static readonly _sweatInterval = 4000;
 	private static readonly _walkSmokeInterval = 500;
 
 	private static readonly _defaultColor = "#ffffff";
@@ -116,6 +115,24 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	]);
 	private static readonly _controllableBones = new Set<string>([
 		BoneType.ARM, BoneType.ARMATURE, BoneType.BACK, BoneType.BEAK, BoneType.EYE, BoneType.FOREHEAD, BoneType.HEAD, BoneType.NECK,
+	]);
+
+	private static readonly _birdTextures = new Map<BirdType, TextureType>([
+		[BirdType.BOOBY, TextureType.BIRD_BOOBY],
+		[BirdType.CHICKEN, TextureType.BIRD_CHICKEN],
+	]);
+	private static readonly _eyeTextures = new Map<BirdType, TextureType>([
+		[BirdType.BOOBY, TextureType.BOOBY_EYE],
+		[BirdType.CHICKEN, TextureType.CHICKEN_EYE],
+	]);
+
+	private static readonly _beakTypes = new Map<BirdType, EntityType>([
+		[BirdType.BOOBY, EntityType.BOOBY_BEAK],
+		[BirdType.CHICKEN, EntityType.CHICKEN_BEAK],
+	]);
+	private static readonly _hairTypes = new Map<BirdType, EntityType>([
+		[BirdType.BOOBY, EntityType.BOOBY_HAIR],
+		[BirdType.CHICKEN, EntityType.CHICKEN_HAIR],
 	]);
 
 	// TODO: package in struct, Pose, PlayerPose?
@@ -297,10 +314,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 						if (mesh.material.name === Material.BASE) {
 							this._baseMaterial.set(mesh.material);
-							const texture = this.clientId() % 1 === 0 ? TextureType.BIRD_CHICKEN : TextureType.BIRD_BOOBY;
+							const texture = Player._birdTextures.get(this.birdType());
 							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(texture));
 						} else if (mesh.material.name === Material.EYE) {
-							const texture = this.clientId() % 1 === 0 ? TextureType.CHICKEN_EYE : TextureType.BOOBY_EYE;
+							const texture = Player._eyeTextures.get(this.birdType());
 
 							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(texture));
 							mesh.material.albedoTexture.hasAlpha = true;
@@ -366,7 +383,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	}
 
 	override ready() : boolean {
-		return super.ready() && this.hasClientId();
+		return super.ready() && this.hasClientId() && game.tablets().hasTablet(this.clientId()) && game.tablet(this.clientId()).isSetup();
 	}
 
 	override initialize() : void {
@@ -418,6 +435,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	}
 	dead() : boolean { return this._stats.dead(); }
 
+	birdType() : BirdType { return game.tablet(this.clientId()).birdType(); }
 	equipType() : EntityType { return this._equipType; }
 	altEquipType() : EntityType { return this._altEquipType; }
 	equips() : CircleMap<number, Equip<Player>> { return this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP); }
@@ -581,8 +599,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this._profile.setAcc({ x: sideAcc });
 
 			// Compute head and arm directions
-			const dir = this.inputDir();
-			this.recomputeDir(dir);
+			this.recomputeDir(this.inputDir());
 			this._headSubProfile.setAngle(this._headDir.angleRad());
 
 			// Check for actions during grounded changes
@@ -728,7 +745,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		// Sweat
 		// TODO: move this and other particles to ParticleFactory
 		const healthPercent = this._stats.healthPercent();
-		if (!this.dead() && healthPercent <= 0.7 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.3, healthPercent))) {
+		if (!this.dead() && healthPercent <= 0.6 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.2, healthPercent))) {
 			const weight = 1 - healthPercent;
 
 			const dim = this._profile.scaledDim();
@@ -741,14 +758,14 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 				this.addEntity(EntityType.PARTICLE_SWEAT, {
 					offline: true,
-					ttl: 300,
+					ttl: Fns.lerpRange(200, weight, 350),
 					profileInit: {
 						pos: pos,
 						vel: {
-							x: Fns.lerpRange(0.05, weight, 0.1) * dir.x,
-							y: Fns.lerpRange(0.05, weight, 0.1) * dir.y,
+							x: Fns.lerpRange(0.03, weight, 0.12) * dir.x,
+							y: Fns.lerpRange(0.03, weight, 0.12) * dir.y,
 						},
-						scaling: { x: Fns.lerpRange(0.2, weight, 0.5), y: Fns.lerpRange(0.2, weight, 0.5) },
+						scaling: { x: Fns.lerpRange(0.15, weight, 0.6), y: Fns.lerpRange(0.15, weight, 0.6) },
 					},
 					modelInit: {
 						transforms: {
@@ -893,7 +910,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		this._model.onLoad(() => {
 			if (!this._entityTrackers.hasEntityType(EntityType.BEAK)) {
-				const beakType = this.clientId() % 1 === 0 ? EntityType.CHICKEN_BEAK : EntityType.BOOBY_BEAK;
+				const beakType = Player._beakTypes.get(this.birdType());
 				const [beak, hasBeak] = this.addEntity<Beak>(beakType, {
 					associationInit: {
 						owner: this,
@@ -906,7 +923,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			if (!this._entityTrackers.hasEntityType(EntityType.HEADWEAR)) {
-				const hairType = this.clientId() % 1 === 0 ? EntityType.CHICKEN_HAIR : EntityType.BOOBY_HAIR;
+				const hairType = Player._hairTypes.get(this.birdType());
 				const [headwear, hasHeadwear] = this.addEntity<Headwear>(hairType, {
 					associationInit: {
 						owner: this,
@@ -956,8 +973,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			this._headDir.y = Math.sign(this._headDir.y);
 		}
 		this._headDir.normalize();
-
 		this._armDir.copy(dir).normalize();
-
 	}
 }

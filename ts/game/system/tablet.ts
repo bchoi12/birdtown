@@ -1,16 +1,17 @@
 
 import { game } from 'game'
 import { GameState } from 'game/api'
-import { EntityType } from 'game/entity/api'
+import { EntityType, BirdType } from 'game/entity/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 import { ClientSystem, System } from 'game/system'
 import { SystemType } from 'game/system/api'
 
+import { DialogMessage } from 'message/dialog_message'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
-import { AnnouncementType, FeedType, InfoType } from 'ui/api'
+import { AnnouncementType, DialogType, FeedType, InfoType } from 'ui/api'
 
 import { Optional } from 'util/optional'
 
@@ -31,6 +32,7 @@ export class Tablet extends ClientSystem implements System {
 	private static readonly _defaultColor = "#FFFFFF";
 	private static readonly _displayNameMaxLength = 16;
 
+	private _birdType : BirdType;
 	private _color : string;
 	private _displayName : string;
 	private _infoMap : Map<InfoType, number>;
@@ -38,19 +40,25 @@ export class Tablet extends ClientSystem implements System {
 	constructor(clientId : number) {
 		super(SystemType.TABLET, clientId);
 
+		this._birdType = BirdType.UNKNOWN;
 		this._color = "";
 		this._displayName = "";
 		this._infoMap = new Map();
 
 		this.resetForLobby();
 
+		this.addProp<BirdType>({
+			has: () => { return this.hasBirdType(); },
+			export: () => { return this._birdType; },
+			import: (obj: BirdType) => { this.setBirdType(obj); },
+		});
 		this.addProp<string>({
-			has: () => { return this._color.length > 0; },
+			has: () => { return this.hasColor(); },
 			export: () => { return this._color; },
 			import: (obj: string) => { this.setColor(obj); },
 		});
 		this.addProp<string>({
-			has: () => { return this._displayName.length > 0; },
+			has: () => { return this.hasDisplayName(); },
 			export: () => { return this._displayName; },
 			import: (obj: string) => { this.setDisplayName(obj); },
 		});
@@ -136,6 +144,20 @@ export class Tablet extends ClientSystem implements System {
 		}
 		this.addInfo(InfoType.LIVES, -1);
 	}
+
+	parseInitMessage(msg : DialogMessage) : void {
+		if (msg.type() !== DialogType.INIT) {
+			return;
+		}
+
+		this.setBirdType(msg.getBirdType());
+		this.setColor(msg.getColor());
+		this.setDisplayName(msg.getDisplayName());
+	}
+
+	hasBirdType() : boolean { return this._birdType !== BirdType.UNKNOWN; }
+	setBirdType(type : BirdType) : void { this._birdType = type; }
+	birdType() : BirdType { return this._birdType; }
 
 	hasColor() : boolean { return this._color.length > 0; }
 	setColor(color : string) : void {

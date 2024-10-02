@@ -105,8 +105,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		switch(this._message.type()) {
 		case DialogType.INIT:
 			if (this.isHost() || this.clientIdMatches()) {
-				game.tablet(this.clientId()).setColor(this._message.getColor());
-				game.tablet(this.clientId()).setDisplayName(this._message.getDisplayName());
+				game.tablet(this.clientId()).parseInitMessage(this._message);
 			}
 			break;
 		case DialogType.LOADOUT:

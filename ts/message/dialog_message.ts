@@ -1,4 +1,7 @@
 
+import { ModifierPlayerType } from 'game/component/api'
+import { EntityType, BirdType } from 'game/entity/api'
+
 import { Message, MessageBase, FieldDescriptor } from 'message'
 
 import { DialogType } from 'ui/api'
@@ -7,6 +10,7 @@ enum DialogProp {
 	UNKNOWN,
 
 	ALT_EQUIP_TYPE,
+    BIRD_TYPE,
     COLOR,
 	DISPLAY_NAME,
 	EQUIP_TYPE,
@@ -19,6 +23,7 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
 
 	private static readonly _messageDescriptor = new Map<DialogType, FieldDescriptor>([
 		[DialogType.INIT, MessageBase.fieldDescriptor(
+            [DialogProp.BIRD_TYPE, {}],
             [DialogProp.COLOR, {}],
 			[DialogProp.DISPLAY_NAME, {}],
             [DialogProp.VERSION, {}],
@@ -45,9 +50,14 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
     override serializable() { return true; }
 
     hasAltEquipType() : boolean { return this.has(DialogProp.ALT_EQUIP_TYPE); }
-    getAltEquipType() : number { return this.get<number>(DialogProp.ALT_EQUIP_TYPE); }
-    getAltEquipTypeOr(value : number) : number { return this.getOr<number>(DialogProp.ALT_EQUIP_TYPE, value); }
-    setAltEquipType(value : number) : void { this.set<number>(DialogProp.ALT_EQUIP_TYPE, value); }
+    getAltEquipType() : EntityType { return this.get<EntityType>(DialogProp.ALT_EQUIP_TYPE); }
+    getAltEquipTypeOr(value : EntityType) : EntityType { return this.getOr<EntityType>(DialogProp.ALT_EQUIP_TYPE, value); }
+    setAltEquipType(value : EntityType) : void { this.set<EntityType>(DialogProp.ALT_EQUIP_TYPE, value); }
+
+    hasBirdType() : boolean { return this.has(DialogProp.BIRD_TYPE); }
+    getBirdType() : BirdType { return this.get<BirdType>(DialogProp.BIRD_TYPE); }
+    getBirdTypeOr(value : BirdType) : BirdType { return this.getOr<BirdType>(DialogProp.BIRD_TYPE, value); }
+    setBirdType(value : BirdType) : void { this.set<BirdType>(DialogProp.BIRD_TYPE, value); }
 
     hasColor() : boolean { return this.has(DialogProp.COLOR); }
     getColor() : string { return this.get<string>(DialogProp.COLOR); }
@@ -60,14 +70,14 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
     setDisplayName(value : string) : void { this.set<string>(DialogProp.DISPLAY_NAME, value); }
 
     hasEquipType() : boolean { return this.has(DialogProp.EQUIP_TYPE); }
-    getEquipType() : number { return this.get<number>(DialogProp.EQUIP_TYPE); }
-    getEquipTypeOr(value : number) : number { return this.getOr<number>(DialogProp.EQUIP_TYPE, value); }
-    setEquipType(value : number) : void { this.set<number>(DialogProp.EQUIP_TYPE, value); }
+    getEquipType() : EntityType { return this.get<EntityType>(DialogProp.EQUIP_TYPE); }
+    getEquipTypeOr(value : EntityType) : EntityType { return this.getOr<EntityType>(DialogProp.EQUIP_TYPE, value); }
+    setEquipType(value : EntityType) : void { this.set<EntityType>(DialogProp.EQUIP_TYPE, value); }
 
     hasPlayerType() : boolean { return this.has(DialogProp.PLAYER_TYPE); }
-    getPlayerType() : number { return this.get<number>(DialogProp.PLAYER_TYPE); }
-    getPlayerTypeOr(value : number) : number { return this.getOr<number>(DialogProp.PLAYER_TYPE, value); }
-    setPlayerType(value : number) : void { this.set<number>(DialogProp.PLAYER_TYPE, value); }
+    getPlayerType() : ModifierPlayerType { return this.get<ModifierPlayerType>(DialogProp.PLAYER_TYPE); }
+    getPlayerTypeOr(value : ModifierPlayerType) : ModifierPlayerType { return this.getOr<ModifierPlayerType>(DialogProp.PLAYER_TYPE, value); }
+    setPlayerType(value : ModifierPlayerType) : void { this.set<ModifierPlayerType>(DialogProp.PLAYER_TYPE, value); }
 
     hasVersion() : boolean { return this.has(DialogProp.VERSION); }
     getVersion() : number { return this.get<number>(DialogProp.VERSION); }
@@ -76,11 +86,12 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
 
     /*
     const enumClass = "DialogProp";
-    ["ALT_EQUIP_TYPE", "number"],
+    ["ALT_EQUIP_TYPE", "EntityType"],
+    ["BIRD_TYPE", "BirdType"],
     ["COLOR", "string"],
     ["DISPLAY_NAME", "string"],
-    ["EQUIP_TYPE", "number"],
-    ["PLAYER_TYPE", "number"],
+    ["EQUIP_TYPE", "EntityType"],
+    ["PLAYER_TYPE", "ModifierPlayerType"],
     ["VERSION", "number"],
     */
     // End auto-generated code (v2.1)
