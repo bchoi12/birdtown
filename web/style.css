@@ -558,8 +558,8 @@ kbd {
     width: 100%;
 
     top: 12%;
-    padding-top: 0.75em;
-    padding-bottom: 0.75em;
+    padding-top: 0.7em;
+    padding-bottom: 0.7em;
 
     background: linear-gradient(to left, rgba(200, 200, 200, 0.1), rgba(0, 0, 0, 0.7) 40%, rgba(0, 0, 0, 0.7) 60%, rgba(200, 200, 200, 0.1));
 }

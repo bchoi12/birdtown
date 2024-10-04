@@ -36,7 +36,7 @@ export class Sniper extends Weapon {
 	};
 
 	private static readonly _chargedThreshold = 1000;
-	private static readonly _boltTTL = 500;
+	private static readonly _boltTTL = 450;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.SNIPER, options);
@@ -60,7 +60,7 @@ export class Sniper extends Weapon {
 		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
 		const unitDir = this.getDir();
 
-		let vel = unitDir.clone().scale(charged ? 1 : 0.75);
+		let vel = unitDir.clone().scale(charged ? 1.1 : 0.8);
 		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, {
 			ttl: Sniper._boltTTL,
 			associationInit: {

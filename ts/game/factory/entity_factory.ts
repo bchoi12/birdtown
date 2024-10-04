@@ -38,8 +38,8 @@ import { StarExplosion } from 'game/entity/explosion/star_explosion'
 import { HealthCrate } from 'game/entity/interactable/crate/health_crate'
 import { WeaponCrate } from 'game/entity/interactable/crate/weapon_crate'
 import { Table } from 'game/entity/interactable/table'
-import { SignControls } from 'game/entity/interactable/sign/sign_controls'
-import { SignStartGame } from 'game/entity/interactable/sign/sign_start_game'
+import { ControlsSign } from 'game/entity/interactable/sign/controls_sign'
+import { StartGameSign } from 'game/entity/interactable/sign/start_game_sign'
 import { ParticleCube } from 'game/entity/particle/particle_cube'
 import { ParticleEnergyCube } from 'game/entity/particle/particle_energy_cube'
 import { ParticleSmoke } from 'game/entity/particle/particle_smoke'
@@ -79,6 +79,7 @@ export namespace EntityFactory {
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
 		[EntityType.CLAW, (options : EntityOptions) => { return new Claw(options); }],
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
+		[EntityType.CONTROLS_SIGN, (options : EntityOptions) => { return new ControlsSign(options); }],
 		[EntityType.COWBOY_HAT, (options : EntityOptions) => { return new CowboyHat(options); }],
 		[EntityType.DYING_STAR, (options : EntityOptions) => { return new DyingStar(options); }],
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
@@ -102,12 +103,11 @@ export namespace EntityFactory {
 		[EntityType.ROCKET_EXPLOSION, (options : EntityOptions) => { return new RocketExplosion(options); }],
 		[EntityType.SCOUTER, (options : EntityOptions) => { return new Scouter(options); }],
 		[EntityType.SHOTGUN, (options : EntityOptions) => { return new Shotgun(options); }],
-		[EntityType.SIGN_CONTROLS, (options : EntityOptions) => { return new SignControls(options); }],
-		[EntityType.SIGN_START_GAME, (options : EntityOptions) => { return new SignStartGame(options); }],
 		[EntityType.SNIPER, (options : EntityOptions) => { return new Sniper(options); }],
 		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
 		[EntityType.STAR, (options : EntityOptions) => { return new Star(options); }],
 		[EntityType.STAR_EXPLOSION, (options : EntityOptions) => { return new StarExplosion(options); }],
+		[EntityType.START_GAME_SIGN, (options : EntityOptions) => { return new StartGameSign(options); }],
 		[EntityType.TABLE, (options : EntityOptions) => { return new Table(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 		[EntityType.WEAPON_CRATE, (options : EntityOptions) => { return new WeaponCrate(options); }],

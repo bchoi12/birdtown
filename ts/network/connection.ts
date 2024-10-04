@@ -37,6 +37,6 @@ export class Connection {
 	hasClientId() : boolean { return this._clientId > 0; }
 	clientId() : number { return this._clientId; }
 
-	hasDisplayName() : boolean { return this.hasClientId() && game.tablet(this.clientId()).hasDisplayName(); }
-	displayName() : string { return game.tablet(this.clientId()).displayName(); }
+	hasDisplayName() : boolean { return this.hasClientId() && game.displayName(this.clientId()).length > 0; }
+	displayName() : string { return game.displayName(this.clientId()); }
 }

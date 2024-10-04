@@ -303,8 +303,6 @@ export abstract class Weapon extends Equip<Player> {
 			return;
 		}
 
-		console.log(WeaponState[state]);
-
 		this._weaponState = state;
 		const time = this.getTime(this._weaponState);
 		if (time > 0) {

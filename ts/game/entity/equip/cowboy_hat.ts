@@ -7,7 +7,7 @@ import { SoundPlayer } from 'game/component/sound_player'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
-import { Weapon } from 'game/entity/equip/weapon'
+import { Weapon, WeaponState } from 'game/entity/equip/weapon'
 import { Player } from 'game/entity/player'
 import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -93,7 +93,12 @@ export class CowboyHat extends Equip<Player> {
 				this.owner().addForce(force);
 			}
 
+			let playSound = false;
 			weapons.forEach((weapon : Weapon) => {
+				if (weapon.weaponState() === WeaponState.RELOADING || weapon.weaponState() === WeaponState.FIRING) {
+					playSound = true;
+				}
+
 				weapon.quickReload(CowboyHat._dashTime);
 			});
 
@@ -101,7 +106,9 @@ export class CowboyHat extends Equip<Player> {
 			this._chargeDelayTimer.start(CowboyHat._chargeDelay);
 			this._dashTimer.start(CowboyHat._dashTime);
 
-			this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
+			if (playSound) {
+				this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
+			}
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {

@@ -92,34 +92,34 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		const names = options.names ? options.names : [];
 		switch (type) {
 		case TooltipType.BUBBLE:
-			return "Press " + KeyNames.kbd(settings.jumpKeyCode) + " to pop the bubble";
+			return `Press ${KeyNames.kbd(settings.jumpKeyCode)} to pop the bubble`;
 		case TooltipType.CONTROLS:
-			return "Press " + KeyNames.kbd(settings.interactKeyCode) + " to view the controls";
+			return `Press ${KeyNames.kbd(settings.menuKeyCode)} at any time to update settings & controls`;
 		case TooltipType.COPIED_URL:
 			return "Copied invite link to clipboard!";
 		case TooltipType.FORCE_SUBMIT:
-			return "Warning: dialog timed out with no client input";
+			return "Note: dialog was auto-submitted!";
 		case TooltipType.JUST_A_SIGN:
 			return "Just a sign with no purpose"
 		case TooltipType.HEALTH_CRATE:
 			if (names.length !== 1) {
 				return "";
 			}
-			return KeyNames.kbd(settings.interactKeyCode) + " Recover " + names[0] + " health";
+			return `Press ${KeyNames.kbd(settings.interactKeyCode)} to recover ${names[0]} health`;
 		case TooltipType.POINTER_LOCK:
-			return "Press " + KeyNames.kbd(settings.pointerLockKeyCode) + " to unlock your mouse";
+			return `Press ${KeyNames.kbd(settings.pointerLockKeyCode)} to unlock your mouse`;
 		case TooltipType.SPAWN:
 			return "Press <kbd>any key</kbd> to deploy"
 		case TooltipType.START_GAME:
 			if (!game.isHost()) {
 				return "Only the host can start a game";
 			}
-			return "Press " + KeyNames.kbd(settings.interactKeyCode) + " to start a game";
+			return `Press ${KeyNames.kbd(settings.interactKeyCode)} to start a game`;
 		case TooltipType.WEAPON_CRATE:
 			if (names.length !== 1) {
 				return "";
 			}
-			return "Press " + KeyNames.kbd(settings.interactKeyCode) + " to equip " + names[0];
+			return `Press ${KeyNames.kbd(settings.interactKeyCode)} to equip ${names[0]}`;
 		default:
 			return "Missing tooltip text for type " + type;
 		}

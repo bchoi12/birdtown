@@ -183,7 +183,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameMode.DUEL:
 			return ["Duel", "Win the 1v1"];
 		case GameMode.FREE_FOR_ALL:
-			return ["Free for All", "Be the first to reach " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point")];
+			return ["Free for All", "Be the first to score " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point")];
 		case GameMode.PRACTICE:
 			return ["Practice", "Press " + KeyNames.kbd(settings.menuKeyCode) + " to exit"];
 		case GameMode.SURVIVAL:
@@ -378,7 +378,7 @@ export class GameMaker extends SystemBase implements System {
 			});
 
 			const nameAndGoal = GameMaker.nameAndGoal(this._config);
-			nameAndGoal[0] += " (Round " + this._round + ")";
+			nameAndGoal[0] += " Round " + this._round;
 
 	    	let startGameMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	startGameMsg.setAnnouncementType(AnnouncementType.GENERIC);

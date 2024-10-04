@@ -8,13 +8,13 @@ import { Sign } from 'game/entity/interactable/sign'
 import { ui } from 'ui'
 import { TooltipType } from 'ui/api'
 
-export class SignControls extends Sign {
+export class ControlsSign extends Sign {
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.SIGN_CONTROLS, entityOptions);
+		super(EntityType.CONTROLS_SIGN, entityOptions);
 	}
 
-	override nameTagText() : string { return "Controls"; }
+	override nameTagText() : string { return "Controls & Settings"; }
 	override tooltipType() : TooltipType { return TooltipType.CONTROLS; }
 
 	override interactWith(entity : Entity) : void {

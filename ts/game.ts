@@ -149,6 +149,16 @@ class Game {
 			console.log("Set client id:", clientId);
 		}
 	}
+	displayName(clientId? : number) : string {
+		if (!clientId) {
+			clientId = this.clientId();
+		}
+
+		if (game.tablets().hasTablet(clientId)) {
+			return game.tablet(clientId).displayName();
+		}
+		return "";
+	}
 
 	nextClientId() : number {
 		if (!this.isHost()) {

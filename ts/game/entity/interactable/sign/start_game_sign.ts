@@ -8,11 +8,10 @@ import { Sign } from 'game/entity/interactable/sign'
 import { ui } from 'ui'
 import { DialogType, TooltipType } from 'ui/api'
 
-// TODO: rename StartGameSign?
-export class SignStartGame extends Sign {
+export class StartGameSign extends Sign {
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.SIGN_START_GAME, entityOptions);
+		super(EntityType.START_GAME_SIGN, entityOptions);
 	}
 
 	override nameTagText() : string { return "Start Game"; }

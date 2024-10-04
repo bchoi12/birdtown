@@ -45,14 +45,14 @@ export class Client extends Netcode {
 		});
 
 		peer.on("error", (e) => {
-			if (this._initialized) {
-		    	ui.showStatus(StatusType.DISCONNECTED);
-			} else {
-				onError();
-			}
+			onError();
 		});
 
 		peer.on("disconnected", () => {
+			if (this._initialized) {
+		    	ui.showStatus(StatusType.DISCONNECTED);
+			}
+
 			// TODO: reconnect?
 		});
 	}
