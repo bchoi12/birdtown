@@ -95,9 +95,9 @@ export class Lakitu extends SystemBase implements System {
 	}
 	private move(anchor : BABYLON.Vector3) : void {
 		this._target = anchor.clone();
-		this._target.y = Math.max(game.level().bounds().min.y + this._fov.y / 2 + 1, this._target.y);
 		const targetOffset = this.offset(OffsetType.TARGET);
 		this._target.addInPlaceFromFloats(targetOffset.x, targetOffset.y, targetOffset.z);
+		this._target.y = Math.max(game.level().bounds().min.y + this._fov.y / 2 + 1, this._target.y);
 
 		this._camera.position = this._target.clone();
 		const cameraOffset = this.offset(OffsetType.CAMERA);

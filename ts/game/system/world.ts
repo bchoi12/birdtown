@@ -55,7 +55,7 @@ export class World extends SystemBase implements System {
 		[TimeType.EVENING, {
 			skyMaterial: MaterialType.SKY_EVENING,
 			lightDir: new BABYLON.Vector3(2, -2, -6).normalize(),
-			directionalIntensity: 1.5,
+			directionalIntensity: 1.7,
 			directionalDiffuse: new BABYLON.Color3(1, 0.77, 0.55),
 			hemisphericIntensity: 0.3,
 			hemisphericDiffuse: new BABYLON.Color3(1, 0.88, 0.77),

@@ -86,7 +86,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm.appendChild(frameRate.elm());
 
 		let shadowQuality = new SettingWrapper<ShadowSetting>({
-			name: "Shadow Filtering Quality",
+			name: "Shadow Quality",
 			value: settings.shadowSetting,
 			click: (current : ShadowSetting) => {
 				if (current === ShadowSetting.HIGH) {

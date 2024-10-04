@@ -77,7 +77,7 @@ export abstract class Weapon extends Equip<Player> {
 		this.addProp<WeaponState>({
 			has: () => { return this._weaponState !== WeaponState.UNKNOWN; },
 			export: () => { return this._weaponState; },
-			import: (obj : WeaponState) => { this._weaponState = obj; },
+			import: (obj : WeaponState) => { this.setWeaponState(this._weaponState); },
 		});
 
 		this._model = this.addComponent<Model>(new Model({
@@ -302,6 +302,8 @@ export abstract class Weapon extends Equip<Player> {
 		if (this._weaponState === state) {
 			return;
 		}
+
+		console.log(WeaponState[state]);
 
 		this._weaponState = state;
 		const time = this.getTime(this._weaponState);

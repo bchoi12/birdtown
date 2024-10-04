@@ -112,7 +112,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 				}
 			}
 			return {
-				main: names.join(", ") + (names.length > 1 ? " WIN" : " WINS") + " IT ALL!",
+				main: names.join(", ").toUpperCase() + (names.length > 1 ? " WIN" : " WINS") + " IT ALL!",
 			};
 		case AnnouncementType.GENERIC:
 			return {
