@@ -4,15 +4,13 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { GameState, GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
-import { AssociationType, AttributeType, ComponentType, ModifierType, ModifierPlayerType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
 import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
 import { EntityTrackers } from 'game/component/entity_trackers'
 import { Expression } from 'game/component/expression'
 import { Model } from 'game/component/model'
-import { Modifiers } from 'game/component/modifiers'
 import { Profile } from 'game/component/profile'
-import { StatInitOptions } from 'game/component/stat'
 import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity, InteractEntity } from 'game/entity'
 import { EntityType, BirdType, BoneType } from 'game/entity/api'
@@ -160,7 +158,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _entityTrackers : EntityTrackers;
 	private _expression : Expression<Emotion>;
 	private _model : Model;
-	private _modifiers : Modifiers;
 	private _profile : Profile;
 	private _stats : Stats;
 	private _headSubProfile : Profile;
@@ -372,14 +369,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		this.soundPlayer().registerSound(SoundType.FOOTSTEP);
 
-		this._modifiers = new Modifiers();
-		this._stats = this.addComponent<Stats>(new Stats({ stats: new Map<StatType, StatInitOptions>([
-			[StatType.HEALTH, {
-				stat: 100,
-				min: 0,
-				max: 100,
-			}]
-		])}));
+		this._stats = this.addComponent<Stats>(new Stats());
+		this._stats.addStat(StatType.HEALTH, {
+			base: 100,
+			min: 0,
+			max: 100,
+		});
 	}
 
 	override ready() : boolean {
@@ -734,8 +729,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		// Interact with stuff
 		// TODO: put in update?
 		// TODO: move isSource() check to canInteractWith?
-		if (this.isSource()
-			&& this._nearestInteractable.has()
+		if (this._nearestInteractable.has()
 			&& this._nearestInteractable.get().canInteractWith(this)
 			&& this.key(KeyType.INTERACT, KeyState.PRESSED)) {
 			this._nearestInteractable.get().interactWith(this);
@@ -937,8 +931,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 			const loadout = game.clientDialog(this.clientId()).message(DialogType.LOADOUT);
 
-			this._modifiers.setModifier(ModifierType.PLAYER_TYPE, loadout.getPlayerType());
-
 			this.createEquips(loadout.getEquipType(), loadout.getAltEquipType());
 
 			this._entityTrackers.clearEntityType(EntityType.BUBBLE);
@@ -954,8 +946,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			}
 
 			this._stats.reset();
-			this._stats.processComponent<Modifiers>(this._modifiers);
-			this._profile.processComponent<Stats>(this._stats);
 		});
 	}
 

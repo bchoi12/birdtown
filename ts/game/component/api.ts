@@ -9,7 +9,6 @@ export enum ComponentType {
 	EXPRESSION,
 	HEX_COLORS,
 	MODEL,
-	MODIFIERS,
 	OPENINGS,
 	PROFILE,
 	SOUND_PLAYER,
@@ -33,15 +32,6 @@ export enum AttributeType {
 	GROUNDED,
 	INVINCIBLE,
 	SOLID,
-}
-
-export enum BoostType {
-	UNKNOWN,
-
-	ADD_BASE,
-	MULT_BASE,
-	ADD_BONUS,
-	MULT_TOTAL,
 }
 
 export enum ModifierType {

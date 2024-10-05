@@ -89,9 +89,5 @@ export class WeaponCrate extends Crate {
 		player.createEquips(this.equipType(), this.altEquipType());
 
 		this.open();
-
-		if (this.isSource()) {
-			this.delete();
-		}
 	}
 }

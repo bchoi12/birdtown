@@ -55,9 +55,5 @@ export class HealthCrate extends Crate {
 
 		entity.takeDamage(-this.amount(), this);
 		this.open();
-
-		if (this.isSource()) {
-			this.delete();
-		}
 	}
 }

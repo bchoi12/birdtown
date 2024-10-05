@@ -19,5 +19,9 @@ export class ControlsSign extends Sign {
 
 	override interactWith(entity : Entity) : void {
 		super.interactWith(entity);
+
+		if (entity.clientIdMatches()) {
+			ui.openMenu();
+		}
 	}
 }

@@ -17,6 +17,10 @@ export class StartGameSign extends Sign {
 	override nameTagText() : string { return "Start Game"; }
 	override tooltipType() : TooltipType { return TooltipType.START_GAME; }
 
+	override canInteractWith(entity : Entity) : boolean {
+		return this.isSource() && super.canInteractWith(entity);
+	}
+
 	override interactWith(entity : Entity) : void {
 		super.interactWith(entity);
 

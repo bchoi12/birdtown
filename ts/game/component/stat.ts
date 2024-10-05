@@ -7,13 +7,14 @@ import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 
 import { defined } from 'util/common'
+import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
 import { RingBuffer } from 'util/buffer/ring_buffer'
 
 export type StatInitOptions = {
-	stat? : number;
-	min? : number;
-	max? : number;
+	base : number;
+	min : number;
+	max : number;
 }
 
 export type StatUpdate = {
@@ -23,25 +24,19 @@ export type StatUpdate = {
 
 export class Stat extends ComponentBase implements Component {
 
-	private static readonly _bufferSize : number = 30;
+	private static readonly _bufferSize : number = 10;
 
 	private _stat : StatNumber;
-	private _min : Optional<StatNumber>;
-	private _max : Optional<StatNumber>;
+	private _min : number;
+	private _max : StatNumber;
 	private _logBuffer : RingBuffer<StatLog>;
 
 	constructor(init : StatInitOptions) {
 		super(ComponentType.STAT);
 
-		this._stat = new StatNumber(defined(init.stat) ? init.stat : 0);
-		this._min = new Optional();
-		if (defined(init.min)) {
-			this._min.set(new StatNumber(init.min));
-		}
-		this._max = new Optional();
-		if (defined(init.max)) {
-			this._max.set(new StatNumber(init.max));
-		}
+		this._stat = new StatNumber(init.base);
+		this._min = init.min;
+		this._max = new StatNumber(init.max);
 		this._logBuffer = new RingBuffer(Stat._bufferSize);
 
 		this.addProp<number>({
@@ -49,93 +44,53 @@ export class Stat extends ComponentBase implements Component {
 			import: (obj : number) => { this._stat.set(obj); },
 		});
 		this.addProp<number>({
-			has: () => { return this._min.has(); },
-			export: () => { return this._min.get().get(); },
-			import: (obj : number) => {
-				if (!this._min.has()) {
-					this._min.set(new StatNumber(obj));
-				} else {
-					this._min.get().set(obj);
-				}
-			},
+			export: () => { return this._stat.base(); },
+			import: (obj : number) => { this._stat.setBase(obj); },
 		});
 		this.addProp<number>({
-			has: () => { return this._max.has(); },
-			export: () => { return this._max.get().get(); },
-			import: (obj : number) => {
-				if (!this._max.has()) {
-					this._max.set(new StatNumber(obj));
-				} else {
-					this._max.get().set(obj);
-				}
-			},
+			has: () => { return this._min !== 0; },
+			export: () => { return this._min; },
+			import: (obj : number) => { this._min = obj; },
+		});
+		this.addProp<number>({
+			export: () => { return this._max.get(); },
+			import: (obj : number) => { this._max.set(obj); },
+		});
+		this.addProp<number>({
+			export: () => { return this._max.base(); },
+			import: (obj : number) => { this._max.setBase(obj); },
 		});
 	}
 
 	reset() : void {
 		this._stat.reset();
-		if (this._min.has()) {
-			this._min.get().reset();
-		}
-		if (this._max.has()) {
-			this._max.get().reset();
-		}
+		this._max.reset();
 		this._logBuffer.clear();
 	}
-	clearBoosts() : void {
-		this._stat.clearBoosts();
-		if (this._min.has()) {
-			this._min.get().clearBoosts();
-		}
-		if (this._max.has()) {
-			this._max.get().clearBoosts();
-		}
-	}
-	boost() : void {
-		this._stat.boost();
-		if (this._min.has()) {
-			this._min.get().boost();
-		}
-		if (this._max.has()) {
-			this._max.get().boost();
-		}
-	}
 
-	atMin() : boolean { return this._min.has() && this._stat.get() <= this._min.get().get(); }
-	atMax() : boolean { return this._max.has() && this._stat.get() >= this._max.get().get(); }
-	min() : Optional<StatNumber> { return this._min; }
-	max() : Optional<StatNumber> { return this._max; }
-	statNumber() : StatNumber { return this._stat; }
 	current() : number { return this._stat.get(); }
+	percent() : number { return this.current() / this.max(); }
+	atMin() : boolean { return this.current() <= this.min(); }
+	atMax() : boolean { return this.current() >= this.max(); }
+	min() : number { return this._min; }
+	max() : number { return this._max.get(); }
 
 	updateStat(update : StatUpdate) : void {
-		if (update.delta < 0) {
-			if (this._min.has()) {
-				const min = this._min.get();
-				if (this._stat.get() <= min.get()) {
-					update.delta = 0;
-				}
-
-				update.delta = Math.max(min.get() - this._stat.get(), update.delta);
-			}
+		if (!this.isSource() || !this.initialized()) {
+			return;
 		}
 
-		if (update.delta > 0) {
-			if (this._max.has()) {
-				const max = this._max.get();
-				if (this._stat.get() >= max.get()) {
-					update.delta = 0;
-				}
-
-				update.delta = Math.min(max.get() - this._stat.get(), update.delta);
-			}
-		}
-
-		if (this.isSource()) {
+		if (this.current() + update.delta < this.min()) {
+			update.delta = Fns.clamp(this.min() - this.current(), update.delta, 0);
+			this._stat.set(this.min());
+		} else if (this.current() + update.delta > this.max()) {
+			update.delta = Fns.clamp(0, update.delta, this.max() - this.current());
+			this._stat.set(this.max());			
+		} else {
 			this._stat.add(update.delta);
 		}
 
-		if (update.entity) {
+		if (this.entityType() === EntityType.PLAYER && update.entity) {
 			this._logBuffer.push(new StatLog({
 				timestamp: Date.now(),
 				delta: update.delta,

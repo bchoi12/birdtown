@@ -1,6 +1,7 @@
 import { game } from 'game'
 import { ComponentType } from 'game/component/api'
 import { Entity } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { GameData, DataFilter } from 'game/game_data'
 import { GameObject, GameObjectBase, NameParams } from 'game/game_object'
 
@@ -11,8 +12,8 @@ import { Optional } from 'util/optional'
 export interface Component extends GameObject {
 	type() : ComponentType;
 	entity() : Entity;
+	entityType() : EntityType;
 	setEntity<T extends Entity>(entity : T) : void;
-	processComponent<T extends Component>(component : T) : void;
 }
 
 export abstract class ComponentBase extends GameObjectBase implements Component {
@@ -45,6 +46,7 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 
 	type() : ComponentType { return this._type; }
 	entity() : Entity { return this._entity.get(); }
+	entityType() : EntityType { return this._entity.has() ? this._entity.get().type() : EntityType.UNKNOWN; }
 	setEntity<T extends Entity>(entity : T) : void {
 		this.addNameParams({
 			target: entity,
@@ -55,8 +57,6 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 			this.populateSubComponent(subComponent, {id: id});
 		});
 	}
-
-	processComponent<T extends Component>(component : T) : void {}
 
 	// Transfer some metadata to SubComponents
 	private populateSubComponent<T extends Component>(component : T, nameParams : NameParams) : T {

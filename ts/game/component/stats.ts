@@ -2,16 +2,9 @@
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType, StatType } from 'game/component/api'
-import { Modifiers } from 'game/component/modifiers'
 import { Stat, StatUpdate, StatInitOptions } from 'game/component/stat'
 import { StatLog } from 'game/component/util/stat_log'
-
 import { Entity } from 'game/entity'
-import { EntityLog } from 'game/util/entity_log'
-
-import { RingBuffer } from 'util/buffer/ring_buffer'
-import { defined } from 'util/common'
-import { Optional } from 'util/optional'
 
 export type StatsInitOptions = {
 	stats : Map<StatType, StatInitOptions>;
@@ -19,49 +12,31 @@ export type StatsInitOptions = {
 
 export class Stats extends ComponentBase implements Component {
 
-	constructor(init : StatsInitOptions) {
+	constructor(init? : StatsInitOptions) {
 		super(ComponentType.STATS);
 
-		init.stats.forEach((init : StatInitOptions, type : StatType) => {
-			this.addStat(type, init);
-		});
+		if (init) {
+			init.stats.forEach((init : StatInitOptions, type : StatType) => {
+				this.addStat(type, init);
+			});
+		}
 	}
 
 	reset() : void {
 		this.execute<Stat>((stat : Stat, type : StatType) => {
 			stat.reset();
-			stat.clearBoosts();
-		});
-	}
-
-	override processComponent<T extends Component>(component : T) : void {
-		if (component.type() !== ComponentType.MODIFIERS || !(component instanceof Modifiers)) {
-			return;
-		}
-
-		let modifiers = <Modifiers>component;
-		modifiers.applyTo(this);
-		this.execute<Stat>((stat : Stat) => {
-			stat.boost();
 		});
 	}
 
 	// Convenience methods
-	health() : number { return this.hasStat(StatType.HEALTH) ? this.getStat(StatType.HEALTH).current() : 0; }
+	health() : number { return this.hasStat(StatType.HEALTH) ? this.stat(StatType.HEALTH).current() : 0; }
 	healthPercent() : number {
 		if (!this.hasStat(StatType.HEALTH)) {
 			return 0;
 		}
-
-		const health = this.getStat(StatType.HEALTH);
-		const max = health.max();
-		if (!max.has()) {
-			return 1;
-		}
-
-		return health.current() / max.get().get();
+		return this.stat(StatType.HEALTH).percent();
 	}
-	dead() : boolean { return this.hasStat(StatType.HEALTH) && this.getStat(StatType.HEALTH).atMin(); }
+	dead() : boolean { return this.hasStat(StatType.HEALTH) && this.stat(StatType.HEALTH).atMin(); }
 
 	lastDamager(sinceMillis : number) : [StatLog, boolean] {
 		return this.flushStat(StatType.HEALTH, (log : StatLog) => {
@@ -76,9 +51,9 @@ export class Stats extends ComponentBase implements Component {
 		});
 	}
 
-	addStat(type : StatType, init? : StatInitOptions) : void { this.registerSubComponent(type, new Stat(defined(init) ? init : {})); }
+	addStat(type : StatType, init : StatInitOptions) : Stat { return this.registerSubComponent<Stat>(type, new Stat(init)); }
 	hasStat(type : StatType) : boolean { return this.hasChild(type); }
-	getStat(type : StatType) : Stat {
+	stat(type : StatType) : Stat {
 		if (!this.hasStat(type)) {
 			console.error("Error: queried nonexistent stat %d for %s", type, this.name());
 			return null;

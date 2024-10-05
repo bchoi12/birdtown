@@ -2,10 +2,11 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { StepData } from 'game/game_object'
-import { AttributeType, ComponentType } from 'game/component/api'
+import { AttributeType, ComponentType, StatType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
+import { Stats } from 'game/component/stats'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
@@ -39,6 +40,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 	protected _attributes : Attributes;
 	protected _profile : Profile;
 	protected _model : Model;
+	protected _stats : Stats
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
@@ -116,6 +118,13 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 			},
 			init: entityOptions.modelInit,
 		}));
+
+		this._stats = this.addComponent<Stats>(new Stats());
+		this._stats.addStat(StatType.HEALTH, {
+			base: 50,
+			min: 0,
+			max: 50,
+		});
 	}
 
 	override initialize() : void {
@@ -143,21 +152,21 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 		super.delete();
 
 		if (this._opened) {
-			for (let i = 0; i < 5; ++i) {
+			for (let i = 0; i < 7; ++i) {
 				this.addEntity(EntityType.PARTICLE_CUBE, {
 					offline: true,
-					ttl: 1000,
+					ttl: 1200,
 					profileInit: {
 						pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.1, 0.1), y: Fns.randomRange(-0.1, 0.1), }),
 						vel: {
-							x: Fns.randomRange(-0.2, 0.2),
+							x: Fns.randomRange(-0.15, 0.15),
 							y: Fns.randomRange(0.2, 0.3),
 						},
 						scaling: { x: 0.25, y: 0.25 },
 					},
 					modelInit: {
 						transforms: {
-							translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1) },
+							translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.2, 0.2) },
 						},
 						materialType: i % 2 === 1 ? MaterialType.PICKUP_YELLOW : this.outerMaterial(),
 					}
@@ -168,6 +177,10 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 		if (this._nameTag !== null) {
 			this._nameTag.delete();
 		}
+	}
+
+	override canInteractWith(entity : Entity) : boolean {
+		return this.isSource() && super.canInteractWith(entity);
 	}
 
 	override setInteractableWith(entity : Entity, interactable : boolean) : void {
@@ -186,6 +199,10 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 	protected open() : void {
 		this.clearInteractable();
 		this._opened = true;
+
+		if (this.isSource()) {
+			this.delete();
+		}
 	}
 	opened() : boolean { return this._opened; }
 	
@@ -198,6 +215,11 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
+
+		if (this._stats.dead() && !this.opened()) {
+			this.open();
+			return;
+		}
 
 		if (this._profile.pos().y < game.level().bounds().min.y) {
 			this.delete();

@@ -284,18 +284,6 @@ export class Profile extends ComponentBase implements Component {
 		});
 	}
 
-	override processComponent<T extends Component>(component : T) : void {
-		if (component.type() !== ComponentType.STATS || !(component instanceof Stats)) {
-			return;
-		}
-
-		let stats = <Stats>component;
-		if (stats.hasStat(StatType.SCALING)) {
-			const scaling = stats.getStat(StatType.SCALING).current();
-			this.setScaling({x: scaling, y: scaling });
-		}
-	}
-
 	relativePos(cardinal : CardinalDir, objectDim? : Vec) : Vec2 {
 		let adjustedPos = this.pos().clone();
 		const dim = this.scaledDim();
