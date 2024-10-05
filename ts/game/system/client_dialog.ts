@@ -2,7 +2,6 @@
 import { game } from 'game'
 import { GameState } from 'game/api'
 import { GameData } from 'game/game_data'
-import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
 import { ClientSystem, System } from 'game/system'
 import { SystemType, PlayerRole } from 'game/system/api'
@@ -67,7 +66,6 @@ export class ClientDialog extends ClientSystem implements System {
 		let loadout = this.message(DialogType.LOADOUT);
 		loadout.setEquipType(pair[0]);
 		loadout.setAltEquipType(pair[1]);
-		loadout.setPlayerType(ModifierPlayerType.NONE);
 	}
 
 	override initialize() : void {

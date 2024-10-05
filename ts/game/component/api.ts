@@ -34,21 +34,6 @@ export enum AttributeType {
 	SOLID,
 }
 
-export enum ModifierType {
-	UNKNOWN,
-
-	PLAYER_TYPE,
-}
-
-export enum ModifierPlayerType {
-	UNKNOWN,
-
-	NONE,
-	BIG,
-	FAST,
-	SHARP,
-}
-
 export enum StatType {
 	UNKNOWN,
 

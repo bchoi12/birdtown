@@ -1,6 +1,5 @@
 
 import { game } from 'game'
-import { ModifierPlayerType } from 'game/component/api'
 import { EntityType, BirdType } from 'game/entity/api'
 import { ColorType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'

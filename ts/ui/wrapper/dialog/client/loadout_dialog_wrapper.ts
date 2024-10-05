@@ -1,7 +1,6 @@
 
 import { game } from 'game'
 import { GameState } from 'game/api'
-import { ModifierPlayerType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
 import { EquipPairs } from 'game/util/equip_pairs'
 

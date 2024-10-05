@@ -1,5 +1,4 @@
 
-import { ModifierPlayerType } from 'game/component/api'
 import { EntityType, BirdType } from 'game/entity/api'
 
 import { Message, MessageBase, FieldDescriptor } from 'message'
@@ -14,7 +13,6 @@ enum DialogProp {
     COLOR,
 	DISPLAY_NAME,
 	EQUIP_TYPE,
-	PLAYER_TYPE,
 	VERSION,
 }
 
@@ -29,7 +27,6 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
             [DialogProp.VERSION, {}],
 		)],
 		[DialogType.LOADOUT, MessageBase.fieldDescriptor(
-			[DialogProp.PLAYER_TYPE, {}],
 			[DialogProp.EQUIP_TYPE, {optional: true}],
 			[DialogProp.ALT_EQUIP_TYPE, {optional: true}],
 			[DialogProp.VERSION, {}],
@@ -74,11 +71,6 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
     getEquipTypeOr(value : EntityType) : EntityType { return this.getOr<EntityType>(DialogProp.EQUIP_TYPE, value); }
     setEquipType(value : EntityType) : void { this.set<EntityType>(DialogProp.EQUIP_TYPE, value); }
 
-    hasPlayerType() : boolean { return this.has(DialogProp.PLAYER_TYPE); }
-    getPlayerType() : ModifierPlayerType { return this.get<ModifierPlayerType>(DialogProp.PLAYER_TYPE); }
-    getPlayerTypeOr(value : ModifierPlayerType) : ModifierPlayerType { return this.getOr<ModifierPlayerType>(DialogProp.PLAYER_TYPE, value); }
-    setPlayerType(value : ModifierPlayerType) : void { this.set<ModifierPlayerType>(DialogProp.PLAYER_TYPE, value); }
-
     hasVersion() : boolean { return this.has(DialogProp.VERSION); }
     getVersion() : number { return this.get<number>(DialogProp.VERSION); }
     getVersionOr(value : number) : number { return this.getOr<number>(DialogProp.VERSION, value); }
@@ -91,7 +83,6 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
     ["COLOR", "string"],
     ["DISPLAY_NAME", "string"],
     ["EQUIP_TYPE", "EntityType"],
-    ["PLAYER_TYPE", "ModifierPlayerType"],
     ["VERSION", "number"],
     */
     // End auto-generated code (v2.1)
