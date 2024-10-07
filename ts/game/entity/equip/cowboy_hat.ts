@@ -93,12 +93,7 @@ export class CowboyHat extends Equip<Player> {
 				this.owner().addForce(force);
 			}
 
-			let playSound = false;
 			weapons.forEach((weapon : Weapon) => {
-				if (weapon.weaponState() === WeaponState.RELOADING || weapon.weaponState() === WeaponState.FIRING) {
-					playSound = true;
-				}
-
 				weapon.quickReload(CowboyHat._dashTime);
 			});
 
@@ -106,9 +101,7 @@ export class CowboyHat extends Equip<Player> {
 			this._chargeDelayTimer.start(CowboyHat._chargeDelay);
 			this._dashTimer.start(CowboyHat._dashTime);
 
-			if (playSound) {
-				this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
-			}
+			this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {

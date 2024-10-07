@@ -50,6 +50,8 @@ export namespace ColorFactory {
 		[ColorType.PLAYER_PURPLE, HexColor.fromHex(0xa50ffc)],
 		[ColorType.PLAYER_PINK, HexColor.fromHex(0xfc0fbd)],
 		[ColorType.PLAYER_WHITE, HexColor.fromHex(0xfbfbfb)],
+		[ColorType.PLAYER_GRAY, HexColor.fromHex(0x8b8b8b)],
+		[ColorType.PLAYER_BLACK, HexColor.fromHex(0x0b0b0b)],
 
 		// Western series (rugged?)
 		[ColorType.WESTERN_YELLOW, HexColor.fromHex(0xffef61)],
@@ -121,7 +123,8 @@ export namespace ColorFactory {
 		[EntityType.PLAYER, [
 			ColorType.PLAYER_RED, ColorType.PLAYER_ORANGE, ColorType.PLAYER_YELLOW,
 			ColorType.PLAYER_GREEN, ColorType.PLAYER_AQUA, ColorType.PLAYER_BLUE,
-			ColorType.PLAYER_PURPLE, ColorType.PLAYER_PINK, ColorType.PLAYER_WHITE,
+			ColorType.PLAYER_PURPLE, ColorType.PLAYER_PINK,
+			ColorType.PLAYER_WHITE, ColorType.PLAYER_GRAY, ColorType.PLAYER_BLACK,
 		]],
 	]);
 
@@ -131,12 +134,12 @@ export namespace ColorFactory {
 	export function toString(type : ColorType) : string {
 		return colorMap.get(type).toString();
 	}
-	export function entityColors(type : EntityType) : Array<ColorType> {
+	export function entityColors(type : EntityType) : Array<HexColor> {
 		if (!entityColorMap.has(type)) {
 			console.error("Warning: missing colors for", EntityType[type]);
 			return [];
 		}
-		return entityColorMap.get(type);
+		return entityColorMap.get(type).map((type : ColorType) => colorMap.get(type));
 	}
 	export function entityColor(type : EntityType, index? : number) : HexColor {
 		if (!entityColorMap.has(type)) {

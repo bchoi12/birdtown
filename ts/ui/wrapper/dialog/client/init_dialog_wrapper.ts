@@ -13,11 +13,14 @@ import { Html } from 'ui/html'
 import { IconType } from 'ui/common/icon'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { ClientNameWrapper } from 'ui/wrapper/client_name_wrapper'
+import { ColorPickWrapper } from 'ui/wrapper/color_pick_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
 import { ClientDialogWrapper } from 'ui/wrapper/dialog/client_dialog_wrapper'
 import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
+
+import { HexColor } from 'util/hex_color'
 
 export class InitDialogWrapper extends ClientDialogWrapper {
 
@@ -34,6 +37,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 
 		let shareWrapper = new ShareWrapper();
 		shareWrapper.setText("[Copy invite link]");
+		shareWrapper.setHoverOnlyText(true);
 		shareWrapper.elm().style.float = "left";
 		this.footerElm().appendChild(shareWrapper.elm());
 
@@ -74,39 +78,17 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		});
 		bird.contentElm().appendChild(birdType.elm());
 
-		// TODO: replace with rainbow color strip
 		const playerColors = ColorFactory.entityColors(EntityType.PLAYER);
-		let colorSpan = Html.span();
-		let color = new SettingWrapper<number>({
-			name: "Favorite Color",
-			value: Math.floor(Math.random() * playerColors.length),
-			click: (current : number) => {
-				current++;
-				if (current >= playerColors.length) {
-					current = 0;
-				}
-				return current;
-			},
-			html: (current : number) => {
-				// Kind of jank but whatever
-				const currentType = playerColors[current];
-				colorSpan.style.color = ColorFactory.color(currentType).toString();
-
-				const tokens = ColorType[currentType].split("_");
-				if (tokens.length === 2) {
-					colorSpan.textContent = tokens[1];
-				} else {
-					colorSpan.textContent = "???";
-				}
-				return colorSpan.outerHTML;
-			},
-		});
-		bio.contentElm().appendChild(color.elm());
+		const colors = playerColors.map((color : HexColor) => color.toString());
+		let colorPick = new ColorPickWrapper();
+		colorPick.addColors(...colors);
+		colorPick.select(colors[Math.floor(Math.random() * colors.length)]);
+		bio.contentElm().appendChild(colorPick.elm());
 
 		pageWrapper.setOnSubmit(() => {
 			this.dialogMessage().setBirdType(birdType.value());
 			this.dialogMessage().setDisplayName(nameWrapper.name());
-			this.dialogMessage().setColor(ColorFactory.entityColor(EntityType.PLAYER, color.value()).toString());
+			this.dialogMessage().setColor(colorPick.selectedColor());
 		});
 	}
 }

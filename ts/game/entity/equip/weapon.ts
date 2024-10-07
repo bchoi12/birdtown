@@ -274,6 +274,8 @@ export abstract class Weapon extends Equip<Player> {
 			if (!this._stateTimer.hasTimeLeft()) {
 				this.fire(stepData);
 				this.setWeaponState(WeaponState.FIRING);
+			} else if (!this.firing()) {
+				this.setWeaponState(WeaponState.IDLE);
 			}
 		}
 

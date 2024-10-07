@@ -404,7 +404,7 @@ kbd {
     letter-spacing: 0.15em;
 
     font-size: 1.2em;
-    text-shadow: 0px 0px 3px #111111;
+    text-shadow: 0px 0px 3px #000;
 }
 
 #hud-left {
@@ -764,6 +764,29 @@ kbd {
 
 .loadout-button-description {
     font-size: 0.7em;
+}
+
+.color-pick {
+    height: 1em;
+    margin: 0.3em;
+}
+
+.color-block {
+    display: inline-block;
+    position: relative;
+    width: 1em;
+    height: 1em;
+}
+
+.color-block:hover {
+    cursor: pointer;
+}
+
+.color-selected {
+    border: 0.15em solid #FFFFFF;
+    margin: -0.15em;
+    box-shadow: 0 0 0.3em #000000;
+    z-index: 1;
 }
 
 .columns {

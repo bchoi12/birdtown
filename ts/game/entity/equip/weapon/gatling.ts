@@ -8,7 +8,6 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType, RecoilType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
-import { Bolt } from 'game/entity/projectile/bolt'
 import { Weapon, WeaponConfig, WeaponState } from 'game/entity/equip/weapon'
 import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -16,15 +15,12 @@ import { EntityFactory } from 'game/factory/entity_factory'
 import { LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
 
-import { HudType, HudOptions } from 'ui/api'
-
-import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Vec, Vec3 } from 'util/vector'
 
 export class Gatling extends Weapon {
 
-	private static readonly _revTime = 300;
+	private static readonly _revTime = 360;
 	private static readonly _bursts = 30;
 	private static readonly _config = {
 		times: new Map([
@@ -35,7 +31,7 @@ export class Gatling extends Weapon {
 		bursts: Gatling._bursts,
 		interruptable: true,
 	};
-	private static readonly _projectileTTL = 550;
+	private static readonly _projectileTTL = 500;
 	private static readonly _spinnerName = "spinner";
 
 	private static readonly _recoilVel = { x: 3, y: 8};
@@ -78,7 +74,7 @@ export class Gatling extends Weapon {
 		const unitDir = this.getDir();
 
 		let vel = unitDir.clone().scale(0.8);
-		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.CALIBER, {
+		this.addEntity(EntityType.CALIBER, {
 			ttl: Gatling._projectileTTL,
 			associationInit: {
 				owner: this.owner(),

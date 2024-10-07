@@ -26,6 +26,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	private _onUnselectFns : Array<OnEventFn>;
 	private _iconElm : Optional<HTMLElement>;
 	private _textElm : HTMLElement;
+	private _hoverOnlyText : boolean;
 	private _hoverColor : string;
 
 	constructor() {
@@ -39,6 +40,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		this._onUnselectFns = new Array();
 		this._iconElm = new Optional();
 		this._textElm = Html.span();
+		this._hoverOnlyText = false;
 		this._hoverColor = ButtonWrapper._defaultHoverColor;
 
 		this.elm().appendChild(this._textElm);
@@ -102,6 +104,13 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 			this._iconElm.get().style.paddingRight = "0.2em";
 		}
 	}
+	setHoverOnlyText(hoverOnlyText : boolean) : void {
+		this._hoverOnlyText = hoverOnlyText;
+
+		if (this._hoverOnlyText) {
+	    	this._textElm.style.display = "none";
+		}
+	}
 
 	addOnClick(fn : OnEventFn) : void {
 		this.elm().style.cursor = "pointer";
@@ -124,12 +133,20 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	mouseEnter() : void {
 	    this.elm().style.background = this._hoverColor;
 
+	    if (this._hoverOnlyText) {
+	    	this._textElm.style.display = "inline";
+	    }
+
 		this._onMouseEnterFns.forEach((fn : OnEventFn) => {
 			fn();
 		});
 	}
 	mouseLeave() : void {
 	    this.elm().style.background = "";
+
+	    if (this._hoverOnlyText) {
+	    	this._textElm.style.display = "none";
+	    }
 
 		this._onMouseLeaveFns.forEach((fn : OnEventFn) => {
 			fn();

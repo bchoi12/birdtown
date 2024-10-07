@@ -65,6 +65,9 @@ export namespace Html {
 	export const classButton = "button";
 	export const classButtonSelect = "button-select";
 	export const classButtonSelected = "button-selected";
+	export const classColorBlock = "color-block";
+	export const classColorPick = "color-pick";
+	export const classColorSelected = "color-selected";
 	export const classColumn = "column";
 	export const classColumns = "columns";
 	export const classContainer = "container";
