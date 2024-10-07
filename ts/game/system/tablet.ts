@@ -1,6 +1,6 @@
 
 import { game } from 'game'
-import { GameState } from 'game/api'
+import { GameMode, GameState } from 'game/api'
 import { EntityType, BirdType } from 'game/entity/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
@@ -17,7 +17,12 @@ import { Optional } from 'util/optional'
 
 export class Tablet extends ClientSystem implements System {
 
-	private static readonly _lobbyClearTypes = new Set([
+	private static readonly _defaultTypes = new Set([InfoType.SCORE, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS]);
+	private static readonly _modeTypes = new Map<GameMode, Set<InfoType>>([
+		[GameMode.SURVIVAL, new Set([InfoType.LIVES, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
+	]);
+
+	private static readonly _gameClearTypes = new Set([
 		InfoType.DEATHS,
 		InfoType.KILLS,
 		InfoType.LIVES,
@@ -44,8 +49,6 @@ export class Tablet extends ClientSystem implements System {
 		this._color = "";
 		this._displayName = "";
 		this._infoMap = new Map();
-
-		this.resetForLobby();
 
 		this.addProp<BirdType>({
 			has: () => { return this.hasBirdType(); },
@@ -77,22 +80,25 @@ export class Tablet extends ClientSystem implements System {
 		}
 	}
 
-	override reset() : void {
-		super.reset();
+	static infoTypes(mode : GameMode) : Set<InfoType> {
+		if (Tablet._modeTypes.has(mode)) {
+			return Tablet._modeTypes.get(mode);
+		}
 
-		this._infoMap.clear();
-		this.resetForRound();
+		return Tablet._defaultTypes;
 	}
-	resetForLobby() : void {
-		Tablet._lobbyClearTypes.forEach((type : InfoType) => {
-			if (this.hasInfo(type)) {
+	resetForGame(mode : GameMode) : void {
+		Tablet._gameClearTypes.forEach((type : InfoType) => {
+			if (Tablet.infoTypes(mode).has(type)) {
 				this.setInfo(type, 0);
+			} else {
+				this.clearInfo(type);
 			}
 		});
 	}
-	resetForRound() : void {
+	resetForRound(mode : GameMode) : void {
 		Tablet._roundResetTypes.forEach((type : InfoType) => {
-			if (this.hasInfo(type)) {
+			if (Tablet.infoTypes(mode).has(type)) {
 				this.setInfo(type, 0);
 			}
 		});
@@ -117,7 +123,9 @@ export class Tablet extends ClientSystem implements System {
 	setInfo(type : InfoType, value : number) : void {
 		this._infoMap.set(type, value);
 
-		ui.updateInfo(this.clientId(), type, value);
+		if (Tablet.infoTypes(game.controller().gameMode()).has(type)) {
+			ui.updateInfo(this.clientId(), type, value);
+		}
 
 		if (type === InfoType.KILLS) {
 			this.setInfo(InfoType.SCORE, value);

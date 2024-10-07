@@ -1,4 +1,6 @@
 
+import { game } from 'game'
+
 import { ui } from 'ui'
 import { InfoType } from 'ui/api'
 import { IconType } from 'ui/common/icon'
@@ -103,6 +105,10 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 		}
 
 		this._blocks.get(type).show();
+
+		if (!this._values.has(type)) {
+			this.update(type, 0);
+		}
 	}
 	update(type : InfoType, value : number) : void {
 		if (!this._blocks.has(type)) {
@@ -181,7 +187,14 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 
 	private setVictories(victories : number) : void {
 		let wrapper = this._blocks.get(InfoType.VICTORIES);
-		wrapper.setIconN(IconType.TROPHY, victories);
+
+		const config = game.controller().config();
+
+		if (config.hasVictories()) {
+			wrapper.setIconFraction(IconType.TROPHY, victories, config.getVictories());
+		} else {
+			wrapper.setIconN(IconType.TROPHY, victories);
+		}
 	}
 
 	private setScore(score : number) : void {

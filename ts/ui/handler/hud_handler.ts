@@ -47,6 +47,7 @@ export class HudHandler extends HandlerBase implements Handler {
 	private static readonly _rightBlocks = new Set([HudType.BULLETS, HudType.ROCKET, HudType.SPRAY, HudType.STAR]);
 
 	private _hudElm : HTMLElement;
+	private _sectionsElm : HTMLElement;
 	private _leftElm : HTMLElement;
 	private _centerElm : HTMLElement;
 	private _rightElm : HTMLElement;
@@ -57,6 +58,7 @@ export class HudHandler extends HandlerBase implements Handler {
 		super(HandlerType.HUD);
 
 		this._hudElm = Html.elm(Html.divHud);
+		this._sectionsElm = Html.elm(Html.divHudSections);
 		this._leftElm = Html.elm(Html.divHudLeft);
 		this._centerElm = Html.elm(Html.divHudCenter);
 		this._rightElm = Html.elm(Html.divHudRight);
@@ -113,6 +115,11 @@ export class HudHandler extends HandlerBase implements Handler {
 			currentTypes.add(type);
 		});
 		this.removeOthers(currentTypes);
+
+		this._sectionsElm.style.visibility = "visible";
+	}
+	hideHud() : void {
+		this._sectionsElm.style.visibility = "hidden";
 	}
 
 	private getOrAddBlock(type : HudType) : HudBlockWrapper {

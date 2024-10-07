@@ -110,10 +110,6 @@ export class PlayerState extends ClientSystem implements System {
 		}
 	}
 	setRoleAfter(role : PlayerRole, millis : number, cb? : () => void) : void {
-		if (this._roleTimer.hasTimeLeft()) {
-			return;
-		}
-
 		this._roleTimer.start(millis, () => {
 			this.setRole(role);
 			if (cb) {
@@ -136,7 +132,6 @@ export class PlayerState extends ClientSystem implements System {
 		}
 
 		this._roleTimer.reset();
-
 		this._role = role;
 		this.applyRole();
 
@@ -214,6 +209,7 @@ export class PlayerState extends ClientSystem implements System {
 	resetForLobby() : void {
 		if (this.validTargetEntity()) {
 			this.setRole(PlayerRole.GAMING);
+			this._roleTimer.reset();
 
 			let player = this.targetEntity<Player>();
 			this.spawnPlayer(player);

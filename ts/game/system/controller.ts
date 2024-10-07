@@ -64,6 +64,7 @@ export class Controller extends SystemBase implements System {
 	entityLimit(type : EntityType) : number { return this._gameMaker.entityLimit(type); }
 	timeLimit(state : GameState) : number { return this._gameMaker.timeLimit(state); }
 
+	config() : GameConfigMessage { return this._gameMaker.config(); }
 	gameMode() : GameMode { return this._gameMaker.mode(); }
 	startGame(config : GameConfigMessage, playerConfig : PlayerConfig) {
 		if (this.gameState() !== GameState.FREE) {

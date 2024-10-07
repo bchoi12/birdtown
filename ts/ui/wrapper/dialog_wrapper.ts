@@ -136,6 +136,13 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		}, 1000);
 	}
 
+	allowKeyboardSubmit() : void {
+		document.addEventListener("keydown", (e : any) => {
+			if (e.keyCode === settings.chatKeyCode) {
+				this.nextPage();
+			}
+		});
+	}
 	addOKButton() : ButtonWrapper {
 		let buttonWrapper = new ButtonWrapper();
 		buttonWrapper.setIcon(IconType.CHECK);
@@ -144,13 +151,6 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		buttonWrapper.setHoverColor(ColorFactory.toString(ColorType.UI_GREEN));
 
 		this.footerElm().appendChild(buttonWrapper.elm());
-
-		document.addEventListener("keydown", (e : any) => {
-			if (e.keyCode === settings.chatKeyCode) {
-				this.nextPage();
-			}
-		});
-
 		return buttonWrapper;
 	}
 	addCancelButton() : ButtonWrapper {

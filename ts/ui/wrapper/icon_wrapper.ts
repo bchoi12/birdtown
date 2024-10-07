@@ -34,6 +34,24 @@ export class IconWrapper extends HtmlWrapper<HTMLElement> {
 			this._iconElm.appendChild(Icon.create(type));
 		}
 	}
+	setIconFraction(type : IconType, n : number, max : number) : void {
+		if (n >= max) {
+			this.setIconN(type, n);
+			return;
+		}
+
+		this._iconElm.innerHTML = "";
+
+		for (let i = 0; i < max; ++i) {
+			let icon = Icon.create(type);
+
+			if (i >= n) {
+				icon.style.opacity = "0.3";
+			}
+
+			this._iconElm.appendChild(icon);
+		}
+	}
 
 	protected textElm() : HTMLElement { return this._textElm; }
 	setText(text : string) : void {

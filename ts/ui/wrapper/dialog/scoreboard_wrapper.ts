@@ -1,7 +1,9 @@
 
 import { game } from 'game'
-import { GameState, GameMode } from 'game/api'
-import { PlayerState } from 'game/system/player_state'
+import { GameMode, GameState } from 'game/api'
+import { Tablet } from 'game/system/tablet'
+
+import { GameConfigMessage } from 'message/game_config_message'
 
 import { settings } from 'settings'
 
@@ -11,11 +13,6 @@ import { Html, HtmlWrapper } from 'ui/html'
 import { InfoWrapper } from 'ui/wrapper/info_wrapper'
 
 export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
-
-	private static readonly _defaultTypes = new Set([InfoType.SCORE, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS]);
-	private static readonly _modeTypes = new Map<GameMode, Set<InfoType>>([
-		[GameMode.SURVIVAL, new Set([InfoType.LIVES, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
-	]);
 
 	private _titleElm : HTMLElement;
 	private _keyElm : HTMLElement;
@@ -58,7 +55,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		this._infoWrappers.set(id, wrapper);
 		this._containerElm.appendChild(wrapper.elm());
 
-		this.updateInfos(id);
+		this.updateInfos(game.controller().gameMode(), id);
 		this.sort();
 	}
 
@@ -89,15 +86,15 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		this._infoWrappers.delete(id);
 	}
 
-	setGameMode(mode : GameMode) : void {
+	setGameConfig(config : GameConfigMessage) : void {
 		this._infoWrappers.forEach((wrapper : InfoWrapper, id : number) => {
-			this.updateInfos(id);
+			this.updateInfos(config.type(), id);
 		});
 
 		this.sort();
 	}
 
-	private updateInfos(id : number) : void {
+	private updateInfos(mode : GameMode, id : number) : void {
 		if (!this._infoWrappers.has(id)) {
 			return;
 		}
@@ -105,15 +102,9 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		let wrapper = this._infoWrappers.get(id);
 		wrapper.hideAll();
 
-		this.modeTypes().forEach((type : InfoType) => {
+		Tablet.infoTypes(mode).forEach((type : InfoType) => {
 			wrapper.show(type);
 		});
-	}
-	private modeTypes() : Set<InfoType> {
-		const mode = game.controller().gameMode();
-		return ScoreboardWrapper._modeTypes.has(mode)
-			? ScoreboardWrapper._modeTypes.get(mode) 
-			: ScoreboardWrapper._defaultTypes;
 	}
 
 	updateInfo(id : number, type : InfoType, value : number) : void {
@@ -124,10 +115,8 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		let wrapper = this._infoWrappers.get(id);
 		wrapper.update(type, value);
 
-		if (this.modeTypes().has(type)) {
-			wrapper.show(type);
-			this.sort();
-		}
+		wrapper.show(type);
+		this.sort();
 	}
 
 	clearInfo(id : number, type : InfoType) : void {

@@ -31,6 +31,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		super(DialogType.INIT);
 
 		this.setTitle("Welcome to Birdtown");
+		this.allowKeyboardSubmit();
 		this.populatePage();
 
 		let okButton = this.addOKButton();

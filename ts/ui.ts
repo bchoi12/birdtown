@@ -1,8 +1,8 @@
 
 import { game } from 'game'
-import { GameMode } from 'game/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
+import { GameConfigMessage } from 'message/game_config_message'
 
 import { settings } from 'settings'
 
@@ -140,7 +140,7 @@ class UI {
 			handler.onModeChange(mode, oldMode);
 		});	
 	}
-	setGameMode(mode : GameMode) : void { this._scoreboardHandler.setGameMode(mode); }
+	setGameConfig(config : GameConfigMessage) : void { this._scoreboardHandler.setGameConfig(config); }
 
 	openMenu() : void { this._menuHandler.enable(); }
 	applySettings() : void {
@@ -199,6 +199,7 @@ class UI {
 	clearTimer() : void { this._timerHandler.clear(); }
 	setHudClientId(id : number) : void { this._hudHandler.setClientId(id); }
 	updateHud(huds : Map<HudType, HudOptions>) : void { this._hudHandler.updateHud(huds); }
+	hideHud() : void { this._hudHandler.hideHud(); }
 	addPlayer(clientId : number) : void { this._scoreboardHandler.addPlayer(clientId); }
 	removePlayer(clientId : number) : void { this._scoreboardHandler.removePlayer(clientId); }
 	highlightPlayer(clientId : number) : void { this._scoreboardHandler.highlightPlayer(clientId); }

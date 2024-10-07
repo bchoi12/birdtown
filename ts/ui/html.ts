@@ -36,6 +36,7 @@ export namespace Html {
 	export const divStatus = "div-status";
 
 	export const divHud = "div-hud";
+	export const divHudSections = "hud-sections";
 	export const divHudLeft = "hud-left";
 	export const divHudCenter = "hud-center";
 	export const divHudRight = "hud-right";

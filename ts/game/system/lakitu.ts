@@ -35,8 +35,8 @@ export class Lakitu extends SystemBase implements System {
 	// Formula: deg = 2 * arctan(0.5 * horizontal_length / offset_length)
 	private static readonly _horizontalFov = 48.868 * Math.PI / 180;
 
-	private static readonly _quickPan = 250;
-	private static readonly _normalPan = 1000;
+	private static readonly _quickPan = 300;
+	private static readonly _normalPan = 1500;
 	private static readonly _slowPan = 3000;
 	private static readonly _offsets = new Map<OffsetType, Vec3>([
 		[OffsetType.ANCHOR, Vec3.zero()],
@@ -143,25 +143,30 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		if (!game.playerStates().hasPlayerState(winnerClientId) || !game.playerState(winnerClientId).validTargetEntity()) {
-			return;
+			return false;
 		}
 
 		const winner = game.playerState(winnerClientId).targetEntity<Player>();
-
 		this._panners.forEach((panner : Panner, type : OffsetType) => {
-			let goal = Lakitu._offsets.get(type);
 			if (type === OffsetType.ANCHOR) {
-				goal = Vec3.fromBabylon3(this._anchor).sub(winner.profile().pos());
+				const offset = Vec3.fromBabylon3(this._anchor).sub(winner.profile().pos());
+				panner.snapTo(offset);
+			}
+
+			let goal : Vec3;
+			if (type === OffsetType.CAMERA) {
+				goal = Lakitu._offsets.get(type).clone().add({ z: 10 });
+			} else {
+				goal = Lakitu._offsets.get(type);
 			}
 			panner.pan({
-				goal: Lakitu._offsets.get(type),
+				goal: goal,
 				millis: Lakitu._normalPan,
 				interpType: InterpType.NEGATIVE_SQUARE,
 			});
 		});
 
 		this.setTargetEntity(winner);
-
 		return true;
 	}
 	private targetPlane() : boolean {
@@ -338,6 +343,9 @@ export class Lakitu extends SystemBase implements System {
 			// TODO: refactor these two methods into this.targetEntity().updateHud()
 			ui.updateHud(this.targetEntity().getHudData());
 			ui.setHudClientId(this.targetEntity().clientId());
+		} else {
+			ui.hideHud();
+			ui.setHudClientId(game.clientId());
 		}
 
 		if (game.playerState().role() === PlayerRole.SPECTATING

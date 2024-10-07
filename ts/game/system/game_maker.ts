@@ -30,7 +30,7 @@ export class GameMaker extends SystemBase implements System {
 
 	private static readonly _lastDamageTime = 10000;
 	private static readonly _endTimeLimit = 3000;
-	private static readonly _loadTimeLimit = 1500;
+	private static readonly _loadTimeLimit = 2500;
 	private static readonly _respawnTime = 2000;
 	private static readonly _spawnTime = 5000;
 
@@ -84,6 +84,7 @@ export class GameMaker extends SystemBase implements System {
 		});
 	}
 
+	config() : GameConfigMessage { return this._config; }
 	mode() : GameMode { return this._config.type(); }
 	round() : number { return this._round; }
 	winnerClientId() : number { return this._winnerClientId; }
@@ -146,9 +147,9 @@ export class GameMaker extends SystemBase implements System {
 
 		game.playerStates().updatePlayers(playerConfig);
 		game.tablets().execute<Tablet>((tablet : Tablet) => {
-			tablet.resetForLobby();
+			tablet.resetForGame(this.mode());
 		});
-		ui.setGameMode(this._config.type());
+		ui.setGameConfig(this._config);
 
 		if (isLocalhost()) {
 			console.log("%s: config is", this.name(), this._config.dataMap());
@@ -167,9 +168,9 @@ export class GameMaker extends SystemBase implements System {
 
 		this._config = config;
 		game.tablets().execute<Tablet>((tablet : Tablet) => {
-			tablet.resetForLobby();
+			tablet.resetForGame(this.mode());
 		});
-		ui.setGameMode(this._config.type());
+		ui.setGameConfig(this._config);
 	}
 	static canStart(mode : GameMode) : [boolean, string] {
 		const config = GameConfigMessage.defaultConfig(mode);
@@ -272,7 +273,9 @@ export class GameMaker extends SystemBase implements System {
 							}
 						});
 					} else {
-						playerState.setRole(PlayerRole.SPECTATING);
+						// Without delay winner pan does not work since SPECTATING will spectate winner early
+						playerState.setRole(PlayerRole.WAITING);
+						playerState.setRoleAfter(PlayerRole.SPECTATING, GameMaker._respawnTime);
 					}
 				} else if (playerState.role() === PlayerRole.PREPARING) {
 					if (game.clientDialog(clientId).inSync(DialogType.LOADOUT)) {
@@ -283,7 +286,7 @@ export class GameMaker extends SystemBase implements System {
 					playerState.setRoleAfter(PlayerRole.GAMING, GameMaker._spawnTime);
 				}
 			}, (playerState : PlayerState) => {
-				return playerState.isPlaying() && playerState.validTargetEntity() ;
+				return playerState.isPlaying() && playerState.validTargetEntity();
 			});
 			break;
 		case GameState.FINISH:
@@ -359,7 +362,7 @@ export class GameMaker extends SystemBase implements System {
 			}
 
 			game.tablets().executeIf<Tablet>((tablet : Tablet) => {
-				tablet.resetForRound();
+				tablet.resetForRound(this.mode());
 				if (this._config.hasLives()) {
 					tablet.setInfo(InfoType.LIVES, this._config.getLives());
 				} else {

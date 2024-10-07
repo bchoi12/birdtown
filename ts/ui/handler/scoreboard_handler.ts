@@ -1,8 +1,8 @@
 
 import { game } from 'game'
-import { GameMode, GameState } from 'game/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
+import { GameConfigMessage } from 'message/game_config_message'
 
 import { settings } from 'settings'
 
@@ -64,8 +64,8 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 	removePlayer(id : number) : void {
 		this._scoreboard.removePlayer(id);
 	}
-	setGameMode(mode : GameMode) : void {
-		this._scoreboard.setGameMode(mode);
+	setGameConfig(config : GameConfigMessage) : void {
+		this._scoreboard.setGameConfig(config);
 	}
 	updateInfo(id : number, type : InfoType, value : number) : void {
 		this._scoreboard.updateInfo(id, type, value);
