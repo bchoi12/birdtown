@@ -78,7 +78,7 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 			update: (keyCode : number) => { settings.menuKeyCode = keyCode; },
 		});
 		this.addKeyBind({
-			name: "Open Chat",
+			name: "Chat / Submit",
 			get: () => { return settings.chatKeyCode; },
 			update: (keyCode : number) => { settings.chatKeyCode = keyCode; },
 		});

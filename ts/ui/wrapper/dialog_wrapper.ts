@@ -4,6 +4,8 @@ import { ColorFactory } from 'game/factory/color_factory'
 
 import { DialogMessage } from 'message/dialog_message'
 
+import { settings } from 'settings'
+
 import { ui } from 'ui'
 import { DialogType, TooltipType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
@@ -30,6 +32,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	private _pageIndex : number;
 	private _footer : FooterWrapper;
 
+	private _submitted : boolean;
 	private _submitTime : Optional<number>;
 	private _onCancelFns : Array<OnSubmitFn>;
 	private _onNextPageFns : Array<OnSubmitFn>;
@@ -61,6 +64,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._pages = new Array();
 		this._pageIndex = 0;
 
+		this._submitted = false;
 		this._submitTime = new Optional();
 		this._onCancelFns = new Array();
 		this._onNextPageFns = new Array();
@@ -141,6 +145,12 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 		this.footerElm().appendChild(buttonWrapper.elm());
 
+		document.addEventListener("keydown", (e : any) => {
+			if (e.keyCode === settings.chatKeyCode) {
+				this.nextPage();
+			}
+		});
+
 		return buttonWrapper;
 	}
 	addCancelButton() : ButtonWrapper {
@@ -181,10 +191,15 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 	addOnSubmit(fn : OnSubmitFn) : void { this._onSubmitFns.push(fn); }
 	submit() : void {
+		if (this._submitted) {
+			return;
+		}
+
 		this._submitTime.clear();
 		this._onSubmitFns.forEach((onSubmit : OnSubmitFn) => {
 			onSubmit();
 		});
+		this._submitted = true;
 	}
 	forceSubmit() : void {
 		ui.showTooltip(TooltipType.FORCE_SUBMIT, {

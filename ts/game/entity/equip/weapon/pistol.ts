@@ -35,7 +35,7 @@ export class Pistol extends Weapon {
 	};
 
 	private static readonly _chargedThreshold = 1000;
-	private static readonly _bulletTTL = 600;
+	private static readonly _bulletTTL = 550;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.PISTOL, options);

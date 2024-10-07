@@ -35,4 +35,9 @@ export class ColumnWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	contentElm() : HTMLElement { return this._contentElm; }
+	appendTitle(title : string) : void {
+		let span = Html.span();
+		span.textContent = title;
+		this._contentElm.appendChild(span);
+	}
 }

@@ -39,6 +39,9 @@ export class ClientsHandler extends HandlerBase implements Handler {
 
 		this._sendChat = true;
 
+		ui.chat(ChatType.PRINT, "just joined!", {
+			clientId: game.clientId(),
+		});
 	}
 
 	override handleClientMessage(msg : GameMessage) : void {

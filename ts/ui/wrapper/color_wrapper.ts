@@ -22,7 +22,7 @@ export class ColorWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().style.backgroundColor = this._color;
 
 		this.elm().onclick = (e) => {
-			this.setSelected(!this._selected);
+			this.setSelected(true);
 			this._onClick();
 		};
 	}

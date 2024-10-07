@@ -56,7 +56,8 @@ export class ChatHandler extends HandlerBase implements Handler {
 
 		switch (type) {
 		case ChatType.LOG:
-			messageSpan.style.color = "#333";
+		case ChatType.PRINT:
+			messageSpan.style.color = "#6b6b6b";
 			break;
 		case ChatType.ERROR:
 			messageSpan.style.color = "#ff0000";

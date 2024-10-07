@@ -23,7 +23,7 @@ export class Bazooka extends Weapon {
 		]),
 		bursts: 1,
 	};
-	private static readonly _rocketTTL = 800;
+	private static readonly _rocketTTL = 750;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.BAZOOKA, options);

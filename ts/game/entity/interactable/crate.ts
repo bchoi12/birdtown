@@ -121,9 +121,9 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 
 		this._stats = this.addComponent<Stats>(new Stats());
 		this._stats.addStat(StatType.HEALTH, {
-			base: 50,
+			base: 40,
 			min: 0,
-			max: 50,
+			max: 40,
 		});
 	}
 

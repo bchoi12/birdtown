@@ -14,6 +14,7 @@ export class ColorPickWrapper extends HtmlWrapper<HTMLElement> {
 		super(Html.div());
 
 		this.elm().classList.add(Html.classColorPick);
+		this.elm().classList.add(Html.classNoSelect);
 
 		this._selectedColor = ColorPickWrapper._defaultColor;
 		this._colorWrappers = new Map();
