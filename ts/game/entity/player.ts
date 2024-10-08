@@ -728,7 +728,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 		// Interact with stuff
 		// TODO: put in update?
-		// TODO: move isSource() check to canInteractWith?
 		if (this._nearestInteractable.has()
 			&& this._nearestInteractable.get().canInteractWith(this)
 			&& this.key(KeyType.INTERACT, KeyState.PRESSED)) {

@@ -20,6 +20,7 @@ export type StepperStats = {
 export class Stepper {
 
 	// Used to evaluate current step
+	private _frameNum : number;
 	private _seqNum : number;
 	private _updateSpeed : number;
 
@@ -33,6 +34,7 @@ export class Stepper {
 	private _endStepTime : number;
 
 	constructor() {	
+		this._frameNum = 0;
 		this._seqNum = 0;
 		this._updateSpeed = 1;
 
@@ -45,6 +47,7 @@ export class Stepper {
 		this._endStepTime = Date.now();
 	}
 
+	frameNum() : number { return this._frameNum; }
 	seqNum() : number { return this._seqNum; }
 	setSeqNum(seqNum : number) : void { this._seqNum = seqNum; }
 	updateSpeed() : number { return this._updateSpeed; }
@@ -83,6 +86,7 @@ export class Stepper {
 		this._stepIntervals.push(now - this._beginStepTime);
 
 		this._lastStep = currentStep;
+		this._frameNum++;
 		this._seqNum += this._lastStep;
 
 		if (Math.floor(now / 1000) > Math.floor(this._beginStepTime / 1000)) {

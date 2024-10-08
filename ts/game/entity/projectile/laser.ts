@@ -99,7 +99,7 @@ export class Laser extends Projectile {
 			y: 0.5 * Math.sin(angle) * dim.x,
 		});
 
-		this.model().scaling().y = Laser._initialScale;
+		this._model.scaling().y = Laser._initialScale;
 		this.soundPlayer().playFromSelf(SoundType.LASER);
 	}
 
@@ -118,10 +118,42 @@ export class Laser extends Projectile {
 				this._active = true;
 			}
 			const weight = (this.ttlElapsed() - Laser._damageTiming) / (1 - Laser._damageTiming);
-			this.model().scaling().y = 1 - weight;
+			this._model.scaling().y = 1 - weight;
 		} else if (this.ttlElapsed() >= Laser._activateTiming) {
 			const weight = 0.4 * (this.ttlElapsed() - Laser._activateTiming) / (Laser._damageTiming - Laser._activateTiming);
-			this.model().scaling().y = Laser._initialScale + (1 - Laser._initialScale) * weight;
+			this._model.scaling().y = Laser._initialScale + (1 - Laser._initialScale) * weight;
+		}
+	}
+
+	override prePhysics(stepData : StepData) : void {
+		super.prePhysics(stepData);
+
+		// Hack to enable collision across level seam
+		if (game.level().isCircle()) {
+			const frame = game.runner().gameFrameNum();
+			if (frame % 3 === 1) {
+				this._profile.pos().add({ x: game.level().bounds().width() });
+				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
+			} else if (frame % 3 === 2) {
+				this._profile.pos().add({ x: -game.level().bounds().width() });
+				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
+			}
+		}
+	}
+
+	override postPhysics(stepData : StepData) : void {
+		super.postPhysics(stepData);
+
+		// Undo the hack
+		if (game.level().isCircle()) {
+			const frame = game.runner().gameFrameNum();
+			if (frame % 3 === 1) {
+				this._profile.pos().add({ x: -game.level().bounds().width() });
+				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
+			} else if (frame % 3 === 2) {
+				this._profile.pos().add({ x: game.level().bounds().width() });
+				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
+			}
 		}
 	}
 
