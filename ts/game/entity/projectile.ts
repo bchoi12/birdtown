@@ -17,6 +17,8 @@ export abstract class Projectile extends EntityBase {
 	protected _collisions : Array<[MATTER.Collision, Entity]>;
 	protected _hits : Set<number>;
 	protected _prevPos : Vec2;
+	protected _snapOnHit : boolean;
+	protected _playImpactSound : boolean;
 
 	protected _association : Association;
 	protected _attributes : Attributes;
@@ -28,6 +30,8 @@ export abstract class Projectile extends EntityBase {
 		this._collisions = new Array();
 		this._hits = new Set();
 		this._prevPos = Vec2.zero();
+		this._snapOnHit = true;
+		this._playImpactSound = true;
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
@@ -48,6 +52,9 @@ export abstract class Projectile extends EntityBase {
 			}
 		}
 	}
+
+	setSnapOnHit(snap : boolean) : void { this._snapOnHit = snap; }
+	setPlayImpactSound(play : boolean) : void { this._playImpactSound = play; }
 
 	override prePhysics(stepData : StepData) : void {
 		super.prePhysics(stepData);
@@ -123,7 +130,7 @@ export abstract class Projectile extends EntityBase {
 			return;
 		}
 
-		if (this.hasProfile()) {
+		if (this._snapOnHit && this.hasProfile()) {
 			// Snap to bounds
 			if (other.allTypes().has(EntityType.BOUND)) {
 				this.profile().snapTo(other.profile(), /*limit=*/1);
@@ -136,7 +143,7 @@ export abstract class Projectile extends EntityBase {
 		if (this.hitDamage() !== 0) {
 			other.takeDamage(this.hitDamage(), this);
 
-			if (other.impactSound() !== SoundType.UNKNOWN) {
+			if (this._playImpactSound && other.impactSound() !== SoundType.UNKNOWN) {
 				SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
 			}
 		}
@@ -152,7 +159,7 @@ export abstract class Projectile extends EntityBase {
 
 		this.addEntity(type, {
 			profileInit: {
-				pos: this._prevPos,
+				pos: this.profile().pos(),
 			},
 			...entityOptions,
 		});
@@ -161,5 +168,5 @@ export abstract class Projectile extends EntityBase {
 	abstract hitDamage() : number;
 	abstract onHit() : void;
 	abstract onMiss() : void;
-	abstract onExpire() : void;
+	onExpire() : void { this.onMiss(); }
 }

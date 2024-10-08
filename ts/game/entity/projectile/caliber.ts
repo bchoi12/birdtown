@@ -93,8 +93,4 @@ export class Caliber extends Projectile {
 	}
 
 	override onMiss() : void {}
-
-	override onExpire() : void {
-		this.onMiss();
-	}
 }

@@ -108,5 +108,4 @@ export class Rocket extends Projectile {
 	override onMiss() : void {
 		this.explode(EntityType.ROCKET_EXPLOSION, {});
 	}
-	override onExpire() : void { this.onMiss(); }
 }

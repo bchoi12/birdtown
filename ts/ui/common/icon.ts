@@ -54,6 +54,7 @@ export enum IconType {
 	JET,
 	LOCK,
 	MUSIC_NOTE,
+	ROBOT,
 	ROCKET,
 	ROCKET_LAUNCH,
 	ROCKING_HORSE,
@@ -98,6 +99,7 @@ export namespace Icon {
 		[IconType.READY, "checklist"],
 		[IconType.REROLL, "cached"],
 		[IconType.RESET_SETTINGS, "reset_settings"],
+		[IconType.ROBOT, "robot"],
 		[IconType.ROCKET, "rocket"],
 		[IconType.ROCKET_LAUNCH, "rocket_launch"],
 		[IconType.ROCKING_HORSE, "bedroom_baby"],
@@ -144,6 +146,7 @@ export namespace Icon {
 		[EntityType.PISTOL, IconType.ROCKING_HORSE],
 		[EntityType.SHOTGUN, IconType.SPRAY],
 		[EntityType.SNIPER, IconType.BOLT],
+		[EntityType.WING_CANNON, IconType.ROBOT],
 	]);
 
 	export function getEntityIconType(type : EntityType) : IconType {

@@ -31,8 +31,10 @@ import { Gatling } from 'game/entity/equip/weapon/gatling'
 import { Pistol } from 'game/entity/equip/weapon/pistol'
 import { Shotgun } from 'game/entity/equip/weapon/shotgun'
 import { Sniper } from 'game/entity/equip/weapon/sniper'
+import { WingCannon } from 'game/entity/equip/weapon/wing_cannon'
 import { BlackHole } from 'game/entity/explosion/black_hole'
 import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
+import { OrbExplosion } from 'game/entity/explosion/orb_explosion'
 import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
 import { StarExplosion } from 'game/entity/explosion/star_explosion'
 import { HealthCrate } from 'game/entity/interactable/crate/health_crate'
@@ -48,6 +50,8 @@ import { ParticleSweat } from 'game/entity/particle/particle_sweat'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Bullet } from 'game/entity/projectile/bullet'
 import { Caliber } from 'game/entity/projectile/caliber'
+import { Laser } from 'game/entity/projectile/laser'
+import { Orb } from 'game/entity/projectile/orb'
 import { Pellet } from 'game/entity/projectile/pellet'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Star } from 'game/entity/projectile/star'
@@ -88,7 +92,10 @@ export namespace EntityFactory {
 		[EntityType.HEADPHONES, (options : EntityOptions) => { return new Headphones(options); }],
 		[EntityType.HEALTH_CRATE, (options : EntityOptions) => { return new HealthCrate(options); }],
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
+		[EntityType.LASER, (options : EntityOptions) => { return new Laser(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
+		[EntityType.ORB, (options : EntityOptions) => { return new Orb(options); }],
+		[EntityType.ORB_EXPLOSION, (options : EntityOptions) => { return new OrbExplosion(options); }],
 		[EntityType.PARTICLE_CUBE, (options : EntityOptions) => { return new ParticleCube(options); }],
 		[EntityType.PARTICLE_ENERGY_CUBE, (options : EntityOptions) => { return new ParticleEnergyCube(options); }],
 		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],
@@ -111,6 +118,7 @@ export namespace EntityFactory {
 		[EntityType.TABLE, (options : EntityOptions) => { return new Table(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 		[EntityType.WEAPON_CRATE, (options : EntityOptions) => { return new WeaponCrate(options); }],
+		[EntityType.WING_CANNON, (options : EntityOptions) => { return new WingCannon(options); }],
 	]);
 
 	export const staticDimensions = new Map<EntityType, Vec>([
@@ -122,6 +130,8 @@ export namespace EntityFactory {
 		[EntityType.BOLT, { x: 0.4, y: 0.12, z : 0.12 }],
 		[EntityType.BULLET, { x: 0.4, y: 0.12, z : 0.12 }],
 		[EntityType.CALIBER, { x: 0.5, y: 0.15, z : 0.15 }],
+		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],
+		[EntityType.ORB, { x: 0.3, y: 0.3, z : 0.3 }],
 		[EntityType.PARTICLE_CUBE, { x: 1, y: 1, z: 1}],
 		[EntityType.PARTICLE_ENERGY_CUBE, { x: 1, y: 1, z: 1}],
 		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],
@@ -145,6 +155,7 @@ export namespace EntityFactory {
 		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],
 		[EntityType.HEALTH_CRATE, {x: 1, y: 1, z: 1 }],
+		[EntityType.ORB_EXPLOSION, { x: 1.2, y: 1.2, z: 1.2 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.STAR_EXPLOSION, {x: 0.7, y: 0.7, z: 0.7 }],
 		[EntityType.WEAPON_CRATE, {x: 1, y: 1, z: 1 }],

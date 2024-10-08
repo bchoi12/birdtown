@@ -61,9 +61,16 @@ export namespace MaterialFactory {
 			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_BLUE).toBabylonColor3();
 		});
 		standardMaterial(MaterialType.SHOOTER_LIGHT_BLUE, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.7;
 			mat.disableLighting = true;
-			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_LIGHT_ORANGE).toBabylonColor3();
+			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_LIGHT_BLUE).toBabylonColor3();
+		});
+		standardMaterial(MaterialType.SHOOTER_YELLOW, (mat : BABYLON.StandardMaterial) => {
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_YELLOW).toBabylonColor3();
+		});
+		standardMaterial(MaterialType.SHOOTER_WHITE, (mat : BABYLON.StandardMaterial) => {
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.color(ColorType.WHITE).toBabylonColor3();
 		});
 		standardMaterial(MaterialType.SHOOTER_ORANGE, (mat : BABYLON.StandardMaterial) => {
 			mat.disableLighting = true;
@@ -88,11 +95,6 @@ export namespace MaterialFactory {
 		standardMaterial(MaterialType.WESTERN_YELLOW, (mat : BABYLON.StandardMaterial) => {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.WESTERN_YELLOW).toBabylonColor3();
-		});
-
-		standardMaterial(MaterialType.SHOOTER_YELLOW, (mat : BABYLON.StandardMaterial) => {
-			mat.disableLighting = true;
-			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_YELLOW).toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.CLOUD, (mat : BABYLON.StandardMaterial) => {

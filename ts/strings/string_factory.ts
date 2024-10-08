@@ -21,6 +21,7 @@ export namespace StringFactory {
 		[EntityType.SCOUTER, ParamString.of("scouter").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SCOUTER).toString())],
 		[EntityType.SHOTGUN, ParamString.of("shotgun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SHOTGUN).toString())],
 		[EntityType.SNIPER, ParamString.of("rifle").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SNIPER).toString())],
+		[EntityType.WING_CANNON, ParamString.of("wing cannon").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.WING_CANNON).toString())],
 	]);
 
 	export function getEntityName(entity : Entity) : ParamString {
@@ -47,6 +48,7 @@ export namespace StringFactory {
 		[EntityType.SCOUTER, ParamString.of("Hold to look ahead and charge your weapon")],
 		[EntityType.SHOTGUN, ParamString.of("Sprays two quick recoiling blasts")],
 		[EntityType.SNIPER, ParamString.of("Fire a short burst of high-energy bolts")],
+		[EntityType.WING_CANNON, ParamString.of("Fire a barrage of exploding orbs")],
 	]);
 
 	export function getEntityUsage(type : EntityType) : ParamString {

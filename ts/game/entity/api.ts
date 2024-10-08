@@ -48,7 +48,10 @@ export enum EntityType {
 	HEADPHONES,
 	HEALTH_CRATE,
 	JETPACK,
+	LASER,
 	NAME_TAG,
+	ORB,
+	ORB_EXPLOSION,
 	PARTICLE_CUBE,
 	PARTICLE_ENERGY_CUBE,
 	PARTICLE_SMOKE,
@@ -71,6 +74,7 @@ export enum EntityType {
 	TABLE,
 	WALL,
 	WEAPON_CRATE,
+	WING_CANNON,
 }
 
 export enum BirdType {

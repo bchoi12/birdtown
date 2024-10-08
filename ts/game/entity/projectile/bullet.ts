@@ -123,8 +123,4 @@ export class Bullet extends Projectile {
 	}
 
 	override onMiss() : void {}
-
-	override onExpire() : void {
-		this.onMiss();
-	}
 }

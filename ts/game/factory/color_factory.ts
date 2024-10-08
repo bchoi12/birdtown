@@ -120,6 +120,7 @@ export namespace ColorFactory {
 		[EntityType.SCOUTER, [ColorType.SHOOTER_ORANGE]],
 		[EntityType.SHOTGUN, [ColorType.WESTERN_BROWN]],
 		[EntityType.SNIPER, [ColorType.SHOOTER_BLUE]],
+		[EntityType.WING_CANNON, [ColorType.SHOOTER_ORANGE]],
 		[EntityType.PLAYER, [
 			ColorType.PLAYER_RED, ColorType.PLAYER_ORANGE, ColorType.PLAYER_YELLOW,
 			ColorType.PLAYER_GREEN, ColorType.PLAYER_AQUA, ColorType.PLAYER_BLUE,

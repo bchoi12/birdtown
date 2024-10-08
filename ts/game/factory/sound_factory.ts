@@ -25,6 +25,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.BOLT, {
+			path: "bolt.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.BOOST, {
 			path: "boost.mp3",
 			options: {
@@ -37,7 +43,7 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
-		[SoundType.CHARGED_LASER, {
+		[SoundType.CHARGED_BOLT, {
 			path: "charged_laser.mp3",
 			options: {
 				spatialSound: true,

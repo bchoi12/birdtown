@@ -157,13 +157,13 @@ export class Star extends Projectile {
 	}
 
 	override onExpire() : void {
+		super.onExpire();
+
 		if (this._profile.attached()) {
 			const [parent, ok] = game.entities().getEntity(this._profile.attachId());
 			if (ok) {
 				parent.takeDamage(20, this);
 			}
 		}
-
-		this.onMiss();
 	}
 }

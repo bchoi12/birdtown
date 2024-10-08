@@ -19,6 +19,7 @@ export class Bazooka extends Weapon {
 
 	private static readonly _config = {
 		times: new Map([
+			[WeaponState.FIRING, 400],
 			[WeaponState.RELOADING, 1000],
 		]),
 		bursts: 1,

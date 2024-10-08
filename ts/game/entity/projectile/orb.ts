@@ -1,5 +1,6 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
+import earcut from 'earcut'
 
 import { game } from 'game'
 import { StepData } from 'game/game_object'
@@ -19,13 +20,13 @@ import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Vec, Vec2 } from 'util/vector'
 
-export class Bolt extends Projectile {
+export class Orb extends Projectile {
 
 	private _model : Model;
 	private _profile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.BOLT, entityOptions);
+		super(EntityType.ORB, entityOptions);
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -37,7 +38,7 @@ export class Bolt extends Projectile {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.SHOOTER_BLUE).toString(),
+			color: ColorFactory.color(ColorType.WHITE).toString(),
 		})
 		this._profile.setOutOfBoundsFn((profile : Profile) => {
 			this.delete();
@@ -47,15 +48,19 @@ export class Bolt extends Projectile {
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				const dim = this._profile.unscaledDim();
-				const depth = (dim.x + dim.y) / 2;
-
-				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {
-					width: dim.x,
-					height: dim.y,
-					depth: depth,
+				let mesh = BABYLON.MeshBuilder.CreateSphere(this.name(), {
+					diameter: 0.9 * dim.x,
 				}, game.scene());
 
-				game.world().glow(mesh, {
+				let ring = BABYLON.MeshBuilder.CreateCylinder(this.name() + "-ring", {
+					height: dim.x / 2,
+					diameter: 1.1 * dim.x,
+				}, game.scene());
+				ring.rotation.x = Math.PI / 2;
+				ring.material = MaterialFactory.material(MaterialType.SHOOTER_ORANGE);
+				mesh.addChild(ring);
+
+				game.world().glow(ring, {
 					intensity: 0.5,
 				});
 
@@ -63,53 +68,21 @@ export class Bolt extends Projectile {
 			},
 			init: {
 				disableShadows: true,
+				materialType: MaterialType.SHOOTER_WHITE,
 				...entityOptions.modelInit,
 			},
 		}));
 	}
 
-	override hitDamage() : number { return this.getAttribute(AttributeType.CHARGED) ? 70 : 12; }
-
-	override update(stepData : StepData) : void {
-		super.update(stepData);
-
-		const vel = this._profile.vel();
-		if (!vel.isZero()) {
-			this._profile.setAngle(vel.angleRad());
-		}
-	}
+	override hitDamage() : number { return 10; }
 
 	override onHit() : void {
-		if (this.getAttribute(AttributeType.CHARGED)) {
-			this.explode(EntityType.BOLT_EXPLOSION, {});
-		} else {
-			for (let i = 0; i < 3; ++i) {
-				this.addEntity(EntityType.PARTICLE_SPARK, {
-					offline: true,
-					ttl: 400,
-					profileInit: {
-						pos: this._profile.pos(),
-						vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
-							x: Fns.randomRange(0.1, 0.2),
-							y: Fns.randomRange(0.1, 0.2),
-						}),
-						scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.15 },
-					},
-					modelInit: {
-						transforms: {
-							translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1), },
-						},
-						materialType: MaterialType.PARTICLE_BLUE,
-					}
-				});
-			}
-		}
+		this.explode(EntityType.ORB_EXPLOSION, {});
 		this.delete();
 	}
 
 	override onMiss() : void {
-		if (this.getAttribute(AttributeType.CHARGED)) {
-			this.explode(EntityType.BOLT_EXPLOSION, {});
-		}
+		this.explode(EntityType.ORB_EXPLOSION, {});
 	}
+	override onExpire() : void { this.onMiss(); }
 }

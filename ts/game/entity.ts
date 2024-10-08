@@ -66,6 +66,7 @@ export interface Entity extends GameObject {
 	getHudData() : Map<HudType, HudOptions>;
 	setTTL(ttl : number, onDelete? : () => void);
 	ttlElapsed() : number;
+	ttlMillisElapsed() : number;
 	key(type : KeyType, state : KeyState) : boolean;
 	inputDir() : Vec2;
 	inputMouse() : Vec2;
@@ -227,6 +228,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		});
 	}
 	ttlElapsed() : number { return this._ttlTimer.has() ? this._ttlTimer.get().percentElapsed() : 0; }
+	ttlMillisElapsed() : number { return this._ttlTimer.has() ? this._ttlTimer.get().millisElapsed() : 0; }
 
 	key(type : KeyType, state : KeyState) : boolean {
 		if (this.state() === GameObjectState.DISABLE_INPUT) {
