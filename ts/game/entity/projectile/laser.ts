@@ -22,8 +22,8 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Laser extends Projectile {
 
-	private static readonly _activateTiming = 0.2;
-	private static readonly _damageTiming = 0.6;
+	private static readonly _activateTiming = 0.15;
+	private static readonly _damageTiming = 0.55;
 	private static readonly _initialScale = 0.1;
 
 	private _active : boolean;

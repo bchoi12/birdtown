@@ -178,6 +178,8 @@ export namespace SoundFactory {
 			initCache(type);
 		}
 
+		const primeSound = soundCache.get(type).size() === 0;
+
 		let sound = soundCache.get(type).borrow();
 		const resolvedOptions = {
 			...MediaGlobals.gameOptions,
@@ -185,8 +187,11 @@ export namespace SoundFactory {
 			...(options ? options : {}),
 		};
 		sound.updateOptions(resolvedOptions);
-		sound.play();
-		sound.stop();
+
+		if (primeSound) {
+			sound.play();
+			sound.stop();
+		}
 		return sound;
 	}
 

@@ -32,6 +32,8 @@ export class ObjectCache<T extends Object> {
 		return this._create(this._createCounter, onLoad);
 	}
 
+	size() : number { return this._objs.size; }
+
 	borrow(onLoad? : ObjectCacheOnLoadFn<T>) : T {
 		for (let obj of this._objs) {
 			this._objs.delete(obj);
