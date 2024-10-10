@@ -11,6 +11,8 @@ import { CloudGenerator } from 'game/system/generator/cloud_generator'
 import { System, SystemBase } from 'game/system'
 import { SystemType, TimeType } from 'game/system/api'
 
+import { Flags } from 'global/flags'
+
 import { settings } from 'settings'
 import { ShadowSetting } from 'settings/api'
 
@@ -186,6 +188,10 @@ export class World extends SystemBase implements System {
 	}
 
 	renderShadows(mesh : BABYLON.AbstractMesh) : void {
+		if (Flags.disableShadows) {
+			return;
+		}
+
 		this._shadowGenerator.addShadowCaster(mesh, true);
 		mesh.receiveShadows = true;
 		mesh.getChildMeshes().forEach((child : BABYLON.AbstractMesh) => {

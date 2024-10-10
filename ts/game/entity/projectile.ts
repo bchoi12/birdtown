@@ -159,7 +159,7 @@ export abstract class Projectile extends EntityBase {
 
 		this.addEntity(type, {
 			profileInit: {
-				pos: this.profile().pos(),
+				pos: this._prevPos.lerp(this.profile().pos(), 0.5),
 			},
 			...entityOptions,
 		});

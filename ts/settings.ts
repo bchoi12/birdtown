@@ -57,7 +57,7 @@ class Settings {
 
 		this.fullscreenSetting = (isMobile() || isElectron()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 		this.fpsSetting = isMobile() ? SpeedSetting.SLOW : SpeedSetting.NORMAL;
-		this.antiAliasSetting = isMobile() ? AntiAliasSetting.NONE : AntiAliasSetting.MEDIUM;
+		this.antiAliasSetting = isMobile() ? AntiAliasSetting.LOW : AntiAliasSetting.MEDIUM;
 		this.shadowSetting = isMobile() ? ShadowSetting.NONE : ShadowSetting.MEDIUM;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 
