@@ -13,7 +13,7 @@ import {
 	ShadowSetting,
 } from 'settings/api'
 
-import { isElectron, isMobile } from 'util/common'
+import { isElectron, isMobile, isLocalhost } from 'util/common'
 
 class Settings {
 	
@@ -63,9 +63,9 @@ class Settings {
 
 		// Debug properties
 		this.inspectorSetting = InspectorSetting.OFF;
-		this.delaySetting = DelaySetting.NONE;
-		this.jitterSetting = JitterSetting.NONE;
-		this.networkStabilitySetting = NetworkStabilitySetting.PERFECT;
+		this.delaySetting = isLocalhost() ? DelaySetting.LOCAL : DelaySetting.NONE;
+		this.jitterSetting = isLocalhost() ? JitterSetting.WIFI : JitterSetting.NONE;
+		this.networkStabilitySetting = isLocalhost() ? NetworkStabilitySetting.GOOD : NetworkStabilitySetting.PERFECT;
 	}
 
 	fullscreen() : boolean { return this.fullscreenSetting === FullscreenSetting.FULLSCREEN; }
@@ -101,7 +101,7 @@ class Settings {
 		case DelaySetting.LAN:
 			return 10;
 		case DelaySetting.LOCAL:
-			return 30;
+			return 20;
 		case DelaySetting.CONTINENT:
 			return 50;
 		case DelaySetting.GLOBAL:
@@ -113,11 +113,11 @@ class Settings {
 	jitter() : number {
 		switch (this.jitterSetting) {
 		case JitterSetting.WIFI:
-			return 20;
+			return 10;
 		case JitterSetting.POOR:
-			return 100;
+			return 50;
 		case JitterSetting.TERRIBLE:
-			return 300;
+			return 200;
 		default:
 			return 0;
 		}

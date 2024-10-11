@@ -18,8 +18,9 @@ import { Vec2 } from 'util/vector'
 
 export class TextParticle extends Particle {
 
-	private static readonly _defaultFont = "24pt Impact";
+	private static readonly _defaultFont = "bold 24pt Lato";
 	private static readonly _defaultTextColor = "#FFFFFF";
+	private static readonly _alpha = 0.7;
 
 	private _text : string;
 	private _font : string;
@@ -57,17 +58,6 @@ export class TextParticle extends Particle {
 	override renderShadows() : boolean { return true; }
 	override particleType() : ParticleType { return ParticleType.PLANE; }
 	override processModel(model : Model) : void {
-		/*
-		let textureCtx = this._texture.getContext();
-		textureCtx.font = this._font;
-		textureCtx.strokeStyle = '#000000';
-	    textureCtx.lineWidth = 8;
-	    textureCtx.strokeText(this._text, null, null);
-	    textureCtx.fillStyle = this._textColor;
-	    textureCtx.fillText(this._text, null, null);
-	    textureCtx.stroke();
-	    */
-
 		this._texture.drawText(this._text, /*x=*/null, /*y=*/null, this._font, this._textColor, "#00000000", false);
 
 		model.mesh().renderingGroupId = 1;
@@ -77,6 +67,7 @@ export class TextParticle extends Particle {
 
 		let material = model.material<BABYLON.StandardMaterial>()
 		material.diffuseTexture = this._texture;
+		material.alpha = TextParticle._alpha;
 		material.useAlphaFromDiffuseTexture = true;
 	}
 	override updateParticle(stepData : StepData) : void {
@@ -84,7 +75,7 @@ export class TextParticle extends Particle {
 			return;
 		}
 
-		this.model().material().alpha = 1 - Fns.interp(InterpType.SUDDEN_END_70, this.ttlElapsed());
+		this.model().material().alpha = TextParticle._alpha * (1 - Fns.interp(InterpType.SUDDEN_END_70, this.ttlElapsed()));
 		
 	}
 }

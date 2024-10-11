@@ -138,20 +138,20 @@ export class Stat extends ComponentBase implements Component {
 
 		let weight = 0;
 		if (this.entityType() === EntityType.PLAYER) {
-			weight = Fns.normalizeRange(10, Math.abs(delta), 40);
+			weight = Fns.normalizeRange(10, Math.abs(delta), 50);
 		}
 
 		if (game.lakitu().inFOV(pos, /*buffer=3*/)) {
 			const [particle, hasParticle] = this.entity().addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
 				offline: true,
-				ttl: 600 + 400 * weight,
+				ttl: 600 + 200 * weight,
 				profileInit: {
 					pos: pos,
-					vel: { x: 0, y: 0.025 },
-					dim: { x: 0.4, y: 0.4 },
+					vel: { x: 0, y: 0.025 + 0.01 * weight },
+					dim: { x: 0.5, y: 0.5 },
 					scaling: this.entityType() !== EntityType.PLAYER ? Stat._nonPlayerScale : {
-						x: 1 + weight * 0.6,
-						y: 1 + weight * 0.6,
+						x: 0.7 + weight * 0.3,
+						y: 0.7 + weight * 0.3,
 					},
 				},
 			});
