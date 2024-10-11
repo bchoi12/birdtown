@@ -17,7 +17,10 @@ export enum CollisionCategory {
 	OFFSET,
 	PLAYER,
 	HIT_BOX,
+	PERGOLA_FRAME,
 	SOLID,
+	TABLE_FRAME,
+	TEXT_PARTICLE,
 }
 
 export enum ColorCategory {
@@ -97,13 +100,16 @@ export enum ColorType {
 	SKY_NIGHT_BOTTOM,
 
 	PARTICLE_RED,
-	PARTICLE_BLUE,
-	PARTICLE_YELLOW,
 	PARTICLE_ORANGE,
+	PARTICLE_YELLOW,
+	PARTICLE_BLUE,
 	PARTICLE_PURPLE,
 
-	UI_GREEN,
+	TEXT_RED,
+	TEXT_GREEN,
+
 	UI_RED,
+	UI_GREEN,
 
 	SWEAT,
 	TABLE,
@@ -209,6 +215,7 @@ export enum ParticleType {
 
 	CUBE,
 	ENERGY_CUBE,
+	PLANE,
 	SMOKE,
 	SPARK,
 	TEAR,

@@ -73,14 +73,14 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		});
 
 		this.addKeyBind({
-			name: "Open Menu",
-			get: () => { return settings.menuKeyCode; },
-			update: (keyCode : number) => { settings.menuKeyCode = keyCode; },
-		});
-		this.addKeyBind({
 			name: "Chat / Submit",
 			get: () => { return settings.chatKeyCode; },
 			update: (keyCode : number) => { settings.chatKeyCode = keyCode; },
+		});
+		this.addKeyBind({
+			name: "Open Menu",
+			get: () => { return settings.menuKeyCode; },
+			update: (keyCode : number) => { settings.menuKeyCode = keyCode; },
 		});
 		this.addKeyBind({
 			name: "Open Scoreboard",

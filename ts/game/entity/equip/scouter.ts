@@ -7,7 +7,7 @@ import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/equip/weapon'
-import { ParticleCube } from 'game/entity/particle/particle_cube'
+import { CubeParticle } from 'game/entity/particle/cube_particle'
 import { Player } from 'game/entity/player'
 import { ColorType, MaterialType, MeshType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -105,7 +105,7 @@ export class Scouter extends Equip<Player> {
 		const pos = Vec3.fromBabylon3(this._weapon.shootNode().getAbsolutePosition());
 
 		const size = 0.05 + 0.45 * (Math.min(this._weapon.chargedThreshold(), this._weapon.chargeMillis()) / 1000);
-		const [cube, hasCube] = this.addEntity<ParticleCube>(EntityType.PARTICLE_ENERGY_CUBE, {
+		const [cube, hasCube] = this.addEntity<CubeParticle>(EntityType.ENERGY_CUBE_PARTICLE, {
 			offline: true,
 			ttl: 1.5 * this._weapon.chargedThreshold(),
 			profileInit: {
@@ -127,7 +127,7 @@ export class Scouter extends Equip<Player> {
 
 		if (hasCube) {
 			cube.profile().setAngularVelocity(-0.1 * Math.sign(offset.x));
-			cube.overrideUpdateFn((stepData : StepData, particle : ParticleCube) => {
+			cube.overrideUpdateFn((stepData : StepData, particle : CubeParticle) => {
 				particle.profile().moveTo(pos, {
 					millis: stepData.millis,
 					posEpsilon: 0.05,

@@ -16,12 +16,12 @@ import { GameGlobals } from 'global/game_globals'
 import { Fns, InterpType } from 'util/fns'
 import { Vec2 } from 'util/vector'
 
-export class ParticleCube extends Particle {
+export class CubeParticle extends Particle {
 
 	private _initialScale : Vec2;
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.PARTICLE_CUBE, entityOptions);
+		super(EntityType.CUBE_PARTICLE, entityOptions);
 
 		this._profile.setAngle(0);
 		this._profile.setAcc({ y: GameGlobals.gravity });
@@ -44,9 +44,10 @@ export class ParticleCube extends Particle {
 	override processModel(model : Model) : void {
 		model.mesh().receiveShadows = false;
 	}
-	override resetModel(model : Model) : void {
+	override resetModel(model : Model) : boolean {
 		model.mesh().receiveShadows = true;
 		model.mesh().scaling.set(1, 1, 1);
+		return true;
 	}
 
 	override updateParticle(stepData : StepData) : void {

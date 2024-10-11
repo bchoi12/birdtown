@@ -11,6 +11,7 @@ export namespace ParticleFactory {
 	const createFns = new Map<ParticleType, CreateFn>([
 		[ParticleType.CUBE, createCube],
 		[ParticleType.ENERGY_CUBE, createCube],
+		[ParticleType.PLANE, createPlane],
 		[ParticleType.SMOKE, createSphere],
 		[ParticleType.SPARK, createCube],
 		[ParticleType.TEAR, createTear],
@@ -54,6 +55,15 @@ export namespace ParticleFactory {
 		let cube = BABYLON.MeshBuilder.CreateBox("particle-cube", { width: 1, height: 1, depth: 1, }, game.scene());
 		cube.material = new BABYLON.StandardMaterial(name, game.scene());
 		return cube;
+	}
+	function createPlane(index : number) : BABYLON.Mesh {
+		const name = "particle-plane-" + index;
+		let plane = BABYLON.MeshBuilder.CreatePlane(name, {
+			width: 1,
+			height: 1,
+		}, game.scene());
+		plane.material = new BABYLON.StandardMaterial(name, game.scene());
+		return plane;
 	}
 
 	let tearShape = [];

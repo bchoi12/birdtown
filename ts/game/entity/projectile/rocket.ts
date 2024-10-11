@@ -72,7 +72,7 @@ export class Rocket extends Projectile {
 		}
 
 		if (this._smoker.check(millis)) {
-			this.addEntity(EntityType.PARTICLE_SMOKE, {
+			this.addEntity(EntityType.SMOKE_PARTICLE, {
 				offline: true,
 				ttl: 500,
 				profileInit: {

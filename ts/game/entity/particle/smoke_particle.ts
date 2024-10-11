@@ -8,40 +8,39 @@ import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
 import { ParticleType } from 'game/factory/api'
 
-import { Fns, InterpType } from 'util/fns'
 import { Vec2 } from 'util/vector'
 
-export class ParticleSpark extends Particle {
+export class SmokeParticle extends Particle {
 
-	private _initialVel : Vec2;
 	private _initialScale : Vec2;
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.PARTICLE_SPARK, entityOptions);
+		super(EntityType.SMOKE_PARTICLE, entityOptions);
 	}
 
-	override particleType() : ParticleType { return ParticleType.SPARK; }
+	override renderShadows() : boolean { return true; }
+	override particleType() : ParticleType { return ParticleType.SMOKE; }
 	override processModel(model : Model) : void {
-		model.mesh().receiveShadows = false;
+		model.material<BABYLON.StandardMaterial>().specularPower = 0;
 	}
-	override resetModel(model : Model) : void {
-		model.mesh().receiveShadows = true;
+	override resetModel(model : Model) : boolean {
+		model.material().alpha = 1;
+		model.material<BABYLON.StandardMaterial>().specularPower = 64;
 		model.mesh().scaling.set(1, 1, 1);
+		return true;
 	}
 
 	override initialize() : void {
 		super.initialize();
-
-		this._initialVel = this._profile.vel().clone();
+		
 		this._initialScale = this._profile.scaling().clone();
 	}
 
 	override updateParticle(stepData : StepData) : void {
-		this._profile.setAngle(this._profile.vel().angleRad());
+		let scaling = this._profile.scaling();
+		scaling.copyVec(this._initialScale).scale(1 - this.ttlElapsed());
 
-		const weight = Fns.interp(InterpType.NEGATIVE_SQUARE, this.ttlElapsed());
-		this._profile.vel().copyVec(this._initialVel).scale(1 - weight);
-		this._profile.scaling().y = this._initialScale.y * (1 - weight);
-		this._model.mesh().scaling.z = this._profile.scaling().y;
+		this._model.mesh().scaling.z = (scaling.x + scaling.y) / 2;
+		this._model.mesh().material.alpha = 1 - this.ttlElapsed();
 	}
 }

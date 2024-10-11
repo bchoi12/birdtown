@@ -48,7 +48,7 @@ export class Pergola extends EntityBase implements Entity {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: 0.2 * BodyFactory.defaultDensity,
 					friction: 1.5 * BodyFactory.defaultFriction,
-					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.OFFSET),
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.PERGOLA_FRAME),
 				});
 			},
 			init: entityOptions.profileInit,

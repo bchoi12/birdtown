@@ -84,7 +84,7 @@ export class Bolt extends Projectile {
 			this.explode(EntityType.BOLT_EXPLOSION, {});
 		} else {
 			for (let i = 0; i < 3; ++i) {
-				this.addEntity(EntityType.PARTICLE_SPARK, {
+				this.addEntity(EntityType.SPARK_PARTICLE, {
 					offline: true,
 					ttl: 400,
 					profileInit: {

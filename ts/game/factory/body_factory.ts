@@ -69,10 +69,18 @@ export namespace BodyFactory {
 			addCollisionPair(CollisionCategory.INTERACTABLE, CollisionCategory.PLAYER);
 			addCollisionPair(CollisionCategory.INTERACTABLE, CollisionCategory.SOLID);
 
+			addCollisionPair(CollisionCategory.PERGOLA_FRAME, CollisionCategory.BOUND);
+			addCollisionPair(CollisionCategory.PERGOLA_FRAME, CollisionCategory.PERGOLA_FRAME);
+
 			addCollisionPair(CollisionCategory.PLAYER, CollisionCategory.PLAYER);
 			addCollisionPair(CollisionCategory.PLAYER, CollisionCategory.SOLID);
 
 			addCollisionPair(CollisionCategory.SOLID, CollisionCategory.SOLID);
+
+			addCollisionPair(CollisionCategory.TABLE_FRAME, CollisionCategory.BOUND);
+			addCollisionPair(CollisionCategory.TABLE_FRAME, CollisionCategory.TABLE_FRAME);
+
+			addCollisionPair(CollisionCategory.TEXT_PARTICLE, CollisionCategory.TEXT_PARTICLE);
 		}
 
 		const filter = {

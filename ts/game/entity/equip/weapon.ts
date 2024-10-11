@@ -221,7 +221,7 @@ export abstract class Weapon extends Equip<Player> {
 		const millis = stepData.millis;
 
 		if (this._charging) {
-			if (this._charger.millis() === 0) {
+			if (this._charger.millis() === 0 && this.owner().isLakituTarget()) {
 				this.soundPlayer().playFromEntity(SoundType.CHARGE, this.owner());
 			}
 			this._charger.elapse(millis);

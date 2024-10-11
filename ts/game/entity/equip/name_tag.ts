@@ -22,7 +22,7 @@ import { Vec2 } from 'util/vector'
 export class NameTag extends Equip<Entity & EquipEntity> {
 
 	private static readonly _defaultTextColor = "#ffffff";
-	private static readonly _defaultTextBackgroundColor = "#333333";
+	private static readonly _defaultTextBackgroundColor = "#303030";
 	private static readonly _defaultPointerColor = "#ff0000";
 
 	private static readonly _height = 0.4;
@@ -81,25 +81,21 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 					width: textureWidth,
 					height: textureHeight,
 				}, game.scene());
-				texture.drawText(text, /*x=*/null, /*y=*/null, NameTag._font, this._textColor, this._textBackgroundColor, /*invertY=*/false);
+				texture.drawText(text, /*x=*/null, /*y=*/null, NameTag._font, this._textColor, this._textBackgroundColor, /*invertY=*/true);
 
 				let material = new BABYLON.StandardMaterial(this.name() + "-material");
 				material.diffuseTexture = texture;
 				material.alpha = 0.9;
 
-				let faceUV = new Array(6);
-				for (let i = 0; i < 6; i++) {
-				    faceUV[i] = new BABYLON.Vector4(0, 0, 0, 0);
-				}
-				faceUV[0] = new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.05);
-
-				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {
+				let mesh = BABYLON.MeshBuilder.CreatePlane(this.name(), {
 					width: planeWidth,
 					height: planeHeight,
-					depth: 0.1,
-					faceUV: faceUV,
+					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
+					frontUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.05),
+					backUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.05),
 				}, game.scene());
 				mesh.material = material;
+				mesh.scaling.z = -1;
 
 				let pointer = BABYLON.MeshBuilder.CreatePolyhedron(this.name() + "-pointer", {
 					type: 0, // tetrahedron

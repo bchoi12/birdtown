@@ -8,36 +8,31 @@ import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
 import { ParticleType } from 'game/factory/api'
 
-import { GameGlobals } from 'global/game_globals'
-
 import { Fns, InterpType } from 'util/fns'
 import { Vec2 } from 'util/vector'
 
-export class ParticleSweat extends Particle {
+export class SparkParticle extends Particle {
 
 	private _initialVel : Vec2;
 	private _initialScale : Vec2;
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.PARTICLE_SWEAT, entityOptions);
+		super(EntityType.SPARK_PARTICLE, entityOptions);
 	}
 
-	override renderShadows() : boolean { return true; }
-	override particleType() : ParticleType { return ParticleType.TEAR; }
+	override particleType() : ParticleType { return ParticleType.SPARK; }
 	override processModel(model : Model) : void {
 		model.mesh().receiveShadows = false;
 	}
-	override resetModel(model : Model) : void {
+	override resetModel(model : Model) : boolean {
 		model.mesh().receiveShadows = true;
 		model.mesh().scaling.set(1, 1, 1);
+		return true;
 	}
 
 	override initialize() : void {
 		super.initialize();
 
-		this._model.rotation().z = Math.PI / 2;
-
-		this._profile.setAcc({ y: GameGlobals.gravity });
 		this._initialVel = this._profile.vel().clone();
 		this._initialScale = this._profile.scaling().clone();
 	}
@@ -45,9 +40,9 @@ export class ParticleSweat extends Particle {
 	override updateParticle(stepData : StepData) : void {
 		this._profile.setAngle(this._profile.vel().angleRad());
 
-		const weight = 1 - Fns.interp(InterpType.SQUARE, this.ttlElapsed());
-		this._profile.scaling().copyVec(this._initialScale).scale(weight);
-		this._profile.vel().copyVec(this._initialVel).scale(weight);
-		this._model.scaling().z = weight;
+		const weight = Fns.interp(InterpType.NEGATIVE_SQUARE, this.ttlElapsed());
+		this._profile.vel().copyVec(this._initialVel).scale(1 - weight);
+		this._profile.scaling().y = this._initialScale.y * (1 - weight);
+		this._model.mesh().scaling.z = this._profile.scaling().y;
 	}
 }

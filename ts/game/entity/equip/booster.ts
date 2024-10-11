@@ -115,7 +115,7 @@ export class Booster extends Equip<Player> {
 
 		if (this._fire !== null && this._chargeDelayTimer.hasTimeLeft() && this._smoker.check(millis)) {
 			const scale = 0.3 + 0.3 * Math.random();
-			this.addEntity(EntityType.PARTICLE_SMOKE, {
+			this.addEntity(EntityType.SMOKE_PARTICLE, {
 				offline: true,
 				ttl: Fns.randomRange(2500, 3000),
 				profileInit: {

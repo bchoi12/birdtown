@@ -88,10 +88,13 @@ export namespace ColorFactory {
 
 		// Particle series (light and works well with opacity)
 		[ColorType.PARTICLE_RED, HexColor.fromHex(0xdc5a3a)],
-		[ColorType.PARTICLE_BLUE, HexColor.fromHex(0xc2f8ff)],
-		[ColorType.PARTICLE_YELLOW, HexColor.fromHex(0xfff6c2)],
-		[ColorType.PARTICLE_PURPLE, HexColor.fromHex(0xa465e2)],
 		[ColorType.PARTICLE_ORANGE, HexColor.fromHex(0xffc361)],
+		[ColorType.PARTICLE_YELLOW, HexColor.fromHex(0xfff6c2)],
+		[ColorType.PARTICLE_BLUE, HexColor.fromHex(0xc2f8ff)],
+		[ColorType.PARTICLE_PURPLE, HexColor.fromHex(0xa465e2)],
+
+		[ColorType.TEXT_RED, HexColor.fromHex(0xdc3a3a)],
+		[ColorType.TEXT_GREEN, HexColor.fromHex(0x3adc70)],
 
 		// UI colors
 		[ColorType.UI_GREEN, HexColor.fromHex(0x46b351)],

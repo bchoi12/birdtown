@@ -205,7 +205,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				&& !this.dead()) {
 				for (let i of [-1, 1]) {
 					const scale = 0.25 + 0.1 * Math.random();
-					this.addEntity(EntityType.PARTICLE_SMOKE, {
+					this.addEntity(EntityType.SMOKE_PARTICLE, {
 						offline: true,
 						ttl: 500,
 						profileInit: {
@@ -418,11 +418,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.setPos(spawn);
 		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
+		this.model().rotation().z = 0;
 		this.updateLoadout();
 	}
 	stats() : Stats { return this._stats; }
 	fullHeal() : void {
-		// TODO: implement after Health component exists
+		this._stats.fullHeal();
 	}
 	die() : void {
 		this.setAttribute(AttributeType.INVINCIBLE, false);
@@ -749,7 +750,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				const dir = forward.clone().rotateDeg(sign * Player._sweatDegs[i]);
 				const pos = dir.clone().add(this._profile.pos());
 
-				this.addEntity(EntityType.PARTICLE_SWEAT, {
+				this.addEntity(EntityType.SWEAT_PARTICLE, {
 					offline: true,
 					ttl: Fns.lerpRange(200, weight, 350),
 					profileInit: {
@@ -781,7 +782,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 				if (Math.abs(this._profile.vel().x) > 0.1 && this._walkSmokeRateLimiter.check(millis)) {
 					const scale = 0.3 + 0.1 * Math.random();
-					this.addEntity(EntityType.PARTICLE_SMOKE, {
+					this.addEntity(EntityType.SMOKE_PARTICLE, {
 						offline: true,
 						ttl: 500,
 						profileInit: {

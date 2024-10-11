@@ -26,6 +26,8 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Star extends Projectile {
 
+	private static readonly _damage = 15;
+
 	private static readonly _trailVertices = [
         new BABYLON.Vector3(0, 0, 0.1),
         new BABYLON.Vector3(-0.8, 0, 0),
@@ -162,7 +164,7 @@ export class Star extends Projectile {
 		if (this._profile.attached()) {
 			const [parent, ok] = game.entities().getEntity(this._profile.attachId());
 			if (ok) {
-				parent.takeDamage(20, this);
+				parent.takeDamage(Star._damage, this);
 			}
 		}
 	}

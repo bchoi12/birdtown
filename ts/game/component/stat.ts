@@ -1,15 +1,21 @@
 
+import { game } from 'game'
+
 import { Component, ComponentBase } from 'game/component'
 import { ComponentType, AssociationType, StatType } from 'game/component/api'
 import { StatLog } from 'game/component/util/stat_log'
 import { StatNumber } from 'game/component/util/stat_number'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { TextParticle } from 'game/entity/particle/text_particle'
+import { ColorType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 
 import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
 import { RingBuffer } from 'util/buffer/ring_buffer'
+import { Vec } from 'util/vector'
 
 export type StatInitOptions = {
 	base : number;
@@ -24,16 +30,25 @@ export type StatUpdate = {
 
 export class Stat extends ComponentBase implements Component {
 
+	private static readonly _logTypes = new Set([
+		StatType.HEALTH,
+	]);
+	private static readonly _showTypes = new Set([
+		StatType.HEALTH,
+	]);
+	private static readonly _nonPlayerScale = { x: 0.7, y: 0.7 };
 	private static readonly _bufferSize : number = 10;
 
+	private _statType : StatType;
 	private _stat : StatNumber;
 	private _min : number;
 	private _max : StatNumber;
 	private _logBuffer : RingBuffer<StatLog>;
 
-	constructor(init : StatInitOptions) {
+	constructor(type : StatType, init : StatInitOptions) {
 		super(ComponentType.STAT);
 
+		this._statType = type;
 		this._stat = new StatNumber(init.base);
 		this._min = init.min;
 		this._max = new StatNumber(init.max);
@@ -41,7 +56,7 @@ export class Stat extends ComponentBase implements Component {
 
 		this.addProp<number>({
 			export: () => { return this._stat.get(); },
-			import: (obj : number) => { this._stat.set(obj); },
+			import: (obj : number) => { this.importStat(obj); },
 		});
 		this.addProp<number>({
 			export: () => { return this._stat.base(); },
@@ -69,6 +84,7 @@ export class Stat extends ComponentBase implements Component {
 	}
 
 	current() : number { return this._stat.get(); }
+	set(value : number) : void { this._stat.set(value); }
 	percent() : number { return this.current() / this.max(); }
 	atMin() : boolean { return this.current() <= this.min(); }
 	atMax() : boolean { return this.current() >= this.max(); }
@@ -90,12 +106,65 @@ export class Stat extends ComponentBase implements Component {
 			this._stat.add(update.delta);
 		}
 
-		if (this.entityType() === EntityType.PLAYER && update.entity) {
+		if (Stat._showTypes.has(this._statType)) {
+			this.publishDelta(update.delta);
+		}
+
+		if (Stat._logTypes.has(this._statType) && this.entityType() === EntityType.PLAYER && update.entity) {
 			this._logBuffer.push(new StatLog({
 				timestamp: Date.now(),
 				delta: update.delta,
 				entity: update.entity,	
 			}));
+		}
+	}
+	private importStat(value : number) : void {
+		const delta = value - this.current();
+		this.publishDelta(delta);
+
+		this._stat.set(value)
+	}
+	private publishDelta(delta : number) : void {
+		if (delta === 0 || !this.initialized() || delta >= this.max() - this.min()) {
+			return;
+		}
+
+		let pos : Vec;
+		if (this.entity().hasProfile()) {
+			pos = this.entity().profile().pos();
+		} else {
+			return;
+		}
+
+		let weight = 0;
+		if (this.entityType() === EntityType.PLAYER) {
+			weight = Fns.normalizeRange(10, Math.abs(delta), 40);
+		}
+
+		if (game.lakitu().inFOV(pos, /*buffer=3*/)) {
+			const [particle, hasParticle] = this.entity().addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
+				offline: true,
+				ttl: 600 + 400 * weight,
+				profileInit: {
+					pos: pos,
+					vel: { x: 0, y: 0.025 },
+					dim: { x: 0.4, y: 0.4 },
+					scaling: this.entityType() !== EntityType.PLAYER ? Stat._nonPlayerScale : {
+						x: 1 + weight * 0.6,
+						y: 1 + weight * 0.6,
+					},
+				},
+			});
+
+			if (hasParticle) {
+				if (delta < 0) {
+					particle.setTextColor(ColorFactory.toString(ColorType.TEXT_RED));
+					particle.setText("" + delta);
+				} else {
+					particle.setTextColor(ColorFactory.toString(ColorType.TEXT_GREEN));
+					particle.setText("+" + delta);
+				}
+			}
 		}
 	}
 

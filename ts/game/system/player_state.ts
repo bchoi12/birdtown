@@ -221,8 +221,6 @@ export class PlayerState extends ClientSystem implements System {
 		}
 
 		this.setRole(this._startingRole);
-
-		// TODO: reset player health
 		this.targetEntity<Player>().fullHeal();
 	}
 	die() : void {

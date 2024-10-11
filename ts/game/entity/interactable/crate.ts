@@ -153,7 +153,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity 
 
 		if (this._opened) {
 			for (let i = 0; i < 7; ++i) {
-				this.addEntity(EntityType.PARTICLE_CUBE, {
+				this.addEntity(EntityType.CUBE_PARTICLE, {
 					offline: true,
 					ttl: 1200,
 					profileInit: {

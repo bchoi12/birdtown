@@ -64,8 +64,9 @@ export abstract class Particle extends EntityBase implements Entity {
 		// TODO: is this worth? Mesh is GC'd by dispose() and need to manage its visibility
 		/*
 		if (this._model.hasMesh()) {
-			this.resetModel(this._model);
-			ParticleFactory.returnMesh(this.particleType(), this._model.mesh());
+			if (this.resetModel(this._model)) {
+				ParticleFactory.returnMesh(this.particleType(), this._model.mesh());
+			}
 		}
 		*/
 	}
@@ -98,7 +99,7 @@ export abstract class Particle extends EntityBase implements Entity {
 	renderShadows() : boolean { return false; }
 	abstract particleType() : ParticleType;
 	abstract processModel(model : Model) : void;
-	abstract resetModel(model : Model) : void;
+	resetModel(model : Model) : boolean { return false; }
 
 	abstract updateParticle(stepData : StepData) : void;
 }

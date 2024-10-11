@@ -80,6 +80,17 @@ export class Lakitu extends SystemBase implements System {
 
 	camera() : BABYLON.UniversalCamera { return this._camera; }
 	fov() : Vec2 { return this._fov; }
+	inFOV(vec : Vec, buffer? : number) : boolean {
+		if (!buffer) {
+			buffer = 0;
+		}
+
+		const fov = this.fov();
+		return vec.x > this._target.x - fov.x / 2 - buffer
+			&& vec.x < this._target.x + fov.x / 2 + buffer
+			&& vec.y > this._target.y - fov.y / 2 - buffer
+			&& vec.y < this._target.y + fov.y / 2 + buffer;
+	}
 	anchor() : BABYLON.Vector3 { return this._anchor; }
 	target() : BABYLON.Vector3 { return this._target; }
 	private offset(type : OffsetType) : Vec3 { return this._panners.get(type).current(); }

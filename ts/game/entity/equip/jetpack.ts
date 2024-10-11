@@ -127,7 +127,7 @@ export class Jetpack extends Equip<Player> {
 
 		if (this._model.hasMesh() && this._enabled && this._smoker.check(millis)) {
 			const scale = 0.2 + 0.2 * Math.random();
-			this.addEntity(EntityType.PARTICLE_SMOKE, {
+			this.addEntity(EntityType.SMOKE_PARTICLE, {
 				offline: true,
 				ttl: Fns.randomRange(1500, 2000),
 				profileInit: {

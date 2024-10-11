@@ -42,11 +42,12 @@ import { WeaponCrate } from 'game/entity/interactable/crate/weapon_crate'
 import { Table } from 'game/entity/interactable/table'
 import { ControlsSign } from 'game/entity/interactable/sign/controls_sign'
 import { StartGameSign } from 'game/entity/interactable/sign/start_game_sign'
-import { ParticleCube } from 'game/entity/particle/particle_cube'
-import { ParticleEnergyCube } from 'game/entity/particle/particle_energy_cube'
-import { ParticleSmoke } from 'game/entity/particle/particle_smoke'
-import { ParticleSpark } from 'game/entity/particle/particle_spark'
-import { ParticleSweat } from 'game/entity/particle/particle_sweat'
+import { CubeParticle } from 'game/entity/particle/cube_particle'
+import { EnergyCubeParticle } from 'game/entity/particle/energy_cube_particle'
+import { SmokeParticle } from 'game/entity/particle/smoke_particle'
+import { SparkParticle } from 'game/entity/particle/spark_particle'
+import { SweatParticle } from 'game/entity/particle/sweat_particle'
+import { TextParticle } from 'game/entity/particle/text_particle'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Bullet } from 'game/entity/projectile/bullet'
 import { Caliber } from 'game/entity/projectile/caliber'
@@ -96,11 +97,6 @@ export namespace EntityFactory {
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
 		[EntityType.ORB, (options : EntityOptions) => { return new Orb(options); }],
 		[EntityType.ORB_EXPLOSION, (options : EntityOptions) => { return new OrbExplosion(options); }],
-		[EntityType.PARTICLE_CUBE, (options : EntityOptions) => { return new ParticleCube(options); }],
-		[EntityType.PARTICLE_ENERGY_CUBE, (options : EntityOptions) => { return new ParticleEnergyCube(options); }],
-		[EntityType.PARTICLE_SMOKE, (options : EntityOptions) => { return new ParticleSmoke(options); }],
-		[EntityType.PARTICLE_SPARK, (options : EntityOptions) => { return new ParticleSpark(options); }],
-		[EntityType.PARTICLE_SWEAT, (options : EntityOptions) => { return new ParticleSweat(options); }],
 		[EntityType.PELLET, (options : EntityOptions) => { return new Pellet(options); }],
 		[EntityType.PERGOLA, (options : EntityOptions) => { return new Pergola(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
@@ -119,6 +115,13 @@ export namespace EntityFactory {
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 		[EntityType.WEAPON_CRATE, (options : EntityOptions) => { return new WeaponCrate(options); }],
 		[EntityType.WING_CANNON, (options : EntityOptions) => { return new WingCannon(options); }],
+
+		[EntityType.CUBE_PARTICLE, (options : EntityOptions) => { return new CubeParticle(options); }],
+		[EntityType.ENERGY_CUBE_PARTICLE, (options : EntityOptions) => { return new EnergyCubeParticle(options); }],
+		[EntityType.SMOKE_PARTICLE, (options : EntityOptions) => { return new SmokeParticle(options); }],
+		[EntityType.SPARK_PARTICLE, (options : EntityOptions) => { return new SparkParticle(options); }],
+		[EntityType.SWEAT_PARTICLE, (options : EntityOptions) => { return new SweatParticle(options); }],
+		[EntityType.TEXT_PARTICLE, (options : EntityOptions) => { return new TextParticle(options); }],
 	]);
 
 	export const staticDimensions = new Map<EntityType, Vec>([
@@ -132,11 +135,6 @@ export namespace EntityFactory {
 		[EntityType.CALIBER, { x: 0.5, y: 0.15, z : 0.15 }],
 		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],
 		[EntityType.ORB, { x: 0.3, y: 0.3, z : 0.3 }],
-		[EntityType.PARTICLE_CUBE, { x: 1, y: 1, z: 1}],
-		[EntityType.PARTICLE_ENERGY_CUBE, { x: 1, y: 1, z: 1}],
-		[EntityType.PARTICLE_SMOKE, { x: 1, y: 1, z: 1 }],
-		[EntityType.PARTICLE_SPARK, { x: 1, y: 1, z: 1 }],
-		[EntityType.PARTICLE_SWEAT, { x: 1, y: 1, z: 1 }],
 		[EntityType.PELLET, { x: 0.2, y: 0.2, z : 0.2 }],
 		[EntityType.PERGOLA, { x: 4, y: 4, z: 4 }],
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
@@ -146,6 +144,13 @@ export namespace EntityFactory {
 		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],
 		[EntityType.STAR, {x: 0.35, y: 0.35, z: 0.1 }],
 		[EntityType.TABLE, { x: 2, y: 1.25, z: 3 }],
+
+		[EntityType.CUBE_PARTICLE, { x: 1, y: 1, z: 1}],
+		[EntityType.ENERGY_CUBE_PARTICLE, { x: 1, y: 1, z: 1}],
+		[EntityType.SMOKE_PARTICLE, { x: 1, y: 1, z: 1 }],
+		[EntityType.SPARK_PARTICLE, { x: 1, y: 1, z: 1 }],
+		[EntityType.SWEAT_PARTICLE, { x: 1, y: 1, z: 1 }],
+		[EntityType.TEXT_PARTICLE, { x: 1, y: 1, z: 1 }],
 	]);
 
 	// Also includes dimensions that can change.

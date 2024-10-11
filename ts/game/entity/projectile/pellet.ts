@@ -95,7 +95,7 @@ export class Pellet extends Projectile {
 	}
 
 	override onHit() : void {
-		this.addEntity(EntityType.PARTICLE_CUBE, {
+		this.addEntity(EntityType.CUBE_PARTICLE, {
 			offline: true,
 			ttl: 600,
 			profileInit: {

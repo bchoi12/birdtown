@@ -16,12 +16,12 @@ import { GameGlobals } from 'global/game_globals'
 import { Fns, InterpType } from 'util/fns'
 import { Vec2 } from 'util/vector'
 
-export class ParticleEnergyCube extends Particle {
+export class EnergyCubeParticle extends Particle {
 
 	private _initialScale : Vec2;
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.PARTICLE_ENERGY_CUBE, entityOptions);
+		super(EntityType.ENERGY_CUBE_PARTICLE, entityOptions);
 	}
 
 	override initialize() : void {
@@ -35,10 +35,11 @@ export class ParticleEnergyCube extends Particle {
 		model.mesh().receiveShadows = false;
 		game.world().glow(model.mesh(), { intensity: 0.6 });
 	}
-	override resetModel(model : Model) : void {
+	override resetModel(model : Model) : boolean {
 		model.mesh().receiveShadows = true;
 		model.mesh().scaling.set(1, 1, 1);
 		game.world().removeGlow(model.mesh());
+		return true;
 	}
 
 	override updateParticle(stepData : StepData) : void {
