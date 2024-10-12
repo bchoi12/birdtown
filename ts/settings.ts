@@ -2,6 +2,7 @@
 import {
 	AntiAliasSetting,
 	ClientPredictionSetting,
+	DamageNumberSetting,
 	FullscreenSetting,
 	PointerSetting,
 	SpeedSetting,
@@ -30,11 +31,15 @@ class Settings {
 	public chatKeyCode : number;
 	public pointerLockKeyCode : number;
 
+
 	public fullscreenSetting : FullscreenSetting;
 	public fpsSetting : SpeedSetting;
+	public clientPredictionSetting : ClientPredictionSetting;
+	public damageNumberSetting : DamageNumberSetting;
+
+	// Graphics
 	public antiAliasSetting : AntiAliasSetting;
 	public shadowSetting : ShadowSetting;
-	public clientPredictionSetting : ClientPredictionSetting;
 
 	public inspectorSetting : InspectorSetting;
 	public delaySetting : DelaySetting;
@@ -57,9 +62,11 @@ class Settings {
 
 		this.fullscreenSetting = (isMobile() || isElectron()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 		this.fpsSetting = isMobile() ? SpeedSetting.SLOW : SpeedSetting.NORMAL;
+		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
+		this.damageNumberSetting = DamageNumberSetting.OFF;
+
 		this.antiAliasSetting = isMobile() ? AntiAliasSetting.LOW : AntiAliasSetting.MEDIUM;
 		this.shadowSetting = isMobile() ? ShadowSetting.NONE : ShadowSetting.MEDIUM;
-		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 
 		// Debug properties
 		this.inspectorSetting = InspectorSetting.OFF;
@@ -69,6 +76,7 @@ class Settings {
 	}
 
 	fullscreen() : boolean { return this.fullscreenSetting === FullscreenSetting.FULLSCREEN; }
+	showDamageNumbers() : boolean { return this.damageNumberSetting === DamageNumberSetting.ON; }
 
 	fxaaSamples() : number {
 		switch (this.antiAliasSetting) {

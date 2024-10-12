@@ -11,6 +11,8 @@ import { TextParticle } from 'game/entity/particle/text_particle'
 import { ColorType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
+import { settings } from 'settings'
+
 import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
@@ -125,6 +127,9 @@ export class Stat extends ComponentBase implements Component {
 		this._stat.set(value)
 	}
 	private publishDelta(delta : number) : void {
+		if (!settings.showDamageNumbers()) {
+			return;
+		}
 		if (delta === 0 || !this.initialized() || delta >= this.max() - this.min()) {
 			return;
 		}

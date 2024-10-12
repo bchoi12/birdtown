@@ -1,5 +1,24 @@
 
 
+export enum AntiAliasSetting {
+	NONE,
+	LOW,
+	MEDIUM,
+	HIGH,
+}
+
+export enum ClientPredictionSetting {
+	NONE,
+	LOW,
+	MEDIUM,
+	HIGH,
+}
+
+export enum DamageNumberSetting {
+	OFF,
+	ON,
+}
+
 export enum FullscreenSetting {
 	WINDOWED,
 	FULLSCREEN,
@@ -16,20 +35,6 @@ export enum SpeedSetting {
 	SLOW,
 	NORMAL,
 	FAST,
-}
-
-export enum AntiAliasSetting {
-	NONE,
-	LOW,
-	MEDIUM,
-	HIGH,
-}
-
-export enum ClientPredictionSetting {
-	NONE,
-	LOW,
-	MEDIUM,
-	HIGH,
 }
 
 export enum InspectorSetting {

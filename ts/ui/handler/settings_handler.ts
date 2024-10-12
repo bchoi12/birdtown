@@ -5,6 +5,7 @@ import { settings } from 'settings'
 import {
 	AntiAliasSetting,
 	ClientPredictionSetting,
+	DamageNumberSetting,
 	FullscreenSetting,
 	PointerSetting,
 	SpeedSetting,
@@ -85,22 +86,39 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(frameRate.elm());
 
-		let shadowQuality = new SettingWrapper<ShadowSetting>({
-			name: "Shadow Quality",
-			value: settings.shadowSetting,
-			click: (current : ShadowSetting) => {
-				if (current === ShadowSetting.HIGH) {
-					settings.shadowSetting = ShadowSetting.NONE;
+		let clientPrediction = new SettingWrapper<ClientPredictionSetting>({
+			name: "Client-side Prediction",
+			value: settings.clientPredictionSetting,
+			click: (current : ClientPredictionSetting) => {
+				if (current === ClientPredictionSetting.HIGH) {
+					settings.clientPredictionSetting = ClientPredictionSetting.NONE;
 				} else {
-					settings.shadowSetting++;
+					settings.clientPredictionSetting++;
 				}
-				return settings.shadowSetting;
+				return settings.clientPredictionSetting;
 			},
-			text: (current : ShadowSetting) => {
-				return ShadowSetting[current];
+			text: (current : ClientPredictionSetting) => {
+				return ClientPredictionSetting[current];
 			},
 		});
-		this._settingsElm.appendChild(shadowQuality.elm());
+		this._settingsElm.appendChild(clientPrediction.elm());
+
+		let damageNumbers = new SettingWrapper<DamageNumberSetting>({
+			name: "Display Damage Numbers",
+			value: settings.damageNumberSetting,
+			click: (current : DamageNumberSetting) => {
+				if (current === DamageNumberSetting.ON) {
+					settings.damageNumberSetting = DamageNumberSetting.OFF;
+				} else {
+					settings.damageNumberSetting = DamageNumberSetting.ON;
+				}
+				return settings.damageNumberSetting;
+			},
+			text: (current : DamageNumberSetting) => {
+				return DamageNumberSetting[current];
+			},
+		});
+		this._settingsElm.appendChild(damageNumbers.elm());
 
 		let antiAlias = new SettingWrapper<AntiAliasSetting>({
 			name: "Anti-aliasing",
@@ -119,39 +137,39 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(antiAlias.elm());
 
-		let clientPrediction = new SettingWrapper<ClientPredictionSetting>({
-			name: "Client-side Prediction",
-			value: settings.clientPredictionSetting,
-			click: (current : ClientPredictionSetting) => {
-				if (current === ClientPredictionSetting.HIGH) {
-					settings.clientPredictionSetting = ClientPredictionSetting.NONE;
+		let shadowQuality = new SettingWrapper<ShadowSetting>({
+			name: "Shadow Quality",
+			value: settings.shadowSetting,
+			click: (current : ShadowSetting) => {
+				if (current === ShadowSetting.HIGH) {
+					settings.shadowSetting = ShadowSetting.NONE;
 				} else {
-					settings.clientPredictionSetting++;
+					settings.shadowSetting++;
 				}
-				return settings.clientPredictionSetting;
+				return settings.shadowSetting;
 			},
-			text: (current : ClientPredictionSetting) => {
-				return ClientPredictionSetting[current];
-			},
-		});
-		this._settingsElm.appendChild(clientPrediction.elm());
-
-		let inspector = new SettingWrapper<InspectorSetting>({
-			name: "[Debug] Inspector",
-			value: settings.inspectorSetting,
-			click: (current : InspectorSetting) => {
-				settings.inspectorSetting = current === InspectorSetting.OFF ? InspectorSetting.ON : InspectorSetting.OFF;
-				return settings.inspectorSetting;
-			},
-			text: (current : InspectorSetting) => {
-				return InspectorSetting[current];
+			text: (current : ShadowSetting) => {
+				return ShadowSetting[current];
 			},
 		});
-		this._settingsElm.appendChild(inspector.elm());
+		this._settingsElm.appendChild(shadowQuality.elm());
 
 		if (isLocalhost()) {
+			let inspector = new SettingWrapper<InspectorSetting>({
+				name: "[D] Inspector",
+				value: settings.inspectorSetting,
+				click: (current : InspectorSetting) => {
+					settings.inspectorSetting = current === InspectorSetting.OFF ? InspectorSetting.ON : InspectorSetting.OFF;
+					return settings.inspectorSetting;
+				},
+				text: (current : InspectorSetting) => {
+					return InspectorSetting[current];
+				},
+			});
+			this._settingsElm.appendChild(inspector.elm());
+
 			let delay = new SettingWrapper<DelaySetting>({
-				name: "[Debug] Delay",
+				name: "[D] Delay",
 				value: settings.delaySetting,
 				click: (current : DelaySetting) => {
 					if (current === DelaySetting.GLOBAL) {
@@ -168,7 +186,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			this._settingsElm.appendChild(delay.elm());
 
 			let jitter = new SettingWrapper<JitterSetting>({
-				name: "[Debug] Jitter",
+				name: "[D] Jitter",
 				value: settings.jitterSetting,
 				click: (current : JitterSetting) => {
 					if (current === JitterSetting.TERRIBLE) {
@@ -185,7 +203,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			this._settingsElm.appendChild(jitter.elm());
 
 			let networkStability = new SettingWrapper<NetworkStabilitySetting>({
-				name: "[Debug] Network Stability",
+				name: "[D] Network Stability",
 				value: settings.networkStabilitySetting,
 				click: (current : NetworkStabilitySetting) => {
 					if (current === NetworkStabilitySetting.TERRIBLE) {
