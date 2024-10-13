@@ -86,6 +86,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 				let material = new BABYLON.StandardMaterial(this.name() + "-material");
 				material.diffuseTexture = texture;
 				material.alpha = 0.9;
+				material.specularColor = BABYLON.Color3.Black();
 
 				let mesh = BABYLON.MeshBuilder.CreatePlane(this.name(), {
 					width: planeWidth,

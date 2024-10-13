@@ -26,7 +26,7 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Star extends Projectile {
 
-	private static readonly _damage = 15;
+	private static readonly _damage = 18;
 
 	private static readonly _trailVertices = [
         new BABYLON.Vector3(0, 0, 0.1),

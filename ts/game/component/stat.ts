@@ -130,7 +130,9 @@ export class Stat extends ComponentBase implements Component {
 		if (!settings.showDamageNumbers()) {
 			return;
 		}
-		if (delta === 0 || !this.initialized() || delta >= this.max() - this.min()) {
+
+		// Note: can change >= 0 to === 0
+		if (delta >= 0 || !this.initialized() || delta >= this.max() - this.min()) {
 			return;
 		}
 

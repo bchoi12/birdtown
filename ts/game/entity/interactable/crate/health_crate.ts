@@ -8,6 +8,7 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Crate } from 'game/entity/interactable/crate'
+import { TextParticle } from 'game/entity/particle/text_particle'
 import { Player } from 'game/entity/player'
 import { ColorType, MaterialType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -20,11 +21,21 @@ import { TooltipType } from 'ui/api'
 
 export class HealthCrate extends Crate {
 
+	private _showHeart : boolean;
+
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.HEALTH_CRATE, entityOptions);
 
+		this._showHeart = false;
+
 		this._profile.setMinimapOptions({
 			color: ColorFactory.color(ColorType.PICKUP_RED).toString(),
+		});
+
+		this.addProp<boolean>({
+			has: () => { return this._showHeart; },
+			export: () => { return this._showHeart; },
+			import: (obj : boolean) => { this._showHeart = obj; },
 		})
 	}
 
@@ -54,6 +65,30 @@ export class HealthCrate extends Crate {
 		}
 
 		entity.takeDamage(-this.amount(), this);
+		this._showHeart = true;
 		this.open();
+	}
+
+	override open() : void {
+		super.open();
+
+		if (!this._showHeart) {
+			return;
+		}
+
+		const [particle, hasParticle] = this.addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
+			offline: true,
+			ttl: 750,
+			profileInit: {
+				pos: this._profile.pos(),
+				vel: { x: 0, y: 0.02 },
+				dim: { x: 0.3, y: 0.3 },
+			},
+		});
+
+		if (hasParticle) {
+			particle.setTextColor(ColorFactory.toString(ColorType.RED));
+			particle.setText("❤️");
+		}
 	}
 }

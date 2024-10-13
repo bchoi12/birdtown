@@ -46,7 +46,7 @@ export namespace MaterialFactory {
 
 		standardMaterial(MaterialType.DYING_STAR, (mat : BABYLON.StandardMaterial) => {
 			mat.alpha = 0.8;
-			mat.specularPower = 16;
+			mat.specularPower = 8;
 			mat.diffuseColor = ColorFactory.color(ColorType.WHITE).toBabylonColor3();
 		});
 
