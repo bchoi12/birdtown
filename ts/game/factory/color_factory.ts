@@ -136,6 +136,10 @@ export namespace ColorFactory {
 		return colorMap.get(type);
 	}
 	export function toString(type : ColorType) : string {
+		if (!colorMap.has(type)) {
+			console.error("Warning: color is not in color map", ColorType[type]);
+			return "#FFFFFF";
+		}
 		return colorMap.get(type).toString();
 	}
 	export function entityColors(type : EntityType) : Array<HexColor> {

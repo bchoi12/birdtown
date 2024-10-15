@@ -1,4 +1,6 @@
 
+import { GameMessage } from 'message/game_message'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -39,6 +41,14 @@ export class DialogHandler extends HandlerBase implements Handler {
 		this._dialogsElm = Html.elm(Html.divDialogs);
 		this._dialogQueue = new Array();
 		this._dialogs = new Map();
+	}
+
+	override handleClientMessage(msg : GameMessage) : void {
+		super.handleClientMessage(msg);
+
+		this._dialogs.forEach((wrapper : DialogWrapper) => {
+			wrapper.handleClientMessage(msg);
+		});
 	}
 
 	override clear() : void {

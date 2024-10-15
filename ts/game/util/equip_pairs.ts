@@ -18,7 +18,7 @@ export namespace EquipPairs {
 	const weapons = [...pairs.keys()];
 
 	// [0, 1, 2, 3, ...]
-	let indices = Array.from(Array(weapons.length).keys());	
+	let indices = Array.from(Array(weapons.length).keys());
 
 	export function random() : [EntityType, EntityType] {
 		return randomN(1)[0];

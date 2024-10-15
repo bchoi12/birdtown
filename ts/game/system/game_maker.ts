@@ -12,7 +12,9 @@ import { ClientDialog } from 'game/system/client_dialog'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
+import { EquipPairs } from 'game/util/equip_pairs'
 import { PlayerConfig } from 'game/util/player_config'
+import { PlayerRotator } from 'game/util/player_rotator'
 
 import { MessageObject } from 'message'
 import { GameConfigMessage } from 'message/game_config_message'
@@ -47,6 +49,7 @@ export class GameMaker extends SystemBase implements System {
 	]);
 
 	private _config : GameConfigMessage;
+	private _playerRotator : PlayerRotator;
 	private _round : number;
 	private _winners : Array<Tablet>;
 	private _winnerClientId : number;
@@ -55,7 +58,8 @@ export class GameMaker extends SystemBase implements System {
 	constructor() {
 		super(SystemType.GAME_MAKER);
 
-		this._config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
+		this._config = GameConfigMessage.defaultConfig(GameMode.FREE);
+		this._playerRotator = new PlayerRotator();
 		this._round = 0;
 		this._winners = new Array();
 		this._winnerClientId = 0;
@@ -128,6 +132,22 @@ export class GameMaker extends SystemBase implements System {
 			return Infinity;
 		}
 	}
+	getEquips(clientId : number) : [EntityType, EntityType] {
+		let id;
+		if (this.mode() === GameMode.FREE) {
+			return EquipPairs.random();
+		} else if (this.mode() === GameMode.DUEL) {
+			id = this._playerRotator.current();
+		} else {
+			id = clientId;
+		}
+
+		if (game.clientDialogs().hasClientDialog(id)) {
+			const loadout = game.clientDialog(id).message(DialogType.LOADOUT);
+			return [loadout.getEquipType(), loadout.getAltEquipType()];
+		}
+		return EquipPairs.random();
+	}
 
 	setConfig(config : GameConfigMessage, playerConfig : PlayerConfig) : boolean {
 		this._config = config;
@@ -145,6 +165,8 @@ export class GameMaker extends SystemBase implements System {
 			type: GameMode[this._config.type()],
 		});
 
+		this._playerRotator.seed(this._config.getLevelSeed());
+		this._playerRotator.updateShuffled(playerConfig);
 		game.playerStates().updatePlayers(playerConfig);
 		game.tablets().execute<Tablet>((tablet : Tablet) => {
 			tablet.resetForGame(this.mode());
@@ -341,13 +363,14 @@ export class GameMaker extends SystemBase implements System {
 
 		switch (state) {
 		case GameState.FREE:
+			this._config.resetToDefault(GameMode.FREE);
 			this._round = 0;
 			this.setWinnerClientId(0);
 
 			game.level().loadLevel({
-				type: LevelType.LOBBY,
-				layout: LevelLayout.CIRCLE,
-				seed: Math.floor(Math.random() * 10000),
+				type: this._config.getLevelType(),
+				layout: this._config.getLevelLayout(),
+				seed: this._config.getLevelSeed(),
 			});
 			game.playerStates().execute((playerState : PlayerState) => {
 				playerState.resetForLobby();
@@ -375,9 +398,9 @@ export class GameMaker extends SystemBase implements System {
 				playerState.onStartRound();
 			});
 			game.level().loadLevel({
-				type: LevelType.BIRDTOWN,
-				layout: LevelLayout.CIRCLE,
-				seed: Math.floor(Math.random() * 10000),
+				type: this._config.getLevelType(),
+				layout: this._config.getLevelLayout(),
+				seed: this._config.getLevelSeed() + this._round,
 			});
 
 			const nameAndGoal = GameMaker.nameAndGoal(this._config);
@@ -389,11 +412,7 @@ export class GameMaker extends SystemBase implements System {
 	    	game.announcer().broadcast(startGameMsg);
 			break;
 		case GameState.SETUP:
-			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
-				clientDialog.queueDialog(DialogType.LOADOUT);
-			}, (clientDialog : ClientDialog) => {
-				return this.isPlaying(clientDialog.clientId());
-			});
+			this.showSetupDialogs();
 			break;
 		case GameState.GAME:
 	    	this.queueForceSubmit(DialogType.LOADOUT);
@@ -478,6 +497,24 @@ export class GameMaker extends SystemBase implements System {
 
 	private isPlaying(clientId : number) : boolean {
 		return game.playerStates().hasPlayerState(clientId) && game.playerState(clientId).isPlaying();
+	}
+
+	private showSetupDialogs() : void {
+		if (this.mode() === GameMode.DUEL) {
+			const nextId = this._playerRotator.next();
+			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
+				clientDialog.queueDialog(DialogType.LOADOUT);
+			}, (clientDialog : ClientDialog) => {
+				return clientDialog.clientId() === nextId;
+			});
+			return;
+		}
+
+		game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
+			clientDialog.queueDialog(DialogType.LOADOUT);
+		}, (clientDialog : ClientDialog) => {
+			return this.isPlaying(clientDialog.clientId());
+		});
 	}
 
 	private queueForceSubmit(type : DialogType) : void {

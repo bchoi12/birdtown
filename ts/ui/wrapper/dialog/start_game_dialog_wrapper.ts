@@ -23,18 +23,22 @@ import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
 import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 
+type ModePageOptions = {
+	title : string;
+}
+
 export class StartGameDialogWrapper extends DialogWrapper {
 
 	private _mode : GameMode;
 	private _configMsg : GameConfigMessage;
-	private _playerConfig : PlayerConfig;
+	private _playerConfigWrapper : PlayerConfigWrapper;
 
 	constructor() {
 		super();
 
 		this._mode = GameMode.UNKNOWN;
 		this._configMsg = null;
-		this._playerConfig = null;
+		this._playerConfigWrapper = null;
 
 		this.setTitle("Select a mode");
 		this.addGameModePage();
@@ -50,8 +54,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 
 		this.addOnSubmit(() => {
-			if (this._configMsg !== null && this._playerConfig !== null) {
-				game.controller().startGame(this._configMsg, this._playerConfig);
+			if (this._configMsg !== null && this._playerConfigWrapper !== null) {
+				game.controller().startGame(this._configMsg, this._playerConfigWrapper.config());
 			}
 		});
 	}
@@ -108,9 +112,25 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				requirements.innerHTML = "<li>2+ players required</li>"
 
 				description.textContent =
-					"Be the last bird standing.\r\n\r\n" + 
+					"Be the last bird in town.\r\n\r\n" + 
 					"Each player starts with the same number of lives. " +
 					"The last player standing wins the round. If time runs out, it's a draw."
+				error.textContent = "";
+			});
+		}
+
+		{
+			let buttonWrapper = modeButtons.addButtonSelect();
+			buttonWrapper.elm().style.width = "100%";
+			buttonWrapper.setText("Duel (WIP)");
+			buttonWrapper.addOnClick(() => {
+				this._mode = GameMode.DUEL;
+
+				requirements.innerHTML = "<li>2+ players required</li>"
+
+				description.textContent =
+					"Duel your opponents in symmetric maps where everyone has the same loadout.\r\n\r\n" +
+					"Even teams recommended, but not required.";
 				error.textContent = "";
 			});
 		}
@@ -157,10 +177,42 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				case GameMode.FREE_FOR_ALL:
 					this.addFreeForAllPage();
 					break;
+				case GameMode.DUEL:
+					this.addDuelPage();
+					break;
 				}
 			}
 		});
 	}
+
+	/*
+	private addModePage(modeOptions: ModePageOptions) : void {
+		let pageWrapper = this.addPage();
+
+		this.setTitle(modeOptions.title);
+		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
+
+		let options = columnsWrapper.column(0);
+		options.setLegend("Options");
+		options.contentElm().style.fontSize = "0.6em";
+
+		let players = columnsWrapper.column(1);
+		players.setLegend("Players");
+		players.contentElm().style.fontSize = "0.6em";
+
+		this._playerConfigWrapper = new PlayerConfigWrapper();
+		players.contentElm().appendChild(this._playerConfigWrapper.elm());
+
+		pageWrapper.elm().appendChild(columnsWrapper.elm());
+
+		pageWrapper.setOnSubmit(() => {
+			this._configMsg.setPoints(points.number());
+			this._configMsg.setVictories(victories.number());
+			this._configMsg.setHealthCrateSpawn(healthCrates.value());
+			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
+		});
+	}
+	*/
 
 	private addFreeForAllPage() : void {
 		let pageWrapper = this.addPage();
@@ -237,8 +289,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		players.setLegend("Players");
 		players.contentElm().style.fontSize = "0.6em";
 
-		let playerConfigWrapper = new PlayerConfigWrapper();
-		players.contentElm().appendChild(playerConfigWrapper.elm());
+		this._playerConfigWrapper = new PlayerConfigWrapper();
+		players.contentElm().appendChild(this._playerConfigWrapper.elm());
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
@@ -247,8 +299,6 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			this._configMsg.setVictories(victories.number());
 			this._configMsg.setHealthCrateSpawn(healthCrates.value());
 			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
-
-			this._playerConfig = playerConfigWrapper.config();
 		});
 	}
 
@@ -327,8 +377,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		players.setLegend("Players");
 		players.contentElm().style.fontSize = "0.6em";
 
-		let playerConfigWrapper = new PlayerConfigWrapper();
-		players.contentElm().appendChild(playerConfigWrapper.elm());
+		this._playerConfigWrapper = new PlayerConfigWrapper();
+		players.contentElm().appendChild(this._playerConfigWrapper.elm());
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
@@ -337,8 +387,46 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			this._configMsg.setVictories(victories.number());
 			this._configMsg.setHealthCrateSpawn(healthCrates.value());
 			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
+		});
+	}
 
-			this._playerConfig = playerConfigWrapper.config();
+	private addDuelPage() : void {
+		let pageWrapper = this.addPage();
+		this.setTitle("Duel");
+
+		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
+
+		let options = columnsWrapper.column(0);
+		options.setLegend("Options");
+		options.contentElm().style.fontSize = "0.6em";
+
+		let victories = new LabelNumberWrapper({
+			label: "First to",
+			value: 3,
+			plus: (current : number) => {
+				return Math.min(current + 1, 5);
+			},
+			minus: (current : number) => {
+				return Math.max(1, current - 1);
+			},
+			html: (current : number) => {
+				return current + " win" + (current === 1 ? "" : "s");
+			}
+		});
+		options.contentElm().appendChild(victories.elm());
+
+		let players = columnsWrapper.column(1);
+		players.setLegend("Players");
+		players.contentElm().style.fontSize = "0.6em";
+
+		this._playerConfigWrapper = new PlayerConfigWrapper();
+		this._playerConfigWrapper.setTeams(true);
+		players.contentElm().appendChild(this._playerConfigWrapper.elm());
+
+		pageWrapper.elm().appendChild(columnsWrapper.elm());
+
+		pageWrapper.setOnSubmit(() => {
+			this._configMsg.setVictories(victories.number());
 		});
 	}
 
@@ -390,16 +478,14 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		players.setLegend("Players");
 		players.contentElm().style.fontSize = "0.6em";
 
-		let playerConfigWrapper = new PlayerConfigWrapper();
-		players.contentElm().appendChild(playerConfigWrapper.elm());
+		this._playerConfigWrapper = new PlayerConfigWrapper();
+		players.contentElm().appendChild(this._playerConfigWrapper.elm());
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setOnSubmit(() => {
 			this._configMsg.setHealthCrateSpawn(healthCrates.value());
 			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
-
-			this._playerConfig = playerConfigWrapper.config();
 		});
 	}
 

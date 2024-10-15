@@ -31,6 +31,7 @@ export enum SystemType {
 export enum LevelType {
 	UNKNOWN,
 	BIRDTOWN,
+	DUELTOWN,
 	LOBBY,
 }
 

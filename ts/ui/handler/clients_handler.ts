@@ -47,7 +47,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 	override handleClientMessage(msg : GameMessage) : void {
 		super.handleClientMessage(msg);
 
-		if (msg.type() === GameMessageType.CLIENT_INIT) {
+		if (msg.type() === GameMessageType.CLIENT_INITIALIZED) {
 			const clientId = msg.getClientId();
 
 			// Support name changes for existing clients

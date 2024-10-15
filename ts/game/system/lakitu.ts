@@ -2,6 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { GameState, GameObjectState } from 'game/api'
+import { AssociationType } from 'game/component/api'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
@@ -180,7 +181,45 @@ export class Lakitu extends SystemBase implements System {
 		this.setTargetEntity(winner);
 		return true;
 	}
-	private targetPlane() : boolean {
+	private targetSpawn() : boolean {
+		if (game.controller().gameState() === GameState.FREE) {
+			return false;
+		}
+
+		if (game.playerState().hasTargetEntity()) {
+			if (this.targetEntityType() === EntityType.SPAWN_POINT && this.validTargetEntity()) {
+				return true;
+			}
+
+			const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findAll((spawn : Entity) => {
+				return spawn.initialized();
+			});
+
+			for (let i = 0; i < spawns.length; ++i) {
+				if (game.playerState().targetEntity().matchAssociations([AssociationType.TEAM], spawns[i])) {
+					this.setTargetEntity(spawns[i]);
+					this._panners.forEach((panner : Panner, type : OffsetType) => {
+						let goal : Vec3;
+						if (type === OffsetType.CAMERA) {
+							goal = Lakitu._offsets.get(type).clone().add({ z: -8 });
+						} else {
+							goal = Lakitu._offsets.get(type);
+						}
+						panner.pan({
+							goal: goal,
+							millis: Lakitu._normalPan,
+							interpType: InterpType.NEGATIVE_SQUARE,
+						});
+					});
+					return true;
+				}
+			}
+
+			if (spawns.length > 0) {
+				return false;
+			}
+		}
+
 		if (this.targetEntityType() === EntityType.PLANE && this.validTargetEntity()) {
 			return true;
 		}
@@ -256,21 +295,21 @@ export class Lakitu extends SystemBase implements System {
 		switch (game.controller().gameState()) {
 		case GameState.LOAD:
 		case GameState.SETUP:
-			this.targetPlane();
+			this.targetSpawn();
 			break;
 		case GameState.FREE:
 		case GameState.GAME:
 			switch (game.playerState().role()) {
 			case PlayerRole.PREPARING:
 			case PlayerRole.SPAWNING:
-				this.targetPlane();
+				this.targetSpawn();
 				break;
 			case PlayerRole.GAMING:
 				this.targetPlayer();
 				break;
 			case PlayerRole.WAITING:
 				if (!this.targetPlayer()) {
-					this.targetPlane();
+					this.targetSpawn();
 				}
 				break;
 			case PlayerRole.SPECTATING:
@@ -290,7 +329,7 @@ export class Lakitu extends SystemBase implements System {
 
 				if (this._players.empty()) {
 					this._spectateClientId = 0;
-					this.targetPlane();
+					this.targetSpawn();
 				} else {
 					// Force reassign target if invalid
 					if (this.targetEntityType() !== EntityType.PLAYER
@@ -317,7 +356,7 @@ export class Lakitu extends SystemBase implements System {
 					}
 
 					if (this.targetEntity().state() === GameObjectState.DEACTIVATED) {
-						this.targetPlane();
+						this.targetSpawn();
 					}
 				}
 				break;

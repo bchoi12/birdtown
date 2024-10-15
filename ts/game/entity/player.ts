@@ -34,7 +34,7 @@ import { GameGlobals } from 'global/game_globals'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { HudType, HudOptions, DialogType, KeyType, KeyState, InfoType, TooltipType } from 'ui/api'
+import { HudType, HudOptions, KeyType, KeyState, InfoType, TooltipType } from 'ui/api'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -405,7 +405,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	}
 
 	displayName() : string { return game.tablet(this.clientId()).displayName(); }
-	respawn(spawn : Vec2) : void {
+	quickRespawn(spawn : Vec2) : void {
 		if (this.isSource() || this.clientIdMatches()) {
 			this.setAttribute(AttributeType.GROUNDED, false);
 		}
@@ -420,6 +420,23 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._profile.setInertia(Infinity);
 		this.model().rotation().z = 0;
 		this.updateLoadout();
+	}
+	respawn(spawn : Vec2) : void {
+		this.quickRespawn(spawn);
+
+		if (this.isSource()) {
+			this._entityTrackers.clearEntityType(EntityType.BUBBLE);
+			const [bubble, hasBubble] = this.addEntity<Bubble>(EntityType.BUBBLE, {
+				associationInit: {
+					owner: this,
+				},
+				clientId: this.clientId(),
+				levelVersion: game.level().version(),
+			});
+			if (hasBubble) {
+				this._entityTrackers.trackEntity<Bubble>(EntityType.BUBBLE, bubble);
+			}
+		}
 	}
 	stats() : Stats { return this._stats; }
 	fullHeal() : void {
@@ -929,21 +946,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				}
 			}
 
-			const loadout = game.clientDialog(this.clientId()).message(DialogType.LOADOUT);
-
-			this.createEquips(loadout.getEquipType(), loadout.getAltEquipType());
-
-			this._entityTrackers.clearEntityType(EntityType.BUBBLE);
-			const [bubble, hasBubble] = this.addEntity<Bubble>(EntityType.BUBBLE, {
-				associationInit: {
-					owner: this,
-				},
-				clientId: this.clientId(),
-				levelVersion: game.level().version(),
-			});
-			if (hasBubble) {
-				this._entityTrackers.trackEntity<Bubble>(EntityType.BUBBLE, bubble);
-			}
+			const [equipType, altEquipType] = game.controller().getEquips(this.clientId());
+			this.createEquips(equipType, altEquipType);
 
 			this._stats.reset();
 		});

@@ -42,6 +42,10 @@ export class SettingWrapper<T extends number> extends LabelButtonWrapper {
 		}
 	}
 
+	setValue(value : T) {
+		this._value =  value;
+		this.refresh();
+	}
 	value() : T { return this._value; }
 	refresh() : void {
 		if (this._options.text) {

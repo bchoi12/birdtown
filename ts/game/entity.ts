@@ -82,8 +82,9 @@ export interface Entity extends GameObject {
 	setAttribute(type : AttributeType, value : boolean) : void;
 	soundPlayer() : SoundPlayer;
 
-	// Match associations
+	// Associations
 	getAssociations() : Map<AssociationType, number>;
+	setTeam(team : number) : void;
 	matchAssociations(types : AssociationType[], other : Entity) : boolean;
 
 	addForce(force : Vec) : void;
@@ -274,7 +275,15 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 		return associations;
 	}
-	// TODO: make this more flexible than match any
+	setTeam(team : number) : void {
+		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
+			console.error("Error: cannot set team for %s which has no Association component", this.name());
+			return;
+		}
+
+		let association = this.getComponent<Association>(ComponentType.ASSOCIATION);
+		association.setAssociation(AssociationType.TEAM, team);
+	}
 	matchAssociations(types : AssociationType[], other : Entity) : boolean {
 		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
 			return false;
@@ -285,7 +294,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		for (let type of types) {
 			if (!association.has(type) || !otherAssociation.has(type)) { continue; }
-
+			if (association.get(type) === 0) { continue; }
 			if (association.get(type) === otherAssociation.get(type)) { return true; }
 		}
 

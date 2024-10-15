@@ -19,6 +19,7 @@ export class Tablet extends ClientSystem implements System {
 
 	private static readonly _defaultTypes = new Set([InfoType.SCORE, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS]);
 	private static readonly _modeTypes = new Map<GameMode, Set<InfoType>>([
+		[GameMode.DUEL, new Set([InfoType.LIVES, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
 		[GameMode.SURVIVAL, new Set([InfoType.LIVES, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
 	]);
 
@@ -202,7 +203,7 @@ export class Tablet extends ClientSystem implements System {
 	    	ui.pushFeed(feedMsg);
 		}
 
-		const initMsg = new GameMessage(GameMessageType.CLIENT_INIT);
+		const initMsg = new GameMessage(GameMessageType.CLIENT_INITIALIZED);
 		initMsg.setClientId(this.clientId());
 		initMsg.setDisplayName(this.displayName());
 		ui.handleClientMessage(initMsg);

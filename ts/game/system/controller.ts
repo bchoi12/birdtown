@@ -66,6 +66,7 @@ export class Controller extends SystemBase implements System {
 
 	config() : GameConfigMessage { return this._gameMaker.config(); }
 	gameMode() : GameMode { return this._gameMaker.mode(); }
+	getEquips(clientId : number) : [EntityType, EntityType] { return this._gameMaker.getEquips(clientId); }
 	startGame(config : GameConfigMessage, playerConfig : PlayerConfig) {
 		if (this.gameState() !== GameState.FREE) {
 			console.error("Error: trying to start %s in state %s", GameMode[config.type()], GameState[this.gameState()]);

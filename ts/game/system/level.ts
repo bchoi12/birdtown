@@ -54,7 +54,7 @@ export class Level extends SystemBase implements System {
 			export: () => { return this._levelMsg.exportObject(); },
 			import: (obj : MessageObject) => {
 				this._levelMsg.parseObject(obj);
-				this.applyLevel();
+				this.applyLevel(this._levelMsg);
 			},
 			options: {
 				filters: GameData.tcpFilters,
@@ -72,7 +72,7 @@ export class Level extends SystemBase implements System {
 
 	levelType() : LevelType { return this._levelMsg.getLevelTypeOr(LevelType.UNKNOWN); }
 	levelLayout() : LevelLayout { return this._levelMsg.getLevelLayoutOr(LevelLayout.NORMAL); }
-	seed() : number { return this._levelMsg.getLevelSeedOr(0); }
+	private seed() : number { return this._levelMsg.getLevelSeedOr(0); }
 	version() : number { return this._levelMsg.getLevelVersionOr(0); }
 	bounds() : Box2 { return this._bounds; }
 	isCircle() : boolean { return this.levelLayout() === LevelLayout.CIRCLE; }
@@ -86,16 +86,30 @@ export class Level extends SystemBase implements System {
 		pos.y = Math.min(pos.y, this._bounds.max.y);
 	}
 
+	hasSpawnFor(entity : Entity) : boolean {
+		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findN((spawnPoint : Entity) => {
+			return spawnPoint.initialized() && spawnPoint.matchAssociations([AssociationType.TEAM], entity);
+		}, 1);
+		return spawns.length === 1;
+	}
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }
 	
 	spawnPlayer(player : Player) : void {
 		if (!this.isSource() && player.initialized()) {
-			player.respawn(player.profile().pos());
+			player.quickRespawn(player.profile().pos());
 			return;
 		}
 
 		if (game.controller().gameState() === GameState.FREE) {
 			player.respawn(this._defaultSpawn);
+			return;
+		}
+
+		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findN((spawnPoint : Entity) => {
+			return spawnPoint.initialized() && spawnPoint.matchAssociations([AssociationType.TEAM], player);
+		}, 1);
+		if (spawns.length === 1) {
+			player.quickRespawn(spawns[0].profile().pos());
 			return;
 		}
 
@@ -107,15 +121,7 @@ export class Level extends SystemBase implements System {
 			return;
 		}
 
-		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findAll((spawnPoint : Entity) => {
-			return spawnPoint.initialized() && spawnPoint.matchAssociations([AssociationType.TEAM], player);
-		});
-		if (spawns.length > 0) {
-			player.respawn(spawns[0].profile().pos());
-			return;
-		}
-
-		player.respawn(this._defaultSpawn);
+		player.quickRespawn(this._defaultSpawn);
 	}
 
 	loadLevel(options : LevelOptions) : void {
@@ -124,13 +130,13 @@ export class Level extends SystemBase implements System {
 		this._levelMsg.setLevelSeed(options.seed);
 		this._levelMsg.setLevelVersion(this.version() + 1);
 
-		this.applyLevel();
+		this.applyLevel(this._levelMsg);
 	}
 
-	private applyLevel() : void {
-		const level = this.levelType();
-		const seed = this.seed();
-		const version = this.version();
+	private applyLevel(msg : GameMessage) : void {
+		const level = msg.getLevelType();
+		const seed = msg.getLevelSeed();
+		const version = msg.getLevelVersion();
 
 		this._rng.seed(seed);
 
@@ -148,19 +154,8 @@ export class Level extends SystemBase implements System {
 		}
 
 		this._rng.reset();
-		switch (level) {
-		case LevelType.LOBBY:
-			this.loadLobby();
-			break;
-		case LevelType.BIRDTOWN:
-			this.loadBirdtown();
-			break;
-		}
-
-		this._levelMsg.setDisplayName(this.displayName());
-		this._levelMsg.setLevelBounds(this._bounds.toBox());
-
-    	game.runner().handleMessage(this._levelMsg);
+		this.buildLevel(msg);
+    	game.runner().handleMessage(msg);
 
 		if (isLocalhost()) {
 			console.log("%s: loaded level %s with seed %d, version %d", this.name(), LevelType[level], seed, version);
@@ -169,51 +164,7 @@ export class Level extends SystemBase implements System {
 
 	private setBounds(bounds : Box) : void { this._bounds.copyBox(bounds); }
 
-	private displayName() : string {
-		switch (this.levelType()) {
-		case LevelType.LOBBY:
-			return "the Lobby";
-		case LevelType.BIRDTOWN:
-			return "Birdtown";
-		}
-		return "Unknown Level";
-	}
-
-	private loadLobby() : void {
-		const pos = {x: 0, y: 0};
-		let blueprint = new ArchBlueprint({
-			level: {
-				type: this.levelType(),
-				layout: this.levelLayout(),
-				seed: this.seed(),
-			},
-			pos: pos,
-		});
-		let bounds = Box2.point(pos);
-
-		blueprint.load();
-		blueprint.buildings().forEach((building) => {
-			building.blocks().forEach((block) => {
-				block.entities().forEach((entity) => {
-					this.addEntity(entity.type, entity.options);
-				});
-
-				const dim = block.dim();
-				if (dim.x > 0 && dim.y > 0) {
-					bounds.stretch(block.pos(), block.dim());
-				}
-			});
-		});
-
-		bounds.min.add({ y: 8 });
-		bounds.max.add({ y: 1 });
-		this._defaultSpawn.copyVec(bounds.relativePos(CardinalDir.TOP));
-		bounds.max.add({ y: 15 });
-
-		this.setBounds(bounds.toBox());
-	}
-
-	private loadBirdtown() : void {
+	private buildLevel(msg : GameMessage) : void {
 		const pos = {x: 0, y: 0};
 		let blueprint = new ArchBlueprint({
 			level: {

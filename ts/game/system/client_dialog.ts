@@ -59,27 +59,17 @@ export class ClientDialog extends ClientSystem implements System {
 			this.addSubSystem(type, new ClientDialogSyncer(type, clientId));
 		}
 
-		// TESTING ONLY
-		const pair = this.isSource() && isLocalhost()
-			? [EntityType.WING_CANNON, EntityType.SCOUTER]
-			: EquipPairs.random();
+		const pair = EquipPairs.random();
 		let loadout = this.message(DialogType.LOADOUT);
 		loadout.setEquipType(pair[0]);
 		loadout.setAltEquipType(pair[1]);
 	}
 
-	override initialize() : void {
-		super.initialize();
-
-		if (this.clientIdMatches()) {
-			this.showDialog(DialogType.INIT);
-		}
-	}
-
 	queueDialog(type : DialogType) : void {
-		if (this.clientIdMatches()) {
-			this.showDialog(type);
-		} else if (this.isSource()) {
+		// Mark dialog state as open even when not source
+		this.showDialog(type);
+
+		if (this.isSource()) {
 			this._showQueue.push(type);
 		}
 	}

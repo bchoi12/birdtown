@@ -3,6 +3,7 @@ import { ColorType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
 import { DialogMessage } from 'message/dialog_message'
+import { GameMessage } from 'message/game_message'
 
 import { settings } from 'settings'
 
@@ -70,6 +71,8 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._onNextPageFns = new Array();
 		this._onSubmitFns = new Array();
 	}
+
+	handleClientMessage(msg : GameMessage) : void {}
 
 	show() : void {
 		this._visible = true;

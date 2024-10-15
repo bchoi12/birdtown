@@ -12,7 +12,7 @@ export enum GameMessageType {
 
 	ANNOUNCEMENT,
 	CLIENT_DISCONNECT,
-    CLIENT_INIT,
+    CLIENT_INITIALIZED,
 	CLIENT_JOIN,
     FEED,
 	LEVEL_LOAD,
@@ -27,7 +27,6 @@ enum GameProp {
 	DISPLAY_NAME,
     FEED_TYPE,
 	GAME_STATE,
-	LEVEL_BOUNDS,
 	LEVEL_LAYOUT,
 	LEVEL_TYPE,
 	LEVEL_SEED,
@@ -47,7 +46,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 		[GameMessageType.CLIENT_DISCONNECT, MessageBase.fieldDescriptor(
 			[GameProp.CLIENT_ID, {}],
 		)],
-        [GameMessageType.CLIENT_INIT, MessageBase.fieldDescriptor(
+        [GameMessageType.CLIENT_INITIALIZED, MessageBase.fieldDescriptor(
             [GameProp.CLIENT_ID, {}],
             [GameProp.DISPLAY_NAME, {}],
         )],
@@ -61,11 +60,9 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
         )],
 		[GameMessageType.LEVEL_LOAD, MessageBase.fieldDescriptor(
 			[GameProp.LEVEL_TYPE, { min: 1 }],
-			[GameProp.LEVEL_BOUNDS, {}],
 			[GameProp.LEVEL_LAYOUT, {}],
 			[GameProp.LEVEL_SEED, {}],
 			[GameProp.LEVEL_VERSION, { min: 1 }],
-			[GameProp.DISPLAY_NAME, { optional: true }],
 		)],
 		[GameMessageType.GAME_STATE, MessageBase.fieldDescriptor(
 			[GameProp.GAME_STATE, {}],
@@ -105,11 +102,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getGameStateOr(value : number) : number { return this.getOr<number>(GameProp.GAME_STATE, value); }
     setGameState(value : number) : void { this.set<number>(GameProp.GAME_STATE, value); }
 
-    hasLevelBounds() : boolean { return this.has(GameProp.LEVEL_BOUNDS); }
-    getLevelBounds() : Box { return this.get<Box>(GameProp.LEVEL_BOUNDS); }
-    getLevelBoundsOr(value : Box) : Box { return this.getOr<Box>(GameProp.LEVEL_BOUNDS, value); }
-    setLevelBounds(value : Box) : void { this.set<Box>(GameProp.LEVEL_BOUNDS, value); }
-
     hasLevelLayout() : boolean { return this.has(GameProp.LEVEL_LAYOUT); }
     getLevelLayout() : LevelLayout { return this.get<LevelLayout>(GameProp.LEVEL_LAYOUT); }
     getLevelLayoutOr(value : LevelLayout) : LevelLayout { return this.getOr<LevelLayout>(GameProp.LEVEL_LAYOUT, value); }
@@ -147,7 +139,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["DISPLAY_NAME", "string"],
     ["FEED_TYPE", "FeedType"],
     ["GAME_STATE", "number"],
-    ["LEVEL_BOUNDS", "Box"],
     ["LEVEL_LAYOUT", "LevelLayout"],
     ["LEVEL_SEED", "number"],
     ["LEVEL_TYPE", "LevelType"],

@@ -4,7 +4,7 @@ import { game } from 'game'
 import { UiGlobals } from 'global/ui_globals'
 
 import { ui } from 'ui'
-import { UiMode } from 'ui/api'
+import { UiMode, DialogType } from 'ui/api'
 import { LoginNames } from 'ui/common/login_names'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
@@ -192,6 +192,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 				window.history.replaceState(null, null, url);
 
 		    	this.disable();
+
+		    	ui.pushDialog(DialogType.INIT);
 		    },
 		    netcodeError: () => {
 				if (mode === CreateMode.JOIN) {

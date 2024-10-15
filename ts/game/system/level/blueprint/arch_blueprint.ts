@@ -217,6 +217,9 @@ export class ArchBlueprint extends Blueprint {
 		case LevelType.BIRDTOWN:
 			this.loadBirdtown(options);
 			break;
+		case LevelType.DUELTOWN:
+			this.loadDueltown(options);
+			break;
 		default:
 			console.error("Error: level type %s not supported in ArchBlueprint", LevelType[options.level.type]);
 		}
@@ -451,6 +454,137 @@ export class ArchBlueprint extends Blueprint {
 				]);
 			}
 			currentHeight = Fns.clamp(0, currentHeight, maxHeight);
+		}
+
+		return plan;
+	}
+
+	private loadDueltown(options : BlueprintOptions) : void {
+		const plan = this.generateDueltownPlan(options);
+		this.addBuildings(plan);
+
+		let pergolaMod = this.rng().int(2);
+		let tableMod = 1 - pergolaMod;
+
+		for (let i = 0; i < this.numBuildings(); ++i) {
+			let building = this.building(i);
+
+			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
+				let block = building.block(j);
+
+				if (block.type() === ArchBlueprint.roofType()) {
+					if (i === 0) {
+						block.pushEntityOptions(EntityType.SPAWN_POINT, {
+							associationInit: {
+								team: 1,
+							},
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),
+							},
+						})
+					} else if (i === this.numBuildings() - 1) {
+						block.pushEntityOptions(EntityType.SPAWN_POINT, {
+							associationInit: {
+								team: 2,
+							},
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),
+							},
+						})
+					} else if (building.height() === 3) {
+						block.pushEntityOptions(EntityType.BILLBOARD, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.BILLBOARD).y / 2 }),
+							}
+						});
+					} else if (building.height() % 2 === pergolaMod) {
+						block.pushEntityOptions(EntityType.PERGOLA, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.PERGOLA).y / 2 + 1}),
+							},
+						});
+					}
+				} else if (block.type() === ArchBlueprint.baseType() && i % 2 === tableMod) {
+					block.pushEntityOptions(EntityType.TABLE, {
+						profileInit: {
+							pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.TABLE).y / 2 }),
+						},
+					});
+				}
+			}
+		}
+	}
+
+	private generateDueltownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
+		let plan = new Array<BuildingPlan>();
+		const length = 5 + this.rng().int(3);
+
+		let currentHeight = 1;
+		const maxHeight = 3;
+		plan.push({
+			height: currentHeight,
+		});
+
+		for (let i = 1; i < length; ++i) {
+			if (i >= length / 2) {
+				plan.push({
+					height: plan[length - i - 1].height,
+				});
+				continue;
+			} else if (length % 2 === 1 && i === Math.floor(length / 2)) {
+				if (length >= 7) {
+					currentHeight = currentHeight > 0 ? 0 : maxHeight;
+				} else {
+					currentHeight = currentHeight === maxHeight ? 0 : maxHeight;
+				}
+				plan.push({
+					height: currentHeight,
+				});
+				continue;
+			}
+
+			if (i === 1) {
+				this.rng().switch([
+					[0.2, () => { currentHeight = 1; }],
+					[0.6, () => { currentHeight = 2; }],
+					[1, () => { currentHeight = 3; }],
+				]);
+			} else if (length % 2 === 0 && i === length / 2) {
+				this.rng().switch([
+					[0.3, () => { currentHeight = 1; }],
+					[0.6, () => { currentHeight = 2; }],
+					[1, () => { currentHeight = 3; }],
+				]);
+			} else if (currentHeight === 0) {
+				this.rng().switch([
+					[0.5, () => { currentHeight = 1; }],
+					[0.9, () => { currentHeight = 2; }],
+					[1, () => { currentHeight = 3; }],
+				]);
+			} else if (currentHeight === 1) {
+				this.rng().switch([
+					[0.3, () => { currentHeight = 0; }],
+					[0.8, () => { currentHeight = 2; }],
+					[1, () => { currentHeight = 3; }],
+				]);
+			} else if (currentHeight === 2) {
+				this.rng().switch([
+					[0.2, () => { currentHeight = 0; }],
+					[0.7, () => { currentHeight = 1; }],
+					[1, () => { currentHeight = 3; }],
+				]);
+			} else {
+				this.rng().switch([
+					[0.1, () => { currentHeight = 0; }],
+					[0.5, () => { currentHeight = 1; }],
+					[1, () => { currentHeight = 2; }],
+				]);
+			}
+			currentHeight = Fns.clamp(0, currentHeight, maxHeight);
+
+			plan.push({
+				height: currentHeight,
+			});
 		}
 
 		return plan;

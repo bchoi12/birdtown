@@ -34,6 +34,8 @@ export enum GameState {
 export enum GameMode {
 	UNKNOWN,
 
+	FREE,
+
 	DUEL,
 	FREE_FOR_ALL,
 	PRACTICE,

@@ -1,13 +1,18 @@
 
 import { GameMode } from 'game/api'
 import { FrequencyType } from 'game/entity/api'
+import { LevelLayout, LevelType } from 'game/system/api'
 import { Message, MessageBase, Descriptor, FieldDescriptor } from 'message'
 
 enum GameConfigProp {
 	UNKNOWN,
+	LEVEL_LAYOUT,
+	LEVEL_SEED,
+	LEVEL_TYPE,
 	LIVES,
 	HEALTH_CRATE_SPAWN,
 	PLAYERS_MIN,
+	PLAYERS_MAX,
 	POINTS,
 	TIME_SETUP,
 	TIME_GAME,
@@ -20,34 +25,45 @@ enum GameConfigProp {
 
 export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> implements Message<GameMode, GameConfigProp> {
 
-	private static readonly _defaultProps : [number, Descriptor][] = [
+	private static readonly _baseProps : [number, Descriptor][] = [
+		[GameConfigProp.LEVEL_LAYOUT, {}],
+		[GameConfigProp.LEVEL_SEED, {}],
+		[GameConfigProp.LEVEL_TYPE, {}],
 		[GameConfigProp.HEALTH_CRATE_SPAWN, {}],
+		[GameConfigProp.WEAPON_CRATE_SPAWN, {}],
+	];
+
+	private static readonly _gameProps : [number, Descriptor][] = [
+		...GameConfigMessage._baseProps,
 		[GameConfigProp.PLAYERS_MIN, {}],
 		[GameConfigProp.TIME_SETUP, {}],
 		[GameConfigProp.TIME_FINISH, {}],
 		[GameConfigProp.TIME_VICTORY, {}],
 		[GameConfigProp.TIME_ERROR, {}],
-		[GameConfigProp.WEAPON_CRATE_SPAWN, {}],
 	];
 
 	private static readonly _messageDescriptor = new Map<GameMode, FieldDescriptor>([
 		[GameMode.UNKNOWN, MessageBase.fieldDescriptor()],
+		[GameMode.FREE, MessageBase.fieldDescriptor(
+			...GameConfigMessage._baseProps,
+		)],
 		[GameMode.DUEL, MessageBase.fieldDescriptor(
-			...GameConfigMessage._defaultProps,
+			...GameConfigMessage._gameProps,
+			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
 		[GameMode.FREE_FOR_ALL, MessageBase.fieldDescriptor(
-			...GameConfigMessage._defaultProps,
+			...GameConfigMessage._gameProps,
 			[GameConfigProp.POINTS, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
-			...GameConfigMessage._defaultProps,
+			...GameConfigMessage._gameProps,
 		)],
 		[GameMode.SURVIVAL, MessageBase.fieldDescriptor(
-			...GameConfigMessage._defaultProps,
+			...GameConfigMessage._gameProps,
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
@@ -70,6 +86,19 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			return this;
 		}
 
+		if (mode === GameMode.FREE) {
+			this.setLevelType(LevelType.LOBBY);
+			this.setLevelLayout(LevelLayout.CIRCLE);
+			this.setLevelSeed(Math.floor(33 * Math.random()));
+			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
+			return this;
+		}
+
+		this.setLevelType(LevelType.BIRDTOWN);
+		this.setLevelLayout(LevelLayout.CIRCLE);
+		this.setLevelSeed(Math.floor(100000 * Math.random()));
+
 		this.setTimeSetup(15000);
 		this.setTimeFinish(4000);
 		this.setTimeVictory(8000);
@@ -81,11 +110,16 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		switch (mode) {
 		case GameMode.DUEL:
 			this.setPlayersMin(2);
+			this.setLevelType(LevelType.DUELTOWN);
+			this.setLevelLayout(LevelLayout.NORMAL);
+			this.setLives(1);
+			this.setVictories(3);
 			break;
 		case GameMode.FREE_FOR_ALL:
 			this.setPlayersMin(2);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
+			this.setVictories(3);
 			break;
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);
@@ -98,6 +132,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setPlayersMin(2);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
+			this.setVictories(3);
 			break;
 		}
 		return this;
@@ -111,6 +146,21 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getHealthCrateSpawnOr(value : FrequencyType) : FrequencyType { return this.getOr<FrequencyType>(GameConfigProp.HEALTH_CRATE_SPAWN, value); }
     setHealthCrateSpawn(value : FrequencyType) : void { this.set<FrequencyType>(GameConfigProp.HEALTH_CRATE_SPAWN, value); }
 
+    hasLevelLayout() : boolean { return this.has(GameConfigProp.LEVEL_LAYOUT); }
+    getLevelLayout() : LevelLayout { return this.get<LevelLayout>(GameConfigProp.LEVEL_LAYOUT); }
+    getLevelLayoutOr(value : LevelLayout) : LevelLayout { return this.getOr<LevelLayout>(GameConfigProp.LEVEL_LAYOUT, value); }
+    setLevelLayout(value : LevelLayout) : void { this.set<LevelLayout>(GameConfigProp.LEVEL_LAYOUT, value); }
+
+    hasLevelSeed() : boolean { return this.has(GameConfigProp.LEVEL_SEED); }
+    getLevelSeed() : number { return this.get<number>(GameConfigProp.LEVEL_SEED); }
+    getLevelSeedOr(value : number) : number { return this.getOr<number>(GameConfigProp.LEVEL_SEED, value); }
+    setLevelSeed(value : number) : void { this.set<number>(GameConfigProp.LEVEL_SEED, value); }
+
+    hasLevelType() : boolean { return this.has(GameConfigProp.LEVEL_TYPE); }
+    getLevelType() : LevelType { return this.get<LevelType>(GameConfigProp.LEVEL_TYPE); }
+    getLevelTypeOr(value : LevelType) : LevelType { return this.getOr<LevelType>(GameConfigProp.LEVEL_TYPE, value); }
+    setLevelType(value : LevelType) : void { this.set<LevelType>(GameConfigProp.LEVEL_TYPE, value); }
+
     hasLives() : boolean { return this.has(GameConfigProp.LIVES); }
     getLives() : number { return this.get<number>(GameConfigProp.LIVES); }
     getLivesOr(value : number) : number { return this.getOr<number>(GameConfigProp.LIVES, value); }
@@ -120,6 +170,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getPlayersMin() : number { return this.get<number>(GameConfigProp.PLAYERS_MIN); }
     getPlayersMinOr(value : number) : number { return this.getOr<number>(GameConfigProp.PLAYERS_MIN, value); }
     setPlayersMin(value : number) : void { this.set<number>(GameConfigProp.PLAYERS_MIN, value); }
+
+    hasPlayersMax() : boolean { return this.has(GameConfigProp.PLAYERS_MAX); }
+    getPlayersMax() : number { return this.get<number>(GameConfigProp.PLAYERS_MAX); }
+    getPlayersMaxOr(value : number) : number { return this.getOr<number>(GameConfigProp.PLAYERS_MAX, value); }
+    setPlayersMax(value : number) : void { this.set<number>(GameConfigProp.PLAYERS_MAX, value); }
 
     hasPoints() : boolean { return this.has(GameConfigProp.POINTS); }
     getPoints() : number { return this.get<number>(GameConfigProp.POINTS); }
@@ -164,8 +219,12 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     /*
     const enumClass = "GameConfigProp";
     ["HEALTH_CRATE_SPAWN", "FrequencyType"],
+    ["LEVEL_LAYOUT", "LevelLayout"],
+    ["LEVEL_SEED", "number"],
+    ["LEVEL_TYPE", "LevelType"],
     ["LIVES", "number"],
     ["PLAYERS_MIN", "number"],
+    ["PLAYERS_MAX", "number"],
     ["POINTS", "number"],
     ["TIME_SETUP", "number"],
     ["TIME_GAME", "number"],

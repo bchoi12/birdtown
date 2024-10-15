@@ -9,7 +9,7 @@ import { Optional } from 'util/optional'
 
 export type AssociationInitOptions = {
 	// Query map first before checking owner
-	associations? : Map<AssociationType, number>;
+	team? : number;
 	owner? : Entity;
 }
 
@@ -23,10 +23,9 @@ export class Association extends ComponentBase implements Component {
 
 		if (!defined(init)) { init = {}; }
 
-		if (init.associations) {
-			this._associations = init.associations;
-		} else {
-			this._associations = new Map();
+		this._associations = new Map();
+		if (init.team) {
+			this._associations.set(AssociationType.TEAM, init.team);
 		}
 
 		this._owner = new Optional();
@@ -54,6 +53,7 @@ export class Association extends ComponentBase implements Component {
 		}
 	}
 
+	getTeam() : number { return this._associations.has(AssociationType.TEAM) ? this._associations.get(AssociationType.TEAM) : 0; }
 	toMap() : Map<AssociationType, number> {
 		let associations = new Map<AssociationType, number>();
 
@@ -102,16 +102,10 @@ export class Association extends ComponentBase implements Component {
 				return ownerAssociations.get(type); 
 			}
 		}
-
 		console.error("Warning: retrieving unset association %d, defaulting to 0", type);
 		return 0;
 	}
 	setAssociation(type : AssociationType, value : number) : void {
-		if (value <= 0) {
-			console.error("Warning: skipping setting invalid association", type, value, this.name());
-			return;
-		}
-
 		this._associations.set(type, value);
 	}
 }

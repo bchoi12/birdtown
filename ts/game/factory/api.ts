@@ -134,6 +134,7 @@ export enum MaterialType {
 	CLOUD,
 	DYING_STAR,
 	DYING_STAR_RING,
+	SPAWN_POINT,
 	SWEAT,
 
 	ARCH_BACKGROUND_RED,

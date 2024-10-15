@@ -40,7 +40,7 @@ import { Vec, Vec2 } from 'util/vector'
 class UI {
 
 	private static readonly _clientMessageTypes = new Set([
-		GameMessageType.CLIENT_INIT, GameMessageType.CLIENT_JOIN, GameMessageType.CLIENT_DISCONNECT
+		GameMessageType.CLIENT_INITIALIZED, GameMessageType.CLIENT_JOIN, GameMessageType.CLIENT_DISCONNECT
 	])
 
 	private _mode : UiMode;

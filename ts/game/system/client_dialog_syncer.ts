@@ -157,7 +157,6 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 			if (isLocalhost()) {
 				console.log("%s: show dialog %s", this.name(), DialogType[this._dialogType]);
 			}
-
 			ui.pushDialog(this._dialogType);
 		}
 	}

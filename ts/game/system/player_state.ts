@@ -43,6 +43,7 @@ export class PlayerState extends ClientSystem implements System {
 	private _disconnected : boolean;
 	private _targetId : number;
 	private _startingRole : PlayerRole;
+	private _team : number;
 	private _role : PlayerRole;
 	private _roleTimer : Timer;
 
@@ -57,6 +58,7 @@ export class PlayerState extends ClientSystem implements System {
 		});
 
 		this._startingRole = PlayerRole.UNKNOWN;
+		this._team = 0;
 		this._role = PlayerRole.UNKNOWN;
 
 		this.setStartingRole(PlayerRole.SPECTATING);
@@ -73,6 +75,10 @@ export class PlayerState extends ClientSystem implements System {
 		this.addProp<PlayerRole>({
 			export: () => { return this._startingRole; },
 			import: (obj: PlayerRole) => { this.setStartingRole(obj); },
+		});
+		this.addProp<number>({
+			export: () => { return this._team; },
+			import: (obj : number) => { this._team = obj; },
 		});
 		this.addProp<PlayerRole>({
 			export: () => { return this._role; },
@@ -189,12 +195,27 @@ export class PlayerState extends ClientSystem implements System {
 		}
 		return true;
 	}
+	setTeam(team : number) : void {
+		this._team = team;
 
+		if (this.hasTargetEntity()) {
+			this.targetEntity().setTeam(this._team);
+		}
+	}
+
+	private canSpawn() : boolean {
+		return this.role() === PlayerRole.SPAWNING
+			&& this.hasTargetEntity()
+			&& game.controller().gameState() === GameState.GAME;
+	}
 	// Player can spawn && we should show prompt since they need to press a button.
-	private promptSpawn() : boolean { return this.role() === PlayerRole.SPAWNING && game.controller().gameState() === GameState.GAME; }
+	private promptSpawn() : boolean {
+		return this.canSpawn() && !game.level().hasSpawnFor(this.targetEntity());
+	}
 	private spawnPlayer(player : Player) : void {
-		game.level().spawnPlayer(player);
 		player.setState(GameObjectState.NORMAL);
+		player.setTeam(this._team);
+		game.level().spawnPlayer(player);
 
 		if (this.clientIdMatches() && game.controller().gameState() === GameState.FREE) {
 			ui.showStatus(StatusType.WELCOME);
@@ -274,8 +295,10 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
-		// Allow player to spawn by pressing a key
-		if (this.promptSpawn()) {
+		if (this.canSpawn()) {
+			this.setRole(PlayerRole.GAMING);
+		} else if (this.promptSpawn()) {
+			// Allow player to spawn by pressing a key
 			if (this.anyKey(PlayerState._spawnKeys, KeyState.PRESSED)) {
 				this.setRole(PlayerRole.GAMING);
 			}
