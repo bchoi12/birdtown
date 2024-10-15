@@ -70,13 +70,15 @@ export class PlayerRotator {
 		return this.get();
 	}
 	next() : number {
-		if (this._index >= this._ids.length - 1) {		
+		if (this._index >= this._ids.length - 1 && this._dir > 0) {
+			this._index = this._ids.length - 1;
 			this._dir = -1;
-		} else if (this._index <= 0) {
+		} else if (this._index <= 0 && this._dir < 0) {
+			this._index = 0;
 			this._dir = 1;
+		} else {
+			this._index += this._dir;
 		}
-
-		this._index += this._dir;
 		return this.get();
 	}
 	private get() : number {
