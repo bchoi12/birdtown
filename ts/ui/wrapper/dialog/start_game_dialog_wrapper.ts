@@ -129,7 +129,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				requirements.innerHTML = "<li>2+ players required</li>"
 
 				description.textContent =
-					"Duel your opponents in symmetric maps where everyone has the same loadout.\r\n\r\n" +
+					"Duel your opponents in symmetric maps where you take turns picking the loadout.\r\n\r\n" +
 					"Even teams recommended, but not required.";
 				error.textContent = "";
 			});

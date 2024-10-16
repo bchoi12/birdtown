@@ -1,7 +1,7 @@
 
 import { GameMode } from 'game/api'
 import { FrequencyType } from 'game/entity/api'
-import { LevelLayout, LevelType } from 'game/system/api'
+import { LevelLayout, LevelType, WinConditionType } from 'game/system/api'
 import { Message, MessageBase, Descriptor, FieldDescriptor } from 'message'
 
 enum GameConfigProp {
@@ -21,6 +21,7 @@ enum GameConfigProp {
 	TIME_ERROR,
 	VICTORIES,
 	WEAPON_CRATE_SPAWN,
+	WIN_CONDITION,
 }
 
 export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> implements Message<GameMode, GameConfigProp> {
@@ -31,6 +32,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameConfigProp.LEVEL_TYPE, {}],
 		[GameConfigProp.HEALTH_CRATE_SPAWN, {}],
 		[GameConfigProp.WEAPON_CRATE_SPAWN, {}],
+		[GameConfigProp.WIN_CONDITION, {}],
 	];
 
 	private static readonly _gameProps : [number, Descriptor][] = [
@@ -92,6 +94,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelSeed(Math.floor(33 * Math.random()));
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
+			this.setWinCondition(WinConditionType.NONE);
 			return this;
 		}
 
@@ -114,18 +117,21 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelLayout(LevelLayout.NORMAL);
 			this.setLives(1);
 			this.setVictories(3);
+			this.setWinCondition(WinConditionType.TEAM_LIVES);
 			break;
 		case GameMode.FREE_FOR_ALL:
 			this.setPlayersMin(2);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setVictories(3);
+			this.setWinCondition(WinConditionType.POINTS);
 			break;
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);
 			this.setTimeSetup(Infinity);
 			this.setHealthCrateSpawn(FrequencyType.HIGH);
 			this.setWeaponCrateSpawn(FrequencyType.HIGH);
+			this.setWinCondition(WinConditionType.NONE);
 			break;
 		case GameMode.SURVIVAL:
 			this.setLives(1);
@@ -133,6 +139,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setVictories(3);
+			this.setWinCondition(WinConditionType.LIVES);
 			break;
 		}
 		return this;
@@ -216,6 +223,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getWeaponCrateSpawnOr(value : FrequencyType) : FrequencyType { return this.getOr<FrequencyType>(GameConfigProp.WEAPON_CRATE_SPAWN, value); }
     setWeaponCrateSpawn(value : FrequencyType) : void { this.set<FrequencyType>(GameConfigProp.WEAPON_CRATE_SPAWN, value); }
 
+    hasWinCondition() : boolean { return this.has(GameConfigProp.WIN_CONDITION); }
+    getWinCondition() : WinConditionType { return this.get<WinConditionType>(GameConfigProp.WIN_CONDITION); }
+    getWinConditionOr(value : WinConditionType) : WinConditionType { return this.getOr<WinConditionType>(GameConfigProp.WIN_CONDITION, value); }
+    setWinCondition(value : WinConditionType) : void { this.set<WinConditionType>(GameConfigProp.WIN_CONDITION, value); }
+
     /*
     const enumClass = "GameConfigProp";
     ["HEALTH_CRATE_SPAWN", "FrequencyType"],
@@ -233,6 +245,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     ["TIME_ERROR", "number"],
     ["VICTORIES", "number"],
     ["WEAPON_CRATE_SPAWN", "FrequencyType"],
+    ["WIN_CONDITION", "WinConditionType"],
     */
     // End auto-generated code (v2.1)
 }

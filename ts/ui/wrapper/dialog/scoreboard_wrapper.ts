@@ -55,7 +55,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		this._infoWrappers.set(id, wrapper);
 		this._containerElm.appendChild(wrapper.elm());
 
-		this.updateInfos(game.controller().gameMode(), id);
+		this.updateInfos(id, game.controller().config());
 		this.sort();
 	}
 
@@ -88,13 +88,13 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 
 	setGameConfig(config : GameConfigMessage) : void {
 		this._infoWrappers.forEach((wrapper : InfoWrapper, id : number) => {
-			this.updateInfos(config.type(), id);
+			this.updateInfos(id, config);
 		});
 
 		this.sort();
 	}
 
-	private updateInfos(mode : GameMode, id : number) : void {
+	private updateInfos(id : number, config : GameConfigMessage) : void {
 		if (!this._infoWrappers.has(id)) {
 			return;
 		}
@@ -102,7 +102,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		let wrapper = this._infoWrappers.get(id);
 		wrapper.hideAll();
 
-		Tablet.infoTypes(mode).forEach((type : InfoType) => {
+		Tablet.infoTypes(config.getWinCondition()).forEach((type : InfoType) => {
 			wrapper.show(type);
 		});
 	}

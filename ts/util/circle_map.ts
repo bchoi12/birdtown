@@ -225,6 +225,19 @@ export class CircleMap<K, V> {
 			recordType: RecordType.OBJECT,
 		}).objects.map(map);
 	}
+	mapFirst<O>(map : (v : V) => O, predicate : (v : V, k : K) => boolean) : O {
+		let objs = this.executeHelper({
+			execute: () => {},
+			predicate: predicate,
+			stopType: StopType.FIRST,
+			recordType: RecordType.OBJECT,
+		}).objects;
+
+		if (objs.length > 0) {
+			return objs.map(map)[0];
+		}
+		return null;
+	}
 
 	findAll(predicate : (v : V, k : K) => boolean) : V[] {
 		return this.executeHelper({

@@ -3,19 +3,58 @@ import { PlayerConfig, PlayerInfo, StartRole } from 'game/util/player_config'
 
 import { SeededRandom } from 'util/seeded_random'
 
-export class PlayerRotator {
-
-	private static readonly _trackedRoles = new Set<StartRole>([StartRole.NO_TEAM, StartRole.TEAM_ONE, StartRole.TEAM_TWO]);
+class PlayerTrack {
 
 	private _index : number;
 	private _dir : number;
 	private _ids : Array<number>;
+
+	constructor(ids : Array<number>) {
+		this._index = -1;
+		this._dir = 1;
+		this._ids = ids;
+	}
+
+	current() : number {
+		return this.get();
+	}
+	next() : number {
+		if (this._index >= this._ids.length - 1 && this._dir > 0) {
+			this._index = this._ids.length - 1;
+			this._dir = -1;
+		} else if (this._index <= 0 && this._dir < 0) {
+			this._index = 0;
+			this._dir = 1;
+		} else {
+			this._index += this._dir;
+		}
+		return this.get();
+	}
+	opposing() : number {
+		if (this._ids.length === 0 || this._index < 0) {
+			return 0;
+		}
+		return this._ids[this._ids.length - 1 - (this._index % this._ids.length)];
+
+	}
+	private get() : number {
+		if (this._ids.length === 0 || this._index < 0) {
+			return 0;
+		}
+		return this._ids[this._index % this._ids.length];
+	}
+
+}
+
+export class PlayerRotator {
+
+	private static readonly _trackedRoles = new Set<StartRole>([StartRole.NO_TEAM, StartRole.TEAM_ONE, StartRole.TEAM_TWO]);
+
+	private _tracks : Map<StartRole, PlayerTrack>;
 	private _rng : SeededRandom;
 
 	constructor() {
-		this._index = -1;
-		this._dir = 1;
-		this._ids = new Array();
+		this._tracks = new Map();
 		this._rng = new SeededRandom(Math.floor(1000 * Math.random()));
 	}
 
@@ -35,13 +74,18 @@ export class PlayerRotator {
 			this._rng.shuffle(ids);
 		});
 
-		this._ids = new Array();
 		if (idMap.has(StartRole.NO_TEAM)) {
-			this._ids = this._ids.concat(idMap.get(StartRole.NO_TEAM));
+			this._tracks.set(StartRole.NO_TEAM, new PlayerTrack(idMap.get(StartRole.NO_TEAM)));
+		} else {
+			this._tracks.set(StartRole.NO_TEAM, new PlayerTrack(this.weave([StartRole.TEAM_ONE, StartRole.TEAM_TWO], idMap)));
 		}
 
-		this._ids = this._ids.concat(this.weave([StartRole.TEAM_ONE, StartRole.TEAM_TWO], idMap));
-		this._index = -1;
+		if (idMap.has(StartRole.TEAM_ONE)) {
+			this._tracks.set(StartRole.TEAM_ONE, new PlayerTrack(idMap.get(StartRole.TEAM_ONE)));
+		}
+		if (idMap.has(StartRole.TEAM_TWO)) {
+			this._tracks.set(StartRole.TEAM_TWO, new PlayerTrack(idMap.get(StartRole.TEAM_TWO)));
+		}
 	}
 
 	private weave(roles : Array<StartRole>, idMap : Map<StartRole, Array<number>>) : Array<number> {
@@ -66,27 +110,29 @@ export class PlayerRotator {
 		return finalIds;
 	}
 
-	current() : number {
-		return this.get();
-	}
-	next() : number {
-		if (this._index >= this._ids.length - 1 && this._dir > 0) {
-			this._index = this._ids.length - 1;
-			this._dir = -1;
-		} else if (this._index <= 0 && this._dir < 0) {
-			this._index = 0;
-			this._dir = 1;
-		} else {
-			this._index += this._dir;
-		}
-		return this.get();
-	}
-	private get() : number {
-		if (this._ids.length === 0 || this._index < 0) {
+	current(role : StartRole) : number {
+		if (!this._tracks.has(role)) {
 			return 0;
 		}
-		return this._ids[this._index % this._ids.length];
+		return this._tracks.get(role).current();
 	}
+	opposing(role : StartRole) : number {
+		if (!this._tracks.has(role)) {
+			return 0;
+		}
+		return this._tracks.get(role).opposing();
+	}
+	next(role : StartRole) : number {
+		if (!this._tracks.has(role)) {
+			return 0;
+		}
+		return this._tracks.get(role).next();
+	}
+	currentFromAll() : number { return this.current(StartRole.NO_TEAM); }
+	nextFromAll() : number { return this.next(StartRole.NO_TEAM); }
+	opposingFromAll() : number { return this.opposing(StartRole.NO_TEAM); }
+	nextFromTeamOne() : number { return this.next(StartRole.TEAM_ONE); }
+	nextFromTeamTwo() : number { return this.next(StartRole.TEAM_TWO);}
 
 	seed(seed : number) : void { this._rng.seed(seed); }
 }

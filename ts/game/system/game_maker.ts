@@ -7,7 +7,7 @@ import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { SystemBase, System } from 'game/system'
-import { SystemType, LevelType, LevelLayout, PlayerRole } from 'game/system/api'
+import { SystemType, LevelType, LevelLayout, PlayerRole, WinConditionType } from 'game/system/api'
 import { ClientDialog } from 'game/system/client_dialog'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
@@ -51,7 +51,7 @@ export class GameMaker extends SystemBase implements System {
 	private _config : GameConfigMessage;
 	private _playerRotator : PlayerRotator;
 	private _round : number;
-	private _winners : Array<Tablet>;
+	private _winners : Array<number>;
 	private _winnerClientId : number;
 	private _errorMsg : string;
 
@@ -137,7 +137,7 @@ export class GameMaker extends SystemBase implements System {
 		if (this.mode() === GameMode.FREE) {
 			return EquipPairs.random();
 		} else if (this.mode() === GameMode.DUEL) {
-			id = this._playerRotator.current();
+			id = this._playerRotator.currentFromAll();
 		} else {
 			id = clientId;
 		}
@@ -169,7 +169,7 @@ export class GameMaker extends SystemBase implements System {
 		this._playerRotator.updateShuffled(playerConfig);
 		game.playerStates().updatePlayers(playerConfig);
 		game.tablets().execute<Tablet>((tablet : Tablet) => {
-			tablet.resetForGame(this.mode());
+			tablet.resetForGame(this.config());
 		});
 		ui.setGameConfig(this._config);
 
@@ -190,7 +190,7 @@ export class GameMaker extends SystemBase implements System {
 
 		this._config = config;
 		game.tablets().execute<Tablet>((tablet : Tablet) => {
-			tablet.resetForGame(this.mode());
+			tablet.resetForGame(this.config());
 		});
 		ui.setGameConfig(this._config);
 	}
@@ -253,26 +253,17 @@ export class GameMaker extends SystemBase implements System {
 				return GameState.FINISH;
 			}
 
-			if (this._config.hasLives()) {
-				this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
-					return !tablet.outOfLives() && this.isPlaying(tablet.clientId());
-				});
-				if (this._winners.length === 1) {
-					this.setWinnerClientId(this._winners[0].clientId());
-					return GameState.FINISH;
-				} else if (this._winners.length === 0) {
+			const [winners, done] = this.checkWinners();
+			if (done) {
+				this._winners = winners;
+				if (this._winners.length > 0) {
+					this.setWinnerClientId(this._winners[Math.floor(Math.random() * this._winners.length)]);
+				} else {
 					this.setWinnerClientId(0);
-					return GameState.FINISH;
 				}
-			} else if (this._config.hasPoints()) {
-				this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
-					return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints() && this.isPlaying(tablet.clientId());
-				});
-				if (this._winners.length >= 1) {
-					this.setWinnerClientId(this._winners[0].clientId());
-					return GameState.FINISH;
-				}
+				return GameState.FINISH;
 			}
+
 			game.playerStates().executeIf((playerState : PlayerState) => {
 				const clientId = playerState.clientId();
 				const player = playerState.targetEntity<Player>();
@@ -314,7 +305,9 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.FINISH:
 			if (this.timeLimitReached(current)) {
 				if (this._config.hasVictories()) {
-					this._winners = game.tablets().findAll<Tablet>((tablet : Tablet) => {
+					this._winners = game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
+						return tablet.clientId();
+					}, (tablet : Tablet) => {
 						return tablet.getInfo(InfoType.VICTORIES) >= this._config.getVictories();
 					});
 					if (this._winners.length >= 1) {
@@ -364,6 +357,8 @@ export class GameMaker extends SystemBase implements System {
 		switch (state) {
 		case GameState.FREE:
 			this._config.resetToDefault(GameMode.FREE);
+			ui.setGameConfig(this._config);
+
 			this._round = 0;
 			this.setWinnerClientId(0);
 
@@ -385,7 +380,7 @@ export class GameMaker extends SystemBase implements System {
 			}
 
 			game.tablets().executeIf<Tablet>((tablet : Tablet) => {
-				tablet.resetForRound(this.mode());
+				tablet.resetForRound(this.config());
 				if (this._config.hasLives()) {
 					tablet.setInfo(InfoType.LIVES, this._config.getLives());
 				} else {
@@ -429,20 +424,22 @@ export class GameMaker extends SystemBase implements System {
 			}, (clientDialog : ClientDialog) => {
 				return this.isPlaying(clientDialog.clientId()) && !clientDialog.inSync(DialogType.LOADOUT);
 			});
-			this._winners.forEach((tablet : Tablet) => {
-				tablet.addInfo(InfoType.VICTORIES, 1);
+			this._winners.forEach((clientId : number) => {
+				if (game.tablets().hasTablet(clientId)) {
+					game.tablet(clientId).addInfo(InfoType.VICTORIES, 1);
+				}
 			});
 
 	    	let winnerMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	winnerMsg.setAnnouncementType(AnnouncementType.GAME_FINISH);
-	    	winnerMsg.setNames(this._winners.map((tablet : Tablet) => { return tablet.displayName(); }));
+	    	winnerMsg.setNames(this.winnerName());
 	    	winnerMsg.setTtl(this.timeLimit(GameState.FINISH) - 1000);
 	    	game.announcer().broadcast(winnerMsg);
 			break;
 		case GameState.VICTORY:
 	    	let victorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	victorMsg.setAnnouncementType(AnnouncementType.GAME_VICTORY);
-	    	victorMsg.setNames(this._winners.map((tablet : Tablet) => { return tablet.displayName(); }));
+	    	victorMsg.setNames(this.winnerName());
 	    	victorMsg.setTtl(this.timeLimit(GameState.VICTORY) - 1000);
 	    	game.announcer().broadcast(victorMsg);
 			break;
@@ -501,7 +498,7 @@ export class GameMaker extends SystemBase implements System {
 
 	private showSetupDialogs() : void {
 		if (this.mode() === GameMode.DUEL) {
-			const nextId = this._playerRotator.next();
+			const nextId = this._playerRotator.nextFromAll();
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 				clientDialog.queueDialog(DialogType.LOADOUT);
 			}, (clientDialog : ClientDialog) => {
@@ -523,5 +520,98 @@ export class GameMaker extends SystemBase implements System {
 		}, (clientDialog : ClientDialog) => {
 			return this.isPlaying(clientDialog.clientId()) && !clientDialog.inSync(type);
 		});
+	}
+
+	private checkWinners() : [Array<number>, boolean] {
+		let winners = [];
+		let teams = null;
+		switch (this._config.getWinCondition()) {
+		case WinConditionType.LIVES:
+			winners = game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
+				return tablet.clientId();
+			}, (tablet : Tablet) => {
+				return !tablet.outOfLives() && this.isPlaying(tablet.clientId());
+			});
+			if (winners.length <= 1) {
+				return [winners, true];
+			}
+			break;
+		case WinConditionType.POINTS:
+			winners = game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
+				return tablet.clientId();
+			}, (tablet : Tablet) => {
+				return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints() && this.isPlaying(tablet.clientId());
+			});
+			if (winners.length >= 1) {
+				return [winners, true];
+			}
+			break;
+		case WinConditionType.TEAM_LIVES:
+			winners = game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
+				return tablet.clientId();
+			}, (tablet : Tablet) => {
+				return !tablet.outOfLives() && this.isPlaying(tablet.clientId());
+			});
+
+			teams = new Set();
+			winners.forEach((clientId : number) => {
+				if (game.playerStates().hasPlayerState(clientId)) {
+					teams.add(game.playerState(clientId).team());
+				}
+			});
+
+			if (teams.size === 1) {
+				return [winners, true];
+			}
+			break;
+		case WinConditionType.TEAM_POINTS:
+			winners = game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
+				return tablet.clientId();
+			}, (tablet : Tablet) => {
+				return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints() && this.isPlaying(tablet.clientId());
+			});
+
+			teams = new Set();
+			winners.forEach((clientId : number) => {
+				if (game.playerStates().hasPlayerState(clientId)) {
+					teams.add(game.playerState(clientId).team());
+				}
+			});
+
+			if (teams.size === 1) {
+				return [winners, true];
+			}
+			break;
+		}
+
+		return [winners, false];
+	}
+
+	private winnerName() : Array<string> {
+		if (this._winners.length > 1) {
+			for (let i = 0; i < this._winners.length; ++i) {
+				if (game.playerStates().hasPlayerState(this._winners[i])) {
+					const team = game.playerState(this._winners[i]).team();
+					if (team !== 0) {
+						return ["Team " + team];
+					}
+				}
+			}
+		}
+
+		if (game.tablets().hasTablet(this._winnerClientId)) {
+			return [game.tablet(this._winnerClientId).displayName()];
+		}
+
+		if (this._winners.length === 0) {
+			return [];
+		}
+
+		if (this._winners.length === 1) {
+			if (game.tablets().hasTablet(this._winners[0])) {
+				return [game.tablet(this._winners[0]).displayName()];
+			}
+		}
+		return [];
 	}
 }

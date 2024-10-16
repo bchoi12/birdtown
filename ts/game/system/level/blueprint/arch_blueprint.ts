@@ -550,11 +550,11 @@ export class ArchBlueprint extends Blueprint {
 					[1, () => { currentHeight = 3; }],
 				]);
 			} else if (length % 2 === 0 && i === length / 2 - 1) {
-				this.rng().switch([
-					[0.2, () => { currentHeight = 1; }],
-					[0.6, () => { currentHeight = 2; }],
-					[1, () => { currentHeight = 3; }],
-				]);
+				if (currentHeight > 1) {
+					currentHeight = 1;
+				} else {
+					currentHeight = 3;
+				}
 			} else if (currentHeight === 0) {
 				this.rng().switch([
 					[0.5, () => { currentHeight = 1; }],

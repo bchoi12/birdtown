@@ -68,3 +68,13 @@ export enum TimeType {
 	EVENING,
 	NIGHT,
 }
+
+export enum WinConditionType {
+	UNKNOWN,
+
+	NONE,
+	LIVES,
+	POINTS,
+	TEAM_LIVES,
+	TEAM_POINTS,
+}

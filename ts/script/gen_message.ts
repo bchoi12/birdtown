@@ -45,6 +45,7 @@ const map = new Map<string, string>([
     ["TIME_ERROR", "number"],
     ["VICTORIES", "number"],
     ["WEAPON_CRATE_SPAWN", "FrequencyType"],
+    ["WIN_CONDITION", "WinConditionType"],
 ]);
 //
 // End params

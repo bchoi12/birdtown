@@ -195,6 +195,7 @@ export class PlayerState extends ClientSystem implements System {
 		}
 		return true;
 	}
+	team() : number { return this._team; }
 	setTeam(team : number) : void {
 		this._team = team;
 
@@ -207,6 +208,10 @@ export class PlayerState extends ClientSystem implements System {
 		return this.role() === PlayerRole.SPAWNING
 			&& this.hasTargetEntity()
 			&& game.controller().gameState() === GameState.GAME;
+	}
+	// Immediate spawn
+	private autoSpawn() : boolean {
+		return this.canSpawn() && game.level().hasSpawnFor(this.targetEntity());
 	}
 	// Player can spawn && we should show prompt since they need to press a button.
 	private promptSpawn() : boolean {
@@ -295,7 +300,7 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
-		if (this.canSpawn()) {
+		if (this.autoSpawn()) {
 			this.setRole(PlayerRole.GAMING);
 		} else if (this.promptSpawn()) {
 			// Allow player to spawn by pressing a key

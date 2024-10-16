@@ -5,10 +5,11 @@ import { EntityType, BirdType } from 'game/entity/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 import { ClientSystem, System } from 'game/system'
-import { SystemType } from 'game/system/api'
+import { SystemType, WinConditionType } from 'game/system/api'
 
 import { DialogMessage } from 'message/dialog_message'
 import { GameMessage, GameMessageType } from 'message/game_message'
+import { GameConfigMessage } from 'message/game_config_message'
 
 import { ui } from 'ui'
 import { AnnouncementType, DialogType, FeedType, InfoType } from 'ui/api'
@@ -17,10 +18,13 @@ import { Optional } from 'util/optional'
 
 export class Tablet extends ClientSystem implements System {
 
-	private static readonly _defaultTypes = new Set([InfoType.SCORE, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS]);
-	private static readonly _modeTypes = new Map<GameMode, Set<InfoType>>([
-		[GameMode.DUEL, new Set([InfoType.LIVES, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
-		[GameMode.SURVIVAL, new Set([InfoType.LIVES, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
+	private static readonly _defaultInfos = new Set([InfoType.KILLS, InfoType.DEATHS]);
+	private static readonly _infoSets = new Map<WinConditionType, Set<InfoType>>([
+		[WinConditionType.NONE, Tablet._defaultInfos],
+		[WinConditionType.LIVES, new Set([InfoType.LIVES, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
+		[WinConditionType.POINTS, new Set([InfoType.SCORE, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
+		[WinConditionType.TEAM_LIVES, new Set([InfoType.LIVES, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
+		[WinConditionType.TEAM_POINTS, new Set([InfoType.SCORE, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
 	]);
 
 	private static readonly _gameClearTypes = new Set([
@@ -81,25 +85,25 @@ export class Tablet extends ClientSystem implements System {
 		}
 	}
 
-	static infoTypes(mode : GameMode) : Set<InfoType> {
-		if (Tablet._modeTypes.has(mode)) {
-			return Tablet._modeTypes.get(mode);
+	static infoTypes(winCondition : WinConditionType) : Set<InfoType> {
+		if (Tablet._infoSets.has(winCondition)) {
+			return Tablet._infoSets.get(winCondition);
 		}
 
-		return Tablet._defaultTypes;
+		return Tablet._defaultInfos;
 	}
-	resetForGame(mode : GameMode) : void {
+	resetForGame(msg : GameConfigMessage) : void {
 		Tablet._gameClearTypes.forEach((type : InfoType) => {
-			if (Tablet.infoTypes(mode).has(type)) {
+			if (Tablet.infoTypes(msg.getWinCondition()).has(type)) {
 				this.setInfo(type, 0);
 			} else {
 				this.clearInfo(type);
 			}
 		});
 	}
-	resetForRound(mode : GameMode) : void {
+	resetForRound(msg : GameConfigMessage) : void {
 		Tablet._roundResetTypes.forEach((type : InfoType) => {
-			if (Tablet.infoTypes(mode).has(type)) {
+			if (Tablet.infoTypes(msg.getWinCondition()).has(type)) {
 				this.setInfo(type, 0);
 			}
 		});
@@ -124,7 +128,7 @@ export class Tablet extends ClientSystem implements System {
 	setInfo(type : InfoType, value : number) : void {
 		this._infoMap.set(type, value);
 
-		if (Tablet.infoTypes(game.controller().gameMode()).has(type)) {
+		if (Tablet.infoTypes(game.controller().config().getWinCondition()).has(type)) {
 			ui.updateInfo(this.clientId(), type, value);
 		}
 
