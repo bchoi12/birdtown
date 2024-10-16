@@ -124,8 +124,11 @@ export class TrayHandler extends HandlerBase implements Handler {
 
 		document.addEventListener("pointerlockchange", (e : any) => {
 			if (ui.pointerLocked()) {
-				toggle.setTextHTML("Press " + KeyNames.kbd(settings.pointerLockKeyCode) + " to unlock your mouse");
+				toggle.setIcon(IconType.LOCK);
+				toggle.setTextHTML("Press " + KeyNames.kbd(settings.pointerLockKeyCode) + " to unlock");
+				this.hide(1);
 			} else {
+				toggle.setIcon(IconType.MENU_OPEN);
 				toggle.setText("Commands");
 			}
 		});
