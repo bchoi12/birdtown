@@ -131,8 +131,7 @@ export class Stat extends ComponentBase implements Component {
 			return;
 		}
 
-		// Note: can change >= 0 to === 0
-		if (delta >= 0 || !this.initialized() || delta >= this.max() - this.min()) {
+		if (delta === 0 || !this.initialized() || delta >= this.max() - this.min()) {
 			return;
 		}
 
@@ -151,14 +150,14 @@ export class Stat extends ComponentBase implements Component {
 		if (game.lakitu().inFOV(pos, /*buffer=3*/)) {
 			const [particle, hasParticle] = this.entity().addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
 				offline: true,
-				ttl: 600 + 200 * weight,
+				ttl: 600 + 400 * weight,
 				profileInit: {
 					pos: pos,
 					vel: { x: 0, y: 0.025 + 0.01 * weight },
 					dim: { x: 0.5, y: 0.5 },
 					scaling: this.entityType() !== EntityType.PLAYER ? Stat._nonPlayerScale : {
-						x: 0.7 + weight * 0.3,
-						y: 0.7 + weight * 0.3,
+						x: 0.7 + weight * 0.5,
+						y: 0.7 + weight * 0.5,
 					},
 				},
 			});

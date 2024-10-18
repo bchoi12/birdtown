@@ -1,6 +1,7 @@
 
 import { game } from 'game'
-import { GameMode, GameState } from 'game/api'
+import { GameState } from 'game/api'
+import { WinConditionType } from 'game/system/api'
 import { Tablet } from 'game/system/tablet'
 
 import { GameConfigMessage } from 'message/game_config_message'
@@ -60,11 +61,6 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	highlightPlayer(id : number) : void {
-		if (!this._infoWrappers.has(id)) {
-			this.removeHighlights();
-			return;
-		}
-
 		this._infoWrappers.get(id).highlight();
 		this._highlighted.add(id);
 	}
@@ -128,6 +124,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	onShow() : void {
+		this.sort();
 		this._keyElm.textContent = KeyNames.get(settings.scoreboardKeyCode);
 	}
 
@@ -136,8 +133,9 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 			return;
 		}
 
-		switch (game.controller().gameMode()) {
-		case GameMode.SURVIVAL:
+		switch (game.controller().config().getWinCondition()) {
+		case WinConditionType.LIVES:
+		case WinConditionType.TEAM_LIVES:
 			this._infoWrappers.forEach((wrapper : InfoWrapper) => {
 				wrapper.elm().style.order = "" + wrapper.orderDesc(InfoType.LIVES);
 			});

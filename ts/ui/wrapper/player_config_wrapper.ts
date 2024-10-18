@@ -76,10 +76,10 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 					}
 					return StartRole.TEAM_ONE;
 				} else {
-					if (current === StartRole.NO_TEAM) {
+					if (current === StartRole.PLAYING) {
 						return StartRole.SPECTATING;
 					}
-					return StartRole.NO_TEAM;
+					return StartRole.PLAYING;
 				}
 			},
 			text: (current : StartRole) => {

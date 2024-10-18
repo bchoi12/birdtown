@@ -82,6 +82,9 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 			}
 		}, 5);
 	}
+	shrink() : void {
+		this.elm().classList.add(Html.classDialogSmall);
+	}
 	hide() : void {
 		this._visible = false;
 		this.elm().classList.remove(Html.classPopupShow);

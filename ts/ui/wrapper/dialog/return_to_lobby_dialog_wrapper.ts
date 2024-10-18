@@ -14,6 +14,7 @@ export class ReturnToLobbyDialogWrapper extends DialogWrapper {
 		super();
 
 		this.setTitle("Return to Lobby");
+		this.shrink();
 
 		let pageWrapper = this.addPage();
 

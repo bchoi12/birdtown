@@ -103,7 +103,9 @@ export abstract class MessageBase<T extends number, P extends number> {
 		return this;
 	}
 	merge(other : Message<T, P>) : Message<T, P> {
-		if (this.type() !== other.type()) {
+		if (this._type === 0) {
+			this._type = other.type();
+		} else if (this._type !== other.type()) {
 			console.error("Error: skipping attempt to merge %s messages with different types", this.debugName(), this, other);
 			return this;
 		}
@@ -115,7 +117,11 @@ export abstract class MessageBase<T extends number, P extends number> {
 			}
 		});
 		return this;
-	}	
+	}
+	copy(other : Message<T, P>) : Message<T, P> {
+		this.clear();
+		return this.merge(other);
+	}
 
 	updated() : boolean { return this._updated; }
 	private setUpdated(updated : boolean) : void { this._updated = updated; }

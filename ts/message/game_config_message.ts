@@ -26,6 +26,15 @@ enum GameConfigProp {
 
 export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> implements Message<GameMode, GameConfigProp> {
 
+	private static readonly _modeNames = new Map<GameMode, string>([
+		[GameMode.UNKNOWN, ""],
+		[GameMode.FREE, "Free Play"],
+		[GameMode.DUEL, "Duel"],
+		[GameMode.FREE_FOR_ALL, "Free for All"],
+		[GameMode.PRACTICE, "Practice Mode"],
+		[GameMode.SURVIVAL, "Survival"],
+	]);
+
 	private static readonly _baseProps : [number, Descriptor][] = [
 		[GameConfigProp.LEVEL_LAYOUT, {}],
 		[GameConfigProp.LEVEL_SEED, {}],
@@ -72,15 +81,18 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		)],
 	]);
 
-	private constructor(mode : GameMode) { super(mode); }
+	// Do not call directly, use ConfigFactory
+	constructor(mode : GameMode) {
+		super(mode);
+
+		this.resetToDefault(mode);
+	}
 
 	override debugName() : string { return "GameConfigMessage"; }
 	override messageDescriptor() : Map<GameMode, FieldDescriptor> { return GameConfigMessage._messageDescriptor; }
 
-	static defaultConfig(mode : GameMode) : GameConfigMessage {
-		let msg = new GameConfigMessage(mode);
-		return msg.resetToDefault(mode);
-	}
+	modeName() : string { return GameConfigMessage._modeNames.has(this._type) ? GameConfigMessage._modeNames.get(this._type) : "Missing mode name!"; }
+
 	resetToDefault(mode : GameMode) : GameConfigMessage {
 		this.reset(mode);
 

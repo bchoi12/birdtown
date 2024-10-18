@@ -2,8 +2,9 @@
 import { game } from 'game'
 import { GameMode } from 'game/api'
 import { FrequencyType } from 'game/entity/api'
+import { ConfigFactory } from 'game/factory/config_factory'
 import { PlayerRole } from 'game/system/api'
-import { GameMaker } from 'game/system/game_maker'
+import { Controller } from 'game/system/controller'
 import { PlayerConfig, PlayerInfo } from 'game/util/player_config'
 
 import { GameConfigMessage } from 'message/game_config_message'
@@ -55,7 +56,14 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		this.addOnSubmit(() => {
 			if (this._configMsg !== null && this._playerConfigWrapper !== null) {
-				game.controller().startGame(this._configMsg, this._playerConfigWrapper.config());
+				const config = this._playerConfigWrapper.config();
+				const [errors, ok] = config.canPlay(this._configMsg);
+
+				if (ok) {
+					game.controller().startGame(this._configMsg, config);
+				} else {
+					console.error(errors.join(", "));
+				}
 			}
 		});
 	}
@@ -158,14 +166,14 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				error.textContent = "No game mode selected!";
 				return false;
 			}
-			const [canSubmit, submitError] = GameMaker.canStart(this._mode);
+			const [submitError, canSubmit] = Controller.canStart(this._mode);
 			error.textContent = submitError;
 			return canSubmit;
 		})
 
 		pageWrapper.setOnSubmit(() => {
 			if (this._mode !== GameMode.UNKNOWN) {
-				this._configMsg = GameConfigMessage.defaultConfig(this._mode);
+				this._configMsg = ConfigFactory.load(this._mode);
 
 				switch (this._mode) {
 				case GameMode.PRACTICE:

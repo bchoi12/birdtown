@@ -45,6 +45,7 @@ export class Tablet extends ClientSystem implements System {
 	private _birdType : BirdType;
 	private _color : string;
 	private _displayName : string;
+	private _winner : boolean;
 	private _infoMap : Map<InfoType, number>;
 
 	constructor(clientId : number) {
@@ -53,6 +54,7 @@ export class Tablet extends ClientSystem implements System {
 		this._birdType = BirdType.UNKNOWN;
 		this._color = "";
 		this._displayName = "";
+		this._winner = false;
 		this._infoMap = new Map();
 
 		this.addProp<BirdType>({
@@ -69,6 +71,10 @@ export class Tablet extends ClientSystem implements System {
 			has: () => { return this.hasDisplayName(); },
 			export: () => { return this._displayName; },
 			import: (obj: string) => { this.setDisplayName(obj); },
+		});
+		this.addProp<boolean>({
+			export: () => { return this._winner; },
+			import: (obj : boolean) => { this.setWinner(obj); },
 		});
 
 		for (const stringScore in InfoType) {
@@ -93,6 +99,7 @@ export class Tablet extends ClientSystem implements System {
 		return Tablet._defaultInfos;
 	}
 	resetForGame(msg : GameConfigMessage) : void {
+		this.setWinner(false);
 		Tablet._gameClearTypes.forEach((type : InfoType) => {
 			if (Tablet.infoTypes(msg.getWinCondition()).has(type)) {
 				this.setInfo(type, 0);
@@ -102,6 +109,7 @@ export class Tablet extends ClientSystem implements System {
 		});
 	}
 	resetForRound(msg : GameConfigMessage) : void {
+		this.setWinner(false);
 		Tablet._roundResetTypes.forEach((type : InfoType) => {
 			if (Tablet.infoTypes(msg.getWinCondition()).has(type)) {
 				this.setInfo(type, 0);
@@ -214,4 +222,16 @@ export class Tablet extends ClientSystem implements System {
 	}
 	hasDisplayName() : boolean { return this._displayName.length > 0; }
 	displayName() : string { return (this.hasDisplayName() ? this._displayName : "unknown") + " #" + this.clientId(); }
+
+	setWinner(winner : boolean) : void {
+		if (this._winner === winner) {
+			return;
+		}
+
+		this._winner = winner;
+
+		if (this._winner) {
+			ui.highlightPlayer(this.clientId());
+		}
+	}
 }

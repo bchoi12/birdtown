@@ -59,7 +59,7 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 		this._scoreboard.addPlayer(id);
 	}
 	highlightPlayer(id : number) : void {
-		this._scoreboard.highlightPlayer(game.controller().winnerClientId())
+		this._scoreboard.highlightPlayer(id)
 	}
 	removePlayer(id : number) : void {
 		this._scoreboard.removePlayer(id);

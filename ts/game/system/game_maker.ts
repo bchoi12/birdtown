@@ -6,6 +6,7 @@ import { EntityType, FrequencyType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
+import { ConfigFactory } from 'game/factory/config_factory'
 import { SystemBase, System } from 'game/system'
 import { SystemType, LevelType, LevelLayout, PlayerRole, WinConditionType } from 'game/system/api'
 import { ClientDialog } from 'game/system/client_dialog'
@@ -27,6 +28,7 @@ import { AnnouncementType, DialogType, FeedType, InfoType, StatusType } from 'ui
 import { KeyNames } from 'ui/common/key_names'
 
 import { isLocalhost } from 'util/common'
+import { SeededRandom } from 'util/seeded_random'
 
 export class GameMaker extends SystemBase implements System {
 
@@ -54,16 +56,18 @@ export class GameMaker extends SystemBase implements System {
 	private _winners : Array<number>;
 	private _winnerClientId : number;
 	private _errorMsg : string;
+	private _rng : SeededRandom;
 
 	constructor() {
 		super(SystemType.GAME_MAKER);
 
-		this._config = GameConfigMessage.defaultConfig(GameMode.FREE);
+		this._config = ConfigFactory.empty();
 		this._playerRotator = new PlayerRotator();
 		this._round = 0;
 		this._winners = new Array();
 		this._winnerClientId = 0;
 		this._errorMsg = "";
+		this._rng = new SeededRandom(0);
 
 		this.addProp<MessageObject>({
 			export: () => { return this._config.exportObject(); },
@@ -94,8 +98,6 @@ export class GameMaker extends SystemBase implements System {
 	winnerClientId() : number { return this._winnerClientId; }
 	setWinnerClientId(clientId : number) : void {
 		this._winnerClientId = clientId;
-
-		ui.highlightPlayer(this._winnerClientId);
 	}
 	timeLimit(state : GameState) : number {
 		switch (state) {
@@ -157,7 +159,9 @@ export class GameMaker extends SystemBase implements System {
 			return false;
 		}
 
-		if (!this.valid(GameState.LOAD)) {
+		const [error, valid] = this.valid(GameState.LOAD);
+		if (!valid) {
+			console.error("Error:", error);
 			return false;
 		}
 
@@ -169,7 +173,7 @@ export class GameMaker extends SystemBase implements System {
 		this._playerRotator.updateShuffled(playerConfig);
 		game.playerStates().updatePlayers(playerConfig);
 		game.tablets().execute<Tablet>((tablet : Tablet) => {
-			tablet.resetForGame(this.config());
+			tablet.resetForGame(this._config);
 		});
 		ui.setGameConfig(this._config);
 
@@ -180,7 +184,7 @@ export class GameMaker extends SystemBase implements System {
 		return true;
 	}
 	private importConfig(obj : MessageObject) : void {
-		let config = GameConfigMessage.defaultConfig(GameMode.UNKNOWN);
+		let config = ConfigFactory.empty();
 		config.parseObject(obj);
 
 		if (!config.valid()) {
@@ -190,16 +194,9 @@ export class GameMaker extends SystemBase implements System {
 
 		this._config = config;
 		game.tablets().execute<Tablet>((tablet : Tablet) => {
-			tablet.resetForGame(this.config());
+			tablet.resetForGame(this._config);
 		});
 		ui.setGameConfig(this._config);
-	}
-	static canStart(mode : GameMode) : [boolean, string] {
-		const config = GameConfigMessage.defaultConfig(mode);
-		if (game.tablets().numSetup() < config.getPlayersMinOr(1)) {
-			return [false, "Need " + config.getPlayersMin() + " players for this game mode! Current number of players: " + game.tablets().numSetup()];
-		}
-		return [true, ""];
 	}
 	static nameAndGoal(config : GameConfigMessage) : [string, string] {
 		switch (config.type()) {
@@ -215,20 +212,20 @@ export class GameMaker extends SystemBase implements System {
 			return ["Unknown Game Mode", "???"];
 		}
 	}
-	valid(current : GameState) : [boolean, string] {
+	valid(current : GameState) : [string, boolean] {
 		switch (current) {
 		case GameState.LOAD:
 		case GameState.SETUP:
 		case GameState.GAME:
 			if (game.playerStates().numPlayers() < this._config.getPlayersMinOr(1)) {
-				return [false, "Not enough players left in the game"];
+				return ["Not enough players left in the game", false];
 			}
 			break;
 		}
-		return [true, ""];
+		return ["", true];
 	}
 	queryState(current : GameState) : GameState {
-		const [valid, error] = this.valid(current);
+		const [error, valid] = this.valid(current);
 		if (!valid) {
 			this._errorMsg = error;
 			return GameState.ERROR;
@@ -256,8 +253,8 @@ export class GameMaker extends SystemBase implements System {
 			const [winners, done] = this.checkWinners();
 			if (done) {
 				this._winners = winners;
-				if (this._winners.length > 0) {
-					this.setWinnerClientId(this._winners[Math.floor(Math.random() * this._winners.length)]);
+				if (this._winners.length === 1) {
+					this.setWinnerClientId(this._winners[0]);
 				} else {
 					this.setWinnerClientId(0);
 				}
@@ -427,6 +424,7 @@ export class GameMaker extends SystemBase implements System {
 			this._winners.forEach((clientId : number) => {
 				if (game.tablets().hasTablet(clientId)) {
 					game.tablet(clientId).addInfo(InfoType.VICTORIES, 1);
+					game.tablet(clientId).setWinner(true);
 				}
 			});
 
@@ -524,12 +522,9 @@ export class GameMaker extends SystemBase implements System {
 
 	private checkWinners() : [Array<number>, boolean] {
 		let winners = [];
-		let teams = null;
 		switch (this._config.getWinCondition()) {
 		case WinConditionType.LIVES:
-			winners = game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
-				return tablet.clientId();
-			}, (tablet : Tablet) => {
+			winners = this.findTabletIds((tablet : Tablet) => {
 				return !tablet.outOfLives() && this.isPlaying(tablet.clientId());
 			});
 			if (winners.length <= 1) {
@@ -537,9 +532,7 @@ export class GameMaker extends SystemBase implements System {
 			}
 			break;
 		case WinConditionType.POINTS:
-			winners = game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
-				return tablet.clientId();
-			}, (tablet : Tablet) => {
+			winners = this.findTabletIds((tablet : Tablet) => {
 				return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints() && this.isPlaying(tablet.clientId());
 			});
 			if (winners.length >= 1) {
@@ -547,44 +540,66 @@ export class GameMaker extends SystemBase implements System {
 			}
 			break;
 		case WinConditionType.TEAM_LIVES:
-			winners = game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
-				return tablet.clientId();
-			}, (tablet : Tablet) => {
+			winners = this.findTabletIds((tablet : Tablet) => {
 				return !tablet.outOfLives() && this.isPlaying(tablet.clientId());
 			});
-
-			teams = new Set();
-			winners.forEach((clientId : number) => {
-				if (game.playerStates().hasPlayerState(clientId)) {
-					teams.add(game.playerState(clientId).team());
-				}
-			});
-
+			let teams = this.getTeams(winners);
 			if (teams.size === 1) {
+				winners = this.findPlayerStateIds((playerState : PlayerState) => {
+					return teams.has(playerState.team());
+				});
 				return [winners, true];
 			}
 			break;
 		case WinConditionType.TEAM_POINTS:
-			winners = game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
-				return tablet.clientId();
-			}, (tablet : Tablet) => {
-				return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints() && this.isPlaying(tablet.clientId());
-			});
+			let teamScores = new Map<number, number>();
+			game.tablets().executeIf((tablet : Tablet) => {
+				const team = game.playerState(tablet.clientId()).team();
 
-			teams = new Set();
-			winners.forEach((clientId : number) => {
-				if (game.playerStates().hasPlayerState(clientId)) {
-					teams.add(game.playerState(clientId).team());
+				if (!teamScores.has(team)) {
+					teamScores.set(team, 0);
 				}
+				teamScores.set(team, teamScores.get(team) + tablet.getInfo(InfoType.SCORE));
+			}, (tablet : Tablet) => {
+				return game.playerStates().hasPlayerState(tablet.clientId());
 			});
 
-			if (teams.size === 1) {
+			winners = this.findPlayerStateIds((playerState : PlayerState) => {
+				const team = playerState.team();
+				return teamScores.has(team) && teamScores.get(team) >= this._config.getPoints();
+			});
+
+			if (winners.length >= 1) {
 				return [winners, true];
 			}
 			break;
 		}
 
 		return [winners, false];
+	}
+
+	private findTabletIds(predicate : (tablet : Tablet) => boolean) {
+		return game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
+			return tablet.clientId();
+		}, (tablet : Tablet) => {
+			return predicate(tablet);
+		});
+	}
+	private findPlayerStateIds(predicate : (playerState : PlayerState) => boolean) {
+		return game.playerStates().mapIf<PlayerState, number>((playerState : PlayerState) => {
+			return playerState.clientId();
+		}, (playerState : PlayerState) => {
+			return predicate(playerState);
+		});
+	}
+	private getTeams(ids : Array<number>) : Set<number> {
+		let teams = new Set<number>();
+		ids.forEach((clientId : number) => {
+			if (game.playerStates().hasPlayerState(clientId)) {
+				teams.add(game.playerState(clientId).team());
+			}
+		});
+		return teams;
 	}
 
 	private winnerName() : Array<string> {

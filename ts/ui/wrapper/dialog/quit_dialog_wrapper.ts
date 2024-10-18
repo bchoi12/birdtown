@@ -14,6 +14,7 @@ export class QuitDialogWrapper extends DialogWrapper {
 		super();
 
 		this.setTitle("Quit");
+		this.shrink();
 
 		let pageWrapper = this.addPage();
 

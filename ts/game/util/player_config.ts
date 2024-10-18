@@ -1,14 +1,17 @@
 
 import { game } from 'game'
-import { PlayerRole } from 'game/system/api'
+import { GameMode } from 'game/api'
+import { PlayerRole, WinConditionType } from 'game/system/api'
 import { ClientDialog } from 'game/system/client_dialog'
 import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
 
+import { GameConfigMessage } from 'message/game_config_message'
+
 export enum StartRole {
 	UNKNOWN,
 
-	NO_TEAM,
+	PLAYING,
 	TEAM_ONE,
 	TEAM_TWO,
 	SPECTATING,
@@ -21,11 +24,15 @@ export type PlayerInfo = {
 
 export class PlayerConfig {
 
+	private static readonly _playingRoles = new Set<StartRole>([
+		StartRole.PLAYING, StartRole.TEAM_ONE, StartRole.TEAM_TWO,
+	]);
+
 	private _defaultRole : StartRole;
 	private _players : Map<number, PlayerInfo>;
 
 	private constructor() {
-		this._defaultRole = StartRole.NO_TEAM;
+		this._defaultRole = StartRole.PLAYING;
 		this._players = new Map();
 	}
 
@@ -51,7 +58,7 @@ export class PlayerConfig {
 
 	static roleString(role : StartRole) : string {
 		switch (role) {
-		case StartRole.NO_TEAM:
+		case StartRole.PLAYING:
 			return "PLAYING";
 		case StartRole.TEAM_ONE:
 			return "TEAM ONE";
@@ -61,6 +68,52 @@ export class PlayerConfig {
 			return "SPECTATING ONLY";
 		}
 		return "???";
+	}
+
+	canPlay(msg : GameConfigMessage) : [Array<string>, boolean] {
+		let errors = [];
+		const [numPlayers, numTeams] = this.numPlayersAndTeams();
+
+		if (msg.type() === GameMode.UNKNOWN) {
+			return [["Unknown game mode"], false];
+		}
+
+		if (msg.hasPlayersMin() && numPlayers < msg.getPlayersMin()) {
+			errors.push("Need at least " + msg.getPlayersMin() + " players");
+		}
+		if (msg.hasPlayersMax() && numPlayers > msg.getPlayersMax()) {
+			errors.push(msg.modeName() + " can only have up to " + msg.getPlayersMax() + " players");
+		}
+
+		if (msg.getWinCondition() === WinConditionType.POINTS || msg.getWinCondition() === WinConditionType.TEAM_POINTS) {
+			if (msg.getPointsOr(0) < 1) {
+				errors.push("Points must be set to at least 1")
+			}
+		}
+
+		if (msg.getWinCondition() === WinConditionType.LIVES || msg.getWinCondition() === WinConditionType.TEAM_LIVES) {
+			if (msg.getLivesOr(0) < 1) {
+				errors.push("Lives must be set to at least 1")
+			}
+		}
+
+		if (msg.getWinCondition() === WinConditionType.TEAM_LIVES || msg.getWinCondition() === WinConditionType.TEAM_POINTS) {
+			if (numTeams < 2) {
+				errors.push("Need at least 2 teams");
+			}
+		}
+		return [errors, errors.length === 0];
+	}
+	private numPlayersAndTeams() : [number, number] {
+		let players = 0;
+		let teams = new Set();
+		this._players.forEach((info : PlayerInfo) => {
+			if (PlayerConfig._playingRoles.has(info.role)) {
+				players++;
+				teams.add(info.role);
+			}
+		});
+		return [players, teams.size];
 	}
 
 	addClient(id : number) : void {
@@ -78,8 +131,6 @@ export class PlayerConfig {
 	deleteClient(id : number) : void { this._players.delete(id); }
 	playerMap() : Map<number, PlayerInfo> { return this._players; }
 
-	setDefaultRole(role : StartRole) : void { this._defaultRole = role; }
-
 	role(id : number) : StartRole {
 		if (!this.hasClient(id)) {
 			return this._defaultRole;
@@ -91,7 +142,7 @@ export class PlayerConfig {
 	}
 	private toPlayerRole(role : StartRole) : PlayerRole {
 		switch (role) {
-		case StartRole.NO_TEAM:
+		case StartRole.PLAYING:
 		case StartRole.TEAM_ONE:
 		case StartRole.TEAM_TWO:
 			return PlayerRole.PREPARING;
@@ -100,6 +151,7 @@ export class PlayerConfig {
 		}
 		return PlayerRole.UNKNOWN;
 	}
+	setDefaultRole(role : StartRole) : void { this._defaultRole = role; }
 	setRole(id : number, role : StartRole) : void {
 		if (!this.validId(id) || role === StartRole.UNKNOWN) {
 			console.error("Error: failed to set role %s for %d", StartRole[role], id);
@@ -111,7 +163,7 @@ export class PlayerConfig {
 
 	setTeams(teams : boolean) : void {
 		if (!teams) {
-			this._defaultRole = StartRole.NO_TEAM;
+			this._defaultRole = StartRole.PLAYING;
 			return;
 		}
 

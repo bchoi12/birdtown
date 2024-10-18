@@ -7,6 +7,8 @@ import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
 
+import { Flags } from 'global/flags'
+
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { Html } from 'ui/html'
@@ -14,8 +16,6 @@ import { Html } from 'ui/html'
 import { Vec2 } from 'util/vector'
 
 export class Physics extends SystemBase implements System {
-
-	private static readonly _enableMinimap = false;
 
 	private _engine : MATTER.Engine;
 	private _minimap : HTMLElement;
@@ -35,7 +35,7 @@ export class Physics extends SystemBase implements System {
 			velocityIterations: 4,
 		});
 
-		if (Physics._enableMinimap) {
+		if (Flags.enableMinimap) {
 			this._minimap = Html.elm(Html.divMinimap);
 			this._canvas = Html.canvasElm(Html.canvasPhysics);
 			this._render = MATTER.Render.create({
@@ -53,7 +53,7 @@ export class Physics extends SystemBase implements System {
 	override initialize() : void {
 		super.initialize();
 
-		if (!Physics._enableMinimap) {
+		if (!Flags.enableMinimap) {
 			return;
 		}
 
@@ -140,7 +140,7 @@ export class Physics extends SystemBase implements System {
 	override render() : void {
 		super.render();
 
-		if (!Physics._enableMinimap) {
+		if (!Flags.enableMinimap) {
 			return;
 		}
 

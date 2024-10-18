@@ -5,6 +5,7 @@ import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
+import { ConfigFactory } from 'game/factory/config_factory'
 import { System, SystemBase } from 'game/system'
 import { LevelType, SystemType } from 'game/system/api'
 import { GameMaker } from 'game/system/game_maker'
@@ -59,6 +60,14 @@ export class Controller extends SystemBase implements System {
 		}
 	}
 
+	static canStart(mode : GameMode) : [string, boolean] {
+		const config = ConfigFactory.defaultConfig(mode);
+		if (game.tablets().numSetup() < config.getPlayersMinOr(1)) {
+			return ["Need " + config.getPlayersMin() + " players for this game mode! Current number of players: " + game.tablets().numSetup(), false];
+		}
+		return ["", true];
+	}
+
 	round() : number { return this._gameMaker.round(); }
 	winnerClientId() : number { return this._gameMaker.winnerClientId(); }
 	entityLimit(type : EntityType) : number { return this._gameMaker.entityLimit(type); }
@@ -73,6 +82,7 @@ export class Controller extends SystemBase implements System {
 			return;
 		}
 		if (this._gameMaker.setConfig(config, playerConfig)) {
+			ConfigFactory.save(config);
 			this.setGameState(GameState.LOAD);
 		}
 	}
