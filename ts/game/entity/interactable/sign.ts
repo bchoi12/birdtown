@@ -2,7 +2,6 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { GameMode } from 'game/api'
 import { StepData } from 'game/game_object'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'

@@ -21,6 +21,7 @@ export interface Message<T extends number, P extends number> {
 export type Descriptor = {
 	optional? : boolean;
 	min? : number;
+	max? : number;
 };
 export type FieldDescriptor = Map<number, Descriptor>;
 export type DataMap = { [k: number]: Object }
@@ -59,6 +60,9 @@ export abstract class MessageBase<T extends number, P extends number> {
 				}
 			} else {
 				if (descriptor.min && this.get<number>(<P>prop) < descriptor.min) {
+					return false;
+				}
+				if (descriptor.max && this.get<number>(<P>prop) > descriptor.max) {
 					return false;
 				}
 			}

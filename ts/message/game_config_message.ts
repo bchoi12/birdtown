@@ -135,6 +135,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setPlayersMin(2);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
+			this.setPoints(5);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.POINTS);
 			break;

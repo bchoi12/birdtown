@@ -3,10 +3,11 @@ import { game } from 'game'
 import { GameMode } from 'game/api'
 import { FrequencyType } from 'game/entity/api'
 import { ConfigFactory } from 'game/factory/config_factory'
-import { PlayerRole } from 'game/system/api'
+import { PlayerRole, WinConditionType } from 'game/system/api'
 import { Controller } from 'game/system/controller'
 import { PlayerConfig, PlayerInfo } from 'game/util/player_config'
 
+import { GameMessage, GameMessageType } from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
 
 import { settings } from 'settings'
@@ -18,15 +19,13 @@ import { KeyNames } from 'ui/common/key_names'
 
 import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
+import { GameModeInfoWrapper } from 'ui/wrapper/game_mode_info_wrapper'
 import { PlayerConfigWrapper } from 'ui/wrapper/player_config_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
+import { ColumnWrapper } from 'ui/wrapper/column_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
 import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
-
-type ModePageOptions = {
-	title : string;
-}
 
 export class StartGameDialogWrapper extends DialogWrapper {
 
@@ -62,10 +61,25 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				if (ok) {
 					game.controller().startGame(this._configMsg, config);
 				} else {
+					// Should never happen if page properly checks prior to submit
 					console.error(errors.join(", "));
 				}
 			}
 		});
+	}
+
+	override handleClientMessage(msg : GameMessage) : void {
+		super.handleClientMessage(msg);
+
+		if (this._playerConfigWrapper === null) {
+			return;
+		}
+
+		if (msg.type() === GameMessageType.CLIENT_INITIALIZED) {
+			this._playerConfigWrapper.addPlayer(msg.getClientId());
+		} else if (msg.type() === GameMessageType.CLIENT_DISCONNECT) {
+			this._playerConfigWrapper.deletePlayer(msg.getClientId());
+		}
 	}
 
 	private addGameModePage() : void {
@@ -80,17 +94,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		info.setLegend("Description");
 		info.contentElm().style.fontSize = "0.7em";
 
-		let description = Html.div();
-		let requirements = Html.div();
-		let error = Html.div();
-
-		info.contentElm().appendChild(description);
-		info.contentElm().appendChild(Html.br());
-		info.contentElm().appendChild(requirements);
-		info.contentElm().appendChild(Html.br());
-		info.contentElm().appendChild(error);
-
-		description.textContent = "Select a game mode on the left.";
+		let infoWrapper = new GameModeInfoWrapper();
+		infoWrapper.setDescription("Select a game mode on the left.");
+		info.contentElm().appendChild(infoWrapper.elm());
 
 		let modeButtons = new ButtonGroupWrapper();
 		{
@@ -100,13 +106,10 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.FREE_FOR_ALL;
 
-				requirements.innerHTML = "<li>2+ players required</li>"
-
-				description.textContent =
+				infoWrapper.setRequirements(["2+ players required", "3+ players recommended"]);
+				infoWrapper.setDescription(
 					"It's everyone for themselves.\r\n\r\nScore points by cooking other players. " +
-					"Win by reaching the score limit or having the most points when time runs out."
-
-				error.textContent = "";
+					"Win by reaching the score limit or having the most points when time runs out.");
 			});
 		}
 
@@ -117,13 +120,11 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.SURVIVAL;
 
-				requirements.innerHTML = "<li>2+ players required</li>"
-
-				description.textContent =
+				infoWrapper.setRequirements(["2+ players required", "3+ players recommended"]);
+				infoWrapper.setDescription(
 					"Be the last bird in town.\r\n\r\n" + 
 					"Each player starts with the same number of lives. " +
-					"The last player standing wins the round. If time runs out, it's a draw."
-				error.textContent = "";
+					"The last player standing wins the round. If time runs out, it's a draw.");
 			});
 		}
 
@@ -134,12 +135,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.DUEL;
 
-				requirements.innerHTML = "<li>2+ players required</li>"
-
-				description.textContent =
-					"Duel your opponents in symmetric maps where you take turns picking the loadout.\r\n\r\n" +
-					"Even teams recommended, but not required.";
-				error.textContent = "";
+				infoWrapper.setRequirements(["2+ players required", "Even teams recommended"]);
+				infoWrapper.setDescription(
+					"Duel your opponents in standardized pseudo-random maps where you take turns picking the loadout.");
 			});
 		}
 
@@ -150,11 +148,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.PRACTICE;
 
-				requirements.innerHTML = "<li>No requirements</li>"
-
-				description.textContent = "There are no rules.";
-
-				error.textContent = "";
+				infoWrapper.setRequirements(["There are no rules"]);
+				infoWrapper.setDescription("Practice whatever you want with whoever you want.");
 			});
 		}
 
@@ -162,47 +157,60 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setCanSubmit(() => {
+			const [startErrors, canStart] = Controller.canStart(this._mode);
+			if (!canStart) {
+				infoWrapper.setErrors(startErrors);
+			}
+			return canStart;
+		});
+
+		pageWrapper.setOnSubmit(() => {
 			if (this._mode === GameMode.UNKNOWN) {
-				error.textContent = "No game mode selected!";
-				return false;
-			}
-			const [submitError, canSubmit] = Controller.canStart(this._mode);
-			error.textContent = submitError;
-			return canSubmit;
-		})
-
-		pageWrapper.setOnSubmit(() => {
-			if (this._mode !== GameMode.UNKNOWN) {
-				this._configMsg = ConfigFactory.load(this._mode);
-
-				switch (this._mode) {
-				case GameMode.PRACTICE:
-					this.addPracticePage();
-					break;
-				case GameMode.SURVIVAL:
-					this.addSurvivalPage();
-					break;
-				case GameMode.FREE_FOR_ALL:
-					this.addFreeForAllPage();
-					break;
-				case GameMode.DUEL:
-					this.addDuelPage();
-					break;
-				}
+				this.cancel();
+			} else {
+				this.addModePage(this._mode);
 			}
 		});
 	}
 
-	/*
-	private addModePage(modeOptions: ModePageOptions) : void {
-		let pageWrapper = this.addPage();
+	private addModePage(mode : GameMode) : void {
+		if (mode === GameMode.UNKNOWN) {
+			console.error("Error: cannot make mode page for unknown mode");
+			this.cancel();
+		}
+		this._configMsg = ConfigFactory.load(mode);
 
-		this.setTitle(modeOptions.title);
+		let pageWrapper = this.addPage();
+		this.setTitle(this._configMsg.modeName());
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
 
 		let options = columnsWrapper.column(0);
 		options.setLegend("Options");
 		options.contentElm().style.fontSize = "0.6em";
+
+		switch (mode) {
+		case GameMode.DUEL:
+			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			break;
+		case GameMode.FREE_FOR_ALL:
+			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			options.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());			
+			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			break;
+		case GameMode.PRACTICE:
+			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			break;
+		case GameMode.SURVIVAL:
+			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			options.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());			
+			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			break;
+		}
 
 		let players = columnsWrapper.column(1);
 		players.setLegend("Players");
@@ -211,289 +219,93 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this._playerConfigWrapper = new PlayerConfigWrapper();
 		players.contentElm().appendChild(this._playerConfigWrapper.elm());
 
+		if (this._configMsg.getWinCondition() === WinConditionType.TEAM_LIVES || this._configMsg.getWinCondition() === WinConditionType.TEAM_POINTS) {
+			this._playerConfigWrapper.setTeams(true);
+		}
+
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
-		pageWrapper.setOnSubmit(() => {
-			this._configMsg.setPoints(points.number());
-			this._configMsg.setVictories(victories.number());
-			this._configMsg.setHealthCrateSpawn(healthCrates.value());
-			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
+		pageWrapper.setCanSubmit(() => {
+			return this._playerConfigWrapper.checkCanPlay(this._configMsg);
 		});
 	}
-	*/
 
-	private addFreeForAllPage() : void {
-		let pageWrapper = this.addPage();
-		this.setTitle("Free for All");
-
-		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
-
-		let options = columnsWrapper.column(0);
-		options.setLegend("Options");
-		options.contentElm().style.fontSize = "0.6em";
-
-		let points = new LabelNumberWrapper({
+	private pointsWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
 			label: "Points for a win",
-			value: 5,
+			value: msg.getPoints(),
 			plus: (current : number) => {
-				return Math.min(current + 1, 10);
+				msg.setPoints(Math.min(current + 1, max));
 			},
 			minus: (current : number) => {
-				return Math.max(1, current - 1);
+				msg.setPoints(Math.max(min, current - 1));
 			},
-		});
-		options.contentElm().appendChild(points.elm());
-
-		let victories = new LabelNumberWrapper({
-			label: "First to",
-			value: 3,
-			plus: (current : number) => {
-				return Math.min(current + 1, 5);
-			},
-			minus: (current : number) => {
-				return Math.max(1, current - 1);
-			},
-			html: (current : number) => {
-				return current + " win" + (current === 1 ? "" : "s");
-			}
-		});
-		options.contentElm().appendChild(victories.elm());
-
-		let healthCrates = new SettingWrapper<FrequencyType>({
-			name: "Health Crate Spawn Rate",
-			value: this._configMsg.getHealthCrateSpawn(),
-			click: (current : FrequencyType) => {
-				if (current === FrequencyType.HIGH) {
-					current = FrequencyType.NEVER;
-				} else {
-					current++;
-				}
-				return current;
-			},
-			text: (current : FrequencyType) => {
-				return FrequencyType[current];
-			},
-		});
-		options.contentElm().appendChild(healthCrates.elm());
-
-		let weaponCrates = new SettingWrapper<FrequencyType>({
-			name: "Weapon Crate Spawn Rate",
-			value: this._configMsg.getWeaponCrateSpawn(),
-			click: (current : FrequencyType) => {
-				if (current === FrequencyType.HIGH) {
-					current = FrequencyType.NEVER;
-				} else {
-					current++;
-				}
-				return current;
-			},
-			text: (current : FrequencyType) => {
-				return FrequencyType[current];
-			},
-		});
-		options.contentElm().appendChild(weaponCrates.elm());
-
-		let players = columnsWrapper.column(1);
-		players.setLegend("Players");
-		players.contentElm().style.fontSize = "0.6em";
-
-		this._playerConfigWrapper = new PlayerConfigWrapper();
-		players.contentElm().appendChild(this._playerConfigWrapper.elm());
-
-		pageWrapper.elm().appendChild(columnsWrapper.elm());
-
-		pageWrapper.setOnSubmit(() => {
-			this._configMsg.setPoints(points.number());
-			this._configMsg.setVictories(victories.number());
-			this._configMsg.setHealthCrateSpawn(healthCrates.value());
-			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
+			get: () => { return msg.getPoints(); },
 		});
 	}
-
-	private addSurvivalPage() : void {
-		let pageWrapper = this.addPage();
-		this.setTitle("Survival");
-
-		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
-
-		let options = columnsWrapper.column(0);
-		options.setLegend("Options");
-		options.contentElm().style.fontSize = "0.6em";
-
-		let lives = new LabelNumberWrapper({
+	private livesWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
 			label: "Lives",
-			value: 1,
+			value: msg.getLives(),
 			plus: (current : number) => {
-				return Math.min(current + 1, 5);
+				msg.setLives(Math.min(current + 1, max));
 			},
 			minus: (current : number) => {
-				return Math.max(1, current - 1);
+				msg.setLives(Math.max(min, current - 1));
 			},
-		});
-		options.contentElm().appendChild(lives.elm());
-
-		let victories = new LabelNumberWrapper({
-			label: "First to",
-			value: 3,
-			plus: (current : number) => {
-				return Math.min(current + 1, 5);
-			},
-			minus: (current : number) => {
-				return Math.max(1, current - 1);
-			},
-			html: (current : number) => {
-				return current + " win" + (current === 1 ? "" : "s");
-			}
-		});
-		options.contentElm().appendChild(victories.elm());
-
-		let healthCrates = new SettingWrapper<FrequencyType>({
-			name: "Health Crate Spawn Rate",
-			value: this._configMsg.getHealthCrateSpawn(),
-			click: (current : FrequencyType) => {
-				if (current === FrequencyType.HIGH) {
-					current = FrequencyType.NEVER;
-				} else {
-					current++;
-				}
-				return current;
-			},
-			text: (current : FrequencyType) => {
-				return FrequencyType[current];
-			},
-		});
-		options.contentElm().appendChild(healthCrates.elm());
-
-		let weaponCrates = new SettingWrapper<FrequencyType>({
-			name: "Weapon Crate Spawn Rate",
-			value: this._configMsg.getWeaponCrateSpawn(),
-			click: (current : FrequencyType) => {
-				if (current === FrequencyType.HIGH) {
-					current = FrequencyType.NEVER;
-				} else {
-					current++;
-				}
-				return current;
-			},
-			text: (current : FrequencyType) => {
-				return FrequencyType[current];
-			},
-		});
-		options.contentElm().appendChild(weaponCrates.elm());
-
-		let players = columnsWrapper.column(1);
-		players.setLegend("Players");
-		players.contentElm().style.fontSize = "0.6em";
-
-		this._playerConfigWrapper = new PlayerConfigWrapper();
-		players.contentElm().appendChild(this._playerConfigWrapper.elm());
-
-		pageWrapper.elm().appendChild(columnsWrapper.elm());
-
-		pageWrapper.setOnSubmit(() => {
-			this._configMsg.setLives(lives.number());
-			this._configMsg.setVictories(victories.number());
-			this._configMsg.setHealthCrateSpawn(healthCrates.value());
-			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
+			get: () => { return msg.getLives(); },
 		});
 	}
-
-	private addDuelPage() : void {
-		let pageWrapper = this.addPage();
-		this.setTitle("Duel");
-
-		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
-
-		let options = columnsWrapper.column(0);
-		options.setLegend("Options");
-		options.contentElm().style.fontSize = "0.6em";
-
-		let victories = new LabelNumberWrapper({
+	private victoriesWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
 			label: "First to",
-			value: 3,
+			value: msg.getVictories(),
 			plus: (current : number) => {
-				return Math.min(current + 1, 5);
+				msg.setVictories(Math.min(current + 1, max));
 			},
 			minus: (current : number) => {
-				return Math.max(1, current - 1);
+				msg.setVictories(Math.max(min, current - 1));
 			},
+			get: () => { return msg.getVictories(); },
 			html: (current : number) => {
 				return current + " win" + (current === 1 ? "" : "s");
-			}
-		});
-		options.contentElm().appendChild(victories.elm());
-
-		let players = columnsWrapper.column(1);
-		players.setLegend("Players");
-		players.contentElm().style.fontSize = "0.6em";
-
-		this._playerConfigWrapper = new PlayerConfigWrapper();
-		this._playerConfigWrapper.setTeams(true);
-		players.contentElm().appendChild(this._playerConfigWrapper.elm());
-
-		pageWrapper.elm().appendChild(columnsWrapper.elm());
-
-		pageWrapper.setOnSubmit(() => {
-			this._configMsg.setVictories(victories.number());
+			},
 		});
 	}
-
-	private addPracticePage() : void {
-		let pageWrapper = this.addPage();
-		this.setTitle("Practice");
-
-		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
-
-		let options = columnsWrapper.column(0);
-		options.setLegend("Options");
-		options.contentElm().style.fontSize = "0.6em";
-
-		let healthCrates = new SettingWrapper<FrequencyType>({
+	private healthCrateWrapper(msg : GameConfigMessage) : SettingWrapper<FrequencyType> {
+		return new SettingWrapper<FrequencyType>({
 			name: "Health Crate Spawn Rate",
-			value: this._configMsg.getHealthCrateSpawn(),
+			value: msg.getHealthCrateSpawn(),
 			click: (current : FrequencyType) => {
 				if (current === FrequencyType.HIGH) {
 					current = FrequencyType.NEVER;
 				} else {
 					current++;
 				}
+				msg.setHealthCrateSpawn(current);
 				return current;
 			},
 			text: (current : FrequencyType) => {
 				return FrequencyType[current];
 			},
 		});
-		options.contentElm().appendChild(healthCrates.elm());
-
-		let weaponCrates = new SettingWrapper<FrequencyType>({
+	}
+	private weaponCrateWrapper(msg : GameConfigMessage) : SettingWrapper<FrequencyType> {
+		return new SettingWrapper<FrequencyType>({
 			name: "Weapon Crate Spawn Rate",
-			value: this._configMsg.getWeaponCrateSpawn(),
+			value: msg.getWeaponCrateSpawn(),
 			click: (current : FrequencyType) => {
 				if (current === FrequencyType.HIGH) {
 					current = FrequencyType.NEVER;
 				} else {
 					current++;
 				}
+				msg.setWeaponCrateSpawn(current);
 				return current;
 			},
 			text: (current : FrequencyType) => {
 				return FrequencyType[current];
 			},
-		});
-		options.contentElm().appendChild(weaponCrates.elm());
-
-		let players = columnsWrapper.column(1);
-		players.setLegend("Players");
-		players.contentElm().style.fontSize = "0.6em";
-
-		this._playerConfigWrapper = new PlayerConfigWrapper();
-		players.contentElm().appendChild(this._playerConfigWrapper.elm());
-
-		pageWrapper.elm().appendChild(columnsWrapper.elm());
-
-		pageWrapper.setOnSubmit(() => {
-			this._configMsg.setHealthCrateSpawn(healthCrates.value());
-			this._configMsg.setWeaponCrateSpawn(weaponCrates.value());
 		});
 	}
 

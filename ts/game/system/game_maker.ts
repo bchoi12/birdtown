@@ -552,18 +552,7 @@ export class GameMaker extends SystemBase implements System {
 			}
 			break;
 		case WinConditionType.TEAM_POINTS:
-			let teamScores = new Map<number, number>();
-			game.tablets().executeIf((tablet : Tablet) => {
-				const team = game.playerState(tablet.clientId()).team();
-
-				if (!teamScores.has(team)) {
-					teamScores.set(team, 0);
-				}
-				teamScores.set(team, teamScores.get(team) + tablet.getInfo(InfoType.SCORE));
-			}, (tablet : Tablet) => {
-				return game.playerStates().hasPlayerState(tablet.clientId());
-			});
-
+			let teamScores = game.tablets().teamScores();
 			winners = this.findPlayerStateIds((playerState : PlayerState) => {
 				const team = playerState.team();
 				return teamScores.has(team) && teamScores.get(team) >= this._config.getPoints();

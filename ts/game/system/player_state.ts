@@ -1,6 +1,6 @@
 
 import { game } from 'game'
-import { GameMode, GameState, GameObjectState } from 'game/api'
+import { GameState, GameObjectState } from 'game/api'
 import { AssociationType, ComponentType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'

@@ -60,12 +60,19 @@ export class Controller extends SystemBase implements System {
 		}
 	}
 
-	static canStart(mode : GameMode) : [string, boolean] {
-		const config = ConfigFactory.defaultConfig(mode);
-		if (game.tablets().numSetup() < config.getPlayersMinOr(1)) {
-			return ["Need " + config.getPlayersMin() + " players for this game mode! Current number of players: " + game.tablets().numSetup(), false];
+	static canStart(mode : GameMode) : [string[], boolean] {
+		let errors = [];
+
+		if (mode === GameMode.UNKNOWN) {
+			return [["No game mode selected"], false];
 		}
-		return ["", true];
+
+		const config = ConfigFactory.defaultConfig(mode);
+		if (config.hasPlayersMin() && game.tablets().numSetup() < config.getPlayersMin()) {
+			errors.push(`Need ${config.getPlayersMin()} players for this game mode`);
+			errors.push(`Current number of players: ${game.tablets().numSetup()}`);
+		}
+		return [errors, errors.length === 0];
 	}
 
 	round() : number { return this._gameMaker.round(); }

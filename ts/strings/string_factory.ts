@@ -1,5 +1,6 @@
 
 import { ParamString, ParamType } from 'strings/param_string'
+import { GameMode } from 'game/api'
 import { EntityType } from 'game/entity/api'
 import { Entity } from 'game/entity'
 import { ColorFactory } from 'game/factory/color_factory'

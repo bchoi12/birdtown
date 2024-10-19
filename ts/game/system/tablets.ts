@@ -8,15 +8,35 @@ import { Tablet } from 'game/system/tablet'
 
 import { GameMessage, GameMessageType} from 'message/game_message'
 
+import { InfoType } from 'ui/api'
+
 import { defined } from 'util/common'
 
 export class Tablets extends ClientSystemManager implements System {
 
+	private static readonly _numTeams = 2;
+
+	private _teamScores : Map<number, number>;
+
 	constructor() {
 		super(SystemType.TABLETS);
 
+		this._teamScores = new Map();
+
 		this.setFactoryFn((clientId : number) => { return this.addTablet(new Tablet(clientId)); })
 	}
+
+	updateTeamScores() : void {
+		this._teamScores.clear();
+		this.execute((tablet : Tablet) => {
+			const team = tablet.team();
+			if (!this._teamScores.has(team)) {
+				this._teamScores.set(team, 0);
+			}
+			this._teamScores.set(team, this._teamScores.get(team) + tablet.getInfo(InfoType.SCORE));
+		});
+	}
+	teamScores() : Map<number, number> { return this._teamScores; }
 
 	numSetup() : number {
 		return this.findAll((tablet : Tablet) => {

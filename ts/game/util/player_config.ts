@@ -116,19 +116,23 @@ export class PlayerConfig {
 		return [players, teams.size];
 	}
 
-	addClient(id : number) : void {
+	addClient(id : number) : boolean {
 		if (!this.canAdd(id)) {
 			console.error("Error: couldn't add client", id);
-			return;
+			return false;
 		}
 
 		this._players.set(id, {
 			displayName: game.tablet(id).displayName(),
 			role: this._defaultRole,
 		});
+		return true;
 	}
 	hasClient(id : number) : boolean { return this._players.has(id); }
 	deleteClient(id : number) : void { this._players.delete(id); }
+
+	hasInfo(id : number) : boolean { return this._players.has(id); }
+	info(id : number) : PlayerInfo { return this._players.get(id); }
 	playerMap() : Map<number, PlayerInfo> { return this._players; }
 
 	role(id : number) : StartRole {

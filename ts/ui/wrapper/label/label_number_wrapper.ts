@@ -11,8 +11,9 @@ export type LabelNumberOptions = {
 	label: string;
 	value : number;
 
-	plus: (current : number) => number;
-	minus: (current : number) => number;
+	plus: (current : number) => void;
+	minus: (current : number) => void;
+	get: () => number;
 	html? : HTMLFn;
 }
 
@@ -42,14 +43,16 @@ export class LabelNumberWrapper extends LabelWrapper {
 		const minus = new ButtonWrapper();
 		minus.elm().appendChild(Icon.create(IconType.ARROW_DOWN));
 		minus.addOnClick(() => {
-			this.setNumber(options.minus(this.number()));
+			options.minus(this.number())
+			this.setNumber(options.get());
 		});
 		buttons.appendChild(minus.elm());
 
 		const plus = new ButtonWrapper();
 		plus.elm().appendChild(Icon.create(IconType.ARROW_UP));
 		plus.addOnClick(() => {
-			this.setNumber(options.plus(this.number()));
+			options.plus(this.number())
+			this.setNumber(options.get());
 		});
 		buttons.appendChild(plus.elm());
 

@@ -557,7 +557,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	override impactSound() : SoundType { return SoundType.PLAYER_THUD; }
 
 	override takeDamage(amount : number, from : Entity) : void {
-		super.takeDamage(amount, from);
+		if (game.controller().gameState() === GameState.FREE && from.id() !== this.id()) {
+			super.takeDamage(0, from);
+		} else {
+			super.takeDamage(amount, from);
+		}
 
 		this._entityTrackers.getEntities<Beak>(EntityType.BEAK).execute((beak : Beak) => {
 			beak.takeDamage(amount, from);

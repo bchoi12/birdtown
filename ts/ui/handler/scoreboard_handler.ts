@@ -55,6 +55,16 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 		this._scoreboardElm.style.display = "block";
 	}
 
+	override handleClientMessage(msg : GameMessage) : void {
+		super.handleClientMessage(msg);
+
+		if (msg.type() === GameMessageType.CLIENT_INITIALIZED) {
+			this.addPlayer(msg.getClientId());
+		} else if (msg.type() === GameMessageType.CLIENT_DISCONNECT) {
+			this.removePlayer(msg.getClientId());
+		}
+	}
+
 	addPlayer(id : number) : void {
 		this._scoreboard.addPlayer(id);
 	}

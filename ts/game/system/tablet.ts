@@ -1,6 +1,5 @@
 
 import { game } from 'game'
-import { GameMode, GameState } from 'game/api'
 import { EntityType, BirdType } from 'game/entity/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
@@ -142,6 +141,8 @@ export class Tablet extends ClientSystem implements System {
 
 		if (type === InfoType.KILLS) {
 			this.setInfo(InfoType.SCORE, value);
+		} else if (type === InfoType.SCORE) {
+			game.tablets().updateTeamScores();
 		}
 	}
 	addInfo(type : InfoType, delta : number) : void {
@@ -223,6 +224,12 @@ export class Tablet extends ClientSystem implements System {
 	hasDisplayName() : boolean { return this._displayName.length > 0; }
 	displayName() : string { return (this.hasDisplayName() ? this._displayName : "unknown") + " #" + this.clientId(); }
 
+	team() : number {
+		if (!game.playerStates().hasPlayerState(this.clientId())) {
+			return 0;
+		}
+		return game.playerState(this.clientId()).team();
+	}
 	setWinner(winner : boolean) : void {
 		if (this._winner === winner) {
 			return;
