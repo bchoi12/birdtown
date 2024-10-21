@@ -88,7 +88,10 @@ export interface Entity extends GameObject {
 	matchAssociations(types : AssociationType[], other : Entity) : boolean;
 
 	addForce(force : Vec) : void;
+	heal(amount : number) : void;
+	healthPercent() : number;
 	takeDamage(amount : number, from : Entity) : void;
+	dead() : boolean;
 
 	// Profile methods
 	collide(collision : MATTER.Collision, other : Entity) : void;
@@ -275,6 +278,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 		return associations;
 	}
+	team() : number {
+		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
+			return 0;
+		}
+		return this.getComponent<Association>(ComponentType.ASSOCIATION).getAssociation(AssociationType.TEAM);
+	}
 	setTeam(team : number) : void {
 		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
 			console.error("Error: cannot set team for %s which has no Association component", this.name());
@@ -338,11 +347,26 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		this.profile().addForce(force);
 	}
-	takeDamage(delta : number, from? : Entity) : void {
+	heal(delta : number) : void {
+		if (!this.hasComponent(ComponentType.STATS)) { return; }
+
+		this.getComponent<Stats>(ComponentType.STATS).updateStat(StatType.HEALTH, {
+			delta: delta,
+		});
+	}
+	healthPercent() : number {
+		if (!this.hasComponent(ComponentType.STATS)) { return 1; }
+
+		return this.getComponent<Stats>(ComponentType.STATS).healthPercent();
+	}
+	takeDamage(delta : number, from : Entity) : void {
 		if (!this.hasComponent(ComponentType.STATS)) { return; }
 
 		if (delta >= 0 && this.getAttribute(AttributeType.INVINCIBLE)) {
 			return;
+		}
+		if (this.id() !== from.id() && this.matchAssociations([AssociationType.TEAM], from)) {
+			delta = 0;
 		}
 
 		this.getComponent<Stats>(ComponentType.STATS).updateStat(StatType.HEALTH, {
@@ -350,6 +374,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			entity: from,
 		});
 	}
+	dead() : boolean {
+		if (!this.hasComponent(ComponentType.STATS)) { return false; }
+
+		return this.getComponent<Stats>(ComponentType.STATS).dead();
+	}
+
 	collide(collision : MATTER.Collision, other : Entity) : void {
 		if (this.hasProfile()) {
 			this.profile().collide(collision, other);

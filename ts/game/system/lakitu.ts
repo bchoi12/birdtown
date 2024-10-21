@@ -131,11 +131,17 @@ export class Lakitu extends SystemBase implements System {
 
 		return this.targetEntity().type();
 	}
-	private static validPlayer(player : Player) : boolean {
+	private static canSpectate(player : Player) : boolean {
+		const team = game.playerState().team();
+		if (team !== 0 && team !== player.team()) {
+			return false;
+		}
+
 		return player.initialized()
 			&& !player.deleted()
+			&& (!player.dead() || player.clientIdMatches())
 			&& game.playerStates().hasPlayerState(player.clientId())
-			&& game.playerState(player.clientId()).inGame();
+			&& (game.playerState(player.clientId()).inGame() || player.clientIdMatches());
 	}
 	private targetPlayer() : boolean {
 	 if (game.playerState().hasTargetEntity()) {
@@ -185,7 +191,12 @@ export class Lakitu extends SystemBase implements System {
 		if (game.controller().gameState() === GameState.FREE) {
 			return false;
 		}
-
+		if (this.targetSpawnPoint()) {
+			return true;
+		}
+		return this.targetPlane();
+	}
+	private targetSpawnPoint() : boolean {
 		if (game.playerState().hasTargetEntity()) {
 			if (this.targetEntityType() === EntityType.SPAWN_POINT && this.validTargetEntity()) {
 				return true;
@@ -214,12 +225,10 @@ export class Lakitu extends SystemBase implements System {
 					return true;
 				}
 			}
-
-			if (spawns.length > 0) {
-				return false;
-			}
 		}
-
+		return false;
+	}
+	private targetPlane() : boolean {
 		if (this.targetEntityType() === EntityType.PLANE && this.validTargetEntity()) {
 			return true;
 		}
@@ -319,12 +328,12 @@ export class Lakitu extends SystemBase implements System {
 						this._players.push(player.clientId(), player);
 					}
 				}, (player : Player) => {
-					return Lakitu.validPlayer(player);
+					return Lakitu.canSpectate(player);
 				});
 
 				// Remove invalid players
 				this._players.deleteIf((player : Player) => {
-					return !Lakitu.validPlayer(player);
+					return !Lakitu.canSpectate(player);
 				});
 
 				if (this._players.empty()) {

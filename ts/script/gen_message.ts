@@ -28,24 +28,21 @@ serializableRegex.add("LevelLayout");
 //
 const version = "2.1";
 
-const enumClass = "GameConfigProp";
+const enumClass = "GameProp";
 const map = new Map<string, string>([
-    ["HEALTH_CRATE_SPAWN", "FrequencyType"],
+    ["ANNOUNCEMENT_TYPE", "AnnouncementType"],
+    ["CLIENT_ID", "number"],
+    ["DISPLAY_NAME", "string"],
+    ["FEED_TYPE", "FeedType"],
+    ["GAME_STATE", "number"],
     ["LEVEL_LAYOUT", "LevelLayout"],
     ["LEVEL_SEED", "number"],
     ["LEVEL_TYPE", "LevelType"],
-    ["LIVES", "number"],
-    ["PLAYERS_MIN", "number"],
-    ["PLAYERS_MAX", "number"],
-    ["POINTS", "number"],
-    ["TIME_SETUP", "number"],
-    ["TIME_GAME", "number"],
-    ["TIME_FINISH", "number"],
-    ["TIME_VICTORY", "number"],
-    ["TIME_ERROR", "number"],
-    ["VICTORIES", "number"],
-    ["WEAPON_CRATE_SPAWN", "FrequencyType"],
-    ["WIN_CONDITION", "WinConditionType"],
+    ["LEVEL_VERSION", "number"],
+    ["NAMES", "Array<string>"],
+    ["NUM_PLAYERS", "number"],
+    ["NUM_TEAMS", "number"],
+    ["TTL", "number"],
 ]);
 //
 // End params

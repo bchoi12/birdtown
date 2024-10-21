@@ -6,7 +6,7 @@ import { CardinalFactory } from 'game/factory/cardinal_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
-import { LevelType } from 'game/system/api'
+import { LevelType, LevelLayout } from 'game/system/api'
 import { Blueprint, BlueprintBlock, BlueprintOptions } from 'game/system/level/blueprint'
 
 import { TooltipType } from 'ui/api'
@@ -210,7 +210,7 @@ export class ArchBlueprint extends Blueprint {
 		const options = this.options();
 		this._pos.copyVec(options.pos);
 
-		switch (options.level.type) {
+		switch (options.msg.getLevelType()) {
 		case LevelType.LOBBY:
 			this.loadLobby(options);
 			break;
@@ -221,7 +221,7 @@ export class ArchBlueprint extends Blueprint {
 			this.loadDueltown(options);
 			break;
 		default:
-			console.error("Error: level type %s not supported in ArchBlueprint", LevelType[options.level.type]);
+			console.error("Error: level type %s not supported in ArchBlueprint", LevelType[options.msg.getLevelType()]);
 		}
 	}
 
@@ -379,7 +379,26 @@ export class ArchBlueprint extends Blueprint {
 
 				if (block.type() === ArchBlueprint.roofType()) {
 					const next = this.rng().next();
-					if (building.height() === 3) {
+
+					if (options.msg.getNumTeams() === 2 && i === 0) {
+						block.pushEntityOptions(EntityType.SPAWN_POINT, {
+							associationInit: {
+								team: 1,
+							},
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),
+							},
+						})
+					} else if (options.msg.getNumTeams() === 2 && i === this.numBuildings() - 1) {
+						block.pushEntityOptions(EntityType.SPAWN_POINT, {
+							associationInit: {
+								team: 2,
+							},
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),
+							},
+						})
+					} else if (building.height() === 3) {
 						if (next <= 0.7) {
 							block.pushEntityOptions(EntityType.BILLBOARD, {
 								profileInit: {
@@ -425,7 +444,7 @@ export class ArchBlueprint extends Blueprint {
 
 	private generateBirdtownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
 		let plan = new Array<BuildingPlan>();
-		const length = 8 + this.rng().int(3);
+		const length = 7 + Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(3);
 
 		let currentHeight = 2;
 		const maxHeight = 3;
@@ -473,7 +492,7 @@ export class ArchBlueprint extends Blueprint {
 				let block = building.block(j);
 
 				if (block.type() === ArchBlueprint.roofType()) {
-					if (i === 0) {
+					if (options.msg.getNumTeams() === 2 && i === 0) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
 								team: 1,
@@ -482,7 +501,7 @@ export class ArchBlueprint extends Blueprint {
 								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),
 							},
 						})
-					} else if (i === this.numBuildings() - 1) {
+					} else if (options.msg.getNumTeams() === 2 && i === this.numBuildings() - 1) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
 								team: 2,

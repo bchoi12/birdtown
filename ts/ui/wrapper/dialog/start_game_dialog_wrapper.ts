@@ -99,6 +99,20 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		info.contentElm().appendChild(infoWrapper.elm());
 
 		let modeButtons = new ButtonGroupWrapper();
+
+		{
+			let buttonWrapper = modeButtons.addButtonSelect();
+			buttonWrapper.elm().style.width = "100%";
+			buttonWrapper.setText("Duel");
+			buttonWrapper.addOnClick(() => {
+				this._mode = GameMode.DUEL;
+
+				infoWrapper.setRequirements(["2+ players required", "Even teams recommended"]);
+				infoWrapper.setDescription(
+					"Duel your opponents in standardized pseudo-random maps where you take turns picking the loadout.");
+			});
+		}
+
 		{
 			let buttonWrapper = modeButtons.addButtonSelect();
 			buttonWrapper.elm().style.width = "100%";
@@ -131,13 +145,14 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		{
 			let buttonWrapper = modeButtons.addButtonSelect();
 			buttonWrapper.elm().style.width = "100%";
-			buttonWrapper.setText("Duel (WIP)");
+			buttonWrapper.setText("Team Battle (WIP)");
 			buttonWrapper.addOnClick(() => {
-				this._mode = GameMode.DUEL;
+				this._mode = GameMode.TEAM_BATTLE;
 
-				infoWrapper.setRequirements(["2+ players required", "Even teams recommended"]);
+				infoWrapper.setRequirements(["2+ players required", "4+ players recommended"]);
 				infoWrapper.setDescription(
-					"Duel your opponents in standardized pseudo-random maps where you take turns picking the loadout.");
+					"Eliminate the enemy team.\r\n\r\n" + 
+					"Each player only has one life, but you can revive your teammates.");
 			});
 		}
 
@@ -187,28 +202,37 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let options = columnsWrapper.column(0);
 		options.setLegend("Options");
 		options.contentElm().style.fontSize = "0.6em";
+		options.contentElm().style.textAlign = "center";
+		options.contentElm().textContent = "Update game options below\r\n\r\n"
+
+		const teamMode = this._configMsg.getWinCondition() === WinConditionType.TEAM_LIVES || this._configMsg.getWinCondition() === WinConditionType.TEAM_POINTS;
 
 		switch (mode) {
 		case GameMode.DUEL:
+			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			break;
 		case GameMode.FREE_FOR_ALL:
+			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			options.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());			
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());			
-			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			break;
 		case GameMode.PRACTICE:
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.SURVIVAL:
+			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			options.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());			
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());			
+			break;
+		case GameMode.TEAM_BATTLE:
 			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		}
 
@@ -219,8 +243,11 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this._playerConfigWrapper = new PlayerConfigWrapper();
 		players.contentElm().appendChild(this._playerConfigWrapper.elm());
 
-		if (this._configMsg.getWinCondition() === WinConditionType.TEAM_LIVES || this._configMsg.getWinCondition() === WinConditionType.TEAM_POINTS) {
+		if (teamMode) {
+			this._playerConfigWrapper.setInfo("Click to update team assignments and spectators");
 			this._playerConfigWrapper.setTeams(true);
+		} else {
+			this._playerConfigWrapper.setInfo("Click to assign players and spectators");
 		}
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());

@@ -76,11 +76,15 @@ export class Bubble extends Equip<Player> {
 	}
 
 	pop() : void {
-		if (this._popped) {
+		if (this._lifeTimer.millisElapsed() <= Bubble._minLifeDuration) {
 			return;
 		}
 
-		if (this._lifeTimer.millisElapsed() <= Bubble._minLifeDuration) {
+		this.hardPop();
+	}
+
+	hardPop() : void {
+		if (this._popped) {
 			return;
 		}
 

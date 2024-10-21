@@ -5,7 +5,7 @@ import { game } from 'game'
 import { StepData } from 'game/game_object'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
+import { Entity, EntityOptions, EquipEntity, InteractEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
@@ -18,7 +18,7 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { ui } from 'ui'
 import { TooltipType } from 'ui/api'
 
-export abstract class Sign extends Interactable implements Entity, EquipEntity {
+export abstract class Sign extends Interactable implements EquipEntity, InteractEntity {
 
 	protected _showTooltip : boolean;
 

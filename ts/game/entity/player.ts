@@ -20,9 +20,11 @@ import { Beak } from 'game/entity/equip/beak'
 import { Bubble } from 'game/entity/equip/bubble'
 import { Headwear } from 'game/entity/equip/headwear'
 import { NameTag } from 'game/entity/equip/name_tag'
-import { CollisionCategory, MaterialType, MeshType, TextureType } from 'game/factory/api'
+import { TextParticle } from 'game/entity/particle/text_particle'
+import { CollisionCategory, ColorType, MaterialType, MeshType, TextureType } from 'game/factory/api'
 import { DepthType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
+import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
 import { RecordType } from 'game/util/collision_buffer'
@@ -77,7 +79,7 @@ enum SubProfile {
 	HEAD,
 }
 
-export class Player extends EntityBase implements Entity, EquipEntity {
+export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	// blockdudes3 = 18.0
 	private static readonly _sideAcc = 0.5;
 	private static readonly _jumpVel = 0.33;
@@ -101,6 +103,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private static readonly _armRecoveryTime = 100;
 	private static readonly _knockbackRecoveryTime = 250;
 	private static readonly _interactCheckInterval = 125;
+	private static readonly _heartInterval = 1000;
+	private static readonly _reviveTime = 6000;
 	private static readonly _sweatInterval = 4000;
 	private static readonly _walkSmokeInterval = 500;
 
@@ -144,10 +148,13 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	private _canJump : boolean;
 	private _canJumpTimer : Timer;
 	private _canDoubleJump : boolean;
+	private _dead : boolean;
 	private _equipType : EntityType;
 	private _altEquipType : EntityType;
 	private _deadTracker : ChangeTracker<boolean>;
 	private _groundedTracker : ChangeTracker<boolean>;
+	private _heartRateLimiter : RateLimiter;
+	private _reviverId : number;
 	private _sweatRateLimiter : RateLimiter;
 	private _walkSmokeRateLimiter : RateLimiter;
 	private _nearestInteractable : Optional<InteractEntity>;
@@ -165,6 +172,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PLAYER, entityOptions);
 
+		this.allTypes().add(EntityType.INTERACTABLE);
+
 		this._armDir = Vec2.i();
 		this._armRecoil = new Recoil();
 		this._baseMaterial = new Optional();
@@ -177,10 +186,11 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			canInterrupt: true,
 		});
 		this._canDoubleJump = false;
+		this._dead = false;
 		this._equipType = EntityType.UNKNOWN;
 		this._altEquipType = EntityType.UNKNOWN;
 		this._deadTracker = new ChangeTracker(() => {
-			return this.dead();
+			return this._stats.dead();
 		}, (dead : boolean) => {
 			if (dead) {
 				const x = this._profile.vel().x;
@@ -191,10 +201,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				this._profile.setAcc({x: 0});
 				this._profile.addVel({y: 0.7 * Player._jumpVel});
 				this._expression.setOverride(Emotion.DEAD);
-			} else {
-				this._profile.setInertia(Infinity);
-				this._profile.setAngularVelocity(0);
-				this._expression.clearOverride();
+				this._dead = true;
 			}
 		});
 		this._groundedTracker = new ChangeTracker(() => {
@@ -223,6 +230,8 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 				}
 			}
 		});
+		this._heartRateLimiter = new RateLimiter(Player._heartInterval);
+		this._reviverId = 0;
 		this._sweatRateLimiter = new RateLimiter(Player._sweatInterval);
 		this._walkSmokeRateLimiter = new RateLimiter(Player._walkSmokeInterval);
 		this._nearestInteractable = new Optional();
@@ -232,6 +241,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			export: () => { return this._canDoubleJump; },
 			import: (obj : boolean) => { this._canDoubleJump = obj; },
 		});
+		this.addProp<boolean>({
+			export: () => { return this._dead; },
+			import: (obj : boolean) => { this._dead = obj; },
+		})
 		this.addProp<EntityType>({
 			export: () => { return this._equipType; },
 			import: (obj : EntityType) => { this._equipType = obj; },
@@ -244,6 +257,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			export: () => { return this.state(); },
 			import: (obj : GameObjectState) => { this.setState(obj); },
 		});
+		this.addProp<number>({
+			export: () => { return this._reviverId; },
+			import: (obj : number) => { this._reviverId = obj; },
+		})
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 
@@ -385,10 +402,6 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		super.initialize();
 
 		this._profile.setInertia(Infinity);
-
-		if (this.clientIdMatches()) {
-			game.lakitu().setTargetEntity(this);
-		}
 		game.keys(this.clientId()).setTargetEntity(this);
 
 		const [nameTag, hasNameTag] = this.addEntity<NameTag>(EntityType.NAME_TAG, {
@@ -405,6 +418,30 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 	}
 
 	displayName() : string { return game.tablet(this.clientId()).displayName(); }
+	revive() : void {
+		this.setAttribute(AttributeType.GROUNDED, true);
+		this._stats.setHealthPercent(0.5);
+		this.getUp();
+
+		const [bubble, hasBubble] = this.addEntity<Bubble>(EntityType.BUBBLE, {
+			associationInit: {
+				owner: this,
+			},
+			clientId: this.clientId(),
+			levelVersion: game.level().version(),
+		});
+		if (hasBubble) {
+			bubble.hardPop();
+		}
+	}
+	private cancelRevive() : void {
+		this.setAttribute(AttributeType.REVIVING, false);
+		this._reviverId = 0;
+
+		if (this.clientIdMatches()) {
+			ui.hideTooltip(TooltipType.REVIVING);
+		}
+	}
 	quickRespawn(spawn : Vec2) : void {
 		if (this.isSource() || this.clientIdMatches()) {
 			this.setAttribute(AttributeType.GROUNDED, false);
@@ -412,14 +449,21 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		this._canJump = false;
 		this._canJumpTimer.reset();
 		this._canDoubleJump = false;
+		this._profile.setPos(spawn);
+		this.fullHeal();
 
+		this.getUp();
+		this.updateLoadout();
+	}
+	private getUp() : void {
+		this.cancelRevive();
+		this._dead = false;
 		this._expression.reset();
 
-		this._profile.setPos(spawn);
 		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
+		this._profile.setAngularVelocity(0);
 		this.model().rotation().z = 0;
-		this.updateLoadout();
 	}
 	respawn(spawn : Vec2) : void {
 		this.quickRespawn(spawn);
@@ -439,14 +483,12 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		}
 	}
 	stats() : Stats { return this._stats; }
-	fullHeal() : void {
-		this._stats.fullHeal();
-	}
+	fullHeal() : void { this._stats.fullHeal(); }
 	die() : void {
 		this.setAttribute(AttributeType.INVINCIBLE, false);
 		this.takeDamage(this._stats.health(), this);
 	}
-	dead() : boolean { return this._stats.dead(); }
+	override dead() : boolean { return this._dead; }
 
 	birdType() : BirdType { return game.tablet(this.clientId()).birdType(); }
 	equipType() : EntityType { return this._equipType; }
@@ -576,6 +618,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
+		const millis = stepData.millis;
 
 		// Out of bounds
 		if (this._profile.pos().y < game.level().bounds().min.y) {
@@ -653,6 +696,10 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			} else if (this.isLakituTarget() && this.clientIdMatches()) {
 				ui.hideTooltip(TooltipType.BUBBLE);
 			}
+		} else {
+			if (this.getAttribute(AttributeType.REVIVING)) {
+				this.heal(100 * millis / Player._reviveTime);
+			}
 		}
 
 		// Friction and air resistance
@@ -725,7 +772,7 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			let currentDistSq : number = null;
 			for (let i = 0; i < bodies.length; ++i) {
 				const [entity, ok] = game.physics().queryEntity(bodies[i]);
-				if (!ok || !entity.allTypes().has(EntityType.INTERACTABLE)) {
+				if (!ok || !entity.allTypes().has(EntityType.INTERACTABLE) || this.id() === entity.id()) {
 					continue;
 				}
 				const interactable = <InteractEntity>entity;
@@ -752,14 +799,51 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		// TODO: put in update?
 		if (this._nearestInteractable.has()
 			&& this._nearestInteractable.get().canInteractWith(this)
-			&& this.key(KeyType.INTERACT, KeyState.PRESSED)) {
+			&& this.key(KeyType.INTERACT, KeyState.DOWN)) {
 			this._nearestInteractable.get().interactWith(this);
 			this._interactRateLimiter.prime();
 		}
 
+		const healthPercent = this.healthPercent();
+		if (this.getAttribute(AttributeType.REVIVING)) {
+			const [reviver, hasReviver] = game.entities().getEntity(this._reviverId);
+
+			if (!hasReviver || !reviver.allTypes().has(EntityType.PLAYER)) {
+				this.cancelRevive();
+			} else {
+				const distSq = reviver.profile().pos().distSq(this._profile.pos());
+				if (distSq > 4) {
+					this.cancelRevive();
+				} else {
+					if (this.clientIdMatches()) {
+						ui.showTooltip(TooltipType.REVIVING, {
+							ttl: 500,
+							names: [reviver.displayName()],
+						});
+					}
+
+					if (this._heartRateLimiter.checkPercent(millis, Math.max(0.3, 1 - healthPercent))) {
+						const [particle, hasParticle] = this.addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
+							offline: true,
+							ttl: 500 + healthPercent * 500,
+							profileInit: {
+								pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.3, 0.3) }),
+								vel: { x: 0, y: 0.02 + healthPercent * 0.01 },
+								dim: { x: 0.3 + healthPercent * 0.1, y: 0.3 + healthPercent * 0.1 },
+							},
+						});
+
+						if (hasParticle) {
+							particle.setTextColor(ColorFactory.toString(ColorType.RED));
+							particle.setText("❤️");
+						}
+					}
+				}
+			}
+		}
+
 		// Sweat
 		// TODO: move this and other particles to ParticleFactory
-		const healthPercent = this._stats.healthPercent();
 		if (!this.dead() && healthPercent <= 0.6 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.2, healthPercent))) {
 			const weight = 1 - healthPercent;
 
@@ -853,35 +937,38 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 		});
 
 		// Expression
-		this._eyeShifter.offset(this._expression.emotion());
+		// TODO: fix emotion and re-enable
+		// this._eyeShifter.offset(this._expression.emotion());
 
-		if (this.clientIdMatches() && !this.dead()) {
-			this.recomputeDir(game.keys(this.clientId()).dir());
+		if (!this.dead()) {
+			if (this.clientIdMatches() && !this.dead()) {
+				this.recomputeDir(game.keys(this.clientId()).dir());
+			}
+			const headSign = this._headDir.x === 0 ? 1 : Math.sign(this._headDir.x);
+			this._model.mesh().scaling.x = headSign * Math.abs(this._model.mesh().scaling.x);
+
+			let neckAngle = this._headDir.angleRad();
+			if (headSign > 0) {
+				neckAngle *= -1;
+			} else {
+				neckAngle += Math.PI;
+			}
+			let neck = this._model.getBone(BoneType.NECK).getTransformNode();
+			neck.rotation = new BABYLON.Vector3(neckAngle, neck.rotation.y, neck.rotation.z);
+
+			// Compute arm rotation
+			let arm = this._model.getBone(BoneType.ARM).getTransformNode();
+			let armRotation = headSign * (this._armDir.angleRad() - Math.PI / 2);
+			const recoilRotation = this._armRecoil.rotation();
+			arm.rotation = new BABYLON.Vector3(armRotation + recoilRotation.z, Math.PI, -recoilRotation.y);
+
+			// Compute arm position
+			let recoil = new BABYLON.Vector3(
+				-0.5 * Math.sin(recoilRotation.y),
+				-Math.cos(armRotation) * this._armRecoil.dist(),
+				Math.sin(armRotation) * this._armRecoil.dist());
+			arm.position = this._boneOrigins.get(BoneType.ARM).add(recoil);
 		}
-		const headSign = this._headDir.x === 0 ? 1 : Math.sign(this._headDir.x);
-		this._model.mesh().scaling.x = headSign * Math.abs(this._model.mesh().scaling.x);
-
-		let neckAngle = this._headDir.angleRad();
-		if (headSign > 0) {
-			neckAngle *= -1;
-		} else {
-			neckAngle += Math.PI;
-		}
-		let neck = this._model.getBone(BoneType.NECK).getTransformNode();
-		neck.rotation = new BABYLON.Vector3(neckAngle, neck.rotation.y, neck.rotation.z);
-
-		// Compute arm rotation
-		let arm = this._model.getBone(BoneType.ARM).getTransformNode();
-		let armRotation = headSign * (this._armDir.angleRad() - Math.PI / 2);
-		const recoilRotation = this._armRecoil.rotation();
-		arm.rotation = new BABYLON.Vector3(armRotation + recoilRotation.z, Math.PI, -recoilRotation.y);
-
-		// Compute arm position
-		let recoil = new BABYLON.Vector3(
-			-0.5 * Math.sin(recoilRotation.y),
-			-Math.cos(armRotation) * this._armRecoil.dist(),
-			Math.sin(armRotation) * this._armRecoil.dist());
-		arm.position = this._boneOrigins.get(BoneType.ARM).add(recoil);
 	}
 
 	override getHudData() : Map<HudType, HudOptions> {
@@ -916,6 +1003,49 @@ export class Player extends EntityBase implements Entity, EquipEntity {
 			});
 		});
 		return hudData;
+	}
+
+	setInteractableWith(entity : Entity, interactable : boolean) : void {
+		if (entity.clientIdMatches()) {
+			if (interactable && this.canBeRevived(entity)) {
+				ui.showTooltip(TooltipType.REVIVE, { ttl: 500, names: [this.displayName()] });
+			}
+		}
+	}
+	canInteractWith(entity : Entity) : boolean {
+		return this.canBeRevived(entity);
+	}
+	private canBeRevived(other : Entity) : boolean {
+		if (!game.controller().isTeamMode()) {
+			return false;
+		}
+		if (this.id() === other.id()) {
+			return false;
+		}
+		if (!other.allTypes().has(EntityType.PLAYER)) {
+			return false;
+		}
+		if (!this.dead()) {
+			return false;
+		}
+		if (this.getAttribute(AttributeType.REVIVING)) {
+			return false;
+		}
+		if (!this.matchAssociations([AssociationType.TEAM], other)) {
+			return false;
+		}
+		return true;
+	}
+	interactWith(entity : Entity) : void {
+		if (this.getAttribute(AttributeType.REVIVING)) {
+			return;
+		}
+
+		this._reviverId = entity.id();
+		if (entity.clientIdMatches()) {
+			ui.hideTooltip(TooltipType.REVIVE);
+		}
+		this.setAttribute(AttributeType.REVIVING, true);
 	}
 
 	private updateLoadout() : void {

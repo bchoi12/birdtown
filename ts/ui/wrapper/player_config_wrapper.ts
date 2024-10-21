@@ -11,7 +11,7 @@ import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _configElm : HTMLElement;
-	private _errorElm : HTMLElement;
+	private _infoElm : HTMLElement;
 	private _config : PlayerConfig;
 	private _teams : boolean;
 	private _settingWrappers : Map<number, SettingWrapper<StartRole>>;
@@ -20,15 +20,16 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 		super(Html.div());
 
 		this._configElm = Html.div();
-		this._errorElm = Html.div();
+		this._infoElm = Html.div();
+		this._infoElm.style.textAlign = "center";
 
 		this._config = PlayerConfig.fromSetup();
 		this._teams = false;
 		this._settingWrappers = new Map();
 
-		this.elm().appendChild(this._configElm);
+		this.elm().appendChild(this._infoElm);
 		this.elm().appendChild(Html.br());
-		this.elm().appendChild(this._errorElm);
+		this.elm().appendChild(this._configElm);
 		this.initialize();
 	}
 
@@ -67,9 +68,12 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 		}
 		return ok;
 	}
+	setInfo(html : string) : void {
+		this._infoElm.innerHTML = html;
+	}
 	setErrors(errors : Array<string>) : void {
 		if (errors.length === 0) {
-			this._errorElm.textContent = "";
+			this._infoElm.textContent = "";
 			return;
 		}
 
@@ -77,7 +81,7 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 		for (let i = 0 ; i < errors.length; ++i) {
 			html += `<li>${errors[i]}</li>`;
 		}
-		this._errorElm.innerHTML = html;
+		this._infoElm.innerHTML = html;
 	}
 
 	private initialize() : void {

@@ -30,9 +30,12 @@ export class Stats extends ComponentBase implements Component {
 
 	// Convenience methods
 	fullHeal() : void {
+		this.setHealthPercent(1);
+	}
+	setHealthPercent(percent : number) : void {
 		if (this.hasStat(StatType.HEALTH)) {
 			let stat = this.stat(StatType.HEALTH);
-			stat.set(stat.max());
+			stat.set(Math.floor(percent * stat.max()));
 		}
 	}
 	health() : number { return this.hasStat(StatType.HEALTH) ? this.stat(StatType.HEALTH).current() : 0; }

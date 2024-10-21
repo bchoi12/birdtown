@@ -1,14 +1,15 @@
 
 import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { LevelOptions } from 'game/system/level'
+
+import { GameMessage } from 'message/game_message'
 
 import { defined } from 'util/common'
 import { Vec, Vec2 } from 'util/vector'
 import { SeededRandom } from 'util/seeded_random'
 
 export type BlueprintOptions = {
-	level : LevelOptions;
+	msg : GameMessage;
 	pos : Vec;
 }
 
@@ -28,7 +29,7 @@ export abstract class Blueprint {
 		this._chance = 0;
 		this._options = options;
 
-		this._rng.seed(options.level.seed);
+		this._rng.seed(options.msg.getLevelSeed());
 	}
 
 	options() : BlueprintOptions { return this._options; }

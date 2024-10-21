@@ -104,7 +104,14 @@ export class PlayerConfig {
 		}
 		return [errors, errors.length === 0];
 	}
-	private numPlayersAndTeams() : [number, number] {
+	numPlayers() : number {
+		let players = 0;
+		this._players.forEach((info : PlayerInfo) => {
+			players++;
+		});
+		return players;
+	}
+	numPlayersAndTeams() : [number, number] {
 		let players = 0;
 		let teams = new Set();
 		this._players.forEach((info : PlayerInfo) => {

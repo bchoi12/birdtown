@@ -33,6 +33,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.FREE_FOR_ALL, "Free for All"],
 		[GameMode.PRACTICE, "Practice Mode"],
 		[GameMode.SURVIVAL, "Survival"],
+		[GameMode.TEAM_BATTLE, "Team Battle"],
 	]);
 
 	private static readonly _baseProps : [number, Descriptor][] = [
@@ -74,6 +75,12 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			...GameConfigMessage._gameProps,
 		)],
 		[GameMode.SURVIVAL, MessageBase.fieldDescriptor(
+			...GameConfigMessage._gameProps,
+			[GameConfigProp.LIVES, {}],
+			[GameConfigProp.TIME_GAME, { optional: true }],
+			[GameConfigProp.VICTORIES, {}],
+		)],
+		[GameMode.TEAM_BATTLE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
@@ -154,6 +161,16 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.LIVES);
 			break;
+		case GameMode.TEAM_BATTLE:
+			this.setLives(1);
+			this.setPlayersMin(2);
+			this.setLevelType(LevelType.BIRDTOWN);
+			this.setLevelLayout(LevelLayout.NORMAL);
+			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
+			this.setVictories(3);
+			this.setWinCondition(WinConditionType.TEAM_LIVES);
+			break;			
 		}
 		return this;
 	}

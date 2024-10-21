@@ -7,7 +7,7 @@ import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { ConfigFactory } from 'game/factory/config_factory'
 import { System, SystemBase } from 'game/system'
-import { LevelType, SystemType } from 'game/system/api'
+import { SystemType, LevelType, WinConditionType } from 'game/system/api'
 import { GameMaker } from 'game/system/game_maker'
 import { PlayerConfig } from 'game/util/player_config'
 
@@ -82,6 +82,12 @@ export class Controller extends SystemBase implements System {
 
 	config() : GameConfigMessage { return this._gameMaker.config(); }
 	gameMode() : GameMode { return this._gameMaker.mode(); }
+	isTeamMode() : boolean {
+		const winCondition = this._gameMaker.config().getWinCondition();
+		return winCondition === WinConditionType.TEAM_POINTS
+			|| winCondition === WinConditionType.TEAM_LIVES;
+	}
+
 	getEquips(clientId : number) : [EntityType, EntityType] { return this._gameMaker.getEquips(clientId); }
 	startGame(config : GameConfigMessage, playerConfig : PlayerConfig) {
 		if (this.gameState() !== GameState.FREE) {

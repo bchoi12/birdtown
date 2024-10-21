@@ -32,6 +32,8 @@ enum GameProp {
 	LEVEL_SEED,
 	LEVEL_VERSION,
 	NAMES,
+    NUM_PLAYERS,
+    NUM_TEAMS,
 	TTL,
 }
 
@@ -63,6 +65,8 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
 			[GameProp.LEVEL_LAYOUT, {}],
 			[GameProp.LEVEL_SEED, {}],
 			[GameProp.LEVEL_VERSION, { min: 1 }],
+            [GameProp.NUM_PLAYERS, {}],
+            [GameProp.NUM_TEAMS, {}],
 		)],
 		[GameMessageType.GAME_STATE, MessageBase.fieldDescriptor(
 			[GameProp.GAME_STATE, {}],
@@ -127,6 +131,16 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getNamesOr(value : Array<string>) : Array<string> { return this.getOr<Array<string>>(GameProp.NAMES, value); }
     setNames(value : Array<string>) : void { this.set<Array<string>>(GameProp.NAMES, value); }
 
+    hasNumPlayers() : boolean { return this.has(GameProp.NUM_PLAYERS); }
+    getNumPlayers() : number { return this.get<number>(GameProp.NUM_PLAYERS); }
+    getNumPlayersOr(value : number) : number { return this.getOr<number>(GameProp.NUM_PLAYERS, value); }
+    setNumPlayers(value : number) : void { this.set<number>(GameProp.NUM_PLAYERS, value); }
+
+    hasNumTeams() : boolean { return this.has(GameProp.NUM_TEAMS); }
+    getNumTeams() : number { return this.get<number>(GameProp.NUM_TEAMS); }
+    getNumTeamsOr(value : number) : number { return this.getOr<number>(GameProp.NUM_TEAMS, value); }
+    setNumTeams(value : number) : void { this.set<number>(GameProp.NUM_TEAMS, value); }
+
     hasTtl() : boolean { return this.has(GameProp.TTL); }
     getTtl() : number { return this.get<number>(GameProp.TTL); }
     getTtlOr(value : number) : number { return this.getOr<number>(GameProp.TTL, value); }
@@ -144,6 +158,8 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],
     ["NAMES", "Array<string>"],
+    ["NUM_PLAYERS", "number"],
+    ["NUM_TEAMS", "number"],
     ["TTL", "number"],
     */
     // End auto-generated code (v2.1)

@@ -58,6 +58,14 @@ export class CowboyHat extends Equip<Player> {
 		this.soundPlayer().registerSound(SoundType.RELOAD);
 	}
 
+	override delete() : void {
+		super.delete();
+
+		if (this._dashTimer.hasTimeLeft()) {
+			this.owner().model().rotation().z = 0;
+		}
+	}
+
 	override attachType() : AttachType { return AttachType.HEAD; }
 
 	override getHudData() : Map<HudType, HudOptions> {

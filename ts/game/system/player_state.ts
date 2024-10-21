@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 import { GameState, GameObjectState } from 'game/api'
-import { AssociationType, ComponentType } from 'game/component/api'
+import { ComponentType, AttributeType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -12,7 +12,7 @@ import { SystemType, PlayerRole } from 'game/system/api'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
-import { KeyType, KeyState, StatusType, TooltipType } from 'ui/api'
+import { InfoType, KeyType, KeyState, StatusType, TooltipType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
@@ -37,8 +37,7 @@ export class PlayerState extends ClientSystem implements System {
 		KeyType.ALT_MOUSE_CLICK,
 	];
 
-	private static readonly _respawnTime = 1000;
-	private static readonly _planeSpawnTime = 7000;
+	private static readonly _respawnTime = 2000;
 
 	private _disconnected : boolean;
 	private _targetId : number;
@@ -46,6 +45,7 @@ export class PlayerState extends ClientSystem implements System {
 	private _team : number;
 	private _role : PlayerRole;
 	private _roleTimer : Timer;
+	private _lastChange : number;
 
 	constructor(clientId : number) {
 		super(SystemType.PLAYER_STATE, clientId);
@@ -60,6 +60,7 @@ export class PlayerState extends ClientSystem implements System {
 		this._startingRole = PlayerRole.UNKNOWN;
 		this._team = 0;
 		this._role = PlayerRole.UNKNOWN;
+		this._lastChange = Date.now();
 
 		this.setStartingRole(PlayerRole.SPECTATING);
 		this.setRole(PlayerRole.SPECTATING);
@@ -115,7 +116,8 @@ export class PlayerState extends ClientSystem implements System {
 			ui.removePlayer(this.clientId());
 		}
 	}
-	setRoleAfter(role : PlayerRole, millis : number, cb? : () => void) : void {
+	waitUntil(role : PlayerRole, millis : number, cb? : () => void) : void {
+		this.setRole(PlayerRole.WAITING);
 		this._roleTimer.start(millis, () => {
 			this.setRole(role);
 			if (cb) {
@@ -139,6 +141,7 @@ export class PlayerState extends ClientSystem implements System {
 
 		this._roleTimer.reset();
 		this._role = role;
+		this._lastChange = Date.now();
 		this.applyRole();
 
 		if (isLocalhost()) {
@@ -156,6 +159,7 @@ export class PlayerState extends ClientSystem implements System {
 
 		let player = this.targetEntity<Player>();
 
+		// This should be idempotent
 		switch (this._role) {
 		case PlayerRole.PREPARING:
 			player.setState(GameObjectState.DEACTIVATED);
@@ -164,7 +168,7 @@ export class PlayerState extends ClientSystem implements System {
     		player.setState(GameObjectState.DEACTIVATED);
     		break;
     	case PlayerRole.GAMING:
-    		this.spawnPlayer(player);
+    		player.setState(GameObjectState.NORMAL);
    			break;
 		case PlayerRole.WAITING:
 		case PlayerRole.SPECTATING:
@@ -176,6 +180,7 @@ export class PlayerState extends ClientSystem implements System {
 			break;
 		}
 	}
+	timeInRole() : number { return Date.now() - this._lastChange; }
 	isPlaying() : boolean {
 		if (this._disconnected) {
 			return false;
@@ -217,10 +222,14 @@ export class PlayerState extends ClientSystem implements System {
 	private promptSpawn() : boolean {
 		return this.canSpawn() && !game.level().hasSpawnFor(this.targetEntity());
 	}
-	private spawnPlayer(player : Player) : void {
-		player.setState(GameObjectState.NORMAL);
+	spawnPlayer() : void {
+		if (!this.hasTargetEntity()) {
+			return;
+		}
+		let player = this.targetEntity<Player>();
 		player.setTeam(this._team);
 		game.level().spawnPlayer(player);
+    	this.setRole(PlayerRole.GAMING);
 
 		if (this.clientIdMatches() && game.controller().gameState() === GameState.FREE) {
 			ui.showStatus(StatusType.WELCOME);
@@ -234,11 +243,10 @@ export class PlayerState extends ClientSystem implements System {
 	}
 	resetForLobby() : void {
 		if (this.validTargetEntity()) {
-			this.setRole(PlayerRole.GAMING);
 			this._roleTimer.reset();
 
 			let player = this.targetEntity<Player>();
-			this.spawnPlayer(player);
+			this.spawnPlayer();
 		}
 	}
 	onStartRound() : void {
@@ -246,8 +254,9 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
-		this.setRole(this._startingRole);
+		this.targetEntity<Player>().setAttribute(AttributeType.REVIVING, false);
 		this.targetEntity<Player>().fullHeal();
+		this.setRole(this._startingRole);
 	}
 	die() : void {
 		if (this.validTargetEntity()) {
@@ -283,12 +292,22 @@ export class PlayerState extends ClientSystem implements System {
 		    	if (hasPlayer) {
 		    		this.setTargetEntity(player);
 		    		this._targetId = player.id();
-			    	this.setRole(PlayerRole.GAMING);
+		    		this.spawnPlayer();
 
 					if (isLocalhost()) {
 						console.log("%s: created player for %d", this.name(), this.clientId());
 					}
 		    	}
+			}
+		} else {
+			if (this.isSource()
+				&& this.role() !== PlayerRole.GAMING
+				&& this.targetEntity().getAttribute(AttributeType.REVIVING)
+				&& this.targetEntity().healthPercent() > 0.99) {
+				if (game.tablet(this.clientId()).outOfLives()) {
+					game.tablet(this.clientId()).addInfo(InfoType.LIVES, 1);
+				}
+				this.spawnPlayer();
 			}
 		}
 	}
@@ -301,11 +320,11 @@ export class PlayerState extends ClientSystem implements System {
 		}
 
 		if (this.autoSpawn()) {
-			this.setRole(PlayerRole.GAMING);
+			this.spawnPlayer();
 		} else if (this.promptSpawn()) {
 			// Allow player to spawn by pressing a key
 			if (this.anyKey(PlayerState._spawnKeys, KeyState.PRESSED)) {
-				this.setRole(PlayerRole.GAMING);
+				this.spawnPlayer();
 			}
 		}
 	}
@@ -322,7 +341,9 @@ export class PlayerState extends ClientSystem implements System {
 		// Free respawn in the lobby
 		if (player.dead() && game.controller().gameState() === GameState.FREE) {
 			this.setRole(PlayerRole.WAITING);
-			this.setRoleAfter(PlayerRole.GAMING, PlayerState._respawnTime);
+			this.waitUntil(PlayerRole.GAMING, PlayerState._respawnTime, () => {
+				this.spawnPlayer();
+			});
 		}
 	}
 

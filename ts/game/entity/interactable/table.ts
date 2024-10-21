@@ -6,7 +6,7 @@ import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
+import { Entity, EntityOptions, EquipEntity, InteractEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
@@ -32,7 +32,7 @@ import { CardinalDir } from 'util/cardinal'
 import { Fns } from 'util/fns'
 import { Timer } from 'util/timer'
 
-export class Table extends Interactable implements Entity, EquipEntity {
+export class Table extends Interactable implements Entity, EquipEntity, InteractEntity {
 
 	private static readonly _degPerSecond = 360;
 	private static readonly _interactLockout = 400;

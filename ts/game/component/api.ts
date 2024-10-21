@@ -31,6 +31,7 @@ export enum AttributeType {
 	FLOATING,
 	GROUNDED,
 	INVINCIBLE,
+	REVIVING,
 	SOLID,
 }
 

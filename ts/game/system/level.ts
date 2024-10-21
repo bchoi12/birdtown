@@ -1,7 +1,7 @@
 
 import { game } from 'game'	
 import { GameState } from 'game/api'
-import { AssociationType } from 'game/component/api'
+import { AssociationType, AttributeType } from 'game/component/api'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
@@ -28,10 +28,12 @@ import { Fns } from 'util/fns'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
 
-export type LevelOptions = {
+type LevelOptions = {
 	type : LevelType;
 	layout : LevelLayout;
 	seed : number;
+	numPlayers : number;
+	numTeams: number;
 }
 
 export class Level extends SystemBase implements System {
@@ -99,29 +101,45 @@ export class Level extends SystemBase implements System {
 			player.quickRespawn(player.profile().pos());
 			return;
 		}
+		
+		if (player.getAttribute(AttributeType.REVIVING)) {
+			player.revive();
+			return;
+		}
 
 		if (game.controller().gameState() === GameState.FREE) {
 			player.respawn(this._defaultSpawn);
 			return;
 		}
 
+		if (game.controller().isTeamMode()) {
+			if (this.spawnAtPoint(player)) {
+				return;
+			}
+		}	
+
+		if (this.spawnAtPlane(player)) {
+			return;
+		}	
+		player.quickRespawn(this._defaultSpawn);
+	}
+	private spawnAtPoint(player : Player) : boolean {
 		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findN((spawnPoint : Entity) => {
 			return spawnPoint.initialized() && spawnPoint.matchAssociations([AssociationType.TEAM], player);
 		}, 1);
 		if (spawns.length === 1) {
 			player.quickRespawn(spawns[0].profile().pos());
-			return;
+			return true
 		}
-
+	}
+	private spawnAtPlane(player : Player) : boolean {
 		const planes = game.entities().getMap(EntityType.PLANE).findN((plane : Entity) => {
 			return plane.initialized();
 		}, 1);
 		if (planes.length === 1) {
 			player.respawn(planes[0].profile().pos());
-			return;
+			return true;
 		}
-
-		player.quickRespawn(this._defaultSpawn);
 	}
 
 	loadLevel(options : LevelOptions) : void {
@@ -129,6 +147,8 @@ export class Level extends SystemBase implements System {
 		this._levelMsg.setLevelLayout(options.layout);
 		this._levelMsg.setLevelSeed(options.seed);
 		this._levelMsg.setLevelVersion(this.version() + 1);
+		this._levelMsg.setNumPlayers(options.numPlayers);
+		this._levelMsg.setNumTeams(options.numTeams);
 
 		this.applyLevel(this._levelMsg);
 	}
@@ -167,11 +187,7 @@ export class Level extends SystemBase implements System {
 	private buildLevel(msg : GameMessage) : void {
 		const pos = {x: 0, y: 0};
 		let blueprint = new ArchBlueprint({
-			level: {
-				type: this.levelType(),
-				layout: this.levelLayout(),
-				seed: this.seed(),
-			},
+			msg: msg,
 			pos: pos,
 		});
 		let bounds = Box2.point(pos);

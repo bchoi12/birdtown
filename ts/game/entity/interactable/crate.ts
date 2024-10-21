@@ -7,7 +7,7 @@ import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Stats } from 'game/component/stats'
-import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
+import { Entity, EntityOptions, EquipEntity, InteractEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
@@ -28,7 +28,7 @@ import { KeyNames } from 'ui/common/key_names'
 import { Box2 } from 'util/box'
 import { Fns } from 'util/fns'
 
-export abstract class Crate extends Interactable implements Entity, EquipEntity {
+export abstract class Crate extends Interactable implements Entity, EquipEntity, InteractEntity {
 
 	private static readonly _maxSpeed = 0.6;
 

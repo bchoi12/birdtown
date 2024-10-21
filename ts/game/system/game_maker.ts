@@ -51,6 +51,7 @@ export class GameMaker extends SystemBase implements System {
 	]);
 
 	private _config : GameConfigMessage;
+	private _playerConfig : PlayerConfig;
 	private _playerRotator : PlayerRotator;
 	private _round : number;
 	private _winners : Array<number>;
@@ -62,6 +63,7 @@ export class GameMaker extends SystemBase implements System {
 		super(SystemType.GAME_MAKER);
 
 		this._config = ConfigFactory.empty();
+		this._playerConfig = PlayerConfig.empty();
 		this._playerRotator = new PlayerRotator();
 		this._round = 0;
 		this._winners = new Array();
@@ -169,6 +171,7 @@ export class GameMaker extends SystemBase implements System {
 			type: GameMode[this._config.type()],
 		});
 
+		this._playerConfig = playerConfig;
 		this._playerRotator.seed(this._config.getLevelSeed());
 		this._playerRotator.updateShuffled(playerConfig);
 		game.playerStates().updatePlayers(playerConfig);
@@ -208,6 +211,8 @@ export class GameMaker extends SystemBase implements System {
 			return ["Practice", "Press " + KeyNames.kbd(settings.menuKeyCode) + " to exit"];
 		case GameMode.SURVIVAL:
 			return ["Survival", "Be the last one standing"];
+		case GameMode.TEAM_BATTLE:
+			return ["Team Battle", "Eliminate the enemy team"];
 		default:
 			return ["Unknown Game Mode", "???"];
 		}
@@ -276,24 +281,22 @@ export class GameMaker extends SystemBase implements System {
 
 					this.processKillOn(player);
 					if (!game.tablet(clientId).outOfLives()) {
-						playerState.setRole(PlayerRole.WAITING);
-						playerState.setRoleAfter(PlayerRole.PREPARING, GameMaker._respawnTime, () => {
+						playerState.waitUntil(PlayerRole.PREPARING, GameMaker._respawnTime, () => {
 							if (game.clientDialogs().hasClientDialog(clientId)) {
 								game.clientDialog(clientId).queueDialog(DialogType.LOADOUT);
 							}
 						});
 					} else {
 						// Without delay winner pan does not work since SPECTATING will spectate winner early
-						playerState.setRole(PlayerRole.WAITING);
-						playerState.setRoleAfter(PlayerRole.SPECTATING, GameMaker._respawnTime);
+						playerState.waitUntil(PlayerRole.SPECTATING, GameMaker._respawnTime);
 					}
 				} else if (playerState.role() === PlayerRole.PREPARING) {
 					if (game.clientDialog(clientId).inSync(DialogType.LOADOUT)) {
 						playerState.setRole(PlayerRole.SPAWNING);
 					}
-					playerState.setRoleAfter(PlayerRole.SPAWNING, this.timeLimit(GameState.SETUP));
-				} else if (playerState.role() === PlayerRole.SPAWNING) {
-					playerState.setRoleAfter(PlayerRole.GAMING, GameMaker._spawnTime);
+				} else if (playerState.role() === PlayerRole.SPAWNING && playerState.timeInRole() > GameMaker._spawnTime) {
+					// Force spawn after a certain time
+					playerState.spawnPlayer();
 				}
 			}, (playerState : PlayerState) => {
 				return playerState.isPlaying() && playerState.validTargetEntity();
@@ -363,6 +366,8 @@ export class GameMaker extends SystemBase implements System {
 				type: this._config.getLevelType(),
 				layout: this._config.getLevelLayout(),
 				seed: this._config.getLevelSeed(),
+				numPlayers: 0,
+				numTeams: 0,
 			});
 			game.playerStates().execute((playerState : PlayerState) => {
 				playerState.resetForLobby();
@@ -389,10 +394,14 @@ export class GameMaker extends SystemBase implements System {
 			game.playerStates().execute((playerState : PlayerState) => {
 				playerState.onStartRound();
 			});
+
+			const [numPlayers, numTeams] = this._playerConfig.numPlayersAndTeams();
 			game.level().loadLevel({
 				type: this._config.getLevelType(),
 				layout: this._config.getLevelLayout(),
 				seed: this._config.getLevelSeed() + this._round,
+				numPlayers: numPlayers,
+				numTeams: numTeams,
 			});
 
 			const nameAndGoal = GameMaker.nameAndGoal(this._config);

@@ -103,7 +103,7 @@ export class Laser extends Projectile {
 		this.soundPlayer().playFromSelf(SoundType.LASER);
 	}
 
-	override hitDamage() : number { return 40; }
+	override hitDamage() : number { return 50; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);

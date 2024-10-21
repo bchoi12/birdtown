@@ -108,6 +108,16 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return `Press ${KeyNames.kbd(settings.interactKeyCode)} to recover ${names[0]} health`;
 		case TooltipType.POINTER_LOCK:
 			return `Press ${KeyNames.kbd(settings.pointerLockKeyCode)} to unlock your mouse`;
+		case TooltipType.REVIVE:
+			if (names.length !== 1) {
+				return `Press ${KeyNames.kbd(settings.interactKeyCode)} to start reviving`;
+			}
+			return `Press ${KeyNames.kbd(settings.interactKeyCode)} to start reviving ${names[0]}`;
+		case TooltipType.REVIVING:
+			if (names.length !== 1) {
+				return "Reviving...";
+			}
+			return `${names[0]} is reviving you`;
 		case TooltipType.SPAWN:
 			return "Press <kbd>any key</kbd> to deploy"
 		case TooltipType.START_GAME:

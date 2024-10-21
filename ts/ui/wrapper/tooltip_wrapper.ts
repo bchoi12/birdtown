@@ -33,6 +33,9 @@ export class TooltipWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	delete(onDelete : () => void) : void {
+		if (!this.elm() || !this.elm().parentNode) {
+			return;
+		}
 		this.elm().parentNode.removeChild(this.elm());
 		onDelete();
 	}

@@ -40,6 +40,7 @@ export enum GameMode {
 	FREE_FOR_ALL,
 	PRACTICE,
 	SURVIVAL,
+	TEAM_BATTLE,
 }
 
 export enum GameObjectState {
