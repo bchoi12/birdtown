@@ -198,12 +198,14 @@ class UI {
 	setTimer(millis : number) : void { this._timerHandler.setTime(millis); }
 	clearTimer() : void { this._timerHandler.clear(); }
 	setHudClientId(id : number) : void { this._hudHandler.setClientId(id); }
+	refreshHudColor() : void { this._hudHandler.refreshColor(); }
 	updateHud(huds : Map<HudType, HudOptions>) : void { this._hudHandler.updateHud(huds); }
 	hideHud() : void { this._hudHandler.hideHud(); }
 	addPlayer(clientId : number) : void { this._scoreboardHandler.addPlayer(clientId); }
 	removePlayer(clientId : number) : void { this._scoreboardHandler.removePlayer(clientId); }
 	highlightPlayer(clientId : number) : void { this._scoreboardHandler.highlightPlayer(clientId); }
 	showScoreboard() : void { this._scoreboardHandler.stickyShow(); }
+	refreshScoreboardColor() : void { this._scoreboardHandler.refreshColor(); }
 	hideScoreboard() : void { this._scoreboardHandler.hide(); }
 	updateInfo(id : number, type : InfoType, value : number) : void { this._scoreboardHandler.updateInfo(id, type, value); }
 	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }

@@ -121,9 +121,9 @@ class Settings {
 	jitter() : number {
 		switch (this.jitterSetting) {
 		case JitterSetting.WIFI:
-			return 10;
+			return 8;
 		case JitterSetting.POOR:
-			return 50;
+			return 40;
 		case JitterSetting.TERRIBLE:
 			return 200;
 		default:

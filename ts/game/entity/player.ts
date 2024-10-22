@@ -4,7 +4,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { GameState, GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
-import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, EmotionType, StatType } from 'game/component/api'
 import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
 import { EntityTrackers } from 'game/component/entity_trackers'
@@ -64,19 +64,6 @@ enum Animation {
 enum Material {
 	BASE = "base",
 	EYE = "eye",
-}
-
-enum Emotion {
-	UNKNOWN,
-	NORMAL,
-	MAD,
-	SAD,
-	DEAD,
-}
-
-enum SubProfile {
-	UNKNOWN,
-	HEAD,
 }
 
 export class Player extends EntityBase implements EquipEntity, InteractEntity {
@@ -154,6 +141,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private _deadTracker : ChangeTracker<boolean>;
 	private _groundedTracker : ChangeTracker<boolean>;
 	private _heartRateLimiter : RateLimiter;
+	private _nameTag : NameTag;
 	private _reviverId : number;
 	private _sweatRateLimiter : RateLimiter;
 	private _walkSmokeRateLimiter : RateLimiter;
@@ -163,7 +151,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private _association : Association;
 	private _attributes : Attributes;
 	private _entityTrackers : EntityTrackers;
-	private _expression : Expression<Emotion>;
+	private _expression : Expression;
 	private _model : Model;
 	private _profile : Profile;
 	private _stats : Stats;
@@ -190,7 +178,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._equipType = EntityType.UNKNOWN;
 		this._altEquipType = EntityType.UNKNOWN;
 		this._deadTracker = new ChangeTracker(() => {
-			return this._stats.dead();
+			return this.dead();
 		}, (dead : boolean) => {
 			if (dead) {
 				const x = this._profile.vel().x;
@@ -200,8 +188,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
 				this._profile.setAcc({x: 0});
 				this._profile.addVel({y: 0.7 * Player._jumpVel});
-				this._expression.setOverride(Emotion.DEAD);
-				this._dead = true;
+				this._expression.emote(EmotionType.DEAD, 1);
+			} else {
+				this.getUp();
 			}
 		});
 		this._groundedTracker = new ChangeTracker(() => {
@@ -231,6 +220,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			}
 		});
 		this._heartRateLimiter = new RateLimiter(Player._heartInterval);
+		this._nameTag = null;
 		this._reviverId = 0;
 		this._sweatRateLimiter = new RateLimiter(Player._sweatInterval);
 		this._walkSmokeRateLimiter = new RateLimiter(Player._walkSmokeInterval);
@@ -259,7 +249,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		});
 		this.addProp<number>({
 			export: () => { return this._reviverId; },
-			import: (obj : number) => { this._reviverId = obj; },
+			import: (obj : number) => { this.importReviverId(obj); },
 		})
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
@@ -269,7 +259,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		this._entityTrackers = this.addComponent<EntityTrackers>(new EntityTrackers());
 
-		this._expression = this.addComponent<Expression<Emotion>>(new Expression({ defaultValue: Emotion.NORMAL }));
+		this._expression = this.addComponent<Expression>(new Expression());
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -303,7 +293,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			}
 		});
 
-		this._headSubProfile = this._profile.registerSubComponent<Profile>(SubProfile.HEAD, new Profile({
+		this._headSubProfile = this._profile.addSubComponent<Profile>(new Profile({
 			bodyFn: (head : Profile) => {
 				return BodyFactory.rectangle(head.pos(), head.unscaledDim(), {
 					collisionFilter: BodyFactory.customCollisionFilter(CollisionCategory.PLAYER, [CollisionCategory.HIT_BOX]),
@@ -343,10 +333,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 								min: {x: 0, y: 0},
 								max: {x: 4, y: 1},
 							}));
-							this._eyeShifter.registerOffset(Emotion.NORMAL, {x: 0, y: 0});
-							this._eyeShifter.registerOffset(Emotion.MAD, {x: 1, y: 0});
-							this._eyeShifter.registerOffset(Emotion.SAD, {x: 2, y: 0});
-							this._eyeShifter.registerOffset(Emotion.DEAD, {x: 3, y: 0});
+							this._eyeShifter.registerOffset(EmotionType.NORMAL, {x: 0, y: 0});
+							this._eyeShifter.registerOffset(EmotionType.MAD, {x: 1, y: 0});
+							this._eyeShifter.registerOffset(EmotionType.SAD, {x: 2, y: 0});
+							this._eyeShifter.registerOffset(EmotionType.DEAD, {x: 3, y: 0});
 						}
 					});
 
@@ -414,10 +404,18 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		if (hasNameTag) {
 			nameTag.setDisplayName(this.displayName());
 			nameTag.forcePointerColor(this.clientColorOr(Player._defaultColor));
+			this._nameTag = nameTag;
 		}
 	}
 
 	displayName() : string { return game.tablet(this.clientId()).displayName(); }
+	override setTeam(team : number) : void {
+		super.setTeam(team);
+
+		if (this._nameTag !== null && game.tablets().hasTablet(this.clientId())) {
+			this._nameTag.forcePointerColor(game.tablet(this.clientId()).color());
+		}
+	}
 	revive() : void {
 		this.setAttribute(AttributeType.GROUNDED, true);
 		this._stats.setHealthPercent(0.5);
@@ -436,11 +434,28 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	}
 	private cancelRevive() : void {
 		this.setAttribute(AttributeType.REVIVING, false);
-		this._reviverId = 0;
 
-		if (this.clientIdMatches()) {
+		const [reviver, hasReviver] = game.entities().getEntity(this._reviverId);
+		if (hasReviver && reviver.clientIdMatches()) {
 			ui.hideTooltip(TooltipType.REVIVING);
 		}
+
+		this._reviverId = 0;
+		if (this.clientIdMatches()) {
+			ui.hideTooltip(TooltipType.BEING_REVIVED);
+		}
+	}
+	private importReviverId(id : number) : void {
+		if (this._reviverId === id) {
+			return;
+		}
+
+		const [reviver, hasReviver] = game.entities().getEntity(this._reviverId);
+		if (hasReviver && reviver.clientIdMatches()) {
+			ui.hideTooltip(TooltipType.REVIVING);
+		}
+
+		this._reviverId = id;
 	}
 	quickRespawn(spawn : Vec2) : void {
 		if (this.isSource() || this.clientIdMatches()) {
@@ -455,7 +470,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this.getUp();
 		this.updateLoadout();
 	}
-	private getUp() : void {
+	getUp() : void {
 		this.cancelRevive();
 		this._dead = false;
 		this._expression.reset();
@@ -483,7 +498,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		}
 	}
 	stats() : Stats { return this._stats; }
-	fullHeal() : void { this._stats.fullHeal(); }
+	fullHeal() : void {
+		this._stats.fullHeal();
+		this.getUp();
+	}
 	die() : void {
 		this.setAttribute(AttributeType.INVINCIBLE, false);
 		this.takeDamage(this._stats.health(), this);
@@ -609,11 +627,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			beak.takeDamage(amount, from);
 		});
 
-		this._expression.emote(Emotion.SAD, {
-			max: 1.0,
-			delta: Fns.clamp(0, amount / 100, 1),
-			millis: 1500,
-		});
+		this._expression.emote(EmotionType.SAD, 1);
 	}
 
 	override preUpdate(stepData : StepData) : void {
@@ -623,6 +637,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		// Out of bounds
 		if (this._profile.pos().y < game.level().bounds().min.y) {
 			this.die();
+		}
+
+		if (this._stats.dead()) {
+			this._dead = true;
 		}
 
 		this._deadTracker.check();
@@ -799,7 +817,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		// TODO: put in update?
 		if (this._nearestInteractable.has()
 			&& this._nearestInteractable.get().canInteractWith(this)
-			&& this.key(KeyType.INTERACT, KeyState.DOWN)) {
+			&& this.key(KeyType.INTERACT, KeyState.PRESSED)) {
 			this._nearestInteractable.get().interactWith(this);
 			this._interactRateLimiter.prime();
 		}
@@ -816,10 +834,13 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					this.cancelRevive();
 				} else {
 					if (this.clientIdMatches()) {
-						ui.showTooltip(TooltipType.REVIVING, {
+						ui.showTooltip(TooltipType.BEING_REVIVED, {
 							ttl: 500,
-							names: [reviver.displayName()],
+							names: [reviver.displayName(), "" + Math.floor(100 * this.healthPercent())],
 						});
+					}
+					if (reviver.clientIdMatches()) {
+						ui.showTooltip(TooltipType.REVIVING, { names: [this.displayName(), "" + Math.floor(100 * this.healthPercent())] });
 					}
 
 					if (this._heartRateLimiter.checkPercent(millis, Math.max(0.3, 1 - healthPercent))) {
@@ -924,21 +945,14 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				switch(equip.attachType()) {
 				case AttachType.ARM:
 					this._armRecoil.copy(equip.recoil());
-
-					// TODO: move emote value to equip
-					this._expression.emote(Emotion.MAD, {
-						max: 1.0,
-						delta: uses / 3,
-						millis: 1500,
-					});
+					this._expression.emote(EmotionType.MAD, 1);
 					break;
 				}
 			}
 		});
 
 		// Expression
-		// TODO: fix emotion and re-enable
-		// this._eyeShifter.offset(this._expression.emotion());
+		this._eyeShifter.offset(this._expression.emotion());
 
 		if (!this.dead()) {
 			if (this.clientIdMatches() && !this.dead()) {

@@ -79,7 +79,7 @@ export class PlayerState extends ClientSystem implements System {
 		});
 		this.addProp<number>({
 			export: () => { return this._team; },
-			import: (obj : number) => { this._team = obj; },
+			import: (obj : number) => { this.setTeam(obj); },
 		});
 		this.addProp<PlayerRole>({
 			export: () => { return this._role; },

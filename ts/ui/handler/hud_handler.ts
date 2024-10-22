@@ -62,6 +62,7 @@ export class HudHandler extends HandlerBase implements Handler {
 		this._leftElm = Html.elm(Html.divHudLeft);
 		this._centerElm = Html.elm(Html.divHudCenter);
 		this._rightElm = Html.elm(Html.divHudRight);
+
 		this._nameWrapper = new NameWrapper();
 
 		const nameElm = Html.elm(Html.divHudName);
@@ -90,6 +91,10 @@ export class HudHandler extends HandlerBase implements Handler {
 		}
 		*/
 	}
+	refreshColor() : void {
+		this._nameWrapper.refresh();
+	}
+
 	updateHud(blocks : Map<HudType, HudOptions>) : void {
 		let currentTypes = new Set<HudType>();
 		blocks.forEach((options : HudOptions, type : HudType) => {

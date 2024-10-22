@@ -147,6 +147,7 @@ export enum StatusType {
 
 export enum TooltipType {
 	UNKNOWN,
+	BEING_REVIVED,
 	BUBBLE,
 	CONTROLS,
 	COPIED_URL,

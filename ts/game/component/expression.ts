@@ -1,127 +1,74 @@
 
 import { Component, ComponentBase } from 'game/component'
-import { ComponentType } from 'game/component/api'
+import { ComponentType, EmotionType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 
 import { Fns, InterpType } from 'util/fns'
 import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
 
-interface EmotionOptions {
-	fn : InterpType;
-}
+export class Expression extends ComponentBase implements Component {
 
-interface Emotion extends EmotionOptions {
-	value : number;
-	timer : Timer;
-}
+	private static readonly _durations = new Map<EmotionType, number>([
+		[EmotionType.MAD, 2000],
+		[EmotionType.SAD, 2000],
+	]);
 
-type EmoteParams = {
-	max : number;
-	delta? : number;
-	millis : number;
-}
+	private _current : EmotionType;
+	private _emotions : Map<EmotionType, number>;
 
-type ExpressionInitOptions<T> = {
-	defaultValue: T;
-}
-
-export class Expression<T extends number> extends ComponentBase implements Component {
-
-	private static readonly _defaultOptions = { fn: InterpType.LINEAR }
-
-	private _current : T;
-	private _default : T;
-	private _override : Optional<T>;
-	private _emotions : Map<T, Emotion>;
-
-	constructor(options : ExpressionInitOptions<T>) {
+	constructor() {
 		super(ComponentType.EXPRESSION);
 
-		this._current = options.defaultValue;
-		this._default = options.defaultValue;
-		this._override = new Optional();
+		this._current = EmotionType.NORMAL;
 		this._emotions = new Map();
-
-		/*
-		this.addProp<T>({
-			export: () => { return this.emotion(); },
-			import: (obj : T) => { this.setOverride(obj); },
-		});
-		*/
 	}
 
 	override reset() : void {
 		super.reset();
 
-		this._emotions.forEach((emotion : Emotion) => {
-			emotion.timer.reset();
-		});
-		this._current = this._default;
-		this._override.clear();
+		this._current = EmotionType.NORMAL;
+		this._emotions.clear();
 	}
 
-	emotion() : T { return this._override.has() ? this._override.get() : this._current; }
-
-	setOverride(type : T) : void { this._override.set(type); }
-	clearOverride() : void { this._override.clear(); }
-
-	registerEmotion(type : T, options? : EmotionOptions) : void {
-		if (!this.isSource()) { return; }
-
-		if (this._emotions.has(type)) {
-			console.error("Error: skipping registering already existing emotion", type, options);
-			return;
+	emotion() : EmotionType { return this._current; }
+	private value(type : EmotionType) : number {  return this._emotions.has(type) ? this._emotions.get(type) : 0; }
+	private fade(type : EmotionType, millis : number) : number {
+		if (!this._emotions.has(type) || !Expression._durations.has(type)) {
+			return 0;
 		}
 
-		this._emotions.set(type, {
-			...(options ? options : Expression._defaultOptions),
-			value: 0,
-			timer: this.newTimer({
-				canInterrupt: true,
-			}),
-		})
+		const value = Math.max(0, this._emotions.get(type) - millis / Expression._durations.get(type));
+		this._emotions.set(type, value);
+		return value;
 	}
 
-	emote(type : T, params : EmoteParams) : void {
-		if (!this.isSource()) { return; }
-
+	emote(type : EmotionType, value : number) : void {
 		if (!this._emotions.has(type)) {
-			this.registerEmotion(type);
+			this._emotions.set(type, 0);
 		}
 
-		let emotion = this._emotions.get(type);
-		if (params.delta) {
-			emotion.value += params.delta;
-		}
-		emotion.value = Math.min(params.max, emotion.value);
-		emotion.timer.start(params.millis);
-
-		this.updateEmotion();
+		this._emotions.set(type, Math.max(this._emotions.get(type), value));
 	}
 
 	override postUpdate(stepData : StepData) : void {
 		super.postUpdate(stepData);
+		const millis = stepData.millis;
 
-		this.updateEmotion();
+		if (this.value(EmotionType.DEAD) > 0) {
+			this._current = EmotionType.DEAD;
+			return;
+		}
+
+		const mad = this.fade(EmotionType.MAD, millis);
+		const sad = this.fade(EmotionType.SAD, millis);
+
+		if (mad === 0 && sad === 0) {
+			this._current = EmotionType.NORMAL;
+		} else if (mad > sad) {
+			this._current = EmotionType.MAD;
+		} else {
+			this._current = EmotionType.NORMAL;
+		}
 	}
-
-	private updateEmotion() : void {
-		if (!this.isSource()) { return; }
-
-		let max = 0;
-		this._current = this._default;
-		this._emotions.forEach((emotion : Emotion, type : T) => {
-			if (!emotion.timer.hasTimeLeft()) {
-				return;
-			}
-
-			const value = emotion.value * Fns.interpFns.get(emotion.fn)(1 - emotion.timer.percentElapsed());
-			if (value > max) {
-				this._current = type;
-				max = value;
-			}
-		});
-	}
-
 }

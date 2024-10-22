@@ -32,6 +32,7 @@ export class NameWrapper extends HtmlWrapper<HTMLElement> {
 
 		this.refresh();
 	}
+	clientId() : number { return this._clientId; }
 
 	refresh() : void {
 		this._iconElm.innerHTML = "";
@@ -42,10 +43,17 @@ export class NameWrapper extends HtmlWrapper<HTMLElement> {
 		}
 
 		if (game.tablets().hasTablet(this._clientId)) {
-			this.elm().style.backgroundColor = game.tablet(this._clientId).color();
 			this._nameElm.textContent = game.tablet(this._clientId).displayName();
 		} else {
 			this._nameElm.textContent = "???";
+		}
+
+		this.refreshColor();
+	}
+
+	refreshColor() : void {
+		if (game.tablets().hasTablet(this._clientId)) {
+			this.elm().style.backgroundColor = game.tablet(this._clientId).color();
 		}
 	}
 }

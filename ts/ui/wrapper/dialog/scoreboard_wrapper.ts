@@ -123,6 +123,12 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		this._infoWrappers.get(id).hide(type);
 	}
 
+	refreshColor() : void {
+		this._infoWrappers.forEach((wrapper : InfoWrapper) => {
+			wrapper.refreshColor();
+		});
+	}
+
 	onShow() : void {
 		this.sort();
 		this._keyElm.textContent = KeyNames.get(settings.scoreboardKeyCode);
@@ -136,13 +142,23 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		switch (game.controller().config().getWinCondition()) {
 		case WinConditionType.LIVES:
 		case WinConditionType.TEAM_LIVES:
-			this._infoWrappers.forEach((wrapper : InfoWrapper) => {
-				wrapper.elm().style.order = "" + wrapper.orderDesc(InfoType.LIVES);
+			this._infoWrappers.forEach((wrapper : InfoWrapper, id : number) => {
+				let team = 0;
+				if (game.tablets().hasTablet(id)) {
+					team = game.tablet(id).team();
+				}
+
+				wrapper.elm().style.order = "" + (100 * team + wrapper.orderDesc(InfoType.LIVES));
 			});
 			break;
 		default:
-			this._infoWrappers.forEach((wrapper : InfoWrapper) => {
-				wrapper.elm().style.order = "" + wrapper.orderDesc(InfoType.SCORE);
+			this._infoWrappers.forEach((wrapper : InfoWrapper, id : number) => {
+				let team = 0;
+				if (game.tablets().hasTablet(id)) {
+					team = game.tablet(id).team();
+				}
+
+				wrapper.elm().style.order = "" + (100 * team + wrapper.orderDesc(InfoType.SCORE));
 			});
 		}
 	}

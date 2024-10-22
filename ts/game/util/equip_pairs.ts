@@ -1,12 +1,12 @@
 
 import { EntityType } from 'game/entity/api'
 
-import { globalRandom, SeededRandom } from 'util/seeded_random'
+import { globalRandom } from 'util/seeded_random'
 
 export namespace EquipPairs {
 
 	const pairs = new Map<EntityType, EntityType[]>([
-		[EntityType.BAZOOKA, [EntityType.JETPACK, EntityType.HEADPHONES]],
+		[EntityType.BAZOOKA, [EntityType.JETPACK, EntityType.HEADPHONES, EntityType.COWBOY_HAT]],
 		[EntityType.CLAW, [EntityType.HEADBAND]],
 		[EntityType.GATLING, [EntityType.BOOSTER, EntityType.HEADPHONES]],
 		[EntityType.PISTOL, [EntityType.COWBOY_HAT, EntityType.SCOUTER]],

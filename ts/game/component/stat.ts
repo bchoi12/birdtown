@@ -112,13 +112,20 @@ export class Stat extends ComponentBase implements Component {
 			this.publishDelta(update.delta);
 		}
 
-		if (Stat._logTypes.has(this._statType) && this.entityType() === EntityType.PLAYER && update.entity) {
+		if (this.logUpdate(update)) {
 			this._logBuffer.push(new StatLog({
 				timestamp: Date.now(),
 				delta: update.delta,
 				entity: update.entity,	
 			}));
 		}
+	}
+	private logUpdate(update : StatUpdate) : boolean {
+		return Stat._logTypes.has(this._statType)
+			&& update.delta < 0
+			&& this.entity().allTypes().has(EntityType.PLAYER)
+			&& update.entity
+			&& this.entity().id() !== update.entity.id()
 	}
 	private importStat(value : number) : void {
 		const delta = value - this.current();

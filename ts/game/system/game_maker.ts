@@ -339,6 +339,7 @@ export class GameMaker extends SystemBase implements System {
 		}
 
 		if (state === GameState.SETUP) {
+			ui.refreshScoreboardColor();
 			ui.showStatus(StatusType.SETUP);
 		} else {
 			ui.hideStatus(StatusType.SETUP);

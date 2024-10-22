@@ -139,9 +139,8 @@ export class Lakitu extends SystemBase implements System {
 
 		return player.initialized()
 			&& !player.deleted()
-			&& (!player.dead() || player.clientIdMatches())
-			&& game.playerStates().hasPlayerState(player.clientId())
-			&& (game.playerState(player.clientId()).inGame() || player.clientIdMatches());
+			&& (player.clientIdMatches() || (!player.dead() && game.playerState(player.clientId()).inGame()))
+			&& game.playerStates().hasPlayerState(player.clientId());
 	}
 	private targetPlayer() : boolean {
 	 if (game.playerState().hasTargetEntity()) {
@@ -283,6 +282,8 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		super.setTargetEntity(entity);
+
+		ui.refreshHudColor();
 	}
 
 	override update(stepData : StepData) : void {

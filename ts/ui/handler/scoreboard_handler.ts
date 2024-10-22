@@ -83,6 +83,9 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 	clearInfo(id : number, type : InfoType) : void {
 		this._scoreboard.clearInfo(id, type);
 	}
+	refreshColor() : void {
+		this._scoreboard.refreshColor();
+	}
 
 	show() : void {
 		if (!game.initialized()) {

@@ -35,6 +35,15 @@ export enum AttributeType {
 	SOLID,
 }
 
+export enum EmotionType {
+	UNKNOWN,
+
+	NORMAL,
+	MAD,
+	SAD,
+	DEAD,
+}
+
 export enum StatType {
 	UNKNOWN,
 

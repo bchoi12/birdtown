@@ -91,6 +91,13 @@ export class TooltipHandler extends HandlerBase implements Handler {
 	private getHtml(type : TooltipType, options : TooltipOptions) : string {
 		const names = options.names ? options.names : [];
 		switch (type) {
+		case TooltipType.BEING_REVIVED:
+			if (names.length === 1) {
+				return `${names[0]} is reviving you...`;
+			} else if (names.length === 2) {
+				return `${names[0]} is reviving you...${names[1]}%`;
+			}
+			return "Reviving...";
 		case TooltipType.BUBBLE:
 			return `Press ${KeyNames.kbd(settings.jumpKeyCode)} to pop the bubble`;
 		case TooltipType.CONTROLS:
@@ -110,14 +117,16 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return `Press ${KeyNames.kbd(settings.pointerLockKeyCode)} to unlock your mouse`;
 		case TooltipType.REVIVE:
 			if (names.length !== 1) {
-				return `Press ${KeyNames.kbd(settings.interactKeyCode)} to start reviving`;
+				return `Press ${KeyNames.kbd(settings.interactKeyCode)} to start reviving your teammate`;
 			}
 			return `Press ${KeyNames.kbd(settings.interactKeyCode)} to start reviving ${names[0]}`;
 		case TooltipType.REVIVING:
-			if (names.length !== 1) {
-				return "Reviving...";
+			if (names.length === 1) {
+				return `Reviving ${names[0]}...`;
+			} else if (names.length === 2) {
+				return `Reviving ${names[0]}...${names[1]}%`;
 			}
-			return `${names[0]} is reviving you`;
+			return "Reviving your teammate";
 		case TooltipType.SPAWN:
 			return "Press <kbd>any key</kbd> to deploy"
 		case TooltipType.START_GAME:

@@ -1,6 +1,7 @@
 
 import { game } from 'game'
 import { EntityType, BirdType } from 'game/entity/api'
+import { ColorType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 import { ClientSystem, System } from 'game/system'
@@ -37,6 +38,11 @@ export class Tablet extends ClientSystem implements System {
 		InfoType.DEATHS,
 		InfoType.KILLS,
 		InfoType.SCORE,
+	]);
+
+	private static readonly _teamColors = new Map<number, string>([
+		[1, ColorFactory.toString(ColorType.PLAYER_RED)],
+		[2, ColorFactory.toString(ColorType.PLAYER_BLUE)],
 	]);
 	private static readonly _defaultColor = "#FFFFFF";
 	private static readonly _displayNameMaxLength = 16;
@@ -190,7 +196,13 @@ export class Tablet extends ClientSystem implements System {
 
 		this._color = color;
 	}
-	color() : string { return this.hasColor() ? this._color : Tablet._defaultColor; }
+	color() : string {
+		const team = this.team();
+		if (Tablet._teamColors.has(team)) {
+			return Tablet._teamColors.get(team);
+		}
+		return this.hasColor() ? this._color : Tablet._defaultColor;
+	}
 
 	setDisplayName(displayName : string) : void {
 		if (displayName.length === 0) {

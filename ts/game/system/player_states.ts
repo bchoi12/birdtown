@@ -35,7 +35,7 @@ export class PlayerStates extends ClientSystemManager implements System {
 			playerState.setTeam(playerConfig.team(playerState.clientId()));
 		}, (playerState : PlayerState) => {
 			return playerConfig.hasClient(playerState.clientId());
-		})
+		});
 	}
 
 	numPlayers() : number {

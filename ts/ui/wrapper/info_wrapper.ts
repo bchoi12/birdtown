@@ -142,6 +142,8 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 	highlight() : void { this.elm().classList.add(Html.classInfoHighlight); }
 	removeHighlight() : void { this.elm().classList.remove(Html.classInfoHighlight); }
 
+	refreshColor() : void { this._nameWrapper.refreshColor(); }
+
 	hide(type : InfoType) : void {
 		if (!this._blocks.has(type)) {
 			return;

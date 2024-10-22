@@ -145,7 +145,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		{
 			let buttonWrapper = modeButtons.addButtonSelect();
 			buttonWrapper.elm().style.width = "100%";
-			buttonWrapper.setText("Team Battle (WIP)");
+			buttonWrapper.setText("Team Battle");
 			buttonWrapper.addOnClick(() => {
 				this._mode = GameMode.TEAM_BATTLE;
 
