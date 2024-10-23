@@ -1,6 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
+import { GameObjectState } from 'game/api'
 import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Entity, EquipEntity, EntityOptions } from 'game/entity'
@@ -25,22 +26,24 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	private static readonly _defaultTextBackgroundColor = "#303030";
 	private static readonly _defaultPointerColor = "#ff0000";
 
-	private static readonly _height = 0.4;
+	private static readonly _height = 0.5;
 	private static readonly _pointerHeight = 0.1;
 
 	private static readonly _pointerId = 1;
+	private static readonly _barId = 2;
 	private static readonly _font = "64px " + UiGlobals.font;
 
 	private _displayName : string;
 	private _enabled : boolean;
 	private _visible : boolean;
+	private _width : number;
 
 	private _textColor : string;
 	private _textBackgroundColor : string;
-	private _pointerMaterial : BABYLON.StandardMaterial;
+	private _colorMaterial : BABYLON.StandardMaterial;
 	private _updatePointerColor : boolean;
 
-	protected _model : Model;
+	private _model : Model;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.NAME_TAG, entityOptions);
@@ -48,10 +51,11 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		this._displayName = "";
 		this._enabled = true;
 		this._visible = true;
+		this._width = 0;
 
 		this._textColor = NameTag._defaultTextColor;
 		this._textBackgroundColor = NameTag._defaultTextBackgroundColor;
-		this._pointerMaterial = new BABYLON.StandardMaterial(this.name() + "-pointer-mat");
+		this._colorMaterial = new BABYLON.StandardMaterial(this.name() + "-color-mat");
 		this._updatePointerColor = true;
 
 		this.addProp<string>({
@@ -65,7 +69,6 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 				return this._displayName.length > 0;
 			},
 			meshFn: (model : Model) => {
-				const planeHeight = NameTag._height;
 				const textureHeight = 64;
 				const text = this.displayName();
 
@@ -74,8 +77,8 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 				context.font = NameTag._font;
 				const textureWidth = context.measureText(text).width;
 
-				const ratio = planeHeight / textureHeight;
-				const planeWidth = ratio * textureWidth;
+				const ratio = NameTag._height / textureHeight;
+				this._width = ratio * textureWidth;
 
 				let texture = new BABYLON.DynamicTexture(this.name() + "-texture", {
 					width: textureWidth,
@@ -89,14 +92,19 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 				material.specularColor = BABYLON.Color3.Black();
 
 				let mesh = BABYLON.MeshBuilder.CreatePlane(this.name(), {
-					width: planeWidth,
-					height: planeHeight,
+					width: this._width,
+					height: NameTag._height,
 					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
-					frontUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.05),
-					backUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.05),
+					frontUVs: new BABYLON.Vector4(-0.05, -0.05, 1.1, 1.1),
+					backUVs: new BABYLON.Vector4(-0.05, -0.05, 1.1, 1.1),
 				}, game.scene());
 				mesh.material = material;
 				mesh.scaling.z = -1;
+
+				this._colorMaterial.disableLighting = true;
+				if (this._updatePointerColor) {
+					this._colorMaterial.emissiveColor = BABYLON.Color3.FromHexString(this.defaultPointerColor());
+				}
 
 				let pointer = BABYLON.MeshBuilder.CreatePolyhedron(this.name() + "-pointer", {
 					type: 0, // tetrahedron
@@ -104,13 +112,19 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 					sizeY: 1.5 * NameTag._pointerHeight,
 					sizeZ: 1.5 * NameTag._pointerHeight,
 				}, game.scene());
-				this._pointerMaterial.disableLighting = true;
-				if (this._updatePointerColor) {
-					this._pointerMaterial.emissiveColor = BABYLON.Color3.FromHexString(this.defaultPointerColor());
-				}
-				pointer.material = this._pointerMaterial;
+				pointer.material = this._colorMaterial;
+
+				let bar = BABYLON.MeshBuilder.CreateBox(this.name() + "-bar", {
+					width: this._width,
+					height: NameTag._height * 0.1,
+					depth: NameTag._height * 0.1,
+					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
+				});
+				bar.scaling.x = 0;
+				bar.material = this._colorMaterial;
 
 				model.registerSubMesh(NameTag._pointerId, pointer);
+				model.registerSubMesh(NameTag._barId, bar);
 				model.setMesh(mesh);
 			},
 			init: {
@@ -123,13 +137,28 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	override initialize() : void {
 		super.initialize();
 
+		this.updatePosition();
+	}
+
+	updatePosition() : void {
 		this._model.onLoad((model : Model) => {
 			model.mesh().position.y = this.owner().profile().scaledDim().y + 0.1;
 			
+			let bar = model.subMesh(NameTag._barId);
+			bar.position.y = model.mesh().position.y - NameTag._height / 2;
+
 			let pointer = model.subMesh(NameTag._pointerId);
 			pointer.position.y = this.owner().profile().scaledDim().y - NameTag._height / 2 - NameTag._pointerHeight / 2;
 			pointer.rotation.z = - Math.PI / 2;
-		})
+		});
+	}
+
+	setBarWidth(percent : number) : void {
+		this._model.onLoad((model : Model) => {		
+			let bar = model.subMesh(NameTag._barId);
+			bar.scaling.x = percent;
+			bar.position.x = (percent - 1) / 2  * this._width;
+		});
 	}
 
 	setTextColor(color : string) : void {
@@ -147,7 +176,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		this._textBackgroundColor = color;
 	}
 	forcePointerColor(color : string) : void {
-		this._pointerMaterial.emissiveColor = BABYLON.Color3.FromHexString(color);
+		this._colorMaterial.emissiveColor = BABYLON.Color3.FromHexString(color);
 
 		this._updatePointerColor = false;
 	}
@@ -179,7 +208,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 		if (this._updatePointerColor && this._visible) {
 			const color = game.lakitu().targetEntity().clientColorOr(this.defaultPointerColor());
-			this._pointerMaterial.emissiveColor = BABYLON.Color3.FromHexString(color);
+			this._colorMaterial.emissiveColor = BABYLON.Color3.FromHexString(color);
 		}
 	}
 	private setEnabled(enabled : boolean) : void {
@@ -197,12 +226,13 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		super.preRender();
 
 		let enabled = true;
-		if (this.owner().hasProfile() && !this.owner().profile().visible() || this.owner().isLakituTarget()) {
+		if (this.owner().hasProfile() && !this.owner().profile().visible()
+			|| this.owner().isLakituTarget()
+			|| this.owner().state() === GameObjectState.DEACTIVATED) {
 			enabled = false;
 		} else if (this.owner().type() === EntityType.PLAYER) {
 			const player = <Player>this.owner();
-			if (player.dead() || game.playerStates().hasPlayerState(player.clientId())
-				&& game.playerState(player.clientId()).role() !== PlayerRole.GAMING) {
+			if (player.healthPercent() === 0) {
 				enabled = false;
 			}
 		}

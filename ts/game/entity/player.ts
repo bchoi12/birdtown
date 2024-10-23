@@ -983,6 +983,19 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				Math.sin(armRotation) * this._armRecoil.dist());
 			arm.position = this._boneOrigins.get(BoneType.ARM).add(recoil);
 		}
+
+		if (this._nameTag !== null) {
+			this._nameTag.setBarWidth(this.healthPercent());
+		}
+		/*
+		if (this._nameTag !== null) {
+			if (this.getAttribute(AttributeType.REVIVING)) {
+				this._nameTag.setBarWidth(100 * this.healthPercent());
+			} else {
+				this._nameTag.setBarWidth(0);
+			}
+		}
+		*/
 	}
 
 	override getHudData() : Map<HudType, HudOptions> {

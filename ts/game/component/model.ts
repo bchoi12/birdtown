@@ -170,6 +170,9 @@ export class Model extends ComponentBase implements Component {
 	mesh() : BABYLON.Mesh { return this._mesh; }
 	material<T extends BABYLON.Material>() : T { return <T>this._mesh.material; }
 
+	addSubMesh(subMesh : BABYLON.Mesh) : void {
+		this.registerSubMesh(this._subMesh.size + 1, subMesh);
+	}
 	registerSubMesh(id : number, subMesh : BABYLON.Mesh) : void {
 		if (this._subMesh.has(id)) {
 			console.error("Warning: overwriting mesh with ID %d in %s", id, this.name());

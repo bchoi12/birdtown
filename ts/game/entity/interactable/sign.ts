@@ -122,7 +122,7 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 	override setInteractableWith(entity : Entity, interactable : boolean) : void {
 		super.setInteractableWith(entity, interactable);
 
-		if (entity.isLakituTarget()) {
+		if (entity.isLakituTarget() && entity.clientIdMatches()) {
 			this._showTooltip = interactable;
 		}
 	}
