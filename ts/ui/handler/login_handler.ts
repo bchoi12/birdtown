@@ -146,6 +146,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 	}
 
 	private startGame(room : string, isHost : boolean) : void {
+		room = room.toUpperCase();
+
 		if (!this.enabled()) {
 			console.error("Error: tried to start/join %s when not enabled", room);
 			return;

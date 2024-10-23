@@ -108,7 +108,7 @@ export class PlayerState extends ClientSystem implements System {
 	disconnected() : boolean { return this._disconnected; }
 	setDisconnected(disconnected : boolean) : void { this._disconnected = disconnected; }
 	role() : PlayerRole { return this._role; }
-	inGame() : boolean { return PlayerState._gameRoles.has(this._role); }
+	inGame() : boolean { return PlayerState._gameRoles.has(this._startingRole) && PlayerState._gameRoles.has(this._role); }
 	setStartingRole(role : PlayerRole) : void {
 		this._startingRole = role;
 
@@ -153,9 +153,7 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
-		if (this.isPlaying() || game.controller().gameState() !== GameState.FREE) {
-			ui.addPlayer(this.clientId());
-		}
+		this.updateScoreboard();
 
 		let player = this.targetEntity<Player>();
 
@@ -206,6 +204,15 @@ export class PlayerState extends ClientSystem implements System {
 
 		if (this.hasTargetEntity()) {
 			this.targetEntity().setTeam(this._team);
+		}
+	}
+	private updateScoreboard() : void {
+		if (this.isPlaying() || game.controller().gameState() === GameState.FREE) {
+			if (game.tablets().hasTablet(this.clientId()) && game.tablet(this.clientId()).isSetup()) {
+				ui.addPlayer(this.clientId());
+			}
+		} else {
+			ui.removePlayer(this.clientId());
 		}
 	}
 

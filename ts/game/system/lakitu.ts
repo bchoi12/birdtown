@@ -139,7 +139,7 @@ export class Lakitu extends SystemBase implements System {
 
 		return player.initialized()
 			&& !player.deleted()
-			&& (player.clientIdMatches() || (!player.dead() && game.playerState(player.clientId()).inGame()))
+			&& game.playerState(player.clientId()).isPlaying() && (player.clientIdMatches() || !player.dead())
 			&& game.playerStates().hasPlayerState(player.clientId());
 	}
 	private targetPlayer() : boolean {

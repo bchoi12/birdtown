@@ -30,7 +30,7 @@ import { Fns } from 'util/fns'
 
 export abstract class Crate extends Interactable implements Entity, EquipEntity, InteractEntity {
 
-	private static readonly _maxSpeed = 0.6;
+	private static readonly _maxSpeed = 0.5;
 
 	private _materialShifter : MaterialShifter;
 	private _opened : boolean;
@@ -66,7 +66,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
-					density: BodyFactory.defaultDensity,
+					density: 0.8 * BodyFactory.defaultDensity,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.SOLID),
 					chamfer: {
 						radius: 0.05

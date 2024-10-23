@@ -26,7 +26,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	private static readonly _defaultTextBackgroundColor = "#303030";
 	private static readonly _defaultPointerColor = "#ff0000";
 
-	private static readonly _height = 0.5;
+	private static readonly _height = 0.45;
 	private static readonly _pointerHeight = 0.1;
 
 	private static readonly _pointerId = 1;
@@ -95,8 +95,8 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 					width: this._width,
 					height: NameTag._height,
 					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
-					frontUVs: new BABYLON.Vector4(-0.05, -0.05, 1.1, 1.1),
-					backUVs: new BABYLON.Vector4(-0.05, -0.05, 1.1, 1.1),
+					frontUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.1),
+					backUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.1),
 				}, game.scene());
 				mesh.material = material;
 				mesh.scaling.z = -1;
@@ -116,7 +116,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 				let bar = BABYLON.MeshBuilder.CreateBox(this.name() + "-bar", {
 					width: this._width,
-					height: NameTag._height * 0.1,
+					height: NameTag._height * 0.17,
 					depth: NameTag._height * 0.1,
 					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
 				});
