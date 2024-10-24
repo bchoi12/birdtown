@@ -83,9 +83,9 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 
 		let birdType = new SettingWrapper<BirdType>({
 			name: "Species",
-			value: BirdType.CHICKEN,
+			value: Math.random() > 0.5 ? BirdType.CHICKEN : BirdType.DUCK,
 			click: (current : BirdType) => {
-				if (current === BirdType.CHICKEN) {
+				if (current === BirdType.DUCK) {
 					current = BirdType.BOOBY;
 				} else {
 					current++;

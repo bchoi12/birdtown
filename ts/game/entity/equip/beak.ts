@@ -66,10 +66,12 @@ export abstract class Beak extends Equip<Player> {
 			init: entityOptions.modelInit,
 		}));
 
-		this.soundPlayer().registerSound(SoundType.BAWK);
+		this.soundPlayer().registerSound(this.soundType());
 	}
 
 	abstract meshType() : MeshType;
+	abstract soundType() : SoundType;
+	squawkCooldown() : number { return Beak._squawkCooldown; }
 
 	override attachType() : AttachType { return AttachType.BEAK; }
 
@@ -129,11 +131,11 @@ export abstract class Beak extends Equip<Player> {
 		this._squawking = squawking;
 
 		if (this._squawking) {
-			this.soundPlayer().onEnded(SoundType.BAWK).addOnce(() => {
+			this.soundPlayer().onEnded(this.soundType()).addOnce(() => {
 				this._squawking = false;
 			});
-			this.soundPlayer().playFromEntity(SoundType.BAWK, this.owner());
-			this._squawkTimer.start(Beak._squawkCooldown);
+			this.soundPlayer().playFromEntity(this.soundType(), this.owner());
+			this._squawkTimer.start(this.squawkCooldown());
 		}
 	}
 }

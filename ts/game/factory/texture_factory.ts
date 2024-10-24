@@ -4,10 +4,6 @@ import { TextureType } from 'game/factory/api'
 
 export namespace TextureFactory {
 
-	const transparent = new Set([
-		TextureType.BOOBY_EYE,
-	]);
-
 	const pathPrefix = "texture/";
 	const fileExtension = ".png";
 
@@ -28,9 +24,5 @@ export namespace TextureFactory {
 
 	export function getURL(type : TextureType) : string {
 		return pathPrefix + TextureType[type].toLowerCase() + fileExtension;
-	}
-
-	export function isTransparent(type : TextureType) : boolean {
-		return transparent.has(type);
 	}
 }

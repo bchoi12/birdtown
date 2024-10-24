@@ -180,6 +180,7 @@ export enum MeshType {
 	BOOBY_HAIR,
 	CHICKEN_BEAK,
 	CHICKEN_HAIR,
+	DUCK_BEAK,
 
 	BAZOOKA,
 	GATLING,
@@ -240,6 +241,7 @@ export enum SoundType {
 	LASER,
 	PLAYER_THUD,
 	PISTOL,
+	QUACK,
 	QUICK_RELOAD,
 	RELOAD,
 	ROCKET,
@@ -255,6 +257,6 @@ export enum TextureType {
 	ARCH_WINDOWS,
 	BIRD_BOOBY,
 	BIRD_CHICKEN,
-	BOOBY_EYE,
-	CHICKEN_EYE,
+	BIRD_DUCK,
+	BLACK_EYE,
 }

@@ -23,6 +23,7 @@ import { NameTag } from 'game/entity/equip/name_tag'
 import { Scouter } from 'game/entity/equip/scouter'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
+import { DuckBeak } from 'game/entity/equip/beak/duck_beak'
 import { BoobyHair } from 'game/entity/equip/headwear/booby_hair'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
@@ -86,6 +87,7 @@ export namespace EntityFactory {
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.CONTROLS_SIGN, (options : EntityOptions) => { return new ControlsSign(options); }],
 		[EntityType.COWBOY_HAT, (options : EntityOptions) => { return new CowboyHat(options); }],
+		[EntityType.DUCK_BEAK, (options : EntityOptions) => { return new DuckBeak(options); }],
 		[EntityType.DYING_STAR, (options : EntityOptions) => { return new DyingStar(options); }],
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
 		[EntityType.GATLING, (options : EntityOptions) => { return new Gatling(options); }],

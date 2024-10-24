@@ -109,15 +109,18 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private static readonly _birdTextures = new Map<BirdType, TextureType>([
 		[BirdType.BOOBY, TextureType.BIRD_BOOBY],
 		[BirdType.CHICKEN, TextureType.BIRD_CHICKEN],
+		[BirdType.DUCK, TextureType.BIRD_DUCK],
 	]);
 	private static readonly _eyeTextures = new Map<BirdType, TextureType>([
-		[BirdType.BOOBY, TextureType.BOOBY_EYE],
-		[BirdType.CHICKEN, TextureType.CHICKEN_EYE],
+		[BirdType.BOOBY, TextureType.BLACK_EYE],
+		[BirdType.CHICKEN, TextureType.BLACK_EYE],
+		[BirdType.DUCK, TextureType.BLACK_EYE],
 	]);
 
 	private static readonly _beakTypes = new Map<BirdType, EntityType>([
 		[BirdType.BOOBY, EntityType.BOOBY_BEAK],
 		[BirdType.CHICKEN, EntityType.CHICKEN_BEAK],
+		[BirdType.DUCK, EntityType.DUCK_BEAK],
 	]);
 	private static readonly _hairTypes = new Map<BirdType, EntityType>([
 		[BirdType.BOOBY, EntityType.BOOBY_HAIR],
@@ -1094,7 +1097,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				}
 			}
 
-			if (!this._entityTrackers.hasEntityType(EntityType.HEADWEAR)) {
+			if (!this._entityTrackers.hasEntityType(EntityType.HEADWEAR) && Player._hairTypes.has(this.birdType())) {
 				const hairType = Player._hairTypes.get(this.birdType());
 				const [headwear, hasHeadwear] = this.addEntity<Headwear>(hairType, {
 					associationInit: {

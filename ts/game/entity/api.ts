@@ -41,6 +41,7 @@ export enum EntityType {
 	CONTROLS_SIGN,
 	COWBOY_HAT,
 	CRATE,
+	DUCK_BEAK,
 	DYING_STAR,
 	FLOOR,
 	GATLING,
@@ -84,6 +85,7 @@ export enum BirdType {
 
 	BOOBY,
 	CHICKEN,
+	DUCK,
 }
 
 export enum BoneType {

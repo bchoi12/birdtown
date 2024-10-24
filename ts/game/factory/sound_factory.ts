@@ -107,6 +107,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			}
 		}],
+		[SoundType.QUACK, {
+			path: "quack.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 		[SoundType.QUICK_RELOAD, {
 			path: "quick_reload.mp3",
 			options: {},
