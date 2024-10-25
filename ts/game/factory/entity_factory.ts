@@ -24,8 +24,10 @@ import { Scouter } from 'game/entity/equip/scouter'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { DuckBeak } from 'game/entity/equip/beak/duck_beak'
+import { RobinBeak } from 'game/entity/equip/beak/robin_beak'
 import { BoobyHair } from 'game/entity/equip/headwear/booby_hair'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
+import { RobinHair } from 'game/entity/equip/headwear/robin_hair'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Claw } from 'game/entity/equip/weapon/claw'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
@@ -104,6 +106,8 @@ export namespace EntityFactory {
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.PISTOL, (options : EntityOptions) => { return new Pistol(options); }],
+		[EntityType.ROBIN_BEAK, (options : EntityOptions) => { return new RobinBeak(options); }],
+		[EntityType.ROBIN_HAIR, (options : EntityOptions) => { return new RobinHair(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
 		[EntityType.ROCKET_EXPLOSION, (options : EntityOptions) => { return new RocketExplosion(options); }],
 		[EntityType.SCOUTER, (options : EntityOptions) => { return new Scouter(options); }],

@@ -43,15 +43,18 @@ export namespace ColorFactory {
 		// Player series (not too saturated, but distinct from level)
 		[ColorType.PLAYER_RED, HexColor.fromHex(0xfc1f0f)],
 		[ColorType.PLAYER_ORANGE, HexColor.fromHex(0xfcb10f)],
+		[ColorType.PLAYER_GOLD, HexColor.fromHex(0xffd700)],
 		[ColorType.PLAYER_YELLOW, HexColor.fromHex(0xfcf40f)],
-		[ColorType.PLAYER_GREEN, HexColor.fromHex(0x1bfc0f)],
+		[ColorType.PLAYER_LIME, HexColor.fromHex(0x1bfc0f)],
+		[ColorType.PLAYER_GREEN, HexColor.fromHex(0x29cc21)],
 		[ColorType.PLAYER_AQUA, HexColor.fromHex(0x0ffce8)],
 		[ColorType.PLAYER_BLUE, HexColor.fromHex(0x0f52fc)],
 		[ColorType.PLAYER_PURPLE, HexColor.fromHex(0xa50ffc)],
 		[ColorType.PLAYER_PINK, HexColor.fromHex(0xfc0fbd)],
+		[ColorType.PLAYER_BROWN, HexColor.fromHex(0x7d4d1a)],
 		[ColorType.PLAYER_WHITE, HexColor.fromHex(0xfbfbfb)],
 		[ColorType.PLAYER_GRAY, HexColor.fromHex(0x8b8b8b)],
-		[ColorType.PLAYER_BLACK, HexColor.fromHex(0x0b0b0b)],
+		[ColorType.PLAYER_BLACK, HexColor.fromHex(0x3b3b3b)],
 
 		// Western series (rugged?)
 		[ColorType.WESTERN_YELLOW, HexColor.fromHex(0xffef61)],
@@ -125,9 +128,10 @@ export namespace ColorFactory {
 		[EntityType.SNIPER, [ColorType.SHOOTER_BLUE]],
 		[EntityType.WING_CANNON, [ColorType.SHOOTER_ORANGE]],
 		[EntityType.PLAYER, [
-			ColorType.PLAYER_RED, ColorType.PLAYER_ORANGE, ColorType.PLAYER_YELLOW,
-			ColorType.PLAYER_GREEN, ColorType.PLAYER_AQUA, ColorType.PLAYER_BLUE,
-			ColorType.PLAYER_PURPLE, ColorType.PLAYER_PINK,
+			ColorType.PLAYER_RED, ColorType.PLAYER_ORANGE, ColorType.PLAYER_GOLD,
+			ColorType.PLAYER_YELLOW, ColorType.PLAYER_LIME, ColorType.PLAYER_GREEN,
+			ColorType.PLAYER_AQUA, ColorType.PLAYER_BLUE, ColorType.PLAYER_PURPLE,
+			ColorType.PLAYER_PINK, ColorType.PLAYER_BROWN,
 			ColorType.PLAYER_WHITE, ColorType.PLAYER_GRAY, ColorType.PLAYER_BLACK,
 		]],
 	]);

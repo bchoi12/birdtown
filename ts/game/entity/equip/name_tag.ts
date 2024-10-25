@@ -26,7 +26,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	private static readonly _defaultTextBackgroundColor = "#303030";
 	private static readonly _defaultPointerColor = "#ff0000";
 
-	private static readonly _height = 0.45;
+	private static readonly _height = 0.4;
 	private static readonly _pointerHeight = 0.1;
 
 	private static readonly _pointerId = 1;
@@ -70,7 +70,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 			},
 			meshFn: (model : Model) => {
 				const textureHeight = 64;
-				const text = this.displayName();
+				const text = " " + this.displayName() + " " ;
 
 				let temp = new BABYLON.DynamicTexture(this.name() + "-temp", 64, game.scene());
 				let context = temp.getContext();
@@ -78,7 +78,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 				const textureWidth = context.measureText(text).width;
 
 				const ratio = NameTag._height / textureHeight;
-				this._width = ratio * textureWidth;
+				this._width = 1.1 * ratio * textureWidth;
 
 				let texture = new BABYLON.DynamicTexture(this.name() + "-texture", {
 					width: textureWidth,
@@ -95,8 +95,8 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 					width: this._width,
 					height: NameTag._height,
 					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
-					frontUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.1),
-					backUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.1),
+					frontUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.05),
+					backUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.05),
 				}, game.scene());
 				mesh.material = material;
 				mesh.scaling.z = -1;
@@ -116,7 +116,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 				let bar = BABYLON.MeshBuilder.CreateBox(this.name() + "-bar", {
 					width: this._width,
-					height: NameTag._height * 0.17,
+					height: NameTag._height * 0.16,
 					depth: NameTag._height * 0.1,
 					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
 				});

@@ -110,21 +110,25 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		[BirdType.BOOBY, TextureType.BIRD_BOOBY],
 		[BirdType.CHICKEN, TextureType.BIRD_CHICKEN],
 		[BirdType.DUCK, TextureType.BIRD_DUCK],
+		[BirdType.ROBIN, TextureType.BIRD_ROBIN],
 	]);
 	private static readonly _eyeTextures = new Map<BirdType, TextureType>([
 		[BirdType.BOOBY, TextureType.BLACK_EYE],
 		[BirdType.CHICKEN, TextureType.BLACK_EYE],
 		[BirdType.DUCK, TextureType.BLACK_EYE],
+		[BirdType.ROBIN, TextureType.WHITE_EYE],
 	]);
 
 	private static readonly _beakTypes = new Map<BirdType, EntityType>([
 		[BirdType.BOOBY, EntityType.BOOBY_BEAK],
 		[BirdType.CHICKEN, EntityType.CHICKEN_BEAK],
 		[BirdType.DUCK, EntityType.DUCK_BEAK],
+		[BirdType.ROBIN, EntityType.ROBIN_BEAK],
 	]);
 	private static readonly _hairTypes = new Map<BirdType, EntityType>([
 		[BirdType.BOOBY, EntityType.BOOBY_HAIR],
 		[BirdType.CHICKEN, EntityType.CHICKEN_HAIR],
+		[BirdType.ROBIN, EntityType.ROBIN_HAIR],
 	]);
 
 	// TODO: package in struct, Pose, PlayerPose?

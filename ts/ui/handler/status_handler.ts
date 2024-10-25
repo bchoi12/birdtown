@@ -15,7 +15,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 
 	// Statuses to clear when displayed
 	private static readonly _clear = new Map<StatusType, Set<StatusType>>([
-		[StatusType.DISCONNECTED, new Set([StatusType.DISCONNECTED_SIGNALING, StatusType.HOST_DEGRADED, StatusType.SPECTATING, StatusType.SETUP, StatusType.LOBBY])],
+		[StatusType.DISCONNECTED, new Set([StatusType.DISCONNECTED_SIGNALING, StatusType.HOST_DEGRADED, StatusType.LOADING, StatusType.SPECTATING, StatusType.SETUP, StatusType.LOBBY])],
 		[StatusType.DISCONNECTED_SIGNALING, new Set([StatusType.LOBBY])],
 		[StatusType.HOST_DEGRADED, new Set([StatusType.DEGRADED])],
 		[StatusType.LOADING, new Set([StatusType.LOBBY, StatusType.WELCOME])],
@@ -105,7 +105,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 			wrapper.setText("Your host is currently lagging or tabbed out");
 			break;
 		case StatusType.DISCONNECTED:
-			wrapper.setText("Disconnected from host\r\nPlease refresh the page");
+			wrapper.setText("Disconnected from host\r\nPlease quit the game and rejoin");
 			break;
 		case StatusType.DISCONNECTED_SIGNALING:
 			wrapper.setText("Lost connection to matchmaking server\r\nNo new players can join");

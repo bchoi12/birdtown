@@ -58,6 +58,8 @@ export enum EntityType {
 	PISTOL,
 	PLANE,
 	PLAYER,
+	ROBIN_BEAK,
+	ROBIN_HAIR,
 	ROCKET,
 	ROCKET_EXPLOSION,
 	SCOUTER,
@@ -86,6 +88,7 @@ export enum BirdType {
 	BOOBY,
 	CHICKEN,
 	DUCK,
+	ROBIN,
 }
 
 export enum BoneType {

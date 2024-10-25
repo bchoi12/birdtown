@@ -81,12 +81,13 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		let bird = columnsWrapper.column(1);
 		bird.setLegend("Photo");
 
+		let birds = [BirdType.BOOBY, BirdType.CHICKEN, BirdType.DUCK, BirdType.ROBIN];
 		let birdType = new SettingWrapper<BirdType>({
 			name: "Species",
-			value: Math.random() > 0.5 ? BirdType.CHICKEN : BirdType.DUCK,
+			value: birds[Math.floor(Math.random() * birds.length)],
 			click: (current : BirdType) => {
-				if (current === BirdType.DUCK) {
-					current = BirdType.BOOBY;
+				if (current === birds[birds.length - 1]) {
+					current = birds[0];
 				} else {
 					current++;
 				}
