@@ -6,7 +6,7 @@ Demo: https://brianchoi.net/birdtown
 
 birdtown is a multiplayer arena shooter built for the web
 
-Play against your friends in multiple different modes and yell at each other through proximity voice chat.
+Share a link with your friends and start playing instantly--no login or install needed.
 
 ## Status
 
@@ -14,9 +14,9 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 ## Screenshots
 
-![Recent screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog070.png?raw=true)
+![Recent screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog077.png?raw=true)
 
-![Multiplayer action](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog061.png?raw=true)
+![Multiplayer action](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog076.png?raw=true)
 
 ![Login screen](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog050.png?raw=true)
 

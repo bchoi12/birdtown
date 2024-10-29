@@ -34,7 +34,6 @@ export enum SpeedSetting {
 
 	SLOW,
 	NORMAL,
-	FAST,
 }
 
 export enum InspectorSetting {

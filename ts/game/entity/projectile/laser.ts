@@ -130,11 +130,11 @@ export class Laser extends Projectile {
 
 		// Hack to enable collision across level seam
 		if (game.level().isCircle()) {
-			const frame = game.runner().gameFrameNum();
-			if (frame % 3 === 1) {
+			const tickNum = game.runner().tickNum();
+			if (tickNum % 3 === 1) {
 				this._profile.pos().add({ x: game.level().bounds().width() });
 				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
-			} else if (frame % 3 === 2) {
+			} else if (tickNum % 3 === 2) {
 				this._profile.pos().add({ x: -game.level().bounds().width() });
 				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
 			}
@@ -146,11 +146,11 @@ export class Laser extends Projectile {
 
 		// Undo the hack
 		if (game.level().isCircle()) {
-			const frame = game.runner().gameFrameNum();
-			if (frame % 3 === 1) {
+			const tickNum = game.runner().tickNum();
+			if (tickNum % 3 === 1) {
 				this._profile.pos().add({ x: -game.level().bounds().width() });
 				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
-			} else if (frame % 3 === 2) {
+			} else if (tickNum % 3 === 2) {
 				this._profile.pos().add({ x: game.level().bounds().width() });
 				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
 			}

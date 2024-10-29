@@ -68,7 +68,7 @@ export class Profile extends ComponentBase implements Component {
 	private static readonly _minQuantization = 1e-3;
 	private static readonly _vecEpsilon = 3 * Profile._minQuantization;
 	private static readonly _degradedVecEpsilon = 10 * Profile._vecEpsilon;
-	private static readonly _angleEpsilon = 1e-1;
+	private static readonly _angleEpsilon = 1e-2;
 	private static readonly _knockbackTimeMin = 250;
 	private static readonly _knockbackTimeVariance = 250;
 
@@ -202,6 +202,17 @@ export class Profile extends ComponentBase implements Component {
 			has: () => { return this.hasAngle(); },
 			export: () => { return this.angle(); },
 			import: (obj : number) => { this.setAngle(obj); },
+			options: {
+				filters: GameData.udpFilters,
+				equals: (a : number, b : number) => {
+					return Math.abs(a - b) < Profile._angleEpsilon;
+				},
+			},
+		});
+		this.addProp<number>({
+			has: () => { return this.hasBody() && this.hasAngle(); },
+			export: () => { return this.angularVelocity(); },
+			import: (obj : number) => { this.setAngularVelocity(obj); },
 			options: {
 				filters: GameData.udpFilters,
 				equals: (a : number, b : number) => {
@@ -770,7 +781,7 @@ export class Profile extends ComponentBase implements Component {
 		if (!attached) {
 			let weight = 0;
 			if (settings.predictionTime() > 0) {
-				this._smoother.setDiff(game.runner().seqNumDiff());
+				this._smoother.setDiff(game.runner().tickDiff());
 				weight = this._smoother.weight();
 			}
 			this.vel().snap(weight);

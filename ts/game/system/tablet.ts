@@ -145,14 +145,16 @@ export class Tablet extends ClientSystem implements System {
 			ui.updateInfo(this.clientId(), type, value);
 		}
 
-		if (type === InfoType.KILLS) {
-			this.setInfo(InfoType.SCORE, value);
-		} else if (type === InfoType.SCORE) {
+		if (type === InfoType.SCORE) {
 			game.tablets().updateTeamScores();
 		}
 	}
 	addInfo(type : InfoType, delta : number) : void {
 		this.setInfo(type, (this.hasInfo(type) ? this.getInfo(type) : 0) + delta);
+
+		if (type === InfoType.KILLS && delta > 0) {
+			this.addInfo(InfoType.SCORE, delta);
+		}
 	}
 	clearInfo(type : InfoType) : void {
 		this._infoMap.delete(type);

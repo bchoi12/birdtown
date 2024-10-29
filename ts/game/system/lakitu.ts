@@ -31,6 +31,14 @@ enum OffsetType {
 	CAMERA,
 }
 
+enum TargetMode {
+	UNKNOWN,
+
+	PLAYER,
+	SPAWN,
+	WINNER,
+}
+
 export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 30 units, needs to be updated if offsets are changed
 	// Formula: deg = 2 * arctan(0.5 * horizontal_length / offset_length)
@@ -46,6 +54,7 @@ export class Lakitu extends SystemBase implements System {
 	]);
 
 	private _camera : BABYLON.UniversalCamera;
+	private _mode : TargetMode;
 	private _players : CircleMap<number, Player>;
 	private _spectateClientId : number;
 
@@ -60,6 +69,7 @@ export class Lakitu extends SystemBase implements System {
 		this._camera = new BABYLON.UniversalCamera(this.name(), BABYLON.Vector3.Zero(), scene);
 		this._camera.fov = Lakitu._horizontalFov;
     	this._camera.fovMode = BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED;
+    	this._mode = TargetMode.UNKNOWN;
     	this._players = new CircleMap();
     	this._spectateClientId = 0;
 
@@ -143,24 +153,27 @@ export class Lakitu extends SystemBase implements System {
 			&& game.playerStates().hasPlayerState(player.clientId());
 	}
 	private targetPlayer() : boolean {
-	 if (game.playerState().hasTargetEntity()) {
-			if (this.hasTargetEntity() && this.targetEntity().id() === game.playerState().targetEntity().id()) {
-				return true;
-			}
-			this.resetPan(Lakitu._slowPan);
-			this.setTargetEntity(game.playerState().targetEntity());
-			return true;
+		if (!game.playerState().hasTargetEntity()) {
+			this._mode = TargetMode.UNKNOWN;
+			return false;
 		}
-		return false;
-	}
-	private targetWinner() : boolean {
-		const winnerClientId = game.controller().winnerClientId();
-		if (this.targetClientId() === winnerClientId) {
+		if (this._mode === TargetMode.PLAYER) {
 			return true;
 		}
 
+		this.resetPan(Lakitu._slowPan);
+		this.setTargetEntity(game.playerState().targetEntity());
+		this._mode = TargetMode.PLAYER;
+		return true;
+	}
+	private targetWinner() : boolean {
+		const winnerClientId = game.controller().winnerClientId();
 		if (!game.playerStates().hasPlayerState(winnerClientId) || !game.playerState(winnerClientId).validTargetEntity()) {
+			this._mode = TargetMode.UNKNOWN;
 			return false;
+		}
+		if (this._mode === TargetMode.WINNER) {
+			return true;
 		}
 
 		const winner = game.playerState(winnerClientId).targetEntity<Player>();
@@ -170,11 +183,13 @@ export class Lakitu extends SystemBase implements System {
 				panner.snapTo(offset);
 			}
 
-			let goal : Vec3;
+			let goal = Lakitu._offsets.get(type).clone();
 			if (type === OffsetType.CAMERA) {
-				goal = Lakitu._offsets.get(type).clone().add({ z: 10 });
-			} else {
-				goal = Lakitu._offsets.get(type);
+				goal.x = 3;
+				goal.y = 2;
+				goal.z = 10;
+			} else if (type === OffsetType.TARGET) {
+				goal.y = 0;
 			}
 			panner.pan({
 				goal: goal,
@@ -184,56 +199,56 @@ export class Lakitu extends SystemBase implements System {
 		});
 
 		this.setTargetEntity(winner);
+		this._mode = TargetMode.WINNER;
 		return true;
 	}
 	private targetSpawn() : boolean {
 		if (game.controller().gameState() === GameState.FREE) {
+			this._mode = TargetMode.UNKNOWN;
 			return false;
 		}
-		if (this.targetSpawnPoint()) {
+		if (this._mode === TargetMode.SPAWN) {
 			return true;
 		}
-		return this.targetPlane();
+		if (this.targetSpawnPoint() || this.targetPlane()) {
+			this._mode = TargetMode.SPAWN;
+			return true;
+		}
+
+		this._mode = TargetMode.UNKNOWN;
+		return false;
 	}
 	private targetSpawnPoint() : boolean {
-		if (game.playerState().hasTargetEntity()) {
-			if (this.targetEntityType() === EntityType.SPAWN_POINT && this.validTargetEntity()) {
-				return true;
-			}
-
-			const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findAll((spawn : Entity) => {
-				return spawn.initialized();
-			});
-
-			for (let i = 0; i < spawns.length; ++i) {
-				if (game.playerState().targetEntity().matchAssociations([AssociationType.TEAM], spawns[i])) {
-					this.setTargetEntity(spawns[i]);
-					this._panners.forEach((panner : Panner, type : OffsetType) => {
-						let goal : Vec3;
-						if (type === OffsetType.CAMERA) {
-							goal = Lakitu._offsets.get(type).clone().add({ z: -8 });
-						} else {
-							goal = Lakitu._offsets.get(type);
-						}
-						panner.pan({
-							goal: goal,
-							millis: Lakitu._normalPan,
-							interpType: InterpType.NEGATIVE_SQUARE,
-						});
+		if (!game.playerState().hasTargetEntity()) {
+			return false;
+		}
+		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findAll((spawn : Entity) => {
+			return spawn.initialized() && !spawn.deleted();
+		});
+		for (let i = 0; i < spawns.length; ++i) {
+			if (game.playerState().targetEntity().matchAssociations([AssociationType.TEAM], spawns[i])) {
+				this.setTargetEntity(spawns[i]);
+				this._panners.forEach((panner : Panner, type : OffsetType) => {
+					let goal : Vec3;
+					if (type === OffsetType.CAMERA) {
+						goal = Lakitu._offsets.get(type).clone().add({ z: -8 });
+					} else {
+						goal = Lakitu._offsets.get(type);
+					}
+					panner.pan({
+						goal: goal,
+						millis: Lakitu._normalPan,
+						interpType: InterpType.NEGATIVE_SQUARE,
 					});
-					return true;
-				}
+				});
+				return true;
 			}
 		}
 		return false;
 	}
 	private targetPlane() : boolean {
-		if (this.targetEntityType() === EntityType.PLANE && this.validTargetEntity()) {
-			return true;
-		}
-
 		const plane = game.entities().getMap(EntityType.PLANE).findN((plane : Entity) => {
-			return plane.initialized();
+			return plane.initialized() && !plane.deleted();
 		}, 1);
 		if (plane.length === 1) {
 			this.setTargetEntity(plane[0]);
@@ -257,6 +272,10 @@ export class Lakitu extends SystemBase implements System {
 		return false;
 	}
 	private anchorToTarget() : void {
+		if (game.controller().gameState() === GameState.FINISH || game.controller().gameState() === GameState.VICTORY) {
+			this.setAnchor(this.targetEntity().profile().pos().toBabylon3());
+			return;
+		}
 		let pos = this.targetEntity().profile().pos().clone();
 		pos.add(this.targetEntity().cameraOffset());
 		this.setAnchor(pos.toBabylon3());
@@ -282,7 +301,6 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		super.setTargetEntity(entity);
-
 		ui.refreshHudColor();
 	}
 

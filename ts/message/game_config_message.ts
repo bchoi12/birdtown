@@ -6,6 +6,7 @@ import { Message, MessageBase, Descriptor, FieldDescriptor } from 'message'
 
 enum GameConfigProp {
 	UNKNOWN,
+
 	LEVEL_LAYOUT,
 	LEVEL_SEED,
 	LEVEL_TYPE,
@@ -14,6 +15,7 @@ enum GameConfigProp {
 	PLAYERS_MIN,
 	PLAYERS_MAX,
 	POINTS,
+	RESET_POINTS,
 	TIME_SETUP,
 	TIME_GAME,
 	TIME_FINISH,
@@ -68,6 +70,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.FREE_FOR_ALL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.POINTS, {}],
+			[GameConfigProp.RESET_POINTS, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
@@ -142,7 +145,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setPlayersMin(2);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
-			this.setPoints(5);
+			this.setPoints(4);
+			this.setResetPoints(false);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.POINTS);
 			break;
@@ -218,6 +222,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getPointsOr(value : number) : number { return this.getOr<number>(GameConfigProp.POINTS, value); }
     setPoints(value : number) : void { this.set<number>(GameConfigProp.POINTS, value); }
 
+    hasResetPoints() : boolean { return this.has(GameConfigProp.RESET_POINTS); }
+    getResetPoints() : boolean { return this.get<boolean>(GameConfigProp.RESET_POINTS); }
+    getResetPointsOr(value : boolean) : boolean { return this.getOr<boolean>(GameConfigProp.RESET_POINTS, value); }
+    setResetPoints(value : boolean) : void { this.set<boolean>(GameConfigProp.RESET_POINTS, value); }
+
     hasTimeSetup() : boolean { return this.has(GameConfigProp.TIME_SETUP); }
     getTimeSetup() : number { return this.get<number>(GameConfigProp.TIME_SETUP); }
     getTimeSetupOr(value : number) : number { return this.getOr<number>(GameConfigProp.TIME_SETUP, value); }
@@ -268,6 +277,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     ["PLAYERS_MIN", "number"],
     ["PLAYERS_MAX", "number"],
     ["POINTS", "number"],
+    ["RESET_POINTS", "boolean"],
     ["TIME_SETUP", "number"],
     ["TIME_GAME", "number"],
     ["TIME_FINISH", "number"],

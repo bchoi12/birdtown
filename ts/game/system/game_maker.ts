@@ -473,6 +473,10 @@ export class GameMaker extends SystemBase implements System {
 		let tablet = game.tablet(player.clientId());
 		tablet.loseLife();
 
+		if (this._config.getResetPoints()) {
+			tablet.setInfo(InfoType.SCORE, 0);
+		}
+
 		const [log, hasLog] = player.stats().lastDamager(GameMaker._lastDamageTime);
 		if (!hasLog || !log.hasEntityLog()) {
 			let feed = new GameMessage(GameMessageType.FEED);

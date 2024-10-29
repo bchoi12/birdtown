@@ -87,6 +87,9 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					density: BodyFactory.defaultDensity,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.TABLE_FRAME),
+					chamfer: {
+						radius: 0.1,
+					}
 				});
 			},
 			init: entityOptions.profileInit,

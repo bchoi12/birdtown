@@ -29,9 +29,10 @@ export class Pipeline extends SystemBase implements System {
 	constructor(engine : BABYLON.Engine, scene : BABYLON.Scene, camera : BABYLON.Camera) {
 		super(SystemType.PIPELINE);
 
-		// Note: do not define camera when constructing PostProcess to prevent it from auto-enabling.
+		// Note: do not define camera when constructing PostProcess to prevent it from auto-enabling
 		this._postProcesses = new Map();
-		this._fxaa = new BABYLON.FxaaPostProcess(PostProcessType.FXAA, 1, null, undefined, engine, /*reusable=*/true);
+		// Don't set reusable to true: https://doc.babylonjs.com/setup/support/webGPU/webGPUOptimization/webGPUMiscellaneous#optimize-post-processes
+		this._fxaa = new BABYLON.FxaaPostProcess(PostProcessType.FXAA, 1, null, undefined, engine, /*reusable=*/false);
 		this._postProcesses.set(PostProcessType.FXAA, this._fxaa);
 
 		this._effects = new Map();

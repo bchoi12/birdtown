@@ -40,8 +40,8 @@ export class StatsHandler extends HandlerBase implements Handler {
 			const ping = game.netcode().ping();
 			const pingSuccess = 100 * (1 - game.netcode().pingLoss());
 
-			const gameStats = game.runner().computeGameStats();
-			const renderStats = game.runner().computeRenderStats();
+			let gameStats = game.runner().gameStats();
+			let renderStats = game.runner().renderStats();
 
 			const stats = game.netcode().stats();
 			let text = [game.netcode().room()];
@@ -50,21 +50,21 @@ export class StatsHandler extends HandlerBase implements Handler {
 				text.push("Ping: " + Math.round(ping) + "ms (" + Math.round(pingSuccess) + "%)");
 			}
 
-			text.push("Game: " + Math.ceil(gameStats.stepsPerSecond)
-					+ " (" + (this._showDebug ? (Math.ceil(renderStats.stepTime) + "/") : "") +
-					+ gameStats.stepIntervalMin + "-" + gameStats.stepIntervalMax + "ms)");
-			text.push("Render: " + Math.ceil(renderStats.stepsPerSecond)
-					+ " (" + (this._showDebug ? (Math.ceil(renderStats.stepTime) + "/") : "") +
-					+ renderStats.stepIntervalMin + "-" + renderStats.stepIntervalMax + "ms)");
+			text.push(Math.ceil(gameStats.rate()) + " ("
+					+ Math.round(gameStats.minTickTime()) + "-" + Math.round(gameStats.maxTickTime()) + "ms, "
+					+ Math.round(renderStats.minTickTime()) + "-" + Math.round(renderStats.maxTickTime()) + "ms)");
 
 			if (this._showDebug) {
-				text.push("Diff: " + Math.round(game.runner().seqNumDiff()));
+				text.push("Diff: " + Math.round(game.runner().tickDiff()));
 				text.push("TCP/s: " + Math.round(stats.get(ChannelType.TCP).get(ChannelStat.PACKETS))
 					+ " (" + Math.round(stats.get(ChannelType.TCP).get(ChannelStat.BYTES) / 1024) + "Kb)");
 				text.push("UDP/s: " + Math.round(stats.get(ChannelType.UDP).get(ChannelStat.PACKETS))
 					+ " (" + Math.round(stats.get(ChannelType.UDP).get(ChannelStat.BYTES) / 1024) + "Kb)");
 			}
 			this._customStats.textContent = text.join(" | ");
+
+			gameStats.resetMinMax();
+			renderStats.resetMinMax();
 		}
 
 		setTimeout(() => {

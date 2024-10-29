@@ -42,9 +42,19 @@ export class Audio extends SystemBase implements System {
 	private updatePos(id : number, target : Entity) : void {
 		// Prefer mesh since sound will be attached to mesh.
 		if (target.hasModel() && target.model().hasMesh()) {
-			ui.updatePos(game.clientId(), target.model().mesh().position);
+			let pos = target.model().mesh().position;
+			ui.updatePos(game.clientId(), {
+				x: pos.x,
+				y: pos.y,
+				z: game.lakitu().camera().position.z / 3,
+			});
 		} else if (target.hasProfile()) {
-			ui.updatePos(game.clientId(), target.profile().getRenderPos())
+			let pos = target.profile().getRenderPos();
+			ui.updatePos(game.clientId(), {
+				x: pos.x,
+				y: pos.y,
+				z: game.lakitu().camera().position.z / 3,
+			});
 		}
 	}
 }

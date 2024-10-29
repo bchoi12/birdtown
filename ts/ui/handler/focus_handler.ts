@@ -1,4 +1,6 @@
 
+import { game } from 'game'
+
 import { ui } from 'ui'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
@@ -20,9 +22,13 @@ export class FocusHandler extends HandlerBase implements Handler {
 			if (!this._focused && document.visibilityState == "visible") {
 				this._focused = true;
 				this._lastChangeTime = Date.now();
+
+				game.runner().resume();
 			} else if (this._focused) {
 				this._focused = false;
 				this._lastChangeTime = Date.now();
+
+				game.runner().pause();
 			}
 		});
 	}

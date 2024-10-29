@@ -17,11 +17,14 @@ import { SpeedSetting } from 'settings/api'
 import { ui } from 'ui'
 import { StatusType } from 'ui/api'
 
-import { NumberRingBuffer } from 'util/buffer/number_ring_buffer'
-import { isFirefox } from 'util/common'
-import { Stepper, StepperStats } from 'util/stepper'
+import { RunnerStats } from 'util/runner_stats'
 
 export class Runner extends SystemBase implements System  {
+
+	private static readonly _tickerFile = "ticker.js";
+	private static readonly _skipTickThreshold = 20;
+	private static readonly _targetTickRate = 60;
+	private static readonly _targetTick = 1000 / Runner._targetTickRate;
 
 	// Snap seqNum to host when time diff is above a threshold
 	private static readonly _clientSnapThreshold = 1000;
@@ -39,22 +42,22 @@ export class Runner extends SystemBase implements System  {
 		[DataFilter.UDP, ChannelType.UDP],
 	]);
 
-	private static readonly _targetSteps = new Map<SpeedSetting, number>([
-		[SpeedSetting.SLOW, 32],
-		[SpeedSetting.NORMAL, 16],
-		[SpeedSetting.FAST, 8],
-	]);
+	private _ticker : Worker;
+	private _tickNum : number;
+	private _step : number;
+	private _seqNum : number;
+	private _updateSpeed : number;
+	private _skipCounter : number;
+	private _lastUpdateTime : number;
+	private _lastRenderTime : number;
 
-	private _gameSpeed : SpeedSetting;
+	private _gameStats : RunnerStats;
+	private _renderStats : RunnerStats;
+
 	private _renderSpeed : SpeedSetting;
 
-	private _gameStepper : Stepper;
-	private _gameTargetStep : number;
-	private _renderStepper : Stepper;
-	private _renderTargetStep : number;
-
 	private _importSeqNum : number;
-	private _seqNumDiffs : NumberRingBuffer;
+	private _seqNumDiff : number;
 	private _sendFullMsg : boolean;
 	private _degraded : boolean;
 	private _hostDegraded : boolean;
@@ -62,17 +65,21 @@ export class Runner extends SystemBase implements System  {
 	constructor() {
 		super(SystemType.RUNNER);
 
-		this._gameSpeed = SpeedSetting.NORMAL;
+		this._ticker = new Worker(Runner._tickerFile);
+		this._tickNum = 0;
+		this._step = 0;
+		this._seqNum = 0;
+		this._updateSpeed = 1;
+		this._lastUpdateTime = Date.now();
+		this._lastRenderTime = Date.now();
+
+		this._gameStats = new RunnerStats(Runner._targetTickRate);
+		this._renderStats = new RunnerStats(Runner._targetTickRate);
+
 		this._renderSpeed = settings.fpsSetting;
 
-		this._gameStepper = new Stepper();
-		this._renderStepper = new Stepper();
-
-		this._gameTargetStep = Runner._targetSteps.get(this._gameSpeed);
-		this._renderTargetStep = Runner._targetSteps.get(this._renderSpeed);
-
 		this._importSeqNum = 0;
-		this._seqNumDiffs = new NumberRingBuffer(10);
+		this._seqNumDiff = 0;
 		this._sendFullMsg = false;
 		this._degraded = false;
 		this._hostDegraded = false;
@@ -80,11 +87,65 @@ export class Runner extends SystemBase implements System  {
 		this.addProp<boolean>({
 			export: () => { return this._degraded; },
 			import: (obj : boolean) => { this.setHostDegraded(obj); }
-		})
+		});
 	}
 
 	override ready() : boolean {
 		return super.ready() && game.hasClientId();
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		this._lastUpdateTime = Date.now();
+
+	   	this._ticker.onmessage = (msg : any) => {
+	   		if (Math.abs(Date.now() - msg.data) > Runner._skipTickThreshold) {
+	   			return;
+	   		}
+
+	   		this._tickNum++;
+		   	game.netcode().preStep();
+
+		   	if (!ui.focused()) {
+		   		return;
+		   	}
+
+		   	const updateInterval = Date.now() - this._lastUpdateTime;
+	   		this._lastUpdateTime = Date.now();
+			this._step = this.getGameStep(updateInterval);
+	   		this._seqNum += this._step;
+	   		const stepData = {
+	   			millis: this._updateSpeed * this._step,
+	   			realMillis: this._step,
+	   			seqNum: this._seqNum,
+	   		};
+	   		this.gameStep(stepData);
+
+	   		const updateTime = Date.now() - this._lastUpdateTime;
+   			this._gameStats.logTick(updateInterval, updateTime, stepData);
+
+   			const ratio = this._gameStats.rate() / Runner._targetTickRate;
+   			if (ratio < Runner._degradedThreshold) {
+   				this.setDegraded(true);
+   			} else if (ratio > Runner._okThreshold) {
+   				this.setDegraded(false);
+   			}
+
+		   	const renderInterval = Date.now() - this._lastRenderTime;
+   			this._lastRenderTime = Date.now();
+			this.preRender();
+			let skipRender = this._renderSpeed === SpeedSetting.SLOW && this._tickNum % 2 !== 0;
+			if (!skipRender) {
+				this.render();
+			}
+			this.postRender();
+
+			if (!skipRender) {
+				const renderTime = Date.now() - this._lastRenderTime;
+				this._renderStats.logTick(renderInterval, renderTime);
+			}
+	   	};
 	}
 
 	override handleMessage(msg : GameMessage) : void {
@@ -96,10 +157,10 @@ export class Runner extends SystemBase implements System  {
 			case GameState.FINISH:
 			case GameState.VICTORY:
 			case GameState.ERROR:
-				this._gameStepper.setUpdateSpeed(0.3);
+				this.setUpdateSpeed(0.3);
 				break;
 			default:
-				this._gameStepper.setUpdateSpeed(1);
+				this.setUpdateSpeed(1);
 			}
 		}
 
@@ -115,6 +176,24 @@ export class Runner extends SystemBase implements System  {
 		}
 	}
 
+	pause() : void {
+		if (!this.initialized()) {
+			return;
+		}
+
+		this._ticker.postMessage(1);
+
+		if (this.isHost()) {
+			this.setDegraded(true);
+		}
+	}
+	resume() : void {
+		if (!this.initialized()) {
+			return;
+		}
+
+		this._ticker.postMessage(2);
+	}
 	push<T extends System>(system : T) : void {
 		if (this.hasChild(system.type())) {
 			console.error("Error: skipping duplicate system with type %d, name %s", system.type(), system.name());
@@ -130,87 +209,38 @@ export class Runner extends SystemBase implements System  {
 		if (this._renderSpeed === speed) {
 			return true;
 		}
-		if (!Runner._targetSteps.has(speed)) {
-			console.error("Error: tried to set runner to speed with undefined target frame time, %s", SpeedSetting[speed]);
-			return false;
-		}
-
 		this._renderSpeed = speed;
-		this._renderTargetStep = Runner._targetSteps.get(this._renderSpeed);
 	}
 
-	updateSpeed() : number { return this._gameStepper.updateSpeed(); }
-	setUpdateSpeed(mult : number) : void { this._gameStepper.setUpdateSpeed(mult); }
- 	gameTargetStep() : number {return Runner._targetSteps.get(this._gameSpeed); }
- 	gameTargetFPS() : number { return Math.floor(1000 / Runner._targetSteps.get(this._gameSpeed)); }
- 	renderTargetStep() : number { return Runner._targetSteps.get(this._renderSpeed); }
- 	lastStep() : number { return this._gameStepper.lastStep(); }
- 	gameSeqNum() : number { return this._gameStepper.seqNum(); }
- 	gameFrameNum() : number { return this._gameStepper.frameNum(); }
-	seqNumDiff() : number { return this.isSource() ? 0 : Math.round(this._seqNumDiffs.peek() / this._gameTargetStep); }
+	updateSpeed() : number { return this._updateSpeed; }
+	setUpdateSpeed(speed : number) : void { this._updateSpeed = speed; }
+	gameStats() : RunnerStats { return this._gameStats; }
+	renderStats() : RunnerStats { return this._renderStats; }
+ 	lastStep() : number { return this._step; }
+ 	tickNum() : number { return this._tickNum; }
+	tickDiff() : number { return this.isSource() ? 0 : Math.round(this._seqNumDiff / Runner._targetTick); }
  
- 	computeGameStats() : StepperStats { return this._gameStepper.computeStats(); }
- 	computeRenderStats() : StepperStats { return this._renderStepper.computeStats(); }
-
-	runGameLoop() : void {
-	   	if (!this.initialized() && this.ready()) {
-	   		this.initialize();
-	   	}
-
-	   	if (this.initialized()) {
-		   	game.netcode().preStep();
-	   		this._gameStepper.beginStep(this.getGameStep());
-	   		this.gameStep(this._gameStepper.getStepData());
-	   		this._gameStepper.endStep();
-
-   			const ratio = this._gameStepper.stepsPerSecond() / this.gameTargetFPS();
-   			if (ratio < Runner._degradedThreshold) {
-   				this.setDegraded(true);
-   			} else if (ratio > Runner._okThreshold) {
-   				this.setDegraded(false);
-   			}
-	   	}
-
-	   	let interval = Math.max(1, Math.floor(this.gameTargetStep() - this._gameStepper.timeSinceBeginStep()));
-	   	// Terrible hack to fix Firefox perf
-	   	if (isFirefox()) { interval /= 2; }
-    	setTimeout(() => { this.runGameLoop(); }, interval);
-	}
-	runRenderLoop() : void {
-	   	if (this.initialized()) {
-	   		this._renderStepper.beginStep(this.getRenderStep());
-	   		this.renderFrame(this._renderStepper.getStepData());
-	   		this._renderStepper.endStep();
-	   	}
-	   	let interval = Math.max(1, Math.floor(this.renderTargetStep() - this._renderStepper.timeSinceBeginStep()));
-	   	// Terrible hack to fix Firefox perf
-	   	if (isFirefox()) { interval /= 2; }
-    	setTimeout(() => { this.runRenderLoop(); }, interval);
-	}
-
-	private getGameStep() : number {
-		let currentStep = this._gameStepper.timeSinceBeginStep();
-
-		if (currentStep > Runner._maxSpeedUp * this.gameTargetStep()) {
-			currentStep = this.gameTargetStep();
+	private getGameStep(millis : number) : number {
+		if (millis > Runner._maxSpeedUp * Runner._targetTick) {
+			millis = Runner._targetTick;
 		}
 
 		if (!this.isSource()) {
-			const seqNumDiff = this._gameStepper.seqNum() - this._importSeqNum;
-			this._seqNumDiffs.push(seqNumDiff);
+			this._seqNumDiff = this._seqNum - this._importSeqNum;
 
-			if (Math.abs(seqNumDiff) > Runner._clientSnapThreshold) {
-				this._gameStepper.setSeqNum(this._importSeqNum);
-			} else if (Math.abs(seqNumDiff) > currentStep) {
-				const coeff = 1 - Math.sign(seqNumDiff) * Math.min(0.3, Math.abs(seqNumDiff) / Runner._clientSnapThreshold);
-				currentStep *= coeff;
+			if (Math.abs(this._seqNumDiff) > Runner._clientSnapThreshold) {
+				// Reset because client is too far ahead
+				this._seqNum = this._importSeqNum;
+				this.setHostDegraded(true);
+			} else if (Math.abs(this._seqNumDiff) > millis) {
+				// Magic slowdown/speedup formula
+				const coeff = 1 - Math.sign(this._seqNumDiff) * Math.min(0.3, Math.abs(this._seqNumDiff) / Runner._clientSnapThreshold);
+				millis *= coeff;
 			}
 		}
 
-		return Math.floor(currentStep);
+		return millis;
 	}
-
-	private getRenderStep() : number { return this._renderStepper.timeSinceBeginStep(); }
 
 	private gameStep(stepData : StepData) : void {
     	this.preUpdate(stepData);
@@ -234,12 +264,6 @@ export class Runner extends SystemBase implements System  {
     	}
     	this.cleanup();
     	ui.clearKeys();
-	}
-
-	private renderFrame(stepData : StepData) : void {
-		this.preRender();
-		this.render();
-		this.postRender();
 	}
 
 	private setDegraded(degraded : boolean) : void {
@@ -275,6 +299,7 @@ export class Runner extends SystemBase implements System  {
 		super.importData(data, seqNum);
 
 		this._importSeqNum = Math.max(this._importSeqNum, seqNum);
+		this._seqNum = Math.max(this._seqNum, this._importSeqNum);
 	}
 
 	private getDataFilters() : Array<DataFilter> {

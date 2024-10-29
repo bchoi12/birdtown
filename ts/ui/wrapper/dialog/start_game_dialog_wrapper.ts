@@ -215,7 +215,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			break;
 		case GameMode.FREE_FOR_ALL:
 			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			options.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());			
+			options.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
+			options.contentElm().appendChild(this.resetPointsWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
@@ -268,6 +269,20 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				msg.setPoints(Math.max(min, current - 1));
 			},
 			get: () => { return msg.getPoints(); },
+		});
+	}
+	private resetPointsWrapper(msg : GameConfigMessage) : SettingWrapper<number> {
+		return new SettingWrapper<number>({
+			name: "Reset points on death",
+			value: Number(msg.getResetPoints()),
+			click: (current : number) => {
+				current = current !== 0 ? 0 : 1;
+				msg.setResetPoints(current === 1);
+				return current;
+			},
+			text: (current : number) => {
+				return current === 1 ? "ON" : "OFF";
+			},
 		});
 	}
 	private livesWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {

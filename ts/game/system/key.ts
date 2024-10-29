@@ -33,6 +33,12 @@ export class Key extends ClientSideSystem implements System {
 			export: () => { return this._counter; },
 			import: (obj : number) => { this._networkCounter = Math.max(this._networkCounter, obj); },
 			validate: (obj : number) => { this._networkCounter = Math.max(this._networkCounter, obj); },
+			options: {
+				conditionalInterval: (obj: number, elapsed : number) => {
+					// Periodically broadcast key is no longer pressed
+					return obj % 2 === 0 && elapsed >= 2000;
+				},
+			}
 		});
 	}
 

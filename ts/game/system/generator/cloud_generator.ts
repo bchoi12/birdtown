@@ -26,6 +26,8 @@ export class CloudGenerator extends Generator implements System {
 
 		this._rng.seed(seed);
 
+		const dir = this._rng.le(0.5) ? -1 : 1;
+
 		const bounds = game.level().bounds();
 		let x = bounds.min.x;
 		while (x < bounds.max.x) {
@@ -46,7 +48,7 @@ export class CloudGenerator extends Generator implements System {
 						y: bounds.min.y + this._rng.next() * bounds.height(),
 					},
 					vel: {
-						x: .012 + .008 * this._rng.next(),
+						x: dir * (.012 + .008 * this._rng.next()),
 						y: 0,
 					},
 					dim: {

@@ -117,8 +117,7 @@ class Game {
 			this._runner.push(this._announcer);
 			this._runner.push(this._audio);
 
-			this._runner.runGameLoop();
-			this._runner.runRenderLoop();
+			this._runner.initialize();
 		    this._initialized = true;
 
 			this._options.netcodeSuccess();

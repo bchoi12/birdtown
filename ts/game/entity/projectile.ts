@@ -142,10 +142,9 @@ export abstract class Projectile extends EntityBase {
 
 		if (this.hitDamage() !== 0) {
 			other.takeDamage(this.hitDamage(), this);
-
-			if (this._playImpactSound && other.impactSound() !== SoundType.UNKNOWN) {
-				SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
-			}
+		}
+		if (this._playImpactSound && other.impactSound() !== SoundType.UNKNOWN) {
+			SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
 		}
 
 		this._hits.add(other.id());

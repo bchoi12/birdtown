@@ -77,8 +77,6 @@ export class SettingsHandler extends HandlerBase implements Handler{
 					return "30 FPS";
 				case SpeedSetting.NORMAL:
 					return "60 FPS";
-				case SpeedSetting.FAST:
-					return "120 FPS";
 				default:
 					return SpeedSetting[current];
 				}
