@@ -70,7 +70,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 
 		if (type !== ChatType.LOG) {
 			this.showChat();
-			this.hide();
+			this.delayedHide();
 
 			if (game.initialized()) {
 				SoundFactory.play(SoundType.CHAT);
@@ -103,7 +103,8 @@ export class ChatHandler extends HandlerBase implements Handler {
 		});	
 
 		this.showChat();
-		this.hide();
+		this._chatElm.classList.add(Html.classNoSelect);
+		this.delayedHide();
 	}
 
 	override onEnable() : void {
@@ -132,7 +133,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		this._messageElm.style.visibility = "hidden";
 		this._messageInputElm.blur();
 
-		this.hide();
+		this.delayedHide();
 	}
 
 	private showChat() : void {
@@ -140,7 +141,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		this._chatElm.scrollTop = this._chatElm.scrollHeight;
 	}
 
-	private hide(delay? : number) : void {
+	private delayedHide(delay? : number) : void {
 		if (!delay) {
 			delay = ChatHandler._hideDelay;
 		}

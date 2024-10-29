@@ -100,13 +100,15 @@ export class Runner extends SystemBase implements System  {
 		this._lastUpdateTime = Date.now();
 
 	   	this._ticker.onmessage = (msg : any) => {
+	   		// Prevent spiral of death
 	   		if (Math.abs(Date.now() - msg.data) > Runner._skipTickThreshold) {
 	   			return;
 	   		}
 
 	   		this._tickNum++;
-		   	game.netcode().preStep();
+		   	game.netcode().flush();
 
+		   	// No need to update game
 		   	if (!ui.focused()) {
 		   		return;
 		   	}

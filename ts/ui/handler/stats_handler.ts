@@ -44,7 +44,7 @@ export class StatsHandler extends HandlerBase implements Handler {
 			let renderStats = game.runner().renderStats();
 
 			const stats = game.netcode().stats();
-			let text = [game.netcode().room()];
+			let text = [];
 
 			if (!game.isHost()) {
 				text.push("Ping: " + Math.round(ping) + "ms (" + Math.round(pingSuccess) + "%)");
@@ -61,6 +61,8 @@ export class StatsHandler extends HandlerBase implements Handler {
 				text.push("UDP/s: " + Math.round(stats.get(ChannelType.UDP).get(ChannelStat.PACKETS))
 					+ " (" + Math.round(stats.get(ChannelType.UDP).get(ChannelStat.BYTES) / 1024) + "Kb)");
 			}
+			text.push(game.netcode().room());
+
 			this._customStats.textContent = text.join(" | ");
 
 			gameStats.resetMinMax();

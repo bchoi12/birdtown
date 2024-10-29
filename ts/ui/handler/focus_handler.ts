@@ -23,12 +23,16 @@ export class FocusHandler extends HandlerBase implements Handler {
 				this._focused = true;
 				this._lastChangeTime = Date.now();
 
-				game.runner().resume();
+				if (game.initialized()) {
+					game.runner().resume();
+				}
 			} else if (this._focused) {
 				this._focused = false;
 				this._lastChangeTime = Date.now();
 
-				game.runner().pause();
+				if (game.initialized()) {
+					game.runner().pause();
+				}
 			}
 		});
 	}

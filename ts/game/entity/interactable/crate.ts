@@ -34,6 +34,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 
 	private _materialShifter : MaterialShifter;
 	private _opened : boolean;
+	private _exploded : boolean;
 
 	private _nameTag : NameTag;
 
@@ -49,6 +50,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 
 		this._materialShifter = new MaterialShifter();
 		this._opened = false;
+		this._exploded = false;
 
 		this._nameTag = null;
 
@@ -151,7 +153,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 	override delete() : void {
 		super.delete();
 
-		if (this._opened) {
+		if (this._opened && !this._exploded) {
 			for (let i = 0; i < 7; ++i) {
 				this.addEntity(EntityType.CUBE_PARTICLE, {
 					offline: true,
@@ -172,6 +174,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 					}
 				});
 			}
+			this._exploded = true;
 		}
 
 		if (this._nameTag !== null) {

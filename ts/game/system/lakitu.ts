@@ -291,7 +291,7 @@ export class Lakitu extends SystemBase implements System {
 		this._fov.x = 2 * dist * Math.tan(this._camera.fov / 2);
 		this._fov.y = this._fov.x / aspect;
 	}
-	override setTargetEntity(entity : Entity) {
+	override setTargetEntity(entity : Entity) : void {
 		if (!entity.hasProfile()) {
 			console.log("Error: target entity %s must have profile", entity.name());
 			return;
@@ -302,6 +302,10 @@ export class Lakitu extends SystemBase implements System {
 
 		super.setTargetEntity(entity);
 		ui.refreshHudColor();
+	}
+	override clearTargetEntity() : void {
+		super.clearTargetEntity();
+		this._mode = TargetMode.UNKNOWN;
 	}
 
 	override update(stepData : StepData) : void {

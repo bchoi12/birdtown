@@ -197,7 +197,7 @@ export abstract class Netcode {
 		return voiceMap;
 	}
 
-	preStep() : void {
+	flush() : void {
 		for (let i = 0; i < this._registerBuffer.size(); ++i) {
 			for (let j = 0; j < this._registerCallbacks.length; ++j) {
 				this._registerCallbacks[j](this._registerBuffer.get(i));
