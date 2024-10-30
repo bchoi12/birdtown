@@ -164,6 +164,7 @@ class UI {
 	inputHeight() : number { return this._inputHandler.inputHeight(); }
 	screenRect() : DOMRect { return this._inputHandler.screenRect(); }
 	focused() : boolean { return this._focusHandler.focused(); }
+	onFocus(fn : () => void) : void { this._focusHandler.onFocus(fn); }
 	timeSinceFocusChange() : number { return Date.now() - this._focusHandler.lastChangeTime(); }
 
 	applyFullscreen() : void { this._fullscreenHandler.applyFullscreen(); }

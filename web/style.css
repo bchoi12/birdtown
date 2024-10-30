@@ -374,9 +374,9 @@ kbd {
     padding-bottom: 0.3em;
 
     white-space: nowrap;
+    overflow-x: auto;
 
     text-align: left;
-    min-width: 5.5em;
     font-size: 0.8em;
 
     border-top-right-radius: 0.2em;

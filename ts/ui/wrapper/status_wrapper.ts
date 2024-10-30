@@ -5,8 +5,12 @@ import { Html, HtmlWrapper } from 'ui/html'
 
 export class StatusWrapper extends HtmlWrapper<HTMLElement> {
 
+	private _timeoutId : number;
+
 	constructor() {
 		super(Html.div());
+
+		this._timeoutId = 0;
 
 		this.elm().classList.add(Html.classOnscreenMessage);
 		this.elm().classList.add(Html.classStatusMessage);
@@ -20,8 +24,17 @@ export class StatusWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().innerHTML = html;
 	}
 
-	show() : void {
-		this.elm().style.display = "block";
+	show(ttl? : number) : void {
+		ui.onFocus(() => {
+			this.elm().style.display = "block";
+
+			window.clearTimeout(this._timeoutId);
+			if (ttl) {
+				this._timeoutId = window.setTimeout(() => {
+					this.hide();
+				}, ttl);
+			}
+		});
 	}
 
 	hide() : void {

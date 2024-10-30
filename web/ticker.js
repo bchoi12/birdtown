@@ -1,19 +1,16 @@
 
 // Number of seconds to do FPS calculation over
-const fpsWindow = 5;
+const averageWindow = 10;
 
-// Frame counter
-let counter = 0;
 // Current frame #
 let frame = 0;
-// Current FPS for debugging
-let current = 60;
-// Target FPS and interval
-let target = 60;
-let interval = Math.floor(1000 / target);
+// Current interval
+let current = 0;
+// Target interval
+let target = 0;
 
-// Last FPS calculation
-let lastUpdate = Date.now();
+// Last tick
+let lastTick = Date.now();
 
 let id = 0;
 
@@ -21,47 +18,33 @@ function tick() {
 	const time = Date.now();
 
 	frame++;
-	counter++;
 	self.postMessage(time);
 
-	const elapsed = time - lastUpdate;
-	if (elapsed >= 1000) {
-		current = ((fpsWindow - 1) * current + counter) / fpsWindow;
-		counter = 0;
-		lastUpdate = time;
-		id = setTimeout(() => {
-			tick();
-		}, interval);
-		return;
-	}
-	const framesLeft = target - counter;
-	if (framesLeft <= 0) {
-		id = setTimeout(() => {
-			tick();
-		}, interval);
-		return;
-	}
+	const elapsed = time - lastTick;
+	current = Math.max(1, ((averageWindow - 1) * current + elapsed) / averageWindow);
+	lastTick = Date.now();
 
+	const interval = Math.max(1, Math.min(target, target * target / current));
 	id = setTimeout(() => {
 		tick();
-	}, Math.floor((1000 - elapsed) / framesLeft));
+	}, Math.round(interval));
 }
-tick();
+startTick(60);
 
-function retick() {
+function startTick(fps) {
 	clearTimeout(id);
+	target = 1000 / fps;
+	current = target;
 	tick();
 }
 
 self.onmessage = (event) => {
 	switch (event.data) {
 	case 1: // slow
-		target = 10;
-		retick();
+		startTick(10);
 		break;
 	case 2: // resume
-		target = 60;
-		retick();
+		startTick(60);
 		break;
 	}
 };

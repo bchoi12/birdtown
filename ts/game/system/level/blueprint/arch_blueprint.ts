@@ -444,7 +444,7 @@ export class ArchBlueprint extends Blueprint {
 
 	private generateBirdtownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
 		let plan = new Array<BuildingPlan>();
-		const length = 7 + Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(3);
+		const length = 8 + Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(2);
 
 		let currentHeight = 2;
 		const maxHeight = 3;

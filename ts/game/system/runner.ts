@@ -223,7 +223,8 @@ export class Runner extends SystemBase implements System  {
 	tickDiff() : number { return this.isSource() ? 0 : Math.round(this._seqNumDiff / Runner._targetTick); }
  
 	private getGameStep(millis : number) : number {
-		if (millis > Runner._maxSpeedUp * Runner._targetTick) {
+		// Allow clients to run uncapped
+		if (this.isSource() && millis > Runner._maxSpeedUp * Runner._targetTick) {
 			millis = Runner._targetTick;
 		}
 
@@ -233,7 +234,10 @@ export class Runner extends SystemBase implements System  {
 			if (Math.abs(this._seqNumDiff) > Runner._clientSnapThreshold) {
 				// Reset because client is too far ahead
 				this._seqNum = this._importSeqNum;
-				this.setHostDegraded(true);
+
+				if (this._seqNumDiff > 0) {
+					this.setHostDegraded(true);
+				}
 			} else if (Math.abs(this._seqNumDiff) > millis) {
 				// Magic slowdown/speedup formula
 				const coeff = 1 - Math.sign(this._seqNumDiff) * Math.min(0.3, Math.abs(this._seqNumDiff) / Runner._clientSnapThreshold);

@@ -17,6 +17,8 @@ import { Vec2 } from 'util/vector'
 
 export class Physics extends SystemBase implements System {
 
+	private static readonly _maxMillis = 20;
+
 	private _engine : MATTER.Engine;
 	private _minimap : HTMLElement;
 	private _canvas : HTMLCanvasElement;
@@ -74,7 +76,7 @@ export class Physics extends SystemBase implements System {
 
 	override physics(stepData : StepData) : void {
 		super.physics(stepData);
-		const millis = stepData.millis;
+		const millis = Math.min(stepData.millis, Physics._maxMillis);
 
 		MATTER.Engine.update(this._engine, millis);
 

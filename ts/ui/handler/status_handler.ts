@@ -134,7 +134,11 @@ export class StatusHandler extends HandlerBase implements Handler {
 			break;
 		}
 
-		wrapper.show();
+		if (type === StatusType.DISCONNECTED) {
+			wrapper.show();
+		} else {
+			wrapper.show(30 * 1000);
+		}
 		this._current.add(type);
 
 		if (StatusHandler._clear.has(type)) {

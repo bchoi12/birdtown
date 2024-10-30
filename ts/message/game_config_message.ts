@@ -50,6 +50,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 	private static readonly _gameProps : [number, Descriptor][] = [
 		...GameConfigMessage._baseProps,
 		[GameConfigProp.PLAYERS_MIN, {}],
+		[GameConfigProp.RESET_POINTS, {}],
 		[GameConfigProp.TIME_SETUP, {}],
 		[GameConfigProp.TIME_FINISH, {}],
 		[GameConfigProp.TIME_VICTORY, {}],
@@ -70,7 +71,6 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.FREE_FOR_ALL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.POINTS, {}],
-			[GameConfigProp.RESET_POINTS, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
