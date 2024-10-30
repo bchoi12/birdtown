@@ -32,7 +32,7 @@ export class Runner extends SystemBase implements System  {
 	// Max speedup is 15%
 	private static readonly _maxSpeedUp = 1.15;
 
-	private static readonly _warmupTime = 10000;
+	private static readonly _warmupTime = 3000;
 	private static readonly _degradedThreshold = 0.6;
 	private static readonly _okThreshold = 0.8;
 
@@ -185,9 +185,7 @@ export class Runner extends SystemBase implements System  {
 
 		this._ticker.postMessage(1);
 
-		if (this.isHost()) {
-			this.setDegraded(true);
-		}
+		this.setDegraded(true);
 	}
 	resume() : void {
 		if (!this.initialized()) {
@@ -195,6 +193,8 @@ export class Runner extends SystemBase implements System  {
 		}
 
 		this._ticker.postMessage(2);
+
+		this.setDegraded(false);
 	}
 	push<T extends System>(system : T) : void {
 		if (this.hasChild(system.type())) {
@@ -288,10 +288,6 @@ export class Runner extends SystemBase implements System  {
 		}
 	}
 	private setHostDegraded(degraded : boolean) : void {
-		if (this._hostDegraded === degraded) {
-			return;
-		}
-
 		this._hostDegraded = degraded;
 
 		if (this._hostDegraded) {

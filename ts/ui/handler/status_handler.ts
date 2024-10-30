@@ -23,6 +23,11 @@ export class StatusHandler extends HandlerBase implements Handler {
 		[StatusType.SETUP, new Set([StatusType.LOADING])],
 	]);
 
+	private static readonly _ttl = new Map<StatusType, number>([
+		[StatusType.HOST_DEGRADED, 3 * 1000],
+		[StatusType.LOADING, 5 * 1000],		
+	]);
+
 	private _statusElm : HTMLElement;
 	private _statusWrappers : Map<StatusType, StatusWrapper>;
 	private _current : Set<StatusType>;
@@ -137,7 +142,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 		if (type === StatusType.DISCONNECTED) {
 			wrapper.show();
 		} else {
-			wrapper.show(30 * 1000);
+			wrapper.show(StatusHandler._ttl.has(type) ? StatusHandler._ttl.get(type) : 30 * 1000);
 		}
 		this._current.add(type);
 

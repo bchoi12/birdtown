@@ -153,7 +153,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 	override delete() : void {
 		super.delete();
 
-		if (this._opened && !this._exploded) {
+		if (this._model.hasMesh() && this._opened && !this._exploded) {
 			for (let i = 0; i < 7; ++i) {
 				this.addEntity(EntityType.CUBE_PARTICLE, {
 					offline: true,
