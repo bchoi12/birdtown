@@ -129,6 +129,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		this.setTimeVictory(8000);
 		this.setTimeError(5000);
 
+		this.setResetPoints(false);
 		this.setHealthCrateSpawn(FrequencyType.NEVER);
 		this.setWeaponCrateSpawn(FrequencyType.NEVER);
 
@@ -146,7 +147,6 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setPoints(4);
-			this.setResetPoints(false);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.POINTS);
 			break;

@@ -4,8 +4,11 @@ const averageWindow = 10;
 
 // Current frame #
 let frame = 0;
-// Current interval
-let current = 0;
+
+// Requested interval
+let interval = 0;
+// Actual interval
+let actual = 0;
 // Target interval
 let target = 0;
 
@@ -21,10 +24,18 @@ function tick() {
 	self.postMessage(time);
 
 	const elapsed = time - lastTick;
-	current = Math.max(1, ((averageWindow - 1) * current + elapsed) / averageWindow);
+	actual = Math.max(1, ((averageWindow - 1) * actual + elapsed) / averageWindow);
 	lastTick = Date.now();
 
-	const interval = Math.max(1, Math.min(target, target * target / current));
+	const diff = target - actual;
+	if (diff < -1) {
+		// Running slow
+		interval -= 0.2;
+	} else if (diff > 1) {
+		// Too fast
+		interval += 0.2;
+	}
+	interval = Math.max(1, Math.min(target, interval));
 	id = setTimeout(() => {
 		tick();
 	}, Math.round(interval));
@@ -34,7 +45,9 @@ startTick(60);
 function startTick(fps) {
 	clearTimeout(id);
 	target = 1000 / fps;
-	current = target;
+	interval = target;
+	actual = target;
+	diff = 0;
 	tick();
 }
 
