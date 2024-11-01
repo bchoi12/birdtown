@@ -23,14 +23,14 @@ export class FocusHandler extends HandlerBase implements Handler {
 
 	override setup() : void {
 		document.addEventListener("visibilitychange", (event) => {
-			if (!this._focused && document.visibilityState == "visible") {
+			if (!this._focused && document.visibilityState === "visible") {
 				this._focused = true;
 				this._lastChangeTime = Date.now();
 
 				if (game.initialized()) {
 					game.runner().resume();
 				}
-			} else if (this._focused) {
+			} else if (this._focused && document.visibilityState !== "visible") {
 				this._focused = false;
 				this._lastChangeTime = Date.now();
 

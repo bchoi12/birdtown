@@ -38,6 +38,7 @@ export enum IconType {
 
 	// Feed
 	READY,
+	SIGN,
 	SKILLET,
 	SKULL,
 	TROPHY,
@@ -105,6 +106,7 @@ export namespace Icon {
 		[IconType.ROCKING_HORSE, "bedroom_baby"],
 		[IconType.ROLL, "cached"],
 		[IconType.SHARE, "share"],
+		[IconType.SIGN, "signpost"],
 		[IconType.SKILLET, "skillet"],
 		[IconType.SKULL, "skull"],
 		[IconType.SPRAY, "household_supplies"],
@@ -128,6 +130,10 @@ export namespace Icon {
 
 	export function create(type : IconType) : HTMLElement {
 		return change(baseElement(), type);
+	}
+
+	export function string(type : IconType) : string {
+		return create(type).outerHTML;
 	}
 
 	export function change(elm : HTMLElement, type : IconType) : HTMLElement {

@@ -111,17 +111,6 @@ kbd {
     transform: translate(-50%, -50%);
 }
 
-#div-loading {
-    margin: 0 auto;
-    width: 40%;
-    text-align: center;
-    padding: 3em;
-    margin-top: 3em;
-
-    background-color: rgba(0, 0, 0, 0.7);
-    border-radius: 0.5em;
-}
-
 #div-canvas {
     width: 100%;
     height: 100%;
@@ -135,7 +124,7 @@ kbd {
     height: 100%;
 }
 
-#div-login {
+#div-login, #div-loading {
     position: absolute;
     align-items: center;
     justify-content: center;
@@ -148,6 +137,19 @@ kbd {
     transform: translateY(-50%);
 
     margin: 0 auto;
+}
+
+#div-loading {
+    text-align: center;
+
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 0.5em;
+}
+#div-loading div {
+    padding: 3em;
+}
+
+#div-login {
     font-size: 1.5em;
 }
 #fieldset-login {
@@ -166,7 +168,7 @@ kbd {
     text-align: right;
     font-weight: bold;
     letter-spacing: 0.05em;
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
 }
 #login-error {
     font-weight: bold;
@@ -618,11 +620,11 @@ kbd {
     display: block;
     position: absolute;
     width: 70%;
-    height: 70%;
-    top: 15%;
+    height: 80%;
     left: 15%;
+    top: 10%;
 
-    border-radius: 2em;
+    border-radius: 1em;
     background-color: rgba(0.1, 0.1, 0.1, 0.9);
 }
 
@@ -751,8 +753,16 @@ kbd {
     opacity: 0.7;
 }
 
-.bold {
-    font-weight: bold;
+.bird-picker {
+    width: 100%;
+}
+
+.bird-photo {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
 }
 
 .button, .button-select {

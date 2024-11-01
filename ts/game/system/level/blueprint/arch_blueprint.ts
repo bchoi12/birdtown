@@ -345,10 +345,7 @@ export class ArchBlueprint extends Blueprint {
 								dim: EntityFactory.getDimension(EntityType.SIGN),
 							},
 						});
-					} else {
-						block.addSampleCrates(this.rng());
 					}
-
 					if (building.height() === this.maxHeight()) {
 						block.pushEntityOptions(EntityType.BILLBOARD, {
 							profileInit: {

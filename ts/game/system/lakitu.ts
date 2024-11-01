@@ -115,6 +115,18 @@ export class Lakitu extends SystemBase implements System {
 		this._anchor.addInPlaceFromFloats(offset.x, offset.y, offset.z);
 		this.move(this._anchor);
 	}
+	pan(type : OffsetType, goal : Vec, millis : number) : void {
+		this._panners.get(type).pan({
+			goal: goal,
+			millis: millis,
+			interpType: InterpType.NEGATIVE_SQUARE,
+		});
+	}
+	portrait() : void {
+		this.pan(OffsetType.CAMERA, { x: 3, y: 2, z: 7 }, Lakitu._quickPan);
+		this.pan(OffsetType.TARGET, { x: 0, y: 0, z: 0 }, Lakitu._quickPan);
+	}
+
 	private move(anchor : BABYLON.Vector3) : void {
 		this._target = anchor.clone();
 		const targetOffset = this.offset(OffsetType.TARGET);

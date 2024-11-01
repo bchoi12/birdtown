@@ -84,6 +84,10 @@ export class Runner extends SystemBase implements System  {
 		this._degraded = false;
 		this._hostDegraded = false;
 
+	   	this._ticker.onerror = (e) => {
+	   		console.error(e);
+	   	}
+
 		this.addProp<boolean>({
 			export: () => { return this._degraded; },
 			import: (obj : boolean) => { this.setHostDegraded(obj); }

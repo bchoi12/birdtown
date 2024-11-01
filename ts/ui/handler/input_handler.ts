@@ -65,7 +65,7 @@ export class InputHandler extends HandlerBase implements Handler {
 		this._cursorElm = Html.elm(Html.cursor);
 		this._mouse = Vec2.zero();
 
-		this._aimMode = AimMode.JOYSTICK;
+		this._aimMode = AimMode.TOUCH;
 		this._aimElm = Html.elm(Html.aim);
 		this._aimId = new Optional();
 		this._aim = new Optional();

@@ -61,6 +61,15 @@ export class StatusHandler extends HandlerBase implements Handler {
 	override reset() : void {
 		super.reset();
 
+		this.hideAll();
+	}
+
+	hasStatus(type : StatusType) : boolean { return this._current.has(type); }
+	disableStatus(type : StatusType) : void {
+		this.hideStatus(type);
+		this._disabled.add(type);
+	}
+	hideAll() : void {
 		for (const stringStatus in StatusType) {
 			const type = Number(StatusType[stringStatus]);
 			if (Number.isNaN(type) || type <= 0) {
@@ -69,12 +78,6 @@ export class StatusHandler extends HandlerBase implements Handler {
 
 			this.hideStatus(type);
 		}
-	}
-
-	hasStatus(type : StatusType) : boolean { return this._current.has(type); }
-	disableStatus(type : StatusType) : void {
-		this.hideStatus(type);
-		this._disabled.add(type);
 	}
 
 	showStatus(type : StatusType) : void {

@@ -219,6 +219,7 @@ class UI {
 	hasStatus(type : StatusType) : boolean { return this._statusHandler.hasStatus(type); }
 	showStatus(type : StatusType) : void { this._statusHandler.showStatus(type); }
 	hideStatus(type : StatusType) : void { this._statusHandler.hideStatus(type); }
+	hideAllStatuses() : void { this._statusHandler.hideAll(); }
 	disableStatus(type : StatusType) : void { this._statusHandler.disableStatus(type); }
 	usingTray() : boolean { return this._trayHandler.hasMouse(); }
 

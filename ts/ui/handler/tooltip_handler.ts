@@ -8,6 +8,7 @@ import { TooltipType, TooltipOptions, UiMode } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
+import { Icon, IconType } from 'ui/common/icon'
 import { KeyNames } from 'ui/common/key_names'
 import { TooltipWrapper } from 'ui/wrapper/tooltip_wrapper'
 
@@ -101,13 +102,13 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		case TooltipType.BUBBLE:
 			return `Press ${KeyNames.kbd(settings.jumpKeyCode)} to pop the bubble`;
 		case TooltipType.CONTROLS:
-			return `Press ${KeyNames.kbd(settings.menuKeyCode)} at any time to update settings & controls`;
+			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.kbd(settings.menuKeyCode)} at any time to update settings & controls`;
 		case TooltipType.COPIED_URL:
 			return "Copied invite link to clipboard!";
 		case TooltipType.FORCE_SUBMIT:
 			return "Note: dialog was auto-submitted!";
 		case TooltipType.JUST_A_SIGN:
-			return "Just a sign with no purpose"
+			return `${Icon.string(IconType.SIGN)} Just a sign with no purpose`
 		case TooltipType.HEALTH_CRATE:
 			if (names.length !== 1) {
 				return "";
@@ -131,9 +132,9 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return "Press <kbd>any key</kbd> to deploy"
 		case TooltipType.START_GAME:
 			if (!game.isHost()) {
-				return "Only the host can start a game";
+				return `${Icon.string(IconType.SIGN)} Only the host can start a game`;
 			}
-			return `Press ${KeyNames.kbd(settings.interactKeyCode)} to start a game`;
+			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.kbd(settings.interactKeyCode)} to start a game`;
 		case TooltipType.WEAPON_CRATE:
 			if (names.length !== 1) {
 				return "";

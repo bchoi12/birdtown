@@ -40,10 +40,8 @@ function tick() {
 		tick();
 	}, Math.round(interval));
 }
-startTick(60);
 
 function startTick(fps) {
-	clearTimeout(id);
 	target = 1000 / fps;
 	interval = target;
 	actual = target;
@@ -61,3 +59,4 @@ self.onmessage = (event) => {
 		break;
 	}
 };
+startTick(60);

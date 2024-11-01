@@ -14,6 +14,7 @@ import { DialogType } from 'ui/api'
 import { Html } from 'ui/html'
 import { IconType } from 'ui/common/icon'
 import { LoginNames } from 'ui/common/login_names'
+import { BirdWrapper } from 'ui/wrapper/bird_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { ClientNameWrapper } from 'ui/wrapper/client_name_wrapper'
 import { ColorPickWrapper } from 'ui/wrapper/color_pick_wrapper'
@@ -63,7 +64,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 
 		const nameAndColor = LoginNames.randomNameAndColor();
 
-		bio.appendTitle("Name");
+		bio.appendTitle("Gamer Tag");
 		let nameWrapper = new ClientNameWrapper(nameAndColor[0]);
 		nameWrapper.nameElm().style.textAlign = "center";
 		bio.contentElm().appendChild(nameWrapper.elm());
@@ -79,28 +80,13 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		bio.contentElm().appendChild(Html.br());
 
 		let bird = columnsWrapper.column(1);
-		bird.setLegend("Photo");
+		bird.setLegend("Choose a Bird");
 
-		let birds = [BirdType.BOOBY, BirdType.CHICKEN, BirdType.DUCK, BirdType.ROBIN];
-		let birdType = new SettingWrapper<BirdType>({
-			name: "Species",
-			value: birds[Math.floor(Math.random() * birds.length)],
-			click: (current : BirdType) => {
-				if (current === birds[birds.length - 1]) {
-					current = birds[0];
-				} else {
-					current++;
-				}
-				return current;
-			},
-			text: (current : BirdType) => {
-				return BirdType[current];
-			},
-		});
-		bird.contentElm().appendChild(birdType.elm());
+		let birdPicker = new BirdWrapper();
+		bird.contentElm().appendChild(birdPicker.elm());
 
 		pageWrapper.setOnSubmit(() => {
-			this.dialogMessage().setBirdType(birdType.value());
+			this.dialogMessage().setBirdType(birdPicker.type());
 			this.dialogMessage().setDisplayName(nameWrapper.name());
 			this.dialogMessage().setColor(colorPick.selectedColor());
 		});

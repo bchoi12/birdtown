@@ -45,14 +45,18 @@ export class Panner {
 		return false;
 	}
 	snap() : void { this._timer.finish(); }
-	snapTo(goal : Vec3) : void {
-		this._goal.copy(goal);
+	snapTo(goal : Vec) : void {
+		this._goal.copyVec(goal);
 		this.snap();
 	}
 	pan(options : PanOptions) : void {
 		this.panFrom(this.current(), options);
 	}
 	panFrom(current : Vec3, options : PanOptions) : void {
+		if (options.millis <= 0) {
+			this.snapTo(options.goal);
+			return;
+		}
 		this._base.copy(current);
 		this._goal.copyVec(options.goal);
 		this._timer.start(options.millis);	

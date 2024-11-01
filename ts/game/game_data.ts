@@ -4,7 +4,6 @@ import { GameProp, GamePropOptions } from 'game/game_prop'
 import { DataMap } from 'message'
 
 import { defined } from 'util/common'
-import { BitMarker } from 'util/bit_marker'
 
 export enum DataFilter {
 	UNKNOWN,

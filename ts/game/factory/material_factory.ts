@@ -61,6 +61,12 @@ export namespace MaterialFactory {
 			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_ORANGE).toBabylonColor3();
 		});
 
+		standardMaterial(MaterialType.GREEN_SCREEN, (mat : BABYLON.StandardMaterial) => {
+			mat.backFaceCulling = false;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.color(ColorType.GREEN).toBabylonColor3();
+		});
+
 		standardMaterial(MaterialType.SPAWN_POINT, (mat : BABYLON.StandardMaterial) => {
 			mat.diffuseColor = ColorFactory.color(ColorType.YELLOW).toBabylonColor3();
 		});

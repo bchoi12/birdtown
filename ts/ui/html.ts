@@ -63,6 +63,8 @@ export namespace Html {
 	export const classTransparent05 = "transparent-05"
 	export const classTransparent07= "transparent-07";
 
+	export const classBirdPhoto = "bird-photo";
+	export const classBirdPicker = "bird-picker";
 	export const classButton = "button";
 	export const classButtonSelect = "button-select";
 	export const classButtonSelected = "button-selected";
@@ -120,6 +122,7 @@ export namespace Html {
 	export function div() : HTMLElement { return document.createElement("div"); }
 	export function span() : HTMLElement { return document.createElement("span"); }
 	export function br() : HTMLElement { return document.createElement("br"); }
+	export function img() : HTMLImageElement { return document.createElement("img"); }
 	export function fieldset() : HTMLElement { return document.createElement("fieldset"); }
 	export function kbd() : HTMLElement { return document.createElement("kbd"); }
 	export function label() : HTMLElement { return document.createElement("label"); }

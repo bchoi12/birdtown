@@ -3,6 +3,7 @@ import { GradientMaterial } from '@babylonjs/materials/Gradient'
 
 import { game } from 'game'	
 import { Entity } from 'game/entity'
+import { EntityType } from 'game/entity/api'
 import { GameData } from 'game/game_data'
 import { ColorType, MaterialType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -22,7 +23,7 @@ enum LayerType {
 	HIGHLIGHT,
 }
 
-type TimeSetting = {
+type TimeSettings = {
 	skyMaterial : MaterialType;
 	lightDir : BABYLON.Vector3;
 
@@ -44,7 +45,17 @@ export type GlowParams = {
 
 export class World extends SystemBase implements System {
 
-	private static readonly _timeSettings = new Map<TimeType, TimeSetting>([
+	private static readonly _greenSettings = {
+		skyMaterial: MaterialType.GREEN_SCREEN,
+		lightDir: new BABYLON.Vector3(1, -3, -4).normalize(),
+		directionalIntensity: 1.3,
+		directionalDiffuse: new BABYLON.Color3(1, 1, 1),
+		hemisphericIntensity: 0.7,
+		hemisphericDiffuse: new BABYLON.Color3(1, 1, 1),
+		hemisphericBottomColor: new BABYLON.Color3(0.7, 0.7, 0.7),
+	};
+
+	private static readonly _timeSettings = new Map<TimeType, TimeSettings>([
 		[TimeType.DAY, {
 			skyMaterial: MaterialType.SKY_DAY,
 			lightDir: new BABYLON.Vector3(1, -3, -4).normalize(),
@@ -124,14 +135,7 @@ export class World extends SystemBase implements System {
 		this._shadowGenerator = new BABYLON.ShadowGenerator(1024, this._directionalLight);
 
 		this._skyBox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 200.0 }, this._scene);
-	    /*
-	    // Old sky settings
-		skyMaterial.inclination = 0;
-		skyMaterial.luminance = 0.9;
-		skyMaterial.turbidity = 2.5;
-		*/
-
-	this._cloudGenerator = this.addSubSystem<CloudGenerator>(SystemType.CLOUD_GENERATOR, new CloudGenerator());
+		this._cloudGenerator = this.addSubSystem<CloudGenerator>(SystemType.CLOUD_GENERATOR, new CloudGenerator());
 
 		this.addProp<TimeType>({
 			has: () => { return this._desiredTime !== TimeType.UNKNOWN; },
@@ -173,9 +177,34 @@ export class World extends SystemBase implements System {
 		}
 		this._desiredTime = type;
 	}
-	applyTime() : void {
-		const settings = World._timeSettings.get(this._desiredTime);
+	applyTime(type : TimeType) : void {
+		if (this._currentTime === type) {
+			return;
+		}
 
+		const settings = World._timeSettings.get(type);
+		this.applySettings(settings);
+
+	    this._currentTime = type;
+	}
+	greenScreen() : void {
+		game.entities().getMap(EntityType.BACKGROUND_ARCH_ROOM).execute((entity : Entity) => {
+			entity.delete();
+		});
+		game.entities().getMap(EntityType.CLOUD).execute((entity : Entity) => {
+			entity.delete();
+		});
+		game.entities().findEntities((entity : Entity) => {
+			return entity.allTypes().has(EntityType.BLOCK);
+		}).forEach((entity : Entity) => {
+			if (entity.hasModel()) {
+				entity.model().setVisible(false);
+			}
+		});
+
+		this.applySettings(World._greenSettings);
+	}
+	private applySettings(settings : TimeSettings) : void {
 		this._skyBox.material = MaterialFactory.material(settings.skyMaterial);
 		this._directionalLight.direction.copyFrom(settings.lightDir);
 		this._directionalLight.intensity = settings.directionalIntensity;
@@ -183,8 +212,6 @@ export class World extends SystemBase implements System {
 		this._hemisphericLight.intensity = settings.hemisphericIntensity;
 	    this._hemisphericLight.diffuse = settings.hemisphericDiffuse;
 	    this._hemisphericLight.groundColor = settings.hemisphericBottomColor;
-
-	    this._currentTime = this._desiredTime;
 	}
 
 	renderShadows(mesh : BABYLON.AbstractMesh) : void {
@@ -286,7 +313,7 @@ export class World extends SystemBase implements System {
 		super.preRender();
 
 		if (this._currentTime !== this._desiredTime) {
-			this.applyTime();
+			this.applyTime(this._desiredTime);
 		}
 
 		const dist = game.lakitu().camera().position.subtract(game.lakitu().target()).length();
