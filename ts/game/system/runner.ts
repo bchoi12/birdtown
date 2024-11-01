@@ -236,7 +236,7 @@ export class Runner extends SystemBase implements System  {
 				this._seqNum = this._importSeqNum;
 
 				if (this._seqNumDiff > 0) {
-					this.setHostDegraded(true);
+					this.setHostBehind(true);
 				}
 			} else if (Math.abs(this._seqNumDiff) > millis) {
 				// Magic slowdown/speedup formula
@@ -294,6 +294,11 @@ export class Runner extends SystemBase implements System  {
 			ui.showStatus(StatusType.HOST_DEGRADED);
 		} else {
 			ui.hideStatus(StatusType.HOST_DEGRADED);
+		}
+	}
+	private setHostBehind(behind : boolean) : void {
+		if (behind) {
+			ui.showStatus(StatusType.HOST_DEGRADED);
 		}
 	}
 

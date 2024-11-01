@@ -10,6 +10,7 @@ import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 
+import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
 
 enum CreateMode {
@@ -30,7 +31,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 	private _infoTextElm : HTMLElement;
 	private _infoDotsElm : HTMLElement;
 	private _loginErrorElm : HTMLElement;
-	private _roomInputElm : HTMLInputElement;
+	private _joinInputElm : HTMLInputElement;
 	private _loginButtonsElm : HTMLElement;
 	private _buttonHostElm : HTMLInputElement;
 	private _buttonJoinElm : HTMLInputElement;
@@ -48,7 +49,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._infoTextElm = Html.span();
 		this._infoDotsElm = Html.span();
 		this._loginErrorElm = Html.elm(Html.loginError);
-		this._roomInputElm = Html.inputElm(Html.inputRoom);
+		this._joinInputElm = Html.inputElm(Html.inputRoom);
 		this._loginButtonsElm = Html.elm(Html.divLoginButtons);
 		this._buttonHostElm = Html.inputElm(Html.buttonHost);
 		this._buttonJoinElm = Html.inputElm(Html.buttonJoin);
@@ -61,22 +62,15 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 	override setup() : void {	
 		this._buttonHostElm.onclick = () => {
-			let room = Html.trimmedValue(this._roomInputElm);
-			if (room.length === 0) {
-				room = LoginNames.randomRoom();
-
-				// Avoid browser validation nag
-				this._roomInputElm.value = room;
-			}
-
-			this.startGame(room, /*isHost=*/true);
+			let room = LoginNames.randomRoom();
+			this.startGame(room, CreateMode.HOST);
 		};
 		this._buttonJoinElm.onclick = () => {
-			const room = Html.trimmedValue(this._roomInputElm);
-			this.startGame(room, /*isHost=*/false);
+			const room = Html.trimmedValue(this._joinInputElm);
+			this.startGame(room, CreateMode.JOIN);
 		};
 
-		this.showInfo("Loading");
+		this.showInfo("Loading...");
 		this.enable();
 	}
 
@@ -91,8 +85,10 @@ export class LoginHandler extends HandlerBase implements Handler {
 		if (urlParams.has(UiGlobals.roomParam)) {
 			const room = urlParams.get(UiGlobals.roomParam);
 			if (room.length > 0) {
-				this._roomInputElm.value = room;
-				this.startGame(room, /*isHost=*/false);
+				this._joinInputElm.value = room;
+
+				const mode = isLocalhost() ? CreateMode.HOST_AFTER_JOIN : CreateMode.JOIN;
+				this.startGame(room, mode);
 			}
 		}
 	}
@@ -106,7 +102,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 	private showInfo(info : string) : void {
 		this._loginInfoElm.style.display = "block";
-		this._roomInputElm.style.display = "none";
+		this._joinInputElm.style.display = "none";
 		this._loginButtonsElm.style.display = "none";
 
 		this._infoTextElm.textContent = info;
@@ -129,9 +125,9 @@ export class LoginHandler extends HandlerBase implements Handler {
 	}
 	private showLogin() : void {
 		this._loginInfoElm.style.display = "none";
-		this._roomInputElm.style.display = "block";
+		this._joinInputElm.style.display = "block";
 		this._loginButtonsElm.style.display = "block";
-		this._roomInputElm.focus();
+		this._joinInputElm.focus();
 
 		this._infoTextElm.textContent = "";
 	}
@@ -145,7 +141,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginErrorElm.style.display = "none";
 	}
 
-	private startGame(room : string, isHost : boolean) : void {
+	private startGame(room : string, mode : CreateMode) : void {
 		room = room.toUpperCase();
 
 		if (!this.enabled()) {
@@ -158,7 +154,13 @@ export class LoginHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		this.initializeGame(room, isHost ? CreateMode.HOST : CreateMode.JOIN);
+		room = room.replace(/[^A-Za-z0-9]/g, "");
+		if (room.length === 0) {
+			this.handleError("Only alphanumeric characters are supported.");
+			return;
+		}
+
+		this.initializeGame(room, mode);
 	}
 
 	private initializeGame(room : string, mode : CreateMode) : void {
@@ -169,12 +171,9 @@ export class LoginHandler extends HandlerBase implements Handler {
 			this.showInfo("Creating new room " + room)
 			break;
 		case CreateMode.JOIN:
+		case CreateMode.HOST_AFTER_JOIN:
 			isHost = false;
 			this.showInfo("Connecting to room " + room);
-			break;
-		case CreateMode.HOST_AFTER_JOIN:
-			isHost = true;
-			this.showInfo("Failed to join " + room + ", creating a new room");
 			break;
 		default:
 			console.error("Unknown mode!", CreateMode[mode]);
@@ -198,17 +197,17 @@ export class LoginHandler extends HandlerBase implements Handler {
 		    	ui.pushDialog(DialogType.INIT);
 		    },
 		    netcodeError: () => {
-				if (mode === CreateMode.JOIN) {
-		    		this.initializeGame(room, CreateMode.HOST_AFTER_JOIN);
+				if (mode === CreateMode.HOST_AFTER_JOIN) {
+		    		this.initializeGame(room, CreateMode.HOST);
 		    		return;
 		    	}
 
 		    	if (mode === CreateMode.HOST) {
-		    		this.handleError(`Failed to create room ${room}. Please try again later with a different code.`);
-					this._roomInputElm.value = "";
-		    	} else if (mode === CreateMode.HOST_AFTER_JOIN) {
-		    		this.handleError(`Failed to either join or create room ${room}. Please try again in a few minutes.`);
-					this._roomInputElm.value = "";
+		    		this.handleError(`Failed to create room ${room}. Please try again in a few moments.`);
+					this._joinInputElm.value = "";
+		    	} else if (mode === CreateMode.JOIN) {
+		    		this.handleError(`Failed to join room ${room}. Please double check your spelling and try again.`);
+		    		this._joinInputElm.value = room;
 		    	}
 		    	this.showLogin();
 		    }

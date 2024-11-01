@@ -49,6 +49,10 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 			this.show();
 			e.preventDefault();
 		});
+	}
+
+	override onPlayerInitialized() : void {
+		super.onPlayerInitialized();
 
 		this._scoreboardElm.style.width = ScoreboardHandler._width;
 		this._scoreboardElm.style.right = "-" + ScoreboardHandler._hideWidth;

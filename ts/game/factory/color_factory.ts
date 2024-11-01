@@ -47,6 +47,7 @@ export namespace ColorFactory {
 		[ColorType.PLAYER_YELLOW, HexColor.fromHex(0xfcf40f)],
 		[ColorType.PLAYER_LIME, HexColor.fromHex(0x1bfc0f)],
 		[ColorType.PLAYER_GREEN, HexColor.fromHex(0x29cc21)],
+		[ColorType.PLAYER_TEAL, HexColor.fromHex(0x21cc9c)],
 		[ColorType.PLAYER_AQUA, HexColor.fromHex(0x0ffce8)],
 		[ColorType.PLAYER_BLUE, HexColor.fromHex(0x0f52fc)],
 		[ColorType.PLAYER_PURPLE, HexColor.fromHex(0xa50ffc)],
@@ -130,8 +131,8 @@ export namespace ColorFactory {
 		[EntityType.PLAYER, [
 			ColorType.PLAYER_RED, ColorType.PLAYER_ORANGE, ColorType.PLAYER_GOLD,
 			ColorType.PLAYER_YELLOW, ColorType.PLAYER_LIME, ColorType.PLAYER_GREEN,
-			ColorType.PLAYER_AQUA, ColorType.PLAYER_BLUE, ColorType.PLAYER_PURPLE,
-			ColorType.PLAYER_PINK, ColorType.PLAYER_BROWN,
+			ColorType.PLAYER_TEAL, ColorType.PLAYER_AQUA, ColorType.PLAYER_BLUE,
+			ColorType.PLAYER_PURPLE, ColorType.PLAYER_PINK, ColorType.PLAYER_BROWN,
 			ColorType.PLAYER_WHITE, ColorType.PLAYER_GRAY, ColorType.PLAYER_BLACK,
 		]],
 	]);

@@ -13,78 +13,82 @@
     <meta property="og:title" content="Birdtown" />
 </head>
 
-<body><div id="div-screen">
-    <iframe name="iframe-empty" style="display:none"></iframe>
-    <div id="div-canvas"><canvas id="canvas-game">Game</canvas></div>
-    <div id="div-overlays" oncontextmenu="return false;">
-        <div id="div-stats" class="no-select spaced"></div>
-        <div id="div-chat"></div>
-        <div id="div-message">
-            <form action="about:blank" target="iframe-empty" onsubmit="return false;">
-                <input id="input-message" type="text" maxlength="64">
-                <input id="button-message" type="submit" value="">
-            </form>
-        </div>
-        <div id="div-minimap" class="no-select">
-            <canvas id="canvas-physics">Physics</canvas>
-        </div>
-        <div id="div-feed" class="no-select"></div>
-        <div id="div-scoreboard" class="no-select"></div>
-        <div id="div-timer" class="no-select"></div>
-        <div id="div-hud" class="no-select">
-            <div id="hud-sections">
-                <div id="hud-left" class="hud-section"></div>
-                <div id="hud-center" class="hud-section"></div>
-                <div id="hud-right" class="hud-section"></div>
+<body>
+    <div id="div-screen">
+        <iframe name="iframe-empty" style="display:none"></iframe>
+        <div id="div-canvas"><canvas id="canvas-game">Game</canvas></div>
+        <div id="div-overlays" oncontextmenu="return false;">
+            <div id="div-stats" class="no-select spaced"></div>
+            <div id="div-chat"></div>
+            <div id="div-message">
+                <form action="about:blank" target="iframe-empty" onsubmit="return false;">
+                    <input id="input-message" type="text" maxlength="64">
+                    <input id="button-message" type="submit" value="">
+                </form>
             </div>
-            <div id="hud-name" class="onscreen-message"></div>
-        </div>
-        <div id="div-tooltips" class="no-select"></div>
-        <div id="div-status" class="no-select"></div>
-        <div id="div-announcement" class="no-select">
-            <div id="div-main-announcement" class="no-select"></div>
-            <div id="div-sub-announcement" class="no-select"></div>
-        </div>
-        <div id="div-tray" class="no-select"></div>
-    </div>
-
-    <img id="aim" src="./img/aim.png" alt="aim" class="no-select" ondragstart="return false;" ondrop="return false;" />
-    <img id="cursor" src="./img/cursor.png" alt="cursor" class="no-select" ondragstart="return false;" ondrop="return false;" />
-
-    <div id="div-modals">
-        <div id="div-dialogs"></div>
-        <div id="div-menu">
-            <div class="menu-heading">Menu</div>
-            <div id="menu-fieldsets">
-                <fieldset id="fieldset-clients" class="spaced">
-                    <legend id="legend-clients">Players</legend>
-                </fieldset>
-                <fieldset id="fieldset-settings" class="spaced">
-                    <legend id="legend-settings">Settings</legend>
-                </fieldset>
-                <fieldset id="fieldset-key-bind" class="spaced">
-                    <legend id="legend-key-bind">Keys</legend>
-                </fieldset>
+            <div id="div-minimap" class="no-select">
+                <canvas id="canvas-physics">Physics</canvas>
             </div>
-            <div class="menu-button-container"><div id="menu-continue" class="menu-heading button">Continue</div></div>
-            <div class="menu-button-container"><div id="menu-quit" class="menu-heading button">Quit</div></div>
-        </div>
-    </div>
-    <div id="div-login">
-        <fieldset id="fieldset-login">
-            <legend id="legend-login">Birdtown</legend>
-            <form id="form-login" action="about:blank" target="iframe-empty" onsubmit="return false;">
-                <div id="login-info"></div>
-                <div id="login-error"></div>
-                <input id="input-room" name="room" class="form-input" type="text" pattern="[a-zA-Z0-9]+" placeholder="Enter room code" maxlength="10" required>
-                <div id="div-login-buttons">
-                    <button id="button-host" type="submit"><span class="material-icons">home</span> Host</button>
-                    <button id="button-join" type="submit"><span class="material-icons">login</span> Join</button>
+            <div id="div-feed" class="no-select"></div>
+            <div id="div-scoreboard" class="no-select"></div>
+            <div id="div-timer" class="no-select"></div>
+            <div id="div-hud" class="no-select">
+                <div id="hud-sections">
+                    <div id="hud-left" class="hud-section"></div>
+                    <div id="hud-center" class="hud-section"></div>
+                    <div id="hud-right" class="hud-section"></div>
                 </div>
-            </form>
-        </fieldset>
+                <div id="hud-name" class="onscreen-message"></div>
+            </div>
+            <div id="div-tooltips" class="no-select"></div>
+            <div id="div-status" class="no-select"></div>
+            <div id="div-announcement" class="no-select">
+                <div id="div-main-announcement" class="no-select"></div>
+                <div id="div-sub-announcement" class="no-select"></div>
+            </div>
+            <div id="div-tray" class="no-select"></div>
+        </div>
+
+        <img id="aim" src="./img/aim.png" alt="aim" class="no-select" ondragstart="return false;" ondrop="return false;" />
+        <img id="cursor" src="./img/cursor.png" alt="cursor" class="no-select" ondragstart="return false;" ondrop="return false;" />
+
+        <div id="div-modals">
+            <div id="div-dialogs"></div>
+            <div id="div-menu">
+                <div class="menu-heading">Menu</div>
+                <div id="menu-fieldsets">
+                    <fieldset id="fieldset-clients" class="spaced">
+                        <legend id="legend-clients">Players</legend>
+                    </fieldset>
+                    <fieldset id="fieldset-settings" class="spaced">
+                        <legend id="legend-settings">Settings</legend>
+                    </fieldset>
+                    <fieldset id="fieldset-key-bind" class="spaced">
+                        <legend id="legend-key-bind">Keys</legend>
+                    </fieldset>
+                </div>
+                <div class="menu-button-container"><div id="menu-continue" class="menu-heading button">Continue</div></div>
+                <div class="menu-button-container"><div id="menu-quit" class="menu-heading button">Quit</div></div>
+            </div>
+        </div>
+        <div id="div-login">
+            <fieldset id="fieldset-login">
+                <legend id="legend-login">Birdtown</legend>
+                    <div id="login-info"></div>
+                    <div id="login-error"></div>
+                    <div id="div-login-buttons">
+                        <button id="button-host" type="submit"><span class="material-icons">home</span> Host</button>                    
+                        <div id="login-separator">OR</div>
+                        <form id="form-login" action="about:blank" target="iframe-empty" onsubmit="return false;">
+                            <input id="input-room" name="room" class="form-input" type="text" pattern="[a-zA-Z0-9]+" placeholder="Enter room code" maxlength="10" required>
+                            <button id="button-join" type="submit"><span class="material-icons">login</span> Join</button>
+                        </form>
+                    </div>
+            </fieldset>
+        </div>
     </div>
+    <div id="div-loading">Loading...<br><br>If this takes too long, Javascript probably needs to be enabled.</div>
     <script src="main.js?v=1"></script>
-</div></body>
+</body>
 
 </html>

@@ -40,7 +40,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		});
 
 		let shareWrapper = new ShareWrapper();
-		shareWrapper.setText("[Copy invite link]");
+		shareWrapper.setText("Copy invite link");
 		shareWrapper.setHoverOnlyText(true);
 		shareWrapper.elm().style.float = "left";
 		this.footerElm().appendChild(shareWrapper.elm());

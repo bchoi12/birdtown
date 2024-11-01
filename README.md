@@ -18,7 +18,7 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 ![Multiplayer action](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog076.png?raw=true)
 
-![Login screen](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog050.png?raw=true)
+![Login screen](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog078.png?raw=true)
 
 ## Nerd Stuff
 
