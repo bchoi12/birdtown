@@ -159,8 +159,7 @@ export class Lakitu extends SystemBase implements System {
 			return false;
 		}
 
-		return player.initialized()
-			&& !player.deleted()
+		return player.valid()
 			&& game.playerState(player.clientId()).isPlaying() && (player.clientIdMatches() || !player.dead())
 			&& game.playerStates().hasPlayerState(player.clientId());
 	}
@@ -235,7 +234,7 @@ export class Lakitu extends SystemBase implements System {
 			return false;
 		}
 		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findAll((spawn : Entity) => {
-			return spawn.initialized() && !spawn.deleted();
+			return spawn.valid();
 		});
 		for (let i = 0; i < spawns.length; ++i) {
 			if (game.playerState().targetEntity().matchAssociations([AssociationType.TEAM], spawns[i])) {
@@ -260,7 +259,7 @@ export class Lakitu extends SystemBase implements System {
 	}
 	private targetPlane() : boolean {
 		const plane = game.entities().getMap(EntityType.PLANE).findN((plane : Entity) => {
-			return plane.initialized() && !plane.deleted();
+			return plane.valid();
 		}, 1);
 		if (plane.length === 1) {
 			this.setTargetEntity(plane[0]);

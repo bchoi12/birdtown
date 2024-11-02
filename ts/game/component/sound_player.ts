@@ -9,6 +9,8 @@ import { Entity } from 'game/entity'
 import { SoundType } from 'game/factory/api'
 import { SoundFactory } from 'game/factory/sound_factory'
 
+import { settings } from 'settings'
+
 import { Vec } from 'util/vector'
 
 export class SoundPlayer extends ComponentBase implements Component {
@@ -134,6 +136,7 @@ export class SoundPlayer extends ComponentBase implements Component {
 		if (options) {
 			sound.updateOptions(options);
 		}
+		sound.setVolume(settings.volume);
 		return sound;
 	}
 }

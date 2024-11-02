@@ -55,7 +55,7 @@ export class Pistol extends Weapon {
 	}
 
 	override shoot(stepData : StepData) : void {
-		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
+		const pos = this.shootPos();
 
 		const unitDir = this.getDir();
 

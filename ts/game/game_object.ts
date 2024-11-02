@@ -58,6 +58,7 @@ export interface GameObject {
 	ready() : boolean;
 	initialized() : boolean;
 	initialize() : void;
+	valid() : boolean;
 	state() : GameObjectState;
 	setState(state : GameObjectState) : void;
 	reset() : void;
@@ -229,6 +230,7 @@ export abstract class GameObjectBase {
 		this._initialized = true;
 	}
 	initialized() : boolean {return this._initialized; }
+	valid() : boolean { return this._initialized && !this._deleted; }
 	state() : GameObjectState { return this._state; }
 	setState(state : GameObjectState) : void {
 		if (this._state === state) {

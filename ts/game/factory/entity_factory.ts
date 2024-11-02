@@ -20,6 +20,7 @@ import { Headband } from 'game/entity/equip/headband'
 import { Headphones } from 'game/entity/equip/headphones'
 import { Jetpack } from 'game/entity/equip/jetpack'
 import { NameTag } from 'game/entity/equip/name_tag'
+import { PocketRocket } from 'game/entity/equip/pocket_rocket'
 import { Scouter } from 'game/entity/equip/scouter'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
@@ -106,6 +107,7 @@ export namespace EntityFactory {
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.PISTOL, (options : EntityOptions) => { return new Pistol(options); }],
+		[EntityType.POCKET_ROCKET, (options : EntityOptions) => { return new PocketRocket(options); }],
 		[EntityType.ROBIN_BEAK, (options : EntityOptions) => { return new RobinBeak(options); }],
 		[EntityType.ROBIN_HAIR, (options : EntityOptions) => { return new RobinHair(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],

@@ -87,7 +87,7 @@ export class CowboyHat extends Equip<Player> {
 		const millis = stepData.millis;
 
 		const weapons = this.owner().equips().findAll((equip : Equip<Player>) => {
-			return equip.allTypes().has(EntityType.WEAPON) && equip.initialized();
+			return equip.allTypes().has(EntityType.WEAPON) && equip.valid();
 		});
 
 		if (this.canDash() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {

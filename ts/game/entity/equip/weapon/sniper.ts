@@ -57,7 +57,7 @@ export class Sniper extends Weapon {
 
 	override shoot(stepData : StepData) : void {
 		const charged = this.charged();
-		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
+		const pos = this.shootPos();
 		const unitDir = this.getDir();
 
 		let vel = unitDir.clone().scale(charged ? 1.1 : 0.8);

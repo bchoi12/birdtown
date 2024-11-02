@@ -58,6 +58,7 @@ export enum EntityType {
 	PISTOL,
 	PLANE,
 	PLAYER,
+	POCKET_ROCKET,
 	ROBIN_BEAK,
 	ROBIN_HAIR,
 	ROCKET,

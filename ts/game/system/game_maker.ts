@@ -161,7 +161,7 @@ export class GameMaker extends SystemBase implements System {
 			return false;
 		}
 
-		const [error, valid] = this.valid(GameState.LOAD);
+		const [error, valid] = this.checkState(GameState.LOAD);
 		if (!valid) {
 			console.error("Error:", error);
 			return false;
@@ -217,7 +217,7 @@ export class GameMaker extends SystemBase implements System {
 			return ["Unknown Game Mode", "???"];
 		}
 	}
-	valid(current : GameState) : [string, boolean] {
+	checkState(current : GameState) : [string, boolean] {
 		switch (current) {
 		case GameState.LOAD:
 		case GameState.SETUP:
@@ -230,7 +230,7 @@ export class GameMaker extends SystemBase implements System {
 		return ["", true];
 	}
 	queryState(current : GameState) : GameState {
-		const [error, valid] = this.valid(current);
+		const [error, valid] = this.checkState(current);
 		if (!valid) {
 			this._errorMsg = error;
 			return GameState.ERROR;

@@ -54,7 +54,7 @@ export abstract class SystemBase extends GameObjectBase implements System {
 	}
 
 	hasTargetEntity() : boolean { return this._targetEntity !== null; }
-	validTargetEntity() : boolean { return this.hasTargetEntity() && this._targetEntity.initialized() && !this._targetEntity.deleted(); }
+	validTargetEntity() : boolean { return this.hasTargetEntity() && this._targetEntity.valid(); }
 	targetEntity<T extends Entity>() : T { return <T>this._targetEntity; }
 	targetClientId() : number {
 		if (!this.hasTargetEntity() || !this.targetEntity().hasClientId()) {

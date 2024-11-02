@@ -31,6 +31,7 @@ export class HudHandler extends HandlerBase implements Handler {
 		[HudType.JETPACK, IconType.JET],
 		[HudType.JUICE, IconType.TELEKENESIS],
 		[HudType.MOUSE_LOCK, IconType.LOCK],
+		[HudType.POCKET_ROCKET, IconType.ROCKET],
 		[HudType.ROCKET, IconType.ROCKET],
 		[HudType.ROLL, IconType.ROLL],
 		[HudType.SPRAY, IconType.SPRAY],

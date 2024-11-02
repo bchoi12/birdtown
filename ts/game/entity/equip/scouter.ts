@@ -60,7 +60,7 @@ export class Scouter extends Equip<Player> {
 
 		if (this._weapon === null || this._weapon.deleted()) {
 			const weapons = <Weapon[]>this.owner().equips().findN((equip : Equip<Player>) => {
-				return equip.allTypes().has(EntityType.WEAPON) && equip.initialized();
+				return equip.allTypes().has(EntityType.WEAPON) && equip.valid();
 			}, 1);
 
 			if (weapons.length < 1) {
@@ -102,7 +102,7 @@ export class Scouter extends Equip<Player> {
 		}
 
 		const offset = Vec2.unitFromDeg(Math.random() * 360).scale(0.4);
-		const pos = Vec3.fromBabylon3(this._weapon.shootNode().getAbsolutePosition());
+		const pos = this._weapon.shootPos();
 
 		const size = 0.05 + 0.45 * (Math.min(this._weapon.chargedThreshold(), this._weapon.chargeMillis()) / 1000);
 		const [cube, hasCube] = this.addEntity<CubeParticle>(EntityType.ENERGY_CUBE_PARTICLE, {

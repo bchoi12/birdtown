@@ -32,7 +32,7 @@ export class Audio extends SystemBase implements System {
 		game.entities().getMap(EntityType.PLAYER).executeIf((player : Player) => {
 			this.updatePos(player.clientId(), player);
 		}, (player : Player) => {
-			return player.initialized() && !player.deleted();
+			return player.valid();
 		});
 		if (game.lakitu().validTargetEntity()) {
 			this.updatePos(game.clientId(), game.lakitu().targetEntity());

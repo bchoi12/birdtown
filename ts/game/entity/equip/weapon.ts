@@ -16,7 +16,7 @@ import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { Stopwatch } from 'util/stopwatch'
 import { Timer } from 'util/timer'
-import { Vec2, Vec3 } from 'util/vector'
+import { Vec, Vec2, Vec3 } from 'util/vector'
 
 export enum WeaponState {
 	UNKNOWN,
@@ -110,7 +110,12 @@ export abstract class Weapon extends Equip<Player> {
 			console.error("Error: no shoot node for %s", this.name());
 		}
 	}
-	shootNode() : BABYLON.TransformNode { return this._shootNode !== null ? this._shootNode : this._model.mesh(); }
+	private shootNode() : BABYLON.TransformNode { return this._shootNode !== null ? this._shootNode : this._model.root(); }
+	shootPos() : Vec3 {
+		// TODO: this will not reflect one frame of movement
+		const node = this.shootNode();
+		return Vec3.fromBabylon3(node.getAbsolutePosition());
+	}
 
 	weaponState() : WeaponState { return this._weaponState; }
 	abstract weaponConfig() : WeaponConfig;

@@ -23,7 +23,7 @@ export class WingCannon extends Weapon {
 	private static readonly _config = {
 		times: new Map([
 			[WeaponState.FIRING, 100],
-			[WeaponState.RELOADING, 1500],
+			[WeaponState.RELOADING, 1300],
 		]),
 		bursts: WingCannon._bursts,
 	};
@@ -57,7 +57,7 @@ export class WingCannon extends Weapon {
 	}
 
 	override shoot(stepData : StepData) : void {
-		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
+		const pos = this.shootPos();
 
 		const unitDir = this.getDir();
 

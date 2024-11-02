@@ -74,6 +74,7 @@ export enum HudType {
 	JETPACK,
 	JUICE,
 	MOUSE_LOCK,
+	POCKET_ROCKET,
 	ROCKET,
 	ROLL,
 	SPRAY,

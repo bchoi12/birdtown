@@ -42,7 +42,7 @@ export class Bazooka extends Weapon {
 	}
 
 	override shoot(stepData : StepData) : void {
-		const pos = Vec3.fromBabylon3(this.shootNode().getAbsolutePosition());
+		const pos = this.shootPos();
 		const unitDir = this.getDir();
 
 		let vel = unitDir.clone().scale(0.05);

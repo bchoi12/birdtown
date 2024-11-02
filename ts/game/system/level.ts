@@ -90,14 +90,14 @@ export class Level extends SystemBase implements System {
 
 	hasSpawnFor(entity : Entity) : boolean {
 		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findN((spawnPoint : Entity) => {
-			return spawnPoint.initialized() && spawnPoint.matchAssociations([AssociationType.TEAM], entity);
+			return spawnPoint.valid() && spawnPoint.matchAssociations([AssociationType.TEAM], entity);
 		}, 1);
 		return spawns.length === 1;
 	}
 	defaultSpawn() : Vec2 { return this._defaultSpawn; }
 	
 	spawnPlayer(player : Player) : void {
-		if (!this.isSource() && player.initialized()) {
+		if (!this.isSource() && player.valid()) {
 			player.quickRespawn(player.profile().pos());
 			return;
 		}
@@ -125,7 +125,7 @@ export class Level extends SystemBase implements System {
 	}
 	private spawnAtPoint(player : Player) : boolean {
 		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findN((spawnPoint : Entity) => {
-			return spawnPoint.initialized() && spawnPoint.matchAssociations([AssociationType.TEAM], player);
+			return spawnPoint.valid() && spawnPoint.matchAssociations([AssociationType.TEAM], player);
 		}, 1);
 		if (spawns.length === 1) {
 			player.quickRespawn(spawns[0].profile().pos());
@@ -134,7 +134,7 @@ export class Level extends SystemBase implements System {
 	}
 	private spawnAtPlane(player : Player) : boolean {
 		const planes = game.entities().getMap(EntityType.PLANE).findN((plane : Entity) => {
-			return plane.initialized();
+			return plane.valid();
 		}, 1);
 		if (planes.length === 1) {
 			player.respawn(planes[0].profile().pos());
