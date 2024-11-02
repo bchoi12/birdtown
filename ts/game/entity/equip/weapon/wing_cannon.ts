@@ -36,7 +36,6 @@ export class WingCannon extends Weapon {
 	};
 
 	private static readonly _chargedThreshold = 1000;
-	private static readonly _laserTTL = 750;
 	private static readonly _orbTTL = 450;
 	private static readonly _orbSpeed = 0.85;
 
@@ -64,7 +63,6 @@ export class WingCannon extends Weapon {
 
 		if (this.charged()) {
 			this.addEntity(EntityType.LASER, {
-				ttl: WingCannon._laserTTL,
 				associationInit: {
 					owner: this.owner(),
 				},

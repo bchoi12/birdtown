@@ -67,7 +67,7 @@ export class PlayerState extends ClientSystem implements System {
 
 		this.addProp<boolean>({
 			export: () => { return this._disconnected; },
-			import: (obj : boolean) => { this._disconnected = obj; },
+			import: (obj : boolean) => { this.setDisconnected(obj); },
 		});
 		this.addProp<number>({
 			export: () => { return this._targetId; },
@@ -106,7 +106,13 @@ export class PlayerState extends ClientSystem implements System {
 	}
 
 	disconnected() : boolean { return this._disconnected; }
-	setDisconnected(disconnected : boolean) : void { this._disconnected = disconnected; }
+	setDisconnected(disconnected : boolean) : void {
+		this._disconnected = disconnected;
+
+		if (this._disconnected) {
+			ui.removePlayer(this.clientId());
+		}
+	}
 	role() : PlayerRole { return this._role; }
 	inGame() : boolean { return PlayerState._gameRoles.has(this._startingRole) && PlayerState._gameRoles.has(this._role); }
 	setStartingRole(role : PlayerRole) : void {
