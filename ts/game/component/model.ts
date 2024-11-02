@@ -71,6 +71,8 @@ export class Model extends ComponentBase implements Component {
 			}
 		}
 
+		// Try commenting out?
+		/*
 		this.addProp<Vec>({
 			has: () => { return this._transforms.hasTranslation(); },
 			export: () => { return this._transforms.translation().toVec(); },
@@ -86,6 +88,7 @@ export class Model extends ComponentBase implements Component {
 			export: () => { return this._transforms.scaling().toVec(); },
 			import: (obj : Vec) => { return this._transforms.setScaling(obj); },
 		});
+		*/
 		this.addProp<MaterialType>({
 			has: () => { return this._materialType.has(); },
 			export: () => { return this._materialType.get(); },

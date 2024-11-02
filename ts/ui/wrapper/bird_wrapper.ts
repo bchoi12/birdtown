@@ -11,10 +11,10 @@ export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 
 	private static readonly _types = new Array(BirdType.BOOBY, BirdType.CHICKEN, BirdType.DUCK, BirdType.ROBIN);
 	private static readonly _names = new Map([
-		[BirdType.BOOBY, "Turbo"],
-		[BirdType.CHICKEN, "Henry"],
-		[BirdType.DUCK, "Allen"],
-		[BirdType.ROBIN, "June"],
+		[BirdType.BOOBY, "Blue-footed Booby"],
+		[BirdType.CHICKEN, "Chicken"],
+		[BirdType.DUCK, "Mallard Duck"],
+		[BirdType.ROBIN, "Robin"],
 	]);
 
 	private static readonly _buttonContainerCss = `

@@ -1,3 +1,4 @@
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { EntityType, BirdType } from 'game/entity/api'
@@ -49,6 +50,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		this.addOnSubmit(() => {
 			ui.applySettings();
 			ui.onPlayerInitialized();
+			BABYLON.Engine.audioEngine?.unlock()
 		});
 	}
 
@@ -64,7 +66,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 
 		const nameAndColor = LoginNames.randomNameAndColor();
 
-		bio.appendTitle("Gamer Tag");
+		bio.appendTitle("Name");
 		let nameWrapper = new ClientNameWrapper(nameAndColor[0]);
 		nameWrapper.nameElm().style.textAlign = "center";
 		bio.contentElm().appendChild(nameWrapper.elm());

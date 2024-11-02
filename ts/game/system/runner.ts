@@ -88,6 +88,10 @@ export class Runner extends SystemBase implements System  {
 	   		console.error(e);
 	   	}
 
+	   	this.addProp<number>({
+	   		export: () => { return this._updateSpeed; },
+	   		import: (obj : number) => { this.setUpdateSpeed(obj); },
+	   	})
 		this.addProp<boolean>({
 			export: () => { return this._degraded; },
 			import: (obj : boolean) => { this.setHostDegraded(obj); }

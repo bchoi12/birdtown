@@ -42,6 +42,7 @@ function tick() {
 }
 
 function startTick(fps) {
+	clearTimeout(id);
 	target = 1000 / fps;
 	interval = target;
 	actual = target;
