@@ -100,7 +100,9 @@ export class Rocket extends Projectile {
 		this._model.mesh().rotation.x = -this._profile.vel().angleRad();
 	}
 
-	override onHit() : void {
+	override onHit(other : Entity) : void {
+		super.onHit(other);
+
 		this.explode(EntityType.ROCKET_EXPLOSION, {});
 		this.delete();
 	}

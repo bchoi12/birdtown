@@ -94,7 +94,9 @@ export class Pellet extends Projectile {
 		this._trail.scaling.x = Math.min(1.2, this._trail.scaling.x + 4 * stepData.millis / 1000);
 	}
 
-	override onHit() : void {
+	override onHit(other : Entity) : void {
+		super.onHit(other);
+
 		this.addEntity(EntityType.CUBE_PARTICLE, {
 			offline: true,
 			ttl: 600,

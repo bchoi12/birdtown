@@ -209,6 +209,9 @@ export class ChatHandler extends HandlerBase implements Handler {
 				}
 			}
 			break;
+		case "/portrait":
+			game.lakitu().portrait();
+			break;
 		case "/role":
 			if (pieces.length !== 2) {
 				console.error("Usage: %s [clientId]", pieces[0]);

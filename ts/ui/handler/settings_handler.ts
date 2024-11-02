@@ -21,6 +21,7 @@ import { ui } from 'ui'
 import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
+import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
 import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 import { Html } from 'ui/html'
 
@@ -151,6 +152,20 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			},
 		});
 		this._settingsElm.appendChild(shadowQuality.elm());
+
+		let volume = new LabelNumberWrapper({
+			label: "Volume",
+			value: settings.volume,
+			plus: (current : number) => {
+				settings.volume = Math.min(1, current + 0.1);
+			},
+			minus: (current : number) => {
+				settings.volume = Math.max(0, current - 0.1);
+			},
+			get: () => { return settings.volume; },
+			html: () => { return Math.round(100 * settings.volume) + "%"; },
+		});
+		this._settingsElm.appendChild(volume.elm());
 
 		if (isLocalhost()) {
 			let inspector = new SettingWrapper<InspectorSetting>({

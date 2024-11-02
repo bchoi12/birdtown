@@ -5,6 +5,8 @@ import { SoundType } from 'game/factory/api'
 
 import { MediaGlobals } from 'global/media_globals'
 
+import { settings } from 'settings'
+
 import { ObjectCache } from 'util/object_cache'
 
 type SoundMetadata = {
@@ -190,6 +192,7 @@ export namespace SoundFactory {
 		const resolvedOptions = {
 			...MediaGlobals.gameOptions,
 			...metadata.get(type).options,
+			volume: settings.volume,
 			...(options ? options : {}),
 		};
 		sound.updateOptions(resolvedOptions);

@@ -68,7 +68,9 @@ export class Caliber extends Projectile {
 
 	override hitDamage() : number { return 10; }
 
-	override onHit() : void {
+	override onHit(other : Entity) : void {
+		super.onHit(other);
+
 		for (let i = 0; i < 3; ++i) {
 			this.addEntity(EntityType.SPARK_PARTICLE, {
 				offline: true,

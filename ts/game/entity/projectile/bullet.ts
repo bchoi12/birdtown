@@ -98,7 +98,9 @@ export class Bullet extends Projectile {
 
 	}
 
-	override onHit() : void {
+	override onHit(other : Entity) : void {
+		super.onHit(other);
+
 		for (let i = 0; i < 3; ++i) {
 			this.addEntity(EntityType.SPARK_PARTICLE, {
 				offline: true,

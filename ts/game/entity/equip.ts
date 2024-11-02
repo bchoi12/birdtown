@@ -130,7 +130,14 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 	// Record instance of equip use. Only needed if some action is performed on use (e.g. recoil)
 	protected recordUse() : void { this._uses.add(1); }
-	popUses() : number { return this._uses.save(); }
+	popUses() : number {
+		const uses = this._uses.save();
+		if (uses > 0) {
+			this.simulateUse(uses);
+		}
+		return uses;
+	}
+	protected simulateUse(uses : number) : void {}
 
 	recoil() : Recoil { return Equip._recoil.get(this.recoilType()); }
 	protected recoilType() : number { return RecoilType.NONE; }

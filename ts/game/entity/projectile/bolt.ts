@@ -79,7 +79,9 @@ export class Bolt extends Projectile {
 		}
 	}
 
-	override onHit() : void {
+	override onHit(other : Entity) : void {
+		super.onHit(other);
+
 		if (this.getAttribute(AttributeType.CHARGED)) {
 			this.explode(EntityType.BOLT_EXPLOSION, {});
 		} else {

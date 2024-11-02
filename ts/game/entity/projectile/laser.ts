@@ -163,6 +163,5 @@ export class Laser extends Projectile {
 		return this._active && super.canHit(collision, other);
 	}
 
-	override onHit() : void {}
 	override onMiss() : void {}
 }

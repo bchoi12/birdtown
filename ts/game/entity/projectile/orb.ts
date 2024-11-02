@@ -76,7 +76,9 @@ export class Orb extends Projectile {
 
 	override hitDamage() : number { return 12; }
 
-	override onHit() : void {
+	override onHit(other : Entity) : void {
+		super.onHit(other);
+
 		this.explode(EntityType.ORB_EXPLOSION, {});
 		this.delete();
 	}

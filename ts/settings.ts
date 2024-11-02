@@ -31,11 +31,11 @@ class Settings {
 	public chatKeyCode : number;
 	public pointerLockKeyCode : number;
 
-
 	public fullscreenSetting : FullscreenSetting;
 	public fpsSetting : SpeedSetting;
 	public clientPredictionSetting : ClientPredictionSetting;
 	public damageNumberSetting : DamageNumberSetting;
+	public volume : number;
 
 	// Graphics
 	public antiAliasSetting : AntiAliasSetting;
@@ -64,6 +64,7 @@ class Settings {
 		this.fpsSetting = isMobile() ? SpeedSetting.SLOW : SpeedSetting.NORMAL;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 		this.damageNumberSetting = DamageNumberSetting.OFF;
+		this.volume = 0.8;
 
 		this.antiAliasSetting = isMobile() ? AntiAliasSetting.LOW : AntiAliasSetting.MEDIUM;
 		this.shadowSetting = isMobile() ? ShadowSetting.NONE : ShadowSetting.MEDIUM;

@@ -107,13 +107,20 @@ export class CowboyHat extends Equip<Player> {
 
 			this._juice = Math.max(0, this._juice - CowboyHat._maxJuice);
 			this._chargeDelayTimer.start(CowboyHat._chargeDelay);
-			this._dashTimer.start(CowboyHat._dashTime);
 
+			this._dashTimer.start(CowboyHat._dashTime);
 			this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {
 			this._juice = Math.min(CowboyHat._maxJuice, this._juice + CowboyHat._maxJuice * millis / CowboyHat._cooldown);
+		}
+	}
+
+	protected override simulateUse(uses : number) : void {
+		if (this.canDash()) {
+			this._dashTimer.start(CowboyHat._dashTime);
+			this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
 		}
 	}
 

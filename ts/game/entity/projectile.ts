@@ -1,5 +1,6 @@
 import * as MATTER from 'matter-js'
 
+import { game } from 'game'
 import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
 import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
@@ -15,6 +16,7 @@ import { Vec2 } from 'util/vector'
 export abstract class Projectile extends EntityBase {
 
 	protected _collisions : Array<[MATTER.Collision, Entity]>;
+	protected _hitId : number;
 	protected _hits : Set<number>;
 	protected _prevPos : Vec2;
 	protected _snapOnHit : boolean;
@@ -28,6 +30,7 @@ export abstract class Projectile extends EntityBase {
 		this.addType(EntityType.PROJECTILE);
 
 		this._collisions = new Array();
+		this._hitId = 0;
 		this._hits = new Set();
 		this._prevPos = Vec2.zero();
 		this._snapOnHit = true;
@@ -35,6 +38,18 @@ export abstract class Projectile extends EntityBase {
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
+
+		this.addProp<number>({
+			has: () => { return this._hitId !== 0; },
+			export: () => { return this._hitId; },
+			import: (obj : number) => {
+				const [other, hasOther] = game.entities().getEntity(obj);
+				
+				if (hasOther) {
+					this.onHit(other);
+				}
+			},
+		});
 	}
 
 	override ready() : boolean {
@@ -143,12 +158,9 @@ export abstract class Projectile extends EntityBase {
 		if (this.hitDamage() !== 0) {
 			other.takeDamage(this.hitDamage(), this);
 		}
-		if (this._playImpactSound && other.impactSound() !== SoundType.UNKNOWN) {
-			SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
-		}
 
 		this._hits.add(other.id());
-		this.onHit();
+		this.onHit(other);
 	}
 
 	protected explode(type : EntityType, entityOptions? : EntityOptions) : void {
@@ -165,7 +177,16 @@ export abstract class Projectile extends EntityBase {
 	}
 
 	abstract hitDamage() : number;
-	abstract onHit() : void;
+	onHit(other : Entity) : void {
+		if (this._hitId !== 0) {
+			return;
+		}
+
+		this._hitId = other.id();
+		if (this._playImpactSound && other.impactSound() !== SoundType.UNKNOWN) {
+			SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
+		}
+	}
 	abstract onMiss() : void;
 	onExpire() : void { this.onMiss(); }
 }
