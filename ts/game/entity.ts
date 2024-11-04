@@ -3,10 +3,11 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { Component } from 'game/component'
-import { AssociationType, AttributeType, ComponentType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, EmotionType, StatType } from 'game/component/api'
 import { Association, AssociationInitOptions } from 'game/component/association'
 import { Attributes, AttributesInitOptions } from 'game/component/attributes'
 import { CardinalsInitOptions } from 'game/component/cardinals'
+import { Expression } from 'game/component/expression'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { Model, ModelInitOptions } from 'game/component/model'
 import { Profile, ProfileInitOptions } from 'game/component/profile'
@@ -91,6 +92,7 @@ export interface Entity extends GameObject {
 	heal(amount : number) : void;
 	healthPercent() : number;
 	takeDamage(amount : number, from : Entity) : void;
+	emote(type : EmotionType, value? : number) : void;
 	dead() : boolean;
 
 	// Profile methods
@@ -373,6 +375,13 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			delta: -delta,
 			entity: from,
 		});
+	}
+	emote(type : EmotionType, value? : number) : void {
+		if (!this.hasComponent(ComponentType.EXPRESSION)) {
+			return;
+		}
+
+		this.getComponent<Expression>(ComponentType.EXPRESSION).emote(type, value ? value : 1);
 	}
 	dead() : boolean {
 		if (!this.hasComponent(ComponentType.STATS)) { return false; }

@@ -195,7 +195,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
 				this._profile.setAcc({x: 0});
 				this._profile.addVel({y: 0.7 * Player._jumpVel});
-				this._expression.emote(EmotionType.DEAD, 1);
+				this.emote(EmotionType.DEAD);
 			} else {
 				this.getUp();
 			}
@@ -574,6 +574,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					em.root().parent = m.root();
 				});
 				break;
+			case AttachType.NONE:
+				break;
 			default:
 				console.error("Error: unhandled attach type", AttachType[equip.attachType()]);
 			}
@@ -633,8 +635,6 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._entityTrackers.getEntities<Beak>(EntityType.BEAK).execute((beak : Beak) => {
 			beak.takeDamage(amount, from);
 		});
-
-		this._expression.emote(EmotionType.SAD, 1);
 	}
 
 	override preUpdate(stepData : StepData) : void {
@@ -728,10 +728,11 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		}
 
 		// Friction and air resistance
-		if (Math.abs(this._profile.vel().x) < Player._minSpeed) {
+		if (Math.abs(this._profile.vel().x) < Player._minSpeed
+			|| this._profile.acc().x === 0 && Math.abs(this._profile.vel().x) < 10 * Player._minSpeed) {
 			this._profile.setVel({x: 0});
 		} else if (this._profile.knockbackMillis() === 0
-			&& Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x)) {
+			&& (this._profile.acc().x === 0 || Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x))) {
 			let sideVel = this._profile.vel().x;
 			if (this.getAttribute(AttributeType.GROUNDED)) {
 				sideVel *= 1 / (1 + Player._friction * millis / 1000);
@@ -872,7 +873,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		// Sweat
 		// TODO: move this and other particles to ParticleFactory
-		if (!this.dead() && healthPercent <= 0.6 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.2, healthPercent))) {
+		if (!this.dead() && healthPercent <= 0.5 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.2, healthPercent))) {
 			const weight = 1 - healthPercent;
 
 			const dim = this._profile.scaledDim();
@@ -902,6 +903,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					}
 				});	
 			}
+		}
+		if (healthPercent <= 0.15) {
+			this.emote(EmotionType.SAD, 0.3);
 		}
 
 		// Animation
@@ -952,7 +956,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				switch(equip.attachType()) {
 				case AttachType.ARM:
 					this._armRecoil.copy(equip.recoil());
-					this._expression.emote(EmotionType.MAD, 1);
+					this.emote(EmotionType.MAD);
 					break;
 				}
 			}

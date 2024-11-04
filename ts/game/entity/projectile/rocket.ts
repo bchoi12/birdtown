@@ -67,10 +67,6 @@ export class Rocket extends Projectile {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		if (!this._model.hasMesh()) {
-			return;
-		}
-
 		if (this._smoker.check(millis)) {
 			this.addEntity(EntityType.SMOKE_PARTICLE, {
 				offline: true,
@@ -87,7 +83,9 @@ export class Rocket extends Projectile {
 			});
 		}
 
-		this._model.mesh().rotation.z += 6 * Math.PI * millis / 1000; 
+		if (this._model.hasMesh()) {
+			this._model.mesh().rotation.z += 6 * Math.PI * millis / 1000; 
+		}
 	}
 
 	override preRender() : void {

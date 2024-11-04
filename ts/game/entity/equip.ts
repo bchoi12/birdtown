@@ -129,7 +129,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	ownerId() : number { return this._ownerId; }
 
 	// Record instance of equip use. Only needed if some action is performed on use (e.g. recoil)
-	protected recordUse() : void { this._uses.add(1); }
+	recordUse() : void { this._uses.add(1); }
 	popUses() : number {
 		const uses = this._uses.save();
 		if (uses > 0) {

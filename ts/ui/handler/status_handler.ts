@@ -23,6 +23,10 @@ export class StatusHandler extends HandlerBase implements Handler {
 		[StatusType.SETUP, new Set([StatusType.LOADING])],
 	]);
 
+	private static readonly _forever = new Set<StatusType>([
+		StatusType.DISCONNECTED, StatusType.LOBBY,
+	]);
+
 	private static readonly _ttl = new Map<StatusType, number>([
 		[StatusType.HOST_DEGRADED, 3 * 1000],
 		[StatusType.LOADING, 5 * 1000],		
@@ -142,7 +146,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 			break;
 		}
 
-		if (type === StatusType.DISCONNECTED) {
+		if (StatusHandler._forever.has(type)) {
 			wrapper.show();
 		} else {
 			wrapper.show(StatusHandler._ttl.has(type) ? StatusHandler._ttl.get(type) : 30 * 1000);

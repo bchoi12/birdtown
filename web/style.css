@@ -11,6 +11,7 @@ html, body {
 
     align-items: center;
     background: url("img/henry.png") no-repeat, linear-gradient(#fbfbfb, #9b9b9b);
+    background-position: right;
     background-size: contain;
     color: #f2f2f2;
 }
@@ -129,8 +130,10 @@ kbd {
     align-items: center;
     justify-content: center;
 
-    left: 50%;
-    width: 40vw;
+    left: 10%;
+    width: 36vw;
+    min-width: 12em;
+    max-width: 24em;
 
     top: 50%;
     -ms-transform: translateY(-50%);

@@ -99,7 +99,7 @@ export class Bolt extends Projectile {
 					},
 					modelInit: {
 						transforms: {
-							translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.1, 0.1), },
+							translate: { z: this.model().translation().z + Fns.randomRange(-0.1, 0.1), },
 						},
 						materialType: MaterialType.PARTICLE_BLUE,
 					}

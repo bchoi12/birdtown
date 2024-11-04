@@ -159,7 +159,6 @@ export abstract class Projectile extends EntityBase {
 			other.takeDamage(this.hitDamage(), this);
 		}
 
-		this._hits.add(other.id());
 		this.onHit(other);
 	}
 
@@ -178,7 +177,12 @@ export abstract class Projectile extends EntityBase {
 
 	abstract hitDamage() : number;
 	onHit(other : Entity) : void {
-		if (this._hitId !== 0) {
+		if (this._hits.has(other.id())) {
+			return;
+		}
+		this._hits.add(other.id());
+
+		if (this._hitId !== 0 || !this.initialized()) {
 			return;
 		}
 

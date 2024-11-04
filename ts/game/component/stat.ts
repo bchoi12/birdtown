@@ -2,7 +2,7 @@
 import { game } from 'game'
 
 import { Component, ComponentBase } from 'game/component'
-import { ComponentType, AssociationType, StatType } from 'game/component/api'
+import { ComponentType, AssociationType, EmotionType, StatType } from 'game/component/api'
 import { StatLog } from 'game/component/util/stat_log'
 import { StatNumber } from 'game/component/util/stat_number'
 import { Entity } from 'game/entity'
@@ -134,11 +134,15 @@ export class Stat extends ComponentBase implements Component {
 		this._stat.set(value)
 	}
 	private publishDelta(delta : number) : void {
-		if (!settings.showDamageNumbers()) {
+		if (delta === 0 || !this.initialized() || delta >= this.max() - this.min()) {
 			return;
 		}
 
-		if (delta === 0 || !this.initialized() || delta >= this.max() - this.min()) {
+		if (delta < 0) {
+			this.entity().emote(EmotionType.SAD);
+		}
+
+		if (!settings.showDamageNumbers()) {
 			return;
 		}
 

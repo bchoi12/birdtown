@@ -72,13 +72,13 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 				const textureHeight = 64;
 				const text = " " + this.displayName() + " " ;
 
-				let temp = new BABYLON.DynamicTexture(this.name() + "-temp", 64, game.scene());
+				let temp = new BABYLON.DynamicTexture(this.name() + "-temp", textureHeight, game.scene(), /*mipMaps=*/true);
 				let context = temp.getContext();
 				context.font = NameTag._font;
 				const textureWidth = context.measureText(text).width;
 
 				const ratio = NameTag._height / textureHeight;
-				this._width = 1.1 * ratio * textureWidth;
+				this._width = ratio * textureWidth;
 
 				let texture = new BABYLON.DynamicTexture(this.name() + "-texture", {
 					width: textureWidth,

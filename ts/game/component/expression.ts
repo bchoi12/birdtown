@@ -68,7 +68,7 @@ export class Expression extends ComponentBase implements Component {
 		} else if (mad > sad) {
 			this._current = EmotionType.MAD;
 		} else {
-			this._current = EmotionType.NORMAL;
+			this._current = EmotionType.SAD;
 		}
 	}
 }
