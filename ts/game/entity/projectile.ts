@@ -45,7 +45,7 @@ export abstract class Projectile extends EntityBase {
 			import: (obj : number) => {
 				const [other, hasOther] = game.entities().getEntity(obj);
 				
-				if (hasOther) {
+				if (hasOther && !this._hits.has(other.id())) {
 					this.onHit(other);
 				}
 			},
@@ -159,7 +159,9 @@ export abstract class Projectile extends EntityBase {
 			other.takeDamage(this.hitDamage(), this);
 		}
 
-		this.onHit(other);
+		if (!this._hits.has(other.id())) {
+			this.onHit(other);
+		}
 	}
 
 	protected explode(type : EntityType, entityOptions? : EntityOptions) : void {
@@ -177,9 +179,6 @@ export abstract class Projectile extends EntityBase {
 
 	abstract hitDamage() : number;
 	onHit(other : Entity) : void {
-		if (this._hits.has(other.id())) {
-			return;
-		}
 		this._hits.add(other.id());
 
 		if (this._hitId !== 0 || !this.initialized()) {
