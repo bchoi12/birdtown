@@ -9,11 +9,11 @@ import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 
 export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 
-	private static readonly _types = new Array(BirdType.BOOBY, BirdType.CHICKEN, BirdType.DUCK, BirdType.ROBIN);
 	private static readonly _names = new Map([
 		[BirdType.BOOBY, "Blue-footed Booby"],
 		[BirdType.CHICKEN, "Chicken"],
 		[BirdType.DUCK, "Mallard Duck"],
+		[BirdType.EAGLE, "Bald Eagle"],
 		[BirdType.ROBIN, "Robin"],
 	]);
 
@@ -24,6 +24,7 @@ export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 		align-items: center;
 	`
 
+	private _types : Array<BirdType>;
 	private _index : number;
 	private _nameElm : HTMLElement;
 	private _photoElm : HTMLElement;
@@ -37,7 +38,9 @@ export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 
 		this.elm().classList.add(Html.classBirdPicker);
 
-		this._index = Math.floor(Math.random() * BirdWrapper._types.length);
+		this._types = [...BirdWrapper._names.entries()].sort((a, b) => a[1].localeCompare(b[1])).map(entry => entry[0]);
+
+		this._index = Math.floor(Math.random() * this._types.length);
 
 		this._photoElm = Html.div();
 		this._photoElm.classList.add(Html.classBirdPhoto);
@@ -54,7 +57,7 @@ export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 		this._leftButton.addOnClick(() => {
 			this._index--;
 			if (this._index < 0) {
-				this._index = BirdWrapper._types.length - 1;
+				this._index = this._types.length - 1;
 			}
 			this.updateImg();
 		});
@@ -92,7 +95,7 @@ export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	type() : BirdType {
-		return BirdWrapper._types[this._index % BirdWrapper._types.length]
+		return this._types[this._index % this._types.length]
 	}
 
 	private updateImg() : void {

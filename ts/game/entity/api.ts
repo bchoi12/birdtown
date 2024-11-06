@@ -43,6 +43,7 @@ export enum EntityType {
 	CRATE,
 	DUCK_BEAK,
 	DYING_STAR,
+	EAGLE_BEAK,
 	FLOOR,
 	GATLING,
 	HEADBAND,
@@ -89,6 +90,7 @@ export enum BirdType {
 	BOOBY,
 	CHICKEN,
 	DUCK,
+	EAGLE,
 	ROBIN,
 }
 

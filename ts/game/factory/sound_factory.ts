@@ -67,6 +67,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.EAGLE_SCREECH, {
+			path: "eagle_screech.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.EXPLOSION, {
 			path: "explosion.mp3",
 			options: {
