@@ -77,7 +77,7 @@ export class Rocket extends Projectile {
 				},
 				modelInit: {
 					transforms: {
-						translate: { z: this._model.mesh().position.z },
+						translate: { z: this._model.translation().z },
 					}
 				}
 			});

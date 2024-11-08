@@ -78,7 +78,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 	private addRerollButton() : ButtonWrapper {
 		let buttonWrapper = new ButtonWrapper();
 		buttonWrapper.setIcon(IconType.REROLL);
-		buttonWrapper.setText("[Reroll]");
+		buttonWrapper.setText("Reroll");
 		buttonWrapper.elm().style.float = "right";
 
 		this.footerElm().appendChild(buttonWrapper.elm());
