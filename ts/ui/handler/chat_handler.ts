@@ -179,12 +179,15 @@ export class ChatHandler extends HandlerBase implements Handler {
 			break;
 		case "/day":
 			game.world().setTime(TimeType.DAY);
+			this.chat(ChatType.PRINT, "Buenos días");
 			break;
 		case "/evening":
 			game.world().setTime(TimeType.EVENING);
+			this.chat(ChatType.PRINT, "Buenas tardes");
 			break;
 		case "/night":
 			game.world().setTime(TimeType.NIGHT);
+			this.chat(ChatType.PRINT, "Buenas noches");
 			break;
 		case "/die":
 			game.playerState().die();
@@ -203,6 +206,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			} else {
 				const [entity, ok] = game.entities().getEntity(Number(pieces[1]));
 				if (ok) {
+					this.chat(ChatType.PRINT, "Found " + entity.name());
 					console.log(entity);
 				} else {
 					console.log("%s not found", pieces[1]);
@@ -211,6 +215,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			break;
 		case "/portrait":
 			game.lakitu().portrait();
+			ui.hideAllStatuses();
 			break;
 		case "/role":
 			if (pieces.length !== 2) {
@@ -232,11 +237,18 @@ export class ChatHandler extends HandlerBase implements Handler {
 				this.chat(ChatType.PRINT, "Set speed to " + Number(pieces[1]));
 			}
 			break;
+		case "/stand":
+			if (game.lakitu().validTargetEntity() && game.lakitu().targetEntity().hasProfile()) {
+				game.lakitu().targetEntity().profile().uprightStop();
+			}
+			break;
 		case "/stats":
 			ui.setDebugStats(true);
+			this.chat(ChatType.PRINT, "Showing debug stats");
 			break;
 		case "/nostats":
 			ui.setDebugStats(false);
+			this.chat(ChatType.PRINT, "Hiding debug stats");
 			break;
 		default:
 			this.chat(ChatType.ERROR, "Unknown command: " + message);

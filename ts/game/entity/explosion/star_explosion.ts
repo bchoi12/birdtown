@@ -2,7 +2,7 @@
 import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Explosion } from 'game/entity/explosion'
-import { MaterialType } from 'game/factory/api'
+import { MaterialType, SoundType } from 'game/factory/api'
 
 export class StarExplosion extends Explosion {
 
@@ -12,4 +12,5 @@ export class StarExplosion extends Explosion {
 
 	override force() : number { return 0.3; }
 	override materialType() : MaterialType { return MaterialType.PARTICLE_PURPLE; }
+	override soundType() : SoundType { return SoundType.SMALL_EXPLOSION; }
 }

@@ -103,8 +103,8 @@ export class Pellet extends Projectile {
 			profileInit: {
 				pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.1, 0.1), y: Fns.randomRange(-0.1, 0.1), }),
 				vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
-					x: Fns.randomRange(0.05, 0.1),
-					y: Fns.randomRange(0.05, 0.1),
+					x: Fns.randomRange(0.1, 0.2),
+					y: Fns.randomRange(0.1, 0.2),
 				}),
 				scaling: { x: 0.1, y: 0.1 },
 			},

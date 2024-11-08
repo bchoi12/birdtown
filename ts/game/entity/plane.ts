@@ -107,7 +107,7 @@ export class Plane extends EntityBase implements Entity {
 
 		if (this.isSource() && this._crateSpawner.check(millis)) {
 			this.maybeDropCrate();
-			this._crateSpawner.setLimit(Plane._crateSpawnInterval + Math.random() * Plane._crateSpawnInterval);
+			this._crateSpawner.setLimit(Plane._crateSpawnInterval + 0.5 * Math.random() * Plane._crateSpawnInterval);
 		}
 	}
 

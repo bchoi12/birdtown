@@ -43,7 +43,7 @@ export class WingCannon extends Weapon {
 		super(EntityType.WING_CANNON, options);
 
 		SoundFactory.load(SoundType.LASER);
-		this.soundPlayer().registerSound(SoundType.CHARGED_BOLT);
+		this.soundPlayer().registerSound(SoundType.WING_CANNON);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
@@ -90,7 +90,7 @@ export class WingCannon extends Weapon {
 					angle: vel.angleRad(),
 				},
 			});
-			this.soundPlayer().playFromEntity(SoundType.CHARGED_BOLT, this.owner());
+			this.soundPlayer().playFromEntity(SoundType.WING_CANNON, this.owner());
 		}
 	}
 }

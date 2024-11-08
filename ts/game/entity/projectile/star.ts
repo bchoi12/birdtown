@@ -88,8 +88,6 @@ export class Star extends Projectile {
 		}));
 	}
 
-	override hitDamage() : number { return 0; }
-
 	override initialize() : void {
 		super.initialize();
 

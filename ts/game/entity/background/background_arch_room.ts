@@ -9,6 +9,8 @@ import { BackgroundEntity } from 'game/entity/background_entity'
 import { EntityType } from 'game/entity/api'
 import { BodyFactory } from 'game/factory/body_factory'
 
+import { Fns } from 'util/fns'
+
 export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 
 	private _model : Model;
@@ -35,7 +37,7 @@ export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 					faceUV: faceUV,
 				}, game.scene());
 
-				mesh.position.z = -25;
+				mesh.position.z = -24;
 				model.setMesh(mesh);
 			},
 			init: {

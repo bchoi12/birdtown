@@ -170,7 +170,7 @@ export namespace EntityFactory {
 		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],
 		[EntityType.HEALTH_CRATE, {x: 1, y: 1, z: 1 }],
-		[EntityType.ORB_EXPLOSION, { x: 1.2, y: 1.2, z: 1.2 }],
+		[EntityType.ORB_EXPLOSION, { x: 2, y: 2, z: 2 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.STAR_EXPLOSION, {x: 0.7, y: 0.7, z: 0.7 }],
 		[EntityType.WEAPON_CRATE, {x: 1, y: 1, z: 1 }],

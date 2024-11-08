@@ -32,7 +32,7 @@ export class Shotgun extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.SHOTGUN, options);
 
-		this.soundPlayer().registerSound(SoundType.PISTOL);
+		this.soundPlayer().registerSound(SoundType.BLAST);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
@@ -75,6 +75,6 @@ export class Shotgun extends Weapon {
 		let recoil = unitDir.clone().negate().scale(0.3);
 		this.owner().profile().addForce(recoil);
 
-		this.soundPlayer().playFromEntity(SoundType.PISTOL, this.owner());
+		this.soundPlayer().playFromEntity(SoundType.BLAST, this.owner());
 	}
 }

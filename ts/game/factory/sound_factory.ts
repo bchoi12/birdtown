@@ -27,8 +27,26 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.BIRD_SONG, {
+			path: "bird_song.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
+		[SoundType.BLAST, {
+			path: "blast.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.BOLT, {
 			path: "bolt.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
+		[SoundType.BOOM, {
+			path: "boom.mp3",
 			options: {
 				spatialSound: true,
 			},
@@ -115,6 +133,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			}
 		}],
+		[SoundType.PUNCH, {
+			path: "punch.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 		[SoundType.QUACK, {
 			path: "quack.mp3",
 			options: {
@@ -141,6 +165,18 @@ export namespace SoundFactory {
 				spatialSound: true,
 			}
 		}],
+		[SoundType.SMALL_EXPLOSION, {
+			path: "small_explosion.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
+		[SoundType.SQUAWK, {
+			path: "squawk.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.THROW, {
 			path: "throw.mp3",
 			options: {
@@ -149,6 +185,12 @@ export namespace SoundFactory {
 		}],
 		[SoundType.THUD, {
 			path: "thud.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
+		[SoundType.WING_CANNON, {
+			path: "wing_cannon.mp3",
 			options: {
 				spatialSound: true,
 			}
@@ -222,6 +264,7 @@ export namespace SoundFactory {
 		let sound = load(type, options);
 
 		if (sound !== null) {
+			sound.setVolume(settings.volume * sound.getVolume());
 			sound.play();
 			unload(type, sound);
 		}
@@ -232,6 +275,7 @@ export namespace SoundFactory {
 
 		if (sound !== null) {
 			sound.setPosition(pos);
+			sound.setVolume(settings.volume * sound.getVolume());
 			sound.play();
 			unload(type, sound);
 		}

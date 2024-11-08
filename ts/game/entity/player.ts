@@ -761,8 +761,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 			if (collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 0.1) {
 				if (!this._canJump && this._profile.vel().y < -0.1) {
+					const volume = Fns.interp(InterpType.SQUARE, Fns.normalizeRange(-0.1, this._profile.vel().y, -Player._maxVerticalVel));
 					this.soundPlayer().playFromPos(SoundType.FOOTSTEP, this._profile.getRenderPos(), {
-						volume: Fns.interp(InterpType.SQUARE, Fns.normalizeRange(-0.1, this._profile.vel().y, -Player._maxVerticalVel)),
+						volume: volume,
 					});
 				}
 

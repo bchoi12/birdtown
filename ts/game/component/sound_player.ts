@@ -76,7 +76,7 @@ export class SoundPlayer extends ComponentBase implements Component {
 		if (!options.playbackRate) {
 			options.playbackRate = 1;
 		}
-		options.playbackRate *= entity.playbackRate() * Math.max(0.7, game.runner().updateSpeed());
+		options.playbackRate *= entity.playbackRate() * Math.max(0.3, game.runner().updateSpeed());
 
 		if (entity.isLakituTarget()) {
 			// Default to no spatial sound when originating from the target.
@@ -135,8 +135,11 @@ export class SoundPlayer extends ComponentBase implements Component {
 		let sound = this.sound(type);
 		if (options) {
 			sound.updateOptions(options);
-		}
-		sound.setVolume(settings.volume);
+		} 
+
+		let volume = (options && options.volume) ? options.volume : 1;
+		sound.setVolume(settings.volume * volume);
+
 		return sound;
 	}
 }
