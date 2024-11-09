@@ -22,8 +22,8 @@ import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
 import { Smoother } from 'util/smoother'
 import { Timer } from 'util/timer'
-import { Vec, Vec2 } from 'util/vector'
-import { SmoothVec2 } from 'util/vector/smooth_vector'
+import { Vec, Vec2, Vec3 } from 'util/vector'
+import { SmoothVec } from 'util/vector/smooth_vector'
 
 type ReadyFn = (profile : Profile) => boolean;
 type BodyFn = (profile : Profile) => MATTER.Body;
@@ -96,8 +96,8 @@ export class Profile extends ComponentBase implements Component {
 	private _occluded : boolean;
 	private _visible : boolean;
 
-	private _pos : SmoothVec2;
-	private _vel : SmoothVec2;
+	private _pos : SmoothVec;
+	private _vel : SmoothVec;
 	private _acc : Vec2;
 	private _dim : Vec2;
 	private _angle : number;
@@ -164,13 +164,13 @@ export class Profile extends ComponentBase implements Component {
 			options: {
 				filters: GameData.udpFilters,
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, this.vecEpsilon());
+					return SmoothVec.approxEquals(a, b, this.vecEpsilon());
 				},
 			},
 		});
 		this.addProp<Vec>({
 			has: () => { return this.hasVel(); },
-			export: () => { return this.vel().toVec(); },
+			export: () => { return this.vel().toVecXY(); },
 			import: (obj : Vec) => {
 				this.setVel(obj);
 				this.vel().setBase(obj);
@@ -178,7 +178,7 @@ export class Profile extends ComponentBase implements Component {
 			options: {
 				filters: GameData.udpFilters,
 				equals: (a : Vec, b : Vec) => {
-					return Vec2.approxEquals(a, b, this.vecEpsilon());
+					return SmoothVec.approxEquals(a, b, this.vecEpsilon());
 				},
 			},
 		});
@@ -381,9 +381,9 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	private hasPos() : boolean { return defined(this._pos); }
-	pos() : SmoothVec2 { return this._pos; }
-	getRenderPos() : Vec2 {
-		let renderPos = this.hasPos() ? this.pos().clone() : Vec2.zero();
+	pos() : SmoothVec { return this._pos; }
+	getRenderPos() : Vec3 {
+		let renderPos = this.hasPos() ? this.pos().clone() : Vec3.zero();
 		const bounds = game.level().bounds();
 		const target = game.lakitu().target();
 		if (this.pos().x - target.x > bounds.width() / 2) {
@@ -394,27 +394,27 @@ export class Profile extends ComponentBase implements Component {
 		return renderPos;
 	}
 	setPos(vec : Vec) : void {
-		if (!this.hasPos()) { this._pos = SmoothVec2.zero(); }
+		if (!this.hasPos()) { this._pos = SmoothVec.zero(); }
 
 		this._pos.copyVec(vec);
 		this._pos.roundToEpsilon(Profile._minQuantization);
 	}
 
 	hasVel() : boolean { return defined(this._vel); }
-	vel() : SmoothVec2 { return this.hasVel() ? this._vel : SmoothVec2.zero(); }
+	vel() : SmoothVec { return this.hasVel() ? this._vel : SmoothVec.zero(); }
 	setVel(vec : Vec) : void {
-		if (!this.hasVel()) { this._vel = SmoothVec2.zero(); }
+		if (!this.hasVel()) { this._vel = SmoothVec.zero(); }
 
 		this._vel.copyVec(vec);
 	}
 	addVel(delta : Vec) : void {
-		if (!this.hasVel()) { this._vel = SmoothVec2.zero(); }
+		if (!this.hasVel()) { this._vel = SmoothVec.zero(); }
 
 		this._vel.add(delta);
 	}
 	capSpeed(speed : number) : void {
 		if (!this.hasVel()) {
-			this._vel = SmoothVec2.zero();
+			this._vel = SmoothVec.zero();
 			return;
 		}
 

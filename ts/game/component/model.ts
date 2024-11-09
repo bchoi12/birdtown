@@ -71,24 +71,6 @@ export class Model extends ComponentBase implements Component {
 			}
 		}
 
-		// Try commenting out?
-		/*
-		this.addProp<Vec>({
-			has: () => { return this._transforms.hasTranslation(); },
-			export: () => { return this._transforms.translation().toVec(); },
-			import: (obj : Vec) => { return this._transforms.setTranslation(obj); },
-		});
-		this.addProp<Vec>({
-			has: () => { return this._transforms.hasRotation(); },
-			export: () => { return this._transforms.rotation().toVec(); },
-			import: (obj : Vec) => { return this._transforms.setRotation(obj); },
-		});
-		this.addProp<Vec>({
-			has: () => { return this._transforms.hasScaling(); },
-			export: () => { return this._transforms.scaling().toVec(); },
-			import: (obj : Vec) => { return this._transforms.setScaling(obj); },
-		});
-		*/
 		this.addProp<MaterialType>({
 			has: () => { return this._materialType.has(); },
 			export: () => { return this._materialType.get(); },
@@ -241,6 +223,7 @@ export class Model extends ComponentBase implements Component {
 
 		this._root.position.x += pos.x;
 		this._root.position.y += pos.y;
+		this._root.position.z += pos.z;
 
 		if (profile.hasAngle()) {
 			this._root.rotation.z += profile.angle();

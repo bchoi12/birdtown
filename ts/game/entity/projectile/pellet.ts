@@ -110,7 +110,7 @@ export class Pellet extends Projectile {
 			},
 			modelInit: {
 				transforms: {
-					translate: { z: this.model().translation().z + Fns.randomRange(-0.1, 0.1) },
+					translate: { z: Fns.randomRange(-0.1, 0.1) },
 				},
 				materialType: MaterialType.WESTERN_YELLOW,
 			}

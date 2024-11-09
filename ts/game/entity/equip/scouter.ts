@@ -118,7 +118,7 @@ export class Scouter extends Equip<Player> {
 			},
 			modelInit: {
 				transforms: {
-					translate: { z: pos.z + size / 2 },
+					translate: { z: size / 2 },
 					scale: { x: size, y: size, z: size },
 				},
 				materialType: MaterialType.SHOOTER_ORANGE,

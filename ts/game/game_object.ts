@@ -184,8 +184,14 @@ export abstract class GameObjectBase {
 		}
 	}
 
-	private maybePrintUnready() : void {
+	private handleNotReady() : void {
 		if (this._readyCalls <= 0 || this._readyCalls % GameObjectBase._readyPrintInterval !== 0) {
+			return;
+		}
+
+		if (this._readyCalls > 5 * GameObjectBase._readyPrintInterval) {
+			console.error("Warning: %s is still not ready and was cleaned up", this.name());
+			this.delete();
 			return;
 		}
 
@@ -214,7 +220,7 @@ export abstract class GameObjectBase {
 		});
 
 		if (!ready) {
-			this.maybePrintUnready();
+			this.handleNotReady();
 		}
 		return ready;
 	}

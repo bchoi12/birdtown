@@ -101,25 +101,27 @@ export class Bullet extends Projectile {
 	override onHit(other : Entity) : void {
 		super.onHit(other);
 
-		for (let i = 0; i < 3; ++i) {
-			this.addEntity(EntityType.SPARK_PARTICLE, {
-				offline: true,
-				ttl: 400,
-				profileInit: {
-					pos: this._profile.pos(),
-					vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
-						x: Fns.randomRange(0.1, 0.2),
-						y: Fns.randomRange(0.1, 0.2),
-					}),
-					scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.15 },
-				},
-				modelInit: {
-					transforms: {
-						translate: { z: this.model().translation().z + Fns.randomRange(-0.1, 0.1), },
+		if (this.initialized()) {
+			for (let i = 0; i < 3; ++i) {
+				this.addEntity(EntityType.SPARK_PARTICLE, {
+					offline: true,
+					ttl: 400,
+					profileInit: {
+						pos: this._profile.pos(),
+						vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
+							x: Fns.randomRange(0.1, 0.2),
+							y: Fns.randomRange(0.1, 0.2),
+						}),
+						scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.15 },
 					},
-					materialType: MaterialType.PARTICLE_YELLOW,
-				}
-			});
+					modelInit: {
+						transforms: {
+							translate: { z: Fns.randomRange(-0.1, 0.1), },
+						},
+						materialType: MaterialType.PARTICLE_YELLOW,
+					}
+				});
+			}
 		}
 		this.delete();
 	}

@@ -79,11 +79,6 @@ export class Gatling extends Weapon {
 			associationInit: {
 				owner: this.owner(),
 			},
-			modelInit: {
-				transforms: {
-					translate: { z: pos.z },
-				},
-			},
 			profileInit: {
 				pos: pos,
 				vel: vel,

@@ -67,9 +67,6 @@ export class Sniper extends Weapon {
 				owner: this.owner(),
 			},
 			modelInit: {
-				transforms: {
-					translate: { z: pos.z },
-				},
 				materialType: charged ? MaterialType.SHOOTER_ORANGE : MaterialType.SHOOTER_BLUE,
 			},
 			profileInit: {

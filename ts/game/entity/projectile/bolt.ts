@@ -84,7 +84,7 @@ export class Bolt extends Projectile {
 
 		if (this.getAttribute(AttributeType.CHARGED)) {
 			this.explode(EntityType.BOLT_EXPLOSION, {});
-		} else {
+		} else if (this.initialized()) {
 			for (let i = 0; i < 3; ++i) {
 				this.addEntity(EntityType.SPARK_PARTICLE, {
 					offline: true,
@@ -99,7 +99,7 @@ export class Bolt extends Projectile {
 					},
 					modelInit: {
 						transforms: {
-							translate: { z: this.model().translation().z + Fns.randomRange(-0.1, 0.1), },
+							translate: { z: Fns.randomRange(-0.1, 0.1), },
 						},
 						materialType: MaterialType.PARTICLE_BLUE,
 					}
