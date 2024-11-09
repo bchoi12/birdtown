@@ -422,6 +422,8 @@ export class Profile extends ComponentBase implements Component {
 			this._vel.normalize().scale(speed);
 		}
 	}
+	// Skip very first update, but only if we're the source
+	private shouldUpdateVel() : boolean { return (!this.isSource() || this.updateCalls() > 1) && this.hasVel(); }
 
 	hasAcc() : boolean { return defined(this._acc); }
 	acc() : Vec2 { return this.hasAcc() ? this._acc : Vec2.zero(); }
@@ -807,7 +809,7 @@ export class Profile extends ComponentBase implements Component {
 		this.applyLimits();
 
 		if (!attached) {
-			if (!this.isSource() || this.updateCalls() > 1 && this.hasVel()) {
+			if (this.shouldUpdateVel()) {
 				MATTER.Body.setVelocity(this._body, this.vel());
 			}
 			MATTER.Body.setPosition(this._body, this._pos);
@@ -923,7 +925,7 @@ export class Profile extends ComponentBase implements Component {
 			this.setAngle(this._body.angle);
 		}
 
-		if (this.updateCalls() > 1 && this.hasVel()) {
+		if (this.shouldUpdateVel()) {
 			this.setVel(this._body.velocity);
 
 			if (!this.isSource()) {
