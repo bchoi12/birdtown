@@ -156,10 +156,10 @@ export class Profile extends ComponentBase implements Component {
 
 		this.addProp<Vec>({
 			has: () => { return this.hasPos(); },
-			export: () => {return this.pos().toVec(); },
+			export: () => {return this._pos.toVec(); },
 			import: (obj : Vec) => {
 				this.setPos(obj);
-				this.pos().setBase(obj);
+				this._pos.setBase(obj);
 			},
 			options: {
 				filters: GameData.udpFilters,
@@ -255,7 +255,7 @@ export class Profile extends ComponentBase implements Component {
 		super.initialize();
 
 		this._body = this._bodyFn(this);
-		MATTER.Body.setPosition(this._body, this.pos());
+		MATTER.Body.setPosition(this._body, this._pos);
 
 		MATTER.Composite.add(game.physics().world(), this._body)
 		this._body.label = "" + this.entity().id();
@@ -277,9 +277,9 @@ export class Profile extends ComponentBase implements Component {
 		this.onBody((profile : Profile) => {
 			if (state === GameObjectState.DEACTIVATED) {
 				// Hack to remove the body from the scene.
-				MATTER.Body.setPosition(profile.body(), { x: this.pos().x, y: game.level().bounds().min.y - 10 });
+				MATTER.Body.setPosition(profile.body(), { x: this._pos.x, y: game.level().bounds().min.y - 10 });
 			} else {
-				MATTER.Body.setPosition(profile.body(), this.pos());
+				MATTER.Body.setPosition(profile.body(), this._pos);
 			}
 		});
 	}
@@ -296,7 +296,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	relativePos(cardinal : CardinalDir, objectDim? : Vec) : Vec2 {
-		let adjustedPos = this.pos().clone();
+		let adjustedPos = this._pos.clone();
 		const dim = this.scaledDim();
 
 		if (!objectDim) {
@@ -383,12 +383,12 @@ export class Profile extends ComponentBase implements Component {
 	private hasPos() : boolean { return defined(this._pos); }
 	pos() : SmoothVec { return this._pos; }
 	getRenderPos() : Vec3 {
-		let renderPos = this.hasPos() ? this.pos().clone() : Vec3.zero();
+		let renderPos = this.hasPos() ? this._pos.clone() : Vec3.zero();
 		const bounds = game.level().bounds();
 		const target = game.lakitu().target();
-		if (this.pos().x - target.x > bounds.width() / 2) {
+		if (this._pos.x - target.x > bounds.width() / 2) {
 			renderPos.x -= bounds.width();
-		} else if (target.x - this.pos().x > bounds.width() / 2) {
+		} else if (target.x - this._pos.x > bounds.width() / 2) {
 			renderPos.x += bounds.width();
 		}
 		return renderPos;
@@ -533,7 +533,7 @@ export class Profile extends ComponentBase implements Component {
 		const dim = this.scaledDim();
 		const otherDim = other.scaledDim();
 
-		const dist = this.pos().clone().sub(other.pos()).abs();
+		const dist = this._pos.clone().sub(other.pos()).abs();
 		return Vec2.fromVec(dim).add(otherDim).scale(0.5).sub(dist).div(dim);
 	}
 	isXCollision(overlap : Vec, vel : Vec) : boolean {
@@ -609,7 +609,7 @@ export class Profile extends ComponentBase implements Component {
 		if (this.isXCollision(overlap, relativeVel)) {
 			const dir = -Math.sign(relativeVel.x);
 			const desired = profile.pos().x + dir * (profile.scaledDim().x + this.scaledDim().x) / 2 
-			const offset = desired - this.pos().x;
+			const offset = desired - this._pos.x;
 			const otherOffset = offset * vel.y / vel.x;
 
 			if (snapLimit > 0 && offset * offset + otherOffset * otherOffset > snapLimit * snapLimit) {
@@ -618,12 +618,12 @@ export class Profile extends ComponentBase implements Component {
 
 			this.setPos({
 				x: desired,
-				y: this.pos().y + otherOffset,
+				y: this._pos.y + otherOffset,
 			});
 		} else if (this.isYCollision(overlap, relativeVel)) {
 			const dir = -Math.sign(relativeVel.y);
 			const desired = profile.pos().y + dir * (profile.scaledDim().y + this.scaledDim().y) / 2 
-			const offset = desired - this.pos().y;
+			const offset = desired - this._pos.y;
 			const otherOffset = offset * vel.x / vel.y;
 
 			if (snapLimit > 0 && offset * offset + otherOffset * otherOffset > snapLimit * snapLimit) {
@@ -631,7 +631,7 @@ export class Profile extends ComponentBase implements Component {
 			}
 
 			this.setPos({
-				x: this.pos().x + otherOffset,
+				x: this._pos.x + otherOffset,
 				y: desired,
 			});
 		} else {
@@ -640,8 +640,8 @@ export class Profile extends ComponentBase implements Component {
 
 		if (this._body !== null) {
 			MATTER.Body.setPosition(this._body, {
-				x: this.pos().x,
-				y: this.pos().y,
+				x: this._pos.x,
+				y: this._pos.y,
 			});
 		}
 	}
@@ -656,9 +656,9 @@ export class Profile extends ComponentBase implements Component {
 		if (params.millis <= 0) { return; }
 
 		if (game.level().isCircle()) {
-			if (this.pos().x - point.x > game.level().bounds().width() / 2) {
+			if (this._pos.x - point.x > game.level().bounds().width() / 2) {
 				point.x += game.level().bounds().width();
-			} else if (point.x - this.pos().x > game.level().bounds().width() / 2) {
+			} else if (point.x - this._pos.x > game.level().bounds().width() / 2) {
 				point.x -= game.level().bounds().width();
 			}
 		} else {
@@ -666,7 +666,7 @@ export class Profile extends ComponentBase implements Component {
 		}
 
 		const dt = params.millis / 1000;
-		const distVec = this.pos().clone().sub(point).negate();
+		const distVec = this._pos.clone().sub(point).negate();
 		if (!this.hasVel()) {
 			this.setVel({x: 0, y: 0});
 		}
@@ -737,12 +737,12 @@ export class Profile extends ComponentBase implements Component {
 	private applyLimits() : void {
 		if (this._outOfBoundsFn.has()) {
 			const bounds = game.level().bounds();
-			if (bounds.ySide(this.pos()) !== 0 || !game.level().isCircle() && bounds.xSide(this.pos()) !== 0) {
+			if (bounds.ySide(this._pos) !== 0 || !game.level().isCircle() && bounds.xSide(this._pos) !== 0) {
 				this._outOfBoundsFn.get()(this);
 			} 
 		} 
 
-		game.level().clampPos(this.pos());
+		game.level().clampPos(this._pos);
 
 		if (this._limitFn.has()) {
 			this._limitFn.get()(this);
@@ -785,10 +785,10 @@ export class Profile extends ComponentBase implements Component {
 				weight = this._smoother.weight();
 			}
 			this.vel().snap(weight);
-			if (this.pos().snapDistSq(weight) > 10) {
-				this.pos().snap(0);
+			if (this._pos.snapDistSq(weight) > 10) {
+				this._pos.snap(0);
 			} else {
-				this.pos().snap(Math.min(weight, 1));
+				this._pos.snap(Math.min(weight, 1));
 			}
 
 			if (this.hasAcc()) {
@@ -807,10 +807,10 @@ export class Profile extends ComponentBase implements Component {
 		this.applyLimits();
 
 		if (!attached) {
-			if (this.updateCalls() > 1 && this.hasVel()) {
+			if (!this.isSource() || this.updateCalls() > 1 && this.hasVel()) {
 				MATTER.Body.setVelocity(this._body, this.vel());
 			}
-			MATTER.Body.setPosition(this._body, this.pos());
+			MATTER.Body.setPosition(this._body, this._pos);
 		}
 
 		this._collisionBuffer.reset();
@@ -840,7 +840,7 @@ export class Profile extends ComponentBase implements Component {
 			if (other.allTypes().has(EntityType.FLOOR)) {
 				if (pen.x !== 0) {
 					normal.x = 0;
-					normal.y = this.pos().y > other.profile().pos().y ? 1 : -1;
+					normal.y = this._pos.y > other.profile().pos().y ? 1 : -1;
 					pen.x = 0;
 					pen.y = -normal.y * overlap.y
 					fixed = true;
@@ -851,7 +851,7 @@ export class Profile extends ComponentBase implements Component {
 					normal.x = 0;
 					normal.y = Math.sign(normal.y);
 
-					if (Math.sign(vel.y) === Math.sign(this.pos().y - otherProfile.pos().y)) {
+					if (Math.sign(vel.y) === Math.sign(this._pos.y - otherProfile.pos().y)) {
 						// Moving away from the collision
 						pen.scale(0);
 						fixed = true;
@@ -865,7 +865,7 @@ export class Profile extends ComponentBase implements Component {
 					normal.x = Math.sign(normal.x);
 					normal.y = 0;
 
-					if (Math.sign(vel.x) === Math.sign(this.pos().x - otherProfile.pos().x)) {
+					if (Math.sign(vel.x) === Math.sign(this._pos.x - otherProfile.pos().x)) {
 						// Moving away from the collision
 						pen.scale(0);
 						fixed = true;

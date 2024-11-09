@@ -1,11 +1,11 @@
 
 import { Optional } from 'util/optional'
-import { Vec, Vec3 } from 'util/vector'
+import { Vec, Vec2, Vec3 } from 'util/vector'
 
 export class SmoothVec extends Vec3 {
 
-	private _base : Optional<Vec3>;
-	private _predict : Optional<Vec3>;
+	private _base : Optional<Vec2>;
+	private _predict : Optional<Vec2>;
 
 	constructor(vec : Vec) {
 		super(vec);

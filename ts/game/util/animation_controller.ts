@@ -1,5 +1,6 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
+import { game } from 'game'
 import { AnimationSet } from 'game/util/animation_set'
 
 import { defined } from 'util/common'
@@ -55,7 +56,9 @@ export class AnimationController {
 		}
 
 		if (options.speedRatio) {
-			this._animations.get(name).speedRatio = options.speedRatio;
+			this._animations.get(name).speedRatio = options.speedRatio * game.runner().updateSpeed();
+		} else {
+			this._animations.get(name).speedRatio = game.runner().updateSpeed();
 		}
 
 		if (this._animations.get(name).isPlaying) {
