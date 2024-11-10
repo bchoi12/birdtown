@@ -95,7 +95,6 @@ export class Profile extends ComponentBase implements Component {
 	private _smoother : Smoother;
 	private _occluded : boolean;
 	private _visible : boolean;
-	private _wrap : number;
 
 	private _pos : SmoothVec;
 	private _vel : SmoothVec;
@@ -137,7 +136,6 @@ export class Profile extends ComponentBase implements Component {
 		this._smoother = new Smoother();
 		this._occluded = false;
 		this._visible = true;
-		this._wrap = 0;
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -384,10 +382,24 @@ export class Profile extends ComponentBase implements Component {
 
 	private hasPos() : boolean { return defined(this._pos); }
 	pos() : SmoothVec { return this._pos; }
+	getWrapDir() : number {
+		if (game.level().isCircle()) {
+			const bounds = game.level().bounds();
+			const target = game.lakitu().target();
+			if (this._pos.x - target.x > bounds.width() / 2) {
+				return -1;
+			} else if (target.x - this._pos.x > bounds.width() / 2) {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+		return 0;
+	}
 	getRenderPos() : Vec3 {
 		let renderPos = this.hasPos() ? this._pos.clone() : Vec3.zero();
 		const bounds = game.level().bounds();
-		renderPos.x += this._wrap * bounds.width();
+		renderPos.x += this.getWrapDir() * bounds.width();
 		return renderPos;
 	}
 	setPos(vec : Vec) : void {
@@ -396,7 +408,6 @@ export class Profile extends ComponentBase implements Component {
 		this._pos.copyVec(vec);
 		this._pos.roundToEpsilon(Profile._minQuantization);
 	}
-	wrap() : number { return this._wrap; }
 
 	hasVel() : boolean { return defined(this._vel); }
 	vel() : SmoothVec { return this.hasVel() ? this._vel : SmoothVec.zero(); }
@@ -934,17 +945,6 @@ export class Profile extends ComponentBase implements Component {
 		this.setPos(this._body.position);
 		if (!this.isSource()) {
 			this._pos.setPredict(this._body.position);
-		}
-
-		this._wrap = 0;
-		if (game.level().isCircle()) {
-			const bounds = game.level().bounds();
-			const target = game.lakitu().target();
-			if (this._pos.x - target.x > bounds.width() / 2) {
-				this._wrap = -1;
-			} else if (target.x - this._pos.x > bounds.width() / 2) {
-				this._wrap = 1;
-			}
 		}
 
 		// Update child objects afterwards.

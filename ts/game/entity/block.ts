@@ -103,6 +103,7 @@ export abstract class Block extends EntityBase {
 					this.processMesh(mesh);
 
 					model.translation().copyVec(this.meshOffset());
+					model.setFrozen(true);
 					model.setMesh(mesh);
 				});
 			},

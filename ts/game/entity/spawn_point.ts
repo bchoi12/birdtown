@@ -55,6 +55,7 @@ export class SpawnPoint extends EntityBase implements Entity {
 					base.addChild(arrow);
 				})
 				model.setMesh(base);
+				model.setFrozen(true);
 			},
 			init: entityOptions.modelInit,
 		}));

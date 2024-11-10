@@ -234,9 +234,10 @@ export class Model extends ComponentBase implements Component {
 		if (this.entity().hasProfile()) {
 			const profile = this.entity().profile();
 			if (this._frozen) {
-				if (!this._lastWrap.has() || this._lastWrap.get() !== profile.wrap()) {
+				const wrap = profile.getWrapDir();
+				if (!this._lastWrap.has() || this._lastWrap.get() !== wrap) {
 					this.applyFrozen(false);
-					this._lastWrap.set(profile.wrap());
+					this._lastWrap.set(wrap);
 				} else if (!this._mesh.isWorldMatrixFrozen) {
 					this.applyFrozen(true);
 					return;

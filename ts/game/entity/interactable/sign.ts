@@ -44,6 +44,7 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 					let mesh = <BABYLON.Mesh>result.meshes[0];
 					model.translation().z = -1.5;
 					model.setMesh(mesh);
+					model.setFrozen(true);
 				});
 			},
 			init: entityOptions.modelInit,
