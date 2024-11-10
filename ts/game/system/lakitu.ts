@@ -432,6 +432,7 @@ export class Lakitu extends SystemBase implements System {
 
 		this.anchorToTarget();
 
+
 		if (this.targetEntityType() === EntityType.PLAYER) {
 			// TODO: refactor these two methods into this.targetEntity().updateHud()
 			ui.updateHud(this.targetEntity().getHudData());

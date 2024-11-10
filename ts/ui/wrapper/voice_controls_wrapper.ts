@@ -8,33 +8,34 @@ import { Html, HtmlWrapper } from 'ui/html'
 import { Icon, IconType } from 'ui/common/icon'
 
 import { defined } from 'util/common'
+import { Optional } from 'util/optional'
 import { Vec } from 'util/vector'
 
 export class VoiceControlsWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _audioControls : Array<HTMLElement>;
 
-	private _stream : MediaStream;
-	private _panner : PannerNode;
+	private _stream : Optional<MediaStream>;
+	private _panner : Optional<PannerNode>;
 
 	constructor() {
 		super(Html.span());
 
 		this._audioControls = new Array<HTMLElement>();
+
+		this._stream = new Optional();
+		this._panner = new Optional();
 	}
 
 	updatePos(pos : Vec) : void {
-		if (!defined(this._panner)) {
+		if (!ui.hasAudio() || !this._panner.has()) {
 			return;
 		}
 
 		const context = ui.audioContext();
-		this._panner.positionX.setValueAtTime(pos.x, context.currentTime);
-		this._panner.positionY.setValueAtTime(pos.y, context.currentTime);
-
-		if (defined(pos.z)) {
-			this._panner.positionZ.setValueAtTime(pos.z, context.currentTime);
-		}
+		this._panner.get().positionX.setValueAtTime(pos.x, context.currentTime);
+		this._panner.get().positionY.setValueAtTime(pos.y, context.currentTime);
+		this._panner.get().positionZ.setValueAtTime(pos.z, context.currentTime);
 	}
 
 	enable(stream : MediaStream) : void {
@@ -42,23 +43,23 @@ export class VoiceControlsWrapper extends HtmlWrapper<HTMLElement> {
 			return;
 		}
 
-		this._stream = stream;
+		this._stream.set(stream);
 
 		// Create fakeAudio as workaround for Chrome bug where stream is not audible in AudioContext
 		let fakeStream = new MediaStream();
 
 		// TODO: check if this is needed?
 		let fakeAudio = new Audio();
-		fakeAudio.srcObject = this._stream;
+		fakeAudio.srcObject = this._stream.get();
 		fakeAudio.muted = true;
 
 		let context = ui.audioContext();
-		let source = context.createMediaStreamSource(this._stream);
+		let source = context.createMediaStreamSource(this._stream.get());
 		let dest = context.createMediaStreamDestination();
-		this._panner = new PannerNode(context, MediaGlobals.spatialVoiceOptions);
+		this._panner.set(new PannerNode(context, MediaGlobals.spatialVoiceOptions));
 
-		source.connect(this._panner);
-		this._panner.connect(dest);
+		source.connect(this._panner.get());
+		this._panner.get().connect(dest);
 
 		let audio = Html.audio();
 		audio.srcObject = dest.stream;
@@ -100,8 +101,8 @@ export class VoiceControlsWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	disable() : void {
-		if (defined(this._stream)) {
-			this._stream.getTracks().forEach(track => track.stop());
+		if (this._stream.has()) {
+			this._stream.get().getTracks().forEach(track => track.stop());
 		}
 		this._audioControls.forEach((elm) => {
 			this.elm().removeChild(elm);

@@ -1,4 +1,3 @@
-import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { EntityType, BirdType } from 'game/entity/api'
@@ -50,7 +49,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		this.addOnSubmit(() => {
 			ui.applySettings();
 			ui.onPlayerInitialized();
-			BABYLON.Engine.audioEngine?.unlock()
+			ui.enableAudio();
 		});
 	}
 

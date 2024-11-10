@@ -44,6 +44,8 @@ export class Model extends ComponentBase implements Component {
 	private _root : BABYLON.TransformNode;
 	private _transforms : Transforms;
 	private _materialType : Optional<MaterialType>;
+	private _frozen : boolean;
+	private _lastWrap : Optional<number>;
 
 	private _mesh : BABYLON.Mesh;
 	private _subMesh : Map<number, BABYLON.Mesh>;
@@ -59,6 +61,8 @@ export class Model extends ComponentBase implements Component {
 		this._root = new BABYLON.TransformNode("root");
 		this._transforms = new Transforms();
 		this._materialType = new Optional();
+		this._frozen = false;
+		this._lastWrap = new Optional();
 
 		this._mesh = null;
 		this._subMesh = new Map();
@@ -198,6 +202,19 @@ export class Model extends ComponentBase implements Component {
 	setVisible(visible : boolean) : void {
 		this.applyToMeshes((mesh : BABYLON.Mesh) => { mesh.isVisible = visible; });
 	}
+	setFrozen(frozen : boolean) : void {
+		this._frozen = frozen;
+		this.applyFrozen(frozen);
+	}
+	private applyFrozen(frozen : boolean) : void {
+		this.applyToMeshes((mesh : BABYLON.Mesh) => {
+			if (frozen) {
+				mesh.freezeWorldMatrix();
+			} else {
+				mesh.unfreezeWorldMatrix();
+			}
+		});
+	}
 
 	registerAnimation(animation : BABYLON.AnimationGroup, group? : number) { this._animationController.register(animation, group); }
 	playAnimation(name : string, options? : PlayOptions) : void { this._animationController.play(name, options); }
@@ -207,7 +224,34 @@ export class Model extends ComponentBase implements Component {
 	hasBone(name : string) : boolean { return this._bones.has(name); }
 	getBone(name : string) : BABYLON.Bone { return this._bones.get(name); }
 
-	resetTransforms() : void {
+	override preRender() : void {
+		super.preRender();
+
+		if (!this.hasMesh()) {
+			return;
+		}
+
+		if (this.entity().hasProfile()) {
+			const profile = this.entity().profile();
+			if (this._frozen) {
+				if (!this._lastWrap.has() || this._lastWrap.get() !== profile.wrap()) {
+					this.applyFrozen(false);
+					this._lastWrap.set(profile.wrap());
+				} else if (!this._mesh.isWorldMatrixFrozen) {
+					this.applyFrozen(true);
+					return;
+				} else {
+					return;
+				}
+			}
+			this.updateTransforms();
+			this.applyProfile(profile);
+		} else {
+			this.updateTransforms();
+		}
+	}
+
+	private updateTransforms() : void {
 		const translation = this.translation();
 		this._root.position.set(translation.x, translation.y, translation.z);
 
@@ -217,9 +261,10 @@ export class Model extends ComponentBase implements Component {
 		const scaling = this.scaling();
 		this._root.scaling.set(scaling.x, scaling.y, scaling.z);
 	}
-	private addProfileTransforms(profile : Profile) : void {
+
+	private applyProfile(profile : Profile) {
 		const useRenderPos = game.level().isCircle() && this._root.parent === null;
-		let pos = useRenderPos ? profile.getRenderPos() : profile.pos();
+		const pos = useRenderPos ? profile.getRenderPos() : profile.pos();
 
 		this._root.position.x += pos.x;
 		this._root.position.y += pos.y;
@@ -231,18 +276,5 @@ export class Model extends ComponentBase implements Component {
 
 		this._root.scaling.x *= profile.scaling().x;
 		this._root.scaling.y *= profile.scaling().y;
-	}
-
-	override preRender() : void {
-		super.preRender();
-
-		if (!this.hasMesh()) {
-			return;
-		}
-
-		this.resetTransforms();
-		if (this.entity().hasProfile()) {
-			this.addProfileTransforms(this.entity().profile());
-		}
 	}
 }

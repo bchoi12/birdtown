@@ -110,6 +110,9 @@ export class World extends SystemBase implements System {
 		this._scene.preventDefaultOnPointerDown = false;
 		this._scene.preventDefaultOnPointerUp = false;
 
+		// Performance optimization
+		this._scene.skipPointerMovePicking = true;
+
 		this._layers = new Map();
 		this._layers.set(LayerType.HIGHLIGHT, new BABYLON.HighlightLayer("highlight", this._scene, {
         	isStroke: true,
@@ -255,6 +258,10 @@ export class World extends SystemBase implements System {
 	scene() : BABYLON.Scene { return this._scene; }
 
 	multiPick(ray : BABYLON.Ray) : Entity[] {
+		if (this._scene.skipPointerMovePicking) {
+			console.error("Warning: pointer move picking is disabled");
+		}
+
 		let entities = [];
 
 		const results = this._scene.multiPickWithRay(ray);

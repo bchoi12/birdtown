@@ -1,4 +1,6 @@
 
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+
 import { game } from 'game'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -153,13 +155,12 @@ class UI {
 		game.world().applyShadowSetting(settings.shadowSetting);
 	}
 
-	audioContext() : AudioContext {
-		// Lazy initialize since I think browser needs user input beforehand
-		if (!this._audioContext.has()) {
-			this._audioContext.set(new AudioContext());
-		}
-		return this._audioContext.get();
+	hasAudio() : boolean { return this._audioContext.has(); }
+	enableAudio() : void {
+		BABYLON.Engine.audioEngine?.unlock()
+		this._audioContext.set(new AudioContext());
 	}
+	audioContext() : AudioContext { return this._audioContext.get(); }
 	inputWidth() : number { return this._inputHandler.inputWidth(); }
 	inputHeight() : number { return this._inputHandler.inputHeight(); }
 	screenRect() : DOMRect { return this._inputHandler.screenRect(); }
@@ -176,16 +177,20 @@ class UI {
 	pointerLocked() : boolean { return this._pointerLockHandler.pointerLocked(); }
 
 	updatePos(clientId : number, pos : Vec) : void {
-		let context = this.audioContext();
+		if (!this.hasAudio()) {
+			return;
+		}
+
+		let context = this._audioContext.get();
 		if (clientId === game.clientId()) {
 			let listener = context.listener;
 			if (listener.positionX) {
 				listener.positionX.setValueAtTime(pos.x, context.currentTime);
 				listener.positionY.setValueAtTime(pos.y, context.currentTime);
-				listener.positionZ.setValueAtTime(pos.z ? pos.z : 0, context.currentTime);
+				listener.positionZ.setValueAtTime(pos.z, context.currentTime);
 			} else {
 				// Support Firefox
-				listener.setPosition(pos.x, pos.y, pos.z ? pos.z : 0);
+				listener.setPosition(pos.x, pos.y, pos.z);
 			}
 			return;
 		}

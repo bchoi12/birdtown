@@ -21,12 +21,6 @@ export class Audio extends SystemBase implements System {
 		this.updateSound();
 	}
 
-	override preRender() : void {
-		super.preRender();
-
-		this.updateSound();
-	}
-
 	private updateSound() : void {
 		// Set sound positions
 		game.entities().getMap(EntityType.PLAYER).executeIf((player : Player) => {
