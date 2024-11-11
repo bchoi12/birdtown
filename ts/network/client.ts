@@ -9,7 +9,7 @@ import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
-import { ChatType, StatusType } from 'ui/api'
+import { ChatType, DialogType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -50,7 +50,7 @@ export class Client extends Netcode {
 
 		peer.on("disconnected", () => {
 			if (this._initialized) {
-		    	ui.showStatus(StatusType.DISCONNECTED);
+				ui.pushDialog(DialogType.DISCONNECTED);
 			}
 
 			// TODO: reconnect?

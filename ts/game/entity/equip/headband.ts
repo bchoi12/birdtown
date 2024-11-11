@@ -67,7 +67,7 @@ export class Headband extends Equip<Player> {
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.HEADBAND, (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
+					let mesh = result.mesh;
 					model.setMesh(mesh);
 				});
 			},

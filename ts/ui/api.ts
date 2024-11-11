@@ -45,6 +45,7 @@ export type ChatOptions = {
 
 export enum DialogType {
 	UNKNOWN,
+	DISCONNECTED,
 	INIT,
 	LOADOUT,
 	RETURN_TO_LOBBY,
@@ -135,14 +136,19 @@ export enum KeyState {
 export enum StatusType {
 	UNKNOWN,
 
-	WELCOME,
-	DISCONNECTED,
-	DISCONNECTED_SIGNALING,
-	HOST_DEGRADED,
-	DEGRADED,
+	LOBBY,
 	SPECTATING,
 	LOADING,
 	SETUP,
+}
+
+export enum TempStatusType {
+	UNKNOWN,
+
+	DISCONNECTED_SIGNALING,
+	DEGRADED,
+	HOST_DEGRADED,
+	KEYS,
 }
 
 export enum TooltipType {

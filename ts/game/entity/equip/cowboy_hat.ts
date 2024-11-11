@@ -48,8 +48,7 @@ export class CowboyHat extends Equip<Player> {
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.COWBOY_HAT, (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
-					model.setMesh(mesh);
+					model.setMesh(result.mesh);
 				});
 			},
 			init: entityOptions.modelInit,

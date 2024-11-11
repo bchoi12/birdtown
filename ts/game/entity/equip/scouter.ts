@@ -31,8 +31,6 @@ export class Scouter extends Equip<Player> {
 	private _weapon : Weapon;
 	private _particleLimiter : RateLimiter;
 
-	private _model : Model;
-
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.SCOUTER, entityOptions);
 
@@ -41,10 +39,10 @@ export class Scouter extends Equip<Player> {
 		this._weapon = null;
 		this._particleLimiter = new RateLimiter(Scouter._particleInterval);
 
-		this._model = this.addComponent<Model>(new Model({
+		this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.SCOUTER, (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
+					let mesh = result.mesh;
 					model.setMesh(mesh);
 				});
 			},

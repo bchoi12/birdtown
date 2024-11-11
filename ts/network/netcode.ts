@@ -17,7 +17,7 @@ import { Pinger } from 'network/pinger'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { ChatType, StatusType } from 'ui/api'
+import { ChatType, DialogType } from 'ui/api'
 
 import { Buffer } from 'util/buffer'
 import { defined, isLocalhost } from 'util/common'
@@ -215,7 +215,7 @@ export abstract class Netcode {
 				this.disconnect(id);
 
 				if (!this.isHost()) {
-					ui.showStatus(StatusType.DISCONNECTED);
+					ui.pushDialog(DialogType.DISCONNECTED);
 				}
 			}
 		});

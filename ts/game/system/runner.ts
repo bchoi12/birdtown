@@ -15,7 +15,7 @@ import { settings } from 'settings'
 import { SpeedSetting } from 'settings/api'
 
 import { ui } from 'ui'
-import { StatusType } from 'ui/api'
+import { TempStatusType } from 'ui/api'
 
 import { RunnerStats } from 'util/runner_stats'
 
@@ -243,7 +243,7 @@ export class Runner extends SystemBase implements System  {
 				// Reset because client is too far ahead
 				this._seqNum = this._importSeqNum;
 
-				if (this._seqNumDiff > 0) {
+				if (this._seqNumDiff > 0 && ui.focused()) {
 					this.setHostBehind(true);
 				}
 			} else if (Math.abs(this._seqNumDiff) > millis) {
@@ -289,24 +289,20 @@ export class Runner extends SystemBase implements System  {
 
 		if (this._degraded) {
 	   		if (ui.focused() && ui.timeSinceFocusChange() > Runner._warmupTime) {
-				ui.showStatus(StatusType.DEGRADED);
+				ui.showTempStatus(TempStatusType.DEGRADED);
 			}
-		} else {
-			ui.hideStatus(StatusType.DEGRADED);
 		}
 	}
 	private setHostDegraded(degraded : boolean) : void {
 		this._hostDegraded = degraded;
 
 		if (this._hostDegraded) {
-			ui.showStatus(StatusType.HOST_DEGRADED);
-		} else {
-			ui.hideStatus(StatusType.HOST_DEGRADED);
+			ui.showTempStatus(TempStatusType.HOST_DEGRADED);
 		}
 	}
 	private setHostBehind(behind : boolean) : void {
 		if (behind) {
-			ui.showStatus(StatusType.HOST_DEGRADED);
+			ui.showTempStatus(TempStatusType.HOST_DEGRADED);
 		}
 	}
 

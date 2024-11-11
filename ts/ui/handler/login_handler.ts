@@ -206,7 +206,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		    		this.handleError(`Failed to create room ${room}. Please try again in a few moments.`);
 					this._joinInputElm.value = "";
 		    	} else if (mode === CreateMode.JOIN) {
-		    		this.handleError(`Failed to join room ${room}. Please double check your spelling and try again.`);
+		    		this.handleError(`Failed to join room ${room}. The room may not exist or you may need to try again.`);
 		    		this._joinInputElm.value = room;
 		    	}
 		    	this.showLogin();

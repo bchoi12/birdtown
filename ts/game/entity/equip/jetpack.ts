@@ -57,7 +57,7 @@ export class Jetpack extends Equip<Player> {
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.JETPACK, (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
+					let mesh = result.mesh;
 
 					result.meshes.forEach((fireMesh : BABYLON.Mesh) => {
 						if (fireMesh.name === Jetpack._fireMeshName) {

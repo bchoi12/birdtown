@@ -34,6 +34,11 @@ export class DyingStar extends EntityBase {
 		this._dir = Vec2.zero();
 
 		this.addProp<Vec>({
+			has: () => { return this._initPos.has(); },
+			export: () => { return this._initPos.get().toVec(); },
+			import: (obj : Vec) => { this._initPos.set(Vec2.fromVec(obj)); },
+		});
+		this.addProp<Vec>({
 			has: () => { return this._target.has(); },
 			export: () => { return this._target.get().toVec(); },
 			import: (obj : Vec) => { this._target.set(Vec2.fromVec(obj)); },
@@ -98,8 +103,9 @@ export class DyingStar extends EntityBase {
 	override initialize() : void {
 		super.initialize();
 
-		this._initPos.set(this.profile().pos().clone());
-
+		if (this.isSource()) {
+			this._initPos.set(this.profile().pos().clone());
+		}
 		this._dir = this._target.get().clone().sub(this._initPos.get()).sign();
 
 		this.soundPlayer().playFromSelf(SoundType.CINEMATIC_WOOSH);

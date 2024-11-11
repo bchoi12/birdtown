@@ -24,7 +24,7 @@ import { GameMessage, GameMessageType} from 'message/game_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { AnnouncementType, DialogType, FeedType, InfoType, StatusType } from 'ui/api'
+import { AnnouncementType, DialogType, FeedType, InfoType, StatusType, TempStatusType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
 import { isLocalhost } from 'util/common'
@@ -328,26 +328,22 @@ export class GameMaker extends SystemBase implements System {
 		return current;
 	}
 	setGameState(state : GameState) : void {
-		if (state === GameState.FREE) {
-			if (game.playerState()?.validTargetEntity()) {
-				// Returning to lobby
-				ui.showStatus(StatusType.WELCOME);
-			}
-		} else {
-			ui.hideStatus(StatusType.WELCOME);
+		// Return to lobby
+		if (state === GameState.FREE && game.playerState()?.validTargetEntity()) {
+			ui.showLobbyStatuses();
 		}
 
 		if (state === GameState.LOAD) {
 			ui.showStatus(StatusType.LOADING);
 		} else {
-			ui.hideStatus(StatusType.LOADING);
+			ui.clearStatus(StatusType.LOADING);
 		}
 
 		if (state === GameState.SETUP) {
 			ui.refreshScoreboardColor();
 			ui.showStatus(StatusType.SETUP);
 		} else {
-			ui.hideStatus(StatusType.SETUP);
+			ui.clearStatus(StatusType.SETUP);
 		}
 
 		if (state === GameState.FINISH || state === GameState.VICTORY) {

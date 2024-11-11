@@ -37,8 +37,7 @@ export class Headphones extends Equip<Player> {
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.HEADPHONES, (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
-					model.setMesh(mesh);
+					model.setMesh(result.mesh);
 				});
 			},
 			init: entityOptions.modelInit,

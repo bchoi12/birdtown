@@ -198,7 +198,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		case "/green":
 			game.world().greenScreen();
 			game.lakitu().portrait();
-			ui.hideAllStatuses();
+			ui.clearAllStatuses();
 			break;
 		case "/lookup":
 			if (pieces.length !== 2) {
@@ -215,7 +215,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			break;
 		case "/portrait":
 			game.lakitu().portrait();
-			ui.hideAllStatuses();
+			ui.clearAllStatuses();
 			break;
 		case "/role":
 			if (pieces.length !== 2) {

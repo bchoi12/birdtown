@@ -35,7 +35,7 @@ export class Star extends Projectile {
 	];
 
 	private _spinning : boolean;
-	private _trail : Optional<BABYLON.Mesh>;
+	private _trail : BABYLON.Mesh;
 
 	private _model : Model;
 	private _profile : Profile;
@@ -44,7 +44,10 @@ export class Star extends Projectile {
 		super(EntityType.STAR, entityOptions);
 
 		this._spinning = true;
-		this._trail = new Optional();
+		this._trail = BABYLON.MeshBuilder.ExtrudePolygon(this.name() + "-trail", {
+			shape: Star._trailVertices,
+			depth: 0.1,
+		}, game.scene(), earcut);
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -67,25 +70,18 @@ export class Star extends Projectile {
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.STAR, (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
+					let mesh = result.mesh;
 					mesh.rotation.y = Math.PI / 2;
 					model.setMesh(mesh);
-
-					const dim = EntityFactory.getStaticDimension(this.type());
-					let trail = BABYLON.MeshBuilder.ExtrudePolygon(this.name() + "-trail", {
-						shape: Star._trailVertices,
-						depth: 0.1,
-					}, game.scene(), earcut);
-					trail.rotation.x = Math.PI / 2;
-					trail.material = MaterialFactory.material(MaterialType.EASTERN_PURPLE_SOLID_TRAIL);
-					trail.isVisible = false;
-					trail.parent = model.root();
-
-					this._trail.set(trail);
 				});
 			},
 			init: entityOptions.modelInit,
 		}));
+
+		this._trail.rotation.x = Math.PI / 2;
+		this._trail.scaling.x = 0.5;
+		this._trail.material = MaterialFactory.material(MaterialType.EASTERN_PURPLE_SOLID_TRAIL);
+		this._trail.parent = this._model.root();
 	}
 
 	override initialize() : void {
@@ -132,9 +128,11 @@ export class Star extends Projectile {
 		if (this._spinning) {
 			this._model.mesh().rotation.x += Math.sign(this._profile.vel().x) * 6 * Math.PI * millis / 1000;
 		}
-		if (this._trail.has()) {
-			this._trail.get().isVisible = this._spinning;
-			this._trail.get().scaling.x = Math.min(10 * this._profile.vel().lengthSq(), 1);
+		this._trail.isVisible = this._spinning;
+		this._trail.scaling.x += millis / 100;
+		const limit = Math.min(10 * this._profile.vel().lengthSq(), 1);
+		if (this._trail.scaling.x > limit) {
+			this._trail.scaling.x = limit;
 		}
 		this._model.rotation().z = this._profile.vel().angleRad();
 	}

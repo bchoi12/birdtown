@@ -23,7 +23,7 @@ export abstract class Headwear extends Equip<Entity & EquipEntity> {
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
 				MeshFactory.load(this.meshType(), (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
+					let mesh = result.mesh;
 
 					result.transformNodes.forEach((node : BABYLON.TransformNode) => {
 						if (node.name === Headwear._top) {

@@ -44,7 +44,7 @@ export class Plane extends EntityBase implements Entity {
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.PLANE, (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
+					let mesh = result.mesh;
 
 					result.animationGroups.forEach((animationGroup : BABYLON.AnimationGroup) => {
 						if (Plane._animations.has(animationGroup.name)) {

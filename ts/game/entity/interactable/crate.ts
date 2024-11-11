@@ -91,7 +91,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 			},
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.CRATE, (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
+					let mesh = result.mesh;
 					const modelDimension = EntityFactory.getDimension(this.type());
 					let scaling = {
 						x: this._profile.scaledDim().x / modelDimension.x,

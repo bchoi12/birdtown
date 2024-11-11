@@ -76,7 +76,7 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.TABLE, (result : LoadResult) => {
-					model.setMesh(<BABYLON.Mesh>result.meshes[0]);
+					model.setMesh(result.mesh);
 				});
 			},
 			init: entityOptions.modelInit,

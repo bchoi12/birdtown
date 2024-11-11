@@ -10,7 +10,7 @@ import { Connection } from 'network/connection'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
-import { ChatType, StatusType } from 'ui/api'
+import { ChatType, TempStatusType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -68,7 +68,7 @@ export class Host extends Netcode {
 
 	    peer.on("error", (e) => {
 	    	if (this._initialized) {
-		    	ui.showStatus(StatusType.DISCONNECTED_SIGNALING);
+		    	ui.showTempStatus(TempStatusType.DISCONNECTED_SIGNALING);
 	    	} else {
 	    		onError();
 	    	}

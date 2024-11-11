@@ -39,7 +39,7 @@ export abstract class Particle extends EntityBase implements Entity {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				let mesh = ParticleFactory.borrowMesh(this.particleType());
+				let mesh = ParticleFactory.getInstance(this.particleType());
 				model.setMesh(mesh);
 
 				model.onLoad(() => {

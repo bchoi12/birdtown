@@ -322,7 +322,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.BIRD, (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
+					let mesh = result.mesh;
 					mesh.getChildMeshes().forEach((mesh : BABYLON.Mesh) => {
 						if (!mesh.material || !(mesh.material instanceof BABYLON.PBRMaterial)) { return; }
 

@@ -145,16 +145,13 @@ export class Model extends ComponentBase implements Component {
 			this._mesh.parent = this._root;
 		}
 
-		this._onLoadFns.forEach((fn : OnLoadFn) => {
-			if (this._mesh.isReady()) {
-				fn(this);
-			} else {
-				this._mesh.onMeshReadyObservable.addOnce(() => {
-					fn(this);
-				});
-			}
-		});
-		this._onLoadFns = [];
+		if (this._mesh.isReady()) {
+			this.executeOnLoad();
+		} else {
+			this._mesh.onReady = () => {
+				this.executeOnLoad();
+			};
+		}
 	}
 	mesh() : BABYLON.Mesh { return this._mesh; }
 	material<T extends BABYLON.Material>() : T { return <T>this._mesh.material; }
@@ -172,18 +169,19 @@ export class Model extends ComponentBase implements Component {
 	subMesh(id : number) : BABYLON.Mesh { return this._subMesh.get(id); }
 
 	onLoad(fn : OnLoadFn) : void {
-		if (this.hasMesh()) {
-			if (this._mesh.isReady()) {
-				fn(this);
-			} else {
-				this._mesh.onMeshReadyObservable.addOnce(() => {
-					fn(this);
-				});
-			}
+		if (this.hasMesh() && this._mesh.isReady()) {
+			fn(this);
 		} else {
 			this._onLoadFns.push(fn);
 		}
 	}
+	private executeOnLoad() : void {
+		this._onLoadFns.forEach((fn : OnLoadFn) => {
+			fn(this);
+		});
+		this._onLoadFns = [];
+	}
+
 	applyToMeshes(fn : (mesh : BABYLON.Mesh) => void) : void {
 		this.onLoad((model : Model) => {
 			fn(model.mesh());

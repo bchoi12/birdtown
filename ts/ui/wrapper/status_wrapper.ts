@@ -1,6 +1,5 @@
 
 import { ui } from 'ui'
-import { TooltipType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 
 export class StatusWrapper extends HtmlWrapper<HTMLElement> {
@@ -24,7 +23,7 @@ export class StatusWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().innerHTML = html;
 	}
 
-	show(ttl? : number) : void {
+	show(ttl? : number, cb? : () => void) : void {
 		ui.onFocus(() => {
 			this.elm().style.display = "block";
 
@@ -32,6 +31,9 @@ export class StatusWrapper extends HtmlWrapper<HTMLElement> {
 			if (ttl) {
 				this._timeoutId = window.setTimeout(() => {
 					this.hide();
+					if (cb) {
+						cb();
+					}
 				}, ttl);
 			}
 		});

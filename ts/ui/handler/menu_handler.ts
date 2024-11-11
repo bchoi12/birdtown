@@ -11,7 +11,7 @@ import {
 } from 'settings/api'
 
 import { ui } from 'ui'
-import { UiMode, DialogType, StatusType, TooltipType } from 'ui/api'
+import { UiMode, DialogType, TempStatusType, TooltipType } from 'ui/api'
 import { Icon, IconType } from 'ui/common/icon'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -61,8 +61,8 @@ export class MenuHandler extends HandlerBase implements Handler {
 					this.enable();
 					this._canMenu = false;
 
-					if (ui.hasStatus(StatusType.DEGRADED)) {
-						ui.disableStatus(StatusType.DEGRADED);
+					if (ui.displayedStatus() === TempStatusType.DEGRADED) {
+						ui.disableTempStatus(TempStatusType.DEGRADED);
 					}
 				}
 			}

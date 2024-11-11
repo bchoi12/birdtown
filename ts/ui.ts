@@ -8,7 +8,7 @@ import { GameConfigMessage } from 'message/game_config_message'
 
 import { settings } from 'settings'
 
-import { AnnouncementType, ChatType, ChatOptions, HudType, HudOptions, DialogType, InfoType, KeyType, StatusType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
+import { AnnouncementType, ChatType, ChatOptions, HudType, HudOptions, DialogType, InfoType, KeyType, StatusType, TempStatusType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
 import { Handler } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 
@@ -156,6 +156,7 @@ class UI {
 	}
 
 	hasAudio() : boolean { return this._audioContext.has(); }
+	// MUST BE CALLED ON USER GESTURE
 	enableAudio() : void {
 		BABYLON.Engine.audioEngine?.unlock()
 		this._audioContext.set(new AudioContext());
@@ -185,6 +186,7 @@ class UI {
 		if (clientId === game.clientId()) {
 			let listener = context.listener;
 			if (listener.positionX) {
+				// This lags horribly on Chromium if AudioContext is not created during user gesture
 				listener.positionX.setValueAtTime(pos.x, context.currentTime);
 				listener.positionY.setValueAtTime(pos.y, context.currentTime);
 				listener.positionZ.setValueAtTime(pos.z, context.currentTime);
@@ -221,11 +223,13 @@ class UI {
 	pushFeed(msg : GameMessage) : void { this._feedHandler.pushFeed(msg); }
 	hideTooltip(type : TooltipType) : void { this._tooltipHandler.hideTooltip(type); }
 	setDebugStats(enabled : boolean) : void { this._statsHandler.setDebug(enabled); }
-	hasStatus(type : StatusType) : boolean { return this._statusHandler.hasStatus(type); }
+	displayedStatus() : StatusType | TempStatusType { return this._statusHandler.displayedStatus(); }
 	showStatus(type : StatusType) : void { this._statusHandler.showStatus(type); }
-	hideStatus(type : StatusType) : void { this._statusHandler.hideStatus(type); }
-	hideAllStatuses() : void { this._statusHandler.hideAll(); }
-	disableStatus(type : StatusType) : void { this._statusHandler.disableStatus(type); }
+	showTempStatus(type : TempStatusType) : void { this._statusHandler.showTempStatus(type); }
+	showLobbyStatuses() : void { this._statusHandler.showLobbyStatuses(); }
+	clearStatus(type : StatusType) : void { this._statusHandler.clearStatus(type); }
+	clearAllStatuses() : void { this._statusHandler.clearAll(); }
+	disableTempStatus(type : TempStatusType) : void { this._statusHandler.disableTempStatus(type); }
 	usingTray() : boolean { return this._trayHandler.hasMouse(); }
 
 	chat(type : ChatType, msg : string, options? : ChatOptions) : void { this._chatHandler.chat(type, msg, options); }

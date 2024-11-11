@@ -36,7 +36,7 @@ export class Rocket extends Projectile {
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.ROCKET, (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
+					let mesh = result.mesh;
 					mesh.rotation.y = Math.PI / 2;
 					model.setMesh(mesh);
 				});

@@ -160,6 +160,7 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		return player.valid()
+			&& player.state() !== GameObjectState.DEACTIVATED
 			&& game.playerState(player.clientId()).isPlaying() && (player.clientIdMatches() || !player.dead())
 			&& game.playerStates().hasPlayerState(player.clientId());
 	}
@@ -230,7 +231,7 @@ export class Lakitu extends SystemBase implements System {
 		return false;
 	}
 	private targetSpawnPoint() : boolean {
-		if (!game.playerState().hasTargetEntity()) {
+		if (!game.playerState()?.hasTargetEntity()) {
 			return false;
 		}
 		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findAll((spawn : Entity) => {
@@ -447,7 +448,7 @@ export class Lakitu extends SystemBase implements System {
 			&& game.controller().gameState() !== GameState.VICTORY) {
 			ui.showStatus(StatusType.SPECTATING);
 		} else {
-			ui.hideStatus(StatusType.SPECTATING);
+			ui.clearStatus(StatusType.SPECTATING);
 		}
 	}
 }

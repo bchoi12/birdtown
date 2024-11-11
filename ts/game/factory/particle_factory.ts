@@ -5,7 +5,7 @@ import { ParticleType } from 'game/factory/api'
 
 import { ObjectCache, ObjectCacheOnLoadFn } from 'util/object_cache'
 
-type CreateFn = (index : number) => BABYLON.Mesh;
+type CreateFn = () => BABYLON.Mesh;
 
 export namespace ParticleFactory {
 	const createFns = new Map<ParticleType, CreateFn>([
@@ -17,20 +17,12 @@ export namespace ParticleFactory {
 		[ParticleType.TEAR, createTear],
 	]);
 
-	let cache = new Map<ParticleType, ObjectCache<BABYLON.Mesh>>; 
-	export function borrowMesh(type : ParticleType, onLoad? : ObjectCacheOnLoadFn<BABYLON.Mesh>) : BABYLON.Mesh {
+	let cache = new Map<ParticleType, BABYLON.Mesh>; 
+	export function getInstance(type : ParticleType, onLoad? : ObjectCacheOnLoadFn<BABYLON.Mesh>) : BABYLON.Mesh {
 		if (!cache.has(type)) {
 			createCache(type);
 		}
-		return cache.get(type).borrow(onLoad);
-	}
-
-	// Use with caution since meshes are often garbage collected.
-	export function returnMesh(type : ParticleType, mesh : BABYLON.Mesh) : void {
-		if (!cache.has(type)) {
-			createCache(type);
-		}
-		cache.get(type).return(mesh);
+		return cache.get(type).clone();
 	}
 
 	function createCache(type : ParticleType) : void {
@@ -39,25 +31,23 @@ export namespace ParticleFactory {
 			return;
 		}
 
-		cache.set(type, new ObjectCache({
-			createFn: createFns.get(type),
-		}));
+		cache.set(type, createFns.get(type)());
 	}
 
-	function createSphere(index : number) : BABYLON.Mesh {
-		const name = "particle-sphere-" + index;
+	function createSphere() : BABYLON.Mesh {
+		const name = "particle-sphere";
 		let sphere = BABYLON.MeshBuilder.CreateSphere(name, { diameter: 1, }, game.scene());
 		sphere.material = new BABYLON.StandardMaterial(name, game.scene());
 		return sphere;
 	}
-	function createCube(index : number) : BABYLON.Mesh {
-		const name = "particle-cube-" + index;
+	function createCube() : BABYLON.Mesh {
+		const name = "particle-cube";
 		let cube = BABYLON.MeshBuilder.CreateBox("particle-cube", { width: 1, height: 1, depth: 1, }, game.scene());
 		cube.material = new BABYLON.StandardMaterial(name, game.scene());
 		return cube;
 	}
-	function createPlane(index : number) : BABYLON.Mesh {
-		const name = "particle-plane-" + index;
+	function createPlane() : BABYLON.Mesh {
+		const name = "particle-plane";
 		let plane = BABYLON.MeshBuilder.CreatePlane(name, {
 			width: 1,
 			height: 1,
@@ -66,18 +56,16 @@ export namespace ParticleFactory {
 		return plane;
 	}
 
-	let tearShape = [];
-	function createTear(index : number) : BABYLON.Mesh {
-		if (tearShape.length === 0) {
-			const tearSegments = 10;
-			for (let i = 0; i <= tearSegments; ++i) {
-				let t = i / tearSegments * Math.PI;
-				let x = Math.sin(t / 2);
-				tearShape.push(new BABYLON.Vector3(0.5 * Math.sin(t) * x * x, 0.5 * Math.cos(t), 0));
-			}
+	function createTear() : BABYLON.Mesh {
+		let tearShape = [];
+		const tearSegments = 10;
+		for (let i = 0; i <= tearSegments; ++i) {
+			let t = i / tearSegments * Math.PI;
+			let x = Math.sin(t / 2);
+			tearShape.push(new BABYLON.Vector3(0.5 * Math.sin(t) * x * x, 0.5 * Math.cos(t), 0));
 		}
 
-		const name = "particle-tear-" + index;
+		const name = "particle-tear";
 		let tear = BABYLON.MeshBuilder.CreateLathe("particle-tear", { shape: tearShape }, game.scene());
 		tear.material = new BABYLON.StandardMaterial(name, game.scene());
 		return tear;

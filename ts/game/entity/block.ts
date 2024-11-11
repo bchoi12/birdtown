@@ -99,7 +99,7 @@ export abstract class Block extends EntityBase {
 			},
 			meshFn: (model : Model) => {
 				MeshFactory.load(this.meshType(), (result : LoadResult) => {
-					let mesh = <BABYLON.Mesh>result.meshes[0];
+					let mesh = result.mesh;
 					this.processMesh(mesh);
 
 					model.translation().copyVec(this.meshOffset());

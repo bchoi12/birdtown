@@ -37,7 +37,7 @@ export class Pergola extends EntityBase implements Entity {
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.PERGOLA, (result : LoadResult) => {
-					model.setMesh(<BABYLON.Mesh>result.meshes[0]);
+					model.setMesh(result.mesh);
 				});
 			},
 			init: entityOptions.modelInit,
