@@ -143,7 +143,6 @@ export enum StatusType {
 	SPECTATING,
 	LOADING,
 	SETUP,
-	LOBBY,
 }
 
 export enum TooltipType {

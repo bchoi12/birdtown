@@ -1,5 +1,6 @@
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 
 import { settings } from 'settings'
 
@@ -15,16 +16,15 @@ export class StatusHandler extends HandlerBase implements Handler {
 
 	// Statuses to clear when displayed
 	private static readonly _clear = new Map<StatusType, Set<StatusType>>([
-		[StatusType.DISCONNECTED, new Set([StatusType.DISCONNECTED_SIGNALING, StatusType.HOST_DEGRADED, StatusType.LOADING, StatusType.SPECTATING, StatusType.SETUP, StatusType.LOBBY])],
-		[StatusType.DISCONNECTED_SIGNALING, new Set([StatusType.LOBBY])],
-		[StatusType.HOST_DEGRADED, new Set([StatusType.DEGRADED])],
-		[StatusType.LOADING, new Set([StatusType.LOBBY, StatusType.WELCOME])],
-		[StatusType.LOBBY, new Set([StatusType.WELCOME])],
-		[StatusType.SETUP, new Set([StatusType.LOADING])],
+		[StatusType.DISCONNECTED, new Set([StatusType.DISCONNECTED_SIGNALING, StatusType.HOST_DEGRADED, StatusType.LOADING, StatusType.SPECTATING, StatusType.SETUP, StatusType.WELCOME])],
+		[StatusType.DISCONNECTED_SIGNALING, new Set([StatusType.WELCOME])],
+		[StatusType.HOST_DEGRADED, new Set([StatusType.DEGRADED, StatusType.WELCOME])],
+		[StatusType.LOADING, new Set([StatusType.WELCOME])],
+		[StatusType.SETUP, new Set([StatusType.LOADING, StatusType.WELCOME])],
 	]);
 
 	private static readonly _forever = new Set<StatusType>([
-		StatusType.DISCONNECTED, StatusType.LOBBY,
+		StatusType.DISCONNECTED,
 	]);
 
 	private static readonly _ttl = new Map<StatusType, number>([
@@ -59,6 +59,14 @@ export class StatusHandler extends HandlerBase implements Handler {
 			wrapper.hide();
 			this._statusElm.appendChild(wrapper.elm())
 			this._statusWrappers.set(type, wrapper);
+		}
+	}
+
+	override onPlayerInitialized() : void {
+		super.onPlayerInitialized();
+
+		if (game.controller().gameState() === GameState.FREE) {
+			this.showStatus(StatusType.WELCOME);
 		}
 	}
 
@@ -125,13 +133,6 @@ export class StatusHandler extends HandlerBase implements Handler {
 		case StatusType.LOADING:
 			wrapper.setText("Loading...");
 			break;
-		case StatusType.LOBBY:
-			if (game.isHost()) {
-				wrapper.setText("Invite your friends!\r\nRoom: " + game.netcode().room());
-			} else {
-				wrapper.setText("Waiting for host to start a game...\r\nRoom: " + game.netcode().room());
-			}
-			break;
 		case StatusType.SETUP:
 			wrapper.setText("Waiting for all players to be ready...");
 			break;
@@ -143,6 +144,13 @@ export class StatusHandler extends HandlerBase implements Handler {
 				"Use " + KeyNames.kbd(settings.leftKeyCode) + " and " + KeyNames.kbd(settings.rightKeyCode) + " to move\r\n\r\n" +
 				"Press " + KeyNames.kbd(settings.jumpKeyCode) + " to jump/double jump"
 			);
+			setTimeout(() => {
+				if (game.isHost()) {
+					wrapper.setText("Invite your friends!\r\nRoom: " + game.netcode().room());
+				} else {
+					wrapper.setText("Waiting for host to start a game...\r\nRoom: " + game.netcode().room());
+				}
+			}, 7000);
 			break;
 		}
 

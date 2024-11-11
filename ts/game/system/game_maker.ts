@@ -328,8 +328,13 @@ export class GameMaker extends SystemBase implements System {
 		return current;
 	}
 	setGameState(state : GameState) : void {
-		if (state !== GameState.FREE) {
-			ui.hideStatus(StatusType.LOBBY);
+		if (state === GameState.FREE) {
+			if (game.playerState()?.validTargetEntity()) {
+				// Returning to lobby
+				ui.showStatus(StatusType.WELCOME);
+			}
+		} else {
+			ui.hideStatus(StatusType.WELCOME);
 		}
 
 		if (state === GameState.LOAD) {

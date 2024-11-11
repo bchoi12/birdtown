@@ -243,16 +243,6 @@ export class PlayerState extends ClientSystem implements System {
 		player.setTeam(this._team);
 		game.level().spawnPlayer(player);
     	this.setRole(PlayerRole.GAMING);
-
-		if (this.clientIdMatches() && game.controller().gameState() === GameState.FREE) {
-			ui.showStatus(StatusType.WELCOME);
-			setTimeout(() => {
-				ui.hideStatus(StatusType.WELCOME);
-				if (game.controller().gameState() === GameState.FREE) {
-					ui.showStatus(StatusType.LOBBY);
-				}
-			}, 7000);
-		}
 	}
 	resetForLobby() : void {
 		if (this.validTargetEntity()) {

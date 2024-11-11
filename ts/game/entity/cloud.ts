@@ -63,10 +63,10 @@ export class Cloud extends EntityBase implements Entity {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		// TODO: use vel
-		// TODO: apply % to remainder so clouds don't get stacked after inactivity
-		if (game.level().bounds().xSide(this._profile.pos(), game.lakitu().fov().x) !== 0) {
-			this._profile.pos().copyVec(this._initPos);
+		const bounds = game.level().bounds();
+		const side = bounds.xSide(this._profile.pos(), /*buffer=*/-this._profile.scaledDim().x);
+		if (side !== 0) {
+			this._profile.vel().x = -side * Math.abs(this._profile.vel().x);
 		}
 	}
 }
