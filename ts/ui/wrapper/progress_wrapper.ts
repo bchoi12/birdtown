@@ -8,27 +8,38 @@ import { Icon, IconType } from 'ui/common/icon'
 
 export class ProgressWrapper extends HtmlWrapper<HTMLElement> {
 
+	private _color : string;
 	private _percent : number;
 
 	constructor() {
 		super(Html.div());
 
+		this._color = "";
 		this._percent = 1;
 
 		this.elm().classList.add(Html.classProgress);
 
 		if (game.lakitu().validTargetEntity()) {
-			this.elm().style.color = game.lakitu().targetEntity().clientColorOr("#FFFFFF");
+			this.setColor(game.lakitu().targetEntity().clientColorOr("#FFFFFF"));
 		}
 	}
 
 	setPercent(percent : number) : void {
+		if (this._percent === percent) {
+			return;
+		}
+
 		this._percent = percent;
 
 		this.elm().style.width = Math.min(Math.max(0, 100 * percent), 100) + "%";
 	}
 
 	setColor(color : string) : void {
-		this.elm().style.backgroundColor = color;
+		if (this._color === color) {
+			return;
+		}
+
+		this._color = color;
+		this.elm().style.backgroundColor = this._color;
 	}
 }

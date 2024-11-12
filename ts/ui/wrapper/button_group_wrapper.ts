@@ -6,13 +6,15 @@ import { ButtonSelectWrapper } from 'ui/wrapper/button/button_select_wrapper'
 
 export class ButtonGroupWrapper extends HtmlWrapper<HTMLElement> {
 
-	private _buttonSelectWrappers : Array<ButtonSelectWrapper>;
+	private _buttons : Array<ButtonSelectWrapper>;
 
 	constructor() {
 		super(Html.div());
 
-		this._buttonSelectWrappers = new Array();
+		this._buttons = new Array();
 	}
+
+	buttons() : Array<ButtonSelectWrapper> { return this._buttons; }
 
 	addButton() : ButtonWrapper {
 		let button = new ButtonWrapper();
@@ -24,11 +26,11 @@ export class ButtonGroupWrapper extends HtmlWrapper<HTMLElement> {
 		let button = new ButtonSelectWrapper();
 
 		button.addOnSelect(() => {
-			this._buttonSelectWrappers.forEach((button : ButtonSelectWrapper) => {
+			this._buttons.forEach((button : ButtonSelectWrapper) => {
 				button.unselect();
 			});
 		});
-		this._buttonSelectWrappers.push(button);
+		this._buttons.push(button);
 		this.elm().appendChild(button.elm());
 		return button;
 	}
