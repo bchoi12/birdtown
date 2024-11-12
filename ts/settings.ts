@@ -1,4 +1,5 @@
 
+import { game } from 'game'
 import {
 	AntiAliasSetting,
 	ClientPredictionSetting,
@@ -92,13 +93,17 @@ class Settings {
 		}
 	}
 	predictionTime() : number {
+		if (!game.initialized() || game.isHost()) {
+			return 0;
+		}
+
 		switch (this.clientPredictionSetting) {
 		case ClientPredictionSetting.LOW:
-			return 500;
-		case ClientPredictionSetting.MEDIUM:
 			return 1000;
-		case ClientPredictionSetting.HIGH:
+		case ClientPredictionSetting.MEDIUM:
 			return 2000;
+		case ClientPredictionSetting.HIGH:
+			return 3000;
 		default:
 			return 0;
 		}

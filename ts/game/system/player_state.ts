@@ -66,6 +66,7 @@ export class PlayerState extends ClientSystem implements System {
 		this.setRole(PlayerRole.SPECTATING);
 
 		this.addProp<boolean>({
+			has: () => { return this._disconnected; },
 			export: () => { return this._disconnected; },
 			import: (obj : boolean) => { this.setDisconnected(obj); },
 		});

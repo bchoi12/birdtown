@@ -4,7 +4,6 @@ import { game } from 'game'
 import { ui } from 'ui'
 import { HudType, HudOptions } from 'ui/api'
 import { IconType } from 'ui/common/icon'
-import { KeyNames } from 'ui/common/key_names'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -109,9 +108,9 @@ export class HudHandler extends HandlerBase implements Handler {
 			}
 
 			if (options.keyType) {
-				block.setKeyHTML(KeyNames.keyTypeHTML(options.keyType));
+				block.setKeyType(options.keyType);
 			} else if (options.keyCode) {
-				block.setKeyHTML(KeyNames.kbd(options.keyCode));
+				block.setKeyCode(options.keyCode);
 			} else if (options.keyLives) {
 				block.setLives(options.keyLives);
 			} else {

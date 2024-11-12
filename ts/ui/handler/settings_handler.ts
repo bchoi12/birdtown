@@ -37,8 +37,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm = Html.elm(Html.fieldsetSettings);
 	}
 
-	override setup() : void {
-		super.setup();
+	override onPlayerInitialized() : void {
+		super.onPlayerInitialized();
 
 		this._settingsElm.onclick = (e) => {
 			e.stopPropagation();
@@ -85,22 +85,24 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(frameRate.elm());
 
-		let clientPrediction = new SettingWrapper<ClientPredictionSetting>({
-			name: "Client-side Prediction",
-			value: settings.clientPredictionSetting,
-			click: (current : ClientPredictionSetting) => {
-				if (current === ClientPredictionSetting.HIGH) {
-					settings.clientPredictionSetting = ClientPredictionSetting.NONE;
-				} else {
-					settings.clientPredictionSetting++;
-				}
-				return settings.clientPredictionSetting;
-			},
-			text: (current : ClientPredictionSetting) => {
-				return ClientPredictionSetting[current];
-			},
-		});
-		this._settingsElm.appendChild(clientPrediction.elm());
+		if (!game.isHost()) {
+			let clientPrediction = new SettingWrapper<ClientPredictionSetting>({
+				name: "Client-side Prediction",
+				value: settings.clientPredictionSetting,
+				click: (current : ClientPredictionSetting) => {
+					if (current === ClientPredictionSetting.HIGH) {
+						settings.clientPredictionSetting = ClientPredictionSetting.NONE;
+					} else {
+						settings.clientPredictionSetting++;
+					}
+					return settings.clientPredictionSetting;
+				},
+				text: (current : ClientPredictionSetting) => {
+					return ClientPredictionSetting[current];
+				},
+			});
+			this._settingsElm.appendChild(clientPrediction.elm());
+		}
 
 		let damageNumbers = new SettingWrapper<DamageNumberSetting>({
 			name: "Display Damage Numbers",

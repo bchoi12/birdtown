@@ -124,7 +124,9 @@ export class Runner extends SystemBase implements System  {
 		   	const updateInterval = Date.now() - this._lastUpdateTime;
 	   		this._lastUpdateTime = Date.now();
 			this._step = this.getGameStep(updateInterval);
-	   		this._seqNum += this._step;
+
+			this._seqNum += this._step;
+	
 	   		const stepData = {
 	   			millis: this._updateSpeed * this._step,
 	   			realMillis: this._step,
@@ -246,10 +248,15 @@ export class Runner extends SystemBase implements System  {
 				if (this._seqNumDiff > 0 && ui.focused()) {
 					this.setHostBehind(true);
 				}
+				return millis;
 			} else if (Math.abs(this._seqNumDiff) > millis) {
 				// Magic slowdown/speedup formula
 				const coeff = 1 - Math.sign(this._seqNumDiff) * Math.min(0.3, Math.abs(this._seqNumDiff) / Runner._clientSnapThreshold);
 				millis *= coeff;
+				return millis;
+			} else if (this._seqNumDiff < 0) {
+				// Shorten step since we imported from the future
+				return Math.min(millis, Math.abs(this._seqNumDiff));
 			}
 		}
 
@@ -310,7 +317,6 @@ export class Runner extends SystemBase implements System  {
 		super.importData(data, seqNum);
 
 		this._importSeqNum = Math.max(this._importSeqNum, seqNum);
-		this._seqNum = Math.max(this._seqNum, this._importSeqNum);
 	}
 
 	private getDataFilters() : Array<DataFilter> {

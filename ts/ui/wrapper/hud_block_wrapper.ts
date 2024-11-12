@@ -1,8 +1,9 @@
 
 import { ui } from 'ui'
-import { HudType, HudOptions } from 'ui/api'
+import { HudType, HudOptions, KeyType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon, IconType } from 'ui/common/icon'
+import { KeyNames } from 'ui/common/key_names'
 import { ProgressWrapper } from 'ui/wrapper/progress_wrapper'
 
 export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
@@ -10,6 +11,8 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 	private _charging : boolean;
 	private _iconType : IconType;
 	private _chargingIconType : IconType;
+	private _keyType : KeyType;
+	private _keyCode : number;
 	private _lives : number;
 	private _width : number;
 
@@ -30,6 +33,8 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 		this._charging = false;
 		this._iconType = IconType.UNKNOWN;
 		this._chargingIconType = IconType.UNKNOWN;
+		this._keyType = KeyType.UNKNOWN;
+		this._keyCode = 0;
 		this._lives = 0;
 		this._width = 0;
 
@@ -106,23 +111,37 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 		this._progressWrapper.setColor(color);
 	}
 
-	setKeyHTML(html : string) : void {
-		this._keyElm.innerHTML = html;
+	setKeyType(type : KeyType) : void {
+		if (this._keyType === type) {
+			return;
+		}
+		this._keyType = type;
+		this.setKeyHTML(KeyNames.keyTypeHTML(this._keyType));
 	}
-	clearKey() : void {
-		this._keyElm.innerHTML = "";
+	setKeyCode(code : number) : void {
+		if (this._keyCode === code) {
+			return;
+		}
+		this._keyCode = code;
+		this.setKeyHTML(KeyNames.kbd(this._keyCode));
 	}
-
 	setLives(lives : number) : void {
 		if (this._lives === lives) {
 			return;
 		}
 
 		this._lives = lives;
-		this._keyElm.innerHTML = "";
+		let html = "";
 		for (let i = 0; i < this._lives; ++i) {
-			this._keyElm.innerHTML += Icon.create(IconType.BIRD).outerHTML;
+			html += Icon.create(IconType.BIRD).outerHTML;
 		}
+		this.setKeyHTML(html);
+	}
+	private setKeyHTML(html : string) : void {
+		this._keyElm.innerHTML = html;
+	}
+	clearKey() : void {
+		this._keyElm.innerHTML = "";
 	}
 
 	setText(text : string) : void {

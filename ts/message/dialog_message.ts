@@ -20,6 +20,7 @@ enum DialogProp {
 export class DialogMessage extends MessageBase<DialogType, DialogProp> implements Message<DialogType, DialogProp> {
 
 	private static readonly _messageDescriptor = new Map<DialogType, FieldDescriptor>([
+        [DialogType.DISCONNECTED, MessageBase.fields()],
 		[DialogType.INIT, MessageBase.fieldDescriptor(
             [DialogProp.BIRD_TYPE, {}],
             [DialogProp.COLOR, {}],
