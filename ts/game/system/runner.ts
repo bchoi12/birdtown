@@ -241,22 +241,24 @@ export class Runner extends SystemBase implements System  {
 		if (!this.isSource()) {
 			this._seqNumDiff = this._seqNum - this._importSeqNum;
 
-			if (Math.abs(this._seqNumDiff) > Runner._clientSnapThreshold) {
+			if (this._seqNumDiff >= Runner._clientSnapThreshold) {
 				// Reset because client is too far ahead
 				this._seqNum = this._importSeqNum;
 
-				if (this._seqNumDiff > 0 && ui.focused()) {
+				if (ui.focused()) {
 					this.setHostBehind(true);
 				}
 				return millis;
-			} else if (Math.abs(this._seqNumDiff) > millis) {
+			} else if (this._seqNumDiff <= 0) {
+				// We are behind, get back in sync and operate as normal
+				// If we fall behind, our client-side inputs may be overwritten
+				this._seqNum = this._importSeqNum;
+				return millis;
+			} else {
 				// Magic slowdown/speedup formula
 				const coeff = 1 - Math.sign(this._seqNumDiff) * Math.min(0.3, Math.abs(this._seqNumDiff) / Runner._clientSnapThreshold);
 				millis *= coeff;
 				return millis;
-			} else if (this._seqNumDiff < 0) {
-				// Shorten step since we imported from the future
-				return Math.min(millis, Math.abs(this._seqNumDiff));
 			}
 		}
 

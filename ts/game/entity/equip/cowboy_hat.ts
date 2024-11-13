@@ -96,9 +96,7 @@ export class CowboyHat extends Equip<Player> {
 			this._dir = force.x === 0 ? 1 : Math.sign(force.x);
 
 			// Only allow source to dash since otherwise it's jittery.
-			if (this.isSource()) {
-				this.owner().addForce(force);
-			}
+			this.owner().addForce(force);
 
 			weapons.forEach((weapon : Weapon) => {
 				weapon.quickReload(CowboyHat._dashTime);

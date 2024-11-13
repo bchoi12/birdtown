@@ -67,8 +67,9 @@ export class Shotgun extends Weapon {
 				vel.rotateDeg(Shotgun._spreadDeg / (Shotgun._burstBullets - 1));
 			}
 		}
+
 		let recoil = unitDir.clone().negate().scale(0.3);
-		this.owner().profile().addForce(recoil);
+		this.owner().addForce(recoil);
 
 		this.soundPlayer().playFromEntity(SoundType.BLAST, this.owner());
 	}

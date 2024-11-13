@@ -715,7 +715,13 @@ export class Profile extends ComponentBase implements Component {
 			this.setAngle(0);
 		}
 	}
-	addForce(force : Vec) : void { this._forces.push(force); }
+	addSourceForce(force : Vec) : void {
+		if (this.isSource()) {
+			this._forces.push(force);
+		} else {
+			this._knockbackTimer.start(Math.max(this._knockbackTimer.millisLeft(), Profile._knockbackTimeMin));
+		}
+	}
 	private applyForces() : void {
 		if (this._forces.empty()) {
 			return;

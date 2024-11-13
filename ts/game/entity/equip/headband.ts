@@ -116,10 +116,8 @@ export class Headband extends Equip<Player> {
 			this.owner().profile().setVel({x: 0, y: 0});
 
 			// Only allow source to jump since otherwise it's jittery.
-			if (this.isSource()) {
-				let force = this.inputDir().clone().scale(Headband._force);
-				this.owner().addForce(force);
-			}
+			let force = this.inputDir().clone().scale(Headband._force);
+			this.owner().addForce(force);
 
 			this._juice = Math.max(0, this._juice - Headband._maxJuice);
 			this._cooldown = Headband._cooldown;

@@ -12,6 +12,7 @@ export namespace LoginNames {
 		["Bobert Penguin", ColorType.PLAYER_GRAY],
 		["Bonchon", ColorType.PLAYER_RED],
 		["Brewster", ColorType.PLAYER_GREEN],
+		["Chaunticleer", ColorType.PLAYER_GRAY],
 		["Chicken Little", ColorType.PLAYER_YELLOW],
 		["DAAAVE", ColorType.PLAYER_RED],
 		["Daffy", ColorType.PLAYER_BLACK],
@@ -68,7 +69,7 @@ export namespace LoginNames {
 		return birdNames[Math.floor(Math.random() * birdNames.length)];
 	}
 
-	const roomLetters = "BCDFGHJKLMNPQRSTVWXYZ"
+	const roomLetters = "BCDFGHJKLMNPQRSTVWXYZ23456789"
 
 	export function randomRoom() : string {
 		let room = "";

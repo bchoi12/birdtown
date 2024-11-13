@@ -96,10 +96,7 @@ export class Booster extends Equip<Player> {
 			this._chargeDelayTimer.start(Booster._chargeDelay);
 
 			// Only allow source to jump since otherwise it's jittery.
-			if (this.isSource()) {
-				let ownerProfile = this.owner().profile();
-				ownerProfile.addForce({ y: Booster._upwardForce });
-			}
+			this.owner().addForce({ y: Booster._upwardForce });
 			this.soundPlayer().playFromEntity(SoundType.BOOST, this.owner());
 
 		} else if (!this._chargeDelayTimer.hasTimeLeft()) {

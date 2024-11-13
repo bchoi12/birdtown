@@ -348,7 +348,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			return;
 		}
 
-		this.profile().addForce(force);
+		this.profile().addSourceForce(force);
 	}
 	heal(delta : number) : void {
 		if (!this.hasComponent(ComponentType.STATS)) { return; }

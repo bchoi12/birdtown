@@ -72,9 +72,9 @@ export class Pistol extends Weapon {
 			},
 		});
 
-		if (this.isSource() && this.charged()) {
+		if (this.charged()) {
 			let recoil = unitDir.clone().negate().scale(0.2);
-			this.owner().profile().addForce(recoil);
+			this.owner().addForce(recoil);
 		}
 
 		this.soundPlayer().playFromEntity(SoundType.PISTOL, this.owner());
