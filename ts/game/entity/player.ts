@@ -862,13 +862,15 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 							profileInit: {
 								pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.3, 0.3) }),
 								vel: { x: 0, y: 0.02 + healthPercent * 0.01 },
-								dim: { x: 0.3 + healthPercent * 0.1, y: 0.3 + healthPercent * 0.1 },
 							},
 						});
 
 						if (hasParticle) {
-							particle.setTextColor(ColorFactory.toString(ColorType.RED));
-							particle.setText("❤️");
+							particle.setText({
+								text: "❤️",
+								height: 0.7 + healthPercent * 0.3,
+								textColor: ColorFactory.toString(ColorType.RED),
+							});
 						}
 					}
 				}

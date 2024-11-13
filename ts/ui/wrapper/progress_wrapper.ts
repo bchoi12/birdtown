@@ -1,6 +1,4 @@
 
-import { game } from 'game'
-
 import { ui } from 'ui'
 import { HudType, HudOptions } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
@@ -18,10 +16,7 @@ export class ProgressWrapper extends HtmlWrapper<HTMLElement> {
 		this._percent = 1;
 
 		this.elm().classList.add(Html.classProgress);
-
-		if (game.lakitu().validTargetEntity()) {
-			this.setColor(game.lakitu().targetEntity().clientColorOr("#FFFFFF"));
-		}
+		this.setColor("#FFFFFF");
 	}
 
 	setPercent(percent : number) : void {

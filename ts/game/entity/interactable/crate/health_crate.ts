@@ -82,13 +82,15 @@ export class HealthCrate extends Crate {
 			profileInit: {
 				pos: this._profile.pos(),
 				vel: { x: 0, y: 0.02 },
-				dim: { x: 0.3, y: 0.3 },
 			},
 		});
 
 		if (hasParticle) {
-			particle.setTextColor(ColorFactory.toString(ColorType.RED));
-			particle.setText("❤️");
+			particle.setText({
+				text: "❤️",
+				height: 1,
+				textColor: ColorFactory.toString(ColorType.RED),
+			});
 		}
 	}
 }

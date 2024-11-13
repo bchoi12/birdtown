@@ -18,11 +18,19 @@ export namespace ParticleFactory {
 	]);
 
 	let cache = new Map<ParticleType, BABYLON.Mesh>; 
-	export function getInstance(type : ParticleType, onLoad? : ObjectCacheOnLoadFn<BABYLON.Mesh>) : BABYLON.Mesh {
+	export function getClone(type : ParticleType) : BABYLON.Mesh {
 		if (!cache.has(type)) {
 			createCache(type);
 		}
 		return cache.get(type).clone();
+	}
+	export function getMesh(type : ParticleType) : BABYLON.Mesh {
+		if (!createFns.has(type)) {
+			console.error("Error: no create function defined for", ParticleType[type]);
+			return;
+		}
+
+		return createFns.get(type)();
 	}
 
 	function createCache(type : ParticleType) : void {

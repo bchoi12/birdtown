@@ -27,6 +27,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	private static readonly _defaultPointerColor = "#ff0000";
 
 	private static readonly _height = 0.4;
+	private static readonly _textureHeight = 64;
 	private static readonly _pointerHeight = 0.1;
 
 	private static readonly _pointerId = 1;
@@ -69,21 +70,22 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 				return this._displayName.length > 0;
 			},
 			meshFn: (model : Model) => {
-				const textureHeight = 64;
 				const text = " " + this.displayName() + " " ;
 
-				let temp = new BABYLON.DynamicTexture(this.name() + "-temp", textureHeight, game.scene(), /*mipMaps=*/true);
+				let temp = new BABYLON.DynamicTexture(this.name() + "-temp", NameTag._textureHeight);
 				let context = temp.getContext();
 				context.font = NameTag._font;
 				const textureWidth = context.measureText(text).width;
 
-				const ratio = NameTag._height / textureHeight;
+				const ratio = NameTag._height / NameTag._textureHeight;
 				this._width = ratio * textureWidth;
+
+				temp.dispose();
 
 				let texture = new BABYLON.DynamicTexture(this.name() + "-texture", {
 					width: textureWidth,
-					height: textureHeight,
-				}, game.scene());
+					height: NameTag._textureHeight,
+				});
 				texture.drawText(text, /*x=*/null, /*y=*/null, NameTag._font, this._textColor, this._textBackgroundColor, /*invertY=*/true);
 
 				let material = new BABYLON.StandardMaterial(this.name() + "-material");

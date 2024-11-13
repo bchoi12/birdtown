@@ -1,4 +1,5 @@
 import { game } from 'game'
+import { GameObjectState } from 'game/api'
 import { GameObject, GameObjectBase } from 'game/game_object'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -55,6 +56,7 @@ export abstract class SystemBase extends GameObjectBase implements System {
 
 	hasTargetEntity() : boolean { return this._targetEntity !== null; }
 	validTargetEntity() : boolean { return this.hasTargetEntity() && this._targetEntity.valid(); }
+	activeTargetEntity() : boolean { return this.validTargetEntity() && this._targetEntity.state() !== GameObjectState.DEACTIVATED; }
 	targetEntity<T extends Entity>() : T { return <T>this._targetEntity; }
 	targetClientId() : number {
 		if (!this.hasTargetEntity() || !this.targetEntity().hasClientId()) {

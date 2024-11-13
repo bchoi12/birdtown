@@ -39,7 +39,7 @@ export abstract class Particle extends EntityBase implements Entity {
 				return this._profile.ready();
 			},
 			meshFn: (model : Model) => {
-				let mesh = ParticleFactory.getInstance(this.particleType());
+				let mesh = this.getMesh();
 				model.setMesh(mesh);
 
 				model.onLoad(() => {
@@ -101,6 +101,9 @@ export abstract class Particle extends EntityBase implements Entity {
 	abstract processModel(model : Model) : void;
 	resetModel(model : Model) : boolean { return false; }
 
+	getMesh() : BABYLON.Mesh {
+		return ParticleFactory.getClone(this.particleType());
+	}
 	abstract updateParticle(stepData : StepData) : void;
 }
 

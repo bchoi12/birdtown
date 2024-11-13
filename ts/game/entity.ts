@@ -193,6 +193,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		return EntityType[this._type].toLowerCase();
 	}
 
+	// TODO: protected?
 	type() : EntityType { return this._type; }
 	addType(type : EntityType) { this._allTypes.add(type); }
 	allTypes() : Set<EntityType> { return this._allTypes; }

@@ -17,7 +17,7 @@ export class DisconnectedDialogWrapper extends DialogWrapper {
 		this.shrink();
 
 		let pageWrapper = this.addPage();
-        pageWrapper.elm().textContent = `Lost connection with the host. Please click OK to return to the homepage.`;
+        pageWrapper.elm().textContent = `Lost connection with the host. Please click OK to return to the login menu.`;
 
 		pageWrapper.setOnSubmit(() => {
 			window.location.replace(location.pathname);

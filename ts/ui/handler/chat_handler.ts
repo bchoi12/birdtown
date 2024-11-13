@@ -76,6 +76,10 @@ export class ChatHandler extends HandlerBase implements Handler {
 				SoundFactory.play(SoundType.CHAT);
 			}
 		}
+
+		if (type === ChatType.CHAT) {
+			game.playerState(options.clientId)?.chat(msg);
+		}
 	}
 
 	override setup() : void {

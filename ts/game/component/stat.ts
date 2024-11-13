@@ -38,7 +38,7 @@ export class Stat extends ComponentBase implements Component {
 	private static readonly _showTypes = new Set([
 		StatType.HEALTH,
 	]);
-	private static readonly _nonPlayerScale = { x: 0.7, y: 0.7 };
+	private static readonly _nonPlayerTextHeight = 0.7;
 	private static readonly _bufferSize : number = 10;
 
 	private _statType : StatType;
@@ -159,27 +159,30 @@ export class Stat extends ComponentBase implements Component {
 		}
 
 		if (game.lakitu().inFOV(pos, /*buffer=3*/)) {
+			const height = this.entity().allTypes().has(EntityType.PLAYER) ? 0.7 + weight * 0.5 : Stat._nonPlayerTextHeight;
+
 			const [particle, hasParticle] = this.entity().addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
 				offline: true,
-				ttl: 600 + 400 * weight,
+				ttl: 800 + 400 * weight,
 				profileInit: {
 					pos: pos,
 					vel: { x: 0, y: 0.025 + 0.01 * weight },
-					dim: { x: 0.5, y: 0.5 },
-					scaling: this.entityType() !== EntityType.PLAYER ? Stat._nonPlayerScale : {
-						x: 0.7 + weight * 0.5,
-						y: 0.7 + weight * 0.5,
-					},
 				},
 			});
 
 			if (hasParticle) {
 				if (delta < 0) {
-					particle.setTextColor(ColorFactory.toString(ColorType.TEXT_RED));
-					particle.setText("" + delta);
+					particle.setText({
+						text: "" + delta,
+						height: height,
+						textColor: ColorFactory.toString(ColorType.TEXT_RED),
+					});
 				} else {
-					particle.setTextColor(ColorFactory.toString(ColorType.TEXT_GREEN));
-					particle.setText("+" + delta);
+					particle.setText({
+						text: "+" + delta,
+						height: height,
+						textColor: ColorFactory.toString(ColorType.TEXT_GREEN),
+					});
 				}
 			}
 		}

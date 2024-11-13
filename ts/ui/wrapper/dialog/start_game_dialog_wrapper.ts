@@ -19,13 +19,14 @@ import { KeyNames } from 'ui/common/key_names'
 
 import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
+import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
 import { GameModeInfoWrapper } from 'ui/wrapper/game_mode_info_wrapper'
-import { PlayerConfigWrapper } from 'ui/wrapper/player_config_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { ColumnWrapper } from 'ui/wrapper/column_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
 import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
+import { PlayerConfigWrapper } from 'ui/wrapper/player_config_wrapper'
 
 export class StartGameDialogWrapper extends DialogWrapper {
 
@@ -42,6 +43,12 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		this.setTitle("Select a mode");
 		this.addGameModePage();
+
+		let shareWrapper = new ShareWrapper();
+		shareWrapper.setText("Copy invite link");
+		shareWrapper.setHoverOnlyText(true);
+		shareWrapper.elm().style.float = "left";
+		this.footerElm().appendChild(shareWrapper.elm());
 
 		let okButton = this.addOKButton();
 		okButton.addOnClick(() => {

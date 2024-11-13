@@ -5,6 +5,7 @@ import { ComponentType, AttributeType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { TextParticle } from 'game/entity/particle/text_particle'
 import { Player } from 'game/entity/player'
 import { System, ClientSystem } from 'game/system'
 import { SystemType, PlayerRole } from 'game/system/api'
@@ -19,6 +20,8 @@ import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
 
 export class PlayerState extends ClientSystem implements System {
+
+	private static readonly _defaultChatColor = "#FFFFFF";
 
 	private static readonly _disallowRoleChangeStates = new Set([
 		GameState.FINISH, GameState.VICTORY, GameState.ERROR,
@@ -265,6 +268,33 @@ export class PlayerState extends ClientSystem implements System {
 	die() : void {
 		if (this.validTargetEntity()) {
 			this.targetEntity<Player>().die();
+		}
+	}
+
+	chat(msg : string) : void {
+		if (!this.activeTargetEntity()) {
+			return;
+		}
+
+		const offset = this.targetEntity().isLakituTarget() ? 0.5 : 1.2;
+
+		const [particle, hasParticle] = this.addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
+			offline: true,
+			ttl: 3000,
+			profileInit: {
+				pos: this.targetEntity().profile().pos().clone().add({
+					y: this.targetEntity().profile().scaledDim().y / 2 + offset,
+				}),
+				vel: { x: 0, y: 0.01 },
+			},
+		});
+
+		if (hasParticle) {
+			particle.setText({
+				text: msg,
+				textColor: this.targetEntity().clientColorOr(PlayerState._defaultChatColor),
+				height: 1,
+			});
 		}
 	}
 
