@@ -5,7 +5,9 @@ import { PlayerConfig, PlayerInfo, StartRole } from 'game/util/player_config'
 import { GameConfigMessage } from 'message/game_config_message'
 
 import { ui } from 'ui'
+import { IconType } from 'ui/common/icon'
 import { Html, HtmlWrapper } from 'ui/html'
+import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 
 export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
@@ -53,9 +55,9 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 			this._configElm.removeChild(this._settingWrappers.get(id).elm());
 		}
 	}
-	setTeams(teams : boolean) : void {
+	setTeams(teams : boolean, max? : number) : void {
 		this._teams = teams;
-		this._config.setTeams(teams);
+		this._config.setTeams(teams, max);
 
 		this.refreshWrapper();
 	}
@@ -67,6 +69,19 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 			this.setErrors(errors);
 		}
 		return ok;
+	}
+
+	addRandomButton(max? : number) : void {
+		let random = new ButtonWrapper();
+
+		random.setIcon(IconType.DICE)
+		random.setText("Randomize Teams");
+		random.addOnClick(() => {
+			this._config.randomizeTeams(max);
+			this.refreshWrapper();
+		});
+		random.elm().style.marginTop = "1em";
+		this.elm().appendChild(random.elm());
 	}
 	setInfo(html : string) : void {
 		this._infoElm.innerHTML = html;

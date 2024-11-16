@@ -2,11 +2,10 @@
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
-import { ButtonSelectWrapper } from 'ui/wrapper/button/button_select_wrapper'
 
-export class ButtonGroupWrapper extends HtmlWrapper<HTMLElement> {
+export class ButtonGroupWrapper<T extends ButtonWrapper> extends HtmlWrapper<HTMLElement> {
 
-	private _buttons : Array<ButtonSelectWrapper>;
+	private _buttons : Array<T>;
 
 	constructor() {
 		super(Html.div());
@@ -14,19 +13,11 @@ export class ButtonGroupWrapper extends HtmlWrapper<HTMLElement> {
 		this._buttons = new Array();
 	}
 
-	buttons() : Array<ButtonSelectWrapper> { return this._buttons; }
+	buttons() : Array<T> { return this._buttons; }
 
-	addButton() : ButtonWrapper {
-		let button = new ButtonWrapper();
-		this.elm().appendChild(button.elm());
-		return button;
-	}
-
-	addButtonSelect() : ButtonSelectWrapper {
-		let button = new ButtonSelectWrapper();
-
+	addButton(button : T) : T {
 		button.addOnSelect(() => {
-			this._buttons.forEach((button : ButtonSelectWrapper) => {
+			this._buttons.forEach((button : T) => {
 				button.unselect();
 			});
 		});

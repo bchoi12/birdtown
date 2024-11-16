@@ -12,6 +12,8 @@ import { GameConfigMessage } from 'message/game_config_message'
 
 import { settings } from 'settings'
 
+import { Strings } from 'strings'
+
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
@@ -19,18 +21,30 @@ import { KeyNames } from 'ui/common/key_names'
 
 import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
+import { ModeSelectWrapper } from 'ui/wrapper/button/mode_select_wrapper'
 import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
-import { GameModeInfoWrapper } from 'ui/wrapper/game_mode_info_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { ColumnWrapper } from 'ui/wrapper/column_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
-import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
+import { ModeInfoWrapper } from 'ui/wrapper/mode_info_wrapper'
 import { PlayerConfigWrapper } from 'ui/wrapper/player_config_wrapper'
+
+type ModeOptions = {
+	name : string;
+	requirements : Array<string>;
+	description : string;
+
+	minRecommended? : number;
+	maxRecommended? : number;
+}
 
 export class StartGameDialogWrapper extends DialogWrapper {
 
 	private _mode : GameMode;
+	private _modeButtons : ButtonGroupWrapper<ModeSelectWrapper>;
+	private _infoWrappers : Map<GameMode, ModeInfoWrapper>;
+
 	private _configMsg : GameConfigMessage;
 	private _playerConfigWrapper : PlayerConfigWrapper;
 
@@ -38,6 +52,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		super();
 
 		this._mode = GameMode.UNKNOWN;
+		this._modeButtons = new ButtonGroupWrapper();
+		this._infoWrappers = new Map();
+
 		this._configMsg = null;
 		this._playerConfigWrapper = null;
 
@@ -78,6 +95,10 @@ export class StartGameDialogWrapper extends DialogWrapper {
 	override handleClientMessage(msg : GameMessage) : void {
 		super.handleClientMessage(msg);
 
+		this._modeButtons.buttons().forEach((button : ModeSelectWrapper) => {
+			button.setNumPlayers(game.tablets().numSetup());
+		});
+
 		if (this._playerConfigWrapper === null) {
 			return;
 		}
@@ -101,87 +122,51 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		info.setLegend("Description");
 		info.contentElm().style.fontSize = "0.7em";
 
-		let infoWrapper = new GameModeInfoWrapper();
-		infoWrapper.setDescription("Select a game mode on the left.");
-		info.contentElm().appendChild(infoWrapper.elm());
+		this.populateMode(GameMode.DUEL, {
+			name: "Duel",
+			requirements: [],
+			description: "Duel your opponents in standardized pseudo-random maps where you take turns picking the loadout.",
+			minRecommended: 2,
+			maxRecommended: 2,
+		});
+		this.populateMode(GameMode.FREE_FOR_ALL, {
+			name: "Free for All",
+			requirements: [],
+			description: "It's everyone for themselves.\r\n\r\nScore points by cooking other players and win once you reach the score limit.",
+			minRecommended: 3,
+		});
+		this.populateMode(GameMode.SURVIVAL, {
+			name: "Survival",
+			requirements: [],
+			description: "Be the last bird in town.",
+			minRecommended: 3,
+		});
+		this.populateMode(GameMode.TEAM_BATTLE, {
+			name: "Team Battle",
+			requirements: [],
+			description: "Everyone has one life--eliminate the enemy team, revive your teammates.",
+			minRecommended: 4,
+		});
+		this.populateMode(GameMode.PRACTICE, {
+			name: "Practice Mode",
+			requirements: [],
+			description: "Try out the game.",
+			minRecommended: 1,
+			maxRecommended: 1,
+		});
 
-		let modeButtons = new ButtonGroupWrapper();
+		mode.contentElm().appendChild(this._modeButtons.elm());
+		this._infoWrappers.forEach((wrapper : ModeInfoWrapper) => {
+			wrapper.hide();
+			info.contentElm().appendChild(wrapper.elm());
+		});
 
-		{
-			let buttonWrapper = modeButtons.addButtonSelect();
-			buttonWrapper.elm().style.width = "100%";
-			buttonWrapper.setText("Duel");
-			buttonWrapper.addOnClick(() => {
-				this._mode = GameMode.DUEL;
-
-				infoWrapper.setRequirements(["2+ players required", "Even teams recommended"]);
-				infoWrapper.setDescription(
-					"Duel your opponents in standardized pseudo-random maps where you take turns picking the loadout.");
-			});
-		}
-
-		{
-			let buttonWrapper = modeButtons.addButtonSelect();
-			buttonWrapper.elm().style.width = "100%";
-			buttonWrapper.setText("Free for all");
-			buttonWrapper.addOnClick(() => {
-				this._mode = GameMode.FREE_FOR_ALL;
-
-				infoWrapper.setRequirements(["2+ players required", "3+ players recommended"]);
-				infoWrapper.setDescription(
-					"It's everyone for themselves.\r\n\r\nScore points by cooking other players. " +
-					"Win by reaching the score limit or having the most points when time runs out.");
-			});
-		}
-
-		{
-			let buttonWrapper = modeButtons.addButtonSelect();
-			buttonWrapper.elm().style.width = "100%";
-			buttonWrapper.setText("Survival");
-			buttonWrapper.addOnClick(() => {
-				this._mode = GameMode.SURVIVAL;
-
-				infoWrapper.setRequirements(["2+ players required", "3+ players recommended"]);
-				infoWrapper.setDescription(
-					"Be the last bird in town.\r\n\r\n" + 
-					"Each player starts with the same number of lives. " +
-					"The last player standing wins the round. If time runs out, it's a draw.");
-			});
-		}
-
-		{
-			let buttonWrapper = modeButtons.addButtonSelect();
-			buttonWrapper.elm().style.width = "100%";
-			buttonWrapper.setText("Team Battle");
-			buttonWrapper.addOnClick(() => {
-				this._mode = GameMode.TEAM_BATTLE;
-
-				infoWrapper.setRequirements(["2+ players required", "4+ players recommended"]);
-				infoWrapper.setDescription(
-					"Eliminate the enemy team.\r\n\r\n" + 
-					"Each player only has one life, but you can revive your teammates.");
-			});
-		}
-
-		{
-			let buttonWrapper = modeButtons.addButtonSelect();
-			buttonWrapper.elm().style.width = "100%";
-			buttonWrapper.setText("Practice Mode");
-			buttonWrapper.addOnClick(() => {
-				this._mode = GameMode.PRACTICE;
-
-				infoWrapper.setRequirements(["There are no rules"]);
-				infoWrapper.setDescription("Practice whatever you want with whoever you want.");
-			});
-		}
-
-		mode.contentElm().appendChild(modeButtons.elm());
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setCanSubmit(() => {
 			const [startErrors, canStart] = Controller.canStart(this._mode);
 			if (!canStart) {
-				infoWrapper.setErrors(startErrors);
+				this._infoWrappers.get(this._mode).setErrors(startErrors);
 			}
 			return canStart;
 		});
@@ -191,6 +176,89 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				this.cancel();
 			} else {
 				this.addModePage(this._mode);
+			}
+		});
+	}
+
+	private populateMode(mode : GameMode, options : ModeOptions) : void {
+		let buttonWrapper = this._modeButtons.addButton(new ModeSelectWrapper());
+		buttonWrapper.elm().style.width = "100%";
+		buttonWrapper.setText(" " + options.name);
+		buttonWrapper.addOnMouseEnter(() => {
+			this.previewMode(mode);
+		});
+		buttonWrapper.addOnClick(() => {
+			this.stickMode(mode);
+		});
+		
+		let requirements = [];
+		const config = ConfigFactory.loadRef(mode);
+		if (config.hasPlayersMin()) {
+			buttonWrapper.setMinPlayers(config.getPlayersMin());
+		}
+		if (config.hasPlayersMax()) {
+			buttonWrapper.setMaxPlayers(config.getPlayersMax());
+		}
+		let playerRange = this.rangeToString(config.getPlayersMinOr(0), config.getPlayersMaxOr(0));
+		if (playerRange.length > 0) {
+			requirements.push(playerRange + " players required");
+		}
+
+		if (options.minRecommended) {
+			buttonWrapper.setMinRecommended(options.minRecommended);
+		}
+		if (options.maxRecommended) {
+			buttonWrapper.setMaxRecommended(options.maxRecommended);
+		}
+		let recommendedRange = this.rangeToString(options.minRecommended, options.maxRecommended);
+		if (recommendedRange.length > 0 && playerRange !== recommendedRange) {
+			requirements.push(recommendedRange + " players recommended");
+		}
+
+		buttonWrapper.setNumPlayers(game.tablets().numSetup());
+
+		let infoWrapper = new ModeInfoWrapper();
+		infoWrapper.setDescription(options.description);
+		requirements.push(...options.requirements);
+		infoWrapper.setRequirements(requirements);
+
+		this._infoWrappers.set(mode, infoWrapper);
+	}
+	private rangeToString(min : number, max : number) : string {
+		if (!min && !max) {
+			return "";
+		}
+		if (min > 1 && !max) {
+			return min + "+";
+		}
+		if (min > 1 && min === max) {
+			return min + "";
+		}
+		if (!min && max > 1) {
+			return "Up to " + max;
+		}
+		if (min > 0 && max > min) {
+			return min + "-" + max;
+		}
+		return "";
+	}
+
+	private previewMode(mode : GameMode) : void {
+		if (this._mode !== GameMode.UNKNOWN) {
+			return;
+		}
+		this.showMode(mode);
+	}
+	private stickMode(mode : GameMode) : void {
+		this._mode = mode;
+		this.showMode(mode);
+	}
+	private showMode(mode : GameMode) : void {
+		this._infoWrappers.forEach((wrapper : ModeInfoWrapper, wrapperMode : GameMode) => {
+			if (mode === wrapperMode) {
+				wrapper.show();
+			} else {
+				wrapper.hide();
 			}
 		});
 	}
@@ -208,9 +276,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		let options = columnsWrapper.column(0);
 		options.setLegend("Options");
-		options.contentElm().style.fontSize = "0.6em";
+		options.contentElm().style.fontSize = "0.7em";
 		options.contentElm().style.textAlign = "center";
-		options.contentElm().textContent = "Update game options below\r\n\r\n"
+		options.contentElm().textContent = "Customize game mode options\r\n\r\n"
 
 		const teamMode = this._configMsg.getWinCondition() === WinConditionType.TEAM_LIVES || this._configMsg.getWinCondition() === WinConditionType.TEAM_POINTS;
 
@@ -246,16 +314,23 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		let players = columnsWrapper.column(1);
 		players.setLegend("Players");
-		players.contentElm().style.fontSize = "0.6em";
+		players.contentElm().style.textAlign = "center";
+		players.contentElm().style.fontSize = "0.7em";
 
 		this._playerConfigWrapper = new PlayerConfigWrapper();
 		players.contentElm().appendChild(this._playerConfigWrapper.elm());
 
 		if (teamMode) {
-			this._playerConfigWrapper.setInfo("Click to update team assignments and spectators");
-			this._playerConfigWrapper.setTeams(true);
+			this._playerConfigWrapper.setInfo("Customize team assignments and spectators");
+			this._playerConfigWrapper.setTeams(true, this._configMsg.getPlayersMaxOr(0));
+
+			if (this._configMsg.hasPlayersMax()) {
+				this._playerConfigWrapper.addRandomButton(this._configMsg.getPlayersMax());
+			} else {
+				this._playerConfigWrapper.addRandomButton();
+			}
 		} else {
-			this._playerConfigWrapper.setInfo("Click to assign players and spectators");
+			this._playerConfigWrapper.setInfo("Customize players and spectators");
 		}
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
@@ -278,17 +353,21 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			get: () => { return msg.getPoints(); },
 		});
 	}
-	private resetPointsWrapper(msg : GameConfigMessage) : SettingWrapper<number> {
-		return new SettingWrapper<number>({
-			name: "Reset points on death",
+	private resetPointsWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
+			label: "Reset points on death",
 			value: Number(msg.getResetPoints()),
-			click: (current : number) => {
+			plus: (current : number) => {
 				current = current !== 0 ? 0 : 1;
 				msg.setResetPoints(current === 1);
-				return current;
 			},
-			text: (current : number) => {
-				return current === 1 ? "ON" : "OFF";
+			minus: (current : number) => {
+				current = current !== 0 ? 0 : 1;
+				msg.setResetPoints(current === 1);
+			},
+			get: () => { return Number(msg.getResetPoints()); },
+			html: (current : number) => {
+				return msg.getResetPoints() ? "On" : "Off";
 			},
 		});
 	}
@@ -321,40 +400,52 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			},
 		});
 	}
-	private healthCrateWrapper(msg : GameConfigMessage) : SettingWrapper<FrequencyType> {
-		return new SettingWrapper<FrequencyType>({
-			name: "Health Crate Spawn Rate",
-			value: msg.getHealthCrateSpawn(),
-			click: (current : FrequencyType) => {
+	private healthCrateWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
+			label: "Health crate drop rate",
+			value: Number(msg.getHealthCrateSpawn()),
+			plus: (current : number) => {
 				if (current === FrequencyType.HIGH) {
 					current = FrequencyType.NEVER;
 				} else {
 					current++;
 				}
 				msg.setHealthCrateSpawn(current);
-				return current;
 			},
-			text: (current : FrequencyType) => {
-				return FrequencyType[current];
+			minus: (current : number) => {
+				if (current === FrequencyType.NEVER) {
+					current = FrequencyType.HIGH;
+				} else {
+					current--;
+				}
+				msg.setHealthCrateSpawn(current);
 			},
+			get: () => { return msg.getHealthCrateSpawn(); },
+			html: (current : number) => { return Strings.toTitleCase(FrequencyType[current]); },
 		});
 	}
-	private weaponCrateWrapper(msg : GameConfigMessage) : SettingWrapper<FrequencyType> {
-		return new SettingWrapper<FrequencyType>({
-			name: "Weapon Crate Spawn Rate",
-			value: msg.getWeaponCrateSpawn(),
-			click: (current : FrequencyType) => {
+	private weaponCrateWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
+			label: "Weapon crate drop rate",
+			value: Number(msg.getWeaponCrateSpawn()),
+			plus: (current : number) => {
 				if (current === FrequencyType.HIGH) {
 					current = FrequencyType.NEVER;
 				} else {
 					current++;
 				}
 				msg.setWeaponCrateSpawn(current);
-				return current;
 			},
-			text: (current : FrequencyType) => {
-				return FrequencyType[current];
+			minus: (current : number) => {
+				if (current === FrequencyType.NEVER) {
+					current = FrequencyType.HIGH;
+				} else {
+					current--;
+				}
+				msg.setWeaponCrateSpawn(current);
 			},
+			get: () => { return msg.getWeaponCrateSpawn(); },
+			html: (current : number) => { return Strings.toTitleCase(FrequencyType[current]); },
 		});
 	}
 

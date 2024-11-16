@@ -13,13 +13,17 @@ export namespace ConfigFactory {
 	export function empty() : GameConfigMessage {
 		return defaultConfig(GameMode.UNKNOWN);
 	}
-	export function load(mode : GameMode) : GameConfigMessage {
+	export function loadRef(mode : GameMode) : GameConfigMessage {
 		if (!configs.has(mode)) {
 			configs.set(mode, new GameConfigMessage(mode));
 		}
+		return configs.get(mode);		
+	}
+	export function load(mode : GameMode) : GameConfigMessage {
+		const config = loadRef(mode);
 
 		let msg = empty();
-		msg.copy(configs.get(mode));
+		msg.copy(config);
 		return msg;
 	}
 	export function save(msg : GameConfigMessage) : void {

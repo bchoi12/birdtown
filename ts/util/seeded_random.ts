@@ -1,5 +1,4 @@
 
-
 type ChanceFn = (n : number, result? : boolean) => number;
 type SwitchFn = [number, (n? : number) => void];
 
@@ -60,14 +59,12 @@ export class SeededRandom {
     }
 
 	shuffle(array : Array<Object>, n? : number) : void {
-		if (n <= 0) {
-			n = array.length;
-		} else if (n > array.length) {
+		if (!n || n <= 0 || n > array.length) {
 			n = array.length;
 		}
 
 	    for (let i = 0; i < n; ++i) {
-	        let j = i + Math.min(array.length - i - 1, Math.floor(this.next() * (array.length - i)));
+	        let j = Math.min(array.length - 1, i + Math.floor(this.next() * (array.length - i)));
 
 	        if (i === j) {
 	        	continue;

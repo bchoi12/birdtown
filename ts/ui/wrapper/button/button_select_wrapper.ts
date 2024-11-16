@@ -9,8 +9,4 @@ export class ButtonSelectWrapper extends ButtonWrapper {
 
 		this.elm().classList.add(Html.classButtonSelect);
 	}
-
-	override setText(text : string) : void {
-		this.elm().textContent = text;
-	}
 }

@@ -719,7 +719,7 @@ export class Profile extends ComponentBase implements Component {
 		if (this.isSource()) {
 			this._forces.push(force);
 		} else {
-			this._knockbackTimer.start(Math.max(this._knockbackTimer.millisLeft(), Profile._knockbackTimeMin));
+			this.startKnockbackTimer(force);
 		}
 	}
 	private applyForces() : void {
@@ -731,13 +731,15 @@ export class Profile extends ComponentBase implements Component {
 		while(!this._forces.empty()) {
 			totalForce.add(this._forces.pop());
 		}
-		totalForce.scale(1 / this._body.mass);
-		this.addVel(totalForce)
-
-		const weight = Math.min(totalForce.lengthSq(), 1);
-		this._knockbackTimer.start(Math.max(this._knockbackTimer.millisLeft(), Profile._knockbackTimeMin + weight * Profile._knockbackTimeVariance));
+		this.startKnockbackTimer(totalForce);
+		this.addVel(totalForce.scale(1 / this._body.mass))
 
 		this._forces.clear();
+	}
+	private startKnockbackTimer(force : Vec) : void {
+		const lengthSq = force.x * force.x + force.y * force.y;
+		const weight = Math.min(lengthSq / (this._body.mass * this._body.mass), 1);
+		this._knockbackTimer.start(Math.max(this._knockbackTimer.millisLeft(), Profile._knockbackTimeMin + weight * Profile._knockbackTimeVariance));
 	}
 	knockbackMillis() : number { return this._knockbackTimer.millisLeft(); }
 

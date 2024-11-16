@@ -125,7 +125,7 @@ export class Runner extends SystemBase implements System  {
 	   		this._lastUpdateTime = Date.now();
 			this._step = this.getGameStep(updateInterval);
 
-			this._seqNum += this._step;
+			this._seqNum += Math.round(this._step);
 	
 	   		const stepData = {
 	   			millis: this._updateSpeed * this._step,
@@ -261,7 +261,6 @@ export class Runner extends SystemBase implements System  {
 				return millis;
 			}
 		}
-
 		return millis;
 	}
 

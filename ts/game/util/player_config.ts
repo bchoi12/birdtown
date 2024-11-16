@@ -8,6 +8,8 @@ import { Tablet } from 'game/system/tablet'
 
 import { GameConfigMessage } from 'message/game_config_message'
 
+import { globalRandom } from 'util/seeded_random'
+
 export enum StartRole {
 	UNKNOWN,
 
@@ -79,27 +81,27 @@ export class PlayerConfig {
 		}
 
 		if (msg.hasPlayersMin() && numPlayers < msg.getPlayersMin()) {
-			errors.push("Need at least " + msg.getPlayersMin() + " players");
+			errors.push("Need at least " + msg.getPlayersMin() + " active players");
 		}
 		if (msg.hasPlayersMax() && numPlayers > msg.getPlayersMax()) {
-			errors.push(msg.modeName() + " can only have up to " + msg.getPlayersMax() + " players");
+			errors.push(msg.modeName() + " can only have up to " + msg.getPlayersMax() + " active players");
 		}
 
 		if (msg.getWinCondition() === WinConditionType.POINTS || msg.getWinCondition() === WinConditionType.TEAM_POINTS) {
 			if (msg.getPointsOr(0) < 1) {
-				errors.push("Points must be set to at least 1")
+				errors.push("Points must be greater than 0")
 			}
 		}
 
 		if (msg.getWinCondition() === WinConditionType.LIVES || msg.getWinCondition() === WinConditionType.TEAM_LIVES) {
 			if (msg.getLivesOr(0) < 1) {
-				errors.push("Lives must be set to at least 1")
+				errors.push("Lives must be greater than 0")
 			}
 		}
 
 		if (msg.getWinCondition() === WinConditionType.TEAM_LIVES || msg.getWinCondition() === WinConditionType.TEAM_POINTS) {
 			if (numTeams < 2) {
-				errors.push("Need at least 2 teams");
+				errors.push("Need 2 teams with at least 1 player");
 			}
 		}
 		return [errors, errors.length === 0];
@@ -172,19 +174,33 @@ export class PlayerConfig {
 		this._players.get(id).role = role;
 	}
 
-	setTeams(teams : boolean) : void {
+	setTeams(teams : boolean, max? : number) : void {
 		if (!teams) {
 			this._defaultRole = StartRole.PLAYING;
 			return;
 		}
 
 		this._defaultRole = StartRole.SPECTATING;
-		let role = StartRole.TEAM_ONE;
-		this._players.forEach((info : PlayerInfo, id : number) => {
-			this.setRole(id, role);
+		this.assignTeams(false, max);
+	}
+	randomizeTeams(max? : number) : void {
+		this.assignTeams(/*random=*/true, max);
+	}
+	private assignTeams(random : boolean, max? : number) : void {
+		let players = Array.from(this._players.keys());
 
-			role = role === StartRole.TEAM_ONE ? StartRole.TEAM_TWO : StartRole.TEAM_ONE;
-		});
+		if (random) {
+			globalRandom.shuffle(players, max);
+		}
+
+		for (let i = 0; i < players.length; ++i) {
+			if (max && i >= max) {
+				this.setRole(players[i], StartRole.SPECTATING);
+				continue;
+			}
+
+			this.setRole(players[i], i % 2 === 0 ? StartRole.TEAM_ONE : StartRole.TEAM_TWO);
+		}
 	}
 	team(id : number) : number {
 		if (!this.hasClient(id)) {

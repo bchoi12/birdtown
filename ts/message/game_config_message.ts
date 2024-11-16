@@ -65,6 +65,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.DUEL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.LIVES, {}],
+			[GameConfigProp.PLAYERS_MAX, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
@@ -136,6 +137,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		switch (mode) {
 		case GameMode.DUEL:
 			this.setPlayersMin(2);
+			this.setPlayersMax(2);
 			this.setLevelType(LevelType.DUELTOWN);
 			this.setLevelLayout(LevelLayout.NORMAL);
 			this.setLives(1);

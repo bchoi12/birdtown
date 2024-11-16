@@ -40,14 +40,6 @@ export class LabelNumberWrapper extends LabelWrapper {
 		const buttons = Html.span();
 		buttons.style.fontSize = "0.8em";
 
-		const minus = new ButtonWrapper();
-		minus.elm().appendChild(Icon.create(IconType.ARROW_DOWN));
-		minus.addOnClick(() => {
-			options.minus(this.number())
-			this.setNumber(options.get());
-		});
-		buttons.appendChild(minus.elm());
-
 		const plus = new ButtonWrapper();
 		plus.elm().appendChild(Icon.create(IconType.ARROW_UP));
 		plus.addOnClick(() => {
@@ -55,6 +47,14 @@ export class LabelNumberWrapper extends LabelWrapper {
 			this.setNumber(options.get());
 		});
 		buttons.appendChild(plus.elm());
+
+		const minus = new ButtonWrapper();
+		minus.elm().appendChild(Icon.create(IconType.ARROW_DOWN));
+		minus.addOnClick(() => {
+			options.minus(this.number())
+			this.setNumber(options.get());
+		});
+		buttons.appendChild(minus.elm());
 
 		this._settingElm.appendChild(buttons);
 

@@ -2,7 +2,7 @@
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 
-export class GameModeInfoWrapper extends HtmlWrapper<HTMLElement> {
+export class ModeInfoWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _descriptionElm : HTMLElement;
 	private _requirementsElm : HTMLElement;
@@ -20,6 +20,13 @@ export class GameModeInfoWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().appendChild(this._requirementsElm);
 		this.elm().appendChild(Html.br());
 		this.elm().appendChild(this._errorElm);
+	}
+
+	show() : void {
+		this.elm().style.display = "block";
+	}
+	hide() : void {
+		this.elm().style.display = "none";
 	}
 
 	setRequirements(reqs : Array<string>) : void {

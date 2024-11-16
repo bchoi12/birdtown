@@ -68,9 +68,10 @@ export class Controller extends SystemBase implements System {
 		}
 
 		const config = ConfigFactory.defaultConfig(mode);
-		if (config.hasPlayersMin() && game.tablets().numSetup() < config.getPlayersMin()) {
+		const numPlayers = game.tablets().numSetup();
+		if (config.hasPlayersMin() && numPlayers < config.getPlayersMin()) {
 			errors.push(`Need ${config.getPlayersMin()} players for this game mode`);
-			errors.push(`Current number of players: ${game.tablets().numSetup()}`);
+			errors.push(`Current number of players is ${numPlayers}`);
 		}
 		return [errors, errors.length === 0];
 	}

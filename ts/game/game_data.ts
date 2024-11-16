@@ -39,6 +39,13 @@ export class GameData {
 
 		return this._gameProps.get(key).import(value, seqNum);
 	}
+	relay(key : number, value : Object, seqNum : number) : boolean {
+		if (!this.has(key)) {
+			return false;
+		}
+
+		return this._gameProps.get(key).relay(value, seqNum);
+	}
 	update(key : number, value : Object, seqNum : number) : boolean {
 		if (!this.has(key)) {
 			return false;
@@ -46,7 +53,6 @@ export class GameData {
 
 		return this._gameProps.get(key).update(value, seqNum);
 	}
-
 
 	registerProp<T extends Object>(prop : number, propOptions : GamePropOptions<T>) : void {
 		this._gameProps.set(prop, new GameProp<T>(propOptions));

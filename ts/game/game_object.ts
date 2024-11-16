@@ -547,8 +547,8 @@ export abstract class GameObjectBase {
 						handler.validate(value);
 					}
 				} else if (this.shouldBroadcast()){
-					// If relaying data, check for equality using update()
-					if (this._data.update(prop, value, seqNum)) {
+					// If relaying data, check for equality using relay()
+					if (this._data.relay(prop, value, seqNum)) {
 						handler.import(this._data.getValue(prop));
 					}
 				} else {
