@@ -22,6 +22,9 @@ import { CardinalDir } from 'util/cardinal'
 
 export class Pergola extends EntityBase implements Entity {
 
+	private static readonly _maxSpeed = 1;
+	private static readonly _minSpeed = 1e-2;
+
 	private _attributes : Attributes;
 	private _model : Model;
 	private _profile : Profile;
@@ -53,6 +56,12 @@ export class Pergola extends EntityBase implements Entity {
 			},
 			init: entityOptions.profileInit,
 		}));
+		this._profile.setLimitFn((profile : Profile) => {
+			profile.capSpeed(Pergola._maxSpeed);
+			if (Math.abs(profile.vel().x) < Pergola._minSpeed) {
+				profile.vel().x = 0;
+			}
+		});
 		this._profile.setMinimapOptions({
 			color: ColorFactory.color(ColorType.LEVEL_WHITE).toString(),
 			depthType: DepthType.BACKGROUND,
@@ -94,6 +103,11 @@ export class Pergola extends EntityBase implements Entity {
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
+
+		if (game.controller().inSetup()) {
+			this._profile.vel().scale(0);
+			this._subProfile.vel().scale(0);
+		}
 
 		if (this._profile.pos().y < game.level().bounds().min.y) {
 			this.delete();

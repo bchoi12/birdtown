@@ -16,7 +16,7 @@ import { isLocalhost } from 'util/common'
 
 export class Host extends Netcode {
 
-	private static readonly _maxChatLength = 64;
+	private static readonly _maxChatLength = 48;
 
 	constructor(room : string) {
 		super(room);

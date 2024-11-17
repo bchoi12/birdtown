@@ -37,7 +37,7 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 	private static readonly _degPerSecond = 360;
 	private static readonly _interactLockout = 400;
 
-	private static readonly _maxSpeed = 0.6;
+	private static readonly _maxSpeed = 1;
 	private static readonly _minSpeed = 5e-2;
 
 	private _dir : number;
@@ -100,7 +100,6 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 				profile.vel().x = 0;
 			}
 		});
-
 		this._profile.setMinimapOptions({
 			color: ColorFactory.color(ColorType.TABLE).toString(),
 		});

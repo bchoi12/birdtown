@@ -125,14 +125,14 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.populateMode(GameMode.DUEL, {
 			name: "Duel",
 			requirements: [],
-			description: "Duel your opponents in standardized pseudo-random maps where you take turns picking the loadout.",
+			description: "1v1 your opponent on a 'standardized' Birdtown.\r\n\r\nTake turns picking the loadout until someone wins.",
 			minRecommended: 2,
 			maxRecommended: 2,
 		});
 		this.populateMode(GameMode.FREE_FOR_ALL, {
 			name: "Free for All",
 			requirements: [],
-			description: "It's everyone for themselves.\r\n\r\nScore points by cooking other players and win once you reach the score limit.",
+			description: "It's everyone for themselves.\r\n\r\nScore points by cooking other players and reach the score limit to win.",
 			minRecommended: 3,
 		});
 		this.populateMode(GameMode.SURVIVAL, {
@@ -144,7 +144,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.populateMode(GameMode.TEAM_BATTLE, {
 			name: "Team Battle",
 			requirements: [],
-			description: "Everyone has one life--eliminate the enemy team, revive your teammates.",
+			description: "Everyone has one life--eliminate the enemy team while reviving your teammates.",
 			minRecommended: 4,
 		});
 		this.populateMode(GameMode.PRACTICE, {
@@ -406,18 +406,16 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			value: Number(msg.getHealthCrateSpawn()),
 			plus: (current : number) => {
 				if (current === FrequencyType.HIGH) {
-					current = FrequencyType.NEVER;
-				} else {
-					current++;
+					return;
 				}
+				current++;
 				msg.setHealthCrateSpawn(current);
 			},
 			minus: (current : number) => {
 				if (current === FrequencyType.NEVER) {
-					current = FrequencyType.HIGH;
-				} else {
-					current--;
+					return;
 				}
+				current--;
 				msg.setHealthCrateSpawn(current);
 			},
 			get: () => { return msg.getHealthCrateSpawn(); },
@@ -430,18 +428,16 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			value: Number(msg.getWeaponCrateSpawn()),
 			plus: (current : number) => {
 				if (current === FrequencyType.HIGH) {
-					current = FrequencyType.NEVER;
-				} else {
-					current++;
+					return;
 				}
+				current++;
 				msg.setWeaponCrateSpawn(current);
 			},
 			minus: (current : number) => {
 				if (current === FrequencyType.NEVER) {
-					current = FrequencyType.HIGH;
-				} else {
-					current--;
+					return;
 				}
+				current--;
 				msg.setWeaponCrateSpawn(current);
 			},
 			get: () => { return msg.getWeaponCrateSpawn(); },

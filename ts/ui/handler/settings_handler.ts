@@ -17,6 +17,8 @@ import {
 	ShadowSetting,
 } from 'settings/api'
 
+import { Strings } from 'strings'
+
 import { ui } from 'ui'
 import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -44,35 +46,50 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			e.stopPropagation();
 		};
 
-		let fullscreen = new SettingWrapper<FullscreenSetting>({
-			name: "Window Mode",
-			value: settings.fullscreenSetting,
-			click: (current : FullscreenSetting) => {
+		let fullscreen = new LabelNumberWrapper({
+			label: "Fullscreen",
+			value: Number(settings.fullscreenSetting),
+			plus: (current : number) => {
 				if (current === FullscreenSetting.WINDOWED) {
 					settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
 				} else {
 					settings.fullscreenSetting = FullscreenSetting.WINDOWED;
 				}
-				return settings.fullscreenSetting;
 			},
-			text: (current : FullscreenSetting) => {
-				return FullscreenSetting[current];
+			minus: (current : number) => {
+				if (current === FullscreenSetting.WINDOWED) {
+					settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
+				} else {
+					settings.fullscreenSetting = FullscreenSetting.WINDOWED;
+				}
+			},
+			get: () => { return settings.fullscreenSetting; },
+			html: () => {
+				if (settings.fullscreenSetting === FullscreenSetting.FULLSCREEN) {
+					return "On";
+				}
+				return "Off";
 			},
 		});
 		this._settingsElm.appendChild(fullscreen.elm());
 
-		let frameRate = new SettingWrapper<SpeedSetting>({
-			name: "Render Cap",
-			value: settings.fpsSetting,
-			click: (current : SpeedSetting) => {
+		let frameRate = new LabelNumberWrapper({
+			label: "FPS Cap",
+			value: Number(settings.fpsSetting),
+			plus: (current : number) => {
 				if (current >= SpeedSetting.NORMAL) {
-					settings.fpsSetting = SpeedSetting.SLOW;
-				} else {
-					settings.fpsSetting++;
+					return;
 				}
-				return settings.fpsSetting;
+				settings.fpsSetting++;
 			},
-			text: (current : SpeedSetting) => {
+			minus: (current : number) => {
+				if (current <= SpeedSetting.SLOW) {
+					return;
+				}
+				settings.fpsSetting--;
+			},
+			get: () => { return settings.fpsSetting; },
+			html: (current : number) => {
 				switch (current) {
 				case SpeedSetting.SLOW:
 					return "30 FPS";
@@ -86,71 +103,96 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm.appendChild(frameRate.elm());
 
 		if (!game.isHost()) {
-			let clientPrediction = new SettingWrapper<ClientPredictionSetting>({
-				name: "Client-side Prediction",
-				value: settings.clientPredictionSetting,
-				click: (current : ClientPredictionSetting) => {
+			let clientPrediction = new LabelNumberWrapper({
+				label: "Network Smoothing",
+				value: Number(settings.clientPredictionSetting),
+				plus: (current : number) => {
 					if (current === ClientPredictionSetting.HIGH) {
-						settings.clientPredictionSetting = ClientPredictionSetting.NONE;
-					} else {
-						settings.clientPredictionSetting++;
+						return;
 					}
-					return settings.clientPredictionSetting;
+					settings.clientPredictionSetting++;
 				},
-				text: (current : ClientPredictionSetting) => {
-					return ClientPredictionSetting[current];
+				minus: (current : number) => {
+					if (current === ClientPredictionSetting.NONE) {
+						return;
+					}
+					settings.clientPredictionSetting--;
+				},
+				get: () => { return settings.clientPredictionSetting; },
+				html: (current : number) => {
+					return Strings.toTitleCase(ClientPredictionSetting[current]);
 				},
 			});
 			this._settingsElm.appendChild(clientPrediction.elm());
 		}
 
-		let damageNumbers = new SettingWrapper<DamageNumberSetting>({
-			name: "Display Damage Numbers",
-			value: settings.damageNumberSetting,
-			click: (current : DamageNumberSetting) => {
+		let damageNumbers = new LabelNumberWrapper({
+			label: "Damage Stats",
+			value: Number(settings.damageNumberSetting),
+			plus: (current : number) => {
 				if (current === DamageNumberSetting.ON) {
 					settings.damageNumberSetting = DamageNumberSetting.OFF;
 				} else {
 					settings.damageNumberSetting = DamageNumberSetting.ON;
 				}
-				return settings.damageNumberSetting;
 			},
-			text: (current : DamageNumberSetting) => {
-				return DamageNumberSetting[current];
+			minus: (current : number) => {
+				if (current === DamageNumberSetting.ON) {
+					settings.damageNumberSetting = DamageNumberSetting.OFF;
+				} else {
+					settings.damageNumberSetting = DamageNumberSetting.ON;
+				}
+			},
+			get: () => { return settings.damageNumberSetting; },
+			html: () => {
+				if (settings.damageNumberSetting === DamageNumberSetting.ON) {
+					return "On";
+				}
+				return "Off";
 			},
 		});
 		this._settingsElm.appendChild(damageNumbers.elm());
 
-		let antiAlias = new SettingWrapper<AntiAliasSetting>({
-			name: "Anti-aliasing",
-			value: settings.antiAliasSetting,
-			click: (current : AntiAliasSetting) => {
+		let antiAlias = new LabelNumberWrapper({
+			label: "Anti-aliasing",
+			value: Number(settings.antiAliasSetting),
+			plus: (current : number) => {
 				if (current === AntiAliasSetting.HIGH) {
-					settings.antiAliasSetting = AntiAliasSetting.NONE;
-				} else {
-					settings.antiAliasSetting++;
+					return;
 				}
-				return settings.antiAliasSetting;
+				settings.antiAliasSetting++;
 			},
-			text: (current : AntiAliasSetting) => {
-				return AntiAliasSetting[current];
+			minus: (current : number) => {
+				if (current === AntiAliasSetting.NONE) {
+					return;
+				}
+				settings.antiAliasSetting--;
+			},
+			get: () => { return settings.antiAliasSetting; },
+			html: (current : number) => {
+				return Strings.toTitleCase(AntiAliasSetting[current]);
 			},
 		});
 		this._settingsElm.appendChild(antiAlias.elm());
 
-		let shadowQuality = new SettingWrapper<ShadowSetting>({
-			name: "Shadow Quality",
-			value: settings.shadowSetting,
-			click: (current : ShadowSetting) => {
+		let shadowQuality = new LabelNumberWrapper({
+			label: "Shadow Quality",
+			value: Number(settings.shadowSetting),
+			plus: (current : number) => {
 				if (current === ShadowSetting.HIGH) {
-					settings.shadowSetting = ShadowSetting.NONE;
-				} else {
-					settings.shadowSetting++;
+					return;
 				}
-				return settings.shadowSetting;
+				settings.shadowSetting++;
 			},
-			text: (current : ShadowSetting) => {
-				return ShadowSetting[current];
+			minus: (current : number) => {
+				if (current === ShadowSetting.NONE) {
+					return;
+				}
+				settings.shadowSetting--;
+			},
+			get: () => { return settings.shadowSetting; },
+			html: (current : number) => {
+				return Strings.toTitleCase(ShadowSetting[current]);
 			},
 		});
 		this._settingsElm.appendChild(shadowQuality.elm());

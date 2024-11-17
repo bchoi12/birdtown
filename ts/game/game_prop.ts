@@ -33,6 +33,7 @@ export class GameProp<T extends Object> {
 	private _lastPublished : Map<DataFilter, PublishInfo<T>>;
 
 	private _seqNum : number;
+	private _importSeqNum : number;
 	private _consecutiveChanges : number;
 	private _lastChanged : number;
 
@@ -51,6 +52,7 @@ export class GameProp<T extends Object> {
 		this._lastPublished = new Map();
 
 		this._seqNum = 0;
+		this._importSeqNum = 0;
 		this._consecutiveChanges = 0;
 		this._lastChanged = 0;
 
@@ -122,31 +124,26 @@ export class GameProp<T extends Object> {
 	}
 
 	import(value : T, seqNum : number) : boolean {
-		if (seqNum < this._seqNum || value === null) {
+		if (seqNum < this._importSeqNum || value === null) {
 			return false;
 		}
 
 		this._value.set(value);
+		this._importSeqNum = seqNum;
 		this._seqNum = seqNum;
 		return true;
 	}
 	relay(value : T, seqNum : number) : boolean {
-		if (value === null) {
+		if (seqNum < this._importSeqNum || value === null) {
 			return false;
 		}
 
-		// Allow inputs that are behind since we're relaying
-		// TODO: limit amount of behind-ness?
-		if (seqNum < this._seqNum) {
-			seqNum = this._seqNum;
-		}
-
 		// Reset if there is a gap in setting value or if value was cleared
-		if (seqNum - this._seqNum > game.runner().lastStep()) {
+		if (seqNum - this._importSeqNum > game.runner().lastStep()) {
 			this._consecutiveChanges = 0;
 		}
 
-		const seqNumEqual = this._seqNum === seqNum;
+		const seqNumEqual = this._importSeqNum === seqNum;
 		if (this.equals(value)) {
 			if (!seqNumEqual) {
 				this._consecutiveChanges = Math.min(-1, this._consecutiveChanges - 1);
@@ -155,6 +152,7 @@ export class GameProp<T extends Object> {
 		}
 
 		this._value.set(value);
+		this._importSeqNum = seqNum;
 		this._seqNum = seqNum;
 		// If seqnums are equal, either set to 1 or don't increment.
 		this._consecutiveChanges = Math.max(1, this._consecutiveChanges + (seqNumEqual ? 0 : 1));

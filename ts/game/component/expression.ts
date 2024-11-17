@@ -10,8 +10,8 @@ import { Timer } from 'util/timer'
 export class Expression extends ComponentBase implements Component {
 
 	private static readonly _durations = new Map<EmotionType, number>([
-		[EmotionType.MAD, 2000],
-		[EmotionType.SAD, 2000],
+		[EmotionType.MAD, 1500],
+		[EmotionType.SAD, 1500],
 	]);
 
 	private _current : EmotionType;

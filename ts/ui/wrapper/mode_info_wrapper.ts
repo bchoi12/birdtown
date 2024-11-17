@@ -33,7 +33,7 @@ export class ModeInfoWrapper extends HtmlWrapper<HTMLElement> {
 		this._requirementsElm.innerHTML = "";
 
 		if (reqs.length === 0) {
-			this._requirementsElm.textContent = "No requirements";
+			reqs.push("Any number of players allowed");
 		}
 
 		for (let i = 0; i < reqs.length; ++i) {

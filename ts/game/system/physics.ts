@@ -17,7 +17,7 @@ import { Vec2 } from 'util/vector'
 
 export class Physics extends SystemBase implements System {
 
-	private static readonly _maxMillis = 20;
+	private static readonly _maxMillis = 18;
 
 	private _engine : MATTER.Engine;
 	private _minimap : HTMLElement;

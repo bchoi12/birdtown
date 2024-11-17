@@ -761,8 +761,9 @@ export class Profile extends ComponentBase implements Component {
 			} 
 		} 
 
-		game.level().clampPos(this._pos);
-
+		if (!this.attached()) {
+			game.level().clampPos(this._pos);
+		}
 		if (this._limitFn.has()) {
 			this._limitFn.get()(this);
 		}

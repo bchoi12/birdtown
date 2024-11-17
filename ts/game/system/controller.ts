@@ -121,6 +121,7 @@ export class Controller extends SystemBase implements System {
 			console.log("%s: game state is %s", this.name(), GameState[state]);
 		}
 	}
+	inSetup() : boolean { return this._gameState === GameState.LOAD || this._gameState === GameState.SETUP; }
 	returnToLobby() : void { this.setGameState(GameState.END); }
 
 	override preUpdate(stepData : StepData) : void {
