@@ -36,7 +36,7 @@ enum DataFormat {
 
 export abstract class Netcode {
 
-	private static readonly _pingTimeoutMillis = 10000;
+	private static readonly _pingTimeoutMillis = 15000;
 
 	private static readonly _validChannels : DoubleMap<ChannelType, string> = DoubleMap.fromEntries([
 		[ChannelType.TCP, "TCP"],

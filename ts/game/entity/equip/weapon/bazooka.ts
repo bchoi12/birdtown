@@ -19,12 +19,12 @@ export class Bazooka extends Weapon {
 
 	private static readonly _config = {
 		times: new Map([
-			[WeaponState.FIRING, 400],
-			[WeaponState.RELOADING, 1000],
+			[WeaponState.FIRING, 450],
+			[WeaponState.RELOADING, 900],
 		]),
 		bursts: 1,
 	};
-	private static readonly _rocketTTL = 750;
+	private static readonly _rocketTTL = 700;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.BAZOOKA, options);
@@ -45,8 +45,8 @@ export class Bazooka extends Weapon {
 		const pos = this.shootPos();
 		const unitDir = this.getDir();
 
-		let vel = unitDir.clone().scale(0.05);
-		let acc = unitDir.clone().scale(1.5);
+		let vel = unitDir.clone().scale(0.1);
+		let acc = unitDir.clone().scale(1.6);
 		let [rocket, hasRocket] = this.addEntity<Rocket>(EntityType.ROCKET, {
 			ttl: Bazooka._rocketTTL,
 			associationInit: {

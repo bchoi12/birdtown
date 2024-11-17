@@ -30,6 +30,8 @@ import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { isLocalhost } from 'util/common'
 
+import { ui } from 'ui'
+import { DialogType } from 'ui/api'
 import { Html } from 'ui/html'
 
 export type GameOptions = {
@@ -121,6 +123,8 @@ class Game {
 		    this._initialized = true;
 
 			this._options.netcodeSuccess();
+
+	    	ui.pushDialog(DialogType.INIT);
 		}, this._options.netcodeError);
 	}
 

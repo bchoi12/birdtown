@@ -17,6 +17,7 @@ import { Strings } from 'strings'
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
+import { Icon, IconType } from 'ui/common/icon'
 import { KeyNames } from 'ui/common/key_names'
 
 import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
@@ -122,6 +123,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		info.setLegend("Description");
 		info.contentElm().style.fontSize = "0.7em";
 
+		this.addUnknownMode();
 		this.populateMode(GameMode.DUEL, {
 			name: "Duel",
 			requirements: [],
@@ -156,8 +158,12 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 
 		mode.contentElm().appendChild(this._modeButtons.elm());
-		this._infoWrappers.forEach((wrapper : ModeInfoWrapper) => {
-			wrapper.hide();
+		this._infoWrappers.forEach((wrapper : ModeInfoWrapper, mode : GameMode) => {
+			if (mode === GameMode.UNKNOWN) {
+				wrapper.show();
+			} else {
+				wrapper.hide();
+			}
 			info.contentElm().appendChild(wrapper.elm());
 		});
 
@@ -180,6 +186,12 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 	}
 
+	private addUnknownMode() : void {
+		let infoWrapper = new ModeInfoWrapper();
+		infoWrapper.setDescription("Select a game mode on the left.");
+		infoWrapper.setRequirements(["Most modes require at least 2 players", Icon.string(IconType.STAR) + " is recommended for your group size"]);
+		this._infoWrappers.set(GameMode.UNKNOWN, infoWrapper);
+	}
 	private populateMode(mode : GameMode, options : ModeOptions) : void {
 		let buttonWrapper = this._modeButtons.addButton(new ModeSelectWrapper());
 		buttonWrapper.elm().style.width = "100%";

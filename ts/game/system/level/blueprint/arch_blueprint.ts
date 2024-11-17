@@ -480,9 +480,10 @@ export class ArchBlueprint extends Blueprint {
 		this.addBuildings(plan);
 
 		let pergolaMod = this.rng().int(2);
-		let tableMod = 1 - pergolaMod;
+		let tableMod = this.rng().int(2);
 
-		for (let i = 0; i < this.numBuildings(); ++i) {
+		const numBuildings = this.numBuildings();
+		for (let i = 0; i < numBuildings; ++i) {
 			let building = this.building(i);
 
 			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
@@ -520,7 +521,9 @@ export class ArchBlueprint extends Blueprint {
 							},
 						});
 					}
-				} else if (block.type() === ArchBlueprint.baseType() && i % 2 === tableMod) {
+				} else if (block.type() === ArchBlueprint.baseType()
+					&& (i < numBuildings / 2 && i % 2 === tableMod)
+						|| (i > numBuildings / 2  && Math.abs(numBuildings - i - 1) % 2 === tableMod)) {
 					block.pushEntityOptions(EntityType.TABLE, {
 						profileInit: {
 							pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.TABLE).y / 2 }),
@@ -548,11 +551,7 @@ export class ArchBlueprint extends Blueprint {
 				});
 				continue;
 			} else if (length % 2 === 1 && i === Math.floor(length / 2)) {
-				if (length >= 7) {
-					currentHeight = currentHeight > 0 ? 0 : maxHeight;
-				} else {
-					currentHeight = currentHeight === maxHeight ? 0 : maxHeight;
-				}
+				currentHeight = currentHeight === maxHeight ? 0 : maxHeight;
 				plan.push({
 					height: currentHeight,
 				});
@@ -566,6 +565,7 @@ export class ArchBlueprint extends Blueprint {
 					[1, () => { currentHeight = 3; }],
 				]);
 			} else if (length % 2 === 0 && i === length / 2 - 1) {
+				// Disallow large gap in middle
 				if (currentHeight > 1) {
 					currentHeight = 1;
 				} else {

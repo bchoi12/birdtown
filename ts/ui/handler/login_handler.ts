@@ -193,8 +193,6 @@ export class LoginHandler extends HandlerBase implements Handler {
 				window.history.replaceState(null, null, url);
 
 		    	this.disable();
-
-		    	ui.pushDialog(DialogType.INIT);
 		    },
 		    netcodeError: () => {
 				if (mode === CreateMode.HOST_AFTER_JOIN) {

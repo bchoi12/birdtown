@@ -31,9 +31,9 @@ export class RedHeadband extends Equip<Player> {
         new BABYLON.Vector3(0, 0, -0.4),
 	];
 
-	private static readonly _chargeDelay = 250;
-	private static readonly _cooldown = 750;
-	private static readonly _groundCooldown = 250;
+	private static readonly _chargeDelay = 300;
+	private static readonly _cooldown = 800;
+	private static readonly _groundCooldown = 500;
 	private static readonly _dashTime = 350;
 	private static readonly _maxJuice = 100;
 	private static readonly _force = -0.8;
@@ -82,6 +82,7 @@ export class RedHeadband extends Equip<Player> {
 		}));
 
 		this.soundPlayer().registerSound(SoundType.DASH);
+		this.soundPlayer().registerSound(SoundType.THROW);
 	}
 
 	override attachType() : AttachType { return AttachType.FOREHEAD; }
@@ -176,6 +177,7 @@ export class RedHeadband extends Equip<Player> {
 			}
 
 			this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());
+			this.soundPlayer().playFromEntity(SoundType.THROW, this.owner());
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {

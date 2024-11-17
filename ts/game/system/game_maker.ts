@@ -139,8 +139,7 @@ export class GameMaker extends SystemBase implements System {
 	getEquips(clientId : number) : [EntityType, EntityType] {
 		let id;
 		if (this.mode() === GameMode.FREE) {
-			return [EntityType.RED_GLOVE, EntityType.RED_HEADBAND];
-			// return EquipPairs.random();
+			return EquipPairs.random();
 		} else if (this.mode() === GameMode.DUEL) {
 			id = this._playerRotator.currentFromAll();
 		} else {

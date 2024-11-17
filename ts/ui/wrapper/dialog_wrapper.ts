@@ -151,7 +151,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	}
 	addOKButton() : ButtonWrapper {
 		let buttonWrapper = new ButtonWrapper();
-		buttonWrapper.setIcon(IconType.CHECK);
+		buttonWrapper.setIcon(IconType.CHECK_CIRCLE);
 		buttonWrapper.setText("OK");
 		buttonWrapper.elm().style.float = "right";
 		buttonWrapper.setHoverColor(ColorFactory.toString(ColorType.UI_GREEN));
