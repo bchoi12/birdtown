@@ -168,7 +168,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 					},
 					modelInit: {
 						transforms: {
-							translate: { z: this._model.mesh().position.z + Fns.randomRange(-0.2, 0.2) },
+							translate: { z: Fns.randomRange(-0.2, 0.2) },
 						},
 						materialType: i % 2 === 1 ? MaterialType.PICKUP_YELLOW : this.outerMaterial(),
 					}

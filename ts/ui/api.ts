@@ -66,6 +66,7 @@ export enum FeedType {
 
 export enum HudType {
 	UNKOWN,
+	BACKFLIP,
 	BLACK_HOLE,
 	BOOSTER,
 	CHARGE,
@@ -81,6 +82,7 @@ export enum HudType {
 	SPRAY,
 	SQUAWK,
 	STAR,
+	SWORDS,
 }
 
 export type HudOptions = {

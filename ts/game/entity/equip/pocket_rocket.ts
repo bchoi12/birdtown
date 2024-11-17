@@ -54,12 +54,13 @@ export class PocketRocket extends Equip<Player> {
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
 
-		if (this._weapon === null || this._weapon.deleted()) {
+		if (this._weapon === null || !this._weapon.valid()) {
 			const weapons = <Weapon[]>this.owner().equips().findN((equip : Equip<Player>) => {
 				return equip.allTypes().has(EntityType.WEAPON) && equip.valid();
 			}, 1);
 
 			if (weapons.length < 1) {
+				this._weapon = null;
 				return;
 			}
 

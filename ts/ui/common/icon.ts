@@ -44,6 +44,7 @@ export enum IconType {
 	TROPHY,
 
 	// HUD
+	BACKFLIP,
 	BATTERY_ERROR,
 	BATTERY_FULL,
 	BIRD,
@@ -64,6 +65,7 @@ export enum IconType {
 	UNLOCK,
 	SPRAY,
 	STAR,
+	SWORDS,
 }
 
 export namespace Icon {
@@ -73,6 +75,7 @@ export namespace Icon {
 		[IconType.ARROW_LEFT, "keyboard_arrow_left"],
 		[IconType.ARROW_RIGHT, "keyboard_arrow_right"],
 		[IconType.ARROW_UP, "keyboard_arrow_up"],
+		[IconType.BACKFLIP, "replay"],
 		[IconType.BATTERY_ERROR, "battery_error"],
 		[IconType.BATTERY_FULL, "battery_full"],
 		[IconType.BIRD, "raven"],
@@ -111,6 +114,7 @@ export namespace Icon {
 		[IconType.SKULL, "skull"],
 		[IconType.SPRAY, "household_supplies"],
 		[IconType.STAR, "star"],
+		[IconType.SWORDS, "swords"],
 		[IconType.TELEKENESIS, "move_selection_right"],
 		[IconType.TIMER, "timer"],
 		[IconType.TROPHY, "trophy"],
@@ -147,9 +151,10 @@ export namespace Icon {
 
 	const entityIcons = new Map<EntityType, IconType>([
 		[EntityType.BAZOOKA, IconType.ROCKET],
-		[EntityType.CLAW, IconType.DASH],
 		[EntityType.GATLING, IconType.GATLING],
 		[EntityType.PISTOL, IconType.ROCKING_HORSE],
+		[EntityType.PURPLE_GLOVE, IconType.STAR],
+		[EntityType.RED_GLOVE, IconType.SWORDS],
 		[EntityType.SHOTGUN, IconType.SPRAY],
 		[EntityType.SNIPER, IconType.BOLT],
 		[EntityType.WING_CANNON, IconType.ROBOT],

@@ -67,6 +67,12 @@ export namespace MaterialFactory {
 			mat.emissiveColor = ColorFactory.color(ColorType.GREEN).toBabylonColor3();
 		});
 
+		standardMaterial(MaterialType.METAL, (mat : BABYLON.StandardMaterial) => {
+			mat.roughness = 0;
+			mat.specularPower = 128;
+			mat.diffuseColor = ColorFactory.color(ColorType.GRAY).toBabylonColor3();
+		});
+
 		standardMaterial(MaterialType.SPAWN_POINT, (mat : BABYLON.StandardMaterial) => {
 			mat.diffuseColor = ColorFactory.color(ColorType.YELLOW).toBabylonColor3();
 		});
@@ -136,6 +142,17 @@ export namespace MaterialFactory {
 		standardMaterial(MaterialType.EASTERN_PURPLE_SOLID_TRAIL, (mat : BABYLON.StandardMaterial) => {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.EASTERN_PURPLE).toBabylonColor3();
+		});
+
+		standardMaterial(MaterialType.EASTERN_RED_TRAIL, (mat : BABYLON.StandardMaterial) => {
+			mat.alpha = 0.7;
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.color(ColorType.EASTERN_RED).toBabylonColor3();
+		});
+
+		standardMaterial(MaterialType.EASTERN_RED_SOLID_TRAIL, (mat : BABYLON.StandardMaterial) => {
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.color(ColorType.EASTERN_RED).toBabylonColor3();
 		});
 
 		gradientMaterial(MaterialType.SKY_DAY, (mat : GradientMaterial) => {

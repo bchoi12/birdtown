@@ -21,7 +21,7 @@ import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
 import { Vec2, Vec3 } from 'util/vector'
 
-export class Headband extends Equip<Player> {
+export class PurpleHeadband extends Equip<Player> {
 
 	private static readonly _trailVertices = [
         new BABYLON.Vector3(0, 0, 0.4),
@@ -45,10 +45,10 @@ export class Headband extends Equip<Player> {
 	private _model : Model;
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.HEADBAND, entityOptions);
+		super(EntityType.PURPLE_HEADBAND, entityOptions);
 
-		this._juice = Headband._maxJuice;
-		this._cooldown = Headband._cooldown;
+		this._juice = PurpleHeadband._maxJuice;
+		this._cooldown = PurpleHeadband._cooldown;
 		this._chargeDelayTimer = this.newTimer({
 			canInterrupt: true,
 		});
@@ -56,7 +56,7 @@ export class Headband extends Equip<Player> {
 			canInterrupt: true,
 		});
 		this._trail = BABYLON.MeshBuilder.ExtrudePolygon(this.name() + "-trail", {
-			shape: Headband._trailVertices,
+			shape: PurpleHeadband._trailVertices,
 			depth: 0.3,
 		}, game.scene(), earcut);
 		this._trail.rotation.x = Math.PI / 2;
@@ -66,7 +66,7 @@ export class Headband extends Equip<Player> {
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
-				MeshFactory.load(MeshType.HEADBAND, (result : LoadResult) => {
+				MeshFactory.load(MeshType.PURPLE_HEADBAND, (result : LoadResult) => {
 					let mesh = result.mesh;
 					model.setMesh(mesh);
 				});
@@ -82,8 +82,8 @@ export class Headband extends Equip<Player> {
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
 		hudData.set(HudType.DASH, {
-			charging: this._juice < Headband._maxJuice,
-			percentGone: 1 - this._juice / Headband._maxJuice,
+			charging: this._juice < PurpleHeadband._maxJuice,
+			percentGone: 1 - this._juice / PurpleHeadband._maxJuice,
 			empty: true,
 			keyType: KeyType.ALT_MOUSE_CLICK,
 			color: this.clientColorOr(ColorFactory.color(ColorType.EASTERN_PURPLE).toString()),
@@ -105,7 +105,7 @@ export class Headband extends Equip<Player> {
 		this._trail.dispose();
 	}
 
-	private canDash() : boolean { return this._juice >= Headband._maxJuice; }
+	private canDash() : boolean { return this._juice >= PurpleHeadband._maxJuice; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
@@ -116,13 +116,13 @@ export class Headband extends Equip<Player> {
 			this.owner().profile().setVel({x: 0, y: 0});
 
 			// Only allow source to jump since otherwise it's jittery.
-			let force = this.inputDir().clone().scale(Headband._force);
+			let force = this.inputDir().clone().scale(PurpleHeadband._force);
 			this.owner().addForce(force);
 
-			this._juice = Math.max(0, this._juice - Headband._maxJuice);
-			this._cooldown = Headband._cooldown;
-			this._chargeDelayTimer.start(Headband._chargeDelay);
-			this._dashTimer.start(Headband._dashTime);
+			this._juice = Math.max(0, this._juice - PurpleHeadband._maxJuice);
+			this._cooldown = PurpleHeadband._cooldown;
+			this._chargeDelayTimer.start(PurpleHeadband._chargeDelay);
+			this._dashTimer.start(PurpleHeadband._dashTime);
 
 			this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());
 		}
@@ -130,9 +130,9 @@ export class Headband extends Equip<Player> {
 		if (!this._chargeDelayTimer.hasTimeLeft()) {
 			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
 				// Touch ground to unlock faster charge rate.
-				this._cooldown = Math.min(this._cooldown, Headband._groundCooldown);
+				this._cooldown = Math.min(this._cooldown, PurpleHeadband._groundCooldown);
 			}
-			this._juice = Math.min(Headband._maxJuice, this._juice + Headband._maxJuice * millis / this._cooldown);
+			this._juice = Math.min(PurpleHeadband._maxJuice, this._juice + PurpleHeadband._maxJuice * millis / this._cooldown);
 		}
 	}
 

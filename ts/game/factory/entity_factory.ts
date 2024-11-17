@@ -16,11 +16,12 @@ import { Bubble } from 'game/entity/equip/bubble'
 import { BirdBrain } from 'game/entity/equip/bird_brain'
 import { Booster } from 'game/entity/equip/booster'
 import { CowboyHat } from 'game/entity/equip/cowboy_hat'
-import { Headband } from 'game/entity/equip/headband'
 import { Headphones } from 'game/entity/equip/headphones'
 import { Jetpack } from 'game/entity/equip/jetpack'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { PocketRocket } from 'game/entity/equip/pocket_rocket'
+import { PurpleHeadband } from 'game/entity/equip/purple_headband'
+import { RedHeadband } from 'game/entity/equip/red_headband'
 import { Scouter } from 'game/entity/equip/scouter'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
@@ -31,9 +32,10 @@ import { BoobyHair } from 'game/entity/equip/headwear/booby_hair'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { RobinHair } from 'game/entity/equip/headwear/robin_hair'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
-import { Claw } from 'game/entity/equip/weapon/claw'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
 import { Pistol } from 'game/entity/equip/weapon/pistol'
+import { PurpleGlove } from 'game/entity/equip/weapon/purple_glove'
+import { RedGlove } from 'game/entity/equip/weapon/red_glove'
 import { Shotgun } from 'game/entity/equip/weapon/shotgun'
 import { Sniper } from 'game/entity/equip/weapon/sniper'
 import { WingCannon } from 'game/entity/equip/weapon/wing_cannon'
@@ -56,6 +58,7 @@ import { TextParticle } from 'game/entity/particle/text_particle'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Bullet } from 'game/entity/projectile/bullet'
 import { Caliber } from 'game/entity/projectile/caliber'
+import { Knife } from 'game/entity/projectile/knife'
 import { Laser } from 'game/entity/projectile/laser'
 import { Orb } from 'game/entity/projectile/orb'
 import { Pellet } from 'game/entity/projectile/pellet'
@@ -87,7 +90,6 @@ export namespace EntityFactory {
 		[EntityType.CALIBER, (options : EntityOptions) => { return new Caliber(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
-		[EntityType.CLAW, (options : EntityOptions) => { return new Claw(options); }],
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.CONTROLS_SIGN, (options : EntityOptions) => { return new ControlsSign(options); }],
 		[EntityType.COWBOY_HAT, (options : EntityOptions) => { return new CowboyHat(options); }],
@@ -96,10 +98,10 @@ export namespace EntityFactory {
 		[EntityType.EAGLE_BEAK, (options : EntityOptions) => { return new EagleBeak(options); }],
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
 		[EntityType.GATLING, (options : EntityOptions) => { return new Gatling(options); }],
-		[EntityType.HEADBAND, (options : EntityOptions) => { return new Headband(options); }],
 		[EntityType.HEADPHONES, (options : EntityOptions) => { return new Headphones(options); }],
 		[EntityType.HEALTH_CRATE, (options : EntityOptions) => { return new HealthCrate(options); }],
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
+		[EntityType.KNIFE, (options : EntityOptions) => { return new Knife(options); }],
 		[EntityType.LASER, (options : EntityOptions) => { return new Laser(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
 		[EntityType.ORB, (options : EntityOptions) => { return new Orb(options); }],
@@ -110,6 +112,10 @@ export namespace EntityFactory {
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.PISTOL, (options : EntityOptions) => { return new Pistol(options); }],
 		[EntityType.POCKET_ROCKET, (options : EntityOptions) => { return new PocketRocket(options); }],
+		[EntityType.PURPLE_GLOVE, (options : EntityOptions) => { return new PurpleGlove(options); }],
+		[EntityType.PURPLE_HEADBAND, (options : EntityOptions) => { return new PurpleHeadband(options); }],
+		[EntityType.RED_GLOVE, (options : EntityOptions) => { return new RedGlove(options); }],
+		[EntityType.RED_HEADBAND, (options : EntityOptions) => { return new RedHeadband(options); }],
 		[EntityType.ROBIN_BEAK, (options : EntityOptions) => { return new RobinBeak(options); }],
 		[EntityType.ROBIN_HAIR, (options : EntityOptions) => { return new RobinHair(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
@@ -143,6 +149,7 @@ export namespace EntityFactory {
 		[EntityType.BOLT, { x: 0.4, y: 0.12, z : 0.12 }],
 		[EntityType.BULLET, { x: 0.4, y: 0.12, z : 0.12 }],
 		[EntityType.CALIBER, { x: 0.5, y: 0.15, z : 0.15 }],
+		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],
 		[EntityType.ORB, { x: 0.3, y: 0.3, z : 0.3 }],
 		[EntityType.PELLET, { x: 0.2, y: 0.2, z : 0.2 }],

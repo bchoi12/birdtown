@@ -24,6 +24,7 @@ export namespace MeshFactory {
 	//  4. read-only for non-mesh results (no references allowed)
 	//  5. prefer meshes that require quick load
 	const cacheTypes = new Set([
+		MeshType.KNIFE,
 		MeshType.ROCKET,
 		MeshType.STAR,
 	]);

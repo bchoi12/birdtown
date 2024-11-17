@@ -21,6 +21,7 @@ enum PositionType {
 export class HudHandler extends HandlerBase implements Handler {
 
 	private static readonly _icons = new Map<HudType, IconType>([
+		[HudType.BACKFLIP, IconType.BACKFLIP],
 		[HudType.BOOSTER, IconType.ROCKET_LAUNCH],
 		[HudType.CHARGE, IconType.BATTERY_FULL],
 		[HudType.DASH, IconType.DASH],
@@ -36,6 +37,7 @@ export class HudHandler extends HandlerBase implements Handler {
 		[HudType.SPRAY, IconType.SPRAY],
 		[HudType.SQUAWK, IconType.MUSIC_NOTE],
 		[HudType.STAR, IconType.STAR],
+		[HudType.SWORDS, IconType.SWORDS],
 	]);
 
 	private static readonly _chargingIcons = new Map<HudType, IconType>([
@@ -44,7 +46,7 @@ export class HudHandler extends HandlerBase implements Handler {
 	]);
 
 	private static readonly _leftBlocks = new Set([HudType.HEALTH]);
-	private static readonly _rightBlocks = new Set([HudType.BULLETS, HudType.ROCKET, HudType.SPRAY, HudType.STAR]);
+	private static readonly _rightBlocks = new Set([HudType.BULLETS, HudType.ROCKET, HudType.SPRAY, HudType.STAR, HudType.SWORDS]);
 
 	private _hudElm : HTMLElement;
 	private _sectionsElm : HTMLElement;

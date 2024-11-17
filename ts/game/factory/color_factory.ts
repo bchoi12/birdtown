@@ -64,6 +64,7 @@ export namespace ColorFactory {
 
 		// Eastern series (showy?)
 		[ColorType.EASTERN_PURPLE, HexColor.fromHex(0x7d3abf)],
+		[ColorType.EASTERN_RED, HexColor.fromHex(0xbc3a3a)],
 
 		// Blaster series (bold, darker colors)
 		[ColorType.BLASTER_RED, HexColor.fromHex(0xbd2804)],
@@ -117,13 +118,14 @@ export namespace ColorFactory {
 		]],
 		[EntityType.BAZOOKA, [ColorType.BLASTER_RED, ColorType.BLASTER_YELLOW]],
 		[EntityType.BOOSTER, [ColorType.SHOOTER_BLUE, ColorType.SHOOTER_YELLOW]],
-		[EntityType.CLAW, [ColorType.EASTERN_PURPLE]],
+		[EntityType.PURPLE_GLOVE, [ColorType.EASTERN_PURPLE]],
 		[EntityType.COWBOY_HAT, [ColorType.WESTERN_BROWN]],
 		[EntityType.GATLING, [ColorType.WESTERN_YELLOW]],
-		[EntityType.HEADBAND, [ColorType.EASTERN_PURPLE]],
 		[EntityType.HEADPHONES, [ColorType.SHOOTER_YELLOW]],
 		[EntityType.JETPACK, [ColorType.BLASTER_RED]],
 		[EntityType.PISTOL, [ColorType.WESTERN_BLACK]],
+		[EntityType.PURPLE_HEADBAND, [ColorType.EASTERN_PURPLE]],
+		[EntityType.RED_HEADBAND, [ColorType.EASTERN_RED]],
 		[EntityType.SCOUTER, [ColorType.SHOOTER_ORANGE]],
 		[EntityType.SHOTGUN, [ColorType.WESTERN_BROWN]],
 		[EntityType.SNIPER, [ColorType.SHOOTER_BLUE]],
