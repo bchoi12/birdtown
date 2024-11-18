@@ -14,6 +14,7 @@ export class ModeSelectWrapper extends ButtonSelectWrapper {
 
 	private _valid : boolean;
 	private _recommended : boolean;
+	private _selected : boolean;
 
 	constructor() {
 		super();
@@ -25,6 +26,7 @@ export class ModeSelectWrapper extends ButtonSelectWrapper {
 
 		this._valid = false;
 		this._recommended = false;
+		this._selected = false;
 		this.setValid(true);
 
 		this.elm().classList.add(Html.classModeSelect);
@@ -55,19 +57,17 @@ export class ModeSelectWrapper extends ButtonSelectWrapper {
 	override select() : void {
 		super.select();
 
-		if (this._valid) {
-			this.setIcon(IconType.CHECK);
-		}
+		this._selected = true;
+
+		this.updateHTML();
 	}
 
 	override unselect() : void {
 		super.unselect();
 
-		if (this._recommended) {
-			this.setIcon(IconType.STAR);
-		} else {
-			this.clearIcon();
-		}
+		this._selected = false;
+
+		this.updateHTML();
 	}
 
 	private setValid(valid : boolean) : void {
@@ -75,14 +75,9 @@ export class ModeSelectWrapper extends ButtonSelectWrapper {
 			return;
 		}
 
-		if (valid) {
-			this.elm().classList.remove(Html.classModeSelectInvalid);
-		} else {
-			this.elm().classList.add(Html.classModeSelectInvalid);
-			this.setRecommended(false);
-		}
-
 		this._valid = valid;
+
+		this.updateHTML();
 	}
 
 	private setRecommended(recommended : boolean) : void {
@@ -90,12 +85,24 @@ export class ModeSelectWrapper extends ButtonSelectWrapper {
 			return;
 		}
 
-		if (recommended) {
+		this._recommended = recommended;
+
+		this.updateHTML();
+	}
+
+	private updateHTML() : void {
+		if (this._valid) {
+			this.elm().classList.remove(Html.classModeSelectInvalid);
+		} else {
+			this.elm().classList.add(Html.classModeSelectInvalid);
+		}
+
+		if (this._selected) {
+			this.setIcon(IconType.CHECK);
+		} else if (this._valid && this._recommended) {
 			this.setIcon(IconType.STAR);
 		} else {
 			this.clearIcon();
 		}
-
-		this._recommended = recommended;
 	}
 }
