@@ -49,6 +49,7 @@ export class WingCannon extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.WHIP; }
 	override meshType() : MeshType { return MeshType.WING_CANNON; }
+	override hudType() : HudType { return HudType.ORBS; }
 
 	override chargedThreshold() : number { return WingCannon._chargedThreshold; }
 

@@ -100,6 +100,7 @@ export namespace Html {
 	export const classLabelValue = "label-value";
 	export const classLoadoutButton = "loadout-button";
 	export const classLoadoutButtonDescription = "loadout-button-description";
+	export const classLoadoutButtonIcon = "loadout-button-icon";
 	export const classLoadoutButtonPlus = "loadout-button-plus";
 	export const classLoadoutButtonPicture = "loadout-button-picture";
 	export const classLoadoutButtonTitle = "loadout-button-title";

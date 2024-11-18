@@ -819,22 +819,33 @@ kbd {
 }
 
 .loadout-button-title {
-    font-size: 1.2em;
+    font-size: 1.3em;
     font-weight: bold;
     line-height: 1.1em;
     padding: 0.3em 0;
+    letter-spacing: 0.03em;
 }
 
 .loadout-button-plus {
-    display: block;
     font-size: 0.6em;
     padding: 0;
     color: #BBBBBB;
+    flex: 1;
 }
 
 .loadout-button-picture {
-    font-size: 4em;
-    padding: 0.2em;
+    white-space: nowrap;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 1em 0;
+}
+.loadout-button-icon {
+    flex: 5;
+    font-size: 3em;
+    padding: 0.1em;
 }
 
 .loadout-button-description {

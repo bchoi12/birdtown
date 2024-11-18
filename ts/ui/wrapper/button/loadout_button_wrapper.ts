@@ -21,7 +21,7 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 
 		this._titleElm = Html.div();
 		this._titleElm.classList.add(Html.classLoadoutButtonTitle);
-		this._pictureElm = Icon.baseElement();
+		this._pictureElm = Html.div();
 		this._pictureElm.classList.add(Html.classLoadoutButtonPicture);
 		this._descriptionElm = Html.div();
 		this._descriptionElm.classList.add(Html.classLoadoutButtonDescription);
@@ -32,15 +32,11 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 	}
 
 	setEquipPair(pair : [EntityType, EntityType]) : void {
-
-		let plus = Html.span();
-		plus.textContent = "+";
-		plus.classList.add(Html.classLoadoutButtonPlus);
 		let first = StringFactory.getEntityTypeName(pair[0]).toTitleString();
 		let second = StringFactory.getEntityTypeName(pair[1]).toTitleString();
-		this.setTitleHTML(first + plus.outerHTML + second);
+		this.setTitleHTML(first + this.plusDiv().outerHTML + second);
 
-		this.setPicture(Icon.getEntityIconType(pair[0]));
+		this.setIcons(Icon.getEntityIconType(pair[0]), Icon.getEntityIconType(pair[1]));
 
 		let mouse = Icon.create(IconType.MOUSE);
 		let description = "";
@@ -49,17 +45,38 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 		this.setDescriptionHTML(description);
 	}
 
-	override setIcon(type : IconType) : void {
-		this.setPicture(type);
-	}
+	override setIcon(type : IconType) : void {}
 
 	private setTitleHTML(html : string) : void {	
 		this._titleElm.innerHTML = html;
 	}
-	private setPicture(type : IconType) : void {
-		Icon.change(this._pictureElm, type);
+	private setIcons(type : IconType, altType : IconType) : void {
+		let icon = Icon.create(type);
+		icon.classList.add(Html.classLoadoutButtonIcon);
+		icon.style.textAlign = "right";
+		this._pictureElm.appendChild(icon);
+
+		this._pictureElm.appendChild(this.plusSpan());
+
+		let altIcon = Icon.create(altType);
+		altIcon.classList.add(Html.classLoadoutButtonIcon);
+		altIcon.style.textAlign = "left";
+		this._pictureElm.appendChild(altIcon);
 	}
 	private setDescriptionHTML(html : string) : void {
 		this._descriptionElm.innerHTML = html;
+	}
+
+	private plusSpan() : HTMLElement {
+		let plus = Html.span();
+		plus.textContent = "+";
+		plus.classList.add(Html.classLoadoutButtonPlus);
+		return plus;
+	}
+	private plusDiv() : HTMLElement {
+		let plus = Html.div();
+		plus.textContent = "+";
+		plus.classList.add(Html.classLoadoutButtonPlus);
+		return plus;
 	}
 }

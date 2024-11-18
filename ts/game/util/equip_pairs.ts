@@ -39,6 +39,9 @@ export namespace EquipPairs {
 	export function randomIndex() : number {
 		return globalRandom.int(weapons.length);
 	}
+	export function randomDefaultPair() : [EntityType, EntityType] {
+		return getDefaultPair(randomIndex());
+	}
 	export function getDefaultPair(index : number) : [EntityType, EntityType] {
 		return [weapons[index], pairs.get(weapons[index])[0]];
 	}

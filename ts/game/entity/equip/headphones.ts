@@ -48,7 +48,7 @@ export class Headphones extends Equip<Player> {
 
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
-		hudData.set(HudType.BLACK_HOLE, {
+		hudData.set(HudType.HEADPHONES, {
 			charging: !this.canUse(),
 			percentGone: this.canUse() ? 0 : (1 - this._timer.percentElapsed()),
 			empty: true,

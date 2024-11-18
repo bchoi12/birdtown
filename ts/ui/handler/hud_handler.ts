@@ -23,14 +23,15 @@ export class HudHandler extends HandlerBase implements Handler {
 	private static readonly _icons = new Map<HudType, IconType>([
 		[HudType.BACKFLIP, IconType.BACKFLIP],
 		[HudType.BOOSTER, IconType.ROCKET_LAUNCH],
+		[HudType.BULLETS, IconType.GATLING],
 		[HudType.CHARGE, IconType.BATTERY_FULL],
 		[HudType.DASH, IconType.DASH],
-		[HudType.BLACK_HOLE, IconType.EARTH],
-		[HudType.BULLETS, IconType.GATLING],
+		[HudType.HEADPHONES, IconType.HEADPHONES],
 		[HudType.HEALTH, IconType.HEART],
 		[HudType.JETPACK, IconType.JET],
 		[HudType.JUICE, IconType.TELEKENESIS],
 		[HudType.MOUSE_LOCK, IconType.LOCK],
+		[HudType.ORBS, IconType.ORBS],
 		[HudType.POCKET_ROCKET, IconType.ROCKET],
 		[HudType.ROCKET, IconType.ROCKET],
 		[HudType.ROLL, IconType.ROLL],
@@ -46,7 +47,7 @@ export class HudHandler extends HandlerBase implements Handler {
 	]);
 
 	private static readonly _leftBlocks = new Set([HudType.HEALTH]);
-	private static readonly _rightBlocks = new Set([HudType.BULLETS, HudType.ROCKET, HudType.SPRAY, HudType.STAR, HudType.SWORDS]);
+	private static readonly _rightBlocks = new Set([HudType.BULLETS, HudType.ORBS, HudType.ROCKET, HudType.SPRAY, HudType.STAR, HudType.SWORDS]);
 
 	private _hudElm : HTMLElement;
 	private _sectionsElm : HTMLElement;
