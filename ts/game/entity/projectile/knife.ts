@@ -101,6 +101,15 @@ export class Knife extends Projectile {
 	override onHit(other : Entity) : void {
 		super.onHit(other);
 
+		this.emitParticles(/*dir=*/-1);
+		this.delete();
+	}
+
+	override onMiss() : void {
+		this.emitParticles(/*dir=*/1);
+	}
+
+	private emitParticles(dir : number) : void {
 		if (this.initialized()) {
 			for (let i = 0; i < 5; ++i) {
 				this.addEntity(EntityType.CUBE_PARTICLE, {
@@ -111,7 +120,7 @@ export class Knife extends Projectile {
 							x: Fns.randomRange(-0.1, 0.1),
 							y: 0,
 						}),
-						vel: this._profile.vel().clone().scale(Fns.randomRange(-0.2, -0.3)),
+						vel: this._profile.vel().clone().scale(dir * Fns.randomRange(0.2, 0.3)),
 						scaling: { x: 0.15, y: 0.15 },
 					},
 					modelInit: {
@@ -123,8 +132,5 @@ export class Knife extends Projectile {
 				});
 			}
 		}
-		this.delete();
 	}
-
-	override onMiss() : void {}
 }

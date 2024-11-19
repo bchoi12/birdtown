@@ -37,7 +37,7 @@ export class RedHeadband extends Equip<Player> {
 	private static readonly _dashTime = 350;
 	private static readonly _maxJuice = 100;
 	private static readonly _force = -0.8;
-	private static readonly _knifeTTL = 750;
+	private static readonly _knifeTTL = 550;
 
 	private _juice : number;
 	private _cooldown : number;
@@ -162,7 +162,7 @@ export class RedHeadband extends Equip<Player> {
 				const pos = this._weapon.shootPos();
 				const unitDir = this._weapon.getDir();
 
-				let vel = unitDir.clone().scale(0.9);
+				let vel = unitDir.clone().scale(0.85);
 				this.addEntity(EntityType.KNIFE, {
 					ttl: RedHeadband._knifeTTL,
 					associationInit: {

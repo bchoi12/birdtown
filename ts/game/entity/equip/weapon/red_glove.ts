@@ -27,7 +27,7 @@ export class RedGlove extends Weapon {
 		]),
 		bursts: 2,
 	};
-	private static readonly _knifeTTL = 750;
+	private static readonly _knifeTTL = 550;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.RED_GLOVE, options);
@@ -45,7 +45,7 @@ export class RedGlove extends Weapon {
 	override shoot(stepData : StepData) : void {
 		const charged = this.charged();
 		const pos = this.shootPos();
-		const vel = this.getDir().setLength(0.9);
+		const vel = this.getDir().setLength(0.85);
 		this.addEntity(EntityType.KNIFE, {
 			ttl: RedGlove._knifeTTL,
 			associationInit: {
