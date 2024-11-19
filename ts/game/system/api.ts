@@ -42,6 +42,13 @@ export enum LevelLayout {
 	CIRCLE,
 }
 
+export enum LoadoutType {
+	UNKNOWN,
+
+	PICK,
+	RANDOM,
+}
+
 export enum PlayerRole {
 	UNKNOWN,
 

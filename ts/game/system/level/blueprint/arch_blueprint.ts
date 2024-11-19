@@ -523,7 +523,7 @@ export class ArchBlueprint extends Blueprint {
 					}
 				} else if (block.type() === ArchBlueprint.baseType()
 					&& (i < numBuildings / 2 && i % 2 === tableMod)
-						|| (i > numBuildings / 2  && Math.abs(numBuildings - i - 1) % 2 === tableMod)) {
+						|| (i >= numBuildings / 2 && (numBuildings - i - 1) % 2 === tableMod)) {
 					block.pushEntityOptions(EntityType.TABLE, {
 						profileInit: {
 							pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.TABLE).y / 2 }),

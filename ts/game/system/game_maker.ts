@@ -8,7 +8,7 @@ import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { ConfigFactory } from 'game/factory/config_factory'
 import { SystemBase, System } from 'game/system'
-import { SystemType, LevelType, LevelLayout, PlayerRole, WinConditionType } from 'game/system/api'
+import { SystemType, LevelType, LevelLayout, LoadoutType, PlayerRole, WinConditionType } from 'game/system/api'
 import { ClientDialog } from 'game/system/client_dialog'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
@@ -137,13 +137,21 @@ export class GameMaker extends SystemBase implements System {
 		}
 	}
 	getEquips(clientId : number) : [EntityType, EntityType] {
-		let id;
-		if (this.mode() === GameMode.FREE) {
+		if (this._config.type() === GameMode.FREE) {
 			return EquipPairs.randomDefaultPair();
-		} else if (this.mode() === GameMode.DUEL) {
-			id = this._playerRotator.currentFromAll();
-		} else {
-			id = clientId;
+		}
+
+		if (this._config.getStartingLoadout() === LoadoutType.RANDOM) {
+			return EquipPairs.random();
+		}
+
+		let id = 0;
+		if (this._config.getStartingLoadout() === LoadoutType.PICK) {
+			if (this._config.type() === GameMode.DUEL) {
+				id = this._playerRotator.currentFromAll();
+			} else {
+				id = clientId;
+			}
 		}
 
 		if (game.clientDialogs().hasClientDialog(id)) {
@@ -282,6 +290,9 @@ export class GameMaker extends SystemBase implements System {
 					this.processKillOn(player);
 					if (!game.tablet(clientId).outOfLives()) {
 						playerState.waitUntil(PlayerRole.PREPARING, GameMaker._respawnTime, () => {
+							if (this._config.getStartingLoadout() !== LoadoutType.PICK) {
+								return;
+							}
 							if (game.clientDialogs().hasClientDialog(clientId)) {
 								game.clientDialog(clientId).queueDialog(DialogType.LOADOUT);
 							}
@@ -510,6 +521,10 @@ export class GameMaker extends SystemBase implements System {
 	}
 
 	private showSetupDialogs() : void {
+		if (this._config.getStartingLoadout() === LoadoutType.RANDOM) {
+			return;
+		}
+
 		if (this.mode() === GameMode.DUEL) {
 			const nextId = this._playerRotator.nextFromAll();
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {

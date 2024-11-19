@@ -1,7 +1,7 @@
 
 import { GameMode } from 'game/api'
 import { FrequencyType } from 'game/entity/api'
-import { LevelLayout, LevelType, WinConditionType } from 'game/system/api'
+import { LevelLayout, LevelType, LoadoutType, WinConditionType } from 'game/system/api'
 import { Message, MessageBase, Descriptor, FieldDescriptor } from 'message'
 
 enum GameConfigProp {
@@ -16,6 +16,7 @@ enum GameConfigProp {
 	PLAYERS_MAX,
 	POINTS,
 	RESET_POINTS,
+	STARTING_LOADOUT,
 	TIME_SETUP,
 	TIME_GAME,
 	TIME_FINISH,
@@ -43,6 +44,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameConfigProp.LEVEL_SEED, {}],
 		[GameConfigProp.LEVEL_TYPE, {}],
 		[GameConfigProp.HEALTH_CRATE_SPAWN, {}],
+		[GameConfigProp.STARTING_LOADOUT, {}],
 		[GameConfigProp.WEAPON_CRATE_SPAWN, {}],
 		[GameConfigProp.WIN_CONDITION, {}],
 	];
@@ -115,6 +117,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelType(LevelType.LOBBY);
 			this.setLevelLayout(LevelLayout.CIRCLE);
 			this.setLevelSeed(Math.floor(33 * Math.random()));
+			this.setStartingLoadout(LoadoutType.RANDOM);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setWinCondition(WinConditionType.NONE);
@@ -125,7 +128,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		this.setLevelLayout(LevelLayout.CIRCLE);
 		this.setLevelSeed(Math.floor(100000 * Math.random()));
 
-		this.setTimeSetup(15000);
+		this.setTimeSetup(20000);
 		this.setTimeFinish(4000);
 		this.setTimeVictory(8000);
 		this.setTimeError(5000);
@@ -141,6 +144,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelType(LevelType.DUELTOWN);
 			this.setLevelLayout(LevelLayout.NORMAL);
 			this.setLives(1);
+			this.setStartingLoadout(LoadoutType.PICK);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.TEAM_LIVES);
 			break;
@@ -149,6 +153,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setPoints(4);
+			this.setStartingLoadout(LoadoutType.PICK);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.POINTS);
 			break;
@@ -156,6 +161,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setPlayersMin(1);
 			this.setTimeSetup(Infinity);
 			this.setHealthCrateSpawn(FrequencyType.HIGH);
+			this.setStartingLoadout(LoadoutType.PICK);
 			this.setWeaponCrateSpawn(FrequencyType.HIGH);
 			this.setWinCondition(WinConditionType.NONE);
 			break;
@@ -163,6 +169,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLives(1);
 			this.setPlayersMin(2);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setStartingLoadout(LoadoutType.PICK);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.LIVES);
@@ -173,6 +180,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelType(LevelType.BIRDTOWN);
 			this.setLevelLayout(LevelLayout.NORMAL);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setStartingLoadout(LoadoutType.PICK);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.TEAM_LIVES);
@@ -229,6 +237,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getResetPointsOr(value : boolean) : boolean { return this.getOr<boolean>(GameConfigProp.RESET_POINTS, value); }
     setResetPoints(value : boolean) : void { this.set<boolean>(GameConfigProp.RESET_POINTS, value); }
 
+    hasStartingLoadout() : boolean { return this.has(GameConfigProp.STARTING_LOADOUT); }
+    getStartingLoadout() : LoadoutType { return this.get<LoadoutType>(GameConfigProp.STARTING_LOADOUT); }
+    getStartingLoadoutOr(value : LoadoutType) : LoadoutType { return this.getOr<LoadoutType>(GameConfigProp.STARTING_LOADOUT, value); }
+    setStartingLoadout(value : LoadoutType) : void { this.set<LoadoutType>(GameConfigProp.STARTING_LOADOUT, value); }
+
     hasTimeSetup() : boolean { return this.has(GameConfigProp.TIME_SETUP); }
     getTimeSetup() : number { return this.get<number>(GameConfigProp.TIME_SETUP); }
     getTimeSetupOr(value : number) : number { return this.getOr<number>(GameConfigProp.TIME_SETUP, value); }
@@ -280,6 +293,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     ["PLAYERS_MAX", "number"],
     ["POINTS", "number"],
     ["RESET_POINTS", "boolean"],
+    ["STARTING_LOADOUT", "LoadoutType"],
     ["TIME_SETUP", "number"],
     ["TIME_GAME", "number"],
     ["TIME_FINISH", "number"],

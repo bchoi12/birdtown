@@ -110,9 +110,7 @@ export class RedHeadband extends Equip<Player> {
 	override delete() : void {
 		super.delete();
 
-		if (this._dashTimer.hasTimeLeft()) {
-			this.owner().model().rotation().z = 0;
-		}
+		this.owner().model().rotation().z = 0;
 	}
 
 	override dispose() : void {

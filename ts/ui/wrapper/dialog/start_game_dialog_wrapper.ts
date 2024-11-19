@@ -3,7 +3,7 @@ import { game } from 'game'
 import { GameMode } from 'game/api'
 import { FrequencyType } from 'game/entity/api'
 import { ConfigFactory } from 'game/factory/config_factory'
-import { PlayerRole, WinConditionType } from 'game/system/api'
+import { LoadoutType, PlayerRole, WinConditionType } from 'game/system/api'
 import { Controller } from 'game/system/controller'
 import { PlayerConfig, PlayerInfo } from 'game/util/player_config'
 
@@ -314,6 +314,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			options.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
 			options.contentElm().appendChild(this.resetPointsWrapper(this._configMsg).elm());
+			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
@@ -324,11 +325,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		case GameMode.SURVIVAL:
 			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			options.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());			
+			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.TEAM_BATTLE:
 			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
@@ -422,6 +425,37 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			get: () => { return msg.getVictories(); },
 			html: (current : number) => {
 				return current + " win" + (current === 1 ? "" : "s");
+			},
+		});
+	}
+	private loadoutWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
+			label: "Starting Loadout",
+			value: Number(msg.getStartingLoadout()),
+			plus: (current : number) => {
+				if (current === LoadoutType.PICK) {
+					msg.setStartingLoadout(LoadoutType.RANDOM);
+				} else {
+					msg.setStartingLoadout(LoadoutType.PICK);
+				}
+			},
+			minus: (current : number) => {
+				if (current === LoadoutType.PICK) {
+					msg.setStartingLoadout(LoadoutType.RANDOM);
+				} else {
+					msg.setStartingLoadout(LoadoutType.PICK);
+				}
+			},
+			get: () => { return msg.getStartingLoadout(); },
+			html: (current : number) => {
+				switch (current) {
+				case LoadoutType.PICK:
+					return "Pick";
+				case LoadoutType.RANDOM:
+					return "Random";
+				default:
+					return "???";
+				}
 			},
 		});
 	}
