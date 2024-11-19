@@ -97,21 +97,18 @@ export class TextParticle extends Particle {
 		texture.drawText(this._text, /*x=*/null, /*y=*/null, this._font, this._textColor, TextParticle._fillColor, /*invertY=*/false);
 		texture.hasAlpha = true;
 
+		let material = new BABYLON.StandardMaterial(this.name() + "-material", game.scene());
+		material.diffuseTexture = texture;
+		material.alpha = this._alpha;
+		material.useAlphaFromDiffuseTexture = true;
+
+		model.mesh().material = material;
 		model.mesh().renderingGroupId = 1;
 		model.mesh().receiveShadows = false;
 		model.mesh().rotation.z = Math.PI;
 		model.mesh().billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL;
-
-		let material = model.material<BABYLON.StandardMaterial>()
-		material.diffuseTexture = texture;
-
-		material.alpha = this._alpha;
-		material.useAlphaFromDiffuseTexture = true;
 	}
 
-	override getMesh() : BABYLON.Mesh {
-		return ParticleFactory.getMesh(this.particleType());
-	}
 	override updateParticle(stepData : StepData) : void {
 		if (!this.model().hasMesh()) {
 			return;

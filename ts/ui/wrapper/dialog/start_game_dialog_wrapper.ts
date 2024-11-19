@@ -43,6 +43,7 @@ type ModeOptions = {
 export class StartGameDialogWrapper extends DialogWrapper {
 
 	private _mode : GameMode;
+	private _currentMode : GameMode;
 	private _modeButtons : ButtonGroupWrapper<ModeSelectWrapper>;
 	private _infoWrappers : Map<GameMode, ModeInfoWrapper>;
 
@@ -53,6 +54,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		super();
 
 		this._mode = GameMode.UNKNOWN;
+		this._currentMode = GameMode.UNKNOWN;
 		this._modeButtons = new ButtonGroupWrapper();
 		this._infoWrappers = new Map();
 
@@ -98,6 +100,10 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		this._modeButtons.buttons().forEach((button : ModeSelectWrapper) => {
 			button.setNumPlayers(game.tablets().numSetup());
+		});
+
+		this._infoWrappers.forEach((wrapper : ModeInfoWrapper) => {
+			wrapper.clearError();
 		});
 
 		if (this._playerConfigWrapper === null) {
@@ -170,18 +176,20 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setCanSubmit(() => {
-			const [startErrors, canStart] = Controller.canStart(this._mode);
+			const mode = this.getMode();
+			const [startErrors, canStart] = Controller.canStart(mode);
 			if (!canStart) {
-				this._infoWrappers.get(this._mode).setErrors(startErrors);
+				this._infoWrappers.get(mode).setErrors(startErrors);
 			}
 			return canStart;
 		});
 
 		pageWrapper.setOnSubmit(() => {
-			if (this._mode === GameMode.UNKNOWN) {
+			const mode = this.getMode();
+			if (mode === GameMode.UNKNOWN) {
 				this.cancel();
 			} else {
-				this.addModePage(this._mode);
+				this.addModePage(mode);
 			}
 		});
 	}
@@ -265,6 +273,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this._mode = mode;
 		this.showMode(mode);
 	}
+	private getMode() : GameMode { return this._mode === GameMode.UNKNOWN ? this._currentMode : this._mode; }
 	private showMode(mode : GameMode) : void {
 		this._infoWrappers.forEach((wrapper : ModeInfoWrapper, wrapperMode : GameMode) => {
 			if (mode === wrapperMode) {
@@ -273,6 +282,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				wrapper.hide();
 			}
 		});
+		this._currentMode = mode;
 	}
 
 	private addModePage(mode : GameMode) : void {
@@ -354,7 +364,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 	private pointsWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
 		return new LabelNumberWrapper({
-			label: "Points for a win",
+			label: "Score limit",
 			value: msg.getPoints(),
 			plus: (current : number) => {
 				msg.setPoints(Math.min(current + 1, max));
@@ -363,6 +373,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				msg.setPoints(Math.max(min, current - 1));
 			},
 			get: () => { return msg.getPoints(); },
+			html: (current : number) => {
+				return current + " point" + (current === 1 ? "" : "s");
+			},
 		});
 	}
 	private resetPointsWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
