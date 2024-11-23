@@ -505,7 +505,7 @@ kbd {
 }
 
 .hud-block-charging {
-    background: rgba(0.5, 0.5, 0.5, 0.1);
+    background: rgba(128, 128, 128, 0.1);
 }
 
 .hud-text {
@@ -617,6 +617,7 @@ kbd {
 }
 
 #div-sub-announcement {
+    padding-top: 0.2em;
     font-size: 1em;
 }
 
@@ -629,7 +630,7 @@ kbd {
     top: 10%;
 
     border-radius: 0.5em;
-    background-color: rgba(0.1, 0.1, 0.1, 0.9);
+    background-color: rgba(25, 25, 25, 0.9);
 }
 
 .dialog-small {
