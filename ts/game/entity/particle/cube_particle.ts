@@ -27,12 +27,6 @@ export class CubeParticle extends Particle {
 		this._profile.setAcc({ y: GameGlobals.gravity });
 	}
 
-	override bodyFn(profile : Profile) : MATTER.Body {
-		return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
-			collisionFilter: BodyFactory.customCollisionFilter(CollisionCategory.HIT_BOX, [CollisionCategory.BOUND, CollisionCategory.SOLID]),
-		});
-	}
-
 	override initialize() : void {
 		super.initialize();
 

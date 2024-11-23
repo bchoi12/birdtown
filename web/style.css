@@ -628,7 +628,7 @@ kbd {
     left: 15%;
     top: 10%;
 
-    border-radius: 1em;
+    border-radius: 0.5em;
     background-color: rgba(0.1, 0.1, 0.1, 0.9);
 }
 
