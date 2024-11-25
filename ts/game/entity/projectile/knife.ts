@@ -92,15 +92,10 @@ export class Knife extends Projectile {
 			this._profile.setAngle(vel.angleRad());
 		}
 
-		if (!this._model.hasMesh()) {
-			return;
-		}
-
 		this._trail.scaling.x += millis / 100;
 		if (this._trail.scaling.x > 1) {
 			this._trail.scaling.x = 1;
 		}
-		this._model.rotation().z = this._profile.vel().angleRad();
 	}
 
 

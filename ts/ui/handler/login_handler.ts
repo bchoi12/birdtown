@@ -121,7 +121,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 			} else {
 				this._infoDotsElm.textContent += ".";
 			}
-		}, 800));
+		}, 500));
 	}
 	private showLogin() : void {
 		this._loginInfoElm.style.display = "none";
