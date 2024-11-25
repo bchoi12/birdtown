@@ -560,7 +560,7 @@ export class ArchBlueprint extends Blueprint {
 
 			if (i === 1) {
 				this.rng().switch([
-					[0.2, () => { currentHeight = 1; }],
+					[0.3, () => { currentHeight = 1; }],
 					[0.6, () => { currentHeight = 2; }],
 					[1, () => { currentHeight = 3; }],
 				]);
@@ -573,26 +573,26 @@ export class ArchBlueprint extends Blueprint {
 				}
 			} else if (currentHeight === 0) {
 				this.rng().switch([
-					[0.5, () => { currentHeight = 1; }],
-					[0.9, () => { currentHeight = 2; }],
+					[0.4, () => { currentHeight = 1; }],
+					[0.8, () => { currentHeight = 2; }],
 					[1, () => { currentHeight = 3; }],
 				]);
 			} else if (currentHeight === 1) {
 				this.rng().switch([
-					[0.3, () => { currentHeight = 0; }],
-					[0.8, () => { currentHeight = 2; }],
+					[0.4, () => { currentHeight = 0; }],
+					[0.6, () => { currentHeight = 2; }],
 					[1, () => { currentHeight = 3; }],
 				]);
 			} else if (currentHeight === 2) {
 				this.rng().switch([
-					[0.2, () => { currentHeight = 0; }],
-					[0.7, () => { currentHeight = 1; }],
+					[0.4, () => { currentHeight = 0; }],
+					[0.8, () => { currentHeight = 1; }],
 					[1, () => { currentHeight = 3; }],
 				]);
 			} else {
 				this.rng().switch([
-					[0.1, () => { currentHeight = 0; }],
-					[0.5, () => { currentHeight = 1; }],
+					[0.2, () => { currentHeight = 0; }],
+					[0.8, () => { currentHeight = 1; }],
 					[1, () => { currentHeight = 2; }],
 				]);
 			}

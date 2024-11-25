@@ -38,8 +38,7 @@ export class Client extends Netcode {
 			console.log("Opened client connection for " + peer.id);
 
 			this.registerCallbacks();
-			this._pinger.initializeForClient(this);
-			this.initTCP(onSuccess);
+			this.initTCP(onSuccess, onError);
 		});
 
 		peer.on("error", (e) => {
@@ -119,7 +118,7 @@ export class Client extends Netcode {
 		});
 	}
 
-	private initTCP(onSuccess : () => void) : void {
+	private initTCP(onSuccess : () => void, onError : () => void) : void {
 		let peer = this.peer();
 
 		this._tcp = peer.connect(this.hostName(), {
@@ -131,12 +130,17 @@ export class Client extends Netcode {
 		this._tcp.on("open", () => {
 			console.log("Opened TCP connection for " + peer.id);
 
+			this._pinger.initializeForClient(this);
 			this.register(this._tcp);
-			this.initUDP(onSuccess);
+			this.initUDP(onSuccess, onError);
 		});
 
 		this._tcp.on("error", (error) => {
-			console.error("TCP: " + error);
+			console.error("TCP connection failed: " + error);
+
+			if (!this._initialized) {
+				onError();
+			}
 		});
 
 		this._tcp.on("close", () => {
@@ -150,7 +154,7 @@ export class Client extends Netcode {
 		});
 	}
 
-	private initUDP(onSuccess : () => void) : void {
+	private initUDP(onSuccess : () => void, onError : () => void) : void {
 		let peer = this.peer();
 
 		this._udp = peer.connect(this.hostName(), {
@@ -168,7 +172,11 @@ export class Client extends Netcode {
 		});
 
 		this._udp.on("error", (error) => {
-			console.error("UDP: " + error);
+			console.error("UDP connection failed: " + error);
+
+			if (!this._initialized) {
+				onError();
+			}
 		});
 
 		this._udp.on("close", () => {

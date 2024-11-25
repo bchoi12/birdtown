@@ -97,6 +97,7 @@ export class Keys extends ClientSideSystem implements System {
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
+
 		if (this.isSource()) {
 			this.updateMouse();
 		}
@@ -104,6 +105,7 @@ export class Keys extends ClientSideSystem implements System {
 
 	override postUpdate(stepData : StepData) : void {
 		super.postUpdate(stepData);
+
 		if (this.isSource()) {
 			this.updateMouse();
 		}

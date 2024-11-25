@@ -98,5 +98,5 @@ export class PocketRocket extends Equip<Player> {
 		this._timer.start(PocketRocket._reloadTime);
 	}
 
-	private canUse() : boolean { return !this._timer.hasTimeLeft() || this._weapon === null; }
+	private canUse() : boolean { return !this._timer.hasTimeLeft() && this._weapon !== null; }
 }
