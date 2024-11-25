@@ -56,6 +56,7 @@ export abstract class Block extends EntityBase {
 	protected static readonly _transparentAlpha = 0.5;
 
 	protected _occludedEntities : Set<Entity>;
+	protected _alpha : number;
 	protected _transparent : boolean;
 	protected _canTransparent : boolean;
 	protected _materialCache : Map<string, CachedMaterial>;
@@ -75,6 +76,7 @@ export abstract class Block extends EntityBase {
 
 		this._occludedEntities = new Set();
 		this._canTransparent = false;
+		this._alpha = 1;
 		this._transparent = false;
 		this._materialCache = new Map();
 		this._frontMaterials = new Set();
@@ -161,32 +163,45 @@ export abstract class Block extends EntityBase {
 
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
-		const millis = stepData.millis;
 
-		if (this._canTransparent) {
-			this.checkTransparent();
+		if (!this._canTransparent) {
+			return;
 		}
 
+		const millis = stepData.millis;
+
+		const changed = this.checkTransparent();
+
 		this._profile.setVisible(this.canOcclude() && !this.transparent());
-		if (this.transparent()) {
+		if (this.transparent() && this._alpha > 0) {
+			this._alpha = Math.max(0, this._alpha - millis / Block._transitionMillis);
+
 			this._frontMaterials.forEach((name : string) => {
 				const cached = this._materialCache.get(name);
-				cached.material.alpha = Math.max(Block._minOpacity, cached.material.alpha - millis / Block._transitionMillis);
+				cached.material.alpha = Math.max(Block._minOpacity, this._alpha);
 			});
-			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
-				mesh.isVisible = false;
-			});
-		} else {
+
+			if (changed) {
+				this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
+					mesh.isVisible = false;
+				});
+			}
+		} else if (!this.transparent() && this._alpha < 1) {
+			this._alpha = Math.min(1, this._alpha + millis / (3 * Block._transitionMillis));
+
 			this._occludedEntities.forEach((entity : Entity) => {
 				entity.profile().setOccluded(true);
 			});
 			this._frontMaterials.forEach((name : string) => {
 				const cached = this._materialCache.get(name);
-				cached.material.alpha = Math.min(cached.alpha, cached.material.alpha + millis / (2 * Block._transitionMillis));
+				cached.material.alpha = Math.min(cached.alpha, this._alpha);
 			});
-			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
-				mesh.isVisible = true;
-			});
+
+			if (changed) {
+				this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
+					mesh.isVisible = true;
+				});
+			}
 		}
 	}
 
@@ -284,26 +299,28 @@ export abstract class Block extends EntityBase {
 
 	protected canOcclude() : boolean { return !(this._frontMaterials.size === 0 && this._transparentFrontMeshes.length === 0); }
 
-	protected checkTransparent() : void {
-		this._transparent = false;
+	protected checkTransparent() : boolean {
+		let transparent = this._transparent;
 
+		this._transparent = false;
 		if (this.hasOpenings() && this.openings().empty()) {
-			return;
+			return this._transparent !== transparent;
 		}
 
 		if (!game.lakitu().validTargetEntity()) {
-			return;
+			return this._transparent !== transparent;
 		}
 
 		const target = game.lakitu().targetEntity();
 		if (!target.hasProfile()) {
-			return;
+			return this._transparent !== transparent;
 		}
 
 		if (!this._profile.bufferContains(target.profile().pos(), { x: 4, y: 0 })) {
-			return;
+			return this._transparent !== transparent;
 		}
 
 		this._transparent = true;
+		return this._transparent !== transparent;
 	}
 }
