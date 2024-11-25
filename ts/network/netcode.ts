@@ -211,7 +211,7 @@ export abstract class Netcode {
 			}
 
 			if (this._pinger.millisSincePing(id) >= Netcode._pingTimeoutMillis) {
-				console.error("Connection to " + id + " timed out");
+				console.error(`Connection to ${id} timed out`);
 				this.disconnect(id);
 
 				if (!this.isHost()) {

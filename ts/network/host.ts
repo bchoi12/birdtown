@@ -10,7 +10,7 @@ import { Connection } from 'network/connection'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
-import { ChatType, TempStatusType } from 'ui/api'
+import { ChatType, StatusType, TempStatusType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -46,7 +46,7 @@ export class Host extends Netcode {
 
 		let peer = this.peer();
 		peer.on("open", () => {
-			console.log("Opened host connection for " + peer.id);
+			console.log(`Opened host connection for ${peer.id}`);
 
 		    peer.on("connection", (connection : DataConnection) => {
 		    	connection.on("open", () => {
@@ -69,6 +69,7 @@ export class Host extends Netcode {
 	    peer.on("error", (e) => {
 	    	if (this._initialized) {
 		    	ui.showTempStatus(TempStatusType.DISCONNECTED_SIGNALING);
+		    	ui.disableStatus(StatusType.LOBBY);
 	    	} else {
 	    		onError();
 	    	}
@@ -105,7 +106,7 @@ export class Host extends Netcode {
 	}
 
 	override sendChat(clientId : number, message : string) : void {
-		if (message.length <= 0) {
+		if (message.length <= 0) {	
 			return;
 		}
 

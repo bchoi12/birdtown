@@ -229,6 +229,7 @@ class UI {
 	showLobbyStatuses() : void { this._statusHandler.showLobbyStatuses(); }
 	clearStatus(type : StatusType) : void { this._statusHandler.clearStatus(type); }
 	clearAllStatuses() : void { this._statusHandler.clearAll(); }
+	disableStatus(type : StatusType) : void { this._statusHandler.disableStatus(type); }
 	disableTempStatus(type : TempStatusType) : void { this._statusHandler.disableTempStatus(type); }
 	usingTray() : boolean { return this._trayHandler.hasMouse(); }
 

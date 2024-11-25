@@ -35,9 +35,7 @@ export class Client extends Netcode {
 
 		let peer = this.peer();
 		peer.on("open", () => {
-			if (isLocalhost()) {
-				console.log("Opened client connection for " + peer.id);
-			}
+			console.log("Opened client connection for " + peer.id);
 
 			this.registerCallbacks();
 			this._pinger.initializeForClient(this);
@@ -131,6 +129,8 @@ export class Client extends Netcode {
 		});
 
 		this._tcp.on("open", () => {
+			console.log("Opened TCP connection for " + peer.id);
+
 			this.register(this._tcp);
 			this.initUDP(onSuccess);
 		});
@@ -160,6 +160,8 @@ export class Client extends Netcode {
 		});
 
 		this._udp.on("open", () => {
+			console.log("Opened UDP connection for " + peer.id);
+
 			this.register(this._udp);
 			this._initialized = true;
 			onSuccess();

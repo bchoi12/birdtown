@@ -46,7 +46,8 @@ export class StatusHandler extends HandlerBase implements Handler {
 	private _tempStatusWrappers : Map<TempStatusType, StatusWrapper>;
 	private _permanent : StatusType;
 	private _temporary : TempStatusType;
-	private _disabled : Set<TempStatusType>;
+	private _disabled : Set<StatusType>;
+	private _disabledTemp : Set<TempStatusType>;
 
 	constructor() {
 		super(HandlerType.STATUS);
@@ -57,6 +58,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 		this._permanent = StatusType.UNKNOWN;
 		this._temporary = TempStatusType.UNKNOWN;
 		this._disabled = new Set();
+		this._disabledTemp = new Set();
 	}
 
 	override setup() : void {
@@ -101,8 +103,12 @@ export class StatusHandler extends HandlerBase implements Handler {
 
 
 	displayedStatus() : StatusType | TempStatusType { return this._temporary !== TempStatusType.UNKNOWN ? this._temporary : this._permanent; }
-	disableTempStatus(type : TempStatusType) : void {
+	disableStatus(type : StatusType) : void {
 		this._disabled.add(type);
+		this.clearStatus(type);
+	}
+	disableTempStatus(type : TempStatusType) : void {
+		this._disabledTemp.add(type);
 		this.clearTempStatus(type);
 	}
 	clearAll() : void {
@@ -119,6 +125,9 @@ export class StatusHandler extends HandlerBase implements Handler {
 	}
 
 	showStatus(type : StatusType) : void {
+		if (this._disabled.has(type)) {
+			return;
+		}
 		if (type === StatusType.UNKNOWN) {
 			return;
 		}
@@ -167,7 +176,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 	}
 
 	showTempStatus(type : TempStatusType) : void {
-		if (this._disabled.has(type)) {
+		if (this._disabledTemp.has(type)) {
 			return;
 		}
 		if (!this._tempStatusWrappers.has(type)) {
