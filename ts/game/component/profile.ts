@@ -511,32 +511,27 @@ export class Profile extends ComponentBase implements Component {
 		this._scaling.copyVec(vec);
 	}
 
-	contains(point : Vec, buffer? : number) : boolean {
-		if (!buffer) {
-			buffer = 0;
-		}
-
+	contains(point : Vec) : boolean {
+		return this.bufferContains(point, { x: 0, y: 0 });
+	}
+	bufferContains(point : Vec, buffer : Vec) : boolean {
 		const dim = this.scaledDim();
 
-		if (point.x > this._pos.x + dim.x / 2 + buffer) { return false; }
-		if (point.x < this._pos.x - dim.x / 2 - buffer) { return false; }
-		if (point.y > this._pos.y + dim.y / 2 + buffer) { return false; }
-		if (point.y < this._pos.y - dim.y / 2 - buffer) { return false; }
+		if (point.x > this._pos.x + dim.x / 2 + buffer.x) { return false; }
+		if (point.x < this._pos.x - dim.x / 2 - buffer.x) { return false; }
+		if (point.y > this._pos.y + dim.y / 2 + buffer.y) { return false; }
+		if (point.y < this._pos.y - dim.y / 2 - buffer.y) { return false; }
 
 		return true;
 	}
-	containsProfile(profile : Profile, buffer? : number) : boolean {
-		if (!buffer) {
-			buffer = 0;
-		}
-
+	containsProfile(profile : Profile) : boolean {
 		const dim = this.scaledDim();
 		const otherPos = profile.pos();
 		const otherDim = profile.scaledDim();
-		if (otherPos.x + otherDim.x / 2 > this._pos.x + dim.x / 2 + buffer) { return false; }
-		if (otherPos.x - otherDim.x / 2 < this._pos.x - dim.x / 2 - buffer) { return false; }
-		if (otherPos.y + otherDim.y / 2 > this._pos.y + dim.y / 2 + buffer) { return false; }
-		if (otherPos.y - otherDim.y / 2 < this._pos.y - dim.y / 2 - buffer) { return false; }
+		if (otherPos.x + otherDim.x / 2 > this._pos.x + dim.x / 2) { return false; }
+		if (otherPos.x - otherDim.x / 2 < this._pos.x - dim.x / 2) { return false; }
+		if (otherPos.y + otherDim.y / 2 > this._pos.y + dim.y / 2) { return false; }
+		if (otherPos.y - otherDim.y / 2 < this._pos.y - dim.y / 2) { return false; }
 
 		return true;
 	}

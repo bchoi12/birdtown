@@ -18,6 +18,8 @@ import { CollisionCategory, ColorType, DepthType, MeshType } from 'game/factory/
 import { BodyFactory } from 'game/factory/body_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
+import { Flags } from 'global/flags'
+
 import { Cardinal, CardinalDir, CardinalType } from 'util/cardinal'
 import { HexColor } from 'util/hex_color'
 import { Optional } from 'util/optional'
@@ -55,6 +57,7 @@ export abstract class Block extends EntityBase {
 
 	protected _occludedEntities : Set<Entity>;
 	protected _transparent : boolean;
+	protected _canTransparent : boolean;
 	protected _materialCache : Map<string, CachedMaterial>;
 	protected _frontMaterials : Set<string>
 	protected _transparentFrontMeshes : Array<BABYLON.Mesh>;
@@ -71,6 +74,7 @@ export abstract class Block extends EntityBase {
 		this.addType(EntityType.BLOCK);
 
 		this._occludedEntities = new Set();
+		this._canTransparent = false;
 		this._transparent = false;
 		this._materialCache = new Map();
 		this._frontMaterials = new Set();
@@ -86,7 +90,7 @@ export abstract class Block extends EntityBase {
 				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
 					isSensor: true,
 					isStatic: true,
-					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE),
+					collisionFilter: Flags.enableMinimap.get() ? BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE) : BodyFactory.neverCollideFilter(),
 				});
 			},
 			init: entityOptions.profileInit,
@@ -101,6 +105,10 @@ export abstract class Block extends EntityBase {
 				MeshFactory.load(this.meshType(), (result : LoadResult) => {
 					let mesh = result.mesh;
 					this.processMesh(mesh);
+
+					if (this._frontMaterials.size > 0 || this._transparentFrontMeshes.length > 0) {
+						this._canTransparent = true;
+					}
 
 					model.translation().copyVec(this.meshOffset());
 					model.setFrozen(true);
@@ -136,7 +144,6 @@ export abstract class Block extends EntityBase {
 	override prePhysics(stepData : StepData) : void {
 		super.prePhysics(stepData);
 
-		this._transparent = false;
 		this._occludedEntities.clear();
 	}
 
@@ -150,26 +157,15 @@ export abstract class Block extends EntityBase {
 		if (this.profile().containsProfile(other.profile())) {
 			this._occludedEntities.add(other);
 		}
-
-		if (!game.lakitu().validTargetEntity()) {
-			return;
-		}
-
-		const target = game.lakitu().targetEntity();
-		if (target.id() !== other.id() || !target.hasProfile()) {
-			return;
-		}
-
-		if (!this._profile.contains(target.profile().pos())) {
-			return;
-		}
-
-		this._transparent = true;
 	}
 
 	override postPhysics(stepData : StepData) : void {
 		super.postPhysics(stepData);
 		const millis = stepData.millis;
+
+		if (this._canTransparent) {
+			this.checkTransparent();
+		}
 
 		this._profile.setVisible(this.canOcclude() && !this.transparent());
 		if (this.transparent()) {
@@ -186,7 +182,7 @@ export abstract class Block extends EntityBase {
 			});
 			this._frontMaterials.forEach((name : string) => {
 				const cached = this._materialCache.get(name);
-				cached.material.alpha = Math.min(cached.alpha, cached.material.alpha + millis / Block._transitionMillis);
+				cached.material.alpha = Math.min(cached.alpha, cached.material.alpha + millis / (2 * Block._transitionMillis));
 			});
 			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
 				mesh.isVisible = true;
@@ -287,4 +283,27 @@ export abstract class Block extends EntityBase {
 	}
 
 	protected canOcclude() : boolean { return !(this._frontMaterials.size === 0 && this._transparentFrontMeshes.length === 0); }
+
+	protected checkTransparent() : void {
+		this._transparent = false;
+
+		if (this.hasOpenings() && this.openings().empty()) {
+			return;
+		}
+
+		if (!game.lakitu().validTargetEntity()) {
+			return;
+		}
+
+		const target = game.lakitu().targetEntity();
+		if (!target.hasProfile()) {
+			return;
+		}
+
+		if (!this._profile.bufferContains(target.profile().pos(), { x: 4, y: 0 })) {
+			return;
+		}
+
+		this._transparent = true;
+	}
 }
