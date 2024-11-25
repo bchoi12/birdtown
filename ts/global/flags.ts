@@ -1,11 +1,11 @@
 
+import { BoolFlag, NumberFlag } from 'global/flag'
+
 import { isMobile } from 'util/common'
 
 export namespace Flags {
 
-	export const disableShadows = isMobile() ? true : false;
-	export const enableMinimap = false;
-
-	// TODO: reset back to 2 (warnings and errors)
-	export const peerDebug = 3;
+	export const disableShadows = new BoolFlag("disableShadows", isMobile() ? true : false);
+	export const enableMinimap = new BoolFlag("enableMinimap", false);
+	export const peerDebug = new NumberFlag("peerDebug", 2);
 }

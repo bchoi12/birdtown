@@ -46,8 +46,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginElm = Html.elm(Html.divLogin);
 		this._legendElm = Html.elm(Html.legendLogin);
 		this._loginInfoElm = Html.elm(Html.loginInfo);
-		this._infoTextElm = Html.span();
-		this._infoDotsElm = Html.span();
+		this._infoTextElm = Html.div();
+		this._infoDotsElm = Html.div();
 		this._loginErrorElm = Html.elm(Html.loginError);
 		this._joinInputElm = Html.inputElm(Html.inputRoom);
 		this._loginButtonsElm = Html.elm(Html.divLoginButtons);
@@ -106,7 +106,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginButtonsElm.style.display = "none";
 
 		this._infoTextElm.textContent = info;
-		this._infoDotsElm.textContent = "";
+		this._infoDotsElm.textContent = ".";
 
 		if (this._timeoutId.has()) {
 			window.clearTimeout(this._timeoutId.get());
@@ -121,7 +121,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 			} else {
 				this._infoDotsElm.textContent += ".";
 			}
-		}, 500));
+		}, 800));
 	}
 	private showLogin() : void {
 		this._loginInfoElm.style.display = "none";
@@ -168,12 +168,12 @@ export class LoginHandler extends HandlerBase implements Handler {
 		switch (mode) {
 		case CreateMode.HOST:
 			isHost = true;
-			this.showInfo("Creating new room " + room)
+			this.showInfo("Hosting new room " + room)
 			break;
 		case CreateMode.JOIN:
 		case CreateMode.HOST_AFTER_JOIN:
 			isHost = false;
-			this.showInfo("Connecting to room " + room);
+			this.showInfo("Joining room " + room);
 			break;
 		default:
 			console.error("Unknown mode!", CreateMode[mode]);

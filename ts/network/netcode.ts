@@ -48,6 +48,7 @@ export abstract class Netcode {
 	protected _room : string;
 	protected _clientId : number;
 	protected _initialized : boolean;
+	protected _initError : boolean;
 	protected _peer : Peer;
 	protected _dataFormat : DataFormat;
 
@@ -69,6 +70,7 @@ export abstract class Netcode {
 		this._room = room.toUpperCase();
 		this._clientId = 0;
 		this._initialized = false;
+		this._initError = false;
 		this._dataFormat = DataFormat.UNKNOWN;
 		this._peer = null;
 
@@ -92,9 +94,10 @@ export abstract class Netcode {
 
 	initialize(onSuccess : () => void, onError: () => void) : void {
 		this._peer = new Peer(this.isHost() ? this.hostName() : "", {
-			debug: Flags.peerDebug,
+			debug: Flags.peerDebug.get(),
 			pingInterval: 5000,
 		});
+		this._initError = false;
 
 		this._peer.on("call", (incoming : MediaConnection) => {
 			if (!this._voiceEnabled) {
@@ -121,13 +124,25 @@ export abstract class Netcode {
 		});
 
 		setTimeout(() => {
-			if (!this._initialized) {
-				this._peer.destroy();
-				onError();
+			if (!this.initialized()) {
+				this.initError(onError);
 			}
 		}, Netcode._initializeTimeout);
 	}
 	initialized() : boolean { return this._initialized; }
+	hasInitError() : boolean { return this._initError; }
+	initError(onError : () => void) : void {
+		if (this._initialized || this._initError) {
+			return;
+		}
+
+		this._initError = true;
+
+		if (this._peer !== null) {
+			this._peer.destroy();
+		}
+		onError();
+	}
 
 	abstract ready() : boolean;
 	abstract isHost() : boolean;

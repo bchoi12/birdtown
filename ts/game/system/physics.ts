@@ -37,7 +37,7 @@ export class Physics extends SystemBase implements System {
 			velocityIterations: 4,
 		});
 
-		if (Flags.enableMinimap) {
+		if (Flags.enableMinimap.get()) {
 			this._minimap = Html.elm(Html.divMinimap);
 			this._canvas = Html.canvasElm(Html.canvasPhysics);
 			this._render = MATTER.Render.create({
@@ -55,7 +55,7 @@ export class Physics extends SystemBase implements System {
 	override initialize() : void {
 		super.initialize();
 
-		if (!Flags.enableMinimap) {
+		if (!Flags.enableMinimap.get()) {
 			return;
 		}
 
@@ -142,7 +142,7 @@ export class Physics extends SystemBase implements System {
 	override render() : void {
 		super.render();
 
-		if (!Flags.enableMinimap) {
+		if (!Flags.enableMinimap.get()) {
 			return;
 		}
 

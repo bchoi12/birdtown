@@ -38,18 +38,14 @@ export class Client extends Netcode {
 		});
 
 		peer.on("error", (e) => {
-			if (!this.initialized()) {
-				peer.destroy();
-				onError();
-			}
+			this.initError(onError);
 		});
 
 		peer.on("disconnected", () => {
 			if (this.initialized()) {
 				ui.pushDialog(DialogType.DISCONNECTED);
 			} else {
-				peer.destroy();
-				onError();
+				this.initError(onError);
 			}
 
 			// TODO: reconnect?
@@ -145,10 +141,7 @@ export class Client extends Netcode {
 		this._tcp.on("error", (error) => {
 			console.error("TCP connection failed: " + error);
 
-			if (!this.initialized()) {
-				peer.destroy();
-				onError();
-			}
+			this.initError(onError);
 		});
 
 		this._tcp.on("close", () => {
@@ -182,10 +175,7 @@ export class Client extends Netcode {
 		this._udp.on("error", (error) => {
 			console.error("UDP connection failed: " + error);
 
-			if (!this.initialized()) {
-				peer.destroy();
-				onError();
-			}
+			this.initError(onError);
 		});
 
 		this._udp.on("close", () => {

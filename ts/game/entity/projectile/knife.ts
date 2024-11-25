@@ -87,6 +87,11 @@ export class Knife extends Projectile {
 		super.update(stepData);
 		const millis = stepData.millis;
 
+		const vel = this._profile.vel();
+		if (!vel.isZero()) {
+			this._profile.setAngle(vel.angleRad());
+		}
+
 		if (!this._model.hasMesh()) {
 			return;
 		}
@@ -97,6 +102,7 @@ export class Knife extends Projectile {
 		}
 		this._model.rotation().z = this._profile.vel().angleRad();
 	}
+
 
 	override onHit(other : Entity) : void {
 		super.onHit(other);

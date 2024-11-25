@@ -218,7 +218,7 @@ export class World extends SystemBase implements System {
 	}
 
 	renderShadows(mesh : BABYLON.AbstractMesh) : void {
-		if (Flags.disableShadows) {
+		if (Flags.disableShadows.get()) {
 			return;
 		}
 

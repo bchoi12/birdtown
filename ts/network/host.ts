@@ -43,27 +43,36 @@ export class Host extends Netcode {
 		    	console.error("Server closed!");
 		    });
 
-			this._pinger.initializeForHost(this);
-			this._initialized = true;
-			onSuccess();
+		    // Wait 1s for any errors to come in
+		    setTimeout(() => {
+		    	if (!this.hasInitError()) {
+					this._pinger.initializeForHost(this);
+					this._initialized = true;
+					onSuccess();
+		    	}
+		    }, 1000);
 		});
 
 	    peer.on("error", (e) => {
 	    	console.error("Host error:", e);
 
-	    	if (this.initialized()) {
-		    	ui.showTempStatus(TempStatusType.DISCONNECTED_SIGNALING);
-		    	ui.disableStatus(StatusType.LOBBY);
-	    	} else {
-	    		peer.destroy();
-	    		onError();
-	    	}
+	    	this.initError(onError);
 	    });
 
 		peer.on("disconnected", (e) => {
 			// TODO: reconnect?
 			console.error("Host disconnected:", e);
+
+			this.initError(onError);
 		});
+	}
+	override initError(onError : () => void) : void {
+		super.initError(onError);
+
+    	if (this.initialized()) {
+	    	ui.showTempStatus(TempStatusType.DISCONNECTED_SIGNALING);
+	    	ui.disableStatus(StatusType.LOBBY);
+    	}
 	}
 
 	private registerCallbacks() : void {
