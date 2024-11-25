@@ -3,6 +3,7 @@ import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
 import { game } from 'game'
 
+import { Flags } from 'global/flags'
 import { MediaGlobals } from 'global/media_globals'
 
 import { MessageObject } from 'message'
@@ -36,6 +37,7 @@ enum DataFormat {
 
 export abstract class Netcode {
 
+	private static readonly _initializeTimeout = 20000;
 	private static readonly _pingTimeoutMillis = 15000;
 
 	private static readonly _validChannels : DoubleMap<ChannelType, string> = DoubleMap.fromEntries([
@@ -82,16 +84,16 @@ export abstract class Netcode {
 		this._mediaConnections = new Map();
 		this._voiceEnabled = false;
 		this._audioContext = new Optional();
+
+		this.addMessageCallback(NetworkMessageType.GAME, (msg : NetworkMessage) => {
+			game.runner().importData(msg.getData(), msg.getSeqNum());
+		});
 	}
 
 	initialize(onSuccess : () => void, onError: () => void) : void {
 		this._peer = new Peer(this.isHost() ? this.hostName() : "", {
-			debug: 2,
+			debug: Flags.peerDebug,
 			pingInterval: 5000,
-		});
-
-		this.addMessageCallback(NetworkMessageType.GAME, (msg : NetworkMessage) => {
-			game.runner().importData(msg.getData(), msg.getSeqNum());
 		});
 
 		this._peer.on("call", (incoming : MediaConnection) => {
@@ -117,6 +119,13 @@ export abstract class Netcode {
 				}
 			});
 		});
+
+		setTimeout(() => {
+			if (!this._initialized) {
+				this._peer.destroy();
+				onError();
+			}
+		}, Netcode._initializeTimeout);
 	}
 	initialized() : boolean { return this._initialized; }
 

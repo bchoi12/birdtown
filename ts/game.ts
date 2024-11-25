@@ -120,6 +120,10 @@ class Game {
 			this._runner.push(this._audio);
 
 			this._runner.initialize();
+
+			if (this.isHost()) {
+				this.setClientId(1);
+			}
 		    this._initialized = true;
 
 			this._options.netcodeSuccess();

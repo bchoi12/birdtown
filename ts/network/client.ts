@@ -20,6 +20,8 @@ export class Client extends Netcode {
 
 	constructor(room : string) {
 		super(room);
+
+		this.registerCallbacks();
 	}
 
 	override isHost() : boolean { return false; }
@@ -28,26 +30,26 @@ export class Client extends Netcode {
 	override initialize(onSuccess : () => void, onError : () => void) : void {
 		super.initialize(onSuccess, onError);
 
-		this.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
-			const clientId = msg.getClientId();
-			game.setClientId(clientId);
-		});
-
 		let peer = this.peer();
 		peer.on("open", () => {
 			console.log("Opened client connection for " + peer.id);
 
-			this.registerCallbacks();
 			this.initTCP(onSuccess, onError);
 		});
 
 		peer.on("error", (e) => {
-			onError();
+			if (!this.initialized()) {
+				peer.destroy();
+				onError();
+			}
 		});
 
 		peer.on("disconnected", () => {
-			if (this._initialized) {
+			if (this.initialized()) {
 				ui.pushDialog(DialogType.DISCONNECTED);
+			} else {
+				peer.destroy();
+				onError();
 			}
 
 			// TODO: reconnect?
@@ -90,6 +92,11 @@ export class Client extends Netcode {
 	}
 
 	private registerCallbacks() : void {
+		this.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
+			const clientId = msg.getClientId();
+			game.setClientId(clientId);
+		});
+
 		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
 			ui.chat(ChatType.CHAT, msg.getChatMessage(), {
 				clientId: msg.getClientIdOr(0),
@@ -138,7 +145,8 @@ export class Client extends Netcode {
 		this._tcp.on("error", (error) => {
 			console.error("TCP connection failed: " + error);
 
-			if (!this._initialized) {
+			if (!this.initialized()) {
+				peer.destroy();
 				onError();
 			}
 		});
@@ -174,7 +182,8 @@ export class Client extends Netcode {
 		this._udp.on("error", (error) => {
 			console.error("UDP connection failed: " + error);
 
-			if (!this._initialized) {
+			if (!this.initialized()) {
+				peer.destroy();
 				onError();
 			}
 		});

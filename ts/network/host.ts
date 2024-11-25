@@ -20,6 +20,8 @@ export class Host extends Netcode {
 
 	constructor(room : string) {
 		super(room);
+
+		this.registerCallbacks();
 	}
 
 	override isHost() : boolean { return true; }
@@ -27,6 +29,44 @@ export class Host extends Netcode {
 	override initialize(onSuccess : () => void, onError : () => void) : void {
 		super.initialize(onSuccess, onError);
 
+		let peer = this.peer();
+		peer.on("open", () => {
+			console.log(`Opened host connection for ${peer.id}`);
+
+		    peer.on("connection", (connection : DataConnection) => {
+		    	connection.on("open", () => {
+			    	this.register(connection);
+		    	});
+		    });
+
+		    peer.on("close", () => {
+		    	console.error("Server closed!");
+		    });
+
+			this._pinger.initializeForHost(this);
+			this._initialized = true;
+			onSuccess();
+		});
+
+	    peer.on("error", (e) => {
+	    	console.error("Host error:", e);
+
+	    	if (this.initialized()) {
+		    	ui.showTempStatus(TempStatusType.DISCONNECTED_SIGNALING);
+		    	ui.disableStatus(StatusType.LOBBY);
+	    	} else {
+	    		peer.destroy();
+	    		onError();
+	    	}
+	    });
+
+		peer.on("disconnected", (e) => {
+			// TODO: reconnect?
+			console.error("Host disconnected:", e);
+		});
+	}
+
+	private registerCallbacks() : void {
 		this.addRegisterCallback((connection : Connection) => {
 			const clientId = game.nextClientId();
 			connection.setClientId(clientId);
@@ -44,44 +84,6 @@ export class Host extends Netcode {
 			}
 		});
 
-		let peer = this.peer();
-		peer.on("open", () => {
-			console.log(`Opened host connection for ${peer.id}`);
-
-		    peer.on("connection", (connection : DataConnection) => {
-		    	connection.on("open", () => {
-			    	this.register(connection);
-		    	});
-		    });
-
-		    peer.on("close", () => {
-		    	console.error("Server closed!");
-		    });
-
-		    this.registerCallbacks();
-			this._pinger.initializeForHost(this);
-			this._initialized = true;
-
-			onSuccess();
-			game.setClientId(1);
-		});
-
-	    peer.on("error", (e) => {
-	    	if (this._initialized) {
-		    	ui.showTempStatus(TempStatusType.DISCONNECTED_SIGNALING);
-		    	ui.disableStatus(StatusType.LOBBY);
-	    	} else {
-	    		onError();
-	    	}
-	    });
-
-		peer.on("disconnected", (e) => {
-			// TODO: reconnect?
-			console.error(e);
-		});
-	}
-
-	private registerCallbacks() : void {
 		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
 			this.handleChat(msg.name(), msg.getChatMessage());
 		});
