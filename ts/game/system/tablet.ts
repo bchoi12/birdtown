@@ -18,13 +18,13 @@ import { Optional } from 'util/optional'
 
 export class Tablet extends ClientSystem implements System {
 
-	private static readonly _defaultInfos = new Set([InfoType.KILLS, InfoType.DEATHS]);
+	private static readonly _defaultInfos = new Set([InfoType.WINS, InfoType.KILLS, InfoType.DEATHS]);
 	private static readonly _infoSets = new Map<WinConditionType, Set<InfoType>>([
 		[WinConditionType.NONE, Tablet._defaultInfos],
-		[WinConditionType.LIVES, new Set([InfoType.LIVES, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
-		[WinConditionType.POINTS, new Set([InfoType.SCORE, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
-		[WinConditionType.TEAM_LIVES, new Set([InfoType.LIVES, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
-		[WinConditionType.TEAM_POINTS, new Set([InfoType.SCORE, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
+		[WinConditionType.LIVES, new Set([InfoType.LIVES, InfoType.ROUND_WINS, InfoType.KILLS, InfoType.DEATHS])],
+		[WinConditionType.POINTS, new Set([InfoType.SCORE, InfoType.ROUND_WINS, InfoType.KILLS, InfoType.DEATHS])],
+		[WinConditionType.TEAM_LIVES, new Set([InfoType.LIVES, InfoType.ROUND_WINS, InfoType.KILLS, InfoType.DEATHS])],
+		[WinConditionType.TEAM_POINTS, new Set([InfoType.SCORE, InfoType.ROUND_WINS, InfoType.KILLS, InfoType.DEATHS])],
 	]);
 
 	private static readonly _gameClearTypes = new Set([
@@ -32,7 +32,7 @@ export class Tablet extends ClientSystem implements System {
 		InfoType.KILLS,
 		InfoType.LIVES,
 		InfoType.SCORE,
-		InfoType.VICTORIES,
+		InfoType.ROUND_WINS,
 	]);
 	private static readonly _roundResetTypes = new Set([
 		InfoType.DEATHS,
@@ -102,6 +102,13 @@ export class Tablet extends ClientSystem implements System {
 		}
 
 		return Tablet._defaultInfos;
+	}
+	resetForPlayer() : void {
+		const msg = game.controller().config();
+		this.resetForGame(msg);
+		Tablet.infoTypes(msg.getWinCondition()).forEach((type : InfoType) => {
+			ui.updateInfo(this.clientId(), type, this.getInfo(type));
+		});
 	}
 	resetForGame(msg : GameConfigMessage) : void {
 		this.setWinner(false);

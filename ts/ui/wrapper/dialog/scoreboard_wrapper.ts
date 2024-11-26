@@ -56,7 +56,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		this._infoWrappers.set(id, wrapper);
 		this._containerElm.appendChild(wrapper.elm());
 
-		this.updateInfos(id, game.controller().config());
+		this.showInfos(id, game.controller().config());
 		this.sort();
 	}
 
@@ -84,13 +84,13 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 
 	setGameConfig(config : GameConfigMessage) : void {
 		this._infoWrappers.forEach((wrapper : InfoWrapper, id : number) => {
-			this.updateInfos(id, config);
+			this.showInfos(id, config);
 		});
 
 		this.sort();
 	}
 
-	private updateInfos(id : number, config : GameConfigMessage) : void {
+	private showInfos(id : number, config : GameConfigMessage) : void {
 		if (!this._infoWrappers.has(id)) {
 			return;
 		}

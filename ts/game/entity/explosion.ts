@@ -40,7 +40,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.circle(profile.pos(), profile.initDim(), {
 					isStatic: true,
 					isSensor: true,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
@@ -71,7 +71,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 
 	meshFn() : BABYLON.Mesh {
 		return BABYLON.MeshBuilder.CreateSphere(this.name(), {
-			diameter: this._profile.unscaledDim().x,
+			diameter: this._profile.initDim().x,
 		}, game.scene())
 	}
 

@@ -46,7 +46,7 @@ export class Rocket extends Projectile {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.circle(profile.pos(), profile.initDim(), {
 					isSensor: true,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});

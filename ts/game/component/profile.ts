@@ -99,6 +99,7 @@ export class Profile extends ComponentBase implements Component {
 	private _pos : SmoothVec;
 	private _vel : SmoothVec;
 	private _acc : Vec2;
+	private _initDim : Vec2;
 	private _dim : Vec2;
 	private _angle : number;
 	private _inertia : number;
@@ -136,6 +137,16 @@ export class Profile extends ComponentBase implements Component {
 		this._smoother = new Smoother();
 		this._occluded = false;
 		this._visible = true;
+
+		this._pos = null;
+		this._vel = null;
+		this._acc = null;
+		this._initDim = null;
+		this._dim = null;
+		this._angle = null;
+		this._inertia = null;
+		this._initialInertia = null;
+		this._scaling = null;
 
 		if (profileOptions.init) {
 			this.initFromOptions(profileOptions.init);
@@ -195,7 +206,7 @@ export class Profile extends ComponentBase implements Component {
 		});
 		this.addProp<Vec>({
 			has: () => { return this.hasDim(); },
-			export: () => { return this.unscaledDim().toVec(); },
+			export: () => { return this.initDim().toVec(); },
 			import: (obj : Vec) => { this.setDim(obj); },
 		});
 		this.addProp<number>({
@@ -297,7 +308,7 @@ export class Profile extends ComponentBase implements Component {
 
 	relativePos(cardinal : CardinalDir, objectDim? : Vec) : Vec2 {
 		let adjustedPos = this._pos.clone();
-		const dim = this.scaledDim();
+		const dim = this.dim();
 
 		if (!objectDim) {
 			objectDim = { x: 0, y: 0 };
@@ -380,7 +391,7 @@ export class Profile extends ComponentBase implements Component {
 		MATTER.World.remove(game.physics().world(), this._constraints.get(id));
 	}
 
-	private hasPos() : boolean { return defined(this._pos); }
+	private hasPos() : boolean { return this._pos !== null; }
 	pos() : SmoothVec { return this._pos; }
 	getWrapDir() : number {
 		if (game.level().isCircle()) {
@@ -409,7 +420,7 @@ export class Profile extends ComponentBase implements Component {
 		this._pos.roundToEpsilon(Profile._minQuantization);
 	}
 
-	hasVel() : boolean { return defined(this._vel); }
+	hasVel() : boolean { return this._vel !== null; }
 	vel() : SmoothVec { return this.hasVel() ? this._vel : SmoothVec.zero(); }
 	setVel(vec : Vec) : void {
 		if (!this.hasVel()) { this._vel = SmoothVec.zero(); }
@@ -434,7 +445,7 @@ export class Profile extends ComponentBase implements Component {
 	// Skip very first update, but only if we're the source
 	private shouldUpdateVel() : boolean { return (!this.isSource() || this.updateCalls() > 1) && this.hasVel(); }
 
-	hasAcc() : boolean { return defined(this._acc); }
+	hasAcc() : boolean { return this._acc !== null; }
 	acc() : Vec2 { return this.hasAcc() ? this._acc : Vec2.zero(); }
 	setAcc(vec : Vec) : void {
 		if (!this.hasAcc()) { this._acc = Vec2.zero(); }
@@ -442,22 +453,26 @@ export class Profile extends ComponentBase implements Component {
 		this._acc.copyVec(vec);
 	}
 
-	private hasDim() : boolean { return defined(this._dim); }
-	unscaledDim() : Vec2 { return this._dim; }
-	width() : number { return this.scaledDim().x; }
-	height() : number { return this.scaledDim().y; }
-	scaledDim() : Vec2 { return this.hasScaling() ? this.unscaledDim().clone().mult(this.scaling()) : this.unscaledDim(); }
+	private hasDim() : boolean { return this._initDim !== null; }
+	initDim() : Vec2 { return this._initDim; }
+	width() : number { return this.dim().x; }
+	height() : number { return this.dim().y; }
+	dim() : Vec2 { return this._dim; }
 	setDim(vec : Vec) : void {
 		if (this.hasDim()) {
-			if (!Vec2.approxEquals(this._dim.toVec(), vec, this.vecEpsilon())) {
+			if (!Vec2.approxEquals(this._initDim.toVec(), vec, this.vecEpsilon())) {
 				console.error("Error: dimension is already initialized for", this.name());
 			}
 			return;
 		}
-		this._dim = Vec2.fromVec(vec);
+		this._initDim = Vec2.fromVec(vec);
+		this._dim = this._initDim.clone();
+		if (this.hasScaling()) {
+			this._dim.mult(this.scaling());
+		}
 	}
 
-	hasAngle() : boolean { return defined(this._angle); }
+	hasAngle() : boolean { return this._angle !== null; }
 	angle() : number { return this.hasAngle() ? this._angle : 0; }
 	angleDeg() : number { return this.angle() * 180 / Math.PI; }
 	addAngle(delta : number) : void { this.setAngle(this.angle() + delta); }
@@ -480,18 +495,16 @@ export class Profile extends ComponentBase implements Component {
 		});
 	}
 
-	hasInertia() : boolean { return defined(this._inertia); }
+	hasInertia() : boolean { return this._inertia !== null; }
 	inertia() : number { return this._inertia; }
 	setInertia(inertia : number) : void { this._inertia = inertia; }
 	resetInertia() : void { this._inertia = this._initialInertia; }
 
-	hasScaling() : boolean { return defined(this._scaling) && defined(this._scaling.x, this._scaling.y); }
+	hasScaling() : boolean { return this._scaling !== null }
 	scaling() : Vec2 { return this.hasScaling() ? this._scaling : Vec2.one(); }
-	setScaleFactor(factor : number) : void {
-		this.setScaling({ x: factor, y : factor });
-	}
+	setScaleFactor(factor : number) : void { this.setScaling({ x: factor, y : factor }); }
 	setScaling(vec : Vec) : void {
-		if (!defined(this._scaling)) {
+		if (!this.hasScaling()) {
 			this._scaling = Vec2.one();
 		}
 		if (Vec2.approxEquals(this._scaling.toVec(), vec, 1e-2)) { return; }
@@ -507,15 +520,16 @@ export class Profile extends ComponentBase implements Component {
 			return;
 		}
 
-		this._applyScaling = true;
 		this._scaling.copyVec(vec);
+		this._dim.copyVec(this._initDim).mult(this._scaling);
+		this._applyScaling = true;
 	}
 
 	contains(point : Vec) : boolean {
 		return this.bufferContains(point, { x: 0, y: 0 });
 	}
 	bufferContains(point : Vec, buffer : Vec) : boolean {
-		const dim = this.scaledDim();
+		const dim = this.dim();
 
 		if (point.x > this._pos.x + dim.x / 2 + buffer.x) { return false; }
 		if (point.x < this._pos.x - dim.x / 2 - buffer.x) { return false; }
@@ -525,9 +539,9 @@ export class Profile extends ComponentBase implements Component {
 		return true;
 	}
 	containsProfile(profile : Profile) : boolean {
-		const dim = this.scaledDim();
+		const dim = this.dim();
 		const otherPos = profile.pos();
-		const otherDim = profile.scaledDim();
+		const otherDim = profile.dim();
 		if (otherPos.x + otherDim.x / 2 > this._pos.x + dim.x / 2) { return false; }
 		if (otherPos.x - otherDim.x / 2 < this._pos.x - dim.x / 2) { return false; }
 		if (otherPos.y + otherDim.y / 2 > this._pos.y + dim.y / 2) { return false; }
@@ -536,8 +550,8 @@ export class Profile extends ComponentBase implements Component {
 		return true;
 	}
 	overlap(other : Profile) : Vec2 {
-		const dim = this.scaledDim();
-		const otherDim = other.scaledDim();
+		const dim = this.dim();
+		const otherDim = other.dim();
 
 		const dist = this._pos.clone().sub(other.pos()).abs();
 		return Vec2.fromVec(dim).add(otherDim).scale(0.5).sub(dist).div(dim);
@@ -614,7 +628,7 @@ export class Profile extends ComponentBase implements Component {
 		const relativeVel = vel.clone().sub(profile.vel());
 		if (this.isXCollision(overlap, relativeVel)) {
 			const dir = -Math.sign(relativeVel.x);
-			const desired = profile.pos().x + dir * (profile.scaledDim().x + this.scaledDim().x) / 2 
+			const desired = profile.pos().x + dir * (profile.dim().x + this.dim().x) / 2 
 			const offset = desired - this._pos.x;
 			const otherOffset = offset * vel.y / vel.x;
 
@@ -628,7 +642,7 @@ export class Profile extends ComponentBase implements Component {
 			});
 		} else if (this.isYCollision(overlap, relativeVel)) {
 			const dir = -Math.sign(relativeVel.y);
-			const desired = profile.pos().y + dir * (profile.scaledDim().y + this.scaledDim().y) / 2 
+			const desired = profile.pos().y + dir * (profile.dim().y + this.dim().y) / 2 
 			const offset = desired - this._pos.y;
 			const otherOffset = offset * vel.x / vel.y;
 

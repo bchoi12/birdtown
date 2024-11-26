@@ -28,8 +28,8 @@ export class Cloud extends EntityBase implements Entity {
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				let cloud = BABYLON.MeshBuilder.CreateBox(this.name(), {
-					width: this._profile.unscaledDim().x,
-					height: this._profile.unscaledDim().y,
+					width: this._profile.initDim().x,
+					height: this._profile.initDim().y,
 					depth: 2,
 				}, game.scene());
 
@@ -42,7 +42,7 @@ export class Cloud extends EntityBase implements Entity {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					isSensor: true,
 					friction: 0,
 					frictionAir: 0,
@@ -64,7 +64,7 @@ export class Cloud extends EntityBase implements Entity {
 		super.update(stepData);
 
 		const bounds = game.level().bounds();
-		const side = bounds.xSide(this._profile.pos(), /*buffer=*/-this._profile.unscaledDim().x / 2);
+		const side = bounds.xSide(this._profile.pos(), /*buffer=*/-this._profile.initDim().x / 2);
 		if (side !== 0) {
 			this._profile.vel().x = -side * Math.abs(this._profile.vel().x);
 		}

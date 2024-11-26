@@ -215,7 +215,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 						offline: true,
 						ttl: 500,
 						profileInit: {
-							pos: this._profile.pos().clone().sub({ y: this._profile.scaledDim().y / 2 - 0.3 }),
+							pos: this._profile.pos().clone().sub({ y: this._profile.dim().y / 2 - 0.3 }),
 							vel: { x: 0.05 * i * (1 + 0.5 * Math.random()) },
 							acc: { x: -0.1 * i, y: 0.1 },
 							scaling: { x: scale, y: scale },
@@ -273,7 +273,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					density: BodyFactory.playerDensity,
 					friction: 0,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.PLAYER),
@@ -305,7 +305,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		this._headSubProfile = this._profile.addSubComponent<Profile>(new Profile({
 			bodyFn: (head : Profile) => {
-				return BodyFactory.rectangle(head.pos(), head.unscaledDim(), {
+				return BodyFactory.rectangle(head.pos(), head.initDim(), {
 					collisionFilter: BodyFactory.customCollisionFilter(CollisionCategory.PLAYER, [CollisionCategory.HIT_BOX]),
 				});
 			},
@@ -375,7 +375,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 					let armature = model.getBone(BoneType.ARMATURE).getTransformNode();
 					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + Player._rotationOffset, 0);
-					const dim = this._profile.unscaledDim();
+					const dim = this._profile.initDim();
 					armature.position.y -= dim.y / 2;
 
 					model.setMesh(mesh);
@@ -467,7 +467,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		this._reviverId = id;
 	}
-	quickRespawn(spawn : Vec2) : void {
+	respawn(spawn : Vec2) : void {
 		if (this.isSource() || this.clientIdMatches()) {
 			this.setAttribute(AttributeType.GROUNDED, false);
 		}
@@ -488,10 +488,13 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
 		this._profile.setAngularVelocity(0);
-		this.model().rotation().z = 0;
+
+		if (this.hasModel()) {
+			this.model().rotation().z = 0;
+		}
 	}
-	respawn(spawn : Vec2) : void {
-		this.quickRespawn(spawn);
+	floatRespawn(spawn : Vec2) : void {
+		this.respawn(spawn);
 
 		if (this.isSource()) {
 			this._entityTrackers.clearEntityType(EntityType.BUBBLE);
@@ -882,7 +885,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		if (!this.dead() && healthPercent <= 0.5 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.2, healthPercent))) {
 			const weight = 1 - healthPercent;
 
-			const dim = this._profile.scaledDim();
+			const dim = this._profile.dim();
 			const headAngle = this._headSubProfile.angleDeg();
 			const forward = Vec2.fromVec({ x: 1.3, y: 0 }).rotateDeg(headAngle);
 			for (let i = 0; i < 4; ++i) {

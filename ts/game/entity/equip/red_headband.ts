@@ -110,7 +110,9 @@ export class RedHeadband extends Equip<Player> {
 	override delete() : void {
 		super.delete();
 
-		this.owner().model().rotation().z = 0;
+		if (this.hasOwner() && this.owner().hasModel()) {
+			this.owner().model().rotation().z = 0;
+		}
 	}
 
 	override dispose() : void {

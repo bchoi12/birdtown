@@ -62,7 +62,7 @@ export class Plane extends EntityBase implements Entity {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					isSensor: true,
 					collisionFilter: BodyFactory.neverCollideFilter(),
 				});
@@ -83,7 +83,7 @@ export class Plane extends EntityBase implements Entity {
 		// Turn around
 		if (!game.level().isCircle()) {
 			const bounds = game.level().bounds();
-			const side = bounds.xSide(this._profile.pos(), /*buffer=*/-this._profile.scaledDim().x);
+			const side = bounds.xSide(this._profile.pos(), /*buffer=*/-this._profile.dim().x);
 			if (side !== 0) {
 				this._profile.setVel({ x: -1 * side * Plane._speed });
 			} else {

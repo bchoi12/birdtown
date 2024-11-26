@@ -60,7 +60,7 @@ export class CowboyHat extends Equip<Player> {
 	override delete() : void {
 		super.delete();
 
-		if (this._dashTimer.hasTimeLeft()) {
+		if (this.hasOwner() && this.owner().hasModel()) {
 			this.owner().model().rotation().z = 0;
 		}
 	}

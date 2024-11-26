@@ -29,7 +29,7 @@ export class Bolt extends Projectile {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					isSensor: true,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
@@ -46,7 +46,7 @@ export class Bolt extends Projectile {
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
-				const dim = this._profile.unscaledDim();
+				const dim = this._profile.initDim();
 				const depth = (dim.x + dim.y) / 2;
 
 				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {

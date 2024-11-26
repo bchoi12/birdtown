@@ -283,7 +283,7 @@ export class PlayerState extends ClientSystem implements System {
 			ttl: 3000,
 			profileInit: {
 				pos: this.targetEntity().profile().pos().clone().add({
-					y: this.targetEntity().profile().scaledDim().y / 2 + offset,
+					y: this.targetEntity().profile().dim().y / 2 + offset,
 				}),
 				vel: { x: 0, y: 0.01 },
 			},

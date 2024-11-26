@@ -22,7 +22,7 @@ enum GameConfigProp {
 	TIME_FINISH,
 	TIME_VICTORY,
 	TIME_ERROR,
-	VICTORIES,
+	ROUND_WINS,
 	WEAPON_CRATE_SPAWN,
 	WIN_CONDITION,
 }
@@ -69,13 +69,13 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.PLAYERS_MAX, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
-			[GameConfigProp.VICTORIES, {}],
+			[GameConfigProp.ROUND_WINS, {}],
 		)],
 		[GameMode.FREE_FOR_ALL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.POINTS, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
-			[GameConfigProp.VICTORIES, {}],
+			[GameConfigProp.ROUND_WINS, {}],
 		)],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
@@ -84,13 +84,13 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
-			[GameConfigProp.VICTORIES, {}],
+			[GameConfigProp.ROUND_WINS, {}],
 		)],
 		[GameMode.TEAM_BATTLE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
-			[GameConfigProp.VICTORIES, {}],
+			[GameConfigProp.ROUND_WINS, {}],
 		)],
 	]);
 
@@ -128,7 +128,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		this.setLevelLayout(LevelLayout.CIRCLE);
 		this.setLevelSeed(Math.floor(100000 * Math.random()));
 
-		this.setTimeSetup(20000);
+		this.setTimeSetup(25000);
 		this.setTimeFinish(4000);
 		this.setTimeVictory(8000);
 		this.setTimeError(5000);
@@ -159,7 +159,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			break;
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);
-			this.setTimeSetup(Infinity);
+			this.setTimeSetup(45000);
 			this.setHealthCrateSpawn(FrequencyType.HIGH);
 			this.setStartingLoadout(LoadoutType.PICK);
 			this.setWeaponCrateSpawn(FrequencyType.HIGH);
@@ -267,10 +267,10 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getTimeErrorOr(value : number) : number { return this.getOr<number>(GameConfigProp.TIME_ERROR, value); }
     setTimeError(value : number) : void { this.set<number>(GameConfigProp.TIME_ERROR, value); }
 
-    hasVictories() : boolean { return this.has(GameConfigProp.VICTORIES); }
-    getVictories() : number { return this.get<number>(GameConfigProp.VICTORIES); }
-    getVictoriesOr(value : number) : number { return this.getOr<number>(GameConfigProp.VICTORIES, value); }
-    setVictories(value : number) : void { this.set<number>(GameConfigProp.VICTORIES, value); }
+    hasVictories() : boolean { return this.has(GameConfigProp.ROUND_WINS); }
+    getVictories() : number { return this.get<number>(GameConfigProp.ROUND_WINS); }
+    getVictoriesOr(value : number) : number { return this.getOr<number>(GameConfigProp.ROUND_WINS, value); }
+    setVictories(value : number) : void { this.set<number>(GameConfigProp.ROUND_WINS, value); }
 
     hasWeaponCrateSpawn() : boolean { return this.has(GameConfigProp.WEAPON_CRATE_SPAWN); }
     getWeaponCrateSpawn() : FrequencyType { return this.get<FrequencyType>(GameConfigProp.WEAPON_CRATE_SPAWN); }
@@ -299,7 +299,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     ["TIME_FINISH", "number"],
     ["TIME_VICTORY", "number"],
     ["TIME_ERROR", "number"],
-    ["VICTORIES", "number"],
+    ["ROUND_WINS", "number"],
     ["WEAPON_CRATE_SPAWN", "FrequencyType"],
     ["WIN_CONDITION", "WinConditionType"],
     */

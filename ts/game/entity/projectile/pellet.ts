@@ -46,7 +46,7 @@ export class Pellet extends Projectile {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.circle(profile.pos(), profile.initDim(), {
 					isSensor: true,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
@@ -63,7 +63,7 @@ export class Pellet extends Projectile {
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
-				const dim = this._profile.unscaledDim();
+				const dim = this._profile.initDim();
 				let mesh = BABYLON.MeshBuilder.CreateSphere(this.name(), {
 					diameter: dim.x,
 				}, game.scene());

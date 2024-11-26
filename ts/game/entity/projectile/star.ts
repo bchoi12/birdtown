@@ -30,7 +30,7 @@ export class Star extends Projectile {
 
 	private static readonly _trailVertices = [
         new BABYLON.Vector3(0, 0, 0.1),
-        new BABYLON.Vector3(-0.8, 0, 0),
+        new BABYLON.Vector3(-1, 0, 0),
         new BABYLON.Vector3(0, 0, -0.1),
 	];
 
@@ -51,7 +51,7 @@ export class Star extends Projectile {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.circle(profile.pos(), profile.initDim(), {
 					isSensor: true,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
@@ -130,7 +130,7 @@ export class Star extends Projectile {
 		}
 		this._trail.isVisible = this._spinning;
 		this._trail.scaling.x += millis / 100;
-		const limit = Math.min(10 * this._profile.vel().lengthSq(), 1);
+		const limit = Math.min(10 * this._profile.vel().lengthSq(), 1.5);
 		if (this._trail.scaling.x > limit) {
 			this._trail.scaling.x = limit;
 		}

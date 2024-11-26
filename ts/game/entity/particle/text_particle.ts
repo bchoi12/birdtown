@@ -50,7 +50,7 @@ export class TextParticle extends Particle {
 	}
 
 	override bodyFn(profile : Profile) : MATTER.Body {
-		return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
+		return BodyFactory.circle(profile.pos(), profile.initDim(), {
 			collisionFilter: BodyFactory.collisionFilter(CollisionCategory.TEXT_PARTICLE),
 		});
 	}

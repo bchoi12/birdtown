@@ -62,7 +62,7 @@ export class SpawnPoint extends EntityBase implements Entity {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.circle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.circle(profile.pos(), profile.initDim(), {
 					isStatic: true,
 					isSensor: true,
 					collisionFilter: BodyFactory.neverCollideFilter(),

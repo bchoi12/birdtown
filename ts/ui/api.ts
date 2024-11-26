@@ -112,8 +112,9 @@ export enum InfoType {
 	DEATHS,
 	LIVES,
 	KILLS,
+	ROUND_WINS,
 	SCORE,
-	VICTORIES,
+	WINS,
 }
 
 export enum KeyType {

@@ -18,30 +18,30 @@ export class ArchRoof extends ArchBase implements Entity {
 	override initialize() : void {
 		super.initialize();
 
-		let length = this._profile.scaledDim().x;
+		let length = this._profile.dim().x;
 
 		if (!this.openings().hasDir(CardinalDir.RIGHT)) {
 			this.addWall(
-				this._profile.createRelativeInit(CardinalDir.RIGHT, {x: this.thickness(), y: this._profile.scaledDim().y }));
+				this._profile.createRelativeInit(CardinalDir.RIGHT, {x: this.thickness(), y: this._profile.dim().y }));
 		}
 
 		if (!this.openings().hasDir(CardinalDir.LEFT)) {
 			this.addWall(
-				this._profile.createRelativeInit(CardinalDir.LEFT, {x: this.thickness(), y: this._profile.scaledDim().y }));
+				this._profile.createRelativeInit(CardinalDir.LEFT, {x: this.thickness(), y: this._profile.dim().y }));
 		}
 
 		if (!this.openings().hasDir(CardinalDir.LEFT) && !this.openings().hasDir(CardinalDir.RIGHT)) {
 			this.addFloor(
-				this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.scaledDim().x - this.thickness(), y: this.thickness() }));
+				this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x - this.thickness(), y: this.thickness() }));
 		} else if (!this.openings().hasDir(CardinalDir.LEFT)) {
 			this.addFloor(
-				this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this._profile.scaledDim().x - this.thickness() / 2, y: this.thickness() }));
+				this._profile.createRelativeInit(CardinalDir.BOTTOM_RIGHT, {x: this._profile.dim().x - this.thickness() / 2, y: this.thickness() }));
 		} else if (!this.openings().hasDir(CardinalDir.RIGHT)) {
 			this.addFloor(
-				this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this._profile.scaledDim().x - this.thickness() / 2, y: this.thickness() }));
+				this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: this._profile.dim().x - this.thickness() / 2, y: this.thickness() }));
 		} else {
 			this.addFloor(
-				this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.scaledDim().x, y: this.thickness() }));
+				this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x, y: this.thickness() }));
 		}
 	}
 }

@@ -319,7 +319,7 @@ export class GameMaker extends SystemBase implements System {
 					this._winners = game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
 						return tablet.clientId();
 					}, (tablet : Tablet) => {
-						return tablet.getInfo(InfoType.VICTORIES) >= this._config.getVictories();
+						return tablet.getInfo(InfoType.ROUND_WINS) >= this._config.getVictories();
 					});
 					if (this._winners.length >= 1) {
 						return GameState.VICTORY;
@@ -340,8 +340,19 @@ export class GameMaker extends SystemBase implements System {
 	}
 	setGameState(state : GameState) : void {
 		// Return to lobby
-		if (state === GameState.FREE && game.playerState()?.validTargetEntity()) {
-			ui.showLobbyStatuses();
+		if (state === GameState.FREE) {
+			if (game.playerState()?.validTargetEntity()) {
+				ui.showLobbyStatuses();
+			}
+
+			if (!this.isSource()) {
+				game.playerStates().execute((playerState : PlayerState) => {
+					// Fix rotation after spawn bug?
+					if (playerState.validTargetEntity()) {
+						playerState.targetEntity<Player>().getUp();
+					}
+				});
+			}
 		}
 
 		if (state === GameState.LOAD) {
@@ -382,6 +393,7 @@ export class GameMaker extends SystemBase implements System {
 				numPlayers: 0,
 				numTeams: 0,
 			});
+
 			game.playerStates().execute((playerState : PlayerState) => {
 				playerState.resetForLobby();
 			});
@@ -395,7 +407,7 @@ export class GameMaker extends SystemBase implements System {
 			}
 
 			game.tablets().executeIf<Tablet>((tablet : Tablet) => {
-				tablet.resetForRound(this.config());
+				tablet.resetForRound(this._config);
 				if (this._config.hasLives()) {
 					tablet.setInfo(InfoType.LIVES, this._config.getLives());
 				} else {
@@ -445,7 +457,7 @@ export class GameMaker extends SystemBase implements System {
 			});
 			this._winners.forEach((clientId : number) => {
 				if (game.tablets().hasTablet(clientId)) {
-					game.tablet(clientId).addInfo(InfoType.VICTORIES, 1);
+					game.tablet(clientId).addInfo(InfoType.ROUND_WINS, 1);
 					game.tablet(clientId).setWinner(true);
 				}
 			});

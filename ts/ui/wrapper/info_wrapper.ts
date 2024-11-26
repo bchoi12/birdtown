@@ -13,9 +13,9 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 	private static readonly _maxOrderValue = 999;
 	private static readonly _types = new Array(
 		// Top right (oneof)
-		InfoType.LIVES, InfoType.SCORE,
+		InfoType.LIVES, InfoType.SCORE, InfoType.WINS,
 		// Bottom left
-		InfoType.VICTORIES,
+		InfoType.ROUND_WINS,
 		// Bottom right (backwards)
 		InfoType.DEATHS, InfoType.KILLS,
 	);
@@ -86,9 +86,13 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 			wrapper.elm().style.float = "right";
 			this._mainElm.appendChild(wrapper.elm());
 			break;
-		case InfoType.VICTORIES:
+		case InfoType.ROUND_WINS:
 			wrapper.elm().style.float = "left";
 			this._secondaryElm.appendChild(wrapper.elm());
+			break;
+		case InfoType.WINS:
+			wrapper.elm().style.float = "right";
+			this._mainElm.appendChild(wrapper.elm());
 			break;
 		default:
 			console.error("Error: cannot add", InfoType[type]);
@@ -131,8 +135,11 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 		case InfoType.SCORE:
 			this.setScore(value);
 			break;
-		case InfoType.VICTORIES:
+		case InfoType.ROUND_WINS:
 			this.setVictories(value);
+			break;
+		case InfoType.WINS:
+			this.setWins(value);
 			break;
 		default:
 			console.error("Error: missing handling for", InfoType[type]);
@@ -188,7 +195,7 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	private setVictories(victories : number) : void {
-		let wrapper = this._blocks.get(InfoType.VICTORIES);
+		let wrapper = this._blocks.get(InfoType.ROUND_WINS);
 
 		const config = game.controller().config();
 
@@ -202,5 +209,10 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 	private setScore(score : number) : void {
 		let wrapper = this._blocks.get(InfoType.SCORE);
 		wrapper.setText(score + " pts");
+	}
+
+	private setWins(wins : number) : void {
+		let wrapper = this._blocks.get(InfoType.WINS);
+		wrapper.setText(wins + " wins");
 	}
 }

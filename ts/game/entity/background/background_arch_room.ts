@@ -31,8 +31,8 @@ export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 				faceUV[0] = new BABYLON.Vector4(0, 0, 1, -1);
 
 				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {
-					width: this._profile.unscaledDim().x,
-					height: this._profile.unscaledDim().y,
+					width: this._profile.initDim().x,
+					height: this._profile.initDim().y,
 					depth: 6,
 					faceUV: faceUV,
 				}, game.scene());
@@ -48,7 +48,7 @@ export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					isStatic: true,
 					isSensor: true,
 				});

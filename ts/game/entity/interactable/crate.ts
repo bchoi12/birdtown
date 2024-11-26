@@ -67,7 +67,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					density: 0.8 * BodyFactory.defaultDensity,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.SOLID),
 					chamfer: {
@@ -94,8 +94,8 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 					let mesh = result.mesh;
 					const modelDimension = EntityFactory.getDimension(this.type());
 					let scaling = {
-						x: this._profile.scaledDim().x / modelDimension.x,
-						y: this._profile.scaledDim().y / modelDimension.y,
+						x: this._profile.dim().x / modelDimension.x,
+						y: this._profile.dim().y / modelDimension.y,
 					}
 
 					mesh.scaling.set(scaling.x, scaling.y, (scaling.x + scaling.y) / 2);

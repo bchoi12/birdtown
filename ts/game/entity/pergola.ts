@@ -48,7 +48,7 @@ export class Pergola extends EntityBase implements Entity {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					density: 0.2 * BodyFactory.defaultDensity,
 					friction: 1.5 * BodyFactory.defaultFriction,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.PERGOLA_FRAME),
@@ -69,7 +69,7 @@ export class Pergola extends EntityBase implements Entity {
 
 		this._subProfile = this._profile.addSubComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				let topDim = { x: profile.unscaledDim().x, y: 0.5 };
+				let topDim = { x: profile.initDim().x, y: 0.5 };
 				return BodyFactory.rectangle(this._profile.relativePos(CardinalDir.TOP, topDim), topDim, {
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.SOLID),
 				});

@@ -44,7 +44,7 @@ export class Laser extends Projectile {
 		this._profile = this.addComponent<Profile>(new Profile({
 			readyFn: () => { return this._profile.hasAngle(); },
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					isSensor: true,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
@@ -58,7 +58,7 @@ export class Laser extends Projectile {
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
-				const dim = this._profile.unscaledDim();
+				const dim = this._profile.initDim();
 
 				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: dim.x - 0.05,
@@ -94,7 +94,7 @@ export class Laser extends Projectile {
 	override initialize() : void {
 		super.initialize();
 
-		const dim = this._profile.scaledDim();
+		const dim = this._profile.dim();
 		const angle = this._profile.angle();
 		this._profile.pos().add({
 			x: 0.5 * Math.cos(angle) * dim.x,

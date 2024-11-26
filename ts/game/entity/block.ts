@@ -89,7 +89,7 @@ export abstract class Block extends EntityBase {
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.unscaledDim(), {
+				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					isSensor: true,
 					isStatic: true,
 					collisionFilter: Flags.enableMinimap.get() ? BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE) : BodyFactory.neverCollideFilter(),
@@ -181,7 +181,7 @@ export abstract class Block extends EntityBase {
 				cached.material.alpha = Math.max(Block._minOpacity, this._alpha);
 			});
 
-			if (changed) {
+			if (this._alpha <= 0) {
 				this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
 					mesh.isVisible = false;
 				});

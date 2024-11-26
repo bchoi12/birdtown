@@ -17,7 +17,7 @@ export abstract class ArchBase extends Block {
 		this._allTypes.add(EntityType.ARCH_BLOCK);
 	}
 
-	override meshOffset() : Vec { return {y: -this.profile().scaledDim().y / 2}; }
+	override meshOffset() : Vec { return {y: -this.profile().dim().y / 2}; }
 	override thickness() : number { return 0.5; }
 	override ready() { return super.ready() && this.hasOpenings() && this._hexColors.hasColor(ColorCategory.BASE) && this._hexColors.hasColor(ColorCategory.SECONDARY); }
 

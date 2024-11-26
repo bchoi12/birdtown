@@ -52,7 +52,7 @@ export class Bubble extends Equip<Player> {
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
-				const ownerDim = this.owner().profile().scaledDim();
+				const ownerDim = this.owner().profile().dim();
 
 				let bubble = BABYLON.MeshBuilder.CreateSphere(this.name(), {
 					diameter: 2 * Math.max(ownerDim.x, ownerDim.y),

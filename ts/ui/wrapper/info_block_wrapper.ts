@@ -37,9 +37,6 @@ export class InfoBlockWrapper extends IconWrapper {
 		if (this._visible) {
 			return;
 		}
-		if (this.empty()) {
-			return;
-		}
 
 		this.elm().style.display = "inline-block";
 		this._visible = true;

@@ -98,7 +98,7 @@ export class Level extends SystemBase implements System {
 	
 	spawnPlayer(player : Player) : void {
 		if (!this.isSource() && player.valid()) {
-			player.quickRespawn(player.profile().pos());
+			player.getUp();
 			return;
 		}
 		
@@ -108,7 +108,7 @@ export class Level extends SystemBase implements System {
 		}
 
 		if (game.controller().gameState() === GameState.FREE) {
-			player.respawn(this._defaultSpawn);
+			player.floatRespawn(this._defaultSpawn);
 			return;
 		}
 
@@ -121,14 +121,14 @@ export class Level extends SystemBase implements System {
 		if (this.spawnAtPlane(player)) {
 			return;
 		}	
-		player.quickRespawn(this._defaultSpawn);
+		player.respawn(this._defaultSpawn);
 	}
 	private spawnAtPoint(player : Player) : boolean {
 		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findN((spawnPoint : Entity) => {
 			return spawnPoint.valid() && spawnPoint.matchAssociations([AssociationType.TEAM], player);
 		}, 1);
 		if (spawns.length === 1) {
-			player.quickRespawn(spawns[0].profile().pos());
+			player.respawn(spawns[0].profile().pos());
 			return true
 		}
 	}
@@ -137,7 +137,7 @@ export class Level extends SystemBase implements System {
 			return plane.valid();
 		}, 1);
 		if (planes.length === 1) {
-			player.respawn(planes[0].profile().pos());
+			player.floatRespawn(planes[0].profile().pos());
 			return true;
 		}
 	}
