@@ -108,11 +108,11 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 			return;
 		}
 
-		this._blocks.get(type).show();
-
 		if (!this._values.has(type)) {
 			this.update(type, 0);
 		}
+
+		this._blocks.get(type).show();
 	}
 	update(type : InfoType, value : number) : void {
 		if (!this._blocks.has(type)) {
@@ -136,7 +136,7 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 			this.setScore(value);
 			break;
 		case InfoType.ROUND_WINS:
-			this.setVictories(value);
+			this.setRoundWins(value);
 			break;
 		case InfoType.WINS:
 			this.setWins(value);
@@ -149,6 +149,7 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 	highlight() : void { this.elm().classList.add(Html.classInfoHighlight); }
 	removeHighlight() : void { this.elm().classList.remove(Html.classInfoHighlight); }
 
+	refresh() : void { this._nameWrapper.refresh(); }
 	refreshColor() : void { this._nameWrapper.refreshColor(); }
 
 	hide(type : InfoType) : void {
@@ -158,7 +159,6 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 
 		let wrapper = this._blocks.get(type);
 		wrapper.hide();
-		this._values.delete(type);
 	}
 	hideAll() : void {
 		this._blocks.forEach((wrapper : InfoBlockWrapper, type : InfoType) => {
@@ -194,25 +194,30 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 		}
 	}
 
-	private setVictories(victories : number) : void {
+	private setRoundWins(roundWins : number) : void {
 		let wrapper = this._blocks.get(InfoType.ROUND_WINS);
 
 		const config = game.controller().config();
-
 		if (config.hasVictories()) {
-			wrapper.setIconFraction(IconType.TROPHY, victories, config.getVictories());
+			wrapper.setIconFraction(IconType.TROPHY, roundWins, config.getVictories());
 		} else {
-			wrapper.setIconN(IconType.TROPHY, victories);
+			wrapper.setIconN(IconType.TROPHY, roundWins);
 		}
 	}
 
 	private setScore(score : number) : void {
 		let wrapper = this._blocks.get(InfoType.SCORE);
-		wrapper.setText(score + " pts");
+		wrapper.setText(score + (score === 1 ? " pt" : " pts"));
 	}
 
 	private setWins(wins : number) : void {
 		let wrapper = this._blocks.get(InfoType.WINS);
-		wrapper.setText(wins + " wins");
+
+		if (wins <= 0) {
+			wrapper.setText("");
+			return;
+		}
+
+		wrapper.setText(wins + (wins === 1 ? " win" : " wins"));
 	}
 }

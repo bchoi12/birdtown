@@ -61,7 +61,7 @@ export namespace Html {
 	export const classSpaced = "spaced";
 	export const classNoSelect = "no-select";
 	export const classTransparent05 = "transparent-05"
-	export const classTransparent07= "transparent-07";
+	export const classTransparent08= "transparent-08";
 
 	export const classBirdPhoto = "bird-photo";
 	export const classBirdPicker = "bird-picker";

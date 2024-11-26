@@ -536,7 +536,23 @@ export class Profile extends ComponentBase implements Component {
 		if (point.y > this._pos.y + dim.y / 2 + buffer.y) { return false; }
 		if (point.y < this._pos.y - dim.y / 2 - buffer.y) { return false; }
 
-		return true;
+		return true;	
+	}
+	xDist(point : Vec) : number {
+		const dim = this.dim();
+		if (point.x > this._pos.x) {
+			return Math.max(0, point.x - this._pos.x - dim.x / 2);
+		} else {
+			return -Math.max(0, this._pos.x - point.x - dim.x / 2);
+		}
+	}
+	yDist(point : Vec) : number {
+		const dim = this.dim();
+		if (point.y > this._pos.y) {
+			return Math.max(0, point.y - this._pos.y - dim.y / 2);
+		} else {
+			return -Math.max(0, this._pos.y - point.y - dim.y / 2);
+		}
 	}
 	containsProfile(profile : Profile) : boolean {
 		const dim = this.dim();

@@ -50,7 +50,6 @@ type MaterialFn = (material : BABYLON.StandardMaterial) => void;
 export abstract class Block extends EntityBase {
 
 	protected static readonly _minOpacity = 0.15;
-	protected static readonly _transitionMillis = 300;
 	protected static readonly _minPenetrationSq = 0.1;
 	protected static readonly _backColorScale = 0.7;
 	protected static readonly _transparentAlpha = 0.5;
@@ -77,7 +76,6 @@ export abstract class Block extends EntityBase {
 		this._occludedEntities = new Set();
 		this._canTransparent = false;
 		this._alpha = 1;
-		this._transparent = false;
 		this._materialCache = new Map();
 		this._frontMaterials = new Set();
 		this._transparentFrontMeshes = new Array();
@@ -141,7 +139,7 @@ export abstract class Block extends EntityBase {
 
 	hasOpenings() : boolean { return this._cardinals.hasCardinal(CardinalType.OPENINGS); }
 	openings() : Cardinal { return this._cardinals.getCardinal(CardinalType.OPENINGS); }
-	transparent() : boolean { return this._transparent; }
+	transparent() : boolean { return this._alpha < 1; }
 
 	override prePhysics(stepData : StepData) : void {
 		super.prePhysics(stepData);
@@ -161,48 +159,46 @@ export abstract class Block extends EntityBase {
 		}
 	}
 
-	override postPhysics(stepData : StepData) : void {
-		super.postPhysics(stepData);
+	override preRender() : void {
+		super.preRender();
 
 		if (!this._canTransparent) {
 			return;
 		}
 
-		const millis = stepData.millis;
+		const transparent = this.transparent();
+		const alpha = this.checkAlpha();
 
-		const changed = this.checkTransparent();
+		if (this._alpha === alpha) {
+			return;
+		}
+
+		const changed = transparent !== this.transparent();
 
 		this._profile.setVisible(this.canOcclude() && !this.transparent());
-		if (this.transparent() && this._alpha > 0) {
-			this._alpha = Math.max(0, this._alpha - millis / Block._transitionMillis);
+		this._frontMaterials.forEach((name : string) => {
+			const cached = this._materialCache.get(name);
+			cached.material.alpha = Math.max(Block._minOpacity, alpha);
+		});
 
-			this._frontMaterials.forEach((name : string) => {
-				const cached = this._materialCache.get(name);
-				cached.material.alpha = Math.max(Block._minOpacity, this._alpha);
+		if (this._alpha === 0 && alpha > 0) {
+			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
+				mesh.isVisible = true;
 			});
+		} else if (alpha === 0 && this._alpha > 0) {
+			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
+				mesh.isVisible = false;
+			});
+		}
 
-			if (this._alpha <= 0) {
-				this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
-					mesh.isVisible = false;
-				});
-			}
-		} else if (!this.transparent() && this._alpha < 1) {
-			this._alpha = Math.min(1, this._alpha + millis / (3 * Block._transitionMillis));
-
+		if (!this.transparent()) {
 			this._occludedEntities.forEach((entity : Entity) => {
 				entity.profile().setOccluded(true);
 			});
-			this._frontMaterials.forEach((name : string) => {
-				const cached = this._materialCache.get(name);
-				cached.material.alpha = Math.min(cached.alpha, this._alpha);
-			});
-
-			if (changed) {
-				this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
-					mesh.isVisible = true;
-				});
-			}
 		}
+
+		this._alpha = alpha;
+
 	}
 
 	protected addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {
@@ -299,28 +295,35 @@ export abstract class Block extends EntityBase {
 
 	protected canOcclude() : boolean { return !(this._frontMaterials.size === 0 && this._transparentFrontMeshes.length === 0); }
 
-	protected checkTransparent() : boolean {
-		let transparent = this._transparent;
-
-		this._transparent = false;
+	protected checkAlpha() : number {
 		if (this.hasOpenings() && this.openings().empty()) {
-			return this._transparent !== transparent;
+			return 1;
 		}
 
 		if (!game.lakitu().validTargetEntity()) {
-			return this._transparent !== transparent;
+			return 1;
 		}
 
 		const target = game.lakitu().targetEntity();
 		if (!target.hasProfile()) {
-			return this._transparent !== transparent;
+			return 1;
 		}
 
-		if (!this._profile.bufferContains(target.profile().pos(), { x: 4, y: 0 })) {
-			return this._transparent !== transparent;
+		if (this._profile.yDist(target.profile().pos()) !== 0) {
+			return 1;
 		}
 
-		this._transparent = true;
-		return this._transparent !== transparent;
+		const dist = this._profile.xDist(target.profile().pos());
+		if (Math.abs(dist) > 4) {
+			return 1;
+		}
+		if (dist > 0 && this.hasOpenings() && !this.openings().anyRight()) {
+			return 1;
+		}
+		if (dist < 0 && this.hasOpenings() && !this.openings().anyLeft()) {
+			return 1;
+		}
+
+		return Math.abs(dist) / 4;
 	}
 }

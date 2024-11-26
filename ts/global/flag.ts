@@ -52,3 +52,14 @@ export class NumberFlag extends Flag<number>{
 		return Number(param);
 	}
 }
+
+export class StringFlag extends Flag<string>{
+
+	constructor(name : string, value : string) {
+		super(name, value);
+	}
+
+	override convert(param : string) : string {
+		return param;
+	}
+}

@@ -280,7 +280,7 @@ export class PlayerState extends ClientSystem implements System {
 
 		const [particle, hasParticle] = this.addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
 			offline: true,
-			ttl: 3000,
+			ttl: 5000,
 			profileInit: {
 				pos: this.targetEntity().profile().pos().clone().add({
 					y: this.targetEntity().profile().dim().y / 2 + offset,

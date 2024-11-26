@@ -1,16 +1,16 @@
-# birdtown
+# Birdtown
 
-Demo: https://brianchoi.net/birdtown
+https://birdtown.net
 
 ## Overview
 
-birdtown is a multiplayer arena shooter built for the web
+Welcome to Birdtown, a multiplayer arena shooter custom built for the web.
 
-Share a link with your friends and start playing instantly--no login or install needed.
+Start a game and have your friends join in seconds - no login or install required.
 
 ## Status
 
-Under development - demo at https://brianchoi.net/birdtown.
+Play the alpha version at https://birdtown.net.
 
 ## Screenshots
 
@@ -24,13 +24,12 @@ Under development - demo at https://brianchoi.net/birdtown.
 
 Engine Highlights
  * Custom built for the web with nearly instant load times. All assets are streamed to you on-demand.
- * Cross platform support - play with any device that can run a modern web browser, including your phone
- * Peer-to-peer netcode, but also server authoritative (one client serves as host)
- * Netcode is optimized for P2P browser action and configurable client prediction can smooth network hiccups
- * Fully featured voice chat with spatialized audio (and text chat)
- * 3D rendering thanks to Babylon.js and WebGL
- * Game states are diff-based, compressed, and selectively sent using both reliable (TCP-like) and fast (UDP-like) protocols for smooth consistent gameplay
- * Levels are procedurally generated, deterministic, and synced over the network
+ * Cross platform support - play with any device that can run a modern web browser
+ * Serer authoritative peer-to-peer netcode (one client doubles as the host) with client-side smoothing
+ * Experimental built-in proximity voice chat (and text chat)
+ * 3D rendering thanks to Babylon.js and spatialized audio thanks to WebAudio
+ * Levels are procedurally generated using a seed and also seamlessly endless
+ * Game states are diff-based and compressed, then sent using both reliable (TCP-like) and fast (UDP-like) protocols for smooth consistent gameplay
 
 ## Credits
 

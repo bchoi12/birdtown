@@ -28,7 +28,7 @@ export class ShareWrapper extends ButtonWrapper {
 
 	private getURL() : string {
 		if (isElectron()) {
-			return "https://brianchoi.net/birdtown/?room=" + game.netcode().room();
+			return "https://birdtown.net/?room=" + game.netcode().room();
 		}
 
 		const url = new URL(window.location.href);

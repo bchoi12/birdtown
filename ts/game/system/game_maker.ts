@@ -290,7 +290,7 @@ export class GameMaker extends SystemBase implements System {
 					this.processKillOn(player);
 					if (!game.tablet(clientId).outOfLives()) {
 						playerState.waitUntil(PlayerRole.PREPARING, GameMaker._respawnTime, () => {
-							if (this._config.getStartingLoadout() !== LoadoutType.PICK) {
+							if (this._config.getStartingLoadout() !== LoadoutType.PICK || game.controller().gameState() !== GameState.GAME) {
 								return;
 							}
 							if (game.clientDialogs().hasClientDialog(clientId)) {
@@ -450,11 +450,7 @@ export class GameMaker extends SystemBase implements System {
 			});
 			break;
 		case GameState.FINISH:
-			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
-				clientDialog.queueForceSubmit(DialogType.LOADOUT);
-			}, (clientDialog : ClientDialog) => {
-				return this.isPlaying(clientDialog.clientId()) && !clientDialog.inSync(DialogType.LOADOUT);
-			});
+			this.queueForceSubmit(DialogType.LOADOUT);
 			this._winners.forEach((clientId : number) => {
 				if (game.tablets().hasTablet(clientId)) {
 					game.tablet(clientId).addInfo(InfoType.ROUND_WINS, 1);
@@ -469,6 +465,11 @@ export class GameMaker extends SystemBase implements System {
 	    	game.announcer().broadcast(winnerMsg);
 			break;
 		case GameState.VICTORY:
+			this._winners.forEach((clientId : number) => {
+				if (game.tablets().hasTablet(clientId)) {
+					game.tablet(clientId).addInfo(InfoType.WINS, 1);
+				}
+			});
 	    	let victorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	victorMsg.setAnnouncementType(AnnouncementType.GAME_VICTORY);
 	    	victorMsg.setNames(this.winnerName());

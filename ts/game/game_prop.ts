@@ -130,7 +130,6 @@ export class GameProp<T extends Object> {
 
 		this._value.set(value);
 		this._importSeqNum = seqNum;
-		this._seqNum = seqNum;
 		return true;
 	}
 	relay(value : T, seqNum : number) : boolean {
@@ -153,7 +152,6 @@ export class GameProp<T extends Object> {
 
 		this._value.set(value);
 		this._importSeqNum = seqNum;
-		this._seqNum = seqNum;
 		// If seqnums are equal, either set to 1 or don't increment.
 		this._consecutiveChanges = Math.max(1, this._consecutiveChanges + (seqNumEqual ? 0 : 1));
 		this._lastChanged = seqNum;

@@ -1,8 +1,6 @@
 
 export namespace UiGlobals {
 	export const font = "Lato";
-
 	export const roomParam = "room";
-
-	export const versionString = "alpha 0.98";
+	export const versionString = "alpha 0.981";
 }

@@ -27,17 +27,15 @@ export class Tablet extends ClientSystem implements System {
 		[WinConditionType.TEAM_POINTS, new Set([InfoType.SCORE, InfoType.ROUND_WINS, InfoType.KILLS, InfoType.DEATHS])],
 	]);
 
-	private static readonly _gameClearTypes = new Set([
-		InfoType.DEATHS,
-		InfoType.KILLS,
-		InfoType.LIVES,
-		InfoType.SCORE,
-		InfoType.ROUND_WINS,
-	]);
 	private static readonly _roundResetTypes = new Set([
 		InfoType.DEATHS,
 		InfoType.KILLS,
 		InfoType.SCORE,
+	]);
+	private static readonly _gameResetTypes = new Set([
+		...Tablet._roundResetTypes,
+		InfoType.LIVES,
+		InfoType.ROUND_WINS,
 	]);
 
 	private static readonly _teamColors = new Map<number, string>([
@@ -100,20 +98,14 @@ export class Tablet extends ClientSystem implements System {
 		if (Tablet._infoSets.has(winCondition)) {
 			return Tablet._infoSets.get(winCondition);
 		}
-
 		return Tablet._defaultInfos;
-	}
-	resetForPlayer() : void {
-		const msg = game.controller().config();
-		this.resetForGame(msg);
-		Tablet.infoTypes(msg.getWinCondition()).forEach((type : InfoType) => {
-			ui.updateInfo(this.clientId(), type, this.getInfo(type));
-		});
 	}
 	resetForGame(msg : GameConfigMessage) : void {
 		this.setWinner(false);
-		Tablet._gameClearTypes.forEach((type : InfoType) => {
-			if (Tablet.infoTypes(msg.getWinCondition()).has(type)) {
+
+		const infoTypes = Tablet.infoTypes(msg.getWinCondition());
+		Tablet._gameResetTypes.forEach((type : InfoType) => {
+			if (infoTypes.has(type)) {
 				this.setInfo(type, 0);
 			} else {
 				this.clearInfo(type);
@@ -122,8 +114,10 @@ export class Tablet extends ClientSystem implements System {
 	}
 	resetForRound(msg : GameConfigMessage) : void {
 		this.setWinner(false);
+
+		const infoTypes = Tablet.infoTypes(msg.getWinCondition());
 		Tablet._roundResetTypes.forEach((type : InfoType) => {
-			if (Tablet.infoTypes(msg.getWinCondition()).has(type)) {
+			if (infoTypes.has(type)) {
 				this.setInfo(type, 0);
 			}
 		});
@@ -148,9 +142,7 @@ export class Tablet extends ClientSystem implements System {
 	setInfo(type : InfoType, value : number) : void {
 		this._infoMap.set(type, value);
 
-		if (Tablet.infoTypes(game.controller().config().getWinCondition()).has(type)) {
-			ui.updateInfo(this.clientId(), type, value);
-		}
+		ui.updateInfo(this.clientId(), type, value);
 
 		if (type === InfoType.SCORE) {
 			game.tablets().updateTeamScores();

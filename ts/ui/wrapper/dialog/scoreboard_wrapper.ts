@@ -49,6 +49,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 
 	addPlayer(id : number) : void {
 		if (this._infoWrappers.has(id)) {
+			this._infoWrappers.get(id).refresh();
 			return;
 		}
 
@@ -101,18 +102,21 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		Tablet.infoTypes(config.getWinCondition()).forEach((type : InfoType) => {
 			wrapper.show(type);
 		});
+		this.sort();
 	}
 
 	updateInfo(id : number, type : InfoType, value : number) : void {
 		if (!this._infoWrappers.has(id)) {
-			return;
+			this.addPlayer(id);
 		}
 
 		let wrapper = this._infoWrappers.get(id);
 		wrapper.update(type, value);
 
-		wrapper.show(type);
-		this.sort();
+		if (Tablet.infoTypes(game.controller().config().getWinCondition()).has(type)) {
+			wrapper.show(type);
+			this.sort();
+		}
 	}
 
 	clearInfo(id : number, type : InfoType) : void {
@@ -130,16 +134,22 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	onShow() : void {
-		this.sort();
 		this._keyElm.textContent = KeyNames.get(settings.scoreboardKeyCode);
+		this.sort();
 	}
 
 	sort() : void {
-		if (game.controller().gameState() === GameState.FREE) {
-			return;
-		}
-
 		switch (game.controller().config().getWinCondition()) {
+		case WinConditionType.NONE:
+			this._infoWrappers.forEach((wrapper : InfoWrapper, id : number) => {
+				let team = 0;
+				if (game.tablets().hasTablet(id)) {
+					team = game.tablet(id).team();
+				}
+
+				wrapper.elm().style.order = "" + (100 * team + wrapper.orderDesc(InfoType.WINS));
+			});
+			break;
 		case WinConditionType.LIVES:
 		case WinConditionType.TEAM_LIVES:
 			this._infoWrappers.forEach((wrapper : InfoWrapper, id : number) => {

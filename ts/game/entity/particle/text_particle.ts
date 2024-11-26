@@ -13,6 +13,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { ParticleFactory } from 'game/factory/particle_factory'
 
 import { GameGlobals } from 'global/game_globals'
+import { UiGlobals } from 'global/ui_globals'
 
 import { Fns, InterpType } from 'util/fns'
 import { Vec2 } from 'util/vector'
@@ -28,7 +29,7 @@ type TextOptions = {
 
 export class TextParticle extends Particle {
 
-	private static readonly _defaultFont = "bold 24pt Lato";
+	private static readonly _defaultFont = "bold 24pt " + UiGlobals.font;
 	private static readonly _defaultTextColor = "#FFFFFF";
 	private static readonly _fillColor = "#00000000";
 	private static readonly _textureHeight = 64;
