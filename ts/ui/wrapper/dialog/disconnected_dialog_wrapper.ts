@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { UiGlobals } from 'global/ui_globals'
+
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 import { Html } from 'ui/html'
@@ -17,10 +19,12 @@ export class DisconnectedDialogWrapper extends DialogWrapper {
 		this.shrink();
 
 		let pageWrapper = this.addPage();
-        pageWrapper.elm().textContent = `Lost connection with the host. Please click OK to return to the login menu.`;
+        pageWrapper.elm().textContent = `Lost connection with the host. Click OK to try reconnecting.`;
 
 		pageWrapper.setOnSubmit(() => {
-			window.location.replace(location.pathname);
+			const url = new URL(window.location.href);
+			url.searchParams.set(UiGlobals.roomParam, game.netcode().room());
+			window.location.replace(url.toString());
 		});
 
 		let okButton = this.addOKButton();

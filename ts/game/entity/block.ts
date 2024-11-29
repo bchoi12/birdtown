@@ -91,7 +91,7 @@ export abstract class Block extends EntityBase {
 				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					isSensor: true,
 					isStatic: true,
-					collisionFilter: Flags.enableMinimap.get() ? BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE) : BodyFactory.neverCollideFilter(),
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE),
 				});
 			},
 			init: entityOptions.profileInit,
@@ -160,6 +160,15 @@ export abstract class Block extends EntityBase {
 		}
 	}
 
+	override postPhysics(stepData : StepData) : void {
+		super.postPhysics(stepData);
+
+		// This needs to be in postPhysics so other entities can hide in preRender
+		this._occludedEntities.forEach((entity : Entity) => {
+			entity.profile().setOccluded(!this.transparent());
+		});
+	}
+
 	override preRender() : void {
 		super.preRender();
 
@@ -192,14 +201,7 @@ export abstract class Block extends EntityBase {
 			});
 		}
 
-		if (!this.transparent()) {
-			this._occludedEntities.forEach((entity : Entity) => {
-				entity.profile().setOccluded(true);
-			});
-		}
-
 		this._alpha = alpha;
-
 	}
 
 	protected addTrackedEntity<T extends Entity>(type : EntityType, options : EntityOptions) : [T, boolean] {
