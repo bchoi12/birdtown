@@ -21,6 +21,7 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { Flags } from 'global/flags'
 
 import { Cardinal, CardinalDir, CardinalType } from 'util/cardinal'
+import { Fns } from 'util/fns'
 import { HexColor } from 'util/hex_color'
 import { Optional } from 'util/optional'
 import { Vec, Vec2, Vec3 } from 'util/vector'
@@ -177,8 +178,8 @@ export abstract class Block extends EntityBase {
 
 		this._profile.setVisible(this.canOcclude() && !this.transparent());
 		this._frontMaterials.forEach((name : string) => {
-			const cached = this._materialCache.get(name);
-			cached.material.alpha = Math.max(Block._minOpacity, alpha);
+			const cachedMaterial = this._materialCache.get(name);
+			cachedMaterial.material.alpha = Fns.clamp(Block._minOpacity, alpha, cachedMaterial.alpha);
 		});
 
 		if (this._alpha === 0 && alpha > 0) {

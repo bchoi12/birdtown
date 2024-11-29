@@ -32,7 +32,7 @@ import { SeededRandom } from 'util/seeded_random'
 
 export class GameMaker extends SystemBase implements System {
 
-	private static readonly _lastDamageTime = 10000;
+	private static readonly _lastDamageTime = 15000;
 	private static readonly _endTimeLimit = 3000;
 	private static readonly _loadTimeLimit = 2500;
 	private static readonly _respawnTime = 2000;
@@ -40,14 +40,14 @@ export class GameMaker extends SystemBase implements System {
 
 	private static readonly _timeLimitBuffer = new Map<GameState, number>([
 		// Large buffer to allow dialogs to cleanly force submit and sync
-		[GameState.SETUP, 5000],
+		[GameState.SETUP, 3000],
 	]);
 
 	private static readonly _limitPerPlayer = new Map<FrequencyType, number>([
 		[FrequencyType.NEVER, 0],
-		[FrequencyType.LOW, 0.67],
+		[FrequencyType.LOW, 0.5],
 		[FrequencyType.MEDIUM, 1.5],
-		[FrequencyType.HIGH, 2],
+		[FrequencyType.HIGH, 3],
 	]);
 
 	private _config : GameConfigMessage;
@@ -129,9 +129,9 @@ export class GameMaker extends SystemBase implements System {
 	entityLimit(type : EntityType) : number {
 		switch (type) {
 		case EntityType.HEALTH_CRATE:
-			return game.playerStates().numPlayers() * GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawn());
+			return Math.ceil(game.playerStates().numPlayers() * GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawn()));
 		case EntityType.WEAPON_CRATE:
-			return game.playerStates().numPlayers() * GameMaker._limitPerPlayer.get(this._config.getWeaponCrateSpawn());
+			return Math.ceil(game.playerStates().numPlayers() * GameMaker._limitPerPlayer.get(this._config.getWeaponCrateSpawn()));
 		default:
 			return Infinity;
 		}

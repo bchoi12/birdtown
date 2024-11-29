@@ -150,8 +150,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			break;
 		case GameMode.FREE_FOR_ALL:
 			this.setPlayersMin(2);
-			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
-			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
+			this.setHealthCrateSpawn(FrequencyType.NONE);
+			this.setWeaponCrateSpawn(FrequencyType.LOW);
 			this.setPoints(4);
 			this.setStartingLoadout(LoadoutType.PICK);
 			this.setVictories(3);
@@ -160,17 +160,17 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);
 			this.setTimeSetup(45000);
-			this.setHealthCrateSpawn(FrequencyType.HIGH);
 			this.setStartingLoadout(LoadoutType.PICK);
+			this.setHealthCrateSpawn(FrequencyType.HIGH);
 			this.setWeaponCrateSpawn(FrequencyType.HIGH);
 			this.setWinCondition(WinConditionType.NONE);
 			break;
 		case GameMode.SURVIVAL:
 			this.setLives(1);
 			this.setPlayersMin(2);
-			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setStartingLoadout(LoadoutType.PICK);
-			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
+			this.setHealthCrateSpawn(FrequencyType.LOW);
+			this.setWeaponCrateSpawn(FrequencyType.NONE);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.LIVES);
 			break;
@@ -180,8 +180,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelType(LevelType.BIRDTOWN);
 			this.setLevelLayout(LevelLayout.NORMAL);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setWeaponCrateSpawn(FrequencyType.LOW);
 			this.setStartingLoadout(LoadoutType.PICK);
-			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.TEAM_LIVES);
 			break;			
