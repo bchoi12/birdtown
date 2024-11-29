@@ -45,9 +45,9 @@ export class GameMaker extends SystemBase implements System {
 
 	private static readonly _limitPerPlayer = new Map<FrequencyType, number>([
 		[FrequencyType.NEVER, 0],
-		[FrequencyType.LOW, 0.5],
-		[FrequencyType.MEDIUM, 1.5],
-		[FrequencyType.HIGH, 3],
+		[FrequencyType.LOW, 0.25],
+		[FrequencyType.MEDIUM, 0.5],
+		[FrequencyType.HIGH, 1],
 	]);
 
 	private _config : GameConfigMessage;
