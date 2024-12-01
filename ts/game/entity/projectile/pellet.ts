@@ -38,7 +38,7 @@ export class Pellet extends Projectile {
 
 		this._trail = BABYLON.MeshBuilder.ExtrudePolygon(this.name() + "-trail", {
 			shape: Pellet._trailVertices,
-			depth: 0.2,
+			depth: 0.1,
 		}, game.scene(), earcut);
 		this._trail.material = MaterialFactory.material(MaterialType.WESTERN_YELLOW_TRAIL);
 		this._trail.rotation.x = Math.PI / 2;
@@ -86,7 +86,7 @@ export class Pellet extends Projectile {
 		}));
 	}
 
-	override hitDamage() : number { return 9; }
+	override hitDamage() : number { return 10; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);

@@ -45,10 +45,10 @@ export type GameOptions = {
 class Game {
 	private _initialized : boolean;
 	private _clientId : number;
+	private _lastClientId : number;
 	private _canvas : HTMLCanvasElement;
 
 	private _options : GameOptions;
-	private _lastClientId : number;
 	private _engine : BABYLON.Engine;
 	private _netcode : Netcode;
 
@@ -70,23 +70,28 @@ class Game {
 	constructor() {
 		this._initialized = false;
 		this._clientId = 0;
+		this._lastClientId = 0;
 		this._canvas = Html.canvasElm(Html.canvasGame);
 	}
 
 	initialize(gameOptions : GameOptions) {
 		this._options = gameOptions;
 
+		this._engine = null;
 		if (this._options.isHost) {
 			this._netcode = new Host(this._options.room);
 		} else {
 			this._netcode = new Client(this._options.room);
 		}
+
 		this._netcode.initialize(() => {
 			this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false, {
 				audioEngine: true,
 				stencil: true,
 			});
-			window.onresize = () => { this._engine.resize(); };
+			window.onresize = () => {
+				this.onResize()
+			};
 
 			this._runner = new Runner();
 			this._announcer = new Announcer();
@@ -129,6 +134,7 @@ class Game {
 			this._options.netcodeSuccess();
 
 	    	ui.pushDialog(DialogType.INIT);
+			this.onResize();
 		}, this._options.netcodeError);
 	}
 
@@ -211,6 +217,17 @@ class Game {
 	tablets() : Tablets { return this._tablets; }
 	tablet(id? : number) : Tablet { return this._tablets.tablet(id); }
 	world() : World { return this._world; }
+
+	private onResize() : void {
+		this._engine.resize();
+
+		// Handle case where 
+		if (this._canvas.height < window.innerHeight - 10) {
+			document.body.style.fontSize = 3 * (this._canvas.height / window.innerHeight) + "vmin";
+		} else {
+			document.body.style.fontSize = "3vmin";
+		}
+	}
 
 }
 

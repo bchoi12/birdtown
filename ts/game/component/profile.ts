@@ -602,6 +602,7 @@ export class Profile extends ComponentBase implements Component {
 					bodyB: self.body(),
 					pointA: this._attachOffset,
 					stiffness: 1,
+					damping: 0.1,
 					length: 0,
 					render: {
 						visible: false,
@@ -779,6 +780,10 @@ export class Profile extends ComponentBase implements Component {
 	clearTempLimitFns() : void { this._tempLimitFns.clear(); }
 	setOutOfBoundsFn(outOfBoundsFn : ModifyProfileFn) : void { this._outOfBoundsFn.set(outOfBoundsFn); }
 	private applyLimits() : void {
+		if (this.isSubComponent()) {
+			return;
+		}
+
 		if (this._outOfBoundsFn.has()) {
 			const bounds = game.level().bounds();
 			if (bounds.ySide(this._pos) !== 0 || !game.level().isCircle() && bounds.xSide(this._pos) !== 0) {

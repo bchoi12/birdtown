@@ -19,6 +19,7 @@ import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { ChatType, DialogType } from 'ui/api'
+import { LoginNames } from 'ui/common/login_names'
 
 import { Buffer } from 'util/buffer'
 import { defined, isLocalhost } from 'util/common'
@@ -46,6 +47,8 @@ export abstract class Netcode {
 	]);
 
 	protected _room : string;
+	protected _hostName : string;
+	protected _peerName : string;
 	protected _clientId : number;
 	protected _initialized : boolean;
 	protected _initError : boolean;
@@ -68,6 +71,8 @@ export abstract class Netcode {
 
 	constructor(room : string) {
 		this._room = room.toUpperCase();
+		this._hostName = "birdtown-" + this._room;
+		this._peerName = this._hostName + "-" + LoginNames.randomId(6);
 		this._clientId = 0;
 		this._initialized = false;
 		this._initError = false;
@@ -93,10 +98,22 @@ export abstract class Netcode {
 	}
 
 	initialize(onSuccess : () => void, onError: () => void) : void {
-		this._peer = new Peer(this.isHost() ? this.hostName() : "", {
-			debug: Flags.peerDebug.get(),
-			pingInterval: 5000,
-		});
+		if (Flags.useLocalPerch.get()) {
+			console.log("Using local server with ID", this.peerName());
+			this._peer = new Peer(this.peerName(), {
+				host: "localhost",
+				port: 3000,
+				path: "/peer",
+				debug: Flags.peerDebug.get(),
+				pingInterval: 5000,
+			});
+		} else {
+			this._peer = new Peer(this.peerName(), {
+				debug: Flags.peerDebug.get(),
+				pingInterval: 5000,
+			});
+		}
+
 		this._initError = false;
 
 		this._peer.on("call", (incoming : MediaConnection) => {
@@ -151,7 +168,8 @@ export abstract class Netcode {
 
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
-	hostName() : string { return "birdtown-" + this._room; }
+	hostName() : string { return this._hostName; }
+	peerName() : string { return this.isHost() ? this._hostName : this._peerName; }
 	hasClientId() : boolean { return this._clientId > 0; }
 	setClientId(id : number) { this._clientId = id; }
 	clientId() : number { return this._clientId; }

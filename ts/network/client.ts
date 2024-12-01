@@ -21,6 +21,9 @@ export class Client extends Netcode {
 	constructor(room : string) {
 		super(room);
 
+		this._tcp = null;
+		this._udp = null;
+
 		this.registerCallbacks();
 	}
 
@@ -42,13 +45,13 @@ export class Client extends Netcode {
 		});
 
 		peer.on("disconnected", () => {
-			if (this.initialized()) {
-				ui.pushDialog(DialogType.DISCONNECTED);
-			} else {
-				this.initError(onError);
+			if (isLocalhost()) {
+				console.log("Disconnected from peer server");
 			}
 
-			// TODO: reconnect?
+			if (!this.initialized()) {
+				this.initError(onError);
+			}
 		});
 	}
 
@@ -147,11 +150,7 @@ export class Client extends Netcode {
 		this._tcp.on("close", () => {
 			console.error("TCP closed!");
 
-			this.unregister(this._tcp);
-			this.unregister(this._udp);
-
-			// TODO: reconnect?
-			// this.initTCP();
+			this.closeConnections();
 		});
 	}
 
@@ -169,6 +168,9 @@ export class Client extends Netcode {
 
 			this.register(this._udp);
 			this._initialized = true;
+
+			// Free up Websocket connections on the server.
+			// peer.disconnect(); 
 			onSuccess();
 		});
 
@@ -181,10 +183,24 @@ export class Client extends Netcode {
 		this._udp.on("close", () => {
 			console.error("UDP closed!");
 
-			this.unregister(this._udp);
-
-			// TODO: reconnect?
-			// this.initUDP();
+			this.closeConnections();
 		});
+	}
+
+	private closeConnections() : void {
+		let showDialog = false;
+		if (this._tcp !== null && this._tcp.open) {
+			this.unregister(this._tcp);
+			showDialog = true;
+		}
+		if (this._udp !== null && this._udp.open) {
+			this.unregister(this._udp);
+			showDialog = true;
+		}
+
+		// Show reconnect dialog
+		if (this.initialized() && showDialog) {
+			ui.pushDialog(DialogType.DISCONNECTED);
+		}
 	}
 }

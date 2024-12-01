@@ -19,7 +19,7 @@ export class Shotgun extends Weapon {
 
 	private static readonly _bursts = 2;
 	private static readonly _burstBullets = 4;
-	private static readonly _spreadDeg = 15;
+	private static readonly _spreadDeg = 18;
 	private static readonly _config = {
 		times: new Map([
 			[WeaponState.FIRING, 200],

@@ -51,13 +51,5 @@ function startTick(fps) {
 }
 
 self.onmessage = (event) => {
-	switch (event.data) {
-	case 1: // slow
-		startTick(10);
-		break;
-	case 2: // resume
-		startTick(60);
-		break;
-	}
+	startTick(event.data);
 };
-startTick(60);

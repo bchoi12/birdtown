@@ -62,7 +62,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 	override setup() : void {	
 		this._buttonHostElm.onclick = () => {
-			let room = LoginNames.randomRoom();
+			let room = LoginNames.randomId(4);
 			this.startGame(room, CreateMode.HOST);
 		};
 		this._buttonJoinElm.onclick = () => {

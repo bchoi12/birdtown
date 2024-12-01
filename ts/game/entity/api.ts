@@ -114,7 +114,9 @@ export enum FrequencyType {
 	UNKNOWN,
 
 	NEVER,
+	RARE,
 	LOW,
 	MEDIUM,
 	HIGH,
+	EVERYWHERE,
 }

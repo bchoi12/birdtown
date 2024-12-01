@@ -23,14 +23,14 @@ export class WingCannon extends Weapon {
 	private static readonly _config = {
 		times: new Map([
 			[WeaponState.FIRING, 100],
-			[WeaponState.RELOADING, 1300],
+			[WeaponState.RELOADING, 1200],
 		]),
 		bursts: WingCannon._bursts,
 	};
 	private static readonly _chargeConfig = {
 		times: new Map([
 			[WeaponState.FIRING, 1000],
-			[WeaponState.RELOADING, 1500],
+			[WeaponState.RELOADING, 600],
 		]),
 		bursts: WingCannon._chargeBursts,
 	};

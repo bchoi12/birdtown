@@ -464,7 +464,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			label: "Health crate drop rate",
 			value: Number(msg.getHealthCrateSpawn()),
 			plus: (current : number) => {
-				if (current === FrequencyType.HIGH) {
+				if (current === FrequencyType.EVERYWHERE) {
 					return;
 				}
 				current++;
@@ -486,7 +486,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			label: "Weapon crate drop rate",
 			value: Number(msg.getWeaponCrateSpawn()),
 			plus: (current : number) => {
-				if (current === FrequencyType.HIGH) {
+				if (current === FrequencyType.EVERYWHERE) {
 					return;
 				}
 				current++;

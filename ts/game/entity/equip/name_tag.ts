@@ -20,6 +20,11 @@ import { HudType } from 'ui/api'
 import { ChangeTracker } from 'util/change_tracker'
 import { Vec2 } from 'util/vector'
 
+enum SubMesh {
+	POINTER = 1,
+	BAR = 2,
+}
+
 export class NameTag extends Equip<Entity & EquipEntity> {
 
 	private static readonly _defaultTextColor = "#ffffff";
@@ -30,8 +35,6 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	private static readonly _textureHeight = 64;
 	private static readonly _pointerHeight = 0.1;
 
-	private static readonly _pointerId = 1;
-	private static readonly _barId = 2;
 	private static readonly _font = "64px " + UiGlobals.font;
 
 	private _displayName : string;
@@ -118,15 +121,15 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 				let bar = BABYLON.MeshBuilder.CreateBox(this.name() + "-bar", {
 					width: this._width,
-					height: NameTag._height * 0.16,
+					height: NameTag._height * 0.2,
 					depth: NameTag._height * 0.1,
 					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
 				});
 				bar.scaling.x = 0;
 				bar.material = this._colorMaterial;
 
-				model.registerSubMesh(NameTag._pointerId, pointer);
-				model.registerSubMesh(NameTag._barId, bar);
+				model.registerSubMesh(SubMesh.POINTER, pointer);
+				model.registerSubMesh(SubMesh.BAR, bar);
 				model.setMesh(mesh);
 			},
 			init: {
@@ -146,10 +149,10 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		this._model.onLoad((model : Model) => {
 			model.mesh().position.y = this.owner().profile().dim().y + 0.1;
 			
-			let bar = model.subMesh(NameTag._barId);
+			let bar = model.subMesh(SubMesh.BAR);
 			bar.position.y = model.mesh().position.y - NameTag._height / 2;
 
-			let pointer = model.subMesh(NameTag._pointerId);
+			let pointer = model.subMesh(SubMesh.POINTER);
 			pointer.position.y = this.owner().profile().dim().y - NameTag._height / 2 - NameTag._pointerHeight / 2;
 			pointer.rotation.z = - Math.PI / 2;
 		});
@@ -157,7 +160,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 	setBarWidth(percent : number) : void {
 		this._model.onLoad((model : Model) => {		
-			let bar = model.subMesh(NameTag._barId);
+			let bar = model.subMesh(SubMesh.BAR);
 			bar.scaling.x = percent;
 			bar.position.x = (percent - 1) / 2  * this._width;
 		});

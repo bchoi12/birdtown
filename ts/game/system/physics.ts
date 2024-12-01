@@ -30,7 +30,7 @@ export class Physics extends SystemBase implements System {
 		this._engine = MATTER.Engine.create({
 			gravity: { y: 0 },
 			// default = 2
-			constraintIterations: 3,
+			constraintIterations: 2,
 			// default = 8
 			positionIterations: 8,
 			// default = 4

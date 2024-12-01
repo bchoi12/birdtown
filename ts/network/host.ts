@@ -25,6 +25,7 @@ export class Host extends Netcode {
 	}
 
 	override isHost() : boolean { return true; }
+
 	override ready() : boolean { return this.initialized() && this.peer().open; }
 	override initialize(onSuccess : () => void, onError : () => void) : void {
 		super.initialize(onSuccess, onError);

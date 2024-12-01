@@ -73,9 +73,9 @@ export namespace LoginNames {
 
 	const roomLetters = "BCDFGHJKLMNPQRTVWXY346789"
 
-	export function randomRoom() : string {
+	export function randomId(n : number) : string {
 		let room = "";
-		for (let i = 0; i < 4; ++i) {
+		for (let i = 0; i < n; ++i) {
 			room += roomLetters.charAt(Math.floor(Math.random() * roomLetters.length));
 		}
 		return room;

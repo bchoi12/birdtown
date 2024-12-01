@@ -102,7 +102,6 @@ export class StatusHandler extends HandlerBase implements Handler {
 	}
 
 
-	displayedStatus() : StatusType | TempStatusType { return this._temporary !== TempStatusType.UNKNOWN ? this._temporary : this._permanent; }
 	disableStatus(type : StatusType) : void {
 		this._disabled.add(type);
 		this.clearStatus(type);

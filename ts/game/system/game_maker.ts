@@ -45,9 +45,11 @@ export class GameMaker extends SystemBase implements System {
 
 	private static readonly _limitPerPlayer = new Map<FrequencyType, number>([
 		[FrequencyType.NEVER, 0],
-		[FrequencyType.LOW, 0.25],
-		[FrequencyType.MEDIUM, 0.5],
-		[FrequencyType.HIGH, 1],
+		[FrequencyType.RARE, 0.25],
+		[FrequencyType.LOW, 0.5],
+		[FrequencyType.MEDIUM, 1],
+		[FrequencyType.HIGH, 2],
+		[FrequencyType.EVERYWHERE, 3],
 	]);
 
 	private _config : GameConfigMessage;
@@ -127,15 +129,21 @@ export class GameMaker extends SystemBase implements System {
 	}
 
 	entityLimit(type : EntityType) : number {
+		const players = Math.max(2, game.playerStates().numPlayers());
+
+		return Math.ceil(players * this.limitPerPlayer(type));
+	}
+	private limitPerPlayer(type : EntityType) : number {
 		switch (type) {
 		case EntityType.HEALTH_CRATE:
-			return Math.ceil(game.playerStates().numPlayers() * GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawn()));
+			return GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawn());
 		case EntityType.WEAPON_CRATE:
-			return Math.ceil(game.playerStates().numPlayers() * GameMaker._limitPerPlayer.get(this._config.getWeaponCrateSpawn()));
+			return GameMaker._limitPerPlayer.get(this._config.getWeaponCrateSpawn());
 		default:
 			return Infinity;
 		}
 	}
+
 	getEquips(clientId : number) : [EntityType, EntityType] {
 		if (this._config.type() === GameMode.FREE) {
 			return EquipPairs.randomDefaultPair();

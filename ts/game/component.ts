@@ -14,18 +14,22 @@ export interface Component extends GameObject {
 	entity() : Entity;
 	entityType() : EntityType;
 	setEntity<T extends Entity>(entity : T) : void;
+
+	setSubComponent() : void;
 }
 
 export abstract class ComponentBase extends GameObjectBase implements Component {
 
 	protected _entity : Optional<Entity>;
 	protected _type : ComponentType;
+	protected _isSubComponent : boolean;
 
 	constructor(type : ComponentType) {
 		super(ComponentType[type].toLowerCase());
 
 		this._entity = new Optional();
 		this._type = type;
+		this._isSubComponent = false;
 	}
 
 	override ready() : boolean {
@@ -43,6 +47,9 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 		return this.registerChild<T>(id, this.populateSubComponent<T>(component, { id: id }));
 	}
 	getSubComponent<T extends Component>(id : number) : T { return this.getChild<T>(id); }
+
+	isSubComponent() : boolean { return this._isSubComponent; }
+	setSubComponent() : void { this._isSubComponent = true; }
 
 	type() : ComponentType { return this._type; }
 	entity() : Entity { return this._entity.get(); }
@@ -66,6 +73,8 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 		if (this._entity.has()) {
 			component.setEntity(this._entity.get());
 		}
+		component.setSubComponent();
+
 		return component;
 	}
 }

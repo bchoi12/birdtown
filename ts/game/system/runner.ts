@@ -30,7 +30,8 @@ export class Runner extends SystemBase implements System  {
 	private static readonly _clientSnapThreshold = 1000;
 
 	// Max speedup is 15%
-	private static readonly _maxSpeedUp = 1.15;
+	private static readonly _tickTolerance = 0.15;
+	private static readonly _maxSpeedUp = 1 + Runner._tickTolerance;
 
 	private static readonly _warmupTime = 3000;
 	private static readonly _degradedThreshold = 0.6;
@@ -107,6 +108,7 @@ export class Runner extends SystemBase implements System  {
 
 		this._lastUpdateTime = Date.now();
 
+		this._ticker.postMessage(Runner._targetTickRate);
 	   	this._ticker.onmessage = (msg : any) => {
 	   		// Prevent spiral of death
 	   		if (Math.abs(Date.now() - msg.data) > Runner._skipTickThreshold) {
@@ -115,11 +117,6 @@ export class Runner extends SystemBase implements System  {
 
 	   		this._tickNum++;
 		   	game.netcode().flush();
-
-		   	// No need to update game
-		   	if (!ui.focused()) {
-		   		return;
-		   	}
 
 		   	const updateInterval = Date.now() - this._lastUpdateTime;
 	   		this._lastUpdateTime = Date.now();
@@ -136,6 +133,11 @@ export class Runner extends SystemBase implements System  {
 
 	   		const updateTime = Date.now() - this._lastUpdateTime;
    			this._gameStats.logTick(updateInterval, updateTime, stepData);
+
+		   	// No need to render the game
+		   	if (!ui.focused()) {
+		   		return;
+		   	}
 
    			const ratio = this._gameStats.rate() / Runner._targetTickRate;
    			if (ratio < Runner._degradedThreshold) {
@@ -193,7 +195,8 @@ export class Runner extends SystemBase implements System  {
 			return;
 		}
 
-		this._ticker.postMessage(1);
+		// Run slowly so we can still read some messages
+		this._ticker.postMessage(3);
 
 		this.setDegraded(true);
 	}
@@ -202,7 +205,7 @@ export class Runner extends SystemBase implements System  {
 			return;
 		}
 
-		this._ticker.postMessage(2);
+		this._ticker.postMessage(Runner._targetTickRate);
 
 		this.setDegraded(false);
 	}
@@ -233,12 +236,9 @@ export class Runner extends SystemBase implements System  {
 	tickDiff() : number { return this.isSource() ? 0 : Math.round(this._seqNumDiff / Runner._targetTick); }
  
 	private getGameStep(millis : number) : number {
-		// Allow clients to run uncapped
-		if (this.isSource() && millis > Runner._maxSpeedUp * Runner._targetTick) {
-			millis = Runner._targetTick;
-		}
-
-		if (!this.isSource()) {
+		if (this.isSource()) {
+			millis = Math.min(millis, Runner._maxSpeedUp * Runner._targetTick);
+		} else {
 			this._seqNumDiff = this._seqNum - this._importSeqNum;
 
 			if (this._seqNumDiff >= Runner._clientSnapThreshold) {
@@ -256,7 +256,7 @@ export class Runner extends SystemBase implements System  {
 				return millis;
 			} else {
 				// Magic slowdown/speedup formula
-				const coeff = 1 - Math.sign(this._seqNumDiff) * Math.min(0.3, Math.abs(this._seqNumDiff) / Runner._clientSnapThreshold);
+				const coeff = 1 - Math.sign(this._seqNumDiff) * Math.min(Runner._tickTolerance, Math.abs(this._seqNumDiff) / Runner._clientSnapThreshold);
 				millis *= coeff;
 				return millis;
 			}

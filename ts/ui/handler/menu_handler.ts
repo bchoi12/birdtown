@@ -61,9 +61,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 					this.enable();
 					this._canMenu = false;
 
-					if (ui.displayedStatus() === TempStatusType.DEGRADED) {
-						ui.disableTempStatus(TempStatusType.DEGRADED);
-					}
+					ui.disableTempStatus(TempStatusType.DEGRADED);
 				}
 			}
 		});

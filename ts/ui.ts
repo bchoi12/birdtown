@@ -223,7 +223,6 @@ class UI {
 	pushFeed(msg : GameMessage) : void { this._feedHandler.pushFeed(msg); }
 	hideTooltip(type : TooltipType) : void { this._tooltipHandler.hideTooltip(type); }
 	setDebugStats(enabled : boolean) : void { this._statsHandler.setDebug(enabled); }
-	displayedStatus() : StatusType | TempStatusType { return this._statusHandler.displayedStatus(); }
 	showStatus(type : StatusType) : void { this._statusHandler.showStatus(type); }
 	showTempStatus(type : TempStatusType) : void { this._statusHandler.showTempStatus(type); }
 	showLobbyStatuses() : void { this._statusHandler.showLobbyStatuses(); }

@@ -118,8 +118,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelLayout(LevelLayout.CIRCLE);
 			this.setLevelSeed(Math.floor(33 * Math.random()));
 			this.setStartingLoadout(LoadoutType.RANDOM);
-			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
-			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
+			this.setHealthCrateSpawn(FrequencyType.HIGH);
+			this.setWeaponCrateSpawn(FrequencyType.HIGH);
 			this.setWinCondition(WinConditionType.NONE);
 			return this;
 		}
@@ -161,8 +161,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setPlayersMin(1);
 			this.setTimeSetup(45000);
 			this.setStartingLoadout(LoadoutType.PICK);
-			this.setHealthCrateSpawn(FrequencyType.HIGH);
-			this.setWeaponCrateSpawn(FrequencyType.HIGH);
+			this.setHealthCrateSpawn(FrequencyType.EVERYWHERE);
+			this.setWeaponCrateSpawn(FrequencyType.EVERYWHERE);
 			this.setWinCondition(WinConditionType.NONE);
 			break;
 		case GameMode.SURVIVAL:
