@@ -42,7 +42,7 @@ export class Shotgun extends Weapon {
 
 	override weaponConfig() : WeaponConfig { return Shotgun._config; }
 
-	override shoot(stepData : StepData) : void {
+	override simulateUse(uses : number) : void {
 		const pos = this.shootPos();
 
 		const unitDir = this.getDir();

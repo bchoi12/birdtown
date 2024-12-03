@@ -1,11 +1,11 @@
 
 import { Optional } from 'util/optional'
-import { Vec, Vec2, Vec3 } from 'util/vector'
+import { Vec, Vec3 } from 'util/vector'
 
 export class SmoothVec extends Vec3 {
 
-	private _base : Optional<Vec2>;
-	private _predict : Optional<Vec2>;
+	private _base : Optional<Vec3>;
+	private _predict : Optional<Vec3>;
 
 	constructor(vec : Vec) {
 		super(vec);
@@ -43,8 +43,14 @@ export class SmoothVec extends Vec3 {
 	snapDistSq(weight : number) : number {
 		let temp = this.clone();
 		temp.snap(weight)
-
 		return this.distSq(temp);
+	}
+
+	approxSynced() : boolean {
+		if (!this._base.has() || !this._predict.has()) { return true; }
+
+		// 3e-2 is a relatively unnoticeable diff in position
+		return Vec3.approxEquals(this._base.get(), this._predict.get(), 3e-2);
 	}
 
 	snap(t : number) : Vec3 {
@@ -52,11 +58,5 @@ export class SmoothVec extends Vec3 {
 
 		this.copyVec(this._base.get());
 		return this.lerp(this._predict.get(), t);
-	}
-	peek(t : number) : Vec3 {
-		if (!this._base.has() || !this._predict.has()) { return this; }
-
-		let vec = this.clone().copyVec(this._base.get());
-		return vec.lerp(this._predict.get(), t);
 	}
 }

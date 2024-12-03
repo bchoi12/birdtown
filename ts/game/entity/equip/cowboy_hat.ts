@@ -71,7 +71,7 @@ export class CowboyHat extends Equip<Player> {
 		let hudData = super.getHudData();
 		let percent = this._juice / CowboyHat._maxJuice;
 		hudData.set(HudType.ROLL, {
-			charging: percent < 1,
+			charging: !this.canUse(),
 			percentGone: 1 - percent,
 			empty: true,
 			color: this.clientColorOr(ColorFactory.color(ColorType.WESTERN_BROWN).toString()),
@@ -85,28 +85,9 @@ export class CowboyHat extends Equip<Player> {
 
 		const millis = stepData.millis;
 
-		const weapons = this.owner().equips().findAll((equip : Equip<Player>) => {
-			return equip.allTypes().has(EntityType.WEAPON) && equip.valid();
-		});
-
-		if (this.canDash() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
-			this.owner().profile().setVel({x: 0, y: 0});
-
-			let force = this.inputDir().clone().scale(0.6);
-			this._dir = force.x === 0 ? 1 : Math.sign(force.x);
-
-			// Only allow source to dash since otherwise it's jittery.
-			this.owner().addForce(force);
-
-			weapons.forEach((weapon : Weapon) => {
-				weapon.quickReload(CowboyHat._dashTime);
-			});
-
-			this._juice = Math.max(0, this._juice - CowboyHat._maxJuice);
-			this._chargeDelayTimer.start(CowboyHat._chargeDelay);
-
-			this._dashTimer.start(CowboyHat._dashTime);
-			this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
+		this.setCanUse(this._juice >= CowboyHat._maxJuice && !this._dashTimer.hasTimeLeft());
+		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+			this.recordUse();
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {
@@ -115,10 +96,23 @@ export class CowboyHat extends Equip<Player> {
 	}
 
 	protected override simulateUse(uses : number) : void {
-		if (this.canDash()) {
-			this._dashTimer.start(CowboyHat._dashTime);
-			this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
-		}
+		this.owner().profile().setVel({x: 0, y: 0});
+
+		let force = this.inputDir().clone().scale(0.6);
+		this._dir = force.x === 0 ? 1 : Math.sign(force.x);
+
+		this.owner().addForce(force);
+		this.owner().equips().findAll((equip : Equip<Player>) => {
+			return equip.allTypes().has(EntityType.WEAPON) && equip.valid();
+		}).forEach((weapon : Weapon) => {
+			weapon.quickReload(CowboyHat._dashTime);
+		});
+
+		this._juice = Math.max(0, this._juice - CowboyHat._maxJuice);
+		this._chargeDelayTimer.start(CowboyHat._chargeDelay);
+
+		this._dashTimer.start(CowboyHat._dashTime);
+		this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
 	}
 
 	override preRender() : void {
@@ -126,7 +120,5 @@ export class CowboyHat extends Equip<Player> {
 
 		this.owner().model().rotation().z = -this._dir * 2 * Math.PI * this._dashTimer.percentElapsed();
 	}
-
-	private canDash() : boolean { return this._juice >= CowboyHat._maxJuice && !this._dashTimer.hasTimeLeft(); }
 
 }

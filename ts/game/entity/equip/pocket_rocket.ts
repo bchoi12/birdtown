@@ -72,7 +72,9 @@ export class PocketRocket extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		if (!this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN) || !this.canUse()) {
+		this.setCanUse(!this._timer.hasTimeLeft());
+
+		if (!this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN) || !this.canUse() || this._weapon === null) {
 			return;
 		}
 
@@ -97,6 +99,4 @@ export class PocketRocket extends Equip<Player> {
 		this._weapon.recordUse();
 		this._timer.start(PocketRocket._reloadTime);
 	}
-
-	private canUse() : boolean { return !this._timer.hasTimeLeft() && this._weapon !== null; }
 }

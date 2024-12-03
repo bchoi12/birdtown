@@ -93,8 +93,10 @@ export class Jetpack extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
+		this.setCanUse(this._juice > 0);
+
 		this._enabled = false;
-		if (this._juice > 0 && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			this._juice = Math.max(this._juice - Jetpack._useRate * millis / 1000, 0);
 
 			this._enabled = true;
@@ -152,7 +154,6 @@ export class Jetpack extends Equip<Player> {
 
 		if (this._enabled) {
 			this._fire.scaling.y = 1 + 3 * Math.random();
-
 		} else {
 			this._fire.scaling.y = 0;
 		}
@@ -161,7 +162,7 @@ export class Jetpack extends Equip<Player> {
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
 		hudData.set(HudType.JETPACK, {
-			charging: this._juice <= 0,
+			charging: !this.canUse(),
 			percentGone: 1 - this._juice / Jetpack._maxJuice,
 			color: this.clientColorOr(ColorFactory.color(ColorType.BLASTER_RED).toString()),
 			empty: true,

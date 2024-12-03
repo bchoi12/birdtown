@@ -106,7 +106,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		case TooltipType.COPIED_URL:
 			return "Copied invite link to clipboard!";
 		case TooltipType.FORCE_SUBMIT:
-			return "Note: dialog was auto-submitted!";
+			return "Dialog was auto-submitted!";
 		case TooltipType.JUST_A_SIGN:
 			return `${Icon.string(IconType.SIGN)} Just a sign with no purpose`
 		case TooltipType.HEALTH_CRATE:

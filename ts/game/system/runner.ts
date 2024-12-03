@@ -190,13 +190,16 @@ export class Runner extends SystemBase implements System  {
 		}
 	}
 
+	setTickRate(rate : number) : void {
+		this._ticker.postMessage(rate);
+	}
 	pause() : void {
 		if (!this.initialized()) {
 			return;
 		}
 
 		// Run slowly so we can still read some messages
-		this._ticker.postMessage(3);
+		this.setTickRate(3);
 
 		this.setDegraded(true);
 	}
@@ -205,7 +208,7 @@ export class Runner extends SystemBase implements System  {
 			return;
 		}
 
-		this._ticker.postMessage(Runner._targetTickRate);
+		this.setTickRate(Runner._targetTickRate);
 
 		this.setDegraded(false);
 	}
@@ -233,7 +236,8 @@ export class Runner extends SystemBase implements System  {
 	renderStats() : RunnerStats { return this._renderStats; }
  	lastStep() : number { return this._step; }
  	tickNum() : number { return this._tickNum; }
-	tickDiff() : number { return this.isSource() ? 0 : Math.round(this._seqNumDiff / Runner._targetTick); }
+	seqNumDiff() : number { return this.isSource() ? 0 : this._seqNumDiff; }
+	tickDiff() : number { return Math.round(this.seqNumDiff() / Runner._targetTick); }
  
 	private getGameStep(millis : number) : number {
 		if (this.isSource()) {

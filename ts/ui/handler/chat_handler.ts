@@ -237,8 +237,9 @@ export class ChatHandler extends HandlerBase implements Handler {
 			if (pieces.length !== 2) {
 				console.error("Usage: %s [Number]", pieces[0])
 			} else {
-				game.runner().setUpdateSpeed(Number(pieces[1]));
-				this.chat(ChatType.PRINT, "Set speed to " + Number(pieces[1]));
+				const speed = Number(pieces[1]);
+				game.runner().setUpdateSpeed(speed);
+				this.chat(ChatType.PRINT, "Set speed to " + speed);
 			}
 			break;
 		case "/stand":
@@ -253,6 +254,15 @@ export class ChatHandler extends HandlerBase implements Handler {
 		case "/nostats":
 			ui.setDebugStats(false);
 			this.chat(ChatType.PRINT, "Hiding debug stats");
+			break;
+		case "/tick":
+			if (pieces.length !== 2) {
+				console.error("Usage: %s [Number]", pieces[0])
+			} else {
+				const rate = Number(pieces[1]);
+				game.runner().setTickRate(rate);
+				this.chat(ChatType.PRINT, "Set tick rate to " + rate);
+			}
 			break;
 		default:
 			this.chat(ChatType.ERROR, "Unknown command: " + message);

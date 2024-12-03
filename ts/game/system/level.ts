@@ -2,6 +2,7 @@
 import { game } from 'game'	
 import { GameState } from 'game/api'
 import { AssociationType, AttributeType } from 'game/component/api'
+import { Profile } from 'game/component/profile'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
@@ -85,6 +86,27 @@ export class Level extends SystemBase implements System {
 			pos.x = Fns.clamp(this._bounds.min.x, pos.x, this._bounds.max.x);
 		}
 
+		pos.y = Math.min(pos.y, this._bounds.max.y);
+	}
+	clampProfile(profile : Profile) : void {
+		if (!profile.initialized()) {
+			return;
+		}
+
+		let pos = profile.pos();
+
+		if (this.isCircle()) {
+			const x = Fns.wrap(this._bounds.min.x, pos.x, this._bounds.max.x);
+			if (pos.x !== x) {
+				profile.execute<Profile>((subProfile : Profile) => {
+					subProfile.pos().x += x - pos.x;
+				});
+				pos.x = x;
+			}
+
+		} else {
+			pos.x = Fns.clamp(this._bounds.min.x, pos.x, this._bounds.max.x);
+		}
 		pos.y = Math.min(pos.y, this._bounds.max.y);
 	}
 

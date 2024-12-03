@@ -54,7 +54,7 @@ export class Pistol extends Weapon {
 		return this.charged() ? Pistol._chargeConfig : Pistol._config;
 	}
 
-	override shoot(stepData : StepData) : void {
+	override simulateUse(uses : number) : void {
 		const pos = this.shootPos();
 
 		const unitDir = this.getDir();

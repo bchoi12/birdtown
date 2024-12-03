@@ -791,9 +791,7 @@ export class Profile extends ComponentBase implements Component {
 			} 
 		} 
 
-		if (!this.attached()) {
-			game.level().clampPos(this._pos);
-		}
+		game.level().clampProfile(this);
 		if (this._limitFn.has()) {
 			this._limitFn.get()(this);
 		}
@@ -831,6 +829,7 @@ export class Profile extends ComponentBase implements Component {
 		if (!attached) {
 			let weight = 0;
 			if (settings.predictionTime() > 0) {
+				// this._smoother.setDiff(this._pos.approxSynced() ? 0 : 1);
 				this._smoother.setDiff(game.runner().tickDiff());
 				weight = this._smoother.weight();
 			}

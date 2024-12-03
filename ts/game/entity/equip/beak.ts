@@ -90,7 +90,7 @@ export abstract class Beak extends Equip<Player> {
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
 		hudData.set(HudType.SQUAWK, {
-			charging: this._squawkTimer.hasTimeLeft(),
+			charging: !this.canUse(),
 			empty: true,
 			percentGone: this._squawkTimer.hasTimeLeft() ? (1 - this._squawkTimer.percentElapsed()) : 0,
 			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
@@ -102,11 +102,16 @@ export abstract class Beak extends Equip<Player> {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (!this.isSource()) {
-			return;
-		}
-
+		this.setCanUse(!this._squawkTimer.hasTimeLeft());
 		this.setSquawking(this.key(KeyType.SQUAWK, KeyState.DOWN));
+	}
+
+	override simulateUse(uses : number) : void {
+		this.soundPlayer().onEnded(this.soundType()).addOnce(() => {
+			this._squawking = false;
+		});
+		this.soundPlayer().playFromEntity(this.soundType(), this.owner());
+		this._squawkTimer.start(this.squawkCooldown());
 	}
 
 	override preRender() : void {
@@ -125,17 +130,13 @@ export abstract class Beak extends Equip<Player> {
 		if (this._squawking === squawking) {
 			return;
 		}
-		if (this._squawkTimer.hasTimeLeft()) {
+		if (!this.canUse()) {
 			return;
 		}
 		this._squawking = squawking;
 
 		if (this._squawking) {
-			this.soundPlayer().onEnded(this.soundType()).addOnce(() => {
-				this._squawking = false;
-			});
-			this.soundPlayer().playFromEntity(this.soundType(), this.owner());
-			this._squawkTimer.start(this.squawkCooldown());
+			this.recordUse();
 		}
 	}
 }

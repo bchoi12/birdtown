@@ -30,7 +30,7 @@ export class WingCannon extends Weapon {
 	private static readonly _chargeConfig = {
 		times: new Map([
 			[WeaponState.FIRING, 1000],
-			[WeaponState.RELOADING, 600],
+			[WeaponState.RELOADING, 800],
 		]),
 		bursts: WingCannon._chargeBursts,
 	};
@@ -57,7 +57,7 @@ export class WingCannon extends Weapon {
 		return this.charged() ? WingCannon._chargeConfig : WingCannon._config;
 	}
 
-	override shoot(stepData : StepData) : void {
+	override simulateUse(uses : number) : void {
 		const pos = this.shootPos();
 
 		const unitDir = this.getDir();

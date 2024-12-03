@@ -56,6 +56,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	protected _owner : E;
 	// Networked counter for uses
 	protected _uses : SavedCounter;
+	protected _canUse : boolean;
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
@@ -67,11 +68,16 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this._owner = null;
 
 		this._uses = new SavedCounter(0);
+		this._canUse = false;
 
 		this.addProp<number>({
 			has: () => { return this._uses.count() > 0; },
 			export: () => { return this._uses.count(); },
 			import: (obj : number) => { this._uses.set(obj); },
+		});
+		this.addProp<boolean>({
+			export: () => { return this.canUse(); },
+			import: (obj : boolean) => { this.importCanUse(obj); },
 		});
 	}
 
@@ -128,8 +134,20 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	owner() : E { return this._owner; }
 	ownerId() : number { return this._ownerId; }
 
-	// Record instance of equip use. Only needed if some action is performed on use (e.g. recoil)
-	recordUse() : void { this._uses.add(1); }
+	canUse() : boolean { return this._canUse; }
+	setCanUse(can : boolean) : void {
+		if (this.isSource()) {
+			this._canUse = can;
+		}
+	}
+	importCanUse(can : boolean) : void { this._canUse = can; }
+	recordUse() : void {
+		if (this.isSource()) {
+			this.simulateUse(1);
+		} else {
+			this._uses.add(1);
+		}
+	}
 	popUses() : number {
 		const uses = this._uses.save();
 		if (uses > 0) {

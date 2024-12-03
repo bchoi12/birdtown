@@ -42,7 +42,7 @@ export class PurpleGlove extends Weapon {
 
 	override weaponConfig() : WeaponConfig { return PurpleGlove._config; }
 
-	override shoot(stepData : StepData) : void {
+	override simulateUse(uses : number) : void {
 		const charged = this.charged();
 		const pos = this.shootPos();
 		const vel = this.getDir().setLength(0.7);

@@ -89,16 +89,10 @@ export class Booster extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		if (this._juice >= Booster._maxJuice && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
-			this._juice = 0;
+		this.setCanUse(this._juice >= Booster._maxJuice);
 
-			this._chargeRate = 0;
-			this._chargeDelayTimer.start(Booster._chargeDelay);
-
-			// Only allow source to jump since otherwise it's jittery.
-			this.owner().addForce({ y: Booster._upwardForce });
-			this.soundPlayer().playFromEntity(SoundType.BOOST, this.owner());
-
+		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+			this.recordUse();
 		} else if (!this._chargeDelayTimer.hasTimeLeft()) {
 			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
 				// Touch ground to unlock faster charge rate.
@@ -131,6 +125,17 @@ export class Booster extends Equip<Player> {
 		}
 	}
 
+	override simulateUse(uses : number) : void {
+		this._juice = 0;
+
+		this._chargeRate = 0;
+		this._chargeDelayTimer.start(Booster._chargeDelay);
+
+		// Only allow source to jump since otherwise it's jittery.
+		this.owner().addForce({ y: Booster._upwardForce });
+		this.soundPlayer().playFromEntity(SoundType.BOOST, this.owner());
+	}
+
 	override preRender() : void {
 		super.preRender();
 
@@ -148,7 +153,7 @@ export class Booster extends Equip<Player> {
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
 		hudData.set(HudType.BOOSTER, {
-			charging: this._juice < Booster._maxJuice,
+			charging: !this.canUse(),
 			percentGone: 1 - this._juice / Booster._maxJuice,
 			color: this.clientColorOr(ColorFactory.color(ColorType.SHOOTER_BLUE).toString()),
 			empty: true,

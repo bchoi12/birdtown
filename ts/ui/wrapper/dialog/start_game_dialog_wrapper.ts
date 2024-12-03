@@ -140,7 +140,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.populateMode(GameMode.FREE_FOR_ALL, {
 			name: "Free for All",
 			requirements: [],
-			description: "It's everyone for themselves.\r\n\r\nScore points by cooking other players and reach the score limit to win.",
+			description: "It's everyone for themselves.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
 			minRecommended: 3,
 		});
 		this.populateMode(GameMode.SURVIVAL, {

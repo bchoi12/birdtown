@@ -41,7 +41,7 @@ export class Bazooka extends Weapon {
 		return Bazooka._config;
 	}
 
-	override shoot(stepData : StepData) : void {
+	override simulateUse(uses : number) : void {
 		const pos = this.shootPos();
 		const unitDir = this.getDir();
 

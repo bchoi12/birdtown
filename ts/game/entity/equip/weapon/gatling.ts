@@ -69,7 +69,7 @@ export class Gatling extends Weapon {
 
 	override weaponConfig() : WeaponConfig { return Gatling._config; }
 
-	override shoot(stepData : StepData) : void {
+	override simulateUse(uses : number) : void {
 		const pos = this.shootPos();
 		const unitDir = this.getDir();
 

@@ -90,7 +90,7 @@ export class RedHeadband extends Equip<Player> {
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
 		hudData.set(HudType.BACKFLIP, {
-			charging: this._juice < RedHeadband._maxJuice,
+			charging: !this.canUse(),
 			percentGone: 1 - this._juice / RedHeadband._maxJuice,
 			empty: true,
 			keyType: KeyType.ALT_MOUSE_CLICK,
@@ -121,8 +121,6 @@ export class RedHeadband extends Equip<Player> {
 		this._trail.dispose();
 	}
 
-	private canDash() : boolean { return this._juice >= RedHeadband._maxJuice; }
-
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
 
@@ -145,39 +143,10 @@ export class RedHeadband extends Equip<Player> {
 
 		const millis = stepData.millis;
 
-		if (this.canDash() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
-			this.owner().profile().setVel({x: 0, y: 0});
+		this.setCanUse(this._juice >= RedHeadband._maxJuice);
 
-			// Only allow source to jump since otherwise it's jittery.
-			let force = this.inputDir().clone().scale(RedHeadband._force);
-			this.owner().addForce(force);
-			this._dir = force.x === 0 ? 1 : Math.sign(force.x);
-
-			this._juice = Math.max(0, this._juice - RedHeadband._maxJuice);
-			this._cooldown = RedHeadband._cooldown;
-			this._chargeDelayTimer.start(RedHeadband._chargeDelay);
-			this._dashTimer.start(RedHeadband._dashTime);
-
-			if (this._weapon !== null && this._weapon.valid()) {
-				const pos = this._weapon.shootPos();
-				const unitDir = this._weapon.getDir();
-
-				let vel = unitDir.clone().scale(0.85);
-				this.addEntity(EntityType.KNIFE, {
-					ttl: RedHeadband._knifeTTL,
-					associationInit: {
-						owner: this.owner(),
-					},
-					profileInit: {
-						pos: pos,
-						vel: vel,
-					},
-				});
-				this._weapon.recordUse();
-			}
-
-			this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());
-			this.soundPlayer().playFromEntity(SoundType.THROW, this.owner());
+		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+			this.recordUse();
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {
@@ -187,6 +156,40 @@ export class RedHeadband extends Equip<Player> {
 			}
 			this._juice = Math.min(RedHeadband._maxJuice, this._juice + RedHeadband._maxJuice * millis / this._cooldown);
 		}
+	}
+
+	override simulateUse(uses : number) : void {
+		this.owner().profile().setVel({x: 0, y: 0});
+
+		let force = this.inputDir().clone().scale(RedHeadband._force);
+		this.owner().addForce(force);
+		this._dir = force.x === 0 ? 1 : Math.sign(force.x);
+
+		this._juice = Math.max(0, this._juice - RedHeadband._maxJuice);
+		this._cooldown = RedHeadband._cooldown;
+		this._chargeDelayTimer.start(RedHeadband._chargeDelay);
+		this._dashTimer.start(RedHeadband._dashTime);
+
+		if (this._weapon !== null && this._weapon.valid()) {
+			const pos = this._weapon.shootPos();
+			const unitDir = this._weapon.getDir();
+
+			let vel = unitDir.clone().scale(0.85);
+			this.addEntity(EntityType.KNIFE, {
+				ttl: RedHeadband._knifeTTL,
+				associationInit: {
+					owner: this.owner(),
+				},
+				profileInit: {
+					pos: pos,
+					vel: vel,
+				},
+			});
+			this._weapon.recordUse();
+		}
+
+		this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());
+		this.soundPlayer().playFromEntity(SoundType.THROW, this.owner());
 	}
 
 	override preRender() : void {

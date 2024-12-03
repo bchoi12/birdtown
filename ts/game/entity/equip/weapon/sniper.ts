@@ -55,7 +55,7 @@ export class Sniper extends Weapon {
 		return this.charged() ? Sniper._chargeConfig : Sniper._config;
 	}
 
-	override shoot(stepData : StepData) : void {
+	override simulateUse(uses : number) : void {
 		const charged = this.charged();
 		const pos = this.shootPos();
 		const unitDir = this.getDir();

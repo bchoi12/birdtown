@@ -536,13 +536,13 @@ kbd {
 .tooltip {
     font-size: 0.8em;
     text-align: center;
-    width: 20%;
+    width: 25%;
     margin-left: auto;
     margin-right: auto;
     margin-top: 0.5em;
 
     top: 20%;
-    padding: 0.5em 0.8em;
+    padding: 0.8em 0.8em;
     border-radius: 0.3em;
 
     white-space: pre-line;

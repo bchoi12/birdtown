@@ -62,10 +62,14 @@ export class Headphones extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		if (!this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN) || !this.canUse()) {
-			return;
-		}
+		this.setCanUse(!this._timer.hasTimeLeft());
 
+		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+			this.recordUse();
+		}
+	}
+
+	override simulateUse(uses : number) : void {
 		const [star, ok] = this.addEntity<DyingStar>(EntityType.DYING_STAR, {
 			profileInit: {
 				pos: this.owner().profile().pos(),
@@ -79,6 +83,4 @@ export class Headphones extends Equip<Player> {
 
 		this._timer.start(Headphones._reloadTime);
 	}
-
-	private canUse() : boolean { return !this._timer.hasTimeLeft(); }
 }

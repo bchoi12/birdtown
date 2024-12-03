@@ -82,7 +82,7 @@ export class PurpleHeadband extends Equip<Player> {
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
 		hudData.set(HudType.DASH, {
-			charging: this._juice < PurpleHeadband._maxJuice,
+			charging: !this.canUse(),
 			percentGone: 1 - this._juice / PurpleHeadband._maxJuice,
 			empty: true,
 			keyType: KeyType.ALT_MOUSE_CLICK,
@@ -105,14 +105,13 @@ export class PurpleHeadband extends Equip<Player> {
 		this._trail.dispose();
 	}
 
-	private canDash() : boolean { return this._juice >= PurpleHeadband._maxJuice; }
-
 	override update(stepData : StepData) : void {
 		super.update(stepData);
-
 		const millis = stepData.millis;
 
-		if (this.canDash() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+		this.setCanUse(this._juice >= PurpleHeadband._maxJuice);
+
+		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			this.owner().profile().setVel({x: 0, y: 0});
 
 			// Only allow source to jump since otherwise it's jittery.

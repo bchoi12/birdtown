@@ -179,11 +179,9 @@ export abstract class Weapon extends Equip<Player> {
 			return;
 		}
 
-		this.shoot(stepData);
 		this.recordUse();
 		this._bursts--;
 	}
-	abstract shoot(stepData : StepData) : void;
 
 	reloadSound() : SoundType { return SoundType.UNKNOWN; }
 	reloading() : boolean { return this._weaponState === WeaponState.RELOADING; }
@@ -211,7 +209,7 @@ export abstract class Weapon extends Equip<Player> {
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
 		hudData.set(this.hudType(), {
-			charging: this.reloading(),
+			charging: !this.canUse(),
 			count: this.bursts(),
 			percentGone: 1 - (this.reloading() && !this.weaponConfig().interruptable ? this.reloadPercent() : (this.bursts() / this.weaponConfig().bursts)),
 			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
@@ -244,6 +242,8 @@ export abstract class Weapon extends Equip<Player> {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
+
+		this.setCanUse(this._weaponState === WeaponState.IDLE);
 
 		if (!this._model.hasMesh()) {
 			return;
