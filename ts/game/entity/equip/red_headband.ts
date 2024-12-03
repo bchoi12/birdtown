@@ -9,7 +9,7 @@ import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { BoneType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
-import { Weapon } from 'game/entity/equip/weapon'
+import { Weapon, RecoilType } from 'game/entity/equip/weapon'
 import { Player } from 'game/entity/player'
 import { Knife } from 'game/entity/projectile/knife'
 import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
@@ -185,7 +185,7 @@ export class RedHeadband extends Equip<Player> {
 					vel: vel,
 				},
 			});
-			this._weapon.recordUse();
+			this.owner().armRecoil(Weapon.recoil(RecoilType.THROW))
 		}
 
 		this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());

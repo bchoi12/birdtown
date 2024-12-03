@@ -205,10 +205,11 @@ export abstract class Weapon extends Equip<Player> {
 	}
 	protected override simulateUse(uses : number) : void {
 		if (this.attachType() === AttachType.ARM) {
-			this.owner().armRecoil(Weapon._recoil.get(this.recoilType()))
+			this.owner().armRecoil(Weapon.recoil(this.recoilType()))
 		}
 	}
 	protected recoilType() : number { return RecoilType.NONE; }
+	static recoil(type : RecoilType) : Recoil { return Weapon._recoil.get(type); }
 
 	reloadSound() : SoundType { return SoundType.UNKNOWN; }
 	reloading() : boolean { return this._weaponState === WeaponState.RELOADING; }
