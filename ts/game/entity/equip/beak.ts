@@ -106,7 +106,7 @@ export abstract class Beak extends Equip<Player> {
 		this.setSquawking(this.key(KeyType.SQUAWK, KeyState.DOWN));
 	}
 
-	override simulateUse(uses : number) : void {
+	protected override simulateUse(uses : number) : void {
 		this.soundPlayer().onEnded(this.soundType()).addOnce(() => {
 			this._squawking = false;
 		});

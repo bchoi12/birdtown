@@ -615,6 +615,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			}
 		}
 	}
+	armRecoil(recoil : Recoil) : void {
+		this._armRecoil.copy(recoil);
+		this.emote(EmotionType.MAD);
+	}
 
 	override cameraOffset() : Vec3 {
 		let pos = super.cameraOffset();
@@ -957,19 +961,6 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		if (!this._model.hasMesh()) {
 			return;
 		}
-
-		// Perform any required actions when using equips
-		this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP).execute((equip : Equip<Player>) => {
-			const uses = equip.popUses();
-			if (uses > 0) {
-				switch(equip.attachType()) {
-				case AttachType.ARM:
-					this._armRecoil.copy(equip.recoil());
-					this.emote(EmotionType.MAD);
-					break;
-				}
-			}
-		});
 
 		// Expression
 		this._eyeShifter.offset(this._expression.emotion());

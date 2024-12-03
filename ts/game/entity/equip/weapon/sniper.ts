@@ -5,10 +5,10 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { AttachType, RecoilType } from 'game/entity/equip'
+import { AttachType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
-import { Weapon, WeaponConfig, WeaponState } from 'game/entity/equip/weapon'
+import { Weapon, WeaponConfig, WeaponState, RecoilType } from 'game/entity/equip/weapon'
 import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -55,7 +55,9 @@ export class Sniper extends Weapon {
 		return this.charged() ? Sniper._chargeConfig : Sniper._config;
 	}
 
-	override simulateUse(uses : number) : void {
+	protected override simulateUse(uses : number) : void {
+		super.simulateUse(uses);
+
 		const charged = this.charged();
 		const pos = this.shootPos();
 		const unitDir = this.getDir();

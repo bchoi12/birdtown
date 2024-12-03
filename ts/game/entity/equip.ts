@@ -6,7 +6,7 @@ import { Attributes } from 'game/component/attributes'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
-import { Recoil } from 'game/util/recoil'
+import { StepData } from 'game/game_object'
 
 import { KeyType, KeyState } from 'ui/api'
 
@@ -27,28 +27,7 @@ export enum AttachType {
 	ROOT,
 }
 
-export enum RecoilType {
-	UNKNOWN,
-
-	NONE,
-	SMALL,
-	MEDIUM,
-	LARGE,
-
-	THROW,
-	WHIP,
-}
-
 export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
-
-	private static readonly _recoil = new Map<RecoilType, Recoil>([
-		[RecoilType.NONE, new Recoil()],
-		[RecoilType.SMALL, new Recoil().setDist(0.1)],
-		[RecoilType.MEDIUM, new Recoil().setDist(0.2)],
-		[RecoilType.LARGE, new Recoil().setDist(0.3)],
-		[RecoilType.THROW, new Recoil().setDist(0.1).setRotation({ y: Math.PI / 4 })],
-		[RecoilType.WHIP, new Recoil().setDist(0.2).setRotation({ z: Math.PI / 5 })],
-	]);
 
 	protected _association : Association;
 	protected _attributes : Attributes;
@@ -108,6 +87,15 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this._owner.equip(this);
 	}
 
+	override update(stepData : StepData) : void {
+		super.update(stepData)
+
+		const uses = this._uses.save();
+		if (!this.isSource() && uses > 0) {
+			this.simulateUse(uses);
+		}
+	}
+
 	override key(type : KeyType, state : KeyState) : boolean {
 		if (!this.hasOwner()) {
 			return false;
@@ -144,21 +132,10 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	recordUse() : void {
 		if (this.isSource()) {
 			this.simulateUse(1);
-		} else {
 			this._uses.add(1);
 		}
 	}
-	popUses() : number {
-		const uses = this._uses.save();
-		if (uses > 0) {
-			this.simulateUse(uses);
-		}
-		return uses;
-	}
 	protected simulateUse(uses : number) : void {}
-
-	recoil() : Recoil { return Equip._recoil.get(this.recoilType()); }
-	protected recoilType() : number { return RecoilType.NONE; }
 
 	abstract attachType() : AttachType;
 }

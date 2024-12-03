@@ -125,7 +125,7 @@ export class Booster extends Equip<Player> {
 		}
 	}
 
-	override simulateUse(uses : number) : void {
+	protected override simulateUse(uses : number) : void {
 		this._juice = 0;
 
 		this._chargeRate = 0;

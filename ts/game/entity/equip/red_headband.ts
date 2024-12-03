@@ -158,7 +158,7 @@ export class RedHeadband extends Equip<Player> {
 		}
 	}
 
-	override simulateUse(uses : number) : void {
+	protected override simulateUse(uses : number) : void {
 		this.owner().profile().setVel({x: 0, y: 0});
 
 		let force = this.inputDir().clone().scale(RedHeadband._force);

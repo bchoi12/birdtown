@@ -69,7 +69,7 @@ export class Headphones extends Equip<Player> {
 		}
 	}
 
-	override simulateUse(uses : number) : void {
+	protected override simulateUse(uses : number) : void {
 		const [star, ok] = this.addEntity<DyingStar>(EntityType.DYING_STAR, {
 			profileInit: {
 				pos: this.owner().profile().pos(),

@@ -5,12 +5,13 @@ import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { Equip } from 'game/entity/equip'
+import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
+import { Recoil } from 'game/util/recoil'
 
 import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
@@ -38,9 +39,29 @@ export type WeaponConfig = {
 	interruptable? : boolean;
 }
 
+export enum RecoilType {
+	UNKNOWN,
+
+	NONE,
+	SMALL,
+	MEDIUM,
+	LARGE,
+
+	THROW,
+	WHIP,
+}
+
 export abstract class Weapon extends Equip<Player> {
 
 	private static readonly _shootNodeName = "shoot";
+	private static readonly _recoil = new Map<RecoilType, Recoil>([
+		[RecoilType.NONE, new Recoil()],
+		[RecoilType.SMALL, new Recoil().setDist(0.1)],
+		[RecoilType.MEDIUM, new Recoil().setDist(0.2)],
+		[RecoilType.LARGE, new Recoil().setDist(0.3)],
+		[RecoilType.THROW, new Recoil().setDist(0.1).setRotation({ y: Math.PI / 4 })],
+		[RecoilType.WHIP, new Recoil().setDist(0.2).setRotation({ z: Math.PI / 5 })],
+	]);
 
 	protected _charging : boolean;
 	protected _charged : boolean;
@@ -172,7 +193,7 @@ export abstract class Weapon extends Equip<Player> {
 	}
 
 	protected firing() : boolean {
-		return this.key(KeyType.MOUSE_CLICK, KeyState.DOWN) && (this.charged() || !this.charging());
+		return this.canUse() && this.key(KeyType.MOUSE_CLICK, KeyState.DOWN) && (this.charged() || !this.charging());
 	}
 	protected fire(stepData : StepData) : void {
 		if (this._bursts <= 0) {
@@ -182,6 +203,12 @@ export abstract class Weapon extends Equip<Player> {
 		this.recordUse();
 		this._bursts--;
 	}
+	protected override simulateUse(uses : number) : void {
+		if (this.attachType() === AttachType.ARM) {
+			this.owner().armRecoil(Weapon._recoil.get(this.recoilType()))
+		}
+	}
+	protected recoilType() : number { return RecoilType.NONE; }
 
 	reloadSound() : SoundType { return SoundType.UNKNOWN; }
 	reloading() : boolean { return this._weaponState === WeaponState.RELOADING; }
@@ -243,7 +270,7 @@ export abstract class Weapon extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		this.setCanUse(this._weaponState === WeaponState.IDLE);
+		this.setCanUse(!this.reloading());
 
 		if (!this._model.hasMesh()) {
 			return;
