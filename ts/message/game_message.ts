@@ -16,7 +16,6 @@ export enum GameMessageType {
 	CLIENT_JOIN,
     FEED,
 	LEVEL_LOAD,
-	GAME_STATE,
 }
 
 enum GameProp {
@@ -26,7 +25,6 @@ enum GameProp {
 	CLIENT_ID,
 	DISPLAY_NAME,
     FEED_TYPE,
-	GAME_STATE,
 	LEVEL_LAYOUT,
 	LEVEL_TYPE,
 	LEVEL_SEED,
@@ -68,9 +66,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
             [GameProp.NUM_PLAYERS, {}],
             [GameProp.NUM_TEAMS, {}],
 		)],
-		[GameMessageType.GAME_STATE, MessageBase.fieldDescriptor(
-			[GameProp.GAME_STATE, {}],
-		)],
 	]);
 
 	constructor(type : GameMessageType) { super(type); }
@@ -100,11 +95,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getFeedType() : FeedType { return this.get<FeedType>(GameProp.FEED_TYPE); }
     getFeedTypeOr(value : FeedType) : FeedType { return this.getOr<FeedType>(GameProp.FEED_TYPE, value); }
     setFeedType(value : FeedType) : void { this.set<FeedType>(GameProp.FEED_TYPE, value); }
-
-    hasGameState() : boolean { return this.has(GameProp.GAME_STATE); }
-    getGameState() : number { return this.get<number>(GameProp.GAME_STATE); }
-    getGameStateOr(value : number) : number { return this.getOr<number>(GameProp.GAME_STATE, value); }
-    setGameState(value : number) : void { this.set<number>(GameProp.GAME_STATE, value); }
 
     hasLevelLayout() : boolean { return this.has(GameProp.LEVEL_LAYOUT); }
     getLevelLayout() : LevelLayout { return this.get<LevelLayout>(GameProp.LEVEL_LAYOUT); }
@@ -152,7 +142,6 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["CLIENT_ID", "number"],
     ["DISPLAY_NAME", "string"],
     ["FEED_TYPE", "FeedType"],
-    ["GAME_STATE", "number"],
     ["LEVEL_LAYOUT", "LevelLayout"],
     ["LEVEL_SEED", "number"],
     ["LEVEL_TYPE", "LevelType"],

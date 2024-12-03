@@ -9,6 +9,7 @@ import { ConfigFactory } from 'game/factory/config_factory'
 import { System, SystemBase } from 'game/system'
 import { SystemType, LevelType, WinConditionType } from 'game/system/api'
 import { GameMaker } from 'game/system/game_maker'
+import { PlayerState } from 'game/system/player_state'
 import { PlayerConfig } from 'game/util/player_config'
 
 import { GameConfigMessage } from 'message/game_config_message'
@@ -61,14 +62,13 @@ export class Controller extends SystemBase implements System {
 	}
 
 	static canStart(mode : GameMode) : [string[], boolean] {
-		let errors = [];
-
 		if (mode === GameMode.UNKNOWN) {
 			return [["No game mode selected"], false];
 		}
 
 		const config = ConfigFactory.defaultConfig(mode);
 		const numPlayers = game.tablets().numSetup();
+		let errors = [];
 		if (config.hasPlayersMin() && numPlayers < config.getPlayersMin()) {
 			errors.push(`Need ${config.getPlayersMin()} players for this game mode`);
 			errors.push(`Current number of players is ${numPlayers}`);
@@ -113,9 +113,17 @@ export class Controller extends SystemBase implements System {
 		this._gameMaker.setGameState(state);
 
 		// Broadcast state change
-		let msg = new GameMessage(GameMessageType.GAME_STATE);
-		msg.setGameState(this._gameState);
-		game.handleMessage(msg);
+		game.runner().setGameState(this._gameState);
+		ui.setGameState(this._gameState);
+
+		// Fix rotation bug when returning to lobby?
+		if (state === GameState.FREE && !this.isSource()) {
+			game.playerStates().execute((playerState : PlayerState) => {
+				if (playerState.validTargetEntity()) {
+					playerState.targetEntity<Player>().getUp();
+				}
+			});
+		}
 
 		if (isLocalhost()) {
 			console.log("%s: game state is %s", this.name(), GameState[state]);

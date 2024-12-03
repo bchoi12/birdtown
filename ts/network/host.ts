@@ -10,7 +10,7 @@ import { Connection } from 'network/connection'
 import { Netcode } from 'network/netcode'
 
 import { ui } from 'ui'
-import { ChatType, StatusType, TempStatusType } from 'ui/api'
+import { ChatType, StatusType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
@@ -71,8 +71,7 @@ export class Host extends Netcode {
 		super.initError(onError);
 
     	if (this.initialized()) {
-	    	ui.showTempStatus(TempStatusType.DISCONNECTED_SIGNALING);
-	    	ui.disableStatus(StatusType.LOBBY);
+    		ui.setSignalingDisconnected(true);
     	}
 	}
 

@@ -25,6 +25,7 @@ type TextOptions = {
 	alpha? : number;
 	font? : string;
 	textColor? : string;
+	renderOnTop? : boolean;
 }
 
 export class TextParticle extends Particle {
@@ -39,6 +40,7 @@ export class TextParticle extends Particle {
 	private _font : string;
 	private _textColor : string;
 	private _textureWidth : number;
+	private _renderOnTop : boolean;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.TEXT_PARTICLE, entityOptions);
@@ -48,6 +50,7 @@ export class TextParticle extends Particle {
 		this._font = TextParticle._defaultFont;
 		this._textColor = TextParticle._defaultTextColor;
 		this._textureWidth = 0;
+		this._renderOnTop = false;
 	}
 
 	override bodyFn(profile : Profile) : MATTER.Body {
@@ -70,6 +73,9 @@ export class TextParticle extends Particle {
 		}
 		if (options.textColor) {
 			this._textColor = options.textColor;
+		}
+		if (options.renderOnTop) {
+			this._renderOnTop = options.renderOnTop;
 		}
 
 		let temp = new BABYLON.DynamicTexture(this.name() + "-temp", TextParticle._textureHeight);
@@ -104,7 +110,9 @@ export class TextParticle extends Particle {
 		material.useAlphaFromDiffuseTexture = true;
 
 		model.mesh().material = material;
-		model.mesh().renderingGroupId = 1;
+		if (this._renderOnTop) {
+			model.mesh().renderingGroupId = 1;
+		}
 		model.mesh().receiveShadows = false;
 		model.mesh().rotation.z = Math.PI;
 		model.mesh().billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL;

@@ -61,7 +61,7 @@ export class Pistol extends Weapon {
 
 		const unitDir = this.getDir();
 
-		let vel = unitDir.clone().setLength(0.9);
+		let vel = unitDir.clone().scale(0.9);
 		this.addEntity<Bullet>(EntityType.BULLET, {
 			ttl: Pistol._bulletTTL,
 			associationInit: {

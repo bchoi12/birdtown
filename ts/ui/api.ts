@@ -141,19 +141,10 @@ export enum KeyState {
 export enum StatusType {
 	UNKNOWN,
 
-	LOBBY,
-	SPECTATING,
-	LOADING,
-	SETUP,
-}
-
-export enum TempStatusType {
-	UNKNOWN,
-
-	DISCONNECTED_SIGNALING,
 	DEGRADED,
 	HOST_DEGRADED,
 	KEYS,
+	SPECTATING,
 }
 
 export enum TooltipType {

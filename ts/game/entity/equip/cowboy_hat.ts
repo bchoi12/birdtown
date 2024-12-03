@@ -24,6 +24,7 @@ export class CowboyHat extends Equip<Player> {
 	private static readonly _chargeDelay = 600;
 	private static readonly _cooldown = 1500;
 	private static readonly _dashTime = 275;
+	private static readonly _quickReloadTime = CowboyHat._dashTime - 50;
 	private static readonly _maxJuice = 100;
 
 	private _chargeDelayTimer : Timer;
@@ -105,7 +106,7 @@ export class CowboyHat extends Equip<Player> {
 		this.owner().equips().findAll((equip : Equip<Player>) => {
 			return equip.allTypes().has(EntityType.WEAPON) && equip.valid();
 		}).forEach((weapon : Weapon) => {
-			weapon.quickReload(CowboyHat._dashTime);
+			weapon.quickReload(CowboyHat._quickReloadTime);
 		});
 
 		this._juice = Math.max(0, this._juice - CowboyHat._maxJuice);

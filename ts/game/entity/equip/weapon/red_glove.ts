@@ -47,7 +47,7 @@ export class RedGlove extends Weapon {
 
 		const charged = this.charged();
 		const pos = this.shootPos();
-		const vel = this.getDir().setLength(0.85);
+		const vel = this.getDir().scale(0.85);
 		this.addEntity(EntityType.KNIFE, {
 			ttl: RedGlove._knifeTTL,
 			associationInit: {

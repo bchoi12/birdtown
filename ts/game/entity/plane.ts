@@ -73,7 +73,7 @@ export class Plane extends EntityBase implements Entity {
 			color: ColorFactory.color(ColorType.RED).toString(),
 			depthType: DepthType.BEHIND,
 		});
-		this._profile.setVel({x: Plane._speed, y: 0});
+		this._profile.setVel({x: this.xVel(), y: 0});
 	}
 
 	override update(stepData : StepData) : void {
@@ -90,7 +90,7 @@ export class Plane extends EntityBase implements Entity {
 				this._profile.setVel({ x: Math.sign(this._profile.vel().x) * Plane._speed });
 			}
 		} else {
-			this._profile.setVel({x: Plane._speed });
+			this._profile.setVel({x: this.xVel() });
 		}
 
 		if (!this._model.hasMesh()) {
@@ -111,8 +111,11 @@ export class Plane extends EntityBase implements Entity {
 		}
 	}
 
-	private maybeDropCrate() : void {
+	private xVel() : number {
+		return (game.controller().round() % 2 === 0 ? 1 : -1) * Plane._speed;
+	}
 
+	private maybeDropCrate() : void {
 		let crateType = this._lastCrateType === EntityType.HEALTH_CRATE ? EntityType.WEAPON_CRATE : EntityType.HEALTH_CRATE;
 
 		const numCrates = game.entities().getMap(crateType).numEntities();

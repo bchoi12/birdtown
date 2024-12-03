@@ -457,7 +457,7 @@ export class Lakitu extends SystemBase implements System {
 		if (game.playerState().role() === PlayerRole.SPECTATING
 			&& game.controller().gameState() !== GameState.FINISH
 			&& game.controller().gameState() !== GameState.VICTORY) {
-			ui.showStatus(StatusType.SPECTATING);
+			ui.addStatus(StatusType.SPECTATING);
 		} else {
 			ui.clearStatus(StatusType.SPECTATING);
 		}

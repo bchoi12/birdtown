@@ -15,7 +15,7 @@ import { settings } from 'settings'
 import { SpeedSetting } from 'settings/api'
 
 import { ui } from 'ui'
-import { TempStatusType } from 'ui/api'
+import { StatusType } from 'ui/api'
 
 import { RunnerStats } from 'util/runner_stats'
 
@@ -165,19 +165,6 @@ export class Runner extends SystemBase implements System  {
 	override handleMessage(msg : GameMessage) : void {
 		super.handleMessage(msg);
 
-		switch(msg.type()) {
-		case GameMessageType.GAME_STATE:
-			switch (msg.getGameState()) {
-			case GameState.FINISH:
-			case GameState.VICTORY:
-			case GameState.ERROR:
-				this.setUpdateSpeed(0.3);
-				break;
-			default:
-				this.setUpdateSpeed(1);
-			}
-		}
-
 		if (!this.isSource()) {
 			return;
 		}
@@ -187,6 +174,18 @@ export class Runner extends SystemBase implements System  {
 		case GameMessageType.LEVEL_LOAD:
 			this._sendFullMsg = true;
 			break;
+		}
+	}
+
+	setGameState(state : GameState) : void {
+		switch (state) {
+		case GameState.FINISH:
+		case GameState.VICTORY:
+		case GameState.ERROR:
+			this.setUpdateSpeed(0.3);
+			break;
+		default:
+			this.setUpdateSpeed(1);
 		}
 	}
 
@@ -301,7 +300,7 @@ export class Runner extends SystemBase implements System  {
 
 		if (this._degraded) {
 	   		if (ui.focused() && ui.timeSinceFocusChange() > Runner._warmupTime) {
-				ui.showTempStatus(TempStatusType.DEGRADED);
+				ui.addStatus(StatusType.DEGRADED);
 			}
 		}
 	}
@@ -309,12 +308,12 @@ export class Runner extends SystemBase implements System  {
 		this._hostDegraded = degraded;
 
 		if (this._hostDegraded) {
-			ui.showTempStatus(TempStatusType.HOST_DEGRADED);
+			ui.addStatus(StatusType.HOST_DEGRADED);
 		}
 	}
 	private setHostBehind(behind : boolean) : void {
 		if (behind) {
-			ui.showTempStatus(TempStatusType.HOST_DEGRADED);
+			ui.addStatus(StatusType.HOST_DEGRADED);
 		}
 	}
 

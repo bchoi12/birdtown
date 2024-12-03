@@ -47,7 +47,7 @@ export class PurpleGlove extends Weapon {
 
 		const charged = this.charged();
 		const pos = this.shootPos();
-		const vel = this.getDir().setLength(0.7);
+		const vel = this.getDir().scale(0.7);
 		this.addEntity(EntityType.STAR, {
 			ttl: PurpleGlove._starTTL,
 			associationInit: {

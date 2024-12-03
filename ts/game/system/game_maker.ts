@@ -24,7 +24,7 @@ import { GameMessage, GameMessageType} from 'message/game_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { AnnouncementType, DialogType, FeedType, InfoType, StatusType, TempStatusType } from 'ui/api'
+import { AnnouncementType, DialogType, FeedType, InfoType, StatusType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
 import { isLocalhost } from 'util/common'
@@ -34,8 +34,8 @@ export class GameMaker extends SystemBase implements System {
 
 	private static readonly _lastDamageTime = 15000;
 	private static readonly _endTimeLimit = 3000;
-	private static readonly _startingTimeLimit = 3000;
-	private static readonly _loadTimeLimit = 2500;
+	private static readonly _startingTimeLimit = 2000;
+	private static readonly _loadTimeLimit = 2000;
 	private static readonly _respawnTime = 2000;
 	private static readonly _spawnTime = 5000;
 
@@ -355,41 +355,6 @@ export class GameMaker extends SystemBase implements System {
 		return current;
 	}
 	setGameState(state : GameState) : void {
-		// Return to lobby
-		if (state === GameState.FREE) {
-			if (game.playerState()?.validTargetEntity()) {
-				ui.showLobbyStatuses();
-			}
-
-			if (!this.isSource()) {
-				game.playerStates().execute((playerState : PlayerState) => {
-					// Fix rotation after spawn bug?
-					if (playerState.validTargetEntity()) {
-						playerState.targetEntity<Player>().getUp();
-					}
-				});
-			}
-		}
-
-		if (state === GameState.LOAD) {
-			ui.showStatus(StatusType.LOADING);
-		} else {
-			ui.clearStatus(StatusType.LOADING);
-		}
-
-		if (state === GameState.SETUP) {
-			ui.refreshScoreboardColor();
-			ui.showStatus(StatusType.SETUP);
-		} else {
-			ui.clearStatus(StatusType.SETUP);
-		}
-
-		if (state === GameState.FINISH || state === GameState.VICTORY) {
-			ui.showScoreboard();
-		} else {
-			ui.hideScoreboard();
-		}
-
 		if (!this.isSource()) {
 			return;
 		}

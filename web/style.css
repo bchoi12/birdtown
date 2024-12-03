@@ -555,7 +555,7 @@ kbd {
     opacity: 0.2;
     margin-bottom: -3em;
 
-    transition: opacity 0.2s ease-in, margin-bottom 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: opacity 0.1s ease-in, margin-bottom 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .popup-show {

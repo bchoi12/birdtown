@@ -49,7 +49,7 @@ export namespace ColorFactory {
 		[ColorType.PLAYER_GREEN, HexColor.fromHex(0x29cc21)],
 		[ColorType.PLAYER_TEAL, HexColor.fromHex(0x21cc9c)],
 		[ColorType.PLAYER_AQUA, HexColor.fromHex(0x0ffce8)],
-		[ColorType.PLAYER_BLUE, HexColor.fromHex(0x0f52fc)],
+		[ColorType.PLAYER_BLUE, HexColor.fromHex(0x3d74ff)],
 		[ColorType.PLAYER_PURPLE, HexColor.fromHex(0xa50ffc)],
 		[ColorType.PLAYER_PINK, HexColor.fromHex(0xfc0fbd)],
 		[ColorType.PLAYER_BROWN, HexColor.fromHex(0x7d4d1a)],

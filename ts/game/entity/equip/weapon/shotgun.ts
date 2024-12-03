@@ -49,7 +49,7 @@ export class Shotgun extends Weapon {
 
 		const unitDir = this.getDir();
 
-		let vel = unitDir.clone().setLength(0.6);
+		let vel = unitDir.clone().scale(0.6);
 		vel.rotateDeg(-Shotgun._spreadDeg / 2);
 
 		for (let i = 0; i < Shotgun._burstBullets; ++i) {

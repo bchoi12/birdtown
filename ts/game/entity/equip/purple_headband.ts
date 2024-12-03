@@ -30,8 +30,8 @@ export class PurpleHeadband extends Equip<Player> {
 	];
 
 	private static readonly _chargeDelay = 500;
-	private static readonly _cooldown = 1000;
-	private static readonly _groundCooldown = 500;
+	private static readonly _cooldown = 900;
+	private static readonly _groundCooldown = 450;
 	private static readonly _dashTime = 250;
 	private static readonly _maxJuice = 100;
 	private static readonly _force = 0.8;

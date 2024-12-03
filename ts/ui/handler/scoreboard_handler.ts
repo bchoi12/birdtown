@@ -1,5 +1,6 @@
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
@@ -57,6 +58,14 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 		this._scoreboardElm.style.width = ScoreboardHandler._width;
 		this._scoreboardElm.style.right = "-" + ScoreboardHandler._hideWidth;
 		this._scoreboardElm.style.display = "block";
+	}
+
+	setGameState(state : GameState) : void {
+		if (state === GameState.FINISH || state === GameState.VICTORY) {
+			this.stickyShow();
+		} else {
+			this.hide();
+		}
 	}
 
 	addPlayer(id : number) : void {

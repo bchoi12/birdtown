@@ -28,7 +28,7 @@ enum SubMesh {
 export class NameTag extends Equip<Entity & EquipEntity> {
 
 	private static readonly _defaultTextColor = "#ffffff";
-	private static readonly _defaultTextBackgroundColor = "#303030";
+	private static readonly _defaultTextBackgroundColor = "#30303088";
 	private static readonly _defaultPointerColor = "#ff0000";
 
 	private static readonly _height = 0.4;
@@ -90,6 +90,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 					height: NameTag._textureHeight,
 				});
 				texture.drawText(text, /*x=*/null, /*y=*/null, NameTag._font, this._textColor, this._textBackgroundColor, /*invertY=*/true);
+				texture.hasAlpha = true;
 
 				let material = new BABYLON.StandardMaterial(this.name() + "-material");
 				material.diffuseTexture = texture;

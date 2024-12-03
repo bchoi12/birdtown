@@ -20,4 +20,7 @@ module.exports = {
     },
     mode: "development",
     devtool: "source-map",
+    cache: {
+        type: 'filesystem'
+    },
 };

@@ -119,6 +119,7 @@ export class PlayerState extends ClientSystem implements System {
 	}
 	role() : PlayerRole { return this._role; }
 	inGame() : boolean { return PlayerState._gameRoles.has(this._startingRole) && PlayerState._gameRoles.has(this._role); }
+	isSpectating() : boolean { return this._role === PlayerRole.SPECTATING; }
 	setStartingRole(role : PlayerRole) : void {
 		this._startingRole = role;
 
@@ -176,9 +177,6 @@ export class PlayerState extends ClientSystem implements System {
     		player.setState(GameObjectState.DEACTIVATED);
     		break;
     	case PlayerRole.GAMING:
-    		if (game.controller().gameState() !== GameState.FREE) {
-	    		ui.clearAllStatuses();
-    		}
     		player.setState(GameObjectState.NORMAL);
    			break;
 		case PlayerRole.WAITING:
@@ -297,6 +295,7 @@ export class PlayerState extends ClientSystem implements System {
 				text: msg,
 				textColor: this.targetEntity().clientColorOr(PlayerState._defaultChatColor),
 				height: 1,
+				renderOnTop: true,
 			});
 		}
 	}

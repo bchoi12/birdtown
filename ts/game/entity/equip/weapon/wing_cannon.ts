@@ -37,7 +37,6 @@ export class WingCannon extends Weapon {
 
 	private static readonly _chargedThreshold = 1000;
 	private static readonly _orbTTL = 450;
-	private static readonly _orbSpeed = 0.85;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.WING_CANNON, options);
@@ -76,7 +75,7 @@ export class WingCannon extends Weapon {
 				},
 			});
 		} else {
-			let vel = unitDir.clone().setLength(WingCannon._orbSpeed);
+			let vel = unitDir.clone().scale(0.85);
 			this.addEntity(EntityType.ORB, {
 				ttl: WingCannon._orbTTL,
 				associationInit: {

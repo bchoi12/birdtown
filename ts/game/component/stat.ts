@@ -176,12 +176,14 @@ export class Stat extends ComponentBase implements Component {
 						text: "" + delta,
 						height: height,
 						textColor: ColorFactory.toString(ColorType.TEXT_RED),
+						renderOnTop: true,
 					});
 				} else {
 					particle.setText({
 						text: "+" + delta,
 						height: height,
 						textColor: ColorFactory.toString(ColorType.TEXT_GREEN),
+						renderOnTop: true,
 					});
 				}
 			}

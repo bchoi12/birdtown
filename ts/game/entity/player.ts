@@ -522,6 +522,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	override dead() : boolean { return this._dead; }
 
 	birdType() : BirdType { return game.tablet(this.clientId()).birdType(); }
+	headAngle() : number { return this._headSubProfile.angle(); }
 	equipType() : EntityType { return this._equipType; }
 	altEquipType() : EntityType { return this._altEquipType; }
 	equips() : CircleMap<number, Equip<Player>> { return this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP); }

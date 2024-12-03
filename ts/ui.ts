@@ -2,13 +2,14 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
 
 import { settings } from 'settings'
 
-import { AnnouncementType, ChatType, ChatOptions, HudType, HudOptions, DialogType, InfoType, KeyType, StatusType, TempStatusType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
+import { AnnouncementType, ChatType, ChatOptions, HudType, HudOptions, DialogType, InfoType, KeyType, StatusType, TooltipType, TooltipOptions, UiMode } from 'ui/api'
 import { Handler } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 
@@ -212,9 +213,7 @@ class UI {
 	addPlayer(clientId : number) : void { this._scoreboardHandler.addPlayer(clientId); }
 	removePlayer(clientId : number) : void { this._scoreboardHandler.removePlayer(clientId); }
 	highlightPlayer(clientId : number) : void { this._scoreboardHandler.highlightPlayer(clientId); }
-	showScoreboard() : void { this._scoreboardHandler.stickyShow(); }
 	refreshScoreboardColor() : void { this._scoreboardHandler.refreshColor(); }
-	hideScoreboard() : void { this._scoreboardHandler.hide(); }
 	updateInfo(id : number, type : InfoType, value : number) : void { this._scoreboardHandler.updateInfo(id, type, value); }
 	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }
 	pushDialog<T extends DialogWrapper>(type : DialogType) : T { return this._dialogHandler.pushDialog(type); }
@@ -223,13 +222,16 @@ class UI {
 	pushFeed(msg : GameMessage) : void { this._feedHandler.pushFeed(msg); }
 	hideTooltip(type : TooltipType) : void { this._tooltipHandler.hideTooltip(type); }
 	setDebugStats(enabled : boolean) : void { this._statsHandler.setDebug(enabled); }
-	showStatus(type : StatusType) : void { this._statusHandler.showStatus(type); }
-	showTempStatus(type : TempStatusType) : void { this._statusHandler.showTempStatus(type); }
-	showLobbyStatuses() : void { this._statusHandler.showLobbyStatuses(); }
-	clearStatus(type : StatusType) : void { this._statusHandler.clearStatus(type); }
-	clearAllStatuses() : void { this._statusHandler.clearAll(); }
+	setGameState(state : GameState) : void {
+		this._statusHandler.setGameState(state);
+		this._scoreboardHandler.setGameState(state);
+	}
+	setSignalingDisconnected(disconnected : boolean) : void { this._statusHandler.setSignalingDisconnected(disconnected); }
+	addStatus(type : StatusType) : void { this._statusHandler.addStatus(type); }
+	currentStatuses() : Set<StatusType> { return this._statusHandler.currentStatuses(); }
+	clearStatus(status : StatusType) : void { this._statusHandler.clearStatus(status); }
+	clearAllStatuses() : void { this._statusHandler.clearAllStatuses(); }
 	disableStatus(type : StatusType) : void { this._statusHandler.disableStatus(type); }
-	disableTempStatus(type : TempStatusType) : void { this._statusHandler.disableTempStatus(type); }
 	usingTray() : boolean { return this._trayHandler.hasMouse(); }
 
 	chat(type : ChatType, msg : string, options? : ChatOptions) : void { this._chatHandler.chat(type, msg, options); }
