@@ -97,7 +97,7 @@ export class Controller extends SystemBase implements System {
 		}
 		if (this._gameMaker.setConfig(config, playerConfig)) {
 			ConfigFactory.save(config);
-			this.setGameState(GameState.LOAD);
+			this.setGameState(GameState.STARTING);
 		}
 	}
 

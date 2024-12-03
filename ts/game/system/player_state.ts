@@ -24,7 +24,7 @@ export class PlayerState extends ClientSystem implements System {
 	private static readonly _defaultChatColor = "#FFFFFF";
 
 	private static readonly _disallowRoleChangeStates = new Set([
-		GameState.FINISH, GameState.VICTORY, GameState.ERROR,
+		GameState.STARTING, GameState.FINISH, GameState.VICTORY, GameState.ERROR
 	]);
 	private static readonly _gameRoles = new Set([
 		PlayerRole.PREPARING, PlayerRole.SPAWNING, PlayerRole.GAMING, PlayerRole.WAITING,
@@ -176,6 +176,9 @@ export class PlayerState extends ClientSystem implements System {
     		player.setState(GameObjectState.DEACTIVATED);
     		break;
     	case PlayerRole.GAMING:
+    		if (game.controller().gameState() !== GameState.FREE) {
+	    		ui.clearAllStatuses();
+    		}
     		player.setState(GameObjectState.NORMAL);
    			break;
 		case PlayerRole.WAITING:

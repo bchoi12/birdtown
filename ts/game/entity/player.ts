@@ -73,7 +73,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private static readonly _maxHorizontalVel = 0.5;
 	private static readonly _maxWalkingVel = 0.25;
 	private static readonly _maxVerticalVel = 0.6;
-	private static readonly _maxFloatingVel = 0.1;
+	private static readonly _maxFloatingVel = 0.12;
 	private static readonly _minSpeed = 5e-4;
 
 	private static readonly _turnMultiplier = 3.0;

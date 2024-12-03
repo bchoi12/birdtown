@@ -66,7 +66,7 @@ export class Caliber extends Projectile {
 		}));
 	}
 
-	override hitDamage() : number { return 10; }
+	override hitDamage() : number { return 9; }
 
 	override onHit(other : Entity) : void {
 		super.onHit(other);

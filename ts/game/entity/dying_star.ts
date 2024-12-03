@@ -108,6 +108,7 @@ export class DyingStar extends EntityBase {
 		}
 		this._dir = this._target.get().clone().sub(this._initPos.get()).sign();
 
+		this.setTTL(800);
 		this.soundPlayer().playFromSelf(SoundType.CINEMATIC_WOOSH);
 	}
 

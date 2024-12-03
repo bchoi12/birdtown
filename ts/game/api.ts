@@ -6,6 +6,9 @@ export enum GameState {
 	// Waiting to meet criteria to start a game
 	FREE,
 
+	// Game starting imminently
+	STARTING,
+
 	// Load level
 	LOAD,
 

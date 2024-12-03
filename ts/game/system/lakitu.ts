@@ -35,6 +35,7 @@ enum TargetMode {
 	UNKNOWN,
 
 	PLAYER,
+	SPAWN_ZOOM,
 	SPAWN,
 	WINNER,
 }
@@ -214,23 +215,30 @@ export class Lakitu extends SystemBase implements System {
 		this._mode = TargetMode.WINNER;
 		return true;
 	}
-	private targetSpawn() : boolean {
+	private targetSpawn(zoom? : boolean) : boolean {
 		if (game.controller().gameState() === GameState.FREE) {
 			this._mode = TargetMode.UNKNOWN;
 			return false;
 		}
-		if (this._mode === TargetMode.SPAWN) {
+
+		if (!zoom) {
+			zoom = false;
+		}
+		if (zoom && this._mode === TargetMode.SPAWN_ZOOM) {
 			return true;
 		}
-		if (this.targetSpawnPoint() || this.targetPlane()) {
-			this._mode = TargetMode.SPAWN;
+		if (!zoom && this._mode === TargetMode.SPAWN) {
+			return true;
+		}
+		if (this.targetSpawnPoint(zoom) || this.targetPlane(zoom)) {
+			this._mode = zoom ? TargetMode.SPAWN_ZOOM : TargetMode.SPAWN;
 			return true;
 		}
 
 		this._mode = TargetMode.UNKNOWN;
 		return false;
 	}
-	private targetSpawnPoint() : boolean {
+	private targetSpawnPoint(zoom : boolean) : boolean {
 		if (!game.playerState()?.hasTargetEntity()) {
 			return false;
 		}
@@ -242,7 +250,7 @@ export class Lakitu extends SystemBase implements System {
 				this.setTargetEntity(spawns[i]);
 				this._panners.forEach((panner : Panner, type : OffsetType) => {
 					let goal : Vec3;
-					if (type === OffsetType.CAMERA) {
+					if (type === OffsetType.CAMERA && zoom) {
 						goal = Lakitu._offsets.get(type).clone().add({ z: -8 });
 					} else {
 						goal = Lakitu._offsets.get(type);
@@ -258,7 +266,7 @@ export class Lakitu extends SystemBase implements System {
 		}
 		return false;
 	}
-	private targetPlane() : boolean {
+	private targetPlane(zoom : boolean) : boolean {
 		const plane = game.entities().getMap(EntityType.PLANE).findN((plane : Entity) => {
 			return plane.valid();
 		}, 1);
@@ -270,12 +278,12 @@ export class Lakitu extends SystemBase implements System {
 				interpType: InterpType.NEGATIVE_SQUARE,
 			});
 			this._panners.get(OffsetType.TARGET).pan({
-				goal: {x: 0, y: -8, z: 0},
+				goal: {x: 0, y: zoom ? 0 : -8, z: 0},
 				millis: Lakitu._normalPan,
 				interpType: InterpType.NEGATIVE_SQUARE,
 			});
 			this._panners.get(OffsetType.CAMERA).pan({
-				goal: {x: 0, y: 0, z: 80 },
+				goal: {x: 0, y: 0, z: zoom ? 25 : 80 },
 				millis: Lakitu._normalPan,
 				interpType: InterpType.NEGATIVE_SQUARE,
 			});
@@ -338,6 +346,8 @@ export class Lakitu extends SystemBase implements System {
 
 		switch (game.controller().gameState()) {
 		case GameState.LOAD:
+			this.targetSpawn(/*zoom=*/true);
+			break;
 		case GameState.SETUP:
 			this.targetSpawn();
 			break;
@@ -411,6 +421,7 @@ export class Lakitu extends SystemBase implements System {
 			// Pan to a winning player
 			this.targetWinner();
 			break;
+		case GameState.STARTING:
 		case GameState.END:
 		case GameState.ERROR:
 			this.clearTargetEntity();

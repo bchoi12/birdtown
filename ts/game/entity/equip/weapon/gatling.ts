@@ -21,12 +21,12 @@ import { Vec, Vec3 } from 'util/vector'
 export class Gatling extends Weapon {
 
 	private static readonly _revTime = 360;
-	private static readonly _bursts = 30;
+	private static readonly _bursts = 25;
 	private static readonly _config = {
 		times: new Map([
 			[WeaponState.REVVING, Gatling._revTime],
 			[WeaponState.FIRING, 83],
-			[WeaponState.RELOADING, 500],
+			[WeaponState.RELOADING, 600],
 		]),
 		bursts: Gatling._bursts,
 		interruptable: true,

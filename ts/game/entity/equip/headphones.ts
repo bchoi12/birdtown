@@ -9,7 +9,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { DyingStar } from 'game/entity/dying_star'
 import { Player } from 'game/entity/player'
-import { ColorType, MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MeshType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -77,7 +77,6 @@ export class Headphones extends Equip<Player> {
 		});
 
 		if (ok) {
-			star.setTTL(800);
 			star.setTarget(this.inputMouse());
 		}
 

@@ -19,12 +19,12 @@ export class Bazooka extends Weapon {
 
 	private static readonly _config = {
 		times: new Map([
-			[WeaponState.FIRING, 450],
+			[WeaponState.FIRING, 500],
 			[WeaponState.RELOADING, 900],
 		]),
 		bursts: 1,
 	};
-	private static readonly _rocketTTL = 700;
+	private static readonly _rocketTTL = 650;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.BAZOOKA, options);

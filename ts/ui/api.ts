@@ -16,6 +16,7 @@ export enum AnnouncementType {
 	GAME_END,
 	GAME_ERROR,
 	GAME_FINISH,
+	GAME_STARTING,
 	GAME_VICTORY,
 	GENERIC,
 	LEVEL,
