@@ -5,6 +5,7 @@ import { ArchBalcony } from 'game/entity/block/arch_balcony'
 import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Billboard } from 'game/entity/block/billboard'
+import { Bush } from 'game/entity/block/bush'
 import { Floor } from 'game/entity/bound/floor'
 import { Wall } from 'game/entity/bound/wall'
 import { Cloud } from 'game/entity/cloud'
@@ -79,14 +80,15 @@ export namespace EntityFactory {
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
 		[EntityType.BILLBOARD, (options : EntityOptions) => { return new Billboard(options); }],
 		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
+		[EntityType.BLACK_HOLE, (options : EntityOptions) => { return new BlackHole(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
 		[EntityType.BOOSTER, (options : EntityOptions) => { return new Booster(options); }],
-		[EntityType.BLACK_HOLE, (options : EntityOptions) => { return new BlackHole(options); }],
 		[EntityType.BOLT_EXPLOSION, (options : EntityOptions) => { return new BoltExplosion(options); }],
 		[EntityType.BOOBY_BEAK, (options : EntityOptions) => { return new BoobyBeak(options); }],
 		[EntityType.BOOBY_HAIR, (options : EntityOptions) => { return new BoobyHair(options); }],
 		[EntityType.BUBBLE, (options : EntityOptions) => { return new Bubble(options); }],
 		[EntityType.BULLET, (options : EntityOptions) => { return new Bullet(options); }],
+		[EntityType.BUSH, (options : EntityOptions) => { return new Bush(options); }],
 		[EntityType.CALIBER, (options : EntityOptions) => { return new Caliber(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
@@ -146,6 +148,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOF, { x: 12, y: 1, z: 8 }],
 		[EntityType.BACKGROUND_ARCH_ROOM, { x: 12, y: 6 }],
 		[EntityType.BILLBOARD, { x: 8, y: 6.4, z: 0.5 }],
+		[EntityType.BUSH, { x: 3.3, y: 2 }],
 		[EntityType.BOLT, { x: 0.4, y: 0.12, z : 0.12 }],
 		[EntityType.BULLET, { x: 0.4, y: 0.12, z : 0.12 }],
 		[EntityType.CALIBER, { x: 0.5, y: 0.15, z : 0.15 }],

@@ -33,6 +33,7 @@ export enum EntityType {
 	BOOBY_HAIR,
 	BUBBLE,
 	BULLET,
+	BUSH,
 	CALIBER,
 	CHICKEN_BEAK,
 	CHICKEN_HAIR,

@@ -86,6 +86,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				const [errors, ok] = config.canPlay(this._configMsg);
 
 				if (ok) {
+					this._configMsg.setLevelSeed(Math.floor(10000 * Math.random()));
 					game.controller().startGame(this._configMsg, config);
 				} else {
 					// Should never happen if page properly checks prior to submit

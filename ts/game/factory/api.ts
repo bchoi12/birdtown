@@ -219,6 +219,7 @@ export enum MeshType {
 	ARCH_ROOF,
 	ARCH_BALCONY,
 	BILLBOARD,
+	BUSH,
 	CRATE,
 	PERGOLA,
 	TABLE,

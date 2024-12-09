@@ -155,7 +155,7 @@ export abstract class Block extends EntityBase {
 			return;
 		}
 
-		if (this.profile().containsProfile(other.profile())) {
+		if (this.profile().contains(other.profile().pos())) {
 			this._occludedEntities.add(other);
 		}
 	}
@@ -296,7 +296,7 @@ export abstract class Block extends EntityBase {
 		mesh.material.markDirty(true);
 	}
 
-	protected canOcclude() : boolean { return !(this._frontMaterials.size === 0 && this._transparentFrontMeshes.length === 0); }
+	protected canOcclude() : boolean { return this._frontMaterials.size > 0 || this._transparentFrontMeshes.length > 0; }
 
 	protected checkAlpha() : number {
 		if (this.hasOpenings() && this.openings().empty()) {

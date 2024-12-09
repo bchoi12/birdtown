@@ -376,6 +376,7 @@ export class ArchBlueprint extends Blueprint {
 
 				if (block.type() === ArchBlueprint.roofType()) {
 					const next = this.rng().next();
+					const next2 = this.rng().next();
 
 					if (options.msg.getNumTeams() === 2 && i === 0) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
@@ -417,12 +418,50 @@ export class ArchBlueprint extends Blueprint {
 								},
 							});
 						}
+
+						// No bush & billboard at same time
+						if (next > 0.2 && next2 <= 0.3) {
+							block.pushEntityOptions(EntityType.BUSH, {
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({
+										x: -3,
+										y: EntityFactory.getDimension(EntityType.BUSH).y / 2
+									}),
+								}
+							});
+							block.pushEntityOptions(EntityType.BUSH, {
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({
+										x: 3,
+										y: EntityFactory.getDimension(EntityType.BUSH).y / 2
+									}),
+								}
+							});
+						}
 					} else if (building.height() === 1) {
 						if (next <= 0.4) {
 							block.pushEntityOptions(EntityType.PERGOLA, {
 								profileInit: {
 									pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.PERGOLA).y / 2 + 1}),
 								},
+							});
+						}
+						if (next2 <= 0.5) {
+							block.pushEntityOptions(EntityType.BUSH, {
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({
+										x: -3,
+										y: EntityFactory.getDimension(EntityType.BUSH).y / 2
+									}),
+								}
+							});
+							block.pushEntityOptions(EntityType.BUSH, {
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({
+										x: 3,
+										y: EntityFactory.getDimension(EntityType.BUSH).y / 2
+									}),
+								}
 							});
 						}
 					}
@@ -481,6 +520,7 @@ export class ArchBlueprint extends Blueprint {
 
 		let pergolaMod = this.rng().int(2);
 		let tableMod = this.rng().int(2);
+		let bushMod = this.rng().int(3);
 
 		const numBuildings = this.numBuildings();
 		for (let i = 0; i < numBuildings; ++i) {
@@ -514,12 +554,32 @@ export class ArchBlueprint extends Blueprint {
 								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.BILLBOARD).y / 2 }),
 							}
 						});
-					} else if (building.height() % 2 === pergolaMod) {
-						block.pushEntityOptions(EntityType.PERGOLA, {
-							profileInit: {
-								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.PERGOLA).y / 2 + 1}),
-							},
-						});
+					} else {
+						if (building.height() % 2 === pergolaMod) {
+							block.pushEntityOptions(EntityType.PERGOLA, {
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.PERGOLA).y / 2 + 1}),
+								},
+							});
+						}
+						if (building.height() % 3 === bushMod) {
+							block.pushEntityOptions(EntityType.BUSH, {
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({
+										x: -3,
+										y: EntityFactory.getDimension(EntityType.BUSH).y / 2
+									}),
+								}
+							});
+							block.pushEntityOptions(EntityType.BUSH, {
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({
+										x: 3,
+										y: EntityFactory.getDimension(EntityType.BUSH).y / 2
+									}),
+								}
+							});
+						}
 					}
 				} else if (block.type() === ArchBlueprint.baseType()
 					&& (i < numBuildings / 2 && i % 2 === tableMod)
