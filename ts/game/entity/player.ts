@@ -652,13 +652,15 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		super.preUpdate(stepData);
 		const millis = stepData.millis;
 
-		// Out of bounds
-		if (this._profile.pos().y < game.level().bounds().min.y) {
-			this.die();
-		}
+		if (this.isSource()) {
+			// Out of bounds
+			if (this._profile.pos().y < game.level().bounds().min.y) {
+				this.die();
+			}
 
-		if (this._stats.dead()) {
-			this._dead = true;
+			if (this._stats.dead()) {
+				this._dead = true;
+			}
 		}
 
 		this._deadTracker.check();

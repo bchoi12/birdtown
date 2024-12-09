@@ -446,7 +446,7 @@ export class ArchBlueprint extends Blueprint {
 								},
 							});
 						}
-						if (next2 <= 0.5) {
+						if (next2 <= 0.4) {
 							block.pushEntityOptions(EntityType.BUSH, {
 								profileInit: {
 									pos: Vec2.fromVec(block.pos()).add({

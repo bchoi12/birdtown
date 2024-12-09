@@ -50,18 +50,10 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			label: "Fullscreen",
 			value: Number(settings.fullscreenSetting),
 			plus: (current : number) => {
-				if (current === FullscreenSetting.WINDOWED) {
-					settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
-				} else {
-					settings.fullscreenSetting = FullscreenSetting.WINDOWED;
-				}
+				settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
 			},
 			minus: (current : number) => {
-				if (current === FullscreenSetting.WINDOWED) {
-					settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
-				} else {
-					settings.fullscreenSetting = FullscreenSetting.WINDOWED;
-				}
+				settings.fullscreenSetting = FullscreenSetting.WINDOWED;
 			},
 			get: () => { return settings.fullscreenSetting; },
 			html: () => {
@@ -130,18 +122,10 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			label: "Damage Stats",
 			value: Number(settings.damageNumberSetting),
 			plus: (current : number) => {
-				if (current === DamageNumberSetting.ON) {
-					settings.damageNumberSetting = DamageNumberSetting.OFF;
-				} else {
-					settings.damageNumberSetting = DamageNumberSetting.ON;
-				}
+				settings.damageNumberSetting = DamageNumberSetting.ON;
 			},
 			minus: (current : number) => {
-				if (current === DamageNumberSetting.ON) {
-					settings.damageNumberSetting = DamageNumberSetting.OFF;
-				} else {
-					settings.damageNumberSetting = DamageNumberSetting.ON;
-				}
+				settings.damageNumberSetting = DamageNumberSetting.OFF;
 			},
 			get: () => { return settings.damageNumberSetting; },
 			html: () => {

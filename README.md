@@ -14,11 +14,11 @@ Play the alpha version at https://birdtown.net.
 
 ## Screenshots
 
-![Recent screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog077.png?raw=true)
+![Recent screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog081.png?raw=true)
 
-![Multiplayer action](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog076.png?raw=true)
+![Multiplayer action](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog083.png?raw=true)
 
-![Login screen](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog078.png?raw=true)
+![UI screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog084.png?raw=true)
 
 ## Nerd Stuff
 

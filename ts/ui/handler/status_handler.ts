@@ -80,12 +80,6 @@ export class StatusHandler extends HandlerBase implements Handler {
 		this.clearAllStatuses();
 	}
 
-	override onPlayerInitialized() {
-		super.onPlayerInitialized();
-
-		this.addStatus(StatusType.KEYS);
-	}
-
 	setSignalingDisconnected(disconnected : boolean) : void {
 		if (this._signalingDisconnected === disconnected) {
 			return;
@@ -127,6 +121,12 @@ export class StatusHandler extends HandlerBase implements Handler {
 		}
 
 		this.showState(state);
+
+		switch (state) {
+		case GameState.FREE:
+			this.addStatus(StatusType.KEYS);
+			break;
+		}
 	}
 
 	private refreshState(state : GameState) : void {
