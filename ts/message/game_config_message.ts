@@ -35,6 +35,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.DUEL, "Duel"],
 		[GameMode.FREE_FOR_ALL, "Free for All"],
 		[GameMode.PRACTICE, "Practice Mode"],
+		[GameMode.SPREE, "Spree"],
 		[GameMode.SURVIVAL, "Survival"],
 		[GameMode.TEAM_BATTLE, "Team Battle"],
 	]);
@@ -79,6 +80,12 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		)],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
+		)],
+		[GameMode.SPREE, MessageBase.fieldDescriptor(
+			...GameConfigMessage._gameProps,
+			[GameConfigProp.POINTS, {}],
+			[GameConfigProp.TIME_GAME, { optional: true }],
+			[GameConfigProp.ROUND_WINS, {}],
 		)],
 		[GameMode.SURVIVAL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
@@ -164,6 +171,16 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setHealthCrateSpawn(FrequencyType.EVERYWHERE);
 			this.setWeaponCrateSpawn(FrequencyType.EVERYWHERE);
 			this.setWinCondition(WinConditionType.NONE);
+			break;
+		case GameMode.SPREE:
+			this.setPlayersMin(2);
+			this.setHealthCrateSpawn(FrequencyType.RARE);
+			this.setWeaponCrateSpawn(FrequencyType.RARE);
+			this.setPoints(3);
+			this.setResetPoints(true);
+			this.setStartingLoadout(LoadoutType.PICK);
+			this.setVictories(3);
+			this.setWinCondition(WinConditionType.POINTS);
 			break;
 		case GameMode.SURVIVAL:
 			this.setLives(1);

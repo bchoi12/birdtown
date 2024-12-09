@@ -14,7 +14,7 @@ import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { ScoreboardWrapper } from 'ui/wrapper/dialog/scoreboard_wrapper'
 
-export class ScoreboardHandler extends HandlerBase implements Handler {
+export class SidebarHandler extends HandlerBase implements Handler {
 
 	private static readonly _width = "25%";
 	private static readonly _hideWidth = "35%";
@@ -24,7 +24,7 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 	private _stickyShow : boolean;
 
 	constructor() {
-		super(HandlerType.SCOREBOARD);
+		super(HandlerType.SIDEBAR);
 
 		this._scoreboardElm = Html.elm(Html.divScoreboard);
 		this._scoreboard = new ScoreboardWrapper();
@@ -55,8 +55,8 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 	override onPlayerInitialized() : void {
 		super.onPlayerInitialized();
 
-		this._scoreboardElm.style.width = ScoreboardHandler._width;
-		this._scoreboardElm.style.right = "-" + ScoreboardHandler._hideWidth;
+		this._scoreboardElm.style.width = SidebarHandler._width;
+		this._scoreboardElm.style.right = "-" + SidebarHandler._hideWidth;
 		this._scoreboardElm.style.display = "block";
 	}
 
@@ -106,7 +106,7 @@ export class ScoreboardHandler extends HandlerBase implements Handler {
 	}
 
 	hide() : void {
-		this._scoreboardElm.style.right = "-" + ScoreboardHandler._hideWidth;
+		this._scoreboardElm.style.right = "-" + SidebarHandler._hideWidth;
 
 		this._scoreboard.removeHighlights();
 		this._stickyShow = false;

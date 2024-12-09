@@ -220,20 +220,22 @@ export class GameMaker extends SystemBase implements System {
 		});
 		ui.setGameConfig(this._config);
 	}
-	static nameAndGoal(config : GameConfigMessage) : [string, string] {
+	static description(config : GameConfigMessage) : string {
 		switch (config.type()) {
 		case GameMode.DUEL:
-			return ["Duel", "Win the 1v1"];
+			return "Win the 1v1";
 		case GameMode.FREE_FOR_ALL:
-			return ["Free for All", "Be the first to score " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point")];
+			return "Be the first to score " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point");
 		case GameMode.PRACTICE:
-			return ["Practice", "Press " + KeyNames.kbd(settings.menuKeyCode) + " to exit"];
+			return "Press " + KeyNames.kbd(settings.menuKeyCode) + " to exit";
 		case GameMode.SURVIVAL:
-			return ["Survival", "Be the last one standing"];
+			return "Be the last one standing";
+		case GameMode.SPREE:
+			return "Score " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point") + " in a row";
 		case GameMode.TEAM_BATTLE:
-			return ["Team Battle", "Eliminate the enemy team"];
+			return "Eliminate the enemy team";
 		default:
-			return ["Unknown Game Mode", "???"];
+			return "???";
 		}
 	}
 	checkState(current : GameState) : [string, boolean] {
@@ -417,12 +419,11 @@ export class GameMaker extends SystemBase implements System {
 				numTeams: numTeams,
 			});
 
-			const nameAndGoal = GameMaker.nameAndGoal(this._config);
-			nameAndGoal[0] += " Round " + this._round;
-
+			const name = this._config.modeName() + " Round " + this._round;
+			const description = GameMaker.description(this._config);
 	    	let startGameMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	startGameMsg.setAnnouncementType(AnnouncementType.GENERIC);
-	    	startGameMsg.setNames(nameAndGoal);
+	    	startGameMsg.setNames([name, description]);
 	    	game.announcer().broadcast(startGameMsg);
 			break;
 		case GameState.SETUP:
@@ -513,6 +514,14 @@ export class GameMaker extends SystemBase implements System {
 				feed.setFeedType(FeedType.KILL);
 				feed.setNames([damagerTablet.displayName(), tablet.displayName()]);
 				game.announcer().broadcast(feed);
+
+				if (this._config.getWinCondition() === WinConditionType.POINTS
+					&& damagerTablet.getInfo(InfoType.SCORE) === this._config.getPoints() - 1) {
+					let feed = new GameMessage(GameMessageType.FEED);
+					feed.setFeedType(FeedType.ONE_MORE);
+					feed.setNames([damagerTablet.displayName()]);
+					game.announcer().broadcast(feed);
+				}
 			}
 		}
 	}

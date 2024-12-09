@@ -38,6 +38,7 @@ export enum IconType {
 	VOLUME_HIGH,
 
 	// Feed
+	ONE_MORE,
 	READY,
 	SIGN,
 	SKILLET,
@@ -99,6 +100,7 @@ export namespace Icon {
 		[IconType.MUSIC_NOTE, "music_note"],
 		[IconType.MUTED_MIC, "mic_off"],
 		[IconType.KICK, "block"],
+		[IconType.ONE_MORE, "counter_1"],
 		[IconType.ORBS, "scatter_plot"],
 		[IconType.PERSON, "person"],
 		[IconType.PERSON_PLUS, "person_add"],

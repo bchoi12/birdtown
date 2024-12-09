@@ -13,6 +13,7 @@ export class FeedWrapper extends HtmlWrapper<HTMLElement> {
 		[FeedType.KICK, IconType.KICK],
 		[FeedType.KILL, IconType.SKILLET],
 		[FeedType.LEAVE, IconType.PERSON_SLASH],
+		[FeedType.ONE_MORE, IconType.ONE_MORE],
 		[FeedType.READY, IconType.READY],
 		[FeedType.SUICIDE, IconType.SKULL], 
 	]);

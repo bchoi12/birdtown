@@ -26,7 +26,7 @@ import { KeyBindHandler } from 'ui/handler/key_bind_handler'
 import { LoginHandler } from 'ui/handler/login_handler'
 import { MenuHandler } from 'ui/handler/menu_handler'
 import { PointerLockHandler } from 'ui/handler/pointer_lock_handler'
-import { ScoreboardHandler } from 'ui/handler/scoreboard_handler'
+import { SidebarHandler } from 'ui/handler/sidebar_handler'
 import { SettingsHandler } from 'ui/handler/settings_handler'
 import { StatsHandler } from 'ui/handler/stats_handler'
 import { StatusHandler } from 'ui/handler/status_handler'
@@ -64,7 +64,7 @@ class UI {
 	private _loginHandler : LoginHandler;
 	private _menuHandler : MenuHandler;
 	private _pointerLockHandler : PointerLockHandler;
-	private _scoreboardHandler : ScoreboardHandler;
+	private _sidebarHandler : SidebarHandler;
 	private _settingsHandler : SettingsHandler;
 	private _statsHandler : StatsHandler;
 	private _statusHandler : StatusHandler;
@@ -91,7 +91,7 @@ class UI {
 		this._loginHandler = this.add(new LoginHandler());
 		this._menuHandler = this.add(new MenuHandler());
 		this._pointerLockHandler = this.add(new PointerLockHandler());
-		this._scoreboardHandler = this.add(new ScoreboardHandler());
+		this._sidebarHandler = this.add(new SidebarHandler());
 		this._settingsHandler = this.add(new SettingsHandler());
 		this._statsHandler = this.add(new StatsHandler());
 		this._statusHandler = this.add(new StatusHandler());
@@ -143,7 +143,7 @@ class UI {
 			handler.onModeChange(mode, oldMode);
 		});	
 	}
-	setGameConfig(config : GameConfigMessage) : void { this._scoreboardHandler.setGameConfig(config); }
+	setGameConfig(config : GameConfigMessage) : void { this._sidebarHandler.setGameConfig(config); }
 
 	openMenu() : void { this._menuHandler.enable(); }
 	applySettings() : void {
@@ -210,12 +210,12 @@ class UI {
 	refreshHudColor() : void { this._hudHandler.refreshColor(); }
 	updateHud(huds : Map<HudType, HudOptions>) : void { this._hudHandler.updateHud(huds); }
 	hideHud() : void { this._hudHandler.hideHud(); }
-	addPlayer(clientId : number) : void { this._scoreboardHandler.addPlayer(clientId); }
-	removePlayer(clientId : number) : void { this._scoreboardHandler.removePlayer(clientId); }
-	highlightPlayer(clientId : number) : void { this._scoreboardHandler.highlightPlayer(clientId); }
-	refreshScoreboardColor() : void { this._scoreboardHandler.refreshColor(); }
-	updateInfo(id : number, type : InfoType, value : number) : void { this._scoreboardHandler.updateInfo(id, type, value); }
-	clearInfo(id : number, type : InfoType) : void { this._scoreboardHandler.clearInfo(id, type); }
+	addPlayer(clientId : number) : void { this._sidebarHandler.addPlayer(clientId); }
+	removePlayer(clientId : number) : void { this._sidebarHandler.removePlayer(clientId); }
+	highlightPlayer(clientId : number) : void { this._sidebarHandler.highlightPlayer(clientId); }
+	refreshScoreboardColor() : void { this._sidebarHandler.refreshColor(); }
+	updateInfo(id : number, type : InfoType, value : number) : void { this._sidebarHandler.updateInfo(id, type, value); }
+	clearInfo(id : number, type : InfoType) : void { this._sidebarHandler.clearInfo(id, type); }
 	pushDialog<T extends DialogWrapper>(type : DialogType) : T { return this._dialogHandler.pushDialog(type); }
 	forceSubmitDialog(type : DialogType) : void { this._dialogHandler.forceSubmitDialog(type); }
 	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }
@@ -224,7 +224,7 @@ class UI {
 	setDebugStats(enabled : boolean) : void { this._statsHandler.setDebug(enabled); }
 	setGameState(state : GameState) : void {
 		this._statusHandler.setGameState(state);
-		this._scoreboardHandler.setGameState(state);
+		this._sidebarHandler.setGameState(state);
 	}
 	setSignalingDisconnected(disconnected : boolean) : void { this._statusHandler.setSignalingDisconnected(disconnected); }
 	addStatus(type : StatusType) : void { this._statusHandler.addStatus(type); }

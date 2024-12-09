@@ -31,6 +31,7 @@ import { Fns } from 'util/fns'
 export abstract class Crate extends Interactable implements Entity, EquipEntity, InteractEntity {
 
 	private static readonly _maxSpeed = 0.5;
+	private static readonly _hp = 30;
 
 	private _materialShifter : MaterialShifter;
 	private _opened : boolean;
@@ -123,9 +124,9 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 
 		this._stats = this.addComponent<Stats>(new Stats());
 		this._stats.addStat(StatType.HEALTH, {
-			base: 40,
+			base: Crate._hp,
 			min: 0,
-			max: 40,
+			max: Crate._hp,
 		});
 	}
 

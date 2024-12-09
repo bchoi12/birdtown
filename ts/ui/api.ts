@@ -57,6 +57,9 @@ export enum DialogType {
 export enum FeedType {
 	UNKNOWN,
 
+	// about to win
+	ONE_MORE,
+
 	JOIN,
 	KICK,
 	KILL,

@@ -15,7 +15,7 @@ export enum HandlerType {
 	LOGIN,
 	MENU,
 	POINTER_LOCK,
-	SCOREBOARD,
+	SIDEBAR,
 	SETTINGS,
 	STATS,
 	STATUS,

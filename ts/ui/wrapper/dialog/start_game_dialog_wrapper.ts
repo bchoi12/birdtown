@@ -133,14 +133,20 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.populateMode(GameMode.DUEL, {
 			name: "Duel",
 			requirements: [],
-			description: "1v1 your opponent on a 'standardized' Birdtown.\r\n\r\nTake turns picking the loadout until someone wins.",
+			description: "1v1 your opponent on a small symmetric Birdtown.\r\n\r\nTake turns picking the loadout until someone wins.",
 			minRecommended: 2,
 			maxRecommended: 2,
 		});
 		this.populateMode(GameMode.FREE_FOR_ALL, {
 			name: "Free for All",
 			requirements: [],
-			description: "It's everyone for themselves.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
+			description: "Classic free for all.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
+			minRecommended: 3,
+		});
+		this.populateMode(GameMode.SPREE, {
+			name: "Spree",
+			requirements: [],
+			description: "Free for all, but lose points on death.",
 			minRecommended: 3,
 		});
 		this.populateMode(GameMode.SURVIVAL, {
@@ -311,9 +317,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.FREE_FOR_ALL:
+		case GameMode.SPREE:
 			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			options.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
-			options.contentElm().appendChild(this.resetPointsWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
