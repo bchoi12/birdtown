@@ -37,13 +37,16 @@ export enum IconType {
 	VOLUME_LOW,
 	VOLUME_HIGH,
 
-	// Feed
+	// UI
+	NETWORK_SIGNAL,
 	ONE_MORE,
 	READY,
+	RENDER,
 	SIGN,
 	SKILLET,
 	SKULL,
 	TROPHY,
+	UPDATE,
 
 	// HUD
 	BACKFLIP,
@@ -100,12 +103,14 @@ export namespace Icon {
 		[IconType.MUSIC_NOTE, "music_note"],
 		[IconType.MUTED_MIC, "mic_off"],
 		[IconType.KICK, "block"],
+		[IconType.NETWORK_SIGNAL, "signal_cellular_alt"],
 		[IconType.ONE_MORE, "counter_1"],
 		[IconType.ORBS, "scatter_plot"],
 		[IconType.PERSON, "person"],
 		[IconType.PERSON_PLUS, "person_add"],
 		[IconType.PERSON_SLASH, "person_off"],
 		[IconType.READY, "checklist"],
+		[IconType.RENDER, "filter"],
 		[IconType.REROLL, "cached"],
 		[IconType.RESET_SETTINGS, "reset_settings"],
 		[IconType.ROCKET, "rocket"],
@@ -123,6 +128,7 @@ export namespace Icon {
 		[IconType.TIMER, "timer"],
 		[IconType.TROPHY, "trophy"],
 		[IconType.UNLOCK, "lock_open_right"],
+		[IconType.UPDATE, "update"],
 		[IconType.VOLUME_HIGH, "volume_up"],
 		[IconType.VOLUME_LOW, "volume_down"],
 		[IconType.VOLUME_NONE, "volume_mute"],

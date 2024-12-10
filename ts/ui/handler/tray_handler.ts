@@ -4,6 +4,8 @@ import { GameState } from 'game/api'
 import { ColorType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
+import { Flags } from 'global/flags'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -112,7 +114,10 @@ export class TrayHandler extends HandlerBase implements Handler {
 		this._voiceWrapper.addOnMouseEnter(() => {
 			this.showDescription("Toggle in-game proximity voice chat (WIP)");
 		});
-		this._buttonsElm.appendChild(this._voiceWrapper.elm());
+
+		if (Flags.enableVoice.get()) {
+			this._buttonsElm.appendChild(this._voiceWrapper.elm());
+		}
 
 		let toggle = new ButtonWrapper();
 		toggle.setIcon(IconType.MENU_OPEN);

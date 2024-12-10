@@ -112,6 +112,7 @@ export namespace Html {
 	export const classProgress = "progress";
 	export const classScoreboardContainer = "scoreboard-container";
 	export const classScoreboardTitle = "scoreboard-title";
+	export const classStat = "stat";
 	export const classStatusMessage = "status-message";
 	export const classTooltip = "tooltip";
 

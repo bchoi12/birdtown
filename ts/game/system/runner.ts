@@ -44,6 +44,7 @@ export class Runner extends SystemBase implements System  {
 	]);
 
 	private _ticker : Worker;
+	private _tickRate : number;
 	private _tickNum : number;
 	private _step : number;
 	private _seqNum : number;
@@ -67,6 +68,7 @@ export class Runner extends SystemBase implements System  {
 		super(SystemType.RUNNER);
 
 		this._ticker = new Worker(Runner._tickerFile);
+		this._tickRate = 0;
 		this._tickNum = 0;
 		this._step = 0;
 		this._seqNum = 0;
@@ -108,7 +110,7 @@ export class Runner extends SystemBase implements System  {
 
 		this._lastUpdateTime = Date.now();
 
-		this._ticker.postMessage(Runner._targetTickRate);
+		this.setTickRate(Runner._targetTickRate);
 	   	this._ticker.onmessage = (msg : any) => {
 	   		// Prevent spiral of death
 	   		if (Math.abs(Date.now() - msg.data) > Runner._skipTickThreshold) {
@@ -146,17 +148,22 @@ export class Runner extends SystemBase implements System  {
    				this.setDegraded(false);
    			}
 
-		   	const renderInterval = Date.now() - this._lastRenderTime;
-   			this._lastRenderTime = Date.now();
-			this.preRender();
 			let skipRender = this._renderSpeed === SpeedSetting.SLOW && this._tickNum % 2 !== 0;
+		   	const renderInterval = Date.now() - this._lastRenderTime;
+
+		   	if (!skipRender) {
+	   			this._lastRenderTime = Date.now();
+		   	}
+
+   			const startRenderTime = Date.now();
+			this.preRender();
 			if (!skipRender) {
 				this.render();
 			}
 			this.postRender();
 
 			if (!skipRender) {
-				const renderTime = Date.now() - this._lastRenderTime;
+				const renderTime = Date.now() - startRenderTime;
 				this._renderStats.logTick(renderInterval, renderTime);
 			}
 	   	};
@@ -190,6 +197,7 @@ export class Runner extends SystemBase implements System  {
 	}
 
 	setTickRate(rate : number) : void {
+		this._tickRate = rate;
 		this._ticker.postMessage(rate);
 	}
 	pause() : void {
@@ -233,6 +241,8 @@ export class Runner extends SystemBase implements System  {
 	setUpdateSpeed(speed : number) : void { this._updateSpeed = speed; }
 	gameStats() : RunnerStats { return this._gameStats; }
 	renderStats() : RunnerStats { return this._renderStats; }
+	tickRate() : number { return this._tickRate; }
+	renderRate() : number { return this._renderSpeed === SpeedSetting.SLOW ? this._tickRate / 2 : this._tickRate; }
  	lastStep() : number { return this._step; }
  	tickNum() : number { return this._tickNum; }
 	seqNumDiff() : number { return this.isSource() ? 0 : this._seqNumDiff; }

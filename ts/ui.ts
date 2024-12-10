@@ -226,7 +226,10 @@ class UI {
 		this._statusHandler.setGameState(state);
 		this._sidebarHandler.setGameState(state);
 	}
-	setSignalingDisconnected(disconnected : boolean) : void { this._statusHandler.setSignalingDisconnected(disconnected); }
+	setSignalingDisconnected(disconnected : boolean) : void {
+		this._statsHandler.setSignalingDisconnected(disconnected);
+		this._statusHandler.setSignalingDisconnected(disconnected);
+	}
 	addStatus(type : StatusType) : void { this._statusHandler.addStatus(type); }
 	currentStatuses() : Set<StatusType> { return this._statusHandler.currentStatuses(); }
 	clearStatus(status : StatusType) : void { this._statusHandler.clearStatus(status); }

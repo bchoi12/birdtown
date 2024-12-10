@@ -204,6 +204,9 @@ export abstract class Weapon extends Equip<Player> {
 		this._bursts--;
 	}
 	protected override simulateUse(uses : number) : void {
+		this.recoil();
+	}
+	recoil() : void {
 		if (this.attachType() === AttachType.ARM) {
 			this.owner().armRecoil(Weapon.recoil(this.recoilType()))
 		}

@@ -30,6 +30,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 	private _timeouts : Map<StatusType, number>;
 	private _disabledStatuses : Set<StatusType>;
 
+	private _showKeys : boolean;
 	private _signalingDisconnected : boolean;
 
 	constructor() {
@@ -43,6 +44,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 		this._timeouts = new Map();
 		this._disabledStatuses = new Set();
 
+		this._showKeys = true;
 		this._signalingDisconnected = false;
 	}
 
@@ -122,10 +124,9 @@ export class StatusHandler extends HandlerBase implements Handler {
 
 		this.showState(state);
 
-		switch (state) {
-		case GameState.FREE:
+		if (state === GameState.FREE && this._showKeys) {
 			this.addStatus(StatusType.KEYS);
-			break;
+			this._showKeys = false;
 		}
 	}
 
