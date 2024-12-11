@@ -120,15 +120,15 @@ export class Runner extends SystemBase implements System  {
 	   		this._tickNum++;
 		   	game.netcode().flush();
 
+		   	const updateInterval = Date.now() - this._lastUpdateTime;
+	   		this._lastUpdateTime = Date.now();
+
 		   	// No need to do anything
 		   	if (!ui.focused()) {
 		   		return;
 		   	}
 
-		   	const updateInterval = Date.now() - this._lastUpdateTime;
-	   		this._lastUpdateTime = Date.now();
 			this._step = this.getGameStep(updateInterval);
-
 			this._seqNum += Math.round(this._step);
 	
 	   		const stepData = {

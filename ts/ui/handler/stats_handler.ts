@@ -57,7 +57,7 @@ export class StatsHandler extends HandlerBase implements Handler {
 				icon: IconType.NETWORK_SIGNAL,
 
 				goodPercent: 0.6,
-				badPercent: 1.5,
+				badPercent: 2,
 				suffix: "ms",
 
 				get: () => { return Math.round(game.netcode().ping()); },
