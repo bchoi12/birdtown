@@ -419,6 +419,16 @@ export class Profile extends ComponentBase implements Component {
 		this._pos.copyVec(vec);
 		this._pos.roundToEpsilon(Profile._minQuantization);
 	}
+	setAllPos(vec : Vec) : void {
+		this.setPos(vec);
+
+		this.onBody((profile : Profile) => {
+			MATTER.Body.setPosition(profile.body(), {
+				x: profile.pos().x,
+				y: profile.pos().y,
+			});
+		});
+	}
 
 	hasVel() : boolean { return this._vel !== null; }
 	vel() : SmoothVec { return this.hasVel() ? this._vel : SmoothVec.zero(); }

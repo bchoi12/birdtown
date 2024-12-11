@@ -25,7 +25,7 @@ import { settings } from 'settings'
 import { StringFactory } from 'strings/string_factory'
 
 import { ui } from 'ui'
-import { TooltipType } from 'ui/api'
+import { KeyType, TooltipType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
 import { CardinalDir } from 'util/cardinal'
@@ -155,7 +155,7 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 
 		this._nameTag = nameTag;
 		this._nameTag.setVisible(false);
-		this._nameTag.setDisplayName(KeyNames.boxed(settings.interactKeyCode));
+		this._nameTag.setDisplayName(KeyNames.boxed(settings.keyCode(KeyType.INTERACT)));
 	}
 
 	override delete() : void {

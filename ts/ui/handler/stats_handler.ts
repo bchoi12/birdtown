@@ -46,8 +46,8 @@ export class StatsHandler extends HandlerBase implements Handler {
 
 				goodPercent: 1,
 				badPercent: 0,
-				suffix: "",
 				iconOnly: true,
+				suffix: " " + game.netcode().room(),
 
 				get: () => { return this._signalingDisconnected ? 0 : 1; },
 				getTarget: () => { return 1; },
@@ -56,12 +56,12 @@ export class StatsHandler extends HandlerBase implements Handler {
 			this.addStat(new StatWrapper({
 				icon: IconType.NETWORK_SIGNAL,
 
-				goodPercent: -0.6,
-				badPercent: -1.5,
+				goodPercent: 0.6,
+				badPercent: 1.5,
 				suffix: "ms",
 
 				get: () => { return Math.round(game.netcode().ping()); },
-				getTarget: () => { return -100; },
+				getTarget: () => { return 100; },
 			}));
 		}
 

@@ -6,6 +6,8 @@ import { Icon, IconType } from 'ui/common/icon'
 import { KeyNames } from 'ui/common/key_names'
 import { ProgressWrapper } from 'ui/wrapper/progress_wrapper'
 
+import { settings } from 'settings'
+
 export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _charging : boolean;
@@ -112,6 +114,11 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	setKeyType(type : KeyType) : void {
+		if (settings.keyCodes.has(type) && type !== KeyType.MOUSE_CLICK && type !== KeyType.ALT_MOUSE_CLICK) {
+			this.setKeyCode(settings.keyCode(type));
+			return;
+		}
+
 		if (this._keyType === type) {
 			return;
 		}

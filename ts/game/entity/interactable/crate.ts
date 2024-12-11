@@ -23,6 +23,7 @@ import { GameGlobals } from 'global/game_globals'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
+import { KeyType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
 import { Box2 } from 'util/box'
@@ -148,7 +149,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 
 		this._nameTag = nameTag;
 		this._nameTag.setVisible(false);
-		this._nameTag.setDisplayName(KeyNames.boxed(settings.interactKeyCode));
+		this._nameTag.setDisplayName(KeyNames.boxed(settings.keyCode(KeyType.INTERACT)));
 	}
 
 	override delete() : void {

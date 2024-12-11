@@ -31,13 +31,16 @@ enum AimMode {
 
 export class InputHandler extends HandlerBase implements Handler {
 
+	private static readonly _keyTypes = new Set([
+		KeyType.LEFT, KeyType.RIGHT, KeyType.JUMP, KeyType.SQUAWK, KeyType.INTERACT, KeyType.MOUSE_CLICK, KeyType.ALT_MOUSE_CLICK
+	]);
 	private static readonly _aimRadius = 96;
 	private static readonly _cursorWidth = 20;
 	private static readonly _cursorHeight = 20;
 
 	private _keys : Set<KeyType>;
 	private _clearedKeys : Set<KeyType>;
-	private _keyMap : Map<number, KeyType>;
+	private _keyMap : Map<number, Set<KeyType>>;
 
 	private _keyDownCallbacks : Map<number, (e : any) => void>;
 	private _keyUpCallbacks : Map<number, (e : any) => void>;
@@ -124,13 +127,9 @@ export class InputHandler extends HandlerBase implements Handler {
 		this._keyDownCallbacks.clear();
 		this._keyUpCallbacks.clear();
 
-		this.mapKey(settings.leftKeyCode, KeyType.LEFT);
-		this.mapKey(settings.rightKeyCode, KeyType.RIGHT);
-		this.mapKey(settings.jumpKeyCode, KeyType.JUMP);
-		this.mapKey(settings.interactKeyCode, KeyType.INTERACT);
-		this.mapKey(settings.squawkKeyCode, KeyType.SQUAWK);
-		this.mapKey(settings.mouseClickKeyCode, KeyType.MOUSE_CLICK);
-		this.mapKey(settings.altMouseClickKeyCode, KeyType.ALT_MOUSE_CLICK);
+		InputHandler._keyTypes.forEach((type : KeyType) => {
+			this.mapKey(settings.keyCode(type), type);
+		})
 	}
 
 	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
@@ -154,8 +153,11 @@ export class InputHandler extends HandlerBase implements Handler {
 	inputWidth() : number { return window.innerWidth; }
 	inputHeight() : number { return window.innerHeight; }
 
-	private mapKey(keyCode : number, key : KeyType) {
-		this._keyMap.set(keyCode, key);
+	private mapKey(keyCode : number, type : KeyType) {
+		if (!this._keyMap.has(keyCode)) {
+			this._keyMap.set(keyCode, new Set());
+		}
+		this._keyMap.get(keyCode).add(type);
 
 		this._keyDownCallbacks.set(keyCode, (e : any) => { this.recordKeyDown(e); });
 		this._keyUpCallbacks.set(keyCode, (e : any) => { this.recordKeyUp(e); });
@@ -253,14 +255,16 @@ export class InputHandler extends HandlerBase implements Handler {
 	private recordKeyDown(e : any) : void {
 		if (!this._keyMap.has(e.keyCode)) return;
 
-		const key = this._keyMap.get(e.keyCode);
-		this.keyDown(key);
+		this._keyMap.get(e.keyCode).forEach((key : KeyType) => {
+			this.keyDown(key);
+		});
 	}
 	private recordKeyUp(e : any) : void {
 		if (!this._keyMap.has(e.keyCode)) return;
 
-		const key = this._keyMap.get(e.keyCode);
-		this.keyUp(key);
+		this._keyMap.get(e.keyCode).forEach((key : KeyType) => {
+			this.keyUp(key);
+		});
 	}
 
 	private mouseDown(e : any) : void {

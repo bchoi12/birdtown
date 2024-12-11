@@ -120,6 +120,11 @@ export class Runner extends SystemBase implements System  {
 	   		this._tickNum++;
 		   	game.netcode().flush();
 
+		   	// No need to do anything
+		   	if (!ui.focused()) {
+		   		return;
+		   	}
+
 		   	const updateInterval = Date.now() - this._lastUpdateTime;
 	   		this._lastUpdateTime = Date.now();
 			this._step = this.getGameStep(updateInterval);
@@ -135,11 +140,6 @@ export class Runner extends SystemBase implements System  {
 
 	   		const updateTime = Date.now() - this._lastUpdateTime;
    			this._gameStats.logTick(updateInterval, updateTime, stepData);
-
-		   	// No need to render the game
-		   	if (!ui.focused()) {
-		   		return;
-		   	}
 
    			const ratio = this._gameStats.rate() / Runner._targetTickRate;
    			if (ratio < Runner._degradedThreshold) {

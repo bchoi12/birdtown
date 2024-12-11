@@ -5,7 +5,7 @@ import { GameMode, GameState } from 'game/api'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { StatusType } from 'ui/api'
+import { KeyType, StatusType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
@@ -184,12 +184,12 @@ export class StatusHandler extends HandlerBase implements Handler {
 				break;
 			case StatusType.KEYS:
 				wrapper.setHTML(
-					"Use " + KeyNames.kbd(settings.leftKeyCode) + " and " + KeyNames.kbd(settings.rightKeyCode) + " to move\r\n\r\n" +
-					"Press " + KeyNames.kbd(settings.jumpKeyCode) + " to jump/double jump"
+					"Use " + KeyNames.kbd(settings.keyCode(KeyType.LEFT)) + " and " + KeyNames.kbd(settings.keyCode(KeyType.RIGHT)) + " to move\r\n\r\n" +
+					"Press " + KeyNames.kbd(settings.keyCode(KeyType.JUMP)) + " to jump/double jump"
 				);
 				break;
 			case StatusType.SPECTATING:
-				wrapper.setHTML("Spectating\r\nPress " + KeyNames.kbd(settings.leftKeyCode) + " or " + KeyNames.kbd(settings.rightKeyCode) + " to change players");
+				wrapper.setHTML("Spectating\r\nPress " + KeyNames.kbd(settings.keyCode(KeyType.LEFT)) + " or " + KeyNames.kbd(settings.keyCode(KeyType.RIGHT)) + " to change players");
 				break;
 			}
 		}

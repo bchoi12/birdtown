@@ -2,11 +2,16 @@
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { UiMode } from 'ui/api'
+import { UiMode, KeyType } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { KeyBindWrapper, KeyBindWrapperOptions } from 'ui/wrapper/label/key_bind_wrapper'
+
+type KeyBindOptions = {
+	name : string;
+	type : KeyType;
+}
 
 export class KeyBindHandler extends HandlerBase implements Handler {
 	private _keyBindElm : HTMLElement;
@@ -28,33 +33,28 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 
 		this.addKeyBind({
 			name: "Move Left",
-			get: () => { return settings.leftKeyCode; },
-			update: (keyCode : number) => { settings.leftKeyCode = keyCode; },
+			type: KeyType.LEFT,
 		});
 
 		this.addKeyBind({
 			name: "Move Right",
-			get: () => { return settings.rightKeyCode; },
-			update: (keyCode : number) => { settings.rightKeyCode = keyCode; },
+			type: KeyType.RIGHT,
 		});
 
 		this.addKeyBind({
 			name: "Jump / Double Jump",
-			get: () => { return settings.jumpKeyCode; },
-			update: (keyCode : number) => { settings.jumpKeyCode = keyCode; },
+			type: KeyType.JUMP,
 		});
 
 		this.addKeyBind({
 			name: "Squawk",
-			get: () => { return settings.squawkKeyCode; },
-			update: (keyCode : number) => { settings.squawkKeyCode = keyCode; },
+			type: KeyType.SQUAWK,
 		});
 		this.addKeyBind({
 			name: "Interact",
-			get: () => { return settings.interactKeyCode; },
-			update: (keyCode : number) => { settings.interactKeyCode = keyCode; },
+			type: KeyType.INTERACT,
 		});
-		this.addKeyBind({
+		this.addMenuKeyBind({
 			name: "Lock Mouse",
 			get: () => { return settings.pointerLockKeyCode; },
 			update: (keyCode : number) => { settings.pointerLockKeyCode = keyCode; },
@@ -62,27 +62,25 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 
 		this.addKeyBind({
 			name: "Use Weapon (LMB)",
-			get: () => { return settings.mouseClickKeyCode; },
-			update: (keyCode : number) => { settings.mouseClickKeyCode = keyCode; },
+			type: KeyType.MOUSE_CLICK,
 		});
 
 		this.addKeyBind({
 			name: "Use Equip (RMB)",
-			get: () => { return settings.altMouseClickKeyCode; },
-			update: (keyCode : number) => { settings.altMouseClickKeyCode = keyCode; },
+			type: KeyType.ALT_MOUSE_CLICK,
 		});
 
-		this.addKeyBind({
+		this.addMenuKeyBind({
 			name: "Chat / Submit",
 			get: () => { return settings.chatKeyCode; },
 			update: (keyCode : number) => { settings.chatKeyCode = keyCode; },
 		});
-		this.addKeyBind({
+		this.addMenuKeyBind({
 			name: "Open Menu",
 			get: () => { return settings.menuKeyCode; },
 			update: (keyCode : number) => { settings.menuKeyCode = keyCode; },
 		});
-		this.addKeyBind({
+		this.addMenuKeyBind({
 			name: "Open Scoreboard",
 			get: () => { return settings.scoreboardKeyCode; },
 			update: (keyCode : number) => { settings.scoreboardKeyCode = keyCode; },
@@ -103,7 +101,15 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		this.reset();
 	}
 
-	private addKeyBind(wrapperOptions : KeyBindWrapperOptions) : void {
+	private addKeyBind(options : KeyBindOptions) : void {
+		this.addMenuKeyBind({
+			name: options.name,
+			get: () => { return settings.keyCode(options.type); },
+			update: (keyCode : number) => { settings.keyCodes.set(options.type, keyCode); }
+		});
+	}
+
+	private addMenuKeyBind(wrapperOptions : KeyBindWrapperOptions) : void {
 		let binding = new KeyBindWrapper(wrapperOptions);
 		this._keyBindElm.append(binding.elm());
 		this._keyBindWrappers.push(binding);

@@ -15,17 +15,13 @@ import {
 	ShadowSetting,
 } from 'settings/api'
 
+import { KeyType } from 'ui/api'
+
 import { isElectron, isMobile, isLocalhost } from 'util/common'
 
 class Settings {
 	
-	public leftKeyCode : number;
-	public rightKeyCode : number;
-	public jumpKeyCode : number;
-	public interactKeyCode : number;
-	public squawkKeyCode : number;
-	public mouseClickKeyCode : number;
-	public altMouseClickKeyCode : number;
+	public keyCodes : Map<KeyType, number>;
 
 	public scoreboardKeyCode : number;
 	public menuKeyCode : number;
@@ -48,13 +44,14 @@ class Settings {
 	public networkStabilitySetting : NetworkStabilitySetting;
 
 	constructor() {
-		this.leftKeyCode = 65;
-		this.rightKeyCode = 68;
-		this.jumpKeyCode = 32;
-		this.interactKeyCode = 69;
-		this.squawkKeyCode = 81;
-		this.mouseClickKeyCode = 83;
-		this.altMouseClickKeyCode = 16;
+		this.keyCodes = new Map();
+		this.keyCodes.set(KeyType.LEFT, 65);
+		this.keyCodes.set(KeyType.RIGHT, 68);
+		this.keyCodes.set(KeyType.JUMP, 32);
+		this.keyCodes.set(KeyType.INTERACT, 69);
+		this.keyCodes.set(KeyType.SQUAWK, 81);
+		this.keyCodes.set(KeyType.MOUSE_CLICK, 83);
+		this.keyCodes.set(KeyType.ALT_MOUSE_CLICK, 16);
 
 		this.menuKeyCode = 27;
 		this.chatKeyCode = 13;
@@ -76,6 +73,8 @@ class Settings {
 		this.jitterSetting = isLocalhost() ? JitterSetting.WIFI : JitterSetting.NONE;
 		this.networkStabilitySetting = isLocalhost() ? NetworkStabilitySetting.GOOD : NetworkStabilitySetting.PERFECT;
 	}
+
+	keyCode(type : KeyType) : number { return this.keyCodes.get(type); }
 
 	fullscreen() : boolean { return this.fullscreenSetting === FullscreenSetting.FULLSCREEN; }
 	showDamageNumbers() : boolean { return this.damageNumberSetting === DamageNumberSetting.ON; }

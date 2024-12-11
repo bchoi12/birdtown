@@ -292,15 +292,11 @@ export namespace KeyNames {
 	export function keyTypeHTML(type : KeyType) : string {
 		switch (type) {
 		case KeyType.LEFT:
-			return kbd(settings.leftKeyCode);
 		case KeyType.RIGHT:
-			return kbd(settings.rightKeyCode);
 		case KeyType.JUMP:
-			return kbd(settings.jumpKeyCode);
 		case KeyType.INTERACT:
-			return kbd(settings.interactKeyCode);
 		case KeyType.SQUAWK:
-			return kbd(settings.squawkKeyCode);
+			return kbd(settings.keyCode(type));
 		case KeyType.MOUSE_CLICK:
 		case KeyType.ALT_MOUSE_CLICK:
 			return Icon.create(IconType.MOUSE).outerHTML;

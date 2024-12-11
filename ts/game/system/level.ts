@@ -99,11 +99,13 @@ export class Level extends SystemBase implements System {
 			const x = Fns.wrap(this._bounds.min.x, pos.x, this._bounds.max.x);
 			if (pos.x !== x) {
 				profile.execute<Profile>((subProfile : Profile) => {
-					subProfile.pos().x += x - pos.x;
+					subProfile.setAllPos({
+						x: subProfile.pos().x + x - pos.x,
+						y: subProfile.pos().y,
+					});
 				});
 				pos.x = x;
 			}
-
 		} else {
 			pos.x = Fns.clamp(this._bounds.min.x, pos.x, this._bounds.max.x);
 		}

@@ -134,11 +134,15 @@ export class Laser extends Projectile {
 		if (game.level().isCircle()) {
 			const tickNum = game.runner().tickNum();
 			if (tickNum % 3 === 1) {
-				this._profile.pos().add({ x: game.level().bounds().width() });
-				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
+				this._profile.setAllPos({
+					x: this._profile.pos().x + game.level().bounds().width(),
+					y: this._profile.pos().y,
+				});
 			} else if (tickNum % 3 === 2) {
-				this._profile.pos().add({ x: -game.level().bounds().width() });
-				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
+				this._profile.setAllPos({
+					x: this._profile.pos().x - game.level().bounds().width(),
+					y: this._profile.pos().y,
+				});
 			}
 		}
 	}
@@ -150,11 +154,15 @@ export class Laser extends Projectile {
 		if (game.level().isCircle()) {
 			const tickNum = game.runner().tickNum();
 			if (tickNum % 3 === 1) {
-				this._profile.pos().add({ x: -game.level().bounds().width() });
-				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
+				this._profile.setAllPos({
+					x: this._profile.pos().x - game.level().bounds().width(),
+					y: this._profile.pos().y,
+				});
 			} else if (tickNum % 3 === 2) {
-				this._profile.pos().add({ x: game.level().bounds().width() });
-				MATTER.Body.setPosition(this._profile.body(), this._profile.pos());
+				this._profile.setAllPos({
+					x: this._profile.pos().x + game.level().bounds().width(),
+					y: this._profile.pos().y,
+				});
 			}
 		}
 	}
