@@ -105,7 +105,7 @@ export class Laser extends Projectile {
 		this.soundPlayer().playFromSelf(SoundType.LASER);
 	}
 
-	override hitDamage() : number { return 50; }
+	override hitDamage() : number { return 60; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
@@ -134,12 +134,12 @@ export class Laser extends Projectile {
 		if (game.level().isCircle()) {
 			const tickNum = game.runner().tickNum();
 			if (tickNum % 3 === 1) {
-				this._profile.setAllPos({
+				this._profile.forcePos({
 					x: this._profile.pos().x + game.level().bounds().width(),
 					y: this._profile.pos().y,
 				});
 			} else if (tickNum % 3 === 2) {
-				this._profile.setAllPos({
+				this._profile.forcePos({
 					x: this._profile.pos().x - game.level().bounds().width(),
 					y: this._profile.pos().y,
 				});
@@ -154,12 +154,12 @@ export class Laser extends Projectile {
 		if (game.level().isCircle()) {
 			const tickNum = game.runner().tickNum();
 			if (tickNum % 3 === 1) {
-				this._profile.setAllPos({
+				this._profile.forcePos({
 					x: this._profile.pos().x - game.level().bounds().width(),
 					y: this._profile.pos().y,
 				});
 			} else if (tickNum % 3 === 2) {
-				this._profile.setAllPos({
+				this._profile.forcePos({
 					x: this._profile.pos().x + game.level().bounds().width(),
 					y: this._profile.pos().y,
 				});

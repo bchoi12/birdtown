@@ -15,7 +15,7 @@ import { SystemType, TimeType } from 'game/system/api'
 import { Flags } from 'global/flags'
 
 import { settings } from 'settings'
-import { ShadowSetting } from 'settings/api'
+import { FilteringQuality, ShadowSetting } from 'settings/api'
 
 enum LayerType {
 	UNKNOWN,
@@ -161,7 +161,7 @@ export class World extends SystemBase implements System {
 		this._shadowGenerator.bias = 1.5e-3;
 		this._shadowGenerator.transparencyShadow = true;
 
-		this.applyShadowSetting(settings.shadowSetting);
+		this.refreshSettings();
 	}
 
 	incrementTime() : void {
@@ -228,25 +228,39 @@ export class World extends SystemBase implements System {
 			child.receiveShadows = true;
 		});
 	}
-	disableShadows(mesh : BABYLON.AbstractMesh) : void {
+	removeShadows(mesh : BABYLON.AbstractMesh) : void {
 		this._shadowGenerator.addShadowCaster(mesh, false);
 		mesh.receiveShadows = false;
 		mesh.getChildMeshes().forEach((child : BABYLON.AbstractMesh) => {
 			child.receiveShadows = false;
 		});
 	}
-	applyShadowSetting(setting : ShadowSetting) : void {
-		if (setting !== ShadowSetting.NONE) {
+
+	refreshSettings() : void {
+		this.setShadowEnabled(settings.shadowEnabled);
+		this.setFilteringQuality(settings.shadowFiltering);
+	}
+	private setShadowEnabled(setting : ShadowSetting) : void {
+		switch (setting) {
+		case ShadowSetting.ON:
+			this._directionalLight.shadowEnabled = true;
+			break;
+		default:
+			this._directionalLight.shadowEnabled = false;
+		}
+	}
+	private setFilteringQuality(setting : FilteringQuality) : void {
+		if (setting !== FilteringQuality.NONE) {
 			this._shadowGenerator.usePercentageCloserFiltering = true;
 
 			switch (setting) {
-			case ShadowSetting.LOW:
+			case FilteringQuality.LOW:
 				this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_LOW;
 				break;
-			case ShadowSetting.MEDIUM:
+			case FilteringQuality.MEDIUM:
 				this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
 				break;
-			case ShadowSetting.HIGH:
+			case FilteringQuality.HIGH:
 				this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
 				break;
 			}

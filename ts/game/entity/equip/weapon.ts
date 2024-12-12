@@ -199,11 +199,13 @@ export abstract class Weapon extends Equip<Player> {
 		if (this._bursts <= 0) {
 			return;
 		}
-
 		this.recordUse();
-		this._bursts--;
 	}
 	protected override simulateUse(uses : number) : void {
+		this._bursts -= uses;
+		if (this._bursts < 0) {
+			this._bursts = 0;
+		}
 		this.recoil();
 	}
 	recoil() : void {

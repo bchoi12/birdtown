@@ -153,7 +153,7 @@ class UI {
 			game.scene().debugLayer.hide();
 		}
 		game.runner().setRenderSpeed(settings.fpsSetting);
-		game.world().applyShadowSetting(settings.shadowSetting);
+		game.world().refreshSettings();
 	}
 
 	hasAudio() : boolean { return this._audioContext.has(); }

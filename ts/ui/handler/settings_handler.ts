@@ -8,13 +8,14 @@ import {
 	DamageNumberSetting,
 	FullscreenSetting,
 	PointerSetting,
+	ShadowSetting,
 	SpeedSetting,
 
 	DelaySetting,
 	JitterSetting,
 	InspectorSetting,
 	NetworkStabilitySetting,
-	ShadowSetting,
+	FilteringQuality,
 } from 'settings/api'
 
 import { Strings } from 'strings'
@@ -66,7 +67,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		this._settingsElm.appendChild(fullscreen.elm());
 
 		let frameRate = new LabelNumberWrapper({
-			label: "FPS Cap",
+			label: "Rendering Cap",
 			value: Number(settings.fpsSetting),
 			plus: (current : number) => {
 				if (current >= SpeedSetting.NORMAL) {
@@ -159,24 +160,40 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		});
 		this._settingsElm.appendChild(antiAlias.elm());
 
-		let shadowQuality = new LabelNumberWrapper({
-			label: "Shadow Quality",
-			value: Number(settings.shadowSetting),
+		let shadows = new LabelNumberWrapper({
+			label: "Shadows",
+			value: Number(settings.shadowEnabled),
 			plus: (current : number) => {
-				if (current === ShadowSetting.HIGH) {
-					return;
-				}
-				settings.shadowSetting++;
+				settings.shadowEnabled = ShadowSetting.ON;
 			},
 			minus: (current : number) => {
-				if (current === ShadowSetting.NONE) {
-					return;
-				}
-				settings.shadowSetting--;
+				settings.shadowEnabled = ShadowSetting.OFF;
 			},
-			get: () => { return settings.shadowSetting; },
+			get: () => { return settings.shadowEnabled; },
 			html: (current : number) => {
 				return Strings.toTitleCase(ShadowSetting[current]);
+			},
+		});
+		this._settingsElm.appendChild(shadows.elm());
+
+		let shadowQuality = new LabelNumberWrapper({
+			label: "Shadow Filtering",
+			value: Number(settings.shadowFiltering),
+			plus: (current : number) => {
+				if (current === FilteringQuality.HIGH) {
+					return;
+				}
+				settings.shadowFiltering++;
+			},
+			minus: (current : number) => {
+				if (current === FilteringQuality.NONE) {
+					return;
+				}
+				settings.shadowFiltering--;
+			},
+			get: () => { return settings.shadowFiltering; },
+			html: (current : number) => {
+				return Strings.toTitleCase(FilteringQuality[current]);
 			},
 		});
 		this._settingsElm.appendChild(shadowQuality.elm());

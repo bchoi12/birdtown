@@ -78,7 +78,7 @@ export class ArchRoom extends ArchBase implements Entity {
 		// Prevent stuck glitches
 		const otherPos = other.profile().body().position;
 		if (this._profile.contains(otherPos)) {
-			other.profile().setAllPos({
+			other.profile().forcePos({
 				x: otherPos.x,
 				y: otherPos.y + 1,
 			});

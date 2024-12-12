@@ -19,6 +19,13 @@ export enum DamageNumberSetting {
 	ON,
 }
 
+export enum FilteringQuality {
+	NONE,
+	LOW,
+	MEDIUM,
+	HIGH,
+}
+
 export enum FullscreenSetting {
 	WINDOWED,
 	FULLSCREEN,
@@ -27,6 +34,11 @@ export enum FullscreenSetting {
 export enum PointerSetting {
 	NORMAL,
 	LOCKED,
+}
+
+export enum ShadowSetting {
+	OFF,
+	ON,
 }
 
 export enum SpeedSetting {
@@ -62,11 +74,4 @@ export enum NetworkStabilitySetting {
 	WIFI,
 	POOR,
 	TERRIBLE,
-}
-
-export enum ShadowSetting {
-	NONE,
-	LOW,
-	MEDIUM,
-	HIGH,
 }

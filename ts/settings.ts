@@ -5,14 +5,15 @@ import {
 	ClientPredictionSetting,
 	DamageNumberSetting,
 	FullscreenSetting,
+	FilteringQuality,
 	PointerSetting,
+	ShadowSetting,
 	SpeedSetting,
 
 	DelaySetting,
 	JitterSetting,
 	InspectorSetting,
 	NetworkStabilitySetting,
-	ShadowSetting,
 } from 'settings/api'
 
 import { KeyType } from 'ui/api'
@@ -21,13 +22,14 @@ import { isElectron, isMobile, isLocalhost } from 'util/common'
 
 class Settings {
 	
+	// Key codes
 	public keyCodes : Map<KeyType, number>;
-
 	public scoreboardKeyCode : number;
 	public menuKeyCode : number;
 	public chatKeyCode : number;
 	public pointerLockKeyCode : number;
 
+	// Gameplay
 	public fullscreenSetting : FullscreenSetting;
 	public fpsSetting : SpeedSetting;
 	public clientPredictionSetting : ClientPredictionSetting;
@@ -36,8 +38,10 @@ class Settings {
 
 	// Graphics
 	public antiAliasSetting : AntiAliasSetting;
-	public shadowSetting : ShadowSetting;
+	public shadowEnabled : ShadowSetting;
+	public shadowFiltering : FilteringQuality;
 
+	// Debug properties
 	public inspectorSetting : InspectorSetting;
 	public delaySetting : DelaySetting;
 	public jitterSetting : JitterSetting;
@@ -65,9 +69,9 @@ class Settings {
 		this.volume = 0.8;
 
 		this.antiAliasSetting = isMobile() ? AntiAliasSetting.LOW : AntiAliasSetting.MEDIUM;
-		this.shadowSetting = isMobile() ? ShadowSetting.NONE : ShadowSetting.MEDIUM;
+		this.shadowEnabled = isMobile() ? ShadowSetting.OFF : ShadowSetting.ON;
+		this.shadowFiltering = isMobile() ? FilteringQuality.NONE : FilteringQuality.MEDIUM;
 
-		// Debug properties
 		this.inspectorSetting = InspectorSetting.OFF;
 		this.delaySetting = isLocalhost() ? DelaySetting.LOCAL : DelaySetting.NONE;
 		this.jitterSetting = isLocalhost() ? JitterSetting.WIFI : JitterSetting.NONE;
