@@ -98,7 +98,7 @@ export abstract class Weapon extends Equip<Player> {
 		this.addProp<WeaponState>({
 			has: () => { return this._weaponState !== WeaponState.UNKNOWN; },
 			export: () => { return this._weaponState; },
-			import: (obj : WeaponState) => { this.setWeaponState(this._weaponState); },
+			import: (obj : WeaponState) => { this.setWeaponState(obj); },
 		});
 
 		this._model = this.addComponent<Model>(new Model({
@@ -221,6 +221,7 @@ export abstract class Weapon extends Equip<Player> {
 	reloadMillis() : number { return this._weaponState === WeaponState.RELOADING ? this._stateTimer.millisLeft() : 0; }
 	reloadPercent() : number { return this._weaponState === WeaponState.RELOADING ? this._stateTimer.percentElapsed() : 1; }
 	onReload() : void {
+		this._bursts = 0;
 		if (this.reloadSound() !== SoundType.UNKNOWN && this.owner().isLakituTarget()) {
 			this._playReloadSound = true;
 		}
@@ -290,11 +291,6 @@ export abstract class Weapon extends Equip<Player> {
 			}
 			if (!this._stateTimer.hasTimeLeft()) {
 				this.setWeaponState(WeaponState.IDLE);
-				this._bursts = this.weaponConfig().bursts;
-
-				if (this._playReloadSound) {
-					this.soundPlayer().playFromEntity(this.reloadSound(), this.owner(), {});
-				}
 			}
 		}
 
@@ -343,18 +339,28 @@ export abstract class Weapon extends Equip<Player> {
 			return;
 		}
 
-		this._weaponState = state;
-		const time = this.getTime(this._weaponState);
+		const time = this.getTime(state);
 		if (time > 0) {
 			this._stateTimer.start(time);
 		} else {
 			this._stateTimer.reset();
 		}
 
-		switch (this._weaponState) {
+		switch (state) {
 		case WeaponState.RELOADING:
 			this.onReload();
 			break;
+		case WeaponState.IDLE:
+			this.setCharging(false);
+			this._bursts = this.weaponConfig().bursts;
+			if (this._weaponState === WeaponState.RELOADING) {
+				if (this._playReloadSound) {
+					this.soundPlayer().playFromEntity(this.reloadSound(), this.owner(), {});
+				}
+			}
+			break;
 		}
+
+		this._weaponState = state;
 	}
 }

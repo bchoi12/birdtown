@@ -1,6 +1,7 @@
 
 import { game } from 'game'
 
+import { GameGlobals } from 'global/game_globals'
 import { UiGlobals } from 'global/ui_globals'
 
 import { ui } from 'ui'
@@ -77,7 +78,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 	override onEnable() : void {
 		super.onEnable();
 
-		this._legendElm.textContent = UiGlobals.versionString;
+		this._legendElm.textContent = GameGlobals.version;
 
 		this.showLogin();
 

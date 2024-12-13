@@ -16,6 +16,7 @@ import { LoadoutDialogWrapper } from 'ui/wrapper/dialog/client/loadout_dialog_wr
 import { ReturnToLobbyDialogWrapper } from 'ui/wrapper/dialog/return_to_lobby_dialog_wrapper'
 import { StartGameDialogWrapper } from 'ui/wrapper/dialog/start_game_dialog_wrapper'
 import { QuitDialogWrapper } from 'ui/wrapper/dialog/quit_dialog_wrapper'
+import { VersionMismatchDialogWrapper } from 'ui/wrapper/dialog/version_mismatch_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
 import { Optional } from 'util/optional'
@@ -29,6 +30,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 		[DialogType.RETURN_TO_LOBBY, () => { return new ReturnToLobbyDialogWrapper()}],
 		[DialogType.START_GAME, () => { return new StartGameDialogWrapper()}],
 		[DialogType.QUIT, () => { return new QuitDialogWrapper()}],
+		[DialogType.VERSION_MISMATCH, () => { return new VersionMismatchDialogWrapper()}],
 	]);
 
 	private _dialogsElm : HTMLElement;

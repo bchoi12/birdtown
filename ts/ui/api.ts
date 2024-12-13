@@ -52,6 +52,7 @@ export enum DialogType {
 	RETURN_TO_LOBBY,
 	START_GAME,
 	QUIT,
+	VERSION_MISMATCH,
 }
 
 export enum FeedType {

@@ -1,9 +1,11 @@
 import { game } from 'game'
 import { GameState } from 'game/api'
-import { DataFilter } from 'game/game_data'
+import { GameData, DataFilter } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType } from 'game/system/api'
+
+import { GameGlobals } from 'global/game_globals'
 
 import { Message, DataMap } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -15,7 +17,7 @@ import { settings } from 'settings'
 import { SpeedSetting } from 'settings/api'
 
 import { ui } from 'ui'
-import { StatusType } from 'ui/api'
+import { DialogType, StatusType } from 'ui/api'
 
 import { RunnerStats } from 'util/runner_stats'
 
@@ -63,6 +65,7 @@ export class Runner extends SystemBase implements System  {
 	private _sendFullMsg : boolean;
 	private _degraded : boolean;
 	private _hostDegraded : boolean;
+	private _hostVersion : string;
 
 	constructor() {
 		super(SystemType.RUNNER);
@@ -86,11 +89,19 @@ export class Runner extends SystemBase implements System  {
 		this._sendFullMsg = false;
 		this._degraded = false;
 		this._hostDegraded = false;
+		this._hostVersion = "";
 
 	   	this._ticker.onerror = (e) => {
 	   		console.error(e);
 	   	}
 
+	   	this.addProp<string>({
+	   		export: () => { return GameGlobals.version; },
+	   		import: (obj : string) => { this.checkVersion(obj); },
+	   		options: {
+	   			filters: GameData.initFilters,
+	   		}
+	   	})
 	   	this.addProp<number>({
 	   		export: () => { return this._updateSpeed; },
 	   		import: (obj : number) => { this.setUpdateSpeed(obj); },
@@ -325,6 +336,15 @@ export class Runner extends SystemBase implements System  {
 		if (behind) {
 			ui.addStatus(StatusType.HOST_DEGRADED);
 		}
+	}
+	hostVersion() : string { return this._hostVersion; }
+	private checkVersion(version : string) : void {
+		if (GameGlobals.version === version) {
+			return;
+		}
+
+		this._hostVersion = version;
+		ui.pushDialog(DialogType.VERSION_MISMATCH);
 	}
 
 	override importData(data : DataMap, seqNum : number) : void {
