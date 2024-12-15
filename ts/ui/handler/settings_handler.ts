@@ -24,6 +24,7 @@ import { ui } from 'ui'
 import { UiMode } from 'ui/api'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
+import { CategoryWrapper } from 'ui/wrapper/category_wrapper'
 import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
 import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 import { Html } from 'ui/html'
@@ -47,6 +48,9 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			e.stopPropagation();
 		};
 
+		let gameplay = new CategoryWrapper();
+		gameplay.setTitle("Gameplay");
+
 		let fullscreen = new LabelNumberWrapper({
 			label: "Fullscreen",
 			value: Number(settings.fullscreenSetting),
@@ -64,7 +68,55 @@ export class SettingsHandler extends HandlerBase implements Handler{
 				return "Off";
 			},
 		});
-		this._settingsElm.appendChild(fullscreen.elm());
+		gameplay.contentElm().appendChild(fullscreen.elm());
+
+		if (!game.isHost()) {
+			let clientPrediction = new LabelNumberWrapper({
+				label: "Network Smoothing",
+				value: Number(settings.clientPredictionSetting),
+				plus: (current : number) => {
+					if (current === ClientPredictionSetting.HIGH) {
+						return;
+					}
+					settings.clientPredictionSetting++;
+				},
+				minus: (current : number) => {
+					if (current === ClientPredictionSetting.NONE) {
+						return;
+					}
+					settings.clientPredictionSetting--;
+				},
+				get: () => { return settings.clientPredictionSetting; },
+				html: (current : number) => {
+					return Strings.toTitleCase(ClientPredictionSetting[current]);
+				},
+			});
+			gameplay.contentElm().appendChild(clientPrediction.elm());
+		}
+
+		let damageNumbers = new LabelNumberWrapper({
+			label: "Damage Stats",
+			value: Number(settings.damageNumberSetting),
+			plus: (current : number) => {
+				settings.damageNumberSetting = DamageNumberSetting.ON;
+			},
+			minus: (current : number) => {
+				settings.damageNumberSetting = DamageNumberSetting.OFF;
+			},
+			get: () => { return settings.damageNumberSetting; },
+			html: () => {
+				if (settings.damageNumberSetting === DamageNumberSetting.ON) {
+					return "On";
+				}
+				return "Off";
+			},
+		});
+		gameplay.contentElm().appendChild(damageNumbers.elm());
+
+		this._settingsElm.appendChild(gameplay.elm());
+
+		let graphics = new CategoryWrapper();
+		graphics.setTitle("Graphics");
 
 		let frameRate = new LabelNumberWrapper({
 			label: "Rendering Cap",
@@ -93,50 +145,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 				}
 			},
 		});
-		this._settingsElm.appendChild(frameRate.elm());
-
-		if (!game.isHost()) {
-			let clientPrediction = new LabelNumberWrapper({
-				label: "Network Smoothing",
-				value: Number(settings.clientPredictionSetting),
-				plus: (current : number) => {
-					if (current === ClientPredictionSetting.HIGH) {
-						return;
-					}
-					settings.clientPredictionSetting++;
-				},
-				minus: (current : number) => {
-					if (current === ClientPredictionSetting.NONE) {
-						return;
-					}
-					settings.clientPredictionSetting--;
-				},
-				get: () => { return settings.clientPredictionSetting; },
-				html: (current : number) => {
-					return Strings.toTitleCase(ClientPredictionSetting[current]);
-				},
-			});
-			this._settingsElm.appendChild(clientPrediction.elm());
-		}
-
-		let damageNumbers = new LabelNumberWrapper({
-			label: "Damage Stats",
-			value: Number(settings.damageNumberSetting),
-			plus: (current : number) => {
-				settings.damageNumberSetting = DamageNumberSetting.ON;
-			},
-			minus: (current : number) => {
-				settings.damageNumberSetting = DamageNumberSetting.OFF;
-			},
-			get: () => { return settings.damageNumberSetting; },
-			html: () => {
-				if (settings.damageNumberSetting === DamageNumberSetting.ON) {
-					return "On";
-				}
-				return "Off";
-			},
-		});
-		this._settingsElm.appendChild(damageNumbers.elm());
+		graphics.contentElm().appendChild(frameRate.elm());
 
 		let antiAlias = new LabelNumberWrapper({
 			label: "Anti-aliasing",
@@ -158,7 +167,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 				return Strings.toTitleCase(AntiAliasSetting[current]);
 			},
 		});
-		this._settingsElm.appendChild(antiAlias.elm());
+		graphics.contentElm().appendChild(antiAlias.elm());
 
 		let shadows = new LabelNumberWrapper({
 			label: "Shadows",
@@ -174,7 +183,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 				return Strings.toTitleCase(ShadowSetting[current]);
 			},
 		});
-		this._settingsElm.appendChild(shadows.elm());
+		graphics.contentElm().appendChild(shadows.elm());
 
 		let shadowQuality = new LabelNumberWrapper({
 			label: "Shadow Filtering",
@@ -196,10 +205,15 @@ export class SettingsHandler extends HandlerBase implements Handler{
 				return Strings.toTitleCase(FilteringQuality[current]);
 			},
 		});
-		this._settingsElm.appendChild(shadowQuality.elm());
+		graphics.contentElm().appendChild(shadowQuality.elm());
+
+		this._settingsElm.appendChild(graphics.elm());
+
+		let sound = new CategoryWrapper();
+		sound.setTitle("Sound");
 
 		let volume = new LabelNumberWrapper({
-			label: "Volume",
+			label: "Master Volume",
 			value: settings.volume,
 			plus: (current : number) => {
 				settings.volume = Math.min(1, current + 0.1);
@@ -210,11 +224,17 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			get: () => { return settings.volume; },
 			html: () => { return Math.round(100 * settings.volume) + "%"; },
 		});
-		this._settingsElm.appendChild(volume.elm());
+		sound.contentElm().appendChild(volume.elm());
+
+		this._settingsElm.appendChild(sound.elm());
 
 		if (isLocalhost()) {
+			let debug = new CategoryWrapper();
+			debug.setTitle("Debug");
+			debug.setExpanded(false);
+
 			let inspector = new SettingWrapper<InspectorSetting>({
-				name: "[D] Inspector",
+				name: "Inspector",
 				value: settings.inspectorSetting,
 				click: (current : InspectorSetting) => {
 					settings.inspectorSetting = current === InspectorSetting.OFF ? InspectorSetting.ON : InspectorSetting.OFF;
@@ -224,10 +244,10 @@ export class SettingsHandler extends HandlerBase implements Handler{
 					return InspectorSetting[current];
 				},
 			});
-			this._settingsElm.appendChild(inspector.elm());
+			debug.contentElm().appendChild(inspector.elm());
 
 			let delay = new SettingWrapper<DelaySetting>({
-				name: "[D] Delay",
+				name: "Delay",
 				value: settings.delaySetting,
 				click: (current : DelaySetting) => {
 					if (current === DelaySetting.GLOBAL) {
@@ -241,10 +261,10 @@ export class SettingsHandler extends HandlerBase implements Handler{
 					return DelaySetting[current];
 				},
 			});
-			this._settingsElm.appendChild(delay.elm());
+			debug.contentElm().appendChild(delay.elm());
 
 			let jitter = new SettingWrapper<JitterSetting>({
-				name: "[D] Jitter",
+				name: "Jitter",
 				value: settings.jitterSetting,
 				click: (current : JitterSetting) => {
 					if (current === JitterSetting.TERRIBLE) {
@@ -258,10 +278,10 @@ export class SettingsHandler extends HandlerBase implements Handler{
 					return JitterSetting[current];
 				},
 			});
-			this._settingsElm.appendChild(jitter.elm());
+			debug.contentElm().appendChild(jitter.elm());
 
 			let networkStability = new SettingWrapper<NetworkStabilitySetting>({
-				name: "[D] Network Stability",
+				name: "Network Stability",
 				value: settings.networkStabilitySetting,
 				click: (current : NetworkStabilitySetting) => {
 					if (current === NetworkStabilitySetting.TERRIBLE) {
@@ -275,7 +295,9 @@ export class SettingsHandler extends HandlerBase implements Handler{
 					return NetworkStabilitySetting[current];
 				},
 			});
-			this._settingsElm.appendChild(networkStability.elm());
+			debug.contentElm().appendChild(networkStability.elm());
+
+			this._settingsElm.appendChild(debug.elm());
 		}
 	}
 

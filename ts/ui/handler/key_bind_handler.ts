@@ -6,6 +6,7 @@ import { UiMode, KeyType } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
+import { CategoryWrapper } from 'ui/wrapper/category_wrapper'
 import { KeyBindWrapper, KeyBindWrapperOptions } from 'ui/wrapper/label/key_bind_wrapper'
 
 type KeyBindOptions = {
@@ -31,56 +32,67 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 			e.stopPropagation();
 		};
 
-		this.addKeyBind({
+		let keys = new CategoryWrapper();
+		keys.setTitle("Gameplay");
+		this._keyBindElm.appendChild(keys.elm());
+
+		this.addKeyBind(keys, {
 			name: "Move Left",
 			type: KeyType.LEFT,
 		});
 
-		this.addKeyBind({
+		this.addKeyBind(keys, {
 			name: "Move Right",
 			type: KeyType.RIGHT,
 		});
 
-		this.addKeyBind({
+		this.addKeyBind(keys, {
 			name: "Jump / Double Jump",
 			type: KeyType.JUMP,
 		});
 
-		this.addKeyBind({
+		this.addKeyBind(keys, {
 			name: "Squawk",
 			type: KeyType.SQUAWK,
 		});
-		this.addKeyBind({
+		this.addKeyBind(keys, {
 			name: "Interact",
 			type: KeyType.INTERACT,
 		});
-		this.addMenuKeyBind({
+		this.addMenuKeyBind(keys, {
 			name: "Lock Mouse",
 			get: () => { return settings.pointerLockKeyCode; },
 			update: (keyCode : number) => { settings.pointerLockKeyCode = keyCode; },
 		});
 
-		this.addKeyBind({
-			name: "Use Weapon (LMB)",
+		let mouse = new CategoryWrapper();
+		mouse.setTitle("Mouse Shortcuts");
+		this._keyBindElm.appendChild(mouse.elm());
+
+		this.addKeyBind(mouse, {
+			name: "Use Weapon",
 			type: KeyType.MOUSE_CLICK,
 		});
-
-		this.addKeyBind({
-			name: "Use Equip (RMB)",
+		this.addKeyBind(mouse, {
+			name: "Use Equip",
 			type: KeyType.ALT_MOUSE_CLICK,
 		});
 
-		this.addMenuKeyBind({
+		let menu = new CategoryWrapper();
+		menu.setTitle("Menu Keys");
+		this._keyBindElm.appendChild(menu.elm());
+
+		this.addMenuKeyBind(menu, {
 			name: "Chat / Submit",
 			get: () => { return settings.chatKeyCode; },
 			update: (keyCode : number) => { settings.chatKeyCode = keyCode; },
-		});
-		this.addMenuKeyBind({
+		}); 
+		this.addMenuKeyBind(menu, {
 			name: "Open Menu",
 			get: () => { return settings.menuKeyCode; },
 			update: (keyCode : number) => { settings.menuKeyCode = keyCode; },
 		});
-		this.addMenuKeyBind({
+		this.addMenuKeyBind(menu,{
 			name: "Open Scoreboard",
 			get: () => { return settings.scoreboardKeyCode; },
 			update: (keyCode : number) => { settings.scoreboardKeyCode = keyCode; },
@@ -101,17 +113,17 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		this.reset();
 	}
 
-	private addKeyBind(options : KeyBindOptions) : void {
-		this.addMenuKeyBind({
+	private addKeyBind(category : CategoryWrapper, options : KeyBindOptions) : void {
+		this.addMenuKeyBind(category, {
 			name: options.name,
 			get: () => { return settings.keyCode(options.type); },
 			update: (keyCode : number) => { settings.keyCodes.set(options.type, keyCode); }
 		});
 	}
 
-	private addMenuKeyBind(wrapperOptions : KeyBindWrapperOptions) : void {
+	private addMenuKeyBind(category : CategoryWrapper, wrapperOptions : KeyBindWrapperOptions) : void {
 		let binding = new KeyBindWrapper(wrapperOptions);
-		this._keyBindElm.append(binding.elm());
+		category.contentElm().appendChild(binding.elm());
 		this._keyBindWrappers.push(binding);
 	}
 }

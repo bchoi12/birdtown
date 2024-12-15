@@ -143,10 +143,6 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	override initialize() : void {
 		super.initialize();
 
-		this.updatePosition();
-	}
-
-	updatePosition() : void {
 		this._model.onLoad((model : Model) => {
 			model.mesh().position.y = this.owner().profile().dim().y + 0.1;
 			
@@ -187,7 +183,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		this._updatePointerColor = false;
 	}
 	private defaultPointerColor() : string {
-		if (game.tablets().hasTablet(game.clientId()) && game.tablet(game.clientId()).hasColor()) {
+		if (game.tablet(game.clientId())?.hasColor()) {
 			return game.tablet(game.clientId()).color();
 		}
 

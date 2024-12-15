@@ -68,6 +68,9 @@ export namespace Html {
 	export const classButton = "button";
 	export const classButtonSelect = "button-select";
 	export const classButtonSelected = "button-selected";
+	export const classCategory = "category";
+	export const classCategoryTitle = "category-title";
+	export const classCategoryContent = "category-content";
 	export const classColorBlock = "color-block";
 	export const classColorPick = "color-pick";
 	export const classColorSelected = "color-selected";

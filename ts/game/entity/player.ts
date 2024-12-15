@@ -711,7 +711,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					this._canJumpTimer.reset();
 				}
 			} else if (this._canDoubleJump) {
-				if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
+				if (this.key(KeyType.JUMP, KeyState.PRESSED) && this._profile.vel().y < Player._jumpVel) {
 					this._profile.setVel({ y: Player._jumpVel });
 					this._canDoubleJump = false;
 				}

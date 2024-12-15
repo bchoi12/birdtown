@@ -815,7 +815,7 @@ kbd {
     border-radius: 0.3em;
 }
 
-.button:hover, .button-select:hover, .button-select:hover {
+.button:hover, .button-select:hover, .button-select:hover, .category-title:hover {
     text-shadow: 0px 0px 7px #BBBBBB;
     cursor: pointer;
 }
@@ -936,6 +936,18 @@ kbd {
     white-space: nowrap;
     overflow-x: hidden;
     float: right;
+}
+
+.category {
+    margin: 0.3em 0;
+}
+.category-title {
+    font-size: 1.2em;
+}
+.category-content {
+    padding: 0.2em 0.3em;
+    font-size: 0.9em;
+    margin-bottom: 1em;
 }
 
 .container {

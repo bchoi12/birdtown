@@ -44,7 +44,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 		this._timeouts = new Map();
 		this._disabledStatuses = new Set();
 
-		this._showKeys = true;
+		this._showKeys = false;
 		this._signalingDisconnected = false;
 	}
 
@@ -80,6 +80,16 @@ export class StatusHandler extends HandlerBase implements Handler {
 		super.reset();
 
 		this.clearAllStatuses();
+	}
+
+	override onPlayerInitialized() {
+		super.onPlayerInitialized();
+
+		if (game.controller().gameState() === GameState.FREE) {
+			this.addStatus(StatusType.KEYS);
+		} else {
+			this._showKeys = true;
+		}
 	}
 
 	setSignalingDisconnected(disconnected : boolean) : void {
