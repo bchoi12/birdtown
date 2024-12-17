@@ -43,7 +43,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._commandsWrapper.contentElm().appendChild(Html.br());
 
 		this._lowSpecWrapper = new LowSpecWrapper();
-		this._lowSpecWrapper.setText("Enter low-spec mode");
+		this._lowSpecWrapper.setText("Enable low-spec mode");
 		this._commandsWrapper.contentElm().appendChild(this._lowSpecWrapper.elm());
 		this._commandsWrapper.contentElm().appendChild(Html.br());
 

@@ -95,6 +95,9 @@ class Settings {
 		if (this.shadowSetting > ShadowSetting.OFF) {
 			this.shadowSetting = ShadowSetting.OFF;
 		}
+		if (this.shadowFiltering > FilteringQuality.LOW) {
+			this.shadowFiltering = FilteringQuality.LOW;
+		}
 	}
 	lowestSpec() : void {
 		this.lowSpec();
