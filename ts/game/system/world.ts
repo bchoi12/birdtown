@@ -237,7 +237,7 @@ export class World extends SystemBase implements System {
 	}
 
 	refreshSettings() : void {
-		this.setShadowEnabled(settings.shadowEnabled);
+		this.setShadowEnabled(settings.shadowSetting);
 		this.setFilteringQuality(settings.shadowFiltering);
 	}
 	private setShadowEnabled(setting : ShadowSetting) : void {

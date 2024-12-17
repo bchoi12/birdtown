@@ -11,13 +11,17 @@ import { Handler, HandlerBase } from 'ui/handler'
 import { Icon, IconType } from 'ui/common/icon'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { ClientWrapper } from 'ui/wrapper/client_wrapper'
-import { ContainerWrapper } from 'ui/wrapper/container_wrapper'
+import { CategoryWrapper } from 'ui/wrapper/category_wrapper'
+import { LowSpecWrapper } from 'ui/wrapper/button/low_spec_wrapper'
+import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
 
 export class ClientsHandler extends HandlerBase implements Handler {
 
 	private _clientsElm : HTMLElement;
 	private _clients : Map<number, ClientWrapper>;
-	private _containerWrapper : ContainerWrapper;
+	private _playerWrapper : CategoryWrapper;
+	private _commandsWrapper : CategoryWrapper;
+	private _lowSpecWrapper : LowSpecWrapper;
 	private _sendChat : boolean;
 
 	private _stream : MediaStream;
@@ -28,8 +32,23 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._clientsElm = Html.elm(Html.fieldsetClients);
 
 		this._clients = new Map();
-		this._containerWrapper = new ContainerWrapper();
-		this._clientsElm.appendChild(this._containerWrapper.elm());
+		this._playerWrapper = new CategoryWrapper();
+		this._playerWrapper.setTitle("Players");
+		this._commandsWrapper = new CategoryWrapper();
+		this._commandsWrapper.setTitle("Commands");
+
+		let shareWrapper = new ShareWrapper();
+		shareWrapper.setText("Copy invite link");
+		this._commandsWrapper.contentElm().appendChild(shareWrapper.elm());
+		this._commandsWrapper.contentElm().appendChild(Html.br());
+
+		this._lowSpecWrapper = new LowSpecWrapper();
+		this._lowSpecWrapper.setText("Enter low-spec mode");
+		this._commandsWrapper.contentElm().appendChild(this._lowSpecWrapper.elm());
+		this._commandsWrapper.contentElm().appendChild(Html.br());
+
+		this._clientsElm.appendChild(this._playerWrapper.elm());
+		this._clientsElm.appendChild(this._commandsWrapper.elm());
 
 		this._sendChat = false;
 	}
@@ -57,7 +76,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 			}
 
 			let clientWrapper = new ClientWrapper(msg);
-			this._containerWrapper.elm().appendChild(clientWrapper.elm());
+			this._playerWrapper.contentElm().appendChild(clientWrapper.elm());
 			this._clients.set(clientId, clientWrapper)
 
 			if (this._sendChat) {
@@ -80,9 +99,13 @@ export class ClientsHandler extends HandlerBase implements Handler {
 				});
 			}
 
-			this._containerWrapper.elm().removeChild(clientWrapper.elm());
+			this._playerWrapper.contentElm().removeChild(clientWrapper.elm());
 			this._clients.delete(clientId);
 		}
+	}
+
+	suggestLowSpec() : void {
+		this._lowSpecWrapper.highlight();
 	}
 
 	hasClient(id : number) : boolean { return this._clients.has(id); }

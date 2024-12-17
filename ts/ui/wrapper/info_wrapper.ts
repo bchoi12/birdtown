@@ -146,8 +146,8 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 		}
 	}
 
-	highlight() : void { this.elm().classList.add(Html.classInfoHighlight); }
-	removeHighlight() : void { this.elm().classList.remove(Html.classInfoHighlight); }
+	highlight() : void { this.elm().classList.add(Html.classHighlight); }
+	removeHighlight() : void { this.elm().classList.remove(Html.classHighlight); }
 
 	refresh() : void { this._nameWrapper.refresh(); }
 	refreshColor() : void { this._nameWrapper.refreshColor(); }

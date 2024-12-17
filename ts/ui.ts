@@ -146,6 +146,7 @@ class UI {
 	setGameConfig(config : GameConfigMessage) : void { this._sidebarHandler.setGameConfig(config); }
 
 	openMenu() : void { this._menuHandler.enable(); }
+	refreshSettings() : void { this._settingsHandler.refresh(); }
 	applySettings() : void {
 		if (settings.useInspector()) {
 			game.scene().debugLayer.show();
@@ -155,6 +156,7 @@ class UI {
 		game.runner().setRenderSpeed(settings.fpsSetting);
 		game.world().refreshSettings();
 	}
+	suggestLowSpec() : void { this._clientsHandler.suggestLowSpec(); }
 
 	hasAudio() : boolean { return this._audioContext.has(); }
 	// MUST BE CALLED ON USER GESTURE

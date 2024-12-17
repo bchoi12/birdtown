@@ -63,6 +63,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 
 					if (ui.currentStatuses().has(StatusType.DEGRADED)) {
 						ui.disableStatus(StatusType.DEGRADED);
+						ui.suggestLowSpec();
 					}
 				}
 			}

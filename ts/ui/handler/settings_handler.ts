@@ -10,6 +10,8 @@ import {
 	PointerSetting,
 	ShadowSetting,
 	SpeedSetting,
+	SoundSetting,
+	TransparentSetting,
 
 	DelaySetting,
 	JitterSetting,
@@ -33,11 +35,13 @@ import { isLocalhost } from 'util/common'
 
 export class SettingsHandler extends HandlerBase implements Handler{
 
+	private _wrappers : Array<LabelNumberWrapper>;
 	private _settingsElm : HTMLElement;
 
 	constructor() {
 		super(HandlerType.SETTINGS);
 
+		this._wrappers = new Array();
 		this._settingsElm = Html.elm(Html.fieldsetSettings);
 	}
 
@@ -48,10 +52,9 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			e.stopPropagation();
 		};
 
-		let gameplay = new CategoryWrapper();
-		gameplay.setTitle("Gameplay");
+		let gameplay = this.createCategory("Gameplay");
 
-		let fullscreen = new LabelNumberWrapper({
+		this.addSetting(gameplay, new LabelNumberWrapper({
 			label: "Fullscreen",
 			value: Number(settings.fullscreenSetting),
 			plus: (current : number) => {
@@ -67,11 +70,10 @@ export class SettingsHandler extends HandlerBase implements Handler{
 				}
 				return "Off";
 			},
-		});
-		gameplay.contentElm().appendChild(fullscreen.elm());
+		}));
 
 		if (!game.isHost()) {
-			let clientPrediction = new LabelNumberWrapper({
+			this.addSetting(gameplay, new LabelNumberWrapper({
 				label: "Network Smoothing",
 				value: Number(settings.clientPredictionSetting),
 				plus: (current : number) => {
@@ -90,11 +92,10 @@ export class SettingsHandler extends HandlerBase implements Handler{
 				html: (current : number) => {
 					return Strings.toTitleCase(ClientPredictionSetting[current]);
 				},
-			});
-			gameplay.contentElm().appendChild(clientPrediction.elm());
+			}));
 		}
 
-		let damageNumbers = new LabelNumberWrapper({
+		this.addSetting(gameplay, new LabelNumberWrapper({
 			label: "Damage Stats",
 			value: Number(settings.damageNumberSetting),
 			plus: (current : number) => {
@@ -110,15 +111,11 @@ export class SettingsHandler extends HandlerBase implements Handler{
 				}
 				return "Off";
 			},
-		});
-		gameplay.contentElm().appendChild(damageNumbers.elm());
+		}));
 
-		this._settingsElm.appendChild(gameplay.elm());
+		let graphics = this.createCategory("Graphics");
 
-		let graphics = new CategoryWrapper();
-		graphics.setTitle("Graphics");
-
-		let frameRate = new LabelNumberWrapper({
+		this.addSetting(graphics, new LabelNumberWrapper({
 			label: "Rendering Cap",
 			value: Number(settings.fpsSetting),
 			plus: (current : number) => {
@@ -144,10 +141,9 @@ export class SettingsHandler extends HandlerBase implements Handler{
 					return SpeedSetting[current];
 				}
 			},
-		});
-		graphics.contentElm().appendChild(frameRate.elm());
+		}));
 
-		let antiAlias = new LabelNumberWrapper({
+		this.addSetting(graphics, new LabelNumberWrapper({
 			label: "Anti-aliasing",
 			value: Number(settings.antiAliasSetting),
 			plus: (current : number) => {
@@ -166,26 +162,24 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			html: (current : number) => {
 				return Strings.toTitleCase(AntiAliasSetting[current]);
 			},
-		});
-		graphics.contentElm().appendChild(antiAlias.elm());
+		}));
 
-		let shadows = new LabelNumberWrapper({
+		this.addSetting(graphics, new LabelNumberWrapper({
 			label: "Shadows",
-			value: Number(settings.shadowEnabled),
+			value: Number(settings.shadowSetting),
 			plus: (current : number) => {
-				settings.shadowEnabled = ShadowSetting.ON;
+				settings.shadowSetting = ShadowSetting.ON;
 			},
 			minus: (current : number) => {
-				settings.shadowEnabled = ShadowSetting.OFF;
+				settings.shadowSetting = ShadowSetting.OFF;
 			},
-			get: () => { return settings.shadowEnabled; },
+			get: () => { return settings.shadowSetting; },
 			html: (current : number) => {
 				return Strings.toTitleCase(ShadowSetting[current]);
 			},
-		});
-		graphics.contentElm().appendChild(shadows.elm());
+		}));
 
-		let shadowQuality = new LabelNumberWrapper({
+		this.addSetting(graphics, new LabelNumberWrapper({
 			label: "Shadow Filtering",
 			value: Number(settings.shadowFiltering),
 			plus: (current : number) => {
@@ -204,33 +198,56 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			html: (current : number) => {
 				return Strings.toTitleCase(FilteringQuality[current]);
 			},
-		});
-		graphics.contentElm().appendChild(shadowQuality.elm());
+		}));
 
-		this._settingsElm.appendChild(graphics.elm());
-
-		let sound = new CategoryWrapper();
-		sound.setTitle("Sound");
-
-		let volume = new LabelNumberWrapper({
-			label: "Master Volume",
-			value: settings.volume,
+		this.addSetting(graphics, new LabelNumberWrapper({
+			label: "Smooth Transparency",
+			value: Number(settings.transparentSetting),
 			plus: (current : number) => {
-				settings.volume = Math.min(1, current + 0.1);
+				settings.transparentSetting = TransparentSetting.ON;
 			},
 			minus: (current : number) => {
-				settings.volume = Math.max(0, current - 0.1);
+				settings.transparentSetting = TransparentSetting.OFF;
 			},
-			get: () => { return settings.volume; },
-			html: () => { return Math.round(100 * settings.volume) + "%"; },
-		});
-		sound.contentElm().appendChild(volume.elm());
+			get: () => { return settings.transparentSetting; },
+			html: (current : number) => {
+				return Strings.toTitleCase(ShadowSetting[current]);
+			},
+		}));
 
-		this._settingsElm.appendChild(sound.elm());
+
+		let sound = this.createCategory("Audio");
+
+		this.addSetting(sound, new LabelNumberWrapper({
+			label: "Sound",
+			value: Number(settings.soundSetting),
+			plus: (current : number) => {
+				settings.soundSetting = SoundSetting.ON;
+			},
+			minus: (current : number) => {
+				settings.soundSetting = SoundSetting.OFF;
+			},
+			get: () => { return settings.soundSetting; },
+			html: (current : number) => {
+				return Strings.toTitleCase(SoundSetting[current]);
+			},
+		}));
+
+		this.addSetting(sound, new LabelNumberWrapper({
+			label: "Master Volume",
+			value: settings.volumePercent,
+			plus: (current : number) => {
+				settings.volumePercent = Math.min(1, current + 0.1);
+			},
+			minus: (current : number) => {
+				settings.volumePercent = Math.max(0, current - 0.1);
+			},
+			get: () => { return settings.volumePercent; },
+			html: () => { return Math.round(100 * settings.volumePercent) + "%"; },
+		}));
 
 		if (isLocalhost()) {
-			let debug = new CategoryWrapper();
-			debug.setTitle("Debug");
+			let debug = this.createCategory("Debug");
 			debug.setExpanded(false);
 
 			let inspector = new SettingWrapper<InspectorSetting>({
@@ -306,6 +323,26 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 		if (ui.mode() === UiMode.GAME) {
 			ui.applySettings();
-		}		
+		} else if (ui.mode() === UiMode.MENU) {
+			this.refresh();
+		}
+	}
+
+	refresh() : void {
+		this._wrappers.forEach((wrapper : LabelNumberWrapper) => {
+			wrapper.refresh();
+		})
+	}
+
+	private createCategory(name : string) : CategoryWrapper {
+		let category = new CategoryWrapper();
+		category.setTitle(name);
+		this._settingsElm.appendChild(category.elm());
+		return category
+	}
+
+	private addSetting<T extends number>(category : CategoryWrapper, setting : LabelNumberWrapper) : void {
+		category.contentElm().appendChild(setting.elm());
+		this._wrappers.push(setting);
 	}
 }

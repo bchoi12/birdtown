@@ -228,10 +228,10 @@ export class Level extends SystemBase implements System {
 		});
 
 		bounds.min.add({ y: 8 });
-		bounds.max.add({ y: 4 });
+		bounds.max.add({ y: 1 });
 		this._defaultSpawn.copyVec(bounds.relativePos(CardinalDir.TOP));
 
-		bounds.max.add({ y: 7 });
+		bounds.max.add({ y: 10 });
 		this.addEntity(EntityType.PLANE, {
 			profileInit: {
 				pos: bounds.relativePos(CardinalDir.TOP_LEFT).add({

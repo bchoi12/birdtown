@@ -87,6 +87,7 @@ export namespace Html {
 	export const classDisplayName = "display-name";
 	export const classFeed = "feed";
 	export const classFooter = "footer";
+	export const classHighlight = "highlight";
 	export const classHudBlock = "hud-block";
 	export const classHudBlockCharging = "hud-block-charging";
 	export const classHudContainer = "hud-container";
@@ -97,7 +98,6 @@ export namespace Html {
 	export const classInfoMain = "info-main";
 	export const classInfoSecondary = "info-secondary";
 	export const classInfoBlock = "info-block";
-	export const classInfoHighlight = "info-highlight";
 	export const classLabel = "label";
 	export const classLabelName = "label-name";
 	export const classLabelValue = "label-value";

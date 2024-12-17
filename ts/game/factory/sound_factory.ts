@@ -7,6 +7,8 @@ import { MediaGlobals } from 'global/media_globals'
 
 import { settings } from 'settings'
 
+import { ui } from 'ui'
+
 import { ObjectCache } from 'util/object_cache'
 
 type SoundMetadata = {
@@ -240,7 +242,7 @@ export namespace SoundFactory {
 		const resolvedOptions = {
 			...MediaGlobals.gameOptions,
 			...metadata.get(type).options,
-			volume: settings.volume,
+			volume: settings.volume(),
 			...(options ? options : {}),
 		};
 		sound.updateOptions(resolvedOptions);
@@ -261,21 +263,29 @@ export namespace SoundFactory {
 	}
 
 	export function play(type : SoundType, options? : BABYLON.ISoundOptions) : void {
+		if (!ui.hasAudio()) {
+			return;
+		}
+
 		let sound = load(type, options);
 
 		if (sound !== null) {
-			sound.setVolume(settings.volume * sound.getVolume());
+			sound.setVolume(settings.volume() * sound.getVolume());
 			sound.play();
 			unload(type, sound);
 		}
 	}
 
 	export function playFromPos(type : SoundType, pos : BABYLON.Vector3, options? : BABYLON.ISoundOptions) : void {
+		if (!ui.hasAudio()) {
+			return;
+		}
+
 		let sound = load(type, options);
 
 		if (sound !== null) {
 			sound.setPosition(pos);
-			sound.setVolume(settings.volume * sound.getVolume());
+			sound.setVolume(settings.volume() * sound.getVolume());
 			sound.play();
 			unload(type, sound);
 		}

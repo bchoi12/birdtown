@@ -42,10 +42,18 @@ export enum ShadowSetting {
 }
 
 export enum SpeedSetting {
-	UNKNOWN,
-
 	SLOW,
 	NORMAL,
+}
+
+export enum SoundSetting {
+	OFF,
+	ON,
+}
+
+export enum TransparentSetting {
+	OFF,
+	ON,
 }
 
 export enum InspectorSetting {

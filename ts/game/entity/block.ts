@@ -20,6 +20,8 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { Flags } from 'global/flags'
 
+import { settings } from 'settings'
+
 import { Cardinal, CardinalDir, CardinalType } from 'util/cardinal'
 import { Fns } from 'util/fns'
 import { HexColor } from 'util/hex_color'
@@ -108,7 +110,13 @@ export abstract class Block extends EntityBase {
 					this.processMesh(mesh);
 
 					if (this._frontMaterials.size > 0 || this._transparentFrontMeshes.length > 0) {
-						this._canTransparent = true;
+						if (this.hasOpenings() && this.openings().empty()) {
+							this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
+								mesh.material.alpha = 1;
+							});
+						} else {
+							this._canTransparent = true;
+						}
 					}
 
 					model.translation().copyVec(this.meshOffset());
@@ -176,14 +184,17 @@ export abstract class Block extends EntityBase {
 			return;
 		}
 
-		const transparent = this.transparent();
-		const alpha = this.checkAlpha();
-
+		let alpha = this.checkAlpha();
+		if (!settings.transparentEffects()) {
+			if (alpha <= 0.5) {
+				alpha = 0;
+			} else {
+				alpha = 1;
+			}
+		}
 		if (this._alpha === alpha) {
 			return;
 		}
-
-		const changed = transparent !== this.transparent();
 
 		this._profile.setVisible(this.canOcclude() && !this.transparent());
 		this._frontMaterials.forEach((name : string) => {

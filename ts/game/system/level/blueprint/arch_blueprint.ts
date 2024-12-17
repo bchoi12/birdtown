@@ -345,8 +345,24 @@ export class ArchBlueprint extends Blueprint {
 								dim: EntityFactory.getDimension(EntityType.SIGN),
 							},
 						});
-					}
-					if (building.height() === this.maxHeight()) {
+					} else if (i === 0) {
+						block.pushEntityOptions(EntityType.BUSH, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({
+									x: -3,
+									y: EntityFactory.getDimension(EntityType.BUSH).y / 2
+								}),
+							}
+						});
+						block.pushEntityOptions(EntityType.BUSH, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({
+									x: 3,
+									y: EntityFactory.getDimension(EntityType.BUSH).y / 2
+								}),
+							}
+						});
+					} else if (building.height() === this.maxHeight()) {
 						block.pushEntityOptions(EntityType.BILLBOARD, {
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.BILLBOARD).y / 2 }),

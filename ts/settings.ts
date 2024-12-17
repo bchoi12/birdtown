@@ -9,6 +9,8 @@ import {
 	PointerSetting,
 	ShadowSetting,
 	SpeedSetting,
+	SoundSetting,
+	TransparentSetting,
 
 	DelaySetting,
 	JitterSetting,
@@ -34,12 +36,14 @@ class Settings {
 	public fpsSetting : SpeedSetting;
 	public clientPredictionSetting : ClientPredictionSetting;
 	public damageNumberSetting : DamageNumberSetting;
-	public volume : number;
+	public soundSetting : SoundSetting;
+	public volumePercent : number;
 
 	// Graphics
 	public antiAliasSetting : AntiAliasSetting;
-	public shadowEnabled : ShadowSetting;
+	public shadowSetting : ShadowSetting;
 	public shadowFiltering : FilteringQuality;
+	public transparentSetting : TransparentSetting;
 
 	// Debug properties
 	public inspectorSetting : InspectorSetting;
@@ -63,19 +67,40 @@ class Settings {
 		this.pointerLockKeyCode = 67;
 
 		this.fullscreenSetting = (isMobile() || isElectron()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
-		this.fpsSetting = isMobile() ? SpeedSetting.SLOW : SpeedSetting.NORMAL;
+		this.fpsSetting = SpeedSetting.NORMAL;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 		this.damageNumberSetting = DamageNumberSetting.OFF;
-		this.volume = 0.8;
+		this.soundSetting = SoundSetting.ON;
+		this.volumePercent = 0.8;
 
-		this.antiAliasSetting = isMobile() ? AntiAliasSetting.LOW : AntiAliasSetting.MEDIUM;
-		this.shadowEnabled = isMobile() ? ShadowSetting.OFF : ShadowSetting.ON;
-		this.shadowFiltering = isMobile() ? FilteringQuality.NONE : FilteringQuality.MEDIUM;
+		this.antiAliasSetting = AntiAliasSetting.LOW;
+		this.shadowSetting = ShadowSetting.ON;
+		this.shadowFiltering = FilteringQuality.MEDIUM;
+		this.transparentSetting = TransparentSetting.ON;
 
 		this.inspectorSetting = InspectorSetting.OFF;
 		this.delaySetting = isLocalhost() ? DelaySetting.LOCAL : DelaySetting.NONE;
 		this.jitterSetting = isLocalhost() ? JitterSetting.WIFI : JitterSetting.NONE;
 		this.networkStabilitySetting = isLocalhost() ? NetworkStabilitySetting.GOOD : NetworkStabilitySetting.PERFECT;
+
+		if (isMobile()) {
+			this.lowestSpec();
+		}
+	}
+
+	lowSpec() : void {
+		if (this.antiAliasSetting > AntiAliasSetting.LOW) {
+			this.antiAliasSetting = AntiAliasSetting.LOW;
+		}
+		if (this.shadowSetting > ShadowSetting.OFF) {
+			this.shadowSetting = ShadowSetting.OFF;
+		}
+	}
+	lowestSpec() : void {
+		this.lowSpec();
+		if (this.fpsSetting > SpeedSetting.SLOW) {
+			this.fpsSetting = SpeedSetting.SLOW;
+		}
 	}
 
 	keyCode(type : KeyType) : number { return this.keyCodes.get(type); }
@@ -110,6 +135,16 @@ class Settings {
 		default:
 			return 0;
 		}
+	}
+	transparentEffects() : boolean {
+		return this.transparentSetting === TransparentSetting.ON;
+	}
+	volume() : number {
+		if (this.soundSetting === SoundSetting.OFF) {
+			return 0;
+		}
+
+		return this.volumePercent;
 	}
 
 	useInspector() : boolean { return this.inspectorSetting === InspectorSetting.ON; }

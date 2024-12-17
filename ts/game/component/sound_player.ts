@@ -11,6 +11,8 @@ import { SoundFactory } from 'game/factory/sound_factory'
 
 import { settings } from 'settings'
 
+import { ui } from 'ui'
+
 import { Vec } from 'util/vector'
 
 export class SoundPlayer extends ComponentBase implements Component {
@@ -69,6 +71,9 @@ export class SoundPlayer extends ComponentBase implements Component {
 			console.error("Error: %s tried to play non-existent sound %d on %s", this.name(), type, entity.name());
 			return;
 		}
+		if (!ui.hasAudio()) {
+			return;
+		}
 
 		if (!options) {
 			options = {};
@@ -103,6 +108,9 @@ export class SoundPlayer extends ComponentBase implements Component {
 			console.error("Error: %s tried to play non-existent sound %d at", this.name(), type, pos);
 			return;
 		}
+		if (!ui.hasAudio()) {
+			return;
+		}
 
 		if (!options) {
 			options = {};
@@ -116,6 +124,9 @@ export class SoundPlayer extends ComponentBase implements Component {
 	play(type : SoundType, options? : BABYLON.ISoundOptions) : void {
 		if (!this.hasSound(type)) {
 			console.error("Error: %s tried to play non-existent sound %d", this.name(), type);
+			return;
+		}
+		if (!ui.hasAudio()) {
 			return;
 		}
 
@@ -138,7 +149,7 @@ export class SoundPlayer extends ComponentBase implements Component {
 		} 
 
 		let volume = (options && options.volume) ? options.volume : 1;
-		sound.setVolume(settings.volume * volume);
+		sound.setVolume(settings.volume() * volume);
 
 		return sound;
 	}

@@ -125,8 +125,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelLayout(LevelLayout.CIRCLE);
 			this.setLevelSeed(Math.floor(33 * Math.random()));
 			this.setStartingLoadout(LoadoutType.RANDOM);
-			this.setHealthCrateSpawn(FrequencyType.HIGH);
-			this.setWeaponCrateSpawn(FrequencyType.HIGH);
+			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setWinCondition(WinConditionType.NONE);
 			return this;
 		}

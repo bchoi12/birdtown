@@ -374,10 +374,9 @@ kbd {
     flex-direction: column;
     margin-bottom: 0.2em;
     padding: 0.2em 0.2em;
-}
-.info-highlight {
     border-radius: 0.5em;
-
+}
+.highlight {
     animation-name: flash-white;
     animation-duration: 0.8s;
     animation-direction: alternate;
@@ -820,8 +819,12 @@ kbd {
     cursor: pointer;
 }
 
+.category-title:hover {
+    background-color: #44444444;
+}
+
 .button:active:hover, .button-select:active:hover, .button-select.button-selected {
-    background: #444;
+    background: #404040;
     text-shadow: 0px 0px 7px #BBBBBB;
 }
 
@@ -939,15 +942,18 @@ kbd {
 }
 
 .category {
-    margin: 0.3em 0;
 }
 .category-title {
     font-size: 1.2em;
+    background-color: #00000044;
+    padding: 0.4em 0.5em;
+    margin: 0.1em 0;
+    border-radius: 0.3em;
 }
 .category-content {
-    padding: 0.2em 0.3em;
+    padding: 0.2em 0.5em;
     font-size: 0.9em;
-    margin-bottom: 1em;
+    margin-bottom: 0.5em;
 }
 
 .container {
