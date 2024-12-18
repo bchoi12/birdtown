@@ -6,7 +6,6 @@ import { assignOr } from 'util/common'
 import { Optional } from 'util/optional'
 
 export type GamePropOptions<T extends Object> = {
-	optional? : boolean;
 	conditionalInterval? : IntervalFn<T>;
 	minInterval? : number;
 	refreshInterval? : number;
@@ -37,7 +36,6 @@ export class GameProp<T extends Object> {
 	private _consecutiveChanges : number;
 	private _lastChanged : number;
 
-	private _optional : boolean;
 	private _minInterval : number;
 	private _conditionalInterval : Optional<IntervalFn<T>>;
 	private _refreshInterval : Optional<number>;
@@ -56,7 +54,6 @@ export class GameProp<T extends Object> {
 		this._consecutiveChanges = 0;
 		this._lastChanged = 0;
 
-		this._optional = assignOr(propOptions.optional, false);
 		this._minInterval = assignOr(propOptions.minInterval, 0);
 		this._refreshInterval = new Optional(assignOr(propOptions.refreshInterval, null));
 		this._conditionalInterval = new Optional(assignOr(propOptions.conditionalInterval, null));
@@ -192,8 +189,6 @@ export class GameProp<T extends Object> {
 
 		return true;
 	}
-
-	isOptional() : boolean { return this._optional; }
 
 	shouldPublish(filter : DataFilter, seqNum : number) : boolean {
 		if (!this.has()) {

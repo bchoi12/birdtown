@@ -4,6 +4,8 @@ import { HudType, HudOptions } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon, IconType } from 'ui/common/icon'
 
+import { Fns } from 'util/fns'
+
 export class ProgressWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _color : string;
@@ -20,13 +22,18 @@ export class ProgressWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	setPercent(percent : number) : void {
-		if (this._percent === percent) {
+		// Rate limit since this is expensive
+		if (percent === 0 || percent === 1) {
+			// Don't use tolerance for empty or full
+			if (this._percent === percent) {
+				return;
+			}
+		} else if (Math.abs(this._percent - percent) < .05) {
 			return;
 		}
 
 		this._percent = percent;
-
-		this.elm().style.width = Math.min(Math.max(0, 100 * percent), 100) + "%";
+		this.elm().style.width = Fns.clamp(0, 100 * percent, 100) + "%";
 	}
 
 	setColor(color : string) : void {

@@ -20,6 +20,7 @@ import { Cardinal, CardinalDir } from 'util/cardinal'
 import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
+import { SmoothAngle } from 'util/smooth_angle'
 import { Smoother } from 'util/smoother'
 import { Timer } from 'util/timer'
 import { Vec, Vec2, Vec3 } from 'util/vector'
@@ -39,7 +40,11 @@ export type ProfileInitOptions = {
 	scaling? : Vec;
 	angle? : number;
 
+	// Send less data over the network
 	degraded? : boolean;
+
+	// Do some extra postprocessing so we don't get stuck due to small collisions when moving
+	ignoreTinyCollisions? : boolean;
 }
 
 export type ProfileOptions = {
@@ -73,6 +78,7 @@ export class Profile extends ComponentBase implements Component {
 	private static readonly _knockbackTimeVariance = 250;
 
 	private _degraded : boolean;
+	private _ignoreTinyCollisions : boolean;
 	private _bodyFn : BodyFn;
 	private _onBodyFns : Array<OnBodyFn>;
 	private _readyFn : ReadyFn;
@@ -101,7 +107,7 @@ export class Profile extends ComponentBase implements Component {
 	private _acc : Vec2;
 	private _initDim : Vec2;
 	private _dim : Vec2;
-	private _angle : number;
+	private _angle : SmoothAngle;
 	private _inertia : number;
 	private _initialInertia : number;
 	private _scaling : Vec2;
@@ -112,6 +118,7 @@ export class Profile extends ComponentBase implements Component {
 		super(ComponentType.PROFILE);
 
 		this._degraded = false;
+		this._ignoreTinyCollisions = false;
 		this._bodyFn = profileOptions.bodyFn;
 		this._onBodyFns = new Array();
 
@@ -143,7 +150,7 @@ export class Profile extends ComponentBase implements Component {
 		this._acc = null;
 		this._initDim = null;
 		this._dim = null;
-		this._angle = null;
+		this._angle = new SmoothAngle();
 		this._inertia = null;
 		this._initialInertia = null;
 		this._scaling = null;
@@ -212,7 +219,7 @@ export class Profile extends ComponentBase implements Component {
 		this.addProp<number>({
 			has: () => { return this.hasAngle(); },
 			export: () => { return this.angle(); },
-			import: (obj : number) => { this.setAngle(obj); },
+			import: (obj : number) => { this.importAngle(obj); },
 			options: {
 				filters: GameData.udpFilters,
 				equals: (a : number, b : number) => {
@@ -250,6 +257,7 @@ export class Profile extends ComponentBase implements Component {
 
 	initFromOptions(init : ProfileInitOptions) : void {
 		if (init.degraded) { this._degraded = init.degraded; }
+		if (init.ignoreTinyCollisions) { this._ignoreTinyCollisions = init.ignoreTinyCollisions; }
 		if (init.pos) { this.setPos(init.pos); }
 		if (init.vel) { this.setVel(init.vel); }
 		if (init.acc) { this.setAcc(init.acc); }
@@ -482,12 +490,21 @@ export class Profile extends ComponentBase implements Component {
 		}
 	}
 
-	hasAngle() : boolean { return this._angle !== null; }
-	angle() : number { return this.hasAngle() ? this._angle : 0; }
+	hasAngle() : boolean { return this._angle.has(); }
+	angle() : number { return this._angle.get(); }
 	angleDeg() : number { return this.angle() * 180 / Math.PI; }
 	addAngle(delta : number) : void { this.setAngle(this.angle() + delta); }
 	addAngleDeg(delta : number) : void { this.setAngle(this.angle() + delta * Math.PI / 180); }
-	setAngle(angle : number) : void { this._angle = Fns.normalizeRad(angle); }
+	setAngle(angle : number) : void {
+		if (this.isSource()) {
+			this.importAngle(angle);
+		} else {
+			this._angle.predict(angle);
+		}
+	}
+	private importAngle(angle : number) {
+		this._angle.set(angle);
+	}
 	setAngleDeg(angle : number) : void { this.setAngle(angle * Math.PI / 180); }
 	angularVelocity() : number { return this._body !== null ? this._body.angularVelocity : 0; }
 	setAngularVelocity(vel : number) : void {
@@ -872,13 +889,19 @@ export class Profile extends ComponentBase implements Component {
 			MATTER.Body.setPosition(this._body, this._pos);
 		}
 
-		this._collisionBuffer.reset();
+		if (this._ignoreTinyCollisions) {
+			this._collisionBuffer.reset();
+		}
 
 		// Update child objects afterwards
 		super.prePhysics(stepData);
 	}
 
 	collide(collision : MATTER.Collision, other : Entity) : void {
+		if (!this._ignoreTinyCollisions) {
+			return;
+		}
+
 		if (this._body.isSensor || this._body.isStatic || other.profile().body().isSensor) {
 			return;
 		}
@@ -954,7 +977,8 @@ export class Profile extends ComponentBase implements Component {
 
 		// Fix getting stuck on small corners
 		const millis = stepData.millis;
-		if (this._collisionBuffer.hasRecords()
+		if (this._ignoreTinyCollisions
+			&& this._collisionBuffer.hasRecords()
 			&& this._collisionBuffer.fixed()
 			&& !this._attachId.has()) {
 

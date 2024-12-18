@@ -73,7 +73,7 @@ class Settings {
 		this.soundSetting = SoundSetting.ON;
 		this.volumePercent = 0.8;
 
-		this.antiAliasSetting = AntiAliasSetting.LOW;
+		this.antiAliasSetting = AntiAliasSetting.MEDIUM;
 		this.shadowSetting = ShadowSetting.ON;
 		this.shadowFiltering = FilteringQuality.MEDIUM;
 		this.transparentSetting = TransparentSetting.ON;

@@ -103,22 +103,6 @@ export class Keys extends ClientSideSystem implements System {
 		}
 	}
 
-	override postUpdate(stepData : StepData) : void {
-		super.postUpdate(stepData);
-
-		if (this.isSource()) {
-			this.updateMouse();
-		}
-	}
-
-	override postPhysics(stepData : StepData) : void {
-		super.postPhysics(stepData);
-
-		if (this.isSource()) {
-			this.updateMouse();
-		}
-	}
-
 	override preRender() : void {
 		super.preRender();
 		if (this.isSource()) {

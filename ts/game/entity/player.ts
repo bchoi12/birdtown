@@ -285,7 +285,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					}
 				});
 			},
-			init: entityOptions.profileInit,
+			init: {
+				ignoreTinyCollisions: true,
+				...entityOptions.profileInit,
+			},
 		}));
 		this._profile.setAngle(0);
 		this._profile.setVel({x: 0, y: 0});

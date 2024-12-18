@@ -50,13 +50,11 @@ export namespace MaterialFactory {
 		});
 
 		standardMaterial(MaterialType.DYING_STAR, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.8;
 			mat.specularPower = 8;
 			mat.diffuseColor = ColorFactory.color(ColorType.WHITE).toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.DYING_STAR_RING, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.7;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_ORANGE).toBabylonColor3();
 		});
@@ -108,13 +106,11 @@ export namespace MaterialFactory {
 			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_LIGHT_ORANGE).toBabylonColor3();
 		});
 		standardMaterial(MaterialType.PARTICLE_ORANGE, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.7;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.PARTICLE_ORANGE).toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.WESTERN_YELLOW_TRAIL, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.7;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.WESTERN_YELLOW).toBabylonColor3();
 		});
@@ -134,7 +130,6 @@ export namespace MaterialFactory {
 		});
 
 		standardMaterial(MaterialType.EASTERN_PURPLE_TRAIL, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.7;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.EASTERN_PURPLE).toBabylonColor3();
 		});
@@ -145,7 +140,6 @@ export namespace MaterialFactory {
 		});
 
 		standardMaterial(MaterialType.EASTERN_RED_TRAIL, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.7;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.EASTERN_RED).toBabylonColor3();
 		});
@@ -189,25 +183,21 @@ export namespace MaterialFactory {
 		});
 
 		standardMaterial(MaterialType.PARTICLE_RED, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.7;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.PARTICLE_RED).toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.PARTICLE_BLUE, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.7;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.PARTICLE_BLUE).toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.PARTICLE_YELLOW, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.7;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.PARTICLE_YELLOW).toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.PARTICLE_PURPLE, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.7;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.PARTICLE_PURPLE).toBabylonColor3();
 		});

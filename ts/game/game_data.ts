@@ -84,7 +84,7 @@ export class GameData {
 			const [value, shouldPublish] = prop.publish(filter, seqNum);
 			if (shouldPublish) {
 				filtered[key] = value;
-				hasData = hasData || !prop.isOptional();
+				hasData = true;
 			}
 		});
 		return [filtered, hasData];

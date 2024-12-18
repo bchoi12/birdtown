@@ -24,7 +24,6 @@ export class SmokeParticle extends Particle {
 		model.material<BABYLON.StandardMaterial>().specularPower = 0;
 	}
 	override resetModel(model : Model) : boolean {
-		model.material().alpha = 1;
 		model.material<BABYLON.StandardMaterial>().specularPower = 64;
 		model.mesh().scaling.set(1, 1, 1);
 		return true;
@@ -39,8 +38,6 @@ export class SmokeParticle extends Particle {
 	override updateParticle(stepData : StepData) : void {
 		let scaling = this._profile.scaling();
 		scaling.copyVec(this._initialScale).scale(1 - this.ttlElapsed());
-
 		this._model.mesh().scaling.z = (scaling.x + scaling.y) / 2;
-		this._model.mesh().material.alpha = 1 - this.ttlElapsed();
 	}
 }
