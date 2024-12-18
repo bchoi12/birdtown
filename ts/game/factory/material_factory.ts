@@ -39,7 +39,6 @@ export namespace MaterialFactory {
 		levelBackgroundMaterial(MaterialType.ARCH_BACKGROUND_PURPLE, ColorFactory.color(ColorType.LEVEL_BACKGROUND_PURPLE));
 
 		standardMaterial(MaterialType.BLACK_HOLE, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.9;
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.BLACK).toBabylonColor3();
 		});
