@@ -33,7 +33,6 @@ class Settings {
 
 	// Gameplay
 	public fullscreenSetting : FullscreenSetting;
-	public fpsSetting : SpeedSetting;
 	public clientPredictionSetting : ClientPredictionSetting;
 	public damageNumberSetting : DamageNumberSetting;
 	public soundSetting : SoundSetting;
@@ -41,6 +40,7 @@ class Settings {
 
 	// Graphics
 	public antiAliasSetting : AntiAliasSetting;
+	public fpsSetting : SpeedSetting;
 	public shadowSetting : ShadowSetting;
 	public shadowFiltering : FilteringQuality;
 	public transparentSetting : TransparentSetting;
@@ -67,16 +67,12 @@ class Settings {
 		this.pointerLockKeyCode = 67;
 
 		this.fullscreenSetting = (isMobile() || isElectron()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
-		this.fpsSetting = SpeedSetting.NORMAL;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 		this.damageNumberSetting = DamageNumberSetting.OFF;
 		this.soundSetting = SoundSetting.ON;
 		this.volumePercent = 0.8;
 
-		this.antiAliasSetting = AntiAliasSetting.MEDIUM;
-		this.shadowSetting = ShadowSetting.ON;
-		this.shadowFiltering = FilteringQuality.MEDIUM;
-		this.transparentSetting = TransparentSetting.ON;
+		this.recommendedGraphics();
 
 		this.inspectorSetting = InspectorSetting.OFF;
 		this.delaySetting = isLocalhost() ? DelaySetting.LOCAL : DelaySetting.NONE;
@@ -88,22 +84,23 @@ class Settings {
 		}
 	}
 
+	recommendedGraphics() : void {
+		this.antiAliasSetting = AntiAliasSetting.MEDIUM;
+		this.fpsSetting = SpeedSetting.NORMAL;
+		this.shadowSetting = ShadowSetting.ON;
+		this.shadowFiltering = FilteringQuality.MEDIUM;
+		this.transparentSetting = TransparentSetting.ON;
+	}
 	lowSpec() : void {
-		if (this.antiAliasSetting > AntiAliasSetting.LOW) {
-			this.antiAliasSetting = AntiAliasSetting.LOW;
-		}
-		if (this.shadowSetting > ShadowSetting.OFF) {
-			this.shadowSetting = ShadowSetting.OFF;
-		}
-		if (this.shadowFiltering > FilteringQuality.LOW) {
-			this.shadowFiltering = FilteringQuality.LOW;
-		}
+		this.recommendedGraphics();
+		this.antiAliasSetting = AntiAliasSetting.LOW;
+		this.shadowSetting = ShadowSetting.OFF;
+		this.shadowFiltering = FilteringQuality.LOW;
 	}
 	lowestSpec() : void {
 		this.lowSpec();
-		if (this.fpsSetting > SpeedSetting.SLOW) {
-			this.fpsSetting = SpeedSetting.SLOW;
-		}
+		this.fpsSetting = SpeedSetting.SLOW;
+		this.transparentSetting = TransparentSetting.OFF;
 	}
 
 	keyCode(type : KeyType) : number { return this.keyCodes.get(type); }

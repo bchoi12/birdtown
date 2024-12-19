@@ -64,6 +64,7 @@ class TitleWrapper extends HtmlWrapper<HTMLElement> {
 		this._iconElm.style.fontWeight = "bold";
 
 		this.elm().classList.add(Html.classCategoryTitle);
+		this.elm().classList.add(Html.classNoSelect);
 		this.elm().appendChild(this._titleElm);
 		this.elm().appendChild(this._iconElm);
 	}

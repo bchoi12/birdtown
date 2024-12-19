@@ -50,7 +50,7 @@ export class LabelNumberWrapper extends LabelWrapper {
 		buttons.style.fontSize = "0.8em";
 
 		const minus = new ButtonWrapper();
-		minus.elm().appendChild(Icon.create(IconType.ARROW_DOWN));
+		minus.elm().appendChild(Icon.create(IconType.MINUS));
 		minus.addOnClick(() => {
 			this._minusFn(this.number())
 			this.setNumber(this._getFn());
@@ -58,7 +58,7 @@ export class LabelNumberWrapper extends LabelWrapper {
 		buttons.appendChild(minus.elm());
 
 		const plus = new ButtonWrapper();
-		plus.elm().appendChild(Icon.create(IconType.ARROW_UP));
+		plus.elm().appendChild(Icon.create(IconType.PLUS));
 		plus.addOnClick(() => {
 			this._plusFn(this.number())
 			this.setNumber(this._getFn());

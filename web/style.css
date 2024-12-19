@@ -895,7 +895,7 @@ kbd {
 
 .columns {
     display: flex;
-    height: 100%;
+    height: 95%;
 }
 
 .column {

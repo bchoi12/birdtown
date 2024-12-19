@@ -64,6 +64,11 @@ export class DialogHandler extends HandlerBase implements Handler {
 		});
 	}
 
+	// Use with caution
+	forceDialog<T extends DialogWrapper>(type : DialogType) : T {
+		this.clear();
+		return this.pushDialog(type);
+	}
 	pushDialog<T extends DialogWrapper>(type : DialogType) : T {
 		if (!DialogHandler._createDialogFns.has(type)) {
 			console.error("Error: not queuing unknown dialog type", DialogType[type]);
@@ -108,7 +113,6 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 		const wrapper = this._dialogs.get(type);
 		this.removeWrapper(type, wrapper);
-		this._dialogs.delete(type);
 
 		if (wrapper.visible()) {
 			this.updateDialog();
@@ -119,6 +123,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 		if (this._dialogsElm.contains(wrapper.elm())) {
 			this._dialogsElm.removeChild(wrapper.elm());
 		}
+		this._dialogs.delete(type);
 	}
 
 	private updateDialog() : void {

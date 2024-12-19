@@ -22,6 +22,11 @@ export class ClientNameWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().appendChild(this._nameElm);
 	}
 
+	setPlaceholder(name : string) : void {
+		this._defaultName = name;
+		this._nameElm.value = "";
+		this._nameElm.placeholder = this._defaultName;
+	}
 	nameElm() : HTMLInputElement { return this._nameElm; }
 	name() : string { return this._nameElm.value.length > 0 ? this._nameElm.value : this._defaultName; }
 }

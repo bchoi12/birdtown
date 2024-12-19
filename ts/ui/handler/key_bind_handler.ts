@@ -79,7 +79,7 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		});
 
 		let menu = new CategoryWrapper();
-		menu.setTitle("Menu Keys");
+		menu.setTitle("Menu");
 		this._keyBindElm.appendChild(menu.elm());
 
 		this.addMenuKeyBind(menu, {

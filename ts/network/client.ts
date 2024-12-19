@@ -200,7 +200,7 @@ export class Client extends Netcode {
 
 		// Show reconnect dialog
 		if (this.initialized() && showDialog) {
-			ui.pushDialog(DialogType.DISCONNECTED);
+			ui.forceDialog(DialogType.DISCONNECTED);
 		}
 	}
 }

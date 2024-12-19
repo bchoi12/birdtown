@@ -80,6 +80,18 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		bio.contentElm().appendChild(colorPick.elm());
 		bio.contentElm().appendChild(Html.br());
 
+		/*
+		let random = new ButtonWrapper();
+		random.setIcon(IconType.DICE)
+		random.setText("Random Name");
+		random.addOnClick(() => {
+			const randomNameAndColor = LoginNames.randomNameAndColor();
+			nameWrapper.setPlaceholder(randomNameAndColor[0]);
+			colorPick.select(ColorFactory.toString(randomNameAndColor[1]))
+		});
+		bio.contentElm().appendChild(random.elm());
+		*/
+
 		let bird = columnsWrapper.column(1);
 		bird.setLegend("Choose a Bird");
 

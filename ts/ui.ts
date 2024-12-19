@@ -218,6 +218,7 @@ class UI {
 	refreshScoreboardColor() : void { this._sidebarHandler.refreshColor(); }
 	updateInfo(id : number, type : InfoType, value : number) : void { this._sidebarHandler.updateInfo(id, type, value); }
 	clearInfo(id : number, type : InfoType) : void { this._sidebarHandler.clearInfo(id, type); }
+	forceDialog<T extends DialogWrapper>(type : DialogType) : T { return this._dialogHandler.forceDialog(type); }
 	pushDialog<T extends DialogWrapper>(type : DialogType) : T { return this._dialogHandler.pushDialog(type); }
 	forceSubmitDialog(type : DialogType) : void { this._dialogHandler.forceSubmitDialog(type); }
 	showTooltip(type : TooltipType, options : TooltipOptions) : void { this._tooltipHandler.showTooltip(type, options); }

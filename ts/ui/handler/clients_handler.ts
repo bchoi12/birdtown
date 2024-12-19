@@ -13,8 +13,11 @@ import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { ClientWrapper } from 'ui/wrapper/client_wrapper'
 import { CategoryWrapper } from 'ui/wrapper/category_wrapper'
 import { LowSpecWrapper } from 'ui/wrapper/button/low_spec_wrapper'
+import { LowestSpecWrapper } from 'ui/wrapper/button/lowest_spec_wrapper'
+import { ResetGraphicsWrapper } from 'ui/wrapper/button/reset_graphics_wrapper'
 import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
 
+// TODO: rename ConsoleHandler
 export class ClientsHandler extends HandlerBase implements Handler {
 
 	private _clientsElm : HTMLElement;
@@ -35,16 +38,21 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._playerWrapper = new CategoryWrapper();
 		this._playerWrapper.setTitle("Players");
 		this._commandsWrapper = new CategoryWrapper();
-		this._commandsWrapper.setTitle("Commands");
-
-		let shareWrapper = new ShareWrapper();
-		shareWrapper.setText("Copy invite link");
-		this._commandsWrapper.contentElm().appendChild(shareWrapper.elm());
-		this._commandsWrapper.contentElm().appendChild(Html.br());
+		this._commandsWrapper.setTitle("Quick Settings");
 
 		this._lowSpecWrapper = new LowSpecWrapper();
-		this._lowSpecWrapper.setText("Enable low-spec mode");
+		this._lowSpecWrapper.setText("Use low-spec graphics");
 		this._commandsWrapper.contentElm().appendChild(this._lowSpecWrapper.elm());
+		this._commandsWrapper.contentElm().appendChild(Html.br());
+
+		let lowestSpec = new LowestSpecWrapper();
+		lowestSpec.setText("Use minimal graphics");
+		this._commandsWrapper.contentElm().appendChild(lowestSpec.elm());
+		this._commandsWrapper.contentElm().appendChild(Html.br());
+
+		let recommended = new ResetGraphicsWrapper();
+		recommended.setText("Reset graphics settings");
+		this._commandsWrapper.contentElm().appendChild(recommended.elm());
 		this._commandsWrapper.contentElm().appendChild(Html.br());
 
 		this._clientsElm.appendChild(this._playerWrapper.elm());
