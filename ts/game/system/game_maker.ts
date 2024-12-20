@@ -34,7 +34,7 @@ export class GameMaker extends SystemBase implements System {
 
 	private static readonly _lastDamageTime = 15000;
 	private static readonly _endTimeLimit = 3000;
-	private static readonly _startingTimeLimit = 2000;
+	private static readonly _preloadTimeLimit = 1500;
 	private static readonly _loadTimeLimit = 2000;
 	private static readonly _respawnTime = 2000;
 	private static readonly _spawnTime = 5000;
@@ -106,8 +106,8 @@ export class GameMaker extends SystemBase implements System {
 	}
 	timeLimit(state : GameState) : number {
 		switch (state) {
-		case GameState.STARTING:
-			return GameMaker._startingTimeLimit;
+		case GameState.PRELOAD:
+			return GameMaker._preloadTimeLimit;
 		case GameState.LOAD:
 			return GameMaker._loadTimeLimit;
 		case GameState.SETUP:
@@ -258,7 +258,7 @@ export class GameMaker extends SystemBase implements System {
 		}
 
 		switch(current) {
-		case GameState.STARTING:
+		case GameState.PRELOAD:
 			if (this.timeLimitReached(current)) {
 				return GameState.LOAD;
 			}
@@ -343,7 +343,7 @@ export class GameMaker extends SystemBase implements System {
 						return GameState.VICTORY;
 					}					
 				}
-				return GameState.LOAD;
+				return GameState.PRELOAD;
 			}
 			break;
 		case GameState.VICTORY:
@@ -381,12 +381,14 @@ export class GameMaker extends SystemBase implements System {
 				playerState.resetForLobby();
 			});
 			break;
-		case GameState.STARTING:
-	    	let startingMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-	    	startingMsg.setAnnouncementType(AnnouncementType.GAME_STARTING);
-	    	startingMsg.setNames([this._config.modeName()]);
-	    	startingMsg.setTtl(this.timeLimit(GameState.STARTING) - 500);
-	    	game.announcer().broadcast(startingMsg);
+		case GameState.PRELOAD:
+			if (this._round === 0) {
+		    	let startingMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
+		    	startingMsg.setAnnouncementType(AnnouncementType.GAME_STARTING);
+		    	startingMsg.setNames([this._config.modeName()]);
+		    	startingMsg.setTtl(this.timeLimit(state));
+		    	game.announcer().broadcast(startingMsg);
+			}
 	    	break;
 		case GameState.LOAD:
 			this._round++;
@@ -424,6 +426,7 @@ export class GameMaker extends SystemBase implements System {
 	    	let startGameMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
 	    	startGameMsg.setAnnouncementType(AnnouncementType.GENERIC);
 	    	startGameMsg.setNames([name, description]);
+	    	startGameMsg.setTtl(this.timeLimit(state) + 500);
 	    	game.announcer().broadcast(startGameMsg);
 			break;
 		case GameState.SETUP:

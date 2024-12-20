@@ -26,7 +26,7 @@ export class Controller extends SystemBase implements System {
 
 	private static readonly _maxTimeLimit = 999 * 1000;
 	private static readonly _showTimerStates = new Set([
-		GameState.SETUP, GameState.GAME, GameState.END,
+		GameState.SETUP, GameState.GAME,
 	]);
 
 	private _gameState : GameState;
@@ -97,7 +97,7 @@ export class Controller extends SystemBase implements System {
 		}
 		if (this._gameMaker.setConfig(config, playerConfig)) {
 			ConfigFactory.save(config);
-			this.setGameState(GameState.STARTING);
+			this.setGameState(GameState.PRELOAD);
 		}
 	}
 

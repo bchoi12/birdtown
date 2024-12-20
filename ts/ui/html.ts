@@ -58,6 +58,8 @@ export namespace Html {
 	export const fieldsetSettings = "fieldset-settings";
 	export const fieldsetKeyBind = "fieldset-key-bind";
 
+	export const divLoading = "div-loading";
+
 	export const classSpaced = "spaced";
 	export const classNoSelect = "no-select";
 	export const classTransparent05 = "transparent-05"

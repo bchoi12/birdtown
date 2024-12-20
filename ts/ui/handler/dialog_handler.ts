@@ -47,6 +47,12 @@ export class DialogHandler extends HandlerBase implements Handler {
 		this._dialogs = new Map();
 	}
 
+	override onGameInitialized() : void {
+		super.onGameInitialized();
+
+    	this.pushDialog(DialogType.INIT);
+	}
+
 	override handleClientMessage(msg : GameMessage) : void {
 		super.handleClientMessage(msg);
 

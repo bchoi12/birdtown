@@ -345,9 +345,10 @@ export class Lakitu extends SystemBase implements System {
 		const millis = stepData.realMillis;
 
 		switch (game.controller().gameState()) {
-		case GameState.LOAD:
-			this.targetSpawn(/*zoom=*/true);
+		case GameState.PRELOAD:
+			// Continue current target
 			break;
+		case GameState.LOAD:
 		case GameState.SETUP:
 			this.targetSpawn();
 			break;
@@ -421,7 +422,6 @@ export class Lakitu extends SystemBase implements System {
 			// Pan to a winning player
 			this.targetWinner();
 			break;
-		case GameState.STARTING:
 		case GameState.END:
 		case GameState.ERROR:
 			this.clearTargetEntity();

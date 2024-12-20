@@ -19,6 +19,7 @@ export interface Handler {
 	onEnable() : void;
 	onDisable() : void;
 	onModeChange(mode : UiMode, oldMode : UiMode) : void;
+	onGameInitialized() : void;
 	onPlayerInitialized() : void;
 }
 
@@ -85,5 +86,6 @@ export class HandlerBase {
 		}
 	}
 
+	onGameInitialized() : void {}
 	onPlayerInitialized() : void {}
 }

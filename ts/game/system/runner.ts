@@ -197,6 +197,9 @@ export class Runner extends SystemBase implements System  {
 
 	setGameState(state : GameState) : void {
 		switch (state) {
+		case GameState.PRELOAD:
+			// No change
+			break;
 		case GameState.FINISH:
 		case GameState.VICTORY:
 		case GameState.ERROR:

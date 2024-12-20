@@ -23,6 +23,7 @@ import { FullscreenHandler } from 'ui/handler/fullscreen_handler'
 import { HudHandler } from 'ui/handler/hud_handler'
 import { InputHandler } from 'ui/handler/input_handler'
 import { KeyBindHandler } from 'ui/handler/key_bind_handler'
+import { LoadingHandler } from 'ui/handler/loading_handler'
 import { LoginHandler } from 'ui/handler/login_handler'
 import { MenuHandler } from 'ui/handler/menu_handler'
 import { PointerLockHandler } from 'ui/handler/pointer_lock_handler'
@@ -61,6 +62,7 @@ class UI {
 	private _hudHandler : HudHandler;
 	private _inputHandler : InputHandler;
 	private _keyBindHandler : KeyBindHandler;
+	private _loadingHandler : LoadingHandler;
 	private _loginHandler : LoginHandler;
 	private _menuHandler : MenuHandler;
 	private _pointerLockHandler : PointerLockHandler;
@@ -88,6 +90,7 @@ class UI {
 		this._hudHandler = this.add(new HudHandler());
 		this._inputHandler = this.add(new InputHandler());
 		this._keyBindHandler = this.add(new KeyBindHandler());
+		this._loadingHandler = this.add(new LoadingHandler());
 		this._loginHandler = this.add(new LoginHandler());
 		this._menuHandler = this.add(new MenuHandler());
 		this._pointerLockHandler = this.add(new PointerLockHandler());
@@ -104,6 +107,11 @@ class UI {
 		this._handlers.forEach((handler) => {
 			handler.setup();
 		});
+	}
+	onGameInitialized() : void {
+		this._handlers.forEach((handler) => {
+			handler.onGameInitialized();
+		});	
 	}
 	onPlayerInitialized() : void {
 		this._handlers.forEach((handler) => {
@@ -226,6 +234,7 @@ class UI {
 	hideTooltip(type : TooltipType) : void { this._tooltipHandler.hideTooltip(type); }
 	setDebugStats(enabled : boolean) : void { this._statsHandler.setDebug(enabled); }
 	setGameState(state : GameState) : void {
+		this._loadingHandler.setGameState(state);
 		this._statusHandler.setGameState(state);
 		this._sidebarHandler.setGameState(state);
 	}

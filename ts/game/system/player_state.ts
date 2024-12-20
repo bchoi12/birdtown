@@ -24,7 +24,7 @@ export class PlayerState extends ClientSystem implements System {
 	private static readonly _defaultChatColor = "#FFFFFF";
 
 	private static readonly _disallowRoleChangeStates = new Set([
-		GameState.STARTING, GameState.FINISH, GameState.VICTORY, GameState.ERROR
+		GameState.PRELOAD, GameState.FINISH, GameState.VICTORY, GameState.ERROR
 	]);
 	private static readonly _gameRoles = new Set([
 		PlayerRole.PREPARING, PlayerRole.SPAWNING, PlayerRole.GAMING, PlayerRole.WAITING,

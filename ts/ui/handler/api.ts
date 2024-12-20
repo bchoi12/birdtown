@@ -12,6 +12,7 @@ export enum HandlerType {
 	HUD,
 	INPUT,
 	KEY_BIND,
+	LOADING,
 	LOGIN,
 	MENU,
 	POINTER_LOCK,
