@@ -64,6 +64,8 @@ export class Plane extends EntityBase implements Entity {
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					isSensor: true,
+					friction: 0,
+					frictionAir: 0,
 					collisionFilter: BodyFactory.neverCollideFilter(),
 				});
 			},
@@ -73,7 +75,16 @@ export class Plane extends EntityBase implements Entity {
 			color: ColorFactory.color(ColorType.RED).toString(),
 			depthType: DepthType.BEHIND,
 		});
-		this._profile.setVel({x: this.xVel(), y: 0});
+
+		const vel = this.xVel();
+		this._profile.setVel({x: vel, y: 0});
+
+		// Set rotation in right direction
+		if (vel > 0) {
+			this._model.rotation().y = 0;
+		} else {
+			this._model.rotation().y = -Math.PI;
+		}
 	}
 
 	override update(stepData : StepData) : void {
@@ -86,19 +97,11 @@ export class Plane extends EntityBase implements Entity {
 			const side = bounds.xSide(this._profile.pos(), /*buffer=*/-this._profile.dim().x);
 			if (side !== 0) {
 				this._profile.setVel({ x: -1 * side * Plane._speed });
-			} else {
-				this._profile.setVel({ x: Math.sign(this._profile.vel().x) * Plane._speed });
 			}
-		} else {
-			this._profile.setVel({x: this.xVel() });
-		}
-
-		if (!this._model.hasMesh()) {
-			return;
 		}
 
 		// Rotate to match velocity direction
-		let rotation = this._model.mesh().rotation
+		let rotation = this._model.rotation();
 		if (this._profile.vel().x > 0) {
 			rotation.y = Math.min(0, rotation.y + Plane._turnRate * millis / 1000);
 		} else {
@@ -112,7 +115,7 @@ export class Plane extends EntityBase implements Entity {
 	}
 
 	private xVel() : number {
-		return (game.controller().round() % 2 === 0 ? 1 : -1) * Plane._speed;
+		return (game.controller().round() % 2 === 0 ? -1 : 1) * Plane._speed;
 	}
 
 	private maybeDropCrate() : void {
