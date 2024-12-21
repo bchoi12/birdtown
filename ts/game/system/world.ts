@@ -110,7 +110,9 @@ export class World extends SystemBase implements System {
 		this._scene.preventDefaultOnPointerDown = false;
 		this._scene.preventDefaultOnPointerUp = false;
 
-		// Performance optimization
+		// Performance optimizations
+		this._scene.autoClear = false;
+		this._scene.autoClearDepthAndStencil = false;
 		this._scene.skipPointerMovePicking = true;
 
 		this._layers = new Map();

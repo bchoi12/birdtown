@@ -219,6 +219,7 @@ export abstract class Netcode {
 	}
 	hasConnection(id : string) : boolean { return this._connections.has(id); }
 	connection(id : string) : Connection { return this._connections.get(id); }
+	numConnections() : number { return this._connections.size; }
 	getVoiceMap() : Map<number, string> {
 		if (!this.isHost()) {
 			console.error("Error: client queried voice map");

@@ -27,7 +27,7 @@ export class Shotgun extends Weapon {
 		]),
 		bursts: Shotgun._bursts,
 	};
-	private static readonly _bulletTTL = 500;
+	private static readonly _bulletTTL = 450;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.SHOTGUN, options);
@@ -49,7 +49,7 @@ export class Shotgun extends Weapon {
 
 		const unitDir = this.getDir();
 
-		let vel = unitDir.clone().scale(0.6);
+		let vel = unitDir.clone().scale(0.65);
 		vel.rotateDeg(-Shotgun._spreadDeg / 2);
 
 		for (let i = 0; i < Shotgun._burstBullets; ++i) {
@@ -70,7 +70,7 @@ export class Shotgun extends Weapon {
 			}
 		}
 
-		let recoil = unitDir.clone().negate().scale(0.3);
+		let recoil = unitDir.clone().negate().scale(this.bursts() === 0 ? 0.5 : 0.1);
 		this.owner().addForce(recoil);
 
 		this.soundPlayer().playFromEntity(SoundType.BLAST, this.owner());

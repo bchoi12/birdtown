@@ -127,6 +127,13 @@ class Game {
 
 			if (this.isHost()) {
 				this.setClientId(1);
+
+				window.onbeforeunload = (e) => {
+					if (this._netcode.numConnections() > 0) {
+						return "Are you sure you want to leave? The game will end and all players will be disconnected.";
+					}
+					return undefined;
+				};
 			}
 		    this._initialized = true;
 

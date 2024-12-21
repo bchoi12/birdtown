@@ -38,7 +38,7 @@ export class LoadingHandler extends HandlerBase implements Handler {
 	override onPlayerInitialized() : void {
 		super.onPlayerInitialized();
 
-		this.setLoadingAfter(false, LoadingHandler._showBuffer);
+		this.setLoading(false);
 		this._initialized = true;
 	}
 
@@ -60,7 +60,7 @@ export class LoadingHandler extends HandlerBase implements Handler {
 		}
 	}
 
-	refresh() : void {
+	private refresh() : void {
 		if (this._loading) {
 			this._loadingElm.style.left = "0";
 		} else {
@@ -68,7 +68,7 @@ export class LoadingHandler extends HandlerBase implements Handler {
 		}
 	}
 
-	setLoading(loading : boolean) : void {
+	private setLoading(loading : boolean) : void {
 		this.setLoadingAfter(loading, 0);
 	}
 
