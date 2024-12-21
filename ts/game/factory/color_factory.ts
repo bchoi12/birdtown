@@ -75,7 +75,6 @@ export namespace ColorFactory {
 		[ColorType.SHOOTER_LIGHT_BLUE, HexColor.fromHex(0xc7fffe)],
 		[ColorType.SHOOTER_ORANGE, HexColor.fromHex(0xffb163)],
 		[ColorType.SHOOTER_DARK_ORANGE, HexColor.fromHex(0xe68525)],
-		[ColorType.SHOOTER_LIGHT_ORANGE, HexColor.fromHex(0xffe6d4)],
 		[ColorType.SHOOTER_YELLOW, HexColor.fromHex(0xffef61)],
 
 		// Pickup series (saturated, stand out from level)
