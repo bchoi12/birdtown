@@ -19,7 +19,6 @@ import { Vec, Vec2 } from 'util/vector'
 
 type BuildingPlan = {
 	height : number;
-	offset? : Vec;
 }
 
 class ArchBlueprintBlock extends BlueprintBlock {
@@ -135,14 +134,10 @@ class Building {
 	}
 
 	addBackgroundBuilding(height : number, rng : SeededRandom, options : EntityOptions) : ArchBlueprintBlock {
-		if (height <= 0) {
-			return;
-		}
-
 		const extras = 3;
 
 		let pos = this._initPos.clone();
-		pos.add({ x: ArchBlueprint.baseDim().x / 3, y: rng.next() * ArchBlueprint.baseDim().y / 2 });
+		pos.add({ y: rng.next() * ArchBlueprint.baseDim().y / 2 });
 		pos.sub({ y: (extras - 1.66) * ArchBlueprint.baseDim().y });
 		let block = new ArchBlueprintBlock(ArchBlueprint.backgroundType(), {
 			profileInit: {
@@ -239,7 +234,6 @@ export class ArchBlueprint extends Blueprint {
 	}
 	addBuilding(i : number, plans : Array<BuildingPlan>) : Building {
 		const height = plans[i].height;
-		const offset = plans[i].offset ? plans[i].offset : {x: 0, y: 0};
 		const prevHeight = i > 0 ? plans[i-1].height : 0;
 		const nextHeight = i < plans.length - 1 ? plans[i+1].height : 0;
 
@@ -250,52 +244,49 @@ export class ArchBlueprint extends Blueprint {
 		} else {
 			this._pos.x += ArchBlueprint.baseDim().x;
 		}
-		this._pos.add(offset);
-
-		if (height <= 0) {
-			return;
-		}
 
 		let building = new Building(this._pos, height);
-		const colors = ArchBlueprint.generateColorMap(ArchBlueprint.blockType(), this._buildings.length);
-		const options = {
-			hexColorsInit: {
-				colors: colors,
-			}
-		};
+		if (height > 0) {
+			const colors = ArchBlueprint.generateColorMap(ArchBlueprint.blockType(), this._buildings.length);
+			const options = {
+				hexColorsInit: {
+					colors: colors,
+				}
+			};
 
-		// Basement
-		for (let j = 0; j < ArchBlueprint._numBasementBlocks; ++j) {
-			building.addBlock({
+			// Basement
+			for (let j = 0; j < ArchBlueprint._numBasementBlocks; ++j) {
+				building.addBlock({
+					cardinalsInit: {
+						cardinals: [CardinalFactory.openings([])],		
+					},
+					...options});
+			}
+
+			// height of 1 == only basement
+			for (let j = 1; j < height; ++j) {
+				let openings = CardinalFactory.openings([]);
+				openings.merge(this.getOpenings(/*openLeft=*/true, /*openRight=*/true));
+
+				let block = building.addBlock({
+					cardinalsInit: {
+						cardinals: [openings],		
+					},
+					...options});
+
+				if (openings.anyRight() && (j > nextHeight || nextHeight === 0)) {
+					block.addBalcony(CardinalDir.RIGHT, options);
+				}
+				if (openings.anyLeft() && (j > prevHeight || prevHeight === 0)) {
+					block.addBalcony(CardinalDir.LEFT, options);
+				}
+			}		
+			building.addRoof({
 				cardinalsInit: {
-					cardinals: [CardinalFactory.openings([])],		
+					cardinals: [this.getOpenings(height <= prevHeight, height <= nextHeight)],
 				},
 				...options});
 		}
-
-		// height of 1 == only basement
-		for (let j = 1; j < height; ++j) {
-			let openings = CardinalFactory.openings([]);
-			openings.merge(this.getOpenings(/*openLeft=*/true, /*openRight=*/true));
-
-			let block = building.addBlock({
-				cardinalsInit: {
-					cardinals: [openings],		
-				},
-				...options});
-
-			if (openings.anyRight() && (j > nextHeight || nextHeight === 0)) {
-				block.addBalcony(CardinalDir.RIGHT, options);
-			}
-			if (openings.anyLeft() && (j > prevHeight || prevHeight === 0)) {
-				block.addBalcony(CardinalDir.LEFT, options);
-			}
-		}		
-		building.addRoof({
-			cardinalsInit: {
-				cardinals: [this.getOpenings(height <= prevHeight, height <= nextHeight)],
-			},
-			...options});
 
 		let backgroundHeight = height;
 		this.rng().switch([
@@ -331,7 +322,7 @@ export class ArchBlueprint extends Blueprint {
 				let block = building.block(j);
 
 				if (block.type() === ArchBlueprint.roofType()) {
-					if (i === Math.floor(this.numBuildings() / 2)) {
+					if (i === 2) {
 						block.pushEntityOptions(EntityType.START_GAME_SIGN, {
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ x: -2.5, y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
@@ -527,6 +518,10 @@ export class ArchBlueprint extends Blueprint {
 			currentHeight = Fns.clamp(0, currentHeight, maxHeight);
 		}
 
+		plan.push({
+			height: 0,
+		});
+
 		return plan;
 	}
 
@@ -546,7 +541,7 @@ export class ArchBlueprint extends Blueprint {
 				let block = building.block(j);
 
 				if (block.type() === ArchBlueprint.roofType()) {
-					if (options.msg.getNumTeams() === 2 && i === 0) {
+					if (options.msg.getNumTeams() === 2 && i === 1) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
 								team: 1,
@@ -555,7 +550,7 @@ export class ArchBlueprint extends Blueprint {
 								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),
 							},
 						})
-					} else if (options.msg.getNumTeams() === 2 && i === this.numBuildings() - 1) {
+					} else if (options.msg.getNumTeams() === 2 && i === this.numBuildings() - 2) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
 								team: 2,
@@ -612,23 +607,28 @@ export class ArchBlueprint extends Blueprint {
 
 	private generateDueltownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
 		let plan = new Array<BuildingPlan>();
+		plan.push({
+			height: 0,
+		});
+
 		const length = 5 + this.rng().int(3);
 
 		let currentHeight = 1;
 		const maxHeight = 3;
-		plan.push({
+		let buildings = new Array<BuildingPlan>();
+		buildings.push({
 			height: currentHeight,
 		});
 
 		for (let i = 1; i < length; ++i) {
 			if (i >= length / 2) {
-				plan.push({
-					height: plan[length - i - 1].height,
+				buildings.push({
+					height: buildings[length - i - 1].height,
 				});
 				continue;
 			} else if (length % 2 === 1 && i === Math.floor(length / 2)) {
 				currentHeight = currentHeight === maxHeight ? 0 : maxHeight;
-				plan.push({
+				buildings.push({
 					height: currentHeight,
 				});
 				continue;
@@ -674,10 +674,15 @@ export class ArchBlueprint extends Blueprint {
 			}
 			currentHeight = Fns.clamp(0, currentHeight, maxHeight);
 
-			plan.push({
+			buildings.push({
 				height: currentHeight,
 			});
 		}
+
+		plan.push(...buildings);
+		plan.push({
+			height: 0,
+		});
 
 		return plan;
 	}
