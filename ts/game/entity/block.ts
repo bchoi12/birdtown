@@ -184,16 +184,27 @@ export abstract class Block extends EntityBase {
 			return;
 		}
 
-		let alpha = this.checkAlpha();
+		let targetAlpha = this.checkAlpha();
 		if (!settings.transparentEffects()) {
-			if (alpha <= 0.5) {
-				alpha = 0;
+			if (targetAlpha <= Block._transparentAlpha) {
+				targetAlpha = 0;
 			} else {
-				alpha = 1;
+				targetAlpha = 1;
 			}
 		}
-		if (this._alpha === alpha) {
+
+		if (this._alpha === targetAlpha) {
 			return;
+		}
+
+		let alpha = targetAlpha;
+		if (settings.transparentEffects()) {
+			// Smooth-ish transition
+			if (targetAlpha < this._alpha) {
+				alpha = Math.max(targetAlpha, this._alpha - 0.1);
+			} else {
+				alpha = Math.min(targetAlpha, this._alpha + 0.1);
+			}
 		}
 
 		this._profile.setVisible(this.canOcclude() && !this.transparent());
