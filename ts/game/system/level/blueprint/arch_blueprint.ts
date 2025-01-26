@@ -496,6 +496,10 @@ export class ArchBlueprint extends Blueprint {
 				height: currentHeight,
 			});
 
+			if (i === length - 1) {
+				break;
+			}
+
 			if (currentHeight === 0) {
 				currentHeight = this.rng().int(maxHeight) + 1;
 			} else if (currentHeight === 1) {
@@ -518,9 +522,11 @@ export class ArchBlueprint extends Blueprint {
 			currentHeight = Fns.clamp(0, currentHeight, maxHeight);
 		}
 
-		plan.push({
-			height: 0,
-		});
+		if (currentHeight > 0) {
+			plan.push({
+				height: 0,
+			});
+		}
 
 		return plan;
 	}

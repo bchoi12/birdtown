@@ -36,12 +36,13 @@ export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 					depth: 6,
 					faceUV: faceUV,
 				}, game.scene());
-
-				mesh.position.z = -24;
 				model.setMesh(mesh);
 			},
 			init: {
 				disableShadows: true,
+				transforms: {
+					translate: { x: 3, z: -24 },
+				},
 				...entityOptions.modelInit,
 			},
 		}));
