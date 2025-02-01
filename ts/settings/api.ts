@@ -31,6 +31,11 @@ export enum FullscreenSetting {
 	FULLSCREEN,
 }
 
+export enum MusicSetting {
+	OFF,
+	ON,
+}
+
 export enum PointerSetting {
 	NORMAL,
 	LOCKED,

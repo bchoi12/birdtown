@@ -522,7 +522,7 @@ export class ArchBlueprint extends Blueprint {
 			currentHeight = Fns.clamp(0, currentHeight, maxHeight);
 		}
 
-		if (currentHeight > 0) {
+		if (currentHeight > 0 && options.msg.getLevelLayout() === LevelLayout.CIRCLE) {
 			plan.push({
 				height: 0,
 			});

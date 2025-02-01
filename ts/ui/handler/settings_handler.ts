@@ -7,6 +7,7 @@ import {
 	ClientPredictionSetting,
 	DamageNumberSetting,
 	FullscreenSetting,
+	MusicSetting,
 	PointerSetting,
 	ShadowSetting,
 	SpeedSetting,
@@ -219,7 +220,35 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		let sound = this.createCategory("Audio");
 
 		this.addSetting(sound, new LabelNumberWrapper({
-			label: "Sound",
+			label: "Music",
+			value: Number(settings.musicSetting),
+			plus: (current : number) => {
+				settings.musicSetting = MusicSetting.ON;
+			},
+			minus: (current : number) => {
+				settings.musicSetting = MusicSetting.OFF;
+			},
+			get: () => { return settings.musicSetting; },
+			html: (current : number) => {
+				return Strings.toTitleCase(MusicSetting[current]);
+			},
+		}));
+
+		this.addSetting(sound, new LabelNumberWrapper({
+			label: "Music Volume",
+			value: settings.musicPercent,
+			plus: (current : number) => {
+				settings.musicPercent = Math.min(1, current + 0.1);
+			},
+			minus: (current : number) => {
+				settings.musicPercent = Math.max(0, current - 0.1);
+			},
+			get: () => { return settings.musicPercent; },
+			html: () => { return Math.round(100 * settings.musicPercent) + "%"; },
+		}));
+
+		this.addSetting(sound, new LabelNumberWrapper({
+			label: "Sound Effects",
 			value: Number(settings.soundSetting),
 			plus: (current : number) => {
 				settings.soundSetting = SoundSetting.ON;
@@ -234,16 +263,16 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		}));
 
 		this.addSetting(sound, new LabelNumberWrapper({
-			label: "Master Volume",
-			value: settings.volumePercent,
+			label: "Sound Effects Volume",
+			value: settings.soundPercent,
 			plus: (current : number) => {
-				settings.volumePercent = Math.min(1, current + 0.1);
+				settings.soundPercent = Math.min(1, current + 0.1);
 			},
 			minus: (current : number) => {
-				settings.volumePercent = Math.max(0, current - 0.1);
+				settings.soundPercent = Math.max(0, current - 0.1);
 			},
-			get: () => { return settings.volumePercent; },
-			html: () => { return Math.round(100 * settings.volumePercent) + "%"; },
+			get: () => { return settings.soundPercent; },
+			html: () => { return Math.round(100 * settings.soundPercent) + "%"; },
 		}));
 
 		if (isLocalhost()) {

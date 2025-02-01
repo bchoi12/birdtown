@@ -242,7 +242,7 @@ export namespace SoundFactory {
 		const resolvedOptions = {
 			...MediaGlobals.gameOptions,
 			...metadata.get(type).options,
-			volume: settings.volume(),
+			volume: settings.soundVolume(),
 			...(options ? options : {}),
 		};
 		sound.updateOptions(resolvedOptions);
@@ -270,7 +270,7 @@ export namespace SoundFactory {
 		let sound = load(type, options);
 
 		if (sound !== null) {
-			sound.setVolume(settings.volume() * sound.getVolume());
+			sound.setVolume(settings.soundVolume() * sound.getVolume());
 			sound.play();
 			unload(type, sound);
 		}
@@ -285,7 +285,7 @@ export namespace SoundFactory {
 
 		if (sound !== null) {
 			sound.setPosition(pos);
-			sound.setVolume(settings.volume() * sound.getVolume());
+			sound.setVolume(settings.soundVolume() * sound.getVolume());
 			sound.play();
 			unload(type, sound);
 		}

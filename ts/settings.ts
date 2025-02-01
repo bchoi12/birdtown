@@ -6,6 +6,7 @@ import {
 	DamageNumberSetting,
 	FullscreenSetting,
 	FilteringQuality,
+	MusicSetting,
 	PointerSetting,
 	ShadowSetting,
 	SpeedSetting,
@@ -35,8 +36,10 @@ class Settings {
 	public fullscreenSetting : FullscreenSetting;
 	public clientPredictionSetting : ClientPredictionSetting;
 	public damageNumberSetting : DamageNumberSetting;
+	public musicSetting : MusicSetting;
+	public musicPercent : number;
 	public soundSetting : SoundSetting;
-	public volumePercent : number;
+	public soundPercent : number;
 
 	// Graphics
 	public antiAliasSetting : AntiAliasSetting;
@@ -69,8 +72,10 @@ class Settings {
 		this.fullscreenSetting = (isMobile() || isElectron()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 		this.damageNumberSetting = DamageNumberSetting.OFF;
+		this.musicSetting = MusicSetting.ON
+		this.musicPercent = 0.5;
 		this.soundSetting = SoundSetting.ON;
-		this.volumePercent = 0.8;
+		this.soundPercent = 0.8;
 
 		this.recommendedGraphics();
 
@@ -139,12 +144,19 @@ class Settings {
 	transparentEffects() : boolean {
 		return this.transparentSetting === TransparentSetting.ON;
 	}
-	volume() : number {
+	musicVolume() : number {
+		if (this.musicSetting === MusicSetting.OFF) {
+			return 0;
+		}
+
+		return this.musicPercent;
+	}
+	soundVolume() : number {
 		if (this.soundSetting === SoundSetting.OFF) {
 			return 0;
 		}
 
-		return this.volumePercent;
+		return this.soundPercent;
 	}
 
 	useInspector() : boolean { return this.inspectorSetting === InspectorSetting.ON; }

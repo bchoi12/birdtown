@@ -73,7 +73,9 @@ export namespace LoginNames {
 		return birdNames[Math.floor(Math.random() * birdNames.length)];
 	}
 
-	const roomLetters = "BCDFGHJKLMNPQRTVWXY346789"
+	// Don't include anything that is or looks like a vowel
+	// Try not to include any ambiguous looking things either
+	const roomLetters = "BCDFGHJKLMNPQRTVWXY6789"
 
 	export function randomId(n : number) : string {
 		let room = "";

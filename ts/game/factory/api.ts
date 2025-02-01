@@ -226,6 +226,18 @@ export enum MeshType {
 	SIGN,
 }
 
+export enum MusicType {
+	UNKNOWN,
+
+	ABSOLUTION,
+	CULMINATION,
+	EPIC_HEIGHTS,
+	EPIC_THEME,
+	FIGHT,
+	GEAR_HEAD,
+	POPCORN,
+}
+
 export enum ParticleType {
 	UNKNOWN,
 

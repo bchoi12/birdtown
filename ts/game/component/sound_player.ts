@@ -149,7 +149,7 @@ export class SoundPlayer extends ComponentBase implements Component {
 		} 
 
 		let volume = (options && options.volume) ? options.volume : 1;
-		sound.setVolume(settings.volume() * volume);
+		sound.setVolume(settings.soundVolume() * volume);
 
 		return sound;
 	}
