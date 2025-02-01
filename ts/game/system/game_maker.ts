@@ -6,6 +6,7 @@ import { EntityType, FrequencyType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
+import { MusicType } from 'game/factory/api'
 import { ConfigFactory } from 'game/factory/config_factory'
 import { SystemBase, System } from 'game/system'
 import { SystemType, LevelType, LevelLayout, LoadoutType, PlayerRole, WinConditionType } from 'game/system/api'
@@ -28,7 +29,7 @@ import { AnnouncementType, DialogType, FeedType, InfoType, StatusType } from 'ui
 import { KeyNames } from 'ui/common/key_names'
 
 import { isLocalhost } from 'util/common'
-import { SeededRandom } from 'util/seeded_random'
+import { globalRandom } from 'util/seeded_random'
 
 export class GameMaker extends SystemBase implements System {
 
@@ -56,11 +57,12 @@ export class GameMaker extends SystemBase implements System {
 	private _config : GameConfigMessage;
 	private _playerConfig : PlayerConfig;
 	private _playerRotator : PlayerRotator;
+	private _musicTypes : Array<MusicType>;
+	private _musicIndex : number;
 	private _round : number;
 	private _winners : Array<number>;
 	private _winnerClientId : number;
 	private _errorMsg : string;
-	private _rng : SeededRandom;
 
 	constructor() {
 		super(SystemType.GAME_MAKER);
@@ -68,11 +70,20 @@ export class GameMaker extends SystemBase implements System {
 		this._config = ConfigFactory.empty();
 		this._playerConfig = PlayerConfig.empty();
 		this._playerRotator = new PlayerRotator();
+		this._musicTypes = new Array(
+			MusicType.CULMINATION,
+			MusicType.GEAR_HEAD,
+			MusicType.POPCORN,
+			MusicType.EPIC_HEIGHTS,
+			MusicType.EPIC_THEME,
+			MusicType.FIGHT,
+		);
+		globalRandom.shuffle(this._musicTypes);
+		this._musicIndex = 0;
 		this._round = 0;
 		this._winners = new Array();
 		this._winnerClientId = 0;
 		this._errorMsg = "";
-		this._rng = new SeededRandom(0);
 
 		this.addProp<MessageObject>({
 			export: () => { return this._config.exportObject(); },
@@ -363,6 +374,7 @@ export class GameMaker extends SystemBase implements System {
 
 		switch (state) {
 		case GameState.FREE:
+			game.audio().fadeMusic();
 			this._config.resetToDefault(GameMode.FREE);
 			ui.setGameConfig(this._config);
 
@@ -389,6 +401,9 @@ export class GameMaker extends SystemBase implements System {
 		    	startingMsg.setTtl(this.timeLimit(state));
 		    	game.announcer().broadcast(startingMsg);
 			}
+
+			game.audio().queueMusic(this._musicTypes[this._musicIndex % this._musicTypes.length]);
+			this._musicIndex++;
 	    	break;
 		case GameState.LOAD:
 			this._round++;

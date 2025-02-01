@@ -161,6 +161,7 @@ class UI {
 		} else {
 			game.scene().debugLayer.hide();
 		}
+		game.audio().refreshSettings();
 		game.runner().setRenderSpeed(settings.fpsSetting);
 		game.world().refreshSettings();
 	}

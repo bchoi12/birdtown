@@ -207,7 +207,7 @@ export class Lakitu extends SystemBase implements System {
 			panner.pan({
 				goal: goal,
 				millis: Lakitu._normalPan,
-				interpType: InterpType.NEGATIVE_SQUARE,
+				interpType: InterpType.REALLY_EASE_IN,
 			});
 		});
 

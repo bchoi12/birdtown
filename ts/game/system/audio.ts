@@ -14,6 +14,7 @@ import { settings } from 'settings'
 
 import { ui } from 'ui'
 
+import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
 
 export class Audio extends SystemBase implements System {
@@ -28,6 +29,8 @@ export class Audio extends SystemBase implements System {
 		super(SystemType.AUDIO);
 
 		this._music = new Optional();
+
+		// TODO: cycle through sets of music
 		this._currentType = MusicType.UNKNOWN;
 		this._queuedType = MusicType.UNKNOWN;
 
@@ -46,6 +49,10 @@ export class Audio extends SystemBase implements System {
 		}
 
 		this._queuedType = type;
+		if (isLocalhost()) {
+			console.log("Audio: queued %s", MusicType[this._queuedType]);
+		}
+
 		if (this._music.has()) {
 			this._music.get().setVolume(0, Audio._fadeSecs);
 			setTimeout(() => {
@@ -56,6 +63,10 @@ export class Audio extends SystemBase implements System {
 		}
 	}
 
+	fadeMusic() : void {
+		this.queueMusic(MusicType.UNKNOWN);
+	}
+
 	stopMusic() : void {
 		if (this._music.has()) {
 			this._music.get().stop();
@@ -64,25 +75,39 @@ export class Audio extends SystemBase implements System {
 		this._queuedType = MusicType.UNKNOWN;
 	}
 
+	refreshSettings() : void {
+		if (!this._music.has()) {
+			return;
+		}
+		this._music.get().setVolume(settings.musicVolume());
+	}
+
 	private nextTrack() : void {
-		if (this._queuedType = MusicType.UNKNOWN) {
+		if (this._queuedType === MusicType.UNKNOWN) {
+			if (isLocalhost()) {
+				console.log("Audio: skipping playing unknown");
+			}
 			this._currentType = MusicType.UNKNOWN;
 			return;
 		}
 		if (this._music.has() && this._currentType === this._queuedType) {
+			if (isLocalhost()) {
+				console.log("Audio: already playing %s", MusicType[this._queuedType]);
+			}
 			return;
 		}
 
-		let music = MusicFactory.load(this._queuedType);
+		let music = MusicFactory.play(this._queuedType);
 		if (music === null) {
 			console.error("Error: failed to load music %s", MusicType[this._queuedType]);
 			return;
 		}
 
 		this._currentType = this._queuedType;
+		if (isLocalhost()) {
+			console.log("Audio: playing %s", MusicType[this._currentType]);
+		}
 		this._music.set(music);
-		music.setVolume(settings.musicVolume() * music.getVolume());
-		music.play();
 	}
 
 	override postPhysics(stepData : StepData) : void {

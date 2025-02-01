@@ -72,9 +72,9 @@ export namespace MusicFactory {
 	]);
 
 
-	export function load(type : MusicType, options? : BABYLON.ISoundOptions) : BABYLON.Sound {
+	export function play(type : MusicType) : BABYLON.Sound {
 		if (!metadata.has(type)) {
-			console.error("Error: sound type %d is missing metadata", type);
+			console.error("Error: music %s is missing metadata", MusicType[type]);
 			return null;
 		}
 
@@ -83,28 +83,17 @@ export namespace MusicFactory {
 			"music-" + MusicType[type],
 			"music/" + meta.path,
 			game.scene(),
-			null,
+			() => {
+				const resolvedOptions = {
+					...MediaGlobals.gameOptions,
+					...metadata.get(type).options,
+					loop: true,
+					volume: settings.musicVolume(),
+				};
+				music.updateOptions(resolvedOptions);
+				music.play();
+			},
 			MediaGlobals.gameOptions);
-
-		const resolvedOptions = {
-			...MediaGlobals.gameOptions,
-			...metadata.get(type).options,
-			volume: settings.musicVolume(),
-			...(options ? options : {}),
-		};
-		music.updateOptions(resolvedOptions);
 		return music;
-	}
-
-	export function play(type : MusicType, options? : BABYLON.ISoundOptions) : void {
-		if (!ui.hasAudio()) {
-			return;
-		}
-
-		let music = load(type, options);
-		if (music !== null) {
-			music.setVolume(settings.musicVolume() * music.getVolume());
-			music.play();
-		}
 	}
 }

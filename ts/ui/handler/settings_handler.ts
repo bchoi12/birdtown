@@ -235,19 +235,6 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		}));
 
 		this.addSetting(sound, new LabelNumberWrapper({
-			label: "Music Volume",
-			value: settings.musicPercent,
-			plus: (current : number) => {
-				settings.musicPercent = Math.min(1, current + 0.1);
-			},
-			minus: (current : number) => {
-				settings.musicPercent = Math.max(0, current - 0.1);
-			},
-			get: () => { return settings.musicPercent; },
-			html: () => { return Math.round(100 * settings.musicPercent) + "%"; },
-		}));
-
-		this.addSetting(sound, new LabelNumberWrapper({
 			label: "Sound Effects",
 			value: Number(settings.soundSetting),
 			plus: (current : number) => {
@@ -260,6 +247,19 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			html: (current : number) => {
 				return Strings.toTitleCase(SoundSetting[current]);
 			},
+		}));
+
+		this.addSetting(sound, new LabelNumberWrapper({
+			label: "Music Volume",
+			value: settings.musicPercent,
+			plus: (current : number) => {
+				settings.musicPercent = Math.min(1, current + 0.1);
+			},
+			minus: (current : number) => {
+				settings.musicPercent = Math.max(0, current - 0.1);
+			},
+			get: () => { return settings.musicPercent; },
+			html: () => { return Math.round(100 * settings.musicPercent) + "%"; },
 		}));
 
 		this.addSetting(sound, new LabelNumberWrapper({
