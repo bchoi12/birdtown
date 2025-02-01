@@ -6,4 +6,5 @@ cp web/ticker.* ..\bchoi12.github.io\birdtown\
 cp web/texture/* ..\bchoi12.github.io\birdtown\texture\
 cp web/mesh/* ..\bchoi12.github.io\birdtown\mesh\
 cp web/img/* ..\bchoi12.github.io\birdtown\img\
+cp web/music/* ..\bchoi12.github.io\birdtown\music\
 cp web/sound/* ..\bchoi12.github.io\birdtown\sound\
