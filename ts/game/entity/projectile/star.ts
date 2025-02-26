@@ -104,6 +104,8 @@ export class Star extends Projectile {
 		return this._profile.attachTo(entity.profile(), offset);
 	}
 
+	override hitDamage() : number { return 5; }
+
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;

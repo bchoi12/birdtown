@@ -14,6 +14,7 @@ import { CollisionCategory, ColorType, MaterialType, MeshType, SoundType } from 
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
+import { SoundFactory } from 'game/factory/sound_factory'
 
 import { defined } from 'util/common'
 import { Fns } from 'util/fns'
@@ -87,8 +88,6 @@ export class Laser extends Projectile {
 				...entityOptions.modelInit,
 			},
 		}));
-
-		this.soundPlayer().registerSound(SoundType.LASER);
 	}
 
 	override initialize() : void {
@@ -102,10 +101,10 @@ export class Laser extends Projectile {
 		});
 
 		this._model.scaling().y = Laser._initialScale;
-		this.soundPlayer().playFromSelf(SoundType.LASER);
+		SoundFactory.playFromPos(SoundType.LASER, this._profile.pos().toBabylon3());
 	}
 
-	override hitDamage() : number { return 60; }
+	override hitDamage() : number { return 70; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);

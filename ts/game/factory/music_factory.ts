@@ -19,6 +19,8 @@ type MusicMetadata = {
 
 export namespace MusicFactory {
 
+	export const fadeSecs = 3;
+
 	const metadata = new Map<MusicType, MusicMetadata>([
 		[MusicType.ABSOLUTION, {
 			path: "absolution.mp3",
@@ -88,10 +90,11 @@ export namespace MusicFactory {
 					...MediaGlobals.gameOptions,
 					...metadata.get(type).options,
 					loop: true,
-					volume: settings.musicVolume(),
 				};
 				music.updateOptions(resolvedOptions);
+				music.setVolume(0);
 				music.play();
+				music.setVolume(settings.musicVolume(), fadeSecs);
 			},
 			MediaGlobals.gameOptions);
 		return music;

@@ -12,6 +12,7 @@ import { CollisionCategory, ColorType, MaterialType, SoundType } from 'game/fact
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
+import { SoundFactory } from 'game/factory/sound_factory'
 
 import { Fns, InterpType } from 'util/fns'
 import { Optional } from 'util/optional'
@@ -88,8 +89,6 @@ export class DyingStar extends EntityBase {
 				...entityOptions.modelInit,
 			},
 		}));
-
-		this.soundPlayer().registerSound(SoundType.CINEMATIC_WOOSH);
 	}
 
 	setTarget(target : Vec2) : void {
@@ -109,7 +108,7 @@ export class DyingStar extends EntityBase {
 		this._dir = this._target.get().clone().sub(this._initPos.get()).sign();
 
 		this.setTTL(800);
-		this.soundPlayer().playFromSelf(SoundType.CINEMATIC_WOOSH);
+		SoundFactory.playFromEntity(SoundType.CINEMATIC_WOOSH, this);
 	}
 
 	override delete() : void {

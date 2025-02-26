@@ -19,8 +19,6 @@ import { Optional } from 'util/optional'
 
 export class Audio extends SystemBase implements System {
 
-	private static readonly _fadeSecs = 1;
-
 	private _music : Optional<BABYLON.Sound>;
 	private _currentType : MusicType;
 	private _queuedType : MusicType;
@@ -54,10 +52,10 @@ export class Audio extends SystemBase implements System {
 		}
 
 		if (this._music.has()) {
-			this._music.get().setVolume(0, Audio._fadeSecs);
+			this._music.get().setVolume(0, MusicFactory.fadeSecs);
 			setTimeout(() => {
 				this.nextTrack();
-			}, Audio._fadeSecs * 1000);
+			}, MusicFactory.fadeSecs * 1000);
 		} else {
 			this.nextTrack();
 		}

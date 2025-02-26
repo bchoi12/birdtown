@@ -41,7 +41,6 @@ export class WingCannon extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.WING_CANNON, options);
 
-		SoundFactory.load(SoundType.LASER);
 		this.soundPlayer().registerSound(SoundType.WING_CANNON);
 	}
 

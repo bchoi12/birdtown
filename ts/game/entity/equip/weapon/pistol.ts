@@ -21,7 +21,7 @@ export class Pistol extends Weapon {
 	private static readonly _chargeBursts = 6;
 	private static readonly _config = {
 		times: new Map([
-			[WeaponState.FIRING, 180],
+			[WeaponState.FIRING, 160],
 			[WeaponState.RELOADING, 900],
 		]),
 		bursts: Pistol._bursts,

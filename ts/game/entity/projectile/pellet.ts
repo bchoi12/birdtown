@@ -86,7 +86,7 @@ export class Pellet extends Projectile {
 		}));
 	}
 
-	override hitDamage() : number { return 10; }
+	override hitDamage() : number { return 15; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);

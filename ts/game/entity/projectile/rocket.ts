@@ -61,7 +61,7 @@ export class Rocket extends Projectile {
 		});
 	}
 
-	override hitDamage() : number { return 45; }
+	override hitDamage() : number { return 50; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);

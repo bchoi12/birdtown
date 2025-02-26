@@ -149,7 +149,7 @@ class Settings {
 			return 0;
 		}
 
-		return this.musicPercent;
+		return 0.8 * this.musicPercent;
 	}
 	soundVolume() : number {
 		if (this.soundSetting === SoundSetting.OFF) {

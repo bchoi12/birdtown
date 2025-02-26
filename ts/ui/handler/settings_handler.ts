@@ -224,9 +224,11 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			value: Number(settings.musicSetting),
 			plus: (current : number) => {
 				settings.musicSetting = MusicSetting.ON;
+				game.audio().refreshSettings();
 			},
 			minus: (current : number) => {
 				settings.musicSetting = MusicSetting.OFF;
+				game.audio().refreshSettings();
 			},
 			get: () => { return settings.musicSetting; },
 			html: (current : number) => {
@@ -254,9 +256,11 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			value: settings.musicPercent,
 			plus: (current : number) => {
 				settings.musicPercent = Math.min(1, current + 0.1);
+				game.audio().refreshSettings();
 			},
 			minus: (current : number) => {
 				settings.musicPercent = Math.max(0, current - 0.1);
+				game.audio().refreshSettings();
 			},
 			get: () => { return settings.musicPercent; },
 			html: () => { return Math.round(100 * settings.musicPercent) + "%"; },

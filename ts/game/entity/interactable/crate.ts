@@ -32,7 +32,7 @@ import { Fns } from 'util/fns'
 export abstract class Crate extends Interactable implements Entity, EquipEntity, InteractEntity {
 
 	private static readonly _maxSpeed = 0.5;
-	private static readonly _hp = 30;
+	private static readonly _hp = 40;
 
 	private _materialShifter : MaterialShifter;
 	private _opened : boolean;

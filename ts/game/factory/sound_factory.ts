@@ -1,6 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
+import { Entity } from 'game/entity'
 import { SoundType } from 'game/factory/api'
 
 import { MediaGlobals } from 'global/media_globals'
@@ -20,7 +21,7 @@ type SoundMetadata = {
 export namespace SoundFactory {
 
 	let soundCache = new Map<SoundType, ObjectCache<BABYLON.Sound>>();
-	const cacheSize = 5;
+	const cacheSize = 3;
 
 	const metadata = new Map<SoundType, SoundMetadata>([
 		[SoundType.BAWK, {
@@ -205,7 +206,7 @@ export namespace SoundFactory {
 		}],
 	]);
 
-	function initCache(type : SoundType) : void {
+	function initCache(type : SoundType, autoplay? : boolean) : void {
 		const meta = metadata.get(type);
 		soundCache.set(type, new ObjectCache<BABYLON.Sound>({
 			createFn: (index : number) => {
@@ -213,8 +214,12 @@ export namespace SoundFactory {
 					"sound-" + SoundType[type] + "[" + index + "]",
 					"sound/" + meta.path,
 					game.scene(),
-					null,
-					MediaGlobals.gameOptions);
+					() => {
+						if (autoplay) {
+							sound.play();
+						}
+					},
+					getOptions(type));
 				sound.metadata = {
 					type: type,
 				};
@@ -222,36 +227,22 @@ export namespace SoundFactory {
 			},
 			maxSize: meta.cacheSize > 0 ? meta.cacheSize : cacheSize,
 		}));
-
-		load(type);
 	}
 
-	export function load(type : SoundType, options? : BABYLON.ISoundOptions) : BABYLON.Sound {
+	function load(type : SoundType, autoplay? : boolean) : BABYLON.Sound {
 		if (!metadata.has(type)) {
 			console.error("Error: sound type %d is missing metadata", type);
 			return null;
 		}
 
 		if (!soundCache.has(type)) {
-			initCache(type);
+			initCache(type, autoplay);
 		}
+		return soundCache.get(type).borrow();
+	}
 
-		const primeSound = soundCache.get(type).size() === 0;
-
-		let sound = soundCache.get(type).borrow();
-		const resolvedOptions = {
-			...MediaGlobals.gameOptions,
-			...metadata.get(type).options,
-			volume: settings.soundVolume(),
-			...(options ? options : {}),
-		};
-		sound.updateOptions(resolvedOptions);
-
-		if (primeSound) {
-			sound.play();
-			sound.stop();
-		}
-		return sound;
+	export function preload(type : SoundType) : BABYLON.Sound {
+		return load(type, false);
 	}
 
 	export function unload(type : SoundType, sound : BABYLON.Sound) : void {
@@ -267,13 +258,14 @@ export namespace SoundFactory {
 			return;
 		}
 
-		let sound = load(type, options);
-
-		if (sound !== null) {
-			sound.setVolume(settings.soundVolume() * sound.getVolume());
-			sound.play();
-			unload(type, sound);
+		let sound = load(type, true);
+		if (sound === null) {
+			return;
 		}
+
+		sound.updateOptions(getOptions(type, options));
+		sound.play();
+		unload(type, sound);
 	}
 
 	export function playFromPos(type : SoundType, pos : BABYLON.Vector3, options? : BABYLON.ISoundOptions) : void {
@@ -281,13 +273,62 @@ export namespace SoundFactory {
 			return;
 		}
 
-		let sound = load(type, options);
-
-		if (sound !== null) {
-			sound.setPosition(pos);
-			sound.setVolume(settings.soundVolume() * sound.getVolume());
-			sound.play();
-			unload(type, sound);
+		let sound = load(type, true);
+		if (sound === null) {
+			return;
 		}
+
+		sound.setPosition(pos);
+		sound.updateOptions(getOptions(type, options));
+		sound.play();
+		unload(type, sound);
+	}
+
+	export function playFromEntity(type : SoundType, entity : Entity, options? : BABYLON.ISoundOptions) : void {
+		if (!ui.hasAudio()) {
+			return;
+		}
+
+		let sound = load(type, true);
+		if (sound === null) {
+			return;
+		}
+
+		if (entity === null || !entity.initialized()) {
+			return;
+		}
+
+		let resolvedOptions = getOptions(type, options)
+		resolvedOptions.playbackRate *= entity.playbackRate() * Math.max(0.3, game.runner().updateSpeed());
+		if (entity.isLakituTarget()) {
+			// Default to no spatial sound when originating from the target.
+			resolvedOptions.spatialSound = false;
+		} else {
+			// Play sound at distance, prefer following the mesh when possible.
+			if (entity.hasModel() && entity.model().hasMesh()) {
+				sound.attachToMesh(entity.model().mesh());
+			} else if (entity.hasProfile()) {
+				sound.setPosition(entity.profile().getRenderPos().toBabylon3());
+			} else {
+				return;
+			}
+		}
+
+		sound.updateOptions(resolvedOptions);
+		sound.play();
+		unload(type, sound);
+	}
+
+	function hasSound(type : SoundType) : boolean {
+		return soundCache.has(type) && soundCache.get(type).size() > 0;
+	}
+	function getOptions(type : SoundType, options? : BABYLON.ISoundOptions) : BABYLON.ISoundOptions {
+		return {
+			...MediaGlobals.gameOptions,
+			...metadata.get(type).options,
+			playbackRate: 1,
+			volume: settings.soundVolume(),
+			...(options ? options : {}),
+		};
 	}
 }

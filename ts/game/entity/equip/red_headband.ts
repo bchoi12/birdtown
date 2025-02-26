@@ -32,9 +32,9 @@ export class RedHeadband extends Equip<Player> {
 	];
 
 	private static readonly _chargeDelay = 300;
-	private static readonly _cooldown = 800;
-	private static readonly _groundCooldown = 500;
-	private static readonly _dashTime = 350;
+	private static readonly _cooldown = 850;
+	private static readonly _groundCooldown = 550;
+	private static readonly _dashTime = 300;
 	private static readonly _maxJuice = 100;
 	private static readonly _force = -0.8;
 	private static readonly _knifeTTL = 550;

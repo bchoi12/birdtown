@@ -39,13 +39,13 @@ export class SoundPlayer extends ComponentBase implements Component {
 		});
 	}
 
-	registerSound(type : SoundType, options? : BABYLON.ISoundOptions) : void {
+	registerSound(type : SoundType) : void {
 		if (this._sounds.has(type)) {
 			console.error("Error: skipped registering duplicate %s with id %d", SoundType[type], type);
 			return;
 		}
 
-		this._sounds.set(type, SoundFactory.load(type, options));
+		this._sounds.set(type, SoundFactory.preload(type));
 	}
 	onEnded(type : SoundType) : BABYLON.Observable<BABYLON.Sound> {
 		if (!this.hasSound(type)) {

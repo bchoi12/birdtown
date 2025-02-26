@@ -22,7 +22,7 @@ export class PurpleGlove extends Weapon {
 
 	private static readonly _config = {
 		times: new Map([
-			[WeaponState.FIRING, 125],
+			[WeaponState.FIRING, 150],
 			[WeaponState.RELOADING, 750],
 		]),
 		bursts: 4,
@@ -47,7 +47,7 @@ export class PurpleGlove extends Weapon {
 
 		const charged = this.charged();
 		const pos = this.shootPos();
-		const vel = this.getDir().scale(0.7);
+		const vel = this.getDir().scale(0.75);
 		this.addEntity(EntityType.STAR, {
 			ttl: PurpleGlove._starTTL,
 			associationInit: {
