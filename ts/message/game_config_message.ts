@@ -22,7 +22,7 @@ enum GameConfigProp {
 	TIME_FINISH,
 	TIME_VICTORY,
 	TIME_ERROR,
-	ROUND_WINS,
+	VICTORIES,
 	WEAPON_CRATE_SPAWN,
 	WIN_CONDITION,
 }
@@ -70,13 +70,13 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.PLAYERS_MAX, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
-			[GameConfigProp.ROUND_WINS, {}],
+			[GameConfigProp.VICTORIES, {}],
 		)],
 		[GameMode.FREE_FOR_ALL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.POINTS, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
-			[GameConfigProp.ROUND_WINS, {}],
+			[GameConfigProp.VICTORIES, {}],
 		)],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
@@ -85,19 +85,19 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.POINTS, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
-			[GameConfigProp.ROUND_WINS, {}],
+			[GameConfigProp.VICTORIES, {}],
 		)],
 		[GameMode.SURVIVAL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
-			[GameConfigProp.ROUND_WINS, {}],
+			[GameConfigProp.VICTORIES, {}],
 		)],
 		[GameMode.TEAM_BATTLE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
-			[GameConfigProp.ROUND_WINS, {}],
+			[GameConfigProp.VICTORIES, {}],
 		)],
 	]);
 
@@ -284,10 +284,10 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getTimeErrorOr(value : number) : number { return this.getOr<number>(GameConfigProp.TIME_ERROR, value); }
     setTimeError(value : number) : void { this.set<number>(GameConfigProp.TIME_ERROR, value); }
 
-    hasVictories() : boolean { return this.has(GameConfigProp.ROUND_WINS); }
-    getVictories() : number { return this.get<number>(GameConfigProp.ROUND_WINS); }
-    getVictoriesOr(value : number) : number { return this.getOr<number>(GameConfigProp.ROUND_WINS, value); }
-    setVictories(value : number) : void { this.set<number>(GameConfigProp.ROUND_WINS, value); }
+    hasVictories() : boolean { return this.has(GameConfigProp.VICTORIES); }
+    getVictories() : number { return this.get<number>(GameConfigProp.VICTORIES); }
+    getVictoriesOr(value : number) : number { return this.getOr<number>(GameConfigProp.VICTORIES, value); }
+    setVictories(value : number) : void { this.set<number>(GameConfigProp.VICTORIES, value); }
 
     hasWeaponCrateSpawn() : boolean { return this.has(GameConfigProp.WEAPON_CRATE_SPAWN); }
     getWeaponCrateSpawn() : FrequencyType { return this.get<FrequencyType>(GameConfigProp.WEAPON_CRATE_SPAWN); }
@@ -316,7 +316,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     ["TIME_FINISH", "number"],
     ["TIME_VICTORY", "number"],
     ["TIME_ERROR", "number"],
-    ["ROUND_WINS", "number"],
+    ["VICTORIES", "number"],
     ["WEAPON_CRATE_SPAWN", "FrequencyType"],
     ["WIN_CONDITION", "WinConditionType"],
     */

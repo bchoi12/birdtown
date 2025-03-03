@@ -15,7 +15,7 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 		// Top right (oneof)
 		InfoType.LIVES, InfoType.SCORE, InfoType.WINS,
 		// Bottom left
-		InfoType.ROUND_WINS,
+		InfoType.VICTORIES,
 		// Bottom right (backwards)
 		InfoType.DEATHS, InfoType.KILLS,
 	);
@@ -86,7 +86,7 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 			wrapper.elm().style.float = "right";
 			this._mainElm.appendChild(wrapper.elm());
 			break;
-		case InfoType.ROUND_WINS:
+		case InfoType.VICTORIES:
 			wrapper.elm().style.float = "left";
 			this._secondaryElm.appendChild(wrapper.elm());
 			break;
@@ -135,7 +135,7 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 		case InfoType.SCORE:
 			this.setScore(value);
 			break;
-		case InfoType.ROUND_WINS:
+		case InfoType.VICTORIES:
 			this.setRoundWins(value);
 			break;
 		case InfoType.WINS:
@@ -195,7 +195,7 @@ export class InfoWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	private setRoundWins(roundWins : number) : void {
-		let wrapper = this._blocks.get(InfoType.ROUND_WINS);
+		let wrapper = this._blocks.get(InfoType.VICTORIES);
 
 		const config = game.controller().config();
 		if (config.hasVictories()) {

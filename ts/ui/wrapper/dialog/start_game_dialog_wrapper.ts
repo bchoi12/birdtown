@@ -147,7 +147,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.populateMode(GameMode.SPREE, {
 			name: "Spree",
 			requirements: [],
-			description: "Free for all, but lose points on death.",
+			description: "Free for all, but lose all of your points on death.",
 			minRecommended: 3,
 		});
 		this.populateMode(GameMode.SURVIVAL, {

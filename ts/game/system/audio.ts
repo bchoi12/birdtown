@@ -8,7 +8,7 @@ import { MusicType } from 'game/factory/api'
 import { MusicFactory } from 'game/factory/music_factory'
 import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
-import { SystemType } from 'game/system/api'
+import { SystemType, AmbianceType } from 'game/system/api'
 
 import { settings } from 'settings'
 
@@ -16,10 +16,14 @@ import { ui } from 'ui'
 
 import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
+import { globalRandom } from 'util/seeded_random'
 
 export class Audio extends SystemBase implements System {
 
 	private _music : Optional<BABYLON.Sound>;
+	private _ambiance : AmbianceType;
+	private _ambianceTracks : Map<AmbianceType, Array<MusicType>>;
+	private _ambianceIndex : Map<AmbianceType, number>;
 	private _currentType : MusicType;
 	private _queuedType : MusicType;
 
@@ -28,20 +32,54 @@ export class Audio extends SystemBase implements System {
 
 		this._music = new Optional();
 
-		// TODO: cycle through sets of music
+		this._ambiance = AmbianceType.UNKNOWN;
+		this._ambianceTracks = new Map<AmbianceType, Array<MusicType>>([
+			[AmbianceType.UPBEAT, globalRandom.shuffle([
+				MusicType.CULMINATION,
+				MusicType.GEAR_HEAD,
+				MusicType.POPCORN,
+			])],
+			[AmbianceType.DRAMATIC, globalRandom.shuffle([
+				MusicType.EPIC_FUNKY,
+				MusicType.EPIC_THEME,
+				MusicType.EXTREME_EDGE,
+			])],
+		]);
+		this._ambianceIndex = new Map();
 		this._currentType = MusicType.UNKNOWN;
 		this._queuedType = MusicType.UNKNOWN;
 
+		this.addProp<AmbianceType>({
+			import: (obj : AmbianceType) => { this._ambiance = obj; },
+			export: () => { return this._ambiance; },
+		})
 		this.addProp<MusicType>({
 			import: (obj : MusicType) => { this.queueMusic(obj); },
 			export: () => { return this._queuedType; },
 		})
 	}
 
-	queueMusic(type : MusicType) : void {
-		if (!ui.hasAudio()) {
+	setAmbiance(type : AmbianceType) : void {
+		if (this._ambiance === type) {
 			return;
 		}
+		if (!this._ambianceTracks.has(type)) {
+			console.error("Error: %s does not have any entries", AmbianceType[type]);
+			return;
+		}
+
+		this._ambiance = type;
+		if (!this._ambianceIndex.has(type)) {
+			this._ambianceIndex.set(type, 0);
+		}
+
+		const index = this._ambianceIndex.get(type);
+		this._ambianceIndex.set(type, index + 1);
+		const trackList = this._ambianceTracks.get(type);
+		game.audio().queueMusic(trackList[index % trackList.length]);
+	}
+
+	private queueMusic(type : MusicType) : void {
 		if (this._music.has() && this._queuedType === type) {
 			return;
 		}
@@ -49,6 +87,10 @@ export class Audio extends SystemBase implements System {
 		this._queuedType = type;
 		if (isLocalhost()) {
 			console.log("Audio: queued %s", MusicType[this._queuedType]);
+		}
+
+		if (!ui.hasAudio()) {
+			return;
 		}
 
 		if (this._music.has()) {
@@ -61,13 +103,21 @@ export class Audio extends SystemBase implements System {
 		}
 	}
 
+	onAudioEnabled() : void {
+		if (this._queuedType !== MusicType.UNKNOWN) {
+			this.queueMusic(this._queuedType);
+		}
+	}
+
 	fadeMusic() : void {
+		this._ambiance = AmbianceType.UNKNOWN;
 		this.queueMusic(MusicType.UNKNOWN);
 	}
 
-	stopMusic() : void {
+	private stopMusic() : void {
 		if (this._music.has()) {
 			this._music.get().stop();
+			this._music.clear();
 		}
 		this._currentType = MusicType.UNKNOWN;
 		this._queuedType = MusicType.UNKNOWN;
@@ -82,10 +132,8 @@ export class Audio extends SystemBase implements System {
 
 	private nextTrack() : void {
 		if (this._queuedType === MusicType.UNKNOWN) {
-			if (isLocalhost()) {
-				console.log("Audio: skipping playing unknown");
-			}
 			this._currentType = MusicType.UNKNOWN;
+			this.stopMusic();
 			return;
 		}
 		if (this._music.has() && this._currentType === this._queuedType) {

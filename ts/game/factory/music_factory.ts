@@ -8,6 +8,7 @@ import { MediaGlobals } from 'global/media_globals'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
+import { TooltipType } from 'ui/api'
 
 type MusicMetadata = {
 	path : string;
@@ -19,54 +20,51 @@ type MusicMetadata = {
 
 export namespace MusicFactory {
 
-	export const fadeSecs = 3;
+	export const fadeSecs = 4;
 
 	const metadata = new Map<MusicType, MusicMetadata>([
-		[MusicType.ABSOLUTION, {
-			path: "absolution.mp3",
-			attribution: "Music by https://www.steven-obrien.net/",
-			track: "Absolution",
-			artist: "Steven O'brien",
-			options: {}
-		}],
 		[MusicType.CULMINATION, {
 			path: "culmination.mp3",
-			attribution: "Music by https://www.steven-obrien.net/",
+			attribution: "steven-obrien.net",
 			track: "Culmination",
 			artist: "Steven O'brien",
 			options: {}
 		}],
-		[MusicType.EPIC_HEIGHTS, {
-			path: "epic_heights.mp3",
-			attribution: "Music by https://www.steven-obrien.net/",
-			track: "Epic Heights",
+		[MusicType.EPIC_FUNKY, {
+			path: "epic_funky.mp3",
+			attribution: "steven-obrien.net",
+			track: "Epic Funky Rock Strings",
 			artist: "Steven O'brien",
 			options: {}
 		}],
 		[MusicType.EPIC_THEME, {
 			path: "epic_theme.mp3",
-			attribution: "Music by https://www.steven-obrien.net/",
+			attribution: "steven-obrien.net",
 			track: "Epic Theme No. 1",
 			artist: "Steven O'brien",
-			options: {}
+			options: {
+				volume: 0.8,
+			}
 		}],
-		[MusicType.FIGHT, {
-			path: "fight.mp3",
-			attribution: "Music by https://www.steven-obrien.net/",
-			track: "Fight to the Death",
+		[MusicType.EXTREME_EDGE, {
+			path: "extreme_edge.mp3",
+			attribution: "steven-obrien.net",
+			track: "Extreme Edge",
 			artist: "Steven O'brien",
-			options: {}
+			options: {
+				volume: 0.7,
+			}
 		}],
 		[MusicType.GEAR_HEAD, {
 			path: "gear_head.mp3",
-			attribution: "Music by https://www.steven-obrien.net/",
+			attribution: "steven-obrien.net",
 			track: "Gear Head",
 			artist: "Steven O'brien",
 			options: {}
 		}],
 		[MusicType.POPCORN, {
 			path: "popcorn.mp3",
-			attribution: "Music by https://www.steven-obrien.net/",
+			attribution: "steven-obrien.net",
 			track: "Popcorn",
 			artist: "Steven O'brien",
 			options: {}
@@ -94,9 +92,18 @@ export namespace MusicFactory {
 				music.updateOptions(resolvedOptions);
 				music.setVolume(0);
 				music.play();
-				music.setVolume(settings.musicVolume(), fadeSecs);
+
+				let songVolume = metadata.get(type).options.volume ? metadata.get(type).options.volume : 1;
+
+				music.setVolume(settings.musicVolume() * songVolume, fadeSecs);
 			},
 			MediaGlobals.gameOptions);
+
+		ui.showTooltip(TooltipType.MUSIC, {
+			ttl: 5000,
+			names: [meta.track + " by " + meta.artist + "\n" + meta.attribution],
+		});
+
 		return music;
 	}
 }

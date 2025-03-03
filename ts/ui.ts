@@ -172,6 +172,7 @@ class UI {
 	enableAudio() : void {
 		BABYLON.Engine.audioEngine?.unlock()
 		this._audioContext.set(new AudioContext());
+		game.audio().onAudioEnabled();
 	}
 	audioContext() : AudioContext { return this._audioContext.get(); }
 	inputWidth() : number { return this._inputHandler.inputWidth(); }

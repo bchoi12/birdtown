@@ -114,6 +114,11 @@ export class TooltipHandler extends HandlerBase implements Handler {
 				return "";
 			}
 			return `Press ${KeyNames.kbd(settings.keyCode(KeyType.INTERACT))} to recover ${names[0]} health`;
+		case TooltipType.MUSIC:
+			if (names.length !== 1) {
+				return "";
+			}
+			return "🎵 Now Playing 🎵\n" + names[0];
 		case TooltipType.POINTER_LOCK:
 			return `Press ${KeyNames.kbd(settings.pointerLockKeyCode)} to unlock your mouse`;
 		case TooltipType.REVIVE:

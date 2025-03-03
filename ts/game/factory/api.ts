@@ -229,11 +229,10 @@ export enum MeshType {
 export enum MusicType {
 	UNKNOWN,
 
-	ABSOLUTION,
 	CULMINATION,
-	EPIC_HEIGHTS,
+	EPIC_FUNKY,
 	EPIC_THEME,
-	FIGHT,
+	EXTREME_EDGE,
 	GEAR_HEAD,
 	POPCORN,
 }

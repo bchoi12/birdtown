@@ -58,7 +58,7 @@ export class SeededRandom {
     	return num;
     }
 
-	shuffle(array : Array<Object>, n? : number) : void {
+	shuffle<T extends Object>(array : Array<T>, n? : number) : Array<T> {
 		if (!n || n <= 0 || n > array.length) {
 			n = array.length;
 		}
@@ -74,6 +74,11 @@ export class SeededRandom {
 	        array[i] = array[j];
 	        array[j] = temp;
 	    }
+	    return array;
+	}
+
+	pick<T extends Object>(array : Array<T>) : T{
+		return array[Math.floor(this.next() * array.length)];
 	}
 
     gt(test : number) : boolean { return this.next() > test; }

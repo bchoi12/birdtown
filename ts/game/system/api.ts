@@ -28,6 +28,13 @@ export enum SystemType {
 	WORLD,
 }
 
+export enum AmbianceType {
+	UNKNOWN,
+
+	UPBEAT,
+	DRAMATIC,
+}
+
 export enum LevelType {
 	UNKNOWN,
 	BIRDTOWN,

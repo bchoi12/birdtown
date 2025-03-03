@@ -117,7 +117,7 @@ export enum InfoType {
 	DEATHS,
 	LIVES,
 	KILLS,
-	ROUND_WINS,
+	VICTORIES,
 	SCORE,
 	WINS,
 }
@@ -160,6 +160,7 @@ export enum TooltipType {
 	FORCE_SUBMIT,
 	JUST_A_SIGN,
 	HEALTH_CRATE,
+	MUSIC,
 	POINTER_LOCK,
 	REVIVE,
 	REVIVING,

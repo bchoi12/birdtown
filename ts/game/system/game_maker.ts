@@ -9,7 +9,7 @@ import { StepData } from 'game/game_object'
 import { MusicType } from 'game/factory/api'
 import { ConfigFactory } from 'game/factory/config_factory'
 import { SystemBase, System } from 'game/system'
-import { SystemType, LevelType, LevelLayout, LoadoutType, PlayerRole, WinConditionType } from 'game/system/api'
+import { SystemType, AmbianceType, LevelType, LevelLayout, LoadoutType, PlayerRole, WinConditionType } from 'game/system/api'
 import { ClientDialog } from 'game/system/client_dialog'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
@@ -57,8 +57,6 @@ export class GameMaker extends SystemBase implements System {
 	private _config : GameConfigMessage;
 	private _playerConfig : PlayerConfig;
 	private _playerRotator : PlayerRotator;
-	private _musicTypes : Array<MusicType>;
-	private _musicIndex : number;
 	private _round : number;
 	private _winners : Array<number>;
 	private _winnerClientId : number;
@@ -70,16 +68,6 @@ export class GameMaker extends SystemBase implements System {
 		this._config = ConfigFactory.empty();
 		this._playerConfig = PlayerConfig.empty();
 		this._playerRotator = new PlayerRotator();
-		this._musicTypes = new Array(
-			MusicType.CULMINATION,
-			MusicType.GEAR_HEAD,
-			MusicType.POPCORN,
-			MusicType.EPIC_HEIGHTS,
-			MusicType.EPIC_THEME,
-			MusicType.FIGHT,
-		);
-		globalRandom.shuffle(this._musicTypes);
-		this._musicIndex = 0;
 		this._round = 0;
 		this._winners = new Array();
 		this._winnerClientId = 0;
@@ -348,7 +336,7 @@ export class GameMaker extends SystemBase implements System {
 					this._winners = game.tablets().mapIf<Tablet, number>((tablet : Tablet) => {
 						return tablet.clientId();
 					}, (tablet : Tablet) => {
-						return tablet.getInfo(InfoType.ROUND_WINS) >= this._config.getVictories();
+						return tablet.getInfo(InfoType.VICTORIES) >= this._config.getVictories();
 					});
 					if (this._winners.length >= 1) {
 						return GameState.VICTORY;
@@ -401,9 +389,6 @@ export class GameMaker extends SystemBase implements System {
 		    	startingMsg.setTtl(this.timeLimit(state));
 		    	game.announcer().broadcast(startingMsg);
 			}
-
-			game.audio().queueMusic(this._musicTypes[this._musicIndex % this._musicTypes.length]);
-			this._musicIndex++;
 	    	break;
 		case GameState.LOAD:
 			this._round++;
@@ -443,6 +428,8 @@ export class GameMaker extends SystemBase implements System {
 	    	startGameMsg.setNames([name, description]);
 	    	startGameMsg.setTtl(this.timeLimit(state) + 500);
 	    	game.announcer().broadcast(startGameMsg);
+
+			game.audio().setAmbiance(this.getAmbiance());
 			break;
 		case GameState.SETUP:
 			this.showSetupDialogs();
@@ -460,7 +447,7 @@ export class GameMaker extends SystemBase implements System {
 			this.queueForceSubmit(DialogType.LOADOUT);
 			this._winners.forEach((clientId : number) => {
 				if (game.tablets().hasTablet(clientId)) {
-					game.tablet(clientId).addInfo(InfoType.ROUND_WINS, 1);
+					game.tablet(clientId).addInfo(InfoType.VICTORIES, 1);
 					game.tablet(clientId).setWinner(true);
 				}
 			});
@@ -675,5 +662,26 @@ export class GameMaker extends SystemBase implements System {
 			}
 		}
 		return [];
+	}
+
+	private getAmbiance() : AmbianceType {
+		if (!this._config.hasVictories()) {
+			return AmbianceType.UPBEAT;
+		}
+
+		const victories = this._config.getVictories();
+		if (victories <= 0) {
+			return AmbianceType.UPBEAT;
+		}
+
+		const almostOver = game.tablets().matchAny<Tablet>((tablet : Tablet) => {
+			return victories - tablet.getInfo(InfoType.VICTORIES) <= 1;
+		});
+
+		if (almostOver) {
+			return AmbianceType.DRAMATIC;
+		}
+
+		return AmbianceType.UPBEAT;
 	}
 }
