@@ -217,6 +217,9 @@ export class ChatHandler extends HandlerBase implements Handler {
 				}
 			}
 			break;
+		case "/next":
+			game.audio().nextTrack();
+			return;
 		case "/portrait":
 			game.lakitu().portrait();
 			ui.clearAllStatuses();

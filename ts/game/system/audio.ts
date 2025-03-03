@@ -69,13 +69,22 @@ export class Audio extends SystemBase implements System {
 		}
 
 		this._ambiance = type;
-		if (!this._ambianceIndex.has(type)) {
-			this._ambianceIndex.set(type, 0);
+		this.nextTrack();
+	}
+
+	nextTrack() : void {
+		if (!this._ambianceTracks.has(this._ambiance)) {
+			console.error("Error: %s does not have any entries", AmbianceType[this._ambiance]);
+			return;
 		}
 
-		const index = this._ambianceIndex.get(type);
-		this._ambianceIndex.set(type, index + 1);
-		const trackList = this._ambianceTracks.get(type);
+		if (!this._ambianceIndex.has(this._ambiance)) {
+			this._ambianceIndex.set(this._ambiance, 0);
+		}
+
+		const index = this._ambianceIndex.get(this._ambiance);
+		this._ambianceIndex.set(this._ambiance, index + 1);
+		const trackList = this._ambianceTracks.get(this._ambiance);
 		game.audio().queueMusic(trackList[index % trackList.length]);
 	}
 
@@ -96,10 +105,10 @@ export class Audio extends SystemBase implements System {
 		if (this._music.has()) {
 			this._music.get().setVolume(0, MusicFactory.fadeSecs);
 			setTimeout(() => {
-				this.nextTrack();
+				this.playMusic();
 			}, MusicFactory.fadeSecs * 1000);
 		} else {
-			this.nextTrack();
+			this.playMusic();
 		}
 	}
 
@@ -130,7 +139,7 @@ export class Audio extends SystemBase implements System {
 		this._music.get().setVolume(settings.musicVolume());
 	}
 
-	private nextTrack() : void {
+	private playMusic() : void {
 		if (this._queuedType === MusicType.UNKNOWN) {
 			this._currentType = MusicType.UNKNOWN;
 			this.stopMusic();
