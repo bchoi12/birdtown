@@ -16,6 +16,7 @@ import { CollisionCategory, MaterialType, MeshType, SoundType } from 'game/facto
 import { BodyFactory } from 'game/factory/body_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
+import { SoundFactory } from 'game/factory/sound_factory'
 import { MaterialShifter } from 'game/util/material_shifter'
 
 import { GameGlobals } from 'global/game_globals'
@@ -176,6 +177,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 					}
 				});
 			}
+			SoundFactory.playFromPos(SoundType.CRATE, this._profile.pos().toBabylon3());
 			this._exploded = true;
 		}
 

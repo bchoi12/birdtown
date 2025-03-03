@@ -82,6 +82,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.CRATE, {
+			path: "crate.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.DASH, {
 			path: "dash.mp3",
 			options: {

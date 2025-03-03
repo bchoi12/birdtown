@@ -261,6 +261,7 @@ export enum SoundType {
 	CHARGE,
 	CHARGED_BOLT,
 	CHAT,
+	CRATE,
 	DASH,
 	EAGLE_SCREECH,
 	EXPLOSION,

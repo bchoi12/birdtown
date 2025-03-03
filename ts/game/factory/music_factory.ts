@@ -67,7 +67,9 @@ export namespace MusicFactory {
 			attribution: "steven-obrien.net",
 			track: "Popcorn",
 			artist: "Steven O'brien",
-			options: {}
+			options: {
+				volume: 0.7,
+			}
 		}],
 	]);
 
