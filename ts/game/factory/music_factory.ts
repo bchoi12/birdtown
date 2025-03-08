@@ -52,7 +52,7 @@ export namespace MusicFactory {
 			track: "Extreme Edge",
 			artist: "Steven O'brien",
 			options: {
-				volume: 0.7,
+				volume: 0.5,
 			}
 		}],
 		[MusicType.GEAR_HEAD, {
@@ -60,16 +60,16 @@ export namespace MusicFactory {
 			attribution: "steven-obrien.net",
 			track: "Gear Head",
 			artist: "Steven O'brien",
-			options: {}
+			options: {},
 		}],
-		[MusicType.POPCORN, {
-			path: "popcorn.mp3",
+		[MusicType.NIGHT_WALK, {
+			path: "night_walk.mp3",
 			attribution: "steven-obrien.net",
-			track: "Popcorn",
+			track: "Night Walk",
 			artist: "Steven O'brien",
 			options: {
-				volume: 0.7,
-			}
+				volume: 0.8,
+			},
 		}],
 	]);
 

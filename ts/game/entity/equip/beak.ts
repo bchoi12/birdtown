@@ -80,7 +80,7 @@ export abstract class Beak extends Equip<Player> {
 	override takeDamage(amount : number, from : Entity) : void {
 		super.takeDamage(amount, from);
 
-		if (!this.isSource() || this.owner().dead()) {
+		if (!this.isSource() || this.owner()?.dead()) {
 			return;
 		}
 
@@ -109,6 +109,12 @@ export abstract class Beak extends Equip<Player> {
 	}
 
 	protected override simulateUse(uses : number) : void {
+		super.simulateUse(uses);
+
+		if (!this.hasOwner()) {
+			return;
+		}
+
 		this.soundPlayer().onEnded(this.soundType()).addOnce(() => {
 			this._squawking = false;
 		});
@@ -141,7 +147,7 @@ export abstract class Beak extends Equip<Player> {
 
 		if (!this._model.hasMesh()) { return; }
 
-		if (this._squawking && this._squawkTimer.hasTimeLeft() || this.owner().dead()) {
+		if (this._squawking && this._squawkTimer.hasTimeLeft() || this.owner()?.dead()) {
 			this._model.playAnimation(Animation.SQUAWK);
 		} else {
 			this._model.playAnimation(Animation.IDLE);

@@ -132,8 +132,10 @@ export class Booster extends Equip<Player> {
 		this._chargeDelayTimer.start(Booster._chargeDelay);
 
 		// Only allow source to jump since otherwise it's jittery.
-		this.owner().addForce({ y: Booster._upwardForce });
-		this.soundPlayer().playFromEntity(SoundType.BOOST, this.owner());
+		if (this.hasOwner()) {
+			this.owner().addForce({ y: Booster._upwardForce });
+			this.soundPlayer().playFromEntity(SoundType.BOOST, this.owner());
+		}
 	}
 
 	override preRender() : void {

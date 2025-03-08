@@ -209,7 +209,7 @@ export abstract class Weapon extends Equip<Player> {
 		this.recoil();
 	}
 	recoil() : void {
-		if (this.attachType() === AttachType.ARM) {
+		if (this.hasOwner() && this.attachType() === AttachType.ARM) {
 			this.owner().armRecoil(Weapon.recoil(this.recoilType()))
 		}
 	}
@@ -222,7 +222,7 @@ export abstract class Weapon extends Equip<Player> {
 	reloadPercent() : number { return this._weaponState === WeaponState.RELOADING ? this._stateTimer.percentElapsed() : 1; }
 	onReload() : void {
 		this._bursts = 0;
-		if (this.reloadSound() !== SoundType.UNKNOWN && this.owner().isLakituTarget()) {
+		if (this.reloadSound() !== SoundType.UNKNOWN && this.hasOwner() && this.owner().isLakituTarget()) {
 			this._playReloadSound = true;
 		}
 	}
@@ -258,7 +258,7 @@ export abstract class Weapon extends Equip<Player> {
 		const millis = stepData.millis;
 
 		if (this._charging) {
-			if (this._charger.millis() === 0 && this.owner().isLakituTarget()) {
+			if (this._charger.millis() === 0 && this.hasOwner() && this.owner().isLakituTarget()) {
 				this.soundPlayer().playFromEntity(SoundType.CHARGE, this.owner());
 			}
 			this._charger.elapse(millis);
@@ -354,7 +354,7 @@ export abstract class Weapon extends Equip<Player> {
 			this.setCharging(false);
 			this._bursts = this.weaponConfig().bursts;
 			if (this._weaponState === WeaponState.RELOADING) {
-				if (this._playReloadSound) {
+				if (this._playReloadSound && this.hasOwner()) {
 					this.soundPlayer().playFromEntity(this.reloadSound(), this.owner(), {});
 				}
 			}

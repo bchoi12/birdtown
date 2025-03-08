@@ -37,7 +37,7 @@ export class Audio extends SystemBase implements System {
 			[AmbianceType.UPBEAT, globalRandom.shuffle([
 				MusicType.CULMINATION,
 				MusicType.GEAR_HEAD,
-				MusicType.POPCORN,
+				MusicType.NIGHT_WALK,
 			])],
 			[AmbianceType.DRAMATIC, globalRandom.shuffle([
 				MusicType.EPIC_FUNKY,

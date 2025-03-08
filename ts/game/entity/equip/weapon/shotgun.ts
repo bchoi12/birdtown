@@ -19,15 +19,15 @@ export class Shotgun extends Weapon {
 
 	private static readonly _bursts = 2;
 	private static readonly _burstBullets = 4;
-	private static readonly _spreadDeg = 20;
+	private static readonly _spreadDeg = 22;
 	private static readonly _config = {
 		times: new Map([
-			[WeaponState.FIRING, 180],
-			[WeaponState.RELOADING, 1000],
+			[WeaponState.FIRING, 220],
+			[WeaponState.RELOADING, 1100],
 		]),
 		bursts: Shotgun._bursts,
 	};
-	private static readonly _bulletTTL = 450;
+	private static readonly _bulletTTL = 440;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.SHOTGUN, options);

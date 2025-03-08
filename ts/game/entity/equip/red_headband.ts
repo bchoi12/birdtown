@@ -159,37 +159,39 @@ export class RedHeadband extends Equip<Player> {
 	}
 
 	protected override simulateUse(uses : number) : void {
-		this.owner().profile().setVel({x: 0, y: 0});
-
-		let force = this.inputDir().clone().scale(RedHeadband._force);
-		this.owner().addForce(force);
-		this._dir = force.x === 0 ? 1 : Math.sign(force.x);
-
 		this._juice = Math.max(0, this._juice - RedHeadband._maxJuice);
 		this._cooldown = RedHeadband._cooldown;
 		this._chargeDelayTimer.start(RedHeadband._chargeDelay);
 		this._dashTimer.start(RedHeadband._dashTime);
 
-		if (this._weapon !== null && this._weapon.valid()) {
-			const pos = this._weapon.shootPos();
-			const unitDir = this._weapon.getDir();
+		if (this.hasOwner()) {
+			this.owner().profile().setVel({x: 0, y: 0});
 
-			let vel = unitDir.clone().scale(0.85);
-			this.addEntity(EntityType.KNIFE, {
-				ttl: RedHeadband._knifeTTL,
-				associationInit: {
-					owner: this.owner(),
-				},
-				profileInit: {
-					pos: pos,
-					vel: vel,
-				},
-			});
-			this.owner().armRecoil(Weapon.recoil(RecoilType.THROW))
+			let force = this.inputDir().clone().scale(RedHeadband._force);
+			this.owner().addForce(force);
+			this._dir = force.x === 0 ? 1 : Math.sign(force.x);
+
+			if (this._weapon !== null && this._weapon.valid()) {
+				const pos = this._weapon.shootPos();
+				const unitDir = this._weapon.getDir();
+
+				let vel = unitDir.clone().scale(0.85);
+				this.addEntity(EntityType.KNIFE, {
+					ttl: RedHeadband._knifeTTL,
+					associationInit: {
+						owner: this.owner(),
+					},
+					profileInit: {
+						pos: pos,
+						vel: vel,
+					},
+				});
+				this.owner().armRecoil(Weapon.recoil(RecoilType.THROW))
+			}
+
+			this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());
+			this.soundPlayer().playFromEntity(SoundType.THROW, this.owner());
 		}
-
-		this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());
-		this.soundPlayer().playFromEntity(SoundType.THROW, this.owner());
 	}
 
 	override preRender() : void {

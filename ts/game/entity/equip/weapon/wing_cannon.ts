@@ -74,7 +74,7 @@ export class WingCannon extends Weapon {
 				},
 			});
 		} else {
-			let vel = unitDir.clone().scale(0.85);
+			let vel = unitDir.clone().scale(0.8);
 			this.addEntity(EntityType.ORB, {
 				ttl: WingCannon._orbTTL,
 				associationInit: {

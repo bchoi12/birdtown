@@ -234,7 +234,7 @@ export enum MusicType {
 	EPIC_THEME,
 	EXTREME_EDGE,
 	GEAR_HEAD,
-	POPCORN,
+	NIGHT_WALK,
 }
 
 export enum ParticleType {

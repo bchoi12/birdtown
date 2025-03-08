@@ -119,7 +119,7 @@ export namespace Icon {
 		[IconType.PLUS, "add"],
 		[IconType.READY, "checklist"],
 		[IconType.RENDER, "filter"],
-		[IconType.REROLL, "cached"],
+		[IconType.REROLL, "playing_cards"],
 		[IconType.RESET_SETTINGS, "reset_settings"],
 		[IconType.ROCKET, "rocket"],
 		[IconType.ROCKET_LAUNCH, "rocket_launch"],

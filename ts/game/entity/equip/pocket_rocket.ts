@@ -21,7 +21,7 @@ import { Vec3 } from 'util/vector'
 export class PocketRocket extends Equip<Player> {
 
 	private static readonly _rocketTTL = 750;
-	private static readonly _reloadTime = 1750;
+	private static readonly _reloadTime = 1500;
 
 	private _timer : Timer;
 	private _weapon : Weapon;

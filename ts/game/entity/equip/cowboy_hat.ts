@@ -97,23 +97,24 @@ export class CowboyHat extends Equip<Player> {
 	}
 
 	protected override simulateUse(uses : number) : void {
-		this.owner().profile().setVel({x: 0, y: 0});
-
 		let force = this.inputDir().clone().scale(0.6);
 		this._dir = force.x === 0 ? 1 : Math.sign(force.x);
 
-		this.owner().addForce(force);
-		this.owner().equips().findAll((equip : Equip<Player>) => {
-			return equip.allTypes().has(EntityType.WEAPON) && equip.valid();
-		}).forEach((weapon : Weapon) => {
-			weapon.quickReload(CowboyHat._quickReloadTime);
-		});
+		if (this.hasOwner()) {
+			this.owner().profile().setVel({x: 0, y: 0});
+			this.owner().addForce(force);
+			this.owner().equips().findAll((equip : Equip<Player>) => {
+				return equip.allTypes().has(EntityType.WEAPON) && equip.valid();
+			}).forEach((weapon : Weapon) => {
+				weapon.quickReload(CowboyHat._quickReloadTime);
+			});
+			this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
+		}
 
 		this._juice = Math.max(0, this._juice - CowboyHat._maxJuice);
 		this._chargeDelayTimer.start(CowboyHat._chargeDelay);
 
 		this._dashTimer.start(CowboyHat._dashTime);
-		this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
 	}
 
 	override preRender() : void {
