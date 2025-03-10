@@ -488,13 +488,11 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._dead = false;
 		this._expression.reset();
 
-		this._profile.uprightStop();
 		this._profile.setInertia(Infinity);
-		this._profile.setAngularVelocity(0);
-
 		if (this.hasModel()) {
 			this.model().rotation().z = 0;
 		}
+		this._profile.uprightStop();
 	}
 	floatRespawn(spawn : Vec2) : void {
 		this.respawn(spawn);

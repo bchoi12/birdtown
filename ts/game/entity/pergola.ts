@@ -92,8 +92,8 @@ export class Pergola extends EntityBase implements Entity {
 				profile.setAngle(0);
 				subProfile.attachTo(profile, { x: 0, y: 1.75 });
 
-				profile.stop();
-				subProfile.stop();
+				profile.uprightStop();
+				subProfile.uprightStop();
 				profile.setAcc({ y: GameGlobals.gravity });
 			});
 		});

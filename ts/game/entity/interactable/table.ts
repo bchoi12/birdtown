@@ -126,8 +126,8 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 				profile.setAngle(0);
 				subProfile.attachTo(profile, { x: 0, y: 0.35 });
 
-				profile.stop();
-				subProfile.stop();
+				profile.uprightStop();
+				subProfile.uprightStop();
 				profile.setAcc({ y: GameGlobals.gravity });
 			});
 		});

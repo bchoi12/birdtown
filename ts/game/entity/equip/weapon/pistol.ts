@@ -35,6 +35,7 @@ export class Pistol extends Weapon {
 	};
 
 	private static readonly _chargedThreshold = 1000;
+	private static readonly _chargedBulletTTL = 550;
 	private static readonly _bulletTTL = 450;
 
 	constructor(options : EntityOptions) {
@@ -63,7 +64,7 @@ export class Pistol extends Weapon {
 
 		let vel = unitDir.clone().scale(this.charged() ? 0.9 : 0.85);
 		this.addEntity<Bullet>(EntityType.BULLET, {
-			ttl: Pistol._bulletTTL,
+			ttl: this.charged() ? Pistol._chargedBulletTTL : Pistol._bulletTTL,
 			associationInit: {
 				owner: this.owner(),
 			},

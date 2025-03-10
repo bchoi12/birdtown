@@ -492,6 +492,10 @@ export class ArchBlueprint extends Blueprint {
 		let currentHeight = 2;
 		const maxHeight = 3;
 		for (let i = 0; i < length; ++i) {
+			if (i === length - 1 && options.msg.getLevelLayout() === LevelLayout.NORMAL) {
+				currentHeight = Math.max(1, currentHeight);
+			}
+
 			plan.push({
 				height: currentHeight,
 			});
