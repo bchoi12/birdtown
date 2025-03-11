@@ -22,7 +22,7 @@ import { Vec2, Vec3 } from 'util/vector'
 export class Scouter extends Equip<Player> {
 
 	private static readonly _lookVertical = 5;
-	private static readonly _lookHorizontal = 10;
+	private static readonly _lookHorizontal = 11;
 	private static readonly _lookPanTime = 200;
 	private static readonly _particleInterval = 250;
 

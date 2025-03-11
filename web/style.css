@@ -644,6 +644,8 @@ kbd {
 
     border-radius: 0.3em;
     background-color: rgba(25, 25, 25, 0.9);
+
+    transition: opacity 0.2s ease-in, top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .dialog-small {
@@ -654,6 +656,11 @@ kbd {
     border-radius: 0.3em;
 
     font-size: 0.8em;
+}
+
+.dialog-hide {
+    top: 5%;
+    opacity: 0;
 }
 
 .dialog-container {

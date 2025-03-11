@@ -43,7 +43,9 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		super(Html.div());
 
 		this.elm().classList.add(Html.classDialog);
+		this.elm().classList.add(Html.classDialogHide);
 		this.elm().classList.add(Html.classPopup);
+		this.elm().classList.add(Html.classPopupShow);
 
 		this._visible = false;
 
@@ -78,7 +80,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._visible = true;
 		setTimeout(() => {
 			if (this._visible) {
-				this.elm().classList.add(Html.classPopupShow);
+				this.elm().classList.remove(Html.classDialogHide);
 			}
 		}, 5);
 	}
@@ -87,7 +89,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	}
 	hide() : void {
 		this._visible = false;
-		this.elm().classList.remove(Html.classPopupShow);
+		this.elm().classList.add(Html.classDialogHide);
 	}
 	visible() : boolean { return this._visible; }
 
