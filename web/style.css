@@ -10,9 +10,8 @@ html, body {
     font-size: 3vmin;
 
     align-items: center;
-    background: url("img/henry.png") no-repeat, linear-gradient(#fbfbfb, #9b9b9b);
-    background-position: right;
-    background-size: contain;
+    background: url("img/background_blur.png") no-repeat, linear-gradient(#fbfbfb, #9b9b9b);
+    background-size: cover;
     color: #f2f2f2;
 }
 
@@ -145,7 +144,7 @@ kbd {
 #div-initializing {
     text-align: center;
 
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.8);
     border-radius: 0.3em;
 }
 #div-initializing div {
@@ -158,7 +157,7 @@ kbd {
 #fieldset-login {
     width: 100%;
 
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.8);
     border-radius: 0.3em;
     border: 1px solid #000;
 
@@ -1016,6 +1015,13 @@ kbd {
     height: 0.2em;
     justify-content: center;
     align-items: end;
+}
+
+.screenshot {
+    width: 80%;
+    border: 1px solid;
+    margin: 1em 0;
+    margin-left: 10%;
 }
 
 .no-select {

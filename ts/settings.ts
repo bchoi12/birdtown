@@ -31,6 +31,7 @@ class Settings {
 	public menuKeyCode : number;
 	public chatKeyCode : number;
 	public pointerLockKeyCode : number;
+	public photoKeyCode : number;
 
 	// Gameplay
 	public fullscreenSetting : FullscreenSetting;
@@ -68,6 +69,7 @@ class Settings {
 		this.chatKeyCode = 13;
 		this.scoreboardKeyCode = 9;
 		this.pointerLockKeyCode = 67;
+		this.photoKeyCode = 80;
 
 		this.fullscreenSetting = (isMobile() || isElectron()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;

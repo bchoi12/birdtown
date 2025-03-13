@@ -15,6 +15,7 @@ export enum HandlerType {
 	LOADING,
 	LOGIN,
 	MENU,
+	PHOTO,
 	POINTER_LOCK,
 	SIDEBAR,
 	SETTINGS,

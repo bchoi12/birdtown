@@ -26,6 +26,7 @@ import { KeyBindHandler } from 'ui/handler/key_bind_handler'
 import { LoadingHandler } from 'ui/handler/loading_handler'
 import { LoginHandler } from 'ui/handler/login_handler'
 import { MenuHandler } from 'ui/handler/menu_handler'
+import { PhotoHandler } from 'ui/handler/photo_handler'
 import { PointerLockHandler } from 'ui/handler/pointer_lock_handler'
 import { SidebarHandler } from 'ui/handler/sidebar_handler'
 import { SettingsHandler } from 'ui/handler/settings_handler'
@@ -65,6 +66,7 @@ class UI {
 	private _loadingHandler : LoadingHandler;
 	private _loginHandler : LoginHandler;
 	private _menuHandler : MenuHandler;
+	private _photoHandler : PhotoHandler;
 	private _pointerLockHandler : PointerLockHandler;
 	private _sidebarHandler : SidebarHandler;
 	private _settingsHandler : SettingsHandler;
@@ -93,6 +95,7 @@ class UI {
 		this._loadingHandler = this.add(new LoadingHandler());
 		this._loginHandler = this.add(new LoginHandler());
 		this._menuHandler = this.add(new MenuHandler());
+		this._photoHandler = this.add(new PhotoHandler());
 		this._pointerLockHandler = this.add(new PointerLockHandler());
 		this._sidebarHandler = this.add(new SidebarHandler());
 		this._settingsHandler = this.add(new SettingsHandler());
