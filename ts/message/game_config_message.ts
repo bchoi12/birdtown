@@ -37,7 +37,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.FREE_FOR_ALL, "Free for All"],
 		[GameMode.PRACTICE, "Practice Mode"],
 		[GameMode.SPREE, "Spree"],
-		[GameMode.SUDDEN_DEATH, "Sudden Death"],
+		[GameMode.SUDDEN_DEATH, "Lightning Round"],
 		[GameMode.SURVIVAL, "Survival"],
 		[GameMode.TEAM_BATTLE, "Team Battle"],
 	]);
@@ -54,6 +54,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 
 	private static readonly _gameProps : [number, Descriptor][] = [
 		...GameConfigMessage._baseProps,
+		[GameConfigProp.DAMAGE_MULTIPLIER, { optional: true }],
 		[GameConfigProp.PLAYERS_MIN, {}],
 		[GameConfigProp.RESET_POINTS, {}],
 		[GameConfigProp.TIME_SETUP, {}],
@@ -91,7 +92,6 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		)],
 		[GameMode.SUDDEN_DEATH, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
-			[GameConfigProp.DAMAGE_MULTIPLIER, { optional: true }],
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
@@ -146,10 +146,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 
 		this.setTimeSetup(25000);
 		this.setTimeFinish(4000);
-		this.setTimeVictory(8000);
+		this.setTimeVictory(7000);
 		this.setTimeError(5000);
 
 		this.setResetPoints(false);
+		this.setDamageMultiplier(1);
 		this.setHealthCrateSpawn(FrequencyType.NEVER);
 		this.setWeaponCrateSpawn(FrequencyType.NEVER);
 
@@ -197,7 +198,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setDamageMultiplier(2);
 			this.setLevelType(LevelType.TINYTOWN);
 			this.setLevelLayout(LevelLayout.NORMAL);
-			this.setStartingLoadout(LoadoutType.PICK);
+			this.setStartingLoadout(LoadoutType.RANDOM);
 			this.setHealthCrateSpawn(FrequencyType.NEVER);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setVictories(3);

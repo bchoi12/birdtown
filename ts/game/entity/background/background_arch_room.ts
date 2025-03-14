@@ -33,7 +33,7 @@ export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 				let mesh = BABYLON.MeshBuilder.CreateBox(this.name(), {
 					width: this._profile.initDim().x,
 					height: this._profile.initDim().y,
-					depth: 6,
+					depth: 8,
 					faceUV: faceUV,
 				}, game.scene());
 				model.setMesh(mesh);

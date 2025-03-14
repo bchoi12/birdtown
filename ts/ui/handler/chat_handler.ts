@@ -118,6 +118,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		this._chatElm.classList.remove(Html.classNoSelect);
 		this._chatElm.style.bottom = "2em";
 		this._chatElm.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
+		this._chatElm.style.height = "40%";
 
 		this.showChat();
 
@@ -133,9 +134,12 @@ export class ChatHandler extends HandlerBase implements Handler {
 		this._chatElm.classList.add(Html.classNoSelect);
 		this._chatElm.style.bottom = "1em";
 		this._chatElm.style.backgroundColor = "";
+		this._chatElm.style.height = "20%";
 
 		this._messageElm.style.visibility = "hidden";
 		this._messageInputElm.blur();
+
+		this._chatElm.scrollTop = this._chatElm.scrollHeight;
 
 		this.delayedHide();
 	}

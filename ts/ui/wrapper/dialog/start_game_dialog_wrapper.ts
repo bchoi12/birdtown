@@ -144,16 +144,16 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			description: "Classic free for all.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
 			minRecommended: 3,
 		});
+		this.populateMode(GameMode.SUDDEN_DEATH, {
+			name: "Lightning Round",
+			requirements: [],
+			description: "Be the last bird in a tiny town with lightning quick rounds.",
+			minRecommended: 3,
+		});
 		this.populateMode(GameMode.SPREE, {
 			name: "Spree",
 			requirements: [],
 			description: "Free for all, but lose all of your points on death.",
-			minRecommended: 3,
-		});
-		this.populateMode(GameMode.SUDDEN_DEATH, {
-			name: "Sudden Death",
-			requirements: [],
-			description: "Be the last bird in a tiny town with lightning quick rounds.",
 			minRecommended: 3,
 		});
 		this.populateMode(GameMode.SURVIVAL, {
@@ -320,6 +320,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		switch (mode) {
 		case GameMode.DUEL:
 			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
@@ -327,11 +328,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		case GameMode.SPREE:
 			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			options.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
+			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.PRACTICE:
+			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
@@ -345,13 +348,15 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			break;
 		case GameMode.SURVIVAL:
 			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			options.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());			
+			options.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());
+			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.TEAM_BATTLE:
 			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());

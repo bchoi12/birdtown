@@ -6,6 +6,7 @@ export enum InterpType {
 	SQUARE,
 	CUBIC,
 	NEGATIVE_SQUARE,
+	PAUSE_THEN_REALLY_EASE_IN,
 	REALLY_EASE_IN,
 	SUDDEN_END_70
 }
@@ -53,6 +54,10 @@ export namespace Fns {
 		[InterpType.CUBIC, (t : number) => { return t * t * t; }],
 		[InterpType.NEGATIVE_SQUARE, (t : number) => { return t * (2 - t); }],
 		[InterpType.REALLY_EASE_IN, (t : number) => { return (t - 1) * (t - 1) * (t - 1) * (1 - t) + 1; }],
+		[InterpType.PAUSE_THEN_REALLY_EASE_IN, (t : number) => {
+			let x = (t - 0.3) / 0.7;
+			return t < 0.3 ? 0 : (x - 1) * (x - 1) * (x - 1) * (1 - x) + 1; 
+		}],
 		[InterpType.SUDDEN_END_70, (t : number) => { return t < 0.7 ? 0 : (t - 0.7) / 0.3 }],
 	]);
 
