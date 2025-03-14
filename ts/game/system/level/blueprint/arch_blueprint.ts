@@ -215,6 +215,9 @@ export class ArchBlueprint extends Blueprint {
 		case LevelType.DUELTOWN:
 			this.loadDueltown(options);
 			break;
+		case LevelType.TINYTOWN:
+			this.loadTinytown(options);
+			break;
 		default:
 			console.error("Error: level type %s not supported in ArchBlueprint", LevelType[options.msg.getLevelType()]);
 		}
@@ -375,6 +378,77 @@ export class ArchBlueprint extends Blueprint {
 		const plan = this.generateBirdtownPlan(options);
 		this.addBuildings(plan);
 
+		this.populateTown(plan, options);
+	}
+
+	private loadTinytown(options : BlueprintOptions) : void {
+		const plan = this.generateTinytownPlan(options);
+		this.addBuildings(plan);
+
+		this.populateTown(plan, options);
+	}
+
+	private generateTinytownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
+		const length = 3 + Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(2);
+
+		return this.generateTownPlan(length, options);
+	}
+
+	private generateBirdtownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
+		const length = 8 + Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(2);
+
+		return this.generateTownPlan(length, options);
+	}
+
+	private generateTownPlan(length : number, options : BlueprintOptions) : Array<BuildingPlan> {
+		let plan = new Array<BuildingPlan>();
+		let currentHeight = 2;
+		const maxHeight = 3;
+		for (let i = 0; i < length; ++i) {
+			if (i === length - 1 && options.msg.getLevelLayout() === LevelLayout.NORMAL) {
+				currentHeight = Math.max(1, currentHeight);
+			}
+
+			plan.push({
+				height: currentHeight,
+			});
+
+			if (i === length - 1) {
+				break;
+			}
+
+			if (currentHeight === 0) {
+				currentHeight = this.rng().int(maxHeight) + 1;
+			} else if (currentHeight === 1) {
+				this.rng().switch([
+					[0.5, () => { currentHeight = 2; }],
+					[0.8, () => { currentHeight = 3; }],
+				]);
+			} else if (currentHeight === 2) {
+				this.rng().switch([
+					[0.5, () => { currentHeight--; }],
+					[0.8, () => { currentHeight = 0; }],
+					[0.95, () => { currentHeight++; }],
+				]);
+			} else {
+				this.rng().switch([
+					[0.6, () => { currentHeight--; }],
+					[0.95, () => { currentHeight -= 2; }],
+				]);
+			}
+			currentHeight = Fns.clamp(0, currentHeight, maxHeight);
+		}
+
+		if (currentHeight > 0 && options.msg.getLevelLayout() === LevelLayout.CIRCLE) {
+			plan.push({
+				height: 0,
+			});
+		}
+
+		return plan;
+	}
+
+	private populateTown(plan : Array<BuildingPlan>, options : BlueprintOptions) {
 		for (let i = 0; i < this.numBuildings(); ++i) {
 			let building = this.building(i);
 
@@ -483,56 +557,6 @@ export class ArchBlueprint extends Blueprint {
 				}
 			}
 		}
-	}
-
-	private generateBirdtownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
-		let plan = new Array<BuildingPlan>();
-		const length = 8 + Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(2);
-
-		let currentHeight = 2;
-		const maxHeight = 3;
-		for (let i = 0; i < length; ++i) {
-			if (i === length - 1 && options.msg.getLevelLayout() === LevelLayout.NORMAL) {
-				currentHeight = Math.max(1, currentHeight);
-			}
-
-			plan.push({
-				height: currentHeight,
-			});
-
-			if (i === length - 1) {
-				break;
-			}
-
-			if (currentHeight === 0) {
-				currentHeight = this.rng().int(maxHeight) + 1;
-			} else if (currentHeight === 1) {
-				this.rng().switch([
-					[0.5, () => { currentHeight = 2; }],
-					[0.8, () => { currentHeight = 3; }],
-				]);
-			} else if (currentHeight === 2) {
-				this.rng().switch([
-					[0.5, () => { currentHeight--; }],
-					[0.8, () => { currentHeight = 0; }],
-					[0.95, () => { currentHeight++; }],
-				]);
-			} else {
-				this.rng().switch([
-					[0.6, () => { currentHeight--; }],
-					[0.95, () => { currentHeight -= 2; }],
-				]);
-			}
-			currentHeight = Fns.clamp(0, currentHeight, maxHeight);
-		}
-
-		if (currentHeight > 0 && options.msg.getLevelLayout() === LevelLayout.CIRCLE) {
-			plan.push({
-				height: 0,
-			});
-		}
-
-		return plan;
 	}
 
 	private loadDueltown(options : BlueprintOptions) : void {

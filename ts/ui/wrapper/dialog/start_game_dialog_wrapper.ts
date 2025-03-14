@@ -150,6 +150,12 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			description: "Free for all, but lose all of your points on death.",
 			minRecommended: 3,
 		});
+		this.populateMode(GameMode.SUDDEN_DEATH, {
+			name: "Sudden Death",
+			requirements: [],
+			description: "Be the last bird in a tiny town with lightning quick rounds.",
+			minRecommended: 3,
+		});
 		this.populateMode(GameMode.SURVIVAL, {
 			name: "Survival",
 			requirements: [],
@@ -329,6 +335,14 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
+		case GameMode.SUDDEN_DEATH:
+			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			options.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());	
+			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			break;
 		case GameMode.SURVIVAL:
 			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			options.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());			
@@ -433,6 +447,22 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			html: (current : number) => {
 				return current + " win" + (current === 1 ? "" : "s");
 			},
+		});
+	}
+	private damageMultiplierWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
+			label: "Damage Multiplier",
+			value: msg.getDamageMultiplier(),
+			plus: (current : number) => {
+				msg.setDamageMultiplier(Math.min(current + 0.5, max));
+			},
+			minus: (current : number) => {
+				msg.setDamageMultiplier(Math.max(min, current - 0.5));
+			},
+			get: () => { return msg.getDamageMultiplierOr(1); },
+			html: (current : number) => {
+				return current.toFixed(1) + "x";
+			}
 		});
 	}
 	private loadoutWrapper(msg : GameConfigMessage) : LabelNumberWrapper {

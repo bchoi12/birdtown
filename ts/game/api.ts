@@ -43,6 +43,7 @@ export enum GameMode {
 	FREE_FOR_ALL,
 	PRACTICE,
 	SPREE,
+	SUDDEN_DEATH,
 	SURVIVAL,
 	TEAM_BATTLE,
 }

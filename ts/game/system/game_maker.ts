@@ -227,6 +227,7 @@ export class GameMaker extends SystemBase implements System {
 			return "Be the first to score " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point");
 		case GameMode.PRACTICE:
 			return "Press " + KeyNames.kbd(settings.menuKeyCode) + " to exit";
+		case GameMode.SUDDEN_DEATH:
 		case GameMode.SURVIVAL:
 			return "Be the last one standing";
 		case GameMode.SPREE:

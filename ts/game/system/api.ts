@@ -40,6 +40,7 @@ export enum LevelType {
 	BIRDTOWN,
 	DUELTOWN,
 	LOBBY,
+	TINYTOWN,
 }
 
 export enum LevelLayout {

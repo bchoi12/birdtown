@@ -372,6 +372,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			delta = 0;
 		}
 
+		if (game.controller().config().hasDamageMultiplier()) {
+			delta *= game.controller().config().getDamageMultiplier();;
+		}
+
 		this.getComponent<Stats>(ComponentType.STATS).updateStat(StatType.HEALTH, {
 			delta: -delta,
 			entity: from,

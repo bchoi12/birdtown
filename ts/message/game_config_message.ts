@@ -7,11 +7,12 @@ import { Message, MessageBase, Descriptor, FieldDescriptor } from 'message'
 enum GameConfigProp {
 	UNKNOWN,
 
+	DAMAGE_MULTIPLIER,
+	HEALTH_CRATE_SPAWN,
 	LEVEL_LAYOUT,
 	LEVEL_SEED,
 	LEVEL_TYPE,
 	LIVES,
-	HEALTH_CRATE_SPAWN,
 	PLAYERS_MIN,
 	PLAYERS_MAX,
 	POINTS,
@@ -36,6 +37,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.FREE_FOR_ALL, "Free for All"],
 		[GameMode.PRACTICE, "Practice Mode"],
 		[GameMode.SPREE, "Spree"],
+		[GameMode.SUDDEN_DEATH, "Sudden Death"],
 		[GameMode.SURVIVAL, "Survival"],
 		[GameMode.TEAM_BATTLE, "Team Battle"],
 	]);
@@ -84,6 +86,13 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.SPREE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.POINTS, {}],
+			[GameConfigProp.TIME_GAME, { optional: true }],
+			[GameConfigProp.VICTORIES, {}],
+		)],
+		[GameMode.SUDDEN_DEATH, MessageBase.fieldDescriptor(
+			...GameConfigMessage._gameProps,
+			[GameConfigProp.DAMAGE_MULTIPLIER, { optional: true }],
+			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
@@ -182,6 +191,17 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.POINTS);
 			break;
+		case GameMode.SUDDEN_DEATH:
+			this.setLives(1);
+			this.setPlayersMin(2);
+			this.setDamageMultiplier(2);
+			this.setLevelType(LevelType.TINYTOWN);
+			this.setLevelLayout(LevelLayout.NORMAL);
+			this.setStartingLoadout(LoadoutType.PICK);
+			this.setHealthCrateSpawn(FrequencyType.NEVER);
+			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
+			this.setVictories(3);
+			this.setWinCondition(WinConditionType.LIVES);
 		case GameMode.SURVIVAL:
 			this.setLives(1);
 			this.setPlayersMin(2);
@@ -208,6 +228,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 
     // Begin auto-generated code (v2.1)
     override serializable() { return true; }
+
+    hasDamageMultiplier() : boolean { return this.has(GameConfigProp.DAMAGE_MULTIPLIER); }
+    getDamageMultiplier() : number { return this.get<number>(GameConfigProp.DAMAGE_MULTIPLIER); }
+    getDamageMultiplierOr(value : number) : number { return this.getOr<number>(GameConfigProp.DAMAGE_MULTIPLIER, value); }
+    setDamageMultiplier(value : number) : void { this.set<number>(GameConfigProp.DAMAGE_MULTIPLIER, value); }
 
     hasHealthCrateSpawn() : boolean { return this.has(GameConfigProp.HEALTH_CRATE_SPAWN); }
     getHealthCrateSpawn() : FrequencyType { return this.get<FrequencyType>(GameConfigProp.HEALTH_CRATE_SPAWN); }
@@ -301,6 +326,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 
     /*
     const enumClass = "GameConfigProp";
+    ["DAMAGE_MULTIPLIER", "number"],
     ["HEALTH_CRATE_SPAWN", "FrequencyType"],
     ["LEVEL_LAYOUT", "LevelLayout"],
     ["LEVEL_SEED", "number"],
