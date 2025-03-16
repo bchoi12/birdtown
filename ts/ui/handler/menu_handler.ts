@@ -45,7 +45,9 @@ export class MenuHandler extends HandlerBase implements Handler {
 		this._canMenu = true;
 	}
 
-	override setup() : void {
+	override onPlayerInitialized() : void {
+		super.onPlayerInitialized();
+
 		document.addEventListener("keyup", (e : any) => {
 			if (e.keyCode === settings.menuKeyCode) {
 				this._menuKeyPressed = false;

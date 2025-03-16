@@ -81,24 +81,24 @@
                 <div class="menu-button-container"><div id="menu-quit" class="menu-heading button">Quit</div></div>
             </div>
         </div>
+    </div>
+    <div id="div-splash">
         <div id="div-login">
             <fieldset id="fieldset-login">
-                <legend id="legend-login">Birdtown</legend>
-                    <div id="login-info"></div>
-                    <div id="login-error"></div>
-                    <div id="div-login-buttons">
-                        <button id="button-host" type="submit"><span class="material-icons">home</span> Host</button>                    
-                        <div id="login-separator">OR</div>
-                        <form id="form-login" action="about:blank" target="iframe-empty" onsubmit="return false;">
-                            <input id="input-room" name="room" class="form-input" type="text" pattern="[a-zA-Z0-9]+" placeholder="Enter room code" maxlength="10" required>
-                            <button id="button-join" type="submit"><span class="material-icons">login</span> Join</button>
-                        </form>
+                <legend id="login-legend">Birdtown</legend>
+                <div id="login-buttons">
+                    <button id="button-host" class="login-button" type="submit"><span class="material-icons">home</span> Host</button>                    
+                    <button id="button-join" class="login-button" type="submit"><span class="material-icons">login</span> Join</button>
+                    <div id="login-social">
+                        <div class="button"><a target="_blank" href="https://discord.gg/U2TFpsaWMg" class="social-link fa-brands fa-discord"></a></div>
                     </div>
+                </div>
             </fieldset>
         </div>
     </div>
     <div id="div-initializing"><div>Entering Birdtown...<br><span style="font-size: 0.7em" class="material-icons">location_city</span><br><span style="font-size: 0.7em">If this takes too long please double check Javascript is enabled.</div></div>
     <script src="main.js?v=a0995"></script>
+    <script src="https://kit.fontawesome.com/b400bccf87.js" crossorigin="anonymous"></script>
 </body>
 
 </html>

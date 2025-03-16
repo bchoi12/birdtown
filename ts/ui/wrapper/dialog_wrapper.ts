@@ -82,8 +82,10 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 			if (this._visible) {
 				this.elm().classList.remove(Html.classDialogHide);
 			}
+			this.onShow();
 		}, 5);
 	}
+	onShow() : void {}
 	shrink() : void {
 		this.elm().classList.add(Html.classDialogSmall);
 	}

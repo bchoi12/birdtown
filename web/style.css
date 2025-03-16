@@ -124,25 +124,36 @@ kbd {
     height: 100%;
 }
 
+#div-splash {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+
+    background-color: rgba(0, 0, 0, 0);
+
+    transition: background-color 1s linear;
+}
+
 #div-login, #div-initializing {
     position: absolute;
     align-items: center;
     justify-content: center;
 
-    left: 30%;
-    width: 40%;
-    min-width: 12em;
+    min-width: 10em;
     max-width: 24em;
 
     top: 50%;
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
-
-    margin: 0 auto;
 }
 
 #div-initializing {
     text-align: center;
+
+    left: 35%;
+    width: 30%;
 
     background-color: rgba(0, 0, 0, 0.8);
     border-radius: 0.3em;
@@ -153,34 +164,28 @@ kbd {
 
 #div-login {
     font-size: 1.5em;
+    display: none;
+
+    left: 38%;
+    width: 24%;
 }
 #fieldset-login {
     width: 100%;
 
-    background-color: rgba(0, 0, 0, 0.8);
-    border-radius: 0.3em;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 0.2em;
     border: 1px solid #000;
 
-    padding: 1.5em 0;
+    padding: 0.5em 0;
     text-align: center;
 }
-#legend-login {
-    font-size: 0.7em;
+#login-legend {
+    font-size: 0.5em;
     margin-right: 1em;
     text-align: right;
     font-weight: bold;
     letter-spacing: 0.05em;
     text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
-}
-#login-error {
-    font-weight: bold;
-    color: #ff0000;
-}
-#login-info, #login-error {
-    display: none;
-    font-size: 0.6em;
-    width: 60%;
-    margin: 1em auto;
 }
 
 #login-separator {
@@ -206,38 +211,39 @@ kbd {
     border-radius: 0.2em;
 }
 
-#div-login-buttons {
+#login-buttons {
     margin: 0 auto;
-    display: none;
+    margin-top: 0.3em;
     border-radius: 0.2em;
+    font-size: 0.7em;
 }
 
-#button-join, #button-host {
-    background: #000;
+.login-button {
+    background: #00000000;
     margin-top: 0.3em;
     margin-bottom: 0.3em;
     width: 50%;
-    padding: 1em 0;
+    padding: 0.8em 0.4em;
     border-radius: 0.5em;
     border: 0;
     color: #f2f2f2;
 
     transition: border-radius 0.3s;
 }
-#button-join:hover, #button-host:hover {
-    background: #222;
+.login-button:hover {
+    background: #444444;
     border-radius: 0.2em;
     cursor: pointer;
     text-shadow: 0px 0px 7px #BBBBBB;
 }
-#button-join:active:hover, #button-host:active:hover {
-    background: #111
+.login-button:active:hover {
+    background: #444444;
 }
 
-.form-input {
-    text-align: center;
-    width: 84%;
-    margin-bottom: 12px;
+#login-social {
+    text-align: right;
+    margin-right: 1.3em;
+    font-size: 0.7em;
 }
 
 #div-overlays {
@@ -648,16 +654,17 @@ kbd {
 }
 
 .dialog-small {
-    width: 50%;
+    width: 40%;
     height: 50%;
     top: 25%;
-    left: 25%;
+    left: 30%;
     border-radius: 0.3em;
 
     font-size: 0.8em;
 }
 
 .dialog-hide {
+    display: none;
     top: 5%;
     opacity: 0;
 }
@@ -833,6 +840,15 @@ kbd {
     padding: 0.3em 0.6em;
 }
 
+.button-inverted {
+    color: #333;
+    background-color: #f2f2f2;
+    opacity: 0.8;
+
+    padding: 0.2em;
+    margin: 0.1em 0.3em;
+}
+
 .button-select {
     padding: 0;
     transition: background 0.1s;
@@ -855,6 +871,10 @@ kbd {
 .button:hover, .button-select:hover, .button-select:hover, .category-title:hover {
     text-shadow: 0px 0px 7px #BBBBBB;
     cursor: pointer;
+}
+
+.button-inverted:hover {
+    background-color: #DDDDDD;
 }
 
 .category-title:hover {
@@ -906,6 +926,11 @@ kbd {
 
 .loadout-button-description {
     font-size: 0.7em;
+}
+
+.social-link {
+    color: #d2d2d2;
+    text-decoration: none;
 }
 
 .color-pick {
@@ -972,11 +997,16 @@ kbd {
     float: left;
 }
 
-.label-value {
+.label-value, .label-input {
     max-width: 50%;
     white-space: nowrap;
     overflow-x: hidden;
     float: right;
+}
+
+.label-input {
+    margin: 0 auto;
+    border-radius: 0.2em;
 }
 
 .category {

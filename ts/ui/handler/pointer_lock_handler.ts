@@ -21,7 +21,9 @@ export class PointerLockHandler extends HandlerBase implements Handler {
 		this._requested = isElectron() ? true : false;
 	}
 
-	override setup() : void {
+	override onPlayerInitialized() : void {
+		super.onPlayerInitialized();
+
 		document.addEventListener("keydown", (e : any) => {
 			if (e.keyCode !== settings.pointerLockKeyCode) return;
 

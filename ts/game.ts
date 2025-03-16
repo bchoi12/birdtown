@@ -22,7 +22,7 @@ import { Tablets } from 'game/system/tablets'
 import { World } from 'game/system/world'
 
 import { Client } from 'network/client'
-import { Netcode } from 'network/netcode'
+import { Netcode, NetcodeOptions } from 'network/netcode'
 import { Host } from 'network/host'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -34,15 +34,14 @@ import { ui } from 'ui'
 import { Html } from 'ui/html'
 
 export type GameOptions = {
-	room : string;
-	isHost : boolean;
-	
+	netcodeOptions : NetcodeOptions;
 	netcodeSuccess : () => void;
 	netcodeError : () => void;
 }
 
 class Game {
 	private _initialized : boolean;
+	private _playerInitialized : boolean;
 	private _clientId : number;
 	private _lastClientId : number;
 	private _canvas : HTMLCanvasElement;
@@ -68,6 +67,7 @@ class Game {
 
 	constructor() {
 		this._initialized = false;
+		this._playerInitialized = false;
 		this._clientId = 0;
 		this._lastClientId = 0;
 		this._canvas = Html.canvasElm(Html.canvasGame);
@@ -77,10 +77,10 @@ class Game {
 		this._options = gameOptions;
 
 		this._engine = null;
-		if (this._options.isHost) {
-			this._netcode = new Host(this._options.room);
+		if (this._options.netcodeOptions.isHost) {
+			this._netcode = new Host(this._options.netcodeOptions);
 		} else {
-			this._netcode = new Client(this._options.room);
+			this._netcode = new Client(this._options.netcodeOptions);
 		}
 
 		this._netcode.initialize(() => {
@@ -129,7 +129,7 @@ class Game {
 				this.setClientId(1);
 
 				window.onbeforeunload = (e) => {
-					if (this._netcode.numConnections() > 0) {
+					if (this._netcode.getNumConnected() > 0) {
 						return "Are you sure you want to leave? The game will end and all players will be disconnected.";
 					}
 					return undefined;
@@ -144,7 +144,16 @@ class Game {
 		}, this._options.netcodeError);
 	}
 
+	setPlayerInitialized(initialized : boolean) : void {
+		if (this._playerInitialized === initialized) {
+			return;
+		}
+
+		this._playerInitialized = initialized;
+	}
+
 	initialized() : boolean { return this._initialized; }
+	playerInitialized() : boolean { return this._playerInitialized; }
 	hasClientId() : boolean { return this._clientId > 0; }
 	clientId() : number { return this._clientId; }
 	setClientId(clientId : number) : void {
@@ -189,8 +198,7 @@ class Game {
 	}	
 
 	canvas() : HTMLCanvasElement { return this._canvas; }
-	options() : GameOptions { return this._options; }
-	isHost() : boolean { return this._options.isHost; }
+	isHost() : boolean { return this._options.netcodeOptions.isHost; }
 
 	getSystem<T extends System>(type : SystemType) : T { return this._runner.getSystem<T>(type); }
 	handleMessage(msg : GameMessage) : void {

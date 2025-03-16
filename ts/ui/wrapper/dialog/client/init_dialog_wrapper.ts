@@ -47,6 +47,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		this.footerElm().appendChild(shareWrapper.elm());
 
 		this.addOnSubmit(() => {
+			game.setPlayerInitialized(true);
 			ui.applySettings();
 			ui.onPlayerInitialized();
 			ui.enableAudio();

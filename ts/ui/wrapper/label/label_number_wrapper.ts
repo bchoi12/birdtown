@@ -39,7 +39,7 @@ export class LabelNumberWrapper extends LabelWrapper {
 		this._settingElm.appendChild(this._numberElm);
 
 		const separator = Html.span();
-		separator.innerHTML = "&nbsp;&nbsp;|&nbsp;";
+		separator.innerHTML = "&nbsp;&nbsp;⫽&nbsp;";
 		this._settingElm.appendChild(separator);
 
 		this._plusFn = options.plus;

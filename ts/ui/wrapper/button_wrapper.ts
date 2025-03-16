@@ -66,6 +66,11 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		}
 	}
 
+	show() : void { this.elm().style.display = "block"; }
+	hide() : void { this.elm().style.display = "none"; }
+
+	textElm() : HTMLElement { return this._textElm; }
+
 	icon() : HTMLElement { return this._iconElm.get(); }
 	hasIcon() : boolean { return this._iconElm.has(); }
 	setIcon(type : IconType) : void {
@@ -152,6 +157,8 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 			fn();
 		})
 	}
+
+	invert() : void { this.elm().classList.add(Html.classButtonInverted); }
 
 	selected() : boolean { return this._state === ButtonState.SELECTED; }
 	select() : void {

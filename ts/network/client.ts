@@ -6,28 +6,40 @@ import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ChannelType } from 'network/api'
 import { NetworkMessage, NetworkMessageType } from 'message/network_message'
-import { Netcode } from 'network/netcode'
+import { Netcode, NetcodeOptions } from 'network/netcode'
 
 import { ui } from 'ui'
 import { ChatType, DialogType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
+export type ClientOptions = {
+	password? : string;
+}
+
 export class Client extends Netcode {
 
 	private _tcp : DataConnection;
 	private _udp : DataConnection;
+	private _options : ClientOptions
 
-	constructor(room : string) {
-		super(room);
+	constructor(options : NetcodeOptions) {
+		super(options.room);
 
 		this._tcp = null;
 		this._udp = null;
+
+		if (!options.clientOptions) {
+			console.error("Error: no client options specified.");
+		}
+
+		this._options = options.clientOptions;
 
 		this.registerCallbacks();
 	}
 
 	override isHost() : boolean { return false; }
+	override password() : string { return this._options.password ? this._options.password : ""; }
 
 	override ready() : boolean { return this.initialized() && this._tcp.open && this._udp.open; }
 	override initialize(onSuccess : () => void, onError : () => void) : void {
@@ -131,6 +143,9 @@ export class Client extends Netcode {
 			reliable: true,
 			label: this.channelTypeToLabel(ChannelType.TCP),
 			serialization: "raw",
+			metadata: {
+				password: this.password(),
+			}
 		});
 
 		this._tcp.on("open", () => {
@@ -161,6 +176,9 @@ export class Client extends Netcode {
 			reliable: false,
 			label: this.channelTypeToLabel(ChannelType.UDP),
 			serialization: "raw",
+			metadata: {
+				password: this.password(),
+			}
 		});
 
 		this._udp.on("open", () => {
@@ -188,19 +206,23 @@ export class Client extends Netcode {
 	}
 
 	private closeConnections() : void {
-		let showDialog = false;
-		if (this._tcp !== null && this._tcp.open) {
+		let showDialog = true;
+		if (this._tcp !== null) {
 			this.unregister(this._tcp);
 			showDialog = true;
 		}
-		if (this._udp !== null && this._udp.open) {
+		if (this._udp !== null) {
 			this.unregister(this._udp);
 			showDialog = true;
 		}
 
 		// Show reconnect dialog
 		if (this.initialized() && showDialog) {
-			ui.forceDialog(DialogType.DISCONNECTED);
+			if (game.playerInitialized()) {
+				ui.forceDialog(DialogType.DISCONNECTED);
+			} else {
+				ui.forceDialog(DialogType.FAILED_CONNECT);
+			}
 		}
 	}
 }

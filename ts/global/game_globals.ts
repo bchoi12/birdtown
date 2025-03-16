@@ -1,5 +1,5 @@
 
 export namespace GameGlobals {
 	export const gravity = -0.85;
-	export const version = "alpha 0.995";
+	export const version = "beta 1.0";
 }

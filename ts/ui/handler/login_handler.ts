@@ -10,32 +10,30 @@ import { LoginNames } from 'ui/common/login_names'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
+import { GameSettingsDialogWrapper } from 'ui/wrapper/dialog/game_settings_dialog_wrapper'
 
-import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
 
-enum CreateMode {
+enum LoginType {
 	UNKNOWN,
 
 	HOST,
 	JOIN,
-
-	// Joining failed, so try hosting
-	HOST_AFTER_JOIN,
+	AUTO_JOIN,
 }
 
 export class LoginHandler extends HandlerBase implements Handler {
 
+	private _splashElm : HTMLElement;
+
 	private _loginElm : HTMLElement;
 	private _legendElm : HTMLElement;
-	private _loginInfoElm : HTMLElement;
-	private _infoTextElm : HTMLElement;
-	private _infoDotsElm : HTMLElement;
-	private _loginErrorElm : HTMLElement;
-	private _joinInputElm : HTMLInputElement;
-	private _loginButtonsElm : HTMLElement;
-	private _buttonHostElm : HTMLInputElement;
-	private _buttonJoinElm : HTMLInputElement;
+
+	private _hostButton : HTMLInputElement;
+	private _joinButton : HTMLInputElement;
+
+	private _hostWrapper : GameSettingsDialogWrapper;
+	private _clientWrapper : GameSettingsDialogWrapper;
 
 	private _timeoutId : Optional<number>;
 
@@ -44,34 +42,34 @@ export class LoginHandler extends HandlerBase implements Handler {
 			mode: UiMode.LOGIN,
 		});
 
+		this._splashElm = Html.elm(Html.divSplash);
 		this._loginElm = Html.elm(Html.divLogin);
-		this._legendElm = Html.elm(Html.legendLogin);
-		this._loginInfoElm = Html.elm(Html.loginInfo);
-		this._infoTextElm = Html.div();
-		this._infoDotsElm = Html.div();
-		this._loginErrorElm = Html.elm(Html.loginError);
-		this._joinInputElm = Html.inputElm(Html.inputRoom);
-		this._loginButtonsElm = Html.elm(Html.divLoginButtons);
-		this._buttonHostElm = Html.inputElm(Html.buttonHost);
-		this._buttonJoinElm = Html.inputElm(Html.buttonJoin);
+		this._legendElm = Html.elm(Html.loginLegend);
+
+		this._hostButton = Html.inputElm(Html.buttonHost);
+		this._joinButton = Html.inputElm(Html.buttonJoin);
+
+		this._hostWrapper = new GameSettingsDialogWrapper(true);
+		this._clientWrapper = new GameSettingsDialogWrapper(false);
+		this._splashElm.appendChild(this._hostWrapper.elm());
+		this._splashElm.appendChild(this._clientWrapper.elm());
 
 		this._timeoutId = new Optional();
-
-		this._loginInfoElm.appendChild(this._infoTextElm);
-		this._loginInfoElm.appendChild(this._infoDotsElm);
 	}
 
 	override setup() : void {	
-		this._buttonHostElm.onclick = () => {
-			let room = LoginNames.randomId(4);
-			this.startGame(room, CreateMode.HOST);
+		super.setup();
+
+		this._splashElm.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+		this._loginElm.style.display = "block";
+
+		this._hostButton.onclick = () => {
+			this.startGame(LoginType.HOST);
 		};
-		this._buttonJoinElm.onclick = () => {
-			const room = Html.trimmedValue(this._joinInputElm);
-			this.startGame(room, CreateMode.JOIN);
+		this._joinButton.onclick = () => {
+			this.startGame(LoginType.JOIN);
 		};
 
-		this.showInfo("Loading...");
 		this.enable();
 	}
 
@@ -80,136 +78,46 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 		this._legendElm.textContent = GameGlobals.version;
 
-		this.showLogin();
-
 		const urlParams = new URLSearchParams(window.location.search);
-		if (urlParams.has(UiGlobals.roomParam)) {
-			const room = urlParams.get(UiGlobals.roomParam);
-			if (room.length > 0) {
-				this._joinInputElm.value = room;
-
-				const mode = isLocalhost() ? CreateMode.HOST_AFTER_JOIN : CreateMode.JOIN;
-				this.startGame(room, mode);
+		const room = urlParams.get(UiGlobals.roomParam);
+		if (room && room.length > 0) {
+			const password = urlParams.get(UiGlobals.passwordParam);
+			if (password && password.length > 0) {
+				this._clientWrapper.setPassword(password);
 			}
+			this._clientWrapper.setRoom(room);
+			this.startGame(LoginType.AUTO_JOIN);
 		}
 	}
 
 	override onDisable() : void {
 		super.onDisable();
 
-		this._loginElm.style.display = "none";
+		this._splashElm.style.display = "none";
 		document.body.style.background = "black";
 	}
 
-	private showInfo(info : string) : void {
-		this._loginInfoElm.style.display = "block";
-		this._joinInputElm.style.display = "none";
-		this._loginButtonsElm.style.display = "none";
+	hideLogin() : void { this.disable(); }
 
-		this._infoTextElm.textContent = info;
-		this._infoDotsElm.textContent = ".";
-
-		if (this._timeoutId.has()) {
-			window.clearTimeout(this._timeoutId.get());
-		}
-
-		this._timeoutId.set(window.setInterval(() => {
-			if (this._loginInfoElm.style.display === "none") {
-				return;
-			}
-			if (this._infoDotsElm.textContent.length >= 3) {
-				this._infoDotsElm.textContent = ".";
-			} else {
-				this._infoDotsElm.textContent += ".";
-			}
-		}, 500));
-	}
-	private showLogin() : void {
-		this._loginInfoElm.style.display = "none";
-		this._joinInputElm.style.display = "block";
-		this._loginButtonsElm.style.display = "block";
-		this._joinInputElm.focus();
-
-		this._infoTextElm.textContent = "";
-	}
-
-	private handleError(error : string) : void {
-		this._loginErrorElm.style.display = "block";
-		this._loginErrorElm.textContent = error;
-	}
-
-	private hideError() : void {
-		this._loginErrorElm.style.display = "none";
-	}
-
-	private startGame(room : string, mode : CreateMode) : void {
-		room = room.toUpperCase();
-
+	private startGame(mode : LoginType) : void {
 		if (!this.enabled()) {
-			console.error("Error: tried to start/join %s when not enabled", room);
+			console.error("Error: tried to start game when login is not enabled");
 			return;
 		}
 
-		if (room.length === 0) {
-			console.error("Error: room should not be empty");
-			return;
-		}
-
-		room = room.replace(/[^A-Za-z0-9]/g, "");
-		if (room.length === 0) {
-			this.handleError("Only alphanumeric characters are supported.");
-			return;
-		}
-
-		this.initializeGame(room, mode);
-	}
-
-	private initializeGame(room : string, mode : CreateMode) : void {
-		let isHost = false;
 		switch (mode) {
-		case CreateMode.HOST:
-			isHost = true;
-			this.showInfo("Hosting new room " + room)
+		case LoginType.HOST:
+			this._hostWrapper.show();
 			break;
-		case CreateMode.JOIN:
-		case CreateMode.HOST_AFTER_JOIN:
-			isHost = false;
-			this.showInfo("Joining room " + room);
+		case LoginType.AUTO_JOIN:
+			this._clientWrapper.show();
+			break;
+		case LoginType.JOIN:
+			this._clientWrapper.show();
 			break;
 		default:
-			console.error("Unknown mode!", CreateMode[mode]);
+			console.error("Unknown mode!", LoginType[mode]);
 			return;
 		}
-
-		this.hideError();
-
-		game.initialize({
-		    room: room,
-		    isHost: isHost,
-		    netcodeSuccess: () => {
-		    	console.log("Successfully initialized netcode");
-
-				const url = new URL(window.location.href);
-				url.searchParams.set(UiGlobals.roomParam, room);
-				window.history.replaceState(null, null, url);
-
-		    	this.disable();
-		    },
-		    netcodeError: () => {
-				if (mode === CreateMode.HOST_AFTER_JOIN) {
-		    		this.initializeGame(room, CreateMode.HOST);
-		    		return;
-		    	}
-
-		    	if (mode === CreateMode.HOST) {
-		    		this.handleError(`Failed to create room ${room}. Please try again in a few moments.`);
-					this._joinInputElm.value = "";
-		    	} else if (mode === CreateMode.JOIN) {
-		    		this.handleError(`Failed to join room ${room}. The room may not exist or you may need to try again.`);
-		    		this._joinInputElm.value = room;
-		    	}
-		    	this.showLogin();
-		    }
-		});
 	}
 }

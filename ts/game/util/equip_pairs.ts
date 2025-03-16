@@ -13,7 +13,7 @@ export namespace EquipPairs {
 		[EntityType.RED_GLOVE, [EntityType.RED_HEADBAND]],
 		[EntityType.SHOTGUN, [EntityType.COWBOY_HAT, EntityType.PURPLE_HEADBAND]],
 		[EntityType.SNIPER, [EntityType.SCOUTER, EntityType.POCKET_ROCKET]],
-		[EntityType.WING_CANNON, [EntityType.SCOUTER, EntityType.JETPACK, EntityType.BOOSTER]],
+		[EntityType.WING_CANNON, [EntityType.SCOUTER, EntityType.JETPACK]],
 	]);
 
 	const weapons = [...pairs.keys()];

@@ -218,6 +218,7 @@ class UI {
 		}
 	}
 
+	hideLogin() : void { this._loginHandler.hideLogin(); }
 	pushAnnouncement(msg : GameMessage) : void { this._announcementHandler.pushAnnouncement(msg); }
 	setTimer(millis : number) : void { this._timerHandler.setTime(millis); }
 	clearTimer() : void { this._timerHandler.clear(); }

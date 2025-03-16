@@ -42,8 +42,10 @@ export enum IconType {
 	VOLUME_HIGH,
 
 	// UI
+	ERROR,
 	NETWORK_SIGNAL,
 	ONE_MORE,
+	PENDING,
 	READY,
 	RENDER,
 	SIGN,
@@ -95,6 +97,7 @@ export namespace Icon {
 		[IconType.COPY, "content_copy"],
 		[IconType.DASH, "sprint"],
 		[IconType.DICE, "ifl"],
+		[IconType.ERROR, "error"],
 		[IconType.GATLING, "clear_all"],
 		[IconType.HEADPHONES, "headphones"],
 		[IconType.HEART, "favorite"],
@@ -113,6 +116,7 @@ export namespace Icon {
 		[IconType.NETWORK_SIGNAL, "signal_cellular_alt"],
 		[IconType.ONE_MORE, "counter_1"],
 		[IconType.ORBS, "scatter_plot"],
+		[IconType.PENDING, "pending"],
 		[IconType.PERSON, "person"],
 		[IconType.PERSON_PLUS, "person_add"],
 		[IconType.PERSON_SLASH, "person_off"],

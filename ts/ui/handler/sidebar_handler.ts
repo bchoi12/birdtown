@@ -33,7 +33,9 @@ export class SidebarHandler extends HandlerBase implements Handler {
 		this._scoreboardElm.appendChild(this._scoreboard.elm());
 	}
 
-	override setup() : void {
+	override onPlayerInitialized() : void {
+		super.onPlayerInitialized();
+
 		document.addEventListener("keyup", (e : any) => {
 			if (e.keyCode !== settings.scoreboardKeyCode) return;
 
@@ -50,10 +52,6 @@ export class SidebarHandler extends HandlerBase implements Handler {
 			this.show();
 			e.preventDefault();
 		});
-	}
-
-	override onPlayerInitialized() : void {
-		super.onPlayerInitialized();
 
 		this._scoreboardElm.style.width = SidebarHandler._width;
 		this._scoreboardElm.style.right = "-" + SidebarHandler._hideWidth;

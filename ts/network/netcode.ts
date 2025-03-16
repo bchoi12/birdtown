@@ -13,6 +13,8 @@ import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 import { ChannelType, ChannelStat } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
 import { Connection } from 'network/connection'
+import { ClientOptions } from 'network/client'
+import { HostOptions } from 'network/host'
 import { Pinger } from 'network/pinger'
 
 import { settings } from 'settings'
@@ -34,6 +36,14 @@ enum DataFormat {
 	UNKNOWN,
 	ARRAY_BUFFER,
 	BLOB,
+}
+
+export type NetcodeOptions = {
+	room : string;
+	isHost : boolean;
+
+	hostOptions? : HostOptions;
+	clientOptions? : ClientOptions;
 }
 
 export abstract class Netcode {
@@ -168,6 +178,7 @@ export abstract class Netcode {
 
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
+	abstract password() : string;
 	hostName() : string { return this._hostName; }
 	peerName() : string { return this.isHost() ? this._hostName : this._peerName; }
 	hasClientId() : boolean { return this._clientId > 0; }
@@ -219,7 +230,16 @@ export abstract class Netcode {
 	}
 	hasConnection(id : string) : boolean { return this._connections.has(id); }
 	connection(id : string) : Connection { return this._connections.get(id); }
-	numConnections() : number { return this._connections.size; }
+	connections() : Map<string, Connection> { return this._connections; }
+	getNumConnected() : number {
+		let connections = 0;
+		this._connections.forEach((connection : Connection) => {
+			if (connection.connected()) {
+				connections++;
+			}
+		});
+		return connections;
+	}
 	getVoiceMap() : Map<number, string> {
 		if (!this.isHost()) {
 			console.error("Error: client queried voice map");
@@ -268,13 +288,15 @@ export abstract class Netcode {
 		this._messageBuffer.clear();
 	}
 
-	register(dataConnection : DataConnection) {
+	register(dataConnection : DataConnection) : void {
 		if (!this.isLabelValid(dataConnection.label)) {
+			dataConnection.close();
 			console.error("Error: invalid channel type: " + dataConnection.label);
 			return;
 		}
 		const channelType = this.labelToChannelType(dataConnection.label);
 		if (!dataConnection.open) {
+			dataConnection.close();
 			console.error("Error: tried to register unopen " + ChannelType[channelType] + " channel for " + dataConnection.peer);
 			return;
 		}
@@ -304,20 +326,22 @@ export abstract class Netcode {
 	unregister(connection : DataConnection) : void {
 		if (!defined(connection)) { return; }
 
-		let channels = this._connections.get(connection.peer).channels();
 		const channelType = this.labelToChannelType(connection.label);
 
 		if (connection.open) {
 			connection.close();
-			channels.delete(channelType);
-		}
 
+			if (this._connections.has(connection.peer)) {
+				let channels = this._connections.get(connection.peer).channels();
+				channels.delete(channelType);
+
+				if (channels.disconnected()) {
+					console.log("Client " + connection.peer + " disconnected.");
+					this._connections.delete(connection.peer);
+				}
+			}
+		}
 		console.log("Closed " + connection.label + " connection to " + connection.peer);
-
-		if (channels.disconnected()) {
-			console.log("Client " + connection.peer + " disconnected.");
-			this._connections.delete(connection.peer);
-		}
 	}
 
 	addRegisterCallback(cb : RegisterCallback) {

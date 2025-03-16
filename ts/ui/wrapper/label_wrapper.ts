@@ -24,4 +24,11 @@ export abstract class LabelWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().appendChild(elm);
 		return elm;
 	}
+
+	addInputElm() : HTMLInputElement {
+		let elm = Html.input();
+		elm.classList.add(Html.classLabelInput);
+		this.elm().appendChild(elm);
+		return elm;
+	}
 }

@@ -7,24 +7,38 @@ import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { ChannelType } from 'network/api'
 import { Connection } from 'network/connection'
-import { Netcode } from 'network/netcode'
+import { Netcode, NetcodeOptions } from 'network/netcode'
 
 import { ui } from 'ui'
 import { ChatType, StatusType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 
+export type HostOptions = {
+	password? : string;
+	maxPlayers? : number;
+}
+
 export class Host extends Netcode {
 
 	private static readonly _maxChatLength = 48;
 
-	constructor(room : string) {
-		super(room);
+	private _options : HostOptions;
+
+	constructor(options : NetcodeOptions) {
+		super(options.room);
+
+		if (!options.hostOptions) {
+			console.error("Error: no host options were specified.");
+		}
+
+		this._options = options.hostOptions;
 
 		this.registerCallbacks();
 	}
 
 	override isHost() : boolean { return true; }
+	override password() : string { return this._options.password ? this._options.password : ""; }
 
 	override ready() : boolean { return this.initialized() && this.peer().open; }
 	override initialize(onSuccess : () => void, onError : () => void) : void {
@@ -36,6 +50,11 @@ export class Host extends Netcode {
 
 		    peer.on("connection", (connection : DataConnection) => {
 		    	connection.on("open", () => {
+		    		if (!this.canOpen(connection)) {
+		    			connection.close();
+		    			return;
+		    		}
+
 			    	this.register(connection);
 		    	});
 		    });
@@ -73,6 +92,20 @@ export class Host extends Netcode {
     	if (this.initialized()) {
     		ui.setSignalingDisconnected(true);
     	}
+	}
+
+	private canOpen(connection : DataConnection) : boolean {
+		if (this._options.maxPlayers > 0 && this.getNumConnected() >= this._options.maxPlayers) {
+			console.error("Warning: rejected connection since game is full %d/%d", this.getNumConnected(), this._options.maxPlayers);
+			return false;
+		}
+
+		if (this.password() !== "" && this.password() !== connection.metadata?.password) {
+			console.error("Warning: rejected connection with password %s (not %s)", connection.metadata?.password, this.password());
+			return false;
+		}
+
+		return true;
 	}
 
 	private registerCallbacks() : void {

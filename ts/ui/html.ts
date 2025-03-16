@@ -4,14 +4,14 @@ export namespace Html {
 
 	export const canvasGame = "canvas-game";
 	export const divScreen = "div-screen";
+	export const divSplash = "div-splash";
 
 	export const divLogin = "div-login";
-	export const legendLogin = "legend-login";
+	export const loginLegend = "login-legend";
 	export const inputRoom = "input-room";
 	export const loginInfo = "login-info";
 	export const loginError = "login-error";
-	export const formLogin = "form-login";
-	export const divLoginButtons = "div-login-buttons";
+	export const divLoginButtons = "login-buttons";
 	export const buttonHost = "button-host";
 	export const buttonJoin = "button-join";
 
@@ -68,6 +68,7 @@ export namespace Html {
 	export const classBirdPhoto = "bird-photo";
 	export const classBirdPicker = "bird-picker";
 	export const classButton = "button";
+	export const classButtonInverted = "button-inverted";
 	export const classButtonSelect = "button-select";
 	export const classButtonSelected = "button-selected";
 	export const classCategory = "category";
@@ -102,6 +103,7 @@ export namespace Html {
 	export const classInfoSecondary = "info-secondary";
 	export const classInfoBlock = "info-block";
 	export const classLabel = "label";
+	export const classLabelInput = "label-input";
 	export const classLabelName = "label-name";
 	export const classLabelValue = "label-value";
 	export const classLoadoutButton = "loadout-button";

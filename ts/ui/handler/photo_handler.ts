@@ -19,7 +19,9 @@ export class PhotoHandler extends HandlerBase implements Handler {
 		this._canScreenshot = true;
 	}
 
-	override setup() : void {
+	override onPlayerInitialized() : void {
+		super.onPlayerInitialized();
+
 		document.addEventListener("keydown", (e : any) => {
 			if (this._canScreenshot && e.keyCode === settings.photoKeyCode) {
 				const dataURL = game.canvas().toDataURL();

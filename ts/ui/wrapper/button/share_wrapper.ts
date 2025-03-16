@@ -27,12 +27,14 @@ export class ShareWrapper extends ButtonWrapper {
 	}
 
 	private getURL() : string {
-		if (isElectron()) {
-			return `https://birdtown.net/?${UiGlobals.roomParam}=${game.netcode().room()}`;
+		const url = new URL(isElectron() ? "https://birdtown.net/" : window.location.href);
+		url.searchParams.set(UiGlobals.roomParam, game.netcode().room());
+
+		const password = game.netcode().password();
+		if (password.length > 0) {
+			url.searchParams.set(UiGlobals.passwordParam, password);
 		}
 
-		const url = new URL(window.location.href);
-		url.searchParams.set(UiGlobals.roomParam, game.netcode().room());
 		return url.toString();
 	}
 }
