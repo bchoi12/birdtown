@@ -203,6 +203,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.LIVES);
+			break;
 		case GameMode.SURVIVAL:
 			this.setLives(1);
 			this.setPlayersMin(2);

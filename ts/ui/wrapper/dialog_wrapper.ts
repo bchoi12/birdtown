@@ -148,6 +148,10 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 
 	allowKeyboardSubmit() : void {
 		document.addEventListener("keydown", (e : any) => {
+			if (!this.visible()) {
+				return;
+			}
+
 			if (e.keyCode === settings.chatKeyCode) {
 				this.nextPage();
 			}

@@ -15,6 +15,8 @@ import { LabelInputWrapper } from 'ui/wrapper/label/label_input_wrapper'
 import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
+import { settings } from 'settings'
+
 enum State {
 	READY,
 	PENDING,
@@ -35,6 +37,8 @@ export class GameSettingsDialogWrapper extends DialogWrapper {
 	constructor(isHost : boolean) {
 		super();
 
+		this.shrink();
+
 		this._state = State.READY;
 		this._statusWrapper = new ButtonWrapper();
 		this._statusWrapper.elm().style.float = "left";
@@ -46,7 +50,6 @@ export class GameSettingsDialogWrapper extends DialogWrapper {
 
 		this._isHost = isHost;
 
-		this.shrink();
 		let pageWrapper = this.addPage();
 
 		if (isHost) {
@@ -88,6 +91,16 @@ export class GameSettingsDialogWrapper extends DialogWrapper {
 		let cancelButton = this.addCancelButton();
 		cancelButton.addOnClick(() => {
 			this.hide();
+		});
+
+		document.addEventListener("keydown", (e : any) => {
+			if (!this.visible()) {
+				return;
+			}
+
+			if (e.keyCode === settings.chatKeyCode) {
+				this.connect();
+			}
 		});
 	}
 
