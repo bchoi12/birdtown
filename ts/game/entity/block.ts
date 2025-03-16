@@ -217,7 +217,7 @@ export abstract class Block extends EntityBase {
 			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
 				mesh.isVisible = true;
 			});
-		} else if (alpha === 0 && this._alpha > 0) {
+		} else if (this._alpha > 0 && alpha === 0) {
 			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
 				mesh.isVisible = false;
 			});

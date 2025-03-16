@@ -23,6 +23,10 @@ export class PhotoHandler extends HandlerBase implements Handler {
 		super.onPlayerInitialized();
 
 		document.addEventListener("keydown", (e : any) => {
+			if (ui.mode() !== UiMode.GAME) {
+				return;
+			}
+
 			if (this._canScreenshot && e.keyCode === settings.photoKeyCode) {
 				const dataURL = game.canvas().toDataURL();
 				const imgSrc = game.canvas().toDataURL("image/png");
