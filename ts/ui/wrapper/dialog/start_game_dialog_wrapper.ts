@@ -147,7 +147,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.populateMode(GameMode.SUDDEN_DEATH, {
 			name: "Lightning Round",
 			requirements: [],
-			description: "Be the last bird in a tiny town with lightning quick rounds.",
+			description: "Be the last bird in a tiny town in a series of lightning quick rounds.",
 			minRecommended: 3,
 		});
 		this.populateMode(GameMode.SPREE, {
