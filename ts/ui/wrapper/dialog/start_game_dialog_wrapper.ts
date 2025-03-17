@@ -148,7 +148,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			name: "Lightning Round",
 			requirements: [],
 			description: "Be the last bird in a tiny town in a series of lightning quick rounds.",
-			minRecommended: 3,
+			minRecommended: 2,
 		});
 		this.populateMode(GameMode.SPREE, {
 			name: "Spree",
