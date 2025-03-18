@@ -12,6 +12,7 @@ import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { DisconnectedDialogWrapper } from 'ui/wrapper/dialog/disconnected_dialog_wrapper'
 import { FailedConnectDialogWrapper } from 'ui/wrapper/dialog/failed_connect_dialog_wrapper'
+import { FailedCopyDialogWrapper } from 'ui/wrapper/dialog/failed_copy_dialog_wrapper'
 import { InitDialogWrapper } from 'ui/wrapper/dialog/client/init_dialog_wrapper'
 import { LoadoutDialogWrapper } from 'ui/wrapper/dialog/client/loadout_dialog_wrapper'
 import { ReturnToLobbyDialogWrapper } from 'ui/wrapper/dialog/return_to_lobby_dialog_wrapper'
@@ -27,6 +28,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 	private static readonly _createDialogFns = new Map<DialogType, () => DialogWrapper>([
 		[DialogType.DISCONNECTED, () => { return new DisconnectedDialogWrapper()}],
 		[DialogType.FAILED_CONNECT, () => { return new FailedConnectDialogWrapper()}],
+		[DialogType.FAILED_COPY, () => { return new FailedCopyDialogWrapper()}],
 		[DialogType.INIT, () => { return new InitDialogWrapper()}],
 		[DialogType.LOADOUT, () => { return new LoadoutDialogWrapper()}],
 		[DialogType.RETURN_TO_LOBBY, () => { return new ReturnToLobbyDialogWrapper()}],
@@ -98,7 +100,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 		this._dialogs.set(type, dialogWrapper);
 		this._dialogQueue.push(type);
-		this._dialogsElm.prepend(dialogWrapper.elm());
+		this._dialogsElm.appendChild(dialogWrapper.elm());
 
 		this.updateDialog();
 

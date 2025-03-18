@@ -22,6 +22,7 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
 	private static readonly _messageDescriptor = new Map<DialogType, FieldDescriptor>([
         [DialogType.DISCONNECTED, MessageBase.fields()],
         [DialogType.FAILED_CONNECT, MessageBase.fields()],
+        [DialogType.FAILED_COPY, MessageBase.fields()],
 		[DialogType.INIT, MessageBase.fieldDescriptor(
             [DialogProp.BIRD_TYPE, {}],
             [DialogProp.COLOR, {}],

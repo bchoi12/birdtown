@@ -4,6 +4,8 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import { game } from 'game'
 import { GameState } from 'game/api'
 
+import { UiGlobals } from 'global/ui_globals'
+
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
 
@@ -38,7 +40,7 @@ import { TrayHandler } from 'ui/handler/tray_handler'
 
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 
-import { isLocalhost } from 'util/common'
+import { isLocalhost, isElectron } from 'util/common'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -275,6 +277,18 @@ class UI {
 			ui.chat(ChatType.ERROR, "Couldn't connect to your microphone. Please double check you have granted Birdtown permission to access your mic.");
 			this._trayHandler.handleVoiceError();
 		}
+	}
+
+	getInviteLink() : string {
+		const url = new URL(isElectron() ? "https://birdtown.net/" : window.location.href);
+		url.searchParams.set(UiGlobals.roomParam, game.netcode().room());
+
+		const password = game.netcode().password();
+		if (password.length > 0) {
+			url.searchParams.set(UiGlobals.passwordParam, password);
+		}
+
+		return url.toString();
 	}
 }
 
