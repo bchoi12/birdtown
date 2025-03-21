@@ -17,6 +17,7 @@ enum GameConfigProp {
 	PLAYERS_MAX,
 	POINTS,
 	RESET_POINTS,
+	SPAWN_TIME,
 	STARTING_LOADOUT,
 	TIME_SETUP,
 	TIME_GAME,
@@ -56,6 +57,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		...GameConfigMessage._baseProps,
 		[GameConfigProp.DAMAGE_MULTIPLIER, { optional: true }],
 		[GameConfigProp.PLAYERS_MIN, {}],
+		[GameConfigProp.SPAWN_TIME, { optional: true }],
 		[GameConfigProp.RESET_POINTS, {}],
 		[GameConfigProp.TIME_SETUP, {}],
 		[GameConfigProp.TIME_FINISH, {}],
@@ -177,6 +179,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);
 			this.setTimeSetup(40000);
+			this.setSpawnTime(10000);
 			this.setStartingLoadout(LoadoutType.PICK);
 			this.setHealthCrateSpawn(FrequencyType.EVERYWHERE);
 			this.setWeaponCrateSpawn(FrequencyType.EVERYWHERE);
@@ -198,6 +201,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setDamageMultiplier(2);
 			this.setLevelType(LevelType.TINYTOWN);
 			this.setLevelLayout(LevelLayout.NORMAL);
+			this.setSpawnTime(3000);
 			this.setStartingLoadout(LoadoutType.RANDOM);
 			this.setHealthCrateSpawn(FrequencyType.NEVER);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
@@ -281,6 +285,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getResetPointsOr(value : boolean) : boolean { return this.getOr<boolean>(GameConfigProp.RESET_POINTS, value); }
     setResetPoints(value : boolean) : void { this.set<boolean>(GameConfigProp.RESET_POINTS, value); }
 
+    hasSpawnTime() : boolean { return this.has(GameConfigProp.SPAWN_TIME); }
+    getSpawnTime() : number { return this.get<number>(GameConfigProp.SPAWN_TIME); }
+    getSpawnTimeOr(value : number) : number { return this.getOr<number>(GameConfigProp.SPAWN_TIME, value); }
+    setSpawnTime(value : number) : void { this.set<number>(GameConfigProp.SPAWN_TIME, value); }
+
     hasStartingLoadout() : boolean { return this.has(GameConfigProp.STARTING_LOADOUT); }
     getStartingLoadout() : LoadoutType { return this.get<LoadoutType>(GameConfigProp.STARTING_LOADOUT); }
     getStartingLoadoutOr(value : LoadoutType) : LoadoutType { return this.getOr<LoadoutType>(GameConfigProp.STARTING_LOADOUT, value); }
@@ -338,6 +347,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     ["PLAYERS_MAX", "number"],
     ["POINTS", "number"],
     ["RESET_POINTS", "boolean"],
+    ["SPAWN_TIME", "number"],
     ["STARTING_LOADOUT", "LoadoutType"],
     ["TIME_SETUP", "number"],
     ["TIME_GAME", "number"],

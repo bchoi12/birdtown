@@ -25,7 +25,7 @@ export class Bubble extends Equip<Player> {
 	private static readonly _popDuration = 1000;
 	private static readonly _minLifeDuration = 250;
 	private static readonly _lifeDuration = 10000;
-	private static readonly _invincibleDuration = 3000;
+	private static readonly _invincibleDuration = 1500;
 
 	private _cameraOffset : Vec3;
 	private _material : BABYLON.StandardMaterial;

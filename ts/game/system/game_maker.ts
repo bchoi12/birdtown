@@ -38,7 +38,6 @@ export class GameMaker extends SystemBase implements System {
 	private static readonly _preloadTimeLimit = 1500;
 	private static readonly _loadTimeLimit = 2000;
 	private static readonly _respawnTime = 2000;
-	private static readonly _spawnTime = 5000;
 
 	private static readonly _timeLimitBuffer = new Map<GameState, number>([
 		// Large buffer to allow dialogs to cleanly force submit and sync
@@ -323,9 +322,6 @@ export class GameMaker extends SystemBase implements System {
 					if (game.clientDialog(clientId).inSync(DialogType.LOADOUT)) {
 						playerState.setRole(PlayerRole.SPAWNING);
 					}
-				} else if (playerState.role() === PlayerRole.SPAWNING && playerState.timeInRole() > GameMaker._spawnTime) {
-					// Force spawn after a certain time
-					playerState.spawnPlayer();
 				}
 			}, (playerState : PlayerState) => {
 				return playerState.isPlaying() && playerState.validTargetEntity();

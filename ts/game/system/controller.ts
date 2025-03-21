@@ -26,7 +26,7 @@ export class Controller extends SystemBase implements System {
 
 	private static readonly _maxTimeLimit = 999 * 1000;
 	private static readonly _showTimerStates = new Set([
-		GameState.SETUP, GameState.GAME,
+		GameState.SETUP, GameState.GAME, GameState.FINISH, GameState.VICTORY,
 	]);
 
 	private _gameState : GameState;
@@ -108,6 +108,7 @@ export class Controller extends SystemBase implements System {
 			return;
 		}
 
+		ui.clearTimer();
 		this._stopwatch.reset();
 		this._gameState = state;
 		this._gameMaker.setGameState(state);
@@ -146,17 +147,12 @@ export class Controller extends SystemBase implements System {
 
 	private updateTimeLimit(elapsed : number) : void {
 		if (!Controller._showTimerStates.has(this._gameState)) {
-			ui.clearTimer();
 			return;
 		}
 
 		const timeLimit = this._gameMaker.timeLimit(this._gameState);
-
-		if (timeLimit > Controller._maxTimeLimit) {
-			ui.clearTimer();
-			return;
+		if (timeLimit < Controller._maxTimeLimit) {
+			ui.setTimer(Math.max(0, timeLimit - elapsed));
 		}
-
-		ui.setTimer(Math.max(0, timeLimit - elapsed));
 	}
 }

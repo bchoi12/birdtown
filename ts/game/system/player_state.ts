@@ -40,6 +40,10 @@ export class PlayerState extends ClientSystem implements System {
 		KeyType.ALT_MOUSE_CLICK,
 	];
 
+	// Time in airplane
+	private static readonly _spawnTime = 5000;
+
+	// Time dead
 	private static readonly _respawnTime = 2000;
 
 	private _disconnected : boolean;
@@ -248,6 +252,10 @@ export class PlayerState extends ClientSystem implements System {
 		player.setTeam(this._team);
 		game.level().spawnPlayer(player);
     	this.setRole(PlayerRole.GAMING);
+
+    	if (this.clientIdMatches()) {
+	    	ui.clearTimer();
+    	}
 	}
 	resetForLobby() : void {
 		if (this.validTargetEntity()) {
@@ -336,13 +344,19 @@ export class PlayerState extends ClientSystem implements System {
 		    	}
 			}
 		} else {
-			if (this.isSource()
-				&& this.role() !== PlayerRole.GAMING
+			if (this.role() !== PlayerRole.GAMING
 				&& this.targetEntity().getAttribute(AttributeType.REVIVING)
 				&& this.targetEntity().healthPercent() > 0.99) {
 				if (game.tablet(this.clientId()).outOfLives()) {
 					game.tablet(this.clientId()).addInfo(InfoType.LIVES, 1);
 				}
+				this.spawnPlayer();
+			}
+
+			if (game.controller().gameState() === GameState.GAME
+				&& this.isPlaying()
+				&& this.role() === PlayerRole.SPAWNING
+				&& this.timeInRole() >= game.controller().config().getSpawnTimeOr(PlayerState._spawnTime)) {
 				this.spawnPlayer();
 			}
 		}
@@ -394,6 +408,7 @@ export class PlayerState extends ClientSystem implements System {
 
 		if (this.promptSpawn()) {
 			ui.showTooltip(TooltipType.SPAWN, {});
+   			ui.setTimer(Math.max(0, game.controller().config().getSpawnTimeOr(PlayerState._spawnTime) - this.timeInRole()));
 		} else {
 			ui.hideTooltip(TooltipType.SPAWN);
 		}

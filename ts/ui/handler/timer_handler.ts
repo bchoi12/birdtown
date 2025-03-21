@@ -27,6 +27,8 @@ export class TimerHandler extends HandlerBase implements Handler {
 		this._timerEnabled = false;
 	}
 
+	hasTime() : boolean { return this._timerEnabled; }
+
 	setTime(millis : number) : void {
 		if (millis > TimerHandler._maxMillis) {
 			this._timerElm.textContent = TimerHandler._infinity;

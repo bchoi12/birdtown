@@ -222,6 +222,7 @@ class UI {
 
 	hideLogin() : void { this._loginHandler.hideLogin(); }
 	pushAnnouncement(msg : GameMessage) : void { this._announcementHandler.pushAnnouncement(msg); }
+	hasTimer() : boolean { return this._timerHandler.hasTime(); }
 	setTimer(millis : number) : void { this._timerHandler.setTime(millis); }
 	clearTimer() : void { this._timerHandler.clear(); }
 	setHudClientId(id : number) : void { this._hudHandler.setClientId(id); }
