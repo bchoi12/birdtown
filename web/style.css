@@ -664,9 +664,9 @@ kbd {
 }
 
 .dialog-hide {
-    display: none;
     top: 5%;
     opacity: 0;
+    z-index: -999;
 }
 
 .dialog-container {
@@ -879,6 +879,10 @@ kbd {
 
 .category-title:hover {
     background-color: #44444444;
+}
+
+.button:active {
+    color: #bbbbbb;
 }
 
 .button:active:hover, .button-select:active:hover, .button-select.button-selected {
