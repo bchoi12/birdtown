@@ -252,10 +252,6 @@ export class PlayerState extends ClientSystem implements System {
 		player.setTeam(this._team);
 		game.level().spawnPlayer(player);
     	this.setRole(PlayerRole.GAMING);
-
-    	if (this.clientIdMatches()) {
-	    	ui.clearTimer();
-    	}
 	}
 	resetForLobby() : void {
 		if (this.validTargetEntity()) {
@@ -411,6 +407,9 @@ export class PlayerState extends ClientSystem implements System {
    			ui.setTimer(Math.max(0, game.controller().config().getSpawnTimeOr(PlayerState._spawnTime) - this.timeInRole()));
 		} else {
 			ui.hideTooltip(TooltipType.SPAWN);
+
+			// This is kind of broad
+			ui.clearTimer();
 		}
 	}
 }

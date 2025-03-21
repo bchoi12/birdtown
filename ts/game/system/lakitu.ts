@@ -354,7 +354,7 @@ export class Lakitu extends SystemBase implements System {
 			break;
 		case GameState.FREE:
 		case GameState.GAME:
-			switch (game.playerState().role()) {
+			switch (game.playerState()?.role()) {
 			case PlayerRole.PREPARING:
 			case PlayerRole.SPAWNING:
 				this.targetSpawn();

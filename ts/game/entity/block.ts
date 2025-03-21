@@ -2,6 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { ColorFactory } from 'game/factory/color_factory'
 import { ColorCategory } from 'game/factory/api'
@@ -51,6 +52,11 @@ type CachedMaterial = {
 type MaterialFn = (material : BABYLON.StandardMaterial) => void;
 
 export abstract class Block extends EntityBase {
+
+	protected static readonly _freezeStates = new Set([
+		GameState.ERROR,
+		GameState.END,
+	]);
 
 	protected static readonly _minOpacity = 0.15;
 	protected static readonly _minPenetrationSq = 0.1;
@@ -181,6 +187,10 @@ export abstract class Block extends EntityBase {
 		super.preRender();
 
 		if (!this._canTransparent) {
+			return;
+		}
+
+		if (Block._freezeStates.has(game.controller().gameState())) {
 			return;
 		}
 
