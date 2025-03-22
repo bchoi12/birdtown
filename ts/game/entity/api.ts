@@ -119,5 +119,5 @@ export enum FrequencyType {
 	LOW,
 	MEDIUM,
 	HIGH,
-	EVERYWHERE,
+	UBIQUITOUS,
 }

@@ -50,7 +50,7 @@ export class GameMaker extends SystemBase implements System {
 		[FrequencyType.LOW, 0.5],
 		[FrequencyType.MEDIUM, 1],
 		[FrequencyType.HIGH, 2],
-		[FrequencyType.EVERYWHERE, 3],
+		[FrequencyType.UBIQUITOUS, 3],
 	]);
 
 	private _config : GameConfigMessage;

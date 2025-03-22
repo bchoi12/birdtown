@@ -39,8 +39,7 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 		this.setIcons(Icon.getEntityIconType(pair[0]), Icon.getEntityIconType(pair[1]));
 
 		let mouse = Icon.create(IconType.MOUSE);
-		let description = "";
-		description += mouse.outerHTML + " (L): " + StringFactory.getEntityUsage(pair[0])
+		let description = mouse.outerHTML + " (L): " + StringFactory.getEntityUsage(pair[0])
 			+ "<br>" + mouse.outerHTML + " (R): " + StringFactory.getEntityUsage(pair[1]);
 		this.setDescriptionHTML(description);
 	}

@@ -12,13 +12,16 @@ import { InfoType, UiMode } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
-import { ScoreboardWrapper } from 'ui/wrapper/dialog/scoreboard_wrapper'
+import { RulesDialogWrapper } from 'ui/wrapper/dialog/rules_dialog_wrapper'
+import { ScoreboardWrapper } from 'ui/wrapper/scoreboard_wrapper'
 
 export class SidebarHandler extends HandlerBase implements Handler {
 
 	private static readonly _width = "25%";
 	private static readonly _hideWidth = "35%";
 
+	private _gameInfoElm : HTMLElement;
+	private _rules : RulesDialogWrapper;
 	private _scoreboardElm : HTMLElement;
 	private _scoreboard : ScoreboardWrapper;
 	private _stickyShow : boolean;
@@ -26,10 +29,13 @@ export class SidebarHandler extends HandlerBase implements Handler {
 	constructor() {
 		super(HandlerType.SIDEBAR);
 
+		this._gameInfoElm = Html.elm(Html.divGameInfo);
 		this._scoreboardElm = Html.elm(Html.divScoreboard);
+		this._rules = new RulesDialogWrapper();
 		this._scoreboard = new ScoreboardWrapper();
 		this._stickyShow = false;
 
+		this._gameInfoElm.appendChild(this._rules.elm());
 		this._scoreboardElm.appendChild(this._scoreboard.elm());
 	}
 
@@ -39,8 +45,9 @@ export class SidebarHandler extends HandlerBase implements Handler {
 		document.addEventListener("keyup", (e : any) => {
 			if (e.keyCode !== settings.scoreboardKeyCode) return;
 
+			this.hideRules();
 			if (!this._stickyShow) {
-				this.hide();
+				this.hideScore();
 			}
 
 			e.preventDefault();
@@ -49,7 +56,8 @@ export class SidebarHandler extends HandlerBase implements Handler {
 		document.addEventListener("keydown", (e : any) => {
 			if (e.keyCode !== settings.scoreboardKeyCode) return;
 
-			this.show();
+			this.showRules();
+			this.showScore();
 			e.preventDefault();
 		});
 
@@ -62,7 +70,8 @@ export class SidebarHandler extends HandlerBase implements Handler {
 		if (state === GameState.FINISH || state === GameState.VICTORY) {
 			this.stickyShow();
 		} else {
-			this.hide();
+			this.hideScore();
+			this.hideRules();
 		}
 	}
 
@@ -77,6 +86,7 @@ export class SidebarHandler extends HandlerBase implements Handler {
 	}
 	setGameConfig(config : GameConfigMessage) : void {
 		this._scoreboard.setGameConfig(config);
+		this._rules.setGameConfig(config);
 	}
 	updateInfo(id : number, type : InfoType, value : number) : void {
 		this._scoreboard.updateInfo(id, type, value);
@@ -88,7 +98,7 @@ export class SidebarHandler extends HandlerBase implements Handler {
 		this._scoreboard.refreshColor();
 	}
 
-	show() : void {
+	private showScore() : void {
 		if (!game.initialized()) {
 			return;
 		}
@@ -97,16 +107,28 @@ export class SidebarHandler extends HandlerBase implements Handler {
 		this._scoreboard.onShow();
 	}
 
-	stickyShow() : void {
-		this.show();
+	private showRules() : void {
+		if (!game.initialized()) {
+			return;
+		}
+
+		this._rules.show();
+	}
+
+	private stickyShow() : void {
+		this.showScore();
 
 		this._stickyShow = true;
 	}
 
-	hide() : void {
+	private hideScore() : void {
 		this._scoreboardElm.style.right = "-" + SidebarHandler._hideWidth;
 
 		this._scoreboard.removeHighlights();
 		this._stickyShow = false;
+	}
+
+	private hideRules() : void {
+		this._rules.hide();
 	}
 }

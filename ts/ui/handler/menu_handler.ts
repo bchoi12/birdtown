@@ -23,6 +23,11 @@ import { VoiceWrapper } from 'ui/wrapper/button/voice_wrapper'
 
 export class MenuHandler extends HandlerBase implements Handler {
 
+	private static readonly _allowedStates = new Set([
+		GameState.FREE,
+		GameState.GAME,
+	]);
+
 	private _modalsElm : HTMLElement;
 	private _menuElm : HTMLElement;
 	private _continueElm : HTMLElement;
@@ -56,6 +61,10 @@ export class MenuHandler extends HandlerBase implements Handler {
 		});
 
 		document.addEventListener("keydown", (e : any) => {
+			if (!MenuHandler._allowedStates.has(game.controller().gameState())) {
+				return;
+			}
+
 			if (e.keyCode === settings.menuKeyCode) {
 				this._menuKeyPressed = true;
 

@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { Strings } from 'strings'
+
 import { ui } from 'ui'
 import { Icon, IconType } from 'ui/common/icon'
 import { Html, HtmlWrapper } from 'ui/html'
@@ -33,6 +35,18 @@ export class NameWrapper extends HtmlWrapper<HTMLElement> {
 		this.refresh();
 	}
 	clientId() : number { return this._clientId; }
+
+	setEntityId(entityId : number) : void {
+		const [entity, ok] = game.entities().getEntity(entityId);
+
+		this._iconElm.innerHTML = "";
+		if (!ok) {
+			this._nameElm.textContent = "???";
+		} else {
+			this._nameElm.textContent = Strings.toTitleCase(entity.displayName());
+		}
+		this.elm().style.backgroundColor = "#888888";
+	}
 
 	refresh() : void {
 		this._iconElm.innerHTML = "";

@@ -34,7 +34,6 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 		let columns = ColumnsWrapper.withColumns(num);
 		pageWrapper.elm().appendChild(columns.elm());
 
-
 		this.dialogMessage().setEquipType(pairs[0][0]);
 		this.dialogMessage().setAltEquipType(pairs[0][1]);
 

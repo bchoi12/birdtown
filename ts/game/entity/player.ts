@@ -586,6 +586,14 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				break;
 			default:
 				console.error("Error: unhandled attach type", AttachType[equip.attachType()]);
+				return;
+			}
+
+			if (equip.allTypes().has(EntityType.WEAPON)) {
+				this._equipType = equip.type();
+			} else if (!equip.allTypes().has(EntityType.HEADWEAR) && !equip.allTypes().has(EntityType.BEAK)) {
+				// Kinda fragile
+				this._altEquipType = equip.type();
 			}
 		});
 	}

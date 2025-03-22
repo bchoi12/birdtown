@@ -77,6 +77,10 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	handleClientMessage(msg : GameMessage) : void {}
 
 	show() : void {
+		if (this._visible) {
+			return;
+		}
+
 		this._visible = true;
 		setTimeout(() => {
 			if (this._visible) {
@@ -90,6 +94,10 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().classList.add(Html.classDialogSmall);
 	}
 	hide() : void {
+		if (!this._visible) {
+			return;
+		}
+
 		this._visible = false;
 		this.elm().classList.add(Html.classDialogHide);
 	}

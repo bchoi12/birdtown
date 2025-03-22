@@ -152,7 +152,6 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		this.setTimeError(5000);
 
 		this.setResetPoints(false);
-		this.setDamageMultiplier(1);
 		this.setHealthCrateSpawn(FrequencyType.NEVER);
 		this.setWeaponCrateSpawn(FrequencyType.NEVER);
 
@@ -181,8 +180,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setTimeSetup(40000);
 			this.setSpawnTime(10000);
 			this.setStartingLoadout(LoadoutType.PICK);
-			this.setHealthCrateSpawn(FrequencyType.EVERYWHERE);
-			this.setWeaponCrateSpawn(FrequencyType.EVERYWHERE);
+			this.setHealthCrateSpawn(FrequencyType.UBIQUITOUS);
+			this.setWeaponCrateSpawn(FrequencyType.UBIQUITOUS);
 			this.setWinCondition(WinConditionType.NONE);
 			break;
 		case GameMode.SPREE:

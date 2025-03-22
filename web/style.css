@@ -335,6 +335,11 @@ kbd {
     transform: scale(1, -1);
 }
 
+#div-game-info {
+    width: 100%;
+    height: 100%;
+}
+
 #div-feed, #div-scoreboard {
     position: absolute;
     top: 28%;
@@ -347,7 +352,7 @@ kbd {
 #div-scoreboard {
     display: none;
     right: 0;
-    background-color: rgba(0, 0, 0, 0.35);
+    background-color: rgba(0, 0, 0, 0.7);
 
     padding: 1em 0.3em 1em 1em;
     border-top-left-radius: 1em;

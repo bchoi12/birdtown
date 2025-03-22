@@ -457,7 +457,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 	private damageMultiplierWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
 		return new LabelNumberWrapper({
 			label: "Damage Multiplier",
-			value: msg.getDamageMultiplier(),
+			value: msg.getDamageMultiplierOr(1),
 			plus: (current : number) => {
 				msg.setDamageMultiplier(Math.min(current + 0.5, max));
 			},
@@ -506,7 +506,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			label: "Health crate drop rate",
 			value: Number(msg.getHealthCrateSpawn()),
 			plus: (current : number) => {
-				if (current === FrequencyType.EVERYWHERE) {
+				if (current === FrequencyType.UBIQUITOUS) {
 					return;
 				}
 				current++;
@@ -528,7 +528,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			label: "Weapon crate drop rate",
 			value: Number(msg.getWeaponCrateSpawn()),
 			plus: (current : number) => {
-				if (current === FrequencyType.EVERYWHERE) {
+				if (current === FrequencyType.UBIQUITOUS) {
 					return;
 				}
 				current++;
