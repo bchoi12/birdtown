@@ -32,28 +32,32 @@ export class FeedWrapper extends HtmlWrapper<HTMLElement> {
 		this._feedElm = Html.span();
 		this._feedElm.classList.add(Html.classSpaced);
 
-		let html = [];
+
 		const names = msg.getNamesOr([]);
+
+		if (names.length === 0 && !msg.hasFeedType()) {
+			console.error("Warning: skipping empty feed");
+			return;
+		}
+
+
 		if (names.length >= 1) {
-			html.push(names[0]);
+			let name = Html.span();
+			name.textContent = names[0] + " ";
+			this._feedElm.appendChild(name);
 		}
 		const type = msg.getFeedType();
 		if (FeedWrapper._iconMap.has(type)) {
 			let icon = Icon.create(FeedWrapper._iconMap.get(type));
 			icon.style.padding = "0 0.2em";
-			html.push(icon.outerHTML);
+			this._feedElm.appendChild(icon);
 		}
 
 		if (names.length >= 2) {
-			html.push(names[1]);
+			let name = Html.span();
+			name.textContent = " " + names[1];
+			this._feedElm.appendChild(name);
 		}
-
-		if (html.length === 0) {
-			console.error("Warning: empty feed published");
-			html.push("?");
-		}
-
-		this._feedElm.innerHTML = html.join(" ");
 		this.elm().appendChild(this._feedElm);
 
 		this.setVisible(true);

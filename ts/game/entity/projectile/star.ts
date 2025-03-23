@@ -93,7 +93,7 @@ export class Star extends Projectile {
 	}
 
 	stick(entity : Entity) : boolean {
-		if (this._profile.attached()) {
+		if (!this._profile.initialized() || this._profile.attached()) {
 			return false;
 		}
 		if (!entity.hasProfile()) {

@@ -62,6 +62,9 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	highlightPlayer(id : number) : void {
+		if (!this._infoWrappers.has(id)) {
+			return;
+		}
 		this._infoWrappers.get(id).highlight();
 		this._highlighted.add(id);
 	}
