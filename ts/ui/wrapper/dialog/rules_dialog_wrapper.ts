@@ -122,6 +122,10 @@ export class RulesDialogWrapper extends DialogWrapper {
 				return;
 			}
 
+			if (!StringFactory.hasEntityUsage(type)) {
+				return;
+			}
+
 			html += "<li>";
 			html += StringFactory.getEntityTypeName(type).toTitleString()
 			html += " - " + StringFactory.getEntityUsage(type);

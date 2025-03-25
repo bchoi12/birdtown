@@ -768,6 +768,11 @@ export class Profile extends ComponentBase implements Component {
 			this.setAngle(0);
 		}
 	}
+	upright() : void {
+		if (this.hasAngle()) {
+			this.setAngle(0);
+		}
+	}
 	addSourceForce(force : Vec) : void {
 		if (this.isSource()) {
 			this._forces.push(force);

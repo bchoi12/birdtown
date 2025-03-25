@@ -112,6 +112,7 @@ export class Bubble extends Equip<Player> {
 		super.delete();
 
 		if (this.hasOwner()) {
+			this.owner().upright();
 			this.owner().setAttribute(AttributeType.FLOATING, false);
 			this.owner().setAttribute(AttributeType.INVINCIBLE, false);
 		}

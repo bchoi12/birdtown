@@ -58,8 +58,11 @@ export namespace StringFactory {
 		[EntityType.WING_CANNON, ParamString.of("Fire a barrage of exploding orbs")],
 	]);
 
+	export function hasEntityUsage(type : EntityType) : boolean {
+		return entityUsage.has(type);
+	}
 	export function getEntityUsage(type : EntityType) : ParamString {
-		if (entityUsage.has(type)) {
+		if (hasEntityUsage(type)) {
 			return entityUsage.get(type);
 		}
 		return entityUsage.get(EntityType.UNKNOWN);

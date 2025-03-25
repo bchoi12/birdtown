@@ -14,11 +14,11 @@ Play the alpha version at https://birdtown.net.
 
 ## Screenshots
 
-![Recent screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog081.png?raw=true)
+![Multiplayer action](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog087.png?raw=true)
 
-![Multiplayer action](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog083.png?raw=true)
+![Recent screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog089.png?raw=true)
 
-![UI screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog084.png?raw=true)
+![UI screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog088.png?raw=true)
 
 ## Nerd Stuff
 
@@ -26,7 +26,7 @@ Engine Highlights
  * Custom built for the web with nearly instant load times. All assets are streamed to you on-demand.
  * Cross platform support - play with any device that can run a modern web browser.
  * Server-authoritative peer-to-peer netcode (one client doubles as the host) with client-side smoothing.
- * Experimental built-in proximity voice chat (and text chat).
+ * Experimental built-in proximity voice chat (and text chat). Voice chat is currently disabled.
  * 3D rendering thanks to Babylon.js and spatialized audio thanks to WebAudio.
  * Levels are procedurally generated using a seed and also seamlessly endless.
  * Game states are diff-based and compressed, then sent using both reliable (TCP-like) and fast (UDP-like) protocols for smooth consistent gameplay.

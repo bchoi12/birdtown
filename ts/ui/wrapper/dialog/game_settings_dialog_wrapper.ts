@@ -120,6 +120,10 @@ export class GameSettingsDialogWrapper extends DialogWrapper {
 	}
 
 	connect() : void {
+		if (this._state === State.PENDING) {
+			return;
+		}
+
 		let room = this.getRoom();
 
 		if (room.length <= 0) {
