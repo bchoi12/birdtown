@@ -10,7 +10,9 @@ Start a game and have your friends join in seconds - no login or install require
 
 ## Status
 
-Play the alpha version at https://birdtown.net.
+Beta has been launched! Play now at either
+ * https://birdtown.net
+ * https://bchoi12.itch.io/birdtown
 
 ## Screenshots
 
