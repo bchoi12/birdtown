@@ -100,7 +100,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 
 		if (game.isHost()) {
 			if (game.controller().gameState() === GameState.FREE) {
-				this._quitElm.textContent = "Return to Menu";
+				this._quitElm.textContent = "Leave Game";
 			} else {
 				this._quitElm.textContent = "Return to Lobby";
 			}
