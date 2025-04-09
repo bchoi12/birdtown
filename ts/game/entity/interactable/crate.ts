@@ -167,6 +167,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 							x: Fns.randomRange(-0.15, 0.15),
 							y: Fns.randomRange(0.2, 0.3),
 						},
+						acc: { y: GameGlobals.gravity },
 						scaling: { x: 0.25, y: 0.25 },
 					},
 					modelInit: {

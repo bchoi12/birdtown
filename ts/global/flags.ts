@@ -10,4 +10,13 @@ export namespace Flags {
 	export const enableVoice = new BoolFlag("enableVoice", false);
 	export const peerDebug = new NumberFlag("peerDebug", 2);
 	export const useLocalPerch = new BoolFlag("useLocalPerch", false);
+	export const usePerch = new BoolFlag("usePerch", false);
+
+	export function validate() : [boolean, string] {
+		if (useLocalPerch.get() && usePerch.get()) {
+			return [false, "Requested local and non-local perch"];
+		}
+
+		return [true, ""];
+	}
 }

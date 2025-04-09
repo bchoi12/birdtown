@@ -115,13 +115,13 @@ export class Knife extends Projectile {
 			for (let i = 0; i < 5; ++i) {
 				this.addEntity(EntityType.CUBE_PARTICLE, {
 					offline: true,
-					ttl: 500,
+					ttl: 350,
 					profileInit: {
 						pos: this._profile.pos().clone().add({
 							x: Fns.randomRange(-0.1, 0.1),
 							y: 0,
 						}),
-						vel: this._profile.vel().clone().scale(dir * Fns.randomRange(0.2, 0.3)),
+						vel: this._profile.vel().clone().scale(dir * Fns.randomRange(0.1, 0.2)),
 						scaling: { x: 0.15, y: 0.15 },
 					},
 					modelInit: {

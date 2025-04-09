@@ -24,7 +24,6 @@ export class CubeParticle extends Particle {
 		super(EntityType.CUBE_PARTICLE, entityOptions);
 
 		this._profile.setAngle(0);
-		this._profile.setAcc({ y: GameGlobals.gravity });
 	}
 
 	override initialize() : void {

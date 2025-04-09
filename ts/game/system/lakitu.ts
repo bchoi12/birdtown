@@ -35,8 +35,8 @@ enum TargetMode {
 	UNKNOWN,
 
 	PLAYER,
-	SPAWN_ZOOM,
 	SPAWN,
+	SPAWN_ZOOM,
 	WINNER,
 }
 
@@ -174,7 +174,11 @@ export class Lakitu extends SystemBase implements System {
 			return true;
 		}
 
-		this.resetPan(Lakitu._slowPan);
+		if (this._mode === TargetMode.WINNER) {
+			this.resetPan(Lakitu._quickPan);
+		} else {
+			this.resetPan(Lakitu._slowPan);
+		}
 		this.setTargetEntity(game.playerState().targetEntity());
 		this._mode = TargetMode.PLAYER;
 		return true;

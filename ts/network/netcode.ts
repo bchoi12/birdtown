@@ -48,7 +48,13 @@ export type NetcodeOptions = {
 
 export abstract class Netcode {
 
+	private static readonly _defaultPassword = "bt";
 	private static readonly _initializeTimeout = 20000;
+
+	// For peer.js connection
+	private static readonly _pingInterval = 30000;
+
+	// For host/client connections
 	private static readonly _pingTimeoutMillis = 15000;
 
 	private static readonly _validChannels : DoubleMap<ChannelType, string> = DoubleMap.fromEntries([
@@ -113,14 +119,14 @@ export abstract class Netcode {
 			this._peer = new Peer(this.peerName(), {
 				host: "localhost",
 				port: 3000,
-				path: "/peer",
+				path: "/peer/" + this.password(),
 				debug: Flags.peerDebug.get(),
-				pingInterval: 5000,
+				pingInterval: Netcode._pingInterval,
 			});
 		} else {
 			this._peer = new Peer(this.peerName(), {
 				debug: Flags.peerDebug.get(),
-				pingInterval: 5000,
+				pingInterval: Netcode._pingInterval,
 			});
 		}
 
@@ -178,7 +184,7 @@ export abstract class Netcode {
 
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
-	abstract password() : string;
+	password() : string { return Netcode._defaultPassword; }
 	hostName() : string { return this._hostName; }
 	peerName() : string { return this.isHost() ? this._hostName : this._peerName; }
 	hasClientId() : boolean { return this._clientId > 0; }

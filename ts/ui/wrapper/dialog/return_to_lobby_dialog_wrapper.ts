@@ -21,7 +21,7 @@ export class ReturnToLobbyDialogWrapper extends DialogWrapper {
 		pageWrapper.elm().textContent = "Are you sure?\r\n\r\nThis will end the current game and all players will return to the lobby."
 
 		pageWrapper.setOnSubmit(() => {
-			game.controller().returnToLobby();
+			game.controller().terminateGame();
 		});
 
 		let okButton = this.addOKButton();

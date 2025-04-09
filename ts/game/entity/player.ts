@@ -91,7 +91,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private static readonly _knockbackRecoveryTime = 250;
 	private static readonly _interactCheckInterval = 125;
 	private static readonly _heartInterval = 1000;
-	private static readonly _reviveTime = 6000;
+	private static readonly _reviveTime = 5000;
 	private static readonly _sweatInterval = 4000;
 	private static readonly _walkSmokeInterval = 500;
 

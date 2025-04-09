@@ -39,7 +39,7 @@ export class Client extends Netcode {
 	}
 
 	override isHost() : boolean { return false; }
-	override password() : string { return this._options.password ? this._options.password : ""; }
+	override password() : string { return this._options.password ? this._options.password : super.password(); }
 
 	override ready() : boolean { return this.initialized() && this._tcp.open && this._udp.open; }
 	override initialize(onSuccess : () => void, onError : () => void) : void {

@@ -117,21 +117,12 @@ export class Controller extends SystemBase implements System {
 		game.runner().setGameState(this._gameState);
 		ui.setGameState(this._gameState);
 
-		// Fix rotation bug when returning to lobby?
-		if (state === GameState.FREE && !this.isSource()) {
-			game.playerStates().execute((playerState : PlayerState) => {
-				if (playerState.validTargetEntity()) {
-					playerState.targetEntity<Player>().getUp();
-				}
-			});
-		}
-
 		if (isLocalhost()) {
 			console.log("%s: game state is %s", this.name(), GameState[state]);
 		}
 	}
 	inSetup() : boolean { return this._gameState === GameState.LOAD || this._gameState === GameState.SETUP; }
-	returnToLobby() : void { this.setGameState(GameState.END); }
+	terminateGame() : void { this.setGameState(GameState.END); }
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);

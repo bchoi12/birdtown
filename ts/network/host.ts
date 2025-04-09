@@ -38,7 +38,7 @@ export class Host extends Netcode {
 	}
 
 	override isHost() : boolean { return true; }
-	override password() : string { return this._options.password ? this._options.password : ""; }
+	override password() : string { return this._options.password ? this._options.password : super.password(); }
 
 	override ready() : boolean { return this.initialized() && this.peer().open; }
 	override initialize(onSuccess : () => void, onError : () => void) : void {
