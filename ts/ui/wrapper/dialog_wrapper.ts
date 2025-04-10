@@ -103,6 +103,13 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	}
 	visible() : boolean { return this._visible; }
 
+	setOpaque(opaque : boolean) : void {
+		if (opaque) {
+			this.elm().classList.add(Html.classDialogOpaque);
+		} else {
+			this.elm().classList.remove(Html.classDialogOpaque);
+		}
+	}
 	setTitle(text : string) : void {
 		this._titleElm.textContent = text;
 	}

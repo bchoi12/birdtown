@@ -31,14 +31,13 @@ export class LoadingHandler extends HandlerBase implements Handler {
 	override onGameInitialized() : void {
 		super.onGameInitialized();
 
-		this.setLoading(true);
 		this._loadingElm.style.display = "block";
+		this.setLoading(false);
 	}
 
 	override onPlayerInitialized() : void {
 		super.onPlayerInitialized();
 
-		this.setLoading(false);
 		this._initialized = true;
 	}
 

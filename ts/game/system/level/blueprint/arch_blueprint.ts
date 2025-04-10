@@ -328,14 +328,14 @@ export class ArchBlueprint extends Blueprint {
 					if (i === 2) {
 						block.pushEntityOptions(EntityType.START_GAME_SIGN, {
 							profileInit: {
-								pos: Vec2.fromVec(block.pos()).add({ x: -2.5, y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
+								pos: Vec2.fromVec(block.pos()).add({ x: -2.7, y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
 								dim: EntityFactory.getDimension(EntityType.SIGN),
 							},
 						});
 
 						block.pushEntityOptions(EntityType.CONTROLS_SIGN, {
 							profileInit: {
-								pos: Vec2.fromVec(block.pos()).add({ x: 2.5, y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
+								pos: Vec2.fromVec(block.pos()).add({ x: 2.7, y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
 								dim: EntityFactory.getDimension(EntityType.SIGN),
 							},
 						});

@@ -88,6 +88,7 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 
 		nameTag.setDisplayName(text);
 		this._nameTag = nameTag;
+		this._nameTag.setOscillateTime(this.oscillateTime());
 	}
 
 	override delete() : void {
@@ -98,6 +99,7 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 		}
 	}
 
+	oscillateTime() : number { return 0; }
 	abstract nameTagText() : string;
 	abstract tooltipType() : TooltipType;
 

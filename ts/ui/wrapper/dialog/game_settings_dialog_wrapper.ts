@@ -37,6 +37,7 @@ export class GameSettingsDialogWrapper extends DialogWrapper {
 	constructor(isHost : boolean) {
 		super();
 
+		this.setOpaque(true);
 		this.shrink();
 
 		this._state = State.READY;

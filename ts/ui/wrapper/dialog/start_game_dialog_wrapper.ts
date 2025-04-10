@@ -125,7 +125,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		let mode = columnsWrapper.column(0);
 		mode.setLegend("Mode");
-		mode.contentElm().style.fontSize = "0.7em";
+		mode.contentElm().style.fontSize = "0.9em";
 		let info = columnsWrapper.column(1);
 		info.setLegend("Description");
 		info.contentElm().style.fontSize = "0.7em";

@@ -39,6 +39,8 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 	private _displayName : string;
 	private _enabled : boolean;
+	private _oscillateTime : number;
+	private _oscillation : number;
 	private _visible : boolean;
 	private _width : number;
 
@@ -54,6 +56,8 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 		this._displayName = "";
 		this._enabled = true;
+		this._oscillateTime = 0;
+		this._oscillation = 0;
 		this._visible = true;
 		this._width = 0;
 
@@ -199,6 +203,13 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		this._displayName = displayName;
 	}
 
+	setOscillateTime(oscillateTime : number) : void {
+		this._oscillateTime = Math.max(0, oscillateTime);
+
+		if (this._oscillateTime === 0) {
+			this._oscillation = 0;
+		}
+	}
 	setVisible(visible : boolean) : void {
 		if (this._visible === visible) {
 			return;
@@ -222,6 +233,21 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	}
 
 	override attachType() : AttachType { return AttachType.ROOT; }
+
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+		const millis = stepData.millis;
+
+		if (this._oscillateTime > 0) {
+
+			this._oscillation += millis / this._oscillateTime;
+			this._model.translation().y = 0.1 * Math.sin(this._oscillation * 2 * Math.PI);
+
+			if (this._oscillation > 1) {
+				this._oscillation = this._oscillation % 1;
+			}
+		}
+	}
 
 	override preRender() : void {
 		super.preRender();

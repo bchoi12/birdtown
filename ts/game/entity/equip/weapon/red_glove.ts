@@ -22,8 +22,8 @@ export class RedGlove extends Weapon {
 
 	private static readonly _config = {
 		times: new Map([
-			[WeaponState.FIRING, 120],
-			[WeaponState.RELOADING, 600],
+			[WeaponState.FIRING, 125],
+			[WeaponState.RELOADING, 550],
 		]),
 		bursts: 2,
 	};

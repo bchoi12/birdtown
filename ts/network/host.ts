@@ -16,7 +16,7 @@ import { isLocalhost } from 'util/common'
 
 export type HostOptions = {
 	password? : string;
-	maxPlayers? : number;
+	maxPlayers : number;
 }
 
 export class Host extends Netcode {
@@ -38,7 +38,9 @@ export class Host extends Netcode {
 	}
 
 	override isHost() : boolean { return true; }
+	override getPath() : string { return [super.getPath(), this.password(), this.maxPlayers()].join("/"); }
 	override password() : string { return this._options.password ? this._options.password : super.password(); }
+	maxPlayers() : number { return this._options.maxPlayers; }
 
 	override ready() : boolean { return this.initialized() && this.peer().open; }
 	override initialize(onSuccess : () => void, onError : () => void) : void {

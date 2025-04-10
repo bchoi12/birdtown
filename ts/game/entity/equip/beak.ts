@@ -101,6 +101,15 @@ export abstract class Beak extends Equip<Player> {
 		return hudData;
 	}
 
+	override initialize() : void {
+		super.initialize();
+
+		this.model().onLoad(() => {
+			this.setCanUse(true);
+			this.setSquawking(true);
+		});
+	}
+
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 

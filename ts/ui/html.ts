@@ -86,6 +86,7 @@ export namespace Html {
 	export const classDialogContainer = "dialog-container";
 	export const classDialogContent = "dialog-content";
 	export const classDialogHide = "dialog-hide";
+	export const classDialogOpaque = "dialog-opaque";
 	export const classDialogPage = "dialog-page";
 	export const classDialogSmall = "dialog-small";
 	export const classDialogTitle = "dialog-title";

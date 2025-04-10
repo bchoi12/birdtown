@@ -155,6 +155,10 @@ export class Lakitu extends SystemBase implements System {
 		return this.targetEntity().type();
 	}
 	private static canSpectate(player : Player) : boolean {
+		if (!game.playerInitialized()) {
+			return false;
+		}
+
 		const team = game.playerState().team();
 		if (team !== 0 && team !== player.team()) {
 			return false;

@@ -48,7 +48,7 @@ export type NetcodeOptions = {
 
 export abstract class Netcode {
 
-	private static readonly _defaultPassword = "bt";
+	private static readonly _defaultPassword = "";
 	private static readonly _initializeTimeout = 20000;
 
 	// For peer.js connection
@@ -114,18 +114,21 @@ export abstract class Netcode {
 	}
 
 	initialize(onSuccess : () => void, onError: () => void) : void {
+		const peerDebug = Flags.peerDebug.get();
 		if (Flags.useLocalPerch.get()) {
-			console.log("Using local server with ID", this.peerName());
+			const port = Flags.localPerchPort.get();
+			console.log(`Using localhost:${port} with ID`, this.peerName());
 			this._peer = new Peer(this.peerName(), {
 				host: "localhost",
-				port: 3000,
-				path: "/peer/" + this.password(),
-				debug: Flags.peerDebug.get(),
+				port: port,
+				path: this.getPath(),
+				debug: peerDebug,
 				pingInterval: Netcode._pingInterval,
 			});
 		} else {
+			console.log(`Using peerjs server with ID`, this.peerName());
 			this._peer = new Peer(this.peerName(), {
-				debug: Flags.peerDebug.get(),
+				debug: peerDebug,
 				pingInterval: Netcode._pingInterval,
 			});
 		}
@@ -184,6 +187,8 @@ export abstract class Netcode {
 
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
+	// Perch path
+	getPath() : string { return "/peer"; }
 	password() : string { return Netcode._defaultPassword; }
 	hostName() : string { return this._hostName; }
 	peerName() : string { return this.isHost() ? this._hostName : this._peerName; }

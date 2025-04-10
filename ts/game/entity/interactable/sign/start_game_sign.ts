@@ -14,6 +14,7 @@ export class StartGameSign extends Sign {
 		super(EntityType.START_GAME_SIGN, entityOptions);
 	}
 
+	override oscillateTime() : number { return 1500; }
 	override nameTagText() : string { return "Start Game"; }
 	override tooltipType() : TooltipType { return TooltipType.START_GAME; }
 
