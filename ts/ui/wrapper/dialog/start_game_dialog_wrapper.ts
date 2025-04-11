@@ -65,9 +65,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.addGameModePage();
 
 		let shareWrapper = new ShareWrapper();
-		shareWrapper.setText("Copy invite link");
-		shareWrapper.setHoverOnlyText(true);
-		shareWrapper.elm().style.float = "left";
+		shareWrapper.configureForDialog();
 		this.footerElm().appendChild(shareWrapper.elm());
 
 		let okButton = this.addOKButton();

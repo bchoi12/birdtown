@@ -15,13 +15,13 @@ import { ChannelMap } from 'network/channel_map'
 import { Connection } from 'network/connection'
 import { ClientOptions } from 'network/client'
 import { HostOptions } from 'network/host'
+import { IdGen } from 'network/id_gen'
 import { Pinger } from 'network/pinger'
 
 import { settings } from 'settings'
 
 import { ui } from 'ui'
 import { ChatType, DialogType } from 'ui/api'
-import { LoginNames } from 'ui/common/login_names'
 
 import { Buffer } from 'util/buffer'
 import { defined, isLocalhost } from 'util/common'
@@ -40,6 +40,7 @@ enum DataFormat {
 
 export type NetcodeOptions = {
 	room : string;
+	password : string;
 	isHost : boolean;
 
 	hostOptions? : HostOptions;
@@ -48,7 +49,6 @@ export type NetcodeOptions = {
 
 export abstract class Netcode {
 
-	private static readonly _defaultPassword = "";
 	private static readonly _initializeTimeout = 20000;
 
 	// For peer.js connection
@@ -63,6 +63,8 @@ export abstract class Netcode {
 	]);
 
 	protected _room : string;
+	protected _password : string;
+	protected _token : string;
 	protected _hostName : string;
 	protected _peerName : string;
 	protected _clientId : number;
@@ -85,10 +87,12 @@ export abstract class Netcode {
 	// TODO: delete?
 	protected _audioContext : Optional<AudioContext>;
 
-	constructor(room : string) {
-		this._room = room.toUpperCase();
+	constructor(options : NetcodeOptions) {
+		this._room = options.room.toUpperCase();
+		this._password = options.password;
+		this._token = IdGen.randomId(6);
 		this._hostName = "birdtown-" + this._room;
-		this._peerName = this._hostName + "-" + LoginNames.randomId(6);
+		this._peerName = this._hostName + "-" + this._token;
 		this._clientId = 0;
 		this._initialized = false;
 		this._initError = false;
@@ -124,6 +128,7 @@ export abstract class Netcode {
 				path: this.getPath(),
 				debug: peerDebug,
 				pingInterval: Netcode._pingInterval,
+				token: this._token,
 			});
 		} else {
 			console.log(`Using peerjs server with ID`, this.peerName());
@@ -188,8 +193,9 @@ export abstract class Netcode {
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
 	// Perch path
-	getPath() : string { return "/peer"; }
-	password() : string { return Netcode._defaultPassword; }
+	getPath() : string { return ["/peer", this.password(), this.getParams()].join("/"); }
+	getParams() : string { return "0"; }
+	password() : string { return this._password; };
 	hostName() : string { return this._hostName; }
 	peerName() : string { return this.isHost() ? this._hostName : this._peerName; }
 	hasClientId() : boolean { return this._clientId > 0; }
@@ -511,16 +517,22 @@ export abstract class Netcode {
 	}
 
 	disconnect(id : string) : void {
-		if (this.hasConnection(id)) {
-			let connection = this.connection(id);
-			connection.disconnect();
+		if (!this.hasConnection(id)) {
+			return;
+		}
 
-			if (connection.hasClientId()) {
-				let msg = new GameMessage(GameMessageType.CLIENT_DISCONNECT);
-				msg.setClientId(connection.clientId());
-				game.handleMessage(msg);
-				ui.handleClientMessage(msg);
-			}
+		let connection = this.connection(id);
+		connection.disconnect();
+
+		if (connection.hasClientId()) {
+			let msg = new GameMessage(GameMessageType.CLIENT_DISCONNECT);
+			msg.setClientId(connection.clientId());
+			game.handleMessage(msg);
+			ui.handleClientMessage(msg);
+		}
+
+		if (this.isHost()) {
+			this.updateRoomMetadata();
 		}
 	}
 
@@ -530,6 +542,20 @@ export abstract class Netcode {
 				this.disconnect(connection.id());
 			}
 		});
+	}
+
+	private updateRoomMetadata() : void {
+		if (Flags.useLocalPerch.get()) {
+			const numPlayers = this.getNumConnected() + 1;
+			const url = `http://localhost:3000/room?id=${this._hostName}&t=${this._token}&p=${numPlayers}`;
+			fetch(url, {
+				method: "PUT",
+			}).then((response) => {
+				if (isLocalhost()) {
+					console.log("Update room metadata:", response);
+				}
+			});
+		}
 	}
 
 	private async handleData(id : string, data : unknown) : Promise<void> {

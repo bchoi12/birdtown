@@ -15,7 +15,7 @@ import { ChatType, StatusType } from 'ui/api'
 import { isLocalhost } from 'util/common'
 
 export type HostOptions = {
-	password? : string;
+	publicRoom : boolean;
 	maxPlayers : number;
 }
 
@@ -26,7 +26,7 @@ export class Host extends Netcode {
 	private _options : HostOptions;
 
 	constructor(options : NetcodeOptions) {
-		super(options.room);
+		super(options);
 
 		if (!options.hostOptions) {
 			console.error("Error: no host options were specified.");
@@ -38,8 +38,7 @@ export class Host extends Netcode {
 	}
 
 	override isHost() : boolean { return true; }
-	override getPath() : string { return [super.getPath(), this.password(), this.maxPlayers()].join("/"); }
-	override password() : string { return this._options.password ? this._options.password : super.password(); }
+	override getParams() : string { return [this._options.publicRoom ? "pub" : "prv", this.maxPlayers()].join(","); }
 	maxPlayers() : number { return this._options.maxPlayers; }
 
 	override ready() : boolean { return this.initialized() && this.peer().open; }

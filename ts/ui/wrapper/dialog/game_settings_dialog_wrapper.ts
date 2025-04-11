@@ -3,10 +3,13 @@ import { game } from 'game'
 
 import { UiGlobals } from 'global/ui_globals'
 
+import { IdGen } from 'network/id_gen'
+
+import { settings } from 'settings'
+
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
 import { IconType } from 'ui/common/icon'
-import { LoginNames } from 'ui/common/login_names'
 import { Html } from 'ui/html'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
@@ -14,8 +17,6 @@ import { DotsWrapper } from 'ui/wrapper/dots_wrapper'
 import { LabelInputWrapper } from 'ui/wrapper/label/label_input_wrapper'
 import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
-
-import { settings } from 'settings'
 
 enum State {
 	READY,
@@ -138,9 +139,10 @@ export class GameSettingsDialogWrapper extends DialogWrapper {
 			netcodeOptions = {
 				isHost: true,
 				room: room,
+				password: this.getPassword(),
 				hostOptions: {
-					password: this._passwordInput.value(),
 					maxPlayers: this._maxPlayers,
+					publicRoom: true,
 				},
 			}
 		} else {
@@ -148,9 +150,8 @@ export class GameSettingsDialogWrapper extends DialogWrapper {
 			netcodeOptions = {
 				isHost: false,
 				room: room,
-				clientOptions: {
-					password: this._passwordInput.value(),
-				},
+				password: this.getPassword(),
+				clientOptions: {},
 			}
 		}
 
@@ -177,10 +178,14 @@ export class GameSettingsDialogWrapper extends DialogWrapper {
 		});
 	}
 
+	private getPassword() : string {
+		return this._passwordInput.value();
+	}
+
 	private getRoom() : string {
 		let room;
 		if (this._isHost) {
-			room = LoginNames.randomId(4);
+			room = IdGen.randomId(4);
 		} else {
 			room = this._roomInput.value();
 		}

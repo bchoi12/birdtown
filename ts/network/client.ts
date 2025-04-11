@@ -14,7 +14,6 @@ import { ChatType, DialogType } from 'ui/api'
 import { isLocalhost } from 'util/common'
 
 export type ClientOptions = {
-	password? : string;
 }
 
 export class Client extends Netcode {
@@ -24,7 +23,7 @@ export class Client extends Netcode {
 	private _options : ClientOptions
 
 	constructor(options : NetcodeOptions) {
-		super(options.room);
+		super(options);
 
 		this._tcp = null;
 		this._udp = null;
@@ -39,8 +38,6 @@ export class Client extends Netcode {
 	}
 
 	override isHost() : boolean { return false; }
-	override getPath() : string { return [super.getPath(), this.password(), "0"].join("/"); }
-	override password() : string { return this._options.password ? this._options.password : super.password(); }
 
 	override ready() : boolean { return this.initialized() && this._tcp.open && this._udp.open; }
 	override initialize(onSuccess : () => void, onError : () => void) : void {
