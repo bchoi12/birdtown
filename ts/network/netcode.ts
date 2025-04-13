@@ -119,17 +119,18 @@ export abstract class Netcode {
 
 	initialize(onSuccess : () => void, onError: () => void) : void {
 		const peerDebug = Flags.peerDebug.get();
-		if (Flags.useLocalPerch.get()) {
-			const port = Flags.localPerchPort.get();
-			console.log(`Using localhost:${port} with ID`, this.peerName());
-			this._peer = new Peer(this.peerName(), {
-				host: "localhost",
-				port: port,
-				path: this.getPath(),
+		if (Flags.useLocalPerch.get() || Flags.usePerch.get()) {
+			console.log(`Using ${this.getPerchURL()} with ID`, this.peerName());
+
+			let peerOptions = {
+				host: this.getPerchHost(),
+				path: this.getPerchPath(),
 				debug: peerDebug,
 				pingInterval: Netcode._pingInterval,
 				token: this._token,
-			});
+				port: Flags.useLocalPerch.get() ? 443 : Flags.localPerchPort.get(),
+			};
+			this._peer = new Peer(this.peerName(), peerOptions);
 		} else {
 			console.log(`Using peerjs server with ID`, this.peerName());
 			this._peer = new Peer(this.peerName(), {
@@ -192,8 +193,30 @@ export abstract class Netcode {
 
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
-	// Perch path
-	getPath() : string { return ["/peer", this.password(), this.getParams()].join("/"); }
+
+	private getPerchURL() : string {
+		let url = "";
+		if (Flags.usePerch.get()) {
+			url = `http://perch.birdtown.net`;
+		} else if (Flags.useLocalPerch.get()) {
+			url = `http://localhost:${Flags.localPerchPort.get()}`;
+		} else {
+			console.error("Error: perch not in use, but URL was requested");
+		}
+		return url;
+	}
+	private getPerchHost() {
+		if (Flags.usePerch.get()) {
+			return "perch.birdtown.net";
+		} else if (Flags.useLocalPerch.get()) {
+			return "localhost";
+		}
+
+		console.error("Error: perch not in use, but host was requested");
+		return "";
+	}
+	private getPerchPath() : string { return ["/peer", this.password(), this.getParams()].join("/"); }
+
 	getParams() : string { return "0"; }
 	password() : string { return this._password; };
 	hostName() : string { return this._hostName; }
@@ -547,7 +570,7 @@ export abstract class Netcode {
 	private updateRoomMetadata() : void {
 		if (Flags.useLocalPerch.get()) {
 			const numPlayers = this.getNumConnected() + 1;
-			const url = `http://localhost:3000/room?id=${this._hostName}&t=${this._token}&p=${numPlayers}`;
+			const url = `${this.getPerchURL()}/room?id=${this._hostName}&t=${this._token}&p=${numPlayers}`;
 			fetch(url, {
 				method: "PUT",
 			}).then((response) => {
