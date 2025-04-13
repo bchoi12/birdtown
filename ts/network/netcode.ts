@@ -128,8 +128,14 @@ export abstract class Netcode {
 				debug: peerDebug,
 				pingInterval: Netcode._pingInterval,
 				token: this._token,
-				port: Flags.useLocalPerch.get() ? 443 : Flags.localPerchPort.get(),
+				proxied: true,
+				port: 443,
 			};
+
+			if (Flags.useLocalPerch.get()) {
+				peerOptions.proxied = false;
+				peerOptions.port = Flags.localPerchPort.get();
+			}
 			this._peer = new Peer(this.peerName(), peerOptions);
 		} else {
 			console.log(`Using peerjs server with ID`, this.peerName());
@@ -197,7 +203,7 @@ export abstract class Netcode {
 	private getPerchURL() : string {
 		let url = "";
 		if (Flags.usePerch.get()) {
-			url = `http://perch.birdtown.net`;
+			url = `https://perch.birdtown.net`;
 		} else if (Flags.useLocalPerch.get()) {
 			url = `http://localhost:${Flags.localPerchPort.get()}`;
 		} else {
@@ -568,7 +574,7 @@ export abstract class Netcode {
 	}
 
 	private updateRoomMetadata() : void {
-		if (Flags.useLocalPerch.get()) {
+		if (Flags.usePerch.get() || Flags.useLocalPerch.get()) {
 			const numPlayers = this.getNumConnected() + 1;
 			const url = `${this.getPerchURL()}/room?id=${this._hostName}&t=${this._token}&p=${numPlayers}`;
 			fetch(url, {
