@@ -279,6 +279,7 @@ export enum SoundType {
 	SCREAM,
 	SMALL_EXPLOSION,
 	SQUAWK,
+	TABLE_FLIP,
 	THROW,
 	THUD,
 	WING_CANNON,

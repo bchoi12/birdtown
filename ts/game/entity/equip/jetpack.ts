@@ -29,7 +29,7 @@ export class Jetpack extends Equip<Player> {
 	private static readonly _smokeDelay = 30;
 
 	private static readonly _maxAcc = 4.5;
-	private static readonly _ownerMaxVel = 0.3;
+	private static readonly _ownerMaxVel = 0.33;
 
 	private _enabled : boolean;
 	private _juice : number;

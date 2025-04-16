@@ -17,6 +17,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
+import { SoundFactory } from 'game/factory/sound_factory'
 
 import { GameGlobals } from 'global/game_globals'
 
@@ -176,6 +177,7 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 		this._dir = dir;
 		if (this._dir !== 0) {
 			this._turnTimer.start(Table._interactLockout);
+			SoundFactory.playFromEntity(SoundType.TABLE_FLIP, this);
 		}
 	}
 

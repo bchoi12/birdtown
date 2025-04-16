@@ -186,6 +186,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.TABLE_FLIP, {
+			path: "table_flip.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 		[SoundType.THROW, {
 			path: "throw.mp3",
 			options: {

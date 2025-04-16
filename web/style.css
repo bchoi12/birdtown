@@ -1022,6 +1022,13 @@ kbd {
     border-radius: 0.2em;
 }
 
+.label-number {
+    width: 30%;
+    min-width: 30%;
+    overflow: hidden;
+    text-align: center;
+}
+
 .category {
 }
 .category-title {

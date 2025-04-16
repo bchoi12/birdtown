@@ -104,7 +104,7 @@ export class Laser extends Projectile {
 		SoundFactory.playFromPos(SoundType.LASER, this._profile.pos().toBabylon3());
 	}
 
-	override hitDamage() : number { return 70; }
+	override hitDamage() : number { return 60; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);

@@ -1,5 +1,7 @@
 
 import { game } from 'game'
+import { SoundType } from 'game/factory/api'
+import { SoundFactory } from 'game/factory/sound_factory'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 
@@ -8,8 +10,6 @@ import { AnnouncementType } from 'ui/api'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
-
-import { defined } from 'util/common'
 
 type AnnouncementHTML = {
 	main : string;
