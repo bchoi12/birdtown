@@ -139,7 +139,6 @@ class Game {
 
 			this._options.netcodeSuccess();
 
-			ui.onGameInitialized();
 			this.onResize();
 		}, this._options.netcodeError);
 	}
@@ -172,6 +171,8 @@ class Game {
 		if (this.isHost()) {
 			this._lastClientId = clientId;
 		}
+
+		ui.onGameInitialized();
 
 		if (isLocalhost()) {
 			console.log("Set client id:", clientId);

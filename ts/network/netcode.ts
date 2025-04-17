@@ -1,6 +1,8 @@
 import { encode, decode } from '@msgpack/msgpack'
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
+import { cookie, CookieType } from 'cookie'
+
 import { game } from 'game'
 
 import { Flags } from 'global/flags'
@@ -10,7 +12,7 @@ import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
-import { ChannelType, ChannelStat } from 'network/api'
+import { ChannelType, ChannelStat, DisconnectType } from 'network/api'
 import { ChannelMap } from 'network/channel_map'
 import { Connection } from 'network/connection'
 import { ClientOptions } from 'network/client'
@@ -90,7 +92,15 @@ export abstract class Netcode {
 	constructor(options : NetcodeOptions) {
 		this._room = options.room.toUpperCase();
 		this._password = options.password;
-		this._token = IdGen.randomId(6);
+
+		if (cookie.has(CookieType.TOKEN) && !Flags.refreshToken.get()) {
+			this._token = cookie.get(CookieType.TOKEN);
+		} else {
+			this._token = IdGen.randomId(6);
+			cookie.savePairs([
+				[CookieType.TOKEN, this._token],
+			]);
+		}
 		this._hostName = "birdtown-" + this._room;
 		this._peerName = this._hostName + "-" + this._token;
 		this._clientId = 0;
@@ -119,7 +129,7 @@ export abstract class Netcode {
 
 	initialize(onSuccess : () => void, onError: () => void) : void {
 		const peerDebug = Flags.peerDebug.get();
-		if (Flags.useLocalPerch.get() || Flags.usePerch.get()) {
+		if (this.usingPerch()) {
 			console.log(`Using ${this.getPerchURL()} with ID`, this.peerName());
 
 			let peerOptions = {
@@ -195,11 +205,12 @@ export abstract class Netcode {
 	abstract ready() : boolean;
 	abstract isHost() : boolean;
 	abstract setVoiceEnabled(enabled : boolean) : void;
-	abstract sendChat(clientId : number, message : string) : void;
+	abstract sendChat(message : string) : void;
 
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
 
+	usingPerch() : boolean { return Flags.useLocalPerch.get() || Flags.usePerch.get(); }
 	private getPerchURL() : string {
 		let url = "";
 		if (Flags.usePerch.get()) {
@@ -321,7 +332,7 @@ export abstract class Netcode {
 
 			if (this._pinger.millisSincePing(id) >= Netcode._pingTimeoutMillis) {
 				console.error(`Connection to ${id} timed out`);
-				this.disconnect(id);
+				this.disconnect(DisconnectType.TIMEOUT, id);
 			}
 		});
 
@@ -349,6 +360,7 @@ export abstract class Netcode {
 
 		// TODO: not sure why, but need to keep getOrAdd instead of add
 		let connection = this.getOrAddConnection(dataConnection.peer);
+
 		let channels = connection.channels();
 		channels.register(channelType, dataConnection);
 
@@ -363,6 +375,12 @@ export abstract class Netcode {
 		dataConnection.on("error", (error) => {
 			console.error(error);
 		});
+
+		if (connection.banned()) {
+			console.error("Warning: disallowed banned %s from joining", connection.id());
+			connection.disconnect();
+			return;
+		}
 
 		if (channels.ready()) {
 			this._registerBuffer.push(connection);
@@ -545,13 +563,18 @@ export abstract class Netcode {
 		this._mediaConnections.clear();
 	}
 
-	disconnect(id : string) : void {
+	private disconnect(type : DisconnectType, id : string) : void {
 		if (!this.hasConnection(id)) {
 			return;
 		}
 
 		let connection = this.connection(id);
-		connection.disconnect();
+
+		if (type === DisconnectType.KICK) {
+			connection.kick();
+		} else {
+			connection.disconnect();
+		}
 
 		if (connection.hasClientId()) {
 			let msg = new GameMessage(GameMessageType.CLIENT_DISCONNECT);
@@ -565,16 +588,18 @@ export abstract class Netcode {
 		}
 	}
 
+	onKick(clientId : number) : void {}
 	kick(clientId : number) : void {
 		this._connections.forEach((connection : Connection) => {
 			if (clientId === connection.clientId()) {
-				this.disconnect(connection.id());
+				this.onKick(clientId);
+				this.disconnect(DisconnectType.KICK, connection.id());
 			}
 		});
 	}
 
 	private updateRoomMetadata() : void {
-		if (Flags.usePerch.get() || Flags.useLocalPerch.get()) {
+		if (this.usingPerch()) {
 			const numPlayers = this.getNumConnected() + 1;
 			const url = `${this.getPerchURL()}/room?id=${this._hostName}&t=${this._token}&p=${numPlayers}`;
 			fetch(url, {

@@ -9,6 +9,7 @@ export class Connection {
 	private _id : string;
 	private _displayName : string;
 	private _connected : boolean;
+	private _banned : boolean;
 	private _channels : ChannelMap;
 	private _voiceEnabled : boolean;
 	private _clientId : number;
@@ -25,6 +26,11 @@ export class Connection {
 	id() : string { return this._id; }
 	channels() : ChannelMap { return this._channels; }
 	connected() : boolean { return this._connected; }
+	banned() : boolean { return this._banned; }
+	kick() : void {
+		this._banned = true;
+		this.disconnect();
+	}
 	disconnect() : void {
 		this._channels.disconnect();
 		this._connected = false;

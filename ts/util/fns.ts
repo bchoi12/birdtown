@@ -15,6 +15,10 @@ export enum InterpType {
 export type InterpFn = (t : number) => number;
 
 export namespace Fns {
+	export function roundTo(n : number, int : number) {
+		return Number.isNaN(n) ? 0.0 : int * Math.round(n / int);
+	}
+
 	export function wrap(min : number, n : number, max : number) : number {
         const width = max - min;
         if (width > 0) {

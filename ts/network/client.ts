@@ -65,14 +65,13 @@ export class Client extends Netcode {
 		});
 	}
 
-	override sendChat(clientId : number, message : string) : void {
+	override sendChat(message : string) : void {
 		if (message.length <= 0) {
 			return;
 		}
 
 		let msg = new NetworkMessage(NetworkMessageType.CHAT);
 		msg.setChatMessage(message);
-		msg.setClientId(clientId);
 		this.send(this.hostName(), ChannelType.TCP, msg);
 	}
 

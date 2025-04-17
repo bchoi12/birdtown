@@ -11,6 +11,13 @@ export enum ChannelStat {
 	BYTES,
 }
 
+export enum DisconnectType {
+	UNKNOWN,
+
+	TIMEOUT,
+	KICK,
+}
+
 export enum NetworkBehavior {
 	UNKNOWN,
 

@@ -14,7 +14,7 @@ import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
 
-import { KeyType, HudType, HudOptions } from 'ui/api'
+import { HudType, HudOptions } from 'ui/api'
 
 import { Vec2, Vec3 } from 'util/vector'
 

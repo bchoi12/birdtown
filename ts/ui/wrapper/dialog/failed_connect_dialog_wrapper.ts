@@ -22,7 +22,7 @@ export class FailedConnectDialogWrapper extends DialogWrapper {
 		this.shrink();
 
 		let pageWrapper = this.addPage();
-        pageWrapper.elm().innerHTML = `<span>A game was found, but we failed to connect. This could be because</span><ul><li>the game is full</li><li>your password is incorrect</li><ul>`;
+        pageWrapper.elm().innerHTML = `<span>Failed to connect to the host. This could be because</span><ul><li>the game is full</li><li>your password is incorrect</li><li>you were banned</li><ul>`;
 
 		let quit = new ButtonWrapper();
 		quit.setIcon(IconType.CANCEL);

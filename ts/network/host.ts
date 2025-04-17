@@ -17,6 +17,8 @@ import { isLocalhost } from 'util/common'
 export type HostOptions = {
 	publicRoom : boolean;
 	maxPlayers : number;
+	name : string;
+	latlng : string;
 }
 
 export class Host extends Netcode {
@@ -38,7 +40,7 @@ export class Host extends Netcode {
 	}
 
 	override isHost() : boolean { return true; }
-	override getParams() : string { return [this._options.publicRoom ? "pub" : "prv", this.maxPlayers()].join(","); }
+	override getParams() : string { return [this._options.publicRoom ? "pub" : "prv", this.maxPlayers(), this._options.name, this._options.latlng].join("!"); }
 	maxPlayers() : number { return this._options.maxPlayers; }
 
 	override ready() : boolean { return this.initialized() && this.peer().open; }
@@ -150,7 +152,11 @@ export class Host extends Netcode {
 		});
 	}
 
-	override sendChat(clientId : number, message : string) : void {
+	override sendChat(message : string) : void {
+		this.sendChatFrom(game.clientId(), message);
+	}
+
+	private sendChatFrom(clientId : number, message : string) : void {
 		if (message.length <= 0) {	
 			return;
 		}
@@ -191,15 +197,21 @@ export class Host extends Netcode {
 		}
 	}
 
+	override onKick(clientId : number) : void {
+		super.onKick(clientId);
+
+		this.sendChatFrom(clientId, "was banned!");
+	}
+
 	private handleChat(fromId : string, message : string) : void {
 		if (message.length <= 0) {
 			return;
 		}
 
 		if (fromId === this.id()) {
-			this.sendChat(game.clientId(), message);
+			this.sendChat(message);
 		} else if (this.hasConnection(fromId)) {
-			this.sendChat(this.connection(fromId).clientId(), message);
+			this.sendChatFrom(this.connection(fromId).clientId(), message);
 		} else {
 			console.error("Error: received message from unknown connection", fromId, message);
 		}

@@ -13,7 +13,7 @@ import { MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
 
-import { HudType, KeyType, KeyState } from 'ui/api'
+import { HudType } from 'ui/api'
 
 import { defined } from 'util/common'
 import { Vec3 } from 'util/vector'

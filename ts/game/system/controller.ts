@@ -16,7 +16,6 @@ import { GameConfigMessage } from 'message/game_config_message'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
-import { KeyType } from 'ui/api'
 
 import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'

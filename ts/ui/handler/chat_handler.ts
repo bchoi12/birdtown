@@ -38,7 +38,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 	}
 
 	chat(type : ChatType, msg : string, options? : ChatOptions) : void {
-		if (options) {
+		if (options && options.clientId > 0) {
 			let nameWrapper = new NameWrapper();
 			nameWrapper.setClientId(options.clientId);
 			nameWrapper.elm().style.marginRight = "0.3em";
@@ -170,7 +170,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			if (message.startsWith("/")) {
 				this.command(message);
 			} else {
-				game.netcode().sendChat(game.clientId(), message);
+				game.netcode().sendChat(message);
 			}
 		}
 	}

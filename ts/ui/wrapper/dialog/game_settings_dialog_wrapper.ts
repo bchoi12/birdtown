@@ -143,6 +143,8 @@ export class GameSettingsDialogWrapper extends DialogWrapper {
 				hostOptions: {
 					maxPlayers: this._maxPlayers,
 					publicRoom: true,
+					name: "Test game",
+					latlng: "40,-100",
 				},
 			}
 		} else {
