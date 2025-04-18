@@ -3,7 +3,7 @@ import { game } from 'game'
 import { ColorType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
-import { UiGlobals } from 'global/ui_globals'
+import { Flags } from 'global/flags'
 
 import { ui } from 'ui'
 import { DialogType } from 'ui/api'
@@ -32,7 +32,7 @@ export class DisconnectedDialogWrapper extends DialogWrapper {
 
 		reconnect.addOnClick(() => {
 			const url = new URL(window.location.href);
-			url.searchParams.set(UiGlobals.roomParam, game.netcode().room());
+			url.searchParams.set(Flags.room.name(), game.netcode().room());
 			window.location.replace(url.toString());
 			this.nextPage();
 		});

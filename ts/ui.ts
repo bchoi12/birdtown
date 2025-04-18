@@ -5,7 +5,6 @@ import { game } from 'game'
 import { GameState } from 'game/api'
 
 import { Flags } from 'global/flags'
-import { UiGlobals } from 'global/ui_globals'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
@@ -283,11 +282,11 @@ class UI {
 
 	getInviteLink() : string {
 		const url = new URL(isElectron() ? "https://birdtown.net/" : window.location.href);
-		url.searchParams.set(UiGlobals.roomParam, game.netcode().room());
+		url.searchParams.set(Flags.room.name(), game.netcode().room());
 
 		const password = game.netcode().password();
 		if (password.length > 0) {
-			url.searchParams.set(UiGlobals.passwordParam, password);
+			url.searchParams.set(Flags.password.name(), password);
 		}
 
 		return url.toString();

@@ -1,8 +1,8 @@
 
 import { game } from 'game'
 
+import { Flags } from 'global/flags'
 import { GameGlobals } from 'global/game_globals'
-import { UiGlobals } from 'global/ui_globals'
 
 import { perch } from 'perch'
 
@@ -82,10 +82,10 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._legendElm.textContent = GameGlobals.version;
 
 		const urlParams = new URLSearchParams(window.location.search);
-		const room = urlParams.get(UiGlobals.roomParam);
-		if (room && room.length > 0) {
-			const password = urlParams.get(UiGlobals.passwordParam);
-			if (password && password.length > 0) {
+		const room = Flags.room.get();
+		if (room.length > 0) {
+			const password = Flags.password.get();
+			if (password.length > 0) {
 				this._clientWrapper.setPassword(password);
 			}
 			this._clientWrapper.setRoom(room);
@@ -93,7 +93,9 @@ export class LoginHandler extends HandlerBase implements Handler {
 		}
 
 		perch.getStats((data) => {
-			console.log(data);
+			if (Flags.printDebug.get()) {
+				console.log(data);
+			}
 		})
 	}
 

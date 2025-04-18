@@ -58,10 +58,9 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		this._settingsCategory.contentElm().appendChild(this._nameInput.elm());
 
 		this._passwordInput = new LabelInputWrapper();
-		this._passwordInput.setName("Password");
+		this._passwordInput.setName("Password (optional)");
 		this._passwordInput.inputElm().maxLength = InitGameDialogWrapper._passwordLength;
 		this._passwordInput.inputElm().pattern = InitGameDialogWrapper._pattern;
-		this._passwordInput.inputElm().placeholder = "[optional]";
 		this._settingsCategory.contentElm().appendChild(this._passwordInput.elm());
 
 		this.form().appendChild(Html.br());

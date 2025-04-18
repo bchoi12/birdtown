@@ -2,14 +2,16 @@
 
 abstract class Flag<T> {
 
+	private _name : string;
 	private _value : T;
 
 	constructor(name : string, value : T) {
+		this._name = name;
 		this._value = value;
 
 		const urlParams = new URLSearchParams(window.location.search);
-		if (urlParams.has(name)) {
-			const param = urlParams.get(name);
+		if (urlParams.has(this._name)) {
+			const param = urlParams.get(this._name);
 
 			if (this.canConvert(param)) {
 				this._value = this.convert(param);
@@ -17,6 +19,7 @@ abstract class Flag<T> {
 		}
 	}
 
+	name() : string { return this._name; }
 	get() : T { return this._value; }
 	canConvert(param : string) : boolean { return param.length > 0; }
 	abstract convert(param : string) : T;

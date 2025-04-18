@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 
-import { UiGlobals } from 'global/ui_globals'
+import { Flags } from 'global/flags'
 
 import { IdGen } from 'network/id_gen'
 import { NetcodeOptions } from 'network/netcode'
@@ -115,7 +115,8 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 		    	console.log("Successfully initialized netcode");
 
 				const url = new URL(window.location.href);
-				url.searchParams.set(UiGlobals.roomParam, room);
+				url.searchParams.set(Flags.room.name(), room);
+				url.searchParams.delete(Flags.password.name());
 				window.history.replaceState(null, null, url);
 
 				this.hide();
