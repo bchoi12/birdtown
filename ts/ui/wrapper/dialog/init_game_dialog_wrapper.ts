@@ -35,6 +35,7 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 
 	protected _state : State;
 	protected _stateChangeTime : number;
+	protected _form : HTMLFormElement;
 	protected _statusWrapper : ButtonWrapper;
 	protected _dotsWrapper : DotsWrapper;
 
@@ -46,6 +47,7 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 
 		this._state = State.READY;
 		this._stateChangeTime = Date.now();
+		this._form = Html.form();
 		this._statusWrapper = new ButtonWrapper();
 		this._statusWrapper.elm().style.float = "left";
 		this._statusWrapper.elm().style.fontSize = "0.6em";
@@ -53,6 +55,11 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 		this._statusWrapper.elm().appendChild(this._dotsWrapper.elm());
 
 		this.footerElm().appendChild(this._statusWrapper.elm());
+
+		let pageWrapper = this.addPage();
+		pageWrapper.elm().style.fontSize = InitGameDialogWrapper._fontSize;
+
+		pageWrapper.elm().appendChild(this._form);
 
 		let okButton = this.addOKButton();
 		okButton.addOnClick(() => {
@@ -79,10 +86,17 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 	abstract connectErrorMessage() : string;
 	abstract getNetcodeOptions() : NetcodeOptions;
 
+	protected form() : HTMLFormElement { return this._form; }
+
 	protected pending() : boolean { return this._state === State.PENDING; }
 	protected setReady() : void { this.setState(State.READY, ""); }
 	connect() : void {
 		if (this.pending()) {
+			return;
+		}
+
+		if (!this.form().checkValidity()) {
+			this.form().reportValidity();
 			return;
 		}
 

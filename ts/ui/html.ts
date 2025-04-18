@@ -138,6 +138,7 @@ export namespace Html {
 	export function br() : HTMLElement { return document.createElement("br"); }
 	export function img() : HTMLImageElement { return document.createElement("img"); }
 	export function fieldset() : HTMLElement { return document.createElement("fieldset"); }
+	export function form() : HTMLFormElement { return <HTMLFormElement>document.createElement("form"); }
 	export function kbd() : HTMLElement { return document.createElement("kbd"); }
 	export function label() : HTMLElement { return document.createElement("label"); }
 	export function legend() : HTMLElement { return document.createElement("legend"); }

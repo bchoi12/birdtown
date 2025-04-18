@@ -25,23 +25,21 @@ export class JoinGameDialogWrapper extends InitGameDialogWrapper {
 	constructor() {
 		super();
 
-		let pageWrapper = this.addPage();
-		pageWrapper.elm().style.fontSize = InitGameDialogWrapper._fontSize;
-
 		this.setTitle("Join Game");
+
 		this._roomInput = new LabelInputWrapper();
 		this._roomInput.setName("Room");
 		this._roomInput.inputElm().pattern = InitGameDialogWrapper._pattern;
 		this._roomInput.inputElm().maxLength = InitGameDialogWrapper._roomLength;
 		this._roomInput.inputElm().required = true;
 
-		pageWrapper.elm().appendChild(this._roomInput.elm());
+		this.form().appendChild(this._roomInput.elm());
 
 		this._passwordInput = new LabelInputWrapper();
 		this._passwordInput.setName("Password");
 		this._passwordInput.inputElm().pattern = InitGameDialogWrapper._pattern;
 		this._passwordInput.inputElm().maxLength = InitGameDialogWrapper._passwordLength;
-		pageWrapper.elm().appendChild(this._passwordInput.elm());
+		this.form().appendChild(this._passwordInput.elm());
 	}
 
 	override onShow() : void {

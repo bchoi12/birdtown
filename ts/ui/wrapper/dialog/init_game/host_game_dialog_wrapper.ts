@@ -41,14 +41,12 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 	constructor() {
 		super();
 
-		let pageWrapper = this.addPage();
 		this.setTitle("Host Game");
-		pageWrapper.elm().style.fontSize = InitGameDialogWrapper._fontSize;
 
 		this._settingsCategory = new CategoryWrapper();
 		this._settingsCategory.setTitle("Settings");
 		this._settingsCategory.setAlwaysExpand(true);
-		pageWrapper.elm().appendChild(this._settingsCategory.elm());
+		this.form().appendChild(this._settingsCategory.elm());
 
 		this._name = "Birdtown" + IdGen.randomNum(InitGameDialogWrapper._roomLength)
 
@@ -66,12 +64,12 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		this._passwordInput.inputElm().placeholder = "[optional]";
 		this._settingsCategory.contentElm().appendChild(this._passwordInput.elm());
 
-		pageWrapper.elm().appendChild(Html.br());
+		this.form().appendChild(Html.br());
 
 		this._advancedCategory = new CategoryWrapper();
 		this._advancedCategory.setTitle("Advanced Settings");
 		this._advancedCategory.setExpanded(false);
-		pageWrapper.elm().appendChild(this._advancedCategory.elm());
+		this.form().appendChild(this._advancedCategory.elm());
 
 		this._privacySetting = new SettingWrapper<number>({
 			name: "Privacy",
