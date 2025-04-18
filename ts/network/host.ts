@@ -2,6 +2,9 @@ import { Peer, DataConnection } from 'peerjs'
 
 import { game } from 'game'
 
+import { Flags } from 'global/flags'
+import { GameGlobals } from 'global/game_globals'
+
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
@@ -11,8 +14,6 @@ import { Netcode, NetcodeOptions } from 'network/netcode'
 
 import { ui } from 'ui'
 import { ChatType, StatusType } from 'ui/api'
-
-import { isLocalhost } from 'util/common'
 
 export type HostOptions = {
 	publicRoom : boolean;
@@ -40,7 +41,15 @@ export class Host extends Netcode {
 	}
 
 	override isHost() : boolean { return true; }
-	override getParams() : string { return [this._options.publicRoom ? "pub" : "prv", this.maxPlayers(), this._options.name, this._options.latlng].join("!"); }
+	override getParams() : string {
+		return [
+			this._options.publicRoom ? "pub" : "prv",
+			this.maxPlayers(),
+			this._options.name,
+			this._options.latlng,
+			GameGlobals.version,
+		].join("!");
+	}
 	maxPlayers() : number { return this._options.maxPlayers; }
 
 	override ready() : boolean { return this.initialized() && this.peer().open; }
@@ -124,7 +133,7 @@ export class Host extends Netcode {
 			gameMsg.setClientId(clientId);
 			game.handleMessage(gameMsg);
 
-			if (isLocalhost()) {
+			if (Flags.printDebug.get()) {
 				console.log("Registered new client to game:", clientId);
 			}
 		});

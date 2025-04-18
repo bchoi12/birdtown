@@ -2,6 +2,8 @@ import { Peer, DataConnection } from 'peerjs'
 
 import { game } from 'game'
 
+import { Flags } from 'global/flags'
+
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ChannelType } from 'network/api'
@@ -10,8 +12,6 @@ import { Netcode, NetcodeOptions } from 'network/netcode'
 
 import { ui } from 'ui'
 import { ChatType, DialogType } from 'ui/api'
-
-import { isLocalhost } from 'util/common'
 
 export type ClientOptions = {
 }
@@ -55,7 +55,7 @@ export class Client extends Netcode {
 		});
 
 		peer.on("disconnected", () => {
-			if (isLocalhost()) {
+			if (Flags.printDebug.get()) {
 				console.log("Disconnected from peer server");
 			}
 

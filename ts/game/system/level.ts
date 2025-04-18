@@ -15,6 +15,8 @@ import { System, SystemBase } from 'game/system'
 import { SystemType, LevelType, LevelLayout } from 'game/system/api'
 import { ArchBlueprint } from 'game/system/level/blueprint/arch_blueprint'
 
+import { Flags } from 'global/flags'
+
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
@@ -24,7 +26,6 @@ import { StatusType } from 'ui/api'
 import { Box, Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
 import { CardinalDir } from 'util/cardinal'
-import { isLocalhost } from 'util/common'
 import { Fns } from 'util/fns'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
@@ -192,7 +193,7 @@ export class Level extends SystemBase implements System {
 				entity.delete();
 			});
 
-			if (isLocalhost()) {
+			if (Flags.printDebug.get()) {
 				console.log("%s: deleted entities below current version %d", this.name(), version);
 			}
 		}
@@ -201,7 +202,7 @@ export class Level extends SystemBase implements System {
 		this.buildLevel(msg);
     	game.runner().handleMessage(msg);
 
-		if (isLocalhost()) {
+		if (Flags.printDebug.get()) {
 			console.log("%s: loaded level %s with seed %d, version %d", this.name(), LevelType[level], seed, version);
 		}
 	}

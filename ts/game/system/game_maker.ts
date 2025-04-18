@@ -18,6 +18,8 @@ import { EquipPairs } from 'game/util/equip_pairs'
 import { PlayerConfig } from 'game/util/player_config'
 import { PlayerRotator } from 'game/util/player_rotator'
 
+import { Flags } from 'global/flags'
+
 import { MessageObject } from 'message'
 import { GameConfigMessage } from 'message/game_config_message'
 import { GameMessage, GameMessageType} from 'message/game_message'
@@ -28,7 +30,6 @@ import { ui } from 'ui'
 import { AnnouncementType, DialogType, FeedType, InfoType, StatusType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
-import { isLocalhost } from 'util/common'
 import { globalRandom } from 'util/seeded_random'
 
 export class GameMaker extends SystemBase implements System {
@@ -197,7 +198,7 @@ export class GameMaker extends SystemBase implements System {
 		});
 		ui.setGameConfig(this._config);
 
-		if (isLocalhost()) {
+		if (Flags.printDebug.get()) {
 			console.log("%s: config is", this.name(), this._config.dataMap());
 			console.log("%s: client config is ", this.name(), playerConfig.playerMap());
 		}

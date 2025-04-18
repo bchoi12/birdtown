@@ -1,7 +1,7 @@
 
 import { Strings } from 'strings'
 
-import { isLocalhost } from 'util/common'
+import { Flags } from 'global/flags'
 
 export enum CookieType {
 	UNKNOWN,
@@ -32,8 +32,8 @@ class Cookie {
 			this._values.set(parts[0], parts[1]);
 		});
 
-		if (isLocalhost()) {
-			console.log(Object.fromEntries(this._values));
+		if (Flags.printDebug.get()) {
+			console.log("Cookie entries:", Object.fromEntries(this._values));
 		}
 	}
 

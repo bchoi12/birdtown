@@ -4,13 +4,16 @@ import { game } from 'game'
 import { GameGlobals } from 'global/game_globals'
 import { UiGlobals } from 'global/ui_globals'
 
+import { perch } from 'perch'
+
 import { ui } from 'ui'
 import { UiMode, DialogType } from 'ui/api'
 import { LoginNames } from 'ui/common/login_names'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
-import { GameSettingsDialogWrapper } from 'ui/wrapper/dialog/game_settings_dialog_wrapper'
+import { HostGameDialogWrapper } from 'ui/wrapper/dialog/init_game/host_game_dialog_wrapper'
+import { JoinGameDialogWrapper } from 'ui/wrapper/dialog/init_game/join_game_dialog_wrapper'
 
 import { Optional } from 'util/optional'
 
@@ -32,8 +35,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 	private _hostButton : HTMLInputElement;
 	private _joinButton : HTMLInputElement;
 
-	private _hostWrapper : GameSettingsDialogWrapper;
-	private _clientWrapper : GameSettingsDialogWrapper;
+	private _hostWrapper : HostGameDialogWrapper;
+	private _clientWrapper : JoinGameDialogWrapper;
 
 	private _timeoutId : Optional<number>;
 
@@ -49,8 +52,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._hostButton = Html.inputElm(Html.buttonHost);
 		this._joinButton = Html.inputElm(Html.buttonJoin);
 
-		this._hostWrapper = new GameSettingsDialogWrapper(true);
-		this._clientWrapper = new GameSettingsDialogWrapper(false);
+		this._hostWrapper = new HostGameDialogWrapper();
+		this._clientWrapper = new JoinGameDialogWrapper();
 		this._splashElm.appendChild(this._hostWrapper.elm());
 		this._splashElm.appendChild(this._clientWrapper.elm());
 
@@ -88,6 +91,10 @@ export class LoginHandler extends HandlerBase implements Handler {
 			this._clientWrapper.setRoom(room);
 			this.startGame(LoginType.AUTO_JOIN);
 		}
+
+		perch.getStats((data) => {
+			console.log(data);
+		})
 	}
 
 	override onDisable() : void {
@@ -111,6 +118,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 			break;
 		case LoginType.AUTO_JOIN:
 			this._clientWrapper.show();
+			this._clientWrapper.connect();
 			break;
 		case LoginType.JOIN:
 			this._clientWrapper.show();

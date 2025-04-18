@@ -10,11 +10,12 @@ import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType, AmbianceType } from 'game/system/api'
 
+import { Flags } from 'global/flags'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
 
-import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
 import { globalRandom } from 'util/seeded_random'
 
@@ -94,7 +95,7 @@ export class Audio extends SystemBase implements System {
 		}
 
 		this._queuedType = type;
-		if (isLocalhost()) {
+		if (Flags.printDebug.get()) {
 			console.log("Audio: queued %s", MusicType[this._queuedType]);
 		}
 
@@ -146,7 +147,7 @@ export class Audio extends SystemBase implements System {
 			return;
 		}
 		if (this._music.has() && this._currentType === this._queuedType) {
-			if (isLocalhost()) {
+			if (Flags.printDebug.get()) {
 				console.log("Audio: already playing %s", MusicType[this._queuedType]);
 			}
 			return;
@@ -159,7 +160,7 @@ export class Audio extends SystemBase implements System {
 		}
 
 		this._currentType = this._queuedType;
-		if (isLocalhost()) {
+		if (Flags.printDebug.get()) {
 			console.log("Audio: playing %s", MusicType[this._currentType]);
 		}
 		this._music.set(music);

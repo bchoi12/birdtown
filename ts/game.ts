@@ -21,14 +21,14 @@ import { Tablet } from 'game/system/tablet'
 import { Tablets } from 'game/system/tablets'
 import { World } from 'game/system/world'
 
+import { Flags } from 'global/flags'
+
 import { Client } from 'network/client'
 import { Netcode, NetcodeOptions } from 'network/netcode'
 import { Host } from 'network/host'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { NetworkMessage, NetworkMessageType } from 'message/network_message'
-
-import { isLocalhost } from 'util/common'
 
 import { ui } from 'ui'
 import { Html } from 'ui/html'
@@ -174,7 +174,7 @@ class Game {
 
 		ui.onGameInitialized();
 
-		if (isLocalhost()) {
+		if (Flags.printDebug.get()) {
 			console.log("Set client id:", clientId);
 		}
 	}

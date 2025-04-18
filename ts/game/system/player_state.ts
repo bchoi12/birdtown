@@ -10,12 +10,13 @@ import { Player } from 'game/entity/player'
 import { System, ClientSystem } from 'game/system'
 import { SystemType, PlayerRole } from 'game/system/api'
 
+import { Flags } from 'global/flags'
+
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
 import { InfoType, KeyType, KeyState, StatusType, TooltipType } from 'ui/api'
 
-import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
 
@@ -159,7 +160,7 @@ export class PlayerState extends ClientSystem implements System {
 		this._lastChange = Date.now();
 		this.applyRole();
 
-		if (isLocalhost()) {
+		if (Flags.printDebug.get()) {
 			console.log("%s: player role is %s", this.name(), PlayerRole[role]);
 		}
 	}
@@ -334,7 +335,7 @@ export class PlayerState extends ClientSystem implements System {
 		    		this._targetId = player.id();
 		    		this.spawnPlayer();
 
-					if (isLocalhost()) {
+					if (Flags.printDebug.get()) {
 						console.log("%s: created player for %d", this.name(), this.clientId());
 					}
 		    	}

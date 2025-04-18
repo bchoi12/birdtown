@@ -12,12 +12,13 @@ import { GameMaker } from 'game/system/game_maker'
 import { PlayerState } from 'game/system/player_state'
 import { PlayerConfig } from 'game/util/player_config'
 
+import { Flags } from 'global/flags'
+
 import { GameConfigMessage } from 'message/game_config_message'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
 
-import { isLocalhost } from 'util/common'
 import { Optional } from 'util/optional'
 import { Stopwatch } from 'util/stopwatch'
 
@@ -116,7 +117,7 @@ export class Controller extends SystemBase implements System {
 		game.runner().setGameState(this._gameState);
 		ui.setGameState(this._gameState);
 
-		if (isLocalhost()) {
+		if (Flags.printDebug.get()) {
 			console.log("%s: game state is %s", this.name(), GameState[state]);
 		}
 	}

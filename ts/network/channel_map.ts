@@ -1,8 +1,9 @@
 import { DataConnection } from 'peerjs'
 
+import { Flags } from 'global/flags'
+
 import { ChannelType, ChannelStat } from 'network/api'
 
-import { isLocalhost } from 'util/common'
 import { StatsTracker } from 'util/stats_tracker'
 
 export class ChannelMap {
@@ -22,7 +23,7 @@ export class ChannelMap {
 		if (!this._channels.has(type)) {
 			return;
 		}
-		if (isLocalhost()) {
+		if (Flags.printDebug.get()) {
 			console.log("Deleting %s channel to %s ", ChannelType[type], this._channels.get(type).peer);
 		}
 
@@ -38,7 +39,7 @@ export class ChannelMap {
 
 		this._channels.set(type, connection);
 		this._stats.set(type, new StatsTracker());
-		if (isLocalhost()) {
+		if (Flags.printDebug.get()) {
 			console.log("Registered " + ChannelType[type] + " channel to " + connection.peer);
 		}
 	}

@@ -5,13 +5,13 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { LevelType, SystemType } from 'game/system/api'
 
+import { Flags } from 'global/flags'
+
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { NetworkBehavior } from 'network/api'
 
 import { KeyType, KeyState } from 'ui/api'
-
-import { defined, isLocalhost } from 'util/common'
 
 export interface System extends GameObject {
 	type() : SystemType;
@@ -126,7 +126,7 @@ export abstract class ClientSystemManager extends SystemBase implements System {
 				let child = this.getChild(clientId);
 				child.delete();
 
-				if (isLocalhost()) {
+				if (Flags.printDebug.get()) {
 					console.log("%s: deleting disconnected %s", this.name(), child.name());
 				}
 			}

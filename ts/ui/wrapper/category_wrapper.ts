@@ -7,6 +7,7 @@ export class CategoryWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _titleWrapper : TitleWrapper;
 	private _contentElm : HTMLElement;
+	private _alwaysExpand : boolean;
 	private _expanded : boolean;
 
 	constructor() {
@@ -17,6 +18,7 @@ export class CategoryWrapper extends HtmlWrapper<HTMLElement> {
 		this._contentElm = Html.div();
 		this._contentElm.classList.add(Html.classCategoryContent);
 
+		this._alwaysExpand = false;
 		this._expanded = true;
 
 		this.elm().classList.add(Html.classCategory);
@@ -31,8 +33,25 @@ export class CategoryWrapper extends HtmlWrapper<HTMLElement> {
 	setTitle(title : string) : void {
 		this._titleWrapper.setTitle(title);
 	}
+	setAlwaysExpand(alwaysExpand : boolean) : void {
+		if (this._alwaysExpand === alwaysExpand) {
+			return;
+		}
+
+		this._alwaysExpand = alwaysExpand;
+		if (this._alwaysExpand) {
+			this._titleWrapper.setIconVisible(false);
+			this.setExpanded(true);
+		} else {
+			this._titleWrapper.setIconVisible(true);
+		}
+	}
 	setExpanded(expanded : boolean) : void {
 		if (this._expanded === expanded) {
+			return;
+		}
+
+		if (!expanded && this._alwaysExpand) {
 			return;
 		}
 
@@ -75,5 +94,13 @@ class TitleWrapper extends HtmlWrapper<HTMLElement> {
 
 	setExpanded(expanded : boolean) : void {
 		Icon.change(this._iconElm, expanded ? IconType.ARROW_DOWN : IconType.ARROW_UP);
+	}
+
+	setIconVisible(visible : boolean) : void {
+		if (visible) {
+			this._iconElm.style.display = "block";
+		} else {
+			this._iconElm.style.display = "none";
+		}
 	}
 }

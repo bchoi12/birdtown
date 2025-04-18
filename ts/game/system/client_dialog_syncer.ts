@@ -6,14 +6,14 @@ import { GameData, DataFilter } from 'game/game_data'
 import { ClientSideSystem, System } from 'game/system'
 import { SystemType } from 'game/system/api'
 
+import { Flags } from 'global/flags'
+
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { DialogMessage } from 'message/dialog_message'
 
 import { ui } from 'ui'
 import { DialogType, FeedType } from 'ui/api'
-
-import { isLocalhost } from 'util/common'
 
 enum DialogState {
 	UNKNOWN,
@@ -154,7 +154,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		this.setDialogState(DialogState.OPEN);
 
 		if (this.isSource()) {
-			if (isLocalhost()) {
+			if (Flags.printDebug.get()) {
 				console.log("%s: show dialog %s", this.name(), DialogType[this._dialogType]);
 			}
 			ui.pushDialog(this._dialogType);

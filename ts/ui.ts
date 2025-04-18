@@ -4,6 +4,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import { game } from 'game'
 import { GameState } from 'game/api'
 
+import { Flags } from 'global/flags'
 import { UiGlobals } from 'global/ui_globals'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -40,7 +41,7 @@ import { TrayHandler } from 'ui/handler/tray_handler'
 
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 
-import { isLocalhost, isElectron } from 'util/common'
+import { isElectron } from 'util/common'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -148,7 +149,7 @@ class UI {
 		const oldMode = this._mode;
 		this._mode = mode;
 
-		if (isLocalhost()) {
+		if (Flags.printDebug.get()) {
 			console.log("UI mode %s -> %s", UiMode[oldMode], UiMode[mode]);	
 		}
 

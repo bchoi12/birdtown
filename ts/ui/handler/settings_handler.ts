@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { Flags } from 'global/flags'
+
 import { settings } from 'settings'
 import {
 	AntiAliasSetting,
@@ -371,7 +373,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		let category = new CategoryWrapper();
 		category.setTitle(name);
 		this._settingsElm.appendChild(category.elm());
-		return category
+		return category;
 	}
 
 	private addSetting<T extends number>(category : CategoryWrapper, setting : LabelNumberWrapper) : void {

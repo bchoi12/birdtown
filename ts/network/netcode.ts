@@ -20,6 +20,8 @@ import { HostOptions } from 'network/host'
 import { IdGen } from 'network/id_gen'
 import { Pinger } from 'network/pinger'
 
+import { perch } from 'perch'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -96,7 +98,7 @@ export abstract class Netcode {
 		if (cookie.has(CookieType.TOKEN) && !Flags.refreshToken.get()) {
 			this._token = cookie.get(CookieType.TOKEN);
 		} else {
-			this._token = IdGen.randomId(6);
+			this._token = IdGen.randomId(8);
 			cookie.savePairs([
 				[CookieType.TOKEN, this._token],
 			]);
@@ -129,11 +131,11 @@ export abstract class Netcode {
 
 	initialize(onSuccess : () => void, onError: () => void) : void {
 		const peerDebug = Flags.peerDebug.get();
-		if (this.usingPerch()) {
-			console.log(`Using ${this.getPerchURL()} with ID`, this.peerName());
+		if (perch.enabled()) {
+			console.log(`Using ${perch.url()} with ID`, this.peerName());
 
 			let peerOptions = {
-				host: this.getPerchHost(),
+				host: perch.host(),
 				path: this.getPerchPath(),
 				debug: peerDebug,
 				pingInterval: Netcode._pingInterval,
@@ -170,7 +172,7 @@ export abstract class Netcode {
 				incoming.answer(stream);
 				this.addMediaConnection(incoming.metadata.clientId, incoming);
 
-				if (isLocalhost()) {
+				if (Flags.printDebug.get()) {
 					console.log("Answered incoming call", incoming);
 				}
 			}, (e) => {
@@ -210,28 +212,6 @@ export abstract class Netcode {
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
 
-	usingPerch() : boolean { return Flags.useLocalPerch.get() || Flags.usePerch.get(); }
-	private getPerchURL() : string {
-		let url = "";
-		if (Flags.usePerch.get()) {
-			url = `https://perch.birdtown.net`;
-		} else if (Flags.useLocalPerch.get()) {
-			url = `http://localhost:${Flags.localPerchPort.get()}`;
-		} else {
-			console.error("Error: perch not in use, but URL was requested");
-		}
-		return url;
-	}
-	private getPerchHost() {
-		if (Flags.usePerch.get()) {
-			return "perch.birdtown.net";
-		} else if (Flags.useLocalPerch.get()) {
-			return "localhost";
-		}
-
-		console.error("Error: perch not in use, but host was requested");
-		return "";
-	}
 	private getPerchPath() : string { return ["/peer", this.password(), this.getParams()].join("/"); }
 
 	getParams() : string { return "0"; }
@@ -476,7 +456,7 @@ export abstract class Netcode {
 			clients.forEach((id : string, clientId : number) => {
 				this.queryMic((stream : MediaStream) => {
 					this.call(id, clientId, stream);
-					if (isLocalhost()) {
+					if (Flags.printDebug.get()) {
 						console.log("Calling", id, clientId);
 					}
 				}, (e) => {
@@ -485,7 +465,7 @@ export abstract class Netcode {
 						ui.chat(ChatType.ERROR, "Failed to call " + name + "!");
 					}
 
-					if (isLocalhost()) {
+					if (Flags.printDebug.get()) {
 						console.error(e);
 					}
 				});
@@ -599,13 +579,13 @@ export abstract class Netcode {
 	}
 
 	private updateRoomMetadata() : void {
-		if (this.usingPerch()) {
+		if (perch.enabled()) {
 			const numPlayers = this.getNumConnected() + 1;
-			const url = `${this.getPerchURL()}/room?id=${this._hostName}&t=${this._token}&p=${numPlayers}`;
+			const url = `${perch.url()}/room?id=${this._hostName}&t=${this._token}&p=${numPlayers}`;
 			fetch(url, {
 				method: "PUT",
 			}).then((response) => {
-				if (isLocalhost()) {
+				if (Flags.printDebug.get()) {
 					console.log("Update room metadata:", response);
 				}
 			});
