@@ -20,6 +20,7 @@ import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
 import { Fns } from 'util/fns'
+import { LatLng } from 'util/lat_lng'
 
 export class HostGameDialogWrapper extends InitGameDialogWrapper {
 
@@ -41,6 +42,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 	constructor() {
 		super();
 
+		this.shrink();
 		this.setTitle("Host Game");
 
 		this._settingsCategory = new CategoryWrapper();
@@ -128,32 +130,21 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			return;
 		}
 
-		if (!navigator.geolocation) {
-			console.error("Warning: location not supported, hosting anyway");
-			super.connect();
-		}
-
 		this.setPendingMessage("Querying location")
-		navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => {
-			if (position.coords && position.coords.latitude && position.coords.longitude) {
-				this._latlng = ["" + Fns.roundTo(position.coords.latitude, 2), "" + Fns.roundTo(position.coords.longitude, 2)].join(",");
-			} else {
-				console.error("Warning: failed to obtain location, hosting anyway");
-			}
-
+		ui.queryLatLng((loc : LatLng) => {
+			this._latlng = ["" + Fns.roundTo(loc.lat(), 2), "" + Fns.roundTo(loc.lng(), 2)].join(",");
 			this.setReady();
 			super.connect();
 		}, () => {
 			console.error("Warning: failed to obtain location, hosting anyway");
-
 			this.setReady();
 			super.connect();
-		},
-		{
-			maximumAge: 3000,
-			timeout: 3000,
-			enableHighAccuracy: false,
 		});
+
+		if (!navigator.geolocation) {
+			console.error("Warning: location not supported, hosting anyway");
+			super.connect();
+		}
 	}
 
 	private getName() : string {

@@ -267,6 +267,7 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
+		this.targetEntity<Player>().setAttribute(AttributeType.VIP, false);
 		this.targetEntity<Player>().setAttribute(AttributeType.REVIVING, false);
 		this.targetEntity<Player>().fullHeal();
 		this.setRole(this._startingRole);

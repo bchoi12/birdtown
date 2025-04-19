@@ -124,6 +124,7 @@ export namespace Html {
 	export const classScoreboardTitle = "scoreboard-title";
 	export const classStat = "stat";
 	export const classStatusMessage = "status-message";
+	export const classTable = "table";
 	export const classTooltip = "tooltip";
 
 	export const cursor = "cursor";
@@ -164,6 +165,10 @@ export namespace Html {
 	export function trimmedValue(inputElm : HTMLInputElement) : string {
 		return inputElm.value.trim()
 	}
+
+	export function hasOverflowY(elm : HTMLElement) : boolean {
+		return elm.scrollHeight > elm.clientHeight;
+	}
 }
 
 export class HtmlWrapper<T extends HTMLElement> {
@@ -175,6 +180,7 @@ export class HtmlWrapper<T extends HTMLElement> {
 
 	elm() : T { return this._elm; }
 	display(display : string) : void { this.elm().style.display = display; }
+	hasOverflowY() : boolean { return Html.hasOverflowY(this._elm); }
 
 	removeChildren() : void {
 		while (this._elm.firstChild) {

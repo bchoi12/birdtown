@@ -22,7 +22,6 @@ enum LoginType {
 
 	HOST,
 	JOIN,
-	AUTO_JOIN,
 }
 
 export class LoginHandler extends HandlerBase implements Handler {
@@ -85,18 +84,9 @@ export class LoginHandler extends HandlerBase implements Handler {
 		const room = Flags.room.get();
 		if (room.length > 0) {
 			const password = Flags.password.get();
-			if (password.length > 0) {
-				this._clientWrapper.setPassword(password);
-			}
-			this._clientWrapper.setRoom(room);
-			this.startGame(LoginType.AUTO_JOIN);
+			this._clientWrapper.prefill(room, password);
+			this.startGame(LoginType.JOIN);
 		}
-
-		perch.getStats((data) => {
-			if (Flags.printDebug.get()) {
-				console.log(data);
-			}
-		})
 	}
 
 	override onDisable() : void {
@@ -117,10 +107,6 @@ export class LoginHandler extends HandlerBase implements Handler {
 		switch (mode) {
 		case LoginType.HOST:
 			this._hostWrapper.show();
-			break;
-		case LoginType.AUTO_JOIN:
-			this._clientWrapper.show();
-			this._clientWrapper.connect();
 			break;
 		case LoginType.JOIN:
 			this._clientWrapper.show();

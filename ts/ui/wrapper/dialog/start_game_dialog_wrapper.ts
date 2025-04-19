@@ -24,6 +24,7 @@ import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { ModeSelectWrapper } from 'ui/wrapper/button/mode_select_wrapper'
 import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
+import { CategoryWrapper } from 'ui/wrapper/category_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { ColumnWrapper } from 'ui/wrapper/column_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
@@ -308,70 +309,81 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
 
 		let options = columnsWrapper.column(0);
-		options.setLegend("Options");
 		options.contentElm().style.fontSize = "0.7em";
-		options.contentElm().style.textAlign = "center";
-		options.contentElm().textContent = "Customize game mode options\r\n\r\n"
+
+		let coreCategory = new CategoryWrapper();
+		coreCategory.setTitle("Core Options");
+		coreCategory.setAlwaysExpand(true);
+		options.contentElm().appendChild(coreCategory.elm());
+
+		options.contentElm().appendChild(Html.br());
+
+		let otherCategory = new CategoryWrapper();
+		otherCategory.setTitle("Other Options");
+		otherCategory.setExpanded(true);
+		options.contentElm().appendChild(otherCategory.elm());
 
 		const teamMode = this._configMsg.getWinCondition() === WinConditionType.TEAM_LIVES || this._configMsg.getWinCondition() === WinConditionType.TEAM_POINTS;
 
 		switch (mode) {
 		case GameMode.DUEL:
-			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			break;
 		case GameMode.FREE_FOR_ALL:
 		case GameMode.SPREE:
-			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			options.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
-			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			break;
 		case GameMode.PRACTICE:
-			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			break;
 		case GameMode.SUDDEN_DEATH:
-			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			options.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());	
-			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());	
+			coreCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.SURVIVAL:
-			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			options.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());
-			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());
+			coreCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.TEAM_BATTLE:
-			options.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			options.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			options.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
-			options.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			coreCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		}
 
 		let players = columnsWrapper.column(1);
-		players.setLegend("Players");
-		players.contentElm().style.textAlign = "center";
 		players.contentElm().style.fontSize = "0.7em";
 
+		let playerCategory = new CategoryWrapper();
+		playerCategory.setTitle("Player Setup");
+		playerCategory.setAlwaysExpand(true);
+		players.contentElm().appendChild(playerCategory.elm());
+
 		this._playerConfigWrapper = new PlayerConfigWrapper();
-		players.contentElm().appendChild(this._playerConfigWrapper.elm());
+		playerCategory.contentElm().appendChild(this._playerConfigWrapper.elm());
 
 		if (teamMode) {
 			this._playerConfigWrapper.setInfo("Customize team assignments and spectators");
-			this._playerConfigWrapper.setTeams(true, this._configMsg.getPlayersMaxOr(0));
 
 			if (this._configMsg.hasPlayersMax()) {
 				this._playerConfigWrapper.addRandomButton(this._configMsg.getPlayersMax());
@@ -438,7 +450,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 	}
 	private victoriesWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
 		return new LabelNumberWrapper({
-			label: "First to",
+			label: "Game length",
 			value: msg.getVictories(),
 			plus: (current : number) => {
 				msg.setVictories(Math.min(current + 1, max));

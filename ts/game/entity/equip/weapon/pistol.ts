@@ -1,6 +1,3 @@
-import * as BABYLON from '@babylonjs/core/Legacy/legacy'
-import * as MATTER from 'matter-js'
-
 import { game } from 'game'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'

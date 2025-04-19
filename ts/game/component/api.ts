@@ -33,6 +33,7 @@ export enum AttributeType {
 	INVINCIBLE,
 	REVIVING,
 	SOLID,
+	VIP,
 }
 
 export enum EmotionType {

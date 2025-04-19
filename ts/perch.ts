@@ -36,6 +36,14 @@ class Perch {
 		return this._host;
 	}
 
+	getRooms(onData : (data) => void) : void {
+		if (!this.enabled()) {
+			return;
+		}
+
+		const url = `${this.url()}/rooms`;
+		this.get(url, onData);
+	}
 	getStats(onData : (data) => void) : void {
 		if (!this.enabled()) {
 			return;

@@ -43,7 +43,6 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 		super();
 
 		this.setOpaque(true);
-		this.shrink();
 
 		this._state = State.READY;
 		this._stateChangeTime = Date.now();
@@ -82,14 +81,22 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 		});
 	}
 
+	override onShow() : void {
+		super.onShow();
+
+		this.setReady();
+	}
+
 	abstract connectMessage() : string;
 	abstract connectErrorMessage() : string;
 	abstract getNetcodeOptions() : NetcodeOptions;
 
 	protected form() : HTMLFormElement { return this._form; }
-
 	protected pending() : boolean { return this._state === State.PENDING; }
 	protected setReady() : void { this.setState(State.READY, ""); }
+	protected onNetcodeError() : void {
+		this.setErrorMessage(this.connectErrorMessage());
+	}
 	connect() : void {
 		if (this.pending()) {
 			return;
@@ -124,7 +131,7 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 		    	this.setReady();
 		    },
 		    netcodeError: () => {
-		    	this.setErrorMessage(this.connectErrorMessage());
+		    	this.onNetcodeError();
 		    }
 		});
 	}

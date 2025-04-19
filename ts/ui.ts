@@ -41,6 +41,7 @@ import { TrayHandler } from 'ui/handler/tray_handler'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 
 import { isElectron } from 'util/common'
+import { LatLng } from 'util/lat_lng'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -52,6 +53,7 @@ class UI {
 
 	private _mode : UiMode;
 	private _audioContext : Optional<AudioContext>;
+	private _location : LatLng;
 
 	private _handlers : Map<HandlerType, Handler>;
 
@@ -81,8 +83,8 @@ class UI {
 	constructor() {
 		this._mode = UiMode.UNKNOWN;
 		this._audioContext = new Optional();
-
 		this._handlers = new Map();		
+		this._location = LatLng.empty();
 
 		this._announcementHandler = this.add(new AnnouncementHandler());
 		this._chatHandler = this.add(new ChatHandler());
@@ -194,6 +196,32 @@ class UI {
 		this._pointerLockHandler.setPointerLockRequested(requested);
 	}
 	pointerLocked() : boolean { return this._pointerLockHandler.pointerLocked(); }
+
+	queryLatLng(onSuccess : (loc : LatLng) => void, onError : () => void) : void {
+		if (this._location.valid()) {
+			onSuccess(this._location);
+		}
+
+		if (!navigator.geolocation) {
+			onError();
+		}
+
+		navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => {
+			if (position.coords && position.coords.latitude && position.coords.longitude) {
+				this._location.set(position.coords.latitude, position.coords.longitude);
+				onSuccess(this._location);
+			} else {
+				onError();
+			}
+		}, () => {
+			onError();
+		},
+		{
+			maximumAge: 3000,
+			timeout: 3000,
+			enableHighAccuracy: false,
+		});
+	}
 
 	updatePos(clientId : number, pos : Vec) : void {
 		if (!this.hasAudio()) {

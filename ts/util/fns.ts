@@ -15,6 +15,9 @@ export enum InterpType {
 export type InterpFn = (t : number) => number;
 
 export namespace Fns {
+	export function roundUp(n : number, int : number) {
+		return Number.isNaN(n) ? 0.0 : int * Math.ceil(n / int);
+	}
 	export function roundTo(n : number, int : number) {
 		return Number.isNaN(n) ? 0.0 : int * Math.round(n / int);
 	}

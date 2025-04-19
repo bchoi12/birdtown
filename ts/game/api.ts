@@ -39,6 +39,7 @@ export enum GameMode {
 
 	FREE,
 
+	// beta 1.0
 	DUEL,
 	FREE_FOR_ALL,
 	PRACTICE,
@@ -46,6 +47,10 @@ export enum GameMode {
 	SUDDEN_DEATH,
 	SURVIVAL,
 	TEAM_BATTLE,
+
+	// beta 1.1
+	GOLDEN_GUN,
+	VIP,
 }
 
 export enum GameObjectState {
