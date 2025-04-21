@@ -32,7 +32,6 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 	private _name : string;
 	private _nameInput : LabelInputWrapper;
 	private _passwordInput : LabelInputWrapper;
-	private _privacySetting : SettingWrapper<number>;
 
 	private _settingsCategory : CategoryWrapper;
 	private _advancedCategory : CategoryWrapper;
@@ -69,9 +68,10 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 
 		this._advancedCategory = new CategoryWrapper();
 		this._advancedCategory.setTitle("Advanced Settings");
-		this._advancedCategory.setExpanded(false);
+		this._advancedCategory.setExpanded(true);
 		this.form().appendChild(this._advancedCategory.elm());
 
+		/*
 		this._privacySetting = new SettingWrapper<number>({
 			name: "Privacy",
 			value: 1,
@@ -83,6 +83,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			},
 		});
 		this._advancedCategory.contentElm().appendChild(this._privacySetting.elm());
+		*/
 
 		this._maxPlayers = HostGameDialogWrapper._defaultMaxPlayers;
 		this._maxPlayersSetting = new LabelNumberWrapper({
@@ -98,7 +99,8 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		});
 		this._advancedCategory.contentElm().appendChild(this._maxPlayersSetting.elm());
 
-		this._latlng = "??,??";
+		// Resist urge to use ? in the HTTP request
+		this._latlng = "unk,unk";
 	}
 
 	override onShow() : void {
@@ -109,8 +111,8 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		}
 	}
 
-	override connectMessage() : string { return "Hosting new room"; }
-	override connectErrorMessage() : string { return "Failed to host, please try again in a bit"; }
+	override connectMessage(room : string) : string { return `Hosting new room ${room}`; }
+	override connectErrorMessage(room : string) : string { return "Failed to host, please try again in a bit"; }
 	override getNetcodeOptions() : NetcodeOptions {
 		return {
 			isHost: true,
@@ -118,7 +120,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			password: this.getPassword(),
 			hostOptions: {
 				maxPlayers: this._maxPlayers,
-				publicRoom: this._privacySetting.value() === 1,
+				publicRoom: true,
 				name: this.getName(),
 				latlng: this._latlng,
 			},
@@ -130,7 +132,18 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			return;
 		}
 
-		this.setPendingMessage("Querying location")
+		if (this.getPassword().length > 0) {
+			super.connect();
+			return;
+		}
+
+		if (!navigator.geolocation) {
+			console.error("Warning: location not supported, hosting anyway");
+			super.connect();
+			return;
+		}
+
+		this.setPendingMessage("Querying approximate location")
 		ui.queryLatLng((loc : LatLng) => {
 			this._latlng = ["" + Fns.roundTo(loc.lat(), 2), "" + Fns.roundTo(loc.lng(), 2)].join(",");
 			this.setReady();
@@ -140,11 +153,6 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			this.setReady();
 			super.connect();
 		});
-
-		if (!navigator.geolocation) {
-			console.error("Warning: location not supported, hosting anyway");
-			super.connect();
-		}
 	}
 
 	private getName() : string {

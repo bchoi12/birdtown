@@ -200,10 +200,12 @@ class UI {
 	queryLatLng(onSuccess : (loc : LatLng) => void, onError : () => void) : void {
 		if (this._location.valid()) {
 			onSuccess(this._location);
+			return;
 		}
 
 		if (!navigator.geolocation) {
 			onError();
+			return;
 		}
 
 		navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => {
@@ -248,6 +250,7 @@ class UI {
 		}
 	}
 
+	setJoinParams(room : string, password : string) : void { this._loginHandler.setJoinParams(room, password); }
 	hideLogin() : void { this._loginHandler.hideLogin(); }
 	pushAnnouncement(msg : GameMessage) : void { this._announcementHandler.pushAnnouncement(msg); }
 	hasTimer() : boolean { return this._timerHandler.hasTime(); }

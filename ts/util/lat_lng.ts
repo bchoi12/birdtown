@@ -39,6 +39,9 @@ export class LatLng {
 		if (parts.length !== 2) {
 			return loc;
 		}
+		if (parts[0] === "" || parts[1] === "") {
+			return loc;
+		}
 
 		const lat = Number(parts[0]);
 		const lng = Number(parts[1]);

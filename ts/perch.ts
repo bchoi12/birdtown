@@ -36,24 +36,24 @@ class Perch {
 		return this._host;
 	}
 
-	getRooms(onData : (data) => void) : void {
+	getRooms(onData : (data) => void, onError : () => void) : void {
 		if (!this.enabled()) {
 			return;
 		}
 
 		const url = `${this.url()}/rooms`;
-		this.get(url, onData);
+		this.get(url, onData, onError);
 	}
-	getStats(onData : (data) => void) : void {
+	getStats(onData : (data) => void, onError : () => void) : void {
 		if (!this.enabled()) {
 			return;
 		}
 
 		const url = `${this.url()}/stats`;
-		this.get(url, onData);
+		this.get(url, onData, onError);
 	}
 
-	private get(url : string, onData : (data) => void) {
+	private get(url : string, onData : (data) => void, onError : () => void) {
 		if (Flags.printDebug.get()) {
 			console.log("Fetching", url);
 		}
@@ -62,8 +62,9 @@ class Perch {
 				if (Flags.printDebug.get()) {
 					console.error("Failed to fetch", url);
 				}
+				onError();
 			})
-			.then(onData);
+			.then(onData, onError);
 	}
 }
 

@@ -122,9 +122,11 @@ export namespace Html {
 	export const classProgress = "progress";
 	export const classScoreboardContainer = "scoreboard-container";
 	export const classScoreboardTitle = "scoreboard-title";
+	export const classServerInfo = "server-info";
 	export const classStat = "stat";
 	export const classStatusMessage = "status-message";
 	export const classTable = "table";
+	export const classTableRowSelect = "table-row-select";
 	export const classTooltip = "tooltip";
 
 	export const cursor = "cursor";
@@ -143,10 +145,10 @@ export namespace Html {
 	export function kbd() : HTMLElement { return document.createElement("kbd"); }
 	export function label() : HTMLElement { return document.createElement("label"); }
 	export function legend() : HTMLElement { return document.createElement("legend"); }
-	export function table() : HTMLElement { return document.createElement("table"); }
-	export function td() : HTMLElement { return document.createElement("td"); }
-	export function th() : HTMLElement { return document.createElement("th"); }
-	export function tr() : HTMLElement { return document.createElement("tr"); }
+	export function table() : HTMLTableElement { return <HTMLTableElement>document.createElement("table"); }
+	export function td() : HTMLTableCellElement { return <HTMLTableCellElement>document.createElement("td"); }
+	export function th() : HTMLTableCellElement { return <HTMLTableCellElement>document.createElement("th"); }
+	export function tr() : HTMLTableRowElement { return <HTMLTableRowElement>document.createElement("tr"); }
 	export function icon() : HTMLElement { return document.createElement("i"); }
 	export function audio() : HTMLAudioElement { return <HTMLAudioElement>document.createElement("audio"); }
 	export function button() : HTMLButtonElement { return document.createElement("button"); }

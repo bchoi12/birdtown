@@ -87,15 +87,15 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 		this.setReady();
 	}
 
-	abstract connectMessage() : string;
-	abstract connectErrorMessage() : string;
+	abstract connectMessage(room : string) : string;
+	abstract connectErrorMessage(room : string) : string;
 	abstract getNetcodeOptions() : NetcodeOptions;
 
 	protected form() : HTMLFormElement { return this._form; }
 	protected pending() : boolean { return this._state === State.PENDING; }
 	protected setReady() : void { this.setState(State.READY, ""); }
-	protected onNetcodeError() : void {
-		this.setErrorMessage(this.connectErrorMessage());
+	protected onNetcodeError(room : string) : void {
+		this.setErrorMessage(this.connectErrorMessage(room));
 	}
 	connect() : void {
 		if (this.pending()) {
@@ -115,7 +115,7 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 			return;
 		}
 
-		this.setPendingMessage(this.connectMessage());
+		this.setPendingMessage(this.connectMessage(room));
 		game.initialize({
 			netcodeOptions: netcodeOptions,
 		    netcodeSuccess: () => {
@@ -131,7 +131,7 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 		    	this.setReady();
 		    },
 		    netcodeError: () => {
-		    	this.onNetcodeError();
+		    	this.onNetcodeError(room);
 		    }
 		});
 	}

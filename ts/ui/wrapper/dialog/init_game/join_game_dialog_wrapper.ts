@@ -64,16 +64,6 @@ export class JoinGameDialogWrapper extends InitGameDialogWrapper {
 		this._passwordInput.inputElm().pattern = InitGameDialogWrapper._pattern;
 		this._passwordInput.inputElm().maxLength = InitGameDialogWrapper._passwordLength;
 		inputCategory.contentElm().appendChild(this._passwordInput.elm());
-
-		let refreshButton = new ButtonWrapper();
-		refreshButton.setIcon(IconType.REFRESH);
-		refreshButton.setText("Refresh");
-		refreshButton.elm().style.float = "left";
-		refreshButton.addOnClick(() => {
-			this._serverWrapper.refresh();
-		});
-
-		this.footerElm().appendChild(refreshButton.elm());
 	}
 
 	override onShow() : void {
@@ -91,20 +81,28 @@ export class JoinGameDialogWrapper extends InitGameDialogWrapper {
 		this._serverWrapper.refresh();
 	}
 
-	protected override onNetcodeError() : void {
-		super.onNetcodeError();
+	protected override onNetcodeError(room : string) : void {
+		super.onNetcodeError(room);
 
 		this._serverWrapper.refresh();
 	}
 
 	prefill(room : string, password : string) : void {
-		this._roomInput.setValue(room);
-		this._passwordInput.setValue(password);
+		this.setParams(room, password);
 		this._autoJoin = true;
 	}
 
-	override connectMessage() : string { return "Joining game"; }
-	override connectErrorMessage() : string { return "Failed to join, please double check your settings"; }
+	setParams(room : string, password : string) : void {
+		this._roomInput.setValue(room);
+		this._passwordInput.setValue(password);
+
+		if (this.visible() && password === "") {
+			this._passwordInput.inputElm().focus();
+		}
+	}
+
+	override connectMessage(room : string) : string { return `Joining ${room}`; }
+	override connectErrorMessage(room : string) : string { return `Failed to join ${room}`; }
 	override getNetcodeOptions() : NetcodeOptions {
 		return {
 			isHost: false,

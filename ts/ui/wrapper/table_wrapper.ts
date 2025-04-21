@@ -12,9 +12,9 @@ export type TableWrapperOptions = {
 export class TableWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _options : TableWrapperOptions;
-	private _header : Optional<HTMLElement>;
+	private _header : Optional<RowWrapper>;
 
-	private _rows : Array<HTMLElement>;
+	private _rows : Array<RowWrapper>;
 
 	constructor(options : TableWrapperOptions) {
 		super(Html.table());
@@ -27,43 +27,54 @@ export class TableWrapper extends HtmlWrapper<HTMLElement> {
 		this._rows = new Array();
 	}
 
-	addHeader(values : string[]) : void {
+	addHeader(values : string[]) : RowWrapper {
 		if (!this._header.has()) {
-			this._header.set(Html.tr());
-			this.elm().appendChild(this._header.get());
+			const row = new RowWrapper();
+			this._header.set(row);
+			this.elm().appendChild(row.elm());
 		}
 
 		let header = this._header.get();
 
+		const width = Math.floor(100 / values.length);
 		values.forEach((value : string) => {
 			let th = Html.th();
+
+			th.style.textAlign = "left";
+			th.style.width = width + "%";
+			th.style.textOverflow = "ellipsis";
 
 			this._options.thClasses.forEach((thClass) => {
 				th.classList.add(thClass);
 			});
 			th.textContent = value;
-			header.appendChild(th);
-		})
+			header.elm().appendChild(th);
+		});
+
+		return header;
 	}
-	addRow(values : string[]) : void {
-		let row = Html.tr();
+	addRow(values : string[]) : RowWrapper {
+		let row = new RowWrapper();
 
 		values.forEach((value : string) => {
 			let td = Html.td();
+			td.style.textAlign = "left";
+			td.style.textOverflow = "ellipsis";
 
 			this._options.tdClasses.forEach((tdClass) => {
 				td.classList.add(tdClass);
 			});
 			td.textContent = value;
-			row.appendChild(td);
+			row.elm().appendChild(td);
 		})
 
 		this._rows.push(row);
-		this.elm().appendChild(row);
+		this.elm().appendChild(row.elm());
+		return row;
 	}
 	clearRows() : void {
-		this._rows.forEach((row : HTMLElement) => {
-			row.remove();
+		this._rows.forEach((row : RowWrapper) => {
+			row.elm().remove();
 		});
 		this._rows = [];
 	}
@@ -82,5 +93,23 @@ export class TableWrapper extends HtmlWrapper<HTMLElement> {
 	}
 	values(row : number) : string[] {
 		return null;
+	}
+}
+
+export class RowWrapper extends HtmlWrapper<HTMLTableRowElement> {
+
+	constructor() {
+		super(Html.tr());
+	}
+
+	setOnClick(fn : (data : string) => void) {
+		this.elm().classList.add(Html.classTableRowSelect);
+
+		const cells = this.elm().cells;
+		for (let i = 0; i < cells.length; ++i) {
+			cells[i].onclick = () => {
+				fn(cells[i].textContent);
+			};
+		}
 	}
 }

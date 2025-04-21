@@ -84,7 +84,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		const room = Flags.room.get();
 		if (room.length > 0) {
 			const password = Flags.password.get();
-			this._clientWrapper.prefill(room, password);
+			this._clientWrapper.prefill(room, password);		
 			this.startGame(LoginType.JOIN);
 		}
 	}
@@ -94,6 +94,10 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 		this._splashElm.style.display = "none";
 		document.body.style.background = "black";
+	}
+
+	setJoinParams(room : string, password : string) : void {
+		this._clientWrapper.setParams(room, password);
 	}
 
 	hideLogin() : void { this.disable(); }
