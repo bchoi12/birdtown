@@ -69,6 +69,7 @@ export namespace Html {
 	export const classBirdPhoto = "bird-photo";
 	export const classBirdPicker = "bird-picker";
 	export const classButton = "button";
+	export const classButtonGray = "button-gray";
 	export const classButtonInverted = "button-inverted";
 	export const classButtonSelect = "button-select";
 	export const classButtonSelected = "button-selected";

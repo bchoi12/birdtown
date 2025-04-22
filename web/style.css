@@ -853,6 +853,10 @@ kbd {
     padding: 0.3em 0.6em;
 }
 
+.button-gray {
+    color: rgba(255, 255, 255, 0.3);
+}
+
 .button-inverted {
     color: #333;
     background-color: #f2f2f2;

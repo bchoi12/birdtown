@@ -66,10 +66,10 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginElm.style.display = "block";
 
 		this._hostButton.onclick = () => {
-			this.startGame(LoginType.HOST);
+			this.hostGame();
 		};
 		this._joinButton.onclick = () => {
-			this.startGame(LoginType.JOIN);
+			this.joinGame();
 		};
 
 		this.enable();
@@ -85,7 +85,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		if (room.length > 0) {
 			const password = Flags.password.get();
 			this._clientWrapper.prefill(room, password);		
-			this.startGame(LoginType.JOIN);
+			this.joinGame();
 		}
 	}
 
@@ -102,22 +102,23 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 	hideLogin() : void { this.disable(); }
 
-	private startGame(mode : LoginType) : void {
+	hostGame() : void {
 		if (!this.enabled()) {
-			console.error("Error: tried to start game when login is not enabled");
+			console.error("Error: tried to host game when login is not enabled");
 			return;
 		}
 
-		switch (mode) {
-		case LoginType.HOST:
-			this._hostWrapper.show();
-			break;
-		case LoginType.JOIN:
-			this._clientWrapper.show();
-			break;
-		default:
-			console.error("Unknown mode!", LoginType[mode]);
+		this._clientWrapper.hide();
+		this._hostWrapper.show();
+	}
+
+	joinGame() : void {
+		if (!this.enabled()) {
+			console.error("Error: tried to join game when login is not enabled");
 			return;
 		}
+
+		this._hostWrapper.hide();
+		this._clientWrapper.show();
 	}
 }

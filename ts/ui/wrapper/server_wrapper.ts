@@ -13,12 +13,16 @@ import { LatLng } from 'util/lat_lng'
 
 export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 
+	private static readonly _refreshLockout = 1000;
+
 	private _location : LatLng;
 	private _pending : boolean;
 	private _lastRefresh : number;
 
-	private _button : ButtonWrapper;
+
 	private _infoElm : HTMLElement;
+	private _hostButton : ButtonWrapper;
+	private _refreshButton : ButtonWrapper;
 	private _table : TableWrapper;
 
 	constructor() {
@@ -30,18 +34,26 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		this._pending = false;
 		this._lastRefresh = 0;
 
-		this._button = new ButtonWrapper();
-		this._button.setIcon(IconType.REFRESH);
-		this._button.setText("Refresh");
-		this._button.addOnClick(() => {
-			this.refresh();
-		});
-
-		this.elm().appendChild(this._button.elm());
-
 		this._infoElm = Html.div();
 		this._infoElm.classList.add(Html.classServerInfo);
 		this.elm().appendChild(this._infoElm);
+
+		this._hostButton = new ButtonWrapper();
+		this._hostButton.setIcon(IconType.HOST);
+		this._hostButton.setText("Host");
+		this._hostButton.hide();
+		this._hostButton.addOnClick(() => {
+			ui.hostGame();
+		});
+		this.elm().appendChild(this._hostButton.elm());
+
+		this._refreshButton = new ButtonWrapper();
+		this._refreshButton.setIcon(IconType.REFRESH);
+		this._refreshButton.setText("Refresh");
+		this._refreshButton.addOnClick(() => {
+			this.refresh();
+		});
+		this.elm().appendChild(this._refreshButton.elm());
 
 		this._table = new TableWrapper({
 			thClasses: [],
@@ -59,11 +71,12 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		if (this._pending) {
 			return;
 		}
-		if (this.timeSinceRefresh() < 1000) {
+		if (this.timeSinceRefresh() < ServerWrapper._refreshLockout) {
 			return;
 		}
 
 		this._pending = true;
+		this._refreshButton.setGrayFor(ServerWrapper._refreshLockout);
 		ui.queryLatLng((loc : LatLng) => {
 			this._location.copy(loc);
 			this.updateTable();
@@ -79,9 +92,9 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._pending = pending;
 		if (this._pending) {
-			this._button.setText("Refreshing...");
+			this._refreshButton.setText("Refreshing...");
 		} else {
-			this._button.setText("Refresh");
+			this._refreshButton.setText("Refresh");
 		}
 	}
 
@@ -90,17 +103,20 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		this._lastRefresh = Date.now();
 
 		perch.getRooms((data) => {
-			const rooms = Object.entries(data);
+			this._pending = false;
 
+			const rooms = Object.entries(data);
 			if (rooms.length === 0) {
-				this._infoElm.textContent = "No servers were found!";
+				this._infoElm.textContent = "No servers found. Host a game instead?";
+				this._hostButton.show();
 				this._table.elm().style.display = "none";
 				return;
 			}
 
-			this._infoElm.style.display = "none";
+			this._hostButton.hide();
 			this._table.elm().style.display = "block";
 
+			let players = 0;
 			rooms.forEach((room) => {
 				if (room.length !== 2) {
 					console.error("Error: invalid room", room);
@@ -110,8 +126,12 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 				row.setOnClick(() => {
 					ui.setJoinParams(room[0], "");
 				});
+
+				// TODO: actual count
+				players += 1;
 			});
-			this._pending = false;
+
+			this._infoElm.textContent = `${players} players online`;
 		}, () => {
 			this._pending = false;
 		});
@@ -172,7 +192,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 			return "???";
 		}
 
-		return `<${Fns.roundUp(dist, 100)}km`;
+		return `≤${Fns.roundUp(dist, 100)}km`;
 	}
 
 	private extractAge(room : Object) : string {

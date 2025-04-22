@@ -250,6 +250,7 @@ class UI {
 		}
 	}
 
+	hostGame() : void { this._loginHandler.hostGame(); }
 	setJoinParams(room : string, password : string) : void { this._loginHandler.setJoinParams(room, password); }
 	hideLogin() : void { this._loginHandler.hideLogin(); }
 	pushAnnouncement(msg : GameMessage) : void { this._announcementHandler.pushAnnouncement(msg); }

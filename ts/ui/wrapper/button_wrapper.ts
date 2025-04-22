@@ -19,6 +19,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	private static readonly _defaultHoverColor = "#555";
 
 	private _state : ButtonState;
+	private _gray : boolean;
 	private _onClickFns : Array<OnEventFn>;
 	private _onMouseEnterFns : Array<OnEventFn>;
 	private _onMouseLeaveFns : Array<OnEventFn>;
@@ -33,6 +34,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		super(Html.div());
 
 		this._state = ButtonState.UNKNOWN;
+		this._gray = false;
 		this._onClickFns = new Array();
 		this._onMouseEnterFns = new Array();
 		this._onMouseLeaveFns = new Array();
@@ -66,7 +68,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		}
 	}
 
-	show() : void { this.elm().style.display = "block"; }
+	show() : void { this.elm().style.display = "inline-block"; }
 	hide() : void { this.elm().style.display = "none"; }
 
 	textElm() : HTMLElement { return this._textElm; }
@@ -117,6 +119,24 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		}
 	}
 
+	setGrayFor(millis : number) : void {
+		if (this._gray) {
+			return;
+		}
+
+		this.elm().classList.add(Html.classButtonGray);
+		this._gray = true;
+		setTimeout(() => {
+			if (this._gray) {
+				this.clearGray();
+			}
+		}, millis);
+	}
+	clearGray() : void {
+		this.elm().classList.remove(Html.classButtonGray);
+		this._gray = false;
+	}
+
 	addOnClick(fn : OnEventFn) : void {
 		this.elm().style.cursor = "pointer";
 		this._onClickFns.push(fn);
@@ -130,6 +150,10 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	addOnUnselect(fn : OnEventFn) : void { this._onUnselectFns.push(fn); }
 
 	click() : void {
+		if (this._gray) {
+			return;
+		}
+
 		this._onClickFns.forEach((fn : OnEventFn) => {
 			fn();
 		});
