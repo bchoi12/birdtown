@@ -112,8 +112,11 @@ export enum ColorType {
 	TEXT_RED,
 	TEXT_GREEN,
 
-	UI_RED,
 	UI_GREEN,
+	UI_GREENISH,
+	UI_YELLOW,
+	UI_ORANGE,
+	UI_RED,
 
 	SWEAT,
 	TABLE,

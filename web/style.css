@@ -1082,6 +1082,10 @@ kbd {
     margin-left: 10%;
 }
 
+.table {
+    width: 100%;
+}
+
 .table-row-select:hover {
     background: #444444;
     border-radius: 0.2em;

@@ -16,4 +16,11 @@ export namespace Strings {
 
 		return [str.substring(0, index), str.substring(index + 1)];
 	}
+
+	export function plural(str : string, n : number) : string {
+		if (n !== 1) {
+			return str + "s";
+		}
+		return str;
+	}
 }

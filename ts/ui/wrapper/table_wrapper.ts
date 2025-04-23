@@ -1,33 +1,40 @@
 
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
+import { RowWrapper } from 'ui/wrapper/table/row_wrapper'
 
 import { Optional } from 'util/optional'
 
-export type TableWrapperOptions = {
-	thClasses : string[];
-	tdClasses : string[];
+export type CellOptions = {
+	name : string;
+	widthPercent? : number;
+	textAlign? : string;
+	textOverflow? : string;
+	color? : string;
 }
 
 export class TableWrapper extends HtmlWrapper<HTMLElement> {
 
-	private _options : TableWrapperOptions;
-	private _header : Optional<RowWrapper>;
+	private static readonly _cellOptions : CellOptions = {
+		name: "",
+		textAlign: "left",
+		textOverflow: "ellipsis",
+	}
 
+	private _header : Optional<RowWrapper>;
 	private _rows : Array<RowWrapper>;
 
-	constructor(options : TableWrapperOptions) {
+	constructor() {
 		super(Html.table());
 
 		this.elm().classList.add(Html.classTable);
 
-		this._options = options;
 		this._header = new Optional();
 
 		this._rows = new Array();
 	}
 
-	addHeader(values : string[]) : RowWrapper {
+	addHeader(cellOptions : CellOptions[]) : RowWrapper {
 		if (!this._header.has()) {
 			const row = new RowWrapper();
 			this._header.set(row);
@@ -36,35 +43,32 @@ export class TableWrapper extends HtmlWrapper<HTMLElement> {
 
 		let header = this._header.get();
 
-		const width = Math.floor(100 / values.length);
-		values.forEach((value : string) => {
+		const width = Math.floor(100 / cellOptions.length);
+		cellOptions.forEach((options : CellOptions) => {
 			let th = Html.th();
 
-			th.style.textAlign = "left";
-			th.style.width = width + "%";
-			th.style.textOverflow = "ellipsis";
-
-			this._options.thClasses.forEach((thClass) => {
-				th.classList.add(thClass);
-			});
-			th.textContent = value;
+			const resolvedOptions : CellOptions = {
+				...TableWrapper._cellOptions,
+				widthPercent: width,
+				...options,
+			}
+			this.populateCell(th, resolvedOptions);
 			header.elm().appendChild(th);
 		});
 
 		return header;
 	}
-	addRow(values : string[]) : RowWrapper {
+	addRow(cellOptions : CellOptions[]) : RowWrapper {
 		let row = new RowWrapper();
 
-		values.forEach((value : string) => {
+		cellOptions.forEach((options : CellOptions) => {
 			let td = Html.td();
-			td.style.textAlign = "left";
-			td.style.textOverflow = "ellipsis";
 
-			this._options.tdClasses.forEach((tdClass) => {
-				td.classList.add(tdClass);
-			});
-			td.textContent = value;
+			const resolvedOptions : CellOptions = {
+				...TableWrapper._cellOptions,
+				...options,
+			}
+			this.populateCell(td, resolvedOptions);
 			row.elm().appendChild(td);
 		})
 
@@ -82,34 +86,24 @@ export class TableWrapper extends HtmlWrapper<HTMLElement> {
 	setSortFn(col : number) : void {
 
 	}
-	setRowOnClick(row : number, fn : (values : string[]) => void) : void {
 
-	}
-	tr(row : number) : HTMLElement {
-		return null;
-	}
-	td(row : number, col : number) : HTMLElement {
-		return null;
-	}
-	values(row : number) : string[] {
-		return null;
-	}
-}
+	private populateCell(cell : HTMLTableCellElement, options : CellOptions) : void {
+		cell.textContent = options.name;
 
-export class RowWrapper extends HtmlWrapper<HTMLTableRowElement> {
+		if (options.textAlign) {
+			cell.style.textAlign = options.textAlign;
+		}
 
-	constructor() {
-		super(Html.tr());
-	}
+		if (options.widthPercent) {
+			cell.style.width = options.widthPercent + "%";
+		}
 
-	setOnClick(fn : (data : string) => void) {
-		this.elm().classList.add(Html.classTableRowSelect);
+		if (options.textOverflow) {
+			cell.style.textOverflow = options.textOverflow;
+		}
 
-		const cells = this.elm().cells;
-		for (let i = 0; i < cells.length; ++i) {
-			cells[i].onclick = () => {
-				fn(cells[i].textContent);
-			};
+		if (options.color) {
+			cell.style.color = options.color;			
 		}
 	}
 }

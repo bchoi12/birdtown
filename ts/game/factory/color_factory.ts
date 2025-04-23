@@ -101,7 +101,10 @@ export namespace ColorFactory {
 		[ColorType.TEXT_GREEN, HexColor.fromHex(0x3adc70)],
 
 		// UI colors
-		[ColorType.UI_GREEN, HexColor.fromHex(0x46b351)],
+		[ColorType.UI_GREEN, HexColor.fromHex(0x46b363)],
+		[ColorType.UI_GREENISH, HexColor.fromHex(0x80b346)],
+		[ColorType.UI_YELLOW, HexColor.fromHex(0xb3b346)],
+		[ColorType.UI_ORANGE, HexColor.fromHex(0xb37246)],
 		[ColorType.UI_RED, HexColor.fromHex(0xb34646)],
 
 		// Material series

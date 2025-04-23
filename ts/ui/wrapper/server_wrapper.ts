@@ -1,18 +1,29 @@
 
+import { ColorType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
+
+import { GameGlobals } from 'global/game_globals'
+
 import { perch } from 'perch'
+
+import { Strings } from 'strings'
 
 import { ui } from 'ui'
 import { IconType } from 'ui/common/icon'
 import { Html, HtmlWrapper } from 'ui/html'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { CategoryWrapper } from 'ui/wrapper/category_wrapper'
-import { TableWrapper } from 'ui/wrapper/table_wrapper'
+import { TableWrapper, CellOptions } from 'ui/wrapper/table_wrapper'
 
 import { Fns } from 'util/fns'
 import { LatLng } from 'util/lat_lng'
 
 export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 
+	private static readonly _errorCell = {
+		name: "???",
+		color: ColorFactory.toString(ColorType.UI_RED),
+	};
 	private static readonly _refreshLockout = 1000;
 
 	private _location : LatLng;
@@ -55,12 +66,26 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		});
 		this.elm().appendChild(this._refreshButton.elm());
 
-		this._table = new TableWrapper({
-			thClasses: [],
-			tdClasses: [],
-		});
-		this._table.addHeader([
-			"Name", "Code", "Players", "Version", "Distance", "Age"
+		this._table = new TableWrapper();
+		this._table.addHeader([{
+			name: "Name",
+			widthPercent: 20,
+		}, {
+			name: "Code",
+			widthPercent: 15,
+		}, {
+			name: "Players",
+			widthPercent: 15,
+		}, {
+			name: "Version",
+			widthPercent: 20,
+		}, {
+			name: "Distance",
+			widthPercent: 15,
+		}, {
+			name: "Age",
+			widthPercent: 15,
+		}
 		]);
 		this._table.elm().style.fontSize = "0.7em";
 		this._table.elm().style.display = "none";
@@ -117,6 +142,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 			this._table.elm().style.display = "block";
 
 			let players = 0;
+			const numRooms = rooms.length;
 			rooms.forEach((room) => {
 				if (room.length !== 2) {
 					console.error("Error: invalid room", room);
@@ -131,17 +157,19 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 				players += 1;
 			});
 
-			this._infoElm.textContent = `${players} players online`;
+			this._infoElm.textContent = `${numRooms} ${Strings.plural("game", numRooms)} found`;
 		}, () => {
 			this._pending = false;
 		});
 	}
 	private timeSinceRefresh() : number { return Date.now() - this._lastRefresh; }
 
-	private extractRow(code : string, room : Object) : string[] {
+	private extractRow(code : string, room : Object) : CellOptions[] {
 		return [
-			this.extractName(room) + this.extractPassword(room),
-			code,
+			this.extractName(room), 
+			{
+				name: code,
+			},
 			this.extractPlayers(room),
 			this.extractVersion(room),
 			this.extractDistance(room),
@@ -149,82 +177,131 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		];
 	}
 
-	private extractName(room : Object) : string {
-		if (room.hasOwnProperty("n")) {
-			return room["n"];
-		}
-		return "???";
-	}
+	private extractName(room : Object) : CellOptions {
+		let name = "";
 
-	private extractPassword(room : Object) : string {
 		if (room.hasOwnProperty("pw")) {
-			return " 🔒";
+			name = "🔒 ";
 		}
-		return "";
+		name += room.hasOwnProperty("n") ? room["n"] : "???";
+
+		return {
+			name: name,
+		}
 	}
 
-	private extractVersion(room : Object) : string {
-		if (room.hasOwnProperty("v")) {
-			return room["v"];
+	private extractVersion(room : Object) : CellOptions {
+		const version = room.hasOwnProperty("v") ? room["v"] : "???";
+
+		if (GameGlobals.version === version) {
+			return {
+				name: version,
+			}
 		}
-		return "???";
+
+		return {
+			name: version,
+			color: ColorFactory.toString(ColorType.UI_RED),
+		}
 	}
 
-	private extractPlayers(room : Object) : string {
+	private extractPlayers(room : Object) : CellOptions {
 		if (room.hasOwnProperty("p") && room.hasOwnProperty("m")) {
-			return room["p"] + "/" + room["m"];
+			let players = Number(room["p"]);
+			const max = Number(room["m"]);
+
+			if (Number.isNaN(players) || Number.isNaN(max)) {
+				return ServerWrapper._errorCell;
+			}
+
+			players = Math.min(players, max);
+
+			const name = `${players}/${max}`;
+			if (players === max) {
+				return {
+					name: name,
+					color: ColorFactory.toString(ColorType.GRAY),
+				}
+			}
+
+			return {
+				name: name,
+			}
 		}
-		return "?/?";
+
+		return ServerWrapper._errorCell;
 	}
 
-	private extractDistance(room : Object) : string {
+	private extractDistance(room : Object) : CellOptions {
 		if (!this._location.valid() || !room.hasOwnProperty("l")) {
-			return "???";
+			return ServerWrapper._errorCell;
 		}
 
 		const other = LatLng.fromString(room["l"]);
 		if (!other.valid()) {
-			return "???";
+			return ServerWrapper._errorCell;
 		}
 
 		const dist = this._location.dist(other);
 		if (dist < 0) {
-			return "???";
+			return ServerWrapper._errorCell;
 		}
 
-		return `≤${Fns.roundUp(dist, 100)}km`;
+		let colorType = ColorType.UI_RED;
+		if (dist <= 2500) {
+			colorType = ColorType.UI_GREEN;
+		} else if (dist <= 5000) {
+			colorType = ColorType.UI_GREENISH;
+		} else if (dist <= 7500) {
+			colorType = ColorType.UI_YELLOW;
+		} else if (dist <= 10000) {
+			colorType = ColorType.UI_ORANGE;
+		}
+
+		return {
+			name: `≤${Fns.roundUp(dist, 100)}km`,
+			color: ColorFactory.toString(colorType),
+		};
 	}
 
-	private extractAge(room : Object) : string {
+	private extractAge(room : Object) : CellOptions {
 		if (room.hasOwnProperty("c")) {
 			const date = Number(room["c"]);
 
 			if (Number.isNaN(date)) {
-				return "???";
+				return ServerWrapper._errorCell;
 			}
 			const millis = Date.now() - date;
 			if (millis <= 0) {
-				return "???";
+				return ServerWrapper._errorCell;
 			}
 
 			const s = Math.floor(millis / 1000);
 			if (s < 60) {
-				return s + "s";
+				return {
+					name: s + "s",
+				};
 			}
 
 			const m = Math.floor(s / 60);
 			if (m < 60) {
-				return m + "min";
+				return {
+					name: m + "min",
+				};
 			}
 
 			const h = Math.floor(m / 60);
 			if (h < 24) {
-				return h + "hr";
+				return {
+					name: h + "hr",
+				};
 			}
 
 			const d = Math.floor(h / 24);
-			return d + " days"
+			return {
+				name: d + " days",
+			};
 		}
-		return "???";
+		return ServerWrapper._errorCell;
 	}
 }
