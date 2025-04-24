@@ -197,6 +197,7 @@ export enum MeshType {
 
 	BAZOOKA,
 	GATLING,
+	GOLDEN_GUN,
 	PURPLE_GLOVE,
 	PISTOL,
 	RED_GLOVE,
@@ -270,6 +271,7 @@ export enum SoundType {
 	EXPLOSION,
 	FOOTSTEP,
 	GATLING,
+	GOLDEN_GUN,
 	JETPACK,
 	LASER,
 	PLAYER_THUD,

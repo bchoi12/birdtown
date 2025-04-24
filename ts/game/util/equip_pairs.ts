@@ -27,13 +27,12 @@ export namespace EquipPairs {
 	export function randomN(n : number) : [EntityType, EntityType][] {
 		globalRandom.shuffle(indices, n);
 
-		let pairs = [];
-
+		let randomPairs = [];
 		for (let i = 0; i < n; ++i) {
 			const weapon = weapons[indices[i]];
-			pairs.push([weapon, getAltEquip(weapon)]);
+			randomPairs.push([weapon, getAltEquip(weapon)]);
 		}
-		return pairs;
+		return randomPairs;
 	}
 
 	export function randomIndex() : number {

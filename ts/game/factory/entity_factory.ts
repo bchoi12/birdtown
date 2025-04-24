@@ -34,6 +34,7 @@ import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { RobinHair } from 'game/entity/equip/headwear/robin_hair'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
+import { GoldenGun } from 'game/entity/equip/weapon/golden_gun'
 import { Pistol } from 'game/entity/equip/weapon/pistol'
 import { PurpleGlove } from 'game/entity/equip/weapon/purple_glove'
 import { RedGlove } from 'game/entity/equip/weapon/red_glove'
@@ -42,6 +43,7 @@ import { Sniper } from 'game/entity/equip/weapon/sniper'
 import { WingCannon } from 'game/entity/equip/weapon/wing_cannon'
 import { BlackHole } from 'game/entity/explosion/black_hole'
 import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
+import { GoldenExplosion } from 'game/entity/explosion/golden_explosion'
 import { OrbExplosion } from 'game/entity/explosion/orb_explosion'
 import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
 import { StarExplosion } from 'game/entity/explosion/star_explosion'
@@ -59,6 +61,7 @@ import { TextParticle } from 'game/entity/particle/text_particle'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Bullet } from 'game/entity/projectile/bullet'
 import { Caliber } from 'game/entity/projectile/caliber'
+import { GoldenBullet } from 'game/entity/projectile/golden_bullet'
 import { Knife } from 'game/entity/projectile/knife'
 import { Laser } from 'game/entity/projectile/laser'
 import { Orb } from 'game/entity/projectile/orb'
@@ -100,6 +103,9 @@ export namespace EntityFactory {
 		[EntityType.EAGLE_BEAK, (options : EntityOptions) => { return new EagleBeak(options); }],
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
 		[EntityType.GATLING, (options : EntityOptions) => { return new Gatling(options); }],
+		[EntityType.GOLDEN_BULLET, (options : EntityOptions) => { return new GoldenBullet(options); }],
+		[EntityType.GOLDEN_EXPLOSION, (options : EntityOptions) => { return new GoldenExplosion(options); }],
+		[EntityType.GOLDEN_GUN, (options : EntityOptions) => { return new GoldenGun(options); }],
 		[EntityType.HEADPHONES, (options : EntityOptions) => { return new Headphones(options); }],
 		[EntityType.HEALTH_CRATE, (options : EntityOptions) => { return new HealthCrate(options); }],
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
@@ -152,6 +158,7 @@ export namespace EntityFactory {
 		[EntityType.BOLT, { x: 0.4, y: 0.12, z : 0.12 }],
 		[EntityType.BULLET, { x: 0.4, y: 0.12, z : 0.12 }],
 		[EntityType.CALIBER, { x: 0.5, y: 0.15, z : 0.15 }],
+		[EntityType.GOLDEN_BULLET, { x: 0.4, y: 0.12, z : 0.12 }],
 		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],
 		[EntityType.ORB, { x: 0.38, y: 0.38, z : 0.38 }],
@@ -179,6 +186,7 @@ export namespace EntityFactory {
 		[EntityType.BLACK_HOLE, { x: 8, y: 8, z: 8 }],
 		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],
+		[EntityType.GOLDEN_EXPLOSION, { x: 2, y: 2, z: 2 }],
 		[EntityType.HEALTH_CRATE, {x: 1, y: 1, z: 1 }],
 		[EntityType.ORB_EXPLOSION, { x: 2.2, y: 2.2, z: 2.2 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],

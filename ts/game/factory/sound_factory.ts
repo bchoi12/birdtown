@@ -118,6 +118,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.GOLDEN_GUN, {
+			path: "golden_gun.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.JETPACK, {
 			path: "jetpack.mp3",
 			options: {

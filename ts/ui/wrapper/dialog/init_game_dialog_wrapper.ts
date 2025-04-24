@@ -27,7 +27,7 @@ enum State {
 
 export abstract class InitGameDialogWrapper extends DialogWrapper {
 
-	protected static readonly _pattern = "[a-zA-Z0-9\s]+";
+	protected static readonly _pattern = "[a-zA-Z0-9\\s]+";
 	protected static readonly _nameLength = 16;
 	protected static readonly _passwordLength = 10;
 	protected static readonly _roomLength = 4;	

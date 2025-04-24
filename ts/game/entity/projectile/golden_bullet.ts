@@ -20,11 +20,11 @@ import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Vec, Vec2 } from 'util/vector'
 
-export class Bullet extends Projectile {
+export class GoldenBullet extends Projectile {
 
 	private static readonly _trailVertices = [
         new BABYLON.Vector3(0, 0, 0.05),
-        new BABYLON.Vector3(-1, 0, 0),
+        new BABYLON.Vector3(-1.5, 0, 0),
         new BABYLON.Vector3(0, 0, -0.05),
 	];
 
@@ -34,10 +34,10 @@ export class Bullet extends Projectile {
 	private _profile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.BULLET, entityOptions);
+		super(EntityType.GOLDEN_BULLET, entityOptions);
 
 		this._trail = BABYLON.MeshBuilder.ExtrudePolygon(this.name() + "-trail", {
-			shape: Bullet._trailVertices,
+			shape: GoldenBullet._trailVertices,
 			depth: 0.1,
 		}, game.scene(), earcut);
 		this._trail.material = MaterialFactory.material(MaterialType.WESTERN_YELLOW_TRAIL);
@@ -93,42 +93,22 @@ export class Bullet extends Projectile {
 		return Math.min(1.2, this._trail.scaling.x + 4 * stepData.millis / 1000);
 	}
 
-	override hitDamage() : number { return 20; }
+	override hitDamage() : number { return 300; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
 		this._trail.scaling.x = this.trailScaling(stepData);
-
 	}
 
 	override onHit(other : Entity) : void {
 		super.onHit(other);
 
-		if (this.initialized()) {
-			for (let i = 0; i < 3; ++i) {
-				this.addEntity(EntityType.SPARK_PARTICLE, {
-					offline: true,
-					ttl: 400,
-					profileInit: {
-						pos: this._profile.pos(),
-						vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
-							x: Fns.randomRange(0.1, 0.2),
-							y: Fns.randomRange(0.1, 0.2),
-						}),
-						scaling: { x: Fns.randomRange(0.2, 0.3), y: 0.15 },
-					},
-					modelInit: {
-						transforms: {
-							translate: { z: Fns.randomRange(-0.1, 0.1), },
-						},
-						materialType: MaterialType.PARTICLE_YELLOW,
-					}
-				});
-			}
-		}
+		this.explode(EntityType.GOLDEN_EXPLOSION, {});
 		this.delete();
 	}
 
-	override onMiss() : void {}
+	override onMiss() : void {
+		this.explode(EntityType.GOLDEN_EXPLOSION, {});
+	}
 }
