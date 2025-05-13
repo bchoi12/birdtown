@@ -6,7 +6,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
 import { Bullet } from 'game/entity/projectile/bullet'
-import { Weapon, WeaponConfig, WeaponState, RecoilType } from 'game/entity/equip/weapon'
+import { Weapon, WeaponConfig, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
 import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
@@ -38,6 +38,7 @@ export class Shotgun extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override meshType() : MeshType { return MeshType.SHOTGUN; }
+	override reloadType() : ReloadType { return ReloadType.RAISE; }
 	override reloadSound() : SoundType { return SoundType.QUICK_RELOAD; }
 
 	override weaponConfig() : WeaponConfig { return Shotgun._config; }

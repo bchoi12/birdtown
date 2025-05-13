@@ -8,7 +8,7 @@ import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
-import { Weapon, WeaponConfig, WeaponState, RecoilType } from 'game/entity/equip/weapon'
+import { Weapon, WeaponConfig, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
 import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -48,6 +48,7 @@ export class Sniper extends Weapon {
 
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.SMALL; }
+	override reloadType() : ReloadType { return ReloadType.SLIGHT_RAISE; }
 	override meshType() : MeshType { return MeshType.SNIPER; }
 
 	override chargedThreshold() : number { return Sniper._chargedThreshold; }

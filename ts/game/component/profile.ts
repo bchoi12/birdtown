@@ -940,11 +940,11 @@ export class Profile extends ComponentBase implements Component {
 
 					if (Math.sign(vel.y) === Math.sign(this._pos.y - otherProfile.pos().y)) {
 						// Moving away from the collision
-						pen.scale(0);
+						pen.setAll(0);
 						fixed = true;
 					} else if (Math.abs(overlap.x) < 0.01 || Math.abs(normal.x) > 0.99) {
 						// Either overlap in other dimension is too small or collision direction is in disagreement.
-						pen.scale(0);
+						pen.setAll(0);
 						fixed = true;
 					}
 				} else {
@@ -954,11 +954,11 @@ export class Profile extends ComponentBase implements Component {
 
 					if (Math.sign(vel.x) === Math.sign(this._pos.x - otherProfile.pos().x)) {
 						// Moving away from the collision
-						pen.scale(0);
+						pen.setAll(0);
 						fixed = true;
 					} else if (Math.abs(overlap.y) < 0.01 || Math.abs(normal.y) > 0.99) {
 						// Either overlap in other dimension is too small or collision direction is in disagreement.
-						pen.scale(0);
+						pen.setAll(0);
 						fixed = true;
 					}
 				}

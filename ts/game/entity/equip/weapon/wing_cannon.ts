@@ -6,7 +6,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
 import { Bullet } from 'game/entity/projectile/bullet'
-import { Weapon, WeaponConfig, WeaponState, RecoilType } from 'game/entity/equip/weapon'
+import { Weapon, WeaponConfig, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
 import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { SoundFactory } from 'game/factory/sound_factory'
@@ -46,6 +46,7 @@ export class WingCannon extends Weapon {
 
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.WHIP; }
+	override reloadType() : ReloadType { return ReloadType.RAISE; }
 	override meshType() : MeshType { return MeshType.WING_CANNON; }
 	override hudType() : HudType { return HudType.ORBS; }
 
@@ -73,6 +74,9 @@ export class WingCannon extends Weapon {
 					angle: unitDir.angleRad(),
 				},
 			});
+
+			let recoil = unitDir.clone().negate().scale(0.5);
+			this.owner().addForce(recoil);
 		} else {
 			let vel = unitDir.clone().scale(0.8);
 			this.addEntity(EntityType.ORB, {
@@ -88,5 +92,8 @@ export class WingCannon extends Weapon {
 			});
 			this.soundPlayer().playFromEntity(SoundType.WING_CANNON, this.owner());
 		}
+
+		let recoil = unitDir.clone().negate().scale(0.1);
+		this.owner().addForce(recoil);
 	}
 }

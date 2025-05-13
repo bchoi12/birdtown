@@ -8,7 +8,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
-import { Weapon, WeaponConfig, WeaponState, RecoilType } from 'game/entity/equip/weapon'
+import { Weapon, WeaponConfig, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
 import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -52,6 +52,7 @@ export class Gatling extends Weapon {
 
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.MEDIUM; }
+	override reloadType() : ReloadType { return ReloadType.VERTICAL; }
 	override meshType() : MeshType { return MeshType.GATLING; }
 	override processMesh(mesh : BABYLON.Mesh, result : LoadResult) : void {
 		super.processMesh(mesh, result);

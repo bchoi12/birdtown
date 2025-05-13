@@ -32,8 +32,8 @@ export class RedHeadband extends Equip<Player> {
 	];
 
 	private static readonly _chargeDelay = 300;
-	private static readonly _cooldown = 850;
-	private static readonly _groundCooldown = 550;
+	private static readonly _cooldown = 900;
+	private static readonly _groundCooldown = 600;
 	private static readonly _dashTime = 300;
 	private static readonly _maxJuice = 100;
 	private static readonly _force = -0.8;
@@ -186,7 +186,6 @@ export class RedHeadband extends Equip<Player> {
 						vel: vel,
 					},
 				});
-				this.owner().armRecoil(Weapon.recoil(RecoilType.THROW))
 			}
 
 			this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());

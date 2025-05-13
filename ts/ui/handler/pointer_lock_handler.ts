@@ -9,7 +9,7 @@ import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 
-import { isElectron } from 'util/common'
+import { isDesktopApp } from 'util/common'
 
 export class PointerLockHandler extends HandlerBase implements Handler {
 
@@ -18,7 +18,7 @@ export class PointerLockHandler extends HandlerBase implements Handler {
 	constructor() {
 		super(HandlerType.POINTER_LOCK);
 
-		this._requested = isElectron() ? true : false;
+		this._requested = isDesktopApp() ? true : false;
 	}
 
 	override onPlayerInitialized() : void {

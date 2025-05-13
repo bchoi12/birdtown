@@ -45,6 +45,40 @@ export class Transforms {
 		}
 	}
 
+	scale(n : number) : void {
+		if (this.hasTranslation()) {
+			this.translation().scale(n);
+		}
+		if (this.hasRotation()) {
+			this.rotation().scale(n);
+		}
+		if (this.hasScaling()) {
+			this.scaling().scale(n);
+		}
+	}
+	merge(other : Transforms) : void {
+		if (other.hasTranslation()) {
+			this.setTranslation(other.translation());
+		}
+		if (other.hasRotation()) {
+			this.setRotation(other.rotation());
+		}
+		if (other.hasScaling()) {
+			this.setScaling(other.scaling());
+		}
+	}
+	reset() : void {
+		if (this.hasTranslation()) {
+			this.translation().setAll(0);
+		}
+		if (this.hasRotation()) {
+			this.rotation().setAll(0);
+		}
+		if (this.hasScaling()) {
+			this.scaling().setAll(1);
+		}
+	}
+
 	hasTranslation() : boolean { return this.hasTransform(TransformType.TRANSLATE); }
 	translation() : Vec3 { return this.getTransform(TransformType.TRANSLATE); }
 	setTranslation(vec : Vec) : void { return this.setTransform(TransformType.TRANSLATE, vec); }

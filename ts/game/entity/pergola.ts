@@ -105,8 +105,8 @@ export class Pergola extends EntityBase implements Entity {
 		super.update(stepData);
 
 		if (game.controller().inSetup()) {
-			this._profile.vel().scale(0);
-			this._subProfile.vel().scale(0);
+			this._profile.vel().setAll(0);
+			this._subProfile.vel().setAll(0);
 		}
 
 		if (this._profile.pos().y < game.level().bounds().min.y) {

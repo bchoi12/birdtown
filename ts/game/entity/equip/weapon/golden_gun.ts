@@ -3,7 +3,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
 import { Bullet } from 'game/entity/projectile/bullet'
-import { Weapon, WeaponConfig, WeaponState, RecoilType } from 'game/entity/equip/weapon'
+import { Weapon, WeaponConfig, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
 import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
@@ -34,6 +34,7 @@ export class GoldenGun extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.WHIP; }
 	override meshType() : MeshType { return MeshType.GOLDEN_GUN; }
+	override reloadType() : ReloadType { return ReloadType.SPIN; }
 	override reloadSound() : SoundType { return SoundType.QUICK_RELOAD; }
 
 	override weaponConfig() : WeaponConfig { return GoldenGun._config; }

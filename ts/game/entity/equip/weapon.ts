@@ -1,7 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
-import { AttributeType } from 'game/component/api'
+import { AttributeType, EmotionType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -11,7 +11,7 @@ import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
-import { Recoil } from 'game/util/recoil'
+import { Transforms } from 'game/util/transforms'
 
 import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
@@ -50,19 +50,81 @@ export enum RecoilType {
 	THROW,
 	WHIP,
 }
+export enum ReloadType {
+	UNKNOWN,
+
+	NONE,
+	DISLOCATE,
+	LOWER,
+	RAISE,
+	RUMMAGE,
+	SLIGHT_RAISE,
+	SPIN,
+	VERTICAL,
+}
 
 export abstract class Weapon extends Equip<Player> {
 
 	private static readonly _shootNodeName = "shoot";
-	private static readonly _recoil = new Map<RecoilType, Recoil>([
-		[RecoilType.NONE, new Recoil()],
-		[RecoilType.SMALL, new Recoil().setDist(0.1)],
-		[RecoilType.MEDIUM, new Recoil().setDist(0.2)],
-		[RecoilType.LARGE, new Recoil().setDist(0.3)],
-		[RecoilType.THROW, new Recoil().setDist(0.1).setRotation({ y: Math.PI / 4 })],
-		[RecoilType.WHIP, new Recoil().setDist(0.2).setRotation({ z: Math.PI / 5 })],
+	private static readonly _recoilRecoveryTime = 100;
+	private static readonly _recoil = new Map<RecoilType, Transforms>([
+		[RecoilType.NONE, new Transforms()],
+		[RecoilType.SMALL, new Transforms({
+			translate: { x: 0.1 },
+		})],
+		[RecoilType.MEDIUM, new Transforms({
+			translate: { x: 0.2 },
+		})],
+		[RecoilType.LARGE, new Transforms({
+			translate: { x: 0.3 },
+		})],
+		[RecoilType.THROW, new Transforms({
+			translate: { x: 0.3 },
+			rotate: { y: Math.PI / 4 },
+		})],
+		[RecoilType.WHIP, new Transforms({
+			translate: { x: 0.2, y: 0.1 },
+			rotate: { z: Math.PI / 5},
+		})],
 	]);
 
+	private static readonly _reloadStartTime = 100;
+	private static readonly _reloadEndTime = 150;
+	private static readonly _reloadSpins = 2;
+	private static readonly _reloadSpinTime = 400;
+
+	private static readonly _reload = new Map<ReloadType, Transforms>([
+		[ReloadType.NONE, new Transforms()],
+		[ReloadType.DISLOCATE, new Transforms({
+			translate: { x: 0.3, y: 0.2 },
+			rotate: { z: Math.PI / 3 },
+		})],
+		[ReloadType.LOWER, new Transforms({
+			translate: { y: -0.1 },
+			rotate: { z: -Math.PI / 5 },
+		})],
+		[ReloadType.SLIGHT_RAISE, new Transforms({
+			rotate: { z: Math.PI / 6 },
+		})],
+		[ReloadType.RAISE, new Transforms({
+			translate: { x: 0.2, y: 0.1 },
+			rotate: { z: Math.PI / 3 },
+		})],
+		[ReloadType.RUMMAGE, new Transforms({
+			translate: { x: 0.1, y: -0.4 },
+			rotate: { z: -Math.PI / 2 + 0.1 },
+		})],
+		[ReloadType.SPIN, new Transforms({
+			translate: { x: 0.2, y: 0.1 },
+			rotate: { z: Math.PI / 5 },
+		})],
+		[ReloadType.VERTICAL, new Transforms({
+			translate: { x: 0.3, y: 0.2 },
+			rotate: { z: Math.PI / 2 - 0.1 },
+		})],
+	]);
+
+	protected _armTransforms : Transforms;
 	protected _charging : boolean;
 	protected _charged : boolean;
 	protected _charger : Stopwatch;
@@ -80,6 +142,10 @@ export abstract class Weapon extends Equip<Player> {
 		super(entityType, entityOptions);
 		this.addType(EntityType.WEAPON);
 
+		this._armTransforms = new Transforms({
+			translate: Vec3.zero(),
+			rotate: Vec3.zero(),
+		});
 		this._charging = false;
 		this._charged = false;
 		this._charger = new Stopwatch();
@@ -195,26 +261,27 @@ export abstract class Weapon extends Equip<Player> {
 	protected firing() : boolean {
 		return this.canUse() && this.key(KeyType.MOUSE_CLICK, KeyState.DOWN) && (this.charged() || !this.charging());
 	}
-	protected fire(stepData : StepData) : void {
+	fire() : void {
 		if (this._bursts <= 0) {
 			return;
 		}
 		this.recordUse();
+	}
+	recoil() : void {
+		this._armTransforms.merge(Weapon._recoil.get(this.recoilType()));
 	}
 	protected override simulateUse(uses : number) : void {
 		this._bursts -= uses;
 		if (this._bursts < 0) {
 			this._bursts = 0;
 		}
-		this.recoil();
-	}
-	recoil() : void {
-		if (this.hasOwner() && this.attachType() === AttachType.ARM) {
-			this.owner().armRecoil(Weapon.recoil(this.recoilType()))
+
+		if (this.hasOwner()) {
+			this.owner().emote(EmotionType.MAD);
 		}
 	}
-	protected recoilType() : number { return RecoilType.NONE; }
-	static recoil(type : RecoilType) : Recoil { return Weapon._recoil.get(type); }
+	protected recoilType() : RecoilType { return RecoilType.NONE; }
+	protected reloadType() : ReloadType { return ReloadType.NONE; }
 
 	reloadSound() : SoundType { return SoundType.UNKNOWN; }
 	reloading() : boolean { return this._weaponState === WeaponState.RELOADING; }
@@ -251,6 +318,36 @@ export abstract class Weapon extends Equip<Player> {
 		});
 
 		return hudData;
+	}
+
+	private setWeaponState(state : WeaponState) : void {
+		if (this._weaponState === state) {
+			return;
+		}
+
+		const time = this.getTime(state);
+		if (time > 0) {
+			this._stateTimer.start(time);
+		} else {
+			this._stateTimer.reset();
+		}
+
+		switch (state) {
+		case WeaponState.RELOADING:
+			this.onReload();
+			break;
+		case WeaponState.IDLE:
+			this.setCharging(false);
+			this._bursts = this.weaponConfig().bursts;
+			if (this._weaponState === WeaponState.RELOADING) {
+				if (this._playReloadSound && this.hasOwner()) {
+					this.soundPlayer().playFromEntity(this.reloadSound(), this.owner(), {});
+				}
+			}
+			break;
+		}
+
+		this._weaponState = state;
 	}
 
 	override preUpdate(stepData : StepData) : void {
@@ -306,7 +403,7 @@ export abstract class Weapon extends Equip<Player> {
 			this._firingTime = this.getTime(WeaponState.FIRING);
 
 			if (!this._stateTimer.hasTimeLeft()) {
-				this.fire(stepData);
+				this.fire();
 				this.setWeaponState(WeaponState.FIRING);
 			} else if (!this.firing() && this.weaponConfig().interruptable) {
 				this.setWeaponState(WeaponState.IDLE);
@@ -323,7 +420,7 @@ export abstract class Weapon extends Equip<Player> {
 					this.setWeaponState(WeaponState.RELOADING);
 				}
 			} else if (!this._stateTimer.hasTimeLeft()) {
-				this.fire(stepData);
+				this.fire();
 
 				if (this._bursts > 0) {
 					this._stateTimer.start(this._firingTime);
@@ -334,33 +431,57 @@ export abstract class Weapon extends Equip<Player> {
 		}
 	}
 
-	private setWeaponState(state : WeaponState) : void {
-		if (this._weaponState === state) {
+	override postUpdate(stepData : StepData) : void {
+		super.postUpdate(stepData);
+
+		if (!this.hasOwner()) {
 			return;
 		}
 
-		const time = this.getTime(state);
-		if (time > 0) {
-			this._stateTimer.start(time);
-		} else {
-			this._stateTimer.reset();
-		}
+		const weight = this._stateTimer.percentElapsed();
 
-		switch (state) {
-		case WeaponState.RELOADING:
-			this.onReload();
+		switch (this._weaponState) {
+		case WeaponState.REVVING:
+			this._armTransforms.translation().x = -0.08 * Math.random();
+			this._armTransforms.translation().y = -0.08 * Math.random();
 			break;
-		case WeaponState.IDLE:
-			this.setCharging(false);
-			this._bursts = this.weaponConfig().bursts;
-			if (this._weaponState === WeaponState.RELOADING) {
-				if (this._playReloadSound && this.hasOwner()) {
-					this.soundPlayer().playFromEntity(this.reloadSound(), this.owner(), {});
+		case WeaponState.RELOADING:
+			const reloadType = this.reloadType();
+			let reloadWeight = 1;
+			if (this._stateTimer.millisLeft() < Weapon._reloadEndTime) {
+				reloadWeight = this._stateTimer.millisLeft() / Weapon._reloadEndTime;
+			} else if (this._stateTimer.millisElapsed() < Weapon._reloadStartTime) {		
+				reloadWeight = this._stateTimer.millisElapsed() / Weapon._reloadStartTime;
+
+				if (reloadType === ReloadType.DISLOCATE) {
+					reloadWeight = Math.min(1, 2 * reloadWeight);
+				}
+			}
+
+			const reload = Weapon._reload.get(reloadType);
+			this._armTransforms.merge(reload);
+			this._armTransforms.translation().scale(reloadWeight);
+			this._armTransforms.rotation().scale(reloadWeight);
+
+			if (reloadType === ReloadType.SPIN) {
+				if (weight > 0.25 && weight < 0.75) {
+					this._model.rotation().x = (weight - 0.25) / 0.5 * Weapon._reloadSpins * 2 * Math.PI;
+				} else {
+					this._model.rotation().x = 0;
 				}
 			}
 			break;
+		case WeaponState.FIRING:
+			const recoil = Weapon._recoil.get(this.recoilType());
+			const recoilWeight = 1 - Math.min(1, this._stateTimer.millisElapsed() / Weapon._recoilRecoveryTime);
+			this._armTransforms.merge(recoil);
+			this._armTransforms.translation().scale(recoilWeight);
+			this._armTransforms.rotation().scale(recoilWeight);
+			break;
+		default:
+			this._armTransforms.reset();
 		}
 
-		this._weaponState = state;
+		this.owner().mergeArmTransforms(this._armTransforms);
 	}
 }

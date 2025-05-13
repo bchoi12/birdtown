@@ -88,6 +88,11 @@ export class Vec2 implements Vec {
 
         return this;
     }
+    setAll(n : number) : Vec2 {
+        this.x = n;
+        this.y = n;
+        return this;
+    }
     setLength(len : number) : Vec2 {
         return this.normalize().scale(len);
     }
@@ -368,6 +373,11 @@ export class Vec3 extends Vec2 implements Vec {
         this.y /= len;
         this.z /= len;
 
+        return this;
+    }
+    override setAll(n : number) : Vec3 {
+        super.setAll(n);
+        this.z = n;
         return this;
     }
     override setLength(len : number) : Vec3 {

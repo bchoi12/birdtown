@@ -29,7 +29,7 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
 import { RecordType } from 'game/util/collision_buffer'
 import { MaterialShifter } from 'game/util/material_shifter'
-import { Recoil } from 'game/util/recoil'
+import { Transforms } from 'game/util/transforms'
 
 import { GameGlobals } from 'global/game_globals'
 
@@ -87,7 +87,6 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private static readonly _rotationOffset = -0.1;
 	private static readonly _jumpGracePeriod = 160;
 
-	private static readonly _armRecoveryTime = 100;
 	private static readonly _knockbackRecoveryTime = 250;
 	private static readonly _interactCheckInterval = 125;
 	private static readonly _heartInterval = 1000;
@@ -136,7 +135,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 	// TODO: package in struct, Pose, PlayerPose?
 	private _armDir : Vec2;
-	private _armRecoil : Recoil;
+	private _armTransforms : Transforms;
 	private _baseMaterial : Optional<BABYLON.PBRMaterial>;
 	private _headDir : Vec2;
 	private _boneOrigins : Map<BoneType, BABYLON.Vector3>;
@@ -173,7 +172,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this.allTypes().add(EntityType.INTERACTABLE);
 
 		this._armDir = Vec2.i();
-		this._armRecoil = new Recoil();
+		this._armTransforms = new Transforms();
 		this._baseMaterial = new Optional();
 		this._headDir = Vec2.i();
 		this._boneOrigins = new Map();
@@ -627,9 +626,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			}
 		}
 	}
-	armRecoil(recoil : Recoil) : void {
-		this._armRecoil.copy(recoil);
-		this.emote(EmotionType.MAD);
+	mergeArmTransforms(transforms : Transforms) : void {
+		this._armTransforms.merge(transforms);
 	}
 
 	override cameraOffset() : Vec3 {
@@ -765,9 +763,6 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			}
 			this._profile.setVel({x: sideVel });
 		}
-
-		// Cosmetic stuff
-		this._armRecoil.recover(millis / Player._armRecoveryTime);
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {
@@ -998,29 +993,29 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			// Compute arm rotation
 			let arm = this._model.getBone(BoneType.ARM).getTransformNode();
 			let armRotation = headSign * (this._armDir.angleRad() - Math.PI / 2);
-			const recoilRotation = this._armRecoil.rotation();
+			const recoilRotation = this._armTransforms.rotation();
 			arm.rotation = new BABYLON.Vector3(armRotation + recoilRotation.z, Math.PI, -recoilRotation.y);
 
 			// Compute arm position
+			/*
 			let recoil = new BABYLON.Vector3(
 				-0.5 * Math.sin(recoilRotation.y),
-				-Math.cos(armRotation) * this._armRecoil.dist(),
-				Math.sin(armRotation) * this._armRecoil.dist());
-			arm.position = this._boneOrigins.get(BoneType.ARM).add(recoil);
+				-Math.cos(armRotation) * this._armTransforms.translation().x,
+				Math.sin(armRotation) * this._armTransforms.translation().x);
+				*/
+
+			const armCos = Math.cos(armRotation);
+			const armSin = Math.sin(armRotation);
+			arm.position = this._boneOrigins.get(BoneType.ARM).add(new BABYLON.Vector3(
+				0,
+				-armCos * this._armTransforms.translation().x - armSin * this._armTransforms.translation().y,
+				armSin * this._armTransforms.translation().x - armCos * this._armTransforms.translation().y,
+			));
 		}
 
 		if (this._nameTag !== null) {
 			this._nameTag.setBarWidth(this.healthPercent());
 		}
-		/*
-		if (this._nameTag !== null) {
-			if (this.getAttribute(AttributeType.REVIVING)) {
-				this._nameTag.setBarWidth(100 * this.healthPercent());
-			} else {
-				this._nameTag.setBarWidth(0);
-			}
-		}
-		*/
 	}
 
 	override getHudData() : Map<HudType, HudOptions> {

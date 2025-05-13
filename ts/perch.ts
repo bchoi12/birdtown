@@ -10,11 +10,19 @@ class Perch {
 		if (Flags.useLocalPerch.get()) {
 			this._url = `http://localhost:${Flags.localPerchPort.get()}`;
 			this._host = "localhost";
+			return;
+		}
+
+		const proxy = Flags.perchProxy.get();
+		if (proxy !== "") {
+			this._url = window.location.href + proxy;
+			this._host = proxy;
+
+			console.log("Using proxy:", this._url, this._host);
 		} else {
 			this._url = "https://perch.birdtown.net";
 			this._host = "perch.birdtown.net";
 		}
-
 	}
 
 	enabled() : boolean { return Flags.useLocalPerch.get() || Flags.usePerch.get(); }

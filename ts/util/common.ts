@@ -26,7 +26,7 @@ export function isMobile() : boolean {
     return mobile;
 }
 
-export function isElectron() {
+export function isDesktopApp() {
     // Renderer process
     if (typeof window !== 'undefined' && typeof window.process === 'object') {
         return true;

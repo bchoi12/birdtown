@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { Flags } from 'global/flags'
+
 import { ui } from 'ui'
 import { DialogType, TooltipType } from 'ui/api'
 import { Html } from 'ui/html'
@@ -26,12 +28,20 @@ export class ShareWrapper extends ButtonWrapper {
 			ui.pushDialog(DialogType.FAILED_COPY);
 		}
 
-		this.addOnClick(() => {
-			navigator.clipboard.writeText(ui.getInviteLink()).then(this._onSuccess, this._onFail);
-		});
+		if (Flags.allowSharing.get()) {
+			this.addOnClick(() => {
+				navigator.clipboard.writeText(ui.getInviteLink()).then(this._onSuccess, this._onFail);
+			});
+		} else {
+			this.setText(game.netcode().room());
+		}
 	}
 
 	configureForDialog() : void {
+		if (!Flags.allowSharing.get()) {
+			return;
+		}
+
 		this.setText("Copy invite link");
 		this.setHoverOnlyText(true);
 		this.elm().style.float = "left";

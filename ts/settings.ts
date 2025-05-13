@@ -21,7 +21,7 @@ import {
 
 import { KeyType } from 'ui/api'
 
-import { isElectron, isMobile, isLocalhost } from 'util/common'
+import { isDesktopApp, isMobile, isLocalhost } from 'util/common'
 
 class Settings {
 	
@@ -71,7 +71,7 @@ class Settings {
 		this.pointerLockKeyCode = 67;
 		this.photoKeyCode = 80;
 
-		this.fullscreenSetting = (isMobile() || isElectron()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
+		this.fullscreenSetting = (isMobile() || isDesktopApp()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 		this.damageNumberSetting = DamageNumberSetting.OFF;
 		this.musicSetting = MusicSetting.ON

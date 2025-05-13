@@ -40,7 +40,7 @@ import { TrayHandler } from 'ui/handler/tray_handler'
 
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 
-import { isElectron } from 'util/common'
+import { isDesktopApp } from 'util/common'
 import { LatLng } from 'util/lat_lng'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
@@ -313,7 +313,7 @@ class UI {
 	}
 
 	getInviteLink() : string {
-		const url = new URL(isElectron() ? "https://birdtown.net/" : window.location.href);
+		const url = new URL(Flags.shareSameURL.get() ? window.location.href : "https://birdtown.net/");
 		url.searchParams.set(Flags.room.name(), game.netcode().room());
 
 		const password = game.netcode().password();

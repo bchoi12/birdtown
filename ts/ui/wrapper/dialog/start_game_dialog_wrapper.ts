@@ -312,7 +312,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		options.contentElm().style.fontSize = "0.7em";
 
 		let coreCategory = new CategoryWrapper();
-		coreCategory.setTitle("Core Options");
+		coreCategory.setTitle("Options");
 		coreCategory.setAlwaysExpand(true);
 		options.contentElm().appendChild(coreCategory.elm());
 

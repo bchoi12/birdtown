@@ -96,8 +96,8 @@ export class Laser extends Projectile {
 		const dim = this._profile.dim();
 		const angle = this._profile.angle();
 		this._profile.pos().add({
-			x: 0.5 * Math.cos(angle) * dim.x,
-			y: 0.5 * Math.sin(angle) * dim.x,
+			x: 0.45 * Math.cos(angle) * dim.x,
+			y: 0.45 * Math.sin(angle) * dim.x,
 		});
 
 		this._model.scaling().y = Laser._initialScale;

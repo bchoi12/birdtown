@@ -212,7 +212,7 @@ export abstract class Netcode {
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
 
-	private getPerchPath() : string { return `/peer/${this.room()}/${this.password()}/${this.getParams()}`; }
+	private getPerchPath() : string { return `/peer/${this.room()}/${this.password()}/${this.getParams()}/`; }
 
 	getParams() : string { return ""; }
 	password() : string { return this._password; };

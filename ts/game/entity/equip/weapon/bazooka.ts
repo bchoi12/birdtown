@@ -6,7 +6,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
 import { Rocket } from 'game/entity/projectile/rocket'
-import { Weapon, WeaponConfig, WeaponState, RecoilType } from 'game/entity/equip/weapon'
+import { Weapon, WeaponConfig, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
 import { ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
@@ -20,7 +20,7 @@ export class Bazooka extends Weapon {
 	private static readonly _config = {
 		times: new Map([
 			[WeaponState.FIRING, 500],
-			[WeaponState.RELOADING, 900],
+			[WeaponState.RELOADING, 1000],
 		]),
 		bursts: 1,
 	};
@@ -35,6 +35,7 @@ export class Bazooka extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override hudType() : HudType { return HudType.ROCKET; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
+	override reloadType() : ReloadType { return ReloadType.DISLOCATE; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
 
 	override weaponConfig() : WeaponConfig {
@@ -60,6 +61,9 @@ export class Bazooka extends Weapon {
 				acc: acc,
 			},
 		});
+
+		let recoil = unitDir.clone().negate().scale(0.75);
+		this.owner().addForce(recoil);
 
 		this.soundPlayer().playFromEntity(SoundType.ROCKET, this.owner());
 	}
