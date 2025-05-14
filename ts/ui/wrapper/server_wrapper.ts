@@ -62,7 +62,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		this._refreshButton.setIcon(IconType.REFRESH);
 		this._refreshButton.setText("Refresh");
 		this._refreshButton.addOnClick(() => {
-			this.refresh();
+			this.refresh(() => {});
 		});
 		this.elm().appendChild(this._refreshButton.elm());
 
@@ -92,7 +92,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().appendChild(this._table.elm());
 	}
 
-	refresh() : void {
+	refresh(cb : () => void) : void {
 		if (this._pending) {
 			return;
 		}
@@ -105,8 +105,10 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		ui.queryLatLng((loc : LatLng) => {
 			this._location.copy(loc);
 			this.updateTable();
+			cb();
 		}, () => {
 			this.updateTable();
+			cb();
 		});
 	}
 

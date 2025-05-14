@@ -78,13 +78,20 @@ export class JoinGameDialogWrapper extends InitGameDialogWrapper {
 		if (this._roomInput.value() === "") {
 			this._roomInput.inputElm().focus();
 		}
-		this._serverWrapper.refresh();
+		this.refreshServers();
 	}
 
 	protected override onNetcodeError(room : string) : void {
 		super.onNetcodeError(room);
 
-		this._serverWrapper.refresh();
+		this.refreshServers();
+	}
+
+	private refreshServers() : void {
+		this.setPendingMessage("Location is used for approximating server distance")
+		this._serverWrapper.refresh(() => {
+			this.setReady();
+		});
 	}
 
 	prefill(room : string, password : string) : void {

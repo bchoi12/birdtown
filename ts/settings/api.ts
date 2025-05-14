@@ -41,6 +41,11 @@ export enum PointerSetting {
 	LOCKED,
 }
 
+export enum ProfanityFilterSetting {
+	OFF,
+	ON,
+}
+
 export enum ShadowSetting {
 	OFF,
 	ON,

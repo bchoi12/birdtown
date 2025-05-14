@@ -143,7 +143,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			return;
 		}
 
-		this.setPendingMessage("Querying approximate location")
+		this.setPendingMessage("Hosting public game - querying approximate location")
 		ui.queryLatLng((loc : LatLng) => {
 			this._latlng = ["" + Fns.roundTo(loc.lat(), 2), "" + Fns.roundTo(loc.lng(), 2)].join(",");
 			this.setReady();

@@ -163,6 +163,11 @@ class UI {
 	openMenu() : void { this._menuHandler.enable(); }
 	refreshSettings() : void { this._settingsHandler.refresh(); }
 	applySettings() : void {
+		if (!game.initialized()) {
+			console.error("Warning: tried to apply settings before game was initialized");
+			return;
+		}
+
 		if (settings.useInspector()) {
 			game.scene().debugLayer.show();
 		} else {

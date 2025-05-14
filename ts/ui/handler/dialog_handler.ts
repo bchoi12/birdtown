@@ -17,6 +17,7 @@ import { InitDialogWrapper } from 'ui/wrapper/dialog/client/init_dialog_wrapper'
 import { LoadoutDialogWrapper } from 'ui/wrapper/dialog/client/loadout_dialog_wrapper'
 import { ReturnToLobbyDialogWrapper } from 'ui/wrapper/dialog/return_to_lobby_dialog_wrapper'
 import { StartGameDialogWrapper } from 'ui/wrapper/dialog/start_game_dialog_wrapper'
+import { QueryLocationDialogWrapper } from 'ui/wrapper/dialog/query_location_dialog_wrapper'
 import { QuitDialogWrapper } from 'ui/wrapper/dialog/quit_dialog_wrapper'
 import { VersionMismatchDialogWrapper } from 'ui/wrapper/dialog/version_mismatch_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
@@ -33,6 +34,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 		[DialogType.LOADOUT, () => { return new LoadoutDialogWrapper()}],
 		[DialogType.RETURN_TO_LOBBY, () => { return new ReturnToLobbyDialogWrapper()}],
 		[DialogType.START_GAME, () => { return new StartGameDialogWrapper()}],
+		[DialogType.QUERY_LOCATION, () => { return new QueryLocationDialogWrapper()}],
 		[DialogType.QUIT, () => { return new QuitDialogWrapper()}],
 		[DialogType.VERSION_MISMATCH, () => { return new VersionMismatchDialogWrapper()}],
 	]);

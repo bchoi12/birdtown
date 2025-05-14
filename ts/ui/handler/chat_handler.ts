@@ -1,3 +1,4 @@
+import { Profanity } from '@2toad/profanity';
 
 import { game } from 'game'
 import { SoundType } from 'game/factory/api'
@@ -23,6 +24,8 @@ export class ChatHandler extends HandlerBase implements Handler {
 	private _chatElm : HTMLElement;
 	private _messageElm : HTMLElement;
 	private _messageInputElm : HTMLInputElement;
+
+	private _profanity : Profanity;
 	private _hideTimeout : Optional<number>;
 
 	constructor() {
@@ -34,6 +37,12 @@ export class ChatHandler extends HandlerBase implements Handler {
 		this._messageElm = Html.elm(Html.divMessage);
 		this._messageInputElm = Html.inputElm(Html.inputMessage);
 
+		this._profanity = new Profanity({
+		    languages: ['en'],
+		    wholeWord: false,
+		    grawlix: '*****',
+		    grawlixChar: '*',
+		});
 		this._hideTimeout = new Optional();
 	}
 
@@ -47,6 +56,9 @@ export class ChatHandler extends HandlerBase implements Handler {
 
 		let messageSpan = Html.span();
 		if (type === ChatType.CHAT) {
+			if (settings.filterProfanity()) {
+				msg = this._profanity.censor(msg);
+			}
 			messageSpan.textContent = msg;
 		} else {
 			messageSpan.innerHTML = msg;

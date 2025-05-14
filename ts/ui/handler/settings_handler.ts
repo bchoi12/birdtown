@@ -11,6 +11,7 @@ import {
 	FullscreenSetting,
 	MusicSetting,
 	PointerSetting,
+	ProfanityFilterSetting,
 	ShadowSetting,
 	SpeedSetting,
 	SoundSetting,
@@ -110,6 +111,24 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			get: () => { return settings.damageNumberSetting; },
 			html: () => {
 				if (settings.damageNumberSetting === DamageNumberSetting.ON) {
+					return "On";
+				}
+				return "Off";
+			},
+		}));
+
+		this.addSetting(gameplay, new LabelNumberWrapper({
+			label: "Filter Profanity",
+			value: Number(settings.profanityFilterSetting),
+			plus: (current : number) => {
+				settings.profanityFilterSetting = ProfanityFilterSetting.ON;
+			},
+			minus: (current : number) => {
+				settings.profanityFilterSetting = ProfanityFilterSetting.OFF;
+			},
+			get: () => { return settings.profanityFilterSetting; },
+			html: () => {
+				if (settings.profanityFilterSetting === ProfanityFilterSetting.ON) {
 					return "On";
 				}
 				return "Off";
