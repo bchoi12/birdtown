@@ -9,7 +9,7 @@ import { StepData } from 'game/game_object'
 import { MusicType } from 'game/factory/api'
 import { ConfigFactory } from 'game/factory/config_factory'
 import { SystemBase, System } from 'game/system'
-import { SystemType, AmbianceType, LevelType, LevelLayout, LoadoutType, PlayerRole, WinConditionType } from 'game/system/api'
+import { SystemType, AmbianceType, LevelType, LoadoutType, PlayerRole, WinConditionType } from 'game/system/api'
 import { ClientDialog } from 'game/system/client_dialog'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
@@ -369,7 +369,6 @@ export class GameMaker extends SystemBase implements System {
 
 			game.level().loadLevel({
 				type: this._config.getLevelType(),
-				layout: this._config.getLevelLayout(),
 				seed: this._config.getLevelSeed(),
 				numPlayers: 0,
 				numTeams: 0,
@@ -413,7 +412,6 @@ export class GameMaker extends SystemBase implements System {
 			const [numPlayers, numTeams] = this._playerConfig.numPlayersAndTeams();
 			game.level().loadLevel({
 				type: this._config.getLevelType(),
-				layout: this._config.getLevelLayout(),
 				seed: this._config.getLevelSeed() + this._round,
 				numPlayers: numPlayers,
 				numTeams: numTeams,

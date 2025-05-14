@@ -12,7 +12,7 @@ import { EntityFactory } from 'game/factory/entity_factory'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { System, SystemBase } from 'game/system'
-import { SystemType, LevelType, LevelLayout } from 'game/system/api'
+import { SystemType, LevelType } from 'game/system/api'
 import { ArchBlueprint } from 'game/system/level/blueprint/arch_blueprint'
 
 import { Flags } from 'global/flags'
@@ -32,13 +32,25 @@ import { Vec, Vec2 } from 'util/vector'
 
 type LevelOptions = {
 	type : LevelType;
-	layout : LevelLayout;
 	seed : number;
 	numPlayers : number;
 	numTeams: number;
 }
 
+enum LevelLayout {
+	UNKNOWN,
+
+	NORMAL,
+	CIRCLE,
+}
+
 export class Level extends SystemBase implements System {
+
+	// Default to NORMAL
+	private static readonly _layout = new Map<LevelType, LevelLayout>([
+		[LevelType.BIRDTOWN_CIRCLE, LevelLayout.CIRCLE],
+		[LevelType.LOBBY, LevelLayout.CIRCLE],
+	]);
 
 	private _levelMsg : GameMessage;
 	private _bounds : Box2;
@@ -75,7 +87,10 @@ export class Level extends SystemBase implements System {
 	}
 
 	levelType() : LevelType { return this._levelMsg.getLevelTypeOr(LevelType.UNKNOWN); }
-	levelLayout() : LevelLayout { return this._levelMsg.getLevelLayoutOr(LevelLayout.NORMAL); }
+	private levelLayout() : LevelLayout {
+		const levelType = this.levelType();
+		return Level._layout.has(levelType) ? Level._layout.get(levelType) : LevelLayout.NORMAL;
+	}
 	private seed() : number { return this._levelMsg.getLevelSeedOr(0); }
 	version() : number { return this._levelMsg.getLevelVersionOr(0); }
 	bounds() : Box2 { return this._bounds; }
@@ -169,7 +184,6 @@ export class Level extends SystemBase implements System {
 
 	loadLevel(options : LevelOptions) : void {
 		this._levelMsg.setLevelType(options.type);
-		this._levelMsg.setLevelLayout(options.layout);
 		this._levelMsg.setLevelSeed(options.seed);
 		this._levelMsg.setLevelVersion(this.version() + 1);
 		this._levelMsg.setNumPlayers(options.numPlayers);
@@ -243,6 +257,11 @@ export class Level extends SystemBase implements System {
 		});
 
 		bounds.max.add({ y: 4 });
+
+		if (!this.isCircle()) {
+			bounds.min.sub({ x: 6 });
+			bounds.max.add({ x: 6 });
+		}
 
 		this.setBounds(bounds.toBox());
 	}

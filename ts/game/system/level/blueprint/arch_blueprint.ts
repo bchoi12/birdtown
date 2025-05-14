@@ -1,4 +1,5 @@
 
+import { game } from 'game'
 import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { ColorCategory, ColorType, MaterialType } from 'game/factory/api'
@@ -6,7 +7,7 @@ import { CardinalFactory } from 'game/factory/cardinal_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
-import { LevelType, LevelLayout } from 'game/system/api'
+import { LevelType } from 'game/system/api'
 import { Blueprint, BlueprintBlock, BlueprintOptions } from 'game/system/level/blueprint'
 
 import { TooltipType } from 'ui/api'
@@ -210,6 +211,7 @@ export class ArchBlueprint extends Blueprint {
 			this.loadLobby(options);
 			break;
 		case LevelType.BIRDTOWN:
+		case LevelType.BIRDTOWN_CIRCLE:
 			this.loadBirdtown(options);
 			break;
 		case LevelType.DUELTOWN:
@@ -405,7 +407,7 @@ export class ArchBlueprint extends Blueprint {
 		let currentHeight = 2;
 		const maxHeight = 3;
 		for (let i = 0; i < length; ++i) {
-			if (i === length - 1 && options.msg.getLevelLayout() === LevelLayout.NORMAL) {
+			if (i === length - 1 && !game.level().isCircle()) {
 				currentHeight = Math.max(1, currentHeight);
 			}
 
@@ -439,7 +441,7 @@ export class ArchBlueprint extends Blueprint {
 			currentHeight = Fns.clamp(0, currentHeight, maxHeight);
 		}
 
-		if (currentHeight > 0 && options.msg.getLevelLayout() === LevelLayout.CIRCLE) {
+		if (currentHeight > 0 && game.level().isCircle()) {
 			plan.push({
 				height: 0,
 			});

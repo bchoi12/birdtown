@@ -176,8 +176,11 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 
 		this._dir = dir;
 		if (this._dir !== 0) {
-			this._turnTimer.start(Table._interactLockout);
-			SoundFactory.playFromEntity(SoundType.TABLE_FLIP, this);
+			this._turnTimer.start(Table._interactLockout, () => {
+				if (!this.deleted()) {
+					SoundFactory.playFromEntity(SoundType.TABLE_FLIP, this);
+				}
+			});
 		}
 	}
 

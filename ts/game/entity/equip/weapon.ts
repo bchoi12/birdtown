@@ -59,6 +59,7 @@ export enum ReloadType {
 	RAISE,
 	RUMMAGE,
 	SLIGHT_LOWER,
+	SLIGHT_RAISE,
 	SPIN,
 	VERTICAL,
 }
@@ -105,6 +106,9 @@ export abstract class Weapon extends Equip<Player> {
 		})],
 		[ReloadType.SLIGHT_LOWER, new Transforms({
 			rotate: { z: -Math.PI / 6 },
+		})],
+		[ReloadType.SLIGHT_RAISE, new Transforms({
+			rotate: { z: Math.PI / 6 },
 		})],
 		[ReloadType.RAISE, new Transforms({
 			translate: { x: 0.2, y: 0.1 },

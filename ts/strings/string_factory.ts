@@ -1,9 +1,12 @@
 
-import { ParamString, ParamType } from 'strings/param_string'
-import { GameMode } from 'game/api'
 import { EntityType } from 'game/entity/api'
 import { Entity } from 'game/entity'
 import { ColorFactory } from 'game/factory/color_factory'
+import { LevelType } from 'game/system/api'
+
+import { Strings } from 'strings'
+import { ParamString, ParamType } from 'strings/param_string'
+
 
 export namespace StringFactory {
 
@@ -66,5 +69,20 @@ export namespace StringFactory {
 			return entityUsage.get(type);
 		}
 		return entityUsage.get(EntityType.UNKNOWN);
+	}
+
+	const levelNames = new Map<LevelType, ParamString>([
+		[LevelType.BIRDTOWN, ParamString.of("Birdtown")],
+		[LevelType.BIRDTOWN_CIRCLE, ParamString.of("Endless Birdtown")],
+		[LevelType.DUELTOWN, ParamString.of("Dueltown")],
+		[LevelType.LOBBY, ParamString.of("Lobby")],
+		[LevelType.TINYTOWN, ParamString.of("Tinytown")],
+	]);
+
+	export function getLevelName(type : LevelType) : string {
+		if (levelNames.has(type)) {
+			return levelNames.get(type).toString();
+		}
+		return Strings.toTitleCase(LevelType[type]);
 	}
 }

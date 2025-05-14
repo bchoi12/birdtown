@@ -47,8 +47,8 @@ export class Sniper extends Weapon {
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
-	override recoilType() : RecoilType { return RecoilType.SMALL; }
-	override reloadType() : ReloadType { return ReloadType.SLIGHT_LOWER; }
+	override recoilType() : RecoilType { return RecoilType.MEDIUM; }
+	override reloadType() : ReloadType { return ReloadType.SLIGHT_RAISE; }
 	override meshType() : MeshType { return MeshType.SNIPER; }
 
 	override chargedThreshold() : number { return Sniper._chargedThreshold; }

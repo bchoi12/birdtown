@@ -38,16 +38,10 @@ export enum AmbianceType {
 export enum LevelType {
 	UNKNOWN,
 	BIRDTOWN,
+	BIRDTOWN_CIRCLE,
 	DUELTOWN,
 	LOBBY,
 	TINYTOWN,
-}
-
-export enum LevelLayout {
-	UNKNOWN,
-
-	NORMAL,
-	CIRCLE,
 }
 
 export enum LoadoutType {
