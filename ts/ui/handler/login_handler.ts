@@ -62,7 +62,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 	override setup() : void {	
 		super.setup();
 
-		this._splashElm.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+		this._splashElm.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
 		this._loginElm.style.display = "block";
 
 		this._hostButton.onclick = () => {

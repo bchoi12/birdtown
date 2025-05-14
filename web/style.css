@@ -133,7 +133,7 @@ kbd {
 
     background-color: rgba(0, 0, 0, 0);
 
-    transition: background-color 1s linear;
+    transition: background-color 0.5s linear;
 }
 
 #div-login, #div-initializing {
@@ -172,7 +172,7 @@ kbd {
 #fieldset-login {
     width: 100%;
 
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.8);
     border-radius: 0.2em;
     border: 1px solid #000;
 
