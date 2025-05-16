@@ -1,4 +1,6 @@
 
+import { cookie } from 'cookie'
+
 import { Flags } from 'global/flags'
 
 class Perch {
@@ -60,12 +62,27 @@ class Perch {
 		const url = `${this.url()}/stats`;
 		this.get(url, onData, onError);
 	}
-
-	private get(url : string, onData : (data) => void, onError : () => void) {
-		if (Flags.printDebug.get()) {
-			console.log("Fetching", url);
+	updateRoom(roomId : string, numPlayers : number, onData : (data) => void, onError : () => void) : void {
+		if (!this.enabled()) {
+			return;
 		}
-		fetch(url, { method: "GET" })
+
+		const url = `${perch.url()}/room?id=${roomId}&t=${cookie.getToken()}&p=${numPlayers}`;
+		this.put(url, onData, onError);
+	}
+
+	private put(url : string, onData : (data) => void, onError : () => void) {
+		this.sendRequest("PUT", url, onData, onError);
+	}
+	private get(url : string, onData : (data) => void, onError : () => void) {
+		this.sendRequest("GET", url, onData, onError);
+	}
+
+	private sendRequest(method : string, url : string, onData : (data) => void, onError : () => void) {
+		if (Flags.printDebug.get()) {
+			console.log("Sending request", method, url);
+		}
+		fetch(url, { method: method })
 			.then((response) => response.json(), () => {
 				if (Flags.printDebug.get()) {
 					console.error("Failed to fetch", url);

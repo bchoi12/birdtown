@@ -53,6 +53,7 @@ export class Gatling extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.MEDIUM; }
 	override reloadType() : ReloadType { return ReloadType.VERTICAL; }
+	override reloadSound() : SoundType { return SoundType.QUICK_RELOAD; }
 	override meshType() : MeshType { return MeshType.GATLING; }
 	override processMesh(mesh : BABYLON.Mesh, result : LoadResult) : void {
 		super.processMesh(mesh, result);

@@ -1,4 +1,6 @@
 
+import { IdGen } from 'network/id_gen'
+
 import { Strings } from 'strings'
 
 import { Flags } from 'global/flags'
@@ -16,6 +18,10 @@ class Cookie {
 		this._values = new Map();
 
 		this.reload();
+
+		if (!this.has(CookieType.TOKEN) || Flags.refreshToken.get()) {
+			this.generateToken();
+		}
 	}
 
 	reload() : void {
@@ -35,6 +41,22 @@ class Cookie {
 		if (Flags.printDebug.get()) {
 			console.log("Cookie entries:", Object.fromEntries(this._values));
 		}
+	}
+
+	getToken() : string {
+		if (this.has(CookieType.TOKEN)) {
+			return this.get(CookieType.TOKEN);
+		}
+
+		return this.generateToken();
+	}
+
+	private generateToken() : string {
+		let token = IdGen.randomId(8);
+		this.savePairs([
+			[CookieType.TOKEN, token],
+		]);
+		return token;
 	}
 
 	private getName(type : CookieType) : string {

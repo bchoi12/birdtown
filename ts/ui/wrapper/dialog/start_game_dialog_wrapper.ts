@@ -330,9 +330,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		case GameMode.DUEL:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
-			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			break;
 		case GameMode.FREE_FOR_ALL:
 		case GameMode.SPREE:
@@ -340,15 +340,15 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
-			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			break;
 		case GameMode.PRACTICE:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN_CIRCLE, LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
-			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			break;
 		case GameMode.SUDDEN_DEATH:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN_CIRCLE, LevelType.BIRDTOWN, LevelType.TINYTOWN]).elm());
@@ -363,16 +363,16 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN_CIRCLE, LevelType.BIRDTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());
-			coreCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.TEAM_BATTLE:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			coreCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;

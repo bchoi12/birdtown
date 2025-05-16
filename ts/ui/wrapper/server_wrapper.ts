@@ -1,4 +1,6 @@
 
+import { cookie } from 'cookie'
+
 import { ColorType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
@@ -94,9 +96,11 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 
 	refresh(cb : () => void) : void {
 		if (this._pending) {
+			cb();
 			return;
 		}
 		if (this.timeSinceRefresh() < ServerWrapper._refreshLockout) {
+			cb();
 			return;
 		}
 
@@ -132,8 +136,19 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		perch.getRooms((data) => {
 			this._pending = false;
 
-			const rooms = Object.entries(data);
-			if (rooms.length === 0) {
+			const rooms = Object.entries(data).filter((room) => {
+				if (room.length !== 2) {
+					console.error("Warning: invalid room", room);
+					return false;
+				}
+
+				let data = room[1];
+				if (data["t"] === cookie.getToken()) {
+					return false;
+				}
+				return true;
+			});
+			if (!rooms || rooms.length === 0) {
 				this._infoElm.textContent = "No servers found. Host a game instead?";
 				this._hostButton.show();
 				this._table.elm().style.display = "none";

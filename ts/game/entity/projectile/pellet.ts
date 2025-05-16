@@ -107,7 +107,7 @@ export class Pellet extends Projectile {
 						x: Fns.randomRange(0.1, 0.15),
 						y: Fns.randomRange(0.1, 0.15),
 					}),
-					scaling: { x: 0.15, y: 0.15 },
+					scaling: { x: 0.2, y: 0.2 },
 				},
 				modelInit: {
 					transforms: {

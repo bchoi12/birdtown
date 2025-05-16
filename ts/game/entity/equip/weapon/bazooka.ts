@@ -36,6 +36,7 @@ export class Bazooka extends Weapon {
 	override hudType() : HudType { return HudType.ROCKET; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override reloadType() : ReloadType { return ReloadType.DISLOCATE; }
+	override reloadSound() : SoundType { return SoundType.QUICK_RELOAD; }
 	override meshType() : MeshType { return MeshType.BAZOOKA; }
 
 	override weaponConfig() : WeaponConfig {

@@ -46,6 +46,7 @@ import { CircleMap } from 'util/circle_map'
 import { Fns, InterpType } from 'util/fns'
 import { Optional } from 'util/optional'
 import { RateLimiter } from 'util/rate_limiter'
+import { SavedCounter } from 'util/saved_counter'
 import { Timer} from 'util/timer'
 import { Vec, Vec2, Vec3 } from 'util/vector'
 
@@ -90,9 +91,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private static readonly _knockbackRecoveryTime = 250;
 	private static readonly _interactCheckInterval = 125;
 	private static readonly _heartInterval = 1000;
+	private static readonly _damageFlashTime = 160;
 	private static readonly _reviveTime = 5000;
 	private static readonly _sweatInterval = 4000;
-	private static readonly _walkSmokeInterval = 500;
+	private static readonly _walkSmokeInterval = 300;
 
 	private static readonly _defaultColor = "#ffffff";
 	private static readonly _headDim = {x: 0.96, y: 1.06};
@@ -145,6 +147,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private _canJumpTimer : Timer;
 	private _canDoubleJump : boolean;
 	private _dead : boolean;
+	private _damageCounter : SavedCounter;
+	private _damageTimer : Timer;
 	private _equipType : EntityType;
 	private _altEquipType : EntityType;
 	private _deadTracker : ChangeTracker<boolean>;
@@ -184,6 +188,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		});
 		this._canDoubleJump = false;
 		this._dead = false;
+		this._damageCounter = new SavedCounter(0);
+		this._damageTimer = this.newTimer({
+			canInterrupt: true,
+		});
 		this._equipType = EntityType.UNKNOWN;
 		this._altEquipType = EntityType.UNKNOWN;
 		this._deadTracker = new ChangeTracker(() => {
@@ -259,7 +267,15 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this.addProp<number>({
 			export: () => { return this._reviverId; },
 			import: (obj : number) => { this.importReviverId(obj); },
-		})
+		});
+		this.addProp<number>({
+			has: () => { return this._damageCounter.count() > 0; },
+			export: () => { return this._damageCounter.count(); },
+			import: (obj : number) => {
+				this._damageCounter.set(obj);
+				this.damageEffect(this._damageCounter.save());
+			},
+		});
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 
@@ -646,15 +662,40 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	override impactSound() : SoundType { return SoundType.PLAYER_THUD; }
 
 	override takeDamage(amount : number, from : Entity) : void {
-		if (game.controller().gameState() === GameState.FREE && from.id() !== this.id()) {
-			super.takeDamage(0, from);
-		} else {
-			super.takeDamage(amount, from);
-		}
-
 		this._entityTrackers.getEntities<Beak>(EntityType.BEAK).execute((beak : Beak) => {
 			beak.takeDamage(amount, from);
 		});
+		if (this.isSource() && amount > 0) {
+			this._damageCounter.add(amount);
+			this.damageEffect(amount);
+		}
+
+		let actualDamage = amount;
+		if (amount > 0 && game.controller().gameState() === GameState.FREE && from.id() !== this.id()) {
+			actualDamage = 0;
+		}
+		super.takeDamage(actualDamage, from);
+	}
+	private damageEffect(dmg : number) : void {
+		if (dmg <= 0) {
+			return;
+		}
+
+		const time = Math.min(2, 0.5 * Math.ceil(dmg / 10)) * Player._damageFlashTime; 
+		if (!this._damageTimer.hasTimeLeft() || time > this._damageTimer.millisLeft()) {
+			this._damageTimer.start(time, () => {
+				this.setDamageEffect(0);
+			});
+		}
+
+		if (this.isLakituTarget()) {
+			ui.flashScreen(ColorFactory.toString(ColorType.BLACK), 3 * time);
+		}
+	}
+	private setDamageEffect(percent : number) : void {
+		if (this._baseMaterial.has()) {
+			this._baseMaterial.get().emissiveColor = new BABYLON.Color3(percent, percent, percent);
+		}
 	}
 
 	override preUpdate(stepData : StepData) : void {
@@ -677,7 +718,11 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
-		const millis = stepData.millis;
+		let millis = stepData.millis;
+
+		if (this._damageTimer.hasTimeLeft() && this._damageTimer.millisElapsed() < 30) {	
+			millis *= 0.5;
+		}
 
 		// Gravity
 		const falling = !this.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0;
@@ -940,10 +985,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				});
 
 				if (Math.abs(this._profile.vel().x) > 0.1 && this._walkSmokeRateLimiter.check(millis)) {
-					const scale = 0.3 + 0.1 * Math.random();
+					const scale = 0.4 + 0.1 * Math.random();
 					this.addEntity(EntityType.SMOKE_PARTICLE, {
 						offline: true,
-						ttl: 500,
+						ttl: 600,
 						profileInit: {
 							pos: this._profile.relativePos(CardinalDir.BOTTOM, { x: scale, y: scale }),
 							vel: { x: -0.05 * Math.sign(this._profile.vel().x), y: 0 },
@@ -1011,6 +1056,11 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				-armCos * this._armTransforms.translation().x - armSin * this._armTransforms.translation().y,
 				armSin * this._armTransforms.translation().x - armCos * this._armTransforms.translation().y,
 			));
+		}
+
+		if (this._damageTimer.hasTimeLeft() && this._baseMaterial.has()) {
+			const weight = 1 - this._damageTimer.percentElapsed();
+			this.setDamageEffect(weight);
 		}
 
 		if (this._nameTag !== null) {

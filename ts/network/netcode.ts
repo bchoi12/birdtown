@@ -17,7 +17,6 @@ import { ChannelMap } from 'network/channel_map'
 import { Connection } from 'network/connection'
 import { ClientOptions } from 'network/client'
 import { HostOptions } from 'network/host'
-import { IdGen } from 'network/id_gen'
 import { Pinger } from 'network/pinger'
 
 import { perch } from 'perch'
@@ -68,7 +67,6 @@ export abstract class Netcode {
 
 	protected _room : string;
 	protected _password : string;
-	protected _token : string;
 	protected _hostName : string;
 	protected _peerName : string;
 	protected _clientId : number;
@@ -95,16 +93,8 @@ export abstract class Netcode {
 		this._room = options.room.toUpperCase();
 		this._password = options.password;
 
-		if (cookie.has(CookieType.TOKEN) && !Flags.refreshToken.get()) {
-			this._token = cookie.get(CookieType.TOKEN);
-		} else {
-			this._token = IdGen.randomId(8);
-			cookie.savePairs([
-				[CookieType.TOKEN, this._token],
-			]);
-		}
 		this._hostName = "birdtown-" + this._room;
-		this._peerName = this._hostName + "-" + this._token;
+		this._peerName = this._hostName + "-" + cookie.getToken();
 		this._clientId = 0;
 		this._initialized = false;
 		this._initError = false;
@@ -139,7 +129,7 @@ export abstract class Netcode {
 				path: this.getPerchPath(),
 				debug: peerDebug,
 				pingInterval: Netcode._pingInterval,
-				token: this._token,
+				token: cookie.getToken(),
 				proxied: true,
 				port: 443,
 			};
@@ -564,7 +554,13 @@ export abstract class Netcode {
 		}
 
 		if (this.isHost()) {
-			this.updateRoomMetadata();
+			perch.updateRoom(this._hostName, this.getNumConnected() + 1, (data) => {
+				if (Flags.printDebug.get()) {
+					console.log("Update room metadata:", data);
+				}
+			}, () => {
+				console.error("Error: failed to update server metadata");
+			});
 		}
 	}
 
@@ -576,20 +572,6 @@ export abstract class Netcode {
 				this.disconnect(DisconnectType.KICK, connection.id());
 			}
 		});
-	}
-
-	private updateRoomMetadata() : void {
-		if (perch.enabled()) {
-			const numPlayers = this.getNumConnected() + 1;
-			const url = `${perch.url()}/room?id=${this._hostName}&t=${this._token}&p=${numPlayers}`;
-			fetch(url, {
-				method: "PUT",
-			}).then((response) => {
-				if (Flags.printDebug.get()) {
-					console.log("Update room metadata:", response);
-				}
-			});
-		}
 	}
 
 	private async handleData(id : string, data : unknown) : Promise<void> {

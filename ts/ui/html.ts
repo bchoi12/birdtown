@@ -17,6 +17,8 @@ export namespace Html {
 
 	export const divOverlays = "div-overlays";
 
+	export const divVignette = "div-vignette";
+
 	export const divStats = "div-stats";
 
 	export const divChat = "div-chat";

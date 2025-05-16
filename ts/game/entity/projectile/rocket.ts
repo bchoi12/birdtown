@@ -30,7 +30,7 @@ export class Rocket extends Projectile {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.ROCKET, entityOptions);
 
-		this._smoker = new RateLimiter(24);
+		this._smoker = new RateLimiter(20);
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
@@ -70,10 +70,10 @@ export class Rocket extends Projectile {
 		if (this._smoker.check(millis)) {
 			this.addEntity(EntityType.SMOKE_PARTICLE, {
 				offline: true,
-				ttl: 500,
+				ttl: 1000,
 				profileInit: {
 					pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.05, 0.05), y: Fns.randomRange(-0.05, 0.05), }),
-					scaling: { x: 0.2, y : 0.2 },
+					scaling: { x: 0.3, y : 0.3 },
 				},
 			});
 		}

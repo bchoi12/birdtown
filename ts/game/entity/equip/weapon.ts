@@ -446,8 +446,8 @@ export abstract class Weapon extends Equip<Player> {
 
 		switch (this._weaponState) {
 		case WeaponState.REVVING:
-			this._armTransforms.translation().x = -0.08 * Math.random();
-			this._armTransforms.translation().y = -0.08 * Math.random();
+			this._armTransforms.translation().x = -0.1 * Math.random() + 0.05;
+			this._armTransforms.translation().y = -0.1 * Math.random() + 0.05;
 			break;
 		case WeaponState.RELOADING:
 			const reloadType = this.reloadType();

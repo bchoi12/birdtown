@@ -57,6 +57,8 @@ export class HudHandler extends HandlerBase implements Handler {
 	private _nameWrapper : NameWrapper;
 	private _blocks : Map<HudType, HudBlockWrapper>;
 
+	private _vignetteElm : HTMLElement;
+
 	constructor() {
 		super(HandlerType.HUD);
 
@@ -72,6 +74,8 @@ export class HudHandler extends HandlerBase implements Handler {
 		nameElm.appendChild(this._nameWrapper.elm());
 
 		this._blocks = new Map();
+
+		this._vignetteElm = Html.elm(Html.divVignette);
 	}
 
 	override reset() : void {
@@ -128,6 +132,20 @@ export class HudHandler extends HandlerBase implements Handler {
 	}
 	hideHud() : void {
 		this._sectionsElm.style.visibility = "hidden";
+	}
+
+	flashScreen(color : string, millis : number) : void {
+		this._vignetteElm.style.transition = "none";
+		this._vignetteElm.style.boxShadow = `inset 0 0 2em ${color}`;
+
+		// Flush CSS
+		this._vignetteElm.offsetHeight;
+
+		this._vignetteElm.style.transition = `box-shadow ${millis}ms linear`;
+		this._vignetteElm.style.boxShadow = `inset 0 0 0em ${color}`;
+
+		// Flush CSS
+		this._vignetteElm.offsetHeight;
 	}
 
 	private getOrAddBlock(type : HudType) : HudBlockWrapper {
