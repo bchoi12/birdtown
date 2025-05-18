@@ -57,6 +57,8 @@ export enum ReloadType {
 	DISLOCATE,
 	LOWER,
 	RAISE,
+	RECOIL_BACK,
+	RECOIL_RAISE,
 	RUMMAGE,
 	SLIGHT_LOWER,
 	SLIGHT_RAISE,
@@ -94,11 +96,16 @@ export abstract class Weapon extends Equip<Player> {
 	private static readonly _reloadSpins = 2;
 	private static readonly _reloadSpinTime = 400;
 
+	private static readonly _recoilReloads = new Set<ReloadType>([
+		ReloadType.DISLOCATE,
+		ReloadType.RECOIL_BACK,
+		ReloadType.RECOIL_RAISE,
+	])
 	private static readonly _reload = new Map<ReloadType, Transforms>([
 		[ReloadType.NONE, new Transforms()],
 		[ReloadType.DISLOCATE, new Transforms({
 			translate: { x: 0.3, y: 0.2 },
-			rotate: { z: Math.PI / 3 },
+			rotate: { z: 0.6 * Math.PI },
 		})],
 		[ReloadType.LOWER, new Transforms({
 			translate: { y: -0.1 },
@@ -111,6 +118,13 @@ export abstract class Weapon extends Equip<Player> {
 			rotate: { z: Math.PI / 6 },
 		})],
 		[ReloadType.RAISE, new Transforms({
+			translate: { x: 0.2, y: 0.1 },
+			rotate: { z: Math.PI / 3 },
+		})],
+		[ReloadType.RECOIL_BACK, new Transforms({
+			translate: { x: 0.2 },
+		})],
+		[ReloadType.RECOIL_RAISE, new Transforms({
 			translate: { x: 0.2, y: 0.1 },
 			rotate: { z: Math.PI / 3 },
 		})],
@@ -451,15 +465,19 @@ export abstract class Weapon extends Equip<Player> {
 			break;
 		case WeaponState.RELOADING:
 			const reloadType = this.reloadType();
-			let reloadWeight = 1;
-			if (this._stateTimer.millisLeft() < Weapon._reloadEndTime) {
+			let reloadWeight : number;
+			if (Weapon._recoilReloads.has(reloadType)) {
+				if (this._stateTimer.millisElapsed() < Weapon._reloadStartTime) {
+					reloadWeight = 1;
+				} else {
+					reloadWeight = 1 - Math.max(0, this._stateTimer.millisElapsed() - Weapon._reloadStartTime) / Math.max(1, this._stateTimer.totalMillis() - Weapon._reloadStartTime);
+				}
+			} else if (this._stateTimer.millisLeft() < Weapon._reloadEndTime) {
 				reloadWeight = this._stateTimer.millisLeft() / Weapon._reloadEndTime;
 			} else if (this._stateTimer.millisElapsed() < Weapon._reloadStartTime) {		
 				reloadWeight = this._stateTimer.millisElapsed() / Weapon._reloadStartTime;
-
-				if (reloadType === ReloadType.DISLOCATE) {
-					reloadWeight = Math.min(1, 2 * reloadWeight);
-				}
+			} else {
+				reloadWeight = 1;
 			}
 
 			const reload = Weapon._reload.get(reloadType);

@@ -70,10 +70,12 @@ export class Timer {
 		}
 	}
 
+	totalMillis() : number { return this._totalMillis; }
 	hasTimeLeft() : boolean { return this._state === TimerState.RUNNING && this._millisLeft > 0; }
+	done() : boolean { return this._state === TimerState.DONE; }
+
 	millisLeft() : number { return this.hasTimeLeft() ? this._millisLeft : 0; }
 	secondsLeft() : number { return Math.ceil(this.millisLeft() / 1000); }
-	done() : boolean { return this._state === TimerState.DONE; }
 	millisElapsed() : number { return this._state === TimerState.NOT_STARTED ? 0 : (this._totalMillis - this.millisLeft()); }
 	secondsElapsed() : number { return Math.floor(this.millisElapsed() / 1000); }
 	percentElapsed() : number {

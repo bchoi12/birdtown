@@ -114,7 +114,7 @@ export class Gatling extends Weapon {
 		} else if (this.weaponState() === WeaponState.FIRING) {
 			this._rotateRad = Gatling._maxRotateRate;
 		} else {
-			this._rotateRad -= Gatling._maxRotateRate * millis / Gatling._revTime;
+			this._rotateRad -= Gatling._maxRotateRate * millis / (2 * Gatling._revTime);
 			this._rotateRad = Math.max(0, this._rotateRad);
 		}
 

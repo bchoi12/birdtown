@@ -29,6 +29,8 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 
 	private _maxPlayers : number;
 	private _maxPlayersSetting : LabelNumberWrapper;
+	private _publicRoom : number;
+	private _privacySetting : LabelNumberWrapper;
 	private _name : string;
 	private _nameInput : LabelInputWrapper;
 	private _passwordInput : LabelInputWrapper;
@@ -71,19 +73,22 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		this._advancedCategory.setExpanded(true);
 		this.form().appendChild(this._advancedCategory.elm());
 
-		/*
-		this._privacySetting = new SettingWrapper<number>({
-			name: "Privacy",
-			value: 1,
-			click: (current : number) => {
-				return current === 1 ? 0 : 1;
+		this._publicRoom = 1;
+		this._privacySetting = new LabelNumberWrapper({
+			label: "Allow anyone to join",
+			value: this._publicRoom,
+			plus: (current : number) => {
+				this._publicRoom = 1;
 			},
-			text: (current : number) => {
-				return current === 1 ? "PUBLIC" : "PRIVATE";
+			minus: (current : number) => {
+				this._publicRoom = 0;
 			},
+			get: () => { return this._publicRoom; },
+			html: (current : number) => {
+				return this._publicRoom === 1 ? "Yes" : "No";
+			}
 		});
 		this._advancedCategory.contentElm().appendChild(this._privacySetting.elm());
-		*/
 
 		this._maxPlayers = HostGameDialogWrapper._defaultMaxPlayers;
 		this._maxPlayersSetting = new LabelNumberWrapper({
@@ -120,7 +125,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			password: this.getPassword(),
 			hostOptions: {
 				maxPlayers: this._maxPlayers,
-				publicRoom: true,
+				publicRoom: this._publicRoom === 1,
 				name: this.getName(),
 				latlng: this._latlng,
 			},
