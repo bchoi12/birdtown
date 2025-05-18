@@ -96,7 +96,7 @@ export class PocketRocket extends Equip<Player> {
 		});
 
 		this.soundPlayer().playFromEntity(SoundType.ROCKET, this.owner());
-		this._weapon.recoil();
+		// TODO: weapon recoil or effect?
 		this._timer.start(PocketRocket._reloadTime);
 	}
 }

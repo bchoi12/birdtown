@@ -689,6 +689,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		}
 
 		if (this.isLakituTarget()) {
+			game.lakitu().shake(time);
 			ui.flashScreen(ColorFactory.toString(ColorType.BLACK), 3 * time);
 		}
 	}

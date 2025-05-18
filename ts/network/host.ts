@@ -25,6 +25,7 @@ export type HostOptions = {
 export class Host extends Netcode {
 
 	private static readonly _maxChatLength = 48;
+	private static readonly _maxPrintLength = 128;
 
 	private _options : HostOptions;
 
@@ -139,7 +140,11 @@ export class Host extends Netcode {
 		});
 
 		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
-			this.handleChat(msg.name(), msg.getChatMessage());
+			this.handleChat(msg.name(), msg.getChatType(), msg.getChatMessage());
+		});
+
+		this.addMessageCallback(NetworkMessageType.JOIN_VOICE, (msg : NetworkMessage) => {
+			this.handleChat(msg.name(), ChatType.PRINT, "joined voice chat!");
 		});
 
 		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
@@ -161,22 +166,27 @@ export class Host extends Netcode {
 		});
 	}
 
-	override sendChat(message : string) : void {
-		this.sendChatFrom(game.clientId(), message);
+	override sendChat(type : ChatType, message : string) : void {
+		this.sendChatFrom(game.clientId(), type, message);
 	}
 
-	private sendChatFrom(clientId : number, message : string) : void {
+	private sendChatFrom(clientId : number, type : ChatType, message : string) : void {
 		if (message.length <= 0) {	
 			return;
 		}
 
-		message = message.substring(0, Host._maxChatLength);
+		if (type === ChatType.PRINT) {
+			message = message.substring(0, Host._maxPrintLength);
+		} else {
+			message = message.substring(0, Host._maxChatLength);
+		}
 
 		let msg = new NetworkMessage(NetworkMessageType.CHAT);
 		msg.setChatMessage(message);
+		msg.setChatType(type);
 		msg.setClientId(clientId);
 		this.broadcast(ChannelType.TCP, msg);
-		ui.chat(ChatType.CHAT, message, {
+		ui.chat(type, message, {
 			clientId: clientId,
 		});
 	}
@@ -196,7 +206,7 @@ export class Host extends Netcode {
 
 		if (this._voiceEnabled) {
 			this.callAll(this.getVoiceMap(), () => {
-				ui.chat(ChatType.LOG, "Joined voice chat!");
+				this.sendChat(ChatType.PRINT, "joined voice chat!");
 			}, () => {
 				this._voiceEnabled = false;
 				ui.handleVoiceError(this.clientId());
@@ -209,18 +219,19 @@ export class Host extends Netcode {
 	override onKick(clientId : number) : void {
 		super.onKick(clientId);
 
-		this.sendChatFrom(clientId, "was banned!");
+		this.sendChatFrom(clientId, ChatType.PRINT, "was banned!");
+		game.playerState(clientId)?.chat("BANNED!");
 	}
 
-	private handleChat(fromId : string, message : string) : void {
+	private handleChat(fromId : string, type : ChatType, message : string) : void {
 		if (message.length <= 0) {
 			return;
 		}
 
 		if (fromId === this.id()) {
-			this.sendChat(message);
+			this.sendChat(type, message);
 		} else if (this.hasConnection(fromId)) {
-			this.sendChatFrom(this.connection(fromId).clientId(), message);
+			this.sendChatFrom(this.connection(fromId).clientId(), type, message);
 		} else {
 			console.error("Error: received message from unknown connection", fromId, message);
 		}

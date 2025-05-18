@@ -136,7 +136,7 @@ export class HudHandler extends HandlerBase implements Handler {
 
 	flashScreen(color : string, millis : number) : void {
 		this._vignetteElm.style.transition = "none";
-		this._vignetteElm.style.boxShadow = `inset 0 0 2.5em ${color}`;
+		this._vignetteElm.style.boxShadow = `inset 0 0 3em ${color}`;
 
 		// Flush CSS
 		this._vignetteElm.offsetHeight;

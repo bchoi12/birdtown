@@ -46,6 +46,11 @@ export enum ProfanityFilterSetting {
 	ON,
 }
 
+export enum ScreenShakeSetting {
+	OFF,
+	ON,
+}
+
 export enum ShadowSetting {
 	OFF,
 	ON,

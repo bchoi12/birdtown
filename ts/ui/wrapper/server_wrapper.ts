@@ -53,7 +53,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._hostButton = new ButtonWrapper();
 		this._hostButton.setIcon(IconType.HOST);
-		this._hostButton.setText("Host");
+		this._hostButton.setText("Start Game");
 		this._hostButton.hide();
 		this._hostButton.addOnClick(() => {
 			ui.hostGame();
@@ -149,7 +149,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 				return true;
 			});
 			if (!rooms || rooms.length === 0) {
-				this._infoElm.textContent = "No servers found. Host a game instead?";
+				this._infoElm.textContent = "No servers found. Start a game instead?";
 				this._hostButton.show();
 				this._table.elm().style.display = "none";
 				return;

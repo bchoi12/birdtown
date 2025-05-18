@@ -9,6 +9,7 @@ import {
 	MusicSetting,
 	PointerSetting,
 	ProfanityFilterSetting,
+	ScreenShakeSetting,
 	ShadowSetting,
 	SpeedSetting,
 	SoundSetting,
@@ -39,6 +40,7 @@ class Settings {
 	public clientPredictionSetting : ClientPredictionSetting;
 	public damageNumberSetting : DamageNumberSetting;
 	public profanityFilterSetting : ProfanityFilterSetting;
+	public screenShakeSetting : ScreenShakeSetting;
 
 	// Audio
 	public musicSetting : MusicSetting;
@@ -79,6 +81,7 @@ class Settings {
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 		this.damageNumberSetting = DamageNumberSetting.OFF;
 		this.profanityFilterSetting = ProfanityFilterSetting.ON;
+		this.screenShakeSetting = ScreenShakeSetting.ON;
 
 		this.musicSetting = MusicSetting.ON
 		this.musicPercent = 0.5;
@@ -121,6 +124,7 @@ class Settings {
 	fullscreen() : boolean { return this.fullscreenSetting === FullscreenSetting.FULLSCREEN; }
 	showDamageNumbers() : boolean { return this.damageNumberSetting === DamageNumberSetting.ON; }
 	filterProfanity() : boolean { return this.profanityFilterSetting === ProfanityFilterSetting.ON; }
+	shakeScreen() : boolean { return this.screenShakeSetting === ScreenShakeSetting.ON; }
 
 	fxaaSamples() : number {
 		switch (this.antiAliasSetting) {

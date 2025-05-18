@@ -182,7 +182,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			if (message.startsWith("/")) {
 				this.command(message);
 			} else {
-				game.netcode().sendChat(message);
+				game.netcode().sendChat(ChatType.CHAT, message);
 			}
 		}
 	}

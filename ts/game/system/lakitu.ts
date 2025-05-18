@@ -44,6 +44,7 @@ export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 30 units, needs to be updated if offsets are changed
 	// Formula: deg = 2 * arctan(0.5 * horizontal_length / offset_length)
 	private static readonly _horizontalFov = 48.868 * Math.PI / 180;
+	private static readonly _screenShake = 0.05;
 
 	private static readonly _quickPan = 300;
 	private static readonly _normalPan = 1500;
@@ -59,6 +60,7 @@ export class Lakitu extends SystemBase implements System {
 	private _players : CircleMap<number, Player>;
 	private _spectateClientId : number;
 
+	private _shakeUntil : number;
 	private _panners : Map<OffsetType, Panner>;
 	private _anchor : BABYLON.Vector3;
 	private _target : BABYLON.Vector3;
@@ -74,6 +76,7 @@ export class Lakitu extends SystemBase implements System {
     	this._players = new CircleMap();
     	this._spectateClientId = 0;
 
+    	this._shakeUntil = 0;
     	this._panners = new Map();
     	Lakitu._offsets.forEach((offset : Vec3, type : OffsetType) => {
     		this._panners.set(type, new Panner(offset));
@@ -116,6 +119,13 @@ export class Lakitu extends SystemBase implements System {
 		this._anchor.addInPlaceFromFloats(offset.x, offset.y, offset.z);
 		this.move(this._anchor);
 	}
+	shake(millis : number) : void {
+		if (!settings.shakeScreen()) {
+			return;
+		}
+
+		this._shakeUntil = Date.now() + Math.min(1000, millis);
+	}
 	pan(type : OffsetType, goal : Vec, millis : number) : void {
 		this._panners.get(type).pan({
 			goal: goal,
@@ -137,7 +147,15 @@ export class Lakitu extends SystemBase implements System {
 		this._camera.position = this._target.clone();
 		const cameraOffset = this.offset(OffsetType.CAMERA);
 		this._camera.position.addInPlaceFromFloats(cameraOffset.x, cameraOffset.y, cameraOffset.z);
+
 		this._camera.setTarget(this._target);
+
+		if (Date.now() < this._shakeUntil) {
+			this._camera.position.addInPlaceFromFloats(
+				Lakitu._screenShake - 2 * Lakitu._screenShake * Math.random(),
+				Lakitu._screenShake - 2 * Lakitu._screenShake * Math.random(),
+				0);
+		}
 	}
 	private resetPan(millis : number) : void {
 		this._panners.forEach((panner : Panner, type : OffsetType) => {

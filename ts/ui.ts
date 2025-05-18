@@ -314,6 +314,7 @@ class UI {
 	handleVoiceError(clientId : number) : void {
 		if (clientId === game.clientId()) {
 			ui.chat(ChatType.ERROR, "Couldn't connect to your microphone. Please double check you have granted Birdtown permission to access your mic.");
+			this._clientsHandler.handleVoiceError();
 			this._trayHandler.handleVoiceError();
 		}
 	}

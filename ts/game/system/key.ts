@@ -31,7 +31,13 @@ export class Key extends ClientSideSystem implements System {
 
 		this.addProp<number>({
 			export: () => { return this._counter; },
-			import: (obj : number) => { this._networkCounter = Math.max(this._networkCounter, obj); },
+			import: (obj : number) => {
+				if (this._counter === 0 && this._networkCounter === 0) {
+					// Initialize
+					this._counter = obj;
+				}
+				this._networkCounter = Math.max(this._networkCounter, obj);
+			},
 			validate: (obj : number) => { this._networkCounter = Math.max(this._networkCounter, obj); },
 			options: {
 				conditionalInterval: (obj: number, elapsed : number) => {

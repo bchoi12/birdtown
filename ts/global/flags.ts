@@ -10,7 +10,7 @@ export namespace Flags {
 
 	export const disableShadows = new BoolFlag("disableShadows", false);
 	export const enableMinimap = new BoolFlag("enableMinimap", false);
-	export const enableVoice = new BoolFlag("enableVoice", false);
+	export const enableVoice = new BoolFlag("enableVoice", true);
 
 	export const peerDebug = new NumberFlag("peerDebug", 2);
 	export const printDebug = new BoolFlag("printDebug", isLocalhost());

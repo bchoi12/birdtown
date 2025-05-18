@@ -24,13 +24,14 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 		this._configElm = Html.div();
 		this._infoElm = Html.div();
 		this._infoElm.style.textAlign = "center";
+		this._infoElm.style.display = "none";
+		this._infoElm.style.marginBottom = "1em";
 
 		this._config = PlayerConfig.fromSetup();
 		this._teams = false;
 		this._settingWrappers = new Map();
 
 		this.elm().appendChild(this._infoElm);
-		this.elm().appendChild(Html.br());
 		this.elm().appendChild(this._configElm);
 		this.initialize();
 	}
@@ -84,14 +85,17 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().appendChild(random.elm());
 	}
 	setInfo(html : string) : void {
+		this._infoElm.style.display = "block";
 		this._infoElm.innerHTML = html;
 	}
 	setErrors(errors : Array<string>) : void {
 		if (errors.length === 0) {
 			this._infoElm.textContent = "";
+			this._infoElm.style.display = "none";
 			return;
 		}
 
+		this._infoElm.style.display = "block";
 		this._infoElm.style.textAlign = "left";
 		let html = "Player setup is invalid!<br>";
 		for (let i = 0 ; i < errors.length; ++i) {

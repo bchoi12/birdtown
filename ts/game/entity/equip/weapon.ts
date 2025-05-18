@@ -285,9 +285,6 @@ export abstract class Weapon extends Equip<Player> {
 		}
 		this.recordUse();
 	}
-	recoil() : void {
-		this._armTransforms.merge(Weapon._recoil.get(this.recoilType()));
-	}
 	protected override simulateUse(uses : number) : void {
 		this._bursts -= uses;
 		if (this._bursts < 0) {

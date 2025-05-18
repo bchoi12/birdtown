@@ -197,7 +197,7 @@ export abstract class Netcode {
 	abstract ready() : boolean;
 	abstract isHost() : boolean;
 	abstract setVoiceEnabled(enabled : boolean) : void;
-	abstract sendChat(message : string) : void;
+	abstract sendChat(type : ChatType, message : string) : void;
 
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
@@ -520,8 +520,10 @@ export abstract class Netcode {
 	}
 
 	protected closeMediaConnection(clientId : number) : void {
-		this._mediaConnections.get(clientId).close();
-		this._mediaConnections.delete(clientId);
+		if (this._mediaConnections.has(clientId)) {
+			this._mediaConnections.get(clientId).close();
+			this._mediaConnections.delete(clientId);
+		}
 		ui.removeStream(clientId);
 	}
 	protected closeMediaConnections() {
@@ -562,6 +564,17 @@ export abstract class Netcode {
 				console.error("Error: failed to update server metadata");
 			});
 		}
+	}
+
+	// Handle client being disconnected message.
+	handleDisconnect(msg : GameMessage) : void {
+		if (!msg.hasClientId()) {
+			console.error("Error: disconnect message does not have client ID", msg);
+			return;
+		}
+
+		// Close any open voice channels
+		this.closeMediaConnection(msg.getClientId());
 	}
 
 	onKick(clientId : number) : void {}

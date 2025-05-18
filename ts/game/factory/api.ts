@@ -250,6 +250,7 @@ export enum ParticleType {
 	SMOKE,
 	SPARK,
 	TEAR,
+	TORUS,
 }
 
 export enum SoundType {

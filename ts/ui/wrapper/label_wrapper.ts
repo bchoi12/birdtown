@@ -10,6 +10,7 @@ export abstract class LabelWrapper extends HtmlWrapper<HTMLElement> {
 		super(Html.div());
 
 		this.elm().classList.add(Html.classLabel);
+		this.elm().classList.add(Html.classNoSelect);
 
 		this._nameElm = Html.div();
 		this._nameElm.classList.add(Html.classLabelName);

@@ -192,6 +192,9 @@ export class Runner extends SystemBase implements System  {
 		case GameMessageType.LEVEL_LOAD:
 			this._sendFullMsg = true;
 			break;
+		case GameMessageType.CLIENT_DISCONNECT:
+			game.netcode().handleDisconnect(msg);
+			break;
 		}
 	}
 

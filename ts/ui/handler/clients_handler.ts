@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { Flags } from 'global/flags'
+
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
@@ -16,6 +18,7 @@ import { LowSpecWrapper } from 'ui/wrapper/button/low_spec_wrapper'
 import { LowestSpecWrapper } from 'ui/wrapper/button/lowest_spec_wrapper'
 import { ResetGraphicsWrapper } from 'ui/wrapper/button/reset_graphics_wrapper'
 import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
+import { VoiceWrapper } from 'ui/wrapper/button/voice_wrapper'
 
 // TODO: rename ConsoleHandler
 export class ClientsHandler extends HandlerBase implements Handler {
@@ -25,6 +28,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 	private _playerWrapper : CategoryWrapper;
 	private _commandsWrapper : CategoryWrapper;
 	private _lowSpecWrapper : LowSpecWrapper;
+	private _voiceWrapper : VoiceWrapper;
 	private _sendChat : boolean;
 
 	private _stream : MediaStream;
@@ -54,6 +58,14 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		recommended.setText("Reset graphics settings");
 		this._commandsWrapper.contentElm().appendChild(recommended.elm());
 		this._commandsWrapper.contentElm().appendChild(Html.br());
+
+		this._voiceWrapper = new VoiceWrapper();
+		if (Flags.enableVoice.get()) {
+			this._voiceWrapper.setEnabledText("Proximity voice chat enabled");
+			this._voiceWrapper.setDisabledText("Enable proximity voice chat (WIP)");
+			this._commandsWrapper.contentElm().appendChild(this._voiceWrapper.elm());
+			this._commandsWrapper.contentElm().appendChild(Html.br());
+		}
 
 		this._clientsElm.appendChild(this._playerWrapper.elm());
 		this._clientsElm.appendChild(this._commandsWrapper.elm());
@@ -145,4 +157,6 @@ export class ClientsHandler extends HandlerBase implements Handler {
 			client.removeStream();
 		});
 	}
+
+	handleVoiceError() : void { this._voiceWrapper.handleVoiceError(); }
 }

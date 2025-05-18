@@ -12,6 +12,7 @@ import {
 	MusicSetting,
 	PointerSetting,
 	ProfanityFilterSetting,
+	ScreenShakeSetting,
 	ShadowSetting,
 	SpeedSetting,
 	SoundSetting,
@@ -129,6 +130,24 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			get: () => { return settings.profanityFilterSetting; },
 			html: () => {
 				if (settings.profanityFilterSetting === ProfanityFilterSetting.ON) {
+					return "On";
+				}
+				return "Off";
+			},
+		}));
+
+		this.addSetting(gameplay, new LabelNumberWrapper({
+			label: "Screen Shake",
+			value: Number(settings.screenShakeSetting),
+			plus: (current : number) => {
+				settings.screenShakeSetting = ScreenShakeSetting.ON;
+			},
+			minus: (current : number) => {
+				settings.screenShakeSetting = ScreenShakeSetting.OFF;
+			},
+			get: () => { return settings.screenShakeSetting; },
+			html: () => {
+				if (settings.screenShakeSetting === ScreenShakeSetting.ON) {
 					return "On";
 				}
 				return "Off";

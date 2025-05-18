@@ -44,7 +44,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		super();
 
 		this.shrink();
-		this.setTitle("Host Game");
+		this.setTitle("Start Game");
 
 		this._settingsCategory = new CategoryWrapper();
 		this._settingsCategory.setTitle("Settings");
@@ -148,7 +148,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			return;
 		}
 
-		this.setPendingMessage("Hosting public game - querying approximate location")
+		this.setPendingMessage("Starting public game - querying approximate location")
 		ui.queryLatLng((loc : LatLng) => {
 			this._latlng = ["" + Fns.roundTo(loc.lat(), 2), "" + Fns.roundTo(loc.lng(), 2)].join(",");
 			this.setReady();

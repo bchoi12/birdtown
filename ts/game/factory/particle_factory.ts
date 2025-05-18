@@ -15,6 +15,7 @@ export namespace ParticleFactory {
 		[ParticleType.SMOKE, createSphere],
 		[ParticleType.SPARK, createCube],
 		[ParticleType.TEAR, createTear],
+		[ParticleType.TORUS, createTorus],
 	]);
 
 	let cache = new Map<ParticleType, BABYLON.Mesh>; 
@@ -63,7 +64,6 @@ export namespace ParticleFactory {
 		plane.material = new BABYLON.StandardMaterial(name, game.scene());
 		return plane;
 	}
-
 	function createTear() : BABYLON.Mesh {
 		let tearShape = [];
 		const tearSegments = 10;
@@ -77,5 +77,11 @@ export namespace ParticleFactory {
 		let tear = BABYLON.MeshBuilder.CreateLathe("particle-tear", { shape: tearShape }, game.scene());
 		tear.material = new BABYLON.StandardMaterial(name, game.scene());
 		return tear;
+	}
+	function createTorus() : BABYLON.Mesh {
+		const name = "particle-torus";
+		let torus = BABYLON.MeshBuilder.CreateTorus(name, {}, game.scene());
+		torus.material = new BABYLON.StandardMaterial(name, game.scene());
+		return torus;
 	}
 }

@@ -11,8 +11,6 @@ export class ClientNameWrapper extends HtmlWrapper<HTMLElement> {
 	constructor(defaultName : string) {
 		super(Html.div());
 
-		this.elm().classList.add(Html.classLabel);
-
 		this._defaultName = defaultName;
 
 		this._nameElm = Html.input();

@@ -1,11 +1,14 @@
 
 import { Message, MessageBase, MessageObject, FieldDescriptor, DataMap } from 'message'
 
+import { ChatType } from 'ui/api'
+
 export enum NetworkMessageType {
 	UNKNOWN,
 
 	CHAT,
 	GAME,
+	JOIN_VOICE,
 	INCOMING,
 	INIT_CLIENT,
 	PING,
@@ -16,6 +19,7 @@ export enum NetworkMessageType {
 enum NetworkProp {
 	UNKNOWN,
 	CHAT_MESSAGE,
+	CHAT_TYPE,
 	CLIENT_ID,
 	CLIENT_MAP,
 	DATA,
@@ -28,6 +32,7 @@ export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp>
 	private static readonly _messageDescriptor = new Map<NetworkMessageType, FieldDescriptor>([
 		[NetworkMessageType.CHAT, MessageBase.fieldDescriptor(
 			[NetworkProp.CHAT_MESSAGE, {}], 
+			[NetworkProp.CHAT_TYPE, {}],
 			[NetworkProp.CLIENT_ID, { optional: true }],
 		)],
 		[NetworkMessageType.GAME, MessageBase.fields(
@@ -35,6 +40,7 @@ export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp>
 			NetworkProp.DATA)],
 		[NetworkMessageType.INIT_CLIENT, MessageBase.fields(
 			NetworkProp.CLIENT_ID)],
+		[NetworkMessageType.JOIN_VOICE, MessageBase.fields()],
 		[NetworkMessageType.PING, MessageBase.fields(
 			NetworkProp.SEQ_NUM)],
 		[NetworkMessageType.VOICE, MessageBase.fields(
@@ -72,6 +78,11 @@ export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp>
     getChatMessageOr(value : string) : string { return this.getOr<string>(NetworkProp.CHAT_MESSAGE, value); }
     setChatMessage(value : string) : void { this.set<string>(NetworkProp.CHAT_MESSAGE, value); }
 
+    hasChatType() : boolean { return this.has(NetworkProp.CHAT_TYPE); }
+    getChatType() : ChatType { return this.get<ChatType>(NetworkProp.CHAT_TYPE); }
+    getChatTypeOr(value : ChatType) : ChatType { return this.getOr<ChatType>(NetworkProp.CHAT_TYPE, value); }
+    setChatType(value : ChatType) : void { this.set<ChatType>(NetworkProp.CHAT_TYPE, value); }
+
     hasClientId() : boolean { return this.has(NetworkProp.CLIENT_ID); }
     getClientId() : number { return this.get<number>(NetworkProp.CLIENT_ID); }
     getClientIdOr(value : number) : number { return this.getOr<number>(NetworkProp.CLIENT_ID, value); }
@@ -100,6 +111,7 @@ export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp>
     /*
     const enumClass = "NetworkProp";
     ["CHAT_MESSAGE", "string"],
+    ["CHAT_TYPE", "ChatType"],
     ["CLIENT_ID", "number"],
     ["CLIENT_MAP", "Object"],
     ["DATA", "DataMap"],

@@ -49,9 +49,6 @@ export abstract class MessageBase<T extends number, P extends number> {
 		if (this._type === 0) {
 			return false;
 		}
-		if (Object.keys(this._data).length === 0) {
-			return false;
-		}
 
 		for (let [prop, descriptor] of this.messageDescriptor().get(this._type)) {
 			if (!this.has(<P>prop)) {
