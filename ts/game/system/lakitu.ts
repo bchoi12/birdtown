@@ -44,7 +44,7 @@ export class Lakitu extends SystemBase implements System {
 	// Horizontal length = 30 units, needs to be updated if offsets are changed
 	// Formula: deg = 2 * arctan(0.5 * horizontal_length / offset_length)
 	private static readonly _horizontalFov = 48.868 * Math.PI / 180;
-	private static readonly _screenShake = 0.05;
+	private static readonly _screenShake = 0.04;
 
 	private static readonly _quickPan = 300;
 	private static readonly _normalPan = 1500;

@@ -23,6 +23,7 @@ import { QueryLocationDialogWrapper } from 'ui/wrapper/dialog/query_location_dia
 import { QuitDialogWrapper } from 'ui/wrapper/dialog/quit_dialog_wrapper'
 import { ResetSettingsDialogWrapper } from 'ui/wrapper/dialog/reset_settings_dialog_wrapper'
 import { VersionMismatchDialogWrapper } from 'ui/wrapper/dialog/version_mismatch_dialog_wrapper'
+import { YourRoomDialogWrapper } from 'ui/wrapper/dialog/your_room_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
 import { Optional } from 'util/optional'
@@ -41,6 +42,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 		[DialogType.QUIT, () => { return new QuitDialogWrapper()}],
 		[DialogType.RESET_SETTINGS, () => { return new ResetSettingsDialogWrapper()}],
 		[DialogType.VERSION_MISMATCH, () => { return new VersionMismatchDialogWrapper()}],
+		[DialogType.YOUR_ROOM, () => { return new YourRoomDialogWrapper()}],
 	]);
 
 	private _dialogsElm : HTMLElement;

@@ -11,6 +11,7 @@ import { settings } from 'settings'
 import { Strings } from 'strings'
 
 import { ui } from 'ui'
+import { DialogType } from 'ui/api'
 import { IconType } from 'ui/common/icon'
 import { Html, HtmlWrapper } from 'ui/html'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
@@ -19,6 +20,12 @@ import { TableWrapper, CellOptions } from 'ui/wrapper/table_wrapper'
 
 import { Fns } from 'util/fns'
 import { LatLng } from 'util/lat_lng'
+
+type RoomData = {
+	room : string;
+	hasPassword : boolean;
+	token : string;
+}
 
 export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 
@@ -136,18 +143,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		perch.getRooms((data) => {
 			this._pending = false;
 
-			const rooms = Object.entries(data).filter((room) => {
-				if (room.length !== 2) {
-					console.error("Warning: invalid room", room);
-					return false;
-				}
-
-				let data = room[1];
-				if (data["t"] === settings.token) {
-					return false;
-				}
-				return true;
-			});
+			const rooms = Object.entries(data);
 			if (!rooms || rooms.length === 0) {
 				this._infoElm.textContent = "No servers found. Start a game instead?";
 				this._hostButton.show();
@@ -165,9 +161,19 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 					console.error("Error: invalid room", room);
 					return;
 				}
-				let row = this._table.addRow(this.extractRow(room[0], room[1]));
+				const [metadata, options] = this.extractRow(room[0], room[1]);
+				let row = this._table.addRow(options);
 				row.setOnClick(() => {
-					ui.setJoinParams(room[0], "");
+					if (metadata.token === settings.userToken) {
+						ui.pushDialog(DialogType.YOUR_ROOM);
+					} else {
+						ui.setJoinParams(room[0], "");
+					}
+				});
+				row.setOnDoubleClick(() => {
+					if (!metadata.hasPassword && metadata.token !== settings.userToken) {
+						ui.joinGame(metadata.room, "");
+					}
 				});
 
 				// TODO: actual count
@@ -181,8 +187,12 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 	}
 	private timeSinceRefresh() : number { return Date.now() - this._lastRefresh; }
 
-	private extractRow(code : string, room : Object) : CellOptions[] {
-		return [
+	private extractRow(code : string, room : Object) : [RoomData, CellOptions[]] {
+		return [{
+			room: code,
+			hasPassword: this.hasPassword(room),
+			token: this.extractToken(room),
+		}, [
 			this.extractName(room), 
 			{
 				name: code,
@@ -191,13 +201,13 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 			this.extractVersion(room),
 			this.extractDistance(room),
 			this.extractAge(room),
-		];
+		]];
 	}
 
 	private extractName(room : Object) : CellOptions {
 		let name = "";
 
-		if (room.hasOwnProperty("pw")) {
+		if (this.hasPassword(room)) {
 			name = "🔒 ";
 		}
 		name += room.hasOwnProperty("n") ? room["n"] : "???";
@@ -205,6 +215,15 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		return {
 			name: name,
 		}
+	}
+	private hasPassword(room) : boolean {
+		if (room.hasOwnProperty("pw")) {
+			return true;
+		}
+		return false;
+	}
+	private extractToken(room : Object) : string {
+		return room.hasOwnProperty("t") ? room["t"] : "???";
 	}
 
 	private extractVersion(room : Object) : CellOptions {

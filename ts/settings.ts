@@ -38,7 +38,9 @@ class Settings {
 	private static readonly _musicPercent = 0.5;
 	private static readonly _soundPercent = 0.8;
 
-	public token : string;
+	public userToken : string;
+	// Secret used by host to communicate with perch
+	public sessionToken : string;
 	public keyCodes : Map<KeyType, number>;
 
 	// Gameplay
@@ -78,7 +80,9 @@ class Settings {
 	}
 
 	initialize() : void {
-		this.token = IdGen.randomId(8);
+		this.userToken = IdGen.randomId(8);
+		this.sessionToken = IdGen.randomId(8);
+
 		this.keyCodes = new Map();
 		this.keyCodes.set(KeyType.LEFT, 65);
 		this.keyCodes.set(KeyType.RIGHT, 68);
@@ -125,7 +129,7 @@ class Settings {
 		this._cookie.saveMap(SettingType.KEY_CODES, this.keyCodes);
 
 		this._cookie.savePairs([
-			[SettingType.TOKEN, this.token],
+			[SettingType.TOKEN, this.userToken],
 			[SettingType.FULLSCREEN, FullscreenSetting[this.fullscreenSetting]],
 			[SettingType.CLIENT_PREDICTION, ClientPredictionSetting[this.clientPredictionSetting]],
 			[SettingType.DAMAGE_NUMBER, DamageNumberSetting[this.damageNumberSetting]],
@@ -147,7 +151,7 @@ class Settings {
 	load() : void {
 		if (!Flags.refreshToken.get()) {
 			this.loadSetting(SettingType.TOKEN, (value : string) => {
-				this.token = value;
+				this.userToken = value;
 			});
 		}
 

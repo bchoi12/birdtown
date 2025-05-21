@@ -35,7 +35,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 	private _joinButton : HTMLInputElement;
 
 	private _hostWrapper : HostGameDialogWrapper;
-	private _clientWrapper : JoinGameDialogWrapper;
+	private _joinWrapper : JoinGameDialogWrapper;
 
 	private _timeoutId : Optional<number>;
 
@@ -52,9 +52,9 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._joinButton = Html.inputElm(Html.buttonJoin);
 
 		this._hostWrapper = new HostGameDialogWrapper();
-		this._clientWrapper = new JoinGameDialogWrapper();
+		this._joinWrapper = new JoinGameDialogWrapper();
 		this._splashElm.appendChild(this._hostWrapper.elm());
-		this._splashElm.appendChild(this._clientWrapper.elm());
+		this._splashElm.appendChild(this._joinWrapper.elm());
 
 		this._timeoutId = new Optional();
 	}
@@ -66,7 +66,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 			this.hostGame();
 		};
 		this._joinButton.onclick = () => {
-			this.joinGame();
+			this.browseGames();
 		};
 
 		this._legendElm.textContent = GameGlobals.version;
@@ -75,8 +75,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		const room = Flags.room.get();
 		if (room.length > 0) {
 			const password = Flags.password.get();
-			this._clientWrapper.prefill(room, password);		
-			this.joinGame();
+			this.joinGame(room, password);
 		}
 
 		this.enable();
@@ -101,7 +100,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 	}
 
 	setJoinParams(room : string, password : string) : void {
-		this._clientWrapper.setParams(room, password);
+		this._joinWrapper.setParams(room, password);
 	}
 
 	hideLogin() : void {
@@ -117,17 +116,33 @@ export class LoginHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		this._clientWrapper.hide();
+		this._joinWrapper.hide();
 		this._hostWrapper.show();
 	}
 
-	joinGame() : void {
+	browseGames() : void {
 		if (game.initialized()) {
 			console.error("Error: tried to join game when game is initialized. Mode:", UiMode[ui.mode()]);
 			return;
 		}
 
 		this._hostWrapper.hide();
-		this._clientWrapper.show();
+		this._joinWrapper.show();
+	}
+
+	joinGame(room : string, password : string) : void {
+		if (game.initialized()) {
+			console.error("Error: tried to join game when game is initialized. Mode:", UiMode[ui.mode()]);
+			return;
+		}
+
+		this._hostWrapper.hide();
+
+		this._joinWrapper.prefill(room, password);
+		if (this._joinWrapper.visible()) {
+			this._joinWrapper.connect();
+		} else {
+			this._joinWrapper.show();
+		}
 	}
 }

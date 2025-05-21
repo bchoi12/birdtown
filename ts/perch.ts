@@ -67,7 +67,7 @@ class Perch {
 			return;
 		}
 
-		const url = `${perch.url()}/room?id=${roomId}&t=${settings.token}&p=${numPlayers}`;
+		const url = `${perch.url()}/room?id=${roomId}&t=${settings.sessionToken}&p=${numPlayers}`;
 		this.put(url, onData, onError);
 	}
 

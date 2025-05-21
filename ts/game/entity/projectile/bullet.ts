@@ -116,7 +116,7 @@ export class Bullet extends Projectile {
 							x: Fns.randomRange(0.1, 0.2),
 							y: Fns.randomRange(0.1, 0.2),
 						}),
-						scaling: { x: Fns.randomRange(0.3, 0.4), y: 0.15 },
+						scaling: { x: Fns.randomRange(0.3, 0.5), y: 0.2 },
 					},
 					modelInit: {
 						transforms: {

@@ -57,6 +57,7 @@ export enum DialogType {
 	QUIT,
 	RESET_SETTINGS,
 	VERSION_MISMATCH,
+	YOUR_ROOM,
 }
 
 export enum FeedType {

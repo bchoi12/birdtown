@@ -92,7 +92,7 @@ export abstract class Netcode {
 		this._password = options.password;
 
 		this._hostName = "birdtown-" + this._room;
-		this._peerName = this._hostName + "-" + settings.token;
+		this._peerName = this._hostName + "-" + settings.userToken;
 		this._clientId = 0;
 		this._initialized = false;
 		this._initError = false;
@@ -127,7 +127,7 @@ export abstract class Netcode {
 				path: this.getPerchPath(),
 				debug: peerDebug,
 				pingInterval: Netcode._pingInterval,
-				token: settings.token,
+				token: settings.userToken,
 				proxied: true,
 				port: 443,
 			};

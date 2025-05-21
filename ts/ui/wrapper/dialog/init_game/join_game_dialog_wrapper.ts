@@ -84,7 +84,7 @@ export class JoinGameDialogWrapper extends InitGameDialogWrapper {
 	protected override onNetcodeError(room : string) : void {
 		super.onNetcodeError(room);
 
-		this.refreshServers();
+		this.silentRefreshServers();
 	}
 
 	private refreshServers() : void {
@@ -92,6 +92,10 @@ export class JoinGameDialogWrapper extends InitGameDialogWrapper {
 		this._serverWrapper.refresh(() => {
 			this.setReady();
 		});
+	}
+
+	private silentRefreshServers() : void {
+		this._serverWrapper.refresh(() => {});
 	}
 
 	prefill(room : string, password : string) : void {

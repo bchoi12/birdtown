@@ -17,4 +17,13 @@ export class RowWrapper extends HtmlWrapper<HTMLTableRowElement> {
 			};
 		}
 	}
+
+	setOnDoubleClick(fn : (data : string) => void) {
+		const cells = this.elm().cells;
+		for (let i = 0; i < cells.length; ++i) {
+			cells[i].ondblclick = () => {
+				fn(cells[i].textContent);
+			};
+		}
+	}
 }

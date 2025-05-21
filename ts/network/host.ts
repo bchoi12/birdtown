@@ -12,6 +12,8 @@ import { ChannelType } from 'network/api'
 import { Connection } from 'network/connection'
 import { Netcode, NetcodeOptions } from 'network/netcode'
 
+import { settings } from 'settings'
+
 import { ui } from 'ui'
 import { ChatType, StatusType } from 'ui/api'
 
@@ -49,6 +51,7 @@ export class Host extends Netcode {
 			this._options.name,
 			this._options.latlng,
 			GameGlobals.version,
+			settings.sessionToken,
 		].join("!");
 	}
 	maxPlayers() : number { return this._options.maxPlayers; }

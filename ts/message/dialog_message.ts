@@ -40,6 +40,7 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
         [DialogType.QUERY_LOCATION, MessageBase.fields()],
         [DialogType.QUIT, MessageBase.fields()],
         [DialogType.VERSION_MISMATCH, MessageBase.fields()],
+        [DialogType.YOUR_ROOM, MessageBase.fields()],
 	]);
 
 	constructor(type : DialogType) {
