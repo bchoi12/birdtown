@@ -16,7 +16,7 @@ export class ResetGraphicsWrapper extends ButtonWrapper {
 	constructor() {
 		super();
 
-		this.setIcon(IconType.RESET_SETTINGS);
+		this.setIcon(IconType.RESET_GRAPHICS);
 
 		this.addOnClick(() => {
 			settings.recommendedGraphics();

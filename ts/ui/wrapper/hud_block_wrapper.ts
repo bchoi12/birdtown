@@ -114,7 +114,8 @@ export class HudBlockWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	setKeyType(type : KeyType) : void {
-		if (settings.keyCodes.has(type) && type !== KeyType.MOUSE_CLICK && type !== KeyType.ALT_MOUSE_CLICK) {
+		const code = settings.keyCode(type);
+		if (code !== 0 && type !== KeyType.MOUSE_CLICK && type !== KeyType.ALT_MOUSE_CLICK) {
 			this.setKeyCode(settings.keyCode(type));
 			return;
 		}

@@ -54,6 +54,8 @@ import { ControlsSign } from 'game/entity/interactable/sign/controls_sign'
 import { StartGameSign } from 'game/entity/interactable/sign/start_game_sign'
 import { CubeParticle } from 'game/entity/particle/cube_particle'
 import { EnergyCubeParticle } from 'game/entity/particle/energy_cube_particle'
+import { MuzzleParticle } from 'game/entity/particle/muzzle_particle'
+import { LaunchParticle } from 'game/entity/particle/launch_particle'
 import { SmokeParticle } from 'game/entity/particle/smoke_particle'
 import { SparkParticle } from 'game/entity/particle/spark_particle'
 import { SweatParticle } from 'game/entity/particle/sweat_particle'
@@ -142,6 +144,8 @@ export namespace EntityFactory {
 
 		[EntityType.CUBE_PARTICLE, (options : EntityOptions) => { return new CubeParticle(options); }],
 		[EntityType.ENERGY_CUBE_PARTICLE, (options : EntityOptions) => { return new EnergyCubeParticle(options); }],
+		[EntityType.MUZZLE_PARTICLE, (options : EntityOptions) => { return new MuzzleParticle(options); }],
+		[EntityType.LAUNCH_PARTICLE, (options : EntityOptions) => { return new LaunchParticle(options); }],
 		[EntityType.SMOKE_PARTICLE, (options : EntityOptions) => { return new SmokeParticle(options); }],
 		[EntityType.SPARK_PARTICLE, (options : EntityOptions) => { return new SparkParticle(options); }],
 		[EntityType.SWEAT_PARTICLE, (options : EntityOptions) => { return new SweatParticle(options); }],
@@ -174,6 +178,8 @@ export namespace EntityFactory {
 
 		[EntityType.CUBE_PARTICLE, { x: 1, y: 1, z: 1}],
 		[EntityType.ENERGY_CUBE_PARTICLE, { x: 1, y: 1, z: 1}],
+		[EntityType.MUZZLE_PARTICLE, { x: 1, y: 1, z: 1 }],
+		[EntityType.LAUNCH_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.SMOKE_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.SPARK_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.SWEAT_PARTICLE, { x: 1, y: 1, z: 1 }],

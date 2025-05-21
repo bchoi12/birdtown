@@ -4,7 +4,7 @@ import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
 import { Bullet } from 'game/entity/projectile/bullet'
 import { Weapon, WeaponConfig, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
-import { ColorType, MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { StepData } from 'game/game_object'
 
@@ -61,6 +61,7 @@ export class Pistol extends Weapon {
 		const unitDir = this.getDir();
 
 		let vel = unitDir.clone().scale(this.charged() ? 0.9 : 0.85);
+		const angle = vel.angleRad();
 		this.addEntity<Bullet>(EntityType.BULLET, {
 			ttl: this.charged() ? Pistol._chargedBulletTTL : Pistol._bulletTTL,
 			associationInit: {
@@ -69,7 +70,7 @@ export class Pistol extends Weapon {
 			profileInit: {
 				pos: pos,
 				vel: vel,
-				angle: vel.angleRad(),
+				angle: angle,
 			},
 		});
 
@@ -77,6 +78,25 @@ export class Pistol extends Weapon {
 			let recoil = unitDir.clone().negate().scale(0.2);
 			this.owner().addForce(recoil);
 		}
+
+		this.addEntity(EntityType.MUZZLE_PARTICLE, {
+			offline: true,
+			ttl: 30,
+			profileInit: {
+				pos: pos,
+				angle: angle,
+			},
+			modelInit: {
+				materialType: MaterialType.WESTERN_YELLOW,
+				transforms: {
+					scale: {
+						x: 0.4,
+						y: 0.05,
+						z: 0.05,
+					}
+				}
+			}
+		});
 
 		this.soundPlayer().playFromEntity(SoundType.PISTOL, this.owner());
 	}

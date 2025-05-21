@@ -8,7 +8,7 @@ import { GameConfigMessage } from 'message/game_config_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { InfoType, UiMode } from 'ui/api'
+import { InfoType, KeyType, UiMode } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
@@ -43,7 +43,7 @@ export class SidebarHandler extends HandlerBase implements Handler {
 		super.onPlayerInitialized();
 
 		document.addEventListener("keyup", (e : any) => {
-			if (e.keyCode !== settings.scoreboardKeyCode) return;
+			if (e.keyCode !== settings.keyCode(KeyType.SCOREBOARD)) return;
 
 			this.hideRules();
 			if (!this._stickyShow) {
@@ -54,7 +54,7 @@ export class SidebarHandler extends HandlerBase implements Handler {
 		});
 
 		document.addEventListener("keydown", (e : any) => {
-			if (e.keyCode !== settings.scoreboardKeyCode) return;
+			if (e.keyCode !== settings.keyCode(KeyType.SCOREBOARD)) return;
 
 			this.showRules();
 			this.showScore();

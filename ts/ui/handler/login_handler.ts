@@ -62,21 +62,12 @@ export class LoginHandler extends HandlerBase implements Handler {
 	override setup() : void {	
 		super.setup();
 
-		this._splashElm.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-		this._loginElm.style.display = "block";
-
 		this._hostButton.onclick = () => {
 			this.hostGame();
 		};
 		this._joinButton.onclick = () => {
 			this.joinGame();
 		};
-
-		this.enable();
-	}
-
-	override onEnable() : void {
-		super.onEnable();
 
 		this._legendElm.textContent = GameGlobals.version;
 
@@ -87,24 +78,42 @@ export class LoginHandler extends HandlerBase implements Handler {
 			this._clientWrapper.prefill(room, password);		
 			this.joinGame();
 		}
+
+		this.enable();
+	}
+
+	override onGameInitialized() : void {
+		super.onGameInitialized();
+
+		this.hideLogin();
+	}
+
+	override onEnable() : void {
+		super.onEnable();
+
+		this._splashElm.style.display = "block";
+		this._splashElm.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+		this._loginElm.style.display = "block";
 	}
 
 	override onDisable() : void {
 		super.onDisable();
-
-		this._splashElm.style.display = "none";
-		document.body.style.background = "black";
 	}
 
 	setJoinParams(room : string, password : string) : void {
 		this._clientWrapper.setParams(room, password);
 	}
 
-	hideLogin() : void { this.disable(); }
+	hideLogin() : void {
+		this._splashElm.style.display = "none";
+		document.body.style.background = "black";
+
+		this.disable();
+	}
 
 	hostGame() : void {
-		if (!this.enabled()) {
-			console.error("Error: tried to host game when login is not enabled");
+		if (game.initialized()) {
+			console.error("Error: tried to host game when game is initialized. Mode:", UiMode[ui.mode()]);
 			return;
 		}
 
@@ -113,8 +122,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 	}
 
 	joinGame() : void {
-		if (!this.enabled()) {
-			console.error("Error: tried to join game when login is not enabled");
+		if (game.initialized()) {
+			console.error("Error: tried to join game when game is initialized. Mode:", UiMode[ui.mode()]);
 			return;
 		}
 

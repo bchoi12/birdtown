@@ -8,7 +8,7 @@ import { PlayerRole, TimeType } from 'game/system/api'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { UiMode, ChatType, ChatOptions } from 'ui/api'
+import { UiMode, ChatType, ChatOptions, KeyType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
@@ -97,7 +97,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 	override setup() : void {
 		super.setup();
 
-		this.chat(ChatType.LOG, "Press " + KeyNames.kbd(settings.chatKeyCode) + " to chat");
+		this.chat(ChatType.LOG, "Press " + KeyNames.keyTypeHTML(KeyType.CHAT) + " to chat");
 	}
 
 	override onPlayerInitialized() : void {
@@ -106,7 +106,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		document.addEventListener("keydown", (e : any) => {
 			if (e.repeat) return;
 
-			if (e.keyCode === settings.chatKeyCode || this.enabled() && e.keyCode === settings.menuKeyCode) {
+			if (e.keyCode === settings.keyCode(KeyType.CHAT) || this.enabled() && e.keyCode === settings.keyCode(KeyType.MENU)) {
 				e.preventDefault();
 
 				if (ui.mode() === UiMode.GAME) {
@@ -136,7 +136,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 
 		this._messageElm.style.visibility = "visible";
 		this._messageInputElm.focus();
-		this._messageInputElm.placeholder = "Press " + KeyNames.boxed(settings.chatKeyCode) + " to send";
+		this._messageInputElm.placeholder = "Press " + KeyNames.boxed(settings.keyCode(KeyType.CHAT)) + " to send";
 	}
 
 	override onDisable() : void {

@@ -100,10 +100,10 @@ export abstract class Explosion extends EntityBase implements Entity {
 
 		if (!this.fading()) {
 			const weight = Fns.clamp(0, 4 * percent / Explosion._fadePercent, 1);
-			this._model.scaling().setScalar(weight);
+			this._model.scaling().setAll(weight);
 		} else {
 			const weight = Fns.clamp(0, 1 - (percent - Explosion._fadePercent) / (1 - Explosion._fadePercent), 1);
-			this._model.scaling().setScalar(weight);
+			this._model.scaling().setAll(weight);
 		}
 	}
 

@@ -100,9 +100,9 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			}
 			return "Reviving...";
 		case TooltipType.BUBBLE:
-			return `Press ${KeyNames.kbd(settings.keyCode(KeyType.JUMP))} to pop the bubble`;
+			return `Press ${KeyNames.keyTypeHTML(KeyType.JUMP)} to pop the bubble`;
 		case TooltipType.CONTROLS:
-			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.kbd(settings.menuKeyCode)} at any time to update settings & controls`;
+			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.MENU)} at any time to update settings & controls`;
 		case TooltipType.COPIED_URL:
 			return "Copied invite link to clipboard!";
 		case TooltipType.FORCE_SUBMIT:
@@ -113,19 +113,19 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			if (names.length !== 1) {
 				return "";
 			}
-			return `Press ${KeyNames.kbd(settings.keyCode(KeyType.INTERACT))} to recover ${names[0]} health`;
+			return `Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to recover ${names[0]} health`;
 		case TooltipType.MUSIC:
 			if (names.length !== 1) {
 				return "";
 			}
 			return "🎵 Now Playing 🎵\n" + names[0];
 		case TooltipType.POINTER_LOCK:
-			return `Press ${KeyNames.kbd(settings.pointerLockKeyCode)} to unlock your mouse`;
+			return `Press ${KeyNames.keyTypeHTML(KeyType.POINTER_LOCK)} to unlock your mouse`;
 		case TooltipType.REVIVE:
 			if (names.length !== 1) {
-				return `Press ${KeyNames.kbd(settings.keyCode(KeyType.INTERACT))} to start reviving your teammate`;
+				return `Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to start reviving your teammate`;
 			}
-			return `Press ${KeyNames.kbd(settings.keyCode(KeyType.INTERACT))} to start reviving ${names[0]}`;
+			return `Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to start reviving ${names[0]}`;
 		case TooltipType.REVIVING:
 			if (names.length === 1) {
 				return `Reviving ${names[0]}...`;
@@ -139,12 +139,12 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			if (!game.isHost()) {
 				return `${Icon.string(IconType.SIGN)} Only the host can start a game`;
 			}
-			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.kbd(settings.keyCode(KeyType.INTERACT))} to start a game`;
+			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to start a game`;
 		case TooltipType.WEAPON_CRATE:
 			if (names.length !== 1) {
 				return "";
 			}
-			return `Press ${KeyNames.kbd(settings.keyCode(KeyType.INTERACT))} to equip ${names[0]}`;
+			return `Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to equip ${names[0]}`;
 		default:
 			return "Missing tooltip text for type " + type;
 		}

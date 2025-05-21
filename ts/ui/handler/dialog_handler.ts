@@ -1,6 +1,8 @@
 
 import { GameMessage } from 'message/game_message'
 
+import { Flags } from 'global/flags'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -19,6 +21,7 @@ import { ReturnToLobbyDialogWrapper } from 'ui/wrapper/dialog/return_to_lobby_di
 import { StartGameDialogWrapper } from 'ui/wrapper/dialog/start_game_dialog_wrapper'
 import { QueryLocationDialogWrapper } from 'ui/wrapper/dialog/query_location_dialog_wrapper'
 import { QuitDialogWrapper } from 'ui/wrapper/dialog/quit_dialog_wrapper'
+import { ResetSettingsDialogWrapper } from 'ui/wrapper/dialog/reset_settings_dialog_wrapper'
 import { VersionMismatchDialogWrapper } from 'ui/wrapper/dialog/version_mismatch_dialog_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
@@ -36,6 +39,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 		[DialogType.START_GAME, () => { return new StartGameDialogWrapper()}],
 		[DialogType.QUERY_LOCATION, () => { return new QueryLocationDialogWrapper()}],
 		[DialogType.QUIT, () => { return new QuitDialogWrapper()}],
+		[DialogType.RESET_SETTINGS, () => { return new ResetSettingsDialogWrapper()}],
 		[DialogType.VERSION_MISMATCH, () => { return new VersionMismatchDialogWrapper()}],
 	]);
 
@@ -51,6 +55,18 @@ export class DialogHandler extends HandlerBase implements Handler {
 		this._dialogsElm = Html.elm(Html.divDialogs);
 		this._dialogQueue = new Array();
 		this._dialogs = new Map();
+	}
+
+	override onEnable() : void {
+		super.onEnable();
+
+		this._dialogsElm.style.display = "block";
+	}
+
+	override onDisable() : void {
+		super.onDisable();
+
+		this._dialogsElm.style.display = "none";
 	}
 
 	override onGameInitialized() : void {
@@ -106,6 +122,9 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 		this.updateDialog();
 
+		if (Flags.printDebug.get()) {
+			console.log("Pushed dialog", DialogType[type]);
+		}
 		return dialogWrapper;
 	}
 	forceSubmitDialog(type : DialogType) : void {
@@ -128,6 +147,10 @@ export class DialogHandler extends HandlerBase implements Handler {
 
 		if (wrapper.visible()) {
 			this.updateDialog();
+		}
+
+		if (Flags.printDebug.get()) {
+			console.log("Removed dialog", DialogType[type]);
 		}
 	}
 

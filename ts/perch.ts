@@ -1,5 +1,5 @@
 
-import { cookie } from 'cookie'
+import { settings } from 'settings'
 
 import { Flags } from 'global/flags'
 
@@ -67,7 +67,7 @@ class Perch {
 			return;
 		}
 
-		const url = `${perch.url()}/room?id=${roomId}&t=${cookie.getToken()}&p=${numPlayers}`;
+		const url = `${perch.url()}/room?id=${roomId}&t=${settings.token}&p=${numPlayers}`;
 		this.put(url, onData, onError);
 	}
 

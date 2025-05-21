@@ -78,6 +78,7 @@ export class Gatling extends Weapon {
 		const unitDir = this.getDir();
 
 		let vel = unitDir.clone().scale(0.8);
+		const angle = vel.angleRad();
 		this.addEntity(EntityType.CALIBER, {
 			ttl: Gatling._projectileTTL,
 			associationInit: {
@@ -86,7 +87,7 @@ export class Gatling extends Weapon {
 			profileInit: {
 				pos: pos,
 				vel: vel,
-				angle: vel.angleRad(),
+				angle: angle,
 			},
 		});
 
@@ -97,6 +98,25 @@ export class Gatling extends Weapon {
 		}
 		recoilVel.y = this.computeVerticalAcc(recoilVel, ownerProfile.vel());
 		ownerProfile.addVel(recoilVel);
+
+		this.addEntity(EntityType.MUZZLE_PARTICLE, {
+			offline: true,
+			ttl: 30,
+			profileInit: {
+				pos: pos,
+				angle: angle,
+			},
+			modelInit: {
+				materialType: MaterialType.SHOOTER_YELLOW,
+				transforms: {
+					scale: {
+						x: 0.6,
+						y: 0.05,
+						z: 0.05,
+					}
+				}
+			}
+		});
 
 		this.soundPlayer().playFromEntity(SoundType.GATLING, this.owner());
 	}

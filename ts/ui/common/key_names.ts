@@ -291,17 +291,13 @@ export namespace KeyNames {
 
 	export function keyTypeHTML(type : KeyType) : string {
 		switch (type) {
-		case KeyType.LEFT:
-		case KeyType.RIGHT:
-		case KeyType.JUMP:
-		case KeyType.INTERACT:
-		case KeyType.SQUAWK:
-			return kbd(settings.keyCode(type));
+		case KeyType.UNKNOWN:
+			return "?";
 		case KeyType.MOUSE_CLICK:
 		case KeyType.ALT_MOUSE_CLICK:
 			return Icon.create(IconType.MOUSE).outerHTML;
+		default:
+			return kbd(settings.keyCode(type));
 		}
-
-		return "?";
 	}
 }

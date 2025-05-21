@@ -32,6 +32,7 @@ export class HandlerBase {
 	protected _type : HandlerType;
 	protected _enabled : boolean;
 
+	private _previousMode : Optional<UiMode>;
 	private _mode : Optional<UiMode>;
 
 	constructor(type : HandlerType, options? : HandlerOptions) {
@@ -42,6 +43,7 @@ export class HandlerBase {
 			options = {};
 		}
 
+		this._previousMode = new Optional();
 		this._mode = new Optional(options.mode);
 	}
 
@@ -58,12 +60,13 @@ export class HandlerBase {
 			console.error("Error: trying to enable handler %s with no mode set", HandlerType[this._type]);
 			return;
 		}
-
 		if (this._enabled) {
 			return;
 		}
 
 		this._enabled = true;
+
+		this._previousMode.set(ui.mode());
 		ui.setMode(this._mode.get());
 		this.onEnable();
 	}
@@ -74,18 +77,32 @@ export class HandlerBase {
 
 		this._enabled = false;
 		if (ui.mode() === this._mode.get()) {
-			ui.setMode(UiMode.GAME);
+			ui.setMode(this.previousMode());
 		}
 		this.onDisable();
 	}
 	onEnable() : void {}
 	onDisable() : void {}
 	onModeChange(mode : UiMode, oldMode : UiMode) : void {
-		if (this._enabled && mode !== this._mode.get()) {
+		if (!this._enabled && mode === this._mode.get()) {
+			this.enable();
+		} else if (this._enabled && mode !== this._mode.get()) {
 			this.disable();
 		}
 	}
 
 	onGameInitialized() : void {}
 	onPlayerInitialized() : void {}
+
+	private previousMode() : UiMode {
+		if (!this._previousMode.has()) {
+			return UiMode.GAME;
+		}
+
+		if (ui.mode() === this._previousMode.get()) {
+			return UiMode.GAME;
+		}
+
+		return this._previousMode.get();
+	}
 }

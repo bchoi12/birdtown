@@ -215,7 +215,7 @@ export abstract class Weapon extends Equip<Player> {
 			console.error("Error: no shoot node for %s", this.name());
 		}
 	}
-	private shootNode() : BABYLON.TransformNode { return this._shootNode !== null ? this._shootNode : this._model.root(); }
+	protected shootNode() : BABYLON.TransformNode { return this._shootNode !== null ? this._shootNode : this._model.root(); }
 	shootPos() : Vec3 {
 		// TODO: this will not reflect one frame of movement
 		const node = this.shootNode();

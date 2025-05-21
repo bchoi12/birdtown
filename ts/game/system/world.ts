@@ -15,7 +15,7 @@ import { SystemType, TimeType } from 'game/system/api'
 import { Flags } from 'global/flags'
 
 import { settings } from 'settings'
-import { FilteringQuality, ShadowSetting } from 'settings/api'
+import { ShadowFilteringSetting, ShadowSetting } from 'settings/api'
 
 enum LayerType {
 	UNKNOWN,
@@ -240,7 +240,7 @@ export class World extends SystemBase implements System {
 
 	refreshSettings() : void {
 		this.setShadowEnabled(settings.shadowSetting);
-		this.setFilteringQuality(settings.shadowFiltering);
+		this.setShadowFilteringSetting(settings.shadowFilteringSetting);
 	}
 	private setShadowEnabled(setting : ShadowSetting) : void {
 		switch (setting) {
@@ -251,18 +251,18 @@ export class World extends SystemBase implements System {
 			this._directionalLight.shadowEnabled = false;
 		}
 	}
-	private setFilteringQuality(setting : FilteringQuality) : void {
-		if (setting !== FilteringQuality.NONE) {
+	private setShadowFilteringSetting(setting : ShadowFilteringSetting) : void {
+		if (setting !== ShadowFilteringSetting.NONE) {
 			this._shadowGenerator.usePercentageCloserFiltering = true;
 
 			switch (setting) {
-			case FilteringQuality.LOW:
+			case ShadowFilteringSetting.LOW:
 				this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_LOW;
 				break;
-			case FilteringQuality.MEDIUM:
+			case ShadowFilteringSetting.MEDIUM:
 				this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
 				break;
-			case FilteringQuality.HIGH:
+			case ShadowFilteringSetting.HIGH:
 				this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
 				break;
 			}

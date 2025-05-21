@@ -8,7 +8,7 @@ import { GameMessage } from 'message/game_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { DialogType, TooltipType } from 'ui/api'
+import { DialogType, KeyType, TooltipType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { IconType } from 'ui/common/icon'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
@@ -90,6 +90,10 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		}, 5);
 	}
 	onShow() : void {}
+	important() : void {
+		this.setOpaque(true);
+		this.elm().classList.add(Html.classDialogImportant);
+	}
 	shrink() : void {
 		this.elm().classList.add(Html.classDialogSmall);
 	}
@@ -167,7 +171,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 				return;
 			}
 
-			if (e.keyCode === settings.chatKeyCode) {
+			if (e.keyCode === settings.keyCode(KeyType.CHAT)) {
 				this.nextPage();
 			}
 		});

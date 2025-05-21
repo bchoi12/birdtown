@@ -82,7 +82,7 @@ export class Runner extends SystemBase implements System  {
 		this._gameStats = new RunnerStats(Runner._targetTickRate);
 		this._renderStats = new RunnerStats(Runner._targetTickRate);
 
-		this._renderSpeed = settings.fpsSetting;
+		this._renderSpeed = settings.speed();
 
 		this._importSeqNum = 0;
 		this._seqNumDiff = 0;

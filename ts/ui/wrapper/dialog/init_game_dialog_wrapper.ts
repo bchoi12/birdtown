@@ -9,7 +9,7 @@ import { NetcodeOptions } from 'network/netcode'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { DialogType } from 'ui/api'
+import { DialogType, KeyType } from 'ui/api'
 import { IconType } from 'ui/common/icon'
 import { Html } from 'ui/html'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
@@ -75,7 +75,7 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 				return;
 			}
 
-			if (e.keyCode === settings.chatKeyCode) {
+			if (e.keyCode === settings.keyCode(KeyType.CHAT)) {
 				this.connect();
 			}
 		});
@@ -127,7 +127,6 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 				window.history.replaceState(null, null, url);
 
 				this.hide();
-		    	ui.hideLogin();
 		    	this.setReady();
 		    },
 		    netcodeError: () => {

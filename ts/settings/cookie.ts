@@ -1,33 +1,28 @@
 
 import { IdGen } from 'network/id_gen'
 
+import { SettingType } from 'settings/api'
+
 import { Strings } from 'strings'
 
 import { Flags } from 'global/flags'
 
-export enum CookieType {
-	UNKNOWN,
-	TOKEN,
-}
-
-class Cookie {
+export class Cookie {
 
 	private _values : Map<string, string>;
+	private _version : string;
 
 	constructor() {
 		this._values = new Map();
 
 		this.reload();
-
-		if (!this.has(CookieType.TOKEN) || Flags.refreshToken.get()) {
-			this.generateToken();
-		}
 	}
 
 	reload() : void {
 		this._values.clear();
 
 		const pairs = document.cookie.split(";");
+
 		pairs.forEach((pair : string) => {
 			pair = pair.trim();
 			const parts = Strings.splitFirst(pair, "=");
@@ -43,34 +38,29 @@ class Cookie {
 		}
 	}
 
-	getToken() : string {
-		if (this.has(CookieType.TOKEN)) {
-			return this.get(CookieType.TOKEN);
-		}
-
-		return this.generateToken();
+	private getName(type : SettingType) : string {
+		return SettingType[type];
 	}
-
-	private generateToken() : string {
-		let token = IdGen.randomId(8);
-		this.savePairs([
-			[CookieType.TOKEN, token],
-		]);
-		return token;
-	}
-
-	private getName(type : CookieType) : string {
-		return CookieType[type];
-	}
-	has(type : CookieType) : boolean {
+	has(type : SettingType) : boolean {
 		const name = this.getName(type);
 		return this._values.has(name);
 	}
-	get(type : CookieType) : string {
+	get(type : SettingType) : string {
 		const name = this.getName(type);
 		return this._values.get(name);
 	}
-	getValues<K>(type : CookieType, keySet : Set<K>) : Map<K, string> {
+	getNumberOr(type : SettingType, or : number) : number {
+		if (!this.has(type)) {
+			return or;
+		}
+
+		const value = Number(this.get(type));
+		if (Number.isNaN(value)) {
+			return or;
+		}
+		return value;
+	}
+	getValues<K>(type : SettingType, keySet : Set<K>) : Map<K, string> {
 		let pairs = new Map();
 		const base = this.getName(type);
 
@@ -88,14 +78,14 @@ class Cookie {
 		document.cookie = `${key}=${value};`;
 	}
 
-	savePairs(pairs : [CookieType, string][]) : void {
-		pairs.forEach((pair : [CookieType, string]) => {
+	savePairs(pairs : [SettingType, string][]) : void {
+		pairs.forEach((pair : [SettingType, string]) => {
 			const key = this.getName(pair[0]);
 			this.save(key, pair[1]);
 		})
 	}
 
-	saveMap<K, V>(type : CookieType, map : Map<K, V>) : void {
+	saveMap<K, V>(type : SettingType, map : Map<K, V>) : void {
 		const base = this.getName(type);
 		map.forEach((value : V, key : K) => {
 			const name = base + "-" + key;
@@ -103,6 +93,3 @@ class Cookie {
 		});
 	}
 }
-
-
-export const cookie = new Cookie();

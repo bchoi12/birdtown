@@ -59,10 +59,9 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 			name: "Interact",
 			type: KeyType.INTERACT,
 		});
-		this.addMenuKeyBind(keys, {
+		this.addKeyBind(keys, {
 			name: "Lock Mouse",
-			get: () => { return settings.pointerLockKeyCode; },
-			update: (keyCode : number) => { settings.pointerLockKeyCode = keyCode; },
+			type: KeyType.POINTER_LOCK,
 		});
 
 		let mouse = new CategoryWrapper();
@@ -82,20 +81,17 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		menu.setTitle("Menu");
 		this._keyBindElm.appendChild(menu.elm());
 
-		this.addMenuKeyBind(menu, {
+		this.addKeyBind(menu, {
 			name: "Chat / Submit",
-			get: () => { return settings.chatKeyCode; },
-			update: (keyCode : number) => { settings.chatKeyCode = keyCode; },
+			type: KeyType.CHAT,
 		}); 
-		this.addMenuKeyBind(menu, {
+		this.addKeyBind(menu, {
 			name: "Open Menu",
-			get: () => { return settings.menuKeyCode; },
-			update: (keyCode : number) => { settings.menuKeyCode = keyCode; },
+			type: KeyType.MENU,
 		});
-		this.addMenuKeyBind(menu,{
+		this.addKeyBind(menu,{
 			name: "Open Scoreboard",
-			get: () => { return settings.scoreboardKeyCode; },
-			update: (keyCode : number) => { settings.scoreboardKeyCode = keyCode; },
+			type: KeyType.SCOREBOARD,
 		});
 	}
 
@@ -114,15 +110,12 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 	}
 
 	private addKeyBind(category : CategoryWrapper, options : KeyBindOptions) : void {
-		this.addMenuKeyBind(category, {
+		let binding = new KeyBindWrapper({
 			name: options.name,
 			get: () => { return settings.keyCode(options.type); },
-			update: (keyCode : number) => { settings.keyCodes.set(options.type, keyCode); }
+			update: (keyCode : number) => { settings.setKeyCode(options.type, keyCode); }
 		});
-	}
 
-	private addMenuKeyBind(category : CategoryWrapper, wrapperOptions : KeyBindWrapperOptions) : void {
-		let binding = new KeyBindWrapper(wrapperOptions);
 		category.contentElm().appendChild(binding.elm());
 		this._keyBindWrappers.push(binding);
 	}

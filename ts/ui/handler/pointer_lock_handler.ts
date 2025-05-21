@@ -4,7 +4,7 @@ import { game } from 'game'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { UiMode, TooltipType } from 'ui/api'
+import { UiMode, KeyType, TooltipType } from 'ui/api'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
@@ -25,7 +25,7 @@ export class PointerLockHandler extends HandlerBase implements Handler {
 		super.onPlayerInitialized();
 
 		document.addEventListener("keydown", (e : any) => {
-			if (e.keyCode !== settings.pointerLockKeyCode) return;
+			if (e.keyCode !== settings.keyCode(KeyType.POINTER_LOCK)) return;
 
 			const lockPointer = !this.pointerLocked();
 

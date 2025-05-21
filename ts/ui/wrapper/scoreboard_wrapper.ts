@@ -8,7 +8,7 @@ import { GameConfigMessage } from 'message/game_config_message'
 
 import { settings } from 'settings'
 
-import { InfoType } from 'ui/api'
+import { InfoType, KeyType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 import { Html, HtmlWrapper } from 'ui/html'
 import { InfoWrapper } from 'ui/wrapper/info_wrapper'
@@ -137,7 +137,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	onShow() : void {
-		this._keyElm.textContent = KeyNames.get(settings.scoreboardKeyCode);
+		this._keyElm.textContent = KeyNames.get(settings.keyCode(KeyType.SCOREBOARD));
 		this.sort();
 	}
 

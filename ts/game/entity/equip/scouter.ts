@@ -131,7 +131,7 @@ export class Scouter extends Equip<Player> {
 					posEpsilon: 0.05,
 					maxAccel: 0.05,
 				});
-				particle.model().scaling().setScalar(size * (1 - particle.ttlElapsed()));
+				particle.model().scaling().setAll(size * (1 - particle.ttlElapsed()));
 			});
 		}
 	}

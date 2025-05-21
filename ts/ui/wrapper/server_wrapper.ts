@@ -1,12 +1,12 @@
 
-import { cookie } from 'cookie'
-
 import { ColorType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
 import { GameGlobals } from 'global/game_globals'
 
 import { perch } from 'perch'
+
+import { settings } from 'settings'
 
 import { Strings } from 'strings'
 
@@ -143,7 +143,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 				}
 
 				let data = room[1];
-				if (data["t"] === cookie.getToken()) {
+				if (data["t"] === settings.token) {
 					return false;
 				}
 				return true;

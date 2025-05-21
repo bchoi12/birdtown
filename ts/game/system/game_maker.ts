@@ -27,7 +27,7 @@ import { GameMessage, GameMessageType} from 'message/game_message'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { AnnouncementType, DialogType, FeedType, InfoType, StatusType } from 'ui/api'
+import { AnnouncementType, DialogType, FeedType, InfoType, KeyType, StatusType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
 import { globalRandom } from 'util/seeded_random'
@@ -226,7 +226,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameMode.FREE_FOR_ALL:
 			return "Be the first to score " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point");
 		case GameMode.PRACTICE:
-			return game.isHost() ? "Press " + KeyNames.kbd(settings.menuKeyCode) + " to exit" : "";
+			return game.isHost() ? "Press " + KeyNames.keyTypeHTML(KeyType.MENU) + " to exit" : "";
 		case GameMode.SUDDEN_DEATH:
 		case GameMode.SURVIVAL:
 			return "Be the last one standing";

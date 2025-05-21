@@ -22,7 +22,7 @@ import {
 	JitterSetting,
 	InspectorSetting,
 	NetworkStabilitySetting,
-	FilteringQuality,
+	ShadowFilteringSetting,
 } from 'settings/api'
 
 import { Strings } from 'strings'
@@ -158,20 +158,20 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 		this.addSetting(graphics, new LabelNumberWrapper({
 			label: "Rendering Cap",
-			value: Number(settings.fpsSetting),
+			value: Number(settings.speedSetting),
 			plus: (current : number) => {
 				if (current >= SpeedSetting.NORMAL) {
 					return;
 				}
-				settings.fpsSetting++;
+				settings.speedSetting++;
 			},
 			minus: (current : number) => {
 				if (current <= SpeedSetting.SLOW) {
 					return;
 				}
-				settings.fpsSetting--;
+				settings.speedSetting--;
 			},
-			get: () => { return settings.fpsSetting; },
+			get: () => { return settings.speedSetting; },
 			html: (current : number) => {
 				switch (current) {
 				case SpeedSetting.SLOW:
@@ -222,22 +222,22 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 		this.addSetting(graphics, new LabelNumberWrapper({
 			label: "Shadow Filtering",
-			value: Number(settings.shadowFiltering),
+			value: Number(settings.shadowFilteringSetting),
 			plus: (current : number) => {
-				if (current === FilteringQuality.HIGH) {
+				if (current === ShadowFilteringSetting.HIGH) {
 					return;
 				}
-				settings.shadowFiltering++;
+				settings.shadowFilteringSetting++;
 			},
 			minus: (current : number) => {
-				if (current === FilteringQuality.NONE) {
+				if (current === ShadowFilteringSetting.NONE) {
 					return;
 				}
-				settings.shadowFiltering--;
+				settings.shadowFilteringSetting--;
 			},
-			get: () => { return settings.shadowFiltering; },
+			get: () => { return settings.shadowFilteringSetting; },
 			html: (current : number) => {
-				return Strings.toTitleCase(FilteringQuality[current]);
+				return Strings.toTitleCase(ShadowFilteringSetting[current]);
 			},
 		}));
 
@@ -394,9 +394,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
 		super.onModeChange(mode, oldMode);
 
-		if (ui.mode() === UiMode.GAME) {
-			ui.applySettings();
-		} else if (ui.mode() === UiMode.MENU) {
+		if (ui.mode() === UiMode.MENU) {
 			this.refresh();
 		}
 	}

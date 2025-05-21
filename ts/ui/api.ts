@@ -55,6 +55,7 @@ export enum DialogType {
 	START_GAME,
 	QUERY_LOCATION,
 	QUIT,
+	RESET_SETTINGS,
 	VERSION_MISMATCH,
 }
 
@@ -110,7 +111,6 @@ export type HudOptions = {
 
 	// Only set one
 	keyType? : KeyType;
-	keyCode? : number;
 	keyLives? : number;
 }
 
@@ -134,6 +134,12 @@ export enum KeyType {
 	SQUAWK,
 	MOUSE_CLICK,
 	ALT_MOUSE_CLICK,
+
+	SCOREBOARD,
+	MENU,
+	CHAT,
+	POINTER_LOCK,
+	PHOTO,
 }
 
 export enum KeyState {

@@ -131,7 +131,7 @@ export class DyingStar extends EntityBase {
 
 		this._profile.setPos(this._initPos.get().interpolateClone(this._target.get(), this.ttlElapsed(), Fns.interpFns.get(InterpType.NEGATIVE_SQUARE)));
 
-		this.model().scaling().setScalar(2 + 0.5 * Math.sin(2 * Math.PI * this.ttlElapsed()));
+		this.model().scaling().setAll(2 + 0.5 * Math.sin(2 * Math.PI * this.ttlElapsed()));
 
 		this.model().rotation().x += this._dir.x * 5 * millis / 1000;
 		this.model().rotation().y += this._dir.y * 7 * millis / 1000;

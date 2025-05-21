@@ -65,18 +65,20 @@ export class Sniper extends Weapon {
 		const unitDir = this.getDir();
 
 		let vel = unitDir.clone().scale(charged ? 1.1 : 0.8);
+		const angle = vel.angleRad();
+		const materialType = charged ? MaterialType.SHOOTER_ORANGE : MaterialType.SHOOTER_BLUE;
 		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, {
 			ttl: Sniper._boltTTL,
 			associationInit: {
 				owner: this.owner(),
 			},
 			modelInit: {
-				materialType: charged ? MaterialType.SHOOTER_ORANGE : MaterialType.SHOOTER_BLUE,
+				materialType: materialType,
 			},
 			profileInit: {
 				pos: pos,
 				vel: vel,
-				angle: vel.angleRad(),
+				angle: angle,
 			},
 		});
 
@@ -86,6 +88,25 @@ export class Sniper extends Weapon {
 				bolt.profile().setScaleFactor(1.5);
 			}
 		}
+
+		this.addEntity(EntityType.MUZZLE_PARTICLE, {
+			offline: true,
+			ttl: 30,
+			profileInit: {
+				pos: pos,
+				angle: angle,
+			},
+			modelInit: {
+				materialType: materialType,
+				transforms: {
+					scale: {
+						x: 0.4,
+						y: 0.05,
+						z: 0.05,
+					}
+				}
+			}
+		});
 
 		this.soundPlayer().playFromEntity(charged ? SoundType.CHARGED_BOLT : SoundType.BOLT, this.owner());
 	}

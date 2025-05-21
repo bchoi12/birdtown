@@ -1091,7 +1091,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				charging: !ui.pointerLocked(),
 				empty: true,
 				color: this.clientColorOr("#000000"),
-				keyCode: settings.pointerLockKeyCode,
+				keyType: KeyType.POINTER_LOCK,
 			});
 		}
 

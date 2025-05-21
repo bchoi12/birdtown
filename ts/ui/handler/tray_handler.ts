@@ -9,7 +9,7 @@ import { Flags } from 'global/flags'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { DialogType, TooltipType, UiMode } from 'ui/api'
+import { DialogType, KeyType, TooltipType, UiMode } from 'ui/api'
 import { IconType } from 'ui/common/icon'
 import { KeyNames } from 'ui/common/key_names'
 import { Html } from 'ui/html'
@@ -130,7 +130,7 @@ export class TrayHandler extends HandlerBase implements Handler {
 		document.addEventListener("pointerlockchange", (e : any) => {
 			if (ui.pointerLocked()) {
 				toggle.setIcon(IconType.LOCK);
-				toggle.setTextHTML("Press " + KeyNames.kbd(settings.pointerLockKeyCode) + " to unlock");
+				toggle.setTextHTML("Press " + KeyNames.keyTypeHTML(KeyType.POINTER_LOCK) + " to unlock");
 				this.hide(1);
 			} else {
 				toggle.setIcon(IconType.MENU_OPEN);

@@ -116,6 +116,7 @@ class UI {
 		});
 	}
 	onGameInitialized() : void {
+		this.overrideMode(UiMode.GAME);
 		this._handlers.forEach((handler) => {
 			handler.onGameInitialized();
 		});	
@@ -147,6 +148,9 @@ class UI {
 			return;
 		}
 
+		this.overrideMode(mode);
+	}
+	private overrideMode(mode : UiMode) : void {
 		const oldMode = this._mode;
 		this._mode = mode;
 
@@ -167,14 +171,13 @@ class UI {
 			console.error("Warning: tried to apply settings before game was initialized");
 			return;
 		}
-
 		if (settings.useInspector()) {
 			game.scene().debugLayer.show();
 		} else {
 			game.scene().debugLayer.hide();
 		}
 		game.audio().refreshSettings();
-		game.runner().setRenderSpeed(settings.fpsSetting);
+		game.runner().setRenderSpeed(settings.speed());
 		game.world().refreshSettings();
 	}
 	suggestLowSpec() : void { this._clientsHandler.suggestLowSpec(); }
@@ -213,7 +216,9 @@ class UI {
 			return;
 		}
 
+		ui.pushDialog(DialogType.QUERY_LOCATION);
 		navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => {
+			ui.forceSubmitDialog(DialogType.QUERY_LOCATION);
 			if (position.coords && position.coords.latitude && position.coords.longitude) {
 				this._location.set(position.coords.latitude, position.coords.longitude);
 				onSuccess(this._location);
@@ -221,6 +226,7 @@ class UI {
 				onError();
 			}
 		}, () => {
+			ui.forceSubmitDialog(DialogType.QUERY_LOCATION);
 			onError();
 		},
 		{

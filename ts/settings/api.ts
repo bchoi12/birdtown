@@ -1,4 +1,28 @@
 
+// Do not reorder to preserve backwards compatibility
+export enum SettingType {
+	UNKNOWN,
+
+	TOKEN,
+	KEY_CODES,
+
+	FULLSCREEN,
+	CLIENT_PREDICTION,
+	DAMAGE_NUMBER,
+	PROFANITY_FILTER,
+	SCREEN_SHAKE,
+
+	MUSIC,
+	MUSIC_PERCENT,
+	SOUND,
+	SOUND_PERCENT,
+
+	ANTI_ALIAS,
+	SPEED,
+	SHADOW,
+	SHADOW_FILTERING,
+	TRANSPARENT,
+}
 
 export enum AntiAliasSetting {
 	NONE,
@@ -19,7 +43,7 @@ export enum DamageNumberSetting {
 	ON,
 }
 
-export enum FilteringQuality {
+export enum ShadowFilteringSetting {
 	NONE,
 	LOW,
 	MEDIUM,

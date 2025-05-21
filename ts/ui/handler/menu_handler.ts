@@ -11,7 +11,7 @@ import {
 } from 'settings/api'
 
 import { ui } from 'ui'
-import { UiMode, DialogType, StatusType, TooltipType } from 'ui/api'
+import { UiMode, DialogType, KeyType, StatusType, TooltipType } from 'ui/api'
 import { Icon, IconType } from 'ui/common/icon'
 import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
@@ -54,7 +54,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 		super.onPlayerInitialized();
 
 		document.addEventListener("keyup", (e : any) => {
-			if (e.keyCode === settings.menuKeyCode) {
+			if (e.keyCode === settings.keyCode(KeyType.MENU)) {
 				this._menuKeyPressed = false;
 				this._canMenu = true;
 			}
@@ -65,7 +65,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 				return;
 			}
 
-			if (e.keyCode === settings.menuKeyCode) {
+			if (e.keyCode === settings.keyCode(KeyType.MENU)) {
 				this._menuKeyPressed = true;
 
 				if (this._canMenu && ui.mode() === UiMode.GAME) {
@@ -106,12 +106,14 @@ export class MenuHandler extends HandlerBase implements Handler {
 			}
 		}
 
-		this._menuElm.style.visibility = "visible";
+		this._menuElm.style.display = "block";
 	}
 
 	override onDisable() : void {
 		super.onDisable();
 
-		this._menuElm.style.visibility = "hidden";
+		settings.save();
+		ui.applySettings();
+		this._menuElm.style.display = "none";
 	}
 }

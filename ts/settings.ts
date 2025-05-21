@@ -1,11 +1,18 @@
 
 import { game } from 'game'
+
+import { Flags } from 'global/flags'
+
+import { IdGen } from 'network/id_gen'
+
 import {
+	SettingType,
+
 	AntiAliasSetting,
 	ClientPredictionSetting,
 	DamageNumberSetting,
 	FullscreenSetting,
-	FilteringQuality,
+	ShadowFilteringSetting,
 	MusicSetting,
 	PointerSetting,
 	ProfanityFilterSetting,
@@ -20,6 +27,7 @@ import {
 	InspectorSetting,
 	NetworkStabilitySetting,
 } from 'settings/api'
+import { Cookie } from 'settings/cookie'
 
 import { KeyType } from 'ui/api'
 
@@ -27,13 +35,11 @@ import { isDesktopApp, isMobile, isLocalhost } from 'util/common'
 
 class Settings {
 	
-	// Key codes
+	private static readonly _musicPercent = 0.5;
+	private static readonly _soundPercent = 0.8;
+
+	public token : string;
 	public keyCodes : Map<KeyType, number>;
-	public scoreboardKeyCode : number;
-	public menuKeyCode : number;
-	public chatKeyCode : number;
-	public pointerLockKeyCode : number;
-	public photoKeyCode : number;
 
 	// Gameplay
 	public fullscreenSetting : FullscreenSetting;
@@ -50,9 +56,9 @@ class Settings {
 
 	// Graphics
 	public antiAliasSetting : AntiAliasSetting;
-	public fpsSetting : SpeedSetting;
+	public speedSetting : SpeedSetting;
 	public shadowSetting : ShadowSetting;
-	public shadowFiltering : FilteringQuality;
+	public shadowFilteringSetting : ShadowFilteringSetting;
 	public transparentSetting : TransparentSetting;
 
 	// Debug properties
@@ -61,7 +67,18 @@ class Settings {
 	public jitterSetting : JitterSetting;
 	public networkStabilitySetting : NetworkStabilitySetting;
 
+	private _cookie : Cookie;
+
 	constructor() {
+		this.initialize();
+
+		this._cookie = new Cookie();
+
+		this.load();
+	}
+
+	initialize() : void {
+		this.token = IdGen.randomId(8);
 		this.keyCodes = new Map();
 		this.keyCodes.set(KeyType.LEFT, 65);
 		this.keyCodes.set(KeyType.RIGHT, 68);
@@ -70,12 +87,11 @@ class Settings {
 		this.keyCodes.set(KeyType.SQUAWK, 81);
 		this.keyCodes.set(KeyType.MOUSE_CLICK, 83);
 		this.keyCodes.set(KeyType.ALT_MOUSE_CLICK, 16);
-
-		this.menuKeyCode = 27;
-		this.chatKeyCode = 13;
-		this.scoreboardKeyCode = 9;
-		this.pointerLockKeyCode = 67;
-		this.photoKeyCode = 80;
+		this.keyCodes.set(KeyType.MENU, 27);
+		this.keyCodes.set(KeyType.CHAT, 13);
+		this.keyCodes.set(KeyType.SCOREBOARD, 9);
+		this.keyCodes.set(KeyType.POINTER_LOCK, 67);
+		this.keyCodes.set(KeyType.PHOTO, 80);
 
 		this.fullscreenSetting = (isMobile() || isDesktopApp()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
@@ -88,43 +104,149 @@ class Settings {
 		this.soundSetting = SoundSetting.ON;
 		this.soundPercent = 0.8;
 
-		this.recommendedGraphics();
+		if (isMobile()) {
+			this.lowestSpec();
+		} else {
+			this.recommendedGraphics();
+		}
 
 		this.inspectorSetting = InspectorSetting.OFF;
 		this.delaySetting = isLocalhost() ? DelaySetting.LOCAL : DelaySetting.NONE;
 		this.jitterSetting = isLocalhost() ? JitterSetting.WIFI : JitterSetting.NONE;
 		this.networkStabilitySetting = isLocalhost() ? NetworkStabilitySetting.GOOD : NetworkStabilitySetting.PERFECT;
+	}
 
-		if (isMobile()) {
-			this.lowestSpec();
+	reset() : void {
+		this.initialize();
+		this.save();
+	}
+
+	save() : void {
+		this._cookie.saveMap(SettingType.KEY_CODES, this.keyCodes);
+
+		this._cookie.savePairs([
+			[SettingType.TOKEN, this.token],
+			[SettingType.FULLSCREEN, FullscreenSetting[this.fullscreenSetting]],
+			[SettingType.CLIENT_PREDICTION, ClientPredictionSetting[this.clientPredictionSetting]],
+			[SettingType.DAMAGE_NUMBER, DamageNumberSetting[this.damageNumberSetting]],
+			[SettingType.PROFANITY_FILTER, ProfanityFilterSetting[this.profanityFilterSetting]],
+			[SettingType.SCREEN_SHAKE, ScreenShakeSetting[this.screenShakeSetting]],
+
+			[SettingType.MUSIC, MusicSetting[this.musicSetting]],
+			[SettingType.MUSIC_PERCENT, "" + this.musicPercent],
+			[SettingType.SOUND, SoundSetting[this.soundSetting]],
+			[SettingType.SOUND_PERCENT, "" + this.soundPercent],
+
+			[SettingType.ANTI_ALIAS, AntiAliasSetting[this.antiAliasSetting]],
+			[SettingType.SPEED, SpeedSetting[this.speedSetting]],
+			[SettingType.SHADOW, ShadowSetting[this.shadowSetting]],
+			[SettingType.SHADOW_FILTERING, ShadowFilteringSetting[this.shadowFilteringSetting]],
+			[SettingType.TRANSPARENT, TransparentSetting[this.transparentSetting]],
+		]);
+	}
+	load() : void {
+		if (!Flags.refreshToken.get()) {
+			this.loadSetting(SettingType.TOKEN, (value : string) => {
+				this.token = value;
+			});
 		}
+
+		const keyTypes = Object.keys(KeyType).filter((item) => {
+		    return Number.isNaN(Number(item)) || Number(item) === 0;
+		}).map((type : string) => {
+			return KeyType[type];
+		});
+		const keyCodes = this._cookie.getValues<KeyType>(SettingType.KEY_CODES, new Set(keyTypes));
+
+		keyCodes.forEach((value : string, type : KeyType) => {
+			const code = Number(value);
+
+			if (Number.isNaN(code) || code === 0) {
+				return;
+			}
+			this.keyCodes.set(type, code);
+		});
+
+		this.loadSetting(SettingType.FULLSCREEN, (value : string) => {
+			this.fullscreenSetting = FullscreenSetting[value];
+		});
+		this.loadSetting(SettingType.CLIENT_PREDICTION, (value : string) => {
+			this.clientPredictionSetting = ClientPredictionSetting[value];
+		});
+		this.loadSetting(SettingType.DAMAGE_NUMBER, (value : string) => {
+			this.damageNumberSetting = DamageNumberSetting[value];
+		});
+		this.loadSetting(SettingType.PROFANITY_FILTER, (value : string) => {
+			this.profanityFilterSetting = ProfanityFilterSetting[value];
+		});
+		this.loadSetting(SettingType.SCREEN_SHAKE, (value : string) => {
+			this.screenShakeSetting = ScreenShakeSetting[value];
+		});
+
+		this.loadSetting(SettingType.ANTI_ALIAS, (value : string) => {
+			this.antiAliasSetting = AntiAliasSetting[value];
+		});
+		this.loadSetting(SettingType.SPEED, (value : string) => {
+			this.speedSetting = SpeedSetting[value];
+		});
+		this.loadSetting(SettingType.SHADOW, (value : string) => {
+			this.shadowSetting = ShadowSetting[value];
+		});
+		this.loadSetting(SettingType.SHADOW_FILTERING, (value : string) => {
+			this.shadowFilteringSetting = ShadowFilteringSetting[value];
+		});
+		this.loadSetting(SettingType.TRANSPARENT, (value : string) => {
+			this.transparentSetting = TransparentSetting[value];
+		});
+
+		this.loadSetting(SettingType.MUSIC, (value : string) => {
+			this.musicSetting = MusicSetting[value];
+		});
+		this.loadSetting(SettingType.SOUND, (value : string) => {
+			this.soundSetting = SoundSetting[value];
+		});
+		this.musicPercent = this._cookie.getNumberOr(SettingType.MUSIC_PERCENT, Settings._musicPercent);
+		this.soundPercent = this._cookie.getNumberOr(SettingType.SOUND_PERCENT, Settings._soundPercent);
+	}
+	private loadSetting(type : SettingType, cb : (value : string) => void) {
+		if (this._cookie.has(type)) {
+			cb(this._cookie.get(type));
+		}
+	}
+
+	setKeyCode(type : KeyType, code : number) : void {
+		this.keyCodes.set(type, code);
+
+		// TODO: consider saving code here
+	}
+	keyCode(type : KeyType) : number {
+		return this.keyCodes.has(type) ? this.keyCodes.get(type) : 0;
 	}
 
 	recommendedGraphics() : void {
 		this.antiAliasSetting = AntiAliasSetting.MEDIUM;
-		this.fpsSetting = SpeedSetting.NORMAL;
+		this.speedSetting = SpeedSetting.NORMAL;
 		this.shadowSetting = ShadowSetting.ON;
-		this.shadowFiltering = FilteringQuality.MEDIUM;
+		this.shadowFilteringSetting = ShadowFilteringSetting.MEDIUM;
 		this.transparentSetting = TransparentSetting.ON;
 	}
 	lowSpec() : void {
 		this.recommendedGraphics();
 		this.antiAliasSetting = AntiAliasSetting.LOW;
 		this.shadowSetting = ShadowSetting.OFF;
-		this.shadowFiltering = FilteringQuality.LOW;
+		this.shadowFilteringSetting = ShadowFilteringSetting.LOW;
 	}
 	lowestSpec() : void {
 		this.lowSpec();
-		this.fpsSetting = SpeedSetting.SLOW;
+		this.speedSetting = SpeedSetting.SLOW;
 		this.transparentSetting = TransparentSetting.OFF;
 	}
-
-	keyCode(type : KeyType) : number { return this.keyCodes.get(type); }
 
 	fullscreen() : boolean { return this.fullscreenSetting === FullscreenSetting.FULLSCREEN; }
 	showDamageNumbers() : boolean { return this.damageNumberSetting === DamageNumberSetting.ON; }
 	filterProfanity() : boolean { return this.profanityFilterSetting === ProfanityFilterSetting.ON; }
 	shakeScreen() : boolean { return this.screenShakeSetting === ScreenShakeSetting.ON; }
+	speed() : SpeedSetting { return this.speedSetting; }
 
 	fxaaSamples() : number {
 		switch (this.antiAliasSetting) {
@@ -213,8 +335,6 @@ class Settings {
 			return 1;
 		}
 	}
-
-	// TODO: save and load from cookie
 }
 
 export const settings = new Settings();

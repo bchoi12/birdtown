@@ -1,8 +1,6 @@
 import { encode, decode } from '@msgpack/msgpack'
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
 
-import { cookie, CookieType } from 'cookie'
-
 import { game } from 'game'
 
 import { Flags } from 'global/flags'
@@ -94,7 +92,7 @@ export abstract class Netcode {
 		this._password = options.password;
 
 		this._hostName = "birdtown-" + this._room;
-		this._peerName = this._hostName + "-" + cookie.getToken();
+		this._peerName = this._hostName + "-" + settings.token;
 		this._clientId = 0;
 		this._initialized = false;
 		this._initError = false;
@@ -129,7 +127,7 @@ export abstract class Netcode {
 				path: this.getPerchPath(),
 				debug: peerDebug,
 				pingInterval: Netcode._pingInterval,
-				token: cookie.getToken(),
+				token: settings.token,
 				proxied: true,
 				port: 443,
 			};

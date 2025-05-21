@@ -17,6 +17,7 @@ import { CategoryWrapper } from 'ui/wrapper/category_wrapper'
 import { LowSpecWrapper } from 'ui/wrapper/button/low_spec_wrapper'
 import { LowestSpecWrapper } from 'ui/wrapper/button/lowest_spec_wrapper'
 import { ResetGraphicsWrapper } from 'ui/wrapper/button/reset_graphics_wrapper'
+import { ResetSettingsWrapper } from 'ui/wrapper/button/reset_settings_wrapper'
 import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
 import { VoiceWrapper } from 'ui/wrapper/button/voice_wrapper'
 
@@ -57,6 +58,11 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		let recommended = new ResetGraphicsWrapper();
 		recommended.setText("Reset graphics settings");
 		this._commandsWrapper.contentElm().appendChild(recommended.elm());
+		this._commandsWrapper.contentElm().appendChild(Html.br());
+
+		let resetAll = new ResetSettingsWrapper();
+		resetAll.setText("Reset ALL settings");
+		this._commandsWrapper.contentElm().appendChild(resetAll.elm());
 		this._commandsWrapper.contentElm().appendChild(Html.br());
 
 		this._voiceWrapper = new VoiceWrapper();

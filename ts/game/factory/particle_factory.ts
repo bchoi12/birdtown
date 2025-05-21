@@ -1,4 +1,5 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+import earcut from 'earcut'
 
 import { game } from 'game'
 import { ParticleType } from 'game/factory/api'
@@ -16,6 +17,7 @@ export namespace ParticleFactory {
 		[ParticleType.SPARK, createCube],
 		[ParticleType.TEAR, createTear],
 		[ParticleType.TORUS, createTorus],
+		[ParticleType.TETRAHEDRON, createTetrahedron],
 	]);
 
 	let cache = new Map<ParticleType, BABYLON.Mesh>; 
@@ -80,8 +82,22 @@ export namespace ParticleFactory {
 	}
 	function createTorus() : BABYLON.Mesh {
 		const name = "particle-torus";
-		let torus = BABYLON.MeshBuilder.CreateTorus(name, {}, game.scene());
+		let torus = BABYLON.MeshBuilder.CreateTorus(name, {
+			thickness: 0.3,
+		}, game.scene());
 		torus.material = new BABYLON.StandardMaterial(name, game.scene());
 		return torus;
+	}
+
+	function createTetrahedron() : BABYLON.Mesh {
+		const name = "particle-tetrahedron";
+		let tetrahedron = BABYLON.MeshBuilder.CreatePolyhedron(name, {
+			type: 0, // tetrahedron
+			sizeX: 1,
+			sizeY: 1,
+			sizeZ: 1,
+		}, game.scene());
+		tetrahedron.material = new BABYLON.StandardMaterial(name, game.scene());
+		return tetrahedron;
 	}
 }
