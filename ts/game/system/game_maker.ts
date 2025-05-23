@@ -151,7 +151,7 @@ export class GameMaker extends SystemBase implements System {
 
 	getEquips(clientId : number) : [EntityType, EntityType] {
 		if (this._config.type() === GameMode.FREE) {
-			return EquipPairs.randomDefaultPair();
+			return EquipPairs.nextDefaultPair();
 		}
 
 		if (this._config.getStartingLoadout() === LoadoutType.GOLDEN_GUN) {

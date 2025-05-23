@@ -30,7 +30,7 @@ export class WeaponCrate extends Crate {
 		this._altEquipType = EntityType.UNKNOWN;
 
 		if (this.isSource()) {
-			const pair = EquipPairs.random();
+			const pair = EquipPairs.next();
 			this._equipType = pair[0];
 			this._altEquipType = pair[1];
 		}

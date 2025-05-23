@@ -30,7 +30,7 @@ type TextOptions = {
 
 export class TextParticle extends Particle {
 
-	private static readonly _defaultFont = "bold 24pt " + UiGlobals.font;
+	private static readonly _defaultFont = UiGlobals.particleFont;
 	private static readonly _defaultTextColor = "#FFFFFF";
 	private static readonly _fillColor = "#00000000";
 	private static readonly _textureHeight = 64;
