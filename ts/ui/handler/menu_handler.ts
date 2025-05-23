@@ -85,13 +85,12 @@ export class MenuHandler extends HandlerBase implements Handler {
 		}
 
 		this._quitElm.onclick = (e : any) => {
+			this.disable();
 			if (game.isHost() && game.controller().gameState() !== GameState.FREE) {
 				ui.pushDialog(DialogType.RETURN_TO_LOBBY);
 			} else {
 				ui.pushDialog(DialogType.QUIT);
 			}
-
-			this.disable();
 		}
 	}
 

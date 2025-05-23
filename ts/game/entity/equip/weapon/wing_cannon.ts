@@ -36,7 +36,7 @@ export class WingCannon extends Weapon {
 	};
 
 	private static readonly _chargedThreshold = 1000;
-	private static readonly _orbTTL = 450;
+	private static readonly _orbTTL = 400;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.WING_CANNON, options);

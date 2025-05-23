@@ -210,6 +210,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			}
 		}],
+		[SoundType.TUMBLE, {
+			path: "tumble.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 		[SoundType.WING_CANNON, {
 			path: "wing_cannon.mp3",
 			options: {

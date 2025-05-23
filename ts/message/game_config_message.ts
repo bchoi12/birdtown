@@ -35,11 +35,13 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.FREE, "Free Play"],
 		[GameMode.DUEL, "Duel"],
 		[GameMode.FREE_FOR_ALL, "Free for All"],
+		[GameMode.GOLDEN_GUN, "Golden Gun"],
 		[GameMode.PRACTICE, "Practice Mode"],
 		[GameMode.SPREE, "Spree"],
 		[GameMode.SUDDEN_DEATH, "Lightning Round"],
 		[GameMode.SURVIVAL, "Survival"],
 		[GameMode.TEAM_BATTLE, "Team Battle"],
+		[GameMode.VIP, "Protect the VIP"],
 	]);
 
 	private static readonly _baseProps : [number, Descriptor][] = [
@@ -81,6 +83,12 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
+		[GameMode.GOLDEN_GUN, MessageBase.fieldDescriptor(
+			...GameConfigMessage._gameProps,
+			[GameConfigProp.POINTS, {}],
+			[GameConfigProp.TIME_GAME, { optional: true }],
+			[GameConfigProp.VICTORIES, {}],
+		)],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 		)],
@@ -103,6 +111,12 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			[GameConfigProp.VICTORIES, {}],
 		)],
 		[GameMode.TEAM_BATTLE, MessageBase.fieldDescriptor(
+			...GameConfigMessage._gameProps,
+			[GameConfigProp.LIVES, {}],
+			[GameConfigProp.TIME_GAME, { optional: true }],
+			[GameConfigProp.VICTORIES, {}],
+		)],
+		[GameMode.VIP, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
@@ -162,7 +176,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			break;
 		case GameMode.FREE_FOR_ALL:
 			this.setPlayersMin(2);
-			this.setLevelType(LevelType.BIRDTOWN_CIRCLE);
+			this.setLevelType(LevelType.BIRDTOWN);
 			this.setHealthCrateSpawn(FrequencyType.NEVER);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setPoints(4);
@@ -170,10 +184,20 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.POINTS);
 			break;
+		case GameMode.GOLDEN_GUN:
+			this.setPlayersMin(2);
+			this.setLevelType(LevelType.BIRDTOWN);
+			this.setHealthCrateSpawn(FrequencyType.NEVER);
+			this.setWeaponCrateSpawn(FrequencyType.NEVER);
+			this.setPoints(4);
+			this.setStartingLoadout(LoadoutType.GOLDEN_GUN);
+			this.setVictories(3);
+			this.setWinCondition(WinConditionType.POINTS);
+			break;
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);
-			this.setLevelType(LevelType.TINYTOWN);
-			this.setTimeSetup(40000);
+			this.setLevelType(LevelType.BIRDTOWN);
+			this.setTimeSetup(60000);
 			this.setSpawnTime(10000);
 			this.setStartingLoadout(LoadoutType.PICK);
 			this.setHealthCrateSpawn(FrequencyType.UBIQUITOUS);
@@ -214,6 +238,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setWinCondition(WinConditionType.LIVES);
 			break;
 		case GameMode.TEAM_BATTLE:
+		case GameMode.VIP:
 			this.setLives(1);
 			this.setPlayersMin(2);
 			this.setLevelType(LevelType.BIRDTOWN);

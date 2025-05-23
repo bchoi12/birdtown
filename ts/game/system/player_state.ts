@@ -52,6 +52,7 @@ export class PlayerState extends ClientSystem implements System {
 	private _startingRole : PlayerRole;
 	private _team : number;
 	private _role : PlayerRole;
+	private _vip : boolean;
 	private _roleTimer : Timer;
 	private _lastChange : number;
 
@@ -68,6 +69,7 @@ export class PlayerState extends ClientSystem implements System {
 		this._startingRole = PlayerRole.UNKNOWN;
 		this._team = 0;
 		this._role = PlayerRole.UNKNOWN;
+		this._vip = false;
 		this._lastChange = Date.now();
 
 		this.setStartingRole(PlayerRole.SPECTATING);
@@ -222,6 +224,11 @@ export class PlayerState extends ClientSystem implements System {
 			this.targetEntity().setTeam(this._team);
 		}
 	}
+	isVIP() : boolean { return this._vip; }
+	setVIP(vip : boolean) : void {
+		this._vip = vip;
+	}
+
 	private updateScoreboard() : void {
 		if (this.isPlaying() || game.controller().gameState() === GameState.FREE) {
 			if (game.tablets().hasTablet(this.clientId()) && game.tablet(this.clientId()).isSetup()) {

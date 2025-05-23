@@ -144,6 +144,12 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			description: "Classic free for all.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
 			minRecommended: 3,
 		});
+		this.populateMode(GameMode.GOLDEN_GUN, {
+			name: "Golden Gun",
+			requirements: [],
+			description: "Free for all, but everyone has the Golden Gun.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
+			minRecommended: 3,
+		});
 		this.populateMode(GameMode.SUDDEN_DEATH, {
 			name: "Lightning Round",
 			requirements: [],
@@ -166,6 +172,12 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			name: "Team Battle",
 			requirements: [],
 			description: "Everyone has one life--eliminate the enemy team while reviving your teammates.",
+			minRecommended: 4,
+		});
+		this.populateMode(GameMode.VIP, {
+			name: "Protect the VIP",
+			requirements: [],
+			description: "Each team has a VIP with a Golden Gun.\r\n\r\nEliminate the other team's VIP and protect yours at all costs.",
 			minRecommended: 4,
 		});
 		this.populateMode(GameMode.PRACTICE, {
@@ -335,14 +347,17 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.FREE_FOR_ALL:
+		case GameMode.GOLDEN_GUN:
 		case GameMode.SPREE:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN_CIRCLE, LevelType.BIRDTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
-			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
-			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			if (mode !== GameMode.GOLDEN_GUN) {
+				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+				otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+				otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+				otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			}
 			break;
 		case GameMode.PRACTICE:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN_CIRCLE, LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
@@ -369,6 +384,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.TEAM_BATTLE:
+		case GameMode.VIP:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());

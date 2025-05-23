@@ -1,6 +1,5 @@
 
 import { game } from 'game'
-import { GameMode } from 'game/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Sign } from 'game/entity/interactable/sign'

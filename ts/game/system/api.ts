@@ -49,6 +49,7 @@ export enum LoadoutType {
 
 	PICK,
 	RANDOM,
+	GOLDEN_GUN,
 }
 
 export enum PlayerRole {

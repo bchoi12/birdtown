@@ -296,6 +296,7 @@ export abstract class Weapon extends Equip<Player> {
 		}
 	}
 	protected recoilType() : RecoilType { return RecoilType.NONE; }
+	protected reloadSpins() : number { return Weapon._reloadSpins; }
 	protected reloadType() : ReloadType { return ReloadType.NONE; }
 
 	reloadSound() : SoundType { return SoundType.UNKNOWN; }
@@ -484,7 +485,7 @@ export abstract class Weapon extends Equip<Player> {
 
 			if (reloadType === ReloadType.SPIN) {
 				if (weight > 0.25 && weight < 0.75) {
-					this._model.rotation().x = (weight - 0.25) / 0.5 * Weapon._reloadSpins * 2 * Math.PI;
+					this._model.rotation().x = (weight - 0.25) / 0.5 * this.reloadSpins() * 2 * Math.PI;
 				} else {
 					this._model.rotation().x = 0;
 				}

@@ -38,13 +38,13 @@ export class RulesDialogWrapper extends DialogWrapper {
 		columnsWrapper.elm().style.fontSize = "0.7em";
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
-		this._playerColumn = columnsWrapper.column(0);
+		this._playerColumn = columnsWrapper.column(1);
 		this._nameWrapper = new NameWrapper();
 		this._playerColumn.contentElm().appendChild(this._nameWrapper.elm());
 		this._equipElm = Html.div();
 		this._playerColumn.contentElm().appendChild(this._equipElm);
 
-		this._rulesColumn = columnsWrapper.column(1);
+		this._rulesColumn = columnsWrapper.column(0);
 	}
 
 	override onShow() : void {

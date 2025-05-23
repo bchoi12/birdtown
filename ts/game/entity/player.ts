@@ -488,6 +488,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	respawn(spawn : Vec2) : void {
 		if (this.isSource() || this.clientIdMatches()) {
 			this.setAttribute(AttributeType.GROUNDED, false);
+
+			if (game.playerStates().hasPlayerState(this.clientId())) {
+				this.setAttribute(AttributeType.VIP, game.playerState(this.clientId()).isVIP())
+			}
 		}
 		this._canJump = false;
 		this._canJumpTimer.reset();

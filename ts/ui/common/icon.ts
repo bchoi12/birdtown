@@ -69,6 +69,7 @@ export enum IconType {
 	HEART,
 	JET,
 	LOCK,
+	MONEY,
 	MUSIC_NOTE,
 	ROCKET,
 	ROCKET_LAUNCH,
@@ -117,6 +118,7 @@ export namespace Icon {
 		[IconType.KICK, "block"],
 		[IconType.LOW_SPEC, "keyboard_arrow_down"],
 		[IconType.LOWEST_SPEC, "keyboard_double_arrow_down"],
+		[IconType.MONEY, "paid"],
 		[IconType.NETWORK_SIGNAL, "signal_cellular_alt"],
 		[IconType.ONE_MORE, "counter_1"],
 		[IconType.ORBS, "scatter_plot"],
@@ -180,6 +182,7 @@ export namespace Icon {
 	const entityIcons = new Map<EntityType, IconType>([
 		[EntityType.BAZOOKA, IconType.ROCKET],
 		[EntityType.GATLING, IconType.GATLING],
+		[EntityType.GOLDEN_GUN, IconType.MONEY],
 		[EntityType.PISTOL, IconType.ROCKING_HORSE],
 		[EntityType.PURPLE_GLOVE, IconType.STAR],
 		[EntityType.RED_GLOVE, IconType.SWORDS],
@@ -193,9 +196,9 @@ export namespace Icon {
 		[EntityType.JETPACK, IconType.JET],
 		[EntityType.POCKET_ROCKET, IconType.ROCKET],
 		[EntityType.PURPLE_HEADBAND, IconType.DASH],
-		[EntityType.SCOUTER, IconType.BATTERY_FULL],
 		[EntityType.RED_HEADBAND, IconType.BACKFLIP],
-
+		[EntityType.SCOUTER, IconType.BATTERY_FULL],
+		[EntityType.TOP_HAT, IconType.ROLL],
 	]);
 
 	export function getEntityIconType(type : EntityType) : IconType {

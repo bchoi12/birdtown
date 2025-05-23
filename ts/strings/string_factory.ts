@@ -17,6 +17,7 @@ export namespace StringFactory {
 		[EntityType.BOOSTER, ParamString.of("booster").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.BOOSTER).toString())],
 		[EntityType.COWBOY_HAT, ParamString.of("yeehaw hat").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.COWBOY_HAT).toString())],
 		[EntityType.GATLING, ParamString.of("gatling gun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.GATLING).toString())],
+		[EntityType.GOLDEN_GUN, ParamString.of("golden gun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.GOLDEN_GUN).toString())],
 		[EntityType.HEADPHONES, ParamString.of("headphones").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.HEADPHONES).toString())],
 		[EntityType.JETPACK, ParamString.of("jetpack").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.JETPACK).toString())],
 		[EntityType.PISTOL, ParamString.of("pistol").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.PISTOL).toString())],
@@ -28,6 +29,7 @@ export namespace StringFactory {
 		[EntityType.SCOUTER, ParamString.of("scouter").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SCOUTER).toString())],
 		[EntityType.SHOTGUN, ParamString.of("shotgun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SHOTGUN).toString())],
 		[EntityType.SNIPER, ParamString.of("rifle").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SNIPER).toString())],
+		[EntityType.TOP_HAT, ParamString.of("top hat").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.TOP_HAT).toString())],
 		[EntityType.WING_CANNON, ParamString.of("wing cannon").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.WING_CANNON).toString())],
 	]);
 
@@ -47,6 +49,7 @@ export namespace StringFactory {
 		[EntityType.BOOSTER, ParamString.of("Boost yourself into the skies")],
 		[EntityType.COWBOY_HAT, ParamString.of("Quickly roll and reload")],
 		[EntityType.GATLING, ParamString.of("Hold to rev up a barrage of bullets")],
+		[EntityType.GOLDEN_GUN, ParamString.of("One-shot your enemies")],
 		[EntityType.HEADPHONES, ParamString.of("Manifests a dying star that collapses into a black hole")],
 		[EntityType.JETPACK, ParamString.of("Lift yourself into the air")],
 		[EntityType.PISTOL, ParamString.of("Fire 3 quick ones")],
@@ -58,6 +61,7 @@ export namespace StringFactory {
 		[EntityType.SCOUTER, ParamString.of("Hold to look ahead and charge your weapon")],
 		[EntityType.SHOTGUN, ParamString.of("Sprays two quick recoiling blasts")],
 		[EntityType.SNIPER, ParamString.of("Fire a short burst of high-energy bolts")],
+		[EntityType.TOP_HAT, ParamString.of("Quickly tumble in any direction")],
 		[EntityType.WING_CANNON, ParamString.of("Fire a barrage of exploding orbs")],
 	]);
 

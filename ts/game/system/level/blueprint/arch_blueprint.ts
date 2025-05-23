@@ -379,14 +379,12 @@ export class ArchBlueprint extends Blueprint {
 	private loadBirdtown(options : BlueprintOptions) : void {
 		const plan = this.generateBirdtownPlan(options);
 		this.addBuildings(plan);
-
 		this.populateTown(plan, options);
 	}
 
 	private loadTinytown(options : BlueprintOptions) : void {
 		const plan = this.generateTinytownPlan(options);
 		this.addBuildings(plan);
-
 		this.populateTown(plan, options);
 	}
 
@@ -397,7 +395,13 @@ export class ArchBlueprint extends Blueprint {
 	}
 
 	private generateBirdtownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
-		const length = 8 + Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(2);
+		let length;
+		if (game.level().isCircle()) {
+			// Need at least 8 to avoid pop-ins
+			length = 4 + Math.max(4, Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(2));
+		} else {
+			length = 4 + Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(2);
+		}
 
 		return this.generateTownPlan(length, options);
 	}

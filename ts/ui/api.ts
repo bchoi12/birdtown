@@ -81,6 +81,7 @@ export enum HudType {
 	CHARGE,
 	DASH,
 	BULLETS,
+	GOLDEN,
 	HEADPHONES,
 	HEALTH,
 	JETPACK,

@@ -26,6 +26,7 @@ export class HudHandler extends HandlerBase implements Handler {
 		[HudType.BULLETS, IconType.GATLING],
 		[HudType.CHARGE, IconType.BATTERY_FULL],
 		[HudType.DASH, IconType.DASH],
+		[HudType.GOLDEN, IconType.MONEY],
 		[HudType.HEADPHONES, IconType.HEADPHONES],
 		[HudType.HEALTH, IconType.HEART],
 		[HudType.JETPACK, IconType.JET],

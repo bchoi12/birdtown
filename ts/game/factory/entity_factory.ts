@@ -24,6 +24,7 @@ import { PocketRocket } from 'game/entity/equip/pocket_rocket'
 import { PurpleHeadband } from 'game/entity/equip/purple_headband'
 import { RedHeadband } from 'game/entity/equip/red_headband'
 import { Scouter } from 'game/entity/equip/scouter'
+import { TopHat } from 'game/entity/equip/top_hat'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { DuckBeak } from 'game/entity/equip/beak/duck_beak'
@@ -138,6 +139,7 @@ export namespace EntityFactory {
 		[EntityType.STAR_EXPLOSION, (options : EntityOptions) => { return new StarExplosion(options); }],
 		[EntityType.START_GAME_SIGN, (options : EntityOptions) => { return new StartGameSign(options); }],
 		[EntityType.TABLE, (options : EntityOptions) => { return new Table(options); }],
+		[EntityType.TOP_HAT, (options : EntityOptions) => { return new TopHat(options); }],
 		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
 		[EntityType.WEAPON_CRATE, (options : EntityOptions) => { return new WeaponCrate(options); }],
 		[EntityType.WING_CANNON, (options : EntityOptions) => { return new WingCannon(options); }],
@@ -192,7 +194,7 @@ export namespace EntityFactory {
 		[EntityType.BLACK_HOLE, { x: 8, y: 8, z: 8 }],
 		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],
-		[EntityType.GOLDEN_EXPLOSION, { x: 2, y: 2, z: 2 }],
+		[EntityType.GOLDEN_EXPLOSION, { x: 2.2, y: 2.2, z: 2.2 }],
 		[EntityType.HEALTH_CRATE, {x: 1, y: 1, z: 1 }],
 		[EntityType.ORB_EXPLOSION, { x: 2.2, y: 2.2, z: 2.2 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],

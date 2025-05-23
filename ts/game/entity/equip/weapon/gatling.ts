@@ -31,7 +31,7 @@ export class Gatling extends Weapon {
 		bursts: Gatling._bursts,
 		interruptable: true,
 	};
-	private static readonly _projectileTTL = 500;
+	private static readonly _projectileTTL = 450;
 	private static readonly _spinnerName = "spinner";
 
 	private static readonly _recoilVel = { x: 3, y: 8};

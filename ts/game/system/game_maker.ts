@@ -30,6 +30,7 @@ import { ui } from 'ui'
 import { AnnouncementType, DialogType, FeedType, InfoType, KeyType, StatusType } from 'ui/api'
 import { KeyNames } from 'ui/common/key_names'
 
+import { Optional } from 'util/optional'
 import { globalRandom } from 'util/seeded_random'
 
 export class GameMaker extends SystemBase implements System {
@@ -58,6 +59,7 @@ export class GameMaker extends SystemBase implements System {
 	private _playerConfig : PlayerConfig;
 	private _playerRotator : PlayerRotator;
 	private _round : number;
+	private _vipIds : Optional<Set<number>>;
 	private _winners : Array<number>;
 	private _winnerClientId : number;
 	private _errorMsg : string;
@@ -69,6 +71,7 @@ export class GameMaker extends SystemBase implements System {
 		this._playerConfig = PlayerConfig.empty();
 		this._playerRotator = new PlayerRotator();
 		this._round = 0;
+		this._vipIds = new Optional();
 		this._winners = new Array();
 		this._winnerClientId = 0;
 		this._errorMsg = "";
@@ -151,6 +154,14 @@ export class GameMaker extends SystemBase implements System {
 			return EquipPairs.randomDefaultPair();
 		}
 
+		if (this._config.getStartingLoadout() === LoadoutType.GOLDEN_GUN) {
+			return [EntityType.GOLDEN_GUN, EntityType.TOP_HAT];
+		}
+
+		if (this.isVIP(clientId)) {
+			return [EntityType.GOLDEN_GUN, EntityType.TOP_HAT];
+		}
+
 		if (this._config.getStartingLoadout() === LoadoutType.RANDOM) {
 			return EquipPairs.random();
 		}
@@ -224,6 +235,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameMode.DUEL:
 			return "Win the 1v1";
 		case GameMode.FREE_FOR_ALL:
+		case GameMode.GOLDEN_GUN:
 			return "Be the first to score " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point");
 		case GameMode.PRACTICE:
 			return game.isHost() ? "Press " + KeyNames.keyTypeHTML(KeyType.MENU) + " to exit" : "";
@@ -234,6 +246,8 @@ export class GameMaker extends SystemBase implements System {
 			return "Score " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point") + " in a row";
 		case GameMode.TEAM_BATTLE:
 			return "Eliminate the enemy team";
+		case GameMode.VIP:
+			return "Eliminate the other team's VIP";
 		default:
 			return "???";
 		}
@@ -428,12 +442,14 @@ export class GameMaker extends SystemBase implements System {
 			game.audio().setAmbiance(this.getAmbiance());
 			break;
 		case GameState.SETUP:
+			this.assignRoles();
 			this.showSetupDialogs();
 			break;
 		case GameState.GAME:
 	    	this.queueForceSubmit(DialogType.LOADOUT);
 
 			game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
+				playerState.setVIP(this.isVIP(playerState.clientId()));
 				playerState.setRole(PlayerRole.SPAWNING);
 			}, (playerState : PlayerState) => {
 				return playerState.isPlaying();
@@ -531,8 +547,22 @@ export class GameMaker extends SystemBase implements System {
 		return game.playerStates().hasPlayerState(clientId) && game.playerState(clientId).isPlaying();
 	}
 
+	private isVIP(clientId : number) : boolean {
+		if (!this._vipIds.has()) {
+			return false;
+		}
+		return this._vipIds.get().has(clientId);
+	}
+	private assignRoles() : void {
+		this._vipIds.clear();
+		if (this._config.type() === GameMode.VIP) {
+			this._vipIds.set(new Set([this._playerRotator.nextFromTeamOne(), this._playerRotator.nextFromTeamTwo()]));
+		}
+	}
+
 	private showSetupDialogs() : void {
-		if (this._config.getStartingLoadout() === LoadoutType.RANDOM) {
+		if (this._config.getStartingLoadout() === LoadoutType.RANDOM
+			|| this._config.getStartingLoadout() === LoadoutType.GOLDEN_GUN) {
 			return;
 		}
 
@@ -549,7 +579,7 @@ export class GameMaker extends SystemBase implements System {
 		game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 			clientDialog.queueDialog(DialogType.LOADOUT);
 		}, (clientDialog : ClientDialog) => {
-			return this.isPlaying(clientDialog.clientId());
+			return this.isPlaying(clientDialog.clientId()) && !this.isVIP(clientDialog.clientId());
 		});
 	}
 
@@ -603,6 +633,21 @@ export class GameMaker extends SystemBase implements System {
 				return [winners, true];
 			}
 			break;
+		}
+
+		// TODO: add another param for VIP win condition
+		if (this._config.type() === GameMode.VIP) {
+			let vips = game.playerStates().findAll<PlayerState>((playerState : PlayerState) => {
+				return playerState.isVIP() && !playerState.targetEntity<Player>().dead();
+			});
+
+			if (vips.length === 1) {
+				const team = vips[0].team();
+				winners = this.findPlayerStateIds((playerState : PlayerState) => {
+					return team === playerState.team();
+				});
+				return [winners, true];
+			}
 		}
 
 		return [winners, false];
