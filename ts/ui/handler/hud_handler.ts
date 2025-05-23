@@ -48,7 +48,7 @@ export class HudHandler extends HandlerBase implements Handler {
 	]);
 
 	private static readonly _leftBlocks = new Set([HudType.HEALTH]);
-	private static readonly _rightBlocks = new Set([HudType.BULLETS, HudType.ORBS, HudType.ROCKET, HudType.SPRAY, HudType.STAR, HudType.SWORDS]);
+	private static readonly _rightBlocks = new Set([HudType.BULLETS, HudType.GOLDEN, HudType.ORBS, HudType.ROCKET, HudType.SPRAY, HudType.STAR, HudType.SWORDS]);
 
 	private _hudElm : HTMLElement;
 	private _sectionsElm : HTMLElement;
