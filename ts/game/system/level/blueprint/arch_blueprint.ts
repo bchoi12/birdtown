@@ -389,7 +389,7 @@ export class ArchBlueprint extends Blueprint {
 	}
 
 	private generateTinytownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
-		const length = 3 + Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(2);
+		const length = 3 + Math.ceil(options.msg.getNumPlayers() / 4) + this.rng().int(2);
 
 		return this.generateTownPlan(length, options);
 	}

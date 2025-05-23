@@ -10,15 +10,19 @@ import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { TextureFactory } from 'game/factory/texture_factory'
 
+import { globalRandom } from 'util/seeded_random'
 import { Vec } from 'util/vector'
 
 export class Billboard extends Block {
 
-	private static readonly _textures = new Array<TextureType>(
+
+	private static _textures = new Array<TextureType>(
 		TextureType.BILLBOARD_BOOBY,
 		TextureType.BILLBOARD_DUCK,
+		TextureType.BILLBOARD_EAGLE,
 		TextureType.BILLBOARD_HENRY,
 	);
+	private static _index = 0;
 
 	private _textureType : TextureType;
 
@@ -29,7 +33,12 @@ export class Billboard extends Block {
 
 		this._textureType = TextureType.UNKNOWN;
 		if (this.isSource()) {
-			this._textureType = Billboard._textures[Math.floor(Math.random() * Billboard._textures.length)];
+			if (Billboard._index === 0) {
+				globalRandom.shuffle(Billboard._textures);
+			}
+
+			this._textureType = Billboard._textures[Billboard._index % Billboard._textures.length];
+			Billboard._index = (Billboard._index + 1) % Billboard._textures.length;
 		}
 
 		this.addProp<TextureType>({
