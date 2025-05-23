@@ -717,7 +717,7 @@ kbd {
 
 .dialog-title {
     text-align: center;
-    font-size: 1.8em;
+    font-size: 2em;
     padding: 0.7em 0.3em 0.5em 0.3em;
     font-weight: bold;
     letter-spacing: 0.02em;
@@ -934,6 +934,9 @@ kbd {
     min-width: 85%;
     font-size: 0.8em;
     margin: 0;
+
+    padding-top: 1em;
+    padding-bottom: 2em;
 }
 
 .loadout-button-title {
