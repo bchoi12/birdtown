@@ -99,25 +99,6 @@ export class Gatling extends Weapon {
 		recoilVel.y = this.computeVerticalAcc(recoilVel, ownerProfile.vel());
 		ownerProfile.addVel(recoilVel);
 
-		this.addEntity(EntityType.MUZZLE_PARTICLE, {
-			offline: true,
-			ttl: 30,
-			profileInit: {
-				pos: pos,
-				angle: angle,
-			},
-			modelInit: {
-				materialType: MaterialType.SHOOTER_YELLOW,
-				transforms: {
-					scale: {
-						x: 0.6,
-						y: 0.05,
-						z: 0.05,
-					}
-				}
-			}
-		});
-
 		this.soundPlayer().playFromEntity(SoundType.GATLING, this.owner());
 	}
 

@@ -79,25 +79,6 @@ export class Pistol extends Weapon {
 			this.owner().addForce(recoil);
 		}
 
-		this.addEntity(EntityType.MUZZLE_PARTICLE, {
-			offline: true,
-			ttl: 30,
-			profileInit: {
-				pos: pos,
-				angle: angle,
-			},
-			modelInit: {
-				materialType: MaterialType.WESTERN_YELLOW,
-				transforms: {
-					scale: {
-						x: 0.4,
-						y: 0.05,
-						z: 0.05,
-					}
-				}
-			}
-		});
-
 		this.soundPlayer().playFromEntity(SoundType.PISTOL, this.owner());
 	}
 

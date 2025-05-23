@@ -89,25 +89,6 @@ export class Sniper extends Weapon {
 			}
 		}
 
-		this.addEntity(EntityType.MUZZLE_PARTICLE, {
-			offline: true,
-			ttl: 30,
-			profileInit: {
-				pos: pos,
-				angle: angle,
-			},
-			modelInit: {
-				materialType: materialType,
-				transforms: {
-					scale: {
-						x: 0.4,
-						y: 0.05,
-						z: 0.05,
-					}
-				}
-			}
-		});
-
 		this.soundPlayer().playFromEntity(charged ? SoundType.CHARGED_BOLT : SoundType.BOLT, this.owner());
 	}
 }
