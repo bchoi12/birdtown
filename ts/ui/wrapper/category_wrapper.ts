@@ -42,8 +42,11 @@ export class CategoryWrapper extends HtmlWrapper<HTMLElement> {
 		if (this._alwaysExpand) {
 			this._titleWrapper.setIconVisible(false);
 			this.setExpanded(true);
+
+			this._titleWrapper.setCollapsible(false);
 		} else {
 			this._titleWrapper.setIconVisible(true);
+			this._titleWrapper.setCollapsible(true);
 		}
 	}
 	setExpanded(expanded : boolean) : void {
@@ -83,6 +86,7 @@ class TitleWrapper extends HtmlWrapper<HTMLElement> {
 		this._iconElm.style.fontWeight = "bold";
 
 		this.elm().classList.add(Html.classCategoryTitle);
+		this.elm().classList.add(Html.classCategoryTitleExpandable);
 		this.elm().classList.add(Html.classNoSelect);
 		this.elm().appendChild(this._titleElm);
 		this.elm().appendChild(this._iconElm);
@@ -94,6 +98,14 @@ class TitleWrapper extends HtmlWrapper<HTMLElement> {
 
 	setExpanded(expanded : boolean) : void {
 		Icon.change(this._iconElm, expanded ? IconType.ARROW_DOWN : IconType.ARROW_UP);
+	}
+
+	setCollapsible(collapsible : boolean) : void {
+		if (collapsible) {
+			this.elm().classList.add(Html.classCategoryTitleExpandable);
+		} else {
+			this.elm().classList.remove(Html.classCategoryTitleExpandable);
+		}
 	}
 
 	setIconVisible(visible : boolean) : void {

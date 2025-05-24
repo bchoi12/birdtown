@@ -34,9 +34,9 @@ import { ModeInfoWrapper } from 'ui/wrapper/mode_info_wrapper'
 import { PlayerConfigWrapper } from 'ui/wrapper/player_config_wrapper'
 
 type ModeOptions = {
-	name : string;
 	requirements : Array<string>;
 	description : string;
+	parent : HTMLElement;
 
 	minRecommended? : number;
 	maxRecommended? : number;
@@ -47,6 +47,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 	private _mode : GameMode;
 	private _currentMode : GameMode;
 	private _modeButtons : ButtonGroupWrapper<ModeSelectWrapper>;
+	private _descriptionCategory : CategoryWrapper;
 	private _infoWrappers : Map<GameMode, ModeInfoWrapper>;
 
 	private _configMsg : GameConfigMessage;
@@ -58,12 +59,15 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this._mode = GameMode.UNKNOWN;
 		this._currentMode = GameMode.UNKNOWN;
 		this._modeButtons = new ButtonGroupWrapper();
+		this._descriptionCategory = new CategoryWrapper();
+		this._descriptionCategory.setTitle("Description");
+		this._descriptionCategory.setAlwaysExpand(true);
 		this._infoWrappers = new Map();
 
 		this._configMsg = null;
 		this._playerConfigWrapper = null;
 
-		this.setTitle("Select a mode");
+		this.setTitle("Select Mode");
 		this.addGameModePage();
 
 		let shareWrapper = new ShareWrapper();
@@ -121,81 +125,89 @@ export class StartGameDialogWrapper extends DialogWrapper {
 	private addGameModePage() : void {
 		let pageWrapper = this.addPage();
 
-		let columnsWrapper = ColumnsWrapper.withWeights([3, 6]);
+		let columnsWrapper = ColumnsWrapper.withWeights([4, 6]);
 
-		let mode = columnsWrapper.column(0);
-		mode.setLegend("Mode");
-		mode.contentElm().style.fontSize = "0.9em";
-		let info = columnsWrapper.column(1);
-		info.setLegend("Description");
-		info.contentElm().style.fontSize = "0.7em";
+		let modeColumn = columnsWrapper.column(0);
+		modeColumn.contentElm().style.fontSize = "0.8em";
+
+		let classicCategory = new CategoryWrapper();
+		classicCategory.setTitle("Free for All");
+
+		let teamCategory = new CategoryWrapper();
+		teamCategory.setTitle("Team");
+
+		modeColumn.contentElm().appendChild(classicCategory.elm());
+		modeColumn.contentElm().appendChild(teamCategory.elm());
+
+		let infoColumn = columnsWrapper.column(1);
+		infoColumn.contentElm().style.fontSize = "0.8em";
+		infoColumn.contentElm().appendChild(this._descriptionCategory.elm());
 
 		this.addUnknownMode();
-		this.populateMode(GameMode.DUEL, {
-			name: "Duel",
-			requirements: [],
-			description: "1v1 your opponent on a small symmetric Birdtown.\r\n\r\nTake turns picking the loadout until someone wins.",
-			minRecommended: 2,
-			maxRecommended: 2,
-		});
-		this.populateMode(GameMode.FREE_FOR_ALL, {
-			name: "Free for All",
-			requirements: [],
-			description: "Classic free for all.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
-			minRecommended: 3,
-		});
-		this.populateMode(GameMode.GOLDEN_GUN, {
-			name: "Golden Gun",
-			requirements: [],
-			description: "Free for all, but everyone has the Golden Gun.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
-			minRecommended: 3,
-		});
-		this.populateMode(GameMode.SUDDEN_DEATH, {
-			name: "Lightning Round",
-			requirements: [],
-			description: "Be the last bird in a tiny town in a series of lightning quick rounds.",
-			minRecommended: 2,
-		});
-		this.populateMode(GameMode.SPREE, {
-			name: "Spree",
-			requirements: [],
-			description: "Free for all, but lose all of your points on death.",
-			minRecommended: 3,
-		});
-		this.populateMode(GameMode.SURVIVAL, {
-			name: "Survival",
-			requirements: [],
-			description: "Be the last bird in town.",
-			minRecommended: 3,
-		});
-		this.populateMode(GameMode.TEAM_BATTLE, {
-			name: "Team Battle",
-			requirements: [],
-			description: "Everyone has one life--eliminate the enemy team while reviving your teammates.",
-			minRecommended: 4,
-		});
-		this.populateMode(GameMode.VIP, {
-			name: "Protect the VIP",
-			requirements: [],
-			description: "Each team has a VIP with a Golden Gun.\r\n\r\nEliminate the other team's VIP and protect yours at all costs.",
-			minRecommended: 4,
-		});
 		this.populateMode(GameMode.PRACTICE, {
-			name: "Practice Mode",
 			requirements: [],
 			description: "Try out the game.",
+			parent: classicCategory.contentElm(),
 			minRecommended: 1,
 			maxRecommended: 1,
 		});
+		this.populateMode(GameMode.FREE_FOR_ALL, {
+			requirements: [],
+			description: "Classic free for all.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
+			parent: classicCategory.contentElm(),
+			minRecommended: 3,
+		});
+		this.populateMode(GameMode.DUEL, {
+			requirements: [],
+			description: "1v1 your opponent on a small symmetric Birdtown.\r\n\r\nTake turns picking the loadout until someone wins.",
+			parent: classicCategory.contentElm(),
+			minRecommended: 2,
+			maxRecommended: 2,
+		});
+		this.populateMode(GameMode.GOLDEN_GUN, {
+			requirements: [],
+			description: "Free for all, but everyone has the Golden Gun.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
+			parent: classicCategory.contentElm(),
+			minRecommended: 3,
+		});
+		this.populateMode(GameMode.SUDDEN_DEATH, {
+			requirements: [],
+			description: "Be the last bird in a tiny town in a series of lightning quick rounds.",
+			parent: classicCategory.contentElm(),
+			minRecommended: 2,
+		});
+		this.populateMode(GameMode.SPREE, {
+			requirements: [],
+			description: "Free for all, but lose all of your points on death.",
+			parent: classicCategory.contentElm(),
+			minRecommended: 3,
+		});
+		this.populateMode(GameMode.SURVIVAL, {
+			requirements: [],
+			description: "Be the last bird in town.",
+			parent: classicCategory.contentElm(),
+			minRecommended: 3,
+		});
+		this.populateMode(GameMode.TEAM_BATTLE, {
+			requirements: [],
+			description: "Everyone has one life--eliminate the enemy team while reviving your teammates.",
+			parent: teamCategory.contentElm(),
+			minRecommended: 4,
+		});
+		this.populateMode(GameMode.VIP, {
+			requirements: [],
+			description: "Each team has a VIP with a Golden Gun.\r\n\r\nEliminate the other team's VIP and protect yours at all costs.",
+			parent: teamCategory.contentElm(),
+			minRecommended: 4,
+		});
 
-		mode.contentElm().appendChild(this._modeButtons.elm());
 		this._infoWrappers.forEach((wrapper : ModeInfoWrapper, mode : GameMode) => {
 			if (mode === GameMode.UNKNOWN) {
 				wrapper.show();
 			} else {
 				wrapper.hide();
 			}
-			info.contentElm().appendChild(wrapper.elm());
+			this._descriptionCategory.contentElm().appendChild(wrapper.elm());
 		});
 
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
@@ -228,13 +240,15 @@ export class StartGameDialogWrapper extends DialogWrapper {
 	private populateMode(mode : GameMode, options : ModeOptions) : void {
 		let buttonWrapper = this._modeButtons.addButton(new ModeSelectWrapper());
 		buttonWrapper.elm().style.width = "100%";
-		buttonWrapper.setText(" " + options.name);
+		buttonWrapper.setText(" " + StringFactory.getModeName(mode));
 		buttonWrapper.addOnMouseEnter(() => {
 			this.previewMode(mode);
 		});
 		buttonWrapper.addOnClick(() => {
 			this.stickMode(mode);
 		});
+
+		options.parent.appendChild(buttonWrapper.elm());
 		
 		let requirements = [];
 		const config = ConfigFactory.loadRef(mode);
@@ -308,6 +322,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			}
 		});
 		this._currentMode = mode;
+		this._descriptionCategory.setTitle(StringFactory.getModeName(mode));
 	}
 
 	private addModePage(mode : GameMode) : void {
@@ -322,7 +337,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
 
 		let options = columnsWrapper.column(0);
-		options.contentElm().style.fontSize = "0.7em";
+		options.contentElm().style.fontSize = "0.8em";
 
 		let coreCategory = new CategoryWrapper();
 		coreCategory.setTitle("Core Options");
@@ -395,7 +410,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		}
 
 		let players = columnsWrapper.column(1);
-		players.contentElm().style.fontSize = "0.7em";
+		players.contentElm().style.fontSize = "0.8em";
 
 		let playerCategory = new CategoryWrapper();
 		playerCategory.setTitle("Player Setup");
@@ -517,7 +532,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 	}
 	private damageMultiplierWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
 		return new LabelNumberWrapper({
-			label: "Damage Multiplier",
+			label: "Damage multiplier",
 			value: msg.getDamageMultiplierOr(1),
 			plus: (current : number) => {
 				msg.setDamageMultiplier(Math.min(current + 0.5, max));
@@ -533,7 +548,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 	}
 	private loadoutWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
 		return new LabelNumberWrapper({
-			label: "Starting Loadout",
+			label: "Starting loadout",
 			value: Number(msg.getStartingLoadout()),
 			plus: (current : number) => {
 				if (current === LoadoutType.PICK) {

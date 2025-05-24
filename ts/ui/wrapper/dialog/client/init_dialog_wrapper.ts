@@ -60,7 +60,6 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		let bio = columnsWrapper.column(0);
-		bio.setLegend("Bio");
 		bio.elm().style.textAlign = "center";
 
 		const nameAndColor = LoginNames.randomNameAndColor();
@@ -81,7 +80,6 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		bio.contentElm().appendChild(Html.br());
 
 		let bird = columnsWrapper.column(1);
-		bird.setLegend("Choose a Bird");
 
 		let birdPicker = new BirdWrapper();
 		bird.contentElm().appendChild(birdPicker.elm());

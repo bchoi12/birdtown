@@ -22,6 +22,11 @@ export class ButtonGroupWrapper<T extends ButtonWrapper> extends HtmlWrapper<HTM
 			});
 		});
 		this._buttons.push(button);
+		return button;
+	}
+
+	appendButton(button : T) : T {
+		this.addButton(button);
 		this.elm().appendChild(button.elm());
 		return button;
 	}

@@ -2,7 +2,10 @@
 import { GameMode } from 'game/api'
 import { FrequencyType } from 'game/entity/api'
 import { LevelType, LoadoutType, WinConditionType } from 'game/system/api'
+
 import { Message, MessageBase, Descriptor, FieldDescriptor } from 'message'
+
+import { StringFactory } from 'strings/string_factory'
 
 enum GameConfigProp {
 	UNKNOWN,
@@ -29,20 +32,6 @@ enum GameConfigProp {
 }
 
 export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> implements Message<GameMode, GameConfigProp> {
-
-	private static readonly _modeNames = new Map<GameMode, string>([
-		[GameMode.UNKNOWN, ""],
-		[GameMode.FREE, "Free Play"],
-		[GameMode.DUEL, "Duel"],
-		[GameMode.FREE_FOR_ALL, "Free for All"],
-		[GameMode.GOLDEN_GUN, "Golden Gun"],
-		[GameMode.PRACTICE, "Practice Mode"],
-		[GameMode.SPREE, "Spree"],
-		[GameMode.SUDDEN_DEATH, "Lightning Round"],
-		[GameMode.SURVIVAL, "Survival"],
-		[GameMode.TEAM_BATTLE, "Team Battle"],
-		[GameMode.VIP, "Protect the VIP"],
-	]);
 
 	private static readonly _baseProps : [number, Descriptor][] = [
 		[GameConfigProp.LEVEL_SEED, {}],
@@ -134,7 +123,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 	override debugName() : string { return "GameConfigMessage"; }
 	override messageDescriptor() : Map<GameMode, FieldDescriptor> { return GameConfigMessage._messageDescriptor; }
 
-	modeName() : string { return GameConfigMessage._modeNames.has(this._type) ? GameConfigMessage._modeNames.get(this._type) : "Missing mode name!"; }
+	modeName() : string { return StringFactory.getModeName(this._type); }
 
 	resetToDefault(mode : GameMode) : GameConfigMessage {
 		this.reset(mode);

@@ -49,7 +49,7 @@ export abstract class InitGameDialogWrapper extends DialogWrapper {
 		this._form = Html.form();
 		this._statusWrapper = new ButtonWrapper();
 		this._statusWrapper.elm().style.float = "left";
-		this._statusWrapper.elm().style.fontSize = "0.6em";
+		this._statusWrapper.textElm().style.fontSize = "0.7em";
 		this._dotsWrapper = new DotsWrapper();
 		this._statusWrapper.elm().appendChild(this._dotsWrapper.elm());
 

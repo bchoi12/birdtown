@@ -1,4 +1,5 @@
 
+import { GameMode } from 'game/api'
 import { EntityType } from 'game/entity/api'
 import { Entity } from 'game/entity'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -88,5 +89,25 @@ export namespace StringFactory {
 			return levelNames.get(type).toString();
 		}
 		return Strings.toTitleCase(LevelType[type]);
+	}
+
+	const modeNames = new Map<GameMode, string>([
+		[GameMode.UNKNOWN, ""],
+		[GameMode.FREE, "Free Play"],
+		[GameMode.DUEL, "Duel"],
+		[GameMode.FREE_FOR_ALL, "Deathmatch"],
+		[GameMode.GOLDEN_GUN, "Golden Gun"],
+		[GameMode.PRACTICE, "Practice Mode"],
+		[GameMode.SPREE, "Spree"],
+		[GameMode.SUDDEN_DEATH, "Lightning Round"],
+		[GameMode.SURVIVAL, "Survival"],
+		[GameMode.TEAM_BATTLE, "Team Battle"],
+		[GameMode.VIP, "Protect the VIP"],
+	]);
+	export function getModeName(type : GameMode) : string {
+		if (modeNames.has(type)) {
+			return modeNames.get(type).toString();
+		}
+		return Strings.toTitleCase(GameMode[type]);
 	}
 }

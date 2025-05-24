@@ -114,6 +114,9 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 			this.elm().classList.remove(Html.classDialogOpaque);
 		}
 	}
+	setTitleBackground(color : string) : void {
+		this._titleElm.style.backgroundColor = color;
+	}
 	setTitle(text : string) : void {
 		this._titleElm.textContent = text;
 	}
