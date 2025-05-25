@@ -19,7 +19,6 @@ import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { ClientNameWrapper } from 'ui/wrapper/client_name_wrapper'
 import { ColorPickWrapper } from 'ui/wrapper/color_pick_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
-import { ShareWrapper } from 'ui/wrapper/button/share_wrapper'
 import { ClientDialogWrapper } from 'ui/wrapper/dialog/client_dialog_wrapper'
 import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
@@ -40,10 +39,6 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		okButton.addOnClick(() => {
 			this.nextPage();
 		});
-
-		let shareWrapper = new ShareWrapper();
-		shareWrapper.configureForDialog();
-		this.footerElm().appendChild(shareWrapper.elm());
 
 		this.addOnSubmit(() => {
 			game.setPlayerInitialized(true);
