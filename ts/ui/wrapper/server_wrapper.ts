@@ -123,6 +123,10 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		});
 	}
 
+	autoJoinFailed() : void {
+		this._infoElm.textContent = "Click refresh to look for more servers.";
+	}
+
 	private setPending(pending : boolean) : void {
 		if (this._pending === pending) {
 			return;

@@ -70,7 +70,6 @@ export class JoinGameDialogWrapper extends InitGameDialogWrapper {
 		super.onShow();
 
 		if (this._autoJoin) {
-			this._autoJoin = false;
 			this.connect();
 			return;
 		}
@@ -81,10 +80,22 @@ export class JoinGameDialogWrapper extends InitGameDialogWrapper {
 		this.refreshServers();
 	}
 
+	override hide() : void {
+		super.hide();
+
+		// not sure if needed...
+		this._autoJoin = false;
+	}
+
 	protected override onNetcodeError(room : string) : void {
 		super.onNetcodeError(room);
 
-		this.silentRefreshServers();
+		if (this._autoJoin) {
+			this._serverWrapper.autoJoinFailed();
+		} else {
+			this.silentRefreshServers();
+		}
+		this._autoJoin = false;
 	}
 
 	private refreshServers() : void {
