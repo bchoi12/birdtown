@@ -1047,13 +1047,6 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			arm.rotation = new BABYLON.Vector3(armRotation + recoilRotation.z, Math.PI, -recoilRotation.y);
 
 			// Compute arm position
-			/*
-			let recoil = new BABYLON.Vector3(
-				-0.5 * Math.sin(recoilRotation.y),
-				-Math.cos(armRotation) * this._armTransforms.translation().x,
-				Math.sin(armRotation) * this._armTransforms.translation().x);
-				*/
-
 			const armCos = Math.cos(armRotation);
 			const armSin = Math.sin(armRotation);
 			arm.position = this._boneOrigins.get(BoneType.ARM).add(new BABYLON.Vector3(

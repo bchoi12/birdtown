@@ -159,7 +159,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.DUEL, {
 			requirements: [],
-			description: "1v1 your opponent on a small symmetric Birdtown.\r\n\r\nTake turns picking the loadout until someone wins.",
+			description: "1v1 tryhard mode.\r\n\r\nOutsweat your opponent on a small symmetric Birdtown where everyone gets the same loadout.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 2,
 			maxRecommended: 2,
@@ -357,7 +357,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		case GameMode.DUEL:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_TURNS, LoadoutType.RANDOM_ALL]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_TURNS, LoadoutType.RANDOM_ALL, LoadoutType.GOLDEN_GUN]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
@@ -581,6 +581,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				case LoadoutType.RANDOM:
 				case LoadoutType.RANDOM_ALL:
 					return "Random"
+				case LoadoutType.GOLDEN_GUN:
+					return "Golden Gun";
 				default:
 					return "???";
 				}
