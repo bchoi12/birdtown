@@ -218,6 +218,10 @@ kbd {
     font-size: 0.6em;
 }
 
+#button-quit {
+    display: none;
+}
+
 .login-button {
     background: #00000000;
     margin-top: 0.3em;

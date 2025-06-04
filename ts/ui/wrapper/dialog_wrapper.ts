@@ -179,20 +179,20 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 			}
 		});
 	}
-	addOKButton() : ButtonWrapper {
+	addOKButton(text? : string) : ButtonWrapper {
 		let buttonWrapper = new ButtonWrapper();
 		buttonWrapper.setIcon(IconType.CHECK_CIRCLE);
-		buttonWrapper.setText("OK");
+		buttonWrapper.setText(text ? text : "OK");
 		buttonWrapper.elm().style.float = "right";
 		buttonWrapper.setHoverColor(ColorFactory.toString(ColorType.UI_GREEN));
 
 		this.footerElm().appendChild(buttonWrapper.elm());
 		return buttonWrapper;
 	}
-	addCancelButton() : ButtonWrapper {
+	addCancelButton(text? : string) : ButtonWrapper {
 		let buttonWrapper = new ButtonWrapper();
 		buttonWrapper.setIcon(IconType.CANCEL);
-		buttonWrapper.setText("Cancel");
+		buttonWrapper.setText(text ? text : "Cancel");
 		buttonWrapper.elm().style.float = "right";
 		buttonWrapper.setHoverColor(ColorFactory.toString(ColorType.UI_RED));
 

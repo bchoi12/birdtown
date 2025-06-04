@@ -1,4 +1,6 @@
 
+import { GameMode } from 'game/api'
+
 import { Message, MessageBase, MessageObject, FieldDescriptor, DataMap } from 'message'
 
 import { ChatType } from 'ui/api'
@@ -23,6 +25,7 @@ enum NetworkProp {
 	CLIENT_ID,
 	CLIENT_MAP,
 	DATA,
+	GAME_MODE,
 	SEQ_NUM,
 	VOICE_ENABLED,
 }
@@ -31,9 +34,10 @@ export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp>
 
 	private static readonly _messageDescriptor = new Map<NetworkMessageType, FieldDescriptor>([
 		[NetworkMessageType.CHAT, MessageBase.fieldDescriptor(
-			[NetworkProp.CHAT_MESSAGE, {}], 
-			[NetworkProp.CHAT_TYPE, {}],
+			[NetworkProp.CHAT_TYPE, { optional: true }],
+			[NetworkProp.CHAT_MESSAGE, { optional: true }], 
 			[NetworkProp.CLIENT_ID, { optional: true }],
+			[NetworkProp.GAME_MODE, { optional: true }],
 		)],
 		[NetworkMessageType.GAME, MessageBase.fields(
 			NetworkProp.SEQ_NUM,
@@ -98,6 +102,11 @@ export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp>
     getDataOr(value : DataMap) : DataMap { return this.getOr<DataMap>(NetworkProp.DATA, value); }
     setData(value : DataMap) : void { this.set<DataMap>(NetworkProp.DATA, value); }
 
+    hasGameMode() : boolean { return this.has(NetworkProp.GAME_MODE); }
+    getGameMode() : GameMode { return this.get<GameMode>(NetworkProp.GAME_MODE); }
+    getGameModeOr(value : GameMode) : GameMode { return this.getOr<GameMode>(NetworkProp.GAME_MODE, value); }
+    setGameMode(value : GameMode) : void { this.set<GameMode>(NetworkProp.GAME_MODE, value); }
+
     hasSeqNum() : boolean { return this.has(NetworkProp.SEQ_NUM); }
     getSeqNum() : number { return this.get<number>(NetworkProp.SEQ_NUM); }
     getSeqNumOr(value : number) : number { return this.getOr<number>(NetworkProp.SEQ_NUM, value); }
@@ -115,6 +124,7 @@ export class NetworkMessage extends MessageBase<NetworkMessageType, NetworkProp>
     ["CLIENT_ID", "number"],
     ["CLIENT_MAP", "Object"],
     ["DATA", "DataMap"],
+    ["GAME_MODE", "GameMode"],
     ["SEQ_NUM", "number"],
     ["VOICE_ENABLED", "boolean"],
     */

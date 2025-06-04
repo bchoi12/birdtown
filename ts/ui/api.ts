@@ -16,6 +16,7 @@ export enum AnnouncementType {
 	GAME_END,
 	GAME_ERROR,
 	GAME_FINISH,
+	GAME_SELECTED,
 	GAME_STARTING,
 	GAME_VICTORY,
 	GENERIC,
@@ -31,12 +32,14 @@ export enum ChatType {
 	// Do not parse chat message as HTML
 	CHAT,
 
-	ERROR,
-
-	// Silent and doesn't show chat
+	// Doesn't show chat
 	LOG,
-
+	// Show chat, no sound
+	INFO,
+	// Show chat, play sound
 	PRINT,
+	// Also red
+	ERROR,
 }
 
 export type ChatOptions = {

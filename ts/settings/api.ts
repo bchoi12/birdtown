@@ -22,6 +22,8 @@ export enum SettingType {
 	SHADOW,
 	SHADOW_FILTERING,
 	TRANSPARENT,
+
+	CHAT,
 }
 
 export enum AntiAliasSetting {
@@ -29,6 +31,12 @@ export enum AntiAliasSetting {
 	LOW,
 	MEDIUM,
 	HIGH,
+}
+
+export enum ChatSetting {
+	OFF,
+	FILTER,
+	ON,
 }
 
 export enum ClientPredictionSetting {
@@ -63,11 +71,6 @@ export enum MusicSetting {
 export enum PointerSetting {
 	NORMAL,
 	LOCKED,
-}
-
-export enum ProfanityFilterSetting {
-	OFF,
-	ON,
 }
 
 export enum ScreenShakeSetting {

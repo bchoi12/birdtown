@@ -6,12 +6,12 @@ import { Flags } from 'global/flags'
 import { settings } from 'settings'
 import {
 	AntiAliasSetting,
+	ChatSetting,
 	ClientPredictionSetting,
 	DamageNumberSetting,
 	FullscreenSetting,
 	MusicSetting,
 	PointerSetting,
-	ProfanityFilterSetting,
 	ScreenShakeSetting,
 	ShadowSetting,
 	SpeedSetting,
@@ -119,20 +119,23 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		}));
 
 		this.addSetting(gameplay, new LabelNumberWrapper({
-			label: "Filter Profanity",
-			value: Number(settings.profanityFilterSetting),
+			label: "Player Chat",
+			value: Number(settings.chatSetting),
 			plus: (current : number) => {
-				settings.profanityFilterSetting = ProfanityFilterSetting.ON;
+				if (current === ChatSetting.ON) {
+					return;
+				}
+				settings.chatSetting++;
 			},
 			minus: (current : number) => {
-				settings.profanityFilterSetting = ProfanityFilterSetting.OFF;
-			},
-			get: () => { return settings.profanityFilterSetting; },
-			html: () => {
-				if (settings.profanityFilterSetting === ProfanityFilterSetting.ON) {
-					return "On";
+				if (current === ChatSetting.OFF) {
+					return;
 				}
-				return "Off";
+				settings.chatSetting--;
+			},
+			get: () => { return settings.chatSetting; },
+			html: (current : number) => {
+				return Strings.toTitleCase(ChatSetting[current]);
 			},
 		}));
 

@@ -76,6 +76,10 @@ export namespace SoundFactory {
 			path: "chat.mp3",
 			options: {},
 		}],
+		[SoundType.CLICK, {
+			path: "click.mp3",
+			options: {},
+		}],
 		[SoundType.CINEMATIC_WOOSH, {
 			path: "cinematic_woosh.mp3",
 			options: {

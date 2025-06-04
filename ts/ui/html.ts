@@ -14,6 +14,7 @@ export namespace Html {
 	export const divLoginButtons = "login-buttons";
 	export const buttonHost = "button-host";
 	export const buttonJoin = "button-join";
+	export const buttonQuit = "button-quit";
 
 	export const divOverlays = "div-overlays";
 

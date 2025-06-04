@@ -1,6 +1,7 @@
 import { Peer, DataConnection } from 'peerjs'
 
 import { game } from 'game'
+import { GameMode } from 'game/api'
 
 import { Flags } from 'global/flags'
 import { GameGlobals } from 'global/game_globals'
@@ -13,6 +14,8 @@ import { Connection } from 'network/connection'
 import { Netcode, NetcodeOptions } from 'network/netcode'
 
 import { settings } from 'settings'
+
+import { StringFactory } from 'strings/string_factory'
 
 import { ui } from 'ui'
 import { ChatType, StatusType } from 'ui/api'
@@ -144,7 +147,11 @@ export class Host extends Netcode {
 		});
 
 		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
-			this.handleChat(msg.name(), msg.getChatType(), msg.getChatMessage());
+			if (msg.hasChatMessage()) {
+				this.handleChat(msg.name(), msg.getChatTypeOr(ChatType.PRINT), msg.getChatMessage());
+			} else if (msg.hasGameMode()) {
+				this.handleChat(msg.name(), ChatType.PRINT, `wants to play ${StringFactory.getModeName(msg.getGameMode())}!`);
+			}
 		});
 
 		this.addMessageCallback(NetworkMessageType.JOIN_VOICE, (msg : NetworkMessage) => {
@@ -172,6 +179,9 @@ export class Host extends Netcode {
 
 	override sendChat(type : ChatType, message : string) : void {
 		this.sendChatFrom(game.clientId(), type, message);
+	}
+	override sendMessage(msg : NetworkMessage) : void {
+		this.broadcast(ChannelType.TCP, msg);
 	}
 
 	private sendChatFrom(clientId : number, type : ChatType, message : string) : void {
@@ -224,7 +234,7 @@ export class Host extends Netcode {
 		super.onKick(clientId);
 
 		this.sendChatFrom(clientId, ChatType.PRINT, "was banned!");
-		game.playerState(clientId)?.chat("BANNED!");
+		game.playerState(clientId)?.chatBubble("BANNED!");
 	}
 
 	private handleChat(fromId : string, type : ChatType, message : string) : void {

@@ -17,7 +17,7 @@ class Perch {
 
 		const proxy = Flags.perchProxy.get();
 		if (proxy !== "") {
-			this._url = window.location.href + proxy;
+			this._url = window.location.href + "/" + proxy;
 			this._host = proxy;
 
 			console.log("Using proxy:", this._url, this._host);

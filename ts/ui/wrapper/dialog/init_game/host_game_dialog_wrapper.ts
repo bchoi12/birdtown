@@ -56,10 +56,10 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			label: "Privacy",
 			value: this._publicRoom,
 			plus: (current : number) => {
-				this._publicRoom = 1;
+				this._publicRoom = 1 - this._publicRoom;
 			},
 			minus: (current : number) => {
-				this._publicRoom = 0;
+				this._publicRoom = 1 - this._publicRoom;
 			},
 			get: () => { return this._publicRoom; },
 			html: (current : number) => {

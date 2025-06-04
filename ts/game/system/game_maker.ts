@@ -35,6 +35,7 @@ import { globalRandom } from 'util/seeded_random'
 
 export class GameMaker extends SystemBase implements System {
 
+	private static readonly _announcementBuffer = 500;
 	private static readonly _lastDamageTime = 15000;
 	private static readonly _endTimeLimit = 3000;
 	private static readonly _preloadTimeLimit = 1500;
@@ -394,11 +395,11 @@ export class GameMaker extends SystemBase implements System {
 			break;
 		case GameState.PRELOAD:
 			if (this._round === 0) {
-		    	let startingMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-		    	startingMsg.setAnnouncementType(AnnouncementType.GAME_STARTING);
-		    	startingMsg.setNames([this._config.modeName()]);
-		    	startingMsg.setTtl(this.timeLimit(state));
-		    	game.announcer().broadcast(startingMsg);
+		    	game.announcer().announce({
+		    		type: AnnouncementType.GAME_STARTING,
+		    		names: [this._config.modeName()],
+		    		ttl: this.timeLimit(state),
+		    	});
 			}
 	    	break;
 		case GameState.LOAD:
@@ -433,11 +434,11 @@ export class GameMaker extends SystemBase implements System {
 
 			const name = this._config.modeName() + " Round " + this._round;
 			const description = GameMaker.description(this._config);
-	    	let startGameMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-	    	startGameMsg.setAnnouncementType(AnnouncementType.GENERIC);
-	    	startGameMsg.setNames([name, description]);
-	    	startGameMsg.setTtl(this.timeLimit(state) + 500);
-	    	game.announcer().broadcast(startGameMsg);
+	    	game.announcer().announce({
+	    		type: AnnouncementType.GENERIC,
+	    		names: [name, description],
+	    		ttl: this.timeLimit(state) + GameMaker._announcementBuffer,
+	    	});
 
 			game.audio().setAmbiance(this.getAmbiance());
 			break;
@@ -464,11 +465,11 @@ export class GameMaker extends SystemBase implements System {
 				}
 			});
 
-	    	let winnerMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-	    	winnerMsg.setAnnouncementType(AnnouncementType.GAME_FINISH);
-	    	winnerMsg.setNames(this.winnerName());
-	    	winnerMsg.setTtl(this.timeLimit(GameState.FINISH) - 1000);
-	    	game.announcer().broadcast(winnerMsg);
+	    	game.announcer().announce({
+	    		type: AnnouncementType.GAME_FINISH,
+	    		names: this.winnerNames(),
+	    		ttl: this.timeLimit(GameState.FINISH) - GameMaker._announcementBuffer,
+	    	});
 			break;
 		case GameState.VICTORY:
 			this._winners.forEach((clientId : number) => {
@@ -476,24 +477,23 @@ export class GameMaker extends SystemBase implements System {
 					game.tablet(clientId).addInfo(InfoType.WINS, 1);
 				}
 			});
-	    	let victorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-	    	victorMsg.setAnnouncementType(AnnouncementType.GAME_VICTORY);
-	    	victorMsg.setNames(this.winnerName());
-	    	victorMsg.setTtl(this.timeLimit(GameState.VICTORY) - 1000);
-	    	game.announcer().broadcast(victorMsg);
+	    	game.announcer().announce({
+	    		type: AnnouncementType.GAME_VICTORY,
+	    		names: this.winnerNames(),
+	    		ttl: this.timeLimit(GameState.VICTORY) - GameMaker._announcementBuffer,
+	    	});
 			break;
 		case GameState.END:
-	    	let endMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);
-	    	endMsg.setAnnouncementType(AnnouncementType.GAME_END);
-	    	game.announcer().broadcast(endMsg);
-
+	    	game.announcer().announce({
+	    		type: AnnouncementType.GAME_END,
+	    	});
 	    	this.queueForceSubmit(DialogType.LOADOUT);
 	    	break;
 		case GameState.ERROR:
-	    	let errorMsg = new GameMessage(GameMessageType.ANNOUNCEMENT);     
-	    	errorMsg.setAnnouncementType(AnnouncementType.GAME_ERROR);
-	    	errorMsg.setNames([this._errorMsg]);
-	    	game.announcer().broadcast(errorMsg);
+	    	game.announcer().announce({
+	    		type: AnnouncementType.GAME_ERROR,
+	    		names: [this._errorMsg],
+	    	});
 
 	    	this.queueForceSubmit(DialogType.LOADOUT);
 	    	break;
@@ -510,10 +510,10 @@ export class GameMaker extends SystemBase implements System {
 
 		const [log, hasLog] = player.stats().lastDamager(GameMaker._lastDamageTime);
 		if (!hasLog || !log.hasEntityLog()) {
-			let feed = new GameMessage(GameMessageType.FEED);
-			feed.setFeedType(FeedType.SUICIDE);
-			feed.setNames([tablet.displayName()]);
-			game.announcer().broadcast(feed);
+	    	game.announcer().feed({
+	    		type: FeedType.SUICIDE,
+	    		names: [tablet.displayName()],
+	    	});
 			return;
 		}
 
@@ -527,17 +527,17 @@ export class GameMaker extends SystemBase implements System {
 				const damagerTablet = game.tablet(damager.clientId())
 				damagerTablet.addInfo(InfoType.KILLS, 1);
 
-				let feed = new GameMessage(GameMessageType.FEED);
-				feed.setFeedType(FeedType.KILL);
-				feed.setNames([damagerTablet.displayName(), tablet.displayName()]);
-				game.announcer().broadcast(feed);
+		    	game.announcer().feed({
+		    		type: FeedType.KILL,
+		    		names: [damagerTablet.displayName(), tablet.displayName()],
+		    	});
 
 				if (this._config.getWinCondition() === WinConditionType.POINTS
 					&& damagerTablet.getInfo(InfoType.SCORE) === this._config.getPoints() - 1) {
-					let feed = new GameMessage(GameMessageType.FEED);
-					feed.setFeedType(FeedType.ONE_MORE);
-					feed.setNames([damagerTablet.displayName()]);
-					game.announcer().broadcast(feed);
+			    	game.announcer().feed({
+			    		type: FeedType.ONE_MORE,
+			    		names: [damagerTablet.displayName()],
+			    	});
 				}
 			}
 		}
@@ -682,7 +682,7 @@ export class GameMaker extends SystemBase implements System {
 		return teams;
 	}
 
-	private winnerName() : Array<string> {
+	private winnerNames() : Array<string> {
 		if (this._winners.length > 1) {
 			for (let i = 0; i < this._winners.length; ++i) {
 				if (game.playerStates().hasPlayerState(this._winners[i])) {

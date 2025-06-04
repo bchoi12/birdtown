@@ -19,7 +19,7 @@ import { Optional } from 'util/optional'
 
 export class ChatHandler extends HandlerBase implements Handler {
 
-	private static readonly _hideDelay = 8000;
+	private static readonly _hideDelay = 10000;
 
 	private _chatElm : HTMLElement;
 	private _messageElm : HTMLElement;
@@ -47,6 +47,10 @@ export class ChatHandler extends HandlerBase implements Handler {
 	}
 
 	chat(type : ChatType, msg : string, options? : ChatOptions) : void {
+		if (type === ChatType.CHAT && !settings.showChat()) {
+			return;
+		}
+
 		if (options && options.clientId > 0) {
 			let nameWrapper = new NameWrapper();
 			nameWrapper.setClientId(options.clientId);
@@ -56,7 +60,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 
 		let messageSpan = Html.span();
 		if (type === ChatType.CHAT) {
-			if (settings.filterProfanity()) {
+			if (settings.filterChat()) {
 				msg = this._profanity.censor(msg);
 			}
 			messageSpan.textContent = msg;
@@ -67,7 +71,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		messageSpan.style.fontSize = "0.9em";
 
 		switch (type) {
-		case ChatType.LOG:
+		case ChatType.INFO:
 		case ChatType.PRINT:
 			messageSpan.style.color = "#6b6b6b";
 			break;
@@ -84,13 +88,13 @@ export class ChatHandler extends HandlerBase implements Handler {
 			this.showChat();
 			this.delayedHide();
 
-			if (game.initialized()) {
+			if (type !== ChatType.INFO && game.initialized()) {
 				SoundFactory.play(SoundType.CHAT);
 			}
 		}
 
 		if (type === ChatType.CHAT) {
-			game.playerState(options.clientId)?.chat(msg);
+			game.playerState(options.clientId)?.chatBubble(msg);
 		}
 	}
 
@@ -182,7 +186,11 @@ export class ChatHandler extends HandlerBase implements Handler {
 			if (message.startsWith("/")) {
 				this.command(message);
 			} else {
-				game.netcode().sendChat(ChatType.CHAT, message);
+				if (settings.showChat()) {
+					game.netcode().sendChat(ChatType.CHAT, message);
+				} else {
+					this.chat(ChatType.ERROR, "Chat is disabled in settings");
+				}
 			}
 		}
 	}

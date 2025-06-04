@@ -99,7 +99,7 @@ export class JoinGameDialogWrapper extends InitGameDialogWrapper {
 	}
 
 	private refreshServers() : void {
-		this.setPendingMessage("Location is used for approximating distance to servers")
+		this.setPendingMessage("Location is used for approximating distance to public games")
 		this._serverWrapper.refresh(() => {
 			this.setReady();
 		});

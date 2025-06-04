@@ -285,7 +285,7 @@ export class PlayerState extends ClientSystem implements System {
 		}
 	}
 
-	chat(msg : string) : void {
+	chatBubble(msg : string) : void {
 		if (!this.activeTargetEntity()) {
 			return;
 		}

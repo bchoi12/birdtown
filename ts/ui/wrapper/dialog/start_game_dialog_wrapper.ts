@@ -9,6 +9,7 @@ import { PlayerConfig, PlayerInfo } from 'game/util/player_config'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
+import { NetworkMessage, NetworkMessageType } from 'message/network_message'
 
 import { settings } from 'settings'
 
@@ -16,7 +17,7 @@ import { Strings } from 'strings'
 import { StringFactory } from 'strings/string_factory'
 
 import { ui } from 'ui'
-import { DialogType } from 'ui/api'
+import { AnnouncementType, ChatType, DialogType } from 'ui/api'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon, IconType } from 'ui/common/icon'
 import { KeyNames } from 'ui/common/key_names'
@@ -74,7 +75,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		shareWrapper.configureForDialog();
 		this.footerElm().appendChild(shareWrapper.elm());
 
-		let okButton = this.addOKButton();
+		let okButton = this.addOKButton(game.isHost() ? "OK" : "Request to Play");
 		okButton.addOnClick(() => {
 			this.nextPage();
 		});
@@ -85,6 +86,18 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 
 		this.addOnSubmit(() => {
+			if (!game.isHost()) {
+				const mode = this.getMode();
+				if (mode === GameMode.UNKNOWN) {
+					return;
+				}
+
+				let requestMsg = new NetworkMessage(NetworkMessageType.CHAT);
+				requestMsg.setGameMode(mode)
+				game.netcode().sendMessage(requestMsg);
+				return;
+			}
+
 			if (this._configMsg !== null && this._playerConfigWrapper !== null) {
 				const config = this._playerConfigWrapper.config();
 				const [errors, ok] = config.canPlay(this._configMsg);
@@ -225,10 +238,18 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			const mode = this.getMode();
 			if (mode === GameMode.UNKNOWN) {
 				this.cancel();
-			} else {
+				return;
+			}
+
+			if (game.isHost()) {
+				game.netcode().sendChat(ChatType.INFO, `is setting up ${StringFactory.getModeName(mode)}`);
 				this.addModePage(mode);
 			}
 		});
+
+		if (game.isHost()) {
+			game.netcode().sendChat(ChatType.INFO, "is selecting a game mode...");
+		}
 	}
 
 	private addUnknownMode() : void {

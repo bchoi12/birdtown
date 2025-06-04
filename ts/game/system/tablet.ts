@@ -127,10 +127,10 @@ export class Tablet extends ClientSystem implements System {
 		super.delete();
 
 		if (this.hasDisplayName()) {
-	    	let msg = new GameMessage(GameMessageType.FEED);
-	    	msg.setNames([this.displayName()]);
-	    	msg.setFeedType(FeedType.LEAVE);
-	    	game.announcer().broadcast(msg);
+	    	game.announcer().feed({
+	    		type: FeedType.LEAVE,
+	    		names: [this.displayName()],
+	    	});
 		}
 	}
 

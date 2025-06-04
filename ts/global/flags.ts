@@ -15,6 +15,8 @@ export namespace Flags {
 	export const peerDebug = new NumberFlag("peerDebug", 2);
 	export const printDebug = new BoolFlag("printDebug", isLocalhost());
 
+	export const showQuitButton = new BoolFlag("showQuitButton", isDesktopApp());
+	export const allowLocation = new BoolFlag("allowLocation", !isDesktopApp());
 	export const allowSharing = new BoolFlag("allowSharing", true);
 	export const shareSameURL = new BoolFlag("shareSameURL", !isDesktopApp());
 
@@ -22,7 +24,6 @@ export namespace Flags {
 	export const localPerchPort = new NumberFlag("localPerchPort", 3000);
 	export const usePerch = new BoolFlag("usePerch", !isLocalhost());
 	export const refreshToken = new BoolFlag("refreshToken", isLocalhost());
-
 	export const perchProxy = new StringFlag("perchProxy", "");
 
 	export function validate() : [boolean, string] {

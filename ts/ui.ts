@@ -185,6 +185,10 @@ class UI {
 	hasAudio() : boolean { return this._audioContext.has(); }
 	// MUST BE CALLED ON USER GESTURE
 	enableAudio() : void {
+		if (!game.initialized() || this.hasAudio()) {
+			return;
+		}
+
 		BABYLON.Engine.audioEngine?.unlock()
 		this._audioContext.set(new AudioContext());
 		game.audio().onAudioEnabled();
@@ -208,6 +212,11 @@ class UI {
 	queryLatLng(onSuccess : (loc : LatLng) => void, onError : () => void) : void {
 		if (this._location.valid()) {
 			onSuccess(this._location);
+			return;
+		}
+
+		if (!Flags.allowLocation.get()) {
+			onError();
 			return;
 		}
 

@@ -54,20 +54,29 @@ export class ModeSelectWrapper extends ButtonSelectWrapper {
 	setMinRecommended(min : number) : void { this._minRecommended.set(min); }
 	setMaxRecommended(max : number) : void { this._maxRecommended.set(max); }
 
-	override select() : void {
+	override select() : boolean {
 		super.select();
 
-		this._selected = true;
+		if (this._selected) {
+			return false;
+		}
 
+		this._selected = true;
 		this.updateHTML();
+
+		return true;
 	}
 
-	override unselect() : void {
+	override unselect() : boolean {
 		super.unselect();
 
-		this._selected = false;
+		if (!this._selected) {
+			return false;
+		}
 
+		this._selected = false;
 		this.updateHTML();
+		return true;
 	}
 
 	private setValid(valid : boolean) : void {

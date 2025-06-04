@@ -8,9 +8,20 @@ import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
 
 import { ui } from 'ui'
-import { AnnouncementType } from 'ui/api'
+import { AnnouncementType, FeedType } from 'ui/api'
 
 import { LinkedList } from 'util/linked_list'
+
+type AnnouncementOptions = {
+	type : AnnouncementType;
+	names? : string[];
+	ttl? : number;
+}
+type FeedOptions = {
+	type : FeedType;
+	names? : string[];
+	ttl? : number;
+}
 
 export class Announcer extends SystemBase implements System {
 
@@ -41,7 +52,30 @@ export class Announcer extends SystemBase implements System {
 		});
 	}
 
-	broadcast(msg : GameMessage) : void {
+	announce(options : AnnouncementOptions) : void {
+		let msg = new GameMessage(GameMessageType.ANNOUNCEMENT);
+		msg.setAnnouncementType(options.type);
+		if (options.names) {
+			msg.setNames(options.names);
+		}
+		if (options.ttl) {
+			msg.setTtl(options.ttl);
+		}
+    	this.broadcastMessage(msg);
+	}
+	feed(options : FeedOptions) : void {
+		let msg = new GameMessage(GameMessageType.FEED);
+		msg.setFeedType(options.type);
+		if (options.names) {
+			msg.setNames(options.names);
+		}
+		if (options.ttl) {
+			msg.setTtl(options.ttl);
+		}
+    	this.broadcastMessage(msg);
+	}
+
+	broadcastMessage(msg : GameMessage) : void {
 		if (!this.isSource()) {
 			return;
 		}

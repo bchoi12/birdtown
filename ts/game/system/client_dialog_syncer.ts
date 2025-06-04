@@ -110,10 +110,10 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 			break;
 		case DialogType.LOADOUT:
 			if (this.isHost() && game.controller().gameState() === GameState.SETUP) {
-	    		let msg = new GameMessage(GameMessageType.FEED);
-	    		msg.setNames([game.tablet(this.clientId()).displayName()]);
-		    	msg.setFeedType(FeedType.READY);
-		    	game.announcer().broadcast(msg);
+		    	game.announcer().feed({
+		    		type: FeedType.READY,
+		    		names: [game.tablet(this.clientId()).displayName()],
+		    	});
 			}
 			break;
 		}

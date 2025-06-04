@@ -124,7 +124,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	autoJoinFailed() : void {
-		this._infoElm.textContent = "Click refresh to look for more servers.";
+		this._infoElm.textContent = "Click refresh to look for public games.";
 	}
 
 	private setPending(pending : boolean) : void {
@@ -149,7 +149,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 
 			const rooms = Object.entries(data);
 			if (!rooms || rooms.length === 0) {
-				this._infoElm.textContent = "No servers found. Start a game instead?";
+				this._infoElm.textContent = "No public games found. Start a game instead?";
 				this._hostButton.show();
 				this._table.elm().style.display = "none";
 				return;

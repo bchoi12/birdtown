@@ -1,4 +1,7 @@
 
+import { SoundType } from 'game/factory/api'
+import { SoundFactory } from 'game/factory/sound_factory'
+
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 import { Icon, IconType } from 'ui/common/icon'
@@ -53,8 +56,13 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		this.elm().onclick = (e) => {
 			e.stopPropagation();
 			e.preventDefault();
-			this.click();
-			this.select();
+
+			const clicked = this.click();
+			const selected = this.select();
+
+			if (clicked || selected) {
+				SoundFactory.play(SoundType.CLICK);
+			}
 		};
 
 		this.elm().onmouseenter = (e) => {
@@ -149,14 +157,19 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	}
 	addOnUnselect(fn : OnEventFn) : void { this._onUnselectFns.push(fn); }
 
-	click() : void {
+	protected click() : boolean {
 		if (this._gray) {
-			return;
+			return false;
+		}
+
+		if (this._onClickFns.length === 0) {
+			return false;
 		}
 
 		this._onClickFns.forEach((fn : OnEventFn) => {
 			fn();
 		});
+		return true;
 	}
 	setHoverColor(color : string) : void { this._hoverColor = color; }
 	mouseEnter() : void {
@@ -185,12 +198,12 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	invert() : void { this.elm().classList.add(Html.classButtonInverted); }
 
 	selected() : boolean { return this._state === ButtonState.SELECTED; }
-	select() : void {
+	protected select() : boolean {
 		if (this._onSelectFns.length === 0 && this._onUnselectFns.length === 0) {
-			return;
+			return false;
 		}
 		if (this._state === ButtonState.SELECTED) {
-			return;
+			return false;
 		}
 
 		this._onSelectFns.forEach((fn : OnEventFn) => {
@@ -198,14 +211,15 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		});
 		this._state = ButtonState.SELECTED;
 		this.elm().classList.add(Html.classButtonSelected);
+		return true;
 	}
 
-	unselect() : void {
+	unselect() : boolean {
 		if (this._onSelectFns.length === 0 && this._onUnselectFns.length === 0) {
-			return;
+			return false;
 		}
 		if (this._state !== ButtonState.SELECTED) {
-			return;
+			return false;
 		}
 
 		this._onUnselectFns.forEach((fn : OnEventFn) => {
@@ -213,5 +227,6 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 		});
 		this._state = ButtonState.UNSELECTED;
 		this.elm().classList.remove(Html.classButtonSelected);
+		return true;
 	}
 }

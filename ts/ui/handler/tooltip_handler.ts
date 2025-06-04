@@ -137,7 +137,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return "Press <kbd>any key</kbd> to deploy"
 		case TooltipType.START_GAME:
 			if (!game.isHost()) {
-				return `${Icon.string(IconType.SIGN)} Only the host can start a game`;
+				return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to view game modes\nOnly the host can start a game`;
 			}
 			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to start a game`;
 		case TooltipType.WEAPON_CRATE:
@@ -146,7 +146,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			}
 			return `Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to equip ${names[0]}`;
 		default:
-			return "Missing tooltip text for type " + type;
+			return "Missing tooltip text for type " + TooltipType[type];
 		}
 	}
 }

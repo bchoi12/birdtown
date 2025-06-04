@@ -130,11 +130,13 @@ export abstract class Netcode {
 				token: settings.userToken,
 				proxied: true,
 				port: 443,
+				secure: true,
 			};
 
 			if (Flags.useLocalPerch.get()) {
 				peerOptions.proxied = false;
 				peerOptions.port = Flags.localPerchPort.get();
+				peerOptions.secure = false;
 			}
 			this._peer = new Peer(this.peerName(), peerOptions);
 		} else {
@@ -195,6 +197,7 @@ export abstract class Netcode {
 	abstract ready() : boolean;
 	abstract isHost() : boolean;
 	abstract setVoiceEnabled(enabled : boolean) : void;
+	abstract sendMessage(msg : NetworkMessage) : void;
 	abstract sendChat(type : ChatType, message : string) : void;
 
 	id() : string { return this._peer.id; }

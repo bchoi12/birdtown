@@ -105,6 +105,15 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 			return {
 				main: names.join(", ") + " wins the round!",
 			};
+		case AnnouncementType.GAME_SELECTED:
+			if (names.length < 2) {
+				return {
+					main: "Game mode has been selected",
+				};
+			}
+			return {
+				main: `${names[0]} is setting up ${names[1]}`
+			}
 		case AnnouncementType.GAME_STARTING:
 			return {
 				main: (names.length === 1 ? names[0] : "Game") + " starting soon!"

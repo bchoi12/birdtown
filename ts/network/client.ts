@@ -78,6 +78,9 @@ export class Client extends Netcode {
 		let msg = new NetworkMessage(NetworkMessageType.CHAT);
 		msg.setChatMessage(message);
 		msg.setChatType(type);
+		this.sendMessage(msg);
+	}
+	override sendMessage(msg : NetworkMessage) : void {
 		this.send(this.hostName(), ChannelType.TCP, msg);
 	}
 
@@ -94,13 +97,13 @@ export class Client extends Netcode {
 
 		if (enabled) {
 			this.queryMic((stream : MediaStream) => {
-				this.send(this.hostName(), ChannelType.TCP, outgoing);
+				this.sendMessage(outgoing);
 			}, (e) => {
 				this._voiceEnabled = false;
 				ui.handleVoiceError(this.clientId());
 			});
 		} else {
-			this.send(this.hostName(), ChannelType.TCP, outgoing);
+			this.sendMessage(outgoing);
 			this.closeMediaConnections();
 		}
 	}
@@ -112,9 +115,11 @@ export class Client extends Netcode {
 		});
 
 		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
-			ui.chat(msg.getChatType(), msg.getChatMessage(), {
-				clientId: msg.getClientIdOr(0),
-			});
+			if (msg.hasChatMessage()) {
+				ui.chat(msg.getChatTypeOr(ChatType.PRINT), msg.getChatMessage(), {
+					clientId: msg.getClientIdOr(0),
+				});
+			}
 		});
 
 		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
@@ -132,7 +137,7 @@ export class Client extends Netcode {
 			});
 			this.callAll(clients, () => {
 				const successMsg = new NetworkMessage(NetworkMessageType.JOIN_VOICE);
-				this.send(this.hostName(), ChannelType.TCP, successMsg);
+				this.sendMessage(successMsg);
 			}, () => {
 				this._voiceEnabled = false;
 				ui.handleVoiceError(this.clientId());

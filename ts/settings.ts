@@ -9,13 +9,13 @@ import {
 	SettingType,
 
 	AntiAliasSetting,
+	ChatSetting,
 	ClientPredictionSetting,
 	DamageNumberSetting,
 	FullscreenSetting,
 	ShadowFilteringSetting,
 	MusicSetting,
 	PointerSetting,
-	ProfanityFilterSetting,
 	ScreenShakeSetting,
 	ShadowSetting,
 	SpeedSetting,
@@ -47,7 +47,7 @@ class Settings {
 	public fullscreenSetting : FullscreenSetting;
 	public clientPredictionSetting : ClientPredictionSetting;
 	public damageNumberSetting : DamageNumberSetting;
-	public profanityFilterSetting : ProfanityFilterSetting;
+	public chatSetting : ChatSetting;
 	public screenShakeSetting : ScreenShakeSetting;
 
 	// Audio
@@ -100,7 +100,7 @@ class Settings {
 		this.fullscreenSetting = (isMobile() || isDesktopApp()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 		this.damageNumberSetting = DamageNumberSetting.OFF;
-		this.profanityFilterSetting = ProfanityFilterSetting.ON;
+		this.chatSetting = ChatSetting.FILTER;
 		this.screenShakeSetting = ScreenShakeSetting.ON;
 
 		this.musicSetting = MusicSetting.ON
@@ -133,7 +133,7 @@ class Settings {
 			[SettingType.FULLSCREEN, FullscreenSetting[this.fullscreenSetting]],
 			[SettingType.CLIENT_PREDICTION, ClientPredictionSetting[this.clientPredictionSetting]],
 			[SettingType.DAMAGE_NUMBER, DamageNumberSetting[this.damageNumberSetting]],
-			[SettingType.PROFANITY_FILTER, ProfanityFilterSetting[this.profanityFilterSetting]],
+			[SettingType.CHAT, ChatSetting[this.chatSetting]],
 			[SettingType.SCREEN_SHAKE, ScreenShakeSetting[this.screenShakeSetting]],
 
 			[SettingType.MUSIC, MusicSetting[this.musicSetting]],
@@ -180,8 +180,8 @@ class Settings {
 		this.loadSetting(SettingType.DAMAGE_NUMBER, (value : string) => {
 			this.damageNumberSetting = DamageNumberSetting[value];
 		});
-		this.loadSetting(SettingType.PROFANITY_FILTER, (value : string) => {
-			this.profanityFilterSetting = ProfanityFilterSetting[value];
+		this.loadSetting(SettingType.CHAT, (value : string) => {
+			this.chatSetting = ChatSetting[value];
 		});
 		this.loadSetting(SettingType.SCREEN_SHAKE, (value : string) => {
 			this.screenShakeSetting = ScreenShakeSetting[value];
@@ -248,7 +248,8 @@ class Settings {
 
 	fullscreen() : boolean { return this.fullscreenSetting === FullscreenSetting.FULLSCREEN; }
 	showDamageNumbers() : boolean { return this.damageNumberSetting === DamageNumberSetting.ON; }
-	filterProfanity() : boolean { return this.profanityFilterSetting === ProfanityFilterSetting.ON; }
+	showChat() : boolean { return this.chatSetting !== ChatSetting.OFF; }
+	filterChat() : boolean { return this.chatSetting === ChatSetting.FILTER; }
 	shakeScreen() : boolean { return this.screenShakeSetting === ScreenShakeSetting.ON; }
 	speed() : SpeedSetting { return this.speedSetting; }
 

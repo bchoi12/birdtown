@@ -1,4 +1,7 @@
 
+import { SoundType } from 'game/factory/api'
+import { SoundFactory } from 'game/factory/sound_factory'
+
 import { ui } from 'ui'
 import { Html, HtmlWrapper } from 'ui/html'
 import { LabelButtonWrapper } from 'ui/wrapper/label/label_button_wrapper'
@@ -39,6 +42,8 @@ export class SettingWrapper<T extends number> extends LabelButtonWrapper {
 		this.elm().onclick = (e) => {
 			this._value = this._options.click(this._value);
 			this.refresh();
+
+			SoundFactory.play(SoundType.CLICK);
 		}
 	}
 

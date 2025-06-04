@@ -33,6 +33,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 	private _hostButton : HTMLInputElement;
 	private _joinButton : HTMLInputElement;
+	private _quitButton : HTMLInputElement;
 
 	private _hostWrapper : HostGameDialogWrapper;
 	private _joinWrapper : JoinGameDialogWrapper;
@@ -50,6 +51,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 		this._hostButton = Html.inputElm(Html.buttonHost);
 		this._joinButton = Html.inputElm(Html.buttonJoin);
+		this._quitButton = Html.inputElm(Html.buttonQuit);
 
 		this._hostWrapper = new HostGameDialogWrapper();
 		this._joinWrapper = new JoinGameDialogWrapper();
@@ -76,6 +78,10 @@ export class LoginHandler extends HandlerBase implements Handler {
 		if (room.length > 0) {
 			const password = Flags.password.get();
 			this.joinGame(room, password);
+		}
+
+		if (Flags.showQuitButton.get()) {
+			this._quitButton.style.display = "revert";
 		}
 
 		this.enable();

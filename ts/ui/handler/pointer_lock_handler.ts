@@ -9,8 +9,6 @@ import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 
-import { isDesktopApp } from 'util/common'
-
 export class PointerLockHandler extends HandlerBase implements Handler {
 
 	private _requested : boolean;
@@ -18,7 +16,7 @@ export class PointerLockHandler extends HandlerBase implements Handler {
 	constructor() {
 		super(HandlerType.POINTER_LOCK);
 
-		this._requested = isDesktopApp() ? true : false;
+		this._requested = false;
 	}
 
 	override onPlayerInitialized() : void {
