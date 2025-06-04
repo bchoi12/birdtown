@@ -23,9 +23,9 @@ import { Vec, Vec2 } from 'util/vector'
 export class GoldenBullet extends Projectile {
 
 	private static readonly _trailVertices = [
-        new BABYLON.Vector3(0, 0, 0.05),
-        new BABYLON.Vector3(-1.5, 0, 0),
-        new BABYLON.Vector3(0, 0, -0.05),
+        new BABYLON.Vector3(0, 0, 0.08),
+        new BABYLON.Vector3(-2, 0, 0),
+        new BABYLON.Vector3(0, 0, -0.08),
 	];
 
 	private _trail : BABYLON.Mesh;

@@ -56,6 +56,8 @@ export abstract class Block extends EntityBase {
 	protected static readonly _freezeStates = new Set([
 		GameState.ERROR,
 		GameState.END,
+		GameState.FINISH,
+		GameState.VICTORY,
 	]);
 
 	protected static readonly _minOpacity = 0.15;
@@ -190,10 +192,6 @@ export abstract class Block extends EntityBase {
 			return;
 		}
 
-		if (Block._freezeStates.has(game.controller().gameState())) {
-			return;
-		}
-
 		let targetAlpha = this.checkAlpha();
 		if (!settings.transparentEffects()) {
 			if (targetAlpha <= Block._transparentAlpha) {
@@ -212,6 +210,9 @@ export abstract class Block extends EntityBase {
 			// Smooth-ish transition
 			if (targetAlpha < this._alpha) {
 				alpha = Math.max(targetAlpha, this._alpha - 0.1);
+			} else if (Block._freezeStates.has(game.controller().gameState())) {
+				// Don't occlude during freeze states
+				alpha = this._alpha;
 			} else {
 				alpha = Math.min(targetAlpha, this._alpha + 0.1);
 			}

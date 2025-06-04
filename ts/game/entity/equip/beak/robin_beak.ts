@@ -12,5 +12,4 @@ export class RobinBeak extends Beak {
 
 	override meshType() : MeshType { return MeshType.ROBIN_BEAK; }
 	override soundType() : SoundType { return SoundType.BIRD_SONG; }
-	override squawkCooldown() : number { return 3000; }
 }

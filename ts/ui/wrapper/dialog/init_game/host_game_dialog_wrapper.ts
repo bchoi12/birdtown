@@ -51,6 +51,23 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		this._settingsCategory.setAlwaysExpand(true);
 		this.form().appendChild(this._settingsCategory.elm());
 
+		this._publicRoom = 0;
+		this._privacySetting = new LabelNumberWrapper({
+			label: "Privacy",
+			value: this._publicRoom,
+			plus: (current : number) => {
+				this._publicRoom = 1;
+			},
+			minus: (current : number) => {
+				this._publicRoom = 0;
+			},
+			get: () => { return this._publicRoom; },
+			html: (current : number) => {
+				return this._publicRoom === 1 ? "Public" : "Private";
+			}
+		});
+		this._settingsCategory.contentElm().appendChild(this._privacySetting.elm());
+
 		this._name = "Birdtown" + IdGen.randomNum(InitGameDialogWrapper._roomLength)
 
 		this._nameInput = new LabelInputWrapper();
@@ -72,23 +89,6 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		this._advancedCategory.setTitle("Advanced Settings");
 		this._advancedCategory.setExpanded(true);
 		this.form().appendChild(this._advancedCategory.elm());
-
-		this._publicRoom = 1;
-		this._privacySetting = new LabelNumberWrapper({
-			label: "Allow anyone to join",
-			value: this._publicRoom,
-			plus: (current : number) => {
-				this._publicRoom = 1;
-			},
-			minus: (current : number) => {
-				this._publicRoom = 0;
-			},
-			get: () => { return this._publicRoom; },
-			html: (current : number) => {
-				return this._publicRoom === 1 ? "Yes" : "No";
-			}
-		});
-		this._advancedCategory.contentElm().appendChild(this._privacySetting.elm());
 
 		this._maxPlayers = HostGameDialogWrapper._defaultMaxPlayers;
 		this._maxPlayersSetting = new LabelNumberWrapper({
@@ -144,6 +144,11 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 
 		if (!navigator.geolocation) {
 			console.error("Warning: location not supported, hosting anyway");
+			super.connect();
+			return;
+		}
+
+		if (this._publicRoom !== 1) {
 			super.connect();
 			return;
 		}

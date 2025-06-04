@@ -10,6 +10,6 @@ export class GoldenExplosion extends Explosion {
 		super(EntityType.GOLDEN_EXPLOSION, entityOptions);
 	}
 
-	override force() : number { return 0.8; }
+	override force() : number { return 0.9; }
 	override materialType() : MaterialType { return MaterialType.PARTICLE_YELLOW; }
 }

@@ -47,8 +47,10 @@ export enum LevelType {
 export enum LoadoutType {
 	UNKNOWN,
 
-	PICK,
+	PICK_TURNS,
+	PICK_THREE,
 	RANDOM,
+	RANDOM_ALL,
 	GOLDEN_GUN,
 }
 

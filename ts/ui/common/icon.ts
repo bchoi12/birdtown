@@ -118,7 +118,7 @@ export namespace Icon {
 		[IconType.KICK, "block"],
 		[IconType.LOW_SPEC, "keyboard_arrow_down"],
 		[IconType.LOWEST_SPEC, "keyboard_double_arrow_down"],
-		[IconType.MONEY, "paid"],
+		[IconType.MONEY, "local_atm"],
 		[IconType.NETWORK_SIGNAL, "signal_cellular_alt"],
 		[IconType.ONE_MORE, "counter_1"],
 		[IconType.ORBS, "scatter_plot"],

@@ -357,6 +357,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		case GameMode.DUEL:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_TURNS, LoadoutType.RANDOM_ALL]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
@@ -369,7 +370,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			if (mode !== GameMode.GOLDEN_GUN) {
-				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM]).elm());
 				otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 				otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			}
@@ -385,7 +386,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());	
 			coreCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM]).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
@@ -393,7 +394,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.BIRDTOWN_CIRCLE, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
@@ -402,7 +403,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		case GameMode.VIP:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
@@ -546,37 +547,47 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			}
 		});
 	}
-	private loadoutWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
+
+	private loadoutWrapper(msg : GameConfigMessage, types : LoadoutType[]) : LabelNumberWrapper {
+		let index = types.indexOf(msg.getStartingLoadout());
+		if (index < 0) {
+			msg.setStartingLoadout(types[0]);
+			index = 0;
+		}
+
 		return new LabelNumberWrapper({
-			label: "Starting loadout",
-			value: Number(msg.getStartingLoadout()),
+			label: "Starting Loadout",
+			value: msg.getStartingLoadout(),
 			plus: (current : number) => {
-				if (current === LoadoutType.PICK) {
-					msg.setStartingLoadout(LoadoutType.RANDOM);
-				} else {
-					msg.setStartingLoadout(LoadoutType.PICK);
+				index++;
+				if (index >= types.length) {
+					index = 0;
 				}
+				msg.setStartingLoadout(types[index]);
 			},
 			minus: (current : number) => {
-				if (current === LoadoutType.PICK) {
-					msg.setStartingLoadout(LoadoutType.RANDOM);
-				} else {
-					msg.setStartingLoadout(LoadoutType.PICK);
+				index--;
+				if (index < 0) {
+					index = types.length - 1;
 				}
+				msg.setStartingLoadout(types[index]);
 			},
 			get: () => { return msg.getStartingLoadout(); },
 			html: (current : number) => {
 				switch (current) {
-				case LoadoutType.PICK:
-					return "Pick";
+				case LoadoutType.PICK_TURNS:
+				case LoadoutType.PICK_THREE:
+					return "Choose from 3";
 				case LoadoutType.RANDOM:
-					return "Random";
+				case LoadoutType.RANDOM_ALL:
+					return "Random"
 				default:
 					return "???";
 				}
 			},
 		});
 	}
+
 	private healthCrateWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
 		return new LabelNumberWrapper({
 			label: "Health crate drop rate",

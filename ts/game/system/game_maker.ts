@@ -59,6 +59,7 @@ export class GameMaker extends SystemBase implements System {
 	private _playerConfig : PlayerConfig;
 	private _playerRotator : PlayerRotator;
 	private _round : number;
+	private _equipPair : [EntityType, EntityType];
 	private _vipIds : Optional<Set<number>>;
 	private _winners : Array<number>;
 	private _winnerClientId : number;
@@ -71,6 +72,7 @@ export class GameMaker extends SystemBase implements System {
 		this._playerConfig = PlayerConfig.empty();
 		this._playerRotator = new PlayerRotator();
 		this._round = 0;
+		this._equipPair = [EntityType.UNKNOWN, EntityType.UNKNOWN];
 		this._vipIds = new Optional();
 		this._winners = new Array();
 		this._winnerClientId = 0;
@@ -154,25 +156,23 @@ export class GameMaker extends SystemBase implements System {
 			return EquipPairs.nextDefaultPair();
 		}
 
-		if (this._config.getStartingLoadout() === LoadoutType.GOLDEN_GUN) {
-			return [EntityType.GOLDEN_GUN, EntityType.TOP_HAT];
-		}
-
 		if (this.isVIP(clientId)) {
 			return [EntityType.GOLDEN_GUN, EntityType.TOP_HAT];
 		}
 
-		if (this._config.getStartingLoadout() === LoadoutType.RANDOM) {
+		if (this._config.getStartingLoadout() === LoadoutType.GOLDEN_GUN) {
+			return [EntityType.GOLDEN_GUN, EntityType.TOP_HAT];
+		} else if (this._config.getStartingLoadout() === LoadoutType.RANDOM) {
 			return EquipPairs.random();
+		} else if (this._config.getStartingLoadout() === LoadoutType.RANDOM_ALL) {
+			return this._equipPair;
 		}
 
 		let id = 0;
-		if (this._config.getStartingLoadout() === LoadoutType.PICK) {
-			if (this._config.type() === GameMode.DUEL) {
-				id = this._playerRotator.currentFromAll();
-			} else {
-				id = clientId;
-			}
+		if (this._config.getStartingLoadout() === LoadoutType.PICK_THREE) {
+			id = clientId;
+		} else if (this._config.getStartingLoadout() === LoadoutType.PICK_TURNS) {
+			id = this._playerRotator.currentFromAll();
 		}
 
 		if (game.clientDialogs().hasClientDialog(id)) {
@@ -322,7 +322,7 @@ export class GameMaker extends SystemBase implements System {
 					this.processKillOn(player);
 					if (!game.tablet(clientId).outOfLives()) {
 						playerState.waitUntil(PlayerRole.PREPARING, GameMaker._respawnTime, () => {
-							if (this._config.getStartingLoadout() !== LoadoutType.PICK || game.controller().gameState() !== GameState.GAME) {
+							if (this._config.getStartingLoadout() !== LoadoutType.PICK_THREE || game.controller().gameState() !== GameState.GAME) {
 								return;
 							}
 							if (game.clientDialogs().hasClientDialog(clientId)) {
@@ -443,7 +443,7 @@ export class GameMaker extends SystemBase implements System {
 			break;
 		case GameState.SETUP:
 			this.assignRoles();
-			this.showSetupDialogs();
+			this.configureLoadout();
 			break;
 		case GameState.GAME:
 	    	this.queueForceSubmit(DialogType.LOADOUT);
@@ -560,13 +560,18 @@ export class GameMaker extends SystemBase implements System {
 		}
 	}
 
-	private showSetupDialogs() : void {
+	private configureLoadout() : void {
+		if (this._config.getStartingLoadout() === LoadoutType.RANDOM_ALL) {
+			this._equipPair = EquipPairs.next();
+			return;
+		}
+
 		if (this._config.getStartingLoadout() === LoadoutType.RANDOM
 			|| this._config.getStartingLoadout() === LoadoutType.GOLDEN_GUN) {
 			return;
 		}
 
-		if (this.mode() === GameMode.DUEL) {
+		if (this._config.getStartingLoadout() === LoadoutType.PICK_TURNS) {
 			const nextId = this._playerRotator.nextFromAll();
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 				clientDialog.queueDialog(DialogType.LOADOUT);

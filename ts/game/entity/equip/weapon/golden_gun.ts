@@ -22,8 +22,8 @@ export class GoldenGun extends Weapon {
 	private static readonly _bursts = 1;
 	private static readonly _config = {
 		times: new Map([
-			[WeaponState.FIRING, 120],
-			[WeaponState.RELOADING, 1200],
+			[WeaponState.FIRING, 140],
+			[WeaponState.RELOADING, 1400],
 		]),
 		bursts: GoldenGun._bursts,
 	};

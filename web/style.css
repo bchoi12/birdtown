@@ -215,7 +215,7 @@ kbd {
     margin: 0 auto;
     margin-top: 0.3em;
     border-radius: 0.2em;
-    font-size: 0.7em;
+    font-size: 0.6em;
 }
 
 .login-button {
@@ -223,12 +223,9 @@ kbd {
     margin-top: 0.3em;
     margin-bottom: 0.3em;
     width: 50%;
-    padding: 0.8em 0.4em;
-    border-radius: 0.5em;
+    padding: 1em 0.4em;
     border: 0;
     color: #f2f2f2;
-
-    transition: border-radius 0.3s;
 }
 .login-button:hover {
     background: #444444;
@@ -1043,6 +1040,7 @@ kbd {
     height: 1em;
     display: block;
     border-radius: 0;
+    margin-bottom: 0.1em;
 }
 
 .label:hover {

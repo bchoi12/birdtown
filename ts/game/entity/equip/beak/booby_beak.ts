@@ -12,5 +12,5 @@ export class BoobyBeak extends Beak {
 
 	override meshType() : MeshType { return MeshType.BOOBY_BEAK; }
 	override soundType() : SoundType { return SoundType.SQUAWK; }
-	override squawkCooldown() : number { return 1000; }
+	override squawkCooldown() : number { return 900; }
 }

@@ -18,6 +18,7 @@ export namespace EquipPairs {
 
 	let weapons = [...pairs.keys()];
 	let nextIndex = -1;
+	let shuffled = false;
 
 	// [0, 1, 2, 3, ...]
 	let indices = Array.from(Array(weapons.length).keys());
@@ -51,11 +52,16 @@ export namespace EquipPairs {
 		return globalRandom.int(weapons.length);
 	}
 	function getNextIndex() : number {
-		if (nextIndex < 0 || nextIndex >= weapons.length) {
+		if (nextIndex < 0) {
 			globalRandom.shuffle(weapons);
 			nextIndex = 0;
 		} else {
 			nextIndex++;
+		}
+
+		if (nextIndex >= weapons.length) {
+			globalRandom.shuffle(weapons);
+			nextIndex = 0;
 		}
 		return nextIndex;
 	}
@@ -63,6 +69,10 @@ export namespace EquipPairs {
 		return [type, getAltEquip(type)];
 	}
 	function getDefaultPair(type : EntityType) : [EntityType, EntityType] {
+		if (!pairs.has(type)) {
+			console.error("Error: invalid equip %s", EntityType[type]);
+			return [EntityType.UNKNOWN, EntityType.UNKNOWN];
+		}
 		return [type, pairs.get(type)[0]];
 	}
 	function getAltEquip(type : EntityType) : EntityType {

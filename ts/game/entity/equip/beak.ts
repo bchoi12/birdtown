@@ -26,7 +26,7 @@ enum Animation {
 export abstract class Beak extends Equip<Player> {
 
 	private static readonly _animations = new Set<string>([Animation.IDLE, Animation.SQUAWK]);
-	private static readonly _squawkCooldown = 3000;
+	private static readonly _squawkCooldown = 2500;
 
 	private _squawking : boolean;
 	private _squawkTimer : Timer;

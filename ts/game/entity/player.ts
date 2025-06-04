@@ -685,7 +685,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			return;
 		}
 
-		const time = Math.min(2, 0.5 * Math.ceil(dmg / 10)) * Player._damageFlashTime; 
+		const time = Fns.clamp(1, 0.5 * Math.ceil(dmg / 10), 2) * Player._damageFlashTime; 
 		if (!this._damageTimer.hasTimeLeft() || time > this._damageTimer.millisLeft()) {
 			this._damageTimer.start(time, () => {
 				this.setDamageEffect(0);

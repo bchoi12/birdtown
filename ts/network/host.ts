@@ -46,6 +46,7 @@ export class Host extends Netcode {
 	override isHost() : boolean { return true; }
 	override getParams() : string {
 		return [
+			"h",
 			this._options.publicRoom ? "pub" : "prv",
 			this.maxPlayers(),
 			this._options.name,

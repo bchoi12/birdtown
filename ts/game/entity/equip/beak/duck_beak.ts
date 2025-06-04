@@ -12,5 +12,5 @@ export class DuckBeak extends Beak {
 
 	override meshType() : MeshType { return MeshType.DUCK_BEAK; }
 	override soundType() : SoundType { return SoundType.QUACK; }
-	override squawkCooldown() : number { return 1000; }
+	override squawkCooldown() : number { return 900; }
 }
