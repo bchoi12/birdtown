@@ -51,6 +51,10 @@ export class ChatHandler extends HandlerBase implements Handler {
 			return;
 		}
 
+		if (type === ChatType.INFORM && game.clientId() === options.clientId) {
+			return;
+		}
+
 		if (options && options.clientId > 0) {
 			let nameWrapper = new NameWrapper();
 			nameWrapper.setClientId(options.clientId);
@@ -71,7 +75,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		messageSpan.style.fontSize = "0.9em";
 
 		switch (type) {
-		case ChatType.INFO:
+		case ChatType.INFORM:
 		case ChatType.PRINT:
 			messageSpan.style.color = "#6b6b6b";
 			break;
@@ -88,7 +92,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 			this.showChat();
 			this.delayedHide();
 
-			if (type !== ChatType.INFO && game.initialized()) {
+			if (type !== ChatType.INFORM && game.initialized()) {
 				SoundFactory.play(SoundType.CHAT);
 			}
 		}

@@ -242,13 +242,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			}
 
 			if (game.isHost()) {
-				game.netcode().sendChat(ChatType.INFO, `is setting up ${StringFactory.getModeName(mode)}`);
+				game.netcode().sendChat(ChatType.INFORM, `is setting up ${StringFactory.getModeName(mode)}`);
 				this.addModePage(mode);
 			}
 		});
 
-		if (game.isHost()) {
-			game.netcode().sendChat(ChatType.INFO, "is selecting a game mode...");
+	if (game.isHost()) {
+			game.netcode().sendChat(ChatType.INFORM, "is selecting a game mode...");
 		}
 	}
 

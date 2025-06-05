@@ -227,12 +227,21 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setWinCondition(WinConditionType.LIVES);
 			break;
 		case GameMode.TEAM_BATTLE:
-		case GameMode.VIP:
 			this.setLives(1);
 			this.setPlayersMin(2);
 			this.setLevelType(LevelType.BIRDTOWN);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.LOW);
+			this.setStartingLoadout(LoadoutType.PICK_THREE);
+			this.setVictories(3);
+			this.setWinCondition(WinConditionType.TEAM_LIVES);
+			break;
+		case GameMode.VIP:
+			this.setLives(1);
+			this.setPlayersMin(2);
+			this.setLevelType(LevelType.BIRDTOWN);
+			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setWeaponCrateSpawn(FrequencyType.NEVER);
 			this.setStartingLoadout(LoadoutType.PICK_THREE);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.TEAM_LIVES);

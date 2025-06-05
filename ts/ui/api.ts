@@ -34,8 +34,8 @@ export enum ChatType {
 
 	// Doesn't show chat
 	LOG,
-	// Show chat, no sound
-	INFO,
+	// Show chat, no sound. Only show for others
+	INFORM,
 	// Show chat, play sound
 	PRINT,
 	// Also red

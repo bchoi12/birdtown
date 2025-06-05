@@ -29,10 +29,11 @@ export class PurpleHeadband extends Equip<Player> {
         new BABYLON.Vector3(0, 0, -0.4),
 	];
 
-	private static readonly _chargeDelay = 500;
-	private static readonly _cooldown = 900;
-	private static readonly _groundCooldown = 450;
+	private static readonly _chargeDelay = 400;
+	private static readonly _cooldown = 2000;
+	private static readonly _groundCooldown = 1000;
 	private static readonly _dashTime = 250;
+	private static readonly _dashJuice = 50;
 	private static readonly _maxJuice = 100;
 	private static readonly _force = 0.8;
 
@@ -109,7 +110,7 @@ export class PurpleHeadband extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		this.setCanUse(this._juice >= PurpleHeadband._maxJuice);
+		this.setCanUse(this._juice >= PurpleHeadband._dashJuice && !this._chargeDelayTimer.hasTimeLeft());
 
 		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			this.owner().profile().setVel({x: 0, y: 0});
@@ -118,7 +119,7 @@ export class PurpleHeadband extends Equip<Player> {
 			let force = this.inputDir().clone().scale(PurpleHeadband._force);
 			this.owner().addForce(force);
 
-			this._juice = Math.max(0, this._juice - PurpleHeadband._maxJuice);
+			this._juice = Math.max(0, this._juice - PurpleHeadband._dashJuice);
 			this._cooldown = PurpleHeadband._cooldown;
 			this._chargeDelayTimer.start(PurpleHeadband._chargeDelay);
 			this._dashTimer.start(PurpleHeadband._dashTime);
