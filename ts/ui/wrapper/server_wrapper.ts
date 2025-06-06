@@ -187,6 +187,10 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 			this._infoElm.textContent = `${numRooms} ${Strings.plural("game", numRooms)} found`;
 		}, () => {
 			this._pending = false;
+
+			this._infoElm.textContent = "Failed to query matchmaking server. Try starting a game instead?";
+			this._hostButton.show();
+			this._table.elm().style.display = "none";
 		});
 	}
 	private timeSinceRefresh() : number { return Date.now() - this._lastRefresh; }

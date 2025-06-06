@@ -97,6 +97,8 @@ export class CowboyHat extends Equip<Player> {
 	}
 
 	protected override simulateUse(uses : number) : void {
+		super.simulateUse(uses);
+
 		let force = this.inputDir().clone().scale(0.6);
 		this._dir = force.x === 0 ? 1 : Math.sign(force.x);
 

@@ -381,6 +381,7 @@ export class GameMaker extends SystemBase implements System {
 
 			this._round = 0;
 			this.setWinnerClientId(0);
+			this.assignRoles();
 
 			game.level().loadLevel({
 				type: this._config.getLevelType(),

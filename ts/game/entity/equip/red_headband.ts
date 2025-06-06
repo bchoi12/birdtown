@@ -159,6 +159,8 @@ export class RedHeadband extends Equip<Player> {
 	}
 
 	protected override simulateUse(uses : number) : void {
+		super.simulateUse(uses);
+
 		this._juice = Math.max(0, this._juice - RedHeadband._maxJuice);
 		this._cooldown = RedHeadband._cooldown;
 		this._chargeDelayTimer.start(RedHeadband._chargeDelay);

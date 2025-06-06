@@ -286,6 +286,8 @@ export abstract class Weapon extends Equip<Player> {
 		this.recordUse();
 	}
 	protected override simulateUse(uses : number) : void {
+		super.simulateUse(uses);
+		
 		this._bursts -= uses;
 		if (this._bursts < 0) {
 			this._bursts = 0;

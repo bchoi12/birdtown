@@ -1,3 +1,7 @@
+
+import { SoundType } from 'game/factory/api'
+import { SoundFactory } from 'game/factory/sound_factory'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -29,6 +33,7 @@ export class KeyBindWrapper extends LabelButtonWrapper {
 		this.update();
 		this.elm().onclick = (e) => {
 			this.setActive(!this._active);
+			SoundFactory.play(SoundType.CLICK);
 		};
 
 		document.addEventListener("keydown", (e) => {

@@ -30,8 +30,8 @@ export class PurpleHeadband extends Equip<Player> {
 	];
 
 	private static readonly _chargeDelay = 400;
-	private static readonly _cooldown = 2000;
-	private static readonly _groundCooldown = 1000;
+	private static readonly _cooldown = 2500;
+	private static readonly _groundCooldown = 1250;
 	private static readonly _dashTime = 250;
 	private static readonly _dashJuice = 50;
 	private static readonly _maxJuice = 100;
@@ -113,18 +113,7 @@ export class PurpleHeadband extends Equip<Player> {
 		this.setCanUse(this._juice >= PurpleHeadband._dashJuice && !this._chargeDelayTimer.hasTimeLeft());
 
 		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
-			this.owner().profile().setVel({x: 0, y: 0});
-
-			// Only allow source to jump since otherwise it's jittery.
-			let force = this.inputDir().clone().scale(PurpleHeadband._force);
-			this.owner().addForce(force);
-
-			this._juice = Math.max(0, this._juice - PurpleHeadband._dashJuice);
-			this._cooldown = PurpleHeadband._cooldown;
-			this._chargeDelayTimer.start(PurpleHeadband._chargeDelay);
-			this._dashTimer.start(PurpleHeadband._dashTime);
-
-			this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());
+			this.recordUse();
 		}
 
 		if (!this._chargeDelayTimer.hasTimeLeft()) {
@@ -134,6 +123,23 @@ export class PurpleHeadband extends Equip<Player> {
 			}
 			this._juice = Math.min(PurpleHeadband._maxJuice, this._juice + PurpleHeadband._maxJuice * millis / this._cooldown);
 		}
+	}
+
+	protected override simulateUse(uses : number) : void {
+		super.simulateUse(uses);
+
+		this.owner().profile().setVel({x: 0, y: 0});
+
+		// Only allow source to jump since otherwise it's jittery.
+		let force = this.inputDir().clone().scale(PurpleHeadband._force);
+		this.owner().addForce(force);
+
+		this._juice = Math.max(0, this._juice - PurpleHeadband._dashJuice);
+		this._cooldown = PurpleHeadband._cooldown;
+		this._chargeDelayTimer.start(PurpleHeadband._chargeDelay);
+		this._dashTimer.start(PurpleHeadband._dashTime);
+
+		this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());
 	}
 
 	override preRender() : void {

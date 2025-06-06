@@ -72,7 +72,7 @@ export class WeaponCrate extends Crate {
 
 		const player = <Player>entity;
 
-		if (player.isLakituTarget() && interactable) {
+		if (player.isLakituTarget() && !player.getAttribute(AttributeType.VIP) && interactable) {
 			ui.showTooltip(TooltipType.WEAPON_CRATE, {
 				ttl: 500,
 				names: [this.equipList()],
@@ -85,8 +85,9 @@ export class WeaponCrate extends Crate {
 		}
 
 		const player = <Player>entity;
-
-		player.createEquips(this.equipType(), this.altEquipType());
+		if (!player.getAttribute(AttributeType.VIP)) {
+			player.createEquips(this.equipType(), this.altEquipType());
+		}
 
 		this.open();
 	}

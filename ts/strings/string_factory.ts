@@ -79,7 +79,7 @@ export namespace StringFactory {
 	const levelNames = new Map<LevelType, ParamString>([
 		[LevelType.BIRDTOWN, ParamString.of("Birdtown")],
 		[LevelType.BIRDTOWN_CIRCLE, ParamString.of("Endless Birdtown")],
-		[LevelType.DUELTOWN, ParamString.of("Dueltown")],
+		[LevelType.DUELTOWN, ParamString.of("Mirrortown")],
 		[LevelType.LOBBY, ParamString.of("Lobby")],
 		[LevelType.TINYTOWN, ParamString.of("Tinytown")],
 	]);

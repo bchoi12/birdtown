@@ -241,7 +241,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setPlayersMin(2);
 			this.setLevelType(LevelType.BIRDTOWN);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
-			this.setWeaponCrateSpawn(FrequencyType.NEVER);
+			this.setWeaponCrateSpawn(FrequencyType.LOW);
 			this.setStartingLoadout(LoadoutType.PICK_THREE);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.TEAM_LIVES);

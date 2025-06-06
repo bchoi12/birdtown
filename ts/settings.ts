@@ -150,7 +150,7 @@ class Settings {
 	}
 	load() : void {
 		if (!Flags.refreshToken.get()) {
-			this.loadSetting(SettingType.TOKEN, (value : string) => {
+			this.loadSetting(SettingType.TOKEN, [], (value : string) => {
 				this.userToken = value;
 			});
 		}
@@ -171,50 +171,54 @@ class Settings {
 			this.keyCodes.set(type, code);
 		});
 
-		this.loadSetting(SettingType.FULLSCREEN, (value : string) => {
+		this.loadSetting(SettingType.FULLSCREEN, <string[]> Object.values(FullscreenSetting), (value : string) => {
 			this.fullscreenSetting = FullscreenSetting[value];
 		});
-		this.loadSetting(SettingType.CLIENT_PREDICTION, (value : string) => {
+		this.loadSetting(SettingType.CLIENT_PREDICTION, <string[]> Object.values(ClientPredictionSetting), (value : string) => {
 			this.clientPredictionSetting = ClientPredictionSetting[value];
 		});
-		this.loadSetting(SettingType.DAMAGE_NUMBER, (value : string) => {
+		this.loadSetting(SettingType.DAMAGE_NUMBER, <string[]> Object.values(DamageNumberSetting), (value : string) => {
 			this.damageNumberSetting = DamageNumberSetting[value];
 		});
-		this.loadSetting(SettingType.CHAT, (value : string) => {
+		this.loadSetting(SettingType.CHAT, <string[]> Object.values(ChatSetting), (value : string) => {
 			this.chatSetting = ChatSetting[value];
 		});
-		this.loadSetting(SettingType.SCREEN_SHAKE, (value : string) => {
+		this.loadSetting(SettingType.SCREEN_SHAKE, <string[]> Object.values(ScreenShakeSetting), (value : string) => {
 			this.screenShakeSetting = ScreenShakeSetting[value];
 		});
 
-		this.loadSetting(SettingType.ANTI_ALIAS, (value : string) => {
+		this.loadSetting(SettingType.ANTI_ALIAS, <string[]> Object.values(AntiAliasSetting), (value : string) => {
 			this.antiAliasSetting = AntiAliasSetting[value];
 		});
-		this.loadSetting(SettingType.SPEED, (value : string) => {
+		this.loadSetting(SettingType.SPEED, <string[]> Object.values(SpeedSetting), (value : string) => {
 			this.speedSetting = SpeedSetting[value];
 		});
-		this.loadSetting(SettingType.SHADOW, (value : string) => {
+		this.loadSetting(SettingType.SHADOW, <string[]> Object.values(ShadowSetting), (value : string) => {
 			this.shadowSetting = ShadowSetting[value];
 		});
-		this.loadSetting(SettingType.SHADOW_FILTERING, (value : string) => {
+		this.loadSetting(SettingType.SHADOW_FILTERING, <string[]> Object.values(ShadowFilteringSetting), (value : string) => {
 			this.shadowFilteringSetting = ShadowFilteringSetting[value];
 		});
-		this.loadSetting(SettingType.TRANSPARENT, (value : string) => {
+		this.loadSetting(SettingType.TRANSPARENT, <string[]> Object.values(TransparentSetting), (value : string) => {
 			this.transparentSetting = TransparentSetting[value];
 		});
 
-		this.loadSetting(SettingType.MUSIC, (value : string) => {
+		this.loadSetting(SettingType.MUSIC, <string[]> Object.values(MusicSetting), (value : string) => {
 			this.musicSetting = MusicSetting[value];
 		});
-		this.loadSetting(SettingType.SOUND, (value : string) => {
+		this.loadSetting(SettingType.SOUND, <string[]> Object.values(SoundSetting), (value : string) => {
 			this.soundSetting = SoundSetting[value];
 		});
 		this.musicPercent = this._cookie.getNumberOr(SettingType.MUSIC_PERCENT, Settings._musicPercent);
 		this.soundPercent = this._cookie.getNumberOr(SettingType.SOUND_PERCENT, Settings._soundPercent);
 	}
-	private loadSetting(type : SettingType, cb : (value : string) => void) {
+	private loadSetting(type : SettingType, values : string[], cb : (value : string) => void) {
 		if (this._cookie.has(type)) {
-			cb(this._cookie.get(type));
+			const value = this._cookie.get(type);
+
+			if (values.length === 0 || values.includes(value)) {
+				cb(value);
+			}
 		}
 	}
 
