@@ -7,7 +7,7 @@ import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { ColorType, MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -21,20 +21,12 @@ import { Vec2 } from 'util/vector'
 export class Jetpack extends Equip<Player> {
 
 	private static readonly _fireMeshName = "fire";
-	private static readonly _maxJuice = 100;
-	private static readonly _useRate = 100;
-	private static readonly _chargeRate = 50;
-	private static readonly _groundChargeRate = 300;
-	private static readonly _chargeDelay = 400;
 	private static readonly _smokeDelay = 30;
 
 	private static readonly _maxAcc = 4.5;
 	private static readonly _ownerMaxVel = 0.33;
 
 	private _enabled : boolean;
-	private _juice : number;
-	private _chargeDelayTimer : Timer;
-	private _chargeRate : number;
 	private _smoker : RateLimiter;
 
 	private _fire : BABYLON.Mesh;
@@ -44,12 +36,9 @@ export class Jetpack extends Equip<Player> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.JETPACK, entityOptions);
 
+		this._canUseDuringDelay = true;
+
 		this._enabled = false;
-		this._juice = 0;
-		this._chargeDelayTimer = this.newTimer({
-			canInterrupt: true,
-		});
-		this._chargeRate = 0;
 		this._smoker = new RateLimiter(Jetpack._smokeDelay);
 
 		this._fire = null;
@@ -82,50 +71,31 @@ export class Jetpack extends Equip<Player> {
 	}
 
 	override attachType() : AttachType { return AttachType.BACK; }
+	protected override hudType() : HudType { return HudType.JETPACK; }
 
-	override initialize() : void {
-		super.initialize();
+	override preUpdate(stepData : StepData) : void {
+		super.preUpdate(stepData);
 
-		this._juice = Jetpack._maxJuice;
+		this._enabled = false;
 	}
-	
+
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		this.setCanUse(this._juice > 0);
-
-		this._enabled = false;
-		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
-			this._juice = Math.max(this._juice - Jetpack._useRate * millis / 1000, 0);
-
-			this._enabled = true;
-			this._chargeRate = 0;
-			this._chargeDelayTimer.start(Jetpack._chargeDelay);
-
-			let ownerProfile = this.owner().profile();
-			ownerProfile.addVel({ y: this.computeAcc(ownerProfile.vel().y) * millis / 1000, });
-
-			if (!this.soundPlayer().sound(SoundType.JETPACK).isPlaying) {
-				this.soundPlayer().playFromEntity(SoundType.JETPACK, this.owner());
-			}
+		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
+			this.recordUse(millis);
 		} else {
-			if (!this._chargeDelayTimer.hasTimeLeft()) {
-				if (this.owner().getAttribute(AttributeType.GROUNDED)) {
-					// Touch ground to unlock faster charge rate.
-					this._chargeRate = Math.max(this._chargeRate, Jetpack._groundChargeRate);
-				} else {
-					this._chargeRate = Math.max(this._chargeRate, Jetpack._chargeRate);
-				}
+			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
+				this.setChargeRate(this.getStat(StatType.FAST_CHARGE_RATE));
 			}
-
 			this.soundPlayer().stop(SoundType.JETPACK);
 		}
+	}
 
-		if (this._chargeRate > 0) {
-			this._juice += this._chargeRate * millis / 1000;
-			this._juice = Math.min(this._juice, Jetpack._maxJuice);
-		}
+	override postUpdate(stepData : StepData) : void {
+		super.postUpdate(stepData);
+		const millis = stepData.millis;
 
 		if (this._model.hasMesh() && this._enabled && this._smoker.check(millis)) {
 			const scale = 0.2 + 0.2 * Math.random();
@@ -145,6 +115,19 @@ export class Jetpack extends Equip<Player> {
 		}
 	}
 
+	override simulateUse(uses : number) : void {
+		super.simulateUse(uses);
+
+		this._enabled = true;
+
+		let ownerProfile = this.owner().profile();
+		ownerProfile.addVel({ y: this.computeAcc(ownerProfile.vel().y) * uses / 1000, });
+
+		if (!this.soundPlayer().sound(SoundType.JETPACK).isPlaying) {
+			this.soundPlayer().playFromEntity(SoundType.JETPACK, this.owner());
+		}
+	}
+
 	override preRender() : void {
 		super.preRender();
 
@@ -157,18 +140,6 @@ export class Jetpack extends Equip<Player> {
 		} else {
 			this._fire.scaling.y = 0;
 		}
-	}
-
-	override getHudData() : Map<HudType, HudOptions> {
-		let hudData = super.getHudData();
-		hudData.set(HudType.JETPACK, {
-			charging: !this.canUse(),
-			percentGone: 1 - this._juice / Jetpack._maxJuice,
-			color: this.clientColorOr(ColorFactory.color(ColorType.BLASTER_RED).toString()),
-			empty: true,
-			keyType: KeyType.ALT_MOUSE_CLICK,
-		});
-		return hudData;
 	}
 
 	private computeAcc(currentVel : number) : number {

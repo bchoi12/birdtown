@@ -51,6 +51,10 @@ export enum GameMode {
 	// beta 1.1
 	GOLDEN_GUN,
 	VIP,
+
+	// beta 1.2
+	TEAM_DEATHMATCH,
+	BOSS_BATTLE,
 }
 
 export enum GameObjectState {

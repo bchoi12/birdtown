@@ -32,6 +32,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 
 		this.setTitle("Welcome to Birdtown");
 		this.setOpaque(true);
+		this.shrink();
 		this.allowKeyboardSubmit();
 		this.populatePage();
 

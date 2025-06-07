@@ -3,6 +3,8 @@ export enum ComponentType {
 	UNKNOWN,
 	ASSOCIATION,
 	ATTRIBUTES,
+	BUFF,
+	BUFFS,
 	CARDINALS,
 	ENTITY_TRACKER,
 	ENTITY_TRACKERS,
@@ -11,9 +13,9 @@ export enum ComponentType {
 	MODEL,
 	OPENINGS,
 	PROFILE,
+	RESOURCE,
+	RESOURCES,
 	SOUND_PLAYER,
-	STAT,
-	STATS,
 }
 
 export enum AssociationType {
@@ -26,7 +28,6 @@ export enum AssociationType {
 export enum AttributeType {
 	UNKNOWN,
 
-	BRAINED,
 	CHARGED,
 	FLOATING,
 	GROUNDED,
@@ -36,6 +37,12 @@ export enum AttributeType {
 	VIP,
 }
 
+export enum BuffType {
+	UNKNOWN,
+
+	TANK,
+}
+
 export enum EmotionType {
 	UNKNOWN,
 
@@ -43,11 +50,4 @@ export enum EmotionType {
 	MAD,
 	SAD,
 	DEAD,
-}
-
-export enum StatType {
-	UNKNOWN,
-
-	HEALTH,
-	SCALING,
 }

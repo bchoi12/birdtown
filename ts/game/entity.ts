@@ -3,21 +3,22 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { Component } from 'game/component'
-import { AssociationType, AttributeType, ComponentType, EmotionType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, EmotionType } from 'game/component/api'
 import { Association, AssociationInitOptions } from 'game/component/association'
 import { Attributes, AttributesInitOptions } from 'game/component/attributes'
+import { Buffs } from 'game/component/buffs'
 import { CardinalsInitOptions } from 'game/component/cardinals'
 import { Expression } from 'game/component/expression'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { Model, ModelInitOptions } from 'game/component/model'
 import { Profile, ProfileInitOptions } from 'game/component/profile'
 import { SoundPlayer } from 'game/component/sound_player'
-import { Stat, StatInitOptions } from 'game/component/stat'
-import { Stats } from 'game/component/stats'
+import { Resources } from 'game/component/resources'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { GameObject, GameObjectBase, StepData } from 'game/game_object'
-import { SoundType } from 'game/factory/api'
+import { StatType, SoundType } from 'game/factory/api'
+import { StatFactory } from 'game/factory/stat_factory'
 
 import { StringFactory } from 'strings/string_factory'
 import { ParamString } from 'strings/param_string'
@@ -81,6 +82,10 @@ export interface Entity extends GameObject {
 	hasAttribute(type : AttributeType) : boolean;
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
+	hasStat(type : StatType) : boolean;
+	baseStat(type : StatType) : number;
+	getStat(type : StatType) : number;
+	getStatOr(type : StatType, or : number) : number;
 	soundPlayer() : SoundPlayer;
 
 	// Associations
@@ -343,6 +348,25 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this.getComponent<Attributes>(ComponentType.ATTRIBUTES).setAttribute(type, value);
 	}
 
+	hasStat(type : StatType) : boolean {
+		return StatFactory.has(this.type(), type);
+	}
+	baseStat(type : StatType) : number {
+		return StatFactory.base(this.type(), type);
+	}
+	getStat(type : StatType) : number {
+		if (this.hasComponent(ComponentType.BUFFS)) {
+			return this.getComponent<Buffs>(ComponentType.BUFFS).getStat(type);
+		}
+		return this.baseStat(type);
+	}
+	getStatOr(type : StatType, or : number) : number {
+		if (!this.hasStat(type)) {
+			return or;
+		}
+		return this.getStat(type);
+	}
+
 	addForce(force : Vec) : void {
 		if (!this.hasProfile()) {
 			return;
@@ -350,20 +374,21 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		this.profile().addSourceForce(force);
 	}
-	heal(delta : number) : void {
-		if (!this.hasComponent(ComponentType.STATS)) { return; }
 
-		this.getComponent<Stats>(ComponentType.STATS).updateStat(StatType.HEALTH, {
+	heal(delta : number) : void {
+		if (!this.hasComponent(ComponentType.RESOURCES)) { return; }
+
+		this.getComponent<Resources>(ComponentType.RESOURCES).updateResource(StatType.HEALTH, {
 			delta: delta,
 		});
 	}
 	healthPercent() : number {
-		if (!this.hasComponent(ComponentType.STATS)) { return 1; }
+		if (!this.hasComponent(ComponentType.RESOURCES)) { return 1; }
 
-		return this.getComponent<Stats>(ComponentType.STATS).healthPercent();
+		return this.getComponent<Resources>(ComponentType.RESOURCES).healthPercent();
 	}
 	takeDamage(delta : number, from : Entity) : void {
-		if (!this.hasComponent(ComponentType.STATS)) { return; }
+		if (!this.hasComponent(ComponentType.RESOURCES)) { return; }
 
 		if (delta >= 0 && (this.getAttribute(AttributeType.INVINCIBLE) || this.dead())) {
 			return;
@@ -376,7 +401,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			delta *= game.controller().config().getDamageMultiplier();;
 		}
 
-		this.getComponent<Stats>(ComponentType.STATS).updateStat(StatType.HEALTH, {
+		this.getComponent<Resources>(ComponentType.RESOURCES).updateResource(StatType.HEALTH, {
 			delta: -delta,
 			entity: from,
 		});
@@ -389,9 +414,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this.getComponent<Expression>(ComponentType.EXPRESSION).emote(type, value ? value : 1);
 	}
 	dead() : boolean {
-		if (!this.hasComponent(ComponentType.STATS)) { return false; }
+		if (!this.hasComponent(ComponentType.RESOURCES)) { return false; }
 
-		return this.getComponent<Stats>(ComponentType.STATS).dead();
+		return this.getComponent<Resources>(ComponentType.RESOURCES).dead();
 	}
 
 	collide(collision : MATTER.Collision, other : Entity) : void {

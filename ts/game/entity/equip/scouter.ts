@@ -51,6 +51,21 @@ export class Scouter extends Equip<Player> {
 	}
 
 	override attachType() : AttachType { return AttachType.EYE; }
+	override getHudData() : Map<HudType, HudOptions> {
+		if (this._weapon === null || this._weapon.deleted()) {
+			return super.getHudData();
+		}
+
+		let hudData = super.getHudData();
+		hudData.set(HudType.CHARGE, {
+			charging: !this._weapon.charged(),
+			percentGone: 1 - this._weapon.chargeMillis() / this._weapon.chargedThreshold(),
+			empty: true,
+			color: this.clientColorOr(ColorFactory.color(ColorType.SHOOTER_DARK_ORANGE).toString()),
+			keyType: KeyType.ALT_MOUSE_CLICK,
+		});
+		return hudData;
+	}
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
@@ -142,21 +157,5 @@ export class Scouter extends Equip<Player> {
 		}
 		const weight = Fns.interp(InterpType.NEGATIVE_SQUARE, Math.min(1, this._lookWeight / Scouter._lookPanTime));
 		return this._look.clone().scale(weight);
-	}
-
-	override getHudData() : Map<HudType, HudOptions> {
-		if (this._weapon === null || this._weapon.deleted()) {
-			return super.getHudData();
-		}
-
-		let hudData = super.getHudData();
-		hudData.set(HudType.CHARGE, {
-			charging: !this._weapon.charged(),
-			percentGone: 1 - this._weapon.chargeMillis() / this._weapon.chargedThreshold(),
-			empty: true,
-			color: this.clientColorOr(ColorFactory.color(ColorType.SHOOTER_DARK_ORANGE).toString()),
-			keyType: KeyType.ALT_MOUSE_CLICK,
-		});
-		return hudData;
 	}
 }

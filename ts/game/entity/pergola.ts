@@ -49,7 +49,7 @@ export class Pergola extends EntityBase implements Entity {
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
-					density: 0.2 * BodyFactory.defaultDensity,
+					density: BodyFactory.floatyDensity,
 					friction: 1.5 * BodyFactory.defaultFriction,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.PERGOLA_FRAME),
 				});

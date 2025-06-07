@@ -1,18 +1,19 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { StepData } from 'game/game_object'
-import { AttributeType, ComponentType, StatType } from 'game/component/api'
+import { AttributeType, ComponentType } from 'game/component/api'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Stats } from 'game/component/stats'
+import { Resources } from 'game/component/resources'
 import { Entity, EntityOptions, EquipEntity, InteractEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Interactable } from 'game/entity/interactable'
-import { CollisionCategory, MaterialType, MeshType, SoundType } from 'game/factory/api'
+import { CollisionCategory, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -35,16 +36,17 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 	private static readonly _maxSpeed = 0.5;
 	private static readonly _hp = 40;
 
-	private _materialShifter : MaterialShifter;
-	private _opened : boolean;
-	private _exploded : boolean;
+	protected _materialShifter : MaterialShifter;
+	protected _opened : boolean;
+	protected _exploded : boolean;
+	protected _lastSound : number;
 
-	private _nameTag : NameTag;
+	protected _nameTag : NameTag;
 
 	protected _attributes : Attributes;
 	protected _profile : Profile;
 	protected _model : Model;
-	protected _stats : Stats
+	protected _resources : Resources
 
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
@@ -54,6 +56,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 		this._materialShifter = new MaterialShifter();
 		this._opened = false;
 		this._exploded = false;
+		this._lastSound = 0;
 
 		this._nameTag = null;
 
@@ -71,7 +74,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
-					density: 0.8 * BodyFactory.defaultDensity,
+					density: BodyFactory.dropsDensity,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.SOLID),
 					chamfer: {
 						radius: 0.05
@@ -124,12 +127,9 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 			init: entityOptions.modelInit,
 		}));
 
-		this._stats = this.addComponent<Stats>(new Stats());
-		this._stats.addStat(StatType.HEALTH, {
-			base: Crate._hp,
-			min: 0,
-			max: Crate._hp,
-		});
+		this._resources = this.addComponent<Resources>(new Resources({
+			stats: [StatType.HEALTH],
+		}));
 	}
 
 	override initialize() : void {
@@ -187,6 +187,25 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 		}
 	}
 
+	override collide(collision : MATTER.Collision, other : Entity) : void {
+		super.collide(collision, other);
+
+		if (Date.now() - this._lastSound < 500) {
+			return;
+		}
+
+		const lenSq = this._profile.vel().lengthSq();
+		if (lenSq < 0.1) {
+			return;
+		}
+
+		SoundFactory.playFromPos(SoundType.TABLE_FLIP, this._profile.pos().toBabylon3(), {
+			volume: Fns.clamp(0.3, lenSq / 0.5, 1),
+		});
+		this._lastSound = Date.now();
+
+	}
+
 	override canInteractWith(entity : Entity) : boolean {
 		return this.isSource() && super.canInteractWith(entity);
 	}
@@ -224,7 +243,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (this._stats.dead() && !this.opened()) {
+		if (this.dead() && !this.opened()) {
 			this.open();
 			return;
 		}

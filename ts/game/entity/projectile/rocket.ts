@@ -61,8 +61,6 @@ export class Rocket extends Projectile {
 		});
 	}
 
-	override hitDamage() : number { return 50; }
-
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;

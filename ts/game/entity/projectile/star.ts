@@ -11,7 +11,7 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Explosion } from 'game/entity/explosion'
 import { Projectile } from 'game/entity/projectile'
-import { CollisionCategory, ColorType, MaterialType, MeshType } from 'game/factory/api'
+import { CollisionCategory, ColorType, MaterialType, MeshType, StatType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -25,8 +25,6 @@ import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
 
 export class Star extends Projectile {
-
-	private static readonly _damage = 20;
 
 	private static readonly _trailVertices = [
         new BABYLON.Vector3(0, 0, 0.1),
@@ -104,8 +102,6 @@ export class Star extends Projectile {
 		return this._profile.attachTo(entity.profile(), offset);
 	}
 
-	override hitDamage() : number { return 5; }
-
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
@@ -164,7 +160,7 @@ export class Star extends Projectile {
 		if (this._profile.attached()) {
 			const [parent, ok] = game.entities().getEntity(this._profile.attachId());
 			if (ok) {
-				parent.takeDamage(Star._damage, this);
+				parent.takeDamage(this.getStat(StatType.UNSTICK_DAMAGE), this);
 			}
 		}
 	}

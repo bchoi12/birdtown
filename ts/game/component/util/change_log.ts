@@ -4,19 +4,19 @@ import { EntityLog } from 'game/util/entity_log'
 
 import { Optional } from 'util/optional'
 
-type StatLogInitOptions = {
+type ChangeLogInitOptions = {
 	timestamp : number;
 	delta : number;
 	entity? : Entity;
 }
 
-export class StatLog {
+export class ChangeLog {
 
 	private _timestamp : number;
 	private _delta : number;
 	private _entityLog : Optional<EntityLog>
 
-	constructor(initOptions : StatLogInitOptions) {
+	constructor(initOptions : ChangeLogInitOptions) {
 		this._timestamp = initOptions.timestamp;
 		this._delta = initOptions.delta;
 		this._entityLog = new Optional();

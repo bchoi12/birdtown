@@ -26,10 +26,8 @@ enum Animation {
 export abstract class Beak extends Equip<Player> {
 
 	private static readonly _animations = new Set<string>([Animation.IDLE, Animation.SQUAWK]);
-	private static readonly _squawkCooldown = 2500;
 
 	private _squawking : boolean;
-	private _squawkTimer : Timer;
 
 	private _model : Model;
 
@@ -38,17 +36,6 @@ export abstract class Beak extends Equip<Player> {
 		this.addType(EntityType.BEAK);
 
 		this._squawking = false;
-		this._squawkTimer = this.newTimer({
-			canInterrupt: false,
-		});
-
-		this.addProp<boolean>({
-			export: () => { return this._squawking; },
-			import: (obj : boolean) => { this.setSquawking(obj); },
-			options: {
-				filters: GameData.udpFilters,
-			},
-		});
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
@@ -73,7 +60,6 @@ export abstract class Beak extends Equip<Player> {
 
 	abstract meshType() : MeshType;
 	abstract soundType() : SoundType;
-	squawkCooldown() : number { return Beak._squawkCooldown; }
 
 	override attachType() : AttachType { return AttachType.BEAK; }
 
@@ -89,32 +75,15 @@ export abstract class Beak extends Equip<Player> {
 		}
 	}
 
-	override getHudData() : Map<HudType, HudOptions> {
-		let hudData = super.getHudData();
-		hudData.set(HudType.SQUAWK, {
-			charging: !this.canUse(),
-			empty: true,
-			percentGone: this._squawkTimer.hasTimeLeft() ? (1 - this._squawkTimer.percentElapsed()) : 0,
-			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
-			keyType: KeyType.SQUAWK,
-		});
-		return hudData;
-	}
-
-	override initialize() : void {
-		super.initialize();
-
-		this.model().onLoad(() => {
-			this.setCanUse(true);
-			this.setSquawking(true);
-		});
-	}
+	protected override hudType() : HudType { return HudType.SQUAWK; }
+	protected override useKeyType() : KeyType { return KeyType.SQUAWK; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		this.setCanUse(!this._squawkTimer.hasTimeLeft());
-		this.setSquawking(this.key(KeyType.SQUAWK, KeyState.DOWN));
+		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
+			this.setSquawking(true);
+		}
 	}
 
 	protected override simulateUse(uses : number) : void {
@@ -124,11 +93,11 @@ export abstract class Beak extends Equip<Player> {
 			return;
 		}
 
+		this._squawking = true;
 		this.soundPlayer().onEnded(this.soundType()).addOnce(() => {
 			this._squawking = false;
 		});
 		this.soundPlayer().playFromEntity(this.soundType(), this.owner());
-		this._squawkTimer.start(this.squawkCooldown());
 
 		if (!this.initialized()) {
 			return;
@@ -156,9 +125,10 @@ export abstract class Beak extends Equip<Player> {
 
 		if (!this._model.hasMesh()) { return; }
 
-		if (this._squawking && this._squawkTimer.hasTimeLeft() || this.owner()?.dead()) {
+		if (this._squawking && !this.canCharge() || this.owner()?.dead()) {
 			this._model.playAnimation(Animation.SQUAWK);
 		} else {
+			this._squawking = false;
 			this._model.playAnimation(Animation.IDLE);
 		}
 	}
@@ -167,12 +137,8 @@ export abstract class Beak extends Equip<Player> {
 		if (this._squawking === squawking) {
 			return;
 		}
-		if (!this.canUse()) {
-			return;
-		}
-		this._squawking = squawking;
 
-		if (this._squawking) {
+		if (squawking) {
 			this.recordUse();
 		}
 	}

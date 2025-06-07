@@ -12,6 +12,7 @@ import { LoginNames } from 'ui/common/login_names'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
+import { NewVersionDialogWrapper } from 'ui/wrapper/dialog/new_version_dialog_wrapper'
 import { HostGameDialogWrapper } from 'ui/wrapper/dialog/init_game/host_game_dialog_wrapper'
 import { JoinGameDialogWrapper } from 'ui/wrapper/dialog/init_game/join_game_dialog_wrapper'
 
@@ -37,6 +38,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 	private _hostWrapper : HostGameDialogWrapper;
 	private _joinWrapper : JoinGameDialogWrapper;
+	private _newVersionWrapper : NewVersionDialogWrapper;
 
 	private _timeoutId : Optional<number>;
 
@@ -55,8 +57,10 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 		this._hostWrapper = new HostGameDialogWrapper();
 		this._joinWrapper = new JoinGameDialogWrapper();
+		this._newVersionWrapper = new NewVersionDialogWrapper();
 		this._splashElm.appendChild(this._hostWrapper.elm());
 		this._splashElm.appendChild(this._joinWrapper.elm());
+		this._splashElm.appendChild(this._newVersionWrapper.elm());
 
 		this._timeoutId = new Optional();
 	}
@@ -99,6 +103,15 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._splashElm.style.display = "block";
 		this._splashElm.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
 		this._loginElm.style.display = "block";
+
+		perch.getStats((data) => {
+			console.log(data, data.latest, data["latest"]);
+			if (data.hasOwnProperty("latest") && data["latest"] > GameGlobals.latest) {
+				this._newVersionWrapper.show();
+			}
+		}, () => {
+			console.error("Error: failed to query Perch for latest version");
+		});
 	}
 
 	override onDisable() : void {

@@ -12,7 +12,7 @@ import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon, RecoilType } from 'game/entity/equip/weapon'
 import { Player } from 'game/entity/player'
 import { Knife } from 'game/entity/projectile/knife'
-import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -31,17 +31,8 @@ export class RedHeadband extends Equip<Player> {
         new BABYLON.Vector3(0, 0, -0.4),
 	];
 
-	private static readonly _chargeDelay = 300;
-	private static readonly _cooldown = 900;
-	private static readonly _groundCooldown = 600;
 	private static readonly _dashTime = 300;
-	private static readonly _maxJuice = 100;
-	private static readonly _force = -0.8;
-	private static readonly _knifeTTL = 550;
 
-	private _juice : number;
-	private _cooldown : number;
-	private _chargeDelayTimer : Timer;
 	private _dashTimer : Timer;
 	private _trail : BABYLON.Mesh;
 	private _dir : number;
@@ -52,11 +43,6 @@ export class RedHeadband extends Equip<Player> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.RED_HEADBAND, entityOptions);
 
-		this._juice = RedHeadband._maxJuice;
-		this._cooldown = RedHeadband._cooldown;
-		this._chargeDelayTimer = this.newTimer({
-			canInterrupt: true,
-		});
 		this._dashTimer = this.newTimer({
 			canInterrupt: true,
 		});
@@ -86,18 +72,8 @@ export class RedHeadband extends Equip<Player> {
 	}
 
 	override attachType() : AttachType { return AttachType.FOREHEAD; }
-
-	override getHudData() : Map<HudType, HudOptions> {
-		let hudData = super.getHudData();
-		hudData.set(HudType.BACKFLIP, {
-			charging: !this.canUse(),
-			percentGone: 1 - this._juice / RedHeadband._maxJuice,
-			empty: true,
-			keyType: KeyType.ALT_MOUSE_CLICK,
-			color: this.clientColorOr(ColorFactory.color(ColorType.EASTERN_RED).toString()),
-		});
-		return hudData;
-	}
+	protected override hudType() : HudType { return HudType.BACKFLIP;}
+	override checkCanUse() : boolean { return super.checkCanUse() && this._weapon !== null; }
 
 	override initialize() : void {
 		super.initialize();
@@ -141,35 +117,22 @@ export class RedHeadband extends Equip<Player> {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		const millis = stepData.millis;
-
-		this.setCanUse(this._juice >= RedHeadband._maxJuice);
-
 		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			this.recordUse();
-		}
-
-		if (!this._chargeDelayTimer.hasTimeLeft()) {
-			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
-				// Touch ground to unlock faster charge rate.
-				this._cooldown = Math.min(this._cooldown, RedHeadband._groundCooldown);
-			}
-			this._juice = Math.min(RedHeadband._maxJuice, this._juice + RedHeadband._maxJuice * millis / this._cooldown);
+		} else if (this.owner().getAttribute(AttributeType.GROUNDED)) {
+			this.setChargeRate(this.getStat(StatType.FAST_CHARGE_RATE));
 		}
 	}
 
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 
-		this._juice = Math.max(0, this._juice - RedHeadband._maxJuice);
-		this._cooldown = RedHeadband._cooldown;
-		this._chargeDelayTimer.start(RedHeadband._chargeDelay);
 		this._dashTimer.start(RedHeadband._dashTime);
 
 		if (this.hasOwner()) {
 			this.owner().profile().setVel({x: 0, y: 0});
 
-			let force = this.inputDir().clone().scale(RedHeadband._force);
+			let force = this.inputDir().clone().scale(this.getStat(StatType.FORCE));
 			this.owner().addForce(force);
 			this._dir = force.x === 0 ? 1 : Math.sign(force.x);
 
@@ -177,9 +140,9 @@ export class RedHeadband extends Equip<Player> {
 				const pos = this._weapon.shootPos();
 				const unitDir = this._weapon.getDir();
 
-				let vel = unitDir.clone().scale(0.85);
+				let vel = unitDir.clone().scale(this.getStat(StatType.PROJECTILE_SPEED));
 				this.addEntity(EntityType.KNIFE, {
-					ttl: RedHeadband._knifeTTL,
+					ttl: this.getStat(StatType.PROJECTILE_TTL),
 					associationInit: {
 						owner: this.owner(),
 					},

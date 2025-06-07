@@ -21,15 +21,10 @@ import { Vec3 } from 'util/vector'
 
 export class CowboyHat extends Equip<Player> {
 
-	private static readonly _chargeDelay = 600;
-	private static readonly _cooldown = 1500;
 	private static readonly _dashTime = 275;
 	private static readonly _quickReloadTime = CowboyHat._dashTime - 50;
-	private static readonly _maxJuice = 100;
 
-	private _chargeDelayTimer : Timer;
 	private _dashTimer : Timer;
-	private _juice : number;
 	private _dir : number;
 
 	private _model : Model;
@@ -37,13 +32,9 @@ export class CowboyHat extends Equip<Player> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.COWBOY_HAT, entityOptions);
 
-		this._chargeDelayTimer = this.newTimer({
-			canInterrupt: true,
-		});
 		this._dashTimer = this.newTimer({
 			canInterrupt: false,
 		});
-		this._juice = CowboyHat._maxJuice;
 		this._dir = 0;
 
 		this._model = this.addComponent<Model>(new Model({
@@ -67,35 +58,19 @@ export class CowboyHat extends Equip<Player> {
 	}
 
 	override attachType() : AttachType { return AttachType.HEAD; }
-
-	override getHudData() : Map<HudType, HudOptions> {
-		let hudData = super.getHudData();
-		let percent = this._juice / CowboyHat._maxJuice;
-		hudData.set(HudType.ROLL, {
-			charging: !this.canUse(),
-			percentGone: 1 - percent,
-			empty: true,
-			color: this.clientColorOr(ColorFactory.color(ColorType.WESTERN_BROWN).toString()),
-			keyType: KeyType.ALT_MOUSE_CLICK,
-		});
-		return hudData;
-	}
+	protected override hudType() : HudType { return HudType.ROLL; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
 		const millis = stepData.millis;
 
-		this.setCanUse(this._juice >= CowboyHat._maxJuice && !this._dashTimer.hasTimeLeft());
-		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
 			this.recordUse();
-		}
-
-		if (!this._chargeDelayTimer.hasTimeLeft()) {
-			this._juice = Math.min(CowboyHat._maxJuice, this._juice + CowboyHat._maxJuice * millis / CowboyHat._cooldown);
 		}
 	}
 
+	protected override checkCanUse() : boolean { return super.checkCanUse() && !this._dashTimer.hasTimeLeft(); }
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 
@@ -112,9 +87,6 @@ export class CowboyHat extends Equip<Player> {
 			});
 			this.soundPlayer().playFromEntity(SoundType.RELOAD, this.owner());
 		}
-
-		this._juice = Math.max(0, this._juice - CowboyHat._maxJuice);
-		this._chargeDelayTimer.start(CowboyHat._chargeDelay);
 
 		this._dashTimer.start(CowboyHat._dashTime);
 	}

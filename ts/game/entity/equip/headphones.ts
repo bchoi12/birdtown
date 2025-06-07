@@ -20,18 +20,10 @@ import { Vec3 } from 'util/vector'
 
 export class Headphones extends Equip<Player> {
 
-	private static readonly _reloadTime = 2000;
-
-	private _timer : Timer;
-
 	private _model : Model;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.HEADPHONES, entityOptions);
-
-		this._timer = this.newTimer({
-			canInterrupt: false,
-		});
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
@@ -45,25 +37,13 @@ export class Headphones extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.FOREHEAD; }
 
-	override getHudData() : Map<HudType, HudOptions> {
-		let hudData = super.getHudData();
-		hudData.set(HudType.HEADPHONES, {
-			charging: !this.canUse(),
-			percentGone: this.canUse() ? 0 : (1 - this._timer.percentElapsed()),
-			empty: true,
-			color: this.clientColorOr(ColorFactory.color(ColorType.BLACK).toString()),
-			keyType: KeyType.ALT_MOUSE_CLICK,
-		});
-		return hudData;
-	}
+	protected override hudType() : HudType { return HudType.HEADPHONES; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		this.setCanUse(!this._timer.hasTimeLeft());
-
-		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
 			this.recordUse();
 		}
 	}
@@ -80,7 +60,5 @@ export class Headphones extends Equip<Player> {
 		if (ok) {
 			star.setTarget(this.inputMouse());
 		}
-
-		this._timer.start(Headphones._reloadTime);
 	}
 }

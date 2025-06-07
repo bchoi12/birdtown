@@ -86,7 +86,6 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
-					density: BodyFactory.defaultDensity,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.TABLE_FRAME),
 					chamfer: {
 						radius: 0.1,
@@ -109,7 +108,7 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 			bodyFn: (profile : Profile) => {
 				let topDim = { x: this._profile.initDim().x, y: 0.5 };
 				return BodyFactory.rectangle(this._profile.relativePos(CardinalDir.TOP, topDim), topDim, {
-					density: 1.5 * BodyFactory.defaultDensity,
+					density: BodyFactory.sturdyDensity,
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.SOLID),
 				});
 			},

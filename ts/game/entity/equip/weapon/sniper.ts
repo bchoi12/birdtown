@@ -8,7 +8,7 @@ import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Bolt } from 'game/entity/projectile/bolt'
-import { Weapon, WeaponConfig, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
+import { Weapon, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
 import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -19,25 +19,6 @@ import { HudType, HudOptions } from 'ui/api'
 import { Vec2, Vec3 } from 'util/vector'
 
 export class Sniper extends Weapon {
-
-	private static readonly _bursts = 3;
-	private static readonly _config = {
-		times: new Map([
-			[WeaponState.FIRING, 70],
-			[WeaponState.RELOADING, 350],
-		]),
-		bursts: Sniper._bursts,
-	};
-	private static readonly _chargeConfig = {
-		times: new Map([
-			[WeaponState.FIRING, 70],
-			[WeaponState.RELOADING, 500],
-		]),
-		bursts: 1,
-	};
-
-	private static readonly _chargedThreshold = 1000;
-	private static readonly _boltTTL = 450;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.SNIPER, options);
@@ -51,12 +32,6 @@ export class Sniper extends Weapon {
 	override reloadType() : ReloadType { return ReloadType.RECOIL_BACK; }
 	override meshType() : MeshType { return MeshType.SNIPER; }
 
-	override chargedThreshold() : number { return Sniper._chargedThreshold; }
-
-	override weaponConfig() : WeaponConfig {
-		return this.charged() ? Sniper._chargeConfig : Sniper._config;
-	}
-
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 
@@ -64,23 +39,12 @@ export class Sniper extends Weapon {
 		const pos = this.shootPos();
 		const unitDir = this.getDir();
 
-		let vel = unitDir.clone().scale(charged ? 1.1 : 0.8);
-		const angle = vel.angleRad();
 		const materialType = charged ? MaterialType.SHOOTER_ORANGE : MaterialType.SHOOTER_BLUE;
-		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, {
-			ttl: Sniper._boltTTL,
-			associationInit: {
-				owner: this.owner(),
-			},
-			modelInit: {
-				materialType: materialType,
-			},
-			profileInit: {
-				pos: pos,
-				vel: vel,
-				angle: angle,
-			},
-		});
+
+		let options = this.getProjectileOptions(pos, unitDir, unitDir.angleRad());
+		options.modelInit.materialType = materialType;
+
+		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, options);
 
 		if (hasBolt) {
 			if (charged) {

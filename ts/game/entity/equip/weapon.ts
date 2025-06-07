@@ -7,7 +7,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
@@ -26,17 +26,6 @@ export enum WeaponState {
 	REVVING,
 	FIRING,
 	RELOADING,
-}
-
-export type WeaponConfig = {
-	times : Map<WeaponState, number>;
-	bursts : number;
-
-	// If true, do not reload until the clip is empty
-	allowPartialClip? : boolean;
-
-	// If true, stop firing when mouse releases even if clip is not empty
-	interruptable? : boolean;
 }
 
 export enum RecoilType {
@@ -150,6 +139,9 @@ export abstract class Weapon extends Equip<Player> {
 	protected _stateTimer : Timer;
 	protected _bursts : number;
 	protected _firingTime : number;
+
+	protected _allowPartialClip : boolean;
+	protected _interruptible : boolean;
 	protected _playReloadSound : boolean;
 
 	protected _shootNode : BABYLON.TransformNode;
@@ -169,8 +161,11 @@ export abstract class Weapon extends Equip<Player> {
 		this._charger = new Stopwatch();
 		this._weaponState = WeaponState.IDLE;
 		this._stateTimer = this.newTimer({ canInterrupt: true });
-		this._bursts = this.weaponConfig().bursts;
+		this._bursts = this.getBursts();
 		this._firingTime = this.getTime(WeaponState.FIRING);
+
+		this._allowPartialClip = false;
+		this._interruptible = false;
 		this._playReloadSound = false;
 
 		this._shootNode = null;
@@ -223,13 +218,28 @@ export abstract class Weapon extends Equip<Player> {
 	}
 
 	weaponState() : WeaponState { return this._weaponState; }
-	abstract weaponConfig() : WeaponConfig;
-	bursts() : number { return this._bursts; }
+	ammo() : number { return this._bursts; }
+	protected getBursts() : number {
+		if (this.charged() && this.hasStat(StatType.CHARGED_BURSTS)) {
+			return this.getStat(StatType.CHARGED_BURSTS);
+		}
+		return this.getStat(StatType.BURSTS);
+	}
 	timer() : Timer { return this._stateTimer; }
-	getTime(state : WeaponState) : number {
-		const config = this.weaponConfig();
-		if (config.times.has(state)) {
-			return config.times.get(state);
+	private getTime(state : WeaponState) : number {
+		switch (state) {
+		case WeaponState.REVVING:
+			return this.getStatOr(StatType.REV_TIME, 0);
+		case WeaponState.FIRING:
+			if (this.charged() && this.hasStat(StatType.CHARGED_FIRE_TIME)) {
+				return this.getStat(StatType.CHARGED_FIRE_TIME);
+			}
+			return this.getStat(StatType.FIRE_TIME);
+		case WeaponState.RELOADING:
+			if (this.charged() && this.hasStat(StatType.CHARGED_RELOAD_TIME)) {
+				return this.getStat(StatType.CHARGED_RELOAD_TIME);
+			}
+			return this.getStat(StatType.RELOAD_TIME);
 		}
 		return 0;
 	}
@@ -253,6 +263,54 @@ export abstract class Weapon extends Equip<Player> {
 			return this.inputDir().clone();
 		}
 		return origin.sub(mouse).negate().normalize();
+	}
+	getProjectileSpeed() : number {
+		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_SPEED)) {
+			return this.getStat(StatType.CHARGED_PROJECTILE_SPEED);
+		}
+		return this.getStat(StatType.PROJECTILE_SPEED);
+	}
+	getProjectileTTL() : number {
+		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_TTL)) {
+			return this.getStat(StatType.CHARGED_PROJECTILE_TTL);
+		}
+		return this.getStat(StatType.PROJECTILE_TTL);
+	}
+	getProjectileAccel() : number {
+		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_ACCEL)) {
+			return this.getStat(StatType.CHARGED_PROJECTILE_ACCEL);
+		}
+		if (this.hasStat(StatType.PROJECTILE_ACCEL)) {
+			return this.getStat(StatType.PROJECTILE_ACCEL);
+		}
+		return 0;
+	}
+	getProjectileOptions(pos : Vec2, unitDir : Vec2, angle? : number) : EntityOptions {
+		let vel = unitDir.clone().scale(this.getProjectileSpeed());
+
+		let options : EntityOptions = {
+			ttl: this.getProjectileTTL(),
+			associationInit: {
+				owner: this.owner(),
+			},
+			modelInit: {},
+			profileInit: {
+				pos: pos,
+				vel: vel,
+			},
+		};
+
+		let projectileAccel = this.getProjectileAccel();
+		if (projectileAccel !== 0) {
+			let acc = unitDir.clone().scale(projectileAccel);
+			options.profileInit.acc = acc;
+		}
+
+		if (angle) {
+			options.profileInit.angle = angle;
+		}
+
+		return options;
 	}
 
 	chargedThreshold() : number { return 1000; }
@@ -285,6 +343,7 @@ export abstract class Weapon extends Equip<Player> {
 		}
 		this.recordUse();
 	}
+	protected override checkCanUse() : boolean { return !this.reloading(); }
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 		
@@ -312,7 +371,7 @@ export abstract class Weapon extends Equip<Player> {
 		}
 	}
 	quickReload(millis? : number) : void {
-		this._bursts = this.weaponConfig().bursts;
+		this._bursts = this.getBursts();
 		if (millis <= 0) {
 			this.setWeaponState(WeaponState.IDLE);
 			this._stateTimer.reset();
@@ -329,8 +388,8 @@ export abstract class Weapon extends Equip<Player> {
 		let hudData = super.getHudData();
 		hudData.set(this.hudType(), {
 			charging: !this.canUse(),
-			count: this.bursts(),
-			percentGone: 1 - (this.reloading() && !this.weaponConfig().interruptable ? this.reloadPercent() : (this.bursts() / this.weaponConfig().bursts)),
+			count: this.ammo(),
+			percentGone: 1 - (this.reloading() && !this._interruptible ? this.reloadPercent() : (this.ammo() / this.getBursts())),
 			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
 			keyType: KeyType.MOUSE_CLICK,
 		});
@@ -356,7 +415,7 @@ export abstract class Weapon extends Equip<Player> {
 			break;
 		case WeaponState.IDLE:
 			this.setCharging(false);
-			this._bursts = this.weaponConfig().bursts;
+			this._bursts = this.getBursts();
 			if (this._weaponState === WeaponState.RELOADING) {
 				if (this._playReloadSound && this.hasOwner()) {
 					this.soundPlayer().playFromEntity(this.reloadSound(), this.owner(), {});
@@ -392,8 +451,6 @@ export abstract class Weapon extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		this.setCanUse(!this.reloading());
-
 		if (!this._model.hasMesh()) {
 			return;
 		}
@@ -401,8 +458,8 @@ export abstract class Weapon extends Equip<Player> {
 		if (this._weaponState === WeaponState.RELOADING) {
 			this.setCharging(false);
 
-			if (!this.weaponConfig().allowPartialClip) {
-				this._bursts = Math.max(this._bursts, Math.floor(this._stateTimer.percentElapsed() * this.weaponConfig().bursts));
+			if (!this._allowPartialClip) {
+				this._bursts = Math.max(this._bursts, Math.floor(this._stateTimer.percentElapsed() * this.getBursts()));
 			}
 			if (!this._stateTimer.hasTimeLeft()) {
 				this.setWeaponState(WeaponState.IDLE);
@@ -410,20 +467,20 @@ export abstract class Weapon extends Equip<Player> {
 		}
 
 		if (this._weaponState === WeaponState.IDLE) {
-			this._bursts = this.weaponConfig().bursts;
+			this._bursts = this.getBursts();
 			if (this.firing()) {
 				this.setWeaponState(WeaponState.REVVING);
 			}
 		}
 
 		if (this._weaponState === WeaponState.REVVING) {
-			this._bursts = this.weaponConfig().bursts;
-			this._firingTime = this.getTime(WeaponState.FIRING);
+			this._bursts = this.getBursts();
 
 			if (!this._stateTimer.hasTimeLeft()) {
 				this.fire();
+				this._firingTime = this.getTime(WeaponState.FIRING);
 				this.setWeaponState(WeaponState.FIRING);
-			} else if (!this.firing() && this.weaponConfig().interruptable) {
+			} else if (!this.firing() && this._interruptible) {
 				this.setWeaponState(WeaponState.IDLE);
 			}
 		}
@@ -431,8 +488,8 @@ export abstract class Weapon extends Equip<Player> {
 		if (this._weaponState === WeaponState.FIRING) {
 			if (this._bursts <= 0) {
 				this.setWeaponState(WeaponState.RELOADING);
-			} else if (!this.firing() && this.weaponConfig().interruptable) {
-				if (this.weaponConfig().allowPartialClip) {
+			} else if (!this.firing() && this._interruptible) {
+				if (this._allowPartialClip) {
 					this.setWeaponState(WeaponState.IDLE);
 				} else {
 					this.setWeaponState(WeaponState.RELOADING);
@@ -467,10 +524,11 @@ export abstract class Weapon extends Equip<Player> {
 			const reloadType = this.reloadType();
 			let reloadWeight : number;
 			if (Weapon._recoilReloads.has(reloadType)) {
-				if (this._stateTimer.millisElapsed() < Weapon._reloadStartTime) {
+				const startTime = 2 * Weapon._reloadStartTime;
+				if (this._stateTimer.millisElapsed() < startTime) {
 					reloadWeight = 1;
 				} else {
-					reloadWeight = 1 - Math.max(0, this._stateTimer.millisElapsed() - Weapon._reloadStartTime) / Math.max(1, this._stateTimer.totalMillis() - Weapon._reloadStartTime);
+					reloadWeight = 1 - Math.max(0, this._stateTimer.millisElapsed() - startTime) / Math.max(1, this._stateTimer.totalMillis() - startTime);
 				}
 			} else if (this._stateTimer.millisLeft() < Weapon._reloadEndTime) {
 				reloadWeight = this._stateTimer.millisLeft() / Weapon._reloadEndTime;

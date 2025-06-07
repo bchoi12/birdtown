@@ -6,7 +6,6 @@ import { Profile } from 'game/component/profile'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
-import { CardinalFactory } from 'game/factory/cardinal_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { Entity, EntityOptions } from 'game/entity'
@@ -152,7 +151,7 @@ export class Level extends SystemBase implements System {
 			return;
 		}
 
-		if (game.controller().isTeamMode()) {
+		if (game.controller().useTeamSpawns()) {
 			if (this.spawnAtPoint(player)) {
 				return;
 			}

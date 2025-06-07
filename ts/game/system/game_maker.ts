@@ -247,6 +247,8 @@ export class GameMaker extends SystemBase implements System {
 			return "Score " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point") + " in a row";
 		case GameMode.TEAM_BATTLE:
 			return "Eliminate the enemy team";
+		case GameMode.TEAM_DEATHMATCH:
+			return "Score " + config.getPoints() + " before the other team";
 		case GameMode.VIP:
 			return "Eliminate the other team's VIP";
 		default:
@@ -509,7 +511,7 @@ export class GameMaker extends SystemBase implements System {
 			tablet.setInfo(InfoType.SCORE, 0);
 		}
 
-		const [log, hasLog] = player.stats().lastDamager(GameMaker._lastDamageTime);
+		const [log, hasLog] = player.lastDamager(GameMaker._lastDamageTime);
 		if (!hasLog || !log.hasEntityLog()) {
 	    	game.announcer().feed({
 	    		type: FeedType.SUICIDE,

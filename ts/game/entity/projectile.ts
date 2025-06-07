@@ -8,7 +8,7 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
-import { SoundType } from 'game/factory/api'
+import { SoundType, StatType } from 'game/factory/api'
 import { SoundFactory } from 'game/factory/sound_factory'
 
 import { Vec2 } from 'util/vector'
@@ -177,7 +177,13 @@ export abstract class Projectile extends EntityBase {
 		});
 	}
 
-	hitDamage() : number { return 0; }
+	hitDamage() : number {
+		if (this.getAttribute(AttributeType.CHARGED) && this.hasStat(StatType.CHARGED_DAMAGE)) {
+			return this.getStat(StatType.CHARGED_DAMAGE);
+		}
+
+		return this.getStat(StatType.DAMAGE);
+	}
 	onHit(other : Entity) : void {
 		this._hits.add(other.id());
 

@@ -6,8 +6,8 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
 import { Bullet } from 'game/entity/projectile/bullet'
-import { Weapon, WeaponConfig, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
-import { ColorType, MeshType, SoundType } from 'game/factory/api'
+import { Weapon, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
+import { ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { SoundFactory } from 'game/factory/sound_factory'
 import { StepData } from 'game/game_object'
@@ -17,26 +17,6 @@ import { HudType, HudOptions } from 'ui/api'
 import { Vec3 } from 'util/vector'
 
 export class WingCannon extends Weapon {
-
-	private static readonly _bursts = 5;
-	private static readonly _chargeBursts = 1;
-	private static readonly _config = {
-		times: new Map([
-			[WeaponState.FIRING, 100],
-			[WeaponState.RELOADING, 1200],
-		]),
-		bursts: WingCannon._bursts,
-	};
-	private static readonly _chargeConfig = {
-		times: new Map([
-			[WeaponState.FIRING, 1000],
-			[WeaponState.RELOADING, 800],
-		]),
-		bursts: WingCannon._chargeBursts,
-	};
-
-	private static readonly _chargedThreshold = 1000;
-	private static readonly _orbTTL = 400;
 
 	constructor(options : EntityOptions) {
 		super(EntityType.WING_CANNON, options);
@@ -50,50 +30,23 @@ export class WingCannon extends Weapon {
 	override meshType() : MeshType { return MeshType.WING_CANNON; }
 	override hudType() : HudType { return HudType.ORBS; }
 
-	override chargedThreshold() : number { return WingCannon._chargedThreshold; }
-
-	override weaponConfig() : WeaponConfig {
-		return this.charged() ? WingCannon._chargeConfig : WingCannon._config;
-	}
-
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 
 		const pos = this.shootPos();
-
 		const unitDir = this.getDir();
 
 		if (this.charged()) {
-			this.addEntity(EntityType.LASER, {
-				associationInit: {
-					owner: this.owner(),
-				},
-				profileInit: {
-					pos: pos,
-					vel: { x: 0, y: 0 },
-					angle: unitDir.angleRad(),
-				},
-			});
+			this.addEntity(EntityType.LASER, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
 
-			let recoil = unitDir.clone().negate().scale(0.5);
+			let recoil = unitDir.clone().negate().scale(this.getStat(StatType.CHARGED_RECOIL));
 			this.owner().addForce(recoil);
 		} else {
-			let vel = unitDir.clone().scale(0.8);
-			this.addEntity(EntityType.ORB, {
-				ttl: WingCannon._orbTTL,
-				associationInit: {
-					owner: this.owner(),
-				},
-				profileInit: {
-					pos: pos,
-					vel: vel,
-					angle: vel.angleRad(),
-				},
-			});
+			this.addEntity(EntityType.ORB, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
 			this.soundPlayer().playFromEntity(SoundType.WING_CANNON, this.owner());
-		}
 
-		let recoil = unitDir.clone().negate().scale(0.1);
-		this.owner().addForce(recoil);
+			let recoil = unitDir.clone().negate().scale(this.getStat(StatType.FORCE));
+			this.owner().addForce(recoil);
+		}
 	}
 }

@@ -12,6 +12,5 @@ export class EagleBeak extends Beak {
 
 	override meshType() : MeshType { return MeshType.EAGLE_BEAK; }
 	override soundType() : SoundType { return SoundType.EAGLE_SCREECH; }
-	override squawkCooldown() : number { return 4000; }
 
 }

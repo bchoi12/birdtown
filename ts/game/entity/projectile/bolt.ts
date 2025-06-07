@@ -68,8 +68,6 @@ export class Bolt extends Projectile {
 		}));
 	}
 
-	override hitDamage() : number { return this.getAttribute(AttributeType.CHARGED) ? 70 : 15; }
-
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 

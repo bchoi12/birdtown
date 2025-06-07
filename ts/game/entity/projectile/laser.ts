@@ -23,7 +23,6 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Laser extends Projectile {
 
-	private static readonly _ttl = 750;
 	private static readonly _activateTiming = 0.15;
 	private static readonly _damageTiming = 0.55;
 	private static readonly _initialScale = 0.1;
@@ -38,7 +37,6 @@ export class Laser extends Projectile {
 
 		this._active = false;
 
-		this.setTTL(Laser._ttl);
 		this.setSnapOnHit(false);
 		this.setPlayImpactSound(false);
 
@@ -103,8 +101,6 @@ export class Laser extends Projectile {
 		this._model.scaling().y = Laser._initialScale;
 		SoundFactory.playFromPos(SoundType.LASER, this._profile.pos().toBabylon3());
 	}
-
-	override hitDamage() : number { return 60; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);

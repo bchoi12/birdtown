@@ -7,10 +7,12 @@ import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { StepData } from 'game/game_object'
+import { StatType } from 'game/factory/api'
 
-import { KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { SavedCounter } from 'util/saved_counter'
+import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
 export enum AttachType {
@@ -29,6 +31,8 @@ export enum AttachType {
 
 export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
+	protected static readonly _maxJuice = 100;
+
 	protected _association : Association;
 	protected _attributes : Attributes;
 	protected _ownerId : number;
@@ -36,6 +40,11 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	// Networked counter for uses
 	protected _uses : SavedCounter;
 	protected _canUse : boolean;
+
+	protected _juice : number;
+	protected _chargeDelayTimer : Timer;
+	protected _chargeRate : number;
+	protected _canUseDuringDelay : boolean;
 
 	constructor(entityType : EntityType, entityOptions : EntityOptions) {
 		super(entityType, entityOptions);
@@ -48,6 +57,13 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 		this._uses = new SavedCounter(0);
 		this._canUse = false;
+
+		this._juice = 0
+		this._chargeDelayTimer = this.newTimer({
+			canInterrupt: true,
+		});
+		this._chargeRate = this.getStatOr(StatType.CHARGE_RATE, 0);
+		this._canUseDuringDelay = false;
 
 		this.addProp<number>({
 			has: () => { return this._uses.count() > 0; },
@@ -81,18 +97,60 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	override hasClientId() : boolean { return this.hasOwner() ? this._owner.hasClientId() : super.hasClientId(); }
 	override clientId() : number { return this.hasOwner() ? this._owner.clientId() : super.clientId(); }
 
+	abstract attachType() : AttachType;
+
+	override getHudData() : Map<HudType, HudOptions> {
+		let hudData = super.getHudData();
+
+		const hudType = this.hudType();
+
+		if (hudType !== HudType.UNKNOWN) {
+			hudData.set(this.hudType(), {
+				charging: !this.canUse(),
+				percentGone: this.hudPercent(),
+				empty: true,
+				keyType: this.useKeyType(),
+			});
+		}
+		return hudData;
+	}
+	protected hudPercent() : number { return 1 - this._juice / Equip._maxJuice; }
+	protected hudType() : HudType { return HudType.UNKNOWN; };
+	protected useKeyType() : KeyType { return KeyType.ALT_MOUSE_CLICK; };
+
 	override initialize() : void {
 		super.initialize();
 
 		this._owner.equip(this);
+		this._juice = Equip._maxJuice;
+	}
+
+	override preUpdate(stepData : StepData) : void {
+		super.preUpdate(stepData);
+
+		if (this.isSource()) {
+			this._canUse = this.checkCanUse();
+		}
 	}
 
 	override update(stepData : StepData) : void {
 		super.update(stepData)
 
-		const uses = this._uses.save();
-		if (!this.isSource() && uses > 0) {
-			this.simulateUse(uses);
+		if (!this.isSource()) {
+			const uses = this._uses.save();
+			if (uses > 0) {
+				this.simulateUse(uses);
+			}
+		}
+	}
+
+	override postUpdate(stepData : StepData) : void {
+		super.postUpdate(stepData);
+		const millis = stepData.millis;
+
+		if (this.canCharge()) {
+			this._juice += this._chargeRate * millis / 1000;
+			this._juice = Math.min(this._juice, Equip._maxJuice);
 		}
 	}
 
@@ -122,20 +180,44 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	owner() : E { return this._owner; }
 	ownerId() : number { return this._ownerId; }
 
-	canUse() : boolean { return this._canUse; }
-	setCanUse(can : boolean) : void {
+	protected checkCanUse() : boolean {
+		if (!this.hasStat(StatType.USE_JUICE)) {
+			return true;
+		}
+		return this._juice >= this.getStat(StatType.USE_JUICE) && (this._canUseDuringDelay || !this._chargeDelayTimer.hasTimeLeft());
+	}
+	protected canUse() : boolean { return this._canUse; }
+	private importCanUse(can : boolean) : void { this._canUse = can; }
+	protected recordUse(n? : number) : void {
 		if (this.isSource()) {
-			this._canUse = can;
+			const uses = n ? n : 1;
+			this.simulateUse(uses);
+			this._uses.add(uses);
 		}
 	}
-	importCanUse(can : boolean) : void { this._canUse = can; }
-	recordUse() : void {
-		if (this.isSource()) {
-			this.simulateUse(1);
-			this._uses.add(1);
-		}
-	}
-	protected simulateUse(uses : number) : void {}
+	protected juice() : number { return this._juice; }
+	protected setJuice(juice : number) : void { this._juice = juice; }
+	protected useJuice(juice : number) : void { this._juice = Math.max(this._juice - juice, 0); }
 
-	abstract attachType() : AttachType;
+	protected canCharge() : boolean { return this._chargeRate > 0 && !this._chargeDelayTimer.hasTimeLeft(); }
+	protected setChargeRate(rate : number) : void { this._chargeRate = rate; }
+	protected delayCharge(delay : number) : void {
+		if (delay > 0) {
+			this._chargeDelayTimer.start(delay);
+		}
+	}
+
+	protected simulateUse(uses : number) : void {
+		if (this.hasStat(StatType.USE_JUICE)) {
+			this._juice = Math.max(0, this._juice - uses * this.getStat(StatType.USE_JUICE));
+		}
+
+		if (this.hasStat(StatType.CHARGE_RATE)) {
+			this.setChargeRate(this.getStat(StatType.CHARGE_RATE));
+		}
+
+		if (this.hasStat(StatType.CHARGE_DELAY)) {
+			this.delayCharge(this.getStat(StatType.CHARGE_DELAY));
+		}
+	}
 }

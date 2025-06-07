@@ -77,7 +77,7 @@ export class Bullet extends Projectile {
 
 				mesh.addChild(this._trail);
 				this._trail.isVisible = true;
-				this._trail.scaling.x = 0.6;
+				this._trail.scaling.x = 0.4;
 
 				model.setMesh(mesh);
 			},
@@ -90,10 +90,8 @@ export class Bullet extends Projectile {
 	}
 
 	protected trailScaling(stepData : StepData) : number {
-		return Math.min(1.2, this._trail.scaling.x + 4 * stepData.millis / 1000);
+		return Math.min(1.2, this._trail.scaling.x + 6 * stepData.millis / 1000);
 	}
-
-	override hitDamage() : number { return 20; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);

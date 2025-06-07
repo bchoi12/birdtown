@@ -105,6 +105,12 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
+		[GameMode.TEAM_DEATHMATCH, MessageBase.fieldDescriptor(
+			...GameConfigMessage._gameProps,
+			[GameConfigProp.POINTS, {}],
+			[GameConfigProp.TIME_GAME, { optional: true }],
+			[GameConfigProp.VICTORIES, {}],
+		)],
 		[GameMode.VIP, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.LIVES, {}],
@@ -235,6 +241,16 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setStartingLoadout(LoadoutType.PICK_THREE);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.TEAM_LIVES);
+			break;
+		case GameMode.TEAM_DEATHMATCH:
+			this.setPoints(10);
+			this.setPlayersMin(2);
+			this.setLevelType(LevelType.BIRDTOWN_CIRCLE);
+			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setWeaponCrateSpawn(FrequencyType.LOW);
+			this.setStartingLoadout(LoadoutType.PICK_THREE);
+			this.setVictories(3);
+			this.setWinCondition(WinConditionType.TEAM_POINTS);
 			break;
 		case GameMode.VIP:
 			this.setLives(1);

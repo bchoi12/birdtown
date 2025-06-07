@@ -7,7 +7,7 @@ import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { ColorType, MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -22,16 +22,8 @@ export class Booster extends Equip<Player> {
 
 	private static readonly _fireMeshName = "fire";
 
-	private static readonly _maxJuice = 100;
-	private static readonly _chargeRate = 30;
-	private static readonly _groundChargeRate = 75;
-	private static readonly _chargeDelay = 360;
 	private static readonly _smokeDelay = 30;
-	private static readonly _upwardForce = 2;
 
-	private _juice : number;
-	private _chargeDelayTimer : Timer;
-	private _chargeRate : number;
 	private _smoker : RateLimiter;
 
 	private _fire : BABYLON.Mesh;
@@ -41,11 +33,6 @@ export class Booster extends Equip<Player> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.BOOSTER, entityOptions);
 
-		this._juice = 0;
-		this._chargeDelayTimer = this.newTimer({
-			canInterrupt: true,
-		});
-		this._chargeRate = 0;
 		this._smoker = new RateLimiter(Booster._smokeDelay);
 
 		this._fire = null;
@@ -77,6 +64,8 @@ export class Booster extends Equip<Player> {
 		this.soundPlayer().registerSound(SoundType.BOOST);
 	}
 
+
+	protected override hudType() : HudType { return HudType.BOOSTER; }
 	override attachType() : AttachType { return AttachType.BACK; }
 
 	override initialize() : void {
@@ -89,22 +78,10 @@ export class Booster extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		this.setCanUse(this._juice >= Booster._maxJuice);
-
-		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
 			this.recordUse();
-		} else if (!this._chargeDelayTimer.hasTimeLeft()) {
-			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
-				// Touch ground to unlock faster charge rate.
-				this._chargeRate = Math.max(this._chargeRate, Booster._groundChargeRate);
-			} else if (!this._chargeDelayTimer.hasTimeLeft()) {
-				this._chargeRate = Math.max(this._chargeRate, Booster._chargeRate);
-			}
-		}
-
-		if (this._chargeRate > 0) {
-			this._juice += this._chargeRate * millis / 1000;
-			this._juice = Math.min(this._juice, Booster._maxJuice);
+		} else if (this.owner().getAttribute(AttributeType.GROUNDED)) {
+			this.setChargeRate(this.getStat(StatType.FAST_CHARGE_RATE));
 		}
 
 		if (this._fire !== null && this._chargeDelayTimer.hasTimeLeft() && this._smoker.check(millis)) {
@@ -126,14 +103,11 @@ export class Booster extends Equip<Player> {
 	}
 
 	protected override simulateUse(uses : number) : void {
-		this._juice = 0;
-
-		this._chargeRate = 0;
-		this._chargeDelayTimer.start(Booster._chargeDelay);
+		super.simulateUse(uses);
 
 		// Only allow source to jump since otherwise it's jittery.
 		if (this.hasOwner()) {
-			this.owner().addForce({ y: Booster._upwardForce });
+			this.owner().addForce({ y: this.getStat(StatType.FORCE) });
 			this.soundPlayer().playFromEntity(SoundType.BOOST, this.owner());
 		}
 	}
@@ -150,17 +124,5 @@ export class Booster extends Equip<Player> {
 		} else {
 			this._fire.scaling.y = 0;
 		}
-	}
-
-	override getHudData() : Map<HudType, HudOptions> {
-		let hudData = super.getHudData();
-		hudData.set(HudType.BOOSTER, {
-			charging: !this.canUse(),
-			percentGone: 1 - this._juice / Booster._maxJuice,
-			color: this.clientColorOr(ColorFactory.color(ColorType.SHOOTER_BLUE).toString()),
-			empty: true,
-			keyType: KeyType.ALT_MOUSE_CLICK,
-		});
-		return hudData;
 	}
 }

@@ -716,6 +716,7 @@ kbd {
 .dialog-page {
     padding: 0.5em 0em;
     white-space: pre-wrap;
+    height: 100%
 }
 
 .dialog-title {
@@ -991,7 +992,7 @@ kbd {
 
 .color-pick {
     height: 1em;
-    margin: 0.3em;
+    margin: 0.3em 2em;
 }
 
 .color-block {

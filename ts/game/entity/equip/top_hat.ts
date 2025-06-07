@@ -10,7 +10,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon, WeaponState } from 'game/entity/equip/weapon'
 import { Player } from 'game/entity/player'
-import { ColorType, MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -22,14 +22,9 @@ import { Vec3 } from 'util/vector'
 
 export class TopHat extends Equip<Player> {
 
-	private static readonly _chargeDelay = 275;
-	private static readonly _cooldown = 550;
 	private static readonly _dashTime = 275;
-	private static readonly _maxJuice = 100;
 
-	private _chargeDelayTimer : Timer;
 	private _dashTimer : Timer;
-	private _juice : number;
 	private _dir : number;
 
 	private _model : Model;
@@ -37,13 +32,9 @@ export class TopHat extends Equip<Player> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.TOP_HAT, entityOptions);
 
-		this._chargeDelayTimer = this.newTimer({
-			canInterrupt: true,
-		});
 		this._dashTimer = this.newTimer({
 			canInterrupt: false,
 		});
-		this._juice = TopHat._maxJuice;
 		this._dir = 0;
 
 		this._model = this.addComponent<Model>(new Model({
@@ -81,39 +72,21 @@ export class TopHat extends Equip<Player> {
 	}
 
 	override attachType() : AttachType { return AttachType.HEAD; }
-
-	override getHudData() : Map<HudType, HudOptions> {
-		let hudData = super.getHudData();
-		let percent = this._juice / TopHat._maxJuice;
-		hudData.set(HudType.ROLL, {
-			charging: !this.canUse(),
-			percentGone: 1 - percent,
-			empty: true,
-			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
-			keyType: KeyType.ALT_MOUSE_CLICK,
-		});
-		return hudData;
-	}
+	protected override hudType() : HudType { return HudType.ROLL; }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		const millis = stepData.millis;
-
-		this.setCanUse(this._juice >= TopHat._maxJuice && !this._dashTimer.hasTimeLeft());
-		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
 			this.recordUse();
-		}
-
-		if (!this._chargeDelayTimer.hasTimeLeft()) {
-			this._juice = Math.min(TopHat._maxJuice, this._juice + TopHat._maxJuice * millis / TopHat._cooldown);
 		}
 	}
 
+	protected override checkCanUse() : boolean { return super.checkCanUse() && !this._dashTimer.hasTimeLeft(); }
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 
-		let force = this.inputDir().clone().scale(0.6);
+		let force = this.inputDir().clone().scale(this.getStat(StatType.FORCE));
 		this._dir = force.x === 0 ? 1 : Math.sign(force.x);
 
 		if (this.hasOwner()) {
@@ -121,9 +94,6 @@ export class TopHat extends Equip<Player> {
 			this.owner().addForce(force);
 			this.soundPlayer().playFromEntity(SoundType.TUMBLE, this.owner());
 		}
-
-		this._juice = Math.max(0, this._juice - TopHat._maxJuice);
-		this._chargeDelayTimer.start(TopHat._chargeDelay);
 
 		this._dashTimer.start(TopHat._dashTime);
 	}

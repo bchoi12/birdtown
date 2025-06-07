@@ -75,7 +75,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		shareWrapper.configureForDialog();
 		this.footerElm().appendChild(shareWrapper.elm());
 
-		let okButton = this.addOKButton(game.isHost() ? "OK" : "Request to Play");
+		let okButton = this.addOKButton(game.isHost() ? "OK" : "Ask to Play");
 		okButton.addOnClick(() => {
 			this.nextPage();
 		});
@@ -141,7 +141,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let columnsWrapper = ColumnsWrapper.withWeights([4, 6]);
 
 		let modeColumn = columnsWrapper.column(0);
-		modeColumn.contentElm().style.fontSize = "0.8em";
+		modeColumn.contentElm().style.fontSize = "0.7em";
 
 		let classicCategory = new CategoryWrapper();
 		classicCategory.setTitle("Free for All");
@@ -153,7 +153,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		modeColumn.contentElm().appendChild(teamCategory.elm());
 
 		let infoColumn = columnsWrapper.column(1);
-		infoColumn.contentElm().style.fontSize = "0.8em";
+		infoColumn.contentElm().style.fontSize = "0.7em";
 		infoColumn.contentElm().appendChild(this._descriptionCategory.elm());
 
 		this.addUnknownMode();
@@ -207,6 +207,12 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			parent: teamCategory.contentElm(),
 			minRecommended: 4,
 		});
+		this.populateMode(GameMode.TEAM_DEATHMATCH, {
+			requirements: [],
+			description: "Chaotic team based deathmatch.\r\n\r\nReach the score limit with your team to win.",
+			parent: teamCategory.contentElm(),
+			minRecommended: 4,
+		});
 		this.populateMode(GameMode.VIP, {
 			requirements: [],
 			description: "Each team has a VIP with a Golden Gun.\r\n\r\nEliminate the other team's VIP and protect yours at all costs.",
@@ -226,6 +232,10 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		pageWrapper.elm().appendChild(columnsWrapper.elm());
 
 		pageWrapper.setCanSubmit(() => {
+			if (!game.isHost()) {
+				return true;
+			}
+
 			const mode = this.getMode();
 			const [startErrors, canStart] = Controller.canStart(mode);
 			if (!canStart) {
@@ -421,10 +431,26 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.TEAM_BATTLE:
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			break;
 		case GameMode.VIP:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM]).elm());
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			break;
+		case GameMode.TEAM_DEATHMATCH:
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN_CIRCLE, LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 30).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());

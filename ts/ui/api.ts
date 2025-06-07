@@ -78,7 +78,7 @@ export enum FeedType {
 }
 
 export enum HudType {
-	UNKOWN,
+	UNKNOWN,
 	BACKFLIP,
 	BOOSTER,
 	CHARGE,

@@ -10,7 +10,7 @@ import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/equip/weapon'
 import { Player } from 'game/entity/player'
 import { Rocket } from 'game/entity/projectile/rocket'
-import { ColorType, SoundType } from 'game/factory/api'
+import { ColorType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
 import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
@@ -20,36 +20,19 @@ import { Vec3 } from 'util/vector'
 
 export class PocketRocket extends Equip<Player> {
 
-	private static readonly _rocketTTL = 600;
-	private static readonly _reloadTime = 1500;
-
-	private _timer : Timer;
 	private _weapon : Weapon;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.POCKET_ROCKET, entityOptions);
 
-		this._timer = this.newTimer({
-			canInterrupt: false,
-		});
 		this._weapon = null;
 
 		this.soundPlayer().registerSound(SoundType.ROCKET);
 	}
 
 	override attachType() : AttachType { return AttachType.NONE; }
-
-	override getHudData() : Map<HudType, HudOptions> {
-		let hudData = super.getHudData();
-		hudData.set(HudType.POCKET_ROCKET, {
-			charging: !this.canUse(),
-			percentGone: this.canUse() ? 0 : (1 - this._timer.percentElapsed()),
-			empty: true,
-			color: this.clientColorOr(ColorFactory.color(ColorType.BLASTER_RED).toString()),
-			keyType: KeyType.ALT_MOUSE_CLICK,
-		});
-		return hudData;
-	}
+	override checkCanUse() : boolean { return super.checkCanUse() && this._weapon !== null; }
+	protected override hudType() : HudType { return HudType.POCKET_ROCKET; }
 
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
@@ -63,28 +46,28 @@ export class PocketRocket extends Equip<Player> {
 				this._weapon = null;
 				return;
 			}
-
 			this._weapon = weapons[0];
 		}
 	}
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
-		const millis = stepData.millis;
 
-		this.setCanUse(!this._timer.hasTimeLeft());
-
-		if (!this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN) || !this.canUse() || this._weapon === null) {
-			return;
+		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
+			this.recordUse();
 		}
+	}
+
+	override simulateUse(uses : number) : void {
+		super.simulateUse(uses);
 
 		const pos = this._weapon.shootPos();
 		const unitDir = this._weapon.getDir();
 
-		let vel = unitDir.clone().scale(0.05);
-		let acc = unitDir.clone().scale(1.5);
+		let vel = unitDir.clone().scale(this.getStat(StatType.PROJECTILE_SPEED));
+		let acc = unitDir.clone().scale(this.getStat(StatType.PROJECTILE_ACCEL));
 		let [rocket, hasRocket] = this.addEntity<Rocket>(EntityType.ROCKET, {
-			ttl: PocketRocket._rocketTTL,
+			ttl: this.getStat(StatType.PROJECTILE_TTL),
 			associationInit: {
 				owner: this.owner(),
 			},
@@ -96,7 +79,5 @@ export class PocketRocket extends Equip<Player> {
 		});
 
 		this.soundPlayer().playFromEntity(SoundType.ROCKET, this.owner());
-		// TODO: weapon recoil or effect?
-		this._timer.start(PocketRocket._reloadTime);
 	}
 }

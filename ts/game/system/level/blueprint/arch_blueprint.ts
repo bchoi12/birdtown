@@ -465,7 +465,7 @@ export class ArchBlueprint extends Blueprint {
 					const next = this.rng().next();
 					const next2 = this.rng().next();
 
-					if (options.msg.getNumTeams() === 2 && i === 0) {
+					if (game.controller().useTeamSpawns() && i === 0) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
 								team: 1,
@@ -474,7 +474,7 @@ export class ArchBlueprint extends Blueprint {
 								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),
 							},
 						})
-					} else if (options.msg.getNumTeams() === 2 && i === this.numBuildings() - 1) {
+					} else if (game.controller().useTeamSpawns() && i === this.numBuildings() - 1) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
 								team: 2,
@@ -581,7 +581,7 @@ export class ArchBlueprint extends Blueprint {
 				let block = building.block(j);
 
 				if (block.type() === ArchBlueprint.roofType()) {
-					if (options.msg.getNumTeams() === 2 && i === 1) {
+					if (game.controller().useTeamSpawns() && i === 1) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
 								team: 1,
@@ -590,7 +590,7 @@ export class ArchBlueprint extends Blueprint {
 								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),
 							},
 						})
-					} else if (options.msg.getNumTeams() === 2 && i === this.numBuildings() - 2) {
+					} else if (game.controller().useTeamSpawns() && i === this.numBuildings() - 2) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
 								team: 2,

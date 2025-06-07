@@ -10,6 +10,9 @@ export namespace BodyFactory {
 	export const ignoreBoundGroup = MATTER.Body.nextGroup(true);
 
 	export const defaultDensity = 1;
+	export const floatyDensity = 0.2 * defaultDensity;
+	export const dropsDensity = 0.6 * defaultDensity;
+	export const sturdyDensity = 1.5 * defaultDensity;
 	export const playerDensity = 1.5 * defaultDensity;
 
 	export const defaultFriction = 0.1;

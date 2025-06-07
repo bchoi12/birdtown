@@ -8,8 +8,8 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
-import { Weapon, WeaponConfig, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
-import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
+import { Weapon, WeaponState, RecoilType, ReloadType } from 'game/entity/equip/weapon'
+import { ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { LoadResult } from 'game/factory/mesh_factory'
@@ -19,19 +19,6 @@ import { Fns } from 'util/fns'
 import { Vec, Vec3 } from 'util/vector'
 
 export class Gatling extends Weapon {
-
-	private static readonly _revTime = 360;
-	private static readonly _bursts = 25;
-	private static readonly _config = {
-		times: new Map([
-			[WeaponState.REVVING, Gatling._revTime],
-			[WeaponState.FIRING, 83],
-			[WeaponState.RELOADING, 600],
-		]),
-		bursts: Gatling._bursts,
-		interruptable: true,
-	};
-	private static readonly _projectileTTL = 450;
 	private static readonly _spinnerName = "spinner";
 
 	private static readonly _recoilVel = { x: 3, y: 8};
@@ -46,6 +33,9 @@ export class Gatling extends Weapon {
 
 		this._rotateRad = 0;
 		this._spinner = null;
+
+		// Override parent
+		this._interruptible = true;
 
 		this.soundPlayer().registerSound(SoundType.GATLING);
 	}
@@ -69,27 +59,13 @@ export class Gatling extends Weapon {
 		}
 	}
 
-	override weaponConfig() : WeaponConfig { return Gatling._config; }
-
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 
 		const pos = this.shootPos();
 		const unitDir = this.getDir();
 
-		let vel = unitDir.clone().scale(0.8);
-		const angle = vel.angleRad();
-		this.addEntity(EntityType.CALIBER, {
-			ttl: Gatling._projectileTTL,
-			associationInit: {
-				owner: this.owner(),
-			},
-			profileInit: {
-				pos: pos,
-				vel: vel,
-				angle: angle,
-			},
-		});
+		this.addEntity(EntityType.CALIBER, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
 
 		let recoilVel = unitDir.clone().negate().mult(Gatling._recoilVel).scale(16 / 1000);
 		let ownerProfile = this.owner().profile();
@@ -115,7 +91,7 @@ export class Gatling extends Weapon {
 		} else if (this.weaponState() === WeaponState.FIRING) {
 			this._rotateRad = Gatling._maxRotateRate;
 		} else {
-			this._rotateRad -= Gatling._maxRotateRate * millis / (2 * Gatling._revTime);
+			this._rotateRad -= Gatling._maxRotateRate * millis / (2 * this.getStat(StatType.REV_TIME));
 			this._rotateRad = Math.max(0, this._rotateRad);
 		}
 

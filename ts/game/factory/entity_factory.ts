@@ -14,7 +14,6 @@ import { Pergola } from 'game/entity/pergola'
 import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
 import { Bubble } from 'game/entity/equip/bubble'
-import { BirdBrain } from 'game/entity/equip/bird_brain'
 import { Booster } from 'game/entity/equip/booster'
 import { CowboyHat } from 'game/entity/equip/cowboy_hat'
 import { Headphones } from 'game/entity/equip/headphones'
@@ -85,7 +84,6 @@ export namespace EntityFactory {
 		[EntityType.BACKGROUND_ARCH_ROOM, (options : EntityOptions) => { return new BackgroundArchRoom(options); }],
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
 		[EntityType.BILLBOARD, (options : EntityOptions) => { return new Billboard(options); }],
-		[EntityType.BIRD_BRAIN, (options : EntityOptions) => { return new BirdBrain(options); }],
 		[EntityType.BLACK_HOLE, (options : EntityOptions) => { return new BlackHole(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
 		[EntityType.BOOSTER, (options : EntityOptions) => { return new Booster(options); }],

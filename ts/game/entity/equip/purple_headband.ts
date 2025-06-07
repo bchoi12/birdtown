@@ -10,7 +10,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { BoneType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { ColorType, MaterialType, MeshType, SoundType } from 'game/factory/api'
+import { ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -29,17 +29,8 @@ export class PurpleHeadband extends Equip<Player> {
         new BABYLON.Vector3(0, 0, -0.4),
 	];
 
-	private static readonly _chargeDelay = 400;
-	private static readonly _cooldown = 2500;
-	private static readonly _groundCooldown = 1250;
 	private static readonly _dashTime = 250;
-	private static readonly _dashJuice = 50;
-	private static readonly _maxJuice = 100;
-	private static readonly _force = 0.8;
 
-	private _juice : number;
-	private _cooldown : number;
-	private _chargeDelayTimer : Timer;
 	private _dashTimer : Timer;
 	private _trail : BABYLON.Mesh;
 
@@ -48,11 +39,6 @@ export class PurpleHeadband extends Equip<Player> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PURPLE_HEADBAND, entityOptions);
 
-		this._juice = PurpleHeadband._maxJuice;
-		this._cooldown = PurpleHeadband._cooldown;
-		this._chargeDelayTimer = this.newTimer({
-			canInterrupt: true,
-		});
 		this._dashTimer = this.newTimer({
 			canInterrupt: true,
 		});
@@ -79,18 +65,7 @@ export class PurpleHeadband extends Equip<Player> {
 	}
 
 	override attachType() : AttachType { return AttachType.FOREHEAD; }
-
-	override getHudData() : Map<HudType, HudOptions> {
-		let hudData = super.getHudData();
-		hudData.set(HudType.DASH, {
-			charging: !this.canUse(),
-			percentGone: 1 - this._juice / PurpleHeadband._maxJuice,
-			empty: true,
-			keyType: KeyType.ALT_MOUSE_CLICK,
-			color: this.clientColorOr(ColorFactory.color(ColorType.EASTERN_PURPLE).toString()),
-		});
-		return hudData;
-	}
+	protected override hudType() : HudType { return HudType.DASH; }
 
 	override initialize() : void {
 		super.initialize();
@@ -110,18 +85,10 @@ export class PurpleHeadband extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		this.setCanUse(this._juice >= PurpleHeadband._dashJuice && !this._chargeDelayTimer.hasTimeLeft());
-
-		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
 			this.recordUse();
-		}
-
-		if (!this._chargeDelayTimer.hasTimeLeft()) {
-			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
-				// Touch ground to unlock faster charge rate.
-				this._cooldown = Math.min(this._cooldown, PurpleHeadband._groundCooldown);
-			}
-			this._juice = Math.min(PurpleHeadband._maxJuice, this._juice + PurpleHeadband._maxJuice * millis / this._cooldown);
+		} else if (this.owner().getAttribute(AttributeType.GROUNDED)) {
+			this.setChargeRate(this.getStat(StatType.FAST_CHARGE_RATE));
 		}
 	}
 
@@ -131,12 +98,9 @@ export class PurpleHeadband extends Equip<Player> {
 		this.owner().profile().setVel({x: 0, y: 0});
 
 		// Only allow source to jump since otherwise it's jittery.
-		let force = this.inputDir().clone().scale(PurpleHeadband._force);
+		let force = this.inputDir().clone().scale(this.getStat(StatType.FORCE));
 		this.owner().addForce(force);
 
-		this._juice = Math.max(0, this._juice - PurpleHeadband._dashJuice);
-		this._cooldown = PurpleHeadband._cooldown;
-		this._chargeDelayTimer.start(PurpleHeadband._chargeDelay);
 		this._dashTimer.start(PurpleHeadband._dashTime);
 
 		this.soundPlayer().playFromEntity(SoundType.DASH, this.owner());

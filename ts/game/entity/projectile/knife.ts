@@ -81,8 +81,6 @@ export class Knife extends Projectile {
 		this._trail.parent = this._model.root();
 	}
 
-	override hitDamage() : number { return 20; }
-
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;

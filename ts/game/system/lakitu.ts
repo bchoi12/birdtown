@@ -268,6 +268,10 @@ export class Lakitu extends SystemBase implements System {
 		if (!game.playerState()?.hasTargetEntity()) {
 			return false;
 		}
+		if (!game.controller().useTeamSpawns()) {
+			return false;
+		}
+
 		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findAll((spawn : Entity) => {
 			return spawn.valid();
 		});

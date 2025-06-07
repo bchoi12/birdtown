@@ -102,6 +102,7 @@ export namespace StringFactory {
 		[GameMode.SUDDEN_DEATH, "Lightning Round"],
 		[GameMode.SURVIVAL, "Survival"],
 		[GameMode.TEAM_BATTLE, "Team Battle"],
+		[GameMode.TEAM_DEATHMATCH, "Team Deathmatch"],
 		[GameMode.VIP, "Protect the VIP"],
 	]);
 	export function getModeName(type : GameMode) : string {

@@ -86,12 +86,10 @@ export class Pellet extends Projectile {
 		}));
 	}
 
-	override hitDamage() : number { return 15; }
-
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		this._trail.scaling.x = Math.min(1.2, this._trail.scaling.x + 4 * stepData.millis / 1000);
+		this._trail.scaling.x = Math.min(1.2, this._trail.scaling.x + 6 * stepData.millis / 1000);
 	}
 
 	override onHit(other : Entity) : void {

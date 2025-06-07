@@ -83,10 +83,11 @@ export class Controller extends SystemBase implements System {
 
 	config() : GameConfigMessage { return this._gameMaker.config(); }
 	gameMode() : GameMode { return this._gameMaker.mode(); }
-	isTeamMode() : boolean {
-		const winCondition = this._gameMaker.config().getWinCondition();
-		return winCondition === WinConditionType.TEAM_POINTS
-			|| winCondition === WinConditionType.TEAM_LIVES;
+	allowRevives() : boolean {
+		return this._gameMaker.config().getWinCondition() === WinConditionType.TEAM_LIVES;
+	}
+	useTeamSpawns() : boolean {
+		return this._gameMaker.config().getWinCondition() === WinConditionType.TEAM_LIVES;
 	}
 
 	getEquips(clientId : number) : [EntityType, EntityType] { return this._gameMaker.getEquips(clientId); }

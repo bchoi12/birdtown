@@ -4,14 +4,15 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { GameState, GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
-import { AssociationType, AttributeType, ComponentType, EmotionType, StatType } from 'game/component/api'
+import { AssociationType, AttributeType, ComponentType, EmotionType } from 'game/component/api'
 import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
 import { EntityTrackers } from 'game/component/entity_trackers'
 import { Expression } from 'game/component/expression'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
-import { Stats } from 'game/component/stats'
+import { Resources } from 'game/component/resources'
+import { ChangeLog } from 'game/component/util/change_log'
 import { Entity, EntityBase, EntityOptions, EquipEntity, InteractEntity } from 'game/entity'
 import { EntityType, BirdType, BoneType } from 'game/entity/api'
 import { Crate } from 'game/entity/interactable/crate'
@@ -21,7 +22,7 @@ import { Bubble } from 'game/entity/equip/bubble'
 import { Headwear } from 'game/entity/equip/headwear'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { TextParticle } from 'game/entity/particle/text_particle'
-import { CollisionCategory, ColorType, MaterialType, MeshType, TextureType } from 'game/factory/api'
+import { CollisionCategory, ColorType, MaterialType, MeshType, StatType, TextureType } from 'game/factory/api'
 import { DepthType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -167,7 +168,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private _expression : Expression;
 	private _model : Model;
 	private _profile : Profile;
-	private _stats : Stats;
+	private _resources : Resources;
 	private _headSubProfile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
@@ -404,12 +405,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		this.soundPlayer().registerSound(SoundType.FOOTSTEP);
 
-		this._stats = this.addComponent<Stats>(new Stats());
-		this._stats.addStat(StatType.HEALTH, {
-			base: 100,
-			min: 0,
-			max: 100,
-		});
+		this._resources = this.addComponent<Resources>(new Resources({
+			stats: [StatType.HEALTH],
+		}));
 	}
 
 	override ready() : boolean {
@@ -446,7 +444,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	}
 	revive() : void {
 		this.setAttribute(AttributeType.GROUNDED, true);
-		this._stats.setHealthPercent(0.5);
+		this._resources.setHealthPercent(0.5);
 		this.getUp();
 
 		const [bubble, hasBubble] = this.addEntity<Bubble>(EntityType.BUBBLE, {
@@ -532,14 +530,14 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			}
 		}
 	}
-	stats() : Stats { return this._stats; }
+	lastDamager(millis : number) : [ChangeLog, boolean] { return this._resources.lastDamager(millis); }
 	fullHeal() : void {
-		this._stats.fullHeal();
+		this._resources.fullHeal();
 		this.getUp();
 	}
 	die() : void {
 		this.setAttribute(AttributeType.INVINCIBLE, false);
-		this.takeDamage(this._stats.health(), this);
+		this.takeDamage(this._resources.health(), this);
 	}
 	override dead() : boolean { return this._dead; }
 
@@ -713,7 +711,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				this.die();
 			}
 
-			if (this._stats.dead()) {
+			if (this._resources.dead()) {
 				this._dead = true;
 			}
 		}
@@ -1071,8 +1069,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		const tablet = game.tablet(this.clientId());
 		hudData.set(HudType.HEALTH, {
-			percentGone: 1 - this._stats.healthPercent(),
-			count: this._stats.health(),
+			percentGone: 1 - this._resources.healthPercent(),
+			count: this._resources.health(),
 			color: this.clientColorOr("#000000"),
 			keyLives: tablet.getInfo(InfoType.LIVES),
 		});
@@ -1111,7 +1109,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		return this.canBeRevived(entity);
 	}
 	private canBeRevived(other : Entity) : boolean {
-		if (!game.controller().isTeamMode()) {
+		if (!game.controller().allowRevives()) {
 			return false;
 		}
 		if (this.id() === other.id()) {
@@ -1178,7 +1176,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			const [equipType, altEquipType] = game.controller().getEquips(this.clientId());
 			this.createEquips(equipType, altEquipType);
 
-			this._stats.reset();
+			this._resources.reset();
 		});
 	}
 
