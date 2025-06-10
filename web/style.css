@@ -141,19 +141,17 @@ kbd {
     align-items: center;
     justify-content: center;
 
-    min-width: 10em;
+    min-width: 12em;
     max-width: 24em;
 
     top: 50%;
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
 
 #div-initializing {
     text-align: center;
-
-    left: 35%;
-    width: 30%;
 
     background-color: rgba(0, 0, 0, 0.8);
     border-radius: 0.3em;
@@ -165,9 +163,6 @@ kbd {
 #div-login {
     font-size: 1.5em;
     display: none;
-
-    left: 38%;
-    width: 24%;
 }
 #fieldset-login {
     width: 100%;

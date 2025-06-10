@@ -74,7 +74,7 @@ export namespace StatFactory {
 		[EntityType.POCKET_ROCKET, new Map([
 			[StatType.CHARGE_DELAY, 500],
 			[StatType.CHARGE_RATE, 33],
-			[StatType.PROJECTILE_ACCEL, 1.6],
+			[StatType.PROJECTILE_ACCEL, 1.5],
 			[StatType.PROJECTILE_SPEED, 0.1],
 			[StatType.PROJECTILE_TTL, 600],
 			[StatType.USE_JUICE, 50],
@@ -107,9 +107,9 @@ export namespace StatFactory {
 			[StatType.BURSTS, 1],
 			[StatType.FIRE_TIME, 500],
 			[StatType.FORCE, 0.75],
-			[StatType.PROJECTILE_ACCEL, 1.6],
-			[StatType.PROJECTILE_SPEED, 0.1],
-			[StatType.PROJECTILE_TTL, 600],
+			[StatType.PROJECTILE_ACCEL, 1.5],
+			[StatType.PROJECTILE_SPEED, 0.25],
+			[StatType.PROJECTILE_TTL, 500],
 			[StatType.RELOAD_TIME, 1000],
 		])],
 		[EntityType.GATLING, new Map([
