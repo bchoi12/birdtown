@@ -40,6 +40,7 @@ export class HudHandler extends HandlerBase implements Handler {
 		[HudType.SQUAWK, IconType.MUSIC_NOTE],
 		[HudType.STAR, IconType.STAR],
 		[HudType.SWORDS, IconType.SWORDS],
+		[HudType.TORNADO, IconType.TORNADO],
 	]);
 
 	private static readonly _chargingIcons = new Map<HudType, IconType>([

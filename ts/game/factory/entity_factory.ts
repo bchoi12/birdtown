@@ -13,6 +13,7 @@ import { DyingStar } from 'game/entity/dying_star'
 import { Pergola } from 'game/entity/pergola'
 import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
+import { BlackHeadband } from 'game/entity/equip/black_headband'
 import { Bubble } from 'game/entity/equip/bubble'
 import { Booster } from 'game/entity/equip/booster'
 import { CowboyHat } from 'game/entity/equip/cowboy_hat'
@@ -35,6 +36,7 @@ import { RobinHair } from 'game/entity/equip/headwear/robin_hair'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
 import { GoldenGun } from 'game/entity/equip/weapon/golden_gun'
+import { Minigun } from 'game/entity/equip/weapon/minigun'
 import { Pistol } from 'game/entity/equip/weapon/pistol'
 import { PurpleGlove } from 'game/entity/equip/weapon/purple_glove'
 import { RedGlove } from 'game/entity/equip/weapon/red_glove'
@@ -86,6 +88,7 @@ export namespace EntityFactory {
 		[EntityType.BACKGROUND_ARCH_ROOM, (options : EntityOptions) => { return new BackgroundArchRoom(options); }],
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
 		[EntityType.BILLBOARD, (options : EntityOptions) => { return new Billboard(options); }],
+		[EntityType.BLACK_HEADBAND, (options : EntityOptions) => { return new BlackHeadband(options); }],
 		[EntityType.BLACK_HOLE, (options : EntityOptions) => { return new BlackHole(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
 		[EntityType.BOOSTER, (options : EntityOptions) => { return new Booster(options); }],
@@ -116,6 +119,7 @@ export namespace EntityFactory {
 		[EntityType.LASER, (options : EntityOptions) => { return new Laser(options); }],
 		[EntityType.MEGA_ROCKET, (options : EntityOptions) => { return new MegaRocket(options); }],
 		[EntityType.MEGA_ROCKET_EXPLOSION, (options : EntityOptions) => { return new MegaRocketExplosion(options); }],
+		[EntityType.MINIGUN, (options : EntityOptions) => { return new Minigun(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
 		[EntityType.ORB, (options : EntityOptions) => { return new Orb(options); }],
 		[EntityType.ORB_EXPLOSION, (options : EntityOptions) => { return new OrbExplosion(options); }],

@@ -98,6 +98,7 @@ export enum HudType {
 	SQUAWK,
 	STAR,
 	SWORDS,
+	TORNADO,
 }
 
 export type HudOptions = {

@@ -43,6 +43,14 @@ export namespace StatFactory {
 			[StatType.CHARGE_RATE, 50],
 			[StatType.USE_JUICE, 50],
 		])],
+
+		[EntityType.BLACK_HEADBAND, new Map([
+			[StatType.CHARGE_DELAY, 100],
+			[StatType.CHARGE_RATE, 120],
+			[StatType.FAST_CHARGE_RATE, 180],
+			[StatType.FORCE, 0.7],
+			[StatType.USE_JUICE, 100],
+		])],
 		[EntityType.BOOSTER, new Map([
 			[StatType.CHARGE_DELAY, 300],
 			[StatType.CHARGE_RATE, 50],
@@ -122,7 +130,7 @@ export namespace StatFactory {
 		[EntityType.GATLING, new Map([
 			// TODO: fill out recoil values
 			[StatType.BURSTS, 25],
-			[StatType.FIRE_TIME, 83],
+			[StatType.FIRE_TIME, 80],
 			[StatType.HORIZONTAL_RECOIL, 0],
 			[StatType.PROJECTILE_SPEED, 0.8],
 			[StatType.PROJECTILE_TTL, 450],
@@ -136,6 +144,14 @@ export namespace StatFactory {
 			[StatType.PROJECTILE_SPEED, 1],
 			[StatType.PROJECTILE_TTL, 400],
 			[StatType.RELOAD_TIME, 1400],
+		])],
+		[EntityType.MINIGUN, new Map([
+			[StatType.BURSTS, 4],
+			[StatType.FIRE_TIME, 70],
+			[StatType.PROJECTILE_SPEED, 0.85],
+			[StatType.PROJECTILE_TTL, 420],
+			[StatType.RELOAD_TIME, 280],
+			[StatType.SPREAD, 4],
 		])],
 		[EntityType.PISTOL, new Map([
 			[StatType.BURSTS, 3],
@@ -184,7 +200,7 @@ export namespace StatFactory {
 			[StatType.FIRE_TIME, 70],
 			[StatType.PROJECTILE_SPEED, 0.8],
 			[StatType.PROJECTILE_TTL, 450],
-			[StatType.RELOAD_TIME, 350],
+			[StatType.RELOAD_TIME, 400],
 		])],
 		[EntityType.WING_CANNON, new Map([
 			[StatType.BURSTS, 5],

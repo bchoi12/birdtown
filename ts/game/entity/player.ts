@@ -728,8 +728,11 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		}
 
 		// Gravity
-		const falling = !this.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0;
-		const gravity = falling ? Player._fallMultiplier * GameGlobals.gravity : GameGlobals.gravity;
+		let gravity = 0;
+		if (!this.getAttribute(AttributeType.LEVITATING)) {
+			const falling = !this.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0;
+			gravity = falling ? Player._fallMultiplier * GameGlobals.gravity : GameGlobals.gravity;
+		}
 		this._profile.setAcc({ y: gravity });
 
 		if (!this.dead()) {

@@ -8,6 +8,7 @@ export namespace EquipPairs {
 	const pairs = new Map<EntityType, EntityType[]>([
 		[EntityType.BAZOOKA, [EntityType.JETPACK, EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.GATLING, [EntityType.BOOSTER, EntityType.HEADPHONES]],
+		[EntityType.MINIGUN, [EntityType.BLACK_HEADBAND, EntityType.PURPLE_HEADBAND]],
 		[EntityType.PISTOL, [EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.PURPLE_GLOVE, [EntityType.PURPLE_HEADBAND]],
 		[EntityType.RED_GLOVE, [EntityType.RED_HEADBAND]],

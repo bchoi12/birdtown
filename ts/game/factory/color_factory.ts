@@ -63,6 +63,7 @@ export namespace ColorFactory {
 		[ColorType.WESTERN_BLACK, HexColor.fromHex(0x1c1a18)],
 
 		// Eastern series (showy?)
+		[ColorType.EASTERN_BLACK, HexColor.fromHex(0x1e1e1e)],
 		[ColorType.EASTERN_PURPLE, HexColor.fromHex(0x7d3abf)],
 		[ColorType.EASTERN_RED, HexColor.fromHex(0xbc3a3a)],
 
@@ -119,8 +120,8 @@ export namespace ColorFactory {
 			ColorType.LEVEL_GREEN, ColorType.LEVEL_BLUE, ColorType.LEVEL_PURPLE
 		]],
 		[EntityType.BAZOOKA, [ColorType.BLASTER_RED, ColorType.BLASTER_YELLOW]],
+		[EntityType.BLACK_HEADBAND, [ColorType.EASTERN_BLACK]],
 		[EntityType.BOOSTER, [ColorType.SHOOTER_BLUE, ColorType.SHOOTER_YELLOW]],
-		[EntityType.PURPLE_GLOVE, [ColorType.EASTERN_PURPLE]],
 		[EntityType.COWBOY_HAT, [ColorType.WESTERN_BROWN]],
 		[EntityType.GATLING, [ColorType.WESTERN_YELLOW]],
 		[EntityType.GOLDEN_GUN, [ColorType.WESTERN_YELLOW]],
