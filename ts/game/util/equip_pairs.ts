@@ -6,7 +6,7 @@ import { globalRandom } from 'util/seeded_random'
 export namespace EquipPairs {
 
 	const pairs = new Map<EntityType, EntityType[]>([
-		[EntityType.BAZOOKA, [EntityType.JETPACK, EntityType.COWBOY_HAT]],
+		[EntityType.BAZOOKA, [EntityType.JETPACK, EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.GATLING, [EntityType.BOOSTER, EntityType.HEADPHONES]],
 		[EntityType.PISTOL, [EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.PURPLE_GLOVE, [EntityType.PURPLE_HEADBAND]],

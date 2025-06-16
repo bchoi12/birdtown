@@ -2,6 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
+import { AttributeType } from 'game/component/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
@@ -35,9 +36,9 @@ export class Bazooka extends Weapon {
 		const pos = this.shootPos();
 		const unitDir = this.getDir();
 
-		this.addEntity<Rocket>(EntityType.ROCKET, this.getProjectileOptions(pos, unitDir));
+		this.addEntity<Rocket>(this.charged() ? EntityType.MEGA_ROCKET : EntityType.ROCKET, this.getProjectileOptions(pos, unitDir));
 
-		let recoil = unitDir.clone().negate().scale(this.getStat(StatType.FORCE));
+		let recoil = unitDir.clone().negate().scale(this.getStat(this.charged() ? StatType.CHARGED_FORCE : StatType.FORCE));
 		this.owner().addForce(recoil);
 
 		this.soundPlayer().playFromEntity(SoundType.ROCKET, this.owner());

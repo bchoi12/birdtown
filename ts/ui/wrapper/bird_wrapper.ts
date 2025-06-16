@@ -28,6 +28,7 @@ export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 	private _index : number;
 	private _nameElm : HTMLElement;
 	private _photoElm : HTMLElement;
+	private _imageButton : ButtonWrapper;
 	private _imageElm : HTMLImageElement;
 	private _leftButton : ButtonWrapper;
 	private _rightButton : ButtonWrapper;
@@ -42,13 +43,22 @@ export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._index = Math.floor(Math.random() * this._types.length);
 
+		const nextBird = () => {
+			this._index++;
+			this.updateImg();
+		};
+
 		this._photoElm = Html.div();
 		this._photoElm.classList.add(Html.classBirdPhoto);
 
+		this._imageButton = new ButtonWrapper();
+		this._imageButton.elm().style.flex = "6";
+		this._imageButton.elm().style.maxWidth = "60%";
+		this._imageButton.addOnClick(nextBird);
+
 		this._imageElm = Html.img();
-		this._imageElm.style.flex = "6";
-		this._imageElm.style.maxWidth = "60%";
-		this._imageElm.classList.add(Html.classNoSelect);
+		this._imageElm.style.width = "100%";
+		this._imageButton.elm().appendChild(this._imageElm);
 
 		const left = Html.div();
 		left.style.cssText = BirdWrapper._buttonContainerCss;
@@ -67,16 +77,14 @@ export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 		right.style.cssText = BirdWrapper._buttonContainerCss;
 		this._rightButton = new ButtonWrapper();
 		this._rightButton.setIcon(IconType.ARROW_RIGHT);
-		this._rightButton.addOnClick(() => {
-			this._index++;
-			this.updateImg();
-		});
+		this._rightButton.addOnClick(nextBird);
 		right.appendChild(this._rightButton.elm());
 
 		this._nameElm = Html.div();
 		this._nameElm.style.cssText = `
 			text-align: center;
 			width: 100%;
+			margin-top: 0.3em;
 		`;
 
 		this._infoElm = Html.div();
@@ -87,7 +95,7 @@ export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 
 		this.updateImg();
 		this._photoElm.appendChild(left);
-		this._photoElm.appendChild(this._imageElm);
+		this._photoElm.appendChild(this._imageButton.elm());
 		this._photoElm.appendChild(right);
 		this.elm().appendChild(this._photoElm);
 		this.elm().appendChild(this._nameElm);

@@ -39,7 +39,7 @@ export class WingCannon extends Weapon {
 		if (this.charged()) {
 			this.addEntity(EntityType.LASER, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
 
-			let recoil = unitDir.clone().negate().scale(this.getStat(StatType.CHARGED_RECOIL));
+			let recoil = unitDir.clone().negate().scale(this.getStat(StatType.CHARGED_FORCE));
 			this.owner().addForce(recoil);
 		} else {
 			this.addEntity(EntityType.ORB, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));

@@ -44,6 +44,7 @@ import { WingCannon } from 'game/entity/equip/weapon/wing_cannon'
 import { BlackHole } from 'game/entity/explosion/black_hole'
 import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
 import { GoldenExplosion } from 'game/entity/explosion/golden_explosion'
+import { MegaRocketExplosion } from 'game/entity/explosion/mega_rocket_explosion'
 import { OrbExplosion } from 'game/entity/explosion/orb_explosion'
 import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
 import { StarExplosion } from 'game/entity/explosion/star_explosion'
@@ -67,6 +68,7 @@ import { GoldenBullet } from 'game/entity/projectile/golden_bullet'
 import { Knife } from 'game/entity/projectile/knife'
 import { Laser } from 'game/entity/projectile/laser'
 import { Orb } from 'game/entity/projectile/orb'
+import { MegaRocket } from 'game/entity/projectile/mega_rocket'
 import { Pellet } from 'game/entity/projectile/pellet'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Star } from 'game/entity/projectile/star'
@@ -112,6 +114,8 @@ export namespace EntityFactory {
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.KNIFE, (options : EntityOptions) => { return new Knife(options); }],
 		[EntityType.LASER, (options : EntityOptions) => { return new Laser(options); }],
+		[EntityType.MEGA_ROCKET, (options : EntityOptions) => { return new MegaRocket(options); }],
+		[EntityType.MEGA_ROCKET_EXPLOSION, (options : EntityOptions) => { return new MegaRocketExplosion(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
 		[EntityType.ORB, (options : EntityOptions) => { return new Orb(options); }],
 		[EntityType.ORB_EXPLOSION, (options : EntityOptions) => { return new OrbExplosion(options); }],
@@ -165,6 +169,7 @@ export namespace EntityFactory {
 		[EntityType.GOLDEN_BULLET, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],
+		[EntityType.MEGA_ROCKET, { x: 0.3, y: 0.3, z: 0.3 }],
 		[EntityType.ORB, { x: 0.4, y: 0.4, z : 0.4 }],
 		[EntityType.PELLET, { x: 0.2, y: 0.2, z : 0.2 }],
 		[EntityType.PERGOLA, { x: 4, y: 4, z: 4 }],
@@ -194,6 +199,7 @@ export namespace EntityFactory {
 		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],
 		[EntityType.GOLDEN_EXPLOSION, { x: 2.5, y: 2.5, z: 2.5 }],
 		[EntityType.HEALTH_CRATE, {x: 1, y: 1, z: 1 }],
+		[EntityType.MEGA_ROCKET_EXPLOSION, { x: 8, y: 8, z: 8 }],
 		[EntityType.ORB_EXPLOSION, { x: 2.2, y: 2.2, z: 2.2 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.STAR_EXPLOSION, {x: 0.7, y: 0.7, z: 0.7 }],

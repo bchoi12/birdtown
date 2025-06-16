@@ -46,11 +46,9 @@ export class Sniper extends Weapon {
 
 		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, options);
 
-		if (hasBolt) {
-			if (charged) {
-				bolt.setAttribute(AttributeType.CHARGED, true);
-				bolt.profile().setScaleFactor(1.5);
-			}
+		if (hasBolt && charged) {
+			bolt.setAttribute(AttributeType.CHARGED, true);
+			bolt.profile().setScaleFactor(1.5);
 		}
 
 		this.soundPlayer().playFromEntity(charged ? SoundType.CHARGED_BOLT : SoundType.BOLT, this.owner());

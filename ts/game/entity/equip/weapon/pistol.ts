@@ -34,7 +34,7 @@ export class Pistol extends Weapon {
 		this.addEntity<Bullet>(EntityType.BULLET, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
 
 		if (this.charged()) {
-			let recoil = unitDir.clone().negate().scale(this.getStat(StatType.CHARGED_RECOIL));
+			let recoil = unitDir.clone().negate().scale(this.getStat(StatType.CHARGED_FORCE));
 			this.owner().addForce(recoil);
 		}
 

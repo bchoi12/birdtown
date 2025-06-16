@@ -80,7 +80,7 @@ export class Booster extends Equip<Player> {
 
 		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
 			this.recordUse();
-		} else if (this.owner().getAttribute(AttributeType.GROUNDED)) {
+		} else if (this.canCharge() && this.owner().getAttribute(AttributeType.GROUNDED)) {
 			this.setChargeRate(this.getStat(StatType.FAST_CHARGE_RATE));
 		}
 

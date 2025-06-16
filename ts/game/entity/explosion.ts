@@ -19,6 +19,7 @@ import { Vec, Vec2 } from 'util/vector'
 
 export abstract class Explosion extends EntityBase implements Entity {
 
+	protected static readonly _ttl = 180;
 	protected static readonly _nominalDiameter = 3;
 	protected static readonly _fadePercent = 0.6;
 
@@ -78,7 +79,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 	abstract force() : number;
 	abstract materialType() : MaterialType;
 	soundType() : SoundType { return SoundType.EXPLOSION; }
-	ttl() : number { return 180; }
+	ttl() : number { return Explosion._ttl; }
 	color() : string { return MaterialFactory.material<BABYLON.StandardMaterial>(this.materialType()).emissiveColor.toHexString(); }
 	fading() : boolean { return this._lifeTimer.percentElapsed() > Explosion._fadePercent; }
 

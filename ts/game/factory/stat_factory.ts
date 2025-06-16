@@ -45,8 +45,8 @@ export namespace StatFactory {
 		])],
 		[EntityType.BOOSTER, new Map([
 			[StatType.CHARGE_DELAY, 300],
-			[StatType.CHARGE_RATE, 40],
-			[StatType.FAST_CHARGE_RATE, 80],
+			[StatType.CHARGE_RATE, 50],
+			[StatType.FAST_CHARGE_RATE, 125],
 			[StatType.FORCE, 2],
 			[StatType.USE_JUICE, 100],
 		])],
@@ -105,6 +105,13 @@ export namespace StatFactory {
 		// Weapons
 		[EntityType.BAZOOKA, new Map([
 			[StatType.BURSTS, 1],
+			[StatType.CHARGED_BURSTS, 1],
+			[StatType.CHARGED_FIRE_TIME, 500],
+			[StatType.CHARGED_FORCE, 0.75],
+			[StatType.CHARGED_RELOAD_TIME, 1200],
+			[StatType.CHARGED_PROJECTILE_ACCEL, 1.8],
+			[StatType.CHARGED_PROJECTILE_SPEED, 0.1],
+			[StatType.CHARGED_PROJECTILE_TTL, 650],
 			[StatType.FIRE_TIME, 500],
 			[StatType.FORCE, 0.75],
 			[StatType.PROJECTILE_ACCEL, 1.5],
@@ -133,9 +140,9 @@ export namespace StatFactory {
 		[EntityType.PISTOL, new Map([
 			[StatType.BURSTS, 3],
 			[StatType.CHARGED_BURSTS, 6],
-			[StatType.CHARGED_FIRE_TIME, 90],
-			[StatType.CHARGED_RECOIL, 0.2],
-			[StatType.CHARGED_RELOAD_TIME, 900],
+			[StatType.CHARGED_FIRE_TIME, 80],
+			[StatType.CHARGED_FORCE, 0.2],
+			[StatType.CHARGED_RELOAD_TIME, 1000],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0.9],
 			[StatType.CHARGED_PROJECTILE_TTL, 550],
 			[StatType.FIRE_TIME, 160],
@@ -186,7 +193,7 @@ export namespace StatFactory {
 			[StatType.CHARGED_RELOAD_TIME, 800],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0],
 			[StatType.CHARGED_PROJECTILE_TTL, 750],
-			[StatType.CHARGED_RECOIL, 0.5],
+			[StatType.CHARGED_FORCE, 0.5],
 			[StatType.FIRE_TIME, 100],
 			[StatType.FORCE, 0.1],
 			[StatType.PROJECTILE_SPEED, 0.8],
@@ -213,6 +220,9 @@ export namespace StatFactory {
 		])],
 		[EntityType.LASER, new Map([
 			[StatType.DAMAGE, 60],
+		])],
+		[EntityType.MEGA_ROCKET, new Map([
+			[StatType.DAMAGE, 100],
 		])],
 		[EntityType.ORB, new Map([
 			[StatType.DAMAGE, 20],

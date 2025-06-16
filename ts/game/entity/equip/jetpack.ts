@@ -86,7 +86,7 @@ export class Jetpack extends Equip<Player> {
 		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
 			this.recordUse(millis);
 		} else {
-			if (this.owner().getAttribute(AttributeType.GROUNDED)) {
+			if (this.canCharge() && this.owner().getAttribute(AttributeType.GROUNDED)) {
 				this.setChargeRate(this.getStat(StatType.FAST_CHARGE_RATE));
 			}
 			this.soundPlayer().stop(SoundType.JETPACK);

@@ -20,16 +20,18 @@ import { Fns } from 'util/fns'
 import { RateLimiter } from 'util/rate_limiter'
 import { Vec, Vec2 } from 'util/vector'
 
-export class Rocket extends Projectile {
+export abstract class RocketBase extends Projectile {
 
-	private _smoker : RateLimiter;
+	protected _explosionType : EntityType;
+	protected _smoker : RateLimiter;
 
-	private _model : Model;
-	private _profile : Profile;
+	protected _model : Model;
+	protected _profile : Profile;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.ROCKET, entityOptions);
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
 
+		this._explosionType = EntityType.ROCKET_EXPLOSION;
 		this._smoker = new RateLimiter(20);
 
 		this._model = this.addComponent<Model>(new Model({
@@ -71,7 +73,7 @@ export class Rocket extends Projectile {
 				ttl: 1000,
 				profileInit: {
 					pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.05, 0.05), y: Fns.randomRange(-0.05, 0.05), }),
-					scaling: { x: 0.3, y : 0.3 },
+					scaling: { x: 0.3 * this._profile.scaling().x, y : 0.3 * this._profile.scaling().x },
 				},
 			});
 		}
@@ -94,11 +96,17 @@ export class Rocket extends Projectile {
 	override onHit(other : Entity) : void {
 		super.onHit(other);
 
-		this.explode(EntityType.ROCKET_EXPLOSION, {});
+		this.explode(this._explosionType, {});
 		this.delete();
 	}
 
 	override onMiss() : void {
-		this.explode(EntityType.ROCKET_EXPLOSION, {});
+		this.explode(this._explosionType, {});
+	}
+}
+
+export class Rocket extends RocketBase {
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.ROCKET, entityOptions);
 	}
 }
