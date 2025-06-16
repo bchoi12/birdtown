@@ -1,13 +1,18 @@
 
+import { game } from 'game'
 import { GameMode } from 'game/api'
 import { EntityType } from 'game/entity/api'
 import { Entity } from 'game/entity'
 import { ColorFactory } from 'game/factory/color_factory'
-import { LevelType } from 'game/system/api'
+import { LevelType, LoadoutType } from 'game/system/api'
+
+import { GameConfigMessage } from 'message/game_config_message'
 
 import { Strings } from 'strings'
 import { ParamString, ParamType } from 'strings/param_string'
 
+import { KeyType } from 'ui/api'
+import { KeyNames } from 'ui/common/key_names'
 
 export namespace StringFactory {
 
@@ -114,5 +119,44 @@ export namespace StringFactory {
 			return modeNames.get(type).toString();
 		}
 		return Strings.toTitleCase(GameMode[type]);
+	}
+	export function getModeDescription(config : GameConfigMessage) : string {
+		switch (config.type()) {
+		case GameMode.DUEL:
+			return "Win the 1v1";
+		case GameMode.FREE_FOR_ALL:
+		case GameMode.GOLDEN_GUN:
+			return `Be the first to score ${config.getPoints()} ${Strings.plural("point", config.getPoints())}`;
+		case GameMode.PRACTICE:
+			return game.isHost() ? `Press ${KeyNames.keyTypeHTML(KeyType.MENU)} to exit` : "Try out the game";
+		case GameMode.SUDDEN_DEATH:
+		case GameMode.SURVIVAL:
+			return "Be the last one standing";
+		case GameMode.SPREE:
+			return `Score ${config.getPoints()} ${Strings.plural("point", config.getPoints())} in a row`;
+		case GameMode.TEAM_BATTLE:
+			return "Eliminate the enemy team";
+		case GameMode.TEAM_DEATHMATCH:
+			return `Score ${config.getPoints()} before the other team`;
+		case GameMode.VIP:
+			return "Eliminate the other team's VIP";
+		default:
+			return "???";
+		}
+	}
+
+	export function getLoadoutName(type : LoadoutType) : string {
+		switch (type) {
+		case LoadoutType.PICK_TURNS:
+		case LoadoutType.PICK_THREE:
+			return "Choose from 3";
+		case LoadoutType.RANDOM:
+		case LoadoutType.RANDOM_ALL:
+			return "Random"
+		case LoadoutType.GOLDEN_GUN:
+			return "Golden Gun";
+		default:
+			return "???";
+		}
 	}
 }

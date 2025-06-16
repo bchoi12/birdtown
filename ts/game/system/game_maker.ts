@@ -26,9 +26,10 @@ import { GameMessage, GameMessageType} from 'message/game_message'
 
 import { settings } from 'settings'
 
+import { StringFactory } from 'strings/string_factory'
+
 import { ui } from 'ui'
-import { AnnouncementType, DialogType, FeedType, InfoType, KeyType, StatusType } from 'ui/api'
-import { KeyNames } from 'ui/common/key_names'
+import { AnnouncementType, DialogType, FeedType, InfoType, StatusType } from 'ui/api'
 
 import { Optional } from 'util/optional'
 import { globalRandom } from 'util/seeded_random'
@@ -39,7 +40,7 @@ export class GameMaker extends SystemBase implements System {
 	private static readonly _lastDamageTime = 15000;
 	private static readonly _endTimeLimit = 3000;
 	private static readonly _preloadTimeLimit = 1500;
-	private static readonly _loadTimeLimit = 2000;
+	private static readonly _loadTimeLimit = 3000;
 	private static readonly _respawnTime = 2000;
 
 	private static readonly _timeLimitBuffer = new Map<GameState, number>([
@@ -154,8 +155,7 @@ export class GameMaker extends SystemBase implements System {
 
 	getEquips(clientId : number) : [EntityType, EntityType] {
 		if (this._config.type() === GameMode.FREE) {
-			return [EntityType.MINIGUN, EntityType.BLACK_HEADBAND];
-			// return EquipPairs.nextDefaultPair();
+			return EquipPairs.nextDefaultPair();
 		}
 
 		if (this.isVIP(clientId)) {
@@ -231,30 +231,6 @@ export class GameMaker extends SystemBase implements System {
 			tablet.resetForGame(this._config);
 		});
 		ui.setGameConfig(this._config);
-	}
-	static description(config : GameConfigMessage) : string {
-		switch (config.type()) {
-		case GameMode.DUEL:
-			return "Win the 1v1";
-		case GameMode.FREE_FOR_ALL:
-		case GameMode.GOLDEN_GUN:
-			return "Be the first to score " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point");
-		case GameMode.PRACTICE:
-			return game.isHost() ? "Press " + KeyNames.keyTypeHTML(KeyType.MENU) + " to exit" : "";
-		case GameMode.SUDDEN_DEATH:
-		case GameMode.SURVIVAL:
-			return "Be the last one standing";
-		case GameMode.SPREE:
-			return "Score " + config.getPoints() + (config.getPoints() > 1 ? " points" : " point") + " in a row";
-		case GameMode.TEAM_BATTLE:
-			return "Eliminate the enemy team";
-		case GameMode.TEAM_DEATHMATCH:
-			return "Score " + config.getPoints() + " before the other team";
-		case GameMode.VIP:
-			return "Eliminate the other team's VIP";
-		default:
-			return "???";
-		}
 	}
 	checkState(current : GameState) : [string, boolean] {
 		switch (current) {
@@ -437,7 +413,7 @@ export class GameMaker extends SystemBase implements System {
 			});
 
 			const name = this._config.modeName() + " Round " + this._round;
-			const description = GameMaker.description(this._config);
+			const description = StringFactory.getModeDescription(this._config);
 	    	game.announcer().announce({
 	    		type: AnnouncementType.GENERIC,
 	    		names: [name, description],

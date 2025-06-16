@@ -17,6 +17,7 @@ import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 import { NameWrapper } from 'ui/wrapper/name_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
+import { Strings } from 'strings'
 import { StringFactory } from 'strings/string_factory'
 
 export class RulesDialogWrapper extends DialogWrapper {
@@ -30,7 +31,7 @@ export class RulesDialogWrapper extends DialogWrapper {
 		super();
 
 		this.shrink();
-		this.setTitle("Cheat Sheet");
+		this.setTitle("Game Info");
 
 		let pageWrapper = this.addPage();
 
@@ -62,19 +63,26 @@ export class RulesDialogWrapper extends DialogWrapper {
 			break;
 		default:
 			let rules = [];
+
+			rules.push(StringFactory.getModeDescription(config));
+			rules.push(`Level is ${StringFactory.getLevelName(config.getLevelType())}`)
+
 			if (config.hasVictories()) {
-				rules.push(`First to ${config.getVictories()} round ${config.getVictories() === 1 ? `win` : `wins`}`);
+				rules.push(`First to ${config.getVictories()} round ${Strings.plural("win", config.getVictories())}`);
 			}
 			if (config.hasPoints()) {
-				rules.push(`${config.getPoints()} ${config.getPoints() === 1 ? `point` : `points`} to win the round`)
+				rules.push(`${config.getPoints()} ${Strings.plural("point", config.getPoints())} to win the round`)
 			}
 			if (config.hasLives()) {
-				rules.push(`Start with ${config.getLives()} ${config.getLives() === 1 ? `life` : `lives`}`);
+				rules.push(`Start with ${config.getLives()} ${Strings.plural("life", config.getLives())}`);
 			}
 			if (config.getResetPointsOr(false)) {
 				rules.push(`Lose all of your points on death`);
 			}
-			if (config.hasDamageMultiplier()) {
+			if (config.hasStartingLoadout()) {
+				rules.push(`Starting loadout is ${StringFactory.getLoadoutName(config.getStartingLoadout())}`);
+			}
+			if (config.hasDamageMultiplier() && config.getDamageMultiplier() !== 1) {
 				rules.push(`${config.getDamageMultiplier().toFixed(1)}x damage`);
 			}
 			if (config.hasHealthCrateSpawn()) {

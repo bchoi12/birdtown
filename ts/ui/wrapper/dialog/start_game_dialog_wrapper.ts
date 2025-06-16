@@ -620,20 +620,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 				msg.setStartingLoadout(types[index]);
 			},
 			get: () => { return msg.getStartingLoadout(); },
-			html: (current : number) => {
-				switch (current) {
-				case LoadoutType.PICK_TURNS:
-				case LoadoutType.PICK_THREE:
-					return "Choose from 3";
-				case LoadoutType.RANDOM:
-				case LoadoutType.RANDOM_ALL:
-					return "Random"
-				case LoadoutType.GOLDEN_GUN:
-					return "Golden Gun";
-				default:
-					return "???";
-				}
-			},
+			html: (current : number) => { return StringFactory.getLoadoutName(current); },
 		});
 	}
 

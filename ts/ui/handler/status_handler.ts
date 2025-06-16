@@ -1,6 +1,7 @@
 
 import { game } from 'game'
 import { GameMode, GameState } from 'game/api'
+import { LoadoutType } from 'game/system/api'
 
 import { settings } from 'settings'
 
@@ -151,20 +152,19 @@ export class StatusHandler extends HandlerBase implements Handler {
 			if (this._signalingDisconnected) {
 				wrapper.setText("Lost connection to matchmaking server!\r\nYou can still play, but no new players can join");
 			} else if (game.isHost()) {
-				wrapper.setText("Invite your friends!\r\nRoom: " + game.netcode().room());
+				wrapper.setText(`Invite your friends!\r\nRoom: ${game.netcode().room()}`);
 			} else {
-				wrapper.setText("Waiting for host to start a game...\r\nRoom: " + game.netcode().room());
+				wrapper.setText(`Waiting for host to start a game...\r\nRoom: ${game.netcode().room()}`);
 			}
 			break;
 		case GameState.LOAD:
-			wrapper.setText("Loading...");
+			wrapper.setHTML(`Loading...\r\n\nHold ${KeyNames.keyTypeHTML(KeyType.SCOREBOARD)} to view the rules`);
 			break;
 		case GameState.SETUP:
-			// TODO: should condition this on some new loadout option
-			if (game.controller().gameMode() === GameMode.DUEL) {
-				wrapper.setText("Waiting for your opponent to pick the loadout...");
+			if (game.controller().config().getStartingLoadout() === LoadoutType.PICK_TURNS) {
+				wrapper.setHTML(`Waiting for your opponent to pick the loadout...\r\n\nHold ${KeyNames.keyTypeHTML(KeyType.SCOREBOARD)} to view the rules`);
 			} else {
-				wrapper.setText("Waiting for all players to be ready...");
+				wrapper.setHTML(`Waiting for all players to be ready...\r\n\nHold ${KeyNames.keyTypeHTML(KeyType.SCOREBOARD)} to view the rules`);
 			}
 			break;
 		}
@@ -187,19 +187,19 @@ export class StatusHandler extends HandlerBase implements Handler {
 			let wrapper = this._statusWrappers.get(type);
 			switch (type) {
 			case StatusType.DEGRADED:
-				wrapper.setHTML("Your game is running slowly\r\nPress " + KeyNames.keyTypeHTML(KeyType.MENU) + " to adjust your settings");
+				wrapper.setHTML(`our game is running slowly\r\nPress ${KeyNames.keyTypeHTML(KeyType.MENU)} to adjust your settings`);
 				break;
 			case StatusType.HOST_DEGRADED:
 				wrapper.setText("Your host is currently lagging or tabbed out");
 				break;
 			case StatusType.KEYS:
 				wrapper.setHTML(
-					"Use " + KeyNames.kbd(settings.keyCode(KeyType.LEFT)) + " and " + KeyNames.kbd(settings.keyCode(KeyType.RIGHT)) + " to move\r\n\r\n" +
-					"Press " + KeyNames.kbd(settings.keyCode(KeyType.JUMP)) + " to jump/double jump"
+					`Use ${KeyNames.keyTypeHTML(KeyType.LEFT)} and ${KeyNames.keyTypeHTML(KeyType.RIGHT)} to move\r\n\r\n` +
+					`Press ${KeyNames.keyTypeHTML(KeyType.JUMP)} to jump/double jump`
 				);
 				break;
 			case StatusType.SPECTATING:
-				wrapper.setHTML("Spectating\r\nPress " + KeyNames.kbd(settings.keyCode(KeyType.LEFT)) + " or " + KeyNames.kbd(settings.keyCode(KeyType.RIGHT)) + " to change players");
+				wrapper.setHTML(`Spectating\r\nPress ${KeyNames.keyTypeHTML(KeyType.LEFT)} or ${KeyNames.keyTypeHTML(KeyType.RIGHT)} to change players`);
 				break;
 			}
 		}

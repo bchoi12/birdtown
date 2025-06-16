@@ -17,8 +17,15 @@ export namespace Strings {
 		return [str.substring(0, index), str.substring(index + 1)];
 	}
 
+	const specialPlural = new Map<string, string>([
+		["life", "lives"],
+	])
 	export function plural(str : string, n : number) : string {
 		if (n !== 1) {
+			if (specialPlural.has(str)) {
+				return specialPlural.get(str);
+			}
+
 			return str + "s";
 		}
 		return str;
