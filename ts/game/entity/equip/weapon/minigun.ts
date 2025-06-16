@@ -15,7 +15,7 @@ export class Minigun extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.MINIGUN, options);
 
-		this.soundPlayer().registerSound(SoundType.GATLING);
+		this.soundPlayer().registerSound(SoundType.MINIGUN);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
@@ -42,6 +42,6 @@ export class Minigun extends Weapon {
 		}
 		this.addEntity(EntityType.CALIBER, this.getProjectileOptions(pos, dir, dir.angleRad()));
 
-		this.soundPlayer().playFromEntity(SoundType.GATLING, this.owner());
+		this.soundPlayer().playFromEntity(SoundType.MINIGUN, this.owner());
 	}
 }

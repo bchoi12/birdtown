@@ -19,13 +19,15 @@ import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Vec, Vec2 } from 'util/vector'
 
-export class Caliber extends Projectile {
+export abstract class CaliberBase extends Projectile {
 
-	private _model : Model;
-	private _profile : Profile;
+	protected _model : Model;
+	protected _profile : Profile;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.CALIBER, entityOptions);
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
+
+		this.addType(EntityType.CALIBER);
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -84,7 +86,7 @@ export class Caliber extends Projectile {
 					},
 					modelInit: {
 						transforms: {
-							translate: { z: Fns.randomRange(-0.1, 0.1), },
+							translate: { z: Fns.randomNoise(0.1), },
 						},
 						materialType: MaterialType.PARTICLE_YELLOW,
 					}
@@ -95,4 +97,11 @@ export class Caliber extends Projectile {
 	}
 
 	override onMiss() : void {}
+}
+
+export class Caliber extends CaliberBase {
+
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.CALIBER, entityOptions);
+	}
 }

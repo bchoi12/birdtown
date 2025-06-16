@@ -100,7 +100,7 @@ export class Pellet extends Projectile {
 				offline: true,
 				ttl: 400,
 				profileInit: {
-					pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.1, 0.1), y: Fns.randomRange(-0.1, 0.1), }),
+					pos: this._profile.pos().clone().add({ x: Fns.randomNoise(0.1), y: Fns.randomNoise(0.1), }),
 					vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
 						x: Fns.randomRange(0.1, 0.15),
 						y: Fns.randomRange(0.1, 0.15),
@@ -109,7 +109,7 @@ export class Pellet extends Projectile {
 				},
 				modelInit: {
 					transforms: {
-						translate: { z: Fns.randomRange(-0.1, 0.1) },
+						translate: { z: Fns.randomNoise(0.1) },
 					},
 					materialType: MaterialType.WESTERN_YELLOW,
 				}

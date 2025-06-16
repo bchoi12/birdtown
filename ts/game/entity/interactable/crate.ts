@@ -162,9 +162,9 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 					offline: true,
 					ttl: 1200,
 					profileInit: {
-						pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.1, 0.1), y: Fns.randomRange(-0.1, 0.1), }),
+						pos: this._profile.pos().clone().add({ x: Fns.randomNoise(0.1), y: Fns.randomNoise(0.1), }),
 						vel: {
-							x: Fns.randomRange(-0.15, 0.15),
+							x: Fns.randomNoise(0.15),
 							y: Fns.randomRange(0.2, 0.3),
 						},
 						acc: { y: GameGlobals.gravity },
@@ -172,7 +172,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 					},
 					modelInit: {
 						transforms: {
-							translate: { z: Fns.randomRange(-0.2, 0.2) },
+							translate: { z: Fns.randomNoise(0.2) },
 						},
 						materialType: i % 2 === 1 ? MaterialType.PICKUP_YELLOW : this.outerMaterial(),
 					}

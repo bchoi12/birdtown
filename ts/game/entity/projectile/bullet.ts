@@ -118,7 +118,7 @@ export class Bullet extends Projectile {
 					},
 					modelInit: {
 						transforms: {
-							translate: { z: Fns.randomRange(-0.1, 0.1), },
+							translate: { z: Fns.randomNoise(0.1), },
 						},
 						materialType: MaterialType.PARTICLE_YELLOW,
 					}

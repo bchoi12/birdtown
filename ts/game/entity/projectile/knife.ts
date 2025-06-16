@@ -116,7 +116,7 @@ export class Knife extends Projectile {
 					ttl: 350,
 					profileInit: {
 						pos: this._profile.pos().clone().add({
-							x: Fns.randomRange(-0.1, 0.1),
+							x: Fns.randomNoise(0.1),
 							y: 0,
 						}),
 						vel: this._profile.vel().clone().scale(dir * Fns.randomRange(0.1, 0.2)),
@@ -124,7 +124,7 @@ export class Knife extends Projectile {
 					},
 					modelInit: {
 						transforms: {
-							translate: { z: Fns.randomRange(-0.2, 0.2) },
+							translate: { z: Fns.randomNoise(0.2) },
 						},
 						materialType: i % 2 === 0 ? MaterialType.METAL : MaterialType.EASTERN_RED_SOLID_TRAIL,
 					}

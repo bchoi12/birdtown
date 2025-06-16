@@ -927,7 +927,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 							offline: true,
 							ttl: 500 + healthPercent * 500,
 							profileInit: {
-								pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.3, 0.3) }),
+								pos: this._profile.pos().clone().add({ x: Fns.randomNoise(0.3) }),
 								vel: { x: 0, y: 0.02 + healthPercent * 0.01 },
 							},
 						});
@@ -996,7 +996,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 						offline: true,
 						ttl: 600,
 						profileInit: {
-							pos: this._profile.relativePos(CardinalDir.BOTTOM, { x: scale, y: scale }),
+							pos: this._profile.getRelativePos(CardinalDir.BOTTOM, { x: scale, y: scale }),
 							vel: { x: -0.05 * Math.sign(this._profile.vel().x), y: 0 },
 							acc: { x: 0.05 * Math.sign(this._profile.vel().x), y: 0.1 },
 							scaling: { x: scale, y: scale },

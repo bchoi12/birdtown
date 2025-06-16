@@ -103,12 +103,12 @@ export class Jetpack extends Equip<Player> {
 				offline: true,
 				ttl: Fns.randomRange(1500, 2000),
 				profileInit: {
-					pos: Vec2.fromBabylon3(this._fire.getAbsolutePosition()).add({ x: Fns.randomRange(-0.1, 0.1), y: -0.3, }),
+					pos: Vec2.fromBabylon3(this._fire.getAbsolutePosition()).add({ x: Fns.randomNoise(0.1), y: -0.3, }),
 					scaling: { x: scale, y : scale },
 				},
 				modelInit: {
 					transforms: {
-						translate: { z: Fns.randomRange(-0.1, 0.1), },
+						translate: { z: Fns.randomNoise(0.1), },
 					}
 				}
 			});

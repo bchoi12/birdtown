@@ -39,18 +39,7 @@ export class Sniper extends Weapon {
 		const pos = this.shootPos();
 		const unitDir = this.getDir();
 
-		const materialType = charged ? MaterialType.SHOOTER_ORANGE : MaterialType.SHOOTER_BLUE;
-
-		let options = this.getProjectileOptions(pos, unitDir, unitDir.angleRad());
-		options.modelInit.materialType = materialType;
-
-		let [bolt, hasBolt] = this.addEntity<Bolt>(EntityType.BOLT, options);
-
-		if (hasBolt && charged) {
-			bolt.setAttribute(AttributeType.CHARGED, true);
-			bolt.profile().setScaleFactor(1.5);
-		}
-
+		this.addEntity<Bolt>(charged ? EntityType.CHARGED_BOLT : EntityType.BOLT, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
 		this.soundPlayer().playFromEntity(charged ? SoundType.CHARGED_BOLT : SoundType.BOLT, this.owner());
 	}
 }

@@ -313,7 +313,7 @@ export class Profile extends ComponentBase implements Component {
 		});
 	}
 
-	relativePos(cardinal : CardinalDir, objectDim? : Vec) : Vec2 {
+	getRelativePos(cardinal : CardinalDir, objectDim? : Vec) : Vec2 {
 		let adjustedPos = this._pos.clone();
 		const dim = this.dim();
 
@@ -335,7 +335,7 @@ export class Profile extends ComponentBase implements Component {
 		return adjustedPos;
 	}
 	createRelativeInit(cardinal : CardinalDir, objectDim : Vec, offset? : Vec) : ProfileInitOptions {
-		let pos = this.relativePos(cardinal, objectDim);
+		let pos = this.getRelativePos(cardinal, objectDim);
 		if (offset) {
 			pos.add(offset);
 		}

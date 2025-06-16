@@ -19,13 +19,19 @@ import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Vec, Vec2 } from 'util/vector'
 
-export class Bolt extends Projectile {
+export abstract class BoltBase extends Projectile {
 
-	private _model : Model;
-	private _profile : Profile;
+	protected _glow : number;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.BOLT, entityOptions);
+	protected _model : Model;
+	protected _profile : Profile;
+
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
+
+		this.addType(EntityType.BOLT);
+
+		this._glow = 0.5;
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -55,17 +61,29 @@ export class Bolt extends Projectile {
 					depth: depth,
 				}, game.scene());
 
-				game.world().glow(mesh, {
-					intensity: 0.5,
-				});
+				if (this._glow > 0) {
+					game.world().glow(mesh, {
+						intensity: this._glow,
+					});
+				}
 
 				model.setMesh(mesh);
 			},
 			init: {
 				disableShadows: true,
+				materialType: this.materialType(),
 				...entityOptions.modelInit,
 			},
 		}));
+	}
+
+	protected materialType() : MaterialType {
+		switch (this.type()) {
+		case EntityType.CHARGED_BOLT:
+			return MaterialType.SHOOTER_ORANGE;
+		default:
+			return MaterialType.SHOOTER_BLUE;
+		}
 	}
 
 	override update(stepData : StepData) : void {
@@ -77,39 +95,43 @@ export class Bolt extends Projectile {
 		}
 	}
 
+	override onMiss() : void {}
+}
+
+export class Bolt extends BoltBase {
+
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.BOLT, entityOptions);
+	}
+
 	override onHit(other : Entity) : void {
 		super.onHit(other);
 
-		if (this.getAttribute(AttributeType.CHARGED)) {
-			this.explode(EntityType.BOLT_EXPLOSION, {});
-		} else if (this.initialized()) {
-			for (let i = 0; i < 3; ++i) {
-				this.addEntity(EntityType.SPARK_PARTICLE, {
-					offline: true,
-					ttl: 400,
-					profileInit: {
-						pos: this._profile.pos(),
-						vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
-							x: Fns.randomRange(0.1, 0.2),
-							y: Fns.randomRange(0.1, 0.2),
-						}),
-						scaling: { x: Fns.randomRange(0.3, 0.5), y: 0.2 },
-					},
-					modelInit: {
-						transforms: {
-							translate: { z: Fns.randomRange(-0.1, 0.1), },
-						},
-						materialType: MaterialType.PARTICLE_BLUE,
-					}
-				});
-			}
-		}
 		this.delete();
-	}
 
-	override onMiss() : void {
-		if (this.getAttribute(AttributeType.CHARGED)) {
-			this.explode(EntityType.BOLT_EXPLOSION, {});
+		if (!this.initialized()) {
+			return;
+		}
+
+		for (let i = 0; i < 3; ++i) {
+			this.addEntity(EntityType.SPARK_PARTICLE, {
+				offline: true,
+				ttl: 400,
+				profileInit: {
+					pos: this._profile.pos(),
+					vel: Vec2.fromVec(this._profile.vel()).rotateDeg(150 + 60 * Math.random()).normalize().scaleVec({
+						x: Fns.randomRange(0.1, 0.2),
+						y: Fns.randomRange(0.1, 0.2),
+					}),
+					scaling: { x: Fns.randomRange(0.3, 0.5), y: 0.2 },
+				},
+				modelInit: {
+					transforms: {
+						translate: { z: Fns.randomNoise(0.1), },
+					},
+					materialType: MaterialType.PARTICLE_BLUE,
+				}
+			});
 		}
 	}
 }

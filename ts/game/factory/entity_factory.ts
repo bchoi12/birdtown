@@ -66,6 +66,7 @@ import { TextParticle } from 'game/entity/particle/text_particle'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Bullet } from 'game/entity/projectile/bullet'
 import { Caliber } from 'game/entity/projectile/caliber'
+import { ChargedBolt } from 'game/entity/projectile/charged_bolt'
 import { GoldenBullet } from 'game/entity/projectile/golden_bullet'
 import { Knife } from 'game/entity/projectile/knife'
 import { Laser } from 'game/entity/projectile/laser'
@@ -99,6 +100,7 @@ export namespace EntityFactory {
 		[EntityType.BULLET, (options : EntityOptions) => { return new Bullet(options); }],
 		[EntityType.BUSH, (options : EntityOptions) => { return new Bush(options); }],
 		[EntityType.CALIBER, (options : EntityOptions) => { return new Caliber(options); }],
+		[EntityType.CHARGED_BOLT, (options : EntityOptions) => { return new ChargedBolt(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
@@ -167,9 +169,10 @@ export namespace EntityFactory {
 		[EntityType.BACKGROUND_ARCH_ROOM, { x: 12, y: 6 }],
 		[EntityType.BILLBOARD, { x: 8, y: 6.4, z: 0.5 }],
 		[EntityType.BUSH, { x: 3.3, y: 2 }],
-		[EntityType.BOLT, { x: 0.5, y: 0.15, z : 0.15 }],
+		[EntityType.BOLT, { x: 0.7, y: 0.15, z : 0.15 }],
 		[EntityType.BULLET, { x: 0.5, y: 0.15, z : 0.15 }],
 		[EntityType.CALIBER, { x: 0.6, y: 0.18, z : 0.18 }],
+		[EntityType.CHARGED_BOLT, { x: 1.4, y: 0.24, z : 0.24 }],
 		[EntityType.GOLDEN_BULLET, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],

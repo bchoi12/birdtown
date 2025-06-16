@@ -35,6 +35,7 @@ export enum EntityType {
 	BULLET,
 	BUSH,
 	CALIBER,
+	CHARGED_BOLT,
 	CHICKEN_BEAK,
 	CHICKEN_HAIR,
 	CLOUD,

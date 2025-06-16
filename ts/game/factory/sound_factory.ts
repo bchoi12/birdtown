@@ -140,6 +140,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.MINIGUN, {
+			path: "minigun.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.PISTOL, {
 			path: "pistol.mp3",
 			options: {

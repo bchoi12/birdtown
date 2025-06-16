@@ -10,14 +10,16 @@ import { Entity, EntityOptions } from 'game/entity'
 import { BoneType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
+import { MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
 import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
+import { CardinalDir } from 'util/cardinal'
 import { Fns, InterpType } from 'util/fns'
+import { RateLimiter } from 'util/rate_limiter'
 import { Timer } from 'util/timer'
 import { Vec2, Vec3 } from 'util/vector'
 
@@ -25,9 +27,11 @@ export class BlackHeadband extends Equip<Player> {
 
 	private static readonly _jumpTime = 250;
 	private static readonly _floatTime = 2000;
+	private static readonly _dustInterval = 80;
 
 	private _jumpTimer : Timer;
 	private _floatTimer : Timer;
+	private _duster : RateLimiter;
 	private _dir : number;
 
 	private _model : Model;
@@ -41,6 +45,7 @@ export class BlackHeadband extends Equip<Player> {
 		this._floatTimer = this.newTimer({
 			canInterrupt: true,
 		});
+		this._duster = new RateLimiter(BlackHeadband._dustInterval);
 		this._dir = 1;
 
 		this._model = this.addComponent<Model>(new Model({
@@ -60,6 +65,18 @@ export class BlackHeadband extends Equip<Player> {
 	protected override hudType() : HudType { return HudType.TORNADO; }
 	protected override canCharge() : boolean { return super.canCharge() && !this._floatTimer.hasTimeLeft(); }
 
+	override delete() : void {
+		super.delete();
+
+		if (this.hasOwner()) {
+			this.owner().setAttribute(AttributeType.LEVITATING, false);
+
+			if (this.owner().hasModel()) {
+				this.owner().model().rotation().y = 0;
+			}
+		}
+	}
+
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
 
@@ -73,6 +90,7 @@ export class BlackHeadband extends Equip<Player> {
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
+		const millis = stepData.millis;
 
 		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
 			this.recordUse();
@@ -84,6 +102,30 @@ export class BlackHeadband extends Equip<Player> {
 
 		if (!this.key(this.useKeyType(), KeyState.DOWN)) {
 			this._floatTimer.reset();
+		}
+
+		if (this._floatTimer.hasTimeLeft() && this._duster.check(millis)) {
+			const origin = this._owner.profile().getRelativePos(CardinalDir.BOTTOM);
+			const width = this._owner.profile().dim().x;
+
+			this.addEntity(EntityType.ENERGY_CUBE_PARTICLE, {
+				offline: true,
+				ttl: 300,
+				profileInit: {
+					pos: {
+						x: origin.x + Fns.randomNoise(width / 2),
+						y: origin.y + 0.06,
+					},
+					vel: {
+						x: Fns.randomNoise(0.03),
+						y: -0.15,
+					},
+					scaling: { x: 0.18, y: 0.18 },
+				},
+				modelInit: {
+					materialType: MaterialType.PARTICLE_YELLOW,
+				}
+			});
 		}
 	}
 

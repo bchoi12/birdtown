@@ -51,6 +51,10 @@ export namespace Fns {
 		return min + weight * (max - min);
 	}
 
+	export function randomNoise(n : number) : number{
+		return -n + Math.random() * 2 * n;
+	}
+
 	export function randomRange(min : number, max : number) : number {
 		return min + Math.random() * (max - min);
 	}

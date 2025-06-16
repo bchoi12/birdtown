@@ -48,7 +48,7 @@ export class Box2 implements Box {
 		if (point.y > this.max.y + buffer) { return 1; }
 		return 0;	
 	}
-	relativePos(cardinal : CardinalDir) : Vec2 {
+	getRelativePos(cardinal : CardinalDir) : Vec2 {
 		const dim = this.max.clone().sub(this.min);
 
 		let relativePos = this.min.clone().lerp(this.max, 0.5);

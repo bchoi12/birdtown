@@ -45,7 +45,7 @@ export namespace StatFactory {
 		])],
 
 		[EntityType.BLACK_HEADBAND, new Map([
-			[StatType.CHARGE_DELAY, 100],
+			[StatType.CHARGE_DELAY, 60],
 			[StatType.CHARGE_RATE, 120],
 			[StatType.FAST_CHARGE_RATE, 180],
 			[StatType.FORCE, 0.7],
@@ -111,6 +111,7 @@ export namespace StatFactory {
 		])],
 
 		// Weapons
+		// 66 DPS + disrupt
 		[EntityType.BAZOOKA, new Map([
 			[StatType.BURSTS, 1],
 			[StatType.CHARGED_BURSTS, 1],
@@ -125,8 +126,15 @@ export namespace StatFactory {
 			[StatType.PROJECTILE_ACCEL, 1.5],
 			[StatType.PROJECTILE_SPEED, 0.25],
 			[StatType.PROJECTILE_TTL, 500],
-			[StatType.RELOAD_TIME, 1000],
+			[StatType.RELOAD_TIME, 900],
 		])],
+		[EntityType.ROCKET, new Map([
+			[StatType.DAMAGE, 60],
+		])],
+		[EntityType.MEGA_ROCKET, new Map([
+			[StatType.DAMAGE, 100],
+		])],
+		// 125 DPS + 360 delay
 		[EntityType.GATLING, new Map([
 			// TODO: fill out recoil values
 			[StatType.BURSTS, 25],
@@ -138,27 +146,38 @@ export namespace StatFactory {
 			[StatType.REV_TIME, 360],
 			[StatType.VERTICAL_RECOIL, 0],
 		])],
+		[EntityType.CALIBER, new Map([
+			[StatType.DAMAGE, 10],
+		])],
+		// 200 DPS
 		[EntityType.GOLDEN_GUN, new Map([
 			[StatType.BURSTS, 1],
-			[StatType.FIRE_TIME, 140],
+			[StatType.FIRE_TIME, 100],
 			[StatType.PROJECTILE_SPEED, 1],
 			[StatType.PROJECTILE_TTL, 400],
-			[StatType.RELOAD_TIME, 1400],
+			[StatType.RELOAD_TIME, 1500],
 		])],
+		[EntityType.GOLDEN_BULLET, new Map([
+			[StatType.DAMAGE, 300],
+		])],
+		// 80 DPS
+		// 4 shots in 500ms
 		[EntityType.MINIGUN, new Map([
 			[StatType.BURSTS, 4],
 			[StatType.FIRE_TIME, 70],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 420],
-			[StatType.RELOAD_TIME, 280],
+			[StatType.RELOAD_TIME, 290],
 			[StatType.SPREAD, 4],
 		])],
+		// 62 DPS + threshold
+		// 3 shots in 1200ms
 		[EntityType.PISTOL, new Map([
 			[StatType.BURSTS, 3],
 			[StatType.CHARGED_BURSTS, 6],
 			[StatType.CHARGED_FIRE_TIME, 80],
 			[StatType.CHARGED_FORCE, 0.2],
-			[StatType.CHARGED_RELOAD_TIME, 1000],
+			[StatType.CHARGED_RELOAD_TIME, 900],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0.9],
 			[StatType.CHARGED_PROJECTILE_TTL, 550],
 			[StatType.FIRE_TIME, 160],
@@ -166,6 +185,11 @@ export namespace StatFactory {
 			[StatType.PROJECTILE_TTL, 450],
 			[StatType.RELOAD_TIME, 900],
 		])],
+		[EntityType.BULLET, new Map([
+			[StatType.DAMAGE, 25],
+		])],
+		// 83 DPS + delay damage
+		// 4 shots in 1200ms
 		[EntityType.PURPLE_GLOVE, new Map([
 			[StatType.BURSTS, 4],
 			[StatType.FIRE_TIME, 150],
@@ -173,6 +197,12 @@ export namespace StatFactory {
 			[StatType.PROJECTILE_TTL, 1000],
 			[StatType.RELOAD_TIME, 750],
 		])],
+		[EntityType.STAR, new Map([
+			[StatType.DAMAGE, 5],
+			[StatType.UNSTICK_DAMAGE, 20],
+		])],
+		// 60 DPS + equip knife
+		// 2 shots in 675ms
 		[EntityType.RED_GLOVE, new Map([
 			[StatType.BURSTS, 2],
 			[StatType.FIRE_TIME, 125],
@@ -180,6 +210,11 @@ export namespace StatFactory {
 			[StatType.PROJECTILE_TTL, 550],
 			[StatType.RELOAD_TIME, 550],
 		])],
+		[EntityType.KNIFE, new Map([
+			[StatType.DAMAGE, 20],
+		])],
+		// 90 DPS + short range + spread
+		// 2 shots in 1320ms
 		[EntityType.SHOTGUN, new Map([
 			[StatType.BURSTS, 2],
 			[StatType.BURST_BULLETS, 4],
@@ -190,18 +225,31 @@ export namespace StatFactory {
 			[StatType.RELOAD_TIME, 1100],
 			[StatType.SPREAD, 22],
 		])],
+		[EntityType.PELLET, new Map([
+			[StatType.DAMAGE, 15],
+		])],
+		// 70 DPS
+		// 3 shots in 650ms
 		[EntityType.SNIPER, new Map([
 			[StatType.BURSTS, 3],
 			[StatType.CHARGED_BURSTS, 1],
-			[StatType.CHARGED_FIRE_TIME, 70],
+			[StatType.CHARGED_FIRE_TIME, 75],
 			[StatType.CHARGED_RELOAD_TIME, 500],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1.1],
 			[StatType.CHARGED_PROJECTILE_TTL, 450],
-			[StatType.FIRE_TIME, 70],
+			[StatType.FIRE_TIME, 75],
 			[StatType.PROJECTILE_SPEED, 0.8],
 			[StatType.PROJECTILE_TTL, 450],
-			[StatType.RELOAD_TIME, 400],
+			[StatType.RELOAD_TIME, 500],
 		])],
+		[EntityType.BOLT, new Map([
+			[StatType.DAMAGE, 15],
+		])],
+		[EntityType.CHARGED_BOLT, new Map([
+			[StatType.DAMAGE, 75],
+		])],
+		// 93 DPS + disrupt + hard aim
+		// 5 shots in 1600ms
 		[EntityType.WING_CANNON, new Map([
 			[StatType.BURSTS, 5],
 			[StatType.CHARGED_BURSTS, 1],
@@ -216,42 +264,11 @@ export namespace StatFactory {
 			[StatType.PROJECTILE_TTL, 400],
 			[StatType.RELOAD_TIME, 1200],
 		])],
-
-		// Projectile
-		[EntityType.BOLT, new Map([
-			[StatType.DAMAGE, 15],
-			[StatType.CHARGED_DAMAGE, 75],
-		])],
-		[EntityType.BULLET, new Map([
-			[StatType.DAMAGE, 20],
-		])],
-		[EntityType.CALIBER, new Map([
-			[StatType.DAMAGE, 10],
-		])],
-		[EntityType.GOLDEN_BULLET, new Map([
-			[StatType.DAMAGE, 300],
-		])],
-		[EntityType.KNIFE, new Map([
-			[StatType.DAMAGE, 20],
+		[EntityType.ORB, new Map([
+			[StatType.DAMAGE, 30],
 		])],
 		[EntityType.LASER, new Map([
 			[StatType.DAMAGE, 60],
-		])],
-		[EntityType.MEGA_ROCKET, new Map([
-			[StatType.DAMAGE, 100],
-		])],
-		[EntityType.ORB, new Map([
-			[StatType.DAMAGE, 20],
-		])],
-		[EntityType.PELLET, new Map([
-			[StatType.DAMAGE, 15],
-		])],
-		[EntityType.ROCKET, new Map([
-			[StatType.DAMAGE, 50],
-		])],
-		[EntityType.STAR, new Map([
-			[StatType.DAMAGE, 5],
-			[StatType.UNSTICK_DAMAGE, 20],
 		])],
 	])
 

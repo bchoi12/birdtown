@@ -178,10 +178,6 @@ export abstract class Projectile extends EntityBase {
 	}
 
 	hitDamage() : number {
-		if (this.getAttribute(AttributeType.CHARGED) && this.hasStat(StatType.CHARGED_DAMAGE)) {
-			return this.getStat(StatType.CHARGED_DAMAGE);
-		}
-
 		return this.getStat(StatType.DAMAGE);
 	}
 	onHit(other : Entity) : void {

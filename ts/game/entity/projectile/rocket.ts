@@ -31,6 +31,8 @@ export abstract class RocketBase extends Projectile {
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
 
+		this.addType(EntityType.ROCKET);
+
 		this._explosionType = EntityType.ROCKET_EXPLOSION;
 		this._smoker = new RateLimiter(20);
 
@@ -72,7 +74,7 @@ export abstract class RocketBase extends Projectile {
 				offline: true,
 				ttl: 1000,
 				profileInit: {
-					pos: this._profile.pos().clone().add({ x: Fns.randomRange(-0.05, 0.05), y: Fns.randomRange(-0.05, 0.05), }),
+					pos: this._profile.pos().clone().add({ x: Fns.randomNoise(0.05), y: Fns.randomNoise(0.05), }),
 					scaling: { x: 0.3 * this._profile.scaling().x, y : 0.3 * this._profile.scaling().x },
 				},
 			});
