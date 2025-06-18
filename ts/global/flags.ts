@@ -23,7 +23,8 @@ export namespace Flags {
 	export const allowLocation = new BoolFlag("allowLocation", !isDesktopApp());
 	export const allowSharing = new BoolFlag("allowSharing", true);
 	export const shareSameURL = new BoolFlag("shareSameURL", !isDesktopApp());
-	export const checkVersion = new BoolFlag("checkVersion", true);
+	export const checkVersionMismatch = new BoolFlag("checkVersionMismatch", true);
+	export const checkNewVersion = new BoolFlag("checkNewVersion", !isDesktopApp());
 
 	// Perch
 	export const useLocalPerch = new BoolFlag("useLocalPerch", isLocalhost());

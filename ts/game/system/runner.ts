@@ -97,7 +97,7 @@ export class Runner extends SystemBase implements System  {
 
 	   	this.addProp<string>({
 	   		export: () => { return GameGlobals.version; },
-	   		import: (obj : string) => { this.checkVersion(obj); },
+	   		import: (obj : string) => { this.checkVersionMismatch(obj); },
 	   		options: {
 	   			filters: GameData.initFilters,
 	   		}
@@ -344,7 +344,7 @@ export class Runner extends SystemBase implements System  {
 		}
 	}
 	hostVersion() : string { return this._hostVersion; }
-	private checkVersion(version : string) : void {
+	private checkVersionMismatch(version : string) : void {
 		if (GameGlobals.version === version) {
 			return;
 		}

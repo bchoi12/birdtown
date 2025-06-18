@@ -105,8 +105,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginElm.style.display = "block";
 
 		perch.getStats((data) => {
-			console.log(data, data.latest, data["latest"]);
-			if (data.hasOwnProperty("latest") && data["latest"] > GameGlobals.latest) {
+			if (Flags.checkNewVersion.get() && data.hasOwnProperty("latest") && data["latest"] > GameGlobals.latest) {
 				this._newVersionWrapper.show();
 			}
 		}, () => {
