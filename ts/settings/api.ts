@@ -24,6 +24,7 @@ export enum SettingType {
 	TRANSPARENT,
 
 	CHAT,
+	VOLUME_PERCENT,
 }
 
 export enum AntiAliasSetting {
@@ -86,6 +87,7 @@ export enum ShadowSetting {
 export enum SpeedSetting {
 	SLOW,
 	NORMAL,
+	FAST,
 }
 
 export enum SoundSetting {

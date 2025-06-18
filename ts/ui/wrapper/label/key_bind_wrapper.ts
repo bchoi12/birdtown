@@ -59,8 +59,7 @@ export class KeyBindWrapper extends LabelButtonWrapper {
 		if (this._active) {
 			this.setButtonText("[Press a key]");
 		} else {
-			let key = KeyNames.get(this._get());
-			this.setButtonText("[" + key + "]");
+			this.setButtonHTML(KeyNames.kbd(this._get()));
 		}
 	}
 }

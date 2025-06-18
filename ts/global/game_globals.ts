@@ -1,6 +1,8 @@
 
 export namespace GameGlobals {
 	export const gravity = -0.85;
-	export const version = "beta 1.091";
-	export const latest = 1091;
+	export const targetTickRate = 60;
+
+	export const version = "beta 1.092";
+	export const latest = 1092;
 }

@@ -93,8 +93,6 @@ kbd {
 }
 
 #div-screen {
-    display: none;
-
     margin: 0;
     position: relative;
     width: 100%;
@@ -109,6 +107,10 @@ kbd {
 
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
+}
+
+#div-screen {
+    display: none;
 }
 
 #div-canvas {
@@ -141,8 +143,8 @@ kbd {
     align-items: center;
     justify-content: center;
 
-    min-width: 12em;
-    max-width: 24em;
+    min-width: 11em;
+    max-width: 22em;
 
     top: 50%;
     left: 50%;
@@ -565,7 +567,7 @@ kbd {
     margin-top: 0.5em;
 
     top: 20%;
-    padding: 0.8em 0.8em;
+    padding: 0.8em 1em;
     border-radius: 0.3em;
 
     white-space: pre-line;
@@ -793,7 +795,7 @@ kbd {
     display: flex;
     width: 85%;
     margin: 0.5em auto;
-    height: 60%;
+    height: 66%;
 }
 
 #menu-fieldsets fieldset {

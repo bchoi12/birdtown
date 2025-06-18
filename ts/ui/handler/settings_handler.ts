@@ -163,7 +163,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			label: "Rendering Cap",
 			value: Number(settings.speedSetting),
 			plus: (current : number) => {
-				if (current >= SpeedSetting.NORMAL) {
+				if (current >= SpeedSetting.FAST) {
 					return;
 				}
 				settings.speedSetting++;
@@ -181,6 +181,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 					return "30 FPS";
 				case SpeedSetting.NORMAL:
 					return "60 FPS";
+				case SpeedSetting.FAST:
+					return "120 FPS";
 				default:
 					return SpeedSetting[current];
 				}
@@ -261,6 +263,21 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 
 		let sound = this.createCategory("Audio");
+
+		this.addSetting(sound, new LabelNumberWrapper({
+			label: "Master Volume",
+			value: settings.volumePercent,
+			plus: (current : number) => {
+				settings.volumePercent = Math.min(1, current + 0.1);
+				game.audio().refreshSettings();
+			},
+			minus: (current : number) => {
+				settings.volumePercent = Math.max(0, current - 0.1);
+				game.audio().refreshSettings();
+			},
+			get: () => { return settings.volumePercent; },
+			html: () => { return Math.round(100 * settings.volumePercent) + "%"; },
+		}));
 
 		this.addSetting(sound, new LabelNumberWrapper({
 			label: "Music",

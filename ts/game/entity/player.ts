@@ -306,6 +306,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				...entityOptions.profileInit,
 			},
 		}));
+		this._profile.setInertia(Infinity);
 		this._profile.setAngle(0);
 		this._profile.setVel({x: 0, y: 0});
 		this._profile.setAcc({x: 0, y: 0});
@@ -417,7 +418,6 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	override initialize() : void {
 		super.initialize();
 
-		this._profile.setInertia(Infinity);
 		game.keys(this.clientId()).setTargetEntity(this);
 
 		const [nameTag, hasNameTag] = this.addEntity<NameTag>(EntityType.NAME_TAG, {
@@ -830,7 +830,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				if (!this._canJump && this._profile.vel().y < -0.1) {
 					const volume = Fns.interp(InterpType.SQUARE, Fns.normalizeRange(-0.1, this._profile.vel().y, -Player._maxVerticalVel));
 					this.soundPlayer().playFromSelf(SoundType.FOOTSTEP, {
-						volume: volume,
+						volume: settings.soundVolume() * volume,
 					});
 				}
 

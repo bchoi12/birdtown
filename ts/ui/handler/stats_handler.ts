@@ -1,5 +1,7 @@
 import { game } from 'game'
 
+import { GameGlobals } from 'global/game_globals'
+
 import { ChannelType, ChannelStat } from 'network/api'
 import { Connection } from 'network/connection'
 
@@ -74,7 +76,7 @@ export class StatsHandler extends HandlerBase implements Handler {
 			suffix: "hz",
 
 			get: () => { return Math.round(game.runner().gameStats().rate()); },
-			getTarget: () => { return game.runner().tickRate(); },
+			getTarget: () => { return GameGlobals.targetTickRate; },
 		}));
 
 		// Render

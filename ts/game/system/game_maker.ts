@@ -372,6 +372,8 @@ export class GameMaker extends SystemBase implements System {
 			game.playerStates().execute((playerState : PlayerState) => {
 				playerState.resetForLobby();
 			});
+
+			game.audio().setAmbiance(this.getAmbiance());
 			break;
 		case GameState.PRELOAD:
 			if (this._round === 0) {
@@ -691,6 +693,10 @@ export class GameMaker extends SystemBase implements System {
 	}
 
 	private getAmbiance() : AmbianceType {
+		if (this._config.type() === GameMode.FREE) {
+			return AmbianceType.PEACEFUL;
+		}
+
 		if (!this._config.hasVictories()) {
 			return AmbianceType.UPBEAT;
 		}

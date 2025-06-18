@@ -27,8 +27,10 @@ export class WingCannon extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.WHIP; }
 	override reloadType() : ReloadType { return ReloadType.RAISE; }
+	override reloadSound() : SoundType { return SoundType.SCIFI_RELOAD; }
 	override meshType() : MeshType { return MeshType.WING_CANNON; }
 	override hudType() : HudType { return HudType.ORBS; }
+
 
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);

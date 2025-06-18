@@ -200,9 +200,11 @@ export enum MeshType {
 	GATLING,
 	GOLDEN_GUN,
 	MINIGUN,
+	ORB_CANNON,
 	PURPLE_GLOVE,
 	PISTOL,
 	RED_GLOVE,
+	RIFLE,
 	SHOTGUN,
 	SNIPER,
 
@@ -237,6 +239,7 @@ export enum MeshType {
 export enum MusicType {
 	UNKNOWN,
 
+	BIRDTOWN,
 	CULMINATION,
 	EPIC_FUNKY,
 	EPIC_THEME,
@@ -281,6 +284,7 @@ export enum SoundType {
 	GOLDEN_GUN,
 	JETPACK,
 	LASER,
+	MACHINE_GUN,
 	MINIGUN,
 	PLAYER_THUD,
 	PISTOL,
@@ -288,7 +292,9 @@ export enum SoundType {
 	QUACK,
 	QUICK_RELOAD,
 	RELOAD,
+	RIFLE,
 	ROCKET,
+	SCIFI_RELOAD,
 	SCREAM,
 	SMALL_EXPLOSION,
 	SQUAWK,

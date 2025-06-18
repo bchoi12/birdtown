@@ -9,12 +9,14 @@ export namespace EquipPairs {
 		[EntityType.BAZOOKA, [EntityType.JETPACK, EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.GATLING, [EntityType.BOOSTER, EntityType.HEADPHONES]],
 		[EntityType.MINIGUN, [EntityType.BLACK_HEADBAND, EntityType.PURPLE_HEADBAND]],
+		[EntityType.ORB_CANNON, [EntityType.HEADPHONES, EntityType.JETPACK]],
 		[EntityType.PISTOL, [EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.PURPLE_GLOVE, [EntityType.PURPLE_HEADBAND]],
 		[EntityType.RED_GLOVE, [EntityType.RED_HEADBAND]],
+		[EntityType.RIFLE, [EntityType.BLACK_HEADBAND, EntityType.RED_HEADBAND]],
 		[EntityType.SHOTGUN, [EntityType.COWBOY_HAT, EntityType.PURPLE_HEADBAND]],
 		[EntityType.SNIPER, [EntityType.SCOUTER, EntityType.POCKET_ROCKET]],
-		[EntityType.WING_CANNON, [EntityType.SCOUTER, EntityType.JETPACK]],
+		[EntityType.WING_CANNON, [EntityType.SCOUTER, EntityType.POCKET_ROCKET]],
 	]);
 
 	let weapons = [...pairs.keys()];

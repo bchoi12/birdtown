@@ -35,6 +35,7 @@ export class Audio extends SystemBase implements System {
 
 		this._ambiance = AmbianceType.UNKNOWN;
 		this._ambianceTracks = new Map<AmbianceType, Array<MusicType>>([
+			[AmbianceType.PEACEFUL, [MusicType.BIRDTOWN]],
 			[AmbianceType.UPBEAT, globalRandom.shuffle([
 				MusicType.CULMINATION,
 				MusicType.GEAR_HEAD,

@@ -41,7 +41,7 @@ export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 			init: {
 				disableShadows: true,
 				transforms: {
-					translate: { x: 3, z: -24 },
+					translate: { z: -24 },
 				},
 				...entityOptions.modelInit,
 			},
@@ -57,5 +57,11 @@ export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setVisible(false);
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		this._profile.setPos({ x: this._profile.pos().x + 3 });
 	}
 }

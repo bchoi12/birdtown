@@ -140,6 +140,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.MACHINE_GUN, {
+			path: "machine_gun.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 		[SoundType.MINIGUN, {
 			path: "minigun.mp3",
 			options: {
@@ -178,11 +184,21 @@ export namespace SoundFactory {
 			path: "reload.mp3",
 			options: {},
 		}],
+		[SoundType.RIFLE, {
+			path: "rifle.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.ROCKET, {
 			path: "rocket.mp3",
 			options: {
 				spatialSound: true,
 			},
+		}],
+		[SoundType.SCIFI_RELOAD, {
+			path: "scifi_reload.mp3",
+			options: {},
 		}],
 		[SoundType.SCREAM, {
 			path: "scream.mp3",

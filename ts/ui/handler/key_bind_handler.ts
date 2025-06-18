@@ -93,6 +93,10 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 			name: "Open Scoreboard",
 			type: KeyType.SCOREBOARD,
 		});
+		this.addKeyBind(menu,{
+			name: "Screenshot (WIP)",
+			type: KeyType.PHOTO,
+		});
 	}
 
 	override reset() : void {

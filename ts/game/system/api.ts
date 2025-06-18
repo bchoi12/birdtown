@@ -31,6 +31,7 @@ export enum SystemType {
 export enum AmbianceType {
 	UNKNOWN,
 
+	PEACEFUL,
 	UPBEAT,
 	DRAMATIC,
 }

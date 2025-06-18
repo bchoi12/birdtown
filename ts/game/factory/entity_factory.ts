@@ -37,9 +37,11 @@ import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
 import { GoldenGun } from 'game/entity/equip/weapon/golden_gun'
 import { Minigun } from 'game/entity/equip/weapon/minigun'
+import { OrbCannon } from 'game/entity/equip/weapon/orb_cannon'
 import { Pistol } from 'game/entity/equip/weapon/pistol'
 import { PurpleGlove } from 'game/entity/equip/weapon/purple_glove'
 import { RedGlove } from 'game/entity/equip/weapon/red_glove'
+import { Rifle } from 'game/entity/equip/weapon/rifle'
 import { Shotgun } from 'game/entity/equip/weapon/shotgun'
 import { Sniper } from 'game/entity/equip/weapon/sniper'
 import { WingCannon } from 'game/entity/equip/weapon/wing_cannon'
@@ -47,6 +49,7 @@ import { BlackHole } from 'game/entity/explosion/black_hole'
 import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
 import { GoldenExplosion } from 'game/entity/explosion/golden_explosion'
 import { MegaRocketExplosion } from 'game/entity/explosion/mega_rocket_explosion'
+import { MiniOrbExplosion } from 'game/entity/explosion/mini_orb_explosion'
 import { OrbExplosion } from 'game/entity/explosion/orb_explosion'
 import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
 import { StarExplosion } from 'game/entity/explosion/star_explosion'
@@ -66,10 +69,12 @@ import { TextParticle } from 'game/entity/particle/text_particle'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Bullet } from 'game/entity/projectile/bullet'
 import { Caliber } from 'game/entity/projectile/caliber'
+import { Cartridge } from 'game/entity/projectile/cartridge'
 import { ChargedBolt } from 'game/entity/projectile/charged_bolt'
 import { GoldenBullet } from 'game/entity/projectile/golden_bullet'
 import { Knife } from 'game/entity/projectile/knife'
 import { Laser } from 'game/entity/projectile/laser'
+import { MiniOrb } from 'game/entity/projectile/mini_orb'
 import { Orb } from 'game/entity/projectile/orb'
 import { MegaRocket } from 'game/entity/projectile/mega_rocket'
 import { Pellet } from 'game/entity/projectile/pellet'
@@ -100,6 +105,7 @@ export namespace EntityFactory {
 		[EntityType.BULLET, (options : EntityOptions) => { return new Bullet(options); }],
 		[EntityType.BUSH, (options : EntityOptions) => { return new Bush(options); }],
 		[EntityType.CALIBER, (options : EntityOptions) => { return new Caliber(options); }],
+		[EntityType.CARTRIDGE, (options : EntityOptions) => { return new Cartridge(options); }],
 		[EntityType.CHARGED_BOLT, (options : EntityOptions) => { return new ChargedBolt(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
@@ -122,8 +128,11 @@ export namespace EntityFactory {
 		[EntityType.MEGA_ROCKET, (options : EntityOptions) => { return new MegaRocket(options); }],
 		[EntityType.MEGA_ROCKET_EXPLOSION, (options : EntityOptions) => { return new MegaRocketExplosion(options); }],
 		[EntityType.MINIGUN, (options : EntityOptions) => { return new Minigun(options); }],
+		[EntityType.MINI_ORB, (options : EntityOptions) => { return new MiniOrb(options); }],
+		[EntityType.MINI_ORB_EXPLOSION, (options : EntityOptions) => { return new MiniOrbExplosion(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
 		[EntityType.ORB, (options : EntityOptions) => { return new Orb(options); }],
+		[EntityType.ORB_CANNON, (options : EntityOptions) => { return new OrbCannon(options); }],
 		[EntityType.ORB_EXPLOSION, (options : EntityOptions) => { return new OrbExplosion(options); }],
 		[EntityType.PELLET, (options : EntityOptions) => { return new Pellet(options); }],
 		[EntityType.PERGOLA, (options : EntityOptions) => { return new Pergola(options); }],
@@ -135,6 +144,7 @@ export namespace EntityFactory {
 		[EntityType.PURPLE_HEADBAND, (options : EntityOptions) => { return new PurpleHeadband(options); }],
 		[EntityType.RED_GLOVE, (options : EntityOptions) => { return new RedGlove(options); }],
 		[EntityType.RED_HEADBAND, (options : EntityOptions) => { return new RedHeadband(options); }],
+		[EntityType.RIFLE, (options : EntityOptions) => { return new Rifle(options); }],
 		[EntityType.ROBIN_BEAK, (options : EntityOptions) => { return new RobinBeak(options); }],
 		[EntityType.ROBIN_HAIR, (options : EntityOptions) => { return new RobinHair(options); }],
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
@@ -172,11 +182,13 @@ export namespace EntityFactory {
 		[EntityType.BOLT, { x: 0.7, y: 0.15, z : 0.15 }],
 		[EntityType.BULLET, { x: 0.5, y: 0.15, z : 0.15 }],
 		[EntityType.CALIBER, { x: 0.6, y: 0.18, z : 0.18 }],
+		[EntityType.CARTRIDGE, { x: 0.8, y: 0.18, z : 0.18 }],
 		[EntityType.CHARGED_BOLT, { x: 1.4, y: 0.24, z : 0.24 }],
 		[EntityType.GOLDEN_BULLET, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],
 		[EntityType.MEGA_ROCKET, { x: 0.3, y: 0.3, z: 0.3 }],
+		[EntityType.MINI_ORB, { x: 0.3, y: 0.3, z: 0.3 }],
 		[EntityType.ORB, { x: 0.4, y: 0.4, z : 0.4 }],
 		[EntityType.PELLET, { x: 0.2, y: 0.2, z : 0.2 }],
 		[EntityType.PERGOLA, { x: 4, y: 4, z: 4 }],
@@ -207,6 +219,7 @@ export namespace EntityFactory {
 		[EntityType.GOLDEN_EXPLOSION, { x: 2.5, y: 2.5, z: 2.5 }],
 		[EntityType.HEALTH_CRATE, {x: 1, y: 1, z: 1 }],
 		[EntityType.MEGA_ROCKET_EXPLOSION, { x: 8, y: 8, z: 8 }],
+		[EntityType.MINI_ORB_EXPLOSION, {x: 1, y: 1, z: 1 }],
 		[EntityType.ORB_EXPLOSION, { x: 2.2, y: 2.2, z: 2.2 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.STAR_EXPLOSION, {x: 0.7, y: 0.7, z: 0.7 }],

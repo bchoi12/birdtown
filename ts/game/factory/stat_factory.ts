@@ -20,27 +20,27 @@ export namespace StatFactory {
 		// Equips
 		[EntityType.BOOBY_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 300],
-			[StatType.CHARGE_RATE, 33],
+			[StatType.CHARGE_RATE, 25],
 			[StatType.USE_JUICE, 33],
 		])],
 		[EntityType.CHICKEN_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 500],
-			[StatType.CHARGE_RATE, 50],
+			[StatType.CHARGE_RATE, 40],
 			[StatType.USE_JUICE, 50],
 		])],
 		[EntityType.DUCK_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 300],
-			[StatType.CHARGE_RATE, 33],
+			[StatType.CHARGE_RATE, 25],
 			[StatType.USE_JUICE, 33],
 		])],
 		[EntityType.EAGLE_BEAK, new Map([
-			[StatType.CHARGE_DELAY, 1000],
+			[StatType.CHARGE_DELAY, 1200],
 			[StatType.CHARGE_RATE, 33],
 			[StatType.USE_JUICE, 100],
 		])],
 		[EntityType.ROBIN_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 500],
-			[StatType.CHARGE_RATE, 50],
+			[StatType.CHARGE_RATE, 40],
 			[StatType.USE_JUICE, 50],
 		])],
 
@@ -170,6 +170,21 @@ export namespace StatFactory {
 			[StatType.RELOAD_TIME, 290],
 			[StatType.SPREAD, 4],
 		])],
+		// 165 DPS + 400 delay + explosions
+		[EntityType.ORB_CANNON, new Map([
+			// TODO: fill out recoil values
+			[StatType.BURSTS, 15],
+			[StatType.FIRE_TIME, 90],
+			[StatType.HORIZONTAL_RECOIL, 0],
+			[StatType.PROJECTILE_SPEED, 0.7],
+			[StatType.PROJECTILE_TTL, 450],
+			[StatType.RELOAD_TIME, 800],
+			[StatType.REV_TIME, 400],
+			[StatType.VERTICAL_RECOIL, 0],
+		])],
+		[EntityType.MINI_ORB, new Map([
+			[StatType.DAMAGE, 15],
+		])],
 		// 58 DPS + threshold
 		// 3 shots in 1200ms
 		[EntityType.PISTOL, new Map([
@@ -213,6 +228,21 @@ export namespace StatFactory {
 		[EntityType.KNIFE, new Map([
 			[StatType.DAMAGE, 20],
 		])],
+		// 72 DPS + long range
+		[EntityType.RIFLE, new Map([
+			[StatType.BURSTS, 1],
+			[StatType.CHARGED_BURSTS, 1],
+			[StatType.CHARGED_FIRE_TIME, 300],
+			[StatType.CHARGED_RELOAD_TIME, 300],
+			[StatType.FIRE_TIME, 300],
+			[StatType.FORCE, 0.3],
+			[StatType.PROJECTILE_SPEED, 1],
+			[StatType.PROJECTILE_TTL, 550],
+			[StatType.RELOAD_TIME, 550],
+		])],
+		[EntityType.CARTRIDGE, new Map([
+			[StatType.DAMAGE, 40],
+		])],
 		// 90 DPS + short range + spread
 		// 2 shots in 1320ms
 		[EntityType.SHOTGUN, new Map([
@@ -236,7 +266,7 @@ export namespace StatFactory {
 			[StatType.CHARGED_FIRE_TIME, 75],
 			[StatType.CHARGED_RELOAD_TIME, 450],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1.1],
-			[StatType.CHARGED_PROJECTILE_TTL, 450],
+			[StatType.CHARGED_PROJECTILE_TTL, 500],
 			[StatType.FIRE_TIME, 75],
 			[StatType.PROJECTILE_SPEED, 0.8],
 			[StatType.PROJECTILE_TTL, 450],

@@ -227,6 +227,11 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 			this._colorMaterial.emissiveColor = BABYLON.Color3.FromHexString(color);
 		}
 	}
+	setTagVisible(visible : boolean) : void {
+		this._model.onLoad((model : Model) => {
+			model.mesh().isVisible = visible;
+		});
+	}
 	private setEnabled(enabled : boolean) : void {
 		if (this._enabled === enabled) {
 			return;

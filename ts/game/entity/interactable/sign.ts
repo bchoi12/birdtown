@@ -89,6 +89,7 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 		nameTag.setDisplayName(text);
 		this._nameTag = nameTag;
 		this._nameTag.setOscillateTime(this.oscillateTime());
+		this._nameTag.forcePointerColor(ColorFactory.toString(ColorType.LEVEL_BROWN));
 	}
 
 	override delete() : void {
@@ -142,9 +143,9 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 		// Don't clutter screen in certain conditions
 		if (this._nameTag !== null) {
 			if (this._showTooltip || !game.playerState().validTargetEntity()) {
-				this._nameTag.setVisible(false);
+				this._nameTag.setTagVisible(false);
 			} else {
-				this._nameTag.setVisible(true);
+				this._nameTag.setTagVisible(true);
 			}
 		}
 

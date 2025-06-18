@@ -189,7 +189,7 @@ class UI {
 			return;
 		}
 
-		BABYLON.Engine.audioEngine?.unlock()
+		BABYLON.Engine.audioEngine?.unlock();
 		this._audioContext.set(new AudioContext());
 		game.audio().onAudioEnabled();
 	}

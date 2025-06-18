@@ -20,21 +20,23 @@ import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Vec, Vec2 } from 'util/vector'
 
-export class Bullet extends Projectile {
+export abstract class BulletBase extends Projectile {
 
-	private static readonly _trailVertices = [
+	protected static readonly _trailVertices = [
         new BABYLON.Vector3(0, 0, 0.05),
         new BABYLON.Vector3(-1, 0, 0),
         new BABYLON.Vector3(0, 0, -0.05),
 	];
 
-	private _trail : BABYLON.Mesh;
+	protected _trail : BABYLON.Mesh;
 
-	private _model : Model;
-	private _profile : Profile;
+	protected _model : Model;
+	protected _profile : Profile;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.BULLET, entityOptions);
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
+
+		this.addType(EntityType.BULLET);
 
 		this._trail = BABYLON.MeshBuilder.ExtrudePolygon(this.name() + "-trail", {
 			shape: Bullet._trailVertices,
@@ -97,7 +99,6 @@ export class Bullet extends Projectile {
 		super.update(stepData);
 
 		this._trail.scaling.x = this.trailScaling(stepData);
-
 	}
 
 	override onHit(other : Entity) : void {
@@ -129,4 +130,10 @@ export class Bullet extends Projectile {
 	}
 
 	override onMiss() : void {}
+}
+
+export class Bullet extends BulletBase {
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.BULLET, entityOptions);
+	}
 }

@@ -35,6 +35,7 @@ import { isDesktopApp, isMobile, isLocalhost } from 'util/common'
 
 class Settings {
 	
+	private static readonly _volumePercent = 0.1;
 	private static readonly _musicPercent = 0.5;
 	private static readonly _soundPercent = 0.8;
 
@@ -51,6 +52,7 @@ class Settings {
 	public screenShakeSetting : ScreenShakeSetting;
 
 	// Audio
+	public volumePercent : number;
 	public musicSetting : MusicSetting;
 	public musicPercent : number;
 	public soundSetting : SoundSetting;
@@ -103,10 +105,11 @@ class Settings {
 		this.chatSetting = ChatSetting.FILTER;
 		this.screenShakeSetting = ScreenShakeSetting.ON;
 
+		this.volumePercent = Settings._volumePercent;
 		this.musicSetting = MusicSetting.ON
-		this.musicPercent = 0.5;
+		this.musicPercent = Settings._musicPercent;
 		this.soundSetting = SoundSetting.ON;
-		this.soundPercent = 0.8;
+		this.soundPercent = Settings._soundPercent;
 
 		if (isMobile()) {
 			this.lowestSpec();
@@ -136,6 +139,7 @@ class Settings {
 			[SettingType.CHAT, ChatSetting[this.chatSetting]],
 			[SettingType.SCREEN_SHAKE, ScreenShakeSetting[this.screenShakeSetting]],
 
+			[SettingType.VOLUME_PERCENT, "" + this.volumePercent],
 			[SettingType.MUSIC, MusicSetting[this.musicSetting]],
 			[SettingType.MUSIC_PERCENT, "" + this.musicPercent],
 			[SettingType.SOUND, SoundSetting[this.soundSetting]],
@@ -209,6 +213,8 @@ class Settings {
 		this.loadSetting(SettingType.SOUND, <string[]> Object.values(SoundSetting), (value : string) => {
 			this.soundSetting = SoundSetting[value];
 		});
+
+		this.volumePercent = this._cookie.getNumberOr(SettingType.VOLUME_PERCENT, Settings._volumePercent);
 		this.musicPercent = this._cookie.getNumberOr(SettingType.MUSIC_PERCENT, Settings._musicPercent);
 		this.soundPercent = this._cookie.getNumberOr(SettingType.SOUND_PERCENT, Settings._soundPercent);
 	}
@@ -255,7 +261,16 @@ class Settings {
 	showChat() : boolean { return this.chatSetting !== ChatSetting.OFF; }
 	filterChat() : boolean { return this.chatSetting === ChatSetting.FILTER; }
 	shakeScreen() : boolean { return this.screenShakeSetting === ScreenShakeSetting.ON; }
-	speed() : SpeedSetting { return this.speedSetting; }
+	speed() : number{
+		switch (this.speedSetting) {
+		case SpeedSetting.SLOW:
+			return 30;
+		case SpeedSetting.FAST:
+			return 120;
+		default:
+			return 60;
+		}
+	}
 
 	fxaaSamples() : number {
 		switch (this.antiAliasSetting) {
@@ -293,14 +308,14 @@ class Settings {
 			return 0;
 		}
 
-		return 0.7 * this.musicPercent;
+		return 0.7 * this.volumePercent * this.musicPercent;
 	}
 	soundVolume() : number {
 		if (this.soundSetting === SoundSetting.OFF) {
 			return 0;
 		}
 
-		return this.soundPercent;
+		return this.volumePercent * this.soundPercent;
 	}
 
 	useInspector() : boolean { return this.inspectorSetting === InspectorSetting.ON; }

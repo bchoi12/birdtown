@@ -12,9 +12,9 @@ import { TooltipType } from 'ui/api'
 
 type MusicMetadata = {
 	path : string;
-	attribution : string;
-	track : string;
-	artist : string;
+	attribution? : string;
+	track? : string;
+	artist? : string;
 	options : BABYLON.ISoundOptions;
 }
 
@@ -23,6 +23,10 @@ export namespace MusicFactory {
 	export const fadeSecs = 4;
 
 	const metadata = new Map<MusicType, MusicMetadata>([
+		[MusicType.BIRDTOWN, {
+			path: "birdtown.mp3",
+			options: {}
+		}],
 		[MusicType.CULMINATION, {
 			path: "culmination.mp3",
 			attribution: "steven-obrien.net",
@@ -101,10 +105,12 @@ export namespace MusicFactory {
 			},
 			MediaGlobals.gameOptions);
 
-		ui.showTooltip(TooltipType.MUSIC, {
-			ttl: 5000,
-			names: [meta.track + " by " + meta.artist + "\n" + meta.attribution],
-		});
+		if (meta.attribution) {
+			ui.showTooltip(TooltipType.MUSIC, {
+				ttl: 5000,
+				names: [meta.track + " by " + meta.artist + "\n" + meta.attribution],
+			});
+		}
 
 		return music;
 	}

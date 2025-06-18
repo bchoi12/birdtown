@@ -134,6 +134,7 @@ export namespace ColorFactory {
 		[EntityType.PURPLE_HEADBAND, [ColorType.EASTERN_PURPLE]],
 		[EntityType.RED_GLOVE, [ColorType.EASTERN_RED]],
 		[EntityType.RED_HEADBAND, [ColorType.EASTERN_RED]],
+		[EntityType.RIFLE, [ColorType.WESTERN_BROWN]],
 		[EntityType.SCOUTER, [ColorType.SHOOTER_ORANGE]],
 		[EntityType.SHOTGUN, [ColorType.WESTERN_BROWN]],
 		[EntityType.SNIPER, [ColorType.SHOOTER_BLUE]],

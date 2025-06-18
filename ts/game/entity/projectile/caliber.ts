@@ -56,7 +56,7 @@ export abstract class CaliberBase extends Projectile {
 				}, game.scene());
 
 				game.world().glow(mesh, {
-					intensity: 0.6,
+					intensity: 0.5,
 				});
 				model.setMesh(mesh);
 			},

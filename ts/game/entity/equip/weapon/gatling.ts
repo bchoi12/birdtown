@@ -18,26 +18,38 @@ import { StepData } from 'game/game_object'
 import { Fns } from 'util/fns'
 import { Vec, Vec3 } from 'util/vector'
 
-export class Gatling extends Weapon {
-	private static readonly _spinnerName = "spinner";
+export abstract class GatlingBase extends Weapon {
+	protected static readonly _spinnerName = "spinner";
 
-	private static readonly _recoilVel = { x: 3, y: 8};
-	private static readonly _maxSpeed = { x: 0.6, y: 0.4 };
-	private static readonly _maxRotateRate = 5 * Math.PI;
+	protected static readonly _maxRotateRate = 5 * Math.PI;
 
-	private _rotateRad : number;
-	private _spinner : BABYLON.Mesh;
+	protected _projectileType : EntityType;
+	protected _soundType : SoundType;
+	protected _maxSpeed : Vec;
+	protected _recoilVel : Vec;
+	protected _rotateRad : number;
+	protected _spinner : BABYLON.Mesh;
 
-	constructor(options : EntityOptions) {
-		super(EntityType.GATLING, options);
+	constructor(type : EntityType, options : EntityOptions) {
+		super(type, options);
 
+		this.addType(EntityType.GATLING);
+
+		this._projectileType = EntityType.CALIBER;
+		this._soundType = SoundType.GATLING;
+		this._maxSpeed = { x: 0.6, y: 0.4 };
+		this._recoilVel = { x: 3, y: 8};
 		this._rotateRad = 0;
 		this._spinner = null;
 
 		// Override parent
 		this._interruptible = true;
+	}
 
-		this.soundPlayer().registerSound(SoundType.GATLING);
+	override initialize() : void {
+		super.initialize();
+
+		this.soundPlayer().registerSound(this._soundType);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
@@ -65,17 +77,17 @@ export class Gatling extends Weapon {
 		const pos = this.shootPos();
 		const unitDir = this.getDir();
 
-		this.addEntity(EntityType.CALIBER, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
+		this.addEntity(this._projectileType, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
 
-		let recoilVel = unitDir.clone().negate().mult(Gatling._recoilVel).scale(16 / 1000);
+		let recoilVel = unitDir.clone().negate().mult(this._recoilVel).scale(16 / 1000);
 		let ownerProfile = this.owner().profile();
 		if (Math.sign(recoilVel.x) === Math.sign(ownerProfile.vel().x)) {
-			recoilVel.x *= Math.abs(ownerProfile.vel().x / Gatling._maxSpeed.x);
+			recoilVel.x *= Math.abs(ownerProfile.vel().x / this._maxSpeed.x);
 		}
 		recoilVel.y = this.computeVerticalAcc(recoilVel, ownerProfile.vel());
 		ownerProfile.addVel(recoilVel);
 
-		this.soundPlayer().playFromEntity(SoundType.GATLING, this.owner());
+		this.soundPlayer().playFromEntity(this._soundType, this.owner());
 	}
 
 	override update(stepData : StepData) : void {
@@ -98,8 +110,16 @@ export class Gatling extends Weapon {
 		this._spinner.addRotation(0, 0, this._rotateRad * millis / 1000);
 	}
 
-	private computeVerticalAcc(recoilVel : Vec, ownerVel : Vec) : number {
+	protected computeVerticalAcc(recoilVel : Vec, ownerVel : Vec) : number {
 		// Handle y velocity like jetpack to allow hovering, but not jump boosting.
-		return recoilVel.y * Fns.clamp(0, Math.abs(Gatling._maxSpeed.y - ownerVel.y) / (2 * Gatling._maxSpeed.y), 1);
+		return recoilVel.y * Fns.clamp(0, Math.abs(this._maxSpeed.y - ownerVel.y) / (2 * this._maxSpeed.y), 1);
+	}
+}
+
+
+export class Gatling extends GatlingBase {
+
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.GATLING, entityOptions);
 	}
 }

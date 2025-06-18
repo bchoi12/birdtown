@@ -20,13 +20,21 @@ import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Vec, Vec2 } from 'util/vector'
 
-export class Orb extends Projectile {
+export abstract class OrbBase extends Projectile {
 
-	private _model : Model;
-	private _profile : Profile;
+	protected _explosionType : EntityType;
+	protected _ringMaterial : MaterialType;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.ORB, entityOptions);
+	protected _model : Model;
+	protected _profile : Profile;
+
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
+
+		this.addType(EntityType.ORB);
+
+		this._explosionType = EntityType.ORB_EXPLOSION;
+		this._ringMaterial = MaterialType.SHOOTER_ORANGE;
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -57,12 +65,15 @@ export class Orb extends Projectile {
 					diameter: 1.1 * dim.x,
 				}, game.scene());
 				ring.rotation.x = Math.PI / 2;
-				ring.material = MaterialFactory.material(MaterialType.SHOOTER_ORANGE);
+				ring.material = MaterialFactory.material(this._ringMaterial);
 				mesh.addChild(ring);
 
-				game.world().glow(ring, {
-					intensity: 0.5,
-				});
+				const glow = this.glow();
+				if (glow > 0) {
+					game.world().glow(ring, {
+						intensity: glow,
+					});
+				}
 
 				model.setMesh(mesh);
 			},
@@ -74,15 +85,25 @@ export class Orb extends Projectile {
 		}));
 	}
 
+	protected glow() : number { return 0.5; }
+
 	override onHit(other : Entity) : void {
 		super.onHit(other);
 
-		this.explode(EntityType.ORB_EXPLOSION, {});
+		this.explode(this._explosionType, {});
 		this.delete();
 	}
 
 	override onMiss() : void {
-		this.explode(EntityType.ORB_EXPLOSION, {});
+		this.explode(this._explosionType, {});
 	}
 	override onExpire() : void { this.onMiss(); }
+}
+
+export class Orb extends OrbBase {
+
+	constructor(options : EntityOptions) {
+		super(EntityType.ORB, options);
+	}
+
 }

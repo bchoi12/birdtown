@@ -200,7 +200,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 		}
 
 		SoundFactory.playFromPos(SoundType.TABLE_FLIP, this._profile.pos().toBabylon3(), {
-			volume: Fns.clamp(0.3, lenSq / 0.5, 1),
+			volume: settings.soundVolume() * Fns.clamp(0.3, lenSq / 0.5, 1),
 		});
 		this._lastSound = Date.now();
 
