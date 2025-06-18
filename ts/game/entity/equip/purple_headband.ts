@@ -39,6 +39,9 @@ export class PurpleHeadband extends Equip<Player> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PURPLE_HEADBAND, entityOptions);
 
+		// Override parent
+		this._canUseDuringDelay = true;
+
 		this._dashTimer = this.newTimer({
 			canInterrupt: true,
 		});
@@ -85,7 +88,7 @@ export class PurpleHeadband extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
+		if (this.canUse() && this.key(this.useKeyType(), KeyState.PRESSED)) {
 			this.recordUse();
 		} else if (this.canCharge() && this.owner().getAttribute(AttributeType.GROUNDED)) {
 			this.setChargeRate(this.getStat(StatType.FAST_CHARGE_RATE));

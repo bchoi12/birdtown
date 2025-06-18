@@ -284,7 +284,7 @@ export namespace StatFactory {
 			[StatType.BURSTS, 5],
 			[StatType.CHARGED_BURSTS, 1],
 			[StatType.CHARGED_FIRE_TIME, 1000],
-			[StatType.CHARGED_RELOAD_TIME, 800],
+			[StatType.CHARGED_RELOAD_TIME, 900],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0],
 			[StatType.CHARGED_PROJECTILE_TTL, 750],
 			[StatType.CHARGED_FORCE, 0.5],

@@ -36,6 +36,7 @@ export class Jetpack extends Equip<Player> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.JETPACK, entityOptions);
 
+		// Override parent
 		this._canUseDuringDelay = true;
 
 		this._enabled = false;

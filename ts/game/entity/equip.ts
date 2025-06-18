@@ -180,11 +180,14 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	owner() : E { return this._owner; }
 	ownerId() : number { return this._ownerId; }
 
-	protected checkCanUse() : boolean {
+	protected hasJuice() : boolean {
 		if (!this.hasStat(StatType.USE_JUICE)) {
 			return true;
 		}
-		return this._juice >= this.getStat(StatType.USE_JUICE) && (this._canUseDuringDelay || !this._chargeDelayTimer.hasTimeLeft());
+		return this._juice >= this.getStat(StatType.USE_JUICE);
+	}
+	protected checkCanUse() : boolean {
+		return this.hasJuice() && (this._canUseDuringDelay || !this._chargeDelayTimer.hasTimeLeft());
 	}
 	protected canUse() : boolean { return this._canUse; }
 	private importCanUse(can : boolean) : void { this._canUse = can; }
