@@ -41,9 +41,9 @@ enum TargetMode {
 }
 
 export class Lakitu extends SystemBase implements System {
-	// Horizontal length = 30 units, needs to be updated if offsets are changed
+	// Horizontal length = 32 units, needs to be updated if offsets are changed
 	// Formula: deg = 2 * arctan(0.5 * horizontal_length / offset_length)
-	private static readonly _horizontalFov = 48.868 * Math.PI / 180;
+	private static readonly _horizontalFov = 48 * Math.PI / 180;
 	private static readonly _screenShake = 0.04;
 
 	private static readonly _quickPan = 300;
@@ -51,8 +51,8 @@ export class Lakitu extends SystemBase implements System {
 	private static readonly _slowPan = 3000;
 	private static readonly _offsets = new Map<OffsetType, Vec3>([
 		[OffsetType.ANCHOR, Vec3.zero()],
-		[OffsetType.TARGET, new Vec3({ y: 1 })],
-		[OffsetType.CAMERA, new Vec3({ y: 2, z: 34 })],
+		[OffsetType.TARGET, new Vec3({ y: 0.5 })],
+		[OffsetType.CAMERA, new Vec3({ y: 3, z: 36 })],
 	]);
 
 	private _camera : BABYLON.UniversalCamera;
