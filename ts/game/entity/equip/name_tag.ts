@@ -18,6 +18,7 @@ import { UiGlobals } from 'global/ui_globals'
 import { HudType } from 'ui/api'
 
 import { ChangeTracker } from 'util/change_tracker'
+import { Optional } from 'util/optional'
 import { Vec2 } from 'util/vector'
 
 enum SubMesh {
@@ -37,7 +38,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 	private static readonly _font = "64px " + UiGlobals.font;
 
-	private _displayName : string;
+	private _displayName : Optional<string>;
 	private _enabled : boolean;
 	private _oscillateTime : number;
 	private _oscillation : number;
@@ -54,7 +55,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.NAME_TAG, entityOptions);
 
-		this._displayName = "";
+		this._displayName = new Optional("");
 		this._enabled = true;
 		this._oscillateTime = 0;
 		this._oscillation = 0;
@@ -67,48 +68,56 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		this._updatePointerColor = true;
 
 		this.addProp<string>({
-			has: () => { return this.hasDisplayName(); },
-			export: () => { return this._displayName; },
+			has: () => { return this._displayName.has(); },
+			export: () => { return this._displayName.get(); },
 			import: (obj : string) => { this.setDisplayName(obj); },
 		});
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => {
-				return this._displayName.length > 0;
+				return this._displayName.has();
 			},
 			meshFn: (model : Model) => {
-				const text = " " + this.displayName() + " " ;
 
-				let temp = new BABYLON.DynamicTexture(this.name() + "-temp", NameTag._textureHeight);
-				let context = temp.getContext();
-				context.font = NameTag._font;
-				const textureWidth = context.measureText(text).width;
+				const displayName = this.displayName();
 
-				const ratio = NameTag._height / NameTag._textureHeight;
-				this._width = ratio * textureWidth;
+				let mesh;
+				if (displayName !== "") {
+					const text = ` ${displayName} `;
 
-				temp.dispose();
+					let temp = new BABYLON.DynamicTexture(this.name() + "-temp", NameTag._textureHeight);
+					let context = temp.getContext();
+					context.font = NameTag._font;
+					const textureWidth = context.measureText(text).width;
 
-				let texture = new BABYLON.DynamicTexture(this.name() + "-texture", {
-					width: textureWidth,
-					height: NameTag._textureHeight,
-				});
-				texture.drawText(text, /*x=*/null, /*y=*/null, NameTag._font, this._textColor, this._textBackgroundColor, /*invertY=*/true);
-				texture.hasAlpha = true;
+					const ratio = NameTag._height / NameTag._textureHeight;
+					this._width = ratio * textureWidth;
 
-				let material = new BABYLON.StandardMaterial(this.name() + "-material");
-				material.diffuseTexture = texture;
-				material.specularColor = BABYLON.Color3.Black();
+					temp.dispose();
 
-				let mesh = BABYLON.MeshBuilder.CreatePlane(this.name(), {
-					width: this._width,
-					height: NameTag._height,
-					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
-					frontUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.05),
-					backUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.05),
-				}, game.scene());
-				mesh.material = material;
-				mesh.scaling.z = -1;
+					let texture = new BABYLON.DynamicTexture(this.name() + "-texture", {
+						width: textureWidth,
+						height: NameTag._textureHeight,
+					});
+					texture.drawText(text, /*x=*/null, /*y=*/null, NameTag._font, this._textColor, this._textBackgroundColor, /*invertY=*/true);
+					texture.hasAlpha = true;
+
+					let material = new BABYLON.StandardMaterial(this.name() + "-material");
+					material.diffuseTexture = texture;
+					material.specularColor = BABYLON.Color3.Black();
+
+					mesh = BABYLON.MeshBuilder.CreatePlane(this.name(), {
+						width: this._width,
+						height: NameTag._height,
+						sideOrientation: BABYLON.Mesh.DOUBLESIDE,
+						frontUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.05),
+						backUVs: new BABYLON.Vector4(-0.05, -0.05, 1.05, 1.05),
+					}, game.scene());
+					mesh.material = material;
+					mesh.scaling.z = -1;
+				} else {
+					mesh = new BABYLON.TransformNode("empty");
+				}
 
 				this._colorMaterial.disableLighting = true;
 				if (this._updatePointerColor) {
@@ -193,14 +202,9 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		return NameTag._defaultPointerColor;
 	}
 
-	hasDisplayName() : boolean { return this._displayName.length > 0; }
-	displayName() : string { return this.hasDisplayName() ? this._displayName : "unknown" }
+	displayName() : string { return this._displayName.get(); }
 	setDisplayName(displayName : string) : void {
-		if (displayName.length === 0) {
-			console.error("Error: skipping empty name");
-			return;
-		}
-		this._displayName = displayName;
+		this._displayName.set(displayName);
 	}
 
 	setOscillateTime(oscillateTime : number) : void {

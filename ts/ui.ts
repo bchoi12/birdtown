@@ -209,6 +209,12 @@ class UI {
 	}
 	pointerLocked() : boolean { return this._pointerLockHandler.pointerLocked(); }
 
+	setMovieMode(movie : boolean) : void {
+		this._handlers.forEach((handler : Handler) => {
+			handler.setVisible(!movie);
+		});
+	}
+
 	queryLatLng(onSuccess : (loc : LatLng) => void, onError : () => void) : void {
 		if (this._location.valid()) {
 			onSuccess(this._location);

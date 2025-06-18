@@ -22,10 +22,9 @@ export class Bubble extends Equip<Player> {
 
 	private static readonly _alpha = 0.3;
 	private static readonly _cameraOffset = -1.5;
-	private static readonly _popDuration = 1000;
+	private static readonly _popDuration = 750;
 	private static readonly _minLifeDuration = 250;
 	private static readonly _lifeDuration = 10000;
-	private static readonly _invincibleDuration = 1500;
 
 	private _cameraOffset : Vec3;
 	private _material : BABYLON.StandardMaterial;
@@ -68,7 +67,7 @@ export class Bubble extends Equip<Player> {
 	}
 
 	lightPop() : void {
-		if (game.controller().gameState() !== GameState.FREE && this._lifeTimer.millisElapsed() <= Bubble._invincibleDuration) {
+		if (game.controller().gameState() !== GameState.FREE && this._lifeTimer.millisElapsed() <= Bubble._popDuration) {
 			return;
 		}
 

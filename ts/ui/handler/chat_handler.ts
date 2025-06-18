@@ -108,6 +108,16 @@ export class ChatHandler extends HandlerBase implements Handler {
 		this.chat(ChatType.LOG, "Press " + KeyNames.keyTypeHTML(KeyType.CHAT) + " to chat");
 	}
 
+	override setVisible(visible : boolean) : void {
+		super.setVisible(visible);
+
+		if (visible) {
+			this._chatElm.style.visibility = "visible";
+		} else {
+			this._chatElm.style.visibility = "hidden";
+		}
+	}
+
 	override onPlayerInitialized() : void {
 		super.onPlayerInitialized();
 
@@ -247,6 +257,12 @@ export class ChatHandler extends HandlerBase implements Handler {
 					console.log("%s not found", pieces[1]);
 				}
 			}
+			break;
+		case "/movie":
+			ui.setMovieMode(true);
+			break;
+		case "/nomovie":
+			ui.setMovieMode(false);
 			break;
 		case "/next":
 			game.audio().nextTrack();

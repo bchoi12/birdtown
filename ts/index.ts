@@ -4,7 +4,7 @@ import { Flags } from 'global/flags'
 
 const time = Date.now();
 document.fonts.ready.then(() => {
-	console.log("Welcome to birdtown!");
+	console.log("Welcome to Birdtown!");
 
 	const [ok, error] = Flags.validate();
 	if (!ok) {

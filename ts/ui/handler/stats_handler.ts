@@ -92,6 +92,16 @@ export class StatsHandler extends HandlerBase implements Handler {
 		this.updateStats();
 	}
 
+	override setVisible(visible : boolean) : void {
+		super.setVisible(visible);
+
+		if (visible) {
+			this._statsElm.style.visibility = "visible";
+		} else {
+			this._statsElm.style.visibility = "hidden";
+		}
+	}
+
 	setSignalingDisconnected(disconnected : boolean) : void { this._signalingDisconnected = disconnected; }
 	setDebug(enabled : boolean) : void {
 		this._showDebug = enabled;

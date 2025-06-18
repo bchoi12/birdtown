@@ -155,7 +155,7 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 
 		this._nameTag = nameTag;
 		this._nameTag.setVisible(false);
-		this._nameTag.setDisplayName(KeyNames.boxed(settings.keyCode(KeyType.INTERACT)));
+		// this._nameTag.setDisplayName(KeyNames.boxed(settings.keyCode(KeyType.INTERACT)));
 	}
 
 	override delete() : void {

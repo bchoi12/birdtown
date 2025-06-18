@@ -88,6 +88,16 @@ export class HudHandler extends HandlerBase implements Handler {
 		});
 	}
 
+	override setVisible(visible : boolean) : void {
+		super.setVisible(visible);
+
+		if (visible) {
+			this._hudElm.style.display = "block";
+		} else {
+			this._hudElm.style.display = "none";
+		}
+	}
+
 	setClientId(clientId : number) : void {
 		this._nameWrapper.setClientId(clientId);
 

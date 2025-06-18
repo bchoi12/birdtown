@@ -52,7 +52,7 @@ export class Lakitu extends SystemBase implements System {
 	private static readonly _offsets = new Map<OffsetType, Vec3>([
 		[OffsetType.ANCHOR, Vec3.zero()],
 		[OffsetType.TARGET, new Vec3({ y: 1 })],
-		[OffsetType.CAMERA, new Vec3({ y: 2, z: 33 })],
+		[OffsetType.CAMERA, new Vec3({ y: 2, z: 34 })],
 	]);
 
 	private _camera : BABYLON.UniversalCamera;

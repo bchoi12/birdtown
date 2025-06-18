@@ -155,8 +155,7 @@ export class GameMaker extends SystemBase implements System {
 
 	getEquips(clientId : number) : [EntityType, EntityType] {
 		if (this._config.type() === GameMode.FREE) {
-			return [EntityType.MINIGUN, EntityType.BLACK_HEADBAND];
-			// return EquipPairs.nextDefaultPair();
+			return EquipPairs.nextDefaultPair();
 		}
 
 		if (this.isVIP(clientId)) {

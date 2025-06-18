@@ -13,6 +13,9 @@ export interface Handler {
 	reset() : void;
 	handleClientMessage(msg : GameMessage) : void;
 
+	visible() : boolean;
+	setVisible(visible : boolean) : void;
+
 	enabled() : boolean;
 	enable() : void;
 	disable() : void;
@@ -31,6 +34,7 @@ export class HandlerBase {
 
 	protected _type : HandlerType;
 	protected _enabled : boolean;
+	protected _visible : boolean;
 
 	private _previousMode : Optional<UiMode>;
 	private _mode : Optional<UiMode>;
@@ -38,6 +42,7 @@ export class HandlerBase {
 	constructor(type : HandlerType, options? : HandlerOptions) {
 		this._type = type;
 		this._enabled = false;
+		this._visible = true;
 
 		if (!options) {
 			options = {};
@@ -53,6 +58,12 @@ export class HandlerBase {
 	clear() : void {}
 	reset() : void {}
 	handleClientMessage(msg : GameMessage) : void {}
+
+	visible() : boolean { return this._visible; }
+	// Not consistently implemented
+	setVisible(visible : boolean) : void {
+		this._visible = visible;
+	}
 
 	enabled() : boolean { return this._enabled && ui.mode() === this._mode.get(); }
 	enable() : void {

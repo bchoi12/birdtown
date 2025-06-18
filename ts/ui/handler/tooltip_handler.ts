@@ -41,8 +41,23 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			});
 		});
 	}
+
+	override setVisible(visible : boolean) : void {
+		super.setVisible(visible);
+
+		if (visible) {
+			this._tooltipsElm.style.visibility = "visible";
+		} else {
+			this._tooltipsElm.style.visibility = "hidden";
+		}
+	}
+
 	showTooltip(type : TooltipType, options : TooltipOptions) : void {
 		if (ui.mode() !== UiMode.GAME && !TooltipHandler._nonGameTypes.has(type)) {
+			return;
+		}
+
+		if (!this.visible()) {
 			return;
 		}
 

@@ -27,6 +27,16 @@ export class TimerHandler extends HandlerBase implements Handler {
 		this._timerEnabled = false;
 	}
 
+	override setVisible(visible : boolean) : void {
+		super.setVisible(visible);
+
+		if (visible) {
+			this._timerElm.style.display = "block";
+		} else {
+			this._timerElm.style.display = "none";
+		}
+	}
+
 	hasTime() : boolean { return this._timerEnabled; }
 
 	setTime(millis : number) : void {

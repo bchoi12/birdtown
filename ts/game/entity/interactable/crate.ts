@@ -150,7 +150,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 
 		this._nameTag = nameTag;
 		this._nameTag.setVisible(false);
-		this._nameTag.setDisplayName(KeyNames.boxed(settings.keyCode(KeyType.INTERACT)));
+		// this._nameTag.setDisplayName(KeyNames.boxed(settings.keyCode(KeyType.INTERACT)));
 	}
 
 	override delete() : void {
@@ -212,6 +212,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 
 	override setInteractableWith(entity : Entity, interactable : boolean) : void {
 		super.setInteractableWith(entity, interactable);
+
 
 		if (entity.isLakituTarget()) {
 			if (this._nameTag !== null) {

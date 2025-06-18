@@ -75,6 +75,16 @@ export class TrayHandler extends HandlerBase implements Handler {
 		};
 	}
 
+	override setVisible(visible : boolean) : void {
+		super.setVisible(visible);
+
+		if (visible) {
+			this._trayElm.style.visibility = "visible";
+		} else {
+			this._trayElm.style.visibility = "hidden";
+		}
+	}
+
 	override onPlayerInitialized() : void {
 		super.onPlayerInitialized();
 

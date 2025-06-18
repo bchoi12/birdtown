@@ -680,10 +680,10 @@ kbd {
 }
 
 .dialog-small {
-    width: 40%;
+    width: 42%;
     height: 50%;
     top: 25%;
-    left: 30%;
+    left: 29%;
     border-radius: 0.3em;
 
     font-size: 0.8em;
@@ -717,11 +717,14 @@ kbd {
 .dialog-title {
     width: 100%;
 
-    background-color: rgb(50, 50, 50);
+    background: url("img/header_background.png") no-repeat, url("img/header_background.png") no-repeat, rgb(50, 50, 50);
+    background-position: left 10px bottom, right 10px bottom;
+    background-size: contain;
 
     border-top-left-radius: 0.15em;
     border-top-right-radius: 0.15em;
 
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
     text-align: center;
     font-size: 2em;
     padding-top: 0.5em;

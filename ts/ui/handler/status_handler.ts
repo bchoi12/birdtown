@@ -77,6 +77,16 @@ export class StatusHandler extends HandlerBase implements Handler {
 		}
 	}
 
+	override setVisible(visible : boolean) : void {
+		super.setVisible(visible);
+
+		if (visible) {
+			this._statusElm.style.visibility = "visible";
+		} else {
+			this._statusElm.style.visibility = "hidden";
+		}
+	}
+
 	override reset() : void {
 		super.reset();
 

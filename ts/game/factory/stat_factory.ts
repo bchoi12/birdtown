@@ -170,20 +170,20 @@ export namespace StatFactory {
 			[StatType.RELOAD_TIME, 290],
 			[StatType.SPREAD, 4],
 		])],
-		// 62 DPS + threshold
+		// 58 DPS + threshold
 		// 3 shots in 1200ms
 		[EntityType.PISTOL, new Map([
 			[StatType.BURSTS, 3],
 			[StatType.CHARGED_BURSTS, 6],
 			[StatType.CHARGED_FIRE_TIME, 80],
 			[StatType.CHARGED_FORCE, 0.2],
-			[StatType.CHARGED_RELOAD_TIME, 900],
+			[StatType.CHARGED_RELOAD_TIME, 1000],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0.9],
 			[StatType.CHARGED_PROJECTILE_TTL, 550],
 			[StatType.FIRE_TIME, 160],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 450],
-			[StatType.RELOAD_TIME, 900],
+			[StatType.RELOAD_TIME, 1000],
 		])],
 		[EntityType.BULLET, new Map([
 			[StatType.DAMAGE, 25],
@@ -228,19 +228,19 @@ export namespace StatFactory {
 		[EntityType.PELLET, new Map([
 			[StatType.DAMAGE, 15],
 		])],
-		// 70 DPS
-		// 3 shots in 650ms
+		// 75 DPS
+		// 3 shots in 600ms
 		[EntityType.SNIPER, new Map([
 			[StatType.BURSTS, 3],
 			[StatType.CHARGED_BURSTS, 1],
 			[StatType.CHARGED_FIRE_TIME, 75],
-			[StatType.CHARGED_RELOAD_TIME, 500],
+			[StatType.CHARGED_RELOAD_TIME, 450],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1.1],
 			[StatType.CHARGED_PROJECTILE_TTL, 450],
 			[StatType.FIRE_TIME, 75],
 			[StatType.PROJECTILE_SPEED, 0.8],
 			[StatType.PROJECTILE_TTL, 450],
-			[StatType.RELOAD_TIME, 500],
+			[StatType.RELOAD_TIME, 450],
 		])],
 		[EntityType.BOLT, new Map([
 			[StatType.DAMAGE, 15],

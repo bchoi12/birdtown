@@ -174,7 +174,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelType(LevelType.BIRDTOWN);
 			this.setHealthCrateSpawn(FrequencyType.NEVER);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
-			this.setPoints(4);
+			this.setPoints(5);
 			this.setStartingLoadout(LoadoutType.PICK_THREE);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.POINTS);
@@ -184,7 +184,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelType(LevelType.BIRDTOWN);
 			this.setHealthCrateSpawn(FrequencyType.NEVER);
 			this.setWeaponCrateSpawn(FrequencyType.NEVER);
-			this.setPoints(4);
+			this.setPoints(5);
 			this.setStartingLoadout(LoadoutType.GOLDEN_GUN);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.POINTS);

@@ -37,6 +37,10 @@ export class RunnerStats {
 	millisRatio() : number { return this._millisRatio; }
 
 	logTick(interval : number, tickTime : number, stepData? : StepData) : void {
+		if (interval < 1) {
+			return;
+		}
+
 		this._rate = this.average(this._rate, 1000 / interval);
 		this._tickTime = this.average(this._tickTime, tickTime);
 		this._maxTickTime.set(Math.max(this._maxTickTime.or(0), tickTime));

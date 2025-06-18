@@ -30,7 +30,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 	constructor() {
 		super(DialogType.INIT);
 
-		this.setTitle("Welcome to Birdtown");
+		this.setTitle("Welcome!");
 		this.setOpaque(true);
 		this.shrink();
 		this.allowKeyboardSubmit();

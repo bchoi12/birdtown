@@ -203,19 +203,21 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.TEAM_BATTLE, {
 			requirements: [],
-			description: "Everyone has one life--eliminate the enemy team while reviving your teammates.",
+			description: "Everyone has one life. Both teams start on either end of the level.\r\n\r\nEliminate the enemy team while reviving your teammates.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 4,
 		});
+		/*
 		this.populateMode(GameMode.TEAM_DEATHMATCH, {
 			requirements: [],
-			description: "Chaotic team based deathmatch.\r\n\r\nReach the score limit with your team to win.",
+			description: "Chaotic team based deathmatch. Drop in from the sky and fight with your team.\r\n\r\nReach the score limit with your team to win.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 4,
 		});
+		*/
 		this.populateMode(GameMode.VIP, {
 			requirements: [],
-			description: "Each team has a VIP with a Golden Gun.\r\n\r\nEliminate the other team's VIP and protect yours at all costs.",
+			description: "Like Team Battle, but each team has a VIP with a Golden Gun.\r\n\r\nEliminate the other team's VIP and protect yours at all costs.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 4,
 		});
