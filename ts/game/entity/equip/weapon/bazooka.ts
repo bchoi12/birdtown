@@ -21,6 +21,8 @@ export class Bazooka extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.BAZOOKA, options);
 
+		this._skipRecoilOnEmpty = true;
+
 		this.soundPlayer().registerSound(SoundType.ROCKET);
 	}
 

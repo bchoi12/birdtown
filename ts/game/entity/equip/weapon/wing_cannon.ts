@@ -21,6 +21,8 @@ export class WingCannon extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.WING_CANNON, options);
 
+		this._skipRecoilOnEmpty = true;
+
 		this.soundPlayer().registerSound(SoundType.WING_CANNON);
 	}
 

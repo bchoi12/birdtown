@@ -118,13 +118,13 @@ export namespace StatFactory {
 		[EntityType.BAZOOKA, new Map([
 			[StatType.BURSTS, 1],
 			[StatType.CHARGED_BURSTS, 1],
-			[StatType.CHARGED_FIRE_TIME, 500],
+			[StatType.CHARGED_FIRE_TIME, 300],
 			[StatType.CHARGED_FORCE, 0.75],
-			[StatType.CHARGED_RELOAD_TIME, 1200],
+			[StatType.CHARGED_RELOAD_TIME, 1000],
 			[StatType.CHARGED_PROJECTILE_ACCEL, 1.8],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0.1],
 			[StatType.CHARGED_PROJECTILE_TTL, 650],
-			[StatType.FIRE_TIME, 500],
+			[StatType.FIRE_TIME, 300],
 			[StatType.FORCE, 0.75],
 			[StatType.PROJECTILE_ACCEL, 1.5],
 			[StatType.PROJECTILE_SPEED, 0.25],
@@ -158,7 +158,7 @@ export namespace StatFactory {
 			[StatType.FIRE_TIME, 100],
 			[StatType.PROJECTILE_SPEED, 1],
 			[StatType.PROJECTILE_TTL, 400],
-			[StatType.RELOAD_TIME, 1500],
+			[StatType.RELOAD_TIME, 1400],
 		])],
 		[EntityType.GOLDEN_BULLET, new Map([
 			[StatType.DAMAGE, 300],
@@ -170,7 +170,7 @@ export namespace StatFactory {
 			[StatType.FIRE_TIME, 70],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 420],
-			[StatType.RELOAD_TIME, 290],
+			[StatType.RELOAD_TIME, 220],
 			[StatType.SPREAD, 4],
 		])],
 		// Big DPS + 400 delay + explosions
@@ -201,7 +201,7 @@ export namespace StatFactory {
 			[StatType.FIRE_TIME, 160],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 450],
-			[StatType.RELOAD_TIME, 1000],
+			[StatType.RELOAD_TIME, 900],
 		])],
 		[EntityType.BULLET, new Map([
 			[StatType.DAMAGE, 25],
@@ -213,7 +213,7 @@ export namespace StatFactory {
 			[StatType.FIRE_TIME, 150],
 			[StatType.PROJECTILE_SPEED, 0.75],
 			[StatType.PROJECTILE_TTL, 1000],
-			[StatType.RELOAD_TIME, 750],
+			[StatType.RELOAD_TIME, 600],
 		])],
 		[EntityType.STAR, new Map([
 			[StatType.DAMAGE, 5],
@@ -226,25 +226,25 @@ export namespace StatFactory {
 			[StatType.FIRE_TIME, 125],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 550],
-			[StatType.RELOAD_TIME, 550],
+			[StatType.RELOAD_TIME, 400],
 		])],
 		[EntityType.KNIFE, new Map([
 			[StatType.DAMAGE, 20],
 		])],
-		// 72 DPS + long range
+		// 63 DPS + long range + partial clip
 		[EntityType.RIFLE, new Map([
-			[StatType.BURSTS, 1],
+			[StatType.BURSTS, 8],
 			[StatType.CHARGED_BURSTS, 1],
 			[StatType.CHARGED_FIRE_TIME, 300],
 			[StatType.CHARGED_RELOAD_TIME, 300],
-			[StatType.FIRE_TIME, 300],
-			[StatType.FORCE, 0.3],
+			[StatType.FIRE_TIME, 400],
+			[StatType.FORCE, 0.1],
 			[StatType.PROJECTILE_SPEED, 1],
-			[StatType.PROJECTILE_TTL, 550],
-			[StatType.RELOAD_TIME, 550],
+			[StatType.PROJECTILE_TTL, 400],
+			[StatType.RELOAD_TIME, 1600],
 		])],
 		[EntityType.CARTRIDGE, new Map([
-			[StatType.DAMAGE, 40],
+			[StatType.DAMAGE, 25],
 		])],
 		// 90 DPS + short range + spread
 		// 2 shots in 1320ms
@@ -255,7 +255,7 @@ export namespace StatFactory {
 			[StatType.FORCE, 0.5],
 			[StatType.PROJECTILE_SPEED, 0.65],
 			[StatType.PROJECTILE_TTL, 440],
-			[StatType.RELOAD_TIME, 1100],
+			[StatType.RELOAD_TIME, 900],
 			[StatType.SPREAD, 22],
 		])],
 		[EntityType.PELLET, new Map([
@@ -267,13 +267,13 @@ export namespace StatFactory {
 			[StatType.BURSTS, 3],
 			[StatType.CHARGED_BURSTS, 1],
 			[StatType.CHARGED_FIRE_TIME, 75],
-			[StatType.CHARGED_RELOAD_TIME, 450],
+			[StatType.CHARGED_RELOAD_TIME, 500],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1.1],
 			[StatType.CHARGED_PROJECTILE_TTL, 500],
 			[StatType.FIRE_TIME, 75],
 			[StatType.PROJECTILE_SPEED, 0.8],
 			[StatType.PROJECTILE_TTL, 450],
-			[StatType.RELOAD_TIME, 450],
+			[StatType.RELOAD_TIME, 400],
 		])],
 		[EntityType.BOLT, new Map([
 			[StatType.DAMAGE, 15],
@@ -286,8 +286,8 @@ export namespace StatFactory {
 		[EntityType.WING_CANNON, new Map([
 			[StatType.BURSTS, 5],
 			[StatType.CHARGED_BURSTS, 1],
-			[StatType.CHARGED_FIRE_TIME, 1000],
-			[StatType.CHARGED_RELOAD_TIME, 900],
+			[StatType.CHARGED_FIRE_TIME, 500],
+			[StatType.CHARGED_RELOAD_TIME, 1000],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0],
 			[StatType.CHARGED_PROJECTILE_TTL, 750],
 			[StatType.CHARGED_FORCE, 0.5],

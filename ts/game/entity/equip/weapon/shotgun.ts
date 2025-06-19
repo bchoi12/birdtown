@@ -48,7 +48,7 @@ export class Shotgun extends Weapon {
 		}
 
 		let recoil = this.getStat(StatType.FORCE);
-		if (this.ammo() !== 0) {
+		if (this.bursts() !== 0) {
 			recoil *= 0.2;
 		}
 

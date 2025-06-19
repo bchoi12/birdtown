@@ -12,6 +12,9 @@ export class OrbCannon extends GatlingBase {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.ORB_CANNON, entityOptions);
 
+		// Overwrite parent
+		this._maxSpeed = { x: 0.8, y: 0.4 };
+		this._recoilVel = { x: 4, y: 8};
 		this._soundType = SoundType.MACHINE_GUN;
 		this._projectileType = EntityType.MINI_ORB;
 	}

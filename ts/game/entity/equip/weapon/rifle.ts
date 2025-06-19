@@ -22,13 +22,17 @@ export class Rifle extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.RIFLE, options);
 
+		// Override parent
+		this._allowPartialClip = true;
+		this._interruptible = true;
+
 		this.soundPlayer().registerSound(SoundType.RIFLE);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
-	override reloadType() : ReloadType { return ReloadType.RECOIL_RAISE; }
 	override meshType() : MeshType { return MeshType.RIFLE; }
+	override reloadSound() : SoundType { return SoundType.QUICK_RELOAD; }
 
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
