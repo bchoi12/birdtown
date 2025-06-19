@@ -19,8 +19,9 @@ export class VersionMismatchDialogWrapper extends DialogWrapper {
 		this.shrink();
 
 		let pageWrapper = this.addPage();
-		pageWrapper.elm().textContent = `Your version of Birdtown is incompatible with the host's version.\r\n\r\n` +
-										`Host version: ${game.runner().hostVersion()}\r\n\r\nYour version: ${GameGlobals.version}\r\n\r\n`;
+		pageWrapper.elm().textContent = `Your version of Birdtown is incompatible with the host's version :(\r\n\r\n` +
+										`Host version: ${game.runner().hostVersion()}\r\n\r\nYour version: ${GameGlobals.version}\r\n\r\n` +
+										`Click OK to return to the title screen`;
 
 		let okButton = this.addOKButton();
 		okButton.addOnClick(() => {
