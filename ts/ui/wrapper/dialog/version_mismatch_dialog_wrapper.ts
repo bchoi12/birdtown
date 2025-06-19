@@ -17,6 +17,7 @@ export class VersionMismatchDialogWrapper extends DialogWrapper {
 
 		this.setTitle("Version Mismatch");
 		this.shrink();
+		this.important();
 
 		let pageWrapper = this.addPage();
 		pageWrapper.elm().textContent = `Your version of Birdtown is incompatible with the host's version :(\r\n\r\n` +
