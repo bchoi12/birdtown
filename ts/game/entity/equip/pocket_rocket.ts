@@ -66,7 +66,7 @@ export class PocketRocket extends Equip<Player> {
 
 		let vel = unitDir.clone().scale(this.getStat(StatType.PROJECTILE_SPEED));
 		let acc = unitDir.clone().scale(this.getStat(StatType.PROJECTILE_ACCEL));
-		let [rocket, hasRocket] = this.addEntity<Rocket>(EntityType.ROCKET, {
+		this.addEntity(EntityType.MINI_ROCKET, {
 			ttl: this.getStat(StatType.PROJECTILE_TTL),
 			associationInit: {
 				owner: this.owner(),

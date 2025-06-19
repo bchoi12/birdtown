@@ -82,10 +82,13 @@ export namespace StatFactory {
 		[EntityType.POCKET_ROCKET, new Map([
 			[StatType.CHARGE_DELAY, 500],
 			[StatType.CHARGE_RATE, 33],
-			[StatType.PROJECTILE_ACCEL, 1.5],
+			[StatType.PROJECTILE_ACCEL, 1.3],
 			[StatType.PROJECTILE_SPEED, 0.1],
-			[StatType.PROJECTILE_TTL, 600],
+			[StatType.PROJECTILE_TTL, 550],
 			[StatType.USE_JUICE, 50],
+		])],
+		[EntityType.MINI_ROCKET, new Map([
+			[StatType.DAMAGE, 40],
 		])],
 		[EntityType.PURPLE_HEADBAND, new Map([
 			[StatType.CHARGE_DELAY, 400],
@@ -137,7 +140,7 @@ export namespace StatFactory {
 		// 125 DPS + 360 delay
 		[EntityType.GATLING, new Map([
 			// TODO: fill out recoil values
-			[StatType.BURSTS, 25],
+			[StatType.BURSTS, 20],
 			[StatType.FIRE_TIME, 80],
 			[StatType.HORIZONTAL_RECOIL, 0],
 			[StatType.PROJECTILE_SPEED, 0.8],
@@ -170,20 +173,20 @@ export namespace StatFactory {
 			[StatType.RELOAD_TIME, 290],
 			[StatType.SPREAD, 4],
 		])],
-		// 165 DPS + 400 delay + explosions
+		// Big DPS + 400 delay + explosions
 		[EntityType.ORB_CANNON, new Map([
 			// TODO: fill out recoil values
-			[StatType.BURSTS, 15],
+			[StatType.BURSTS, 10],
 			[StatType.FIRE_TIME, 90],
 			[StatType.HORIZONTAL_RECOIL, 0],
 			[StatType.PROJECTILE_SPEED, 0.7],
 			[StatType.PROJECTILE_TTL, 450],
-			[StatType.RELOAD_TIME, 800],
+			[StatType.RELOAD_TIME, 600],
 			[StatType.REV_TIME, 400],
 			[StatType.VERTICAL_RECOIL, 0],
 		])],
 		[EntityType.MINI_ORB, new Map([
-			[StatType.DAMAGE, 15],
+			[StatType.DAMAGE, 25],
 		])],
 		// 58 DPS + threshold
 		// 3 shots in 1200ms

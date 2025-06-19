@@ -66,7 +66,7 @@ export namespace StringFactory {
 		[EntityType.MINIGUN, ParamString.of("Fire a rapid burst with slight spread")],
 		[EntityType.ORB_CANNON, ParamString.of("Hold to rev up a barrage of explosive orbs")],
 		[EntityType.PISTOL, ParamString.of("Fire 3 quick ones")],
-		[EntityType.POCKET_ROCKET, ParamString.of("Launches a rocket out of nowhere")],
+		[EntityType.POCKET_ROCKET, ParamString.of("Launches a mini rocket out of nowhere")],
 		[EntityType.PURPLE_HEADBAND, ParamString.of("Dash in the direction of your cursor")],
 		[EntityType.PURPLE_GLOVE, ParamString.of("Toss 4 stars that explode after a short delay")],
 		[EntityType.RED_HEADBAND, ParamString.of("Backflip opposite to your cursor and throw a sneaky knife")],

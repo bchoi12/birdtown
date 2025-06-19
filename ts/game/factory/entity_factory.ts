@@ -78,6 +78,7 @@ import { Laser } from 'game/entity/projectile/laser'
 import { MiniOrb } from 'game/entity/projectile/mini_orb'
 import { Orb } from 'game/entity/projectile/orb'
 import { MegaRocket } from 'game/entity/projectile/mega_rocket'
+import { MiniRocket } from 'game/entity/projectile/mini_rocket'
 import { Pellet } from 'game/entity/projectile/pellet'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Star } from 'game/entity/projectile/star'
@@ -131,6 +132,7 @@ export namespace EntityFactory {
 		[EntityType.MINIGUN, (options : EntityOptions) => { return new Minigun(options); }],
 		[EntityType.MINI_ORB, (options : EntityOptions) => { return new MiniOrb(options); }],
 		[EntityType.MINI_ORB_EXPLOSION, (options : EntityOptions) => { return new MiniOrbExplosion(options); }],
+		[EntityType.MINI_ROCKET, (options : EntityOptions) => { return new MiniRocket(options); }],
 		[EntityType.NAME_TAG, (options : EntityOptions) => { return new NameTag(options); }],
 		[EntityType.ORB, (options : EntityOptions) => { return new Orb(options); }],
 		[EntityType.ORB_CANNON, (options : EntityOptions) => { return new OrbCannon(options); }],
@@ -190,6 +192,7 @@ export namespace EntityFactory {
 		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],
 		[EntityType.MEGA_ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
+		[EntityType.MINI_ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
 		[EntityType.MINI_ORB, { x: 0.35, y: 0.35, z: 0.35 }],
 		[EntityType.ORB, { x: 0.4, y: 0.4, z : 0.4 }],
 		[EntityType.PELLET, { x: 0.2, y: 0.2, z : 0.2 }],
