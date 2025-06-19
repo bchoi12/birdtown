@@ -1,6 +1,7 @@
 
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
+import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'

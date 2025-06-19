@@ -335,6 +335,16 @@ export class ArchBlueprint extends Blueprint {
 							},
 						});
 
+						if (game.controller().canRematch()) {
+							block.pushEntityOptions(EntityType.REMATCH_SIGN, {
+								offline: true,
+								profileInit: {
+									pos: Vec2.fromVec(block.pos()).add({ x: -5.4, y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),
+									dim: EntityFactory.getDimension(EntityType.SIGN),
+								},
+							});
+						}
+
 						block.pushEntityOptions(EntityType.CONTROLS_SIGN, {
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ x: 2.7, y: EntityFactory.getDimension(EntityType.SIGN).y / 2 }),

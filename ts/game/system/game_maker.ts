@@ -184,6 +184,7 @@ export class GameMaker extends SystemBase implements System {
 		return EquipPairs.random();
 	}
 
+	rematch(mode : GameMode) : boolean { return this.setConfig(ConfigFactory.load(mode), this._playerConfig); }
 	setConfig(config : GameConfigMessage, playerConfig : PlayerConfig) : boolean {
 		this._config = config;
 

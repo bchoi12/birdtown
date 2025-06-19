@@ -31,6 +31,7 @@ export class Controller extends SystemBase implements System {
 
 	private _gameState : GameState;
 	private _gameMaker : GameMaker; 
+	private _rematchMode : GameMode;
 	private _stopwatch : Stopwatch;
 
 	constructor() {
@@ -38,6 +39,7 @@ export class Controller extends SystemBase implements System {
 
 		this._gameState = GameState.UNKNOWN;
 		this._gameMaker = this.addSubSystem<GameMaker>(SystemType.GAME_MAKER, new GameMaker());
+		this._rematchMode = GameMode.UNKNOWN;
 		this._stopwatch = new Stopwatch();
 
 		this.addProp<GameState>({
@@ -91,13 +93,30 @@ export class Controller extends SystemBase implements System {
 	}
 
 	getEquips(clientId : number) : [EntityType, EntityType] { return this._gameMaker.getEquips(clientId); }
-	startGame(config : GameConfigMessage, playerConfig : PlayerConfig) {
+	startGame(config : GameConfigMessage, playerConfig : PlayerConfig) : void {
 		if (this.gameState() !== GameState.FREE) {
 			console.error("Error: trying to start %s in state %s", GameMode[config.type()], GameState[this.gameState()]);
 			return;
 		}
 		if (this._gameMaker.setConfig(config, playerConfig)) {
 			ConfigFactory.save(config);
+			this.setGameState(GameState.PRELOAD);
+			this._rematchMode = config.type();
+		}
+	}
+	canRematch() : boolean { return this._rematchMode !== GameMode.UNKNOWN && this._rematchMode !== GameMode.PRACTICE; }
+	rematch() : void {
+		if (this.gameState() !== GameState.FREE) {
+			console.error("Error: trying to rematch in state %s.", GameState[this.gameState()]);
+			return;
+		}
+
+		if (!this.canRematch()) {
+			console.error("Error: rematch not allowed");
+			return;
+		}
+
+		if (this._gameMaker.rematch(this._rematchMode)) {
 			this.setGameState(GameState.PRELOAD);
 		}
 	}

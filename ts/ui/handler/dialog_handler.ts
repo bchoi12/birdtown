@@ -17,6 +17,7 @@ import { FailedConnectDialogWrapper } from 'ui/wrapper/dialog/failed_connect_dia
 import { FailedCopyDialogWrapper } from 'ui/wrapper/dialog/failed_copy_dialog_wrapper'
 import { InitDialogWrapper } from 'ui/wrapper/dialog/client/init_dialog_wrapper'
 import { LoadoutDialogWrapper } from 'ui/wrapper/dialog/client/loadout_dialog_wrapper'
+import { RematchDialogWrapper } from 'ui/wrapper/dialog/rematch_dialog_wrapper'
 import { ReturnToLobbyDialogWrapper } from 'ui/wrapper/dialog/return_to_lobby_dialog_wrapper'
 import { StartGameDialogWrapper } from 'ui/wrapper/dialog/start_game_dialog_wrapper'
 import { QueryLocationDialogWrapper } from 'ui/wrapper/dialog/query_location_dialog_wrapper'
@@ -40,6 +41,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 		[DialogType.START_GAME, () => { return new StartGameDialogWrapper()}],
 		[DialogType.QUERY_LOCATION, () => { return new QueryLocationDialogWrapper()}],
 		[DialogType.QUIT, () => { return new QuitDialogWrapper()}],
+		[DialogType.REMATCH, () => { return new RematchDialogWrapper()}],
 		[DialogType.RESET_SETTINGS, () => { return new ResetSettingsDialogWrapper()}],
 		[DialogType.VERSION_MISMATCH, () => { return new VersionMismatchDialogWrapper()}],
 		[DialogType.YOUR_ROOM, () => { return new YourRoomDialogWrapper()}],

@@ -57,6 +57,7 @@ import { HealthCrate } from 'game/entity/interactable/crate/health_crate'
 import { WeaponCrate } from 'game/entity/interactable/crate/weapon_crate'
 import { Table } from 'game/entity/interactable/table'
 import { ControlsSign } from 'game/entity/interactable/sign/controls_sign'
+import { RematchSign } from 'game/entity/interactable/sign/rematch_sign'
 import { StartGameSign } from 'game/entity/interactable/sign/start_game_sign'
 import { CubeParticle } from 'game/entity/particle/cube_particle'
 import { EnergyCubeParticle } from 'game/entity/particle/energy_cube_particle'
@@ -144,6 +145,7 @@ export namespace EntityFactory {
 		[EntityType.PURPLE_HEADBAND, (options : EntityOptions) => { return new PurpleHeadband(options); }],
 		[EntityType.RED_GLOVE, (options : EntityOptions) => { return new RedGlove(options); }],
 		[EntityType.RED_HEADBAND, (options : EntityOptions) => { return new RedHeadband(options); }],
+		[EntityType.REMATCH_SIGN, (options : EntityOptions) => { return new RematchSign(options); }],
 		[EntityType.RIFLE, (options : EntityOptions) => { return new Rifle(options); }],
 		[EntityType.ROBIN_BEAK, (options : EntityOptions) => { return new RobinBeak(options); }],
 		[EntityType.ROBIN_HAIR, (options : EntityOptions) => { return new RobinHair(options); }],

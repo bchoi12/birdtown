@@ -136,6 +136,8 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return "🎵 Now Playing 🎵\n" + names[0];
 		case TooltipType.POINTER_LOCK:
 			return `Press ${KeyNames.keyTypeHTML(KeyType.POINTER_LOCK)} to unlock your mouse`;
+		case TooltipType.JUST_A_SIGN:
+			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} for a rematch!`
 		case TooltipType.REVIVE:
 			if (names.length !== 1) {
 				return `Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to start reviving your teammate`;
