@@ -21,7 +21,7 @@ export class ShareWrapper extends ButtonWrapper {
 
 		this._onSuccess = () => {
 			ui.showTooltip(TooltipType.COPIED_URL, {
-				ttl: 2000,
+				ttl: 3000,
 			});
 		};
 		this._onFail = () => {

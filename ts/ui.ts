@@ -40,7 +40,6 @@ import { TrayHandler } from 'ui/handler/tray_handler'
 
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
 
-import { isDesktopApp } from 'util/common'
 import { LatLng } from 'util/lat_lng'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'

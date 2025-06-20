@@ -432,6 +432,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			nameTag.forcePointerColor(this.clientColorOr(Player._defaultColor));
 			this._nameTag = nameTag;
 		}
+
+		if (!this.dead()) {
+			this.upright();
+		}
 	}
 
 	displayName() : string { return game.tablet(this.clientId()).displayName(); }

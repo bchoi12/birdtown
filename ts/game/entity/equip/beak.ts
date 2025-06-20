@@ -81,7 +81,7 @@ export abstract class Beak extends Equip<Player> {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
+		if (this.key(this.useKeyType(), KeyState.DOWN)) {
 			this.setSquawking(true);
 		}
 	}
@@ -138,7 +138,7 @@ export abstract class Beak extends Equip<Player> {
 			return;
 		}
 
-		if (squawking) {
+		if (this.canUse() && squawking) {
 			this.recordUse();
 		}
 	}

@@ -617,13 +617,11 @@ kbd {
 .display-name {
     padding: 0.1em 0.6em;
     border-radius: 0.6em;
-    margin-top: 0.1em;
-    margin-bottom: 0.1em;
+    margin: 0.1em 0.3em;
     white-space: nowrap;
-}
+    font-size: 0.9em;
 
-.display-name {
-    font-size: 0.7em;
+    box-shadow: 0 0 0.2em #dbdbdb;
 }
 
 .stat {
@@ -951,6 +949,11 @@ kbd {
     padding-bottom: 2em;
 }
 
+.loadout-button-tags {
+    word-wrap: break-word;
+    font-size: 0.7em;
+}
+
 .loadout-button-title {
     font-size: 1.3em;
     font-weight: bold;
@@ -983,6 +986,7 @@ kbd {
 
 .loadout-button-description {
     font-size: 0.7em;
+    margin-bottom: 1em;
 }
 
 .social-link {

@@ -78,6 +78,7 @@ export enum ColorType {
 
 	WESTERN_YELLOW,
 	WESTERN_BROWN,
+	WESTERN_LIGHT_BROWN,
 	WESTERN_BLACK,
 
 	EASTERN_PURPLE,
@@ -89,6 +90,7 @@ export enum ColorType {
 
 	SHOOTER_BLUE,
 	SHOOTER_LIGHT_BLUE,
+	SHOOTER_DARK_BLUE,
 	SHOOTER_ORANGE,
 	SHOOTER_DARK_ORANGE,
 	SHOOTER_YELLOW,
@@ -133,6 +135,41 @@ export enum DepthType {
 	PLAYER = -1,
 	FRONT = -2,
 	FOREGROUND = -3,
+}
+
+export enum EquipTag {
+	UNKNOWN,
+
+	// Playstyle
+	ASSASSINATE,
+	HEAVY_HITTER,
+	MELEE_RANGE,
+	PRECISION_WEAPON,
+	SIMPLE_SHOT,
+
+	// Damage profile
+	BIG_DAMAGE,
+	BIG_BURST,
+	BIG_RECOIL,
+	DISRUPTIVE,
+	RAPID_FIRE,
+
+	// Stats
+	AIR_MOBILITY,
+	HIGH_MOBILITY,
+	LONG_RANGE,
+	DODGY,
+
+	// Other properties
+	NEEDS_REV,
+
+	// Combo tags
+	BARRAGE,
+	LASER,
+	MEGA_ROCKET,
+	MASSIVE_DAMAGE,
+	ONE_SHOT,
+	REALLY_DISRUPTIVE,
 }
 
 export enum MaterialType {

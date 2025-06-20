@@ -72,6 +72,15 @@ export class PlayerConfig {
 		return "???";
 	}
 
+	removeInvalid() : void {
+		this._players.forEach((info : PlayerInfo, id : number) => {
+			if (!this.validId(id)) {
+				this.deleteClient(id);
+				console.log("remove ", id);
+			}
+		});
+	}
+
 	canPlay(msg : GameConfigMessage) : [Array<string>, boolean] {
 		let errors = [];
 		const [numPlayers, numTeams] = this.numPlayersAndTeams();

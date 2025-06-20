@@ -192,8 +192,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);
 			this.setLevelType(LevelType.BIRDTOWN);
-			this.setTimeSetup(60000);
-			this.setSpawnTime(10000);
+			this.setTimeSetup(90000);
+			this.setSpawnTime(15000);
 			this.setStartingLoadout(LoadoutType.PICK_THREE);
 			this.setHealthCrateSpawn(FrequencyType.UBIQUITOUS);
 			this.setWeaponCrateSpawn(FrequencyType.UBIQUITOUS);

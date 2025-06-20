@@ -105,20 +105,23 @@ export class Controller extends SystemBase implements System {
 		}
 	}
 	canRematch() : boolean { return this._rematchMode !== GameMode.UNKNOWN && this._rematchMode !== GameMode.PRACTICE; }
-	rematch() : void {
+	rematch() : boolean {
 		if (this.gameState() !== GameState.FREE) {
 			console.error("Error: trying to rematch in state %s.", GameState[this.gameState()]);
-			return;
+			return false;
 		}
 
 		if (!this.canRematch()) {
 			console.error("Error: rematch not allowed");
-			return;
+			return false;
 		}
 
 		if (this._gameMaker.rematch(this._rematchMode)) {
 			this.setGameState(GameState.PRELOAD);
+			return true;
 		}
+
+		return false;
 	}
 
 	stateMillis() : number { return this._stopwatch.millis(); }

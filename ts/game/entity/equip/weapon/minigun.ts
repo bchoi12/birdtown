@@ -30,7 +30,6 @@ export class Minigun extends Weapon {
 
 		const spreadDeg = this.getStat(StatType.SPREAD);
 		const ammo = this.bursts();
-		const burstBullets = this.getStat(StatType.BURST_BULLETS);
 
 		let dir = this.getDir();
 		if (ammo % 2 === 0) {

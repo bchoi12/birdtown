@@ -30,11 +30,9 @@ export class PlayerStates extends ClientSystemManager implements System {
 	}
 
 	updatePlayers(playerConfig : PlayerConfig) : void {
-		this.executeIf((playerState : PlayerState) => {
+		this.execute((playerState : PlayerState) => {
 			playerState.setStartingRole(playerConfig.playerRole(playerState.clientId()));
 			playerState.setTeam(playerConfig.team(playerState.clientId()));
-		}, (playerState : PlayerState) => {
-			return playerConfig.hasClient(playerState.clientId());
 		});
 	}
 

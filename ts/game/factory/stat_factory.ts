@@ -186,7 +186,7 @@ export namespace StatFactory {
 			[StatType.VERTICAL_RECOIL, 0],
 		])],
 		[EntityType.MINI_ORB, new Map([
-			[StatType.DAMAGE, 25],
+			[StatType.DAMAGE, 20],
 		])],
 		// 58 DPS + threshold
 		// 3 shots in 1200ms
@@ -244,7 +244,7 @@ export namespace StatFactory {
 			[StatType.RELOAD_TIME, 1600],
 		])],
 		[EntityType.CARTRIDGE, new Map([
-			[StatType.DAMAGE, 25],
+			[StatType.DAMAGE, 30],
 		])],
 		// 90 DPS + short range + spread
 		// 2 shots in 1320ms

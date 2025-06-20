@@ -179,6 +179,7 @@ export enum TooltipType {
 	MUSIC,
 	POINTER_LOCK,
 	REMATCH,
+	REMATCH_FAILED,
 	REVIVE,
 	REVIVING,
 	SPAWN,

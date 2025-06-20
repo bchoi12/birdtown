@@ -60,10 +60,11 @@ export namespace ColorFactory {
 		// Western series (rugged?)
 		[ColorType.WESTERN_YELLOW, HexColor.fromHex(0xffef61)],
 		[ColorType.WESTERN_BROWN, HexColor.fromHex(0x966336)],
-		[ColorType.WESTERN_BLACK, HexColor.fromHex(0x1c1a18)],
+		[ColorType.WESTERN_LIGHT_BROWN, HexColor.fromHex(0xc78b56)],
+		[ColorType.WESTERN_BLACK, HexColor.fromHex(0x2c2a28)],
 
 		// Eastern series (showy?)
-		[ColorType.EASTERN_BLACK, HexColor.fromHex(0x1e1e1e)],
+		[ColorType.EASTERN_BLACK, HexColor.fromHex(0x2e2e2e)],
 		[ColorType.EASTERN_PURPLE, HexColor.fromHex(0x7d3abf)],
 		[ColorType.EASTERN_RED, HexColor.fromHex(0xbc3a3a)],
 
@@ -72,11 +73,12 @@ export namespace ColorFactory {
 		[ColorType.BLASTER_YELLOW, HexColor.fromHex(0xf4fa4b)],
 
 		// Shooter series (sleek, lighter colors)
+		[ColorType.SHOOTER_DARK_BLUE, HexColor.fromHex(0x1f75ad)],
 		[ColorType.SHOOTER_BLUE, HexColor.fromHex(0x7cf2f0)],
 		[ColorType.SHOOTER_LIGHT_BLUE, HexColor.fromHex(0xc7fffe)],
 		[ColorType.SHOOTER_ORANGE, HexColor.fromHex(0xffb163)],
 		[ColorType.SHOOTER_DARK_ORANGE, HexColor.fromHex(0xe68525)],
-		[ColorType.SHOOTER_YELLOW, HexColor.fromHex(0xffef61)],
+		[ColorType.SHOOTER_YELLOW, HexColor.fromHex(0xe6d753)],
 
 		// Pickup series (saturated, stand out from level)
 		[ColorType.PICKUP_BLUE, HexColor.fromHex(0x3c5ffa)],
@@ -123,18 +125,19 @@ export namespace ColorFactory {
 		[EntityType.BLACK_HEADBAND, [ColorType.EASTERN_BLACK]],
 		[EntityType.BOOSTER, [ColorType.SHOOTER_BLUE, ColorType.SHOOTER_YELLOW]],
 		[EntityType.COWBOY_HAT, [ColorType.WESTERN_BROWN]],
-		[EntityType.GATLING, [ColorType.WESTERN_YELLOW]],
+		[EntityType.GATLING, [ColorType.SHOOTER_DARK_BLUE, ColorType.SHOOTER_BLUE]],
 		[EntityType.GOLDEN_GUN, [ColorType.WESTERN_YELLOW]],
 		[EntityType.HEADPHONES, [ColorType.SHOOTER_YELLOW]],
 		[EntityType.JETPACK, [ColorType.BLASTER_RED]],
 		[EntityType.MINIGUN, [ColorType.EASTERN_BLACK]],
+		[EntityType.ORB_CANNON, [ColorType.SHOOTER_YELLOW]],
 		[EntityType.PISTOL, [ColorType.WESTERN_BLACK]],
 		[EntityType.POCKET_ROCKET, [ColorType.WHITE]],
 		[EntityType.PURPLE_GLOVE, [ColorType.EASTERN_PURPLE]],
 		[EntityType.PURPLE_HEADBAND, [ColorType.EASTERN_PURPLE]],
 		[EntityType.RED_GLOVE, [ColorType.EASTERN_RED]],
 		[EntityType.RED_HEADBAND, [ColorType.EASTERN_RED]],
-		[EntityType.RIFLE, [ColorType.WESTERN_BROWN]],
+		[EntityType.RIFLE, [ColorType.WESTERN_LIGHT_BROWN]],
 		[EntityType.SCOUTER, [ColorType.SHOOTER_ORANGE]],
 		[EntityType.SHOTGUN, [ColorType.WESTERN_BROWN]],
 		[EntityType.SNIPER, [ColorType.SHOOTER_BLUE]],
@@ -159,6 +162,7 @@ export namespace ColorFactory {
 		}
 		return colorMap.get(type).toString();
 	}
+	export function hasEntityColor(type : EntityType) : boolean { return entityColorMap.has(type); }
 	export function entityColors(type : EntityType) : Array<HexColor> {
 		if (!entityColorMap.has(type)) {
 			console.error("Warning: missing colors for", EntityType[type]);

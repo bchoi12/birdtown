@@ -1,29 +1,24 @@
 
 import { game } from 'game'
+import { EntityType } from 'game/entity/api'
+import { ColorFactory } from 'game/factory/color_factory'
 
 import { Strings } from 'strings'
+import { StringFactory } from 'strings/string_factory'
 
 import { ui } from 'ui'
 import { Icon, IconType } from 'ui/common/icon'
 import { Html, HtmlWrapper } from 'ui/html'
+import { TagWrapper } from 'ui/wrapper/tag_wrapper'
 
-export class NameWrapper extends HtmlWrapper<HTMLElement> {
+export class NameWrapper extends TagWrapper {
 
 	private _clientId : number;
-	private _iconElm : HTMLElement;
-	private _nameElm : HTMLElement;
 
 	constructor() {
-		super(Html.span());
-
-		this.elm().classList.add(Html.classDisplayName);
+		super();
 
 		this._clientId = 0;
-		this._iconElm = Html.span();
-		this._nameElm = Html.span();
-
-		this.elm().appendChild(this._iconElm);
-		this.elm().appendChild(this._nameElm);
 	}
 
 	setClientId(clientId : number) : void {
@@ -31,7 +26,6 @@ export class NameWrapper extends HtmlWrapper<HTMLElement> {
 			return;
 		}
 		this._clientId = clientId;
-
 		this.refresh();
 	}
 	clientId() : number { return this._clientId; }
@@ -39,27 +33,39 @@ export class NameWrapper extends HtmlWrapper<HTMLElement> {
 	setEntityId(entityId : number) : void {
 		const [entity, ok] = game.entities().getEntity(entityId);
 
-		this._iconElm.innerHTML = "";
+		this.clearIcon();
 		if (!ok) {
-			this._nameElm.textContent = "???";
+			this.setName("???")
+			this.setBackgroundColor("#888888");
 		} else {
-			this._nameElm.textContent = Strings.toTitleCase(entity.displayName());
+			this.setName(Strings.toTitleCase(entity.displayName()));
+			this.setBackgroundColorFromType(entity.type());
 		}
-		this.elm().style.backgroundColor = "#888888";
+	}
+
+	setEntityType(type : EntityType) : void {
+		this.setName(StringFactory.getEntityTypeName(type).toTitleString());
+		this.setBackgroundColorFromType(type);
+	}
+
+	private setBackgroundColorFromType(type : EntityType) : void {
+		if (ColorFactory.hasEntityColor(type)) {
+			this.setBackgroundColor(ColorFactory.entityColor(type).toString());
+		} else {
+			this.setBackgroundColor("#888888");
+		}
 	}
 
 	refresh() : void {
-		this._iconElm.innerHTML = "";
+		this.clearIcon();
 		if (this._clientId === game.clientId()) {
-			let icon = Icon.create(IconType.PERSON);
-			icon.style.padding = "0 0.3em 0.1em 0";
-			this._iconElm.appendChild(icon);
+			this.setIcon(IconType.PERSON);
 		}
 
 		if (game.tablets().hasTablet(this._clientId)) {
-			this._nameElm.textContent = game.tablet(this._clientId).displayName();
+			this.setName(game.tablet(this._clientId).displayName());
 		} else {
-			this._nameElm.textContent = "???";
+			this.setName("???");
 		}
 
 		this.refreshColor();
@@ -67,7 +73,7 @@ export class NameWrapper extends HtmlWrapper<HTMLElement> {
 
 	refreshColor() : void {
 		if (game.tablets().hasTablet(this._clientId)) {
-			this.elm().style.backgroundColor = game.tablet(this._clientId).color();
+			this.setBackgroundColor(game.tablet(this._clientId).color());
 		}
 	}
 }

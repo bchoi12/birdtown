@@ -16,7 +16,7 @@ import { IconType } from 'ui/common/icon'
 import { LoginNames } from 'ui/common/login_names'
 import { BirdWrapper } from 'ui/wrapper/bird_wrapper'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
-import { ClientNameWrapper } from 'ui/wrapper/client_name_wrapper'
+import { NameInputWrapper } from 'ui/wrapper/name_input_wrapper'
 import { ColorPickWrapper } from 'ui/wrapper/color_pick_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { ClientDialogWrapper } from 'ui/wrapper/dialog/client_dialog_wrapper'
@@ -61,7 +61,7 @@ export class InitDialogWrapper extends ClientDialogWrapper {
 		const nameAndColor = LoginNames.randomNameAndColor();
 
 		bio.appendTitle("Name");
-		let nameWrapper = new ClientNameWrapper(nameAndColor[0]);
+		let nameWrapper = new NameInputWrapper(nameAndColor[0]);
 		nameWrapper.nameElm().style.textAlign = "center";
 		bio.contentElm().appendChild(nameWrapper.elm());
 		bio.contentElm().appendChild(Html.br());

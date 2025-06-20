@@ -3,7 +3,7 @@ import { ui } from 'ui'
 import { IconType } from 'ui/common/icon'
 import { Html, HtmlWrapper } from 'ui/html'
 
-export class ClientNameWrapper extends HtmlWrapper<HTMLElement> {
+export class NameInputWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _defaultName : string;
 	private _nameElm : HTMLInputElement;

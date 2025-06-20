@@ -1,5 +1,6 @@
 node_modules/
 js/
+web/discord
 web/main*
 web/node_modules/
 web/out/

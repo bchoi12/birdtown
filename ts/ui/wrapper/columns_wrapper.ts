@@ -22,7 +22,7 @@ export class ColumnsWrapper extends HtmlWrapper<HTMLElement> {
 
 		for (let i = 0; i < columnWeights.length; ++i) {
 			let column = new ColumnWrapper();
-			column.elm().style.flex = columnWeights[i] + " 0";
+			column.elm().style.flex = columnWeights[i] + " 1 auto";
 			this.appendColumn(column);
 		}
 	}

@@ -7,6 +7,7 @@ import { ui } from 'ui'
 import { Icon, IconType } from 'ui/common/icon'
 import { Html, HtmlWrapper } from 'ui/html'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
+import { NameWrapper } from 'ui/wrapper/name_wrapper'
 import { VoiceControlsWrapper } from 'ui/wrapper/voice_controls_wrapper'
 
 import { Optional } from 'util/optional'
@@ -15,7 +16,7 @@ import { Vec } from 'util/vector'
 export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 
 	private _clientId : number;
-	private _nameElm : HTMLElement;
+	private _nameWrapper : NameWrapper;
 	private _voiceControlsWrapper : Optional<VoiceControlsWrapper>;
 
 	constructor(msg : GameMessage) {
@@ -23,9 +24,10 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._clientId = msg.getClientId();
 
-		this._nameElm = Html.span();
-		this.setDisplayName(msg.getDisplayNameOr("unknown"));
-		this.elm().appendChild(this._nameElm);
+		this._nameWrapper = new NameWrapper();
+		this._nameWrapper.setClientId(this._clientId);
+
+		this.elm().appendChild(this._nameWrapper.elm());
 
 		if (game.isHost() && this._clientId !== game.clientId()) {
 			let kickButton = new ButtonWrapper();
@@ -44,8 +46,8 @@ export class ClientWrapper extends HtmlWrapper<HTMLElement> {
 		}
 	}
 
-	setDisplayName(displayName : string) : void {this._nameElm.textContent = displayName; }
-	displayName() : string { return this._nameElm.textContent; }
+	// Allow name change
+	setDisplayName(name : string) : void { this._nameWrapper.setName(name); }
 
 	addStream(stream : MediaStream) : void {
 		if (this._voiceControlsWrapper.has()) {

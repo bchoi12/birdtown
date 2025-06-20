@@ -119,6 +119,7 @@ export namespace Html {
 	export const classLoadoutButtonIcon = "loadout-button-icon";
 	export const classLoadoutButtonPlus = "loadout-button-plus";
 	export const classLoadoutButtonPicture = "loadout-button-picture";
+	export const classLoadoutButtonTags = "loadout-button-tags";
 	export const classLoadoutButtonTitle = "loadout-button-title";
 	export const classModeSelect = "mode-select";
 	export const classModeSelectInvalid = "mode-select-invalid";

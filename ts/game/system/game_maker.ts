@@ -199,11 +199,18 @@ export class GameMaker extends SystemBase implements System {
 			return false;
 		}
 
+		this._playerConfig = playerConfig;
+		this._playerConfig.removeInvalid();
+		const [errors, ok] = this._playerConfig.canPlay(config);
+		if (!ok) {
+			console.error("Player config invalid:", errors.join(", "));
+			return false;
+		}
+
 		this.addNameParams({
 			type: GameMode[this._config.type()],
 		});
 
-		this._playerConfig = playerConfig;
 		this._playerRotator.seed(this._config.getLevelSeed());
 		this._playerRotator.updateShuffled(playerConfig);
 		game.playerStates().updatePlayers(playerConfig);
@@ -239,7 +246,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.SETUP:
 		case GameState.GAME:
 			if (game.playerStates().numPlayers() < this._config.getPlayersMinOr(1)) {
-				return ["Not enough players left in the game", false];
+				return [`Not enough players left in the game for ${GameState[current]}`, false];
 			}
 			break;
 		}

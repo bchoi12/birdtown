@@ -3,6 +3,7 @@ import { game } from 'game'
 import { GameMode } from 'game/api'
 import { EntityType } from 'game/entity/api'
 import { Entity } from 'game/entity'
+import { EquipTag } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { LevelType, LoadoutType } from 'game/system/api'
 
@@ -162,5 +163,35 @@ export namespace StringFactory {
 		default:
 			return "???";
 		}
+	}
+
+	const tagNames = new Map<EquipTag, string>([
+		[EquipTag.ASSASSINATE, "Assassination"],
+		[EquipTag.HEAVY_HITTER, "Heavy Hitter"],
+		[EquipTag.MELEE_RANGE, "Short Ranged"],
+		[EquipTag.PRECISION_WEAPON, "Precision Weapon"],
+		[EquipTag.SIMPLE_SHOT, "Simple Shooter"],
+		[EquipTag.BIG_DAMAGE, "BIG Damage"],
+		[EquipTag.BIG_RECOIL, "BIG Recoil"],
+		[EquipTag.BIG_BURST, "BIG Burst"],
+		[EquipTag.DISRUPTIVE, "Disruptive"],
+		[EquipTag.RAPID_FIRE, "Rapid Fire"],
+		[EquipTag.AIR_MOBILITY, "Air Superiority"],
+		[EquipTag.HIGH_MOBILITY, "Go Fast"],
+		[EquipTag.LONG_RANGE, "Long Range"],
+		[EquipTag.DODGY, "Dodgy"],
+		[EquipTag.NEEDS_REV, "Needs to Rev"],
+		[EquipTag.BARRAGE, "BARRAGE"],
+		[EquipTag.LASER, "LASER"],
+		[EquipTag.MEGA_ROCKET, "BIG ROCKET"],
+		[EquipTag.MASSIVE_DAMAGE, "MASSIVE DAMAGE"],
+		[EquipTag.ONE_SHOT, "ONE SHOT"],
+		[EquipTag.REALLY_DISRUPTIVE, "REALLY DISRUPTIVE"],
+	]);
+	export function getTagName(tag : EquipTag) : string {
+		if (tagNames.has(tag)) {
+			return tagNames.get(tag);
+		}
+		return Strings.toTitleCase(EquipTag[tag]);
 	}
 }

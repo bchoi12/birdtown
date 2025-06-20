@@ -268,6 +268,7 @@ export class PlayerState extends ClientSystem implements System {
 			let player = this.targetEntity<Player>();
 			player.setAttribute(AttributeType.VIP, false);
 			player.setAttribute(AttributeType.REVIVING, false);
+			player.upright();
 			this.spawnPlayer();
 		}
 	}
