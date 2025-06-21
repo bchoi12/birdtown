@@ -103,11 +103,11 @@ export namespace EquipPairs {
 		[EntityType.SNIPER, new Set([EquipTag.SIMPLE_SHOT, EquipTag.RAPID_FIRE])],
 		[EntityType.WING_CANNON, new Set([EquipTag.BIG_DAMAGE, EquipTag.DISRUPTIVE])],
 
-		[EntityType.GOLDEN_GUN, new Set([EquipTag.PRECISION_WEAPON, EquipTag.BIG_BURST])],
+		[EntityType.GOLDEN_GUN, new Set([EquipTag.PRECISION_WEAPON, EquipTag.ONE_SHOT])],
 
 		[EntityType.BLACK_HEADBAND, new Set([EquipTag.AIR_MOBILITY])],
 		[EntityType.BOOSTER, new Set([EquipTag.AIR_MOBILITY])],
-		[EntityType.COWBOY_HAT, new Set([EquipTag.BIG_BURST, EquipTag.DODGY])],
+		[EntityType.COWBOY_HAT, new Set([EquipTag.ONE_SHOT, EquipTag.DODGY])],
 		[EntityType.HEADPHONES, new Set([EquipTag.DISRUPTIVE])],
 		[EntityType.JETPACK, new Set([EquipTag.AIR_MOBILITY])],
 		[EntityType.POCKET_ROCKET, new Set([EquipTag.DISRUPTIVE, EquipTag.BIG_DAMAGE])],
