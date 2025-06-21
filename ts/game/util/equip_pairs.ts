@@ -150,6 +150,9 @@ export namespace EquipPairs {
 				merged.add(EquipTag.ONE_SHOT);
 				break;
 			case EntityType.SNIPER:
+				merged.add(EquipTag.ONE_SHOT);
+				break;
+			case EntityType.SNIPER:
 				merged.add(EquipTag.DISRUPTIVE);
 				break;
 			case EntityType.WING_CANNON:

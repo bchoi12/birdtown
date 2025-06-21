@@ -170,9 +170,8 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 				row.setOnClick(() => {
 					if (metadata.token === settings.userToken) {
 						ui.pushDialog(DialogType.YOUR_ROOM);
-					} else {
-						ui.setJoinParams(room[0], "");
 					}
+					ui.setJoinParams(room[0], "");
 				});
 				row.setOnDoubleClick(() => {
 					if (!metadata.hasPassword && metadata.token !== settings.userToken) {

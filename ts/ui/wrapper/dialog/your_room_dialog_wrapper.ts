@@ -20,7 +20,7 @@ export class YourRoomDialogWrapper extends DialogWrapper {
 		this.important();
 
 		let pageWrapper = this.addPage();
-		pageWrapper.elm().textContent = "Cannot join this room since it's hosted on your machine!";
+		pageWrapper.elm().textContent = "Note: this game is already being hosted on your machine!\r\n\r\nYou can still join if you want.";
 
 		let okButton = this.addOKButton();
 		okButton.addOnClick(() => {

@@ -42,6 +42,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._clients = new Map();
 		this._playerWrapper = new CategoryWrapper();
 		this._playerWrapper.setTitle("Players");
+		this._playerWrapper.contentElm().style.fontSize = "1.2em";
 		this._commandsWrapper = new CategoryWrapper();
 		this._commandsWrapper.setTitle("Quick Settings");
 
