@@ -75,6 +75,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		messageSpan.style.fontSize = "0.9em";
 
 		switch (type) {
+		case ChatType.LOG:
 		case ChatType.INFORM:
 		case ChatType.PRINT:
 			messageSpan.style.color = "#6b6b6b";

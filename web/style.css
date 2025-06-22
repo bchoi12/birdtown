@@ -950,6 +950,8 @@ kbd {
 }
 
 .loadout-button-tags {
+    width: 90%;
+    margin: 0 auto;
     word-wrap: break-word;
     font-size: 0.7em;
 }
@@ -1046,7 +1048,7 @@ kbd {
     padding: 0.3em 0;
     margin: 0;
     font-size: 1em;
-    height: 1em;
+    height: 1.1em;
     display: block;
     border-radius: 0;
     margin-bottom: 0.1em;

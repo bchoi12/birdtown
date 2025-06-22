@@ -204,7 +204,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelType(LevelType.BIRDTOWN_CIRCLE);
 			this.setHealthCrateSpawn(FrequencyType.RARE);
 			this.setWeaponCrateSpawn(FrequencyType.RARE);
-			this.setPoints(3);
+			this.setPoints(4);
 			this.setResetPoints(true);
 			this.setStartingLoadout(LoadoutType.PICK_THREE);
 			this.setVictories(3);
@@ -239,7 +239,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.LOW);
 			this.setStartingLoadout(LoadoutType.PICK_THREE);
-			this.setVictories(3);
+			this.setVictories(4);
 			this.setWinCondition(WinConditionType.TEAM_LIVES);
 			break;
 		case GameMode.TEAM_DEATHMATCH:
@@ -249,7 +249,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.LOW);
 			this.setStartingLoadout(LoadoutType.PICK_THREE);
-			this.setVictories(3);
+			this.setVictories(4);
 			this.setWinCondition(WinConditionType.TEAM_POINTS);
 			break;
 		case GameMode.VIP:
@@ -259,7 +259,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.LOW);
 			this.setStartingLoadout(LoadoutType.PICK_THREE);
-			this.setVictories(3);
+			this.setVictories(4);
 			this.setWinCondition(WinConditionType.TEAM_LIVES);
 			break;			
 		}

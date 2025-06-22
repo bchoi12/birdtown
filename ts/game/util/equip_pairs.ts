@@ -149,10 +149,11 @@ export namespace EquipPairs {
 				merged.add(EquipTag.MEGA_ROCKET);
 				merged.add(EquipTag.ONE_SHOT);
 				break;
-			case EntityType.SNIPER:
+			case EntityType.PISTOL:
 				merged.add(EquipTag.ONE_SHOT);
 				break;
 			case EntityType.SNIPER:
+				merged.add(EquipTag.BIG_BURST);
 				merged.add(EquipTag.DISRUPTIVE);
 				break;
 			case EntityType.WING_CANNON:

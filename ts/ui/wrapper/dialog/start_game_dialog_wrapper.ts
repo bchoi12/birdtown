@@ -362,6 +362,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		if (mode === GameMode.UNKNOWN) {
 			console.error("Error: cannot make mode page for unknown mode");
 			this.cancel();
+			return;
 		}
 		this._configMsg = ConfigFactory.load(mode);
 
@@ -373,7 +374,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		options.contentElm().style.fontSize = "0.8em";
 
 		let coreCategory = new CategoryWrapper();
-		coreCategory.setTitle("Core Options");
+		coreCategory.setTitle(`${this._configMsg.modeName()} Options`);
 		coreCategory.setAlwaysExpand(true);
 		options.contentElm().appendChild(coreCategory.elm());
 
