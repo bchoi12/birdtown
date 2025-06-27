@@ -2,7 +2,7 @@
 import { game } from 'game'
 import { GameState } from 'game/api'
 import { EntityType } from 'game/entity/api'
-import { EquipPairs } from 'game/util/equip_pairs'
+import { EquipFactory } from 'game/factory/equip_factory'
 
 import { DialogType } from 'ui/api'
 import { IconType } from 'ui/common/icon'
@@ -29,7 +29,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 		this.addSubmitTimer(game.controller().timeLimit(GameState.SETUP));
 
 		const num = 3;
-		const pairs = EquipPairs.randomN(num * 2);
+		const pairs = EquipFactory.randomN(num * 2);
 
 		let columns = ColumnsWrapper.withColumns(num);
 		pageWrapper.elm().appendChild(columns.elm());

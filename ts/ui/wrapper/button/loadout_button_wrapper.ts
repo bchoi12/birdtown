@@ -2,7 +2,7 @@
 import { EntityType } from 'game/entity/api'
 import { EquipTag } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
-import { EquipPairs } from 'game/util/equip_pairs'
+import { EquipFactory } from 'game/factory/equip_factory'
 
 import { StringFactory } from 'strings/string_factory'
 
@@ -65,7 +65,7 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 		this._descriptionElm.innerHTML = description;
 
 		const color = ColorFactory.entityColor(pair[0]).toString();
-		const tags = EquipPairs.getTags(pair);
+		const tags = EquipFactory.getTags(pair);
 		let tagHtml = [];
 		tags.forEach((tag : EquipTag) => {
 			let tagWrapper = new TagWrapper();

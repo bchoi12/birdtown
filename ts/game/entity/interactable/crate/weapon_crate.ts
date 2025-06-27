@@ -11,7 +11,7 @@ import { Crate } from 'game/entity/interactable/crate'
 import { Player } from 'game/entity/player'
 import { ColorType, MaterialType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
-import { EquipPairs } from 'game/util/equip_pairs'
+import { EquipFactory } from 'game/factory/equip_factory'
 
 import { StringFactory } from 'strings/string_factory'
 
@@ -30,7 +30,7 @@ export class WeaponCrate extends Crate {
 		this._altEquipType = EntityType.UNKNOWN;
 
 		if (this.isSource()) {
-			const pair = EquipPairs.next();
+			const pair = EquipFactory.next();
 			this._equipType = pair[0];
 			this._altEquipType = pair[1];
 		}

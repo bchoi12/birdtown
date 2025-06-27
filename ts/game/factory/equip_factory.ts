@@ -4,8 +4,7 @@ import { EquipTag } from 'game/factory/api'
 
 import { globalRandom } from 'util/seeded_random'
 
-// TODO: this should be factory (EquipFactory)
-export namespace EquipPairs {
+export namespace EquipFactory {
 
 	const pairs = new Map<EntityType, EntityType[]>([
 		[EntityType.BAZOOKA, [EntityType.JETPACK, EntityType.COWBOY_HAT, EntityType.SCOUTER]],

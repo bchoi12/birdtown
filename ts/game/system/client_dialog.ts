@@ -6,7 +6,7 @@ import { EntityType } from 'game/entity/api'
 import { ClientSystem, System } from 'game/system'
 import { SystemType, PlayerRole } from 'game/system/api'
 import { ClientDialogSyncer } from 'game/system/client_dialog_syncer'
-import { EquipPairs } from 'game/util/equip_pairs'
+import { EquipFactory } from 'game/factory/equip_factory'
 
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'
@@ -59,7 +59,7 @@ export class ClientDialog extends ClientSystem implements System {
 			this.addSubSystem(type, new ClientDialogSyncer(type, clientId));
 		}
 
-		const pair = EquipPairs.random();
+		const pair = EquipFactory.random();
 		let loadout = this.message(DialogType.LOADOUT);
 		loadout.setEquipType(pair[0]);
 		loadout.setAltEquipType(pair[1]);

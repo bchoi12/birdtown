@@ -14,7 +14,7 @@ import { ClientDialog } from 'game/system/client_dialog'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
-import { EquipPairs } from 'game/util/equip_pairs'
+import { EquipFactory } from 'game/factory/equip_factory'
 import { PlayerConfig } from 'game/util/player_config'
 import { PlayerRotator } from 'game/util/player_rotator'
 
@@ -155,7 +155,7 @@ export class GameMaker extends SystemBase implements System {
 
 	getEquips(clientId : number) : [EntityType, EntityType] {
 		if (this._config.type() === GameMode.FREE) {
-			return EquipPairs.nextDefaultPair();
+			return EquipFactory.nextDefaultPair();
 		}
 
 		if (this.isVIP(clientId)) {
@@ -165,7 +165,7 @@ export class GameMaker extends SystemBase implements System {
 		if (this._config.getStartingLoadout() === LoadoutType.GOLDEN_GUN) {
 			return [EntityType.GOLDEN_GUN, EntityType.TOP_HAT];
 		} else if (this._config.getStartingLoadout() === LoadoutType.RANDOM) {
-			return EquipPairs.random();
+			return EquipFactory.random();
 		} else if (this._config.getStartingLoadout() === LoadoutType.RANDOM_ALL) {
 			return this._equipPair;
 		}
@@ -181,7 +181,7 @@ export class GameMaker extends SystemBase implements System {
 			const loadout = game.clientDialog(id).message(DialogType.LOADOUT);
 			return [loadout.getEquipType(), loadout.getAltEquipType()];
 		}
-		return EquipPairs.random();
+		return EquipFactory.random();
 	}
 
 	rematch(mode : GameMode) : boolean { return this.setConfig(ConfigFactory.load(mode), this._playerConfig); }
@@ -552,7 +552,7 @@ export class GameMaker extends SystemBase implements System {
 
 	private configureLoadout() : void {
 		if (this._config.getStartingLoadout() === LoadoutType.RANDOM_ALL) {
-			this._equipPair = EquipPairs.next();
+			this._equipPair = EquipFactory.next();
 			return;
 		}
 

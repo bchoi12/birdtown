@@ -12,7 +12,7 @@ import { TextParticle } from 'game/entity/particle/text_particle'
 import { Player } from 'game/entity/player'
 import { ColorType, MaterialType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
-import { EquipPairs } from 'game/util/equip_pairs'
+import { EquipFactory } from 'game/factory/equip_factory'
 
 import { StringFactory } from 'strings/string_factory'
 
