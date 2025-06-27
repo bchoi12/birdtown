@@ -198,7 +198,11 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	invert() : void { this.elm().classList.add(Html.classButtonInverted); }
 
 	selected() : boolean { return this._state === ButtonState.SELECTED; }
+	protected canSelect() : boolean { return true; }
 	protected select() : boolean {
+		if (!this.canSelect()) {
+			return false;
+		}
 		if (this._onSelectFns.length === 0 && this._onUnselectFns.length === 0) {
 			return false;
 		}

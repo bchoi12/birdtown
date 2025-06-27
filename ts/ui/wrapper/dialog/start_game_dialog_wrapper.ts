@@ -3,7 +3,7 @@ import { game } from 'game'
 import { GameMode } from 'game/api'
 import { FrequencyType } from 'game/entity/api'
 import { ConfigFactory } from 'game/factory/config_factory'
-import { LevelType, LoadoutType, PlayerRole, WinConditionType } from 'game/system/api'
+import { LevelType, LoadoutType, PlayerRole, WeaponSetType, WinConditionType } from 'game/system/api'
 import { Controller } from 'game/system/controller'
 import { PlayerConfig, PlayerInfo } from 'game/util/player_config'
 
@@ -44,6 +44,8 @@ type ModeOptions = {
 }
 
 export class StartGameDialogWrapper extends DialogWrapper {
+
+	private static readonly _fontSize = "0.7em";
 
 	private _mode : GameMode;
 	private _currentMode : GameMode;
@@ -141,7 +143,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let columnsWrapper = ColumnsWrapper.withWeights([4, 6]);
 
 		let modeColumn = columnsWrapper.column(0);
-		modeColumn.contentElm().style.fontSize = "0.7em";
+		modeColumn.contentElm().style.fontSize = StartGameDialogWrapper._fontSize;
 
 		let classicCategory = new CategoryWrapper();
 		classicCategory.setTitle("Free for All");
@@ -153,7 +155,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		modeColumn.contentElm().appendChild(teamCategory.elm());
 
 		let infoColumn = columnsWrapper.column(1);
-		infoColumn.contentElm().style.fontSize = "0.7em";
+		infoColumn.contentElm().style.fontSize = StartGameDialogWrapper._fontSize;
 		infoColumn.contentElm().appendChild(this._descriptionCategory.elm());
 
 		this.addUnknownMode();
@@ -272,7 +274,6 @@ export class StartGameDialogWrapper extends DialogWrapper {
 	}
 	private populateMode(mode : GameMode, options : ModeOptions) : void {
 		let buttonWrapper = this._modeButtons.addButton(new ModeSelectWrapper());
-		buttonWrapper.elm().style.width = "100%";
 		buttonWrapper.setText(" " + StringFactory.getModeName(mode));
 		buttonWrapper.addOnMouseEnter(() => {
 			this.previewMode(mode);
@@ -371,7 +372,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
 
 		let options = columnsWrapper.column(0);
-		options.contentElm().style.fontSize = "0.8em";
+		options.contentElm().style.fontSize = StartGameDialogWrapper._fontSize;
 
 		let coreCategory = new CategoryWrapper();
 		coreCategory.setTitle(`${this._configMsg.modeName()} Options`);
@@ -391,10 +392,11 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		case GameMode.DUEL:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_TURNS, LoadoutType.RANDOM_ALL, LoadoutType.GOLDEN_GUN]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE_TURNS, LoadoutType.PICK_TURNS, LoadoutType.RANDOM_ALL, LoadoutType.GOLDEN_GUN]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.FREE_FOR_ALL:
 		case GameMode.GOLDEN_GUN:
@@ -404,13 +406,16 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			if (mode !== GameMode.GOLDEN_GUN) {
-				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM]).elm());
+				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM]).elm());
 				otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 				otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+				otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			}
 			break;
 		case GameMode.PRACTICE:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.BIRDTOWN_CIRCLE, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK]).elm());
+			coreCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
@@ -420,48 +425,53 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());	
 			coreCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM]).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.SURVIVAL:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.BIRDTOWN_CIRCLE, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.TEAM_BATTLE:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.VIP:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.TEAM_DEATHMATCH:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN_CIRCLE, LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 30).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.PICK_THREE, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		}
 
 		let players = columnsWrapper.column(1);
-		players.contentElm().style.fontSize = "0.8em";
+		players.contentElm().style.fontSize = StartGameDialogWrapper._fontSize;
 
 		let playerCategory = new CategoryWrapper();
 		playerCategory.setTitle("Player Setup");
@@ -669,6 +679,37 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			},
 			get: () => { return msg.getWeaponCrateSpawn(); },
 			html: (current : number) => { return Strings.toTitleCase(FrequencyType[current]); },
+		});
+	}
+
+	private weaponSetWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
+			label: "Weapon crate set",
+			value: Number(msg.getWeaponSet()),
+			plus: (current : number) => {
+				if (current === WeaponSetType.ALL) {
+					return;
+				}
+				current++;
+				msg.setWeaponSet(current);
+			},
+			minus: (current : number) => {
+				if (current === WeaponSetType.RECOMMENDED) {
+					return;
+				}
+				current--;
+				msg.setWeaponSet(current);
+			},
+			get: () => { return msg.getWeaponSet(); },
+			html: (current : number) => { 
+				switch (current) {
+				case WeaponSetType.RECOMMENDED:
+					return "Recommended pairs only";
+				case WeaponSetType.ALL:
+					return "All equip pairs";
+				}
+				return Strings.toTitleCase(FrequencyType[current]);
+			},
 		});
 	}
 

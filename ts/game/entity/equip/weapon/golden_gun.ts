@@ -43,7 +43,7 @@ export class GoldenGun extends Weapon {
 	override meshType() : MeshType { return MeshType.GOLDEN_GUN; }
 	override reloadType() : ReloadType { return ReloadType.SPIN; }
 	override reloadSound() : SoundType { return SoundType.QUICK_RELOAD; }
-	protected override reloadSpins() : number { return 3; }
+	protected override reloadSpins() : number { return 4; }
 
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);

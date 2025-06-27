@@ -152,9 +152,12 @@ export namespace StringFactory {
 
 	export function getLoadoutName(type : LoadoutType) : string {
 		switch (type) {
-		case LoadoutType.PICK_TURNS:
-		case LoadoutType.PICK_THREE:
+		case LoadoutType.CHOOSE_TURNS:
+		case LoadoutType.CHOOSE:
 			return "Choose from 3";
+		case LoadoutType.PICK_TURNS:
+		case LoadoutType.PICK:
+			return "Pick anything";
 		case LoadoutType.RANDOM:
 		case LoadoutType.RANDOM_ALL:
 			return "Random"

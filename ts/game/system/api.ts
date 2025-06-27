@@ -49,7 +49,9 @@ export enum LoadoutType {
 	UNKNOWN,
 
 	PICK_TURNS,
-	PICK_THREE,
+	PICK,
+	CHOOSE_TURNS,
+	CHOOSE,
 	RANDOM,
 	RANDOM_ALL,
 	GOLDEN_GUN,
@@ -80,6 +82,13 @@ export enum TimeType {
 	DAY,
 	EVENING,
 	NIGHT,
+}
+
+export enum WeaponSetType {
+	UNKNOWN,
+
+	RECOMMENDED,
+	ALL,
 }
 
 export enum WinConditionType {

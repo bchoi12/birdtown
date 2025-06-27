@@ -4,9 +4,15 @@ import { EquipTag } from 'game/factory/api'
 
 import { globalRandom } from 'util/seeded_random'
 
+export type EquipList = {
+	recommended: EntityType[];
+	valid: EntityType[];
+	invalid: EntityType[];
+}
+
 export namespace EquipFactory {
 
-	const pairs = new Map<EntityType, EntityType[]>([
+	const recommendedPairs = new Map<EntityType, EntityType[]>([
 		[EntityType.BAZOOKA, [EntityType.JETPACK, EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.GATLING, [EntityType.BOOSTER, EntityType.HEADPHONES]],
 		[EntityType.MINIGUN, [EntityType.BLACK_HEADBAND, EntityType.PURPLE_HEADBAND]],
@@ -20,12 +26,62 @@ export namespace EquipFactory {
 		[EntityType.WING_CANNON, [EntityType.SCOUTER, EntityType.POCKET_ROCKET]],
 	]);
 
-	let weapons = [...pairs.keys()];
+	const invalidPairs = new Map<EntityType, EntityType[]>([
+		[EntityType.GATLING, [EntityType.SCOUTER]],
+		[EntityType.MINIGUN, [EntityType.SCOUTER]],
+		[EntityType.PURPLE_GLOVE, [EntityType.SCOUTER]],
+		[EntityType.RED_GLOVE, [EntityType.SCOUTER]],
+		[EntityType.RIFLE, [EntityType.SCOUTER]],
+		[EntityType.SHOTGUN, [EntityType.SCOUTER]],
+
+		[EntityType.GOLDEN_GUN, [EntityType.SCOUTER]],
+	]);
+
+	let weapons = [...recommendedPairs.keys()];
+	let equips = [
+		EntityType.BLACK_HEADBAND, EntityType.BOOSTER, EntityType.COWBOY_HAT,
+		EntityType.HEADPHONES, EntityType.JETPACK, EntityType.POCKET_ROCKET,
+		EntityType.PURPLE_HEADBAND, EntityType.RED_HEADBAND, EntityType.SCOUTER,
+		EntityType.TOP_HAT];
+
 	let nextIndex = -1;
 	let shuffled = false;
 
 	// [0, 1, 2, 3, ...]
 	let indices = Array.from(Array(weapons.length).keys());
+
+	export function weaponList() : EntityType[] { return [...recommendedPairs.keys()]; }
+	export function equipList(type : EntityType) : EquipList {
+		let seen = new Set();
+
+		let valid = [];
+		const recommended = recommendedPairs.has(type) ? recommendedPairs.get(type) : [];
+		const invalid = invalidPairs.has(type) ? invalidPairs.get(type) : [];
+		equips.forEach((equip : EntityType) => {
+			if (recommended.includes(equip) || invalid.includes(equip)) {
+				return;
+			}
+
+			valid.push(equip);
+		});
+
+		return {
+			recommended: recommended,
+			valid: valid,
+			invalid: invalid,
+		}
+	}
+	export function getAltEquip(type : EntityType) : EntityType {
+		const allEquips = equipList(type);
+		let numEquips = allEquips.recommended.length + allEquips.valid.length;
+
+		let randomEquip = globalRandom.int(numEquips);
+
+		if (randomEquip >= allEquips.recommended.length) {
+			return allEquips.valid[randomEquip - allEquips.recommended.length];
+		}
+		return allEquips.recommended[randomEquip];
+	}
 
 	export function next() : [EntityType, EntityType] {
 		const weapon = weapons[getNextIndex()];
@@ -44,7 +100,7 @@ export namespace EquipFactory {
 		let randomPairs = [];
 		for (let i = 0; i < n; ++i) {
 			const weapon = weapons[indices[i]];
-			randomPairs.push([weapon, getAltEquip(weapon)]);
+			randomPairs.push([weapon, getRecommendedAltEquip(weapon)]);
 		}
 		return randomPairs;
 	}
@@ -70,22 +126,22 @@ export namespace EquipFactory {
 		return nextIndex;
 	}
 	function getRandomPair(type : EntityType) : [EntityType, EntityType] {
-		return [type, getAltEquip(type)];
+		return [type, getRecommendedAltEquip(type)];
 	}
 	function getDefaultPair(type : EntityType) : [EntityType, EntityType] {
-		if (!pairs.has(type)) {
+		if (!recommendedPairs.has(type)) {
 			console.error("Error: invalid equip %s", EntityType[type]);
 			return [EntityType.UNKNOWN, EntityType.UNKNOWN];
 		}
-		return [type, pairs.get(type)[0]];
+		return [type, recommendedPairs.get(type)[0]];
 	}
-	function getAltEquip(type : EntityType) : EntityType {
-		if (!pairs.has(type)) {
+	function getRecommendedAltEquip(type : EntityType) : EntityType {
+		if (!recommendedPairs.has(type)) {
 			console.error("Error: no equip pairings for %s", EntityType[type]);
 			return EntityType.UNKNOWN;
 		}
 
-		const list = pairs.get(type);
+		const list = recommendedPairs.get(type);
 		return list[globalRandom.int(list.length)];
 	}
 
@@ -163,7 +219,7 @@ export namespace EquipFactory {
 
 		return merged;
 	}
-	function getEntityTags(type : EntityType) : Set<EquipTag> {
+	export function getEntityTags(type : EntityType) : Set<EquipTag> {
 		if (!tags.has(type)) {
 			return new Set();
 		}

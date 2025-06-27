@@ -903,12 +903,13 @@ kbd {
     border-radius: 0;
 }
 
-.mode-select {
+.mode-select, .equip-select {
+    width: 100%;
     padding: 0.2em 0;
     color: #fbfbfb;
 }
 
-.mode-select-invalid {
+.mode-select-invalid, .equip-select-invalid {
     color: #8b8b8b;
 }
 

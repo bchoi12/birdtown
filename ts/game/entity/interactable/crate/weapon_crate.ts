@@ -12,6 +12,7 @@ import { Player } from 'game/entity/player'
 import { ColorType, MaterialType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EquipFactory } from 'game/factory/equip_factory'
+import { LoadoutType, WeaponSetType } from 'game/system/api'
 
 import { StringFactory } from 'strings/string_factory'
 
@@ -32,7 +33,12 @@ export class WeaponCrate extends Crate {
 		if (this.isSource()) {
 			const pair = EquipFactory.next();
 			this._equipType = pair[0];
-			this._altEquipType = pair[1];
+
+			if (game.controller().config().getWeaponSet() === WeaponSetType.ALL) {
+				this._altEquipType = EquipFactory.getAltEquip(this._equipType);
+			} else {
+				this._altEquipType = pair[1];
+			}
 		}
 
 		this.addProp<EntityType>({

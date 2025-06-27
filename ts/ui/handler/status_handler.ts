@@ -171,7 +171,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 			wrapper.setHTML(`Loading...\r\n\nHold ${KeyNames.keyTypeHTML(KeyType.SCOREBOARD)} to view the rules`);
 			break;
 		case GameState.SETUP:
-			if (game.controller().config().getStartingLoadout() === LoadoutType.PICK_TURNS) {
+			if (game.controller().config().getStartingLoadout() === LoadoutType.CHOOSE_TURNS || game.controller().config().getStartingLoadout() === LoadoutType.PICK_TURNS) {
 				wrapper.setHTML(`Waiting for your opponent to pick the loadout...\r\n\nHold ${KeyNames.keyTypeHTML(KeyType.SCOREBOARD)} to view the rules`);
 			} else {
 				wrapper.setHTML(`Waiting for all players to be ready...\r\n\nHold ${KeyNames.keyTypeHTML(KeyType.SCOREBOARD)} to view the rules`);

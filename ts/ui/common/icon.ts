@@ -179,11 +179,19 @@ export namespace Icon {
 	}
 
 	export function change(elm : HTMLElement, type : IconType) : HTMLElement {
+		if (type === IconType.UNKNOWN) {
+			return clear(elm);
+		}
+
 		if (names.has(type)) {
 			elm.innerHTML = names.get(type);
 		} else {
 			console.error("Error: missing mapping for icon type %s", IconType[type]);
 		}
+		return elm;
+	}
+	export function clear(elm : HTMLElement) : HTMLElement {
+		elm.innerHTML = "";
 		return elm;
 	}
 

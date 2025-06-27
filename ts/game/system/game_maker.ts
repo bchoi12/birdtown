@@ -171,9 +171,9 @@ export class GameMaker extends SystemBase implements System {
 		}
 
 		let id = 0;
-		if (this._config.getStartingLoadout() === LoadoutType.PICK_THREE) {
+		if (this._config.getStartingLoadout() === LoadoutType.CHOOSE || this._config.getStartingLoadout() === LoadoutType.PICK) {
 			id = clientId;
-		} else if (this._config.getStartingLoadout() === LoadoutType.PICK_TURNS) {
+		} else if (this._config.getStartingLoadout() === LoadoutType.CHOOSE_TURNS || this._config.getStartingLoadout() === LoadoutType.PICK_TURNS) {
 			id = this._playerRotator.currentFromAll();
 		}
 
@@ -310,7 +310,10 @@ export class GameMaker extends SystemBase implements System {
 					this.processKillOn(player);
 					if (!game.tablet(clientId).outOfLives()) {
 						playerState.waitUntil(PlayerRole.PREPARING, GameMaker._respawnTime, () => {
-							if (this._config.getStartingLoadout() !== LoadoutType.PICK_THREE || game.controller().gameState() !== GameState.GAME) {
+							if (this._config.getStartingLoadout() !== LoadoutType.CHOOSE && this._config.getStartingLoadout() !== LoadoutType.PICK) {
+								return;
+							}
+							if (game.controller().gameState() !== GameState.GAME) {
 								return;
 							}
 							if (game.clientDialogs().hasClientDialog(clientId)) {
@@ -561,7 +564,7 @@ export class GameMaker extends SystemBase implements System {
 			return;
 		}
 
-		if (this._config.getStartingLoadout() === LoadoutType.PICK_TURNS) {
+		if (this._config.getStartingLoadout() === LoadoutType.CHOOSE_TURNS || this._config.getStartingLoadout() === LoadoutType.PICK_TURNS) {
 			const nextId = this._playerRotator.nextFromAll();
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 				clientDialog.queueDialog(DialogType.LOADOUT);

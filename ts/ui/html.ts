@@ -97,6 +97,8 @@ export namespace Html {
 	export const classDialogSmall = "dialog-small";
 	export const classDialogTitle = "dialog-title";
 	export const classDisplayName = "display-name";
+	export const classEquipSelect = "equip-select";
+	export const classEquipSelectInvalid = "equip-select-invalid";
 	export const classFeed = "feed";
 	export const classFooter = "footer";
 	export const classHighlight = "highlight";

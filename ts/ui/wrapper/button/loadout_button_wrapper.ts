@@ -14,9 +14,25 @@ import { TagWrapper } from 'ui/wrapper/tag_wrapper'
 
 export class LoadoutButtonWrapper extends ButtonWrapper {
 
+	private _firstType : EntityType;
+	private _secondType : EntityType;
+
 	private _titleElm : HTMLElement;
+	private _firstEquipElm : HTMLElement;
+	private _titlePlusElm : HTMLElement;
+	private _secondEquipElm : HTMLElement;
+
 	private _pictureElm : HTMLElement;
+	private _firstIcon : HTMLElement;
+	private _picturePlusElm : HTMLElement;
+	private _secondIcon : HTMLElement;
+
 	private _descriptionElm : HTMLElement;
+	private _firstKeyElm : HTMLElement;
+	private _firstDescriptionElm : HTMLElement;
+	private _secondKeyElm : HTMLElement;
+	private _secondDescriptionElm : HTMLElement;
+
 	private _tagsElm : HTMLElement;
 
 	constructor() {
@@ -24,12 +40,51 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 
 		this.elm().classList.add(Html.classLoadoutButton);
 
+		this._firstType = EntityType.UNKNOWN;
+		this._secondType = EntityType.UNKNOWN;
+
 		this._titleElm = Html.div();
 		this._titleElm.classList.add(Html.classLoadoutButtonTitle);
+		this._firstEquipElm = Html.span();
+		this._titlePlusElm = this.createPlusDiv();
+		this._secondEquipElm = Html.span();
+
+		this._titleElm.appendChild(this._firstEquipElm);
+		this._titleElm.appendChild(this._titlePlusElm);
+		this._titleElm.appendChild(this._secondEquipElm);
+
 		this._pictureElm = Html.div();
 		this._pictureElm.classList.add(Html.classLoadoutButtonPicture);
+		this._firstIcon = Icon.baseElement();
+		this._firstIcon.classList.add(Html.classLoadoutButtonIcon);
+		this._firstIcon.style.textAlign = "right";
+		this._picturePlusElm = this.createPlusSpan();
+		this._secondIcon = Icon.baseElement();
+		this._secondIcon.classList.add(Html.classLoadoutButtonIcon);
+		this._secondIcon.style.textAlign = "left";
+
+		this._pictureElm.appendChild(this._firstIcon);
+		this._pictureElm.appendChild(this._picturePlusElm);
+		this._pictureElm.appendChild(this._secondIcon);
+
 		this._descriptionElm = Html.div();
 		this._descriptionElm.classList.add(Html.classLoadoutButtonDescription);
+		let mouse = Icon.create(IconType.MOUSE);
+		this._firstKeyElm = Html.span();
+		this._firstKeyElm.innerHTML = `${mouse.outerHTML} (L): `;
+		this._firstKeyElm.style.visibility = "hidden";
+		this._firstDescriptionElm = Html.span();
+		this._secondKeyElm = Html.span();
+		this._secondKeyElm.innerHTML = `${mouse.outerHTML} (R): `;
+		this._secondKeyElm.style.visibility = "hidden";
+		this._secondDescriptionElm = Html.span();
+
+		this._descriptionElm.appendChild(this._firstKeyElm);
+		this._descriptionElm.appendChild(this._firstDescriptionElm);
+		this._descriptionElm.appendChild(Html.br());
+		this._descriptionElm.appendChild(this._secondKeyElm);
+		this._descriptionElm.appendChild(this._secondDescriptionElm);
+
 		this._tagsElm = Html.div();
 		this._tagsElm.classList.add(Html.classLoadoutButtonTags);
 
@@ -39,33 +94,79 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 		this.elm().appendChild(this._tagsElm);
 	}
 
-	setEquipPair(pair : [EntityType, EntityType]) : void {
-		/*
-		let first = new NameWrapper();
-		first.setEntityType(pair[0]);
+	updatePair(pair : [EntityType, EntityType]) : void {
+		this.updateFirst(pair[0]);
+		this.updateSecond(pair[1]);
+	}
 
-		let second = new NameWrapper();
-		second.setEntityType(pair[1]);
+	updateFirst(type : EntityType) : void {
+		if (type === EntityType.UNKNOWN) {
+			return;
+		}
 
-		this._titleElm.innerHTML = "";
-		this._titleElm.appendChild(first.elm());
-		this._titleElm.appendChild(this.createPlusDiv());
-		this._titleElm.appendChild(second.elm());
-		*/
+		this._firstEquipElm.textContent = StringFactory.getEntityTypeName(type).toTitleString();
+		this._firstKeyElm.style.visibility = "visible";
+		this._firstDescriptionElm.textContent = StringFactory.getEntityUsage(type).toString();
+		Icon.change(this._firstIcon, Icon.getEntityIconType(type));
 
-		let first = StringFactory.getEntityTypeName(pair[0]).toTitleString();
-		let second = StringFactory.getEntityTypeName(pair[1]).toTitleString();
-		this._titleElm.innerHTML = first + this.createPlusDiv().outerHTML + second;
+		const color = ColorFactory.entityColor(type).toString();
+		const tags = EquipFactory.getEntityTags(type);
+		this.updateTags(tags, color);
 
-		this.setIcons(Icon.getEntityIconType(pair[0]), Icon.getEntityIconType(pair[1]));
+		this._firstType = type;
+	}
+	clearAll() : void {
+		this._firstEquipElm.textContent = "";
+		this._titlePlusElm.style.visibility = "hidden";
 
-		let mouse = Icon.create(IconType.MOUSE);
-		let description = mouse.outerHTML + " (L): " + StringFactory.getEntityUsage(pair[0])
-			+ "<br>" + mouse.outerHTML + " (R): " + StringFactory.getEntityUsage(pair[1]);
-		this._descriptionElm.innerHTML = description;
+		Icon.clear(this._firstIcon);
+		this._picturePlusElm.style.visibility = "hidden";
 
-		const color = ColorFactory.entityColor(pair[0]).toString();
-		const tags = EquipFactory.getTags(pair);
+		this._firstEquipElm.textContent = "";
+		this._firstDescriptionElm.textContent = "";
+		this._firstKeyElm.style.visibility = "hidden";
+
+		this._firstType = EntityType.UNKNOWN;
+
+		this.clearSecond();
+	}
+
+	updateSecond(type : EntityType) : void {
+		if (type === EntityType.UNKNOWN) {
+			return;
+		}
+
+		this._secondEquipElm.textContent = StringFactory.getEntityTypeName(type).toTitleString();
+		this._secondKeyElm.style.visibility = "visible";
+		this._secondDescriptionElm.textContent = StringFactory.getEntityUsage(type).toString();
+		Icon.change(this._secondIcon, Icon.getEntityIconType(type));
+
+		if (this._firstType !== EntityType.UNKNOWN) {
+			this._titlePlusElm.style.visibility = "visible";
+			this._picturePlusElm.style.visibility = "visible";
+
+			const color = ColorFactory.entityColor(this._firstType).toString();
+			const tags = EquipFactory.getTags([this._firstType, this._secondType]);
+			this.updateTags(tags, color);
+		}
+
+		this._secondType = type;
+	}
+	clearSecond() : void {
+		this._secondEquipElm.textContent = "";
+		this._titlePlusElm.style.visibility = "hidden";
+
+		Icon.clear(this._secondIcon);
+		this._picturePlusElm.style.visibility = "hidden";
+
+		this._secondEquipElm.textContent = "";
+		this._secondDescriptionElm.textContent = "";
+		this._secondKeyElm.style.visibility = "hidden";
+
+		this._secondType = EntityType.UNKNOWN;
+	}
+
+	private updateTags(tags : Set<EquipTag>, color : string) : void {
 		let tagHtml = [];
 		tags.forEach((tag : EquipTag) => {
 			let tagWrapper = new TagWrapper();
@@ -76,29 +177,18 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 		this._tagsElm.innerHTML = tagHtml.join(" ");
 	}
 
-	private setIcons(type : IconType, altType : IconType) : void {
-		let icon = Icon.create(type);
-		icon.classList.add(Html.classLoadoutButtonIcon);
-		icon.style.textAlign = "right";
-		this._pictureElm.appendChild(icon);
-
-		this._pictureElm.appendChild(this.createPlusSpan());
-
-		let altIcon = Icon.create(altType);
-		altIcon.classList.add(Html.classLoadoutButtonIcon);
-		altIcon.style.textAlign = "left";
-		this._pictureElm.appendChild(altIcon);
-	}
 	private createPlusSpan() : HTMLElement {
 		let plus = Html.span();
 		plus.textContent = "+";
 		plus.classList.add(Html.classLoadoutButtonPlus);
+		plus.style.visibility = "hidden";
 		return plus;
 	}
 	private createPlusDiv() : HTMLElement {
 		let plus = Html.div();
 		plus.textContent = "+";
 		plus.classList.add(Html.classLoadoutButtonPlus);
+		plus.style.visibility = "hidden";
 		return plus;
 	}
 }
