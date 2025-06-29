@@ -63,23 +63,6 @@ class ArchBlueprintBlock extends BlueprintBlock {
 			...options,
 		});
 	}
-
-	addSampleCrates(rng : SeededRandom) : void {
-		if (this.type() === ArchBlueprint.backgroundType()) {
-			return;
-		}
-
-		rng.setChance(1, (n : number) => { return n - 0.2; });
-		while(rng.testChance()) {
-			this.pushEntityOptions(rng.next() < 0.3 ? EntityType.HEALTH_CRATE : EntityType.WEAPON_CRATE, {
-				profileInit: {
-					pos: Vec2.fromVec(this.pos()).addRandomOffset({x: ArchBlueprint.baseDim().x / 3 }, rng),
-					dim: { x: 1, y: 1 },
-					angle: rng.next() * 360,
-				},
-			});
-		}
-	}
 }
 
 class Building {

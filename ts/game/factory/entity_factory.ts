@@ -6,6 +6,7 @@ import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Billboard } from 'game/entity/block/billboard'
 import { Bush } from 'game/entity/block/bush'
+import { Cliff } from 'game/entity/block/cliff'
 import { Floor } from 'game/entity/bound/floor'
 import { Wall } from 'game/entity/bound/wall'
 import { Cloud } from 'game/entity/cloud'
@@ -111,6 +112,7 @@ export namespace EntityFactory {
 		[EntityType.CHARGED_BOLT, (options : EntityOptions) => { return new ChargedBolt(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
+		[EntityType.CLIFF, (options : EntityOptions) => { return new Cliff(options); }],
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.CONTROLS_SIGN, (options : EntityOptions) => { return new ControlsSign(options); }],
 		[EntityType.COWBOY_HAT, (options : EntityOptions) => { return new CowboyHat(options); }],
@@ -188,6 +190,7 @@ export namespace EntityFactory {
 		[EntityType.CALIBER, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.CARTRIDGE, { x: 0.8, y: 0.18, z : 0.18 }],
 		[EntityType.CHARGED_BOLT, { x: 1.4, y: 0.24, z : 0.24 }],
+		[EntityType.CLIFF, { x: 15, y: 5 }],
 		[EntityType.GOLDEN_BULLET, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],

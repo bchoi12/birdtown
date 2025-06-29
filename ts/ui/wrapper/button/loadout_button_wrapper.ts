@@ -146,7 +146,7 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 			this._picturePlusElm.style.visibility = "visible";
 
 			const color = ColorFactory.entityColor(this._firstType).toString();
-			const tags = EquipFactory.getTags([this._firstType, this._secondType]);
+			const tags = EquipFactory.getTags([this._firstType, type]);
 			this.updateTags(tags, color);
 		}
 

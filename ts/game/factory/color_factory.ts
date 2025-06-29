@@ -40,6 +40,9 @@ export namespace ColorFactory {
 		[ColorType.LEVEL_BACKGROUND_BLUE, HexColor.fromHex(0x7aa3cc)],
 		[ColorType.LEVEL_BACKGROUND_PURPLE, HexColor.fromHex(0x9168ad)],
 
+		[ColorType.CLIFF_BROWN, HexColor.fromHex(0x74402B)],
+		[ColorType.CLIFF_LIGHT_BROWN, HexColor.fromHex(0xE7C098)],
+
 		// Player series (not too saturated, but distinct from level)
 		[ColorType.PLAYER_RED, HexColor.fromHex(0xfc1f0f)],
 		[ColorType.PLAYER_ORANGE, HexColor.fromHex(0xfcb10f)],
@@ -161,6 +164,13 @@ export namespace ColorFactory {
 			return "#FFFFFF";
 		}
 		return colorMap.get(type).toString();
+	}
+	export function toHex(type : ColorType) : number {
+		if (!colorMap.has(type)) {
+			console.error("Warning: color is not in color map", ColorType[type]);
+			return 0xFFFFFF;
+		}
+		return colorMap.get(type).toHex();
 	}
 	export function hasEntityColor(type : EntityType) : boolean { return entityColorMap.has(type); }
 	export function entityColors(type : EntityType) : Array<HexColor> {

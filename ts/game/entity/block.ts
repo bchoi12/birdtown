@@ -60,7 +60,7 @@ export abstract class Block extends EntityBase {
 		GameState.VICTORY,
 	]);
 
-	protected static readonly _minOpacity = 0.15;
+	protected static readonly _minOpacity = 0.1;
 	protected static readonly _minPenetrationSq = 0.1;
 	protected static readonly _backColorScale = 0.7;
 	protected static readonly _transparentAlpha = 0.5;

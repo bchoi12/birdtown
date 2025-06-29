@@ -704,9 +704,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			html: (current : number) => { 
 				switch (current) {
 				case WeaponSetType.RECOMMENDED:
-					return "Recommended pairs only";
+					return "Recommended only";
 				case WeaponSetType.ALL:
-					return "All equip pairs";
+					return "All equips";
 				}
 				return Strings.toTitleCase(FrequencyType[current]);
 			},

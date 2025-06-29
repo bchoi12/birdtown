@@ -48,6 +48,7 @@ export class Level extends SystemBase implements System {
 	// Default to NORMAL
 	private static readonly _layout = new Map<LevelType, LevelLayout>([
 		[LevelType.BIRDTOWN_CIRCLE, LevelLayout.CIRCLE],
+		[LevelType.BIRDCLIFF, LevelLayout.CIRCLE],
 		[LevelType.LOBBY, LevelLayout.CIRCLE],
 	]);
 

@@ -57,7 +57,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 		equipColumn.contentElm().style.fontSize = "0.7em";
 		equipColumn.elm().style.visibility = "hidden";
 		let bestEquipsCategory = new CategoryWrapper();
-		bestEquipsCategory.setTitle("Best Equips");
+		bestEquipsCategory.setTitle("Recommended Equips");
 		bestEquipsCategory.setAlwaysExpand(true);
 
 		let otherEquipsCategory = new CategoryWrapper();
