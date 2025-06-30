@@ -786,10 +786,6 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).execute((bubble : Bubble) => {
 						bubble.pop();
 					});
-
-					if (this.isLakituTarget() && this.clientIdMatches()) {
-						ui.hideTooltip(TooltipType.BUBBLE);
-					}
 				} else {
 					if (this.isLakituTarget() && this.clientIdMatches() && game.controller().gameState() === GameState.GAME) {
 						ui.showTooltip(TooltipType.BUBBLE, {});

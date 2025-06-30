@@ -425,7 +425,12 @@ export class GameMaker extends SystemBase implements System {
 				numTeams: numTeams,
 			});
 
-			const name = this._config.modeName() + " Round " + this._round;
+			let name;
+			if (this._config.type() === GameMode.PRACTICE) {
+				name = this._config.modeName();
+			} else {
+				name = this._config.modeName() + " Round " + this._round;
+			}
 			const description = StringFactory.getModeDescription(this._config);
 	    	game.announcer().announce({
 	    		type: AnnouncementType.GENERIC,

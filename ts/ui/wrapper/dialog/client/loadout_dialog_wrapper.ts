@@ -47,14 +47,14 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 		this.dialogMessage().setAltEquipType(randomPair[1]);
 
 		let weaponColumn = columns.column(0);
-		weaponColumn.contentElm().style.fontSize = "0.7em";
+		weaponColumn.contentElm().style.fontSize = "0.65em";
 		let weaponCategory = new CategoryWrapper();
 		weaponCategory.setTitle("Weapons");
 		weaponCategory.setAlwaysExpand(true);
 		weaponColumn.contentElm().appendChild(weaponCategory.elm());
 
 		let equipColumn = columns.column(1);
-		equipColumn.contentElm().style.fontSize = "0.7em";
+		equipColumn.contentElm().style.fontSize = "0.65em";
 		equipColumn.elm().style.visibility = "hidden";
 		let bestEquipsCategory = new CategoryWrapper();
 		bestEquipsCategory.setTitle("Recommended Equips");
@@ -75,17 +75,30 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 		let selectedEquip = EntityType.UNKNOWN;
 
 		let weaponButtons = new ButtonGroupWrapper<EquipSelectWrapper>();
-		weaponCategory.contentElm().appendChild(weaponButtons.elm());
 		let weaponList = EquipFactory.weaponList();
 
-		if (game.controller().config().type() === GameMode.PRACTICE) {
-			weaponList.push(EntityType.GOLDEN_GUN);
+		let specialWeapons = [];
+		let specialCategory = new CategoryWrapper();
+		if (game.controller().config().type() === GameMode.PRACTICE || game.controller().config().getStartingLoadout() === LoadoutType.PICK_TURNS) {
+			specialWeapons = EquipFactory.specialWeapons();
+			specialWeapons.forEach((type : EntityType) => {
+				weaponList.push(type);
+			});
+
+			specialCategory.setTitle("Special Weapons");
+			weaponColumn.contentElm().appendChild(specialCategory.elm());
 		}
 
 		for (let i = 0; i < weaponList.length; ++i) {
-			let weaponButton = weaponButtons.appendButton(new EquipSelectWrapper());
+			let weaponButton = weaponButtons.addButton(new EquipSelectWrapper());
 			weaponButton.setText(StringFactory.getEntityTypeName(weaponList[i]).toTitleString());
 			weaponButton.setIcon(Icon.getEntityIconType(weaponList[i]));
+
+			if (specialWeapons.includes(weaponList[i])) {
+				specialCategory.contentElm().appendChild(weaponButton.elm());
+			} else {
+				weaponCategory.contentElm().appendChild(weaponButton.elm());
+			}
 
 			weaponButton.addOnMouseEnter(() => {
 				if (selectedWeapon !== EntityType.UNKNOWN) {
@@ -170,7 +183,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 		}
 
 		let okButton = this.addOKButton();
-		okButton.addOnClick(() => {
+		const onClick = () => {
 			if (selectedWeapon === EntityType.UNKNOWN || selectedEquip === EntityType.UNKNOWN) {
 				return;
 			}
@@ -178,7 +191,9 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 			this.dialogMessage().setEquipType(selectedWeapon);
 			this.dialogMessage().setAltEquipType(selectedEquip);
 			this.nextPage();
-		});
+		};
+		button.addOnClick(onClick);
+		okButton.addOnClick(onClick);
 	}
 
 	private addChoosePage(num : number) : void {

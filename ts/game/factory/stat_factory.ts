@@ -163,14 +163,14 @@ export namespace StatFactory {
 		[EntityType.GOLDEN_BULLET, new Map([
 			[StatType.DAMAGE, 300],
 		])],
-		// 80 DPS
+		// >80 DPS + slight spread
 		// 4 shots in 500ms
 		[EntityType.MINIGUN, new Map([
 			[StatType.BURSTS, 4],
 			[StatType.FIRE_TIME, 70],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 420],
-			[StatType.RELOAD_TIME, 220],
+			[StatType.RELOAD_TIME, 200],
 			[StatType.SPREAD, 4],
 		])],
 		// Big DPS + 400 delay + explosions

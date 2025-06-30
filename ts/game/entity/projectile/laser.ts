@@ -23,6 +23,7 @@ import { Vec, Vec2 } from 'util/vector'
 
 export class Laser extends Projectile {
 
+	private static readonly _ttl = 750;
 	private static readonly _activateTiming = 0.15;
 	private static readonly _damageTiming = 0.55;
 	private static readonly _initialScale = 0.1;
@@ -37,6 +38,7 @@ export class Laser extends Projectile {
 
 		this._active = false;
 
+		this.setTTL(Laser._ttl);
 		this.setSnapOnHit(false);
 		this.setPlayImpactSound(false);
 
@@ -51,7 +53,7 @@ export class Laser extends Projectile {
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.SHOOTER_BLUE).toString(),
+			color: ColorFactory.color(ColorType.SHOOTER_ORANGE).toString(),
 		})
 
 		this._model = this.addComponent<Model>(new Model({
@@ -91,12 +93,14 @@ export class Laser extends Projectile {
 	override initialize() : void {
 		super.initialize();
 
-		const dim = this._profile.dim();
-		const angle = this._profile.angle();
-		this._profile.pos().add({
-			x: 0.45 * Math.cos(angle) * dim.x,
-			y: 0.45 * Math.sin(angle) * dim.x,
-		});
+		if (this.isSource()) {
+			const dim = this._profile.dim();
+			const angle = this._profile.angle();
+			this._profile.pos().add({
+				x: 0.45 * Math.cos(angle) * dim.x,
+				y: 0.45 * Math.sin(angle) * dim.x,
+			});
+		}
 
 		this._model.scaling().y = Laser._initialScale;
 		SoundFactory.playFromPos(SoundType.LASER, this._profile.pos().toBabylon3());

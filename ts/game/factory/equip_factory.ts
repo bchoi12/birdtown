@@ -29,6 +29,7 @@ export namespace EquipFactory {
 	const invalidPairs = new Map<EntityType, EntityType[]>([
 		[EntityType.GATLING, [EntityType.SCOUTER]],
 		[EntityType.MINIGUN, [EntityType.SCOUTER]],
+		[EntityType.ORB_CANNON, [EntityType.SCOUTER]],
 		[EntityType.PURPLE_GLOVE, [EntityType.SCOUTER]],
 		[EntityType.RED_GLOVE, [EntityType.SCOUTER]],
 		[EntityType.RIFLE, [EntityType.SCOUTER]],
@@ -51,6 +52,7 @@ export namespace EquipFactory {
 	let indices = Array.from(Array(weapons.length).keys());
 
 	export function weaponList() : EntityType[] { return [...recommendedPairs.keys()]; }
+	export function specialWeapons() : EntityType[] { return [EntityType.GOLDEN_GUN]; }
 	export function equipList(type : EntityType) : EquipList {
 		let seen = new Set();
 

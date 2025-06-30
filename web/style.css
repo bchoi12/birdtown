@@ -1022,7 +1022,7 @@ kbd {
 
 .columns {
     display: flex;
-    height: 95%;
+    height: 100%;
 }
 
 .column {

@@ -94,6 +94,8 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 		this.elm().appendChild(this._tagsElm);
 	}
 
+	valid() : boolean { return this._firstType !== EntityType.UNKNOWN && this._secondType !== EntityType.UNKNOWN; }
+
 	updatePair(pair : [EntityType, EntityType]) : void {
 		this.updateFirst(pair[0]);
 		this.updateSecond(pair[1]);

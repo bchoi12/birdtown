@@ -64,6 +64,12 @@ export class Bubble extends Equip<Player> {
 			},
 			init: entityOptions.modelInit,
 		}));
+
+		this.addProp<boolean>({
+			has: () => { return this._popped; },
+			import: (obj : boolean) => { this.importPop(); },
+			export: () => { return this._popped; },
+		});
 	}
 
 	lightPop() : void {
@@ -83,6 +89,14 @@ export class Bubble extends Equip<Player> {
 	}
 
 	hardPop() : void {
+		if (!this.isSource()) {
+			return;
+		}
+
+		this.importPop();
+	}
+
+	private importPop() : void {
 		if (this._popped) {
 			return;
 		}
