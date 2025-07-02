@@ -2,7 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { GameState, GameObjectState } from 'game/api'
-import { AssociationType } from 'game/component/api'
+import { AssociationType, AttributeType } from 'game/component/api'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
@@ -474,14 +474,17 @@ export class Lakitu extends SystemBase implements System {
 
 		this.anchorToTarget();
 
-
 		if (this.targetEntityType() === EntityType.PLAYER) {
 			// TODO: refactor these two methods into this.targetEntity().updateHud()
 			ui.updateHud(this.targetEntity().getHudData());
 			ui.setHudClientId(this.targetEntity().clientId());
+
+			const underwater = this.targetEntity().getAttribute(AttributeType.UNDERWATER)
+			ui.setUnderwater(underwater);
 		} else {
 			ui.hideHud();
 			ui.setHudClientId(game.clientId());
+			ui.setUnderwater(false);
 		}
 
 		if (game.playerState().role() === PlayerRole.SPECTATING

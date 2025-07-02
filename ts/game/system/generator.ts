@@ -1,6 +1,6 @@
 
 import { SystemBase, System } from 'game/system'
-import { SystemType } from 'game/system/api'
+import { SystemType, LevelType } from 'game/system/api'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 
@@ -17,8 +17,8 @@ export abstract class Generator extends SystemBase implements System {
 			return;
 		}
 
-		this.generate(msg.getLevelSeed());
+		this.generate(msg.getLevelType(), msg.getLevelSeed());
 	}
 
-	abstract generate(seed : number) : void;
+	abstract generate(type : LevelType, seed : number) : void;
 }

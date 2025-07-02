@@ -125,10 +125,10 @@ export namespace StatFactory {
 			[StatType.CHARGED_PROJECTILE_SPEED, 0.1],
 			[StatType.CHARGED_PROJECTILE_TTL, 650],
 			[StatType.FIRE_TIME, 300],
-			[StatType.FORCE, 0.75],
+			[StatType.FORCE, 0.3],
 			[StatType.PROJECTILE_ACCEL, 1.5],
 			[StatType.PROJECTILE_SPEED, 0.25],
-			[StatType.PROJECTILE_TTL, 500],
+			[StatType.PROJECTILE_TTL, 550],
 			[StatType.RELOAD_TIME, 900],
 		])],
 		[EntityType.ROCKET, new Map([
@@ -137,7 +137,7 @@ export namespace StatFactory {
 		[EntityType.MEGA_ROCKET, new Map([
 			[StatType.DAMAGE, 100],
 		])],
-		// 125 DPS + 360 delay
+		// 150 DPS + 360 delay
 		[EntityType.GATLING, new Map([
 			// TODO: fill out recoil values
 			[StatType.BURSTS, 20],
@@ -150,7 +150,7 @@ export namespace StatFactory {
 			[StatType.VERTICAL_RECOIL, 0],
 		])],
 		[EntityType.CALIBER, new Map([
-			[StatType.DAMAGE, 10],
+			[StatType.DAMAGE, 12],
 		])],
 		// 200 DPS
 		[EntityType.GOLDEN_GUN, new Map([
@@ -163,7 +163,7 @@ export namespace StatFactory {
 		[EntityType.GOLDEN_BULLET, new Map([
 			[StatType.DAMAGE, 300],
 		])],
-		// >80 DPS + slight spread
+		// >90 DPS + slight spread
 		// 4 shots in 500ms
 		[EntityType.MINIGUN, new Map([
 			[StatType.BURSTS, 4],
@@ -246,16 +246,16 @@ export namespace StatFactory {
 		[EntityType.CARTRIDGE, new Map([
 			[StatType.DAMAGE, 30],
 		])],
-		// 90 DPS + short range + spread
-		// 2 shots in 1320ms
+		// 90 DPS + short range + spread + oneshot
+		// 2 shots in 1420ms
 		[EntityType.SHOTGUN, new Map([
 			[StatType.BURSTS, 2],
 			[StatType.BURST_BULLETS, 4],
 			[StatType.FIRE_TIME, 220],
 			[StatType.FORCE, 0.5],
-			[StatType.PROJECTILE_SPEED, 0.65],
+			[StatType.PROJECTILE_SPEED, 0.6],
 			[StatType.PROJECTILE_TTL, 400],
-			[StatType.RELOAD_TIME, 900],
+			[StatType.RELOAD_TIME, 1000],
 			[StatType.SPREAD, 24],
 		])],
 		[EntityType.PELLET, new Map([
@@ -281,7 +281,7 @@ export namespace StatFactory {
 		[EntityType.CHARGED_BOLT, new Map([
 			[StatType.DAMAGE, 75],
 		])],
-		// 93 DPS + disrupt + hard aim
+		// 78 DPS + disrupt + hard aim + burst
 		// 5 shots in 1600ms
 		[EntityType.WING_CANNON, new Map([
 			[StatType.BURSTS, 5],
@@ -298,7 +298,7 @@ export namespace StatFactory {
 			[StatType.RELOAD_TIME, 1200],
 		])],
 		[EntityType.ORB, new Map([
-			[StatType.DAMAGE, 30],
+			[StatType.DAMAGE, 25],
 		])],
 		[EntityType.LASER, new Map([
 			[StatType.DAMAGE, 60],

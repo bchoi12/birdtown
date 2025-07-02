@@ -413,7 +413,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			}
 			break;
 		case GameMode.PRACTICE:
-			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.BIRDTOWN_CIRCLE, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.BIRD_CLIFFS, LevelType.BIRDTOWN_CIRCLE, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK]).elm());
 			coreCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						

@@ -28,12 +28,14 @@ class ArchBlueprintBlock extends BlueprintBlock {
 		super(type, options);
 	}
 
-	override dim() : Vec {
+	dim() : Vec {
 		switch (this.type()) {
 		case ArchBlueprint.roofType():
 			return ArchBlueprint.roofDim();
 		case ArchBlueprint.backgroundType():
 			return {x: 0, y: 0};
+		case ArchBlueprint.balconyType():
+			return ArchBlueprint.balconyDim();
 		default:
 			return ArchBlueprint.baseDim();
 		}
@@ -148,7 +150,7 @@ class Building {
 	}
 }
 
-export class ArchBlueprint extends Blueprint {
+export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 
 	private static readonly _numBasementBlocks = 2;
 
@@ -208,9 +210,21 @@ export class ArchBlueprint extends Blueprint {
 		}
 	}
 
-	maxHeight() : number { return this._maxHeight; }
+	override blocks() : Array<ArchBlueprintBlock> {
+		let blocks = [];
+		this._buildings.forEach((building : Building) => {
+			building.blocks().forEach((block : ArchBlueprintBlock) => {
+				blocks.push(block);
+			});
+		});
+		return blocks;
+	}
 
-	buildings() : Array<Building> { return this._buildings; }
+	override minBuffer() : number { return 1; }
+	override sideBuffer() : number { return 6; }
+	override seamBuffer() : number { return 6; }
+
+	maxHeight() : number { return this._maxHeight; }
 	numBuildings() : number { return this._buildings.length; }
 	hasBuilding(i : number) : boolean { return i >= 0 && i < this._buildings.length; }
 	building(i : number) : Building { return this._buildings[i]; }

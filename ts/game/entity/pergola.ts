@@ -15,8 +15,6 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { GameGlobals } from 'global/game_globals'
-
 import { CardinalDir } from 'util/cardinal'
 
 
@@ -94,7 +92,7 @@ export class Pergola extends EntityBase implements Entity {
 
 				profile.uprightStop();
 				subProfile.uprightStop();
-				profile.setAcc({ y: GameGlobals.gravity });
+				profile.setGravityFactor(1);
 			});
 		});
 	}

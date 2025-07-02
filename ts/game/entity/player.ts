@@ -32,8 +32,6 @@ import { RecordType } from 'game/util/collision_buffer'
 import { MaterialShifter } from 'game/util/material_shifter'
 import { Transforms } from 'game/util/transforms'
 
-import { GameGlobals } from 'global/game_globals'
-
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -312,12 +310,20 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._profile.setAcc({x: 0, y: 0});
 
 		this._profile.setLimitFn((profile : Profile) => {
-			const maxHorizontalVel = profile.knockbackMillis() > 0 ? Player._maxHorizontalVel : Player._maxWalkingVel;
+			let maxHorizontalVel = profile.knockbackMillis() > 0 ? Player._maxHorizontalVel : Player._maxWalkingVel;
+			if (this.getAttribute(AttributeType.UNDERWATER)) {
+				maxHorizontalVel *= 0.6;
+			}
+
 			if (Math.abs(profile.vel().x) > maxHorizontalVel) {
 				profile.vel().x = Math.sign(profile.vel().x) * maxHorizontalVel;
 			}
 
-			const maxVerticalVel = this.getAttribute(AttributeType.FLOATING) ? Player._maxFloatingVel : Player._maxVerticalVel;
+			let maxVerticalVel = this.getAttribute(AttributeType.FLOATING) ? Player._maxFloatingVel : Player._maxVerticalVel;
+			if (this.getAttribute(AttributeType.UNDERWATER)) {
+				maxVerticalVel *= this._profile.vel().y > 0 ? 0.6 : 0.3;
+			}
+
 			if (Math.abs(profile.vel().y) > maxVerticalVel) {
 				profile.vel().y = Math.sign(profile.vel().y) * maxVerticalVel;
 			}
@@ -732,12 +738,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		}
 
 		// Gravity
-		let gravity = 0;
-		if (!this.getAttribute(AttributeType.LEVITATING)) {
-			const falling = !this.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0;
-			gravity = falling ? Player._fallMultiplier * GameGlobals.gravity : GameGlobals.gravity;
-		}
-		this._profile.setAcc({ y: gravity });
+		const fastFall = !this.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0 && !this.getAttribute(AttributeType.UNDERWATER);
+		let gravityFactor = fastFall ? Player._fallMultiplier : 1;
+		this._profile.setGravityFactor(gravityFactor);
 
 		if (!this.dead()) {
 			let sideAcc = 0;
@@ -768,16 +771,22 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			this._groundedTracker.check();
 
 			// Jumping
+			if (this.getAttribute(AttributeType.UNDERWATER)) {
+				this._canDoubleJump = true;
+			}
 			if (this._canJump && this._canJumpTimer.hasTimeLeft()) {
 				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
-					this._profile.setVel({ y: Math.max(this._profile.vel().y, Player._jumpVel) });
+					this._profile.jump(Math.max(this._profile.vel().y, Player._jumpVel));
 					this._canJump = false;
 					this._canJumpTimer.reset();
 				}
 			} else if (this._canDoubleJump) {
 				if (this.key(KeyType.JUMP, KeyState.PRESSED) && this._profile.vel().y < Player._jumpVel) {
-					this._profile.setVel({ y: Player._jumpVel });
-					this._canDoubleJump = false;
+					this._profile.jump(Player._jumpVel);
+
+					if (!this.getAttribute(AttributeType.UNDERWATER)) {
+						this._canDoubleJump = false;
+					}
 				}
 			}
 

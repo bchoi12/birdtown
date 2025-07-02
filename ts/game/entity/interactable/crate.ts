@@ -20,8 +20,6 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { SoundFactory } from 'game/factory/sound_factory'
 import { MaterialShifter } from 'game/util/material_shifter'
 
-import { GameGlobals } from 'global/game_globals'
-
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -81,9 +79,11 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 					},
 				});
 			},
-			init: {...entityOptions.profileInit },
+			init: {
+				gravity: true,
+				...entityOptions.profileInit
+			},
 		}));
-		this._profile.setAcc({ y: GameGlobals.gravity });
 		if (!this._profile.hasAngle()) {
 			this._profile.setAngle(0);
 		}
@@ -167,8 +167,8 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 							x: Fns.randomNoise(0.15),
 							y: Fns.randomRange(0.2, 0.3),
 						},
-						acc: { y: GameGlobals.gravity },
 						scaling: { x: 0.25, y: 0.25 },
+						gravity: true,
 					},
 					modelInit: {
 						transforms: {

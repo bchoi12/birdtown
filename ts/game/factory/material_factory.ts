@@ -48,6 +48,32 @@ export namespace MaterialFactory {
 			mat.needDepthPrePass = true;
 		});
 
+		pbrMaterial(MaterialType.CLIFF_BROWN, (mat : BABYLON.PBRMaterial) => {
+			mat.albedoColor = ColorFactory.color(ColorType.CLIFF_BROWN).toBabylonColor3();
+			mat.metallic = 0.1;
+			mat.roughness = 0.8;
+		});
+		pbrMaterial(MaterialType.CLIFF_LIGHT_BROWN, (mat : BABYLON.PBRMaterial) => {
+			mat.albedoColor = ColorFactory.color(ColorType.CLIFF_LIGHT_BROWN).toBabylonColor3();
+			mat.metallic = 0.1;
+			mat.roughness = 0.8;
+		});
+		pbrMaterial(MaterialType.CLIFF_GRAY, (mat : BABYLON.PBRMaterial) => {
+			mat.albedoColor = ColorFactory.color(ColorType.CLIFF_GRAY).toBabylonColor3();
+			mat.metallic = 0.1;
+			mat.roughness = 0.8;
+		});
+		pbrMaterial(MaterialType.CLIFF_LIGHT_GRAY, (mat : BABYLON.PBRMaterial) => {
+			mat.albedoColor = ColorFactory.color(ColorType.CLIFF_LIGHT_GRAY).toBabylonColor3();
+			mat.metallic = 0.1;
+			mat.roughness = 0.8;
+		});
+		pbrMaterial(MaterialType.CLIFF_DARK_GRAY, (mat : BABYLON.PBRMaterial) => {
+			mat.albedoColor = ColorFactory.color(ColorType.CLIFF_DARK_GRAY).toBabylonColor3();
+			mat.metallic = 0.1;
+			mat.roughness = 0.8;
+		});
+
 		standardMaterial(MaterialType.DYING_STAR, (mat : BABYLON.StandardMaterial) => {
 			mat.specularPower = 8;
 			mat.diffuseColor = ColorFactory.color(ColorType.WHITE).toBabylonColor3();
@@ -193,6 +219,10 @@ export namespace MaterialFactory {
 			mat.emissiveColor = ColorFactory.color(ColorType.PARTICLE_PURPLE).toBabylonColor3();
 		});
 
+		standardMaterial(MaterialType.FROZEN_WATER, (mat : BABYLON.StandardMaterial) => {
+			mat.diffuseColor = ColorFactory.color(ColorType.WATER).toBabylonColor3();
+		});
+
 		initialized = true;
 	}
 
@@ -220,6 +250,20 @@ export namespace MaterialFactory {
 			mat.specularPower = 128;
 			mat.disableLighting = false;
 		});
+	}
+
+	function pbrMaterial(type : MaterialType, fn : MaterialFn<BABYLON.PBRMaterial>) : void {
+		let mat = new BABYLON.PBRMaterial(MaterialType[type], game.scene());
+		fn(mat);
+
+		if (!mat.needDepthPrePass) {
+			mat.freeze();
+		}
+
+		if (materials.has(type)) {
+			console.error("Warning: overwriting material", MaterialType[type]);
+		}
+		materials.set(type, mat);
 	}
 
 	function standardMaterial(type : MaterialType, fn : MaterialFn<BABYLON.StandardMaterial>) : void {

@@ -18,7 +18,7 @@ export type BlueprintEntity = {
 	options : EntityOptions;
 }
 
-export abstract class Blueprint {
+export abstract class Blueprint<T extends BlueprintBlock> {
 
 	private _rng : SeededRandom;
 	private _chance : number;
@@ -35,6 +35,11 @@ export abstract class Blueprint {
 	options() : BlueprintOptions { return this._options; }
 	rng() : SeededRandom { return this._rng; }
 	abstract load() : void;
+	abstract blocks() : Array<T>;
+
+	minBuffer() : number { return 0; }
+	sideBuffer() : number { return 0; }
+	seamBuffer() : number { return 0; }
 }
 
 export abstract class BlueprintBlock {

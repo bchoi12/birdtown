@@ -1,29 +1,12 @@
 
-import { HexColors } from 'game/component/hex_colors'
-import { Profile } from 'game/component/profile'
 import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { Bound } from 'game/entity/bound'
-import { ColorCategory, DepthType } from 'game/factory/api'
+import { BoundBase } from 'game/entity/bound'
 
-export class Floor extends Bound {
-
-	private _hexColors : HexColors;
+// Has special handling for smoother stitching
+export class Floor extends BoundBase {
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.FLOOR, entityOptions);
-
-		this._hexColors = this.addComponent<HexColors>(new HexColors(entityOptions.hexColorsInit));
-	}
-
-	override initialize() : void {
-		super.initialize();
-
-		if (this._hexColors.hasMainColor()) {
-			this.setMinimapOptions({
-				color: this._hexColors.mainColor().toString(),
-				depthType: DepthType.FLOOR
-			});
-		}
 	}
 }

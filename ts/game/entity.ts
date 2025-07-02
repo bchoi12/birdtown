@@ -35,6 +35,7 @@ export type EntityOptions = {
 	clientId? : number;
 	offline? : boolean;
 	levelVersion? : number;
+	seed? : number;
 	ttl? : number;
 
 	associationInit? : AssociationInitOptions;
@@ -82,6 +83,7 @@ export interface Entity extends GameObject {
 	hasAttribute(type : AttributeType) : boolean;
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
+	maybeSetAttribute(type : AttributeType, value : boolean) : void;
 	hasStat(type : StatType) : boolean;
 	baseStat(type : StatType) : number;
 	getStat(type : StatType) : number;
@@ -345,6 +347,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			return;
 		}
 
+		this.getComponent<Attributes>(ComponentType.ATTRIBUTES).setAttribute(type, value);
+	}
+	maybeSetAttribute(type : AttributeType, value : boolean) : void {
+		if (!this.hasComponent(ComponentType.ATTRIBUTES)) {
+			return;
+		}
 		this.getComponent<Attributes>(ComponentType.ATTRIBUTES).setAttribute(type, value);
 	}
 

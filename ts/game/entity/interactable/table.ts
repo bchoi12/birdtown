@@ -19,8 +19,6 @@ import { EntityFactory } from 'game/factory/entity_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { SoundFactory } from 'game/factory/sound_factory'
 
-import { GameGlobals } from 'global/game_globals'
-
 import { settings } from 'settings'
 
 import { StringFactory } from 'strings/string_factory'
@@ -128,7 +126,7 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 
 				profile.uprightStop();
 				subProfile.uprightStop();
-				profile.setAcc({ y: GameGlobals.gravity });
+				profile.setGravityFactor(1);
 			});
 		});
 

@@ -19,8 +19,6 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { StepData } from 'game/game_object'
 
-import { GameGlobals } from 'global/game_globals'
-
 import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
@@ -53,9 +51,11 @@ export class Knife extends Projectile {
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
 			},
-			init: entityOptions.profileInit,
+			init: {
+				gravity: true,
+				...entityOptions.profileInit,
+			},
 		}));
-		this._profile.setAcc({ y: GameGlobals.gravity });
 		this._profile.setOutOfBoundsFn((profile : Profile) => {
 			this.delete();
 		});

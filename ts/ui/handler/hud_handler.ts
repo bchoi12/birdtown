@@ -59,6 +59,7 @@ export class HudHandler extends HandlerBase implements Handler {
 	private _nameWrapper : NameWrapper;
 	private _blocks : Map<HudType, HudBlockWrapper>;
 
+	private _underwater : boolean;
 	private _vignetteElm : HTMLElement;
 
 	constructor() {
@@ -77,6 +78,7 @@ export class HudHandler extends HandlerBase implements Handler {
 
 		this._blocks = new Map();
 
+		this._underwater = false;
 		this._vignetteElm = Html.elm(Html.divVignette);
 	}
 
@@ -156,6 +158,19 @@ export class HudHandler extends HandlerBase implements Handler {
 
 		// Flush CSS
 		this._vignetteElm.offsetHeight;
+	}
+
+	setUnderwater(underwater : boolean) : void {
+		if (this._underwater === underwater) {
+			return;
+		}
+		this._underwater = underwater;
+
+		if (this._underwater) {
+			this._vignetteElm.style.backgroundColor = "rgba(146, 223, 247, 0.75)";
+		} else {
+			this._vignetteElm.style.backgroundColor = "";
+		}
 	}
 
 	private getOrAddBlock(type : HudType) : HudBlockWrapper {

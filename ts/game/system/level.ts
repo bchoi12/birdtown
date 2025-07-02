@@ -13,6 +13,7 @@ import { EntityType } from 'game/entity/api'
 import { System, SystemBase } from 'game/system'
 import { SystemType, LevelType } from 'game/system/api'
 import { ArchBlueprint } from 'game/system/level/blueprint/arch_blueprint'
+import { CliffBlueprint } from 'game/system/level/blueprint/cliff_blueprint'
 
 import { Flags } from 'global/flags'
 
@@ -48,7 +49,7 @@ export class Level extends SystemBase implements System {
 	// Default to NORMAL
 	private static readonly _layout = new Map<LevelType, LevelLayout>([
 		[LevelType.BIRDTOWN_CIRCLE, LevelLayout.CIRCLE],
-		[LevelType.BIRDCLIFF, LevelLayout.CIRCLE],
+		[LevelType.BIRD_CLIFFS, LevelLayout.CIRCLE],
 		[LevelType.LOBBY, LevelLayout.CIRCLE],
 	]);
 
@@ -225,24 +226,37 @@ export class Level extends SystemBase implements System {
 
 	private buildLevel(msg : GameMessage) : void {
 		const pos = {x: 0, y: 0};
-		let blueprint = new ArchBlueprint({
-			msg: msg,
-			pos: pos,
-		});
+
+		let blueprint;
+		switch (msg.getLevelType()) {
+		case LevelType.BIRD_CLIFFS:
+			blueprint = new CliffBlueprint({
+				msg: msg,
+				pos: pos,
+			});
+			break;
+		default:
+			blueprint = new ArchBlueprint({
+				msg: msg,
+				pos: pos,
+			})
+		}
 		let bounds = Box2.point(pos);
 
 		blueprint.load();
-		blueprint.buildings().forEach((building) => {
-			building.blocks().forEach((block) => {
-				block.entities().forEach((entity) => {
-					this.addEntity(entity.type, entity.options);
-				});
-
-				bounds.stretch(block.pos(), block.dim());
+		blueprint.blocks().forEach((block) => {
+			block.entities().forEach((entity) => {
+				this.addEntity(entity.type, entity.options);
 			});
+
+			const dim = block.dim();
+			if (dim.x > 0 || dim.y > 0) {
+				bounds.stretch(block.pos(), dim);
+			}
 		});
 
-		bounds.min.add({ y: 8 });
+		bounds.min.add({ y: blueprint.minBuffer() });
+
 		bounds.max.add({ y: 1 });
 		this._defaultSpawn.copyVec(bounds.getRelativePos(CardinalDir.TOP));
 
@@ -255,12 +269,16 @@ export class Level extends SystemBase implements System {
 				}
 			},
 		});
-
 		bounds.max.add({ y: 4 });
 
 		if (!this.isCircle()) {
-			bounds.min.sub({ x: 6 });
-			bounds.max.add({ x: 6 });
+			const sideBuffer = blueprint.sideBuffer();
+			bounds.min.sub({ x: sideBuffer });
+			bounds.max.add({ x: sideBuffer });
+		} else {
+			const seamBuffer = blueprint.seamBuffer();
+			bounds.min.sub({ x: seamBuffer });
+			bounds.max.add({ x: seamBuffer });
 		}
 
 		this.setBounds(bounds.toBox());

@@ -11,6 +11,8 @@ import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { CollisionBuffer, RecordType } from 'game/util/collision_buffer'
 
+import { GameGlobals } from 'global/game_globals'
+
 import { settings } from 'settings'
 
 import { Box2 } from 'util/box'
@@ -38,6 +40,7 @@ export type ProfileInitOptions = {
 	dim? : Vec;
 	scaling? : Vec;
 	angle? : number;
+	gravity? : boolean;
 
 	// Send less data over the network
 	degraded? : boolean;
@@ -92,6 +95,7 @@ export class Profile extends ComponentBase implements Component {
 	private _constraints : Map<number, MATTER.Constraint>;
 	private _constraintNextId : number;
 	private _forces : Buffer<Vec>;
+	private _gravityFactor : Optional<number>;
 	private _knockbackTimer : Timer;
 	private _limitFn : Optional<ModifyProfileFn>;
 	private _tempLimitFns : Map<number, ModifyProfileFn>;
@@ -104,8 +108,8 @@ export class Profile extends ComponentBase implements Component {
 	private _pos : SmoothVec;
 	private _vel : SmoothVec;
 	private _acc : Vec2;
-	private _initDim : Vec2;
-	private _dim : Vec2;
+	private _initDim : Vec3;
+	private _dim : Vec3;
 	private _angle : SmoothAngle;
 	private _inertia : number;
 	private _initialInertia : number;
@@ -133,6 +137,7 @@ export class Profile extends ComponentBase implements Component {
 		this._constraints = new Map();
 		this._constraintNextId = 1;
 		this._forces = new Buffer();
+		this._gravityFactor = Optional.empty(0);
 		this._knockbackTimer = this.newTimer({
 			canInterrupt: true,
 		});
@@ -210,6 +215,11 @@ export class Profile extends ComponentBase implements Component {
 				},
 			},
 		});
+		this.addProp<number>({
+			has: () => { return this._gravityFactor.has(); },
+			export: () => { return this._gravityFactor.get(); },
+			import: (obj : number) => { this.setGravityFactor(obj); },
+		})
 		this.addProp<Vec>({
 			has: () => { return this.hasDim(); },
 			export: () => { return this.initDim().toVec(); },
@@ -263,6 +273,7 @@ export class Profile extends ComponentBase implements Component {
 		if (init.dim) { this.setDim(init.dim); }
 		if (init.scaling) { this.setScaling(init.scaling); }
 		if (init.angle) { this.setAngle(init.angle); }
+		if (init.gravity) { this.setGravityFactor(1); }
 	}
 
 	override ready() : boolean {
@@ -341,7 +352,7 @@ export class Profile extends ComponentBase implements Component {
 		}
 		return {
 			pos: pos,
-			dim: Vec2.fromVec(objectDim),
+			dim: Vec3.fromVec(objectDim),
 		}
 	}
 
@@ -444,10 +455,20 @@ export class Profile extends ComponentBase implements Component {
 
 		this._vel.copyVec(vec);
 	}
+	jump(vel : number) : void {
+		this.setVel({ y: this.forceScale() * vel });
+	}
 	addVel(delta : Vec) : void {
 		if (!this.hasVel()) { this._vel = SmoothVec.zero(); }
 
 		this._vel.add(delta);
+	}
+	scaleVel(scale : number) : void {
+		if (!this.hasVel()) {
+			this._vel = SmoothVec.zero();
+			return;
+		}
+		this._vel.scale(scale);
 	}
 	capSpeed(speed : number) : void {
 		if (!this.hasVel()) {
@@ -469,20 +490,23 @@ export class Profile extends ComponentBase implements Component {
 
 		this._acc.copyVec(vec);
 	}
+	setGravityFactor(factor : number) : void {
+		this._gravityFactor.set(factor);
+	}
 
 	private hasDim() : boolean { return this._initDim !== null; }
-	initDim() : Vec2 { return this._initDim; }
+	initDim() : Vec3 { return this._initDim; }
 	width() : number { return this.dim().x; }
 	height() : number { return this.dim().y; }
-	dim() : Vec2 { return this._dim; }
+	dim() : Vec3 { return this._dim; }
 	setDim(vec : Vec) : void {
 		if (this.hasDim()) {
-			if (!Vec2.approxEquals(this._initDim.toVec(), vec, this.vecEpsilon())) {
+			if (!Vec3.approxEquals(this._initDim.toVec(), vec, this.vecEpsilon())) {
 				console.error("Error: dimension is already initialized for", this.name());
 			}
 			return;
 		}
-		this._initDim = Vec2.fromVec(vec);
+		this._initDim = Vec3.fromVec(vec);
 		this._dim = this._initDim.clone();
 		if (this.hasScaling()) {
 			this._dim.mult(this.scaling());
@@ -779,6 +803,13 @@ export class Profile extends ComponentBase implements Component {
 			this.startKnockbackTimer(force);
 		}
 	}
+	private forceScale() : number {
+		let scale = 1;
+		if (this.entity().getAttribute(AttributeType.UNDERWATER)) {
+			scale *= 0.5;
+		}
+		return scale;
+	}
 	private applyForces() : void {
 		if (this._forces.empty()) {
 			return;
@@ -789,7 +820,9 @@ export class Profile extends ComponentBase implements Component {
 			totalForce.add(this._forces.pop());
 		}
 		this.startKnockbackTimer(totalForce);
-		this.addVel(totalForce.scale(1 / this._body.mass))
+
+		let scale = this.forceScale() * 1 / this._body.mass;
+		this.addVel(totalForce.scale(scale))
 
 		this._forces.clear();
 	}
@@ -871,10 +904,18 @@ export class Profile extends ComponentBase implements Component {
 				this._pos.snap(Math.min(weight, 1));
 			}
 
+			if (this._gravityFactor.has()) {
+				let gravity = this._gravityFactor.get() * this.forceScale() * GameGlobals.gravity;
+				if (this.entity().getAttribute(AttributeType.LEVITATING)) {
+					gravity = 0;
+				}
+				this.setAcc({ y: gravity });
+			}
+
 			if (this.hasAcc()) {
 				const acc = this.acc();
 				if (!acc.isZero()) {
-					const scale = millis / 1000;
+					let scale = this.forceScale() * millis / 1000;
 					this.addVel({
 						x: acc.x * scale,
 						y: acc.y * scale,
@@ -896,6 +937,8 @@ export class Profile extends ComponentBase implements Component {
 		if (this._ignoreTinyCollisions) {
 			this._collisionBuffer.reset();
 		}
+
+		this.entity().maybeSetAttribute(AttributeType.UNDERWATER, false);
 
 		// Update child objects afterwards
 		super.prePhysics(stepData);

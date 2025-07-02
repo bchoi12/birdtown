@@ -51,7 +51,7 @@ type CachedMaterial = {
 }
 type MaterialFn = (material : BABYLON.StandardMaterial) => void;
 
-export abstract class Block extends EntityBase {
+export abstract class Block extends EntityBase implements Entity {
 
 	protected static readonly _freezeStates = new Set([
 		GameState.ERROR,

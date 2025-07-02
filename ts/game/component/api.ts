@@ -35,6 +35,7 @@ export enum AttributeType {
 	LEVITATING,
 	REVIVING,
 	SOLID,
+	UNDERWATER,
 	VIP,
 }
 

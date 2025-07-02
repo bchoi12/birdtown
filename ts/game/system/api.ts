@@ -44,7 +44,7 @@ export enum LevelType {
 	LOBBY,
 	TINYTOWN,
 
-	BIRDCLIFF,
+	BIRD_CLIFFS,
 }
 
 export enum LoadoutType {

@@ -42,6 +42,9 @@ export namespace ColorFactory {
 
 		[ColorType.CLIFF_BROWN, HexColor.fromHex(0x74402B)],
 		[ColorType.CLIFF_LIGHT_BROWN, HexColor.fromHex(0xE7C098)],
+		[ColorType.CLIFF_GRAY, HexColor.fromHex(0x4b4b4b)],
+		[ColorType.CLIFF_DARK_GRAY, HexColor.fromHex(0x121212)],
+		[ColorType.CLIFF_LIGHT_GRAY, HexColor.fromHex(0x8f8f8f)],
 
 		// Player series (not too saturated, but distinct from level)
 		[ColorType.PLAYER_RED, HexColor.fromHex(0xfc1f0f)],
@@ -117,6 +120,7 @@ export namespace ColorFactory {
 		[ColorType.SWEAT, HexColor.fromHex(0xe3fcff)],
 		[ColorType.TABLE, HexColor.fromHex(0xc98f40)],
 		[ColorType.WINDOW, HexColor.fromHex(0xa8ccd7)],
+		[ColorType.WATER, HexColor.fromHex(0x92dff7)],
 	]);
 
 	const entityColorMap = new Map<EntityType, Array<ColorType>>([

@@ -7,7 +7,7 @@ import { EntityType } from 'game/entity/api'
 import { CollisionCategory, DepthType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 
-export abstract class Bound extends EntityBase implements Entity {
+export abstract class BoundBase extends EntityBase implements Entity {
 
 	protected _attributes : Attributes;
 	protected _profile : Profile;
@@ -36,4 +36,11 @@ export abstract class Bound extends EntityBase implements Entity {
 	}
 
 	override impactSound() : SoundType { return SoundType.THUD; }
+}
+
+export class Bound extends BoundBase {
+
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.BOUND, entityOptions);
+	}
 }

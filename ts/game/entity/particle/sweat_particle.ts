@@ -8,8 +8,6 @@ import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
 import { ParticleType } from 'game/factory/api'
 
-import { GameGlobals } from 'global/game_globals'
-
 import { Fns, InterpType } from 'util/fns'
 import { Vec2 } from 'util/vector'
 
@@ -38,7 +36,7 @@ export class SweatParticle extends Particle {
 
 		this._model.rotation().z = Math.PI / 2;
 
-		this._profile.setAcc({ y: GameGlobals.gravity });
+		this._profile.setGravityFactor(0.8);
 		this._initialVel = this._profile.vel().clone();
 		this._initialScale = this._profile.scaling().clone();
 	}

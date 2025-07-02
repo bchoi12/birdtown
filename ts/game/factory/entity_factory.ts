@@ -6,9 +6,11 @@ import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Billboard } from 'game/entity/block/billboard'
 import { Bush } from 'game/entity/block/bush'
-import { Cliff } from 'game/entity/block/cliff'
+import { BottomCliff, BottomMiniCliff } from 'game/entity/block/cliff/bottom_cliff'
+import { TopCliff, TopMiniCliff } from 'game/entity/block/cliff/top_cliff'
+import { Bound } from 'game/entity/bound'
 import { Floor } from 'game/entity/bound/floor'
-import { Wall } from 'game/entity/bound/wall'
+import { Platform } from 'game/entity/bound/platform'
 import { Cloud } from 'game/entity/cloud'
 import { DyingStar } from 'game/entity/dying_star'
 import { Pergola } from 'game/entity/pergola'
@@ -84,6 +86,7 @@ import { Pellet } from 'game/entity/projectile/pellet'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Star } from 'game/entity/projectile/star'
 import { SpawnPoint } from 'game/entity/spawn_point'
+import { Water } from 'game/entity/water'
 
 import { Vec } from 'util/vector'
 
@@ -104,6 +107,9 @@ export namespace EntityFactory {
 		[EntityType.BOLT_EXPLOSION, (options : EntityOptions) => { return new BoltExplosion(options); }],
 		[EntityType.BOOBY_BEAK, (options : EntityOptions) => { return new BoobyBeak(options); }],
 		[EntityType.BOOBY_HAIR, (options : EntityOptions) => { return new BoobyHair(options); }],
+		[EntityType.BOTTOM_CLIFF, (options : EntityOptions) => { return new BottomCliff(options); }],
+		[EntityType.BOTTOM_MINI_CLIFF, (options : EntityOptions) => { return new BottomMiniCliff(options); }],
+		[EntityType.BOUND, (options : EntityOptions) => { return new Bound(options); }],
 		[EntityType.BUBBLE, (options : EntityOptions) => { return new Bubble(options); }],
 		[EntityType.BULLET, (options : EntityOptions) => { return new Bullet(options); }],
 		[EntityType.BUSH, (options : EntityOptions) => { return new Bush(options); }],
@@ -112,7 +118,6 @@ export namespace EntityFactory {
 		[EntityType.CHARGED_BOLT, (options : EntityOptions) => { return new ChargedBolt(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],
 		[EntityType.CHICKEN_HAIR, (options : EntityOptions) => { return new ChickenHair(options); }],
-		[EntityType.CLIFF, (options : EntityOptions) => { return new Cliff(options); }],
 		[EntityType.CLOUD, (options : EntityOptions) => { return new Cloud(options); }],
 		[EntityType.CONTROLS_SIGN, (options : EntityOptions) => { return new ControlsSign(options); }],
 		[EntityType.COWBOY_HAT, (options : EntityOptions) => { return new CowboyHat(options); }],
@@ -142,6 +147,7 @@ export namespace EntityFactory {
 		[EntityType.PELLET, (options : EntityOptions) => { return new Pellet(options); }],
 		[EntityType.PERGOLA, (options : EntityOptions) => { return new Pergola(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
+		[EntityType.PLATFORM, (options : EntityOptions) => { return new Platform(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.PISTOL, (options : EntityOptions) => { return new Pistol(options); }],
 		[EntityType.POCKET_ROCKET, (options : EntityOptions) => { return new PocketRocket(options); }],
@@ -163,8 +169,10 @@ export namespace EntityFactory {
 		[EntityType.STAR_EXPLOSION, (options : EntityOptions) => { return new StarExplosion(options); }],
 		[EntityType.START_GAME_SIGN, (options : EntityOptions) => { return new StartGameSign(options); }],
 		[EntityType.TABLE, (options : EntityOptions) => { return new Table(options); }],
+		[EntityType.TOP_CLIFF, (options : EntityOptions) => { return new TopCliff(options); }],
+		[EntityType.TOP_MINI_CLIFF, (options : EntityOptions) => { return new TopMiniCliff(options); }],
 		[EntityType.TOP_HAT, (options : EntityOptions) => { return new TopHat(options); }],
-		[EntityType.WALL, (options : EntityOptions) => { return new Wall(options); }],
+		[EntityType.WATER, (options : EntityOptions) => { return new Water(options); }],
 		[EntityType.WEAPON_CRATE, (options : EntityOptions) => { return new WeaponCrate(options); }],
 		[EntityType.WING_CANNON, (options : EntityOptions) => { return new WingCannon(options); }],
 
@@ -186,15 +194,18 @@ export namespace EntityFactory {
 		[EntityType.BILLBOARD, { x: 8, y: 6.4, z: 0.5 }],
 		[EntityType.BUSH, { x: 3.3, y: 2 }],
 		[EntityType.BOLT, { x: 0.7, y: 0.15, z : 0.15 }],
+		[EntityType.BOTTOM_CLIFF, { x: 15, y: 7 }],
+		[EntityType.BOTTOM_MINI_CLIFF, { x: 5, y: 7 }],
 		[EntityType.BULLET, { x: 0.5, y: 0.15, z : 0.15 }],
 		[EntityType.CALIBER, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.CARTRIDGE, { x: 0.8, y: 0.18, z : 0.18 }],
 		[EntityType.CHARGED_BOLT, { x: 1.4, y: 0.24, z : 0.24 }],
-		[EntityType.CLIFF, { x: 15, y: 5 }],
+		[EntityType.CLIFF, { x: 15, y: 7 }],
 		[EntityType.GOLDEN_BULLET, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],
 		[EntityType.MEGA_ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
+		[EntityType.MINI_CLIFF, { x: 5, y: 7 }],
 		[EntityType.MINI_ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
 		[EntityType.MINI_ORB, { x: 0.35, y: 0.35, z: 0.35 }],
 		[EntityType.ORB, { x: 0.4, y: 0.4, z : 0.4 }],
@@ -207,6 +218,8 @@ export namespace EntityFactory {
 		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],
 		[EntityType.STAR, {x: 0.35, y: 0.35, z: 0.1 }],
 		[EntityType.TABLE, { x: 2, y: 1.25, z: 3 }],
+		[EntityType.TOP_CLIFF, { x: 15, y: 7 }],
+		[EntityType.TOP_MINI_CLIFF, { x: 5, y: 7 }],
 
 		[EntityType.CUBE_PARTICLE, { x: 1, y: 1, z: 1}],
 		[EntityType.ENERGY_CUBE_PARTICLE, { x: 1, y: 1, z: 1}],

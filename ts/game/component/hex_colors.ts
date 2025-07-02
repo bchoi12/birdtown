@@ -61,8 +61,8 @@ export class HexColors extends ComponentBase implements Component {
 			this._mainColor.get().copyHex(hex);
 		}
 	}
-	hasMainColor() : boolean { return this._mainColor.has(); }
-	mainColor() : HexColor { return this._mainColor.get(); }
+	hasMainColor() : boolean { return this._mainColor.has() || this.hasColor(ColorCategory.BASE); }
+	mainColor() : HexColor { return this._mainColor.has() ? this._mainColor.get() : this.color(ColorCategory.BASE); }
 
 	setColor(category : ColorCategory, hex : number) : void {
 		if (!this._colors.has(category)) {

@@ -22,19 +22,13 @@ export abstract class ArchBase extends Block {
 	override ready() { return super.ready() && this.hasOpenings() && this._hexColors.hasColor(ColorCategory.BASE) && this._hexColors.hasColor(ColorCategory.SECONDARY); }
 
 	protected addWall(profileInit : ProfileInitOptions) : void {
-		this.addTrackedEntity(EntityType.WALL, {
-			hexColorsInit: {
-				color: this._hexColors.color(ColorCategory.BASE),
-			},
+		this.addTrackedEntity(EntityType.BOUND, {
 			profileInit: profileInit,
 		});
 	}
 
 	protected addFloor(profileInit : ProfileInitOptions) : void {
 		this.addTrackedEntity(EntityType.FLOOR, {
-			hexColorsInit: {
-				color: this._hexColors.color(ColorCategory.SECONDARY),
-			},
 			profileInit: profileInit,
 		});
 	}

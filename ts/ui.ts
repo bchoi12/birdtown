@@ -288,6 +288,7 @@ class UI {
 	updateHud(huds : Map<HudType, HudOptions>) : void { this._hudHandler.updateHud(huds); }
 	hideHud() : void { this._hudHandler.hideHud(); }
 	flashScreen(color : string, millis : number) : void { this._hudHandler.flashScreen(color, millis); }
+	setUnderwater(underwater : boolean) : void { this._hudHandler.setUnderwater(underwater); }
 	addPlayer(clientId : number) : void { this._sidebarHandler.addPlayer(clientId); }
 	removePlayer(clientId : number) : void { this._sidebarHandler.removePlayer(clientId); }
 	highlightPlayer(clientId : number) : void { this._sidebarHandler.highlightPlayer(clientId); }
