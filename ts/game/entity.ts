@@ -433,7 +433,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 	}
 
-	playbackRate() : number { return 1; }
+	playbackRate() : number {
+		if (this.getAttribute(AttributeType.UNDERWATER)) {
+			return 0.7;
+		}
+		return 1;
+	}
 	impactSound() : SoundType { return SoundType.UNKNOWN; }
 	clientColorOr(or : string) : string {
 		if (this.hasClientId() && game.tablets().hasTablet(this.clientId())) {

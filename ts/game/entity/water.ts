@@ -48,10 +48,6 @@ export class Water extends EntityBase implements Entity {
 					height: 1,
 					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
 				}, game.scene());
-				let mat = new BABYLON.StandardMaterial(this.name(), game.scene());
-				mat.diffuseColor = ColorFactory.color(ColorType.WATER).toBabylonColor3();
-				mesh.material = mat;
-
 				model.rotation().x = Math.PI / 2;
 				model.translation().y = dim.y / 2;
 
@@ -62,6 +58,7 @@ export class Water extends EntityBase implements Entity {
 			},
 			init: {
 				disableShadows: true,
+				materialType: MaterialType.FROZEN_WATER,
 				...entityOptions.modelInit,
 			},
 		}));

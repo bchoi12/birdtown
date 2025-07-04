@@ -81,7 +81,10 @@ export class SoundPlayer extends ComponentBase implements Component {
 		if (!options.playbackRate) {
 			options.playbackRate = 1;
 		}
-		options.playbackRate *= entity.playbackRate() * Math.max(0.3, game.runner().updateSpeed());
+		options.playbackRate *= Math.max(0.3, game.runner().updateSpeed());
+		if (SoundFactory.canDistort(type)) {
+			options.playbackRate *= entity.playbackRate();
+		}
 
 		if (entity.isLakituTarget()) {
 			// Default to no spatial sound when originating from the target.

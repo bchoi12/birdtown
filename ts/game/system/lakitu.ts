@@ -479,7 +479,7 @@ export class Lakitu extends SystemBase implements System {
 			ui.updateHud(this.targetEntity().getHudData());
 			ui.setHudClientId(this.targetEntity().clientId());
 
-			const underwater = this.targetEntity().getAttribute(AttributeType.UNDERWATER)
+			const underwater = this.targetEntity().getAttribute(AttributeType.UNDERWATER);
 			ui.setUnderwater(underwater);
 		} else {
 			ui.hideHud();

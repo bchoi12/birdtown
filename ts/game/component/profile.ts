@@ -507,7 +507,7 @@ export class Profile extends ComponentBase implements Component {
 			return;
 		}
 		this._initDim = Vec3.fromVec(vec);
-		this._dim = this._initDim.clone();
+		this._dim = Vec3.fromVec(vec);
 		if (this.hasScaling()) {
 			this._dim.mult(this.scaling());
 		}

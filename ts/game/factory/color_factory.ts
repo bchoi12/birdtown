@@ -46,6 +46,14 @@ export namespace ColorFactory {
 		[ColorType.CLIFF_DARK_GRAY, HexColor.fromHex(0x121212)],
 		[ColorType.CLIFF_LIGHT_GRAY, HexColor.fromHex(0x8f8f8f)],
 
+		[ColorType.TREE_LIGHT_GREEN, HexColor.fromHex(0x63B98A)],
+		[ColorType.TREE_GREEN, HexColor.fromHex(0x2e5c2f)],
+		[ColorType.TREE_DARK_GREEN, HexColor.fromHex(0x263826)],
+		[ColorType.TREE_RED, HexColor.fromHex(0xde5959)],
+		[ColorType.TREE_ORANGE, HexColor.fromHex(0xedb55a)],
+		[ColorType.TREE_YELLOW, HexColor.fromHex(0xf5f495)],
+		[ColorType.TREE_BROWN, HexColor.fromHex(0x5D382C)],
+
 		// Player series (not too saturated, but distinct from level)
 		[ColorType.PLAYER_RED, HexColor.fromHex(0xfc1f0f)],
 		[ColorType.PLAYER_ORANGE, HexColor.fromHex(0xfcb10f)],

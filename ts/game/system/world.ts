@@ -192,6 +192,7 @@ export class World extends SystemBase implements System {
 
 	    this._currentTime = type;
 	}
+	getTime() : TimeType { return this._currentTime; }
 	greenScreen() : void {
 		game.entities().getMap(EntityType.BACKGROUND_ARCH_ROOM).execute((entity : Entity) => {
 			entity.delete();

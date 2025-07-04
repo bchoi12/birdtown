@@ -20,6 +20,8 @@ enum PositionType {
 
 export class HudHandler extends HandlerBase implements Handler {
 
+	private static readonly _vignetteTransition = `background-color 0.3s linear`;
+
 	private static readonly _icons = new Map<HudType, IconType>([
 		[HudType.BACKFLIP, IconType.BACKFLIP],
 		[HudType.BOOSTER, IconType.ROCKET_LAUNCH],
@@ -80,6 +82,7 @@ export class HudHandler extends HandlerBase implements Handler {
 
 		this._underwater = false;
 		this._vignetteElm = Html.elm(Html.divVignette);
+		this._vignetteElm.style.transition = HudHandler._vignetteTransition;
 	}
 
 	override reset() : void {
@@ -147,13 +150,13 @@ export class HudHandler extends HandlerBase implements Handler {
 	}
 
 	flashScreen(color : string, millis : number) : void {
-		this._vignetteElm.style.transition = "none";
+		this._vignetteElm.style.transition = HudHandler._vignetteTransition;
 		this._vignetteElm.style.boxShadow = `inset 0 0 3em ${color}`;
 
 		// Flush CSS
 		this._vignetteElm.offsetHeight;
 
-		this._vignetteElm.style.transition = `box-shadow ${millis}ms linear`;
+		this._vignetteElm.style.transition = `box-shadow ${millis}ms linear, ${HudHandler._vignetteTransition}`;
 		this._vignetteElm.style.boxShadow = `inset 0 0 0em ${color}`;
 
 		// Flush CSS

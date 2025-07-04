@@ -15,7 +15,10 @@ import { ObjectCache } from 'util/object_cache'
 type SoundMetadata = {
 	path : string;
 	options : BABYLON.ISoundOptions;
-	cacheSize? : number
+	cacheSize? : number;
+
+	// Only allow playbackRate change from game speed
+	disallowDistortion? : boolean;
 }
 
 export namespace SoundFactory {
@@ -82,6 +85,7 @@ export namespace SoundFactory {
 		}],
 		[SoundType.CINEMATIC_WOOSH, {
 			path: "cinematic_woosh.mp3",
+			disallowDistortion: true,
 			options: {
 				spatialSound: true,
 			},
@@ -136,6 +140,7 @@ export namespace SoundFactory {
 		}],
 		[SoundType.LASER, {
 			path: "laser.mp3",
+			disallowDistortion: true,
 			options: {
 				spatialSound: true,
 			},
@@ -301,6 +306,13 @@ export namespace SoundFactory {
 			initCache(type);
 		}
 		soundCache.get(type).return(sound);
+	}
+
+	export function canDistort(type : SoundType) : boolean {
+		if (!metadata.has(type)) {
+			return false;
+		}
+		return !metadata.get(type).disallowDistortion;
 	}
 
 	export function play(type : SoundType, options? : BABYLON.ISoundOptions) : void {

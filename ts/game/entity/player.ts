@@ -869,8 +869,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			const bounds = MATTER.Bounds.create([
 				{ x: pos.x - width / 2 - 1, y: pos.y - height / 2 - 1 },
 				{ x: pos.x + width / 2 + 1, y: pos.y - height / 2 - 1 },
-				{ x: pos.x + width / 2 + 1, y: pos.y + height / 2 + 1 },
-				{ x: pos.x - width / 2 - 1, y: pos.y + height / 2 + 1 },
+				{ x: pos.x + width / 2 + 1, y: pos.y + height / 2 },
+				{ x: pos.x - width / 2 - 1, y: pos.y + height / 2 },
 			]);
 			const bodies = MATTER.Query.region(game.physics().world().bodies, bounds);
 

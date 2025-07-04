@@ -188,7 +188,7 @@ export abstract class Block extends EntityBase implements Entity {
 	override preRender() : void {
 		super.preRender();
 
-		if (!this._canTransparent) {
+		if (!this._canTransparent || !this.canOcclude()) {
 			return;
 		}
 

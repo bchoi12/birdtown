@@ -98,6 +98,7 @@ export enum EntityType {
 	TOP_CLIFF,
 	TOP_HAT,
 	TOP_MINI_CLIFF,
+	TREE,
 	WATER,
 	WEAPON_CRATE,
 	WING_CANNON,

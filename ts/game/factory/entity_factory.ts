@@ -8,6 +8,7 @@ import { Billboard } from 'game/entity/block/billboard'
 import { Bush } from 'game/entity/block/bush'
 import { BottomCliff, BottomMiniCliff } from 'game/entity/block/cliff/bottom_cliff'
 import { TopCliff, TopMiniCliff } from 'game/entity/block/cliff/top_cliff'
+import { Tree } from 'game/entity/block/tree'
 import { Bound } from 'game/entity/bound'
 import { Floor } from 'game/entity/bound/floor'
 import { Platform } from 'game/entity/bound/platform'
@@ -172,6 +173,7 @@ export namespace EntityFactory {
 		[EntityType.TOP_CLIFF, (options : EntityOptions) => { return new TopCliff(options); }],
 		[EntityType.TOP_MINI_CLIFF, (options : EntityOptions) => { return new TopMiniCliff(options); }],
 		[EntityType.TOP_HAT, (options : EntityOptions) => { return new TopHat(options); }],
+		[EntityType.TREE, (options : EntityOptions) => { return new Tree(options); }],
 		[EntityType.WATER, (options : EntityOptions) => { return new Water(options); }],
 		[EntityType.WEAPON_CRATE, (options : EntityOptions) => { return new WeaponCrate(options); }],
 		[EntityType.WING_CANNON, (options : EntityOptions) => { return new WingCannon(options); }],
@@ -220,6 +222,7 @@ export namespace EntityFactory {
 		[EntityType.TABLE, { x: 2, y: 1.25, z: 3 }],
 		[EntityType.TOP_CLIFF, { x: 15, y: 7 }],
 		[EntityType.TOP_MINI_CLIFF, { x: 5, y: 7 }],
+		[EntityType.TREE, { x: 3, y: 4.75, z: 3 }],
 
 		[EntityType.CUBE_PARTICLE, { x: 1, y: 1, z: 1}],
 		[EntityType.ENERGY_CUBE_PARTICLE, { x: 1, y: 1, z: 1}],

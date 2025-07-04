@@ -16,7 +16,7 @@ abstract class CliffBase extends Block {
 
 	abstract override meshType() : MeshType;
 	override meshOffset() : Vec { return {y: -this.profile().dim().y / 2}; }
-	override thickness() : number { return 0.5; }
+	override thickness() : number { return 0.75; }
 }
 
 export abstract class Cliff extends CliffBase {
