@@ -5,7 +5,7 @@ import { EntityType } from 'game/entity/api'
 import { Entity } from 'game/entity'
 import { EquipTag } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
-import { LevelType, LoadoutType } from 'game/system/api'
+import { LevelType, LevelLayout, LoadoutType } from 'game/system/api'
 
 import { GameConfigMessage } from 'message/game_config_message'
 
@@ -91,19 +91,27 @@ export namespace StringFactory {
 	}
 
 	const levelNames = new Map<LevelType, ParamString>([
-		[LevelType.BIRD_CLIFFS, ParamString.of("Robin Cliffs")],
 		[LevelType.BIRDTOWN, ParamString.of("Birdtown")],
-		[LevelType.BIRDTOWN_CIRCLE, ParamString.of("Endless Birdtown")],
-		[LevelType.DUELTOWN, ParamString.of("Mirror Birdtown")],
-		[LevelType.LOBBY, ParamString.of("Lobby")],
-		[LevelType.TINYTOWN, ParamString.of("Tiny Birdtown")],
+		[LevelType.CLIFF_LAKE, ParamString.of("Cliff Lake")],
+		[LevelType.RANDOM, ParamString.of("Random")],
 	]);
-
 	export function getLevelName(type : LevelType) : string {
 		if (levelNames.has(type)) {
 			return levelNames.get(type).toString();
 		}
 		return Strings.toTitleCase(LevelType[type]);
+	}
+	const layoutNames = new Map<LevelLayout, ParamString>([
+		[LevelLayout.NORMAL, ParamString.of("Normal")],
+		[LevelLayout.CIRCLE, ParamString.of("Endless (large)")],
+		[LevelLayout.MIRROR, ParamString.of("Mirrored")],
+		[LevelLayout.TINY, ParamString.of("Tiny")],
+	]);
+	export function getLayoutName(type : LevelLayout) : string {
+		if (layoutNames.has(type)) {
+			return layoutNames.get(type).toString();
+		}
+		return Strings.toTitleCase(LevelLayout[type]);
 	}
 
 	const modeNames = new Map<GameMode, string>([

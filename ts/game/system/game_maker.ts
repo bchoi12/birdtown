@@ -62,6 +62,7 @@ export class GameMaker extends SystemBase implements System {
 	private _playerRotator : PlayerRotator;
 	private _round : number;
 	private _equipPair : [EntityType, EntityType];
+	private _currentLevel : LevelType;
 	private _vipIds : Optional<Set<number>>;
 	private _winners : Array<number>;
 	private _winnerClientId : number;
@@ -75,6 +76,7 @@ export class GameMaker extends SystemBase implements System {
 		this._playerRotator = new PlayerRotator();
 		this._round = 0;
 		this._equipPair = [EntityType.UNKNOWN, EntityType.UNKNOWN];
+		this._currentLevel = LevelType.UNKNOWN;
 		this._vipIds = new Optional();
 		this._winners = new Array();
 		this._winnerClientId = 0;
@@ -184,8 +186,14 @@ export class GameMaker extends SystemBase implements System {
 		return EquipFactory.random();
 	}
 
-	rematch(mode : GameMode) : boolean { return this.setConfig(ConfigFactory.load(mode), this._playerConfig); }
-	setConfig(config : GameConfigMessage, playerConfig : PlayerConfig) : boolean {
+	rematch(mode : GameMode) : boolean {
+		// Replay last level without saving it to ConfigFactory
+		let config = ConfigFactory.load(mode);
+		if (config.getLevelType() === LevelType.RANDOM && this._currentLevel !== LevelType.UNKNOWN) {
+			config.setLevelType(this._currentLevel);
+		}
+		return this.setConfig(config, this._playerConfig); }
+	setConfig(config : GameConfigMessage, playerConfig : PlayerConfig, rematch? : boolean) : boolean {
 		this._config = config;
 
 		if (!this._config.valid()) {
@@ -210,6 +218,12 @@ export class GameMaker extends SystemBase implements System {
 		this.addNameParams({
 			type: GameMode[this._config.type()],
 		});
+
+		if (this._config.getLevelType() === LevelType.RANDOM) {
+			this._currentLevel = game.level().randomLevel();
+		} else {
+			this._currentLevel = this._config.getLevelType();
+		}
 
 		this._playerRotator.seed(this._config.getLevelSeed());
 		this._playerRotator.updateShuffled(playerConfig);
@@ -375,6 +389,7 @@ export class GameMaker extends SystemBase implements System {
 
 			game.level().loadLevel({
 				type: this._config.getLevelType(),
+				layout: this._config.getLevelLayout(),
 				seed: this._config.getLevelSeed(),
 				numPlayers: 0,
 				numTeams: 0,
@@ -419,7 +434,8 @@ export class GameMaker extends SystemBase implements System {
 
 			const [numPlayers, numTeams] = this._playerConfig.numPlayersAndTeams();
 			game.level().loadLevel({
-				type: this._config.getLevelType(),
+				type: this._currentLevel,
+				layout: this._config.getLevelLayout(),
 				seed: this._config.getLevelSeed() + this._round,
 				numPlayers: numPlayers,
 				numTeams: numTeams,

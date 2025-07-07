@@ -52,7 +52,9 @@ export namespace ColorFactory {
 		[ColorType.TREE_RED, HexColor.fromHex(0xde5959)],
 		[ColorType.TREE_ORANGE, HexColor.fromHex(0xedb55a)],
 		[ColorType.TREE_YELLOW, HexColor.fromHex(0xf5f495)],
+		[ColorType.TREE_PURPLE, HexColor.fromHex(0xb659de)],
 		[ColorType.TREE_BROWN, HexColor.fromHex(0x5D382C)],
+		[ColorType.TREE_WHITE, HexColor.fromHex(0xf2d7ce)],
 
 		// Player series (not too saturated, but distinct from level)
 		[ColorType.PLAYER_RED, HexColor.fromHex(0xfc1f0f)],

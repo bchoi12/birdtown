@@ -45,6 +45,7 @@ export class Model extends ComponentBase implements Component {
 	private _transforms : Transforms;
 	private _materialType : Optional<MaterialType>;
 	private _frozen : boolean;
+	private _allowWrap : boolean;
 	private _lastWrap : Optional<number>;
 
 	private _mesh : BABYLON.Mesh;
@@ -62,6 +63,7 @@ export class Model extends ComponentBase implements Component {
 		this._transforms = new Transforms();
 		this._materialType = new Optional();
 		this._frozen = false;
+		this._allowWrap = true;
 		this._lastWrap = new Optional();
 
 		this._mesh = null;
@@ -213,6 +215,9 @@ export class Model extends ComponentBase implements Component {
 			}
 		});
 	}
+	setAllowWrap(wrap : boolean) : void {
+		this._allowWrap = wrap;
+	}
 
 	registerAnimation(animation : BABYLON.AnimationGroup, group? : number) { this._animationController.register(animation, group); }
 	playAnimation(name : string, options? : PlayOptions) : void { this._animationController.play(name, options); }
@@ -262,7 +267,7 @@ export class Model extends ComponentBase implements Component {
 	}
 
 	private applyProfile(profile : Profile) {
-		const useRenderPos = game.level().isCircle() && this._root.parent === null;
+		const useRenderPos = this._allowWrap && game.level().isCircle() && this._root.parent === null;
 		const pos = useRenderPos ? profile.getRenderPos() : profile.pos();
 
 		this._root.position.x += pos.x;

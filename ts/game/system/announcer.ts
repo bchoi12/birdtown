@@ -2,7 +2,7 @@
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
-import { SystemType, LevelType } from 'game/system/api'
+import { SystemType } from 'game/system/api'
 
 import { MessageObject } from 'message'
 import { GameMessage, GameMessageType } from 'message/game_message'

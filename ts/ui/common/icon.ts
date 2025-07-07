@@ -85,6 +85,7 @@ export enum IconType {
 	SPRAY,
 	STAR,
 	SWORDS,
+	WARNING,
 }
 
 export namespace Icon {
@@ -161,6 +162,7 @@ export namespace Icon {
 		[IconType.VOLUME_LOW, "volume_down"],
 		[IconType.VOLUME_NONE, "volume_mute"],
 		[IconType.VOLUME_X, "no_sound"],
+		[IconType.WARNING, "warning"],
 	]);
 
 	export function baseElement() : HTMLElement {

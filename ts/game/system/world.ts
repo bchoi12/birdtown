@@ -62,7 +62,7 @@ export class World extends SystemBase implements System {
 			directionalIntensity: 1.3,
 			directionalDiffuse: new BABYLON.Color3(1, 1, 1),
 			hemisphericIntensity: 0.7,
-			hemisphericDiffuse: new BABYLON.Color3(1, 1, 1),
+		hemisphericDiffuse: new BABYLON.Color3(1, 1, 1),
 			hemisphericBottomColor: new BABYLON.Color3(0.7, 0.7, 0.7),
 		}],
 		[TimeType.EVENING, {
@@ -160,7 +160,7 @@ export class World extends SystemBase implements System {
 			this.setTime(TimeType.DAY);
 		}
 
-		this._shadowGenerator.bias = 1.5e-3;
+		this._shadowGenerator.bias = 7e-3;
 		this._shadowGenerator.transparencyShadow = true;
 
 		this.refreshSettings();
@@ -192,7 +192,7 @@ export class World extends SystemBase implements System {
 
 	    this._currentTime = type;
 	}
-	getTime() : TimeType { return this._currentTime; }
+	getTime() : TimeType { return this._desiredTime; }
 	greenScreen() : void {
 		game.entities().getMap(EntityType.BACKGROUND_ARCH_ROOM).execute((entity : Entity) => {
 			entity.delete();

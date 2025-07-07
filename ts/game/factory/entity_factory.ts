@@ -6,8 +6,8 @@ import { ArchRoom } from 'game/entity/block/arch_room'
 import { ArchRoof } from 'game/entity/block/arch_roof'
 import { Billboard } from 'game/entity/block/billboard'
 import { Bush } from 'game/entity/block/bush'
-import { BottomCliff, BottomMiniCliff } from 'game/entity/block/cliff/bottom_cliff'
-import { TopCliff, TopMiniCliff } from 'game/entity/block/cliff/top_cliff'
+import { BottomCliff, BottomMiniCliff, BottomCliffWall } from 'game/entity/block/cliff/bottom_cliff'
+import { TopCliff, TopMiniCliff, TopCliffWall } from 'game/entity/block/cliff/top_cliff'
 import { Tree } from 'game/entity/block/tree'
 import { Bound } from 'game/entity/bound'
 import { Floor } from 'game/entity/bound/floor'
@@ -61,6 +61,7 @@ import { HealthCrate } from 'game/entity/interactable/crate/health_crate'
 import { WeaponCrate } from 'game/entity/interactable/crate/weapon_crate'
 import { Table } from 'game/entity/interactable/table'
 import { ControlsSign } from 'game/entity/interactable/sign/controls_sign'
+import { HikingSign } from 'game/entity/interactable/sign/hiking_sign'
 import { RematchSign } from 'game/entity/interactable/sign/rematch_sign'
 import { StartGameSign } from 'game/entity/interactable/sign/start_game_sign'
 import { CubeParticle } from 'game/entity/particle/cube_particle'
@@ -71,6 +72,7 @@ import { SmokeParticle } from 'game/entity/particle/smoke_particle'
 import { SparkParticle } from 'game/entity/particle/spark_particle'
 import { SweatParticle } from 'game/entity/particle/sweat_particle'
 import { TextParticle } from 'game/entity/particle/text_particle'
+import { WaterParticle } from 'game/entity/particle/water_particle'
 import { Bolt } from 'game/entity/projectile/bolt'
 import { Bullet } from 'game/entity/projectile/bullet'
 import { Caliber } from 'game/entity/projectile/caliber'
@@ -109,6 +111,7 @@ export namespace EntityFactory {
 		[EntityType.BOOBY_BEAK, (options : EntityOptions) => { return new BoobyBeak(options); }],
 		[EntityType.BOOBY_HAIR, (options : EntityOptions) => { return new BoobyHair(options); }],
 		[EntityType.BOTTOM_CLIFF, (options : EntityOptions) => { return new BottomCliff(options); }],
+		[EntityType.BOTTOM_CLIFF_WALL, (options : EntityOptions) => { return new BottomCliffWall(options); }],
 		[EntityType.BOTTOM_MINI_CLIFF, (options : EntityOptions) => { return new BottomMiniCliff(options); }],
 		[EntityType.BOUND, (options : EntityOptions) => { return new Bound(options); }],
 		[EntityType.BUBBLE, (options : EntityOptions) => { return new Bubble(options); }],
@@ -132,6 +135,7 @@ export namespace EntityFactory {
 		[EntityType.GOLDEN_GUN, (options : EntityOptions) => { return new GoldenGun(options); }],
 		[EntityType.HEADPHONES, (options : EntityOptions) => { return new Headphones(options); }],
 		[EntityType.HEALTH_CRATE, (options : EntityOptions) => { return new HealthCrate(options); }],
+		[EntityType.HIKING_SIGN, (options : EntityOptions) => { return new HikingSign(options); }],
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.KNIFE, (options : EntityOptions) => { return new Knife(options); }],
 		[EntityType.LASER, (options : EntityOptions) => { return new Laser(options); }],
@@ -171,6 +175,7 @@ export namespace EntityFactory {
 		[EntityType.START_GAME_SIGN, (options : EntityOptions) => { return new StartGameSign(options); }],
 		[EntityType.TABLE, (options : EntityOptions) => { return new Table(options); }],
 		[EntityType.TOP_CLIFF, (options : EntityOptions) => { return new TopCliff(options); }],
+		[EntityType.TOP_CLIFF_WALL, (options : EntityOptions) => { return new TopCliffWall(options); }],
 		[EntityType.TOP_MINI_CLIFF, (options : EntityOptions) => { return new TopMiniCliff(options); }],
 		[EntityType.TOP_HAT, (options : EntityOptions) => { return new TopHat(options); }],
 		[EntityType.TREE, (options : EntityOptions) => { return new Tree(options); }],
@@ -186,6 +191,7 @@ export namespace EntityFactory {
 		[EntityType.SPARK_PARTICLE, (options : EntityOptions) => { return new SparkParticle(options); }],
 		[EntityType.SWEAT_PARTICLE, (options : EntityOptions) => { return new SweatParticle(options); }],
 		[EntityType.TEXT_PARTICLE, (options : EntityOptions) => { return new TextParticle(options); }],
+		[EntityType.WATER_PARTICLE, (options : EntityOptions) => { return new WaterParticle(options); }],
 	]);
 
 	export const staticDimensions = new Map<EntityType, Vec>([
@@ -197,12 +203,14 @@ export namespace EntityFactory {
 		[EntityType.BUSH, { x: 3.3, y: 2 }],
 		[EntityType.BOLT, { x: 0.7, y: 0.15, z : 0.15 }],
 		[EntityType.BOTTOM_CLIFF, { x: 15, y: 7 }],
+		[EntityType.BOTTOM_CLIFF_WALL, { x: 15, y: 7 }],
 		[EntityType.BOTTOM_MINI_CLIFF, { x: 5, y: 7 }],
 		[EntityType.BULLET, { x: 0.5, y: 0.15, z : 0.15 }],
 		[EntityType.CALIBER, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.CARTRIDGE, { x: 0.8, y: 0.18, z : 0.18 }],
 		[EntityType.CHARGED_BOLT, { x: 1.4, y: 0.24, z : 0.24 }],
 		[EntityType.CLIFF, { x: 15, y: 7 }],
+		[EntityType.CLIFF_WALL, { x: 15, y: 7 }],
 		[EntityType.GOLDEN_BULLET, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],
@@ -221,6 +229,7 @@ export namespace EntityFactory {
 		[EntityType.STAR, {x: 0.35, y: 0.35, z: 0.1 }],
 		[EntityType.TABLE, { x: 2, y: 1.25, z: 3 }],
 		[EntityType.TOP_CLIFF, { x: 15, y: 7 }],
+		[EntityType.TOP_CLIFF_WALL, { x: 15, y: 7 }],
 		[EntityType.TOP_MINI_CLIFF, { x: 5, y: 7 }],
 		[EntityType.TREE, { x: 3, y: 4.75, z: 3 }],
 
@@ -232,6 +241,7 @@ export namespace EntityFactory {
 		[EntityType.SPARK_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.SWEAT_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.TEXT_PARTICLE, { x: 1, y: 1, z: 1 }],
+		[EntityType.WATER_PARTICLE, { x: 1, y: 1, z: 1 }],
 	]);
 
 	// Also includes dimensions that can change.

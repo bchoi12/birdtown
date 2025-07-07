@@ -129,6 +129,10 @@ export class TooltipHandler extends HandlerBase implements Handler {
 				return "";
 			}
 			return `Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to recover ${names[0]} health`;
+		case TooltipType.HIKING_SWIM:
+			return `${Icon.string(IconType.WARNING)} No lifeguard on duty! ${Icon.string(IconType.WARNING)}\nSwim at your own risk`
+		case TooltipType.HIKING_NIGHT:
+			return `${Icon.string(IconType.WARNING)} Freezing temperatures at the lake tonight! ${Icon.string(IconType.WARNING)}`			
 		case TooltipType.MUSIC:
 			if (names.length !== 1) {
 				return "";

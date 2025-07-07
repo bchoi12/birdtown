@@ -502,7 +502,7 @@ export class Profile extends ComponentBase implements Component {
 	setDim(vec : Vec) : void {
 		if (this.hasDim()) {
 			if (!Vec3.approxEquals(this._initDim.toVec(), vec, this.vecEpsilon())) {
-				console.error("Error: dimension is already initialized for", this.name());
+				console.error("Error: dimension is already initialized for", this.name(), this._initDim.toVec(), vec);
 			}
 			return;
 		}
@@ -938,8 +938,6 @@ export class Profile extends ComponentBase implements Component {
 			this._collisionBuffer.reset();
 		}
 
-		this.entity().maybeSetAttribute(AttributeType.UNDERWATER, false);
-
 		// Update child objects afterwards
 		super.prePhysics(stepData);
 	}
@@ -1063,7 +1061,7 @@ export class Profile extends ComponentBase implements Component {
 
 		this.setPos(this._body.position);
 		if (!this.isSource()) {
-			this._pos.setPredict(this._body.position);
+			this._pos.setPredict(this._pos);
 		}
 
 		// Update child objects afterwards.

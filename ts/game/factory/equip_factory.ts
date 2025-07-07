@@ -2,7 +2,7 @@
 import { EntityType } from 'game/entity/api'
 import { EquipTag } from 'game/factory/api'
 
-import { globalRandom } from 'util/seeded_random'
+import { SeededRandom } from 'util/seeded_random'
 
 export type EquipList = {
 	recommended: EntityType[];
@@ -44,6 +44,7 @@ export namespace EquipFactory {
 		EntityType.HEADPHONES, EntityType.JETPACK, EntityType.POCKET_ROCKET,
 		EntityType.PURPLE_HEADBAND, EntityType.RED_HEADBAND, EntityType.SCOUTER,
 		EntityType.TOP_HAT];
+	let equipRandom = new SeededRandom(Math.floor(10000 * Math.random()));
 
 	let nextIndex = -1;
 	let shuffled = false;
@@ -51,6 +52,7 @@ export namespace EquipFactory {
 	// [0, 1, 2, 3, ...]
 	let indices = Array.from(Array(weapons.length).keys());
 
+	export function seed(n : number) : void { equipRandom.seed(n); }
 	export function weaponList() : EntityType[] { return [...recommendedPairs.keys()]; }
 	export function specialWeapons() : EntityType[] { return [EntityType.GOLDEN_GUN]; }
 	export function equipList(type : EntityType) : EquipList {
@@ -77,7 +79,7 @@ export namespace EquipFactory {
 		const allEquips = equipList(type);
 		let numEquips = allEquips.recommended.length + allEquips.valid.length;
 
-		let randomEquip = globalRandom.int(numEquips);
+		let randomEquip = equipRandom.int(numEquips);
 
 		if (randomEquip >= allEquips.recommended.length) {
 			return allEquips.valid[randomEquip - allEquips.recommended.length];
@@ -97,7 +99,7 @@ export namespace EquipFactory {
 		return randomN(1)[0];
 	}
 	export function randomN(n : number) : [EntityType, EntityType][] {
-		globalRandom.shuffle(indices, n);
+		equipRandom.shuffle(indices, n);
 
 		let randomPairs = [];
 		for (let i = 0; i < n; ++i) {
@@ -111,18 +113,18 @@ export namespace EquipFactory {
 	}
 
 	function randomIndex() : number {
-		return globalRandom.int(weapons.length);
+		return equipRandom.int(weapons.length);
 	}
 	function getNextIndex() : number {
 		if (nextIndex < 0) {
-			globalRandom.shuffle(weapons);
+			equipRandom.shuffle(weapons);
 			nextIndex = 0;
 		} else {
 			nextIndex++;
 		}
 
 		if (nextIndex >= weapons.length) {
-			globalRandom.shuffle(weapons);
+			equipRandom.shuffle(weapons);
 			nextIndex = 0;
 		}
 		return nextIndex;
@@ -144,7 +146,7 @@ export namespace EquipFactory {
 		}
 
 		const list = recommendedPairs.get(type);
-		return list[globalRandom.int(list.length)];
+		return list[equipRandom.int(list.length)];
 	}
 
 	const tags = new Map<EntityType, Set<EquipTag>>([

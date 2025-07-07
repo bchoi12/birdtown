@@ -102,7 +102,9 @@ export abstract class Particle extends EntityBase implements Entity {
 	resetModel(model : Model) : boolean { return false; }
 
 	getMesh() : BABYLON.Mesh {
-		return ParticleFactory.getClone(this.particleType());
+		let mesh = ParticleFactory.getClone(this.particleType());
+		mesh.isVisible = true;
+		return mesh;
 	}
 	abstract updateParticle(stepData : StepData) : void;
 }

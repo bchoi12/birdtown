@@ -1,7 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { System } from 'game/system'
-import { LevelType, SystemType } from 'game/system/api'
+import { SystemType } from 'game/system/api'
 import { Announcer } from 'game/system/announcer'
 import { Audio } from 'game/system/audio'
 import { Controller } from 'game/system/controller'

@@ -1,17 +1,17 @@
 
+import { game } from 'game'
 import { ProfileInitOptions } from 'game/component/profile'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { Cliff, MiniCliff } from 'game/entity/block/cliff'
+import { Cliff, CliffBase, MiniCliff, CliffWall } from 'game/entity/block/cliff'
 import { ColorCategory, ColorType, MaterialType, MeshType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
+import { TimeType } from 'game/system/api'
 
 import { CardinalDir } from 'util/cardinal'
 import { Vec } from 'util/vector'
 
 export class BottomCliff extends Cliff {
-
-	private static readonly _floorDepth = 40;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.BOTTOM_CLIFF, entityOptions);
@@ -23,21 +23,25 @@ export class BottomCliff extends Cliff {
 	override initialize() : void {
 		super.initialize();
 
-		const blocks = 2 + Math.ceil(2 * Math.random());
+		this.addFloor(
+			this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x, y: this.thickness(), z: CliffBase._waterFloorDepth }));
+
+		if (game.world().getTime() === TimeType.NIGHT) {
+			return;
+		}
+
+		const blocks = 2 + Math.ceil(2 * this._rng.next());
 
 		const len = this._profile.initDim().x / blocks;
 		const height = this._profile.initDim().y;
 		for (let i = 0; i < blocks; ++i) {
 
-			const x = len * i + 0.5 + (len - 1) * Math.random();
-			const yRand = Math.random();
+			const x = len * i + 0.5 + (len - 1) * this._rng.next();
+			const yRand = this._rng.next();
 			const y = 0.5 + (height - 1) * yRand;
 
 			this.addBlock({ x: x, y: y }, 0.5 + 2 * (1 - yRand));
 		}
-
-		this.addFloor(
-			this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x, y: this.thickness(), z: BottomCliff._floorDepth }));
 	}
 
 	protected addBlock(pos : Vec, scale : number) : void {
@@ -58,7 +62,7 @@ export class BottomCliff extends Cliff {
 			profileInit: profileInit,
 			modelInit: {
 				transforms: {
-					translate: { z: BottomCliff._floorDepth / 4 },
+					translate: { z: CliffBase._waterFloorDepth / 4 },
 				},
 				materialType: MaterialType.CLIFF_DARK_GRAY,
 			},
@@ -67,8 +71,6 @@ export class BottomCliff extends Cliff {
 }
 
 export class BottomMiniCliff extends MiniCliff {
-
-	private static readonly _floorDepth = 40;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.BOTTOM_MINI_CLIFF, entityOptions);
@@ -85,15 +87,20 @@ export class BottomMiniCliff extends MiniCliff {
 		const len = this._profile.initDim().x / blocks;
 		const height = this._profile.initDim().y / blocks;
 		for (let i = 0; i < blocks; ++i) {
-			const x = len * i + 0.5 + (len - 1) * Math.random();
-			const yRand = Math.random();
-			const y = height * i + 0.5 + (height - 1) * yRand;
+			let index = i;
+			if (this._mirrored) {
+				index = blocks - i - 1;
+			}
+
+			const x = len * index + 0.5 + (len - 1) * this._rng.next();
+			const yRand = this._rng.next();
+			const y = height * index + 0.5 + (height - 1) * yRand;
 
 			this.addBlock({ x: x, y: y }, 0.5 + (1 - yRand));
 		}
 
 		this.addFloor(
-			this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x, y: this.thickness(), z: BottomMiniCliff._floorDepth }));
+			this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x, y: this.thickness(), z: CliffBase._waterFloorDepth }));
 	}
 
 	protected addBlock(pos : Vec, scale : number) : void {
@@ -114,7 +121,30 @@ export class BottomMiniCliff extends MiniCliff {
 			profileInit: profileInit,
 			modelInit: {
 				transforms: {
-					translate: { z: BottomMiniCliff._floorDepth / 4 },
+					translate: { z: CliffBase._waterFloorDepth / 4 },
+				},
+				materialType: MaterialType.CLIFF_DARK_GRAY,
+			},
+		});
+	}
+}
+
+export class BottomCliffWall extends CliffWall {
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.BOTTOM_CLIFF_WALL, entityOptions);
+
+		this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.CLIFF_GRAY));
+		this._hexColors.setColor(ColorCategory.SECONDARY, ColorFactory.toHex(ColorType.CLIFF_LIGHT_GRAY));		
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		this.addTrackedEntity(EntityType.PLATFORM, {
+			profileInit: this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x, y: this.thickness(), z: CliffBase._waterFloorDepth }),
+			modelInit: {
+				transforms: {
+					translate: { z: CliffBase._waterFloorDepth / 4 },
 				},
 				materialType: MaterialType.CLIFF_DARK_GRAY,
 			},

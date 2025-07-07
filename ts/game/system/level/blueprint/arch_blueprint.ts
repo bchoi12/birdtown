@@ -7,7 +7,7 @@ import { CardinalFactory } from 'game/factory/cardinal_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
-import { LevelType } from 'game/system/api'
+import { LevelType, LevelLayout } from 'game/system/api'
 import { Blueprint, BlueprintBlock, BlueprintOptions } from 'game/system/level/blueprint'
 
 import { TooltipType } from 'ui/api'
@@ -29,7 +29,7 @@ class ArchBlueprintBlock extends BlueprintBlock {
 	}
 
 	dim() : Vec {
-		switch (this.type()) {
+		switch (this.entityType()) {
 		case ArchBlueprint.roofType():
 			return ArchBlueprint.roofDim();
 		case ArchBlueprint.backgroundType():
@@ -191,22 +191,24 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 		const options = this.options();
 		this._pos.copyVec(options.pos);
 
-		switch (options.msg.getLevelType()) {
-		case LevelType.LOBBY:
+		const type = this.getType();
+		if (type === LevelType.LOBBY) {
 			this.loadLobby(options);
-			break;
-		case LevelType.BIRDTOWN:
-		case LevelType.BIRDTOWN_CIRCLE:
-			this.loadBirdtown(options);
-			break;
-		case LevelType.DUELTOWN:
-			this.loadDueltown(options);
-			break;
-		case LevelType.TINYTOWN:
-			this.loadTinytown(options);
-			break;
-		default:
-			console.error("Error: level type %s not supported in ArchBlueprint", LevelType[options.msg.getLevelType()]);
+		} else if (type === LevelType.BIRDTOWN) {
+
+			const layout = this.getLayout();
+			switch (layout) {
+			case LevelLayout.MIRROR:
+				this.loadDueltown(options);
+				break;
+			case LevelLayout.TINY:
+				this.loadTinytown(options);
+				break;
+			default:
+				this.loadBirdtown(options);
+			}
+		} else {
+			console.error("Error: level type %s not supported in ArchBlueprint", LevelType[this.getType()]);
 		}
 	}
 
@@ -323,7 +325,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
 				let block = building.block(j);
 
-				if (block.type() === ArchBlueprint.roofType()) {
+				if (block.entityType() === ArchBlueprint.roofType()) {
 					if (i === 2) {
 						block.pushEntityOptions(EntityType.START_GAME_SIGN, {
 							profileInit: {
@@ -372,7 +374,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 							}
 						});
 					}
-				} else if (block.type() === ArchBlueprint.baseType()) {
+				} else if (block.entityType() === ArchBlueprint.baseType()) {
 					block.pushEntityOptions(EntityType.TABLE, {
 						profileInit: {
 							pos: Vec2.fromVec(block.pos()).add({ y: EntityFactory.getDimension(EntityType.TABLE).y / 2 }),
@@ -396,7 +398,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 	}
 
 	private generateTinytownPlan(options : BlueprintOptions) : Array<BuildingPlan> {
-		const length = 3 + Math.ceil(options.msg.getNumPlayers() / 4) + this.rng().int(2);
+		const length = 3 + Math.ceil(this.getNumPlayers() / 4) + this.rng().int(2);
 
 		return this.generateTownPlan(length, options);
 	}
@@ -405,9 +407,9 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 		let length;
 		if (game.level().isCircle()) {
 			// Need at least 8 to avoid pop-ins
-			length = 5 + Math.max(3, Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(2));
+			length = 5 + Math.max(3, Math.ceil(this.getNumPlayers() / 3) + this.rng().int(2));
 		} else {
-			length = 5 + Math.ceil(options.msg.getNumPlayers() / 3) + this.rng().int(2);
+			length = 5 + Math.ceil(this.getNumPlayers() / 3) + this.rng().int(2);
 		}
 
 		return this.generateTownPlan(length, options);
@@ -468,7 +470,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
 				let block = building.block(j);
 
-				if (block.type() === ArchBlueprint.roofType()) {
+				if (block.entityType() === ArchBlueprint.roofType()) {
 					const next = this.rng().next();
 					const next2 = this.rng().next();
 
@@ -559,7 +561,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 							});
 						}
 					}
-				} else if (block.type() === ArchBlueprint.baseType()) {
+				} else if (block.entityType() === ArchBlueprint.baseType()) {
 					if (this.rng().le(0.5)) {
 						block.pushEntityOptions(EntityType.TABLE, {
 							profileInit: {
@@ -587,7 +589,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
 				let block = building.block(j);
 
-				if (block.type() === ArchBlueprint.roofType()) {
+				if (block.entityType() === ArchBlueprint.roofType()) {
 					if (game.controller().useTeamSpawns() && i === 1) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
@@ -639,7 +641,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 							});
 						}
 					}
-				} else if (block.type() === ArchBlueprint.baseType()
+				} else if (block.entityType() === ArchBlueprint.baseType()
 					&& (i < numBuildings / 2 && i % 2 === tableMod)
 						|| (i >= numBuildings / 2 && (numBuildings - i - 1) % 2 === tableMod)) {
 					block.pushEntityOptions(EntityType.TABLE, {

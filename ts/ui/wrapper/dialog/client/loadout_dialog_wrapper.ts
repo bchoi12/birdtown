@@ -26,6 +26,7 @@ export class LoadoutDialogWrapper extends ClientDialogWrapper {
 
 		this.setTitle("Loadout");
 
+		EquipFactory.seed(game.level().seed());
 		if (game.controller().config().getStartingLoadout() === LoadoutType.PICK || game.controller().config().getStartingLoadout() === LoadoutType.PICK_TURNS) {
 			this.addPickPage();
 		} else {

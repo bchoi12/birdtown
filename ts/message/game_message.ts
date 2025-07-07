@@ -1,7 +1,7 @@
 
 import { Message, MessageBase, FieldDescriptor } from 'message'
 
-import { LevelType, PlayerRole } from 'game/system/api'
+import { LevelType, LevelLayout, PlayerRole } from 'game/system/api'
 
 import { AnnouncementType, FeedType } from 'ui/api'
 
@@ -25,6 +25,7 @@ enum GameProp {
 	CLIENT_ID,
 	DISPLAY_NAME,
     FEED_TYPE,
+    LEVEL_LAYOUT,
 	LEVEL_TYPE,
 	LEVEL_SEED,
 	LEVEL_VERSION,
@@ -59,6 +60,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
         )],
 		[GameMessageType.LEVEL_LOAD, MessageBase.fieldDescriptor(
 			[GameProp.LEVEL_TYPE, { min: 1 }],
+            [GameProp.LEVEL_LAYOUT, {}],
 			[GameProp.LEVEL_SEED, {}],
 			[GameProp.LEVEL_VERSION, { min: 1 }],
             [GameProp.NUM_PLAYERS, {}],
@@ -104,6 +106,11 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     getLevelTypeOr(value : LevelType) : LevelType { return this.getOr<LevelType>(GameProp.LEVEL_TYPE, value); }
     setLevelType(value : LevelType) : void { this.set<LevelType>(GameProp.LEVEL_TYPE, value); }
 
+    hasLevelLayout() : boolean { return this.has(GameProp.LEVEL_LAYOUT); }
+    getLevelLayout() : LevelLayout { return this.get<LevelLayout>(GameProp.LEVEL_LAYOUT); }
+    getLevelLayoutOr(value : LevelLayout) : LevelLayout { return this.getOr<LevelLayout>(GameProp.LEVEL_LAYOUT, value); }
+    setLevelLayout(value : LevelLayout) : void { this.set<LevelLayout>(GameProp.LEVEL_LAYOUT, value); }
+
     hasLevelVersion() : boolean { return this.has(GameProp.LEVEL_VERSION); }
     getLevelVersion() : number { return this.get<number>(GameProp.LEVEL_VERSION); }
     getLevelVersionOr(value : number) : number { return this.getOr<number>(GameProp.LEVEL_VERSION, value); }
@@ -135,6 +142,7 @@ export class GameMessage extends MessageBase<GameMessageType, GameProp> implemen
     ["CLIENT_ID", "number"],
     ["DISPLAY_NAME", "string"],
     ["FEED_TYPE", "FeedType"],
+    ["LEVEL_LAYOUT", "LevelLayout"],
     ["LEVEL_SEED", "number"],
     ["LEVEL_TYPE", "LevelType"],
     ["LEVEL_VERSION", "number"],

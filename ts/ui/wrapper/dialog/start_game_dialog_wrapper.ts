@@ -3,7 +3,7 @@ import { game } from 'game'
 import { GameMode } from 'game/api'
 import { FrequencyType } from 'game/entity/api'
 import { ConfigFactory } from 'game/factory/config_factory'
-import { LevelType, LoadoutType, PlayerRole, WeaponSetType, WinConditionType } from 'game/system/api'
+import { LevelType, LevelLayout, LoadoutType, PlayerRole, WeaponSetType, WinConditionType } from 'game/system/api'
 import { Controller } from 'game/system/controller'
 import { PlayerConfig, PlayerInfo } from 'game/util/player_config'
 
@@ -174,7 +174,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.DUEL, {
 			requirements: [],
-			description: "1v1 tryhard mode.\r\n\r\nOutsweat your opponent on a small symmetric Birdtown where everyone gets the same loadout.",
+			description: "1v1 tryhard mode.\r\n\r\nOutsweat your opponent on a small symmetric level where everyone gets the same loadout.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 2,
 			maxRecommended: 2,
@@ -187,7 +187,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.SUDDEN_DEATH, {
 			requirements: [],
-			description: "Be the last bird in a tiny town in a series of lightning quick rounds.",
+			description: "Be the last bird in a tiny level in a series of lightning quick rounds.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 2,
 		});
@@ -390,7 +390,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		switch (mode) {
 		case GameMode.DUEL:
-			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.MIRROR, LevelLayout.TINY]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE_TURNS, LoadoutType.PICK_TURNS, LoadoutType.RANDOM_ALL, LoadoutType.GOLDEN_GUN]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
@@ -401,19 +402,21 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		case GameMode.FREE_FOR_ALL:
 		case GameMode.GOLDEN_GUN:
 		case GameMode.SPREE:
-			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.BIRDTOWN_CIRCLE, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.MIRROR, LevelLayout.TINY]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			if (mode !== GameMode.GOLDEN_GUN) {
-				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM]).elm());
+				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM, LoadoutType.PICK]).elm());
 				otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 				otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 				otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			}
 			break;
 		case GameMode.PRACTICE:
-			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.BIRD_CLIFFS, LevelType.BIRDTOWN_CIRCLE, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.MIRROR, LevelLayout.TINY]).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK]).elm());
 			coreCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
@@ -421,27 +424,30 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.SUDDEN_DEATH:
-			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.BIRDTOWN_CIRCLE, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.MIRROR, LevelLayout.TINY]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());	
 			coreCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM, LoadoutType.PICK]).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.SURVIVAL:
-			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.BIRDTOWN_CIRCLE, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.MIRROR, LevelLayout.TINY]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM, LoadoutType.PICK]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.TEAM_BATTLE:
-			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.MIRROR, LevelLayout.TINY]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
@@ -450,7 +456,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.VIP:
-			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.MIRROR, LevelLayout.TINY]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
@@ -459,10 +466,11 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.TEAM_DEATHMATCH:
-			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg, [LevelType.BIRDTOWN_CIRCLE, LevelType.BIRDTOWN, LevelType.DUELTOWN, LevelType.TINYTOWN]).elm());
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.MIRROR, LevelLayout.TINY]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 30).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM, LoadoutType.PICK, LoadoutType.GOLDEN_GUN]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
@@ -498,7 +506,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 	}
 
-	private levelWrapper(msg : GameConfigMessage, types : LevelType[]) : LabelNumberWrapper {
+	private levelWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
+		const types = [LevelType.RANDOM, LevelType.BIRDTOWN, LevelType.CLIFF_LAKE];
+
 		let index = types.indexOf(msg.getLevelType());
 		if (index < 0) {
 			msg.setLevelType(types[0]);
@@ -528,6 +538,37 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			},
 		});
 	}
+	private layoutWrapper(msg : GameConfigMessage, types : LevelLayout[]) : LabelNumberWrapper {
+		let index = types.indexOf(msg.getLevelLayout());
+		if (index < 0) {
+			msg.setLevelLayout(types[0]);
+			index = 0;
+		}
+
+		return new LabelNumberWrapper({
+			label: "Level modifier",
+			value: msg.getLevelLayout(),
+			plus: (current : number) => {
+				index++;
+				if (index >= types.length) {
+					index = 0;
+				}
+				msg.setLevelLayout(types[index]);
+			},
+			minus: (current : number) => {
+				index--;
+				if (index < 0) {
+					index = types.length - 1;
+				}
+				msg.setLevelLayout(types[index]);
+			},
+			get: () => { return msg.getLevelLayout(); },
+			html: (current : number) => {
+				return StringFactory.getLayoutName(current);
+			},
+		});
+	}
+
 	private pointsWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
 		return new LabelNumberWrapper({
 			label: "Score limit",
@@ -616,7 +657,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		}
 
 		return new LabelNumberWrapper({
-			label: "Starting Loadout",
+			label: "Starting loadout",
 			value: msg.getStartingLoadout(),
 			plus: (current : number) => {
 				index++;

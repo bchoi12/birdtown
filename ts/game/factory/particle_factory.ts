@@ -18,6 +18,7 @@ export namespace ParticleFactory {
 		[ParticleType.TEAR, createTear],
 		[ParticleType.TORUS, createTorus],
 		[ParticleType.TETRAHEDRON, createTetrahedron],
+		[ParticleType.WATER, createSphere],
 	]);
 
 	let cache = new Map<ParticleType, BABYLON.Mesh>; 
@@ -48,12 +49,14 @@ export namespace ParticleFactory {
 	function createSphere() : BABYLON.Mesh {
 		const name = "particle-sphere";
 		let sphere = BABYLON.MeshBuilder.CreateSphere(name, { diameter: 1, }, game.scene());
+		sphere.isVisible = false;
 		sphere.material = new BABYLON.StandardMaterial(name, game.scene());
 		return sphere;
 	}
 	function createCube() : BABYLON.Mesh {
 		const name = "particle-cube";
 		let cube = BABYLON.MeshBuilder.CreateBox("particle-cube", { width: 1, height: 1, depth: 1, }, game.scene());
+		cube.isVisible = false;
 		cube.material = new BABYLON.StandardMaterial(name, game.scene());
 		return cube;
 	}
@@ -63,6 +66,7 @@ export namespace ParticleFactory {
 			width: 1,
 			height: 1,
 		}, game.scene());
+		plane.isVisible = false;
 		plane.material = new BABYLON.StandardMaterial(name, game.scene());
 		return plane;
 	}
@@ -77,6 +81,7 @@ export namespace ParticleFactory {
 
 		const name = "particle-tear";
 		let tear = BABYLON.MeshBuilder.CreateLathe("particle-tear", { shape: tearShape }, game.scene());
+		tear.isVisible = false;
 		tear.material = new BABYLON.StandardMaterial(name, game.scene());
 		return tear;
 	}
@@ -85,6 +90,7 @@ export namespace ParticleFactory {
 		let torus = BABYLON.MeshBuilder.CreateTorus(name, {
 			thickness: 0.3,
 		}, game.scene());
+		torus.isVisible = false;
 		torus.material = new BABYLON.StandardMaterial(name, game.scene());
 		return torus;
 	}
@@ -97,6 +103,7 @@ export namespace ParticleFactory {
 			sizeY: 1,
 			sizeZ: 1,
 		}, game.scene());
+		tetrahedron.isVisible = false;
 		tetrahedron.material = new BABYLON.StandardMaterial(name, game.scene());
 		return tetrahedron;
 	}

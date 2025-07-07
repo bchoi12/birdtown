@@ -94,7 +94,7 @@ export class Plane extends EntityBase implements Entity {
 		// Turn around
 		if (!game.level().isCircle()) {
 			const bounds = game.level().bounds();
-			const side = bounds.xSide(this._profile.pos(), /*buffer=*/-1.5 * this._profile.dim().x);
+			const side = bounds.xSide(this._profile.pos(), /*buffer=*/-0.5 * this._profile.dim().x);
 			if (side !== 0) {
 				this._profile.setVel({ x: -1 * side * Plane._speed });
 			}
@@ -127,7 +127,6 @@ export class Plane extends EntityBase implements Entity {
 			this.addEntity(crateType, {
 				profileInit: {
 					pos: this._profile.pos().clone().add({ x: Math.sign(this._profile.vel().x) * 2 }),
-					dim: { x: 1, y: 1 },
 					vel: this._profile.vel(),
 					angle: Math.random() * 360,
 				}

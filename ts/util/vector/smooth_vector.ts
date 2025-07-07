@@ -53,6 +53,12 @@ export class SmoothVec extends Vec3 {
 		return Vec3.approxEquals(this._base.get(), this._predict.get(), 3e-2);
 	}
 
+	snapXY(t : number) : Vec3 {
+		const z = this.z;
+		this.snap(t);
+		this.z = z;
+		return this;
+	}
 	snap(t : number) : Vec3 {
 		if (!this._base.has() || !this._predict.has()) { return this; }
 

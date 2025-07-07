@@ -11,7 +11,7 @@ import { EntityFactory } from 'game/factory/entity_factory'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { System, SystemBase } from 'game/system'
-import { SystemType, LevelType } from 'game/system/api'
+import { SystemType, LevelType, LevelLayout } from 'game/system/api'
 import { ArchBlueprint } from 'game/system/level/blueprint/arch_blueprint'
 import { CliffBlueprint } from 'game/system/level/blueprint/cliff_blueprint'
 
@@ -33,30 +33,20 @@ import { Vec, Vec2 } from 'util/vector'
 type LevelOptions = {
 	type : LevelType;
 	seed : number;
+	layout : LevelLayout;
 	numPlayers : number;
 	numTeams: number;
 }
 
-enum LevelLayout {
-	UNKNOWN,
-
-	NORMAL,
-	CIRCLE,
-}
-
 export class Level extends SystemBase implements System {
 
-	// Default to NORMAL
-	private static readonly _layout = new Map<LevelType, LevelLayout>([
-		[LevelType.BIRDTOWN_CIRCLE, LevelLayout.CIRCLE],
-		[LevelType.BIRD_CLIFFS, LevelLayout.CIRCLE],
-		[LevelType.LOBBY, LevelLayout.CIRCLE],
-	]);
+	private static readonly _levelRotation = [LevelType.BIRDTOWN, LevelType.CLIFF_LAKE];
 
 	private _levelMsg : GameMessage;
 	private _bounds : Box2;
 	private _rng : SeededRandom;
 	private _defaultSpawn : Vec2;
+	private _randomCounter : number;
 
 	constructor() {
 		super(SystemType.LEVEL);
@@ -65,6 +55,7 @@ export class Level extends SystemBase implements System {
 		this._bounds = Box2.zero();
 		this._rng = new SeededRandom(0);
 		this._defaultSpawn = Vec2.zero();
+		this._randomCounter = 0;
 
 		this.addProp<MessageObject>({
 			has: () => { return this._levelMsg.updated(); },
@@ -88,11 +79,8 @@ export class Level extends SystemBase implements System {
 	}
 
 	levelType() : LevelType { return this._levelMsg.getLevelTypeOr(LevelType.UNKNOWN); }
-	private levelLayout() : LevelLayout {
-		const levelType = this.levelType();
-		return Level._layout.has(levelType) ? Level._layout.get(levelType) : LevelLayout.NORMAL;
-	}
-	private seed() : number { return this._levelMsg.getLevelSeedOr(0); }
+	private levelLayout() : LevelLayout { return this._levelMsg.getLevelLayoutOr(LevelLayout.NORMAL); }
+	seed() : number { return this._levelMsg.getLevelSeedOr(0); }
 	version() : number { return this._levelMsg.getLevelVersionOr(0); }
 	bounds() : Box2 { return this._bounds; }
 	isCircle() : boolean { return this.levelLayout() === LevelLayout.CIRCLE; }
@@ -183,9 +171,20 @@ export class Level extends SystemBase implements System {
 		}
 	}
 
+	randomLevel() : LevelType {
+		const levelType = Level._levelRotation[this._randomCounter];
+		this._randomCounter++;
+		return levelType;
+	}
 	loadLevel(options : LevelOptions) : void {
-		this._levelMsg.setLevelType(options.type);
+		let levelType = options.type;
+		if (levelType === LevelType.RANDOM) {
+			levelType = this.randomLevel();
+		}
+
+		this._levelMsg.setLevelType(levelType);
 		this._levelMsg.setLevelSeed(options.seed);
+		this._levelMsg.setLevelLayout(options.layout);
 		this._levelMsg.setLevelVersion(this.version() + 1);
 		this._levelMsg.setNumPlayers(options.numPlayers);
 		this._levelMsg.setNumTeams(options.numTeams);
@@ -229,17 +228,22 @@ export class Level extends SystemBase implements System {
 
 		let blueprint;
 		switch (msg.getLevelType()) {
-		case LevelType.BIRD_CLIFFS:
+		case LevelType.CLIFF_LAKE:
 			blueprint = new CliffBlueprint({
 				msg: msg,
 				pos: pos,
 			});
 			break;
-		default:
+		case LevelType.LOBBY:
+		case LevelType.BIRDTOWN:
 			blueprint = new ArchBlueprint({
 				msg: msg,
 				pos: pos,
 			})
+			break;
+		default:
+			console.error("Error: unsupported level type %s", LevelType[msg.getLevelType()]);
+			return;
 		}
 		let bounds = Box2.point(pos);
 

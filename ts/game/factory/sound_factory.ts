@@ -217,6 +217,18 @@ export namespace SoundFactory {
 				spatialSound: true,
 			}
 		}],
+		[SoundType.SPLASH_IN, {
+			path: "splash_in.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
+		[SoundType.SPLASH_OUT, {
+			path: "splash_out.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 		[SoundType.SQUAWK, {
 			path: "squawk.mp3",
 			options: {

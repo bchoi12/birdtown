@@ -101,7 +101,7 @@ export abstract class Block extends EntityBase implements Entity {
 				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					isSensor: true,
 					isStatic: true,
-					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE),
+					collisionFilter: this.canOcclude() ? BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE) : BodyFactory.neverCollideFilter(),
 				});
 			},
 			init: entityOptions.profileInit,

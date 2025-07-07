@@ -322,7 +322,7 @@ export class Vec3 extends Vec2 implements Vec {
     static override fromBabylon3(vec : BABYLON.Vector3) : Vec3 { return new Vec3({x: vec.x, y: vec.y, z: vec.z }); }
 
     static override approxEquals(a : Vec, b : Vec, epsilon : number) : boolean {
-        if (Math.abs(a.x - b.x) >= epsilon || Math.abs(a.y - b.y) >= epsilon) {
+        if (Math.abs(a.x - b.x) >= epsilon || Math.abs(a.y - b.y) >= epsilon || Math.abs(a.z - b.z) >= epsilon) {
             return false;
         }
         if (Vec3.isZero(a) !== Vec3.isZero(b)) {
@@ -418,7 +418,6 @@ export class Vec3 extends Vec2 implements Vec {
         this.z = -this.z;
         return this;
     }
-
 
     override scale(s : number) : Vec3 {
         super.scale(s);

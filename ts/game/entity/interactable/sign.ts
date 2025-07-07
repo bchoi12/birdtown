@@ -101,7 +101,7 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 	}
 
 	oscillateTime() : number { return 0; }
-	abstract nameTagText() : string;
+	nameTagText() : string { return ""; }
 	abstract tooltipType() : TooltipType;
 
 	equip(equip : Equip<Entity & EquipEntity>) : void {

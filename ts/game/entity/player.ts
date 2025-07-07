@@ -321,7 +321,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 			let maxVerticalVel = this.getAttribute(AttributeType.FLOATING) ? Player._maxFloatingVel : Player._maxVerticalVel;
 			if (this.getAttribute(AttributeType.UNDERWATER)) {
-				maxVerticalVel *= this._profile.vel().y > 0 ? 0.6 : 0.3;
+				maxVerticalVel *= this._profile.vel().y > 0 ? 0.7 : 0.3;
 			}
 
 			if (Math.abs(profile.vel().y) > maxVerticalVel) {

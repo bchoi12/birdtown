@@ -64,7 +64,7 @@ export class CloudGenerator extends Generator implements System {
 	}
 
 	private yOffset(type : LevelType, bounds : Box2) : number {
-		if (type === LevelType.BIRD_CLIFFS) {
+		if (type === LevelType.CLIFF_LAKE) {
 			return bounds.min.y + 0.5 * bounds.height() + 0.5 * this._rng.next() * bounds.height();
 		}
 
@@ -73,7 +73,7 @@ export class CloudGenerator extends Generator implements System {
 
 	private zOffset(type : LevelType) : number {
 		let z = 0;
-		if (type === LevelType.BIRD_CLIFFS) {
+		if (type === LevelType.CLIFF_LAKE) {
 			this._rng.switch([
 				[0.3, () => { z = -10; }],
 				[0.65, () => { z = 10; }],
@@ -91,7 +91,7 @@ export class CloudGenerator extends Generator implements System {
 	}
 
 	private spacing(type : LevelType) : number {
-		if (type === LevelType.BIRD_CLIFFS) {
+		if (type === LevelType.CLIFF_LAKE) {
 			return 2;
 		}
 		return 4;

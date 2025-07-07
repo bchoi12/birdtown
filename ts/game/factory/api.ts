@@ -72,7 +72,9 @@ export enum ColorType {
 	TREE_RED,
 	TREE_ORANGE,
 	TREE_YELLOW,
+	TREE_PURPLE,
 	TREE_BROWN,
+	TREE_WHITE,
 
 	PLAYER_RED,
 	PLAYER_ORANGE,
@@ -288,6 +290,7 @@ export enum MeshType {
 	BILLBOARD,
 	BUSH,
 	CLIFF,
+	CLIFF_WALL,
 	CRATE,
 	MINI_CLIFF,
 	PERGOLA,
@@ -321,6 +324,7 @@ export enum ParticleType {
 	TEAR,
 	TETRAHEDRON,
 	TORUS,
+	WATER,
 }
 
 export enum SoundType {
@@ -359,6 +363,8 @@ export enum SoundType {
 	SCIFI_RELOAD,
 	SCREAM,
 	SMALL_EXPLOSION,
+	SPLASH_IN,
+	SPLASH_OUT,
 	SQUAWK,
 	TABLE_FLIP,
 	THROW,

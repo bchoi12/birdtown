@@ -31,12 +31,21 @@ export namespace MeshFactory {
 	let resultCache = new Map<MeshType, LoadResult>();
 
 	export function load(type : MeshType, cb : (loadResult : LoadResult) => void) : void {
+		if (type === MeshType.UNKNOWN) {
+			return;
+		}
+
 		const fileName = getFileName(type);
 
 		if (isCached(type)) {
+			let mesh = resultCache.get(type).mesh.clone(MeshType[type], /*newParent=*/null);
+			mesh.isVisible = true;
+			mesh.getChildMeshes<BABYLON.Mesh>().forEach((child : BABYLON.Mesh) => {
+				child.isVisible = true;
+			});
 			cb({
 				...resultCache.get(type),
-				mesh: resultCache.get(type).mesh.clone(MeshType[type], /*newParent=*/null),
+				mesh: mesh,
 			});
 			return;
 		}
@@ -51,9 +60,14 @@ export namespace MeshFactory {
 				transformNodes: transformNodes,
 			};
 			if (cacheTypes.has(type) && !resultCache.has(type)) {
+				let mesh = result.mesh.clone(MeshType[type], /*newParent=*/null);
+				mesh.isVisible = false;
+				mesh.getChildMeshes<BABYLON.Mesh>().forEach((child : BABYLON.Mesh) => {
+					child.isVisible = false;
+				});
 				resultCache.set(type, {
 					...result,
-					mesh: result.mesh.clone(MeshType[type], /*newParent=*/null),
+					mesh: mesh,
 				});
 			}
 			cb(result);

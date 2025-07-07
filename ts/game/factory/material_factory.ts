@@ -50,13 +50,13 @@ export namespace MaterialFactory {
 
 		pbrMaterial(MaterialType.CLIFF_BROWN, (mat : BABYLON.PBRMaterial) => {
 			mat.albedoColor = ColorFactory.color(ColorType.CLIFF_BROWN).toBabylonColor3();
-			mat.metallic = 0.1;
-			mat.roughness = 0.8;
+			mat.metallic = 0;
+			mat.roughness = 0.9;
 		});
 		pbrMaterial(MaterialType.CLIFF_LIGHT_BROWN, (mat : BABYLON.PBRMaterial) => {
 			mat.albedoColor = ColorFactory.color(ColorType.CLIFF_LIGHT_BROWN).toBabylonColor3();
-			mat.metallic = 0.1;
-			mat.roughness = 0.8;
+			mat.metallic = 0;
+			mat.roughness = 0.9;
 		});
 		pbrMaterial(MaterialType.CLIFF_GRAY, (mat : BABYLON.PBRMaterial) => {
 			mat.albedoColor = ColorFactory.color(ColorType.CLIFF_GRAY).toBabylonColor3();

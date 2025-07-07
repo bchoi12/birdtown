@@ -1,6 +1,7 @@
 
 import { EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { LevelType, LevelLayout } from 'game/system/api'
 
 import { GameMessage } from 'message/game_message'
 
@@ -33,6 +34,9 @@ export abstract class Blueprint<T extends BlueprintBlock> {
 	}
 
 	options() : BlueprintOptions { return this._options; }
+	getType() : LevelType { return this._options.msg.getLevelTypeOr(LevelType.UNKNOWN); }
+	getLayout() : LevelLayout { return this._options.msg.getLevelLayoutOr(LevelLayout.NORMAL); }
+	getNumPlayers() : number { return this._options.msg.getNumPlayersOr(0); }
 	rng() : SeededRandom { return this._rng; }
 	abstract load() : void;
 	abstract blocks() : Array<T>;
@@ -61,7 +65,7 @@ export abstract class BlueprintBlock {
 		this.pushEntityOptions(type, this._options);
 	}
 
-	type() : EntityType { return this._type; }
+	entityType() : EntityType { return this._type; }
 	protected hasPos() : boolean { return defined(this._options.profileInit, this._options.profileInit.pos) }
 	pos() : Vec { return this.hasPos() ? this._options.profileInit.pos : {x: 0, y: 0}; }
 	abstract dim() : Vec;

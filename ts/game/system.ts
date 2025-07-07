@@ -3,7 +3,7 @@ import { GameObjectState } from 'game/api'
 import { GameObject, GameObjectBase } from 'game/game_object'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { LevelType, SystemType } from 'game/system/api'
+import { SystemType } from 'game/system/api'
 
 import { Flags } from 'global/flags'
 

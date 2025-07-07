@@ -18,23 +18,28 @@ export class Tree extends Block {
 		if (this.isSource()) {
 			const rand = Math.random();
 
-			this._hexColors.setColor(ColorCategory.SECONDARY, ColorFactory.toHex(ColorType.TREE_BROWN));
-
 			if (game.world().getTime() === TimeType.EVENING) {
-				if (rand < 0.33) {
+				this._hexColors.setColor(ColorCategory.SECONDARY, ColorFactory.toHex(ColorType.TREE_WHITE));
+
+				if (rand < 0.32) {
 					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_RED));
-				} else if (rand < 0.66) {
+				} else if (rand < 0.64) {
 					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_ORANGE));
-				} else {
+				} else if (rand < 0.96) {
 					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_YELLOW));
+				} else {
+					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_PURPLE));
 				}
 			} else {
+				this._hexColors.setColor(ColorCategory.SECONDARY, ColorFactory.toHex(ColorType.TREE_BROWN));
+
 				if (rand < 0.25) {
 					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_LIGHT_GREEN));
 				} else if (rand < 0.5) {
 					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_DARK_GREEN));
-				} else if (rand > 0.97) {
+				} else if (rand > 0.98) {
 					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_RED));
+					this._hexColors.setColor(ColorCategory.SECONDARY, ColorFactory.toHex(ColorType.TREE_WHITE));
 				} else {
 					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_GREEN));
 				}
@@ -51,7 +56,10 @@ export class Tree extends Block {
 	override initialize() : void {
 		super.initialize();
 
-		this._model.rotation().y = Math.random() * Math.PI;
+		this._model.onLoad((model) => {
+			// Use mesh because of Z translation
+			model.mesh().rotation.y = 2 * Math.random() * Math.PI;
+		});
 	}
 
 	override canOcclude() : boolean { return super.canOcclude() && this._model.root().position.z > 0; }
