@@ -3,6 +3,7 @@ import { ProfileInitOptions } from 'game/component/profile'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Cliff, CliffBase, MiniCliff, CliffWall } from 'game/entity/block/cliff'
+import { Platform } from 'game/entity/bound/platform'
 import { ColorCategory, ColorType, MaterialType, MeshType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -84,10 +85,10 @@ export class TopCliff extends Cliff {
 
 	protected addPlatform(pos : Vec, length : number) : void {
 		const profileInit = this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: length, y: this.thickness(), z: 5 }, {x: pos.x, y: 3 + pos.y });
-		this.addTrackedEntity(EntityType.PLATFORM, {
+		this.addTrackedEntity<Platform>(EntityType.PLATFORM, {
 			profileInit: profileInit,
 			modelInit: {
-				materialType: MaterialType.CLIFF_LIGHT_BROWN,
+				materialType: MaterialType.CLIFF_PLATFORM,
 			},
 		});
 	}
@@ -170,8 +171,8 @@ export class TopCliff extends Cliff {
 		}
 
 		const dim = this._profile.dim();
-		const maxTrees = Math.ceil(0.5 * length / treeDim.x);
-		const trees = Math.ceil(this._rng.next() * maxTrees);
+		const maxTrees = Math.ceil(0.7 * length / treeDim.x);
+		const trees = Math.round(this._rng.next() * maxTrees);
 		const zOffset = 4 + (maxTrees - trees) * 3 * this._rng.next();
 		for (let i = 0; i < trees; ++i) {
 			const xMax = length - treeDim.x;
@@ -222,14 +223,14 @@ export class TopCliffWall extends CliffWall {
 
 		const dim = this._profile.dim();
 		const treeDim = EntityFactory.getDimension(EntityType.TREE);
-		const trees = 3;
+		const trees = 2;
 		const zOffset = -3;
 		for (let i = 0; i < trees; ++i) {
 
 			const xMax = dim.x - treeDim.x;
 			let treePos = {
 				// Clear middle for other objects
-				x: this._rng.next() * xMax / 3 + Math.random() < 0.5 ? 0 : (2 * xMax / 3),
+				x: this._rng.next() * xMax / 3 + ((i % 2 === 0) ? 0 : (2 * xMax / 3)),
 				y: dim.y,
 				z: zOffset - i * 3,
 			}

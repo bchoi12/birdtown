@@ -42,6 +42,7 @@ export namespace ColorFactory {
 
 		[ColorType.CLIFF_BROWN, HexColor.fromHex(0x74402B)],
 		[ColorType.CLIFF_LIGHT_BROWN, HexColor.fromHex(0xE7C098)],
+		[ColorType.CLIFF_PLATFORM, HexColor.fromHex(0xbf9569)],
 		[ColorType.CLIFF_GRAY, HexColor.fromHex(0x4b4b4b)],
 		[ColorType.CLIFF_DARK_GRAY, HexColor.fromHex(0x121212)],
 		[ColorType.CLIFF_LIGHT_GRAY, HexColor.fromHex(0x8f8f8f)],

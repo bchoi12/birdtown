@@ -11,10 +11,14 @@ import { ColorCategory, DepthType } from 'game/factory/api'
 
 export class Platform extends BoundBase {
 
+	private _outlineEdges : number;
+
 	private _model : Model;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PLATFORM, entityOptions);
+
+		this._outlineEdges = 0;
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready() },
@@ -29,5 +33,27 @@ export class Platform extends BoundBase {
 			},
 			init: entityOptions.modelInit,
 		}));
+
+		this.addProp<number>({
+			has: () => { return this._outlineEdges > 0; },
+			import: (obj : number) => { this.outlineEdges(obj); },
+			export: () => { return this._outlineEdges; },
+		})
+	}
+
+	outlineEdges(width : number) : void {
+		this._outlineEdges = width;
+
+		this._model.onLoad((model : Model) => {
+			model.mesh().enableEdgesRendering();
+			model.mesh().edgesWidth = width;
+			model.mesh().edgesColor = new BABYLON.Color4(0, 0, 0, 1);
+		});
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		this._model.setFrozen(true);
 	}
 }

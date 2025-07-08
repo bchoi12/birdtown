@@ -58,6 +58,11 @@ export namespace MaterialFactory {
 			mat.metallic = 0;
 			mat.roughness = 0.9;
 		});
+		pbrMaterial(MaterialType.CLIFF_PLATFORM, (mat : BABYLON.PBRMaterial) => {
+			mat.albedoColor = ColorFactory.color(ColorType.CLIFF_PLATFORM).toBabylonColor3();
+			mat.metallic = 0;
+			mat.roughness = 0.9;
+		});
 		pbrMaterial(MaterialType.CLIFF_GRAY, (mat : BABYLON.PBRMaterial) => {
 			mat.albedoColor = ColorFactory.color(ColorType.CLIFF_GRAY).toBabylonColor3();
 			mat.metallic = 0.1;

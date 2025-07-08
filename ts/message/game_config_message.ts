@@ -24,9 +24,6 @@ enum GameConfigProp {
 	STARTING_LOADOUT,
 	TIME_SETUP,
 	TIME_GAME,
-	TIME_FINISH,
-	TIME_VICTORY,
-	TIME_ERROR,
 	VICTORIES,
 	WEAPON_SET,
 	WEAPON_CRATE_SPAWN,
@@ -53,9 +50,6 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameConfigProp.SPAWN_TIME, { optional: true }],
 		[GameConfigProp.RESET_POINTS, {}],
 		[GameConfigProp.TIME_SETUP, {}],
-		[GameConfigProp.TIME_FINISH, {}],
-		[GameConfigProp.TIME_VICTORY, {}],
-		[GameConfigProp.TIME_ERROR, {}],
 	];
 
 	private static readonly _messageDescriptor = new Map<GameMode, FieldDescriptor>([
@@ -158,9 +152,6 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		this.setLevelSeed(Math.floor(100000 * Math.random()));
 
 		this.setTimeSetup(25000);
-		this.setTimeFinish(4000);
-		this.setTimeVictory(7000);
-		this.setTimeError(5000);
 
 		this.setResetPoints(false);
 		this.setHealthCrateSpawn(FrequencyType.NEVER);
@@ -347,21 +338,6 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getTimeGameOr(value : number) : number { return this.getOr<number>(GameConfigProp.TIME_GAME, value); }
     setTimeGame(value : number) : void { this.set<number>(GameConfigProp.TIME_GAME, value); }
 
-    hasTimeFinish() : boolean { return this.has(GameConfigProp.TIME_FINISH); }
-    getTimeFinish() : number { return this.get<number>(GameConfigProp.TIME_FINISH); }
-    getTimeFinishOr(value : number) : number { return this.getOr<number>(GameConfigProp.TIME_FINISH, value); }
-    setTimeFinish(value : number) : void { this.set<number>(GameConfigProp.TIME_FINISH, value); }
-
-    hasTimeVictory() : boolean { return this.has(GameConfigProp.TIME_VICTORY); }
-    getTimeVictory() : number { return this.get<number>(GameConfigProp.TIME_VICTORY); }
-    getTimeVictoryOr(value : number) : number { return this.getOr<number>(GameConfigProp.TIME_VICTORY, value); }
-    setTimeVictory(value : number) : void { this.set<number>(GameConfigProp.TIME_VICTORY, value); }
-
-    hasTimeError() : boolean { return this.has(GameConfigProp.TIME_ERROR); }
-    getTimeError() : number { return this.get<number>(GameConfigProp.TIME_ERROR); }
-    getTimeErrorOr(value : number) : number { return this.getOr<number>(GameConfigProp.TIME_ERROR, value); }
-    setTimeError(value : number) : void { this.set<number>(GameConfigProp.TIME_ERROR, value); }
-
     hasVictories() : boolean { return this.has(GameConfigProp.VICTORIES); }
     getVictories() : number { return this.get<number>(GameConfigProp.VICTORIES); }
     getVictoriesOr(value : number) : number { return this.getOr<number>(GameConfigProp.VICTORIES, value); }
@@ -398,9 +374,6 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     ["STARTING_LOADOUT", "LoadoutType"],
     ["TIME_SETUP", "number"],
     ["TIME_GAME", "number"],
-    ["TIME_FINISH", "number"],
-    ["TIME_VICTORY", "number"],
-    ["TIME_ERROR", "number"],
     ["VICTORIES", "number"],
     ["WEAPON_CRATE_SPAWN", "FrequencyType"],
     ["WEAPON_SET", "WeaponSetType"],

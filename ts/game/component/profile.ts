@@ -797,6 +797,10 @@ export class Profile extends ComponentBase implements Component {
 		}
 	}
 	addSourceForce(force : Vec) : void {
+		if (force.x === 0 && force.y === 0) {
+			return;
+		}
+
 		if (this.isSource()) {
 			this._forces.push(force);
 		} else {

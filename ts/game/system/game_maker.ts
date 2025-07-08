@@ -38,9 +38,12 @@ export class GameMaker extends SystemBase implements System {
 
 	private static readonly _announcementBuffer = 500;
 	private static readonly _lastDamageTime = 15000;
-	private static readonly _endTimeLimit = 3000;
+	private static readonly _finishTimeLimit = 2500;
+	private static readonly _victoryTimeLimit = 5000;
+	private static readonly _endTimeLimit = 2500;
+	private static readonly _errorTimeLimit = 5000;
 	private static readonly _preloadTimeLimit = 1500;
-	private static readonly _loadTimeLimit = 3000;
+	private static readonly _loadTimeLimit = 2500;
 	private static readonly _respawnTime = 2000;
 
 	private static readonly _timeLimitBuffer = new Map<GameState, number>([
@@ -123,13 +126,13 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.GAME:
 			return this._config.getTimeGameOr(Infinity);
 		case GameState.FINISH:
-			return this._config.getTimeFinishOr(Infinity);
+			return GameMaker._finishTimeLimit;
 		case GameState.VICTORY:
-			return this._config.getTimeVictoryOr(Infinity);
+			return GameMaker._victoryTimeLimit;
 		case GameState.END:
 			return GameMaker._endTimeLimit;
 		case GameState.ERROR:
-			return this._config.getTimeErrorOr(Infinity);
+			return GameMaker._errorTimeLimit;
 		default:
 			return Infinity;
 		}

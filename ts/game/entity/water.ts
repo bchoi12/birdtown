@@ -12,6 +12,7 @@ import { BoundBase } from 'game/entity/bound'
 import { CollisionCategory, ColorType, MaterialType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
+import { MaterialFactory } from 'game/factory/material_factory'
 import { SoundFactory } from 'game/factory/sound_factory'
 import { StepData } from 'game/game_object'
 import { TimeType } from 'game/system/api'
@@ -22,6 +23,13 @@ import { ui } from 'ui'
 
 import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
+
+enum SubMesh {
+	UNKNOWN,
+
+	LEFT_WATER,
+	RIGHT_WATER,
+}
 
 export class Water extends EntityBase implements Entity {
 
@@ -69,6 +77,8 @@ export class Water extends EntityBase implements Entity {
 			readyFn: () => { return this._profile.ready() },
 			meshFn: (model : Model) => {
 				const dim = this._profile.initDim();
+				const height = dim.z;
+
 				let mesh = BABYLON.MeshBuilder.CreatePlane(this.name(), {
 					width: dim.x,
 					height: 1,
@@ -78,13 +88,32 @@ export class Water extends EntityBase implements Entity {
 				model.translation().y = dim.y / 2;
 
 				model.setAllowWrap(false);
-				model.scaling().x = 4;
-				model.scaling().y = dim.z;
+				model.scaling().y = height;
+
+				// Disable shadows for water on side
+				let leftWater = BABYLON.MeshBuilder.CreatePlane(this.name(), {
+					width: dim.x,
+					height: 1,
+					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
+				}, game.scene());
+				leftWater.position.x -= dim.x;
+				leftWater.receiveShadows = false;
+				leftWater.material = MaterialFactory.material(MaterialType.FROZEN_WATER);
+				model.registerSubMesh(SubMesh.LEFT_WATER, leftWater);
+
+				let rightWater = BABYLON.MeshBuilder.CreatePlane(this.name(), {
+					width: dim.x,
+					height: 1,
+					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
+				}, game.scene());
+				rightWater.position.x += dim.x;
+				rightWater.receiveShadows = false;
+				rightWater.material = MaterialFactory.material(MaterialType.FROZEN_WATER);
+				model.registerSubMesh(SubMesh.RIGHT_WATER, rightWater);
 
 				model.setMesh(mesh);
 			},
 			init: {
-				disableShadows: true,
 				materialType: MaterialType.FROZEN_WATER,
 				...entityOptions.modelInit,
 			},
@@ -135,7 +164,6 @@ export class Water extends EntityBase implements Entity {
 		if (splashIn) {
 			const yVel = entity.profile().vel().y;
 			weight = 0.5 + 0.5 * Fns.clamp(0, (-yVel - 0.05) / 0.1, 1);
-			console.log(yVel, weight);
 		} else {
 			weight = 1;
 		}
@@ -263,7 +291,7 @@ export class Water extends EntityBase implements Entity {
 			if (this._underwater) {
 				this._model.scaling().y = 16;
 			} else {
-				this._model.scaling().y = this._profile.initDim().z;
+				this._model.scaling().y = this._profile.dim().z;
 			}
 		}
 	}

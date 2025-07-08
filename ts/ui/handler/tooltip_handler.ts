@@ -162,7 +162,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			if (!game.isHost()) {
 				return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to view game modes\nOnly the host can start a game`;
 			}
-			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to start a game`;
+			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to start a new game!`;
 		case TooltipType.WEAPON_CRATE:
 			if (names.length !== 1) {
 				return "";

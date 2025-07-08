@@ -38,7 +38,7 @@ export class BottomCliff extends Cliff {
 
 			const x = len * i + 0.5 + (len - 1) * this._rng.next();
 			const yRand = this._rng.next();
-			const y = 0.5 + (height - 1) * yRand;
+			const y = 0.5 + (height - 1.5) * yRand;
 
 			this.addBlock({ x: x, y: y }, 0.5 + 2 * (1 - yRand));
 		}
@@ -94,7 +94,7 @@ export class BottomMiniCliff extends MiniCliff {
 
 			const x = len * index + 0.5 + (len - 1) * this._rng.next();
 			const yRand = this._rng.next();
-			const y = height * index + 0.5 + (height - 1) * yRand;
+			const y = (index % 2) * height + 0.5 + (height - 1) * yRand;
 
 			this.addBlock({ x: x, y: y }, 0.5 + (1 - yRand));
 		}

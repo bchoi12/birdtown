@@ -59,9 +59,9 @@ export class World extends SystemBase implements System {
 		[TimeType.DAY, {
 			skyMaterial: MaterialType.SKY_DAY,
 			lightDir: new BABYLON.Vector3(1, -3, -4).normalize(),
-			directionalIntensity: 1.3,
+			directionalIntensity: 1.4,
 			directionalDiffuse: new BABYLON.Color3(1, 1, 1),
-			hemisphericIntensity: 0.7,
+			hemisphericIntensity: 0.6,
 		hemisphericDiffuse: new BABYLON.Color3(1, 1, 1),
 			hemisphericBottomColor: new BABYLON.Color3(0.7, 0.7, 0.7),
 		}],
@@ -77,9 +77,9 @@ export class World extends SystemBase implements System {
 		[TimeType.NIGHT, {
 			skyMaterial: MaterialType.SKY_NIGHT,
 			lightDir: new BABYLON.Vector3(-1, -4, 4).normalize(),
-			directionalIntensity: 1.4,
+			directionalIntensity: 1.5,
 			directionalDiffuse: new BABYLON.Color3(1, 1, 1),
-			hemisphericIntensity: 0.8,
+			hemisphericIntensity: 0.7,
 			hemisphericDiffuse: new BABYLON.Color3(1, 1, 1),
 			hemisphericBottomColor: new BABYLON.Color3(0.1, 0.1, 0.1),
 		}],
