@@ -38,7 +38,7 @@ export class Tree extends Block {
 				} else if (rand < 0.5) {
 					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_DARK_GREEN));
 				} else if (rand > 0.98) {
-					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_RED));
+					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(game.world().getTime() === TimeType.NIGHT ? ColorType.TREE_PURPLE : ColorType.TREE_RED));
 					this._hexColors.setColor(ColorCategory.SECONDARY, ColorFactory.toHex(ColorType.TREE_WHITE));
 				} else {
 					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_GREEN));

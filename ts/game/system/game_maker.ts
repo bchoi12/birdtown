@@ -415,7 +415,6 @@ export class GameMaker extends SystemBase implements System {
 	    	break;
 		case GameState.LOAD:
 			this._round++;
-			this.setWinnerClientId(0);
 
 			if (this._round > 1 && this._round % 2 === 1) {
 				game.world().incrementTime();
@@ -462,6 +461,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.SETUP:
 			this.assignRoles();
 			this.configureLoadout();
+			this.setWinnerClientId(0);
 			break;
 		case GameState.GAME:
 	    	this.queueForceSubmit(DialogType.LOADOUT);
@@ -589,7 +589,14 @@ export class GameMaker extends SystemBase implements System {
 		}
 
 		if (this._config.getStartingLoadout() === LoadoutType.CHOOSE_TURNS || this._config.getStartingLoadout() === LoadoutType.PICK_TURNS) {
-			const nextId = this._playerRotator.nextFromAll();
+			let nextId;
+			if (this._round === 1) {
+				nextId = this._playerRotator.nextN(globalRandom.int(2 * this._playerConfig.numPlayers()));
+			} else if (this.isPlaying(this._winnerClientId)) {
+				nextId = this._playerRotator.nextExcluding(this._winnerClientId);
+			} else {
+				nextId = this._playerRotator.nextFromAll();
+			}
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 				clientDialog.queueDialog(DialogType.LOADOUT);
 			}, (clientDialog : ClientDialog) => {

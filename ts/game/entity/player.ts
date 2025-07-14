@@ -882,7 +882,6 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					continue;
 				}
 				const interactable = <InteractEntity>entity;
-
 				const distSq = pos.distSq(entity.profile().pos());
 				if (nearestInteractable === null || distSq < currentDistSq) {
 					nearestInteractable = interactable;

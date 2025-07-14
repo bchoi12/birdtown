@@ -52,14 +52,14 @@ export class DyingStar extends EntityBase {
 					collisionFilter: BodyFactory.neverCollideFilter(),
 				});
 			},
-			init: entityOptions.profileInit,
+			init: {
+				allowOutsideBounds: true,
+				...entityOptions.profileInit,
+			},
 		}));
 		this._profile.setMinimapOptions({
 			color: ColorFactory.color(ColorType.BLACK).toString(),
 		})
-		this._profile.setOutOfBoundsFn((profile : Profile) => {
-			this.delete();
-		});
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {

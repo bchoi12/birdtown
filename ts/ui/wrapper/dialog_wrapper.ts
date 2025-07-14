@@ -202,6 +202,17 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	addOnNextPage(fn : OnSubmitFn) : void { this._onNextPageFns.push(fn); }
+	previousPage() : void {
+		if (this._pageIndex <= 0 || this._pages.length <= 1) {
+			this.cancel();
+			return;
+		}
+
+		this._pages[this._pageIndex].elm().style.display = "none";
+		this._pages.pop();
+		this._pageIndex--;
+		this._pages[this._pageIndex].elm().style.display = "block";
+	}
 	nextPage() : void {
 		let currentPage = this._pages[this._pageIndex];
 

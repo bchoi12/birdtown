@@ -49,7 +49,11 @@ export class Cloud extends EntityBase implements Entity {
 					collisionFilter: BodyFactory.neverCollideFilter(),
 				});
 			},
-			init: {...entityOptions.profileInit, degraded: true },
+			init: {
+				allowOutsideBounds: true,
+				degraded: true,
+				...entityOptions.profileInit,
+			},
 		}));
 		this._profile.setVisible(false);
 	}

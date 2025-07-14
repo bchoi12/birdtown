@@ -54,7 +54,10 @@ export class BackgroundArchRoom extends BackgroundEntity implements Entity {
 					isSensor: true,
 				});
 			},
-			init: entityOptions.profileInit,
+			init: {
+				allowOutsideBounds: true,
+				...entityOptions.profileInit,
+			},
 		}));
 		this._profile.setVisible(false);
 	}

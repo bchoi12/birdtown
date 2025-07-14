@@ -43,13 +43,13 @@ export abstract class OrbBase extends Projectile {
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
 			},
-			init: entityOptions.profileInit,
+			init: {
+				allowOutsideBounds: true,
+				...entityOptions.profileInit,
+			}
 		}));
 		this._profile.setMinimapOptions({
 			color: ColorFactory.color(ColorType.WHITE).toString(),
-		})
-		this._profile.setOutOfBoundsFn((profile : Profile) => {
-			this.delete();
 		});
 
 		this._model = this.addComponent<Model>(new Model({

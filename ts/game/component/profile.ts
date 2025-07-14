@@ -45,6 +45,9 @@ export type ProfileInitOptions = {
 	// Send less data over the network
 	degraded? : boolean;
 
+	// Allow going outside level
+	allowOutsideBounds? : boolean;
+
 	// Do some extra postprocessing so we don't get stuck due to small collisions when moving
 	ignoreTinyCollisions? : boolean;
 }
@@ -74,13 +77,14 @@ export class Profile extends ComponentBase implements Component {
 
 	private static readonly _minQuantization = 1e-3;
 	private static readonly _vecEpsilon = 3 * Profile._minQuantization;
-	private static readonly _degradedVecEpsilon = 10 * Profile._vecEpsilon;
+	private static readonly _degradedVecEpsilon = 100 * Profile._vecEpsilon;
 	private static readonly _angleEpsilon = 1e-2;
 	private static readonly _knockbackTimeMin = 250;
 	private static readonly _knockbackTimeVariance = 250;
 
 	private _degraded : boolean;
 	private _ignoreTinyCollisions : boolean;
+	private _allowOutsideBounds : boolean;
 	private _bodyFn : BodyFn;
 	private _onBodyFns : Array<OnBodyFn>;
 	private _readyFn : ReadyFn;
@@ -122,6 +126,7 @@ export class Profile extends ComponentBase implements Component {
 
 		this._degraded = false;
 		this._ignoreTinyCollisions = false;
+		this._allowOutsideBounds = false;
 		this._bodyFn = profileOptions.bodyFn;
 		this._onBodyFns = new Array();
 
@@ -267,6 +272,7 @@ export class Profile extends ComponentBase implements Component {
 	initFromOptions(init : ProfileInitOptions) : void {
 		if (init.degraded) { this._degraded = init.degraded; }
 		if (init.ignoreTinyCollisions) { this._ignoreTinyCollisions = init.ignoreTinyCollisions; }
+		if (init.allowOutsideBounds) { this._allowOutsideBounds = init.allowOutsideBounds; }
 		if (init.pos) { this.setPos(init.pos); }
 		if (init.vel) { this.setVel(init.vel); }
 		if (init.acc) { this.setAcc(init.acc); }
@@ -748,7 +754,7 @@ export class Profile extends ComponentBase implements Component {
 			} else if (point.x - this._pos.x > game.level().bounds().width() / 2) {
 				point.x -= game.level().bounds().width();
 			}
-		} else {
+		} else if (!this._allowOutsideBounds) {
 			game.level().clampPos(point);
 		}
 
@@ -859,7 +865,9 @@ export class Profile extends ComponentBase implements Component {
 			} 
 		} 
 
-		game.level().clampProfile(this);
+		if (!this._allowOutsideBounds) {
+			game.level().clampProfile(this);
+		}
 		if (this._limitFn.has()) {
 			this._limitFn.get()(this);
 		}

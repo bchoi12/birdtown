@@ -223,7 +223,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 	}
 
 	override minBuffer() : number { return 1; }
-	override sideBuffer() : number { return 6; }
+	override sideBuffer() : number { return 10; }
 	override seamBuffer() : number { return 6; }
 
 	maxHeight() : number { return this._maxHeight; }
@@ -464,6 +464,9 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 	}
 
 	private populateTown(plan : Array<BuildingPlan>, options : BlueprintOptions) {
+
+		const flipTeam = this.rng().gt(0.5);
+
 		for (let i = 0; i < this.numBuildings(); ++i) {
 			let building = this.building(i);
 
@@ -477,7 +480,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 					if (game.controller().useTeamSpawns() && i === 0) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
-								team: 1,
+								team: flipTeam ? 2 : 1,
 							},
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),
@@ -486,7 +489,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 					} else if (game.controller().useTeamSpawns() && i === this.numBuildings() - 1) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
-								team: 2,
+								team: flipTeam ? 1 : 2,
 							},
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),
@@ -578,6 +581,8 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 		const plan = this.generateDueltownPlan(options);
 		this.addBuildings(plan);
 
+		const flipTeam = this.rng().gt(0.5);
+
 		let pergolaMod = this.rng().int(2);
 		let tableMod = this.rng().int(2);
 		let bushMod = this.rng().int(3);
@@ -593,7 +598,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 					if (game.controller().useTeamSpawns() && i === 1) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
-								team: 1,
+								team: flipTeam ? 2 : 1,
 							},
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),
@@ -602,7 +607,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 					} else if (game.controller().useTeamSpawns() && i === this.numBuildings() - 2) {
 						block.pushEntityOptions(EntityType.SPAWN_POINT, {
 							associationInit: {
-								team: 2,
+								team: flipTeam ? 1 : 2,
 							},
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ y: 4 }),

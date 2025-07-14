@@ -52,6 +52,7 @@ export enum EntityType {
 	DUCK_BEAK,
 	DYING_STAR,
 	EAGLE_BEAK,
+	ENEMY,
 	FLOOR,
 	GATLING,
 	GOLDEN_BULLET,

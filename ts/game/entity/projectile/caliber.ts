@@ -29,22 +29,6 @@ export abstract class CaliberBase extends Projectile {
 
 		this.addType(EntityType.CALIBER);
 
-		this._profile = this.addComponent<Profile>(new Profile({
-			bodyFn: (profile : Profile) => {
-				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
-					isSensor: true,
-					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
-				});
-			},
-			init: entityOptions.profileInit,
-		}));
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.SHOOTER_YELLOW).toString(),
-		})
-		this._profile.setOutOfBoundsFn((profile : Profile) => {
-			this.delete();
-		});
-
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
@@ -66,6 +50,22 @@ export abstract class CaliberBase extends Projectile {
 				...entityOptions.modelInit,
 			},
 		}));
+
+		this._profile = this.addComponent<Profile>(new Profile({
+			bodyFn: (profile : Profile) => {
+				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
+					isSensor: true,
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
+				});
+			},
+			init: {
+				allowOutsideBounds: true,
+				...entityOptions.profileInit,
+			}
+		}));
+		this._profile.setMinimapOptions({
+			color: ColorFactory.color(ColorType.SHOOTER_YELLOW).toString(),
+		})
 	}
 
 	override onHit(other : Entity) : void {

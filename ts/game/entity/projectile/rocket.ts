@@ -55,11 +55,11 @@ export abstract class RocketBase extends Projectile {
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
 			},
-			init: entityOptions.profileInit,
+			init: {
+				allowOutsideBounds: true,
+				...entityOptions.profileInit,
+			}
 		}));
-		this._profile.setOutOfBoundsFn((profile : Profile) => {
-			this.delete();
-		});
 		this._profile.setMinimapOptions({
 			color: ColorFactory.color(ColorType.BLASTER_RED).toString(),
 		});

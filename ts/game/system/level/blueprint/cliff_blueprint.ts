@@ -70,6 +70,7 @@ export class CliffBlueprint extends Blueprint<CliffBlueprintBlock> {
 
 		const dim = EntityFactory.getDimension(EntityType.CLIFF);
 		const miniDim = EntityFactory.getDimension(EntityType.MINI_CLIFF);
+		const flipTeam = this.rng().ge(0.5);
 
 		let pos = Vec2.fromVec(this.options().pos);
 		for (let i = 0; i < length; ++i) {
@@ -94,7 +95,7 @@ export class CliffBlueprint extends Blueprint<CliffBlueprintBlock> {
 				if (game.controller().useTeamSpawns()) {
 					leftBlock.pushEntityOptions(EntityType.SPAWN_POINT, {
 						associationInit: {
-							team: 1,
+							team: flipTeam ? 2 : 1,
 						},
 						profileInit: {
 							pos: Vec2.fromVec(leftBlock.pos()).add({ y: dim.y / 2 + 3 }),
@@ -157,7 +158,7 @@ export class CliffBlueprint extends Blueprint<CliffBlueprintBlock> {
 				if (game.controller().useTeamSpawns()) {
 					;rightBlock.pushEntityOptions(EntityType.SPAWN_POINT, {
 						associationInit: {
-							team: 2,
+							team: flipTeam ? 1 : 2,
 						},
 						profileInit: {
 							pos: Vec2.fromVec(rightBlock.pos()).add({ y: dim.y / 2 + 3 }),

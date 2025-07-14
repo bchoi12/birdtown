@@ -65,6 +65,7 @@ export namespace SoundFactory {
 		}],
 		[SoundType.CHARGE, {
 			path: "charge.mp3",
+			disallowDistortion: true,
 			options: {
 				spatialSound: true,
 			},

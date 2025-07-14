@@ -47,7 +47,7 @@ export class SpawnPoint extends EntityBase implements Entity {
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 
 		this._model = this.addComponent<Model>(new Model({
-			readyFn: () => { return this._profile.ready() && this._association.getTeam() > 0; },
+			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {
 				let base = this.createArrow(0);
 				[1, 2].forEach((i : number) => {
@@ -101,17 +101,17 @@ export class SpawnPoint extends EntityBase implements Entity {
 	}
 
 	private createArrow(i : number) : BABYLON.Mesh {
-		const goLeft = this._association.getTeam() === 2;
+		const pointRight = this._profile.pos().x > game.level().bounds().getCenter().x;
 
 		let arrow = BABYLON.MeshBuilder.ExtrudePolygon(this.name() + "-arrow" + i, {
 			shape: SpawnPoint._arrowVertices,
 			depth: 0.3,
 		}, game.scene(), earcut);
-		arrow.position.x = i * 0.8 * (goLeft ? -1 : 1);
+		arrow.position.x = i * 0.8 * (pointRight ? -1 : 1);
 		arrow.position.y = -1;
 		arrow.position.z = -3;
 		arrow.rotation.x = Math.PI / 2;
-		arrow.rotation.y = goLeft ? Math.PI : 0;
+		arrow.rotation.y = pointRight ? Math.PI : 0;
 		arrow.material = MaterialFactory.material(MaterialType.SPAWN_POINT)
 		this._arrows.push(arrow);
 		return arrow;

@@ -99,6 +99,7 @@ export class Level extends SystemBase implements System {
 		}
 
 		let pos = profile.pos();
+		let vel = profile.vel();
 
 		if (this.isCircle()) {
 			const x = Fns.wrap(this._bounds.min.x, pos.x, this._bounds.max.x);
@@ -112,7 +113,18 @@ export class Level extends SystemBase implements System {
 				pos.x = x;
 			}
 		} else {
-			pos.x = Fns.clamp(this._bounds.min.x, pos.x, this._bounds.max.x);
+			if (pos.x < this._bounds.min.x) {
+				pos.x = this._bounds.min.x;
+				if (vel.x < 0) {
+					vel.x = 0;
+				}
+			}
+			if (pos.x > this._bounds.max.x) {
+				pos.x = this._bounds.max.x;
+				if (vel.x > 0) {
+					vel.x = 0;
+				}
+			}
 		}
 		pos.y = Math.min(pos.y, this._bounds.max.y);
 	}

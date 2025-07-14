@@ -102,7 +102,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		let wrapper = this._infoWrappers.get(id);
 		wrapper.hideAll();
 
-		Tablet.infoTypes(config.getWinCondition()).forEach((type : InfoType) => {
+		Tablet.infoTypes(config.getWinConditionOr(WinConditionType.NONE)).forEach((type : InfoType) => {
 			wrapper.show(type);
 		});
 		this.sort();
@@ -116,7 +116,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 		let wrapper = this._infoWrappers.get(id);
 		wrapper.update(type, value);
 
-		if (Tablet.infoTypes(game.controller().config().getWinCondition()).has(type)) {
+		if (Tablet.infoTypes(game.controller().config().getWinConditionOr(WinConditionType.NONE)).has(type)) {
 			wrapper.show(type);
 			this.sort();
 		}
@@ -142,7 +142,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	sort() : void {
-		switch (game.controller().config().getWinCondition()) {
+		switch (game.controller().config().getWinConditionOr(WinConditionType.NONE)) {
 		case WinConditionType.NONE:
 			this._infoWrappers.forEach((wrapper : InfoWrapper, id : number) => {
 				let team = 0;

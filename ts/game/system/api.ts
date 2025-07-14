@@ -40,8 +40,11 @@ export enum LevelType {
 	UNKNOWN,
 	BIRDTOWN,
 	CLIFF_LAKE,
+
+	// Cannot random
 	LOBBY,
 
+	// Special
 	RANDOM,
 }
 
@@ -108,4 +111,6 @@ export enum WinConditionType {
 	POINTS,
 	TEAM_LIVES,
 	TEAM_POINTS,
+
+	BOSS,
 }

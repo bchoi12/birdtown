@@ -76,6 +76,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
+		[GameMode.INVASION, MessageBase.fieldDescriptor()],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 		)],
@@ -145,6 +146,10 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setWinCondition(WinConditionType.NONE);
 			return this;
+		}
+
+		if (mode === GameMode.INVASION) {
+			return;
 		}
 
 		this.setLevelType(LevelType.RANDOM);

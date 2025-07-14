@@ -53,13 +53,11 @@ export class Star extends Projectile {
 				});
 			},
 			init: {
+				allowOutsideBounds: true,
 				gravity: true,
 				...entityOptions.profileInit,
-			},
+			}
 		}));
-		this._profile.setOutOfBoundsFn((profile : Profile) => {
-			this.delete();
-		});
 		this._profile.setMinimapOptions({
 			color: ColorFactory.color(ColorType.EASTERN_PURPLE).toString(),
 		})

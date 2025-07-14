@@ -177,7 +177,7 @@ export namespace StatFactory {
 		[EntityType.ORB_CANNON, new Map([
 			// TODO: fill out recoil values
 			[StatType.BURSTS, 10],
-			[StatType.FIRE_TIME, 90],
+			[StatType.FIRE_TIME, 100],
 			[StatType.HORIZONTAL_RECOIL, 0],
 			[StatType.PROJECTILE_SPEED, 0.7],
 			[StatType.PROJECTILE_TTL, 450],

@@ -130,6 +130,21 @@ export class PlayerRotator {
 	}
 	currentFromAll() : number { return this.current(StartRole.PLAYING); }
 	nextFromAll() : number { return this.next(StartRole.PLAYING); }
+	nextExcluding(id : number) {
+		for (let i = 0; i < 10; ++i) {
+			const next = this.nextFromAll();
+			if (next !== id) {
+				return next;
+			}
+		}
+		return this.nextFromAll();
+	}
+	nextN(n : number) : number {
+		for (let i = 0; i < n - 1; ++i) {
+			this.nextFromAll();
+		}
+		return this.nextFromAll();
+	}
 	opposingFromAll() : number { return this.opposing(StartRole.PLAYING); }
 	nextFromTeamOne() : number { return this.next(StartRole.TEAM_ONE); }
 	nextFromTeamTwo() : number { return this.next(StartRole.TEAM_TWO);}

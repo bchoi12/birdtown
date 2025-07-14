@@ -48,6 +48,12 @@ export class Box2 implements Box {
 		if (point.y > this.max.y + buffer) { return 1; }
 		return 0;	
 	}
+	getCenter() : Vec {
+		return {
+			x: (this.max.x - this.min.x) / 2,
+			y: (this.max.y - this.min.y) / 2,
+		}
+	}
 	getRelativePos(cardinal : CardinalDir) : Vec2 {
 		const dim = this.max.clone().sub(this.min);
 

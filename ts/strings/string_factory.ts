@@ -102,7 +102,7 @@ export namespace StringFactory {
 		return Strings.toTitleCase(LevelType[type]);
 	}
 	const layoutNames = new Map<LevelLayout, ParamString>([
-		[LevelLayout.NORMAL, ParamString.of("Normal")],
+		[LevelLayout.NORMAL, ParamString.of("None")],
 		[LevelLayout.CIRCLE, ParamString.of("Endless (large)")],
 		[LevelLayout.MIRROR, ParamString.of("Mirrored")],
 		[LevelLayout.TINY, ParamString.of("Tiny")],
@@ -120,6 +120,7 @@ export namespace StringFactory {
 		[GameMode.DUEL, "Duel"],
 		[GameMode.FREE_FOR_ALL, "Deathmatch"],
 		[GameMode.GOLDEN_GUN, "Golden Gun"],
+		[GameMode.INVASION, "Invasion"],
 		[GameMode.PRACTICE, "Practice Mode"],
 		[GameMode.SPREE, "Spree"],
 		[GameMode.SUDDEN_DEATH, "Lightning Round"],
