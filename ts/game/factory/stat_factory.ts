@@ -290,7 +290,7 @@ export namespace StatFactory {
 			[StatType.CHARGED_RELOAD_TIME, 1000],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0],
 			[StatType.CHARGED_PROJECTILE_TTL, 750],
-			[StatType.CHARGED_FORCE, 0.5],
+			[StatType.CHARGED_FORCE, 0.3],
 			[StatType.FIRE_TIME, 100],
 			[StatType.FORCE, 0.1],
 			[StatType.PROJECTILE_SPEED, 0.8],

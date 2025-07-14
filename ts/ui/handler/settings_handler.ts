@@ -59,24 +59,6 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 		let gameplay = this.createCategory("Gameplay");
 
-		this.addSetting(gameplay, new LabelNumberWrapper({
-			label: "Fullscreen",
-			value: Number(settings.fullscreenSetting),
-			plus: (current : number) => {
-				settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
-			},
-			minus: (current : number) => {
-				settings.fullscreenSetting = FullscreenSetting.WINDOWED;
-			},
-			get: () => { return settings.fullscreenSetting; },
-			html: () => {
-				if (settings.fullscreenSetting === FullscreenSetting.FULLSCREEN) {
-					return "On";
-				}
-				return "Off";
-			},
-		}));
-
 		if (!game.isHost()) {
 			this.addSetting(gameplay, new LabelNumberWrapper({
 				label: "Network Smoothing",
@@ -160,7 +142,25 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		let graphics = this.createCategory("Graphics");
 
 		this.addSetting(graphics, new LabelNumberWrapper({
-			label: "Rendering Cap",
+			label: "Fullscreen",
+			value: Number(settings.fullscreenSetting),
+			plus: (current : number) => {
+				settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
+			},
+			minus: (current : number) => {
+				settings.fullscreenSetting = FullscreenSetting.WINDOWED;
+			},
+			get: () => { return settings.fullscreenSetting; },
+			html: () => {
+				if (settings.fullscreenSetting === FullscreenSetting.FULLSCREEN) {
+					return "On";
+				}
+				return "Off";
+			},
+		}));
+
+		this.addSetting(graphics, new LabelNumberWrapper({
+			label: "Render Target",
 			value: Number(settings.speedSetting),
 			plus: (current : number) => {
 				if (current >= SpeedSetting.FAST) {

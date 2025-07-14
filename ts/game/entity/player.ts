@@ -311,6 +311,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		this._profile.setLimitFn((profile : Profile) => {
 			let maxHorizontalVel = profile.knockbackMillis() > 0 ? Player._maxHorizontalVel : Player._maxWalkingVel;
+			if (this.getAttribute(AttributeType.LEVITATING)) {
+				maxHorizontalVel *= 1.5;
+			}
 			if (this.getAttribute(AttributeType.UNDERWATER)) {
 				maxHorizontalVel *= 0.6;
 			}
