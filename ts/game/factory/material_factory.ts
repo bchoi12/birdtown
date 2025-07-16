@@ -19,6 +19,15 @@ export namespace MaterialFactory {
 	let initialized = false;
 	let materials = new Map<MaterialType, BABYLON.Material>;
 
+	let archBackgrounds = [
+		MaterialType.ARCH_BACKGROUND_RED,
+		MaterialType.ARCH_BACKGROUND_ORANGE,
+		MaterialType.ARCH_BACKGROUND_YELLOW,
+		MaterialType.ARCH_BACKGROUND_GREEN,
+		MaterialType.ARCH_BACKGROUND_BLUE,
+		MaterialType.ARCH_BACKGROUND_PURPLE,
+	];
+
 	export function material<T extends BABYLON.Material>(type : MaterialType) : T {
 		if (!initialized) {
 			initialize();
@@ -31,12 +40,19 @@ export namespace MaterialFactory {
 			return;
 		}
 
-		levelBackgroundMaterial(MaterialType.ARCH_BACKGROUND_RED, ColorFactory.color(ColorType.LEVEL_BACKGROUND_RED));
-		levelBackgroundMaterial(MaterialType.ARCH_BACKGROUND_ORANGE, ColorFactory.color(ColorType.LEVEL_BACKGROUND_ORANGE));
-		levelBackgroundMaterial(MaterialType.ARCH_BACKGROUND_YELLOW, ColorFactory.color(ColorType.LEVEL_BACKGROUND_YELLOW));
-		levelBackgroundMaterial(MaterialType.ARCH_BACKGROUND_GREEN, ColorFactory.color(ColorType.LEVEL_BACKGROUND_GREEN));
-		levelBackgroundMaterial(MaterialType.ARCH_BACKGROUND_BLUE, ColorFactory.color(ColorType.LEVEL_BACKGROUND_BLUE));
-		levelBackgroundMaterial(MaterialType.ARCH_BACKGROUND_PURPLE, ColorFactory.color(ColorType.LEVEL_BACKGROUND_PURPLE));
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_RED, ColorFactory.color(ColorType.ARCH_BACKGROUND_RED));
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_ORANGE, ColorFactory.color(ColorType.ARCH_BACKGROUND_ORANGE));
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_YELLOW, ColorFactory.color(ColorType.ARCH_BACKGROUND_YELLOW));
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_GREEN, ColorFactory.color(ColorType.ARCH_BACKGROUND_GREEN));
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_BLUE, ColorFactory.color(ColorType.ARCH_BACKGROUND_BLUE));
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_PURPLE, ColorFactory.color(ColorType.ARCH_BACKGROUND_PURPLE));
+		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_PURPLE, ColorFactory.color(ColorType.ARCH_BACKGROUND_PURPLE));
+
+		pbrMaterial(MaterialType.ARCH_PLATFORM, (mat : BABYLON.PBRMaterial) => {
+			mat.albedoColor = ColorFactory.color(ColorType.ARCH_WHITE).toBabylonColor3();
+			mat.metallic = 0;
+			mat.roughness = 0.9;
+		});
 
 		standardMaterial(MaterialType.BLACK_HOLE, (mat : BABYLON.StandardMaterial) => {
 			mat.disableLighting = true;
@@ -44,7 +60,7 @@ export namespace MaterialFactory {
 		});
 
 		standardMaterial(MaterialType.CLOUD, (mat : BABYLON.StandardMaterial) => {
-			mat.alpha = 0.4;
+			mat.alpha = 0.3;
 			mat.needDepthPrePass = true;
 		});
 
@@ -231,18 +247,11 @@ export namespace MaterialFactory {
 		initialized = true;
 	}
 
-	export function levelBackgroundMaterials() : MaterialType[] {
-		return [
-			MaterialType.ARCH_BACKGROUND_RED,
-			MaterialType.ARCH_BACKGROUND_ORANGE,
-			MaterialType.ARCH_BACKGROUND_YELLOW,
-			MaterialType.ARCH_BACKGROUND_GREEN,
-			MaterialType.ARCH_BACKGROUND_BLUE,
-			MaterialType.ARCH_BACKGROUND_PURPLE,
-		];
+	export function archBackgroundMaterials() : MaterialType[] {
+		return archBackgrounds;
 	}
 
-	function levelBackgroundMaterial(type : MaterialType, color : HexColor) : void {
+	function archBackgroundMaterial(type : MaterialType, color : HexColor) : void {
 		customMaterial(type, (mat : CustomMaterial) => {
 			mat.diffuseTexture = TextureFactory.loadCached(TextureType.ARCH_WINDOWS);
 			mat.diffuseTexture.hasAlpha = true;

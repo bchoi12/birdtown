@@ -20,25 +20,25 @@ export namespace ColorFactory {
 		[ColorType.PURPLE, HexColor.fromHex(0xff00ff)],
 		[ColorType.AQUA, HexColor.fromHex(0x00ffff)],
 
-		// Level series (bright, not too saturated)
-		[ColorType.LEVEL_RED, HexColor.fromHex(0xfc1f0f)],
-		[ColorType.LEVEL_ORANGE, HexColor.fromHex(0xfc910f)],
-		[ColorType.LEVEL_YELLOW, HexColor.fromHex(0xede328)],
-		[ColorType.LEVEL_GREEN, HexColor.fromHex(0x0ffc89)],
-		[ColorType.LEVEL_BLUE, HexColor.fromHex(0x0fdcfc)],
-		[ColorType.LEVEL_PURPLE, HexColor.fromHex(0x901bf2)],
-		[ColorType.LEVEL_BROWN, HexColor.fromHex(0xa1662f)],
-		[ColorType.LEVEL_WHITE, HexColor.fromHex(0xeeeeee)],
-		[ColorType.LEVEL_GRAY, HexColor.fromHex(0x8b8b8b)],
-		[ColorType.LEVEL_BLACK, HexColor.fromHex(0x111111)],
+		// Arch series (bright, not too saturated)
+		[ColorType.ARCH_RED, HexColor.fromHex(0xfc1f0f)],
+		[ColorType.ARCH_ORANGE, HexColor.fromHex(0xfc910f)],
+		[ColorType.ARCH_YELLOW, HexColor.fromHex(0xede328)],
+		[ColorType.ARCH_GREEN, HexColor.fromHex(0x0ffc89)],
+		[ColorType.ARCH_BLUE, HexColor.fromHex(0x0fdcfc)],
+		[ColorType.ARCH_PURPLE, HexColor.fromHex(0x901bf2)],
+		[ColorType.ARCH_BROWN, HexColor.fromHex(0xa1662f)],
+		[ColorType.ARCH_WHITE, HexColor.fromHex(0xeeeeee)],
+		[ColorType.ARCH_GRAY, HexColor.fromHex(0x8b8b8b)],
+		[ColorType.ARCH_BLACK, HexColor.fromHex(0x111111)],
 
 		// Background series (minimal saturation)
-		[ColorType.LEVEL_BACKGROUND_RED, HexColor.fromHex(0xb36f69)],
-		[ColorType.LEVEL_BACKGROUND_ORANGE, HexColor.fromHex(0xccab7a)],
-		[ColorType.LEVEL_BACKGROUND_YELLOW, HexColor.fromHex(0xcccc7a)],
-		[ColorType.LEVEL_BACKGROUND_GREEN, HexColor.fromHex(0x78a36c)],
-		[ColorType.LEVEL_BACKGROUND_BLUE, HexColor.fromHex(0x7aa3cc)],
-		[ColorType.LEVEL_BACKGROUND_PURPLE, HexColor.fromHex(0x9168ad)],
+		[ColorType.ARCH_BACKGROUND_RED, HexColor.fromHex(0xb36f69)],
+		[ColorType.ARCH_BACKGROUND_ORANGE, HexColor.fromHex(0xccab7a)],
+		[ColorType.ARCH_BACKGROUND_YELLOW, HexColor.fromHex(0xcccc7a)],
+		[ColorType.ARCH_BACKGROUND_GREEN, HexColor.fromHex(0x78a36c)],
+		[ColorType.ARCH_BACKGROUND_BLUE, HexColor.fromHex(0x7aa3cc)],
+		[ColorType.ARCH_BACKGROUND_PURPLE, HexColor.fromHex(0x9168ad)],
 
 		[ColorType.CLIFF_BROWN, HexColor.fromHex(0x74402B)],
 		[ColorType.CLIFF_LIGHT_BROWN, HexColor.fromHex(0xE7C098)],
@@ -136,8 +136,8 @@ export namespace ColorFactory {
 
 	const entityColorMap = new Map<EntityType, Array<ColorType>>([
 		[EntityType.ARCH_BLOCK, [
-			ColorType.LEVEL_RED, ColorType.LEVEL_ORANGE, ColorType.LEVEL_YELLOW,
-			ColorType.LEVEL_GREEN, ColorType.LEVEL_BLUE, ColorType.LEVEL_PURPLE
+			ColorType.ARCH_RED, ColorType.ARCH_ORANGE, ColorType.ARCH_YELLOW,
+			ColorType.ARCH_GREEN, ColorType.ARCH_BLUE, ColorType.ARCH_PURPLE
 		]],
 		[EntityType.BAZOOKA, [ColorType.BLASTER_RED, ColorType.BLASTER_YELLOW]],
 		[EntityType.BLACK_HEADBAND, [ColorType.EASTERN_BLACK]],

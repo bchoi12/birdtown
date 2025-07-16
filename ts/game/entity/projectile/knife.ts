@@ -52,7 +52,6 @@ export class Knife extends Projectile {
 				});
 			},
 			init: {
-				allowOutsideBounds: true,
 				gravity: true,
 				...entityOptions.profileInit,
 			}

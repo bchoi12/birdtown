@@ -47,10 +47,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
 			},
-			init: {
-				allowOutsideBounds: true,
-				...entityOptions.profileInit,
-			},
+			init: entityOptions.profileInit,
 		}));
 		this._profile.setMinimapOptions({
 			color: this.color(),

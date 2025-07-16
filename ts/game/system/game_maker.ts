@@ -150,9 +150,9 @@ export class GameMaker extends SystemBase implements System {
 	private limitPerPlayer(type : EntityType) : number {
 		switch (type) {
 		case EntityType.HEALTH_CRATE:
-			return GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawn());
+			return GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawnOr(0));
 		case EntityType.WEAPON_CRATE:
-			return GameMaker._limitPerPlayer.get(this._config.getWeaponCrateSpawn());
+			return GameMaker._limitPerPlayer.get(this._config.getWeaponCrateSpawnOr(0));
 		default:
 			return Infinity;
 		}
@@ -521,7 +521,7 @@ export class GameMaker extends SystemBase implements System {
 		let tablet = game.tablet(player.clientId());
 		tablet.loseLife();
 
-		if (this._config.getResetPoints()) {
+		if (this._config.getResetPointsOr(false)) {
 			tablet.setInfo(InfoType.SCORE, 0);
 		}
 

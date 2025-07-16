@@ -53,10 +53,7 @@ export abstract class Particle extends EntityBase implements Entity {
 		}));
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: this.bodyFn,
-			init: {
-				allowOutsideBounds: true,
-				...entityOptions.profileInit,
-			},
+			init: entityOptions.profileInit,
 		}));
 		this._profile.setVisible(false);
 	}

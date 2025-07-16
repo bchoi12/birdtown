@@ -46,7 +46,7 @@ export type ProfileInitOptions = {
 	degraded? : boolean;
 
 	// Allow going outside level
-	allowOutsideBounds? : boolean;
+	clampPos? : boolean;
 
 	// Do some extra postprocessing so we don't get stuck due to small collisions when moving
 	ignoreTinyCollisions? : boolean;
@@ -84,7 +84,7 @@ export class Profile extends ComponentBase implements Component {
 
 	private _degraded : boolean;
 	private _ignoreTinyCollisions : boolean;
-	private _allowOutsideBounds : boolean;
+	private _clampPos : boolean;
 	private _bodyFn : BodyFn;
 	private _onBodyFns : Array<OnBodyFn>;
 	private _readyFn : ReadyFn;
@@ -126,7 +126,7 @@ export class Profile extends ComponentBase implements Component {
 
 		this._degraded = false;
 		this._ignoreTinyCollisions = false;
-		this._allowOutsideBounds = false;
+		this._clampPos = false;
 		this._bodyFn = profileOptions.bodyFn;
 		this._onBodyFns = new Array();
 
@@ -272,7 +272,7 @@ export class Profile extends ComponentBase implements Component {
 	initFromOptions(init : ProfileInitOptions) : void {
 		if (init.degraded) { this._degraded = init.degraded; }
 		if (init.ignoreTinyCollisions) { this._ignoreTinyCollisions = init.ignoreTinyCollisions; }
-		if (init.allowOutsideBounds) { this._allowOutsideBounds = init.allowOutsideBounds; }
+		if (init.clampPos) { this._clampPos = init.clampPos; }
 		if (init.pos) { this.setPos(init.pos); }
 		if (init.vel) { this.setVel(init.vel); }
 		if (init.acc) { this.setAcc(init.acc); }
@@ -754,7 +754,7 @@ export class Profile extends ComponentBase implements Component {
 			} else if (point.x - this._pos.x > game.level().bounds().width() / 2) {
 				point.x -= game.level().bounds().width();
 			}
-		} else if (!this._allowOutsideBounds) {
+		} else if (this._clampPos) {
 			game.level().clampPos(point);
 		}
 
@@ -865,7 +865,7 @@ export class Profile extends ComponentBase implements Component {
 			} 
 		} 
 
-		if (!this._allowOutsideBounds) {
+		if (this._clampPos) {
 			game.level().clampProfile(this);
 		}
 		if (this._limitFn.has()) {

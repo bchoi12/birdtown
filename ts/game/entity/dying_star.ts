@@ -52,10 +52,7 @@ export class DyingStar extends EntityBase {
 					collisionFilter: BodyFactory.neverCollideFilter(),
 				});
 			},
-			init: {
-				allowOutsideBounds: true,
-				...entityOptions.profileInit,
-			},
+			init: entityOptions.profileInit,
 		}));
 		this._profile.setMinimapOptions({
 			color: ColorFactory.color(ColorType.BLACK).toString(),

@@ -44,7 +44,7 @@ export enum LevelType {
 	// Cannot random
 	LOBBY,
 
-	// Special
+	// Special values
 	RANDOM,
 }
 
@@ -55,6 +55,8 @@ export enum LevelLayout {
 	CIRCLE,
 	TINY,
 	MIRROR,
+
+	INVASION,
 }
 
 export enum LoadoutType {

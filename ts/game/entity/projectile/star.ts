@@ -53,7 +53,6 @@ export class Star extends Projectile {
 				});
 			},
 			init: {
-				allowOutsideBounds: true,
 				gravity: true,
 				...entityOptions.profileInit,
 			}

@@ -76,7 +76,13 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
-		[GameMode.INVASION, MessageBase.fieldDescriptor()],
+		[GameMode.INVASION, MessageBase.fieldDescriptor(
+			[GameConfigProp.LEVEL_TYPE, {}],
+			[GameConfigProp.LEVEL_LAYOUT, {}],
+			[GameConfigProp.LEVEL_SEED, {}],
+			[GameConfigProp.STARTING_LOADOUT, {}],
+			[GameConfigProp.WIN_CONDITION, {}],
+		)],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 		)],
@@ -149,6 +155,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		}
 
 		if (mode === GameMode.INVASION) {
+			this.setLevelType(LevelType.BIRDTOWN);
+			this.setLevelLayout(LevelLayout.INVASION);
+			this.setLevelSeed(1);
+			this.setStartingLoadout(LoadoutType.CHOOSE);
+			this.setWinCondition(WinConditionType.BOSS);
 			return;
 		}
 

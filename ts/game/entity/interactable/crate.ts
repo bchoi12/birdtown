@@ -80,6 +80,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 				});
 			},
 			init: {
+				clampPos: true,
 				gravity: true,
 				...entityOptions.profileInit
 			},

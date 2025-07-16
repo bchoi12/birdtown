@@ -182,7 +182,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 
 		return new Map([
 			[ColorCategory.BASE, ColorFactory.entityColor(EntityType.ARCH_BLOCK, index)],
-			[ColorCategory.SECONDARY, ColorFactory.color(ColorType.LEVEL_WHITE)],
+			[ColorCategory.SECONDARY, ColorFactory.color(ColorType.ARCH_WHITE)],
 		]);
 	}
 
@@ -192,10 +192,11 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 		this._pos.copyVec(options.pos);
 
 		const type = this.getType();
-		if (type === LevelType.LOBBY) {
+		switch (type) {
+		case LevelType.LOBBY:
 			this.loadLobby(options);
-		} else if (type === LevelType.BIRDTOWN) {
-
+			break;
+		case LevelType.BIRDTOWN:
 			const layout = this.getLayout();
 			switch (layout) {
 			case LevelLayout.MIRROR:
@@ -204,10 +205,14 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 			case LevelLayout.TINY:
 				this.loadTinytown(options);
 				break;
+			case LevelLayout.INVASION:
+				this.loadInvasion(options);
+				break;
 			default:
 				this.loadBirdtown(options);
 			}
-		} else {
+			break;
+		default:
 			console.error("Error: level type %s not supported in ArchBlueprint", LevelType[this.getType()]);
 		}
 	}
@@ -225,6 +230,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 	override minBuffer() : number { return 1; }
 	override sideBuffer() : number { return 10; }
 	override seamBuffer() : number { return 6; }
+	override planeBuffer() : number { return 15; }
 
 	maxHeight() : number { return this._maxHeight; }
 	numBuildings() : number { return this._buildings.length; }
@@ -298,7 +304,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 			[0.6, () => { backgroundHeight+=2; }],
 		]);
 
-		const materialTypes = MaterialFactory.levelBackgroundMaterials()
+		const materialTypes = MaterialFactory.archBackgroundMaterials()
 		building.addBackgroundBuilding(backgroundHeight, this.rng(), {
 			modelInit: {
 				materialType: materialTypes[i % materialTypes.length]
@@ -739,6 +745,46 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 		});
 
 		return plan;
+	}
+
+	private loadInvasion(options : BlueprintOptions) : void {
+		this.addBuildings([
+			{ height: 1 },
+			{ height: 1 },
+			{ height: 1 },
+		]);
+
+		for (let i = 0; i < this.numBuildings(); ++i) {
+			let building = this.building(i);
+
+			for (let j = ArchBlueprint._numBasementBlocks; j < building.numBlocks(); ++j) {
+				let block = building.block(j);
+
+				if (block.entityType() === ArchBlueprint.roofType()) {
+					if (i === 1) {
+						block.pushEntityOptions(EntityType.PLATFORM, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: 5 }),
+								dim: { x: 5, y: 0.5, z: 3 },
+							},
+							modelInit: {
+								materialType: MaterialType.ARCH_PLATFORM,
+							}
+						});
+					} else {
+						block.pushEntityOptions(EntityType.PLATFORM, {
+							profileInit: {
+								pos: Vec2.fromVec(block.pos()).add({ y: 2.5 }),
+								dim: { x: 3, y: 0.5, z: 3 },
+							},
+							modelInit: {
+								materialType: MaterialType.ARCH_PLATFORM,
+							}
+						});
+					}
+				}
+			}
+		}
 	}
 
 	private getOpenings(openLeft : boolean, openRight : boolean) : Cardinal {

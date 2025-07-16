@@ -60,7 +60,7 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 			init: entityOptions.profileInit,
 		}));
 		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.LEVEL_BROWN).toString(),
+			color: ColorFactory.color(ColorType.ARCH_BROWN).toString(),
 			depthType: DepthType.BEHIND,
 		});
 	}
@@ -89,7 +89,7 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 		nameTag.setDisplayName(text);
 		this._nameTag = nameTag;
 		this._nameTag.setOscillateTime(this.oscillateTime());
-		this._nameTag.forcePointerColor(ColorFactory.toString(ColorType.LEVEL_BROWN));
+		this._nameTag.forcePointerColor(ColorFactory.toString(ColorType.ARCH_BROWN));
 	}
 
 	override delete() : void {

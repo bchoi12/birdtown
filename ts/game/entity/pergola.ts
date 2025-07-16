@@ -61,7 +61,7 @@ export class Pergola extends EntityBase implements Entity {
 			}
 		});
 		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.LEVEL_WHITE).toString(),
+			color: ColorFactory.color(ColorType.ARCH_WHITE).toString(),
 			depthType: DepthType.BACKGROUND,
 		});
 
@@ -82,7 +82,7 @@ export class Pergola extends EntityBase implements Entity {
 		}));
 		this._subProfile.setInertia(Infinity);
 		this._subProfile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.LEVEL_BROWN).toString(),
+			color: ColorFactory.color(ColorType.ARCH_BROWN).toString(),
 			depthType: DepthType.FLOOR,
 		});
 		this._subProfile.onBody((subProfile : Profile) => {

@@ -142,6 +142,8 @@ export namespace StringFactory {
 		case GameMode.FREE_FOR_ALL:
 		case GameMode.GOLDEN_GUN:
 			return `Be the first to score ${config.getPoints()} ${Strings.plural("point", config.getPoints())}`;
+		case GameMode.INVASION:
+			return `Defend Birdtown against the invasion`;
 		case GameMode.PRACTICE:
 			return game.isHost() ? `Press ${KeyNames.keyTypeHTML(KeyType.MENU)} to exit` : "Try out the game";
 		case GameMode.SUDDEN_DEATH:

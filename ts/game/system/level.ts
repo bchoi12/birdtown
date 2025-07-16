@@ -276,7 +276,7 @@ export class Level extends SystemBase implements System {
 		bounds.max.add({ y: 1 });
 		this._defaultSpawn.copyVec(bounds.getRelativePos(CardinalDir.TOP));
 
-		bounds.max.add({ y: 12 });
+		bounds.max.add({ y: blueprint.planeBuffer() });
 		this.addEntity(EntityType.PLANE, {
 			profileInit: {
 				pos: {
@@ -285,7 +285,7 @@ export class Level extends SystemBase implements System {
 				}
 			},
 		});
-		bounds.max.add({ y: 4 });
+		bounds.max.add({ y: blueprint.topBuffer() });
 
 		if (!this.isCircle()) {
 			const sideBuffer = blueprint.sideBuffer();

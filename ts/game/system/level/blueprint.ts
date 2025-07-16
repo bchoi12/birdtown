@@ -44,6 +44,8 @@ export abstract class Blueprint<T extends BlueprintBlock> {
 	minBuffer() : number { return 0; }
 	sideBuffer() : number { return 0; }
 	seamBuffer() : number { return 0; }
+	planeBuffer() : number { return 12; }
+	topBuffer() : number { return 10; }
 }
 
 export abstract class BlueprintBlock {

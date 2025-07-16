@@ -50,7 +50,6 @@ export class Cloud extends EntityBase implements Entity {
 				});
 			},
 			init: {
-				allowOutsideBounds: true,
 				degraded: true,
 				...entityOptions.profileInit,
 			},

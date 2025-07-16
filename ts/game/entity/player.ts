@@ -300,6 +300,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				});
 			},
 			init: {
+				clampPos: true,
+				gravity: true,
 				ignoreTinyCollisions: true,
 				...entityOptions.profileInit,
 			},
@@ -313,6 +315,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			let maxHorizontalVel = profile.knockbackMillis() > 0 ? Player._maxHorizontalVel : Player._maxWalkingVel;
 			if (this.getAttribute(AttributeType.LEVITATING)) {
 				maxHorizontalVel *= 1.5;
+			} else if (this.getAttribute(AttributeType.FLOATING)) {
+				maxHorizontalVel *= 1.2;
 			}
 			if (this.getAttribute(AttributeType.UNDERWATER)) {
 				maxHorizontalVel *= 0.6;
