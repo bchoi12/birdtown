@@ -25,6 +25,7 @@ export class MenuHandler extends HandlerBase implements Handler {
 
 	private static readonly _allowedStates = new Set([
 		GameState.FREE,
+		GameState.SETUP,
 		GameState.GAME,
 	]);
 

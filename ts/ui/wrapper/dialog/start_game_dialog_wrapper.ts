@@ -178,8 +178,6 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			requirements: [],
 			description: "Try out the game.\r\n\r\nAll levels, layouts, and equip combos are allowed.",
 			parent: classicCategory.contentElm(),
-			minRecommended: 1,
-			maxRecommended: 1,
 		});
 		this.populateMode(GameMode.INVASION, {
 			requirements: [],
