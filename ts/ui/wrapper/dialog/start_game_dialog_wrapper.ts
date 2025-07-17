@@ -181,7 +181,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.INVASION, {
 			requirements: [],
-			description: "Defend Birdtown against the AI invasion and upgrade your bird in between rounds.\r\n\r\nDifficulty scales with number of players.",
+			description: "Defend Birdtown against an invasion using teamwork and unique buffs.\r\n\r\nDifficulty scales with number of players.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 1,
 		});
