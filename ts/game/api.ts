@@ -3,7 +3,7 @@
 export enum GameState {
 	UNKNOWN,
 
-	// Waiting to meet criteria to start a game
+	// Waiting to start a game
 	FREE,
 
 	// Game starting imminently or transition prior to loading level

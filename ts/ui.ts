@@ -214,6 +214,7 @@ class UI {
 		});
 	}
 
+	hasLatLng() : boolean { return this._location.valid(); }
 	queryLatLng(onSuccess : (loc : LatLng) => void, onError : () => void) : void {
 		if (this._location.valid()) {
 			onSuccess(this._location);
@@ -275,7 +276,7 @@ class UI {
 		}
 	}
 
-	hostGame() : void { this._loginHandler.hostGame(); }
+	hostGame() : void { this._loginHandler.hostGame(/*quickStart=*/false); }
 	joinGame(room : string, password : string) : void { this._loginHandler.joinGame(room, password); }
 	setJoinParams(room : string, password : string) : void { this._loginHandler.setJoinParams(room, password); }
 	hideLogin() : void { this._loginHandler.hideLogin(); }
@@ -292,7 +293,10 @@ class UI {
 	addPlayer(clientId : number) : void { this._sidebarHandler.addPlayer(clientId); }
 	removePlayer(clientId : number) : void { this._sidebarHandler.removePlayer(clientId); }
 	highlightPlayer(clientId : number) : void { this._sidebarHandler.highlightPlayer(clientId); }
-	refreshScoreboardColor() : void { this._sidebarHandler.refreshColor(); }
+	refreshColors() : void {
+		this.refreshHudColor();
+		this._sidebarHandler.refreshColor();
+	}
 	updateInfo(id : number, type : InfoType, value : number) : void { this._sidebarHandler.updateInfo(id, type, value); }
 	clearInfo(id : number, type : InfoType) : void { this._sidebarHandler.clearInfo(id, type); }
 	forceDialog<T extends DialogWrapper>(type : DialogType) : T { return this._dialogHandler.forceDialog(type); }

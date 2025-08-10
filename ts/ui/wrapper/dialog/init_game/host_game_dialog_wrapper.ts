@@ -60,19 +60,6 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		this._nameInput.inputElm().placeholder = this._name;
 		this._settingsCategory.contentElm().appendChild(this._nameInput.elm());
 
-		this._passwordInput = new LabelInputWrapper();
-		this._passwordInput.setName("Password (optional)");
-		this._passwordInput.inputElm().maxLength = InitGameDialogWrapper._passwordLength;
-		this._passwordInput.inputElm().pattern = InitGameDialogWrapper._pattern;
-		this._settingsCategory.contentElm().appendChild(this._passwordInput.elm());
-
-		this.form().appendChild(Html.br());
-
-		this._advancedCategory = new CategoryWrapper();
-		this._advancedCategory.setTitle("Advanced Settings");
-		this._advancedCategory.setExpanded(true);
-		this.form().appendChild(this._advancedCategory.elm());
-
 		this._publicRoom = 0;
 		this._privacySetting = new LabelNumberWrapper({
 			label: "Privacy",
@@ -88,7 +75,20 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 				return this._publicRoom === 1 ? "Public" : "Private";
 			}
 		});
-		this._advancedCategory.contentElm().appendChild(this._privacySetting.elm());
+		this._settingsCategory.contentElm().appendChild(this._privacySetting.elm());
+
+		this.form().appendChild(Html.br());
+
+		this._advancedCategory = new CategoryWrapper();
+		this._advancedCategory.setTitle("Advanced Settings");
+		this._advancedCategory.setExpanded(false);
+		this.form().appendChild(this._advancedCategory.elm());
+
+		this._passwordInput = new LabelInputWrapper();
+		this._passwordInput.setName("Password (optional)");
+		this._passwordInput.inputElm().maxLength = InitGameDialogWrapper._passwordLength;
+		this._passwordInput.inputElm().pattern = InitGameDialogWrapper._pattern;
+		this._advancedCategory.contentElm().appendChild(this._passwordInput.elm());
 
 		this._maxPlayers = HostGameDialogWrapper._defaultMaxPlayers;
 		this._maxPlayersSetting = new LabelNumberWrapper({
@@ -137,18 +137,13 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			return;
 		}
 
-		if (this.getPassword().length > 0) {
+		if (this._publicRoom !== 1) {
 			super.connect();
 			return;
 		}
 
 		if (!navigator.geolocation) {
 			console.error("Warning: location not supported, hosting anyway");
-			super.connect();
-			return;
-		}
-
-		if (this._publicRoom !== 1) {
 			super.connect();
 			return;
 		}

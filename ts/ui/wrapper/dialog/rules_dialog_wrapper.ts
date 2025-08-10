@@ -65,31 +65,24 @@ export class RulesDialogWrapper extends DialogWrapper {
 			let rules = [];
 
 			rules.push(StringFactory.getModeDescription(config));
-			rules.push(`Level is ${StringFactory.getLevelName(config.getLevelType())}`)
 
-			if (config.hasVictories()) {
-				rules.push(`First to ${config.getVictories()} round ${Strings.plural("win", config.getVictories())}`);
-			}
 			if (config.hasPoints()) {
-				rules.push(`${config.getPoints()} ${Strings.plural("point", config.getPoints())} to win the round`)
+				rules.push(`${config.getPoints()} ${Strings.plural("point", config.getPoints())} for a win`)
 			}
 			if (config.hasLives()) {
-				rules.push(`Start with ${config.getLives()} ${Strings.plural("life", config.getLives())}`);
+				rules.push(`Everyone has ${config.getLives()} ${Strings.plural("life", config.getLives())}`);
+			}
+			if (config.hasVictories()) {
+				rules.push(`First to ${config.getVictories()} ${Strings.plural("win", config.getVictories())}`);
 			}
 			if (config.getResetPointsOr(false)) {
 				rules.push(`Lose all of your points on death`);
 			}
-			if (config.hasStartingLoadout()) {
-				rules.push(`Starting loadout is ${StringFactory.getLoadoutName(config.getStartingLoadout())}`);
+			if (config.hasFriendlyFire() && config.getFriendlyFire()) {
+				rules.push(`Friendly fire is enabled`);
 			}
 			if (config.hasDamageMultiplier() && config.getDamageMultiplier() !== 1) {
 				rules.push(`${config.getDamageMultiplier().toFixed(1)}x damage`);
-			}
-			if (config.hasHealthCrateSpawn()) {
-				rules.push(`Health crate spawn rate is ${FrequencyType[config.getHealthCrateSpawn()].toLowerCase()}`);
-			}
-			if (config.hasWeaponCrateSpawn()) {
-				rules.push(`Weapon crate spawn rate is ${FrequencyType[config.getWeaponCrateSpawn()].toLowerCase()}`);
 			}
 
 			this.setRules(config.modeName(), rules);

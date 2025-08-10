@@ -30,7 +30,6 @@ export class Timer {
 		this._onComplete = () => {};
 	}
 
-	// TODO: parametrize, add default timer value
 	start(millis : number, onComplete? : () => void) : void {
 		if (millis <= 0) {
 			console.error("Error: timer duration should be positive.");
@@ -54,8 +53,8 @@ export class Timer {
 
 	reset() : void { this._state = TimerState.NOT_STARTED; }
 	finish() : void {
-		this._onComplete();
 		this._state = TimerState.DONE;
+		this._onComplete();
 	}
 
 	elapse(millis : number) : void {

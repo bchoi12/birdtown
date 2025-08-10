@@ -12,7 +12,8 @@ export namespace Html {
 	export const loginInfo = "login-info";
 	export const loginError = "login-error";
 	export const divLoginButtons = "login-buttons";
-	export const buttonHost = "button-host";
+	export const buttonHostQuick = "button-host-quick";
+	export const buttonHostCustom = "button-host-custom";
 	export const buttonJoin = "button-join";
 	export const buttonQuit = "button-quit";
 

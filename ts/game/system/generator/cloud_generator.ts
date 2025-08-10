@@ -3,7 +3,7 @@ import { game } from 'game'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { System } from 'game/system'
-import { SystemType, LevelType } from 'game/system/api'
+import { SystemType, LevelType, LevelLayout } from 'game/system/api'
 import { Generator } from 'game/system/generator'
 
 import { Box2 } from 'util/box'
@@ -20,11 +20,13 @@ export class CloudGenerator extends Generator implements System {
 		this._rng = new SeededRandom(0);
 	}
 
-	override generate(type : LevelType, seed : number) : void {
+	override cleanUp(type : LevelType, layout : LevelLayout) : void {
 		game.entities().getMap(EntityType.CLOUD).execute((cloud : Entity) => {
 			cloud.delete();
 		});
+	}
 
+	override generate(type : LevelType, layout : LevelLayout, seed : number) : void {
 		this._rng.seed(seed);
 
 		const dir = this._rng.le(0.5) ? -1 : 1;

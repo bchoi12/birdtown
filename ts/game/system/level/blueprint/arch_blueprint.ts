@@ -228,7 +228,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 	}
 
 	override minBuffer() : number { return 1; }
-	override sideBuffer() : number { return 10; }
+	override sideBuffer() : number { return this.getLayout() === LevelLayout.INVASION ? 0 : 10; }
 	override seamBuffer() : number { return 6; }
 	override planeBuffer() : number { return 15; }
 
@@ -671,7 +671,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 			height: 0,
 		});
 
-		const length = 5 + this.rng().int(3);
+		const length = 3 + Math.ceil(this.getNumPlayers() / 2) + this.rng().int(3);
 
 		let currentHeight = 1;
 		const maxHeight = 3;

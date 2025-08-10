@@ -153,10 +153,7 @@ export class Star extends Projectile {
 		super.onExpire();
 
 		if (this._profile.attached()) {
-			const [parent, ok] = game.entities().getEntity(this._profile.attachId());
-			if (ok) {
-				parent.takeDamage(this.getStat(StatType.UNSTICK_DAMAGE), this);
-			}
+			this.applyUnstickDamage(this._profile.attachId());
 		}
 	}
 }

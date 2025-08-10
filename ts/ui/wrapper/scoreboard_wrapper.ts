@@ -110,7 +110,7 @@ export class ScoreboardWrapper extends HtmlWrapper<HTMLElement> {
 
 	updateInfo(id : number, type : InfoType, value : number) : void {
 		if (!this._infoWrappers.has(id)) {
-			this.addPlayer(id);
+			return;
 		}
 
 		let wrapper = this._infoWrappers.get(id);

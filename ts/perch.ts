@@ -89,7 +89,7 @@ class Perch {
 				}
 				onError();
 			})
-			.then(onData, onError);
+			.then(onData);
 	}
 }
 

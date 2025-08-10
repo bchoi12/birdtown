@@ -123,7 +123,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 			return;
 		}
 
-		if (!other.getAttribute(AttributeType.SOLID)) {
+		if (!other.getAttribute(AttributeType.SOLID) || other.getAttribute(AttributeType.COOL)) {
 			return;
 		}
 

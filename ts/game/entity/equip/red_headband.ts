@@ -12,7 +12,7 @@ import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon, RecoilType } from 'game/entity/equip/weapon'
 import { Player } from 'game/entity/player'
 import { Knife } from 'game/entity/projectile/knife'
-import { ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
+import { BuffType, ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -119,8 +119,10 @@ export class RedHeadband extends Equip<Player> {
 
 		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			this.recordUse();
-		} else if (this.canCharge() && this.owner().getAttribute(AttributeType.GROUNDED)) {
-			this.setChargeRate(this.getStat(StatType.FAST_CHARGE_RATE));
+		}
+
+		if (this.owner().hasMaxedBuff(BuffType.DODGY)) {
+			this.owner().setAttribute(AttributeType.DODGY, this._dashTimer.hasTimeLeft());
 		}
 	}
 

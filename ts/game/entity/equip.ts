@@ -11,6 +11,7 @@ import { StatType } from 'game/factory/api'
 
 import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
+import { Fns } from 'util/fns'
 import { SavedCounter } from 'util/saved_counter'
 import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
@@ -35,13 +36,13 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 	protected _association : Association;
 	protected _attributes : Attributes;
-	protected _ownerId : number;
 	protected _owner : E;
 	// Networked counter for uses
 	protected _uses : SavedCounter;
 	protected _canUse : boolean;
 
 	protected _juice : number;
+	protected _juiceSinceGrounded : number;
 	protected _chargeDelayTimer : Timer;
 	protected _chargeRate : number;
 	protected _canUseDuringDelay : boolean;
@@ -52,17 +53,16 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._ownerId = 0;
-		this._owner = null;
 
 		this._uses = new SavedCounter(0);
 		this._canUse = false;
 
 		this._juice = 0
+		this._juiceSinceGrounded = 0;
 		this._chargeDelayTimer = this.newTimer({
 			canInterrupt: true,
 		});
-		this._chargeRate = this.getStatOr(StatType.CHARGE_RATE, 0);
+		this._chargeRate = 0;
 		this._canUseDuringDelay = false;
 
 		this.addProp<number>({
@@ -77,25 +77,10 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	}
 
 	override ready() : boolean {
-		if (!super.ready() || !this._association.hasAssociation(AssociationType.OWNER)) {
-			return false;
-		}
-
-		this._ownerId = this._association.getAssociation(AssociationType.OWNER);
-		
-		let foundOwner;
-		[this._owner, foundOwner] = game.entities().getEntity<E>(this._ownerId);
-
-		if (!foundOwner) {
-			console.error("Error: could not find owner %d for equip", this._ownerId, this.name());
-			this.delete();
-			return false;
-		}
-
-		return true;
+		return super.ready() && this._association.hasRefreshedOwner() && this._association.owner().valid();
 	}
-	override hasClientId() : boolean { return this.hasOwner() ? this._owner.hasClientId() : super.hasClientId(); }
-	override clientId() : number { return this.hasOwner() ? this._owner.clientId() : super.clientId(); }
+	override hasClientId() : boolean { return this.hasOwner() ? this.owner().hasClientId() : super.hasClientId(); }
+	override clientId() : number { return this.hasOwner() ? this.owner().clientId() : super.clientId(); }
 
 	abstract attachType() : AttachType;
 
@@ -121,7 +106,8 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	override initialize() : void {
 		super.initialize();
 
-		this._owner.equip(this);
+		this.owner().equip(this);
+		this._chargeRate = this.getStatOr(StatType.CHARGE_RATE, 0);
 		this._juice = Equip._maxJuice;
 	}
 
@@ -148,8 +134,12 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		super.postUpdate(stepData);
 		const millis = stepData.millis;
 
+		if (this.owner().getAttribute(AttributeType.GROUNDED)) {
+			this._juiceSinceGrounded = 0;
+		}
+
 		if (this.canCharge()) {
-			this._juice += this._chargeRate * millis / 1000;
+			this._juice += this._chargeRate * millis / 1000 * this.chargeMultiplier();
 			this._juice = Math.min(this._juice, Equip._maxJuice);
 		}
 	}
@@ -168,23 +158,17 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 			return false;
 		}
 
-		// TODO: probably need attribute specific to disabling equips in the future
-		if (player.getAttribute(AttributeType.FLOATING)) {
+		if (player.getAttribute(AttributeType.BUBBLED)) {
 			return false;
 		}
 
 		return super.key(type, state);
 	}
 
-	protected hasOwner() : boolean { return this._owner !== null; }
-	owner() : E { return this._owner; }
-	ownerId() : number { return this._ownerId; }
+	override owner() : E { return <E>super.owner(); }
 
 	protected hasJuice() : boolean {
-		if (!this.hasStat(StatType.USE_JUICE)) {
-			return true;
-		}
-		return this._juice >= this.getStat(StatType.USE_JUICE);
+		return this._juice >= this.getUseJuice();
 	}
 	protected checkCanUse() : boolean {
 		return this.hasJuice() && (this._canUseDuringDelay || !this._chargeDelayTimer.hasTimeLeft());
@@ -198,26 +182,41 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 			this._uses.add(uses);
 		}
 	}
-	protected juice() : number { return this._juice; }
-	protected setJuice(juice : number) : void { this._juice = juice; }
-	protected useJuice(juice : number) : void { this._juice = Math.max(this._juice - juice, 0); }
+	private getUseJuice() : number {
+		if (!this.hasStat(StatType.USE_JUICE)) {
+			return 0;
+		}
+
+		let juice = this.getStat(StatType.USE_JUICE);
+		if (this.hasOwner() && this.owner().hasStat(StatType.USE_BOOST)) {
+			juice /= Math.max(0.1, this.owner().getStat(StatType.USE_BOOST));
+		}
+
+		return juice;
+	}
 
 	protected canCharge() : boolean { return this._chargeRate > 0 && !this._chargeDelayTimer.hasTimeLeft(); }
-	protected setChargeRate(rate : number) : void { this._chargeRate = rate; }
 	protected delayCharge(delay : number) : void {
 		if (delay > 0) {
 			this._chargeDelayTimer.start(delay);
 		}
 	}
+	private chargeMultiplier() : number {
+		if (this._juiceSinceGrounded <= 100) {
+			return 1;
+		}
+		if (this._juiceSinceGrounded >= 400) {
+			return 0;
+		}
+
+		return 1 - Fns.normalizeRange(100, this._juiceSinceGrounded, 400);
+	}
 
 	protected simulateUse(uses : number) : void {
-		if (this.hasStat(StatType.USE_JUICE)) {
-			this._juice = Math.max(0, this._juice - uses * this.getStat(StatType.USE_JUICE));
-		}
+		const juice = uses * this.getUseJuice();
 
-		if (this.hasStat(StatType.CHARGE_RATE)) {
-			this.setChargeRate(this.getStat(StatType.CHARGE_RATE));
-		}
+		this._juice = Math.max(0, this._juice - juice);
+		this._juiceSinceGrounded += juice;
 
 		if (this.hasStat(StatType.CHARGE_DELAY)) {
 			this.delayCharge(this.getStat(StatType.CHARGE_DELAY));

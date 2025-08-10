@@ -40,6 +40,7 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 		return this._entity.has() ? this._entity.get().networkBehavior() : super.networkBehavior();
 	}
 
+	hasSubComponent(id : number) : boolean { return this.hasChild(id); }
 	addSubComponent<T extends Component>(component : T) : T {
 		return this.addChild<T>(this.populateSubComponent<T>(component, /*nameParams=*/{}));
 	}
@@ -47,6 +48,7 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 		return this.registerChild<T>(id, this.populateSubComponent<T>(component, { id: id }));
 	}
 	getSubComponent<T extends Component>(id : number) : T { return this.getChild<T>(id); }
+	unregisterSubComponent(id : number) : void { this.unregisterSubComponent(id); }
 
 	isSubComponent() : boolean { return this._isSubComponent; }
 	setSubComponent() : void { this._isSubComponent = true; }

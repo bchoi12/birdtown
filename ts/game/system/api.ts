@@ -8,6 +8,7 @@ export enum SystemType {
 	CLIENT_DIALOGS,
 	CLOUD_GENERATOR,
 	CONTROLLER,
+	ENEMY_GENERATOR,
 	ENTITIES,
 	ENTITY_MAP,
 	GAME_MAKER,
@@ -69,6 +70,8 @@ export enum LoadoutType {
 	RANDOM,
 	RANDOM_ALL,
 	GOLDEN_GUN,
+
+	BUFF,
 }
 
 export enum PlayerRole {

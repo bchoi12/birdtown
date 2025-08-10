@@ -32,7 +32,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 	private _loginElm : HTMLElement;
 	private _legendElm : HTMLElement;
 
-	private _hostButton : HTMLInputElement;
+	private _quickStartButton : HTMLInputElement;
+	private _customStartButton : HTMLInputElement;
 	private _joinButton : HTMLInputElement;
 	private _quitButton : HTMLInputElement;
 
@@ -51,7 +52,8 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this._loginElm = Html.elm(Html.divLogin);
 		this._legendElm = Html.elm(Html.loginLegend);
 
-		this._hostButton = Html.inputElm(Html.buttonHost);
+		this._quickStartButton = Html.inputElm(Html.buttonHostQuick);
+		this._customStartButton = Html.inputElm(Html.buttonHostCustom);
 		this._joinButton = Html.inputElm(Html.buttonJoin);
 		this._quitButton = Html.inputElm(Html.buttonQuit);
 
@@ -68,8 +70,11 @@ export class LoginHandler extends HandlerBase implements Handler {
 	override setup() : void {	
 		super.setup();
 
-		this._hostButton.onclick = () => {
-			this.hostGame();
+		this._quickStartButton.onclick = () => {
+			this.hostGame(/*quickStart=*/true);
+		};
+		this._customStartButton.onclick = () => {
+			this.hostGame(/*quickStart=*/false);
 		};
 		this._joinButton.onclick = () => {
 			this.browseGames();
@@ -131,7 +136,7 @@ export class LoginHandler extends HandlerBase implements Handler {
 		this.disable();
 	}
 
-	hostGame() : void {
+	hostGame(quickStart : boolean) : void {
 		if (game.initialized()) {
 			console.error("Error: tried to host game when game is initialized. Mode:", UiMode[ui.mode()]);
 			return;
@@ -139,6 +144,10 @@ export class LoginHandler extends HandlerBase implements Handler {
 
 		this._joinWrapper.hide();
 		this._hostWrapper.show();
+
+		if (quickStart) {
+			this._hostWrapper.connect();
+		}
 	}
 
 	browseGames() : void {

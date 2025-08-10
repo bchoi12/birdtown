@@ -55,6 +55,12 @@ export class CliffBlueprint extends Blueprint<CliffBlueprintBlock> {
 		case LevelLayout.TINY:
 			length = 2;
 			break;
+		case LevelLayout.MIRROR:
+			if (this.getNumPlayers() <= 2) {
+				length = 2;
+			}
+			length = 4;
+			break;
 		default:
 			length = 4;
 		}

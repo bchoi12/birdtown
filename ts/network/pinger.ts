@@ -16,6 +16,7 @@ type PingData = {
 
 export class Pinger {
 	private static readonly _pingInterval = 500;
+	private static readonly _pingTimeout = 15000;
 
 	private _pingTimes : NumberRingBuffer;
 	private _pingLoss : NumberRingBuffer;
@@ -37,8 +38,8 @@ export class Pinger {
 	ping() : number { return Math.ceil(this._pingTimes.average()); }
 	pingLoss() : number { return this._pingLoss.average(); }
 
-	// TODO: change to disconnected
-	millisSincePing(peer : string) : number { return this._lastReceivedTime.has(peer) ? Math.max(0, Date.now() - this._lastReceivedTime.get(peer)) : 0; }
+	unresponsive(peer : string) : boolean { return this.millisSincePing(peer) >= Pinger._pingTimeout; }
+	private millisSincePing(peer : string) : number { return this._lastReceivedTime.has(peer) ? Math.max(0, Date.now() - this._lastReceivedTime.get(peer)) : 0; }
 
 	initializeForHost(host : Netcode) {
 		host.addMessageCallback(NetworkMessageType.PING, (msg : NetworkMessage) => {

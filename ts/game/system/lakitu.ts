@@ -327,7 +327,7 @@ export class Lakitu extends SystemBase implements System {
 		return false;
 	}
 	private anchorToTarget() : void {
-		if (game.controller().gameState() === GameState.FINISH || game.controller().gameState() === GameState.VICTORY) {
+		if (game.controller().gameState() !== GameState.GAME && game.controller().gameState() !== GameState.FREE) {
 			this.setAnchor(this.targetEntity().profile().pos().toBabylon3());
 			return;
 		}

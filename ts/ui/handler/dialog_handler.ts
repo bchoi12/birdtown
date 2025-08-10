@@ -1,7 +1,9 @@
 
-import { GameMessage } from 'message/game_message'
+import { game } from 'game'
 
 import { Flags } from 'global/flags'
+
+import { GameMessage } from 'message/game_message'
 
 import { settings } from 'settings'
 
@@ -12,6 +14,7 @@ import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { DialogWrapper } from 'ui/wrapper/dialog_wrapper'
+import { BuffDialogWrapper } from 'ui/wrapper/dialog/client/buff_dialog_wrapper'
 import { DisconnectedDialogWrapper } from 'ui/wrapper/dialog/disconnected_dialog_wrapper'
 import { FailedConnectDialogWrapper } from 'ui/wrapper/dialog/failed_connect_dialog_wrapper'
 import { FailedCopyDialogWrapper } from 'ui/wrapper/dialog/failed_copy_dialog_wrapper'
@@ -32,6 +35,7 @@ import { Optional } from 'util/optional'
 export class DialogHandler extends HandlerBase implements Handler {
 
 	private static readonly _createDialogFns = new Map<DialogType, () => DialogWrapper>([
+		[DialogType.BUFF, () => { return new BuffDialogWrapper()}],
 		[DialogType.DISCONNECTED, () => { return new DisconnectedDialogWrapper()}],
 		[DialogType.FAILED_CONNECT, () => { return new FailedConnectDialogWrapper()}],
 		[DialogType.FAILED_COPY, () => { return new FailedCopyDialogWrapper()}],
@@ -108,6 +112,10 @@ export class DialogHandler extends HandlerBase implements Handler {
 		}
 		if (this._dialogs.has(type)) {
 			console.error("Error: dialog queue already contains", DialogType[type]);
+			return;
+		}
+
+		if (!game.playerInitialized() && type !== DialogType.INIT) {
 			return;
 		}
 

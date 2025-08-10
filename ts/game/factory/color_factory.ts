@@ -147,6 +147,7 @@ export namespace ColorFactory {
 		[EntityType.GOLDEN_GUN, [ColorType.WESTERN_YELLOW]],
 		[EntityType.HEADPHONES, [ColorType.SHOOTER_YELLOW]],
 		[EntityType.JETPACK, [ColorType.BLASTER_RED]],
+		[EntityType.LASER_GUN, [ColorType.SHOOTER_BLUE]],
 		[EntityType.MINIGUN, [ColorType.EASTERN_BLACK]],
 		[EntityType.ORB_CANNON, [ColorType.SHOOTER_YELLOW]],
 		[EntityType.PISTOL, [ColorType.WESTERN_BLACK]],
@@ -158,7 +159,6 @@ export namespace ColorFactory {
 		[EntityType.RIFLE, [ColorType.WESTERN_LIGHT_BROWN]],
 		[EntityType.SCOUTER, [ColorType.SHOOTER_ORANGE]],
 		[EntityType.SHOTGUN, [ColorType.WESTERN_BROWN]],
-		[EntityType.SNIPER, [ColorType.SHOOTER_BLUE]],
 		[EntityType.TOP_HAT, [ColorType.BLACK]],
 		[EntityType.WING_CANNON, [ColorType.SHOOTER_ORANGE]],
 		[EntityType.PLAYER, [

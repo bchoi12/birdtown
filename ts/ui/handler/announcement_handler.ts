@@ -125,7 +125,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 				}
 			}
 			return {
-				main: "AND " + names.join(", ").toUpperCase() + (names.length > 1 ? " WIN" : " WINS") + " IT ALL!",
+				main: "AND " + this.victoryMessage(names),
 			};
 		case AnnouncementType.GENERIC:
 			return {
@@ -176,5 +176,35 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		return players === 1
 			? "You\'re the only one here"
 			: "There are currently " + players + " players";
+	}
+
+	private victoryMessage(names : string[]) : string {
+		const nameList = names.join(", ").toUpperCase();
+
+		const rand = Math.random();
+
+		const num = 7;
+		const seed = game.level().seed() + game.controller().round();
+
+		if (seed % num === 0) {
+			return `${nameList} JUST GAVE 'EM THE CORPORATION!`;
+		}
+		if (seed % num === 1) {
+			return `${nameList} ${(names.length > 1 ? "SMOKE" : "SMOKES")} THE COMPETITION!`;
+		}
+		if (seed % num === 2) {
+			return `${nameList} ${(names.length > 1 ? "REIGN" : "REIGNS")} SUPREME!`;
+		}
+		if (seed % num === 3) {
+			return `${nameList} ${(names.length > 1 ? "PUT" : "PUTS")} 'EM IN THE DOGHOUSE!`;
+		}
+		if (seed % num === 4) {
+			return `${nameList} JUST BLASTED THOSE BOOTIES!`;
+		}
+		if (seed % num === 5) {
+			return `${nameList} ${(names.length > 1 ? "REWRITE" : "REWRITES")} HISTORY!`;
+		}
+
+		return `${nameList} ${(names.length > 1 ? "WIN" : "WINS")} IT ALL!`;
 	}
 }

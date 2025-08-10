@@ -61,7 +61,6 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		this._hostButton = new ButtonWrapper();
 		this._hostButton.setIcon(IconType.HOST);
 		this._hostButton.setText("Start Game");
-		this._hostButton.hide();
 		this._hostButton.addOnClick(() => {
 			ui.hostGame();
 		});
@@ -150,15 +149,12 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 			const rooms = Object.entries(data);
 			if (!rooms || rooms.length === 0) {
 				this._infoElm.textContent = "No public games found. Start a game instead?";
-				this._hostButton.show();
 				this._table.elm().style.display = "none";
 				return;
 			}
 
-			this._hostButton.hide();
 			this._table.elm().style.display = "block";
 
-			let players = 0;
 			const numRooms = rooms.length;
 			rooms.forEach((room) => {
 				if (room.length !== 2) {
@@ -178,9 +174,6 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 						ui.joinGame(metadata.room, "");
 					}
 				});
-
-				// TODO: actual count
-				players += 1;
 			});
 
 			this._infoElm.textContent = `${numRooms} ${Strings.plural("game", numRooms)} found`;
@@ -188,7 +181,6 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 			this._pending = false;
 
 			this._infoElm.textContent = "Failed to query matchmaking server. Try starting a game instead?";
-			this._hostButton.show();
 			this._table.elm().style.display = "none";
 		});
 	}

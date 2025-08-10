@@ -38,6 +38,7 @@ export class HealthResource extends Resource {
 	}
 
 	setHealthPercent(percent : number) : void {
+		this._max.set(this.getStat());
 		this.set(percent * this.getStat());
 	}
 
@@ -70,6 +71,8 @@ export class HealthResource extends Resource {
 		let weight = 0;
 		if (this.entityType() === EntityType.PLAYER) {
 			weight = Fns.normalizeRange(10, Math.abs(delta), 50);
+		} else if (this.entity().allTypes().has(EntityType.ENEMY)) {
+			weight = 2 * Fns.normalizeRange(10, Math.abs(delta), 100);
 		}
 
 		if (game.lakitu().inFOV(pos)) {
@@ -90,14 +93,14 @@ export class HealthResource extends Resource {
 			if (hasParticle) {
 				if (delta < 0) {
 					particle.setText({
-						text: "" + delta,
+						text: "" + Math.abs(Math.min(-1, Math.round(delta))),
 						height: height,
 						textColor: ColorFactory.toString(ColorType.TEXT_RED),
 						renderOnTop: true,
 					});
 				} else {
 					particle.setText({
-						text: "+" + delta,
+						text: "+" + Math.max(1, Math.round(delta)),
 						height: height,
 						textColor: ColorFactory.toString(ColorType.TEXT_GREEN),
 						renderOnTop: true,

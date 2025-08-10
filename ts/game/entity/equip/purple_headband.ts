@@ -90,8 +90,6 @@ export class PurpleHeadband extends Equip<Player> {
 
 		if (this.canUse() && this.key(this.useKeyType(), KeyState.PRESSED)) {
 			this.recordUse();
-		} else if (this.canCharge() && this.owner().getAttribute(AttributeType.GROUNDED)) {
-			this.setChargeRate(this.getStat(StatType.FAST_CHARGE_RATE));
 		}
 	}
 

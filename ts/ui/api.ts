@@ -49,6 +49,7 @@ export type ChatOptions = {
 
 export enum DialogType {
 	UNKNOWN,
+	BUFF,
 	DISCONNECTED,
 	FAILED_CONNECT,
 	FAILED_COPY,

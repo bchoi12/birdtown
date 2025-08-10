@@ -38,7 +38,7 @@ export class Platform extends BoundBase {
 			has: () => { return this._outlineEdges > 0; },
 			import: (obj : number) => { this.outlineEdges(obj); },
 			export: () => { return this._outlineEdges; },
-		})
+		});
 	}
 
 	outlineEdges(width : number) : void {

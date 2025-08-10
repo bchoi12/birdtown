@@ -1,5 +1,6 @@
 
 import { game } from 'game'
+import { TeamType } from 'game/component/api'
 import { EntityType, BirdType } from 'game/entity/api'
 import { ColorType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -39,8 +40,9 @@ export class Tablet extends ClientSystem implements System {
 	]);
 
 	private static readonly _teamColors = new Map<number, string>([
-		[1, ColorFactory.toString(ColorType.PLAYER_RED)],
-		[2, ColorFactory.toString(ColorType.PLAYER_BLUE)],
+		[TeamType.RED, ColorFactory.toString(ColorType.PLAYER_RED)],
+		[TeamType.BLUE, ColorFactory.toString(ColorType.PLAYER_BLUE)],
+		[TeamType.ENEMY, ColorFactory.toString(ColorType.GRAY)],
 	]);
 	private static readonly _defaultColor = "#FFFFFF";
 	private static readonly _displayNameMaxLength = 16;
@@ -148,12 +150,16 @@ export class Tablet extends ClientSystem implements System {
 			game.tablets().updateTeamScores();
 		}
 	}
+	addPointKill() : void {
+		this.addInfo(InfoType.KILLS, 1);
+		this.addInfo(InfoType.SCORE, 1);
+	}
+	addTeamKill() : void {
+		this.addInfo(InfoType.KILLS, 1);
+		this.addInfo(InfoType.SCORE, -1);
+	}
 	addInfo(type : InfoType, delta : number) : void {
 		this.setInfo(type, (this.hasInfo(type) ? this.getInfo(type) : 0) + delta);
-
-		if (type === InfoType.KILLS && delta > 0) {
-			this.addInfo(InfoType.SCORE, delta);
-		}
 	}
 	clearInfo(type : InfoType) : void {
 		this._infoMap.delete(type);
@@ -235,7 +241,7 @@ export class Tablet extends ClientSystem implements System {
 		ui.handleClientMessage(initMsg);
 	}
 	hasDisplayName() : boolean { return this._displayName.length > 0; }
-	displayName() : string { return (this.hasDisplayName() ? this._displayName : "unknown") + " #" + this.clientId(); }
+	displayName() : string { return this.hasDisplayName() ? `${this._displayName} #${this.clientId()}` : ""; }
 
 	team() : number {
 		if (!game.playerStates().hasPlayerState(this.clientId())) {

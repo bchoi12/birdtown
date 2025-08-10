@@ -201,6 +201,7 @@ export namespace Icon {
 		[EntityType.BAZOOKA, IconType.ROCKET],
 		[EntityType.GATLING, IconType.GATLING],
 		[EntityType.GOLDEN_GUN, IconType.MONEY],
+		[EntityType.LASER_GUN, IconType.BOLT],
 		[EntityType.MINIGUN, IconType.MINIGUN],
 		[EntityType.ORB_CANNON, IconType.SNOW],
 		[EntityType.PISTOL, IconType.ROCKING_HORSE],
@@ -208,7 +209,6 @@ export namespace Icon {
 		[EntityType.RED_GLOVE, IconType.SWORDS],
 		[EntityType.RIFLE, IconType.LINE],
 		[EntityType.SHOTGUN, IconType.SPRAY],
-		[EntityType.SNIPER, IconType.BOLT],
 		[EntityType.WING_CANNON, IconType.ORBS],
 
 		[EntityType.BOOSTER, IconType.ROCKET_LAUNCH],

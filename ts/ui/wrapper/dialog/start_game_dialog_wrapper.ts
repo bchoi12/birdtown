@@ -5,7 +5,7 @@ import { FrequencyType } from 'game/entity/api'
 import { ConfigFactory } from 'game/factory/config_factory'
 import { LevelType, LevelLayout, LoadoutType, PlayerRole, WeaponSetType, WinConditionType } from 'game/system/api'
 import { Controller } from 'game/system/controller'
-import { PlayerConfig, PlayerInfo } from 'game/util/player_config'
+import { PlayerConfig, PlayerInfo, TeamMode } from 'game/util/player_config'
 
 import { GameMessage, GameMessageType } from 'message/game_message'
 import { GameConfigMessage } from 'message/game_config_message'
@@ -151,9 +151,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 	private addGameModePage() : void {
 		this._currentPage = PageType.SELECT_MODE;
-		this.setTitle("Select Mode");
 
-		let pageWrapper = this.addPage();
+		let pageWrapper = this.addPage("Select Mode");
 
 		let columnsWrapper = ColumnsWrapper.withWeights([4, 6]);
 
@@ -221,7 +220,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			requirements: [],
 			description: "Be the last bird in town.\r\n\r\nRecommended to play with larger groups with 'Endless' level modifier.",
 			parent: classicCategory.contentElm(),
-			minRecommended: 3,
+			minRecommended: 4,
 		});
 		this.populateMode(GameMode.TEAM_BATTLE, {
 			requirements: [],
@@ -390,8 +389,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		this._configMsg = ConfigFactory.load(mode);
 
-		let pageWrapper = this.addPage();
-		this.setTitle(this._configMsg.modeName());
+		let pageWrapper = this.addPage(this._configMsg.modeName());
 		let columnsWrapper = ColumnsWrapper.withWeights([5, 5]);
 
 		let options = columnsWrapper.column(0);
@@ -406,10 +404,15 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		let otherCategory = new CategoryWrapper();
 		otherCategory.setTitle("Other Options");
-		otherCategory.setExpanded(true);
+		otherCategory.setExpanded(false);
 		options.contentElm().appendChild(otherCategory.elm());
 
-		const teamMode = this._configMsg.getWinCondition() === WinConditionType.TEAM_LIVES || this._configMsg.getWinCondition() === WinConditionType.TEAM_POINTS;
+		let teamMode = TeamMode.FREE_FOR_ALL;
+		if (this._configMsg.getWinCondition() === WinConditionType.TEAM_LIVES || this._configMsg.getWinCondition() === WinConditionType.TEAM_POINTS) {
+			teamMode = TeamMode.TWO_TEAMS;
+		} else if (this._configMsg.getWinCondition() === WinConditionType.BOSS) {
+			teamMode = TeamMode.COOP;
+		}
 
 		switch (mode) {
 		case GameMode.DUEL:
@@ -431,7 +434,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			if (mode !== GameMode.GOLDEN_GUN) {
-				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM, LoadoutType.PICK]).elm());
+				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
 				otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 				otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 				otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
@@ -443,7 +446,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		case GameMode.PRACTICE:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
 			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
 			coreCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
@@ -455,7 +458,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());	
 			coreCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM, LoadoutType.PICK]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
@@ -465,7 +468,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM, LoadoutType.PICK]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
@@ -476,6 +479,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
+			coreCategory.contentElm().appendChild(this.friendlyFireWrapper(this._configMsg).elm());						
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
@@ -486,6 +490,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
+			coreCategory.contentElm().appendChild(this.friendlyFireWrapper(this._configMsg).elm());						
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
@@ -496,7 +501,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 30).elm());
-			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.RANDOM, LoadoutType.PICK, LoadoutType.GOLDEN_GUN]).elm());
+			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
+			coreCategory.contentElm().appendChild(this.friendlyFireWrapper(this._configMsg).elm());						
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
@@ -515,9 +521,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this._playerConfigWrapper = new PlayerConfigWrapper();
 		playerCategory.contentElm().appendChild(this._playerConfigWrapper.elm());
 
-		if (teamMode) {
-			this._playerConfigWrapper.setTeams(true);
+		if (this._configMsg.hasPlayersMax()) {
+			this._playerConfigWrapper.setTeamMode(teamMode, this._configMsg.getPlayersMax());
+		} else {
+			this._playerConfigWrapper.setTeamMode(teamMode);
+		}
 
+		if (teamMode === TeamMode.TWO_TEAMS) {
 			if (this._configMsg.hasPlayersMax()) {
 				this._playerConfigWrapper.addRandomButton(this._configMsg.getPlayersMax());
 			} else {
@@ -674,6 +684,24 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			}
 		});
 	}
+	private friendlyFireWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
+			label: "Friendly Fire",
+			value: Number(msg.getFriendlyFire()),
+			plus: (current : number) => {
+				current = current !== 0 ? 0 : 1;
+				msg.setFriendlyFire(current === 1);
+			},
+			minus: (current : number) => {
+				current = current !== 0 ? 0 : 1;
+				msg.setFriendlyFire(current === 1);
+			},
+			get: () => { return Number(msg.getFriendlyFire()); },
+			html: (current : number) => {
+				return msg.getFriendlyFire() ? "On" : "Off";
+			},
+		});
+	}
 
 	private loadoutWrapper(msg : GameConfigMessage, types : LoadoutType[]) : LabelNumberWrapper {
 		let index = types.indexOf(msg.getStartingLoadout());
@@ -755,16 +783,18 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			value: Number(msg.getWeaponSet()),
 			plus: (current : number) => {
 				if (current === WeaponSetType.ALL) {
-					return;
+					current = WeaponSetType.RECOMMENDED;
+				} else {
+					current++;
 				}
-				current++;
 				msg.setWeaponSet(current);
 			},
 			minus: (current : number) => {
 				if (current === WeaponSetType.RECOMMENDED) {
-					return;
+					current = WeaponSetType.ALL;
+				} else {
+					current--;
 				}
-				current--;
 				msg.setWeaponSet(current);
 			},
 			get: () => { return msg.getWeaponSet(); },

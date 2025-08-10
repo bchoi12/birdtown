@@ -94,7 +94,7 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 			type: KeyType.SCOREBOARD,
 		});
 		this.addKeyBind(menu,{
-			name: "Screenshot (WIP)",
+			name: "Screenshot (beta)",
 			type: KeyType.PHOTO,
 		});
 	}

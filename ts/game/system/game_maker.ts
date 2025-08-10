@@ -38,8 +38,8 @@ export class GameMaker extends SystemBase implements System {
 
 	private static readonly _announcementBuffer = 500;
 	private static readonly _lastDamageTime = 15000;
-	private static readonly _finishTimeLimit = 2500;
-	private static readonly _victoryTimeLimit = 5000;
+	private static readonly _finishTimeLimit = 3000;
+	private static readonly _victoryTimeLimit = 7500;
 	private static readonly _endTimeLimit = 2500;
 	private static readonly _errorTimeLimit = 5000;
 	private static readonly _preloadTimeLimit = 1500;
@@ -200,7 +200,7 @@ export class GameMaker extends SystemBase implements System {
 		this._config = config;
 
 		if (!this._config.valid()) {
-			console.error("Error: invalid config", this._config);
+			console.error("Error: invalid config", this._config.errors().join(", "));
 			return false;
 		}
 
@@ -237,7 +237,7 @@ export class GameMaker extends SystemBase implements System {
 		ui.setGameConfig(this._config);
 
 		if (Flags.printDebug.get()) {
-			console.log("%s: config is", this.name(), this._config.dataMap());
+			console.log("%s: set config", this.name(), this._config.dataMap());
 			console.log("%s: client config is ", this.name(), playerConfig.playerMap());
 		}
 		return true;
@@ -247,7 +247,7 @@ export class GameMaker extends SystemBase implements System {
 		config.parseObject(obj);
 
 		if (!config.valid()) {
-			console.error("Error: failed to import invalid config", config, obj);
+			console.error("Error: failed to import invalid config", config.errors().join(", "));
 			return;
 		}
 
@@ -256,6 +256,10 @@ export class GameMaker extends SystemBase implements System {
 			tablet.resetForGame(this._config);
 		});
 		ui.setGameConfig(this._config);
+
+		if (Flags.printDebug.get()) {
+			console.log("%s: imported config", this.name(), this._config.dataMap());
+		}
 	}
 	checkState(current : GameState) : [string, boolean] {
 		switch (current) {
@@ -263,7 +267,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.SETUP:
 		case GameState.GAME:
 			if (game.playerStates().numPlayers() < this._config.getPlayersMinOr(1)) {
-				return [`Not enough players left in the game for ${GameState[current]}`, false];
+				return [`Not enough players left in the game`, false];
 			}
 			break;
 		}
@@ -460,7 +464,7 @@ export class GameMaker extends SystemBase implements System {
 			break;
 		case GameState.SETUP:
 			this.assignRoles();
-			this.configureLoadout();
+			this.setupPlayers();
 			this.setWinnerClientId(0);
 			break;
 		case GameState.GAME:
@@ -542,7 +546,12 @@ export class GameMaker extends SystemBase implements System {
 
 			if (hasDamager && game.tablets().hasTablet(damager.clientId())) {
 				const damagerTablet = game.tablet(damager.clientId())
-				damagerTablet.addInfo(InfoType.KILLS, 1);
+
+				if (damager.sameTeam(player)) {
+					damagerTablet.addTeamKill();
+				} else {
+					damagerTablet.addPointKill();
+				}
 
 		    	game.announcer().feed({
 		    		type: FeedType.KILL,
@@ -577,7 +586,7 @@ export class GameMaker extends SystemBase implements System {
 		}
 	}
 
-	private configureLoadout() : void {
+	private setupPlayers() : void {
 		if (this._config.getStartingLoadout() === LoadoutType.RANDOM_ALL) {
 			this._equipPair = EquipFactory.next();
 			return;
@@ -585,6 +594,15 @@ export class GameMaker extends SystemBase implements System {
 
 		if (this._config.getStartingLoadout() === LoadoutType.RANDOM
 			|| this._config.getStartingLoadout() === LoadoutType.GOLDEN_GUN) {
+			return;
+		}
+
+		if (this._config.getStartingLoadout() === LoadoutType.BUFF) {
+			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
+				clientDialog.queueDialog(DialogType.BUFF);
+			}, (clientDialog : ClientDialog) => {
+				return this.isPlaying(clientDialog.clientId());
+			});
 			return;
 		}
 
@@ -644,7 +662,7 @@ export class GameMaker extends SystemBase implements System {
 				return !tablet.outOfLives() && this.isPlaying(tablet.clientId());
 			});
 			let teams = this.getTeams(winners);
-			if (teams.size === 1) {
+			if (teams.size <= 1) {
 				winners = this.findPlayerStateIds((playerState : PlayerState) => {
 					return teams.has(playerState.team());
 				});
@@ -670,7 +688,7 @@ export class GameMaker extends SystemBase implements System {
 				return playerState.isVIP() && !playerState.targetEntity<Player>().dead();
 			});
 
-			if (vips.length === 1) {
+			if (vips.length <= 1) {
 				const team = vips[0].team();
 				winners = this.findPlayerStateIds((playerState : PlayerState) => {
 					return team === playerState.team();

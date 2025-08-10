@@ -35,7 +35,7 @@ import { isDesktopApp, isMobile, isLocalhost } from 'util/common'
 
 class Settings {
 	
-	private static readonly _volumePercent = 0.1;
+	private static readonly _volumePercent = 0.8;
 	private static readonly _musicPercent = 0.5;
 	private static readonly _soundPercent = 0.8;
 
@@ -230,8 +230,6 @@ class Settings {
 
 	setKeyCode(type : KeyType, code : number) : void {
 		this.keyCodes.set(type, code);
-
-		// TODO: consider saving code here
 	}
 	keyCode(type : KeyType) : number {
 		return this.keyCodes.has(type) ? this.keyCodes.get(type) : 0;

@@ -1,6 +1,6 @@
 
 import { game } from 'game'
-import { PlayerConfig, PlayerInfo, StartRole } from 'game/util/player_config'
+import { PlayerConfig, PlayerInfo, StartRole, TeamMode } from 'game/util/player_config'
 
 import { GameConfigMessage } from 'message/game_config_message'
 
@@ -15,7 +15,6 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 	private _configElm : HTMLElement;
 	private _infoElm : HTMLElement;
 	private _config : PlayerConfig;
-	private _teams : boolean;
 	private _settingWrappers : Map<number, SettingWrapper<StartRole>>;
 
 	constructor() {
@@ -28,7 +27,6 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 		this._infoElm.style.marginBottom = "1em";
 
 		this._config = PlayerConfig.fromSetup();
-		this._teams = false;
 		this._settingWrappers = new Map();
 
 		this.elm().appendChild(this._infoElm);
@@ -56,10 +54,8 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 			this._configElm.removeChild(this._settingWrappers.get(id).elm());
 		}
 	}
-	setTeams(teams : boolean, max? : number) : void {
-		this._teams = teams;
-		this._config.setTeams(teams, max);
-
+	setTeamMode(mode : TeamMode, max? : number) : void {
+		this._config.setTeamMode(mode, max);
 		this.refreshWrapper();
 	}
 
@@ -126,14 +122,15 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 			name: info.displayName,
 			value: info.role,
 			click: (current : StartRole) => {
-				if (this._teams) {
+				switch (this._config.teamMode()) {
+				case TeamMode.TWO_TEAMS:
 					if (current === StartRole.TEAM_ONE) {
 						return StartRole.TEAM_TWO;
 					} else if (current === StartRole.TEAM_TWO) {
 						return StartRole.SPECTATING;
 					}
 					return StartRole.TEAM_ONE;
-				} else {
+				default:
 					if (current === StartRole.PLAYING) {
 						return StartRole.SPECTATING;
 					}

@@ -17,6 +17,7 @@ import { DyingStar } from 'game/entity/dying_star'
 import { Pergola } from 'game/entity/pergola'
 import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/player'
+import { BlockEnemy } from 'game/entity/enemy/block_enemy'
 import { BlackHeadband } from 'game/entity/equip/black_headband'
 import { Bubble } from 'game/entity/equip/bubble'
 import { Booster } from 'game/entity/equip/booster'
@@ -28,6 +29,7 @@ import { PocketRocket } from 'game/entity/equip/pocket_rocket'
 import { PurpleHeadband } from 'game/entity/equip/purple_headband'
 import { RedHeadband } from 'game/entity/equip/red_headband'
 import { Scouter } from 'game/entity/equip/scouter'
+import { Shades } from 'game/entity/equip/shades'
 import { TopHat } from 'game/entity/equip/top_hat'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
@@ -40,6 +42,7 @@ import { RobinHair } from 'game/entity/equip/headwear/robin_hair'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
 import { GoldenGun } from 'game/entity/equip/weapon/golden_gun'
+import { LaserGun } from 'game/entity/equip/weapon/laser_gun'
 import { Minigun } from 'game/entity/equip/weapon/minigun'
 import { OrbCannon } from 'game/entity/equip/weapon/orb_cannon'
 import { Pistol } from 'game/entity/equip/weapon/pistol'
@@ -47,7 +50,6 @@ import { PurpleGlove } from 'game/entity/equip/weapon/purple_glove'
 import { RedGlove } from 'game/entity/equip/weapon/red_glove'
 import { Rifle } from 'game/entity/equip/weapon/rifle'
 import { Shotgun } from 'game/entity/equip/weapon/shotgun'
-import { Sniper } from 'game/entity/equip/weapon/sniper'
 import { WingCannon } from 'game/entity/equip/weapon/wing_cannon'
 import { BlackHole } from 'game/entity/explosion/black_hole'
 import { BoltExplosion } from 'game/entity/explosion/bolt_explosion'
@@ -105,6 +107,7 @@ export namespace EntityFactory {
 		[EntityType.BILLBOARD, (options : EntityOptions) => { return new Billboard(options); }],
 		[EntityType.BLACK_HEADBAND, (options : EntityOptions) => { return new BlackHeadband(options); }],
 		[EntityType.BLACK_HOLE, (options : EntityOptions) => { return new BlackHole(options); }],
+		[EntityType.BLOCK_ENEMY, (options : EntityOptions) => { return new BlockEnemy(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
 		[EntityType.BOOSTER, (options : EntityOptions) => { return new Booster(options); }],
 		[EntityType.BOLT_EXPLOSION, (options : EntityOptions) => { return new BoltExplosion(options); }],
@@ -139,6 +142,7 @@ export namespace EntityFactory {
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.KNIFE, (options : EntityOptions) => { return new Knife(options); }],
 		[EntityType.LASER, (options : EntityOptions) => { return new Laser(options); }],
+		[EntityType.LASER_GUN, (options : EntityOptions) => { return new LaserGun(options); }],
 		[EntityType.MEGA_ROCKET, (options : EntityOptions) => { return new MegaRocket(options); }],
 		[EntityType.MEGA_ROCKET_EXPLOSION, (options : EntityOptions) => { return new MegaRocketExplosion(options); }],
 		[EntityType.MINIGUN, (options : EntityOptions) => { return new Minigun(options); }],
@@ -167,8 +171,8 @@ export namespace EntityFactory {
 		[EntityType.ROCKET, (options : EntityOptions) => { return new Rocket(options); }],
 		[EntityType.ROCKET_EXPLOSION, (options : EntityOptions) => { return new RocketExplosion(options); }],
 		[EntityType.SCOUTER, (options : EntityOptions) => { return new Scouter(options); }],
+		[EntityType.SHADES, (options : EntityOptions) => { return new Shades(options); }],
 		[EntityType.SHOTGUN, (options : EntityOptions) => { return new Shotgun(options); }],
-		[EntityType.SNIPER, (options : EntityOptions) => { return new Sniper(options); }],
 		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
 		[EntityType.STAR, (options : EntityOptions) => { return new Star(options); }],
 		[EntityType.STAR_EXPLOSION, (options : EntityOptions) => { return new StarExplosion(options); }],
@@ -248,6 +252,7 @@ export namespace EntityFactory {
 	export const dimensions = new Map<EntityType, Vec>([
 		...staticDimensions,
 		[EntityType.BLACK_HOLE, { x: 8, y: 8, z: 8 }],
+		[EntityType.BLOCK_ENEMY, { x: 1, y: 1, z: 1 }],
 		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],
 		[EntityType.GOLDEN_EXPLOSION, { x: 2.5, y: 2.5, z: 2.5 }],

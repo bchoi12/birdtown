@@ -69,7 +69,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._voiceWrapper = new VoiceWrapper();
 		if (Flags.enableVoice.get()) {
 			this._voiceWrapper.setEnabledText("Proximity voice chat enabled");
-			this._voiceWrapper.setDisabledText("Enable proximity voice chat (WIP)");
+			this._voiceWrapper.setDisabledText("Enable proximity voice chat (beta)");
 			this._commandsWrapper.contentElm().appendChild(this._voiceWrapper.elm());
 			this._commandsWrapper.contentElm().appendChild(Html.br());
 		}

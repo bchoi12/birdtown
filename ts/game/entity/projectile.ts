@@ -11,11 +11,13 @@ import { StepData } from 'game/game_object'
 import { SoundType, StatType } from 'game/factory/api'
 import { SoundFactory } from 'game/factory/sound_factory'
 
+import { Fns } from 'util/fns'
 import { Vec2 } from 'util/vector'
 
 export abstract class Projectile extends EntityBase {
 
 	protected _collisions : Array<[MATTER.Collision, Entity]>;
+	protected _damageMultiplier : number;
 	protected _hitId : number;
 	protected _hits : Set<number>;
 	protected _prevPos : Vec2;
@@ -30,6 +32,7 @@ export abstract class Projectile extends EntityBase {
 		this.addType(EntityType.PROJECTILE);
 
 		this._collisions = new Array();
+		this._damageMultiplier = 1;
 		this._hitId = 0;
 		this._hits = new Set();
 		this._prevPos = Vec2.zero();
@@ -53,7 +56,32 @@ export abstract class Projectile extends EntityBase {
 	}
 
 	override ready() : boolean {
-		return super.ready() && this._association.hasAssociation(AssociationType.OWNER);
+		return super.ready() && this._association.hasRefreshedOwner();
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		const owner = this.owner();
+		if (owner.hasStat(StatType.DAMAGE_BOOST)) {
+			this._damageMultiplier *= owner.getStat(StatType.DAMAGE_BOOST);
+		}
+
+		if (this.isSource()) {
+			if (owner.rollStat(StatType.CRIT_CHANCE)) {
+				this.setAttribute(AttributeType.CRITICAL, true);
+				this._damageMultiplier *= owner.getStat(StatType.CRIT_BOOST);
+
+				const critChance = owner.getStat(StatType.CRIT_CHANCE);
+				if (critChance > 1) {
+					this._damageMultiplier *= critChance;
+				}
+			}
+		}
+
+		if (this.hasProfile() && owner.hasStat(StatType.SCALING)) {
+			this.profile().multScaling(Math.max(0.1, owner.getStat(StatType.SCALING)));
+		}
 	}
 
 	override delete() : void {
@@ -94,6 +122,11 @@ export abstract class Projectile extends EntityBase {
 			return;
 		}
 
+		if (this._collisions.length === 1) {
+			this.hit(this._collisions[0][0], this._collisions[0][1]);
+			return;
+		}
+
 		let bestDot = 0;
 		let firstCollision = null;
 		for (let i = 0; i < this._collisions.length; ++i) {
@@ -131,16 +164,13 @@ export abstract class Projectile extends EntityBase {
 		if (this._hits.has(other.id())) {
 			return false;
 		}
-		if (other.getAttribute(AttributeType.INVINCIBLE)) {
-			return false;
-		}
 		if (this.matchAssociations([AssociationType.OWNER], other)) {
 			return false;
 		}
 		return true;
 	}
 	protected hit(collision : MATTER.Collision, other : Entity) : void {
-		if (other.getAttribute(AttributeType.INVINCIBLE)) {
+		if (other.getAttribute(AttributeType.INVINCIBLE) || other.getAttribute(AttributeType.DODGY)) {
 			this._hits.add(other.id());
 			return;
 		}
@@ -155,8 +185,9 @@ export abstract class Projectile extends EntityBase {
 			}
 		}
 
-		if (this.hitDamage() !== 0) {
-			other.takeDamage(this.hitDamage(), this);
+		const hitDamage = this.hitDamage();
+		if (hitDamage !== 0) {
+			other.takeDamage(hitDamage, this.hasOwner() ? this.owner() : this);
 		}
 
 		if (!this._hits.has(other.id())) {
@@ -178,7 +209,32 @@ export abstract class Projectile extends EntityBase {
 	}
 
 	hitDamage() : number {
-		return this.getStat(StatType.DAMAGE);
+		let damage = this.getStat(StatType.DAMAGE) * this._damageMultiplier;
+		if (this.hasOwner()) {
+			if (this.owner().hasStat(StatType.DAMAGE_CLOSE_BOOST)) {
+				const weight = Math.max(0, 1 - 2 * this.ttlElapsed());
+				damage *= Fns.normalizeRange(1, weight, this.owner().getStat(StatType.DAMAGE_CLOSE_BOOST));
+			}
+			if (this.owner().hasStat(StatType.DAMAGE_FAR_BOOST)) {
+				const weight = Math.max(0, 2 * this.ttlElapsed() - 1);
+				damage *= Fns.normalizeRange(1, weight, this.owner().getStat(StatType.DAMAGE_FAR_BOOST));
+			}
+		}
+		return damage;
+	}
+	unstickDamage() : number {
+		return this.getStat(StatType.UNSTICK_DAMAGE) * this._damageMultiplier;
+	}
+	applyUnstickDamage(id : number) : void {
+		const dmg = this.unstickDamage();
+		if (dmg === 0) {
+			return;
+		}
+
+		const [parent, ok] = game.entities().getEntity(id);
+		if (ok) {
+			parent.takeDamage(dmg, this.hasOwner() ? this.owner() : this);
+		}
 	}
 	onHit(other : Entity) : void {
 		this._hits.add(other.id());

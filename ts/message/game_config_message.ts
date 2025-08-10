@@ -16,9 +16,11 @@ enum GameConfigProp {
 	LEVEL_SEED,
 	LEVEL_TYPE,
 	LIVES,
+	FRIENDLY_FIRE,
 	PLAYERS_MIN,
 	PLAYERS_MAX,
 	POINTS,
+
 	RESET_POINTS,
 	SPAWN_TIME,
 	STARTING_LOADOUT,
@@ -33,10 +35,11 @@ enum GameConfigProp {
 export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> implements Message<GameMode, GameConfigProp> {
 
 	private static readonly _baseProps : [number, Descriptor][] = [
+		[GameConfigProp.FRIENDLY_FIRE, {}],
+		[GameConfigProp.HEALTH_CRATE_SPAWN, {}],
 		[GameConfigProp.LEVEL_LAYOUT, {}],
 		[GameConfigProp.LEVEL_SEED, {}],
 		[GameConfigProp.LEVEL_TYPE, {}],
-		[GameConfigProp.HEALTH_CRATE_SPAWN, {}],
 		[GameConfigProp.STARTING_LOADOUT, {}],
 		[GameConfigProp.WEAPON_CRATE_SPAWN, {}],
 		[GameConfigProp.WEAPON_SET, {}],
@@ -76,12 +79,9 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
+		// TODO: use _gameProps
 		[GameMode.INVASION, MessageBase.fieldDescriptor(
-			[GameConfigProp.LEVEL_TYPE, {}],
-			[GameConfigProp.LEVEL_LAYOUT, {}],
-			[GameConfigProp.LEVEL_SEED, {}],
-			[GameConfigProp.STARTING_LOADOUT, {}],
-			[GameConfigProp.WIN_CONDITION, {}],
+			...GameConfigMessage._gameProps,
 		)],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
@@ -143,7 +143,10 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			return this;
 		}
 
+		this.setWeaponSet(WeaponSetType.RECOMMENDED);
+
 		if (mode === GameMode.FREE) {
+			this.setFriendlyFire(false);
 			this.setLevelType(LevelType.LOBBY);
 			this.setLevelLayout(LevelLayout.CIRCLE);
 			this.setLevelSeed(Math.floor(33 * Math.random()));
@@ -154,25 +157,16 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			return this;
 		}
 
-		if (mode === GameMode.INVASION) {
-			this.setLevelType(LevelType.BIRDTOWN);
-			this.setLevelLayout(LevelLayout.INVASION);
-			this.setLevelSeed(1);
-			this.setStartingLoadout(LoadoutType.CHOOSE);
-			this.setWinCondition(WinConditionType.BOSS);
-			return;
-		}
-
 		this.setLevelType(LevelType.RANDOM);
 		this.setLevelLayout(LevelLayout.NORMAL);
 		this.setLevelSeed(Math.floor(100000 * Math.random()));
 
 		this.setTimeSetup(25000);
 
+		this.setFriendlyFire(false);
 		this.setResetPoints(false);
 		this.setHealthCrateSpawn(FrequencyType.NEVER);
 		this.setWeaponCrateSpawn(FrequencyType.NEVER);
-		this.setWeaponSet(WeaponSetType.RECOMMENDED);
 
 		switch (mode) {
 		case GameMode.DUEL:
@@ -203,6 +197,17 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setStartingLoadout(LoadoutType.GOLDEN_GUN);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.POINTS);
+			break;
+		case GameMode.INVASION:
+			this.setPlayersMin(1);
+			this.setHealthCrateSpawn(FrequencyType.NEVER);
+			this.setWeaponCrateSpawn(FrequencyType.NEVER);
+			this.setLevelType(LevelType.BIRDTOWN);
+			this.setLevelLayout(LevelLayout.INVASION);
+			this.setLevelSeed(1);
+			this.setStartingLoadout(LoadoutType.BUFF);
+			this.setTimeSetup(30000);
+			this.setWinCondition(WinConditionType.BOSS);
 			break;
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);
@@ -288,6 +293,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getDamageMultiplier() : number { return this.get<number>(GameConfigProp.DAMAGE_MULTIPLIER); }
     getDamageMultiplierOr(value : number) : number { return this.getOr<number>(GameConfigProp.DAMAGE_MULTIPLIER, value); }
     setDamageMultiplier(value : number) : void { this.set<number>(GameConfigProp.DAMAGE_MULTIPLIER, value); }
+
+    hasFriendlyFire() : boolean { return this.has(GameConfigProp.FRIENDLY_FIRE); }
+    getFriendlyFire() : boolean { return this.get<boolean>(GameConfigProp.FRIENDLY_FIRE); }
+    getFriendlyFireOr(value : boolean) : boolean { return this.getOr<boolean>(GameConfigProp.FRIENDLY_FIRE, value); }
+    setFriendlyFire(value : boolean) : void { this.set<boolean>(GameConfigProp.FRIENDLY_FIRE, value); }
 
     hasHealthCrateSpawn() : boolean { return this.has(GameConfigProp.HEALTH_CRATE_SPAWN); }
     getHealthCrateSpawn() : FrequencyType { return this.get<FrequencyType>(GameConfigProp.HEALTH_CRATE_SPAWN); }
@@ -377,6 +387,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     /*
     const enumClass = "GameConfigProp";
     ["DAMAGE_MULTIPLIER", "number"],
+    ["FRIENDLY_FIRE", "boolean"],
     ["HEALTH_CRATE_SPAWN", "FrequencyType"],
     ["LEVEL_LAYOUT", "LevelLayout"],
     ["LEVEL_SEED", "number"],

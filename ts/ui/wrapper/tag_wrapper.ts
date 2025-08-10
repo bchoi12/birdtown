@@ -18,6 +18,8 @@ export class TagWrapper extends HtmlWrapper<HTMLElement> {
 
 		this.elm().appendChild(this._iconElm);
 		this.elm().appendChild(this._nameElm);
+
+		this.elm().style.display = "none";
 	}
 
 	clearIcon() : void { this._iconElm.innerHTML = ""; }
@@ -32,7 +34,15 @@ export class TagWrapper extends HtmlWrapper<HTMLElement> {
 		this._iconElm.appendChild(icon);
 	}
 
-	setName(name : string) : void { this._nameElm.textContent = name; }
+	setName(name : string) : void {
+		this._nameElm.textContent = name;
+
+		if (name.length === 0) {
+			this.elm().style.display = "none";
+		} else {
+			this.elm().style.display = "revert";
+		}
+	}
 	name() : string { return this._nameElm.textContent; }
 
 	setBackgroundColor(color : string) : void {

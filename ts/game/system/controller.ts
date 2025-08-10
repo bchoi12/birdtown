@@ -26,7 +26,7 @@ export class Controller extends SystemBase implements System {
 
 	private static readonly _maxTimeLimit = 999 * 1000;
 	private static readonly _showTimerStates = new Set([
-		GameState.SETUP, GameState.GAME, GameState.FINISH, GameState.VICTORY,
+		GameState.SETUP, GameState.GAME, GameState.FINISH, GameState.VICTORY, GameState.ERROR,
 	]);
 
 	private _gameState : GameState;

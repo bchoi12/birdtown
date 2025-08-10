@@ -1,6 +1,7 @@
 
 import { game } from 'game'
 import { GameMode } from 'game/api'
+import { TeamType } from 'game/component/api'
 import { PlayerRole, WinConditionType } from 'game/system/api'
 import { ClientDialog } from 'game/system/client_dialog'
 import { PlayerState } from 'game/system/player_state'
@@ -19,6 +20,14 @@ export enum StartRole {
 	SPECTATING,
 }
 
+export enum TeamMode {
+	UNKNOWN,
+
+	FREE_FOR_ALL,
+	TWO_TEAMS,
+	COOP,
+}
+
 export type PlayerInfo = {
 	displayName: string;
 	role : StartRole;
@@ -31,10 +40,12 @@ export class PlayerConfig {
 	]);
 
 	private _defaultRole : StartRole;
+	private _teamMode : TeamMode;
 	private _players : Map<number, PlayerInfo>;
 
 	private constructor() {
 		this._defaultRole = StartRole.PLAYING;
+		this._teamMode = TeamMode.FREE_FOR_ALL;
 		this._players = new Map();
 	}
 
@@ -155,7 +166,7 @@ export class PlayerConfig {
 
 	role(id : number) : StartRole {
 		if (!this.hasClient(id)) {
-			return this._defaultRole;
+			return StartRole.SPECTATING;
 		}
 		return this._players.get(id).role;
 	}
@@ -183,14 +194,16 @@ export class PlayerConfig {
 		this._players.get(id).role = role;
 	}
 
-	setTeams(teams : boolean, max? : number) : void {
-		if (!teams) {
-			this._defaultRole = StartRole.PLAYING;
-			return;
-		}
+	teamMode() : TeamMode { return this._teamMode; }
+	setTeamMode(mode : TeamMode, max? : number) : void {
+		this._teamMode = mode;
 
-		this._defaultRole = StartRole.SPECTATING;
-		this.assignTeams(false, max);
+		if (this._teamMode === TeamMode.TWO_TEAMS) {
+			this._defaultRole = StartRole.SPECTATING;
+			this.assignTeams(/*random=*/false, max);
+		} else {
+			this._defaultRole = StartRole.PLAYING;
+		}
 	}
 	randomizeTeams(max? : number) : void {
 		this.assignTeams(/*random=*/true, max);
@@ -216,11 +229,15 @@ export class PlayerConfig {
 			return 0;
 		}
 
+		if (this._teamMode === TeamMode.COOP) {
+			return TeamType.COOP;
+		}
+
 		switch (this.role(id)) {
 		case StartRole.TEAM_ONE:
-			return 1;
+			return TeamType.RED;
 		case StartRole.TEAM_TWO:
-			return 2;
+			return TeamType.BLUE;
 		}
 		return 0;
 	}

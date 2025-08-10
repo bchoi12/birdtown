@@ -1,5 +1,6 @@
 
 import { game } from 'game'
+import { GameState } from 'game/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Sign } from 'game/entity/interactable/sign'
@@ -19,6 +20,10 @@ export class StartGameSign extends Sign {
 
 	override interactWith(entity : Entity) : void {
 		super.interactWith(entity);
+
+		if (game.controller().gameState() !== GameState.FREE) {
+			return;
+		}
 
 		ui.pushDialog(DialogType.START_GAME);
 	}

@@ -124,16 +124,28 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 	contentElm() : HTMLElement { return this._contentElm; }
 	footerElm() : HTMLElement { return this._footer.elm(); }
 
-	addPage() : PageWrapper {
+	addPage(title? : string) : PageWrapper {
 		let page = new PageWrapper();
+
+		if (title) {
+			page.setTitle(title);
+		}
 
 		this._pages.push(page);
 		this._contentElm.appendChild(page.elm());
 
 		if (this._pages.length > 1) {
 			page.elm().style.display = "none";
+		} else {
+			this.showPage(page);
 		}
 		return page;
+	}
+	private showPage(page : PageWrapper) : void {
+		page.elm().style.display = "block";
+		if (page.hasTitle()) {
+			this.setTitle(page.getTitle());
+		}
 	}
 
 	addSubmitTimer(millis : number) : void {
@@ -211,7 +223,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		this._pages[this._pageIndex].elm().style.display = "none";
 		this._pages.pop();
 		this._pageIndex--;
-		this._pages[this._pageIndex].elm().style.display = "block";
+		this.showPage(this._pages[this._pageIndex]);
 	}
 	nextPage() : void {
 		let currentPage = this._pages[this._pageIndex];
@@ -233,7 +245,7 @@ export abstract class DialogWrapper extends HtmlWrapper<HTMLElement> {
 		}
 
 		this._pageIndex++;
-		this._pages[this._pageIndex].elm().style.display = "block";
+		this.showPage(this._pages[this._pageIndex]);
 	}
 
 	addOnSubmit(fn : OnSubmitFn) : void { this._onSubmitFns.push(fn); }

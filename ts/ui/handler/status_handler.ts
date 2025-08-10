@@ -197,7 +197,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 			let wrapper = this._statusWrappers.get(type);
 			switch (type) {
 			case StatusType.DEGRADED:
-				wrapper.setHTML(`our game is running slowly\r\nPress ${KeyNames.keyTypeHTML(KeyType.MENU)} to adjust your settings`);
+				wrapper.setHTML(`Your game is running slowly\r\nPress ${KeyNames.keyTypeHTML(KeyType.MENU)} to adjust your settings`);
 				break;
 			case StatusType.HOST_DEGRADED:
 				wrapper.setText("Your host is currently lagging or tabbed out");

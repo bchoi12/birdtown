@@ -7,7 +7,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
+import { BuffType, ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
@@ -27,7 +27,6 @@ export enum WeaponState {
 	FIRING,
 	RELOADING,
 }
-
 export enum RecoilType {
 	UNKNOWN,
 
@@ -162,7 +161,7 @@ export abstract class Weapon extends Equip<Player> {
 		this._charger = new Stopwatch();
 		this._weaponState = WeaponState.IDLE;
 		this._stateTimer = this.newTimer({ canInterrupt: true });
-		this._bursts = this.getBurstStat();
+		this._bursts = this.getMaxBursts();
 		this._firingTime = this.getTime(WeaponState.FIRING);
 
 		this._allowPartialClip = false;
@@ -215,35 +214,57 @@ export abstract class Weapon extends Equip<Player> {
 	protected shootNode() : BABYLON.TransformNode { return this._shootNode !== null ? this._shootNode : this._model.root(); }
 	shootPos() : Vec3 {
 		// TODO: this will not reflect one frame of movement
+		// Doesn't really matter? Direction of projectile will be correct
 		const node = this.shootNode();
 		return Vec3.fromBabylon3(node.getAbsolutePosition());
 	}
 
 	weaponState() : WeaponState { return this._weaponState; }
 	bursts() : number { return this._bursts; }
-	protected getBurstStat() : number {
-		if (this.charged() && this.hasStat(StatType.CHARGED_BURSTS)) {
-			return this.getStat(StatType.CHARGED_BURSTS);
+	protected getMaxBursts() : number {
+		let mult = 1;
+		let bonus = 0;
+		if (this.hasOwner()) {
+			mult = this.owner().getStat(StatType.BURST_BOOST);
+			bonus = this.owner().getStat(StatType.BURST_BONUS);
 		}
-		return this.getStat(StatType.BURSTS);
+		if (this.charged() && this.hasStat(StatType.CHARGED_BURSTS)) {
+			return Math.floor(mult * this.getStat(StatType.CHARGED_BURSTS) + bonus);
+		}
+		return Math.floor(mult * this.getStat(StatType.BURSTS) + bonus);
 	}
 	timer() : Timer { return this._stateTimer; }
 	private getTime(state : WeaponState) : number {
+		let time = 0;
 		switch (state) {
 		case WeaponState.REVVING:
-			return this.getStatOr(StatType.REV_TIME, 0);
+			if (this.hasStat(StatType.REV_TIME)) {
+				time = this.getStat(StatType.REV_TIME);
+			}
+			break;
 		case WeaponState.FIRING:
 			if (this.charged() && this.hasStat(StatType.CHARGED_FIRE_TIME)) {
-				return this.getStat(StatType.CHARGED_FIRE_TIME);
+				time = this.getStat(StatType.CHARGED_FIRE_TIME);
+			} else {
+				time = this.getStat(StatType.FIRE_TIME);
 			}
-			return this.getStat(StatType.FIRE_TIME);
+
+			if (this.hasOwner() && this.owner().hasStat(StatType.FIRE_BOOST)) {
+				time /= Math.max(0.1, this.owner().getStat(StatType.FIRE_BOOST));
+			}
+			break;
 		case WeaponState.RELOADING:
 			if (this.charged() && this.hasStat(StatType.CHARGED_RELOAD_TIME)) {
-				return this.getStat(StatType.CHARGED_RELOAD_TIME);
+				time = this.getStat(StatType.CHARGED_RELOAD_TIME);
+			} else {
+				time = this.getStat(StatType.RELOAD_TIME);
 			}
-			return this.getStat(StatType.RELOAD_TIME);
+			if (this.hasOwner() && this.owner().hasStat(StatType.RELOAD_BOOST)) {
+				time /= Math.max(0.1, this.owner().getStat(StatType.RELOAD_BOOST));
+			}
+			break;
 		}
-		return 0;
+		return time;
 	}
 	getDir() : Vec2 {
 		if (this._shootNode === null) {
@@ -316,14 +337,22 @@ export abstract class Weapon extends Equip<Player> {
 	}
 
 	chargedThreshold() : number { return 1000; }
-	charged() : boolean { return this._charged; }
+	charged() : boolean {
+		if (this.hasOwner() && this.owner().hasMaxedBuff(BuffType.JUICED)) {
+			return true;
+		}
+		return this._charged;
+	}
 	chargeMillis() : number { return this._charger.millis(); }
 	charging() : boolean { return this._charging; }
 	setCharging(charging : boolean) : void {
+		if (this.hasOwner() && this.owner().hasMaxedBuff(BuffType.JUICED)) {
+			this._charging = false;
+			return;
+		}
 		if (this._charging === charging) {
 			return;
 		}
-
 		if (this.reloading() && charging) {
 			return;
 		}
@@ -368,7 +397,7 @@ export abstract class Weapon extends Equip<Player> {
 	reloadPercent() : number { return this._weaponState === WeaponState.RELOADING ? this._stateTimer.percentElapsed() : 1; }
 	onReload() : void {
 		if (this._allowPartialClip) {
-			this._stateTimer.elapse(this._stateTimer.totalMillis() * this._bursts / this.getBurstStat());
+			this._stateTimer.elapse(this._stateTimer.totalMillis() * this._bursts / this.getMaxBursts());
 		} else {
 			this._bursts = 0;
 		}
@@ -378,7 +407,7 @@ export abstract class Weapon extends Equip<Player> {
 		}
 	}
 	quickReload(millis? : number) : void {
-		this._bursts = this.getBurstStat();
+		this._bursts = this.getMaxBursts();
 		if (millis <= 0) {
 			this.setWeaponState(WeaponState.IDLE);
 			this._stateTimer.reset();
@@ -396,7 +425,7 @@ export abstract class Weapon extends Equip<Player> {
 		hudData.set(this.hudType(), {
 			charging: !this.canUse(),
 			count: this.bursts(),
-			percentGone: 1 - (this.reloading() && !this._interruptible ? this.reloadPercent() : (this.bursts() / this.getBurstStat())),
+			percentGone: 1 - (this.reloading() && !this._interruptible ? this.reloadPercent() : (this.bursts() / this.getMaxBursts())),
 			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
 			keyType: KeyType.MOUSE_CLICK,
 		});
@@ -409,7 +438,7 @@ export abstract class Weapon extends Equip<Player> {
 			return;
 		}
 
-		const time = this.getTime(state);
+		let time = this.getTime(state);
 		if (time > 0) {
 			this._stateTimer.start(time);
 		} else {
@@ -422,7 +451,7 @@ export abstract class Weapon extends Equip<Player> {
 			break;
 		case WeaponState.IDLE:
 			this.setCharging(false);
-			this._bursts = this.getBurstStat();
+			this._bursts = this.getMaxBursts();
 			if (this._weaponState === WeaponState.RELOADING) {
 				if (this._playReloadSound && this.hasOwner()) {
 					this.soundPlayer().playFromEntity(this.reloadSound(), this.owner(), {});
@@ -465,7 +494,7 @@ export abstract class Weapon extends Equip<Player> {
 		if (this._weaponState === WeaponState.RELOADING) {
 			this.setCharging(false);
 
-			this._bursts = Math.max(this._bursts, Math.floor(this._stateTimer.percentElapsed() * this.getBurstStat()));
+			this._bursts = Math.max(this._bursts, Math.floor(this._stateTimer.percentElapsed() * this.getMaxBursts()));
 
 			if (!this._stateTimer.hasTimeLeft()) {
 				this.setWeaponState(WeaponState.IDLE);
@@ -477,7 +506,7 @@ export abstract class Weapon extends Equip<Player> {
 		}
 
 		if (this._weaponState === WeaponState.IDLE) {
-			this._bursts = this.getBurstStat();
+			this._bursts = this.getMaxBursts();
 			if (this.firing()) {
 				this.setWeaponState(WeaponState.REVVING);
 			}
@@ -485,7 +514,7 @@ export abstract class Weapon extends Equip<Player> {
 
 		if (this._weaponState === WeaponState.REVVING) {
 			if (!this._allowPartialClip) {
-				this._bursts = this.getBurstStat();
+				this._bursts = this.getMaxBursts();
 			}
 
 			if (!this._stateTimer.hasTimeLeft()) {

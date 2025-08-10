@@ -20,10 +20,17 @@ import { Vec3 } from 'util/vector'
 
 export class Headphones extends Equip<Player> {
 
+	private static readonly _maxRange = 16;
+	private static readonly _fullChargeTime = 750;
+
+	private _charge : number;
+
 	private _model : Model;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.HEADPHONES, entityOptions);
+
+		this._charge = 0;
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
@@ -43,8 +50,25 @@ export class Headphones extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
-			this.recordUse();
+		if (this.canUse()) {
+			if (this.key(this.useKeyType(), KeyState.DOWN)) {
+				this._charge += millis;
+			} else if (this._charge > 0 && this.key(this.useKeyType(), KeyState.UP)) {
+				this.recordUse();
+			}
+		}
+
+		if (this._charge > 0) {
+			this._charge = Math.min(this._charge, Headphones._fullChargeTime);
+
+			const shakeStrength = this._charge / Headphones._fullChargeTime;
+			this._model.translation().copyVec({
+				x: shakeStrength * Fns.randomNoise(0.08),
+				y: shakeStrength * Fns.randomNoise(0.08),
+				z: shakeStrength * Fns.randomNoise(0.04),
+			})
+		} else {
+			this._model.translation().scale(0);
 		}
 	}
 
@@ -53,12 +77,19 @@ export class Headphones extends Equip<Player> {
 
 		const [star, ok] = this.addEntity<DyingStar>(EntityType.DYING_STAR, {
 			profileInit: {
-				pos: this.owner().profile().pos(),
+				pos: this.owner().profile().pos().clone(),
 			},
 		});
 
 		if (ok) {
-			star.setTarget(this.inputMouse());
+			const dir = this.inputDir();
+			const range = 0.2 + 0.8 * Fns.normalizeRange(0, this._charge, Headphones._fullChargeTime) * Headphones._maxRange;
+			star.setTarget(this.owner().profile().pos().clone().add({
+				x: range * dir.x,
+				y: range * dir.y,
+			}));
 		}
+
+		this._charge = 0;
 	}
 }

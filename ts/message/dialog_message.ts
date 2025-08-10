@@ -1,5 +1,6 @@
 
 import { EntityType, BirdType } from 'game/entity/api'
+import { BuffType } from 'game/factory/api'
 
 import { Message, MessageBase, FieldDescriptor } from 'message'
 
@@ -10,6 +11,7 @@ enum DialogProp {
 
 	ALT_EQUIP_TYPE,
     BIRD_TYPE,
+    BUFF_TYPE,
     COLOR,
 	DISPLAY_NAME,
 	EQUIP_TYPE,
@@ -20,6 +22,12 @@ enum DialogProp {
 export class DialogMessage extends MessageBase<DialogType, DialogProp> implements Message<DialogType, DialogProp> {
 
 	private static readonly _messageDescriptor = new Map<DialogType, FieldDescriptor>([
+        [DialogType.BUFF, MessageBase.fieldDescriptor(
+            [DialogProp.BUFF_TYPE, {optional: true}],
+            [DialogProp.EQUIP_TYPE, {optional: true}],
+            [DialogProp.ALT_EQUIP_TYPE, {optional: true}],
+            [DialogProp.VERSION, {}],
+        )],
         [DialogType.DISCONNECTED, MessageBase.fields()],
         [DialogType.FAILED_CONNECT, MessageBase.fields()],
         [DialogType.FAILED_COPY, MessageBase.fields()],
@@ -64,6 +72,11 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
     getBirdTypeOr(value : BirdType) : BirdType { return this.getOr<BirdType>(DialogProp.BIRD_TYPE, value); }
     setBirdType(value : BirdType) : void { this.set<BirdType>(DialogProp.BIRD_TYPE, value); }
 
+    hasBuffType() : boolean { return this.has(DialogProp.BUFF_TYPE); }
+    getBuffType() : BuffType { return this.get<BuffType>(DialogProp.BUFF_TYPE); }
+    getBuffTypeOr(value : BuffType) : BuffType { return this.getOr<BuffType>(DialogProp.BUFF_TYPE, value); }
+    setBuffType(value : BuffType) : void { this.set<BuffType>(DialogProp.BUFF_TYPE, value); }
+
     hasColor() : boolean { return this.has(DialogProp.COLOR); }
     getColor() : string { return this.get<string>(DialogProp.COLOR); }
     getColorOr(value : string) : string { return this.getOr<string>(DialogProp.COLOR, value); }
@@ -88,6 +101,7 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
     const enumClass = "DialogProp";
     ["ALT_EQUIP_TYPE", "EntityType"],
     ["BIRD_TYPE", "BirdType"],
+    ["BUFF_TYPE", "BuffType"],
     ["COLOR", "string"],
     ["DISPLAY_NAME", "string"],
     ["EQUIP_TYPE", "EntityType"],

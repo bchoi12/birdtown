@@ -5,13 +5,42 @@ import { EntityType } from 'game/entity/api'
 import { StatType } from 'game/factory/api'
 
 export namespace StatFactory {
-	const entityStats = new Map<EntityType, Map<StatType, number>>([
+	const baseStats = new Map<StatType, number>([
+		[StatType.DAMAGE_BOOST, 1],
+		[StatType.DAMAGE_TAKEN_BOOST, 1],
+		[StatType.SPEED_BOOST, 1],
+		[StatType.SPEED_DEBUFF, 1],
+	]);
 
+	const entityStats = new Map<EntityType, Map<StatType, number>>([
+		// Player
+		// TODO: SCALING, DISTANCE_DAMAGE_BOOST, PERIL_DAMAGE_BOOST, CLOSE_DAMAGE_BOOST,
+		// VAMPIRE BUFF (DAMAGE + LIFESTEAL + TAKE DAMAGE)
+		// ALWAYS CHARGED
+		// PIERCE ATTRIBUTE
+		// BUFFS THAT PROCESS DAMAGE
+		[EntityType.PLAYER, new Map([
+			[StatType.BURST_BONUS, 0],
+			[StatType.BURST_BOOST, 1],
+			[StatType.CRIT_CHANCE, 0],
+			[StatType.CRIT_BOOST, 1.5],
+			[StatType.DOUBLE_JUMPS, 1],
+			[StatType.EXPOSE_CHANCE, 0],
+			[StatType.FIRE_BOOST, 1],
+			[StatType.HEALTH, 100],
+			[StatType.HEAL_PERCENT, 0],
+			[StatType.HP_REGEN, 0],
+			[StatType.HP_REGEN_DELAY, 3000],
+			[StatType.SLOW_CHANCE, 0],
+			[StatType.LIFE_STEAL, 0],
+			[StatType.RELOAD_BOOST, 1],
+			[StatType.SCALING, 1],
+			[StatType.USE_BOOST, 1],
+		])],
+
+		// Other Entities
 		[EntityType.HEALTH_CRATE, new Map([
 			[StatType.HEALTH, 40],
-		])],
-		[EntityType.PLAYER, new Map([
-			[StatType.HEALTH, 100],
 		])],
 		[EntityType.WEAPON_CRATE, new Map([
 			[StatType.HEALTH, 40],
@@ -46,15 +75,13 @@ export namespace StatFactory {
 
 		[EntityType.BLACK_HEADBAND, new Map([
 			[StatType.CHARGE_DELAY, 60],
-			[StatType.CHARGE_RATE, 120],
-			[StatType.FAST_CHARGE_RATE, 180],
+			[StatType.CHARGE_RATE, 180],
 			[StatType.FORCE, 0.7],
 			[StatType.USE_JUICE, 100],
 		])],
 		[EntityType.BOOSTER, new Map([
-			[StatType.CHARGE_DELAY, 300],
-			[StatType.CHARGE_RATE, 50],
-			[StatType.FAST_CHARGE_RATE, 125],
+			[StatType.CHARGE_DELAY, 400],
+			[StatType.CHARGE_RATE, 100],
 			[StatType.FORCE, 2],
 			[StatType.USE_JUICE, 100],
 		])],
@@ -65,23 +92,18 @@ export namespace StatFactory {
 			[StatType.USE_JUICE, 100],
 		])],
 		[EntityType.HEADPHONES, new Map([
-			[StatType.CHARGE_RATE, 50],
-			[StatType.USE_JUICE, 100],
-		])],
-		[EntityType.HEADPHONES, new Map([
-			[StatType.CHARGE_RATE, 50],
+			[StatType.CHARGE_RATE, 70],
 			[StatType.USE_JUICE, 100],
 		])],
 		[EntityType.JETPACK, new Map([
 			[StatType.CHARGE_DELAY, 400],
-			[StatType.CHARGE_RATE, 50],
-			[StatType.FAST_CHARGE_RATE, 300],
+			[StatType.CHARGE_RATE, 150],
 			// Adjusted by time
 			[StatType.USE_JUICE, 0.1],
 		])],
 		[EntityType.POCKET_ROCKET, new Map([
 			[StatType.CHARGE_DELAY, 500],
-			[StatType.CHARGE_RATE, 33],
+			[StatType.CHARGE_RATE, 30],
 			[StatType.PROJECTILE_ACCEL, 1.3],
 			[StatType.PROJECTILE_SPEED, 0.1],
 			[StatType.PROJECTILE_TTL, 550],
@@ -92,15 +114,13 @@ export namespace StatFactory {
 		])],
 		[EntityType.PURPLE_HEADBAND, new Map([
 			[StatType.CHARGE_DELAY, 400],
-			[StatType.CHARGE_RATE, 40],
-			[StatType.FAST_CHARGE_RATE, 80],
+			[StatType.CHARGE_RATE, 80],
 			[StatType.FORCE, 0.8],
 			[StatType.USE_JUICE, 45],
 		])],
 		[EntityType.RED_HEADBAND, new Map([
-			[StatType.CHARGE_DELAY, 300],
-			[StatType.CHARGE_RATE, 110],
-			[StatType.FAST_CHARGE_RATE, 170],
+			[StatType.CHARGE_DELAY, 400],
+			[StatType.CHARGE_RATE, 180],
 			[StatType.FORCE, -0.8],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 550],
@@ -223,7 +243,7 @@ export namespace StatFactory {
 		// 2 shots in 675ms
 		[EntityType.RED_GLOVE, new Map([
 			[StatType.BURSTS, 2],
-			[StatType.FIRE_TIME, 125],
+			[StatType.FIRE_TIME, 110],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 550],
 			[StatType.RELOAD_TIME, 400],
@@ -263,7 +283,7 @@ export namespace StatFactory {
 		])],
 		// 75 DPS
 		// 3 shots in 600ms
-		[EntityType.SNIPER, new Map([
+		[EntityType.LASER_GUN, new Map([
 			[StatType.BURSTS, 3],
 			[StatType.CHARGED_BURSTS, 1],
 			[StatType.CHARGED_FIRE_TIME, 75],
@@ -306,15 +326,21 @@ export namespace StatFactory {
 	])
 
 	export function has(entityType : EntityType, statType : StatType) : boolean {
-		return entityStats.has(entityType) && entityStats.get(entityType).has(statType);
+		return baseStats.has(statType) || entityStats.has(entityType) && entityStats.get(entityType).has(statType);
 	}
 	export function base(entityType : EntityType, statType : StatType) : number {
 		if (!entityStats.has(entityType)) {
+			if (baseStats.has(statType)) {
+				return baseStats.get(statType);
+			}
 			console.error("Warning: entity %s has no stats", EntityType[entityType]);
 			return 0;
 		}
 		const stats = entityStats.get(entityType);
 		if (!stats.has(statType)) {
+			if (baseStats.has(statType)) {
+				return baseStats.get(statType);
+			}
 			console.error("Warning: entity %s is missing stat %s", EntityType[entityType], StatType[statType]);
 			return 0;
 		}

@@ -7,6 +7,7 @@ export type MessageObject = {
 export interface Message<T extends number, P extends number> {
 	type() : T;
 	valid() : boolean;
+	errors() : string[];
 	serializable() : boolean;
 
 	has(prop : P);
@@ -66,11 +67,38 @@ export abstract class MessageBase<T extends number, P extends number> {
 		}
 		return true;
 	}
+	errors() : string[] {
+		let invalid = [];
+
+		if (this._type === 0) {
+			invalid.push("type should not be unknown");
+		}
+
+		for (let [prop, descriptor] of this.messageDescriptor().get(this._type)) {
+			if (!this.has(<P>prop)) {
+				if (!descriptor.optional) {
+					invalid.push(`missing required ${prop}`);
+					continue;
+				}
+			} else {
+				if (descriptor.min && this.get<number>(<P>prop) < descriptor.min) {
+					invalid.push(`${prop} is too small (${this.get<number>(<P>prop)}<${descriptor.min})`);
+					continue;
+				}
+				if (descriptor.max && this.get<number>(<P>prop) > descriptor.max) {
+					invalid.push(`${prop} is too large (${this.get<number>(<P>prop)}>${descriptor.max})`);
+					continue;
+				}
+			}
+		}
+		return invalid;
+	}
 	serializable() : boolean { return false; }
 
 	reset(type : T) : void {
 		this._type = type;
 		this.clear();
+		this.setUpdated(true);
 	}
 	clear() : void { this._data = {}; }
 	has(prop : P) : boolean {

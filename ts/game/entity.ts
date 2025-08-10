@@ -3,7 +3,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { Component } from 'game/component'
-import { AssociationType, AttributeType, ComponentType, EmotionType } from 'game/component/api'
+import { ComponentType, AssociationType, AttributeType, EmotionType, TeamType } from 'game/component/api'
 import { Association, AssociationInitOptions } from 'game/component/association'
 import { Attributes, AttributesInitOptions } from 'game/component/attributes'
 import { Buffs } from 'game/component/buffs'
@@ -17,7 +17,7 @@ import { Resources } from 'game/component/resources'
 import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { GameObject, GameObjectBase, StepData } from 'game/game_object'
-import { StatType, SoundType } from 'game/factory/api'
+import { BuffType, StatType, SoundType } from 'game/factory/api'
 import { StatFactory } from 'game/factory/stat_factory'
 
 import { StringFactory } from 'strings/string_factory'
@@ -88,11 +88,21 @@ export interface Entity extends GameObject {
 	baseStat(type : StatType) : number;
 	getStat(type : StatType) : number;
 	getStatOr(type : StatType, or : number) : number;
+	rollStat(type : StatType) : boolean;
+	hasBuff(type : BuffType) : boolean;
+	hasMaxedBuff(type : BuffType) : boolean;
+	addBuff(type : BuffType, delta : number) : void;
+	setBuffMin(type : BuffType, min : number) : void;
+	removeBuff(type : BuffType) : void;
+
 	soundPlayer() : SoundPlayer;
 
 	// Associations
 	getAssociations() : Map<AssociationType, number>;
-	setTeam(team : number) : void;
+	setTeam(team : TeamType) : void;
+	sameTeam(other : Entity) : boolean;
+	hasOwner() : boolean;
+	owner() : Entity;
 	matchAssociations(types : AssociationType[], other : Entity) : boolean;
 
 	addForce(force : Vec) : void;
@@ -200,7 +210,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		return EntityType[this._type].toLowerCase();
 	}
 
-	// TODO: protected?
 	type() : EntityType { return this._type; }
 	addType(type : EntityType) { this._allTypes.add(type); }
 	allTypes() : Set<EntityType> { return this._allTypes; }
@@ -294,14 +303,30 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 		return this.getComponent<Association>(ComponentType.ASSOCIATION).getAssociation(AssociationType.TEAM);
 	}
-	setTeam(team : number) : void {
+	setTeam(team : TeamType) : void {
 		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
 			console.error("Error: cannot set team for %s which has no Association component", this.name());
 			return;
 		}
 
 		let association = this.getComponent<Association>(ComponentType.ASSOCIATION);
-		association.setAssociation(AssociationType.TEAM, team);
+		association.setTeam(team);
+	}
+	sameTeam(other : Entity) : boolean {
+		return this.matchAssociations([AssociationType.TEAM], other);
+	}
+	hasOwner() : boolean {
+		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
+			return false;
+		}
+		return this.getComponent<Association>(ComponentType.ASSOCIATION).hasOwner();
+	}
+	owner() : Entity {
+		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
+			console.error("Error: queried owner for %s", this.name());
+			return null;
+		}
+		return this.getComponent<Association>(ComponentType.ASSOCIATION).owner();
 	}
 	matchAssociations(types : AssociationType[], other : Entity) : boolean {
 		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
@@ -363,16 +388,53 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		return StatFactory.base(this.type(), type);
 	}
 	getStat(type : StatType) : number {
+		let stat = this.baseStat(type);
 		if (this.hasComponent(ComponentType.BUFFS)) {
-			return this.getComponent<Buffs>(ComponentType.BUFFS).getStat(type);
+			return stat + this.getComponent<Buffs>(ComponentType.BUFFS).getBoost(type);
 		}
-		return this.baseStat(type);
+		return stat;
 	}
 	getStatOr(type : StatType, or : number) : number {
 		if (!this.hasStat(type)) {
 			return or;
 		}
 		return this.getStat(type);
+	}
+	rollStat(type : StatType) : boolean {
+		if (!this.hasStat(type)) {
+			return false;
+		}
+		return this.getStat(type) > Math.random();
+	}
+	hasBuff(type : BuffType) : boolean {
+		if (!this.hasComponent(ComponentType.BUFFS)) {
+			return false;
+		}
+		return this.getComponent<Buffs>(ComponentType.BUFFS).hasBuff(type);
+	}
+	hasMaxedBuff(type : BuffType) : boolean {
+		if (!this.hasComponent(ComponentType.BUFFS)) {
+			return false;
+		}
+		return this.getComponent<Buffs>(ComponentType.BUFFS).hasMaxedBuff(type);
+	}
+	addBuff(type : BuffType, delta : number) : void {
+		if (!this.isSource() || !this.hasComponent(ComponentType.BUFFS)) {
+			return;
+		}
+		this.getComponent<Buffs>(ComponentType.BUFFS).addBuff(type, delta);
+	}
+	setBuffMin(type : BuffType, min : number) : void {
+		if (!this.hasComponent(ComponentType.BUFFS)) {
+			return;
+		}
+		this.getComponent<Buffs>(ComponentType.BUFFS).setBuffMin(type, min);
+	}
+	removeBuff(type : BuffType) : void {
+		if (!this.hasComponent(ComponentType.BUFFS)) {
+			return;
+		}
+		this.getComponent<Buffs>(ComponentType.BUFFS).removeBuff(type);
 	}
 
 	addForce(force : Vec) : void {
@@ -401,12 +463,41 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		if (delta >= 0 && (this.getAttribute(AttributeType.INVINCIBLE) || this.dead())) {
 			return;
 		}
-		if (this.id() !== from.id() && this.matchAssociations([AssociationType.TEAM], from)) {
-			delta = 0;
+		if (delta > 0
+			&& this.id() !== from.id()
+			&& this.sameTeam(from)
+			&& !game.controller().config().getFriendlyFireOr(false)) {
+
+			if (from.hasStat(StatType.HEAL_PERCENT)) {
+				this.heal(from.getStat(StatType.HEAL_PERCENT) * delta);
+			}
+			return;
 		}
 
 		if (game.controller().config().hasDamageMultiplier()) {
 			delta *= game.controller().config().getDamageMultiplier();;
+		}
+
+		// Damage stuff
+		if (delta > 0) {
+			if (this.hasStat(StatType.DAMAGE_TAKEN_BOOST)) {
+				delta *= this.getStat(StatType.DAMAGE_TAKEN_BOOST);
+			}
+			if (this.hasStat(StatType.DAMAGE_RESIST_BOOST)) {
+				delta /= this.getStat(StatType.DAMAGE_RESIST_BOOST);
+			}
+
+			if (from.rollStat(StatType.EXPOSE_CHANCE)) {
+				this.addBuff(BuffType.EXPOSE, 1);
+			}
+			if (from.rollStat(StatType.SLOW_CHANCE)) {
+				this.addBuff(BuffType.SLOW, 1);
+			}
+			if (this.getAttribute(AttributeType.ALIVE)) {
+				if (from.hasStat(StatType.LIFE_STEAL)) {
+					from.heal(from.getStat(StatType.LIFE_STEAL) * delta);
+				}
+			}
 		}
 
 		this.getComponent<Resources>(ComponentType.RESOURCES).updateResource(StatType.HEALTH, {
@@ -434,10 +525,19 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 
 	playbackRate() : number {
-		if (this.getAttribute(AttributeType.UNDERWATER)) {
-			return 0.7;
+		if (this.hasOwner()) {
+			return this.owner().playbackRate();
 		}
-		return 1;
+
+		let rate = 1;
+		if (this.getAttribute(AttributeType.UNDERWATER)) {
+			rate *= 0.7;
+		}
+		if (this.hasProfile() && this.profile().hasScaling()) {
+			const scaling = this.profile().scaling();
+			rate /= (scaling.x + scaling.y) / 2;
+		}
+		return rate;
 	}
 	impactSound() : SoundType { return SoundType.UNKNOWN; }
 	clientColorOr(or : string) : string {

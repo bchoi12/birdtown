@@ -1,6 +1,6 @@
 import * as MATTER from 'matter-js'
 
-import { CollisionCategory, CollisionGroup } from 'game/factory/api'
+import { CollisionCategory, ColliderType } from 'game/factory/api'
 
 import { defined } from 'util/common'
 import { Vec } from 'util/vector'
@@ -53,7 +53,7 @@ export namespace BodyFactory {
 
 	export function neverCollideFilter() : Object {
 		return {
-			group: CollisionGroup.NEVER_COLLIDE,
+			group: ColliderType.NEVER_COLLIDE,
 		};
 	}
 

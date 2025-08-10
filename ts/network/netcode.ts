@@ -55,9 +55,6 @@ export abstract class Netcode {
 	// For peer.js connection
 	private static readonly _pingInterval = 30000;
 
-	// For host/client connections
-	private static readonly _pingTimeoutMillis = 15000;
-
 	private static readonly _validChannels : DoubleMap<ChannelType, string> = DoubleMap.fromEntries([
 		[ChannelType.TCP, "TCP"],
 		[ChannelType.UDP, "UDP"],
@@ -254,6 +251,16 @@ export abstract class Netcode {
 
 		let connection = new Connection(id);
 		this._connections.set(id, connection);
+
+		if (this.isHost()) {
+			perch.updateRoom(this._hostName, this.getNumConnected() + 1, (data) => {
+				if (Flags.printDebug.get()) {
+					console.log("Update room metadata:", data);
+				}
+			}, () => {
+				console.error("Error: failed to update server metadata");
+			});
+		}		
 		return connection;
 	}
 	hasConnection(id : string) : boolean { return this._connections.has(id); }
@@ -301,7 +308,7 @@ export abstract class Netcode {
 				return;
 			}
 
-			if (this._pinger.millisSincePing(id) >= Netcode._pingTimeoutMillis) {
+			if (this._pinger.unresponsive(id)) {
 				console.error(`Connection to ${id} timed out`);
 				this.disconnect(DisconnectType.TIMEOUT, id);
 			}

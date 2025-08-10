@@ -61,6 +61,8 @@ export interface GameObject {
 	valid() : boolean;
 	state() : GameObjectState;
 	setState(state : GameObjectState) : void;
+	deactivate() : void;
+	deactivated() : boolean;
 	reset() : void;
 	delete() : void;
 	deleted() : boolean;
@@ -248,6 +250,8 @@ export abstract class GameObjectBase {
 		});
 		this._state = state;
 	}
+	deactivate() : void { this.setState(GameObjectState.DEACTIVATED); }
+	deactivated() : boolean { return this._state === GameObjectState.DEACTIVATED; }
 	reset() : void {
 		this.updateObjects((obj : GameObject) => {
 			obj.reset();
@@ -275,7 +279,7 @@ export abstract class GameObjectBase {
 	disposed() : boolean { return this._disposed; }
 
 	protected updateCalls() : number { return this._updateCalls; }
-	canStep() : boolean { return this.initialized() && this.state() !== GameObjectState.DEACTIVATED && !this.deleted(); }
+	canStep() : boolean { return this.initialized() && !this.deactivated() && !this.deleted(); }
 	preUpdate(stepData : StepData) : void {
 		const millis = stepData.millis;
 		this._timers.forEach((timer) => {

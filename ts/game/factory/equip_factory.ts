@@ -15,6 +15,7 @@ export namespace EquipFactory {
 	const recommendedPairs = new Map<EntityType, EntityType[]>([
 		[EntityType.BAZOOKA, [EntityType.JETPACK, EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.GATLING, [EntityType.BOOSTER, EntityType.HEADPHONES]],
+		[EntityType.LASER_GUN, [EntityType.SCOUTER, EntityType.POCKET_ROCKET]],
 		[EntityType.MINIGUN, [EntityType.BLACK_HEADBAND, EntityType.PURPLE_HEADBAND]],
 		[EntityType.ORB_CANNON, [EntityType.HEADPHONES, EntityType.JETPACK]],
 		[EntityType.PISTOL, [EntityType.COWBOY_HAT, EntityType.SCOUTER]],
@@ -22,7 +23,6 @@ export namespace EquipFactory {
 		[EntityType.RED_GLOVE, [EntityType.RED_HEADBAND]],
 		[EntityType.RIFLE, [EntityType.BLACK_HEADBAND, EntityType.RED_HEADBAND]],
 		[EntityType.SHOTGUN, [EntityType.COWBOY_HAT, EntityType.PURPLE_HEADBAND]],
-		[EntityType.SNIPER, [EntityType.SCOUTER, EntityType.POCKET_ROCKET]],
 		[EntityType.WING_CANNON, [EntityType.SCOUTER, EntityType.POCKET_ROCKET]],
 	]);
 
@@ -159,7 +159,7 @@ export namespace EquipFactory {
 		[EntityType.RED_GLOVE, new Set([EquipTag.ASSASSINATE, EquipTag.RAPID_FIRE])],
 		[EntityType.RIFLE, new Set([EquipTag.PRECISION_WEAPON, EquipTag.LONG_RANGE])],
 		[EntityType.SHOTGUN, new Set([EquipTag.MELEE_RANGE, EquipTag.BIG_BURST, EquipTag.BIG_RECOIL])],
-		[EntityType.SNIPER, new Set([EquipTag.SIMPLE_SHOT, EquipTag.RAPID_FIRE])],
+		[EntityType.LASER_GUN, new Set([EquipTag.SIMPLE_SHOT, EquipTag.RAPID_FIRE])],
 		[EntityType.WING_CANNON, new Set([EquipTag.BIG_DAMAGE, EquipTag.DISRUPTIVE])],
 
 		[EntityType.GOLDEN_GUN, new Set([EquipTag.PRECISION_WEAPON, EquipTag.ONE_SHOT])],
@@ -211,7 +211,7 @@ export namespace EquipFactory {
 			case EntityType.PISTOL:
 				merged.add(EquipTag.ONE_SHOT);
 				break;
-			case EntityType.SNIPER:
+			case EntityType.LASER_GUN:
 				merged.add(EquipTag.BIG_BURST);
 				merged.add(EquipTag.DISRUPTIVE);
 				break;

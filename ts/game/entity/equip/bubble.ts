@@ -104,7 +104,7 @@ export class Bubble extends Equip<Player> {
 		this._popped = true;
 
 		if (this.hasOwner()) {
-			this.owner().setAttribute(AttributeType.FLOATING, false);
+			this.owner().setAttribute(AttributeType.BUBBLED, false);
 		}
 
 		this.setTTL(Bubble._popDuration);
@@ -113,7 +113,7 @@ export class Bubble extends Equip<Player> {
 	override initialize() : void {
 		super.initialize();
 
-		this.owner().setAttribute(AttributeType.FLOATING, true);
+		this.owner().setAttribute(AttributeType.BUBBLED, true);
 		this.owner().setAttribute(AttributeType.INVINCIBLE, true);
 
 		this._lifeTimer.start(Bubble._lifeDuration, () => {
@@ -126,7 +126,7 @@ export class Bubble extends Equip<Player> {
 
 		if (this.hasOwner()) {
 			this.owner().upright();
-			this.owner().setAttribute(AttributeType.FLOATING, false);
+			this.owner().setAttribute(AttributeType.BUBBLED, false);
 			this.owner().setAttribute(AttributeType.INVINCIBLE, false);
 		}
 	}

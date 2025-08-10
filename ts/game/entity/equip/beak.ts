@@ -70,7 +70,7 @@ export abstract class Beak extends Equip<Player> {
 			return;
 		}
 
-		if (amount >= 8 + 32 * Math.random()) {
+		if (Math.random() * amount >= 8 + Math.random() * 22) {
 			this.setSquawking(true);
 		}
 	}

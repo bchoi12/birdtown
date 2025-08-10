@@ -119,7 +119,7 @@ export class Physics extends SystemBase implements System {
 			const profileA = entityA.profile();
 			const profileB = entityB.profile();
 
-			if (profileA.body().isStatic && profileB.body().isStatic) {
+			if (profileA.isStatic() && profileB.isStatic()) {
 				return;
 			}
 

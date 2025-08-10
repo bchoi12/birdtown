@@ -251,14 +251,13 @@ export class Level extends SystemBase implements System {
 			blueprint = new ArchBlueprint({
 				msg: msg,
 				pos: pos,
-			})
+			});
 			break;
 		default:
 			console.error("Error: unsupported level type %s", LevelType[msg.getLevelType()]);
 			return;
 		}
 		let bounds = Box2.point(pos);
-
 		blueprint.load();
 		blueprint.blocks().forEach((block) => {
 			block.entities().forEach((entity) => {

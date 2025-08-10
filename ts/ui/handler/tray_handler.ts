@@ -122,7 +122,7 @@ export class TrayHandler extends HandlerBase implements Handler {
 		this._buttonsElm.appendChild(share.elm())
 		
 		this._voiceWrapper.addOnMouseEnter(() => {
-			this.showDescription("Toggle in-game proximity voice chat (WIP)");
+			this.showDescription("Toggle in-game proximity voice chat (beta)");
 		});
 
 		if (Flags.enableVoice.get()) {

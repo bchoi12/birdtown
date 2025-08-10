@@ -7,6 +7,7 @@ import { StepData } from 'game/game_object'
 import { AssociationType, AttributeType, ComponentType, EmotionType } from 'game/component/api'
 import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
+import { Buffs } from 'game/component/buffs'
 import { EntityTrackers } from 'game/component/entity_trackers'
 import { Expression } from 'game/component/expression'
 import { Model } from 'game/component/model'
@@ -22,7 +23,7 @@ import { Bubble } from 'game/entity/equip/bubble'
 import { Headwear } from 'game/entity/equip/headwear'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { TextParticle } from 'game/entity/particle/text_particle'
-import { CollisionCategory, ColorType, MaterialType, MeshType, StatType, TextureType } from 'game/factory/api'
+import { BuffType, CollisionCategory, ColorType, MaterialType, MeshType, StatType, TextureType } from 'game/factory/api'
 import { DepthType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -88,12 +89,12 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private static readonly _jumpGracePeriod = 160;
 
 	private static readonly _knockbackRecoveryTime = 250;
-	private static readonly _interactCheckInterval = 125;
+	private static readonly _interactCheckInterval = 100;
 	private static readonly _heartInterval = 1000;
 	private static readonly _damageFlashTime = 160;
 	private static readonly _reviveTime = 5000;
 	private static readonly _sweatInterval = 4000;
-	private static readonly _walkSmokeInterval = 300;
+	private static readonly _walkSmokeInterval = 150;
 
 	private static readonly _defaultColor = "#ffffff";
 	private static readonly _headDim = {x: 0.96, y: 1.06};
@@ -144,7 +145,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 	private _canJump : boolean;
 	private _canJumpTimer : Timer;
-	private _canDoubleJump : boolean;
+	private _doubleJumps : number;
 	private _dead : boolean;
 	private _damageCounter : SavedCounter;
 	private _damageTimer : Timer;
@@ -162,6 +163,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 	private _association : Association;
 	private _attributes : Attributes;
+	private _buffs : Buffs;
 	private _entityTrackers : EntityTrackers;
 	private _expression : Expression;
 	private _model : Model;
@@ -185,7 +187,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._canJumpTimer = this.newTimer({
 			canInterrupt: true,
 		});
-		this._canDoubleJump = false;
+		this._doubleJumps = 0;
 		this._dead = false;
 		this._damageCounter = new SavedCounter(0);
 		this._damageTimer = this.newTimer({
@@ -208,6 +210,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			} else {
 				this.getUp();
 			}
+
+			this.setAttribute(AttributeType.ALIVE, !dead);
 		});
 		this._groundedTracker = new ChangeTracker(() => {
 			return this.getAttribute(AttributeType.GROUNDED);
@@ -243,9 +247,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._nearestInteractable = new Optional();
 		this._interactRateLimiter = new RateLimiter(Player._interactCheckInterval);
 
-		this.addProp<boolean>({
-			export: () => { return this._canDoubleJump; },
-			import: (obj : boolean) => { this._canDoubleJump = obj; },
+		this.addProp<number>({
+			export: () => { return this._doubleJumps; },
+			import: (obj : number) => { this._doubleJumps = obj; },
 		});
 		this.addProp<boolean>({
 			export: () => { return this._dead; },
@@ -279,7 +283,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
+		this._attributes.setAttribute(AttributeType.ALIVE, true);
 		this._attributes.setAttribute(AttributeType.SOLID, true);
+
+		this._buffs = this.addComponent<Buffs>(new Buffs());
 
 		this._entityTrackers = this.addComponent<EntityTrackers>(new EntityTrackers());
 
@@ -313,20 +320,24 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		this._profile.setLimitFn((profile : Profile) => {
 			let maxHorizontalVel = profile.knockbackMillis() > 0 ? Player._maxHorizontalVel : Player._maxWalkingVel;
-			if (this.getAttribute(AttributeType.LEVITATING)) {
-				maxHorizontalVel *= 1.5;
-			} else if (this.getAttribute(AttributeType.FLOATING)) {
+			if (this.getAttribute(AttributeType.BUBBLED)) {
 				maxHorizontalVel *= 1.2;
+			}
+			if (this.hasStat(StatType.SPEED_BOOST)) {
+				maxHorizontalVel *= this.getStat(StatType.SPEED_BOOST);
 			}
 			if (this.getAttribute(AttributeType.UNDERWATER)) {
 				maxHorizontalVel *= 0.6;
+			}
+			if (this.hasStat(StatType.SPEED_DEBUFF)) {
+				maxHorizontalVel /= this.getStat(StatType.SPEED_DEBUFF);
 			}
 
 			if (Math.abs(profile.vel().x) > maxHorizontalVel) {
 				profile.vel().x = Math.sign(profile.vel().x) * maxHorizontalVel;
 			}
 
-			let maxVerticalVel = this.getAttribute(AttributeType.FLOATING) ? Player._maxFloatingVel : Player._maxVerticalVel;
+			let maxVerticalVel = this.getAttribute(AttributeType.BUBBLED) ? Player._maxFloatingVel : Player._maxVerticalVel;
 			if (this.getAttribute(AttributeType.UNDERWATER)) {
 				maxVerticalVel *= this._profile.vel().y > 0 ? 0.7 : 0.3;
 			}
@@ -510,8 +521,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		}
 		this._canJump = false;
 		this._canJumpTimer.reset();
-		this._canDoubleJump = false;
+		this._doubleJumps = 0;
 		this._profile.setPos(spawn);
+		this._profile.setScaleFactor(Math.max(0.1, this.getStat(StatType.SCALING)));
 		this.fullHeal();
 
 		this.getUp();
@@ -688,19 +700,14 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			this._damageCounter.add(amount);
 			this.damageEffect(amount);
 		}
-
-		let actualDamage = amount;
-		if (amount > 0 && game.controller().gameState() === GameState.FREE && from.id() !== this.id()) {
-			actualDamage = 0;
-		}
-		super.takeDamage(actualDamage, from);
+		super.takeDamage(amount, from);
 	}
 	private damageEffect(dmg : number) : void {
 		if (dmg <= 0) {
 			return;
 		}
 
-		const time = Fns.clamp(1, 0.5 * Math.ceil(dmg / 10), 2) * Player._damageFlashTime; 
+		const time = Fns.clamp(1, 0.5 * Math.ceil(Math.min(80, dmg) / 10), 2) * Player._damageFlashTime; 
 		if (!this._damageTimer.hasTimeLeft() || time > this._damageTimer.millisLeft()) {
 			this._damageTimer.start(time, () => {
 				this.setDamageEffect(0);
@@ -750,6 +757,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._profile.setGravityFactor(gravityFactor);
 
 		if (!this.dead()) {
+			// HACK to fix elusive netcode race condition causing players to tilt
+			this._profile.upright();
+
 			let sideAcc = 0;
 			if (this.key(KeyType.LEFT, KeyState.DOWN)) {
 				sideAcc = -Player._sideAcc;
@@ -779,7 +789,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 			// Jumping
 			if (this.getAttribute(AttributeType.UNDERWATER)) {
-				this._canDoubleJump = true;
+				this._doubleJumps = this.getStat(StatType.DOUBLE_JUMPS);
 			}
 			if (this._canJump && this._canJumpTimer.hasTimeLeft()) {
 				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
@@ -787,18 +797,18 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					this._canJump = false;
 					this._canJumpTimer.reset();
 				}
-			} else if (this._canDoubleJump) {
+			} else if (this._doubleJumps > 0) {
 				if (this.key(KeyType.JUMP, KeyState.PRESSED) && this._profile.vel().y < Player._jumpVel) {
 					this._profile.jump(Player._jumpVel);
 
 					if (!this.getAttribute(AttributeType.UNDERWATER)) {
-						this._canDoubleJump = false;
+						this._doubleJumps--;
 					}
 				}
 			}
 
-			if (this.getAttribute(AttributeType.FLOATING) && this._entityTrackers.hasEntityType(EntityType.BUBBLE)) {
-				if (this.key(KeyType.JUMP, KeyState.PRESSED)) {
+			if (this.getAttribute(AttributeType.BUBBLED) && this._entityTrackers.hasEntityType(EntityType.BUBBLE)) {
+				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
 					this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).execute((bubble : Bubble) => {
 						bubble.pop();
 					});
@@ -851,7 +861,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				}
 
 				this._canJump = true;
-				this._canDoubleJump = true;
+				this._doubleJumps = this.getStat(StatType.DOUBLE_JUMPS);
 				this._canJumpTimer.start(Player._jumpGracePeriod);
 			}
 		}
@@ -1000,20 +1010,22 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		if (this._model.hasMesh()) {
 			if (!this._attributes.getAttribute(AttributeType.GROUNDED) || this.dead()) {
 				this._model.playAnimation(Animation.JUMP);
-			} else if (Math.abs(this._profile.acc().x) > 1e-2) {
+			} else if (Math.abs(this._profile.acc().x) > 1e-2 || Math.abs(this._profile.vel().x) > 1e-2) {
 				this._model.playAnimation(Animation.WALK, {
 					speedRatio: 0.3 + 1.2 * Math.abs(this._profile.vel().x / Player._maxWalkingVel),
 				});
 
 				if (Math.abs(this._profile.vel().x) > 0.1 && this._walkSmokeRateLimiter.check(millis)) {
-					const scale = 0.4 + 0.1 * Math.random();
+					const scale = 0.3 + 0.2 * Math.random();
+
+					const speedWeight = Fns.randomRange(0.5, 1);
 					this.addEntity(EntityType.SMOKE_PARTICLE, {
 						offline: true,
-						ttl: 600,
+						ttl: 500,
 						profileInit: {
 							pos: this._profile.getRelativePos(CardinalDir.BOTTOM, { x: scale, y: scale }),
-							vel: { x: -0.05 * Math.sign(this._profile.vel().x), y: 0 },
-							acc: { x: 0.05 * Math.sign(this._profile.vel().x), y: 0.1 },
+							vel: { x: -0.05 * Math.sign(this._profile.vel().x) * speedWeight, y: 0 },
+							acc: { x: 0.05 * Math.sign(this._profile.vel().x) * speedWeight, y: 0.1 * speedWeight },
 							scaling: { x: scale, y: scale },
 						},
 						modelInit: {
@@ -1088,7 +1100,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		const tablet = game.tablet(this.clientId());
 		hudData.set(HudType.HEALTH, {
 			percentGone: 1 - this._resources.healthPercent(),
-			count: this._resources.health(),
+			count: Math.ceil(this._resources.health()),
 			color: this.clientColorOr("#000000"),
 			keyLives: tablet.getInfo(InfoType.LIVES),
 		});
@@ -1142,7 +1154,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		if (this.getAttribute(AttributeType.REVIVING)) {
 			return false;
 		}
-		if (!this.matchAssociations([AssociationType.TEAM], other)) {
+		if (!this.sameTeam(other)) {
 			return false;
 		}
 		return true;

@@ -363,8 +363,9 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	hasBody() : boolean { return this._body !== null; } 
-	// TODO: make private
-	body() : MATTER.Body { return this._body; }
+	private body() : MATTER.Body { return this._body; }
+	bodyPos() : Vec { return this._body.position; }
+	isStatic() : boolean { return this._body.isStatic; }
 	onBody(fn : OnBodyFn) : void {
 		if (this.hasBody()) {
 			fn(this);
@@ -559,6 +560,16 @@ export class Profile extends ComponentBase implements Component {
 	hasScaling() : boolean { return this._scaling !== null }
 	scaling() : Vec2 { return this.hasScaling() ? this._scaling : Vec2.one(); }
 	setScaleFactor(factor : number) : void { this.setScaling({ x: factor, y : factor }); }
+	multScaling(factor : number) : void {
+		if (factor === 1) {
+			return;
+		}
+		let scaling = this.scaling();
+		this.setScaling({
+			x: factor * scaling.x,
+			y: factor * scaling.y,
+		});
+	}
 	setScaling(vec : Vec) : void {
 		if (!this.hasScaling()) {
 			this._scaling = Vec2.one();
@@ -865,7 +876,7 @@ export class Profile extends ComponentBase implements Component {
 			} 
 		} 
 
-		if (this._clampPos) {
+		if (game.level().isCircle() || this._clampPos) {
 			game.level().clampProfile(this);
 		}
 		if (this._limitFn.has()) {

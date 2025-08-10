@@ -28,6 +28,7 @@ export namespace StringFactory {
 		[EntityType.GOLDEN_GUN, ParamString.of("golden gun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.GOLDEN_GUN).toString())],
 		[EntityType.HEADPHONES, ParamString.of("headphones").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.HEADPHONES).toString())],
 		[EntityType.JETPACK, ParamString.of("jetpack").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.JETPACK).toString())],
+		[EntityType.LASER_GUN, ParamString.of("laser gun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.LASER_GUN).toString())],
 		[EntityType.MINIGUN, ParamString.of("minigun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.MINIGUN).toString())],
 		[EntityType.ORB_CANNON, ParamString.of("orb blaster").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.ORB_CANNON).toString())],
 		[EntityType.PISTOL, ParamString.of("pistol").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.PISTOL).toString())],
@@ -39,7 +40,6 @@ export namespace StringFactory {
 		[EntityType.RIFLE, ParamString.of("rifle").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.RIFLE).toString())],
 		[EntityType.SCOUTER, ParamString.of("scouter").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SCOUTER).toString())],
 		[EntityType.SHOTGUN, ParamString.of("shotgun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SHOTGUN).toString())],
-		[EntityType.SNIPER, ParamString.of("laser gun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.SNIPER).toString())],
 		[EntityType.TOP_HAT, ParamString.of("top hat").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.TOP_HAT).toString())],
 		[EntityType.WING_CANNON, ParamString.of("wing cannon").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.WING_CANNON).toString())],
 	]);
@@ -57,13 +57,14 @@ export namespace StringFactory {
 	const entityUsage = new Map<EntityType, ParamString>([
 		[EntityType.UNKNOWN, ParamString.of("???")],
 		[EntityType.BAZOOKA, ParamString.of("Launch an exploding rocket")],
-		[EntityType.BLACK_HEADBAND, ParamString.of("Jump in the air and hold to float")],
+		[EntityType.BLACK_HEADBAND, ParamString.of("Hold to float and slightly increase damage")],
 		[EntityType.BOOSTER, ParamString.of("Boost yourself into the skies")],
 		[EntityType.COWBOY_HAT, ParamString.of("Quickly roll and reload")],
 		[EntityType.GATLING, ParamString.of("Hold to rev up a barrage of bullets")],
 		[EntityType.GOLDEN_GUN, ParamString.of("One-shot your enemies")],
-		[EntityType.HEADPHONES, ParamString.of("Manifests a dying star that collapses into a black hole")],
+		[EntityType.HEADPHONES, ParamString.of("Hold to manifest dying star that collapses upon itself")],
 		[EntityType.JETPACK, ParamString.of("Lift yourself into the air")],
+		[EntityType.LASER_GUN, ParamString.of("Fire a short burst of high-energy bolts")],
 		[EntityType.MINIGUN, ParamString.of("Fire a rapid burst with slight spread")],
 		[EntityType.ORB_CANNON, ParamString.of("Hold to rev up a barrage of explosive orbs")],
 		[EntityType.PISTOL, ParamString.of("Fire 3 quick ones")],
@@ -75,7 +76,6 @@ export namespace StringFactory {
 		[EntityType.RIFLE, ParamString.of("Fire a single long-range shot")],
 		[EntityType.SCOUTER, ParamString.of("Hold to look ahead and charge your weapon")],
 		[EntityType.SHOTGUN, ParamString.of("Sprays two quick recoiling blasts")],
-		[EntityType.SNIPER, ParamString.of("Fire a short burst of high-energy bolts")],
 		[EntityType.TOP_HAT, ParamString.of("Quickly tumble in any direction")],
 		[EntityType.WING_CANNON, ParamString.of("Fire a barrage of exploding orbs")],
 	]);
@@ -92,7 +92,7 @@ export namespace StringFactory {
 
 	const levelNames = new Map<LevelType, ParamString>([
 		[LevelType.BIRDTOWN, ParamString.of("Birdtown")],
-		[LevelType.CLIFF_LAKE, ParamString.of("Cliff Lake")],
+		[LevelType.CLIFF_LAKE, ParamString.of("Birdff")],
 		[LevelType.RANDOM, ParamString.of("Random")],
 	]);
 	export function getLevelName(type : LevelType) : string {

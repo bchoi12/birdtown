@@ -106,7 +106,9 @@ export class JoinGameDialogWrapper extends InitGameDialogWrapper {
 	}
 
 	private silentRefreshServers() : void {
-		this._serverWrapper.refresh(() => {});
+		if (ui.hasLatLng()) {
+			this._serverWrapper.refresh(() => {});
+		}
 	}
 
 	prefill(room : string, password : string) : void {

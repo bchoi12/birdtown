@@ -8,9 +8,9 @@ import { SoundPlayer } from 'game/component/sound_player'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
-import { Weapon, WeaponState } from 'game/entity/equip/weapon'
+import { Weapon } from 'game/entity/equip/weapon'
 import { Player } from 'game/entity/player'
-import { ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
+import { BuffType, ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -79,6 +79,10 @@ export class TopHat extends Equip<Player> {
 
 		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
 			this.recordUse();
+		}
+
+		if (this.owner().hasMaxedBuff(BuffType.DODGY)) {
+			this.owner().setAttribute(AttributeType.DODGY, this._dashTimer.hasTimeLeft());
 		}
 	}
 

@@ -10,7 +10,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { BoneType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
+import { BuffType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -62,6 +62,7 @@ export class BlackHeadband extends Equip<Player> {
 	}
 
 	override attachType() : AttachType { return AttachType.FOREHEAD; }
+	override checkCanUse() : boolean { return super.checkCanUse() && !this._jumpTimer.hasTimeLeft() && !this._floatTimer.hasTimeLeft(); }
 	protected override hudType() : HudType { return HudType.TORNADO; }
 	protected override canCharge() : boolean { return super.canCharge() && !this._floatTimer.hasTimeLeft(); }
 
@@ -70,6 +71,7 @@ export class BlackHeadband extends Equip<Player> {
 
 		if (this.hasOwner()) {
 			this.owner().setAttribute(AttributeType.LEVITATING, false);
+			this.owner().removeBuff(BuffType.BLACK_HEADBAND);
 
 			if (this.owner().hasModel()) {
 				this.owner().model().rotation().y = 0;
@@ -82,9 +84,12 @@ export class BlackHeadband extends Equip<Player> {
 
 		if (!this._jumpTimer.hasTimeLeft() && this._floatTimer.hasTimeLeft() && this.owner().profile().vel().y <= 0) {
 			this.owner().setAttribute(AttributeType.LEVITATING, true);
+			this.owner().setBuffMin(BuffType.BLACK_HEADBAND, 1);
+
 			this.owner().profile().setVel({y: 0});
 		} else {
 			this.owner().setAttribute(AttributeType.LEVITATING, false);
+			this.owner().removeBuff(BuffType.BLACK_HEADBAND);
 		}
 	}
 
@@ -94,19 +99,14 @@ export class BlackHeadband extends Equip<Player> {
 
 		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
 			this.recordUse();
-		} else if (this.canCharge() && this.owner().getAttribute(AttributeType.GROUNDED)) {
-			this.setChargeRate(this.getStat(StatType.FAST_CHARGE_RATE));
 		}
-
-
-
 		if (!this.key(this.useKeyType(), KeyState.DOWN)) {
 			this._floatTimer.reset();
 		}
 
 		if (this._floatTimer.hasTimeLeft() && this._duster.check(millis)) {
-			const origin = this._owner.profile().getRelativePos(CardinalDir.BOTTOM);
-			const width = this._owner.profile().dim().x;
+			const origin = this.owner().profile().getRelativePos(CardinalDir.BOTTOM);
+			const width = this.owner().profile().dim().x;
 
 			this.addEntity(EntityType.ENERGY_CUBE_PARTICLE, {
 				offline: true,

@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
-import { AssociationType, ComponentType } from 'game/component/api'
+import { AssociationType, ComponentType, TeamType } from 'game/component/api'
 import { Entity } from 'game/entity'
 
 import { defined } from 'util/common'
@@ -31,12 +31,7 @@ export class Association extends ComponentBase implements Component {
 		this._owner = new Optional();
 		if (init.owner) {
 			this._owner.set(init.owner);
-		}
-
-		if (!this.hasAssociation(AssociationType.OWNER)) {
-			if (this._owner.has()) {
-				this._associations.set(AssociationType.OWNER, this._owner.get().id());
-			}
+			this._associations.set(AssociationType.OWNER, this._owner.get().id());
 		}
 
 		for (const stringAssociation in AssociationType) {
@@ -45,12 +40,28 @@ export class Association extends ComponentBase implements Component {
 				continue;
 			}
 
-			this.registerProp<number>(type, {
+			this.addProp<number>({
 				has: () => { return this.hasAssociation(type); },
 				export: () => { return this.getAssociation(type); },
 				import: (obj : number) => { this.setAssociation(type, obj); },
-			})
+			});
 		}
+	}
+
+	hasOwner() : boolean { return this._owner.has(); }
+	hasRefreshedOwner() : boolean {
+		if (this._associations.has(AssociationType.OWNER)) {
+			this.updateOwner(this._associations.get(AssociationType.OWNER));
+		}
+		return this._owner.has();
+	}
+	owner() : Entity {
+		if (!this._owner.has()) {
+			if (!this.hasRefreshedOwner()) {
+				console.error("Error: %s queried non-existent owner", this.name());
+			}
+		}
+		return this._owner.get();
 	}
 
 	getTeam() : number { return this._associations.has(AssociationType.TEAM) ? this._associations.get(AssociationType.TEAM) : 0; }
@@ -105,7 +116,25 @@ export class Association extends ComponentBase implements Component {
 		console.error("Warning: retrieving unset association %d, defaulting to 0", type);
 		return 0;
 	}
+
+	setTeam(team : TeamType) : void {
+		this.setAssociation(AssociationType.TEAM, team);
+	}
 	setAssociation(type : AssociationType, value : number) : void {
 		this._associations.set(type, value);
+
+		if (type === AssociationType.OWNER) {
+			this.updateOwner(value);
+		}
+	}
+
+	private updateOwner(id : number) : void {
+		if (this._owner.has() && this._owner.get().id() === id) {
+			return;
+		}
+		let [owner, ok] = game.entities().getEntity(id);
+		if (ok) {
+			this._owner.set(owner);
+		}
 	}
 }

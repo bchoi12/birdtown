@@ -91,6 +91,7 @@ export class Scouter extends Equip<Player> {
 
 		if (this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
 			this._lookWeight = Math.min(Scouter._lookPanTime, this._lookWeight + millis);
+
 			this._weapon.setCharging(true);
 		} else {
 			this._lookWeight = Math.max(0, this._lookWeight - 1.5 * millis);
@@ -102,6 +103,10 @@ export class Scouter extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
+		if (this._lookWeight === 0) {
+			return;
+		}
+
 		if (this._weapon === null || this._weapon.deleted()) {
 			return;
 		}
@@ -110,14 +115,19 @@ export class Scouter extends Equip<Player> {
 			return;
 		}
 
-		if (!this._weapon.charging() || !this._weapon.model().hasMesh()) {
+		if (!this._weapon.charging() && !this._weapon.charged()) {
 			return;
 		}
 
 		const offset = Vec2.unitFromDeg(Math.random() * 360).scale(0.4);
 		const pos = this._weapon.shootPos();
 
-		const size = 0.05 + 0.45 * (Math.min(this._weapon.chargedThreshold(), this._weapon.chargeMillis()) / 1000);
+		let size;
+		if (this._weapon.charged()) {
+			size = 0.5;
+		} else {
+			size = 0.05 + 0.45 * (Math.min(this._weapon.chargedThreshold(), this._weapon.chargeMillis()) / 1000);
+		}
 		const [cube, hasCube] = this.addEntity<CubeParticle>(EntityType.ENERGY_CUBE_PARTICLE, {
 			offline: true,
 			ttl: 1.5 * this._weapon.chargedThreshold(),
@@ -142,7 +152,7 @@ export class Scouter extends Equip<Player> {
 			cube.profile().setAngularVelocity(-0.1 * Math.sign(offset.x));
 			cube.overrideUpdateFn((stepData : StepData, particle : CubeParticle) => {
 				particle.profile().moveTo(pos, {
-					millis: stepData.millis,
+					millis: millis,
 					posEpsilon: 0.05,
 					maxAccel: 0.05,
 				});

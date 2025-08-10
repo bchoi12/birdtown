@@ -18,6 +18,7 @@ import { UiGlobals } from 'global/ui_globals'
 import { HudType } from 'ui/api'
 
 import { ChangeTracker } from 'util/change_tracker'
+import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
 import { Vec2 } from 'util/vector'
 
@@ -154,6 +155,9 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 	override initialize() : void {
 		super.initialize();
+
+		// Prevent overlap with other nametags
+		this._model.translation().z = Fns.randomNoise(0.05);
 
 		this._model.onLoad((model : Model) => {
 			model.mesh().position.y = this.owner().profile().dim().y + 0.1;

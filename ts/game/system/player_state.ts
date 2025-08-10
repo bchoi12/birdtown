@@ -1,7 +1,7 @@
 
 import { game } from 'game'
-import { GameState, GameObjectState } from 'game/api'
-import { ComponentType, AttributeType } from 'game/component/api'
+import { GameMode, GameState, GameObjectState } from 'game/api'
+import { ComponentType, AttributeType, TeamType } from 'game/component/api'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -50,11 +50,12 @@ export class PlayerState extends ClientSystem implements System {
 	private _disconnected : boolean;
 	private _targetId : number;
 	private _startingRole : PlayerRole;
-	private _team : number;
+	private _team : TeamType;
 	private _role : PlayerRole;
 	private _vip : boolean;
 	private _roleTimer : Timer;
 	private _lastChange : number;
+	private _spawnTimerEnabled : boolean;
 
 	constructor(clientId : number) {
 		super(SystemType.PLAYER_STATE, clientId);
@@ -67,10 +68,11 @@ export class PlayerState extends ClientSystem implements System {
 		});
 
 		this._startingRole = PlayerRole.UNKNOWN;
-		this._team = 0;
+		this._team = TeamType.UNKNOWN;
 		this._role = PlayerRole.UNKNOWN;
 		this._vip = false;
 		this._lastChange = Date.now();
+		this._spawnTimerEnabled = false;
 
 		this.setStartingRole(PlayerRole.SPECTATING);
 		this.setRole(PlayerRole.SPECTATING);
@@ -88,7 +90,7 @@ export class PlayerState extends ClientSystem implements System {
 			export: () => { return this._startingRole; },
 			import: (obj: PlayerRole) => { this.setStartingRole(obj); },
 		});
-		this.addProp<number>({
+		this.addProp<TeamType>({
 			export: () => { return this._team; },
 			import: (obj : number) => { this.setTeam(obj); },
 		});
@@ -201,28 +203,39 @@ export class PlayerState extends ClientSystem implements System {
 		if (this._disconnected) {
 			return false;
 		}
-		if (game.controller().gameState() === GameState.FREE) {
-			return true;
-		}
-
-		if (this._startingRole === PlayerRole.SPECTATING) {
-			return false;
-		}
 		if (!game.tablets().hasTablet(this.clientId())) {
 			return false;
 		}
 		if (!game.clientDialogs().hasClientDialog(this.clientId())) {
 			return false;
 		}
+		if (!game.tablet(this.clientId()).isSetup()) {
+			return false;
+		}
+		if (game.controller().gameState() === GameState.FREE) {
+			return true;
+		}
+		if (this._startingRole === PlayerRole.SPECTATING) {
+			return false;
+		}
 		return true;
 	}
-	team() : number { return this._team; }
-	setTeam(team : number) : void {
+	team() : TeamType { return this._team; }
+	setTeam(team : TeamType) : void {
 		this._team = team;
+		this.applyTeam();
+	}
+	private applyTeam() : void {
+		if (!this.hasTargetEntity()) {
+			return;
+		}
 
-		if (this.hasTargetEntity()) {
+		if (game.controller().gameMode() === GameMode.FREE) {
+			this.targetEntity().setTeam(TeamType.COOP);
+		} else {
 			this.targetEntity().setTeam(this._team);
 		}
+		ui.refreshColors();
 	}
 	isVIP() : boolean { return this._vip; }
 	setVIP(vip : boolean) : void {
@@ -230,10 +243,8 @@ export class PlayerState extends ClientSystem implements System {
 	}
 
 	private updateScoreboard() : void {
-		if (this.isPlaying() || game.controller().gameState() === GameState.FREE) {
-			if (game.tablets().hasTablet(this.clientId()) && game.tablet(this.clientId()).isSetup()) {
-				ui.addPlayer(this.clientId());
-			}
+		if (this.isPlaying()) {
+			ui.addPlayer(this.clientId());
 		} else {
 			ui.removePlayer(this.clientId());
 		}
@@ -257,11 +268,14 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 		let player = this.targetEntity<Player>();
-		player.setTeam(this._team);
 		game.level().spawnPlayer(player);
+		this.applyTeam();
     	this.setRole(PlayerRole.GAMING);
 	}
 	resetForLobby() : void {
+		// Disallow killing in lobby
+		this.setTeam(TeamType.COOP);
+
 		if (this.validTargetEntity()) {
 			this._roleTimer.reset();
 
@@ -417,11 +431,13 @@ export class PlayerState extends ClientSystem implements System {
 		if (this.promptSpawn()) {
 			ui.showTooltip(TooltipType.SPAWN, {});
    			ui.setTimer(Math.max(0, game.controller().config().getSpawnTimeOr(PlayerState._spawnTime) - this.timeInRole()));
+   			this._spawnTimerEnabled = true;
 		} else {
 			ui.hideTooltip(TooltipType.SPAWN);
-
-			// This is kind of broad
-			ui.clearTimer();
+			if (this._spawnTimerEnabled) {
+				ui.clearTimer();
+				this._spawnTimerEnabled = false;
+			}
 		}
 	}
 }

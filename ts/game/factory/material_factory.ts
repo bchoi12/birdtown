@@ -46,7 +46,6 @@ export namespace MaterialFactory {
 		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_GREEN, ColorFactory.color(ColorType.ARCH_BACKGROUND_GREEN));
 		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_BLUE, ColorFactory.color(ColorType.ARCH_BACKGROUND_BLUE));
 		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_PURPLE, ColorFactory.color(ColorType.ARCH_BACKGROUND_PURPLE));
-		archBackgroundMaterial(MaterialType.ARCH_BACKGROUND_PURPLE, ColorFactory.color(ColorType.ARCH_BACKGROUND_PURPLE));
 
 		pbrMaterial(MaterialType.ARCH_PLATFORM, (mat : BABYLON.PBRMaterial) => {
 			mat.albedoColor = ColorFactory.color(ColorType.ARCH_WHITE).toBabylonColor3();

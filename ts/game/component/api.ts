@@ -28,8 +28,12 @@ export enum AssociationType {
 export enum AttributeType {
 	UNKNOWN,
 
+	ALIVE,
+	BUBBLED,
 	CHARGED,
-	FLOATING,
+	COOL,
+	CRITICAL,
+	DODGY,
 	GROUNDED,
 	INVINCIBLE,
 	LEVITATING,
@@ -39,12 +43,6 @@ export enum AttributeType {
 	VIP,
 }
 
-export enum BuffType {
-	UNKNOWN,
-
-	TANK,
-}
-
 export enum EmotionType {
 	UNKNOWN,
 
@@ -52,4 +50,14 @@ export enum EmotionType {
 	MAD,
 	SAD,
 	DEAD,
+}
+
+export enum TeamType {
+	UNKNOWN,
+
+	RED,
+	BLUE,
+
+	COOP,
+	ENEMY,
 }

@@ -1,34 +1,113 @@
 
 import { game } from 'game'
 import { Component, ComponentBase } from 'game/component'
-import { ComponentType, BuffType } from 'game/component/api'
+import { ComponentType } from 'game/component/api'
+import { Buff } from 'game/component/buff'
 import { Entity } from 'game/entity'
-import { StatType } from 'game/factory/api'
+import { BuffType, StatType } from 'game/factory/api'
+import { BuffFactory } from 'game/factory/buff_factory'
 
 export class Buffs extends ComponentBase implements Component {
 
-	private _statCache : Map<StatType, number>;
+	private _boostCache : Map<StatType, number>;
+	private _conditionalBuffs : Map<StatType, Set<BuffType>>;
 
 	constructor() {
 		super(ComponentType.BUFFS);
 
-		this._statCache = new Map();
+		this._boostCache = new Map();
+		this._conditionalBuffs = new Map();
+
+		this.setFactoryFn((id : number) => { return this.registerBuff(id); });
 	}
 
-	addBuff(type : BuffType) : void {
-
-	}
-	refresh() : void {
-
-	}
-
-	hasStat(type : StatType) : boolean {
-		return this._statCache.has(type);
-	}
-	getStat(type : StatType) : number {
-		if (this._statCache.has(type)) {
-			return this._statCache.get(type);
+	private registerBuff<T extends Buff>(type : BuffType) : Buff {
+		if (!this.hasSubComponent(type)) {
+			this.registerSubComponent(type, BuffFactory.create(type));
 		}
-		return this.entity().baseStat(type);
+		return this.buff(type);
+	}
+
+	addBuff<T extends Buff>(type : BuffType, delta : number) : void {
+		let buff = this.registerBuff(type);
+
+		if (delta !== 0) {
+			if (buff.level() === 0) {
+				this.updateConditionals(buff);
+			}
+			buff.addLevel(delta);
+		}
+	}
+	setBuffMin<T extends Buff>(type : BuffType, min : number) : void {
+		let buff = this.registerBuff(type);
+
+		if (buff.level() < min) {
+			if (buff.level() === 0) {
+				this.updateConditionals(buff);
+			}
+			buff.setLevel(min);
+		}
+	}
+	hasBuff(type : BuffType) : boolean {
+		return this.hasSubComponent(type) && this.getSubComponent<Buff>(type).level() > 0;
+	}
+	hasMaxedBuff(type : BuffType) : boolean {
+		return this.hasBuff(type) && this.buff(type).atMaxLevel();
+	}
+	removeBuff(type : BuffType) : void {
+		if (!this.hasBuff(type)) {
+			return;
+		}
+
+		let buff = this.buff(type);
+		if (buff.level() > 0) {
+			this.updateConditionals(buff);
+			buff.setLevel(0);
+		}
+	}
+	clearBuffs() : void {
+		this.execute<Buff>((buff : Buff, type : BuffType) => {
+			this.removeBuff(type);
+		});
+		this._boostCache.clear();
+	}
+	private buff<T extends Buff>(type : BuffType) : T {
+		if (!this.hasSubComponent(type)) {
+			console.error("Error: accessing non-existent buff", BuffType[type]);
+		}
+		return this.getSubComponent<T>(type);
+	}
+
+	boostCache() : Map<StatType, number> { return this._boostCache; }
+	getBoost(type : StatType) : number {
+		const boost = this._boostCache.has(type) ? this._boostCache.get(type) : 0;
+		let conditional = 0;
+		if (this._conditionalBuffs.has(type)) {
+			this._conditionalBuffs.get(type).forEach((buffType : BuffType) => {
+				conditional += this.buff(buffType).conditionalBoost(type);
+			});
+		}
+		return boost + conditional;
+	}
+	private updateConditionals(buff : Buff) : void {
+		const conditionals = buff.conditionalStats();
+		if (conditionals.size === 0) {
+			return;
+		}
+
+		if (buff.level() <= 0) {
+			conditionals.forEach((type : StatType) => {
+				if (this._conditionalBuffs.has(type)) {
+					this._conditionalBuffs.get(type).delete(buff.buffType());
+				}
+			});
+			return;
+		}
+
+		conditionals.forEach((type : StatType) => {
+			if (this._conditionalBuffs.has(type)) {
+				this._conditionalBuffs.get(type).add(buff.buffType());
+			}
+		});
 	}
 }

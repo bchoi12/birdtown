@@ -37,29 +37,48 @@ export class TimerHandler extends HandlerBase implements Handler {
 		}
 	}
 
+	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
+		super.onModeChange(mode, oldMode);
+
+		if (mode !== UiMode.GAME && mode !== UiMode.CHAT) {
+			this._timerElm.style.display = "none";
+		} else {
+			if (this.visible()) {
+				this._timerElm.style.display = "block";
+			}
+		}
+	}
+
+
 	hasTime() : boolean { return this._timerEnabled; }
 
 	setTime(millis : number) : void {
+		if (millis <= 0) {
+			this.clear();
+			return;
+		}
+
 		if (millis > TimerHandler._maxMillis) {
 			this._timerElm.textContent = TimerHandler._infinity;
 		} else {
-			this._timerElm.textContent = "" + Math.ceil(millis / 1000);
+			this._timerElm.textContent = "" + Math.floor(millis / 1000);
 		}
 
 		if (!this._timerEnabled) {
 			this._timerElm.style.top = "0";
-			this._timerElm.style.visibility = "visible";
 			this._timerEnabled = true;
 		}
+		this._timerElm.style.visibility = "visible";
 	}
 
 	clear() : void {
+		this._timerElm.style.visibility = "hidden";
+
 		if (!this._timerEnabled) {
 			return;
 		}
 
 		this._timerElm.style.top = "-3em";
-		this._timerElm.style.visibility = "hidden";
 		this._timerElm.textContent = TimerHandler._infinity;
 		this._timerEnabled = false;
 	}
