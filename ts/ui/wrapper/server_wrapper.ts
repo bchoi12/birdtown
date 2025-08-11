@@ -101,6 +101,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 	}
 
 	refresh(cb : () => void) : void {
+		this.reset();
 		if (this._pending) {
 			cb();
 			return;
@@ -122,8 +123,12 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		});
 	}
 
-	autoJoinFailed() : void {
+	reset() : void {
 		this._infoElm.textContent = "Click refresh to look for public games.";
+	}
+
+	autoJoinFailed() : void {
+		this.reset();
 	}
 
 	private setPending(pending : boolean) : void {
@@ -149,10 +154,12 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 			const rooms = Object.entries(data);
 			if (!rooms || rooms.length === 0) {
 				this._infoElm.textContent = "No public games found. Start a game instead?";
+				this._hostButton.show();
 				this._table.elm().style.display = "none";
 				return;
 			}
 
+			this._hostButton.hide();
 			this._table.elm().style.display = "block";
 
 			const numRooms = rooms.length;
@@ -181,6 +188,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 			this._pending = false;
 
 			this._infoElm.textContent = "Failed to query matchmaking server. Try starting a game instead?";
+			this._hostButton.show();
 			this._table.elm().style.display = "none";
 		});
 	}
