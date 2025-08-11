@@ -51,6 +51,7 @@ export enum GameMode {
 	// beta 1.1
 	GOLDEN_GUN,
 	VIP,
+	BUFF_BATTLE,
 	INVASION,
 	TEAM_DEATHMATCH,
 }

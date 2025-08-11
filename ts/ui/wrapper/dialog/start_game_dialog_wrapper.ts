@@ -183,19 +183,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			description: "Defend Birdtown against an invasion using teamwork and unique buffs.\r\n\r\nDifficulty scales with number of players.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 1,
+			maxRecommended: 4,
 		});
 		this.populateMode(GameMode.FREE_FOR_ALL, {
 			requirements: [],
 			description: "Classic free for all.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 3,
-		});
-		this.populateMode(GameMode.DUEL, {
-			requirements: [],
-			description: "1v1 tryhard mode.\r\n\r\nOutsweat your opponent on a small symmetric level where everyone gets the same loadout.",
-			parent: classicCategory.contentElm(),
-			minRecommended: 2,
-			maxRecommended: 2,
 		});
 		this.populateMode(GameMode.GOLDEN_GUN, {
 			requirements: [],
@@ -222,11 +216,24 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			parent: classicCategory.contentElm(),
 			minRecommended: 4,
 		});
+		this.populateMode(GameMode.DUEL, {
+			requirements: [],
+			description: "Tryhard mode.\r\n\r\nOutsweat your opponent on a small symmetrical level where everyone gets the same loadout.",
+			parent: teamCategory.contentElm(),
+			minRecommended: 2,
+			maxRecommended: 4,
+		});
 		this.populateMode(GameMode.TEAM_BATTLE, {
 			requirements: [],
 			description: "Everyone has one life. Both teams start on either end of the level.\r\n\r\nEliminate the enemy team while reviving your teammates.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 4,
+		});
+		this.populateMode(GameMode.BUFF_BATTLE, {
+			requirements: [],
+			description: "Team Battle, but with buffs after each round.\r\n\r\nThe winning team gets one buff and the losing team gets two buffs. Unlike Team Battle, this game mode works great for smaller groups too.",
+			parent: teamCategory.contentElm(),
+			minRecommended: 2,
 		});
 		/*
 		this.populateMode(GameMode.TEAM_DEATHMATCH, {
@@ -323,7 +330,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			buttonWrapper.setMaxRecommended(options.maxRecommended);
 		}
 		let recommendedRange = this.rangeToString(options.minRecommended, options.maxRecommended);
-		if (recommendedRange.length > 0 && playerRange !== recommendedRange) {
+		if (recommendedRange.length > 0) {
 			requirements.push(recommendedRange + " players recommended");
 		}
 
@@ -484,6 +491,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
+			break
+		case GameMode.BUFF_BATTLE:
+			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
+			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			break;
 		case GameMode.VIP:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());

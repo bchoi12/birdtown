@@ -60,6 +60,7 @@ export enum LevelLayout {
 	INVASION,
 }
 
+// TODO: make _TURNS a different option
 export enum LoadoutType {
 	UNKNOWN,
 

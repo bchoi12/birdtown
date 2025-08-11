@@ -38,7 +38,6 @@ export class HealthResource extends Resource {
 	}
 
 	setHealthPercent(percent : number) : void {
-		this._max.set(this.getStat());
 		this.set(percent * this.getStat());
 	}
 

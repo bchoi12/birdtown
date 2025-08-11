@@ -21,7 +21,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.BURST_BONUS, 1],
 		[StatType.BURST_BOOST, 0.25],
 		[StatType.CRIT_CHANCE, 0.2],
-		[StatType.CRIT_BOOST, 0.5],
+		[StatType.CRIT_BOOST, 0.25],
 		[StatType.DAMAGE_BOOST, 0.1],
 		[StatType.DAMAGE_CLOSE_BOOST, 0.2],
 		[StatType.DAMAGE_FAR_BOOST, 0.2],

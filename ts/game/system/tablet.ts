@@ -40,8 +40,8 @@ export class Tablet extends ClientSystem implements System {
 	]);
 
 	private static readonly _teamColors = new Map<number, string>([
-		[TeamType.RED, ColorFactory.toString(ColorType.PLAYER_RED)],
-		[TeamType.BLUE, ColorFactory.toString(ColorType.PLAYER_BLUE)],
+		[TeamType.TEAM_ONE, ColorFactory.toString(ColorType.PLAYER_RED)],
+		[TeamType.TEAM_TWO, ColorFactory.toString(ColorType.PLAYER_BLUE)],
 		[TeamType.ENEMY, ColorFactory.toString(ColorType.GRAY)],
 	]);
 	private static readonly _defaultColor = "#FFFFFF";

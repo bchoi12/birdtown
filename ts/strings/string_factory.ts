@@ -117,6 +117,7 @@ export namespace StringFactory {
 	const modeNames = new Map<GameMode, string>([
 		[GameMode.UNKNOWN, ""],
 		[GameMode.FREE, "Free Play"],
+		[GameMode.BUFF_BATTLE, "Buff Battle"],
 		[GameMode.DUEL, "Duel"],
 		[GameMode.FREE_FOR_ALL, "Deathmatch"],
 		[GameMode.GOLDEN_GUN, "Golden Gun"],

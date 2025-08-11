@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 import { GameMode, GameState } from 'game/api'
-import { AssociationType } from 'game/component/api'
+import { AssociationType, TeamType } from 'game/component/api'
 import { EntityType, FrequencyType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
@@ -69,6 +69,7 @@ export class GameMaker extends SystemBase implements System {
 	private _vipIds : Optional<Set<number>>;
 	private _winners : Array<number>;
 	private _winnerClientId : number;
+	private _winnerTeam : number;
 	private _errorMsg : string;
 
 	constructor() {
@@ -83,6 +84,7 @@ export class GameMaker extends SystemBase implements System {
 		this._vipIds = new Optional();
 		this._winners = new Array();
 		this._winnerClientId = 0;
+		this._winnerTeam = TeamType.UNKNOWN;
 		this._errorMsg = "";
 
 		this.addProp<MessageObject>({
@@ -94,7 +96,14 @@ export class GameMaker extends SystemBase implements System {
 		});
 		this.addProp<number>({
 			export: () => { return this._winnerClientId; },
-			import: (obj : number) => { this.setWinnerClientId(obj); },
+			import: (obj : number) => { this._winnerClientId = obj; },
+			options: {
+				filters: GameData.tcpFilters,
+			},
+		});
+		this.addProp<TeamType>({
+			export: () => { return this._winnerTeam; },
+			import: (obj : number) => { this._winnerTeam = obj; },
 			options: {
 				filters: GameData.tcpFilters,
 			},
@@ -112,8 +121,16 @@ export class GameMaker extends SystemBase implements System {
 	mode() : GameMode { return this._config.type(); }
 	round() : number { return this._round; }
 	winnerClientId() : number { return this._winnerClientId; }
+	winnerTeam() : number { return this._winnerTeam; }
 	setWinnerClientId(clientId : number) : void {
+		if (!game.playerStates().hasPlayerState(clientId)) {
+			this._winnerClientId = 0;
+			this._winnerTeam = TeamType.UNKNOWN;
+			return;
+		}
+
 		this._winnerClientId = clientId;
+		this._winnerTeam = game.playerState(clientId).team();
 	}
 	timeLimit(state : GameState) : number {
 		switch (state) {
@@ -176,10 +193,16 @@ export class GameMaker extends SystemBase implements System {
 		}
 
 		let id = 0;
-		if (this._config.getStartingLoadout() === LoadoutType.CHOOSE || this._config.getStartingLoadout() === LoadoutType.PICK) {
+		if (this._config.getStartingLoadout() === LoadoutType.CHOOSE
+			|| this._config.getStartingLoadout() === LoadoutType.PICK
+			|| this._config.getStartingLoadout() === LoadoutType.BUFF) {
 			id = clientId;
 		} else if (this._config.getStartingLoadout() === LoadoutType.CHOOSE_TURNS || this._config.getStartingLoadout() === LoadoutType.PICK_TURNS) {
 			id = this._playerRotator.currentFromAll();
+		}
+
+		if (id === 0) {
+			console.error("Error: trying to get equips for ID 0")
 		}
 
 		if (game.clientDialogs().hasClientDialog(id)) {
@@ -599,7 +622,13 @@ export class GameMaker extends SystemBase implements System {
 
 		if (this._config.getStartingLoadout() === LoadoutType.BUFF) {
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
-				clientDialog.queueDialog(DialogType.BUFF);
+				const team = game.playerState(clientDialog.clientId()).team();
+				if (team === TeamType.COOP || team !== this._winnerTeam || this._winnerTeam === TeamType.UNKNOWN) {
+					clientDialog.queueDialog(DialogType.BUFF_TWO);
+				} else {
+					clientDialog.queueDialog(DialogType.BUFF_ONE);
+				}
+
 			}, (clientDialog : ClientDialog) => {
 				return this.isPlaying(clientDialog.clientId());
 			});
@@ -610,6 +639,10 @@ export class GameMaker extends SystemBase implements System {
 			let nextId;
 			if (this._round === 1) {
 				nextId = this._playerRotator.nextN(globalRandom.int(2 * this._playerConfig.numPlayers()));
+			} else if (this._winnerTeam === TeamType.TEAM_ONE) {
+				nextId = this._playerRotator.nextFromTeamTwo();
+			} else if (this._winnerTeam === TeamType.TEAM_TWO) {
+				nextId = this._playerRotator.nextFromTeamOne();
 			} else if (this.isPlaying(this._winnerClientId)) {
 				nextId = this._playerRotator.nextExcluding(this._winnerClientId);
 			} else {

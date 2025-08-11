@@ -21,8 +21,9 @@ import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
 export class BuffDialogWrapper extends ChoiceDialogWrapper {
 
-	constructor() {
-		super(DialogType.BUFF);
+	constructor(buffs : number) {
+		// Share LOADOUT with LoadoutDialogWrapper
+		super(DialogType.LOADOUT);
 
 		this.setTitle("Buff");
 

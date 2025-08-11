@@ -35,7 +35,8 @@ import { Optional } from 'util/optional'
 export class DialogHandler extends HandlerBase implements Handler {
 
 	private static readonly _createDialogFns = new Map<DialogType, () => DialogWrapper>([
-		[DialogType.BUFF, () => { return new BuffDialogWrapper()}],
+		[DialogType.BUFF_ONE, () => { return new BuffDialogWrapper(1)}],
+		[DialogType.BUFF_TWO, () => { return new BuffDialogWrapper(2)}],
 		[DialogType.DISCONNECTED, () => { return new DisconnectedDialogWrapper()}],
 		[DialogType.FAILED_CONNECT, () => { return new FailedConnectDialogWrapper()}],
 		[DialogType.FAILED_COPY, () => { return new FailedCopyDialogWrapper()}],

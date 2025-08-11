@@ -55,8 +55,8 @@ export enum EmotionType {
 export enum TeamType {
 	UNKNOWN,
 
-	RED,
-	BLUE,
+	TEAM_ONE,
+	TEAM_TWO,
 
 	COOP,
 	ENEMY,

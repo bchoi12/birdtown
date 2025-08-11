@@ -55,6 +55,8 @@ export class Resource extends ComponentBase implements Component {
 	reset() : void { this._resource = this.getStat(); }
 	percent() : number {return this.initialized() ? this._resource / this.getStat() : 0; }
 	atMin() : boolean { return this._min.has() && this._resource <= this._min.get(); }
+	hasMax() : boolean { return this._max.has(); }
+	max() : number { return this._max.get(); }
 	atMax() : boolean { return this._max.has() && this._resource >= this._max.get(); }
 	protected getStat() : number { return this.initialized() ? this.entity().getStat(this._statType) : 0; }
 

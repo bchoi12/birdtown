@@ -226,7 +226,7 @@ export class PlayerConfig {
 	}
 	team(id : number) : number {
 		if (!this.hasClient(id)) {
-			return 0;
+			return TeamType.UNKNOWN;
 		}
 
 		if (this._teamMode === TeamMode.COOP) {
@@ -235,11 +235,11 @@ export class PlayerConfig {
 
 		switch (this.role(id)) {
 		case StartRole.TEAM_ONE:
-			return TeamType.RED;
+			return TeamType.TEAM_ONE;
 		case StartRole.TEAM_TWO:
-			return TeamType.BLUE;
+			return TeamType.TEAM_TWO;
 		}
-		return 0;
+		return TeamType.UNKNOWN;
 	}
 
 	private canAdd(id : number) : boolean {

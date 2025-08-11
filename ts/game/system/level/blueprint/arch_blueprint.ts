@@ -413,9 +413,9 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 		let length;
 		if (game.level().isCircle()) {
 			// Need at least 8 to avoid pop-ins
-			length = 5 + Math.max(3, Math.ceil(this.getNumPlayers() / 3) + this.rng().int(2));
+			length = 4 + Math.max(4, Math.ceil(this.getNumPlayers() / 3) + this.rng().int(2));
 		} else {
-			length = 5 + Math.ceil(this.getNumPlayers() / 3) + this.rng().int(2);
+			length = 4 + Math.ceil(this.getNumPlayers() / 3) + this.rng().int(2);
 		}
 
 		return this.generateTownPlan(length, options);

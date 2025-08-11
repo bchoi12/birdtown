@@ -60,6 +60,12 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.FREE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._baseProps,
 		)],
+		[GameMode.BUFF_BATTLE, MessageBase.fieldDescriptor(
+			...GameConfigMessage._gameProps,
+			[GameConfigProp.LIVES, {}],
+			[GameConfigProp.TIME_GAME, { optional: true }],
+			[GameConfigProp.VICTORIES, {}],
+		)],
 		[GameMode.DUEL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.LIVES, {}],
@@ -169,12 +175,20 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		this.setWeaponCrateSpawn(FrequencyType.NEVER);
 
 		switch (mode) {
+		case GameMode.BUFF_BATTLE:
+			this.setLives(1);
+			this.setPlayersMin(2);
+			this.setLevelLayout(LevelLayout.NORMAL);
+			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setStartingLoadout(LoadoutType.BUFF);
+			this.setVictories(5);
+			this.setWinCondition(WinConditionType.TEAM_LIVES);
+			break;
 		case GameMode.DUEL:
 			this.setPlayersMin(2);
-			this.setPlayersMax(2);
 			this.setLevelLayout(LevelLayout.MIRROR);
 			this.setLives(1);
-			this.setStartingLoadout(LoadoutType.CHOOSE);
+			this.setStartingLoadout(LoadoutType.CHOOSE_TURNS);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.TEAM_LIVES);
 			break;

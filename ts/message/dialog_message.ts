@@ -22,12 +22,8 @@ enum DialogProp {
 export class DialogMessage extends MessageBase<DialogType, DialogProp> implements Message<DialogType, DialogProp> {
 
 	private static readonly _messageDescriptor = new Map<DialogType, FieldDescriptor>([
-        [DialogType.BUFF, MessageBase.fieldDescriptor(
-            [DialogProp.BUFF_TYPE, {optional: true}],
-            [DialogProp.EQUIP_TYPE, {optional: true}],
-            [DialogProp.ALT_EQUIP_TYPE, {optional: true}],
-            [DialogProp.VERSION, {}],
-        )],
+        [DialogType.BUFF_ONE, MessageBase.fields()],
+        [DialogType.BUFF_TWO, MessageBase.fields()],
         [DialogType.DISCONNECTED, MessageBase.fields()],
         [DialogType.FAILED_CONNECT, MessageBase.fields()],
         [DialogType.FAILED_COPY, MessageBase.fields()],
@@ -38,6 +34,7 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
             [DialogProp.VERSION, {}],
 		)],
 		[DialogType.LOADOUT, MessageBase.fieldDescriptor(
+            [DialogProp.BUFF_TYPE, {optional: true}],
 			[DialogProp.EQUIP_TYPE, {optional: true}],
 			[DialogProp.ALT_EQUIP_TYPE, {optional: true}],
 			[DialogProp.VERSION, {}],

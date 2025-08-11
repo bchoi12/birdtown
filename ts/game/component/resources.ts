@@ -42,13 +42,23 @@ export class Resources extends ComponentBase implements Component {
 	}
 
 	// Convenience methods
+	maxHealth() : number {
+		if (!this.hasResource(StatType.HEALTH)) {
+			return;
+		}
+		this.getSubComponent<HealthResource>(StatType.HEALTH).max();
+	}
 	fullHeal() : void {
-		this.setHealthPercent(1);
+		if (!this.hasResource(StatType.HEALTH)) {
+			return;
+		}
+		this.getSubComponent<HealthResource>(StatType.HEALTH).reset();
 	}
 	setHealthPercent(percent : number) : void {
-		if (this.hasResource(StatType.HEALTH)) {
-			this.getSubComponent<HealthResource>(StatType.HEALTH).setHealthPercent(percent);
+		if (!this.hasResource(StatType.HEALTH)) {
+			return;
 		}
+		this.getSubComponent<HealthResource>(StatType.HEALTH).setHealthPercent(percent);
 	}
 	health() : number { return this.hasResource(StatType.HEALTH) ? this.getSubComponent<HealthResource>(StatType.HEALTH).get() : 0; }
 	healthPercent() : number {

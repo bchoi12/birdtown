@@ -34,6 +34,7 @@ export namespace StatFactory {
 			[StatType.SLOW_CHANCE, 0],
 			[StatType.LIFE_STEAL, 0],
 			[StatType.RELOAD_BOOST, 1],
+			[StatType.REVIVE_BOOST, 1],
 			[StatType.SCALING, 1],
 			[StatType.USE_BOOST, 1],
 		])],

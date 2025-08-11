@@ -822,7 +822,15 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			}
 		} else {
 			if (this.getAttribute(AttributeType.REVIVING)) {
-				this.heal(100 * millis / Player._reviveTime);
+				let amount = this._resources.maxHealth() * millis / Player._reviveTime;
+
+				const [reviver, hasReviver] = game.entities().getEntity(this._reviverId);
+				if (hasReviver) {
+					if (reviver.hasStat(StatType.REVIVE_BOOST)) {
+						amount *= reviver.getStat(StatType.REVIVE_BOOST);
+					}					
+				}
+				this.heal(amount);
 			}
 		}
 
