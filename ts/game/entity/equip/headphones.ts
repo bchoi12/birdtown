@@ -76,6 +76,9 @@ export class Headphones extends Equip<Player> {
 		super.simulateUse(uses);
 
 		const [star, ok] = this.addEntity<DyingStar>(EntityType.DYING_STAR, {
+			associationInit: {
+				owner: this.owner(),
+			},
 			profileInit: {
 				pos: this.owner().profile().pos().clone(),
 			},

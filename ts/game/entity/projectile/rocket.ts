@@ -92,7 +92,7 @@ export abstract class RocketBase extends Projectile {
 		this._model.mesh().rotation.x = -this._profile.vel().angleRad();
 	}
 
-	override onHit(other : Entity) : void {
+	protected override onHit(other : Entity) : void {
 		super.onHit(other);
 
 		this.explode(this._explosionType, {});

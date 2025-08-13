@@ -49,6 +49,7 @@ export abstract class Projectile extends EntityBase {
 				const [other, hasOther] = game.entities().getEntity(obj);
 				
 				if (hasOther && !this._hits.has(other.id())) {
+					this._hits.add(other.id());
 					this.onHit(other);
 				}
 			},
@@ -96,8 +97,8 @@ export abstract class Projectile extends EntityBase {
 		}
 	}
 
-	setSnapOnHit(snap : boolean) : void { this._snapOnHit = snap; }
-	setPlayImpactSound(play : boolean) : void { this._playImpactSound = play; }
+	protected setSnapOnHit(snap : boolean) : void { this._snapOnHit = snap; }
+	protected setPlayImpactSound(play : boolean) : void { this._playImpactSound = play; }
 
 	override prePhysics(stepData : StepData) : void {
 		super.prePhysics(stepData);
@@ -124,41 +125,40 @@ export abstract class Projectile extends EntityBase {
 
 		if (this._collisions.length === 1) {
 			this.hit(this._collisions[0][0], this._collisions[0][1]);
-			return;
-		}
-
-		let bestDot = 0;
-		let firstCollision = null;
-		for (let i = 0; i < this._collisions.length; ++i) {
-			const collision = this._collisions[i];
-			const dot = Math.abs(Vec2.fromVec(collision[0].penetration).dot(this.profile().vel()));
- 
- 			// Pick first collision
-			if (firstCollision === null) {
-				bestDot = dot;
-				firstCollision = collision;
-			} else if (bestDot > 0) {
-				// Projectile went past object
-				if (dot > bestDot) {
-					bestDot = dot;
-					firstCollision = collision;	
-				}
-			} else {
-				if (dot < bestDot) {
+		} else {
+			let bestDot = 0;
+			let firstCollision = null;
+			for (let i = 0; i < this._collisions.length; ++i) {
+				const collision = this._collisions[i];
+				const dot = Math.abs(Vec2.fromVec(collision[0].penetration).dot(this.profile().vel()));
+	 
+	 			// Pick first collision
+				if (firstCollision === null) {
 					bestDot = dot;
 					firstCollision = collision;
+				} else if (bestDot > 0) {
+					// Projectile went past object
+					if (dot > bestDot) {
+						bestDot = dot;
+						firstCollision = collision;	
+					}
+				} else {
+					if (dot < bestDot) {
+						bestDot = dot;
+						firstCollision = collision;
+					}
 				}
 			}
-		}
 
-		if (firstCollision !== null) {
-			this.hit(firstCollision[0], firstCollision[1]);
+			if (firstCollision !== null) {
+				this.hit(firstCollision[0], firstCollision[1]);
+			}
 		}
 
 		this._collisions = [];
 	}
 
-	hits() : Set<number> { return this._hits; }
+	protected hits() : Set<number> { return this._hits; }
 
 	protected canHit(collision : MATTER.Collision, other : Entity) : boolean {
 		if (this._hits.has(other.id())) {
@@ -170,8 +170,12 @@ export abstract class Projectile extends EntityBase {
 		return true;
 	}
 	protected hit(collision : MATTER.Collision, other : Entity) : void {
+		if (this._hits.has(other.id())) {
+			return;
+		}
+		this._hits.add(other.id());
+
 		if (other.getAttribute(AttributeType.INVINCIBLE) || other.getAttribute(AttributeType.DODGY)) {
-			this._hits.add(other.id());
 			return;
 		}
 
@@ -189,10 +193,7 @@ export abstract class Projectile extends EntityBase {
 		if (hitDamage !== 0) {
 			other.takeDamage(hitDamage, this.hasOwner() ? this.owner() : this);
 		}
-
-		if (!this._hits.has(other.id())) {
-			this.onHit(other);
-		}
+		this.onHit(other);
 	}
 
 	protected explode(type : EntityType, entityOptions? : EntityOptions) : void {
@@ -201,14 +202,17 @@ export abstract class Projectile extends EntityBase {
 		}
 
 		this.addEntity(type, {
+			associationInit: {
+				owner: this.owner(),
+			},
 			profileInit: {
-				pos: this._prevPos.lerp(this.profile().pos(), 0.5),
+				pos: this._prevPos.isZero() ? this.profile().pos() : this._prevPos.lerp(this.profile().pos(), 0.6),
 			},
 			...entityOptions,
 		});
 	}
 
-	hitDamage() : number {
+	protected hitDamage() : number {
 		let damage = this.getStat(StatType.DAMAGE) * this._damageMultiplier;
 		if (this.hasOwner()) {
 			if (this.owner().hasStat(StatType.DAMAGE_CLOSE_BOOST)) {
@@ -222,23 +226,21 @@ export abstract class Projectile extends EntityBase {
 		}
 		return damage;
 	}
-	unstickDamage() : number {
+	protected unstickDamage() : number {
 		return this.getStat(StatType.UNSTICK_DAMAGE) * this._damageMultiplier;
 	}
-	applyUnstickDamage(id : number) : void {
+	protected applyUnstickDamage(id : number) : void {
 		const dmg = this.unstickDamage();
 		if (dmg === 0) {
 			return;
 		}
 
-		const [parent, ok] = game.entities().getEntity(id);
+		const [stuckEntity, ok] = game.entities().getEntity(id);
 		if (ok) {
-			parent.takeDamage(dmg, this.hasOwner() ? this.owner() : this);
+			stuckEntity.takeDamage(dmg, this.hasOwner() ? this.owner() : this);
 		}
 	}
-	onHit(other : Entity) : void {
-		this._hits.add(other.id());
-
+	protected onHit(other : Entity) : void {
 		if (this._hitId !== 0 || !this.initialized()) {
 			return;
 		}
@@ -248,6 +250,6 @@ export abstract class Projectile extends EntityBase {
 			SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
 		}
 	}
-	abstract onMiss() : void;
-	onExpire() : void { this.onMiss(); }
+	protected abstract onMiss() : void;
+	protected onExpire() : void { this.onMiss(); }
 }

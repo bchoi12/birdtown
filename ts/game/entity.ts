@@ -458,7 +458,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		return this.getComponent<Resources>(ComponentType.RESOURCES).healthPercent();
 	}
 	takeDamage(delta : number, from : Entity) : void {
-		if (!this.hasComponent(ComponentType.RESOURCES)) { return; }
+		if (!this.isSource() || !this.hasComponent(ComponentType.RESOURCES)) { return; }
 
 		if (delta >= 0 && (this.getAttribute(AttributeType.INVINCIBLE) || this.dead())) {
 			return;

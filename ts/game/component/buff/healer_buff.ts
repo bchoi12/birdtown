@@ -9,7 +9,7 @@ export class HealerBuff extends Buff {
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
 			[StatType.HEAL_PERCENT, 0.02 * level],
-			[StatType.REVIVE_BOOST, 0.2 * level],
+			[StatType.REVIVE_BOOST, 0.1 * level],
 		]);
 	}
 }

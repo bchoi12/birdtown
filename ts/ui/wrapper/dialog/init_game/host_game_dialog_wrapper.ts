@@ -80,7 +80,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		this.form().appendChild(Html.br());
 
 		this._advancedCategory = new CategoryWrapper();
-		this._advancedCategory.setTitle("Advanced Settings");
+		this._advancedCategory.setTitle("More Settings");
 		this._advancedCategory.setExpanded(false);
 		this.form().appendChild(this._advancedCategory.elm());
 

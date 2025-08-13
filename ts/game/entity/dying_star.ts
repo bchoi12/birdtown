@@ -3,8 +3,9 @@ import * as MATTER from 'matter-js'
 
 import { game } from 'game'
 import { AttributeType, ComponentType } from 'game/component/api'
-import { Profile } from 'game/component/profile'
+import { Association } from 'game/component/association'
 import { Model } from 'game/component/model'
+import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
@@ -24,6 +25,7 @@ export class DyingStar extends EntityBase {
 	private _target : Optional<Vec2>;
 	private _dir : Vec2;
 
+	private _association : Association;
 	private _model : Model;
 	private _profile : Profile;
 
@@ -45,6 +47,7 @@ export class DyingStar extends EntityBase {
 			import: (obj : Vec) => { this._target.set(Vec2.fromVec(obj)); },
 		});
 
+		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.circle(profile.pos(), profile.initDim(), {
@@ -93,7 +96,7 @@ export class DyingStar extends EntityBase {
 	}
 
 	override ready() : boolean {
-		return super.ready() && this._target.has();
+		return super.ready() && this._target.has() && this._association.hasRefreshedOwner();
 	}
 
 	override initialize() : void {
@@ -116,6 +119,9 @@ export class DyingStar extends EntityBase {
 		}
 
 		this.addEntity(EntityType.BLACK_HOLE, {
+			associationInit: {
+				owner: this.owner(),
+			},
 			profileInit: {
 				pos: this._target.get(),
 			},

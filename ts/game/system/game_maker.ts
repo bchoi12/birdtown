@@ -198,11 +198,13 @@ export class GameMaker extends SystemBase implements System {
 			|| this._config.getStartingLoadout() === LoadoutType.BUFF) {
 			id = clientId;
 		} else if (this._config.getStartingLoadout() === LoadoutType.CHOOSE_TURNS || this._config.getStartingLoadout() === LoadoutType.PICK_TURNS) {
-			id = this._playerRotator.currentFromAll();
+			id = this._playerRotator.current();
 		}
 
 		if (id === 0) {
 			console.error("Error: trying to get equips for ID 0")
+		} else if (Flags.printDebug.get()) {
+			console.log("%s: using client ID %d for equips", this.name(), id);
 		}
 
 		if (game.clientDialogs().hasClientDialog(id)) {
@@ -484,6 +486,8 @@ export class GameMaker extends SystemBase implements System {
 	    	});
 
 			game.audio().setAmbiance(this.getAmbiance());
+
+			
 			break;
 		case GameState.SETUP:
 			this.assignRoles();
@@ -648,6 +652,11 @@ export class GameMaker extends SystemBase implements System {
 			} else {
 				nextId = this._playerRotator.nextFromAll();
 			}
+
+			if (Flags.printDebug.get()) {
+				console.log("%s: show dialog from", this.name(), nextId);
+			}
+
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
 				clientDialog.queueDialog(DialogType.LOADOUT);
 			}, (clientDialog : ClientDialog) => {

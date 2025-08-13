@@ -17,6 +17,8 @@ export type BuffOptions = {
 export abstract class Buff extends ComponentBase implements Component {
 
 	protected static readonly _emptyStats = new Set<StatType>();
+	protected static readonly _emptyBoosts = new Map<StatType, number>();
+
 	protected static readonly _intervals : Map<StatType, number> = new Map([
 		[StatType.BURST_BONUS, 1],
 		[StatType.BURST_BOOST, 0.25],
@@ -25,7 +27,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.DAMAGE_BOOST, 0.1],
 		[StatType.DAMAGE_CLOSE_BOOST, 0.2],
 		[StatType.DAMAGE_FAR_BOOST, 0.2],
-		[StatType.DAMAGE_RESIST_BOOST, 0.1],
+		[StatType.DAMAGE_RESIST_BOOST, 0.05],
 		[StatType.DAMAGE_TAKEN_BOOST, 0.1],
 		[StatType.DOUBLE_JUMPS, 1],
 		[StatType.EXPOSE_CHANCE, 0.01],
@@ -38,7 +40,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.SPEED_BOOST, 0.1],
 		[StatType.SPEED_DEBUFF, 0.1],
 		[StatType.LIFE_STEAL, 0.02],
-		[StatType.USE_BOOST, 0.2],
+		[StatType.USE_BOOST, 0.25],
 	]);
 
 	protected _buffType : BuffType;
@@ -84,12 +86,22 @@ export abstract class Buff extends ComponentBase implements Component {
 		boosts.forEach((delta : number, type : StatType) => {
 			cache.set(type, (cache.has(type) ? cache.get(type) : 0) + delta);
 		});
+
+		const postBoosts = this.postBoosts(cache);
+		postBoosts.forEach((delta : number, type : StatType) => {
+			cache.set(type, (cache.has(type) ? cache.get(type) : 0) + delta);
+		});
 	}
 	protected revertStats(cache : Map<StatType, number>) : void {
 		const level = this.level();
 		if (level === 0) {
 			return;
 		}
+
+		const postBoosts = this.postBoosts(cache);
+		postBoosts.forEach((delta : number, type : StatType) => {
+			cache.set(type, (cache.has(type) ? cache.get(type) : 0) - delta);
+		});
 
 		const boosts = this.boosts(level);
 		boosts.forEach((delta : number, type : StatType) => {
@@ -106,7 +118,9 @@ export abstract class Buff extends ComponentBase implements Component {
 		}
 		return Buff._intervals.get(type);
 	}
+
 	protected abstract boosts(level : number) : Map<StatType, number>;
+	protected postBoosts(statCache : Map<StatType, number>) : Map<StatType, number> { return Buff._emptyBoosts; }
 
 	conditionalStats() : Set<StatType> { return Buff._emptyStats; }
 	conditionalBoost(type : StatType) : number { return 0; }

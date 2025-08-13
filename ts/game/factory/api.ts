@@ -12,6 +12,7 @@ export enum BuffType {
 	COOL,
 	CRIT,
 	DODGY,
+	EXPLOSION,
 	GLASS_CANNON,
 	HEALER,
 	ICY,
@@ -19,6 +20,7 @@ export enum BuffType {
 	MOSQUITO,
 	SNIPER,
 	STAT_STICK,
+	TANK,
 
 	// Item specific
 	BLACK_HEADBAND,
@@ -432,6 +434,8 @@ export enum StatType {
 	DAMAGE_TAKEN_BOOST,
 	DAMAGE_RESIST_BOOST,
 	DOUBLE_JUMPS,
+	EXPLOSION_BOOST,
+	EXPLOSION_DAMAGE,
 	EXPOSE_CHANCE,
 	FIRE_BOOST,
 	FIRE_TIME,

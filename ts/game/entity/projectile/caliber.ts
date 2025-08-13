@@ -65,7 +65,7 @@ export abstract class CaliberBase extends Projectile {
 		})
 	}
 
-	override onHit(other : Entity) : void {
+	protected override onHit(other : Entity) : void {
 		super.onHit(other);
 
 		if (this.initialized()) {			

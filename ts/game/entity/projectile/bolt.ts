@@ -101,7 +101,7 @@ export class Bolt extends BoltBase {
 		super(EntityType.BOLT, entityOptions);
 	}
 
-	override onHit(other : Entity) : void {
+	protected override onHit(other : Entity) : void {
 		super.onHit(other);
 
 		this.delete();

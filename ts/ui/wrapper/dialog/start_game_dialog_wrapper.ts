@@ -410,7 +410,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		options.contentElm().appendChild(Html.br());
 
 		let otherCategory = new CategoryWrapper();
-		otherCategory.setTitle("Other Options");
+		otherCategory.setTitle("More Options");
 		otherCategory.setExpanded(false);
 		options.contentElm().appendChild(otherCategory.elm());
 

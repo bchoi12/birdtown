@@ -11,6 +11,7 @@ export class AcrobaticBuff extends Buff {
 			[StatType.CRIT_CHANCE, 0.1 * level],
 			[StatType.CRIT_BOOST, 0.25 * level],
 			[StatType.DOUBLE_JUMPS, Math.ceil(level / 2)],
+			[StatType.HEALTH, 50],
 			[StatType.HP_REGEN, 1 + 0.5 * Math.floor(level / 2)],
 			[StatType.SPEED_BOOST, 0.1 * level],
 			[StatType.USE_BOOST, 0.25 * level],

@@ -50,6 +50,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		...GameConfigMessage._baseProps,
 		[GameConfigProp.DAMAGE_MULTIPLIER, { optional: true }],
 		[GameConfigProp.PLAYERS_MIN, {}],
+		[GameConfigProp.PLAYERS_MAX, { optional: true }],
 		[GameConfigProp.SPAWN_TIME, { optional: true }],
 		[GameConfigProp.RESET_POINTS, {}],
 		[GameConfigProp.TIME_SETUP, {}],
@@ -69,7 +70,6 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.DUEL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.LIVES, {}],
-			[GameConfigProp.PLAYERS_MAX, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],

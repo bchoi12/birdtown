@@ -51,6 +51,8 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
 
 	constructor(type : DialogType) {
 		super(type);
+
+        this.setVersion(0);
 	}
 
 	override debugName() : string { return "DialogMessage"; }

@@ -7,12 +7,8 @@ import { MaterialType, SoundType } from 'game/factory/api'
 
 export class BlackHole extends Explosion {
 
-	private _association : Association;
-
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.BLACK_HOLE, entityOptions);
-
-		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 	}
 
 	override force() : number { return -1; }

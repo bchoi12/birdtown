@@ -84,7 +84,7 @@ export abstract class OrbBase extends Projectile {
 
 	protected glow() : number { return 0.5; }
 
-	override onHit(other : Entity) : void {
+	protected override onHit(other : Entity) : void {
 		super.onHit(other);
 
 		this.explode(this._explosionType, {});

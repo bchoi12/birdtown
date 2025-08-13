@@ -19,6 +19,11 @@ import { LinkedList } from 'util/linked_list'
 
 export class ClientDialog extends ClientSystem implements System {
 
+	private static readonly _supportedTypes = new Array<DialogType>(
+		DialogType.LOADOUT,
+		DialogType.INIT,
+	);
+
 	private _showQueue : LinkedList<DialogType>;
 	private _forceSubmitQueue : LinkedList<DialogType>;
 
@@ -51,13 +56,9 @@ export class ClientDialog extends ClientSystem implements System {
 			},
 		});
 
-		for (const stringType in DialogType) {
-			const type = Number(DialogType[stringType]);
-			if (Number.isNaN(type) || type <= 0) {
-				continue;
-			}
+		ClientDialog._supportedTypes.forEach((type : DialogType) => {
 			this.addSubSystem(type, new ClientDialogSyncer(type, clientId));
-		}
+		});
 
 		const pair = EquipFactory.random();
 		let loadout = this.message(DialogType.LOADOUT);
@@ -73,7 +74,9 @@ export class ClientDialog extends ClientSystem implements System {
 			this._showQueue.push(type);
 		}
 	}
-	private showDialog(type : DialogType) : void { this.syncer(type).showDialog(); }
+	private showDialog(type : DialogType) : void {
+		this.syncer(type).showDialog();
+	}
 
 	queueForceSubmit(type : DialogType) : void {
 		if (this.clientIdMatches()) {

@@ -25,6 +25,8 @@ export namespace StatFactory {
 			[StatType.CRIT_CHANCE, 0],
 			[StatType.CRIT_BOOST, 1.5],
 			[StatType.DOUBLE_JUMPS, 1],
+			[StatType.EXPLOSION_BOOST, 1],
+			[StatType.EXPLOSION_DAMAGE, 0],
 			[StatType.EXPOSE_CHANCE, 0],
 			[StatType.FIRE_BOOST, 1],
 			[StatType.HEALTH, 100],
@@ -148,7 +150,7 @@ export namespace StatFactory {
 			[StatType.FIRE_TIME, 300],
 			[StatType.FORCE, 0.3],
 			[StatType.PROJECTILE_ACCEL, 1.5],
-			[StatType.PROJECTILE_SPEED, 0.25],
+			[StatType.PROJECTILE_SPEED, 0.2],
 			[StatType.PROJECTILE_TTL, 550],
 			[StatType.RELOAD_TIME, 900],
 		])],
@@ -165,7 +167,7 @@ export namespace StatFactory {
 			[StatType.FIRE_TIME, 80],
 			[StatType.HORIZONTAL_RECOIL, 0],
 			[StatType.PROJECTILE_SPEED, 0.8],
-			[StatType.PROJECTILE_TTL, 450],
+			[StatType.PROJECTILE_TTL, 425],
 			[StatType.RELOAD_TIME, 600],
 			[StatType.REV_TIME, 360],
 			[StatType.VERTICAL_RECOIL, 0],
@@ -190,7 +192,7 @@ export namespace StatFactory {
 			[StatType.BURSTS, 4],
 			[StatType.FIRE_TIME, 70],
 			[StatType.PROJECTILE_SPEED, 0.85],
-			[StatType.PROJECTILE_TTL, 420],
+			[StatType.PROJECTILE_TTL, 400],
 			[StatType.RELOAD_TIME, 200],
 			[StatType.SPREAD, 4],
 		])],
@@ -201,7 +203,7 @@ export namespace StatFactory {
 			[StatType.FIRE_TIME, 100],
 			[StatType.HORIZONTAL_RECOIL, 0],
 			[StatType.PROJECTILE_SPEED, 0.7],
-			[StatType.PROJECTILE_TTL, 450],
+			[StatType.PROJECTILE_TTL, 425],
 			[StatType.RELOAD_TIME, 600],
 			[StatType.REV_TIME, 400],
 			[StatType.VERTICAL_RECOIL, 0],
@@ -221,7 +223,7 @@ export namespace StatFactory {
 			[StatType.CHARGED_PROJECTILE_TTL, 550],
 			[StatType.FIRE_TIME, 160],
 			[StatType.PROJECTILE_SPEED, 0.85],
-			[StatType.PROJECTILE_TTL, 450],
+			[StatType.PROJECTILE_TTL, 425],
 			[StatType.RELOAD_TIME, 900],
 		])],
 		[EntityType.BULLET, new Map([
@@ -252,7 +254,7 @@ export namespace StatFactory {
 		[EntityType.KNIFE, new Map([
 			[StatType.DAMAGE, 20],
 		])],
-		// 63 DPS + long range + partial clip
+		// 63 DPS + fast bullet + partial clip
 		[EntityType.RIFLE, new Map([
 			[StatType.BURSTS, 8],
 			[StatType.CHARGED_BURSTS, 1],
@@ -261,7 +263,7 @@ export namespace StatFactory {
 			[StatType.FIRE_TIME, 400],
 			[StatType.FORCE, 0],
 			[StatType.PROJECTILE_SPEED, 1],
-			[StatType.PROJECTILE_TTL, 400],
+			[StatType.PROJECTILE_TTL, 375],
 			[StatType.RELOAD_TIME, 1600],
 		])],
 		[EntityType.CARTRIDGE, new Map([
@@ -293,7 +295,7 @@ export namespace StatFactory {
 			[StatType.CHARGED_PROJECTILE_TTL, 500],
 			[StatType.FIRE_TIME, 75],
 			[StatType.PROJECTILE_SPEED, 0.8],
-			[StatType.PROJECTILE_TTL, 450],
+			[StatType.PROJECTILE_TTL, 425],
 			[StatType.RELOAD_TIME, 400],
 		])],
 		[EntityType.BOLT, new Map([

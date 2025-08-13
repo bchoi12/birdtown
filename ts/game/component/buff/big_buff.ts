@@ -11,8 +11,9 @@ export class BigBuff extends Buff {
 		return new Map([
 			[StatType.BURST_BONUS, this.atMaxLevel() ? 1 : 0],
 			[StatType.DAMAGE_BOOST, 0.1 * level],
+			[StatType.DAMAGE_RESIST_BOOST, 0.05 * level],
 			[StatType.DOUBLE_JUMPS, 1],
-			[StatType.HEALTH, 25 * level],
+			[StatType.HEALTH, 75 + 25 * level],
 			[StatType.SCALING, 0.1 * level],
 		]);
 	}

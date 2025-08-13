@@ -51,10 +51,12 @@ export class PlayerRotator {
 	private static readonly _trackedRoles = new Set<StartRole>([StartRole.PLAYING, StartRole.TEAM_ONE, StartRole.TEAM_TWO]);
 
 	private _tracks : Map<StartRole, PlayerTrack>;
+	private _currentRole : StartRole;
 	private _rng : SeededRandom;
 
 	constructor() {
 		this._tracks = new Map();
+		this._currentRole = StartRole.PLAYING;
 		this._rng = new SeededRandom(Math.floor(1000 * Math.random()));
 	}
 
@@ -110,25 +112,20 @@ export class PlayerRotator {
 		return finalIds;
 	}
 
-	current(role : StartRole) : number {
+	private currentFromRole(role : StartRole) : number {
 		if (!this._tracks.has(role)) {
 			return 0;
 		}
 		return this._tracks.get(role).current();
 	}
-	opposing(role : StartRole) : number {
-		if (!this._tracks.has(role)) {
-			return 0;
-		}
-		return this._tracks.get(role).opposing();
-	}
 	next(role : StartRole) : number {
 		if (!this._tracks.has(role)) {
 			return 0;
 		}
+		this._currentRole = role;
 		return this._tracks.get(role).next();
 	}
-	currentFromAll() : number { return this.current(StartRole.PLAYING); }
+	current() : number { return this.currentFromRole(this._currentRole); }
 	nextFromAll() : number { return this.next(StartRole.PLAYING); }
 	nextExcluding(id : number) {
 		for (let i = 0; i < 10; ++i) {
@@ -145,7 +142,6 @@ export class PlayerRotator {
 		}
 		return this.nextFromAll();
 	}
-	opposingFromAll() : number { return this.opposing(StartRole.PLAYING); }
 	nextFromTeamOne() : number { return this.next(StartRole.TEAM_ONE); }
 	nextFromTeamTwo() : number { return this.next(StartRole.TEAM_TWO);}
 

@@ -9,6 +9,7 @@ import { CoolBuff } from 'game/component/buff/cool_buff'
 import { CritBuff } from 'game/component/buff/crit_buff'
 import { DodgyBuff } from 'game/component/buff/dodgy_buff'
 import { EagleEyeBuff } from 'game/component/buff/eagle_eye_buff'
+import { ExplosionBuff } from 'game/component/buff/explosion_buff'
 import { ExposeBuff } from 'game/component/buff/expose_buff'
 import { GlassCannonBuff } from 'game/component/buff/glass_cannon_buff'
 import { HealerBuff } from 'game/component/buff/healer_buff'
@@ -18,6 +19,7 @@ import { MosquitoBuff } from 'game/component/buff/mosquito_buff'
 import { SlowBuff } from 'game/component/buff/slow_buff'
 import { SniperBuff } from 'game/component/buff/sniper_buff'
 import { StatStickBuff } from 'game/component/buff/stat_stick_buff'
+import { TankBuff } from 'game/component/buff/tank_buff'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BuffType } from 'game/factory/api'
@@ -33,6 +35,7 @@ export namespace BuffFactory {
 		[BuffType.COOL, (type : BuffType) => { return new CoolBuff(type, { maxLevel: 3 })}],
 		[BuffType.CRIT, (type : BuffType) => { return new CritBuff(type, { maxLevel: 3 }) }],
 		[BuffType.DODGY, (type : BuffType) => { return new DodgyBuff(type, { maxLevel: 3 }) }],
+		[BuffType.EXPLOSION, (type : BuffType) => { return new ExplosionBuff(type, { maxLevel: 3 }) }],
 		[BuffType.GLASS_CANNON, (type : BuffType) => { return new GlassCannonBuff(type, { maxLevel: 3 }) }],
 		[BuffType.HEALER, (type : BuffType) => { return new HealerBuff(type, { maxLevel: 3 }) }],
 		[BuffType.ICY, (type : BuffType) => { return new IcyBuff(type, { maxLevel: 3 }) }],
@@ -40,6 +43,7 @@ export namespace BuffFactory {
 		[BuffType.MOSQUITO, (type : BuffType) => { return new MosquitoBuff(type, { maxLevel: 3 }) }],
 		[BuffType.SNIPER, (type : BuffType) => { return new SniperBuff(type, { maxLevel: 3 }) }],
 		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, { maxLevel: 100 }) }],
+		[BuffType.TANK, (type : BuffType) => { return new TankBuff(type, { maxLevel: 3 }) }],
 
 		[BuffType.BLACK_HEADBAND, (type : BuffType) => { return new BlackHeadbandBuff(type, { maxLevel: 1 }) }],
 

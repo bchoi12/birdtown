@@ -27,7 +27,7 @@ export class CoolBuff extends Buff {
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
 			[StatType.BURST_BONUS, this.atMaxLevel() ? 1 : 0],
-			[StatType.RELOAD_BOOST, 0.1 * level],
+			[StatType.RELOAD_BOOST, 0.2 * level],
 			[StatType.SPEED_BOOST, 0.1 * level],
 		]);
 	}
@@ -35,7 +35,7 @@ export class CoolBuff extends Buff {
 	protected override onLevel(level : number, delta : number) : void {
 		super.onLevel(level, delta);
 
-		if (level <= 0) {
+		if (!this.atMaxLevel()) {
 			this.deleteShades();
 		} else {
 			this.addShades();

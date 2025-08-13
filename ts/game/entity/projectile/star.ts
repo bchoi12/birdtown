@@ -133,7 +133,7 @@ export class Star extends Projectile {
 	override canHit(collision : MATTER.Collision, other : Entity) : boolean {
 		return !this._profile.attached() && super.canHit(collision, other);
 	}
-	override onHit(other : Entity) : void {
+	protected override onHit(other : Entity) : void {
 		super.onHit(other);
 
 		for (const id of this.hits()) {

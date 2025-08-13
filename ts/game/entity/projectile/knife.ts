@@ -94,7 +94,7 @@ export class Knife extends Projectile {
 	}
 
 
-	override onHit(other : Entity) : void {
+	protected override onHit(other : Entity) : void {
 		super.onHit(other);
 
 		this.emitParticles(/*dir=*/-1);

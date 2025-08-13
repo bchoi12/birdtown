@@ -4,12 +4,13 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { StepData } from 'game/game_object'
 import { AssociationType, AttributeType, ComponentType } from 'game/component/api'
+import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { CollisionCategory, MaterialType, SoundType } from 'game/factory/api'
+import { CollisionCategory, MaterialType, SoundType, StatType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 
@@ -26,6 +27,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 	protected _hits : Set<number>;
 	protected _lifeTimer : Timer;
 
+	protected _association : Association;
 	protected _profile : Profile;
 	protected _model : Model;
 
@@ -38,6 +40,8 @@ export abstract class Explosion extends EntityBase implements Entity {
 			canInterrupt: false,
 		});
 		this._hits = new Set();
+
+		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -68,6 +72,10 @@ export abstract class Explosion extends EntityBase implements Entity {
 		if (this.soundType() !== SoundType.UNKNOWN) {
 			this.soundPlayer().registerSound(this.soundType());
 		}
+	}
+
+	override ready() : boolean {
+		return super.ready() && this._association.hasRefreshedOwner();
 	}
 
 	meshFn() : BABYLON.Mesh {
@@ -123,19 +131,28 @@ export abstract class Explosion extends EntityBase implements Entity {
 			return;
 		}
 
-		if (!other.getAttribute(AttributeType.SOLID) || other.getAttribute(AttributeType.COOL)) {
+		if (!other.getAttribute(AttributeType.SOLID)) {
 			return;
 		}
 
-		if (this.matchAssociations([AssociationType.OWNER], other)) {
-			return;
-		}
+		if (!other.getAttribute(AttributeType.INVINCIBLE) && !other.getAttribute(AttributeType.COOL)) {
+			let magnitude = this.force();
+			if (this.owner().hasStat(StatType.EXPLOSION_BOOST)) {
+				magnitude *= this.owner().getStat(StatType.EXPLOSION_BOOST);
+			}
 
-		if (!other.getAttribute(AttributeType.INVINCIBLE)) {
-			const magnitude = this.force();
 			// Use body to handle multi-body profiles.
 			const force = Vec2.fromVec(collision.bodyB.position).sub(collision.bodyA.position).setLength(magnitude);
 			other.addForce(force);
+
+			if (magnitude > 0
+				&& !this.matchAssociations([AssociationType.OWNER], other)
+				&& this.owner().hasStat(StatType.EXPLOSION_DAMAGE)) {
+				const damage = magnitude * this.owner().getStat(StatType.EXPLOSION_DAMAGE);
+				if (damage > 0) {
+					other.takeDamage(damage, this.owner());
+				}
+			}
 		}
 
 		this._hits.add(other.id());

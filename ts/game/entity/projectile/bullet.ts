@@ -98,7 +98,7 @@ export abstract class BulletBase extends Projectile {
 		this._trail.scaling.x = this.trailScaling(stepData);
 	}
 
-	override onHit(other : Entity) : void {
+	protected override onHit(other : Entity) : void {
 		super.onHit(other);
 
 		if (this.initialized()) {

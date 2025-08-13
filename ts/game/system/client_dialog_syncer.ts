@@ -44,6 +44,10 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 	constructor(dialogType : DialogType, clientId : number) {
 		super(SystemType.CLIENT_DIALOG_SYNCER, clientId);
 
+		this.addNameParams({
+			type: DialogType[dialogType],
+		});
+
 		this._dialogType = dialogType;
 		this._dialogState = DialogState.UNKNOWN;
 		this._message = new DialogMessage(dialogType);
@@ -60,7 +64,8 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 			import: (obj : DialogState) => { this.setDialogState(obj); },
 			options: {
 				conditionalInterval: (obj: DialogState, elapsed : number) => {
-					return this._dialogState !== DialogState.NOT_REQUESTED && elapsed >= 250;
+					// Careful since this can overwrite state in host
+					return this._dialogState !== DialogState.NOT_REQUESTED && this._dialogState !== DialogState.IN_SYNC && elapsed >= 250;
 				},
 				filters: GameData.tcpFilters,
 			},
@@ -69,14 +74,16 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		this.addProp<MessageObject>({
 			has: () => { return this._dialogState === DialogState.PENDING; },
 			validate: (obj : MessageObject) => {
-				if (this._dialogState !== DialogState.PENDING) { return; }
+				if (this._dialogState !== DialogState.PENDING) {
+					return;
+				}
 
 				this._stagingMsg.parseObject(obj);
 				if (!this._stagingMsg.valid()) {
 					return;
 				}
 
-				if (this._stagingMsg.getVersion() >= this._message.getVersionOr(0)) {
+				if (this._stagingMsg.getVersion() >= this._message.getVersion()) {
 					this._message.merge(this._stagingMsg);
 					this.setDialogState(DialogState.IN_SYNC);
 				}
@@ -87,7 +94,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 				if (!this._stagingMsg.valid()) {
 					return;
 				}
-				if (this._stagingMsg.getVersion() >= this._message.getVersionOr(0)) {
+				if (this._stagingMsg.getVersion() >= this._message.getVersion()) {
 					this._message.merge(this._stagingMsg);
 					this.propagate();
 				}
@@ -123,13 +130,23 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 		if (this.isHost() && state === DialogState.PENDING) {
 			// Host is always in sync.
 			this._dialogState = DialogState.IN_SYNC;
+
+			if (Flags.printDebug.get() && this.clientIdMatches()) {
+				console.log("%s: host message state set to IN_SYNC", this.name());
+			}
 			return;
 		}
 		this._dialogState = state;
+
+		if (Flags.printDebug.get() && this.clientIdMatches()) {
+			console.log("%s: message state is %s", this.name(), DialogState[this._dialogState]);
+		}
 	}
 
 	forceSubmit() : void {
-		if (!this.isSource()) { return; }
+		if (!this.isSource()) {
+			return;
+		}
 
 		if (this._dialogState === DialogState.OPEN || this._dialogState === DialogState.PENDING) {
 			this.setDialogState(DialogState.ERROR);
@@ -144,7 +161,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 	}
 	message() : DialogMessage { return this._message; }
 	submit() : void {
-		this._message.setVersion(this._message.getVersionOr(0) + 1);
+		this._message.setVersion(this._message.getVersion() + 1);
 		this.setDialogState(DialogState.PENDING);
 
 		this.propagate();

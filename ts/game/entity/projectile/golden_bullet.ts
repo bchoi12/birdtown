@@ -96,7 +96,7 @@ export class GoldenBullet extends Projectile {
 		this._trail.scaling.x = this.trailScaling(stepData);
 	}
 
-	override onHit(other : Entity) : void {
+	protected override onHit(other : Entity) : void {
 		super.onHit(other);
 
 		this.explode(EntityType.GOLDEN_EXPLOSION, {});

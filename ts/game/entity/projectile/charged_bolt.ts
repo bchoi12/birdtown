@@ -12,7 +12,7 @@ export class ChargedBolt extends BoltBase {
 		this._glow = 0.7;
 	}
 
-	override onHit(other : Entity) : void {
+	protected override onHit(other : Entity) : void {
 		super.onHit(other);
 
 		this.explode(EntityType.BOLT_EXPLOSION, {});
