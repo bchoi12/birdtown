@@ -44,7 +44,7 @@ export class ClientsHandler extends HandlerBase implements Handler {
 		this._playerWrapper.setTitle("Players");
 		this._playerWrapper.contentElm().style.fontSize = "1.2em";
 		this._commandsWrapper = new CategoryWrapper();
-		this._commandsWrapper.setTitle("Quick Settings");
+		this._commandsWrapper.setTitle("Quick Commands");
 
 		this._lowSpecWrapper = new LowSpecWrapper();
 		this._lowSpecWrapper.setText("Use low-spec graphics");

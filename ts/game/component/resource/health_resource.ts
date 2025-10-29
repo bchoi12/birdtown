@@ -6,20 +6,28 @@ import { EntityType } from 'game/entity/api'
 import { TextParticle } from 'game/entity/particle/text_particle'
 import { ColorType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
+import { StepData } from 'game/game_object'
 
 import { settings } from 'settings'
 
 import { Fns } from 'util/fns'
+import { Timer } from 'util/timer'
 import { Vec } from 'util/vector'
 
 export class HealthResource extends Resource {
 
 	private static readonly _textHeight = 0.8;
 
+	private _regenTimer : Timer;
+
 	constructor() {
 		super(StatType.HEALTH);
 
 		this._min.set(0);
+
+		this._regenTimer = this.newTimer({
+			canInterrupt: true,
+		});
 	}
 
 	override initialize() : void {
@@ -35,6 +43,24 @@ export class HealthResource extends Resource {
 		this.set(this.getStat());
 		this._min.set(0);
 		this._max.set(this.getStat());
+	}
+
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+
+		if (!this.entity().hasStat(StatType.HP_REGEN) || this.entity().getStat(StatType.HP_REGEN) === 0 || this._resource <= 0) {
+			this._regenTimer.reset();
+			return;
+		}
+
+		if (this._regenTimer.done()) {
+			this.updateResource({
+				delta: this.entity().getStat(StatType.HP_REGEN),
+			});
+			this._regenTimer.start(1000);
+		} else if (!this._regenTimer.hasTimeLeft()) {
+			this._regenTimer.start(this.entity().getStat(StatType.HP_REGEN_DELAY));
+		}
 	}
 
 	setHealthPercent(percent : number) : void {
@@ -55,6 +81,10 @@ export class HealthResource extends Resource {
 
 		if (delta < 0) {
 			this.entity().emote(EmotionType.SAD);
+
+			if ((this._regenTimer.hasTimeLeft() || this._regenTimer.done()) && this.entity().hasStat(StatType.HP_REGEN_DELAY)) {
+				this._regenTimer.start(this.entity().getStat(StatType.HP_REGEN_DELAY));
+			}
 		}
 
 		if (!settings.showDamageNumbers()) {

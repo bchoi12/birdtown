@@ -159,9 +159,9 @@ export abstract class Weapon extends Equip<Player> {
 		this._charging = false;
 		this._charged = false;
 		this._charger = new Stopwatch();
-		this._weaponState = WeaponState.IDLE;
+		this._weaponState = WeaponState.UNKNOWN;
 		this._stateTimer = this.newTimer({ canInterrupt: true });
-		this._bursts = this.getMaxBursts();
+		this._bursts = 0;
 		this._firingTime = this.getTime(WeaponState.FIRING);
 
 		this._allowPartialClip = false;
@@ -197,6 +197,12 @@ export abstract class Weapon extends Equip<Player> {
 		if (this.reloadSound() !== SoundType.UNKNOWN) {
 			this.soundPlayer().registerSound(this.reloadSound());
 		}
+	}
+
+	override initialize() : void {
+		super.initialize();
+
+		this.setWeaponState(WeaponState.RELOADING);
 	}
 
 	abstract meshType() : MeshType;
@@ -250,7 +256,7 @@ export abstract class Weapon extends Equip<Player> {
 			}
 
 			if (this.hasOwner() && this.owner().hasStat(StatType.FIRE_BOOST)) {
-				time /= Math.max(0.1, this.owner().getStat(StatType.FIRE_BOOST));
+				time /= this.owner().getStat(StatType.FIRE_BOOST);
 			}
 			break;
 		case WeaponState.RELOADING:
@@ -260,7 +266,7 @@ export abstract class Weapon extends Equip<Player> {
 				time = this.getStat(StatType.RELOAD_TIME);
 			}
 			if (this.hasOwner() && this.owner().hasStat(StatType.RELOAD_BOOST)) {
-				time /= Math.max(0.1, this.owner().getStat(StatType.RELOAD_BOOST));
+				time /= this.owner().getStat(StatType.RELOAD_BOOST);
 			}
 			break;
 		}

@@ -236,6 +236,14 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 		});
 	}
 
+	protected addBuffPage() : void {
+
+	}
+
+	protected addBuffUpgradePage() : void {
+
+	}
+
 	protected addRerollButton() : ButtonWrapper {
 		let buttonWrapper = new ButtonWrapper();
 		buttonWrapper.setIcon(IconType.REROLL);

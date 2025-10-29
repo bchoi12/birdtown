@@ -81,7 +81,7 @@ export abstract class Projectile extends EntityBase {
 		}
 
 		if (this.hasProfile() && owner.hasStat(StatType.SCALING)) {
-			this.profile().multScaling(Math.max(0.1, owner.getStat(StatType.SCALING)));
+			this.profile().multScaling(owner.getStat(StatType.SCALING));
 		}
 	}
 

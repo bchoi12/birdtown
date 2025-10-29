@@ -19,15 +19,32 @@ import { ChoiceDialogWrapper } from 'ui/wrapper/dialog/client/choice_dialog_wrap
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { PageWrapper } from 'ui/wrapper/page_wrapper'
 
+export enum BuffDialogType {
+	UNKNOWN,
+
+	INIT,
+	NORMAL,
+	BONUS,
+}
+
 export class BuffDialogWrapper extends ChoiceDialogWrapper {
 
-	constructor(buffs : number) {
+	constructor(type : BuffDialogType) {
 		// Share LOADOUT with LoadoutDialogWrapper
 		super(DialogType.LOADOUT);
 
 		this.setTitle("Buff");
 
-		this.addChoosePage(3);
+		if (type === BuffDialogType.INIT) {
+			this.addChoosePage(3);
+		}
+
+		this.addBuffPage();
+
+		if (type === BuffDialogType.BONUS) {
+			this.addBuffUpgradePage();
+		}
+
 		this.addSubmitTimer(game.controller().timeLimit(GameState.SETUP));
 	}
 }

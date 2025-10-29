@@ -137,7 +137,7 @@ export namespace StringFactory {
 		return Strings.toTitleCase(GameMode[type]);
 	}
 	export function getModeDescription(config : GameConfigMessage) : string {
-		switch (config.type()) {
+		switch (config.type()) {			
 		case GameMode.DUEL:
 			return "Win the 1v1";
 		case GameMode.FREE_FOR_ALL:
@@ -147,6 +147,7 @@ export namespace StringFactory {
 			return `Defend Birdtown against the invasion`;
 		case GameMode.PRACTICE:
 			return game.isHost() ? `Press ${KeyNames.keyTypeHTML(KeyType.MENU)} to exit` : "Try out the game";
+		case GameMode.BUFF_BATTLE:
 		case GameMode.SUDDEN_DEATH:
 		case GameMode.SURVIVAL:
 			return "Be the last one standing";

@@ -44,7 +44,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		super();
 
 		this.shrink();
-		this.setTitle("Start Game");
+		this.setTitle("Host Game");
 
 		this._settingsCategory = new CategoryWrapper();
 		this._settingsCategory.setTitle("Settings");
@@ -62,7 +62,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 
 		this._publicRoom = 0;
 		this._privacySetting = new LabelNumberWrapper({
-			label: "Privacy",
+			label: "Show Game in Lobby List",
 			value: this._publicRoom,
 			plus: (current : number) => {
 				this._publicRoom = 1 - this._publicRoom;
@@ -72,7 +72,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			},
 			get: () => { return this._publicRoom; },
 			html: (current : number) => {
-				return this._publicRoom === 1 ? "Public" : "Private";
+				return this._publicRoom === 1 ? "Listed" : "Hidden";
 			}
 		});
 		this._settingsCategory.contentElm().appendChild(this._privacySetting.elm());
@@ -85,7 +85,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		this.form().appendChild(this._advancedCategory.elm());
 
 		this._passwordInput = new LabelInputWrapper();
-		this._passwordInput.setName("Password (optional)");
+		this._passwordInput.setName("Password");
 		this._passwordInput.inputElm().maxLength = InitGameDialogWrapper._passwordLength;
 		this._passwordInput.inputElm().pattern = InitGameDialogWrapper._pattern;
 		this._advancedCategory.contentElm().appendChild(this._passwordInput.elm());

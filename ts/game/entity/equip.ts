@@ -108,7 +108,6 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 		this.owner().equip(this);
 		this._chargeRate = this.getStatOr(StatType.CHARGE_RATE, 0);
-		this._juice = Equip._maxJuice;
 	}
 
 	override preUpdate(stepData : StepData) : void {
@@ -189,7 +188,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 		let juice = this.getStat(StatType.USE_JUICE);
 		if (this.hasOwner() && this.owner().hasStat(StatType.USE_BOOST)) {
-			juice /= Math.max(0.1, this.owner().getStat(StatType.USE_BOOST));
+			juice /= this.owner().getStat(StatType.USE_BOOST);
 		}
 
 		return juice;

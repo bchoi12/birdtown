@@ -6,12 +6,15 @@ import { ComponentType } from 'game/component/api'
 import { Buffs } from 'game/component/buffs'
 import { Entity } from 'game/entity'
 import { BuffType, StatType } from 'game/factory/api'
+import { BuffFactory } from 'game/factory/buff_factory'
 
 import { Fns } from 'util/fns'
 import { Timer } from 'util/timer'
 
 export type BuffOptions = {
 	maxLevel : number;
+
+	resetOnSpawn? : boolean;
 }
 
 export abstract class Buff extends ComponentBase implements Component {
@@ -46,6 +49,7 @@ export abstract class Buff extends ComponentBase implements Component {
 	protected _buffType : BuffType;
 	protected _level : number;
 	protected _maxLevel : number;
+	protected _resetOnSpawn : boolean;
 
 	protected _addTimer : Timer;
 	protected _resetTimer : Timer;
@@ -60,6 +64,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		this._buffType = type;
 		this._level = 0;
 		this._maxLevel = options.maxLevel;
+		this._resetOnSpawn = options.resetOnSpawn;
 
 		this._addTimer = this.newTimer({
 			canInterrupt: true,
@@ -70,7 +75,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		
 		this.addProp<number>({
 			export: () => { return this._level; },
-			import: (obj : number) => { this._level = obj; },
+			import: (obj : number) => { this.setLevel(obj); },
 		});
 	}
 
@@ -127,6 +132,7 @@ export abstract class Buff extends ComponentBase implements Component {
 
 	getStatCache() : Map<StatType, number> { return this.getParent<Buffs>().boostCache(); }
 
+	protected maxLevel() : number { return this._maxLevel; }
 	atMaxLevel() : boolean { return this._level >= this._maxLevel; }
 	level() : number { return this._level; }
 	addLevel(delta : number) : void {
@@ -153,6 +159,13 @@ export abstract class Buff extends ComponentBase implements Component {
 	protected onLevel(level : number, delta : number) : void {
 		if (level > 0 && delta !== 0) {
 			this.applyStats(this.getStatCache());
+
+			if (delta > 0) {
+				const name = BuffFactory.name(this._buffType);
+				if (name !== "") {
+					game.playerState(this.entity().clientId())?.chatBubble(`${name} Lv${level}`);
+				}
+			}
 		}	
 	}
 
@@ -178,4 +191,5 @@ export abstract class Buff extends ComponentBase implements Component {
 			}
 		});
 	}
+	resetOnSpawn() : boolean { return this._resetOnSpawn; }
 }

@@ -66,14 +66,11 @@ export class RulesDialogWrapper extends DialogWrapper {
 
 			rules.push(StringFactory.getModeDescription(config));
 
-			if (config.hasPoints()) {
-				rules.push(`${config.getPoints()} ${Strings.plural("point", config.getPoints())} for a win`)
-			}
 			if (config.hasLives()) {
 				rules.push(`Everyone has ${config.getLives()} ${Strings.plural("life", config.getLives())}`);
 			}
 			if (config.hasVictories()) {
-				rules.push(`First to ${config.getVictories()} ${Strings.plural("win", config.getVictories())}`);
+				rules.push(`Be the first to ${config.getVictories()} ${Strings.plural("win", config.getVictories())}`);
 			}
 			if (config.getResetPointsOr(false)) {
 				rules.push(`Lose all of your points on death`);

@@ -390,7 +390,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	getStat(type : StatType) : number {
 		let stat = this.baseStat(type);
 		if (this.hasComponent(ComponentType.BUFFS)) {
-			return stat + this.getComponent<Buffs>(ComponentType.BUFFS).getBoost(type);
+			return StatFactory.clamp(type, stat + this.getComponent<Buffs>(ComponentType.BUFFS).getBoost(type));
 		}
 		return stat;
 	}

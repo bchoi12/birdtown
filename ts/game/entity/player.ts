@@ -522,10 +522,12 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._canJump = false;
 		this._canJumpTimer.reset();
 		this._doubleJumps = 0;
-		this._profile.setPos(spawn);
-		this._profile.setScaleFactor(Math.max(0.1, this.getStat(StatType.SCALING)));
-		this.fullHeal();
 
+		this._buffs.onRespawn();
+		this._profile.setPos(spawn);
+		this._profile.setScaleFactor(this.getStat(StatType.SCALING));
+
+		this.fullHeal();
 		this.getUp();
 		this.updateLoadout();
 	}

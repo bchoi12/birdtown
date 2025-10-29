@@ -18,6 +18,7 @@ import { JuicedBuff } from 'game/component/buff/juiced_buff'
 import { MosquitoBuff } from 'game/component/buff/mosquito_buff'
 import { SlowBuff } from 'game/component/buff/slow_buff'
 import { SniperBuff } from 'game/component/buff/sniper_buff'
+import { SpreeBuff } from 'game/component/buff/spree_buff'
 import { StatStickBuff } from 'game/component/buff/stat_stick_buff'
 import { TankBuff } from 'game/component/buff/tank_buff'
 import { Entity } from 'game/entity'
@@ -25,6 +26,27 @@ import { EntityType } from 'game/entity/api'
 import { BuffType } from 'game/factory/api'
 
 export namespace BuffFactory {
+
+	const names = new Map<BuffType, string>([
+		[BuffType.ACROBATIC, "FAST BIRD"],
+		[BuffType.BIG, "BIG BIRD"],
+		[BuffType.EAGLE_EYE, "SHARP BIRD"],
+
+		[BuffType.BLASTER, "Booty Blaster"],
+		[BuffType.COOL, "Really Cool Bird"],
+		[BuffType.CRIT, "Gambling Addict"],
+		[BuffType.DODGY, "Macho Grubba"],
+		[BuffType.EXPLOSION, "Boomer"],
+		[BuffType.GLASS_CANNON, "Glass Cannon"],
+		[BuffType.HEALER, "Healer"],
+		[BuffType.ICY, "Chill"],
+		[BuffType.JUICED, "JUICED"],
+		[BuffType.MOSQUITO, "Mosquito"],
+		[BuffType.SPREE, "Spree"],
+		[BuffType.SNIPER, "Eagle Eye"],
+		[BuffType.STAT_STICK, "Stat Stick"],
+		[BuffType.TANK, "TANK"],
+	])
 
 	const createFns = new Map<BuffType, (type : BuffType) => Buff>([
 		[BuffType.ACROBATIC, (type : BuffType) => { return new AcrobaticBuff(type, { maxLevel: 4 }) }],
@@ -42,6 +64,7 @@ export namespace BuffFactory {
 		[BuffType.JUICED, (type : BuffType) => { return new JuicedBuff(type, { maxLevel: 3 }) }],
 		[BuffType.MOSQUITO, (type : BuffType) => { return new MosquitoBuff(type, { maxLevel: 3 }) }],
 		[BuffType.SNIPER, (type : BuffType) => { return new SniperBuff(type, { maxLevel: 3 }) }],
+		[BuffType.SPREE, (type : BuffType) => { return new SpreeBuff(type, {maxLevel: 3, resetOnSpawn: true })}],
 		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, { maxLevel: 100 }) }],
 		[BuffType.TANK, (type : BuffType) => { return new TankBuff(type, { maxLevel: 3 }) }],
 
@@ -57,6 +80,13 @@ export namespace BuffFactory {
 			return null;
 		}
 		return <T>createFns.get(type)(type);
+	}
+
+	export function name(type : BuffType) : string {
+		if (names.has(type)) {
+			return names.get(type);
+		}
+		return "";
 	}
 
 }

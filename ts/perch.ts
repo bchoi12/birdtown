@@ -46,6 +46,15 @@ class Perch {
 		return this._host;
 	}
 
+	getTurnToken(onData : (data) => void, onError : () => void) : void {
+		if (!this.enabled()) {
+			return;
+		}
+
+		const url = `${this.url()}/turn`;
+		this.get(url, onData, onError);
+	}
+
 	getRooms(onData : (data) => void, onError : () => void) : void {
 		if (!this.enabled()) {
 			return;

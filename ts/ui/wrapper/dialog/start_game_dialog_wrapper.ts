@@ -178,6 +178,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			description: "Try out the game.\r\n\r\nAll levels, layouts, and equip combos are allowed.",
 			parent: classicCategory.contentElm(),
 		});
+		/*
 		this.populateMode(GameMode.INVASION, {
 			requirements: [],
 			description: "Defend Birdtown against an invasion using teamwork and unique buffs.\r\n\r\nDifficulty scales with number of players.",
@@ -185,6 +186,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			minRecommended: 1,
 			maxRecommended: 4,
 		});
+		*/
 		this.populateMode(GameMode.FREE_FOR_ALL, {
 			requirements: [],
 			description: "Classic free for all.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
@@ -193,7 +195,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.GOLDEN_GUN, {
 			requirements: [],
-			description: "Free for all, but everyone has the Golden Gun.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
+			description: "Free for all, but with a twist.\r\n\r\nCook any other player to upgrade your weapon to the Golden Gun. You can only score points after upgrading.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 3,
 		});
@@ -205,10 +207,10 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.SPREE, {
 			requirements: [],
-			description: "Free for all, but lose all of your points on death.",
+			description: "Free for all, but lose all of your points on death.\r\n\r\nBecome faster, stronger, and more 'glass cannon' as your spree grows.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 3,
-			maxRecommended: 6,
+			maxRecommended: 8,
 		});
 		this.populateMode(GameMode.SURVIVAL, {
 			requirements: [],
@@ -229,12 +231,14 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			parent: teamCategory.contentElm(),
 			minRecommended: 4,
 		});
+		/*
 		this.populateMode(GameMode.BUFF_BATTLE, {
 			requirements: [],
 			description: "Team Battle, but with buffs after each round.\r\n\r\nThe winning team gets one buff and the losing team gets two buffs. Unlike Team Battle, this game mode works great for smaller groups too.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 2,
 		});
+		*/
 		/*
 		this.populateMode(GameMode.TEAM_DEATHMATCH, {
 			requirements: [],
@@ -436,16 +440,19 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		case GameMode.GOLDEN_GUN:
 		case GameMode.SPREE:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
+
+			if (mode === GameMode.GOLDEN_GUN) {
+				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
+			} else {
+				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
+			}
 			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
-			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
-			if (mode !== GameMode.GOLDEN_GUN) {
-				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
-				otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
-				otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
-				otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
-			}
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());
+			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.INVASION:
 			// TODO: difficulty setting

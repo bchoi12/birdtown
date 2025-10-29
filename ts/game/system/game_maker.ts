@@ -6,15 +6,15 @@ import { EntityType, FrequencyType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
-import { MusicType } from 'game/factory/api'
+import { BuffType } from 'game/factory/api'
 import { ConfigFactory } from 'game/factory/config_factory'
+import { EquipFactory } from 'game/factory/equip_factory'
 import { SystemBase, System } from 'game/system'
 import { SystemType, AmbianceType, LevelType, LoadoutType, PlayerRole, WinConditionType } from 'game/system/api'
 import { ClientDialog } from 'game/system/client_dialog'
 import { Controller } from 'game/system/controller'
 import { PlayerState } from 'game/system/player_state'
 import { Tablet } from 'game/system/tablet'
-import { EquipFactory } from 'game/factory/equip_factory'
 import { PlayerConfig } from 'game/util/player_config'
 import { PlayerRotator } from 'game/util/player_rotator'
 
@@ -44,7 +44,7 @@ export class GameMaker extends SystemBase implements System {
 	private static readonly _errorTimeLimit = 5000;
 	private static readonly _preloadTimeLimit = 1500;
 	private static readonly _loadTimeLimit = 2500;
-	private static readonly _respawnTime = 2000;
+	private static readonly _respawnTime = 2500;
 
 	private static readonly _timeLimitBuffer = new Map<GameState, number>([
 		// Large buffer to allow dialogs to cleanly force submit and sync
@@ -569,7 +569,7 @@ export class GameMaker extends SystemBase implements System {
 		const associations = log.entityLog().associations();
 		if (associations.has(AssociationType.OWNER)) {
 			const damagerId = associations.get(AssociationType.OWNER);
-			const [damager, hasDamager] = game.entities().getEntity(damagerId);
+			const [damager, hasDamager] = game.entities().getEntity<Player>(damagerId);
 
 			if (hasDamager && game.tablets().hasTablet(damager.clientId())) {
 				const damagerTablet = game.tablet(damager.clientId())
@@ -577,7 +577,22 @@ export class GameMaker extends SystemBase implements System {
 				if (damager.sameTeam(player)) {
 					damagerTablet.addTeamKill();
 				} else {
-					damagerTablet.addPointKill();
+					if (this._config.type() === GameMode.GOLDEN_GUN) {
+						if (damager.equipType() === EntityType.GOLDEN_GUN) {
+							damagerTablet.addPointKill();
+						} else {
+							// Upgrade weapon
+							damager.createEquips(EntityType.GOLDEN_GUN, EntityType.TOP_HAT);
+						}
+					} else {
+						damagerTablet.addPointKill();
+
+						switch (this._config.type()) {
+						case GameMode.SPREE:
+							damager.addBuff(BuffType.SPREE, 1);
+							break;
+						}
+					}
 				}
 
 		    	game.announcer().feed({
@@ -626,13 +641,17 @@ export class GameMaker extends SystemBase implements System {
 
 		if (this._config.getStartingLoadout() === LoadoutType.BUFF) {
 			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
-				const team = game.playerState(clientDialog.clientId()).team();
-				if (team === TeamType.COOP || team !== this._winnerTeam || this._winnerTeam === TeamType.UNKNOWN) {
-					clientDialog.queueDialog(DialogType.BUFF_TWO);
-				} else {
-					clientDialog.queueDialog(DialogType.BUFF_ONE);
+				if (this._round <= 1) {
+					clientDialog.queueDialog(DialogType.BUFF_INIT);
+					return;
 				}
 
+				const team = game.playerState(clientDialog.clientId()).team();
+				if (team === TeamType.COOP || team !== this._winnerTeam) {
+					clientDialog.queueDialog(DialogType.BUFF_BONUS);
+				} else {
+					clientDialog.queueDialog(DialogType.BUFF_NORMAL);
+				}
 			}, (clientDialog : ClientDialog) => {
 				return this.isPlaying(clientDialog.clientId());
 			});

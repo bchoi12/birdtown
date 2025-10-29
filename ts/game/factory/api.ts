@@ -18,6 +18,7 @@ export enum BuffType {
 	ICY,
 	JUICED,
 	MOSQUITO,
+	SPREE,
 	SNIPER,
 	STAT_STICK,
 	TANK,

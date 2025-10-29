@@ -81,6 +81,12 @@ export class Model extends ComponentBase implements Component {
 			has: () => { return this._materialType.has(); },
 			export: () => { return this._materialType.get(); },
 			import: (obj : MaterialType) => { this._materialType.set(obj); },
+		});
+
+		this.addProp<number>({
+			has: () => { return this.hasTranslation() && this.translation().z !== 0; },
+			export: () => { return this.translation().z; },
+			import: (obj : number) => { this.translation().z = obj; },
 		})
 	}
 

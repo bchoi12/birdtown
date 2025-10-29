@@ -28,6 +28,14 @@ export class Buffs extends ComponentBase implements Component {
 		return this.buff(type);
 	}
 
+	onRespawn() : void {
+		this.execute<Buff>((buff : Buff, type : BuffType) => {
+			if (buff.resetOnSpawn()) {
+				this.removeBuff(type);
+			}
+		});
+	}
+
 	addBuff<T extends Buff>(type : BuffType, delta : number) : void {
 		let buff = this.registerBuff(type);
 

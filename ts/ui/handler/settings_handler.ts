@@ -57,7 +57,92 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			e.stopPropagation();
 		};
 
+		let core = this.createCategory("Core");
+		core.setAlwaysExpand(true);
+
+		this.addSetting(core, new LabelNumberWrapper({
+			label: "Fullscreen",
+			value: Number(settings.fullscreenSetting),
+			plus: (current : number) => {
+				settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
+			},
+			minus: (current : number) => {
+				settings.fullscreenSetting = FullscreenSetting.WINDOWED;
+			},
+			get: () => { return settings.fullscreenSetting; },
+			html: () => {
+				if (settings.fullscreenSetting === FullscreenSetting.FULLSCREEN) {
+					return "On";
+				}
+				return "Off";
+			},
+		}));
+
+		this.addSetting(core, new LabelNumberWrapper({
+			label: "FPS Target",
+			value: Number(settings.speedSetting),
+			plus: (current : number) => {
+				if (current >= SpeedSetting.FAST) {
+					return;
+				}
+				settings.speedSetting++;
+			},
+			minus: (current : number) => {
+				if (current <= SpeedSetting.SLOW) {
+					return;
+				}
+				settings.speedSetting--;
+			},
+			get: () => { return settings.speedSetting; },
+			html: (current : number) => {
+				switch (current) {
+				case SpeedSetting.SLOW:
+					return "30 FPS";
+				case SpeedSetting.NORMAL:
+					return "60 FPS";
+				case SpeedSetting.FAST:
+					return "120 FPS";
+				default:
+					return SpeedSetting[current];
+				}
+			},
+		}));
+
+		this.addSetting(core, new LabelNumberWrapper({
+			label: "Master Volume",
+			value: settings.volumePercent,
+			plus: (current : number) => {
+				settings.volumePercent = Math.min(1, current + 0.1);
+				game.audio().refreshSettings();
+			},
+			minus: (current : number) => {
+				settings.volumePercent = Math.max(0, current - 0.1);
+				game.audio().refreshSettings();
+			},
+			get: () => { return settings.volumePercent; },
+			html: () => { return Math.round(100 * settings.volumePercent) + "%"; },
+		}));
+
+		this.addSetting(core, new LabelNumberWrapper({
+			label: "Screen Shake",
+			value: Number(settings.screenShakeSetting),
+			plus: (current : number) => {
+				settings.screenShakeSetting = ScreenShakeSetting.ON;
+			},
+			minus: (current : number) => {
+				settings.screenShakeSetting = ScreenShakeSetting.OFF;
+			},
+			get: () => { return settings.screenShakeSetting; },
+			html: () => {
+				if (settings.screenShakeSetting === ScreenShakeSetting.ON) {
+					return "On";
+				}
+				return "Off";
+			},
+		}));
+
 		let gameplay = this.createCategory("Gameplay");
+		gameplay.setExpanded(false);
 
 		if (!game.isHost()) {
 			this.addSetting(gameplay, new LabelNumberWrapper({
@@ -121,73 +206,8 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			},
 		}));
 
-		this.addSetting(gameplay, new LabelNumberWrapper({
-			label: "Screen Shake",
-			value: Number(settings.screenShakeSetting),
-			plus: (current : number) => {
-				settings.screenShakeSetting = ScreenShakeSetting.ON;
-			},
-			minus: (current : number) => {
-				settings.screenShakeSetting = ScreenShakeSetting.OFF;
-			},
-			get: () => { return settings.screenShakeSetting; },
-			html: () => {
-				if (settings.screenShakeSetting === ScreenShakeSetting.ON) {
-					return "On";
-				}
-				return "Off";
-			},
-		}));
-
 		let graphics = this.createCategory("Graphics");
-
-		this.addSetting(graphics, new LabelNumberWrapper({
-			label: "Fullscreen",
-			value: Number(settings.fullscreenSetting),
-			plus: (current : number) => {
-				settings.fullscreenSetting = FullscreenSetting.FULLSCREEN;
-			},
-			minus: (current : number) => {
-				settings.fullscreenSetting = FullscreenSetting.WINDOWED;
-			},
-			get: () => { return settings.fullscreenSetting; },
-			html: () => {
-				if (settings.fullscreenSetting === FullscreenSetting.FULLSCREEN) {
-					return "On";
-				}
-				return "Off";
-			},
-		}));
-
-		this.addSetting(graphics, new LabelNumberWrapper({
-			label: "Render Target",
-			value: Number(settings.speedSetting),
-			plus: (current : number) => {
-				if (current >= SpeedSetting.FAST) {
-					return;
-				}
-				settings.speedSetting++;
-			},
-			minus: (current : number) => {
-				if (current <= SpeedSetting.SLOW) {
-					return;
-				}
-				settings.speedSetting--;
-			},
-			get: () => { return settings.speedSetting; },
-			html: (current : number) => {
-				switch (current) {
-				case SpeedSetting.SLOW:
-					return "30 FPS";
-				case SpeedSetting.NORMAL:
-					return "60 FPS";
-				case SpeedSetting.FAST:
-					return "120 FPS";
-				default:
-					return SpeedSetting[current];
-				}
-			},
-		}));
+		graphics.setExpanded(false);
 
 		this.addSetting(graphics, new LabelNumberWrapper({
 			label: "Anti-aliasing",
@@ -263,21 +283,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 
 
 		let sound = this.createCategory("Audio");
-
-		this.addSetting(sound, new LabelNumberWrapper({
-			label: "Master Volume",
-			value: settings.volumePercent,
-			plus: (current : number) => {
-				settings.volumePercent = Math.min(1, current + 0.1);
-				game.audio().refreshSettings();
-			},
-			minus: (current : number) => {
-				settings.volumePercent = Math.max(0, current - 0.1);
-				game.audio().refreshSettings();
-			},
-			get: () => { return settings.volumePercent; },
-			html: () => { return Math.round(100 * settings.volumePercent) + "%"; },
-		}));
+		sound.setExpanded(false);
 
 		this.addSetting(sound, new LabelNumberWrapper({
 			label: "Music",
@@ -297,21 +303,6 @@ export class SettingsHandler extends HandlerBase implements Handler{
 		}));
 
 		this.addSetting(sound, new LabelNumberWrapper({
-			label: "Sound Effects",
-			value: Number(settings.soundSetting),
-			plus: (current : number) => {
-				settings.soundSetting = SoundSetting.ON;
-			},
-			minus: (current : number) => {
-				settings.soundSetting = SoundSetting.OFF;
-			},
-			get: () => { return settings.soundSetting; },
-			html: (current : number) => {
-				return Strings.toTitleCase(SoundSetting[current]);
-			},
-		}));
-
-		this.addSetting(sound, new LabelNumberWrapper({
 			label: "Music Volume",
 			value: settings.musicPercent,
 			plus: (current : number) => {
@@ -324,6 +315,21 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			},
 			get: () => { return settings.musicPercent; },
 			html: () => { return Math.round(100 * settings.musicPercent) + "%"; },
+		}));
+
+		this.addSetting(sound, new LabelNumberWrapper({
+			label: "Sound Effects",
+			value: Number(settings.soundSetting),
+			plus: (current : number) => {
+				settings.soundSetting = SoundSetting.ON;
+			},
+			minus: (current : number) => {
+				settings.soundSetting = SoundSetting.OFF;
+			},
+			get: () => { return settings.soundSetting; },
+			html: (current : number) => {
+				return Strings.toTitleCase(SoundSetting[current]);
+			},
 		}));
 
 		this.addSetting(sound, new LabelNumberWrapper({

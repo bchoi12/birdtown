@@ -5,11 +5,82 @@ import { EntityType } from 'game/entity/api'
 import { StatType } from 'game/factory/api'
 
 export namespace StatFactory {
+
+	const names = new Map<StatType, string>([
+		[StatType.BURST_BONUS, "Bonus Ammo"],
+		[StatType.BURST_BOOST, "Ammo Boost"],
+		[StatType.BURST_BULLETS, "Ammo"],
+		[StatType.BURSTS, "Shots"],
+		[StatType.CHARGE_DELAY, "Charge Delay"],
+		[StatType.CHARGE_RATE, "Charge Rate"],
+		[StatType.CHARGED_BURSTS, "Charged Ammo"],
+		[StatType.CHARGED_FIRE_TIME, "Charged Firing Time"],
+		[StatType.CHARGED_PROJECTILE_ACCEL, "Charged Bullet Accel"],
+		[StatType.CHARGED_PROJECTILE_SPEED, "Charged Bullet Speed"],
+		[StatType.CHARGED_PROJECTILE_TTL, "Charged Bullet Lifetime"],
+		[StatType.CHARGED_FORCE, "Charged Force"],
+		[StatType.CHARGED_RELOAD_TIME, "Charged Reload Time"],
+		[StatType.CRIT_CHANCE, "Crit Chance"],
+		[StatType.CRIT_BOOST, "Crit Damage"],
+		[StatType.DAMAGE, "Damage"],
+		[StatType.DAMAGE_BOOST, "Damage Boost"],
+		[StatType.DAMAGE_CLOSE_BOOST, "Closeup Damage"],
+		[StatType.DAMAGE_FAR_BOOST, "Sharpshooter Damage"],
+		[StatType.DAMAGE_TAKEN_BOOST, "Damage Taken"],
+		[StatType.DAMAGE_RESIST_BOOST, "Damage Resist"],
+		[StatType.DOUBLE_JUMPS, "Double Jump"],
+		[StatType.EXPLOSION_BOOST, "Explosion Boost"],
+		[StatType.EXPLOSION_DAMAGE, "Explosion Damage"],
+		[StatType.EXPOSE_CHANCE, "Expose Chance"],
+		[StatType.FIRE_BOOST, "Firing Boost"],
+		[StatType.FIRE_TIME, "Firing Time"],
+		[StatType.FORCE, "Force"],
+		[StatType.FRICTION, "Friction"],
+		[StatType.HEAL_PERCENT, "Healing Bullets"],
+		[StatType.HEALTH, "Health"],
+		[StatType.HORIZONTAL_ACCEL, "Horizontal Accel"],
+		[StatType.HP_REGEN, "HP Regen"],
+		[StatType.HP_REGEN_DELAY, "HP Regen Delay"],
+		[StatType.SLOW_CHANCE, "Slow Chance"],
+		[StatType.MAX_HORIZONTAL_SPEED, "Horizontal Speed"],
+		[StatType.MAX_VERTICAL_SPEED, "Vertical Speed"],
+		[StatType.MAX_WALKING_SPEED, "Walking Speed"],
+		[StatType.PROJECTILE_ACCEL, "Bullet Accel"],
+		[StatType.PROJECTILE_SPEED, "Bullet Speed"],
+		[StatType.PROJECTILE_TTL, "Bullet Lifetime"],
+		[StatType.RELOAD_BOOST, "Reload Boost"],
+		[StatType.RELOAD_TIME, "Reload Time"],
+		[StatType.REV_TIME, "Rev Time"],
+		[StatType.REVIVE_BOOST, "Revive Boost"],
+		[StatType.SCALING, "Size"],
+		[StatType.SPEED_BOOST, "Speed Boost"],
+		[StatType.SPEED_DEBUFF, "Slow"],
+		[StatType.LIFE_STEAL, "Life Steal"],
+		[StatType.SPEED, "Speed"],
+		[StatType.SPREAD, "Spread"],
+		[StatType.UNSTICK_DAMAGE, "Stick Damage"],
+		[StatType.USE_BOOST, "Equip Boost"],
+		[StatType.USE_JUICE, "Equip Energy"],
+	]);
+
 	const baseStats = new Map<StatType, number>([
 		[StatType.DAMAGE_BOOST, 1],
 		[StatType.DAMAGE_TAKEN_BOOST, 1],
 		[StatType.SPEED_BOOST, 1],
 		[StatType.SPEED_DEBUFF, 1],
+	]);
+
+	const statMin = new Map<StatType, number>([
+		[StatType.DAMAGE_RESIST_BOOST, 0.1],
+		[StatType.FIRE_BOOST, 0.1],
+		[StatType.RELOAD_BOOST, 0.1],
+		[StatType.SCALING, 0.3],
+		[StatType.SPEED_DEBUFF, 0.1],
+		[StatType.USE_BOOST, 0.1],
+	]);
+
+	const statMax = new Map<StatType, number>([
+		[StatType.SCALING, 4],
 	]);
 
 	const entityStats = new Map<EntityType, Map<StatType, number>>([
@@ -145,8 +216,8 @@ export namespace StatFactory {
 			[StatType.CHARGED_FORCE, 0.75],
 			[StatType.CHARGED_RELOAD_TIME, 1000],
 			[StatType.CHARGED_PROJECTILE_ACCEL, 1.8],
-			[StatType.CHARGED_PROJECTILE_SPEED, 0.1],
-			[StatType.CHARGED_PROJECTILE_TTL, 650],
+			[StatType.CHARGED_PROJECTILE_SPEED, 0.3],
+			[StatType.CHARGED_PROJECTILE_TTL, 600],
 			[StatType.FIRE_TIME, 300],
 			[StatType.FORCE, 0.3],
 			[StatType.PROJECTILE_ACCEL, 1.5],
@@ -348,5 +419,21 @@ export namespace StatFactory {
 			return 0;
 		}
 		return stats.get(statType);
+	}
+	export function clamp(type : StatType, value : number) : number {
+		if (statMin.has(type)) {
+			value = Math.max(value, statMin.get(type));
+		}
+		if (statMax.has(type)) {
+			value = Math.min(value, statMax.get(type));
+		}
+		return value;
+	}
+
+	export function name(type : StatType) : string {
+		if (names.has(type)) {
+			return names.get(type);
+		}
+		return "";
 	}
 }

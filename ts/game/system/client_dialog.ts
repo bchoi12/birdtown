@@ -20,6 +20,9 @@ import { LinkedList } from 'util/linked_list'
 export class ClientDialog extends ClientSystem implements System {
 
 	private static readonly _supportedTypes = new Array<DialogType>(
+		DialogType.BUFF_INIT,
+		DialogType.BUFF_NORMAL,
+		DialogType.BUFF_BONUS,
 		DialogType.LOADOUT,
 		DialogType.INIT,
 	);

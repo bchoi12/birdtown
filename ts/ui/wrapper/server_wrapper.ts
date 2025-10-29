@@ -60,7 +60,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 
 		this._hostButton = new ButtonWrapper();
 		this._hostButton.setIcon(IconType.HOST);
-		this._hostButton.setText("Start Game");
+		this._hostButton.setText("Host Game");
 		this._hostButton.addOnClick(() => {
 			ui.hostGame();
 		});
