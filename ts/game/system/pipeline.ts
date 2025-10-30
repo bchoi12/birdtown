@@ -26,7 +26,7 @@ export class Pipeline extends SystemBase implements System {
 	private _enabledEffects : Set<EffectType>;
 	private _pipeline : BABYLON.PostProcessRenderPipeline;
 
-	constructor(engine : BABYLON.Engine, scene : BABYLON.Scene, camera : BABYLON.Camera) {
+	constructor(engine : BABYLON.WebGPUEngine, scene : BABYLON.Scene, camera : BABYLON.Camera) {
 		super(SystemType.PIPELINE);
 
 		// Note: do not define camera when constructing PostProcess to prevent it from auto-enabling

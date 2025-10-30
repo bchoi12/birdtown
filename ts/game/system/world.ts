@@ -99,7 +99,7 @@ export class World extends SystemBase implements System {
 
 	private _cloudGenerator : CloudGenerator;
 
-	constructor(engine : BABYLON.Engine) {
+	constructor(engine : BABYLON.WebGPUEngine) {
 		super(SystemType.WORLD);
 
 		this._scene = new BABYLON.Scene(engine);

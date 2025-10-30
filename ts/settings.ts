@@ -99,7 +99,7 @@ class Settings {
 		this.keyCodes.set(KeyType.POINTER_LOCK, 67);
 		this.keyCodes.set(KeyType.PHOTO, 80);
 
-		this.fullscreenSetting = (isMobile() || isDesktopApp()) ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
+		this.fullscreenSetting = isMobile() ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 		this.damageNumberSetting = DamageNumberSetting.OFF;
 		this.chatSetting = ChatSetting.FILTER;

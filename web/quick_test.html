@@ -35,7 +35,7 @@
 
 	<script>
         const canvas = document.getElementById("renderCanvas"); // Get the canvas element
-        const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
+        const engine = new BABYLON.WebGPUEngine(canvas, true); // Generate the BABYLON 3D engine
         const createScene = function () {
             const scene = new BABYLON.Scene(engine);
             const camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 12, BABYLON.Vector3.Zero(), scene);
