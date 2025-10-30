@@ -1,4 +1,5 @@
 
+import { Flags } from 'global/flags'
 
 export function defined(...objects : any) : boolean {
     for (let i = 0; i < objects.length; ++i) {

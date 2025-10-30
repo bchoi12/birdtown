@@ -188,7 +188,11 @@ class UI {
 			return;
 		}
 
-		BABYLON.WebGPUEngine.audioEngine?.unlock();
+		if (Flags.enableWebGPU.get()) {
+			BABYLON.WebGPUEngine.audioEngine?.unlock();
+		} else {
+			BABYLON.Engine.audioEngine?.unlock();
+		}
 		this._audioContext.set(new AudioContext());
 		game.audio().onAudioEnabled();
 	}

@@ -47,7 +47,7 @@ class Game {
 	private _canvas : HTMLCanvasElement;
 
 	private _options : GameOptions;
-	private _engine : BABYLON.WebGPUEngine;
+	private _engine : BABYLON.Engine | BABYLON.WebGPUEngine;
 	private _netcode : Netcode;
 
 	private _runner : Runner;
@@ -83,8 +83,20 @@ class Game {
 			this._netcode = new Client(this._options.netcodeOptions);
 		}
 
-		this._netcode.initialize(() => {
-			this._engine = new BABYLON.WebGPUEngine(this._canvas);
+		this._netcode.initialize(async () => {
+			if (Flags.enableWebGPU.get()) {
+				this._engine = new BABYLON.WebGPUEngine(this._canvas);
+				await this._engine.initAsync();
+
+				console.log("Engine initialized with WebGPU");
+			} else {
+				this._engine = new BABYLON.Engine(this._canvas, /*antialias=*/false, {
+					audioEngine: true,
+					stencil: true,
+				});
+
+				console.log("Engine initialized with WebGL");
+			}
 			window.onresize = () => {
 				this.onResize()
 			};
@@ -210,7 +222,7 @@ class Game {
 	// Easy access for commonly used systems
 	runner() : Runner { return this._runner; }
 	scene() : BABYLON.Scene { return this._world.scene(); }
-	engine() : BABYLON.WebGPUEngine { return this._engine; }
+	engine() : BABYLON.Engine | BABYLON.WebGPUEngine { return this._engine; }
 	netcode() : Netcode { return this._netcode; }
 
 	announcer() : Announcer { return this._announcer; }
