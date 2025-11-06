@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "@2toad/profanity": "^3.2.0",
-    "@babylonjs/core": "^8.33.4",
-    "@babylonjs/loaders": "^8.33.4",
-    "@babylonjs/materials": "^8.33.4",
+    "@babylonjs/core": "^8.36.0",
+    "@babylonjs/loaders": "^8.36.0",
+    "@babylonjs/materials": "^8.36.0",
     "@msgpack/msgpack": "^3.1.2",
     "earcut": "^3.0.2",
     "matter-js": "^0.20.0",
@@ -14,7 +14,7 @@
     "@types/earcut": "^3.0.0",
     "@types/matter-js": "^0.20.2",
     "@types/msgpack": "^0.0.34",
-    "electron": "^39.0.0",
+    "electron": "^39.1.0",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "webpack": "^5.102.1",
