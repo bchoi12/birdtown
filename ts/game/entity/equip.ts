@@ -107,6 +107,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		super.initialize();
 
 		this.owner().equip(this);
+		this._juice = Equip._maxJuice;
 		this._chargeRate = this.getStatOr(StatType.CHARGE_RATE, 0);
 	}
 
