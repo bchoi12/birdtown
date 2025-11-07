@@ -101,7 +101,7 @@ export class TextParticle extends Particle {
 			width: this._textureWidth,
 			height: TextParticle._textureHeight,
 		});
-		texture.drawText(this._text, /*x=*/null, /*y=*/null, this._font, this._textColor, TextParticle._fillColor, /*invertY=*/false);
+		texture.drawText(this._text, /*x=*/null, /*y=*/null, this._font, this._textColor, TextParticle._fillColor, /*invertY=*/true);
 		texture.hasAlpha = true;
 
 		let material = new BABYLON.StandardMaterial(this.name() + "-material", game.scene());
@@ -114,7 +114,8 @@ export class TextParticle extends Particle {
 			model.mesh().renderingGroupId = 1;
 		}
 		model.mesh().receiveShadows = false;
-		model.mesh().rotation.z = Math.PI;
+		// Not needed after Babylon update??
+		// model.mesh().rotation.z = Math.PI;
 		model.mesh().billboardMode = BABYLON.AbstractMesh.BILLBOARDMODE_ALL;
 	}
 
