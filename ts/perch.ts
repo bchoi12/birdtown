@@ -73,27 +73,33 @@ class Perch {
 		return this.get(url, onData, onError);
 	}
 
-	updateRoom(roomId : string, numPlayers : number, onData : (data) => void, onError : () => void) : Promise<void> {
+	updateRoom(roomId : string, numPlayers : number, onSuccess : () => void, onError : () => void) : Promise<void> {
 		if (!this.enabled()) {
 			return;
 		}
 
 		const url = `${perch.url()}/room?id=${roomId}&t=${settings.sessionToken}&p=${numPlayers}`;
-		return this.put(url, onData, onError);
+		return this.put(url, onSuccess, onError);
 	}
 
-	private put(url : string, onData : (data) => void, onError : () => void) : Promise<void> {
-		return this.sendRequest("PUT", url, onData, onError);
+	private put(url : string, onSuccess : () => void, onError : () => void) : Promise<void> {
+		if (Flags.printDebug.get()) {
+			console.log("Sending PUT request", url);
+		}
+		return fetch(url, { method: "PUT" })
+			.then((response) => {
+				if (response.ok) {
+					onSuccess();
+				} else {
+					onError();
+				}
+			});
 	}
 	private get(url : string, onData : (data) => void, onError : () => void) : Promise<void> {
-		return this.sendRequest("GET", url, onData, onError);
-	}
-
-	private sendRequest(method : string, url : string, onData : (data) => void, onError : () => void) : Promise<void> {
 		if (Flags.printDebug.get()) {
-			console.log("Sending request", method, url);
+			console.log("Sending GET request", url);
 		}
-		return fetch(url, { method: method })
+		return fetch(url, { method: "GET" })
 			.then((response) => response.json(), () => {
 				if (Flags.printDebug.get()) {
 					console.error("Failed to fetch", url);

@@ -281,14 +281,8 @@ export abstract class Netcode {
 		this._connections.set(id, connection);
 
 		if (this.isHost()) {
-			perch.updateRoom(this._hostName, this.getNumConnected() + 1, (data) => {
-				if (Flags.printDebug.get()) {
-					console.log("Update room metadata:", data);
-				}
-			}, () => {
-				console.error("Error: failed to update server metadata");
-			});
-		}		
+			this.updateRoomMetadata();
+		}
 		return connection;
 	}
 	hasConnection(id : string) : boolean { return this._connections.has(id); }
@@ -592,13 +586,7 @@ export abstract class Netcode {
 		}
 
 		if (this.isHost()) {
-			perch.updateRoom(this._hostName, this.getNumConnected() + 1, (data) => {
-				if (Flags.printDebug.get()) {
-					console.log("Update room metadata:", data);
-				}
-			}, () => {
-				console.error("Error: failed to update server metadata");
-			});
+			this.updateRoomMetadata();
 		}
 	}
 
@@ -620,6 +608,16 @@ export abstract class Netcode {
 				this.onKick(clientId);
 				this.disconnect(DisconnectType.KICK, connection.id());
 			}
+		});
+	}
+
+	private updateRoomMetadata() : Promise<void> {
+		return perch.updateRoom(this._hostName, this.getNumConnected() + 1, () => {
+			if (Flags.printDebug.get()) {
+				console.log("Update room successful");
+			}
+		}, () => {
+			console.error("Error: failed to update server metadata");
 		});
 	}
 
