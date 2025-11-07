@@ -114,7 +114,7 @@ export abstract class Netcode {
 		});
 	}
 
-	initialize(onSuccess : () => void, onError: () => void) : void {
+	async initialize(onSuccess : () => void, onError: () => void) : Promise<void> {
 		const peerDebug = Flags.peerDebug.get();
 		if (perch.enabled()) {
 			console.log(`Using ${perch.url()} with ID`, this.peerName());
@@ -128,6 +128,21 @@ export abstract class Netcode {
 				proxied: true,
 				port: 443,
 				secure: true,
+
+				config: {
+					iceServers: [
+						{ urls: "stun:stun.l.google.com:19302" },
+						{
+							urls: [
+								"turn:eu-0.turn.peerjs.com:3478",
+								"turn:us-0.turn.peerjs.com:3478",
+							],
+							username: "peerjs",
+							credential: "peerjsp",
+						},
+					],
+					sdpSemantics: "unified-plan",
+				}
 			};
 
 			if (Flags.useLocalPerch.get()) {
@@ -135,6 +150,19 @@ export abstract class Netcode {
 				peerOptions.port = Flags.localPerchPort.get();
 				peerOptions.secure = false;
 			}
+
+			await perch.getTurnCredentials((data) => {
+				data.iceServers.forEach((iceServer) => {
+					peerOptions.config.iceServers.push(iceServer);
+				});
+
+				if (Flags.printDebug.get()) {
+					console.log("Appended TURN credentials:", peerOptions.config);
+				}
+			}, () => {
+				console.error("Failed to obtain TURN credentials");
+			});
+
 			this._peer = new Peer(this.peerName(), peerOptions);
 		} else {
 			console.log(`Using peerjs server with ID`, this.peerName());

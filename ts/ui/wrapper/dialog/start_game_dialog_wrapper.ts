@@ -214,7 +214,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.SURVIVAL, {
 			requirements: [],
-			description: "Be the last bird in town.\r\n\r\nRecommended to play with larger groups with 'Endless' level modifier.",
+			description: "Be the last bird in town.\r\n\r\nRecommended for larger groups along with the 'Endless' level modifier.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 4,
 		});

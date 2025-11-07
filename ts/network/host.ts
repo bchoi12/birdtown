@@ -61,8 +61,8 @@ export class Host extends Netcode {
 	maxPlayers() : number { return this._options.maxPlayers; }
 
 	override ready() : boolean { return this.initialized() && this.peer().open; }
-	override initialize(onSuccess : () => void, onError : () => void) : void {
-		super.initialize(onSuccess, onError);
+	override async initialize(onSuccess : () => void, onError : () => void) : Promise<void> {
+		await super.initialize(onSuccess, onError);
 
 		let peer = this.peer();
 		peer.on("open", () => {

@@ -3,6 +3,8 @@ import { settings } from 'settings'
 
 import { Flags } from 'global/flags'
 
+import { turnPassword } from 'secret'
+
 class Perch {
 
 	private _url : string;
@@ -46,52 +48,52 @@ class Perch {
 		return this._host;
 	}
 
-	getTurnToken(onData : (data) => void, onError : () => void) : void {
-		if (!this.enabled()) {
-			return;
-		}
-
-		const url = `${this.url()}/turn`;
-		this.get(url, onData, onError);
-	}
-
-	getRooms(onData : (data) => void, onError : () => void) : void {
+	getRooms(onData : (data) => void, onError : () => void) : Promise<void> {
 		if (!this.enabled()) {
 			return;
 		}
 
 		const url = `${this.url()}/rooms`;
-		this.get(url, onData, onError);
+		return this.get(url, onData, onError);
 	}
-	getStats(onData : (data) => void, onError : () => void) : void {
+	getStats(onData : (data) => void, onError : () => void) : Promise<void> {
 		if (!this.enabled()) {
 			return;
 		}
 
 		const url = `${this.url()}/stats`;
-		this.get(url, onData, onError);
+		return this.get(url, onData, onError);
 	}
-	updateRoom(roomId : string, numPlayers : number, onData : (data) => void, onError : () => void) : void {
+	getTurnCredentials(onData : (data) => void, onError : () => void) : Promise<void> {
+		if (!this.enabled()) {
+			return;
+		}
+
+		const url = `${this.url()}/turn?pw=${turnPassword}`;
+		return this.get(url, onData, onError);
+	}
+
+	updateRoom(roomId : string, numPlayers : number, onData : (data) => void, onError : () => void) : Promise<void> {
 		if (!this.enabled()) {
 			return;
 		}
 
 		const url = `${perch.url()}/room?id=${roomId}&t=${settings.sessionToken}&p=${numPlayers}`;
-		this.put(url, onData, onError);
+		return this.put(url, onData, onError);
 	}
 
-	private put(url : string, onData : (data) => void, onError : () => void) {
-		this.sendRequest("PUT", url, onData, onError);
+	private put(url : string, onData : (data) => void, onError : () => void) : Promise<void> {
+		return this.sendRequest("PUT", url, onData, onError);
 	}
-	private get(url : string, onData : (data) => void, onError : () => void) {
-		this.sendRequest("GET", url, onData, onError);
+	private get(url : string, onData : (data) => void, onError : () => void) : Promise<void> {
+		return this.sendRequest("GET", url, onData, onError);
 	}
 
-	private sendRequest(method : string, url : string, onData : (data) => void, onError : () => void) {
+	private sendRequest(method : string, url : string, onData : (data) => void, onError : () => void) : Promise<void> {
 		if (Flags.printDebug.get()) {
 			console.log("Sending request", method, url);
 		}
-		fetch(url, { method: method })
+		return fetch(url, { method: method })
 			.then((response) => response.json(), () => {
 				if (Flags.printDebug.get()) {
 					console.error("Failed to fetch", url);

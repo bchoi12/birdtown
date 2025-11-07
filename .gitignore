@@ -1,5 +1,6 @@
 node_modules/
 js/
+ts/secret*
 web/discord
 web/*main.js*
 web/node_modules/

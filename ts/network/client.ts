@@ -45,8 +45,8 @@ export class Client extends Netcode {
 	}
 
 	override ready() : boolean { return this.initialized() && this._tcp.open && this._udp.open; }
-	override initialize(onSuccess : () => void, onError : () => void) : void {
-		super.initialize(onSuccess, onError);
+	override async initialize(onSuccess : () => void, onError : () => void) : Promise<void> {
+		await super.initialize(onSuccess, onError);
 
 		let peer = this.peer();
 		peer.on("open", () => {
