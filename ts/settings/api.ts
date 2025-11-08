@@ -25,6 +25,10 @@ export enum SettingType {
 
 	CHAT,
 	VOLUME_PERCENT,
+
+	// beta 1.098
+	MOUSE_CODES,
+	MOUSE_DOWN,
 }
 
 export enum AntiAliasSetting {
@@ -48,6 +52,11 @@ export enum ClientPredictionSetting {
 }
 
 export enum DamageNumberSetting {
+	OFF,
+	ON,
+}
+
+export enum ClickLockSetting {
 	OFF,
 	ON,
 }

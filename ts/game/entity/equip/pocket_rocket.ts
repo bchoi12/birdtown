@@ -13,7 +13,7 @@ import { Rocket } from 'game/entity/projectile/rocket'
 import { ColorType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
-import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType } from 'ui/api'
 
 import { Timer } from 'util/timer'
 import { Vec3 } from 'util/vector'
@@ -53,7 +53,7 @@ export class PocketRocket extends Equip<Player> {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
+		if (this.canUse() && this.useKeyDown()) {
 			this.recordUse();
 		}
 	}

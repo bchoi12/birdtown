@@ -88,7 +88,7 @@ export class PurpleHeadband extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		if (this.canUse() && this.key(this.useKeyType(), KeyState.PRESSED)) {
+		if (this.canUse() && this.useKeyPressed()) {
 			this.recordUse();
 		}
 	}

@@ -8,8 +8,9 @@ import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { CategoryWrapper } from 'ui/wrapper/category_wrapper'
 import { KeyBindWrapper, KeyBindWrapperOptions } from 'ui/wrapper/label/key_bind_wrapper'
+import { MouseBindWrapper, MouseBindWrapperOptions } from 'ui/wrapper/label/mouse_bind_wrapper'
 
-type KeyBindOptions = {
+type WrapperOptions = {
 	name : string;
 	type : KeyType;
 }
@@ -65,15 +66,23 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		});
 
 		let mouse = new CategoryWrapper();
-		mouse.setTitle("Mouse Shortcuts");
+		mouse.setTitle("Mouse");
 		this._keyBindElm.appendChild(mouse.elm());
 
-		this.addKeyBind(mouse, {
+		this.addMouseBind(mouse, {
 			name: "Use Weapon",
 			type: KeyType.MOUSE_CLICK,
 		});
 		this.addKeyBind(mouse, {
+			name: "Use Weapon (Key)",
+			type: KeyType.MOUSE_CLICK,
+		});
+		this.addMouseBind(mouse, {
 			name: "Use Equip",
+			type: KeyType.ALT_MOUSE_CLICK,
+		});
+		this.addKeyBind(mouse, {
+			name: "Use Equip (Key)",
 			type: KeyType.ALT_MOUSE_CLICK,
 		});
 
@@ -113,7 +122,7 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 		this.reset();
 	}
 
-	private addKeyBind(category : CategoryWrapper, options : KeyBindOptions) : void {
+	private addKeyBind(category : CategoryWrapper, options : WrapperOptions) : void {
 		let binding = new KeyBindWrapper({
 			name: options.name,
 			get: () => { return settings.keyCode(options.type); },
@@ -122,5 +131,15 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 
 		category.contentElm().appendChild(binding.elm());
 		this._keyBindWrappers.push(binding);
+	}
+
+	private addMouseBind(category : CategoryWrapper, options : WrapperOptions) : void {
+		let binding = new MouseBindWrapper({
+			name: options.name,
+			get: () => { return settings.mouseCode(options.type); },
+			update: (mouseCode : number) => { settings.setMouseCode(options.type, mouseCode); }
+		});
+
+		category.contentElm().appendChild(binding.elm());
 	}
 }

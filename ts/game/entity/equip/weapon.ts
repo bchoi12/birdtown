@@ -13,6 +13,8 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { StepData } from 'game/game_object'
 import { Transforms } from 'game/util/transforms'
 
+import { settings } from 'settings'
+
 import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { Stopwatch } from 'util/stopwatch'
@@ -372,7 +374,7 @@ export abstract class Weapon extends Equip<Player> {
 	}
 
 	protected firing() : boolean {
-		return this.canUse() && this.key(KeyType.MOUSE_CLICK, KeyState.DOWN) && (this.charged() || !this.charging());
+		return this.canUse() && this.useKeyDown() && (this.charged() || !this.charging());
 	}
 	fire() : void {
 		if (this._bursts <= 0) {
@@ -381,6 +383,7 @@ export abstract class Weapon extends Equip<Player> {
 		this.recordUse();
 	}
 	protected override checkCanUse() : boolean { return !this.reloading() || this._allowPartialClip && this._bursts > 0; }
+	protected override useKeyType() : KeyType { return KeyType.MOUSE_CLICK; };
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 		
@@ -433,7 +436,7 @@ export abstract class Weapon extends Equip<Player> {
 			count: this.bursts(),
 			percentGone: 1 - (this.reloading() && !this._interruptible ? this.reloadPercent() : (this.bursts() / this.getMaxBursts())),
 			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
-			keyType: KeyType.MOUSE_CLICK,
+			keyType: this.useKeyType(),
 		});
 
 		return hudData;

@@ -277,6 +277,22 @@ export namespace KeyNames {
 		return "?";
 	}
 
+	export function mouseName(key : number) : string {
+		switch (key) {
+		case 0:
+			return "Main Button";
+		case 1:
+			return "Aux Button";
+		case 2:
+			return "Secondary Button";
+		default:
+			if (key >= 0) {
+				return `Button ${key}`;
+			}
+			return "Unknown Button";
+		}
+	}
+
 	export function boxed(keyCode : number) : string {
 		return "[" + KeyNames.get(keyCode) + "]";
 	}
@@ -286,7 +302,10 @@ export namespace KeyNames {
 	}
 
 	export function kbd(keyCode : number) : string {
-		return "<kbd>" + KeyNames.get(keyCode) + "</kbd>";
+		return `<kbd>${KeyNames.get(keyCode)}</kbd>`;
+	}
+	export function mkbd(mouseCode : number) : string {
+		return `<kbd>${KeyNames.mouseName(mouseCode)}</kbd>`;
 	}
 
 	export function keyTypeHTML(type : KeyType) : string {

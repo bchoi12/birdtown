@@ -31,8 +31,9 @@ enum AimMode {
 
 export class InputHandler extends HandlerBase implements Handler {
 
+	private static readonly _mouseTypes = new Set([KeyType.MOUSE_CLICK, KeyType.ALT_MOUSE_CLICK]);
 	private static readonly _keyTypes = new Set([
-		KeyType.LEFT, KeyType.RIGHT, KeyType.JUMP, KeyType.SQUAWK, KeyType.INTERACT, KeyType.MOUSE_CLICK, KeyType.ALT_MOUSE_CLICK
+		KeyType.LEFT, KeyType.RIGHT, KeyType.JUMP, KeyType.SQUAWK, KeyType.INTERACT, ...InputHandler._mouseTypes,
 	]);
 	private static readonly _aimRadius = 96;
 	private static readonly _cursorWidth = 20;
@@ -41,6 +42,7 @@ export class InputHandler extends HandlerBase implements Handler {
 	private _keys : Set<KeyType>;
 	private _clearedKeys : Set<KeyType>;
 	private _keyMap : Map<number, Set<KeyType>>;
+	private _mouseMap : Map<number, Set<KeyType>>;
 
 	private _keyDownCallbacks : Map<number, (e : any) => void>;
 	private _keyUpCallbacks : Map<number, (e : any) => void>;
@@ -60,6 +62,7 @@ export class InputHandler extends HandlerBase implements Handler {
 		this._keys = new Set();
 		this._clearedKeys = new Set();
 		this._keyMap = new Map();
+		this._mouseMap = new Map();
 
 		this._keyDownCallbacks = new Map();
 		this._keyUpCallbacks = new Map();
@@ -100,17 +103,17 @@ export class InputHandler extends HandlerBase implements Handler {
 				this._keys.clear();
 			};
 
-	    	document.addEventListener("mousemove", (e: any) => {
+	    	document.addEventListener("mousemove", (e : any) => {
 	    		if (ui.mode() !== UiMode.GAME) return;
 
 	    		this.recordMouse(e);
 	    	});
-	    	document.addEventListener("mousedown", (e: any) => {
+	    	document.addEventListener("mousedown", (e : any) => {
 	    		if (ui.mode() !== UiMode.GAME || ui.usingTray()) return;
 
 	    		this.mouseDown(e);
 	    	});
-	    	document.addEventListener("mouseup", (e: any) => {
+	    	document.addEventListener("mouseup", (e : any) => {
 	    		if (ui.mode() !== UiMode.GAME) return;
 
 	    		this.mouseUp(e);
@@ -127,9 +130,14 @@ export class InputHandler extends HandlerBase implements Handler {
 		this._keyDownCallbacks.clear();
 		this._keyUpCallbacks.clear();
 
+		this._mouseMap.clear();
+
 		InputHandler._keyTypes.forEach((type : KeyType) => {
 			this.mapKey(settings.keyCode(type), type);
-		})
+		});
+		InputHandler._mouseTypes.forEach((type : KeyType) => {
+			this.mapMouse(settings.mouseCode(type), type);
+		});
 	}
 
 	override onModeChange(mode : UiMode, oldMode : UiMode) : void {
@@ -153,7 +161,7 @@ export class InputHandler extends HandlerBase implements Handler {
 	inputWidth() : number { return window.innerWidth; }
 	inputHeight() : number { return window.innerHeight; }
 
-	private mapKey(keyCode : number, type : KeyType) {
+	private mapKey(keyCode : number, type : KeyType) : void {
 		if (!this._keyMap.has(keyCode)) {
 			this._keyMap.set(keyCode, new Set());
 		}
@@ -161,6 +169,12 @@ export class InputHandler extends HandlerBase implements Handler {
 
 		this._keyDownCallbacks.set(keyCode, (e : any) => { this.recordKeyDown(e); });
 		this._keyUpCallbacks.set(keyCode, (e : any) => { this.recordKeyUp(e); });
+	}
+	private mapMouse(mouseCode : number, type : KeyType) : void {
+		if (!this._mouseMap.has(mouseCode)) {
+			this._mouseMap.set(mouseCode, new Set());
+		}
+		this._mouseMap.get(mouseCode).add(type);
 	}
 
 	private updateTouch(e : any, type : TouchType) : void {
@@ -268,19 +282,23 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	private mouseDown(e : any) : void {
-		let button = KeyType.MOUSE_CLICK;
-	    if ("which" in e && e.which == 3 || "button" in e && e.button == 2) {
-	        button = KeyType.ALT_MOUSE_CLICK;
-	    }
-	    this.keyDown(button);
+		if (this._mouseMap.has(e.button)) {
+			this._mouseMap.get(e.button).forEach((key : KeyType) => {
+				this.keyDown(key);
+			});
+			return;
+		}
+		this.keyDown(KeyType.MOUSE_CLICK);
 	}
 
 	private mouseUp(e : any) : void {
-		let button = KeyType.MOUSE_CLICK;
-	    if ("which" in e && e.which == 3 || "button" in e && e.button == 2) {
-	        button = KeyType.ALT_MOUSE_CLICK;
-	    }
-	    this.keyUp(button);
+		if (this._mouseMap.has(e.button)) {
+			this._mouseMap.get(e.button).forEach((key : KeyType) => {
+				this.keyUp(key);
+			});
+			return;
+		}
+		this.keyUp(KeyType.MOUSE_CLICK);
 	}
 
 	private keyDown(type : KeyType) : void {

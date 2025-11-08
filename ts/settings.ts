@@ -13,11 +13,12 @@ import {
 	ClientPredictionSetting,
 	DamageNumberSetting,
 	FullscreenSetting,
-	ShadowFilteringSetting,
+	ClickLockSetting,
 	MusicSetting,
 	PointerSetting,
 	ScreenShakeSetting,
 	ShadowSetting,
+	ShadowFilteringSetting,
 	SpeedSetting,
 	SoundSetting,
 	TransparentSetting,
@@ -34,6 +35,8 @@ import { KeyType } from 'ui/api'
 import { isDesktopApp, isMobile, isLocalhost } from 'util/common'
 
 class Settings {
+
+	private static readonly _mouseLockKeys = new Set([KeyType.MOUSE_CLICK, KeyType.ALT_MOUSE_CLICK]);
 	
 	private static readonly _volumePercent = 0.8;
 	private static readonly _musicPercent = 0.5;
@@ -43,6 +46,7 @@ class Settings {
 	// Secret used by host to communicate with perch
 	public sessionToken : string;
 	public keyCodes : Map<KeyType, number>;
+	public mouseCodes : Map<KeyType, number>;
 
 	// Gameplay
 	public fullscreenSetting : FullscreenSetting;
@@ -50,6 +54,7 @@ class Settings {
 	public damageNumberSetting : DamageNumberSetting;
 	public chatSetting : ChatSetting;
 	public screenShakeSetting : ScreenShakeSetting;
+	public clickLockSetting : ClickLockSetting;
 
 	// Audio
 	public volumePercent : number;
@@ -99,11 +104,16 @@ class Settings {
 		this.keyCodes.set(KeyType.POINTER_LOCK, 67);
 		this.keyCodes.set(KeyType.PHOTO, 80);
 
+		this.mouseCodes = new Map();
+		this.mouseCodes.set(KeyType.MOUSE_CLICK, 0);
+		this.mouseCodes.set(KeyType.ALT_MOUSE_CLICK, 2);
+
 		this.fullscreenSetting = isMobile() ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
 		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 		this.damageNumberSetting = DamageNumberSetting.OFF;
 		this.chatSetting = ChatSetting.FILTER;
 		this.screenShakeSetting = ScreenShakeSetting.ON;
+		this.clickLockSetting = ClickLockSetting.OFF;
 
 		this.volumePercent = Settings._volumePercent;
 		this.musicSetting = MusicSetting.ON
@@ -130,6 +140,7 @@ class Settings {
 
 	save() : void {
 		this._cookie.saveMap(SettingType.KEY_CODES, this.keyCodes);
+		this._cookie.saveMap(SettingType.MOUSE_CODES, this.mouseCodes);
 
 		this._cookie.savePairs([
 			[SettingType.TOKEN, this.userToken],
@@ -137,6 +148,7 @@ class Settings {
 			[SettingType.CLIENT_PREDICTION, ClientPredictionSetting[this.clientPredictionSetting]],
 			[SettingType.DAMAGE_NUMBER, DamageNumberSetting[this.damageNumberSetting]],
 			[SettingType.CHAT, ChatSetting[this.chatSetting]],
+			[SettingType.MOUSE_DOWN, ClickLockSetting[this.clickLockSetting]],
 			[SettingType.SCREEN_SHAKE, ScreenShakeSetting[this.screenShakeSetting]],
 
 			[SettingType.VOLUME_PERCENT, "" + this.volumePercent],
@@ -165,7 +177,6 @@ class Settings {
 			return KeyType[type];
 		});
 		const keyCodes = this._cookie.getValues<KeyType>(SettingType.KEY_CODES, new Set(keyTypes));
-
 		keyCodes.forEach((value : string, type : KeyType) => {
 			const code = Number(value);
 
@@ -173,6 +184,16 @@ class Settings {
 				return;
 			}
 			this.keyCodes.set(type, code);
+		});
+
+		const mouseCodes = this._cookie.getValues<KeyType>(SettingType.MOUSE_CODES, new Set(keyTypes));
+		mouseCodes.forEach((value : string, type : KeyType) => {
+			const code = Number(value);
+
+			if (Number.isNaN(code)) {
+				return;
+			}
+			this.mouseCodes.set(type, code);
 		});
 
 		this.loadSetting(SettingType.FULLSCREEN, <string[]> Object.values(FullscreenSetting), (value : string) => {
@@ -186,6 +207,9 @@ class Settings {
 		});
 		this.loadSetting(SettingType.CHAT, <string[]> Object.values(ChatSetting), (value : string) => {
 			this.chatSetting = ChatSetting[value];
+		});
+		this.loadSetting(SettingType.MOUSE_DOWN, <string[]> Object.values(ClickLockSetting), (value : string) => {
+			this.clickLockSetting = ClickLockSetting[value];
 		});
 		this.loadSetting(SettingType.SCREEN_SHAKE, <string[]> Object.values(ScreenShakeSetting), (value : string) => {
 			this.screenShakeSetting = ScreenShakeSetting[value];
@@ -235,6 +259,13 @@ class Settings {
 		return this.keyCodes.has(type) ? this.keyCodes.get(type) : 0;
 	}
 
+	setMouseCode(type : KeyType, code : number) : void {
+		this.mouseCodes.set(type, code);
+	}
+	mouseCode(type : KeyType) : number {
+		return this.mouseCodes.has(type) ? this.mouseCodes.get(type) : -1;
+	}
+
 	recommendedGraphics() : void {
 		this.antiAliasSetting = AntiAliasSetting.MEDIUM;
 		this.speedSetting = SpeedSetting.NORMAL;
@@ -258,6 +289,12 @@ class Settings {
 	showDamageNumbers() : boolean { return this.damageNumberSetting === DamageNumberSetting.ON; }
 	showChat() : boolean { return this.chatSetting !== ChatSetting.OFF; }
 	filterChat() : boolean { return this.chatSetting === ChatSetting.FILTER; }
+	allowKeyLock(type : KeyType) : boolean {
+		if (this.clickLockSetting === ClickLockSetting.ON && Settings._mouseLockKeys.has(type)) {
+			return true;
+		}
+		return false;
+	}
 	shakeScreen() : boolean { return this.screenShakeSetting === ScreenShakeSetting.ON; }
 	speed() : number{
 		switch (this.speedSetting) {

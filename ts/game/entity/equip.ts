@@ -9,6 +9,8 @@ import { Player } from 'game/entity/player'
 import { StepData } from 'game/game_object'
 import { StatType } from 'game/factory/api'
 
+import { settings } from 'settings'
+
 import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
 
 import { Fns } from 'util/fns'
@@ -40,6 +42,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	// Networked counter for uses
 	protected _uses : SavedCounter;
 	protected _canUse : boolean;
+	protected _lastUseCounter : number;
 
 	protected _juice : number;
 	protected _juiceSinceGrounded : number;
@@ -56,6 +59,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 		this._uses = new SavedCounter(0);
 		this._canUse = false;
+		this._lastUseCounter = 0;
 
 		this._juice = 0
 		this._juiceSinceGrounded = 0;
@@ -173,6 +177,14 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	protected checkCanUse() : boolean {
 		return this.hasJuice() && (this._canUseDuringDelay || !this._chargeDelayTimer.hasTimeLeft());
 	}
+	protected useKeyDown() : boolean {
+		return this.key(this.useKeyType(), KeyState.DOWN);
+	}
+	protected useKeyPressed() : boolean {
+		return this.keyCounter(this.useKeyType()) !== this._lastUseCounter && this.useKeyDown()
+			|| this.key(this.useKeyType(), KeyState.PRESSED)
+			|| settings.allowKeyLock(this.useKeyType()) && this.key(this.useKeyType(), KeyState.RELEASED);
+	}
 	protected canUse() : boolean { return this._canUse; }
 	private importCanUse(can : boolean) : void { this._canUse = can; }
 	protected recordUse(n? : number) : void {
@@ -221,5 +233,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		if (this.hasStat(StatType.CHARGE_DELAY)) {
 			this.delayCharge(this.getStat(StatType.CHARGE_DELAY));
 		}
+
+		this._lastUseCounter = this.keyCounter(this.useKeyType());
 	}
 }

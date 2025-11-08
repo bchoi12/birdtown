@@ -15,7 +15,7 @@ import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType } from 'ui/api'
 
 import { CardinalDir } from 'util/cardinal'
 import { Fns, InterpType } from 'util/fns'
@@ -97,10 +97,10 @@ export class BlackHeadband extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
+		if (this.canUse() && this.useKeyDown()) {
 			this.recordUse();
 		}
-		if (!this.key(this.useKeyType(), KeyState.DOWN)) {
+		if (!this.useKeyDown()) {
 			this._floatTimer.reset();
 		}
 

@@ -13,7 +13,7 @@ import { BuffType, ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType } from 'ui/api'
 
 import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
@@ -65,7 +65,7 @@ export class CowboyHat extends Equip<Player> {
 
 		const millis = stepData.millis;
 
-		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
+		if (this.canUse() && this.useKeyPressed()) {
 			this.recordUse();
 		}
 

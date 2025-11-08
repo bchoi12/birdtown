@@ -117,7 +117,7 @@ export class RedHeadband extends Equip<Player> {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (this.canUse() && this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+		if (this.canUse() && this.useKeyPressed()) {
 			this.recordUse();
 		}
 

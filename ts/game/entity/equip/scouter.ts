@@ -62,7 +62,7 @@ export class Scouter extends Equip<Player> {
 			percentGone: 1 - this._weapon.chargeMillis() / this._weapon.chargedThreshold(),
 			empty: true,
 			color: this.clientColorOr(ColorFactory.color(ColorType.SHOOTER_DARK_ORANGE).toString()),
-			keyType: KeyType.ALT_MOUSE_CLICK,
+			keyType: this.useKeyType(),
 		});
 		return hudData;
 	}
@@ -83,13 +83,13 @@ export class Scouter extends Equip<Player> {
 			this._weapon = weapons[0];
 		}
 
-		if (this.key(KeyType.ALT_MOUSE_CLICK, KeyState.PRESSED)) {
+		if (this.key(this.useKeyType(), KeyState.PRESSED)) {
 			this._look = Vec3.fromVec(this.inputDir()).normalize();
 			this._look.scale(Math.abs(this._look.y) * Scouter._lookVertical + (1 - Math.abs(this._look.y)) * Scouter._lookHorizontal);
 			this._lookWeight = 0;
 		}
 
-		if (this.key(KeyType.ALT_MOUSE_CLICK, KeyState.DOWN)) {
+		if (this.useKeyDown()) {
 			this._lookWeight = Math.min(Scouter._lookPanTime, this._lookWeight + millis);
 
 			this._weapon.setCharging(true);

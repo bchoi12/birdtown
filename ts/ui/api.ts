@@ -116,7 +116,7 @@ export type HudOptions = {
 	empty? : boolean;
 	count? : number;
 
-	// HTML color
+	// HTML color. Currently unused
 	color? : string;
 
 	// Only set one

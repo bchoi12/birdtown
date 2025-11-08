@@ -10,6 +10,7 @@ import {
 	ClientPredictionSetting,
 	DamageNumberSetting,
 	FullscreenSetting,
+	ClickLockSetting,
 	MusicSetting,
 	PointerSetting,
 	ScreenShakeSetting,
@@ -203,6 +204,27 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			get: () => { return settings.chatSetting; },
 			html: (current : number) => {
 				return Strings.toTitleCase(ChatSetting[current]);
+			},
+		}));
+
+		this.addSetting(gameplay, new LabelNumberWrapper({
+			label: "Click Lock",
+			value: Number(settings.clickLockSetting),
+			plus: (current : number) => {
+				if (current === ClickLockSetting.ON) {
+					return;
+				}
+				settings.clickLockSetting++;
+			},
+			minus: (current : number) => {
+				if (current === ClickLockSetting.OFF) {
+					return;
+				}
+				settings.clickLockSetting--;
+			},
+			get: () => { return settings.clickLockSetting; },
+			html: (current : number) => {
+				return Strings.toTitleCase(ClickLockSetting[current]);
 			},
 		}));
 

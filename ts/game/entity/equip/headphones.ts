@@ -51,7 +51,7 @@ export class Headphones extends Equip<Player> {
 		const millis = stepData.millis;
 
 		if (this.canUse()) {
-			if (this.key(this.useKeyType(), KeyState.DOWN)) {
+			if (this.useKeyDown()) {
 				this._charge += millis;
 			} else if (this._charge > 0 && this.key(this.useKeyType(), KeyState.UP)) {
 				this.recordUse();

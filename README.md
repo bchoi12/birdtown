@@ -22,9 +22,13 @@ Beta has been launched! Play now at either
 
 ![UI screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog088.png?raw=true)
 
-## Nerd Stuff
+## Patch Notes
+ * beta 1.098
+ 	* fix a bunch of small bugs
+ 	* add some flare to spin-off game modes
+ 	* add support for using TURN server
 
-Engine Highlights
+## Engine Highlights
  * Custom built for the web with nearly instant load times. All assets are streamed to you on-demand.
  * Cross platform support - play with any device that can run a modern web browser.
  * Server-authoritative peer-to-peer netcode (one client doubles as the host) with client-side smoothing.

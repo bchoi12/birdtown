@@ -11,7 +11,7 @@ import { ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { HudType, HudOptions, KeyType, KeyState } from 'ui/api'
+import { HudType, HudOptions, KeyType } from 'ui/api'
 
 import { Fns } from 'util/fns'
 import { RateLimiter } from 'util/rate_limiter'
@@ -78,7 +78,7 @@ export class Booster extends Equip<Player> {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
+		if (this.canUse() && this.useKeyPressed()) {
 			this.recordUse();
 		}
 

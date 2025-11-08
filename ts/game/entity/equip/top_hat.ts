@@ -77,7 +77,7 @@ export class TopHat extends Equip<Player> {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (this.canUse() && this.key(this.useKeyType(), KeyState.DOWN)) {
+		if (this.canUse() && this.useKeyPressed()) {
 			this.recordUse();
 		}
 

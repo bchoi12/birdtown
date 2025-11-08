@@ -6,7 +6,9 @@ import { EquipFactory } from 'game/factory/equip_factory'
 
 import { StringFactory } from 'strings/string_factory'
 
+import { KeyType } from 'ui/api'
 import { Icon, IconType } from 'ui/common/icon'
+import { KeyNames } from 'ui/common/key_names'
 import { Html } from 'ui/html'
 import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { NameWrapper } from 'ui/wrapper/name_wrapper'
@@ -71,11 +73,11 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 		this._descriptionElm.classList.add(Html.classLoadoutButtonDescription);
 		let mouse = Icon.create(IconType.MOUSE);
 		this._firstKeyElm = Html.span();
-		this._firstKeyElm.innerHTML = `${mouse.outerHTML} (L): `;
+		this._firstKeyElm.innerHTML = `${mouse.outerHTML}: `;
 		this._firstKeyElm.style.visibility = "hidden";
 		this._firstDescriptionElm = Html.span();
 		this._secondKeyElm = Html.span();
-		this._secondKeyElm.innerHTML = `${mouse.outerHTML} (R): `;
+		this._secondKeyElm.innerHTML = `${mouse.outerHTML}: `;
 		this._secondKeyElm.style.visibility = "hidden";
 		this._secondDescriptionElm = Html.span();
 
