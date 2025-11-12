@@ -122,6 +122,7 @@ export interface Entity extends GameObject {
 
 	// For UI
 	displayName() : string;
+	clientColor() : string;
 	clientColorOr(color : string) : string;
 }
 
@@ -550,6 +551,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		return rate;
 	}
 	impactSound() : SoundType { return SoundType.UNKNOWN; }
+
+	clientColor() : string {
+		return this.clientColorOr("#FFFFFF");
+	}
 	clientColorOr(or : string) : string {
 		if (this.hasClientId() && game.tablets().hasTablet(this.clientId())) {
 			return game.tablet(this.clientId()).color();

@@ -26,7 +26,6 @@ export class SpreeBuff extends Buff {
 			[StatType.SPEED_BOOST, level * 0.05],
 			[StatType.DAMAGE_BOOST, level >= 2 ? (level - 1) * 0.25 : 0],
 			[StatType.DAMAGE_TAKEN_BOOST, level >= 2 ? (level - 1) * 0.25 : 0],
-			[StatType.DOUBLE_JUMPS, level >= 3 ? 1 : 0],
 		]);
 	}
 
@@ -67,7 +66,7 @@ export class SpreeBuff extends Buff {
 				transforms: {
 					scale: { x: size, y: size, z: size },
 				},
-				materialType: MaterialType.PARTICLE_RED,
+				staticColor: this.entity().clientColor(),
 			}
 		});
 	}

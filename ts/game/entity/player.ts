@@ -96,7 +96,6 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private static readonly _sweatInterval = 4000;
 	private static readonly _walkSmokeInterval = 150;
 
-	private static readonly _defaultColor = "#ffffff";
 	private static readonly _headDim = {x: 0.96, y: 1.06};
 	private static readonly _sweatDegs = [40, 50, 130, 140];
 
@@ -302,7 +301,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 						zIndex: DepthType.PLAYER,
 					},
 					render: {
-						fillStyle: this.clientColorOr(Player._defaultColor),
+						fillStyle: this.clientColor(),
 					}
 				});
 			},
@@ -453,7 +452,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		});
 		if (hasNameTag) {
 			nameTag.setDisplayName(this.displayName());
-			nameTag.forcePointerColor(this.clientColorOr(Player._defaultColor));
+			nameTag.forcePointerColor(this.clientColor());
 			this._nameTag = nameTag;
 		}
 

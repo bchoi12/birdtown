@@ -9,6 +9,7 @@ import { SeededRandom } from 'util/seeded_random'
 export namespace ColorFactory {
 
 	const colorMap = new Map<ColorType, HexColor>([
+
 		// Basic series
 		[ColorType.WHITE, HexColor.fromHex(0xffffff)],
 		[ColorType.GRAY, HexColor.fromHex(0x808080)],

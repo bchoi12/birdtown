@@ -18,6 +18,8 @@ export namespace MaterialFactory {
 
 	let initialized = false;
 	let materials = new Map<MaterialType, BABYLON.Material>;
+	let standardColors = new Map<string, BABYLON.StandardMaterial>;
+	let staticColors = new Map<string, BABYLON.StandardMaterial>;
 
 	let archBackgrounds = [
 		MaterialType.ARCH_BACKGROUND_RED,
@@ -27,6 +29,39 @@ export namespace MaterialFactory {
 		MaterialType.ARCH_BACKGROUND_BLUE,
 		MaterialType.ARCH_BACKGROUND_PURPLE,
 	];
+
+	export function standardColor(type : ColorType) : BABYLON.StandardMaterial {
+		return standardColorHex(ColorFactory.toString(type));
+	}
+	export function standardColorHex(hex : string) : BABYLON.StandardMaterial {
+		if (standardColors.has(hex)) {
+			return standardColors.get(hex);
+		}
+
+		let mat = new BABYLON.StandardMaterial(hex, game.scene());
+		mat.diffuseColor = BABYLON.Color3.FromHexString(hex);
+		mat.freeze();
+		standardColors.set(hex, mat);
+
+		return mat;
+	}
+
+	export function staticColor(type : ColorType) : BABYLON.StandardMaterial {
+		return staticColorHex(ColorFactory.toString(type));
+	}
+	export function staticColorHex(hex : string) : BABYLON.StandardMaterial {
+		if (staticColors.has(hex)) {
+			return staticColors.get(hex);
+		}
+
+		let mat = new BABYLON.StandardMaterial(hex, game.scene());
+		mat.disableLighting = true;
+		mat.emissiveColor = BABYLON.Color3.FromHexString(hex);
+		mat.freeze();
+		staticColors.set(hex, mat);
+
+		return mat;
+	}
 
 	export function material<T extends BABYLON.Material>(type : MaterialType) : T {
 		if (!initialized) {

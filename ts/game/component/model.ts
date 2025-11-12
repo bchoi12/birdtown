@@ -8,7 +8,7 @@ import { ComponentType } from 'game/component/api'
 import { Profile } from 'game/component/profile'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { MaterialType } from 'game/factory/api'
+import { ColorType, MaterialType } from 'game/factory/api'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { AnimationController, PlayOptions } from 'game/util/animation_controller'
 import { Transforms, TransformOptions } from 'game/util/transforms'
@@ -25,7 +25,11 @@ type ReadyFn = (model : Model) => boolean;
 export type ModelInitOptions = {
 	disableShadows? : boolean;
 	transforms? : TransformOptions;
+
+	// At most one should be set
 	materialType? : MaterialType;
+	standardColor? : string;
+	staticColor? : string;
 }
 
 type ModelOptions = {
@@ -44,6 +48,8 @@ export class Model extends ComponentBase implements Component {
 	private _root : BABYLON.TransformNode;
 	private _transforms : Transforms;
 	private _materialType : Optional<MaterialType>;
+	private _standardColor : Optional<string>;
+	private _staticColor : Optional<string>;
 	private _frozen : boolean;
 	private _allowWrap : boolean;
 	private _lastWrap : Optional<number>;
@@ -62,6 +68,8 @@ export class Model extends ComponentBase implements Component {
 		this._root = new BABYLON.TransformNode("root");
 		this._transforms = new Transforms();
 		this._materialType = new Optional();
+		this._standardColor = new Optional();
+		this._staticColor = new Optional();
 		this._frozen = false;
 		this._allowWrap = true;
 		this._lastWrap = new Optional();
@@ -74,6 +82,10 @@ export class Model extends ComponentBase implements Component {
 
 			if (options.init.materialType) {
 				this._materialType.set(options.init.materialType);
+			} else if (options.init.standardColor) {
+				this._standardColor.set(options.init.standardColor);
+			} else if (options.init.staticColor) {
+				this._staticColor.set(options.init.staticColor);
 			}
 		}
 
@@ -81,6 +93,18 @@ export class Model extends ComponentBase implements Component {
 			has: () => { return this._materialType.has(); },
 			export: () => { return this._materialType.get(); },
 			import: (obj : MaterialType) => { this._materialType.set(obj); },
+		});
+
+		this.addProp<string>({
+			has: () => { return this._standardColor.has(); },
+			export: () => { return this._standardColor.get(); },
+			import: (obj : string) => { this._standardColor.set(obj); },
+		});
+
+		this.addProp<string>({
+			has: () => { return this._staticColor.has(); },
+			export: () => { return this._staticColor.get(); },
+			import: (obj : string) => { this._staticColor.set(obj); },
 		});
 
 		this.addProp<number>({
@@ -124,9 +148,6 @@ export class Model extends ComponentBase implements Component {
 		});
 	}
 
-	hasMaterialType() : boolean { return this._materialType.has(); }
-	materialType() : MaterialType { return this._materialType.get(); }
-
 	transforms() : Transforms { return this._transforms; }
 	hasTranslation() : boolean { return this._transforms.hasTranslation(); }
 	translation() : Vec3 { return this._transforms.translation(); }
@@ -147,6 +168,10 @@ export class Model extends ComponentBase implements Component {
 		});
 		if (this._materialType.has()) {
 			mesh.material = MaterialFactory.material(this._materialType.get());
+		} else if (this._standardColor.has()) {
+			mesh.material = MaterialFactory.standardColorHex(this._standardColor.get());
+		} else if (this._staticColor.has()) {
+			mesh.material = MaterialFactory.staticColorHex(this._staticColor.get());
 		}
 
 		if (this._mesh.parent === null) {
