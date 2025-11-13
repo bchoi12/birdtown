@@ -639,25 +639,6 @@ export class GameMaker extends SystemBase implements System {
 			return;
 		}
 
-		if (this._config.getStartingLoadout() === LoadoutType.BUFF) {
-			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
-				if (this._round <= 1) {
-					clientDialog.queueDialog(DialogType.BUFF_INIT);
-					return;
-				}
-
-				const team = game.playerState(clientDialog.clientId()).team();
-				if (team === TeamType.COOP || team !== this._winnerTeam) {
-					clientDialog.queueDialog(DialogType.BUFF_BONUS);
-				} else {
-					clientDialog.queueDialog(DialogType.BUFF_NORMAL);
-				}
-			}, (clientDialog : ClientDialog) => {
-				return this.isPlaying(clientDialog.clientId());
-			});
-			return;
-		}
-
 		if (this._config.getStartingLoadout() === LoadoutType.CHOOSE_TURNS || this._config.getStartingLoadout() === LoadoutType.PICK_TURNS) {
 			let nextId;
 			if (this._round === 1) {
