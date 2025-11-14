@@ -98,12 +98,12 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 
 	valid() : boolean { return this._firstType !== EntityType.UNKNOWN && this._secondType !== EntityType.UNKNOWN; }
 
-	updatePair(pair : [EntityType, EntityType]) : void {
-		this.updateFirst(pair[0]);
-		this.updateSecond(pair[1]);
+	updateEquips(pair : [EntityType, EntityType]) : void {
+		this.updateWeapon(pair[0]);
+		this.updateAltEquip(pair[1]);
 	}
 
-	updateFirst(type : EntityType) : void {
+	updateWeapon(type : EntityType) : void {
 		if (type === EntityType.UNKNOWN) {
 			return;
 		}
@@ -132,10 +132,10 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 
 		this._firstType = EntityType.UNKNOWN;
 
-		this.clearSecond();
+		this.clearAltEquip();
 	}
 
-	updateSecond(type : EntityType) : void {
+	updateAltEquip(type : EntityType) : void {
 		if (type === EntityType.UNKNOWN) {
 			return;
 		}
@@ -156,7 +156,7 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 
 		this._secondType = type;
 	}
-	clearSecond() : void {
+	clearAltEquip() : void {
 		this._secondEquipElm.textContent = "";
 		this._titlePlusElm.style.visibility = "hidden";
 

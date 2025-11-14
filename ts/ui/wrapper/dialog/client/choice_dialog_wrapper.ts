@@ -79,6 +79,7 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 			weaponColumn.contentElm().appendChild(specialCategory.elm());
 		}
 
+		let preselectedWeapon = weaponList[Math.floor(Math.random() * weaponList.length)];
 		for (let i = 0; i < weaponList.length; ++i) {
 			let weaponButton = weaponButtons.addButton(new EquipSelectWrapper());
 			weaponButton.setText(StringFactory.getEntityTypeName(weaponList[i]).toTitleString());
@@ -94,14 +95,15 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 				if (selectedWeapon !== EntityType.UNKNOWN) {
 					return;
 				}
-				button.updateFirst(selectedWeapon);
+				button.updateWeapon(selectedWeapon);
 			})
-			weaponButton.addOnClick(() => {
+
+			const weaponOnClick = () => {
 				selectedWeapon = weaponList[i];
 				selectedEquip = EntityType.UNKNOWN;
 
-				button.updateFirst(selectedWeapon);
-				button.clearSecond();
+				button.updateWeapon(selectedWeapon);
+				button.clearAltEquip();
 
 				const equipList = EquipFactory.equipList(selectedWeapon);
 				bestEquipsCategory.contentElm().innerHTML = "";
@@ -111,6 +113,7 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 
 				let equipButtons = new ButtonGroupWrapper<EquipSelectWrapper>();
 
+				let preselectedEquip = equipList.recommended[Math.floor(Math.random() * equipList.recommended.length)];
 				equipList.recommended.forEach((equipType : EntityType) => {
 					let equipButton = equipButtons.addButton(new EquipSelectWrapper());
 					equipButton.setText(StringFactory.getEntityTypeName(equipType).toTitleString());
@@ -122,21 +125,28 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 							return;
 						}
 
-						button.updateSecond(equipType);
+						button.updateAltEquip(equipType);
 					});
 					equipButton.addOnMouseLeave(() => {
 						if (selectedEquip !== EntityType.UNKNOWN) {
 							return;
 						}
 
-						button.clearSecond();
+						button.clearAltEquip();
 					});
 
-					equipButton.addOnClick(() => {
+					let equipOnClick = () => {
 						selectedEquip = equipType;
-						button.updateSecond(equipType);
-					});
+						button.updateAltEquip(equipType);
+					};
+					equipButton.addOnClick(equipOnClick);
+
+					if (preselectedEquip === equipType) {
+						equipOnClick();
+						equipButton.select();
+					}
 				});
+
 				equipList.valid.forEach((equipType : EntityType) => {
 					let equipButton = equipButtons.appendButton(new EquipSelectWrapper());
 					equipButton.setText(StringFactory.getEntityTypeName(equipType).toTitleString());
@@ -148,19 +158,19 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 							return;
 						}
 
-						button.updateSecond(equipType);
+						button.updateAltEquip(equipType);
 					});
 					equipButton.addOnMouseLeave(() => {
 						if (selectedEquip !== EntityType.UNKNOWN) {
 							return;
 						}
 
-						button.clearSecond();
+						button.clearAltEquip();
 					});
 
 					equipButton.addOnClick(() => {
 						selectedEquip = equipType;
-						button.updateSecond(equipType);
+						button.updateAltEquip(equipType);
 					});
 				});
 				equipList.invalid.forEach((equipType : EntityType) => {
@@ -169,7 +179,13 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 					equipButton.setInvalid(true);
 					otherEquipsCategory.contentElm().appendChild(equipButton.elm());
 				});
-			});
+			};
+
+			weaponButton.addOnClick(weaponOnClick);
+			if (preselectedWeapon === weaponList[i]) {
+				weaponOnClick();
+				weaponButton.select();
+			}
 		}
 
 		let okButton = this.addOKButton();
@@ -204,7 +220,7 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 			column.elm().style.textAlign = "center";
 
 			let button = new LoadoutButtonWrapper();
-			button.updatePair(pairs[i])
+			button.updateEquips(pairs[i])
 			button.addOnClick(() => {
 				this.dialogMessage().setEquipType(pairs[i][0]);
 				this.dialogMessage().setAltEquipType(pairs[i][1]);
@@ -223,7 +239,7 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 				column.contentElm().innerHTML = "";
 
 				let button = new LoadoutButtonWrapper();
-				button.updatePair(pairs[i + num])
+				button.updateEquips(pairs[i + num])
 				button.addOnClick(() => {
 					this.dialogMessage().setEquipType(pairs[i + num][0]);
 					this.dialogMessage().setAltEquipType(pairs[i + num][1]);
@@ -236,11 +252,11 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 		});
 	}
 
-	protected addBuffPage() : void {
-
+	protected addBuffInitPage() : void {
+		
 	}
 
-	protected addBuffUpgradePage() : void {
+	protected addBuffPage(num : number) : void {
 
 	}
 

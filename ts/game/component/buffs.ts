@@ -59,6 +59,7 @@ export class Buffs extends ComponentBase implements Component {
 	hasBuff(type : BuffType) : boolean {
 		return this.hasSubComponent(type) && this.getSubComponent<Buff>(type).level() > 0;
 	}
+	canBuff(type : BuffType) : boolean { return !this.hasBuff(type) || !this.hasMaxedBuff(type); }
 	hasMaxedBuff(type : BuffType) : boolean {
 		return this.hasBuff(type) && this.buff(type).atMaxLevel();
 	}

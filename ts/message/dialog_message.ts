@@ -12,6 +12,7 @@ enum DialogProp {
 	ALT_EQUIP_TYPE,
     BIRD_TYPE,
     BUFF_TYPE,
+    BONUS_BUFF_TYPE,
     COLOR,
 	DISPLAY_NAME,
 	EQUIP_TYPE,
@@ -33,6 +34,7 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
 		)],
 		[DialogType.LOADOUT, MessageBase.fieldDescriptor(
             [DialogProp.BUFF_TYPE, {optional: true}],
+            [DialogProp.BONUS_BUFF_TYPE, {optional: true }],
 			[DialogProp.EQUIP_TYPE, {optional: true}],
 			[DialogProp.ALT_EQUIP_TYPE, {optional: true}],
 			[DialogProp.VERSION, {}],
@@ -74,6 +76,11 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
     getBuffTypeOr(value : BuffType) : BuffType { return this.getOr<BuffType>(DialogProp.BUFF_TYPE, value); }
     setBuffType(value : BuffType) : void { this.set<BuffType>(DialogProp.BUFF_TYPE, value); }
 
+    hasBonusBuffType() : boolean { return this.has(DialogProp.BONUS_BUFF_TYPE); }
+    getBonusBuffType() : BuffType { return this.get<BuffType>(DialogProp.BONUS_BUFF_TYPE); }
+    getBonusBuffTypeOr(value : BuffType) : BuffType { return this.getOr<BuffType>(DialogProp.BONUS_BUFF_TYPE, value); }
+    setBonusBuffType(value : BuffType) : void { this.set<BuffType>(DialogProp.BONUS_BUFF_TYPE, value); }
+
     hasColor() : boolean { return this.has(DialogProp.COLOR); }
     getColor() : string { return this.get<string>(DialogProp.COLOR); }
     getColorOr(value : string) : string { return this.getOr<string>(DialogProp.COLOR, value); }
@@ -99,6 +106,7 @@ export class DialogMessage extends MessageBase<DialogType, DialogProp> implement
     ["ALT_EQUIP_TYPE", "EntityType"],
     ["BIRD_TYPE", "BirdType"],
     ["BUFF_TYPE", "BuffType"],
+    ["BONUS_BUFF_TYPE", "BuffType"],
     ["COLOR", "string"],
     ["DISPLAY_NAME", "string"],
     ["EQUIP_TYPE", "EntityType"],

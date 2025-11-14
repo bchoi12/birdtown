@@ -26,7 +26,15 @@ export class LoadoutDialogWrapper extends ChoiceDialogWrapper {
 
 		this.setTitle("Loadout");
 
-		if (game.controller().config().getStartingLoadout() === LoadoutType.PICK || game.controller().config().getStartingLoadout() === LoadoutType.PICK_TURNS) {
+		if (game.controller().config().getStartingLoadout() === LoadoutType.BUFF) {
+			if (game.controller().round() === 1) {
+				this.addBuffInitPage();
+			} else if (game.playerState().onLosingTeam()) {
+				this.addBuffPage(2);
+			} else {
+				this.addBuffPage(1);
+			}
+		} else if (game.controller().config().getStartingLoadout() === LoadoutType.PICK || game.controller().config().getStartingLoadout() === LoadoutType.PICK_TURNS) {
 			this.addPickPage();
 		} else {
 			this.addChoosePage(3);

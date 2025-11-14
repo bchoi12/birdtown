@@ -69,7 +69,7 @@ export class GameMaker extends SystemBase implements System {
 	private _vipIds : Optional<Set<number>>;
 	private _winners : Array<number>;
 	private _winnerClientId : number;
-	private _winnerTeam : number;
+	private _winningTeam : number;
 	private _errorMsg : string;
 
 	constructor() {
@@ -84,7 +84,7 @@ export class GameMaker extends SystemBase implements System {
 		this._vipIds = new Optional();
 		this._winners = new Array();
 		this._winnerClientId = 0;
-		this._winnerTeam = TeamType.UNKNOWN;
+		this._winningTeam = TeamType.UNKNOWN;
 		this._errorMsg = "";
 
 		this.addProp<MessageObject>({
@@ -102,8 +102,8 @@ export class GameMaker extends SystemBase implements System {
 			},
 		});
 		this.addProp<TeamType>({
-			export: () => { return this._winnerTeam; },
-			import: (obj : number) => { this._winnerTeam = obj; },
+			export: () => { return this._winningTeam; },
+			import: (obj : number) => { this._winningTeam = obj; },
 			options: {
 				filters: GameData.tcpFilters,
 			},
@@ -121,16 +121,22 @@ export class GameMaker extends SystemBase implements System {
 	mode() : GameMode { return this._config.type(); }
 	round() : number { return this._round; }
 	winnerClientId() : number { return this._winnerClientId; }
-	winnerTeam() : number { return this._winnerTeam; }
+	winningTeam() : number { return this._winningTeam; }
+	isTeamMode() : boolean {
+		if (game.playerStates().numPlayers() <= 2) {
+			return false;
+		}
+		return this._config.getWinCondition() === WinConditionType.TEAM_LIVES || this._config.getWinCondition() === WinConditionType.TEAM_POINTS
+	}
 	setWinnerClientId(clientId : number) : void {
 		if (!game.playerStates().hasPlayerState(clientId)) {
 			this._winnerClientId = 0;
-			this._winnerTeam = TeamType.UNKNOWN;
+			this._winningTeam = TeamType.UNKNOWN;
 			return;
 		}
 
 		this._winnerClientId = clientId;
-		this._winnerTeam = game.playerState(clientId).team();
+		this._winningTeam = game.playerState(clientId).team();
 	}
 	timeLimit(state : GameState) : number {
 		switch (state) {
@@ -643,9 +649,9 @@ export class GameMaker extends SystemBase implements System {
 			let nextId;
 			if (this._round === 1) {
 				nextId = this._playerRotator.nextN(globalRandom.int(2 * this._playerConfig.numPlayers()));
-			} else if (this._winnerTeam === TeamType.TEAM_ONE) {
+			} else if (this._winningTeam === TeamType.TEAM_ONE) {
 				nextId = this._playerRotator.nextFromTeamTwo();
-			} else if (this._winnerTeam === TeamType.TEAM_TWO) {
+			} else if (this._winningTeam === TeamType.TEAM_TWO) {
 				nextId = this._playerRotator.nextFromTeamOne();
 			} else if (this.isPlaying(this._winnerClientId)) {
 				nextId = this._playerRotator.nextExcluding(this._winnerClientId);

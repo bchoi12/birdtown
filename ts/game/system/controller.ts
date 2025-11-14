@@ -3,6 +3,7 @@ import { game } from 'game'
 import { GameMode, GameState } from 'game/api'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
+import { TeamType } from 'game/component/api'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { ConfigFactory } from 'game/factory/config_factory'
@@ -80,6 +81,8 @@ export class Controller extends SystemBase implements System {
 
 	round() : number { return this._gameMaker.round(); }
 	winnerClientId() : number { return this._gameMaker.winnerClientId(); }
+	winningTeam() : TeamType { return this._gameMaker.winningTeam(); }
+	isTeamMode() : boolean { return this._gameMaker.isTeamMode(); }
 	entityLimit(type : EntityType) : number { return this._gameMaker.entityLimit(type); }
 	timeLimit(state : GameState) : number { return this._gameMaker.timeLimit(state); }
 

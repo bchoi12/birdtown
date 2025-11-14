@@ -221,6 +221,8 @@ export class PlayerState extends ClientSystem implements System {
 		return true;
 	}
 	team() : TeamType { return this._team; }
+	onWinningTeam() : boolean { return this._team !== 0 && this._team === game.controller().winningTeam(); }
+	onLosingTeam() : boolean { return this._team !== 0 && game.controller().winningTeam() !== 0 && this._team !== game.controller().winningTeam(); }
 	setTeam(team : TeamType) : void {
 		this._team = team;
 		this.applyTeam();

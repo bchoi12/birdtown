@@ -23,7 +23,10 @@ import { StatStickBuff } from 'game/component/buff/stat_stick_buff'
 import { TankBuff } from 'game/component/buff/tank_buff'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { Player } from 'game/entity/player'
 import { BuffType } from 'game/factory/api'
+
+import { SeededRandom } from 'util/seeded_random'
 
 export namespace BuffFactory {
 
@@ -87,6 +90,73 @@ export namespace BuffFactory {
 			return names.get(type);
 		}
 		return "";
+	}
+
+	let buffRandom = new SeededRandom(Math.floor(10000 * Math.random()));
+	export function seed(seed : number) : void { buffRandom.seed(seed); }
+
+	const starterBuffs = new Array<BuffType>(BuffType.ACROBATIC, BuffType.BIG, BuffType.EAGLE_EYE);
+	export function getStarters() : Array<BuffType> {
+		return starterBuffs;
+	}
+
+	const generalBuffs = new Array<BuffType>(
+		BuffType.BLASTER,
+		BuffType.COOL,
+		BuffType.CRIT,
+		BuffType.GLASS_CANNON,
+		BuffType.ICY,
+		BuffType.MOSQUITO,
+		BuffType.SNIPER,
+		BuffType.STAT_STICK,
+		BuffType.TANK);
+
+	export function getGeneralBuffs(player : Player) : Array<BuffType> {
+		let pickableBuffs = new Array<BuffType>();
+		generalBuffs.forEach((buff : BuffType) => {
+			if (player.buffs().canBuff(buff)) {
+				pickableBuffs.push(buff);
+			}
+		});
+		return pickableBuffs;
+	}
+
+	// Equips with flips
+	const dodgeEquips = new Set<EntityType>([
+		EntityType.COWBOY_HAT,
+		EntityType.RED_HEADBAND,
+		EntityType.TOP_HAT,
+	]);
+	const explodeWeapons = new Set<EntityType>([
+		EntityType.BAZOOKA,
+		EntityType.ORB_CANNON,
+		EntityType.WING_CANNON,
+	])
+	export function getBuffs(player : Player) : Array<BuffType> {
+		let pickableBuffs = this.getGeneralBuffs(player);
+
+		if (player.altEquipType() === EntityType.SCOUTER) {
+			pickableBuffs.push(BuffType.JUICED);
+		}
+
+		if (dodgeEquips.has(player.altEquipType())) {
+			pickableBuffs.push(BuffType.DODGY);
+		}
+
+		if (explodeWeapons.has(player.equipType())) {
+			pickableBuffs.push(BuffType.EXPLOSION);
+		}
+
+		if (game.controller().isTeamMode()) {
+			pickableBuffs.push(BuffType.HEALER);
+		}
+		return pickableBuffs;
+	}
+
+	export function getBuffsN(player : Player, n : number) : Array<BuffType> {
+		let pickableBuffs = this.getBuffs(player);
+
+		return buffRandom.shuffle(pickableBuffs, n);
 	}
 
 }

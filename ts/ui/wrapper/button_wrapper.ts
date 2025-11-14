@@ -157,7 +157,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 	}
 	addOnUnselect(fn : OnEventFn) : void { this._onUnselectFns.push(fn); }
 
-	protected click() : boolean {
+	click() : boolean {
 		if (this._gray) {
 			return false;
 		}
@@ -199,7 +199,7 @@ export class ButtonWrapper extends HtmlWrapper<HTMLElement> {
 
 	selected() : boolean { return this._state === ButtonState.SELECTED; }
 	protected canSelect() : boolean { return true; }
-	protected select() : boolean {
+	select() : boolean {
 		if (!this.canSelect()) {
 			return false;
 		}

@@ -26,6 +26,10 @@ export namespace EquipFactory {
 		[EntityType.WING_CANNON, [EntityType.SCOUTER, EntityType.POCKET_ROCKET]],
 	]);
 
+	const specialPairs = new Map<EntityType, EntityType[]>([
+		[EntityType.GOLDEN_GUN, [EntityType.TOP_HAT]],
+	])
+
 	const invalidPairs = new Map<EntityType, EntityType[]>([
 		[EntityType.GATLING, [EntityType.SCOUTER]],
 		[EntityType.MINIGUN, [EntityType.SCOUTER]],
@@ -59,7 +63,12 @@ export namespace EquipFactory {
 		let seen = new Set();
 
 		let valid = [];
-		const recommended = recommendedPairs.has(type) ? recommendedPairs.get(type) : [];
+		let recommended = [];
+		if (recommendedPairs.has(type)) {
+			recommended = recommendedPairs.get(type);
+		} else if (specialPairs.has(type)) {
+			recommended = specialPairs.get(type);
+		}
 		const invalid = invalidPairs.has(type) ? invalidPairs.get(type) : [];
 		equips.forEach((equip : EntityType) => {
 			if (recommended.includes(equip) || invalid.includes(equip)) {
