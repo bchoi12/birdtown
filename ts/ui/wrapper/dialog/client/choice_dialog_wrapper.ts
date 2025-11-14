@@ -12,7 +12,7 @@ import { Icon, IconType } from 'ui/common/icon'
 import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
 import { ButtonSelectWrapper } from 'ui/wrapper/button/button_select_wrapper'
 import { EquipSelectWrapper } from 'ui/wrapper/button/equip_select_wrapper'
-import { LoadoutButtonWrapper } from 'ui/wrapper/button/loadout_button_wrapper'
+import { EquipButtonWrapper } from 'ui/wrapper/button/equip_button_wrapper'
 import { CategoryWrapper } from 'ui/wrapper/category_wrapper'
 import { ColumnsWrapper } from 'ui/wrapper/columns_wrapper'
 import { ClientDialogWrapper } from 'ui/wrapper/dialog/client_dialog_wrapper'
@@ -58,7 +58,7 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 
 		let buttonColumn = columns.column(2);
 		buttonColumn.elm().style.visibility = "hidden";
-		let button = new LoadoutButtonWrapper();
+		let button = new EquipButtonWrapper();
 		buttonColumn.contentElm().appendChild(button.elm());
 
 		let selectedWeapon = EntityType.UNKNOWN;
@@ -95,15 +95,15 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 				if (selectedWeapon !== EntityType.UNKNOWN) {
 					return;
 				}
-				button.updateWeapon(selectedWeapon);
+				button.updateFirst(selectedWeapon);
 			})
 
 			const weaponOnClick = () => {
 				selectedWeapon = weaponList[i];
 				selectedEquip = EntityType.UNKNOWN;
 
-				button.updateWeapon(selectedWeapon);
-				button.clearAltEquip();
+				button.updateFirst(selectedWeapon);
+				button.clearSecond();
 
 				const equipList = EquipFactory.equipList(selectedWeapon);
 				bestEquipsCategory.contentElm().innerHTML = "";
@@ -125,19 +125,19 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 							return;
 						}
 
-						button.updateAltEquip(equipType);
+						button.updateSecond(equipType);
 					});
 					equipButton.addOnMouseLeave(() => {
 						if (selectedEquip !== EntityType.UNKNOWN) {
 							return;
 						}
 
-						button.clearAltEquip();
+						button.clearSecond();
 					});
 
 					let equipOnClick = () => {
 						selectedEquip = equipType;
-						button.updateAltEquip(equipType);
+						button.updateSecond(equipType);
 					};
 					equipButton.addOnClick(equipOnClick);
 
@@ -158,19 +158,19 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 							return;
 						}
 
-						button.updateAltEquip(equipType);
+						button.updateSecond(equipType);
 					});
 					equipButton.addOnMouseLeave(() => {
 						if (selectedEquip !== EntityType.UNKNOWN) {
 							return;
 						}
 
-						button.clearAltEquip();
+						button.clearSecond();
 					});
 
 					equipButton.addOnClick(() => {
 						selectedEquip = equipType;
-						button.updateAltEquip(equipType);
+						button.updateSecond(equipType);
 					});
 				});
 				equipList.invalid.forEach((equipType : EntityType) => {
@@ -219,8 +219,8 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 			let column = columns.column(i);
 			column.elm().style.textAlign = "center";
 
-			let button = new LoadoutButtonWrapper();
-			button.updateEquips(pairs[i])
+			let button = new EquipButtonWrapper();
+			button.updatePair(pairs[i])
 			button.addOnClick(() => {
 				this.dialogMessage().setEquipType(pairs[i][0]);
 				this.dialogMessage().setAltEquipType(pairs[i][1]);
@@ -238,8 +238,8 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 				let column = columns.column(i);
 				column.contentElm().innerHTML = "";
 
-				let button = new LoadoutButtonWrapper();
-				button.updateEquips(pairs[i + num])
+				let button = new EquipButtonWrapper();
+				button.updatePair(pairs[i + num])
 				button.addOnClick(() => {
 					this.dialogMessage().setEquipType(pairs[i + num][0]);
 					this.dialogMessage().setAltEquipType(pairs[i + num][1]);

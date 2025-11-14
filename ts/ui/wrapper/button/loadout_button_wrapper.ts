@@ -1,8 +1,6 @@
 
 import { EntityType } from 'game/entity/api'
-import { EquipTag } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
-import { EquipFactory } from 'game/factory/equip_factory'
 
 import { StringFactory } from 'strings/string_factory'
 
@@ -14,46 +12,44 @@ import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 import { NameWrapper } from 'ui/wrapper/name_wrapper'
 import { TagWrapper } from 'ui/wrapper/tag_wrapper'
 
-export class LoadoutButtonWrapper extends ButtonWrapper {
+export abstract class LoadoutButtonWrapper<T extends number> extends ButtonWrapper {
 
-	private _firstType : EntityType;
-	private _secondType : EntityType;
+	protected _firstType : T;
+	protected _secondType : T;
 
-	private _titleElm : HTMLElement;
-	private _firstEquipElm : HTMLElement;
-	private _titlePlusElm : HTMLElement;
-	private _secondEquipElm : HTMLElement;
+	protected _titleElm : HTMLElement;
+	protected _firstItemElm : HTMLElement;
+	protected _titlePlusElm : HTMLElement;
+	protected _secondItemElm : HTMLElement;
 
-	private _pictureElm : HTMLElement;
-	private _firstIcon : HTMLElement;
-	private _picturePlusElm : HTMLElement;
-	private _secondIcon : HTMLElement;
+	protected _pictureElm : HTMLElement;
+	protected _firstIcon : HTMLElement;
+	protected _picturePlusElm : HTMLElement;
+	protected _secondIcon : HTMLElement;
 
-	private _descriptionElm : HTMLElement;
-	private _firstKeyElm : HTMLElement;
-	private _firstDescriptionElm : HTMLElement;
-	private _secondKeyElm : HTMLElement;
-	private _secondDescriptionElm : HTMLElement;
-
-	private _tagsElm : HTMLElement;
+	protected _descriptionElm : HTMLElement;
+	protected _firstKeyElm : HTMLElement;
+	protected _firstDescriptionElm : HTMLElement;
+	protected _secondKeyElm : HTMLElement;
+	protected _secondDescriptionElm : HTMLElement;
 
 	constructor() {
 		super();
 
 		this.elm().classList.add(Html.classLoadoutButton);
 
-		this._firstType = EntityType.UNKNOWN;
-		this._secondType = EntityType.UNKNOWN;
+		this._firstType = this.unknownValue();
+		this._secondType = this.unknownValue();
 
 		this._titleElm = Html.div();
 		this._titleElm.classList.add(Html.classLoadoutButtonTitle);
-		this._firstEquipElm = Html.span();
+		this._firstItemElm = Html.span();
 		this._titlePlusElm = this.createPlusDiv();
-		this._secondEquipElm = Html.span();
+		this._secondItemElm = Html.span();
 
-		this._titleElm.appendChild(this._firstEquipElm);
+		this._titleElm.appendChild(this._firstItemElm);
 		this._titleElm.appendChild(this._titlePlusElm);
-		this._titleElm.appendChild(this._secondEquipElm);
+		this._titleElm.appendChild(this._secondItemElm);
 
 		this._pictureElm = Html.div();
 		this._pictureElm.classList.add(Html.classLoadoutButtonPicture);
@@ -71,13 +67,10 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 
 		this._descriptionElm = Html.div();
 		this._descriptionElm.classList.add(Html.classLoadoutButtonDescription);
-		let mouse = Icon.create(IconType.MOUSE);
 		this._firstKeyElm = Html.span();
-		this._firstKeyElm.innerHTML = `${mouse.outerHTML}: `;
 		this._firstKeyElm.style.visibility = "hidden";
 		this._firstDescriptionElm = Html.span();
 		this._secondKeyElm = Html.span();
-		this._secondKeyElm.innerHTML = `${mouse.outerHTML}: `;
 		this._secondKeyElm.style.visibility = "hidden";
 		this._secondDescriptionElm = Html.span();
 
@@ -87,108 +80,85 @@ export class LoadoutButtonWrapper extends ButtonWrapper {
 		this._descriptionElm.appendChild(this._secondKeyElm);
 		this._descriptionElm.appendChild(this._secondDescriptionElm);
 
-		this._tagsElm = Html.div();
-		this._tagsElm.classList.add(Html.classLoadoutButtonTags);
-
 		this.elm().appendChild(this._titleElm);
 		this.elm().appendChild(this._pictureElm);
 		this.elm().appendChild(this._descriptionElm);
-		this.elm().appendChild(this._tagsElm);
 	}
 
-	valid() : boolean { return this._firstType !== EntityType.UNKNOWN && this._secondType !== EntityType.UNKNOWN; }
+	protected abstract unknownValue() : T;
+	protected abstract getName(type : T) : string;
+	protected abstract getDescription(type : T) : string;
+	protected abstract getIconType(type : T) : IconType;
 
-	updateEquips(pair : [EntityType, EntityType]) : void {
-		this.updateWeapon(pair[0]);
-		this.updateAltEquip(pair[1]);
+	valid() : boolean { return this._firstType !== this.unknownValue() && this._secondType !== this.unknownValue(); }
+
+	updatePair(pair : [T, T]) : void {
+		this.updateFirst(pair[0]);
+		this.updateSecond(pair[1]);
 	}
 
-	updateWeapon(type : EntityType) : void {
-		if (type === EntityType.UNKNOWN) {
+	updateFirst(type : T) : void {
+		if (type === this.unknownValue()) {
 			return;
 		}
 
-		this._firstEquipElm.textContent = StringFactory.getEntityTypeName(type).toTitleString();
+		this._firstItemElm.textContent = this.getName(type);
 		this._firstKeyElm.style.visibility = "visible";
-		this._firstDescriptionElm.textContent = StringFactory.getEntityUsage(type).toString();
-		Icon.change(this._firstIcon, Icon.getEntityIconType(type));
-
-		const color = ColorFactory.entityColor(type).toString();
-		const tags = EquipFactory.getEntityTags(type);
-		this.updateTags(tags, color);
+		this._firstDescriptionElm.textContent = this.getDescription(type);
+		Icon.change(this._firstIcon, this.getIconType(type));
 
 		this._firstType = type;
 	}
 	clearAll() : void {
-		this._firstEquipElm.textContent = "";
+		this._firstItemElm.textContent = "";
 		this._titlePlusElm.style.visibility = "hidden";
 
 		Icon.clear(this._firstIcon);
 		this._picturePlusElm.style.visibility = "hidden";
 
-		this._firstEquipElm.textContent = "";
+		this._firstItemElm.textContent = "";
 		this._firstDescriptionElm.textContent = "";
 		this._firstKeyElm.style.visibility = "hidden";
 
-		this._firstType = EntityType.UNKNOWN;
+		this._firstType = this.unknownValue();
 
-		this.clearAltEquip();
+		this.clearSecond();
 	}
 
-	updateAltEquip(type : EntityType) : void {
-		if (type === EntityType.UNKNOWN) {
+	updateSecond(type : T) : void {
+		if (type === this.unknownValue()) {
 			return;
 		}
 
-		this._secondEquipElm.textContent = StringFactory.getEntityTypeName(type).toTitleString();
+		this._secondItemElm.textContent = this.getName(type);
 		this._secondKeyElm.style.visibility = "visible";
-		this._secondDescriptionElm.textContent = StringFactory.getEntityUsage(type).toString();
-		Icon.change(this._secondIcon, Icon.getEntityIconType(type));
-
-		if (this._firstType !== EntityType.UNKNOWN) {
-			this._titlePlusElm.style.visibility = "visible";
-			this._picturePlusElm.style.visibility = "visible";
-
-			const color = ColorFactory.entityColor(this._firstType).toString();
-			const tags = EquipFactory.getTags([this._firstType, type]);
-			this.updateTags(tags, color);
-		}
+		this._secondDescriptionElm.textContent = this.getDescription(type);
+		Icon.change(this._secondIcon, this.getIconType(type));
 
 		this._secondType = type;
 	}
-	clearAltEquip() : void {
-		this._secondEquipElm.textContent = "";
+	clearSecond() : void {
+		this._secondItemElm.textContent = "";
 		this._titlePlusElm.style.visibility = "hidden";
 
 		Icon.clear(this._secondIcon);
 		this._picturePlusElm.style.visibility = "hidden";
 
-		this._secondEquipElm.textContent = "";
+		this._secondItemElm.textContent = "";
 		this._secondDescriptionElm.textContent = "";
 		this._secondKeyElm.style.visibility = "hidden";
 
-		this._secondType = EntityType.UNKNOWN;
+		this._secondType = this.unknownValue();
 	}
 
-	private updateTags(tags : Set<EquipTag>, color : string) : void {
-		let tagHtml = [];
-		tags.forEach((tag : EquipTag) => {
-			let tagWrapper = new TagWrapper();
-			tagWrapper.setName(StringFactory.getTagName(tag));
-			tagWrapper.setBackgroundColor(color);
-			tagHtml.push(tagWrapper.elm().outerHTML);
-		});
-		this._tagsElm.innerHTML = tagHtml.join(" ");
-	}
-
-	private createPlusSpan() : HTMLElement {
+	protected createPlusSpan() : HTMLElement {
 		let plus = Html.span();
 		plus.textContent = "+";
 		plus.classList.add(Html.classLoadoutButtonPlus);
 		plus.style.visibility = "hidden";
 		return plus;
 	}
-	private createPlusDiv() : HTMLElement {
+	protected createPlusDiv() : HTMLElement {
 		let plus = Html.div();
 		plus.textContent = "+";
 		plus.classList.add(Html.classLoadoutButtonPlus);
