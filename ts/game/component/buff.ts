@@ -11,6 +11,8 @@ import { BuffFactory } from 'game/factory/buff_factory'
 import { Fns } from 'util/fns'
 import { Timer } from 'util/timer'
 
+import { StringFactory } from 'strings/string_factory'
+
 export type BuffOptions = {
 	maxLevel : number;
 
@@ -132,6 +134,7 @@ export abstract class Buff extends ComponentBase implements Component {
 
 	getStatCache() : Map<StatType, number> { return this.getParent<Buffs>().boostCache(); }
 
+	levelUp() : void {}
 	protected maxLevel() : number { return this._maxLevel; }
 	atMaxLevel() : boolean { return this._level >= this._maxLevel; }
 	level() : number { return this._level; }
@@ -160,11 +163,9 @@ export abstract class Buff extends ComponentBase implements Component {
 		if (level > 0 && delta !== 0) {
 			this.applyStats(this.getStatCache());
 
-			if (delta > 0) {
-				const name = BuffFactory.name(this._buffType);
-				if (name !== "") {
-					game.playerState(this.entity().clientId())?.chatBubble(`${name} Lv${level}`);
-				}
+			if (delta > 0 && StringFactory.hasBuffName(this._buffType)) {
+				const name = StringFactory.getBuffName(this._buffType);
+				game.playerState(this.entity().clientId())?.chatBubble(`${name} Lv${level}`);
 			}
 		}	
 	}

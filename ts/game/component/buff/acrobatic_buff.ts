@@ -17,4 +17,10 @@ export class AcrobaticBuff extends Buff {
 			[StatType.USE_BOOST, 0.25 * level],
 		]);
 	}
+
+	override levelUp() : void {
+		super.levelUp();
+
+		this.addLevel(1);
+	}
 }

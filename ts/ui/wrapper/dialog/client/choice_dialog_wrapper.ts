@@ -2,6 +2,8 @@
 import { game } from 'game'
 import { GameMode, GameState } from 'game/api'
 import { EntityType } from 'game/entity/api'
+import { BuffType } from 'game/factory/api'
+import { BuffFactory } from 'game/factory/buff_factory'
 import { EquipFactory } from 'game/factory/equip_factory'
 import { LoadoutType } from 'game/system/api'
 
@@ -10,6 +12,7 @@ import { StringFactory } from 'strings/string_factory'
 import { DialogType } from 'ui/api'
 import { Icon, IconType } from 'ui/common/icon'
 import { ButtonGroupWrapper } from 'ui/wrapper/button_group_wrapper'
+import { BuffButtonWrapper } from 'ui/wrapper/button/buff_button_wrapper'
 import { ButtonSelectWrapper } from 'ui/wrapper/button/button_select_wrapper'
 import { EquipSelectWrapper } from 'ui/wrapper/button/equip_select_wrapper'
 import { EquipButtonWrapper } from 'ui/wrapper/button/equip_button_wrapper'
@@ -26,7 +29,7 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 	}
 
 	protected addPickPage() : void {
-		EquipFactory.seed(game.level().seed());
+		EquipFactory.seed(game.level().seed() + game.clientId());
 
 		let pageWrapper = this.addPage("Pick Loadout");
 		let columns = ColumnsWrapper.withColumns(3);
@@ -203,11 +206,100 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 	}
 
 	protected addChoosePage(num : number) : void {
-		EquipFactory.seed(game.level().seed());
+		EquipFactory.seed(game.level().seed() + game.clientId());
+		const pairs = EquipFactory.randomN(num * 2);
+		this.addChooseRerollForPairs(num, pairs);
+	}
+
+	protected addBuffInitPage() : void {
+		let pageWrapper = this.addPage("Choose Starter Buff");
+
+		const starters = BuffFactory.getStarters();
+		const numStarters = starters.length;
+
+		let columns = ColumnsWrapper.withColumns(numStarters);
+		pageWrapper.elm().appendChild(columns.elm());
+
+		let selectedBuff = starters[Math.floor(Math.random() * numStarters)];
+		this.dialogMessage().setBuffType(selectedBuff);
+
+		let equipPair = EquipFactory.getStarterPair(selectedBuff);
+		this.dialogMessage().setEquipType(equipPair[0]);
+		this.dialogMessage().setAltEquipType(equipPair[1]);
+
+		for (let i = 0; i < numStarters; ++i) {
+			let column = columns.column(i);
+			column.elm().style.textAlign = "center";
+
+			let button = new BuffButtonWrapper();
+			button.updateFirst(starters[i]);
+			button.addOnClick(() => {
+				selectedBuff = starters[i];
+
+				if (selectedBuff !== BuffType.UNKNOWN) {
+					this.dialogMessage().setBuffType(starters[i]);
+					this.addBuffEquipPage(starters[i]);
+					this.nextPage();
+				}
+			});
+			column.contentElm().appendChild(button.elm());
+		}
+	}
+
+	protected addBuffEquipPage(buffType : BuffType) : void {
+		EquipFactory.seed(game.level().seed() + game.clientId());
+		const num = 3;
+		const pairs = EquipFactory.getStarterPairN(buffType, 2 * num);
+		this.addChooseRerollForPairs(num, pairs);
+	}
+
+	protected addBuffPage(num : number, bonus : boolean) : void {
+		BuffFactory.seed(game.level().seed() + game.clientId());
+		
+		let pageWrapper = this.addPage("Choose a Buff");
+
+		let columns = ColumnsWrapper.withColumns(num);
+		pageWrapper.elm().appendChild(columns.elm());
+
+		const numBuffs = bonus ? num * 2 : num;
+		const buffs = BuffFactory.getBuffsN(numBuffs);
+
+		for (let i = 0; i < num; ++i) {
+			let column = columns.column(i);
+			column.elm().style.textAlign = "center";
+
+			let button = new BuffButtonWrapper();
+			button.updateFirst(buffs[i]);
+
+			if (bonus) {
+				button.updateSecond(buffs[i + num]);
+			}
+			button.addOnClick(() => {
+				this.dialogMessage().setBuffType(buffs[i]);
+
+				if (bonus) {
+					this.dialogMessage().setBonusBuffType(buffs[i + num]);
+				}
+				this.nextPage();
+			});
+			column.contentElm().appendChild(button.elm());
+		}
+	}
+
+	protected addRerollButton() : ButtonWrapper {
+		let buttonWrapper = new ButtonWrapper();
+		buttonWrapper.setIcon(IconType.REROLL);
+		buttonWrapper.setText("Reroll");
+		buttonWrapper.elm().style.float = "right";
+
+		this.footerElm().appendChild(buttonWrapper.elm());
+		return buttonWrapper;
+	}
+
+	protected addChooseRerollForPairs(num : number, pairs : [EntityType, EntityType][]) : void {
+		EquipFactory.seed(game.level().seed() + game.clientId());
 		
 		let pageWrapper = this.addPage("Choose Loadout");
-
-		const pairs = EquipFactory.randomN(num * 2);
 
 		let columns = ColumnsWrapper.withColumns(num);
 		pageWrapper.elm().appendChild(columns.elm());
@@ -252,21 +344,4 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 		});
 	}
 
-	protected addBuffInitPage() : void {
-		
-	}
-
-	protected addBuffPage(num : number) : void {
-
-	}
-
-	protected addRerollButton() : ButtonWrapper {
-		let buttonWrapper = new ButtonWrapper();
-		buttonWrapper.setIcon(IconType.REROLL);
-		buttonWrapper.setText("Reroll");
-		buttonWrapper.elm().style.float = "right";
-
-		this.footerElm().appendChild(buttonWrapper.elm());
-		return buttonWrapper;
-	}
 }

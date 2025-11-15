@@ -55,11 +55,10 @@ export abstract class LoadoutButtonWrapper<T extends number> extends ButtonWrapp
 		this._pictureElm.classList.add(Html.classLoadoutButtonPicture);
 		this._firstIcon = Icon.baseElement();
 		this._firstIcon.classList.add(Html.classLoadoutButtonIcon);
-		this._firstIcon.style.textAlign = "right";
+		this._firstIcon.style.textAlign = "center";
 		this._picturePlusElm = this.createPlusSpan();
 		this._secondIcon = Icon.baseElement();
 		this._secondIcon.classList.add(Html.classLoadoutButtonIcon);
-		this._secondIcon.style.textAlign = "left";
 
 		this._pictureElm.appendChild(this._firstIcon);
 		this._pictureElm.appendChild(this._picturePlusElm);
@@ -135,6 +134,10 @@ export abstract class LoadoutButtonWrapper<T extends number> extends ButtonWrapp
 		this._secondDescriptionElm.textContent = this.getDescription(type);
 		Icon.change(this._secondIcon, this.getIconType(type));
 
+		// Centralize two icons
+		this._firstIcon.style.textAlign = "right";
+		this._secondIcon.style.textAlign = "left";
+
 		this._secondType = type;
 	}
 	clearSecond() : void {
@@ -147,6 +150,9 @@ export abstract class LoadoutButtonWrapper<T extends number> extends ButtonWrapp
 		this._secondItemElm.textContent = "";
 		this._secondDescriptionElm.textContent = "";
 		this._secondKeyElm.style.visibility = "hidden";
+
+		// Center single icon
+		this._firstIcon.style.textAlign = "center";
 
 		this._secondType = this.unknownValue();
 	}

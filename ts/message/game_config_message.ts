@@ -181,7 +181,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelLayout(LevelLayout.NORMAL);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setStartingLoadout(LoadoutType.BUFF);
-			this.setTimeSetup(45000);
+			this.setTimeSetup(35000);
 			this.setVictories(5);
 			this.setWinCondition(WinConditionType.TEAM_LIVES);
 			break;
@@ -221,7 +221,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelLayout(LevelLayout.INVASION);
 			this.setLevelSeed(1);
 			this.setStartingLoadout(LoadoutType.BUFF);
-			this.setTimeSetup(45000);
+			this.setTimeSetup(35000);
 			this.setWinCondition(WinConditionType.BOSS);
 			break;
 		case GameMode.PRACTICE:

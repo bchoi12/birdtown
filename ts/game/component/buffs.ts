@@ -36,6 +36,11 @@ export class Buffs extends ComponentBase implements Component {
 		});
 	}
 
+	levelUp() : void {
+		this.execute<Buff>((buff : Buff, type : BuffType) => {
+			buff.levelUp();
+		});
+	}
 	addBuff<T extends Buff>(type : BuffType, delta : number) : void {
 		let buff = this.registerBuff(type);
 

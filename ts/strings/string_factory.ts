@@ -3,7 +3,7 @@ import { game } from 'game'
 import { GameMode } from 'game/api'
 import { EntityType } from 'game/entity/api'
 import { Entity } from 'game/entity'
-import { EquipTag } from 'game/factory/api'
+import { BuffType, EquipTag, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { LevelType, LevelLayout, LoadoutType } from 'game/system/api'
 
@@ -210,5 +210,108 @@ export namespace StringFactory {
 			return tagNames.get(tag);
 		}
 		return Strings.toTitleCase(EquipTag[tag]);
+	}
+
+	const statNames = new Map<StatType, string>([
+		[StatType.BURST_BONUS, "Bonus Ammo"],
+		[StatType.BURST_BOOST, "Ammo Boost"],
+		[StatType.BURST_BULLETS, "Ammo"],
+		[StatType.BURSTS, "Shots"],
+		[StatType.CHARGE_DELAY, "Charge Delay"],
+		[StatType.CHARGE_RATE, "Charge Rate"],
+		[StatType.CHARGED_BURSTS, "Charged Ammo"],
+		[StatType.CHARGED_FIRE_TIME, "Charged Firing Time"],
+		[StatType.CHARGED_PROJECTILE_ACCEL, "Charged Bullet Accel"],
+		[StatType.CHARGED_PROJECTILE_SPEED, "Charged Bullet Speed"],
+		[StatType.CHARGED_PROJECTILE_TTL, "Charged Bullet Lifetime"],
+		[StatType.CHARGED_FORCE, "Charged Force"],
+		[StatType.CHARGED_RELOAD_TIME, "Charged Reload Time"],
+		[StatType.CRIT_CHANCE, "Crit Chance"],
+		[StatType.CRIT_BOOST, "Crit Damage Boost"],
+		[StatType.DAMAGE, "Damage"],
+		[StatType.DAMAGE_BOOST, "Damage Boost"],
+		[StatType.DAMAGE_CLOSE_BOOST, "Closeup Damage Boost"],
+		[StatType.DAMAGE_FAR_BOOST, "Sharpshooter Damage Boost"],
+		[StatType.DAMAGE_TAKEN_BOOST, "Damage Taken Boost"],
+		[StatType.DAMAGE_RESIST_BOOST, "Damage Resist Boost"],
+		[StatType.DOUBLE_JUMPS, "Double Jumps"],
+		[StatType.EXPLOSION_BOOST, "Explosion Boost"],
+		[StatType.EXPLOSION_DAMAGE, "Explosion Damage"],
+		[StatType.EXPOSE_CHANCE, "Expose Chance"],
+		[StatType.FIRE_BOOST, "Firing Boost"],
+		[StatType.FIRE_TIME, "Firing Time"],
+		[StatType.FORCE, "Force"],
+		[StatType.FRICTION, "Friction"],
+		[StatType.HEAL_PERCENT, "Healing Bullets"],
+		[StatType.HEALTH, "Health"],
+		[StatType.HORIZONTAL_ACCEL, "Horizontal Accel"],
+		[StatType.HP_REGEN, "HP Regen"],
+		[StatType.HP_REGEN_DELAY, "HP Regen Delay"],
+		[StatType.SLOW_CHANCE, "Slow Chance"],
+		[StatType.MAX_HORIZONTAL_SPEED, "Horizontal Speed"],
+		[StatType.MAX_VERTICAL_SPEED, "Vertical Speed"],
+		[StatType.MAX_WALKING_SPEED, "Walking Speed"],
+		[StatType.PROJECTILE_ACCEL, "Bullet Accel"],
+		[StatType.PROJECTILE_SPEED, "Bullet Speed"],
+		[StatType.PROJECTILE_TTL, "Bullet Lifetime"],
+		[StatType.RELOAD_BOOST, "Reload Boost"],
+		[StatType.RELOAD_TIME, "Reload Time"],
+		[StatType.REV_TIME, "Rev Time"],
+		[StatType.REVIVE_BOOST, "Revive Boost"],
+		[StatType.SCALING, "Size"],
+		[StatType.SPEED_BOOST, "Speed Boost"],
+		[StatType.SPEED_DEBUFF, "Slow"],
+		[StatType.LIFE_STEAL, "Life Steal"],
+		[StatType.SPEED, "Speed"],
+		[StatType.SPREAD, "Spread"],
+		[StatType.UNSTICK_DAMAGE, "Stick Damage"],
+		[StatType.USE_BOOST, "Equip Boost"],
+		[StatType.USE_JUICE, "Equip Energy"],
+	]);
+
+	export function getStatName(type : StatType) : string {
+		if (statNames.has(type)) {
+			return statNames.get(type);
+		}
+		return "Unknown Stat";
+	}
+
+
+	const buffNames = new Map<BuffType, string>([
+		[BuffType.ACROBATIC, "FAST BIRD"],
+		[BuffType.BIG, "BIG BIRD"],
+		[BuffType.EAGLE_EYE, "SHARP BIRD"],
+
+		[BuffType.BLASTER, "Booty Blaster"],
+		[BuffType.COOL, "Really Cool Bird"],
+		[BuffType.CRIT, "Gambling Addict"],
+		[BuffType.DODGY, "Macho Grubba"],
+		[BuffType.EXPLOSION, "Boomer"],
+		[BuffType.GLASS_CANNON, "Glass Cannon"],
+		[BuffType.HEALER, "Healer"],
+		[BuffType.ICY, "Chill"],
+		[BuffType.JUICED, "Juicer"],
+		[BuffType.MOSQUITO, "Mosquito"],
+		[BuffType.SPREE, "Spree"],
+		[BuffType.SNIPER, "Eagle Eye"],
+		[BuffType.STAT_STICK, "Stat Stick"],
+		[BuffType.TANK, "TANK"],
+	]);
+
+	export function hasBuffName(type : BuffType) : boolean {
+		return buffNames.has(type);
+	}
+	export function getBuffName(type : BuffType) : string {
+		if (hasBuffName(type)) {
+			return buffNames.get(type);
+		}
+		return "Unknown Buff";
+	}
+
+	const buffUsage = new Map<BuffType, string>([
+
+	]);
+	export function getBuffDescription(type : BuffType) : string {
+		return "DOES STUFF";
 	}
 }

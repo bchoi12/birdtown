@@ -93,8 +93,10 @@ export interface Entity extends GameObject {
 	hasBuff(type : BuffType) : boolean;
 	hasMaxedBuff(type : BuffType) : boolean;
 	addBuff(type : BuffType, delta : number) : void;
+	levelUp() : void;
 	setBuffMin(type : BuffType, min : number) : void;
 	removeBuff(type : BuffType) : void;
+	clearBuffs() : void;
 
 	soundPlayer() : SoundPlayer;
 
@@ -433,7 +435,19 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		if (!this.isSource() || !this.hasComponent(ComponentType.BUFFS)) {
 			return;
 		}
+		if (type === BuffType.UNKNOWN) {
+			console.error("Warning: skipping adding unknown buff for %s", this.name());
+			return;
+		}
+
+		console.log("Add buff %s +%d for %s", BuffType[type], delta, this.name());
 		this.getComponent<Buffs>(ComponentType.BUFFS).addBuff(type, delta);
+	}
+	levelUp() : void {
+		if (!this.hasComponent(ComponentType.BUFFS)) {
+			return;
+		}
+		this.getComponent<Buffs>(ComponentType.BUFFS).levelUp();
 	}
 	setBuffMin(type : BuffType, min : number) : void {
 		if (!this.hasComponent(ComponentType.BUFFS)) {
@@ -446,6 +460,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			return;
 		}
 		this.getComponent<Buffs>(ComponentType.BUFFS).removeBuff(type);
+	}
+	clearBuffs() : void {
+		if (!this.hasComponent(ComponentType.BUFFS)) {
+			return;
+		}
+		this.getComponent<Buffs>(ComponentType.BUFFS).clearBuffs();
 	}
 
 	addForce(force : Vec) : void {

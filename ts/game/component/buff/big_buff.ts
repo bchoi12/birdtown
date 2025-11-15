@@ -17,4 +17,10 @@ export class BigBuff extends Buff {
 			[StatType.SCALING, 0.1 * level],
 		]);
 	}
+
+	override levelUp() : void {
+		super.levelUp();
+
+		this.addLevel(1);
+	}
 }

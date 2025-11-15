@@ -1,6 +1,6 @@
 
 import { EntityType } from 'game/entity/api'
-import { EquipTag } from 'game/factory/api'
+import { BuffType, EquipTag } from 'game/factory/api'
 
 import { SeededRandom } from 'util/seeded_random'
 
@@ -156,6 +156,31 @@ export namespace EquipFactory {
 
 		const list = recommendedPairs.get(type);
 		return list[equipRandom.int(list.length)];
+	}
+
+	const starterWeapons = new Map<BuffType, EntityType[]>([
+		[BuffType.ACROBATIC, [EntityType.MINIGUN, EntityType.PISTOL, EntityType.PURPLE_GLOVE, EntityType.RED_GLOVE, EntityType.SHOTGUN]],
+		[BuffType.BIG, [EntityType.BAZOOKA, EntityType.GATLING, EntityType.ORB_CANNON, EntityType.SHOTGUN, EntityType.WING_CANNON]],
+		[BuffType.EAGLE_EYE, [EntityType.GATLING, EntityType.LASER_GUN, EntityType.MINIGUN, EntityType.PISTOL, EntityType.RIFLE]],
+	]);
+	export function getStarterPair(type : BuffType) : [EntityType, EntityType] {
+		return getStarterPairN(type, 1)[0];
+	}
+	export function getStarterPairN(type : BuffType, n : number) : [EntityType, EntityType][] {
+		if (!starterWeapons.has(type)) {
+			console.error("Warning: missing starter weapons for %s", BuffType[type]);
+			return randomN(n);
+		}
+
+		const weapons = starterWeapons.get(type);
+		equipRandom.shuffle(weapons, n);
+
+		let pairs = [];
+		for (let i = 0; i < n; ++i) {
+			const index = i % weapons.length;
+			pairs.push([weapons[index], getRecommendedAltEquip(weapons[index])]);
+		}
+		return pairs;
 	}
 
 	const tags = new Map<EntityType, Set<EquipTag>>([

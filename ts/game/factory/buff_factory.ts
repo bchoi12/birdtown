@@ -1,6 +1,8 @@
 
 import { game } from 'game'
+import { ComponentType } from 'game/component/api'
 import { Buff } from 'game/component/buff'
+import { Buffs } from 'game/component/buffs'
 import { AcrobaticBuff } from 'game/component/buff/acrobatic_buff'
 import { BigBuff } from 'game/component/buff/big_buff'
 import { BlackHeadbandBuff } from 'game/component/buff/black_headband_buff'
@@ -30,27 +32,6 @@ import { SeededRandom } from 'util/seeded_random'
 
 export namespace BuffFactory {
 
-	const names = new Map<BuffType, string>([
-		[BuffType.ACROBATIC, "FAST BIRD"],
-		[BuffType.BIG, "BIG BIRD"],
-		[BuffType.EAGLE_EYE, "SHARP BIRD"],
-
-		[BuffType.BLASTER, "Booty Blaster"],
-		[BuffType.COOL, "Really Cool Bird"],
-		[BuffType.CRIT, "Gambling Addict"],
-		[BuffType.DODGY, "Macho Grubba"],
-		[BuffType.EXPLOSION, "Boomer"],
-		[BuffType.GLASS_CANNON, "Glass Cannon"],
-		[BuffType.HEALER, "Healer"],
-		[BuffType.ICY, "Chill"],
-		[BuffType.JUICED, "JUICED"],
-		[BuffType.MOSQUITO, "Mosquito"],
-		[BuffType.SPREE, "Spree"],
-		[BuffType.SNIPER, "Eagle Eye"],
-		[BuffType.STAT_STICK, "Stat Stick"],
-		[BuffType.TANK, "TANK"],
-	])
-
 	const createFns = new Map<BuffType, (type : BuffType) => Buff>([
 		[BuffType.ACROBATIC, (type : BuffType) => { return new AcrobaticBuff(type, { maxLevel: 4 }) }],
 		[BuffType.BIG, (type : BuffType) => { return new BigBuff(type, { maxLevel: 4 }) }],
@@ -68,7 +49,7 @@ export namespace BuffFactory {
 		[BuffType.MOSQUITO, (type : BuffType) => { return new MosquitoBuff(type, { maxLevel: 3 }) }],
 		[BuffType.SNIPER, (type : BuffType) => { return new SniperBuff(type, { maxLevel: 3 }) }],
 		[BuffType.SPREE, (type : BuffType) => { return new SpreeBuff(type, {maxLevel: 3, resetOnSpawn: true })}],
-		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, { maxLevel: 100 }) }],
+		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, { maxLevel: 10000 }) }],
 		[BuffType.TANK, (type : BuffType) => { return new TankBuff(type, { maxLevel: 3 }) }],
 
 		[BuffType.BLACK_HEADBAND, (type : BuffType) => { return new BlackHeadbandBuff(type, { maxLevel: 1 }) }],
@@ -85,19 +66,15 @@ export namespace BuffFactory {
 		return <T>createFns.get(type)(type);
 	}
 
-	export function name(type : BuffType) : string {
-		if (names.has(type)) {
-			return names.get(type);
-		}
-		return "";
-	}
-
 	let buffRandom = new SeededRandom(Math.floor(10000 * Math.random()));
 	export function seed(seed : number) : void { buffRandom.seed(seed); }
 
 	const starterBuffs = new Array<BuffType>(BuffType.ACROBATIC, BuffType.BIG, BuffType.EAGLE_EYE);
 	export function getStarters() : Array<BuffType> {
 		return starterBuffs;
+	}
+	export function randomStarter() : BuffType {
+		return buffRandom.pick<BuffType>(starterBuffs);
 	}
 
 	const generalBuffs = new Array<BuffType>(
@@ -112,9 +89,16 @@ export namespace BuffFactory {
 		BuffType.TANK);
 
 	export function getGeneralBuffs(player : Player) : Array<BuffType> {
+		if (!player.hasComponent(ComponentType.BUFFS)) {
+			console.error("Error: %s does not have buff component", player.name());
+			return [];
+		}
+
+		const buffs = player.getComponent<Buffs>(ComponentType.BUFFS);
+
 		let pickableBuffs = new Array<BuffType>();
 		generalBuffs.forEach((buff : BuffType) => {
-			if (player.buffs().canBuff(buff)) {
+			if (buffs.canBuff(buff)) {
 				pickableBuffs.push(buff);
 			}
 		});
@@ -132,8 +116,13 @@ export namespace BuffFactory {
 		EntityType.ORB_CANNON,
 		EntityType.WING_CANNON,
 	])
-	export function getBuffs(player : Player) : Array<BuffType> {
-		let pickableBuffs = this.getGeneralBuffs(player);
+	export function getBuffs() : Array<BuffType> {
+		return getBuffsForPlayer(game.playerState().targetEntity<Player>());
+	}
+	export function getBuffsForPlayer(player : Player) : Array<BuffType> {
+		let pickableBuffs = getGeneralBuffs(player);
+
+		if ()
 
 		if (player.altEquipType() === EntityType.SCOUTER) {
 			pickableBuffs.push(BuffType.JUICED);
@@ -152,11 +141,17 @@ export namespace BuffFactory {
 		}
 		return pickableBuffs;
 	}
+	export function getBuffsN(n : number) : Array<BuffType> {
+		let pickableBuffs = getBuffs();
 
-	export function getBuffsN(player : Player, n : number) : Array<BuffType> {
-		let pickableBuffs = this.getBuffs(player);
+		while (pickableBuffs.length < n) {
+			pickableBuffs.push(BuffType.STAT_STICK);
+		}
 
 		return buffRandom.shuffle(pickableBuffs, n);
+	}
+	export function randomBuff() : BuffType {
+		return getBuffsN(1)[0];
 	}
 
 }

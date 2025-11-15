@@ -1,5 +1,6 @@
 
 import { EntityType } from 'game/entity/api'
+import { BuffType } from 'game/factory/api'
 
 import { Html } from 'ui/html'
 
@@ -230,5 +231,9 @@ export namespace Icon {
 		}
 
 		return entityIcons.get(type);
+	}
+
+	export function getBuffIconType(type : BuffType) : IconType {
+		return IconType.TORNADO;
 	}
 }

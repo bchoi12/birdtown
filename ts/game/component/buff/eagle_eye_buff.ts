@@ -16,4 +16,10 @@ export class EagleEyeBuff extends Buff {
 			[StatType.RELOAD_BOOST, (this.atMaxLevel() ? 0.1 : 0) + 0.1 * level],
 		]);
 	}
+
+	override levelUp() : void {
+		super.levelUp();
+
+		this.addLevel(1);
+	}
 }

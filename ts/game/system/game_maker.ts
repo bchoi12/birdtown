@@ -7,6 +7,7 @@ import { Player } from 'game/entity/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { BuffType } from 'game/factory/api'
+import { BuffFactory } from 'game/factory/buff_factory'
 import { ConfigFactory } from 'game/factory/config_factory'
 import { EquipFactory } from 'game/factory/equip_factory'
 import { SystemBase, System } from 'game/system'
@@ -29,7 +30,7 @@ import { settings } from 'settings'
 import { StringFactory } from 'strings/string_factory'
 
 import { ui } from 'ui'
-import { AnnouncementType, DialogType, FeedType, InfoType, StatusType } from 'ui/api'
+import { AnnouncementType, DialogType, FeedType, InfoType } from 'ui/api'
 
 import { Optional } from 'util/optional'
 import { globalRandom } from 'util/seeded_random'
@@ -198,23 +199,23 @@ export class GameMaker extends SystemBase implements System {
 			return this._equipPair;
 		}
 
-		let id = 0;
+		let nextClientId = 0;
 		if (this._config.getStartingLoadout() === LoadoutType.CHOOSE
 			|| this._config.getStartingLoadout() === LoadoutType.PICK
 			|| this._config.getStartingLoadout() === LoadoutType.BUFF) {
-			id = clientId;
+			nextClientId = clientId;
 		} else if (this._config.getStartingLoadout() === LoadoutType.CHOOSE_TURNS || this._config.getStartingLoadout() === LoadoutType.PICK_TURNS) {
-			id = this._playerRotator.current();
+			nextClientId = this._playerRotator.current();
 		}
 
-		if (id === 0) {
+		if (nextClientId === 0) {
 			console.error("Error: trying to get equips for ID 0")
 		} else if (Flags.printDebug.get()) {
-			console.log("%s: using client ID %d for equips", this.name(), id);
+			console.log("%s: using client ID %d for equips", this.name(), nextClientId);
 		}
 
-		if (game.clientDialogs().hasClientDialog(id)) {
-			const loadout = game.clientDialog(id).message(DialogType.LOADOUT);
+		if (game.clientDialogs().hasClientDialog(nextClientId)) {
+			const loadout = game.clientDialog(nextClientId).message(DialogType.LOADOUT);
 			return [loadout.getEquipType(), loadout.getAltEquipType()];
 		}
 		return EquipFactory.random();
@@ -501,6 +502,9 @@ export class GameMaker extends SystemBase implements System {
 			this.setWinnerClientId(0);
 			break;
 		case GameState.GAME:
+			this.applyBuffs();
+
+			// This shouldn't be necessary, but clear just in case.
 	    	this.queueForceSubmit(DialogType.LOADOUT);
 
 			game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
@@ -675,6 +679,42 @@ export class GameMaker extends SystemBase implements System {
 			clientDialog.queueDialog(DialogType.LOADOUT);
 		}, (clientDialog : ClientDialog) => {
 			return this.isPlaying(clientDialog.clientId()) && !this.isVIP(clientDialog.clientId());
+		});
+	}
+
+	private applyBuffs() : void {
+		if (this._config.getStartingLoadout() !== LoadoutType.BUFF) {
+			return;
+		}
+
+		game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
+			const id = playerState.clientId();
+			let loadout = game.clientDialog(id).message(DialogType.LOADOUT);
+
+			if (this._round === 1) {
+				playerState.targetEntity().clearBuffs();
+			} else if (this._round > 1) {
+				playerState.targetEntity().levelUp();	
+			}
+
+			if (loadout.hasBuffType()) {
+				playerState.targetEntity().addBuff(loadout.getBuffType(), 1);
+			} else if (this._round === 1) {
+				console.error("Warning: applying random starter buff");
+				playerState.targetEntity().addBuff(BuffFactory.randomStarter(), 1);
+			} else {
+				console.error("Warning: applying random buff");
+				playerState.targetEntity().addBuff(BuffFactory.randomBuff(), 1);
+			}
+
+			if (loadout.hasBonusBuffType()) {
+				playerState.targetEntity().addBuff(loadout.getBonusBuffType(), 1);
+			}
+
+			loadout.setBuffType(BuffType.UNKNOWN);
+			loadout.setBonusBuffType(BuffType.UNKNOWN);
+		}, (playerState : PlayerState) => {
+			return this.isPlaying(playerState.clientId());
 		});
 	}
 

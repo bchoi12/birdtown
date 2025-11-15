@@ -163,7 +163,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		classicCategory.setTitle("Free for All");
 
 		let teamCategory = new CategoryWrapper();
-		teamCategory.setTitle("Team/Co-op");
+		teamCategory.setTitle("Team");
 
 		modeColumn.contentElm().appendChild(classicCategory.elm());
 		modeColumn.contentElm().appendChild(teamCategory.elm());
@@ -231,14 +231,12 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			parent: teamCategory.contentElm(),
 			minRecommended: 4,
 		});
-		/*
 		this.populateMode(GameMode.BUFF_BATTLE, {
 			requirements: [],
 			description: "Team Battle, but with buffs after each round.\r\n\r\nThe winning team gets one buff and the losing team gets two buffs. Unlike Team Battle, this game mode works great for smaller groups too.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 2,
 		});
-		*/
 		/*
 		this.populateMode(GameMode.TEAM_DEATHMATCH, {
 			requirements: [],
