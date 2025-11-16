@@ -8,8 +8,8 @@ export class IcyBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.FIRE_BOOST, 0.1 * level],
-			[StatType.SLOW_CHANCE, 0.1 * level],
+			[StatType.FIRE_BOOST, 0.15 * level],
+			[StatType.SLOW_CHANCE, 0.3 * level],
 		]);
 	}
 }

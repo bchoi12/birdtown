@@ -204,7 +204,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				this._profile.resetInertia();
 				this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
 				this._profile.setAcc({x: 0});
-				this._profile.addVel({y: 0.7 * Player._jumpVel});
+				this._profile.addVel({y: 0.7 * this.jumpVel()});
 				this.emote(EmotionType.DEAD);
 			} else {
 				this.getUp();
@@ -522,13 +522,13 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._canJumpTimer.reset();
 		this._doubleJumps = 0;
 
-		this._buffs.onRespawn();
 		this._profile.setPos(spawn);
 		this._profile.setScaleFactor(this.getStat(StatType.SCALING));
 
 		this.fullHeal();
 		this.getUp();
 		this.updateLoadout();
+		this._buffs.onRespawn();
 	}
 	getUp() : void {
 		this.cancelRevive();
@@ -797,13 +797,13 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			}
 			if (this._canJump && this._canJumpTimer.hasTimeLeft()) {
 				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
-					this._profile.jump(Math.max(this._profile.vel().y, Player._jumpVel));
+					this._profile.jump(Math.max(this._profile.vel().y, this.jumpVel()));
 					this._canJump = false;
 					this._canJumpTimer.reset();
 				}
 			} else if (this._doubleJumps > 0) {
-				if (this.key(KeyType.JUMP, KeyState.PRESSED) && this._profile.vel().y < Player._jumpVel) {
-					this._profile.jump(Player._jumpVel);
+				if (this.key(KeyType.JUMP, KeyState.PRESSED) && this._profile.vel().y < this.jumpVel()) {
+					this._profile.jump(this.jumpVel());
 
 					if (!this.getAttribute(AttributeType.UNDERWATER)) {
 						this._doubleJumps--;
@@ -1222,6 +1222,14 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		});
 	}
 
+	private jumpVel() : number {
+		const scaling = this.getStat(StatType.SCALING);
+
+		if (scaling <= 1) {
+			return Player._jumpVel;
+		}
+		return (0.4 * scaling + 0.6) * Player._jumpVel;
+	}
 	private recomputeDir(dir : Vec2) : void {
 		if (Math.sign(dir.x) !== Math.sign(this._headDir.x)) {
 			if (Math.abs(dir.x) > 0.2) {

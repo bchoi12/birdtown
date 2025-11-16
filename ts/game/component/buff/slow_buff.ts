@@ -8,7 +8,7 @@ export class SlowBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.SPEED_DEBUFF, 0.02 * level],
+			[StatType.SPEED_DEBUFF, 0.15 * level],
 		]);
 	}
 

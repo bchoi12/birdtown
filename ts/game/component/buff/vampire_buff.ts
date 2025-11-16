@@ -9,8 +9,8 @@ export class VampireBuff extends Buff {
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
 			[StatType.DAMAGE_BOOST, 0.1 * level],
-			[StatType.DAMAGE_TAKEN_BOOST, 0.3 * level],
-			[StatType.LIFE_STEAL, 0.05 * level],
+			[StatType.DAMAGE_TAKEN_BOOST, 0.1 * level],
+			[StatType.LIFE_STEAL, 0.1 * level],
 		]);
 	}
 }

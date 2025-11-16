@@ -289,13 +289,16 @@ export namespace StringFactory {
 		[BuffType.EXPLOSION, "Boomer"],
 		[BuffType.GLASS_CANNON, "Glass Cannon"],
 		[BuffType.HEALER, "Healer"],
-		[BuffType.ICY, "Chill"],
+		[BuffType.ICY, "Really Cold Bird"],
 		[BuffType.JUICED, "Juicer"],
+		[BuffType.JUMPER, "Jumper"],
 		[BuffType.MOSQUITO, "Mosquito"],
 		[BuffType.SPREE, "Spree"],
 		[BuffType.SNIPER, "Eagle Eye"],
 		[BuffType.STAT_STICK, "Stat Stick"],
 		[BuffType.TANK, "TANK"],
+		[BuffType.VAMPIRE, "Sucker"],
+		[BuffType.WARMOGS, "Health Stacker"],
 	]);
 
 	export function hasBuffName(type : BuffType) : boolean {
@@ -309,9 +312,32 @@ export namespace StringFactory {
 	}
 
 	const buffUsage = new Map<BuffType, string>([
+		[BuffType.ACROBATIC, "High mobility and critical strikes"],
+		[BuffType.BIG, "Massive size and damage"],
+		[BuffType.EAGLE_EYE, "Long range weapon expert"],
 
+		[BuffType.BLASTER, "Massive damage when up close"],
+		[BuffType.COOL, "Become cool - at level 3, ignore explosions"],
+		[BuffType.CRIT, "Increase critical strike chance and critical damage"],
+		[BuffType.DODGY, "Use your equip more - at level 3, dodge projectiles while flipping"],
+		[BuffType.EXPLOSION, "Increase explosion size and damage"],
+		[BuffType.GLASS_CANNON, "Massively increase damage dealt and taken"],
+		[BuffType.HEALER, "Heal your teammates with your bullets"],
+		[BuffType.ICY, "Fire faster and slow down enemies"],
+		[BuffType.JUICED, "Increases critical effects - at level 3, your scouter is always charged"],
+		[BuffType.JUMPER, "Increases damage resistance and exponentially adds more double jumps"],
+		[BuffType.MOSQUITO, "Become annoying"],
+		[BuffType.SNIPER, "Massive damage when far away"],
+		[BuffType.STAT_STICK, "Increases stats randomly"],
+		[BuffType.TANK, "Become big and tanky, deal bonus damage based on your bonus health"],
+		[BuffType.VAMPIRE, "Increase damage dealt, life steal, and damage taken"],
+		[BuffType.WARMOGS, "Increases health by a flat amount and percentage"],
 	]);
 	export function getBuffDescription(type : BuffType) : string {
-		return "DOES STUFF";
+		if (buffUsage.has(type)) {
+			return buffUsage.get(type);
+		}
+
+		return `Error: missing ${getBuffName(type)} description`;
 	}
 }

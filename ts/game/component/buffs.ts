@@ -30,6 +30,8 @@ export class Buffs extends ComponentBase implements Component {
 
 	onRespawn() : void {
 		this.execute<Buff>((buff : Buff, type : BuffType) => {
+			buff.announceLevel();
+
 			if (buff.resetOnSpawn()) {
 				this.removeBuff(type);
 			}
@@ -67,6 +69,9 @@ export class Buffs extends ComponentBase implements Component {
 	canBuff(type : BuffType) : boolean { return !this.hasBuff(type) || !this.hasMaxedBuff(type); }
 	hasMaxedBuff(type : BuffType) : boolean {
 		return this.hasBuff(type) && this.buff(type).atMaxLevel();
+	}
+	buffLevel(type : BuffType) : number {
+		return this.hasBuff(type) ? this.buff(type).level() : 0;
 	}
 	removeBuff(type : BuffType) : void {
 		if (!this.hasBuff(type)) {

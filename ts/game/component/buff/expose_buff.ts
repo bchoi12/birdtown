@@ -6,7 +6,7 @@ import { BuffType, StatType } from 'game/factory/api'
 
 export class ExposeBuff extends Buff {
 
-	private static readonly _interval = 0.01;
+	private static readonly _interval = 0.25;
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([

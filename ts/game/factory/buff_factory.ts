@@ -17,12 +17,15 @@ import { GlassCannonBuff } from 'game/component/buff/glass_cannon_buff'
 import { HealerBuff } from 'game/component/buff/healer_buff'
 import { IcyBuff } from 'game/component/buff/icy_buff'
 import { JuicedBuff } from 'game/component/buff/juiced_buff'
+import { JumperBuff } from 'game/component/buff/jumper_buff'
 import { MosquitoBuff } from 'game/component/buff/mosquito_buff'
 import { SlowBuff } from 'game/component/buff/slow_buff'
 import { SniperBuff } from 'game/component/buff/sniper_buff'
 import { SpreeBuff } from 'game/component/buff/spree_buff'
 import { StatStickBuff } from 'game/component/buff/stat_stick_buff'
 import { TankBuff } from 'game/component/buff/tank_buff'
+import { VampireBuff } from 'game/component/buff/vampire_buff'
+import { WarmogsBuff } from 'game/component/buff/warmogs_buff'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
@@ -33,9 +36,9 @@ import { SeededRandom } from 'util/seeded_random'
 export namespace BuffFactory {
 
 	const createFns = new Map<BuffType, (type : BuffType) => Buff>([
-		[BuffType.ACROBATIC, (type : BuffType) => { return new AcrobaticBuff(type, { maxLevel: 4 }) }],
-		[BuffType.BIG, (type : BuffType) => { return new BigBuff(type, { maxLevel: 4 }) }],
-		[BuffType.EAGLE_EYE, (type : BuffType) => { return new EagleEyeBuff(type, { maxLevel: 4 }) }],
+		[BuffType.ACROBATIC, (type : BuffType) => { return new AcrobaticBuff(type, { maxLevel: 5 }) }],
+		[BuffType.BIG, (type : BuffType) => { return new BigBuff(type, { maxLevel: 5 }) }],
+		[BuffType.EAGLE_EYE, (type : BuffType) => { return new EagleEyeBuff(type, { maxLevel: 5 }) }],
 
 		[BuffType.BLASTER, (type : BuffType) => { return new BlasterBuff(type, { maxLevel: 3 })}],
 		[BuffType.COOL, (type : BuffType) => { return new CoolBuff(type, { maxLevel: 3 })}],
@@ -46,16 +49,19 @@ export namespace BuffFactory {
 		[BuffType.HEALER, (type : BuffType) => { return new HealerBuff(type, { maxLevel: 3 }) }],
 		[BuffType.ICY, (type : BuffType) => { return new IcyBuff(type, { maxLevel: 3 }) }],
 		[BuffType.JUICED, (type : BuffType) => { return new JuicedBuff(type, { maxLevel: 3 }) }],
+		[BuffType.JUMPER, (type : BuffType) => { return new JumperBuff(type, { maxLevel: 3 }) }],
 		[BuffType.MOSQUITO, (type : BuffType) => { return new MosquitoBuff(type, { maxLevel: 3 }) }],
 		[BuffType.SNIPER, (type : BuffType) => { return new SniperBuff(type, { maxLevel: 3 }) }],
 		[BuffType.SPREE, (type : BuffType) => { return new SpreeBuff(type, {maxLevel: 3, resetOnSpawn: true })}],
-		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, { maxLevel: 10000 }) }],
+		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, { maxLevel: 1000 }) }],
 		[BuffType.TANK, (type : BuffType) => { return new TankBuff(type, { maxLevel: 3 }) }],
+		[BuffType.VAMPIRE, (type : BuffType) => { return new VampireBuff(type, { maxLevel: 3 }) }],
+		[BuffType.WARMOGS, (type : BuffType) => { return new WarmogsBuff(type, { maxLevel: 3 }) }],
 
 		[BuffType.BLACK_HEADBAND, (type : BuffType) => { return new BlackHeadbandBuff(type, { maxLevel: 1 }) }],
 
-		[BuffType.EXPOSE, (type : BuffType) => { return new ExposeBuff(type, { maxLevel: 20 }) }],
-		[BuffType.SLOW, (type : BuffType) => { return new SlowBuff(type, { maxLevel: 25 }) }],
+		[BuffType.EXPOSE, (type : BuffType) => { return new ExposeBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
+		[BuffType.SLOW, (type : BuffType) => { return new SlowBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
 	]);
 
 	export function create<T extends Buff>(type : BuffType) : T {
@@ -76,6 +82,9 @@ export namespace BuffFactory {
 	export function randomStarter() : BuffType {
 		return buffRandom.pick<BuffType>(starterBuffs);
 	}
+	export function isStarter(type : BuffType) : boolean {
+		return starterBuffs.includes(type);
+	}
 
 	const generalBuffs = new Array<BuffType>(
 		BuffType.BLASTER,
@@ -83,11 +92,10 @@ export namespace BuffFactory {
 		BuffType.CRIT,
 		BuffType.GLASS_CANNON,
 		BuffType.ICY,
-		BuffType.MOSQUITO,
-		BuffType.SNIPER,
+		BuffType.JUMPER,
 		BuffType.STAT_STICK,
-		BuffType.TANK);
-
+		BuffType.VAMPIRE,
+		BuffType.WARMOGS);
 	export function getGeneralBuffs(player : Player) : Array<BuffType> {
 		if (!player.hasComponent(ComponentType.BUFFS)) {
 			console.error("Error: %s does not have buff component", player.name());
@@ -114,15 +122,26 @@ export namespace BuffFactory {
 	const explodeWeapons = new Set<EntityType>([
 		EntityType.BAZOOKA,
 		EntityType.ORB_CANNON,
+		EntityType.PURPLE_GLOVE,
 		EntityType.WING_CANNON,
-	])
+	]);
+	const prereqBuffs = new Map<BuffType, Array<BuffType>>([
+		[BuffType.ACROBATIC, [BuffType.MOSQUITO, BuffType.TANK]],
+		[BuffType.BIG, [BuffType.TANK]],
+		[BuffType.EAGLE_EYE, [BuffType.MOSQUITO]],
+	]);
+	// Unused: SNIPER
 	export function getBuffs() : Array<BuffType> {
 		return getBuffsForPlayer(game.playerState().targetEntity<Player>());
 	}
 	export function getBuffsForPlayer(player : Player) : Array<BuffType> {
 		let pickableBuffs = getGeneralBuffs(player);
 
-		if ()
+		prereqBuffs.forEach((buffs : Array<BuffType>, reqType : BuffType) => {
+			if (player.hasBuff(reqType)) {
+				pickableBuffs.push(...buffs);
+			}
+		});
 
 		if (player.altEquipType() === EntityType.SCOUTER) {
 			pickableBuffs.push(BuffType.JUICED);

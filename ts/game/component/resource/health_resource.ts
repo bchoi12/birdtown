@@ -45,6 +45,8 @@ export class HealthResource extends Resource {
 		this._max.set(this.getStat());
 	}
 
+	protected override getStat() : number { return super.getStat() * this.entity().getStat(StatType.HEALTH_BOOST); }
+
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 

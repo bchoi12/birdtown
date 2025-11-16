@@ -1,4 +1,5 @@
 
+import { game } from 'game'
 import { BuffType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { BuffFactory } from 'game/factory/buff_factory'
@@ -18,11 +19,18 @@ export class BuffButtonWrapper extends LoadoutButtonWrapper<BuffType> {
 
 	constructor() {
 		super();
-
 	}
 
 	protected override unknownValue() : BuffType { return BuffType.UNKNOWN; }
 	protected override getName(type : BuffType) : string {
+		if (BuffFactory.isStarter(type)) {
+			return StringFactory.getBuffName(type);
+		}
+
+		const currentLevel = game.playerState().targetEntity().buffLevel(type);
+		if (currentLevel >= 1) {
+			return `${StringFactory.getBuffName(type)} Lv${currentLevel + 1}`;
+		}
 		return StringFactory.getBuffName(type);
 	}
 	protected override getDescription(type : BuffType) : string {

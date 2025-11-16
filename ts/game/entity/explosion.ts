@@ -100,6 +100,9 @@ export abstract class Explosion extends EntityBase implements Entity {
 		this._lifeTimer.start(this.ttl() * 2, () => {
 			this.delete();
 		});
+
+		this.profile().multScaling(this.owner().getStat(StatType.SCALING));
+
 	}
 
 	override update(stepData : StepData) : void {
@@ -148,7 +151,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 			if (magnitude > 0
 				&& !this.matchAssociations([AssociationType.OWNER], other)
 				&& this.owner().hasStat(StatType.EXPLOSION_DAMAGE)) {
-				const damage = magnitude * this.owner().getStat(StatType.EXPLOSION_DAMAGE);
+				const damage = magnitude * this.owner().getStat(StatType.EXPLOSION_DAMAGE) * this.owner().getStat(StatType.DAMAGE_BOOST);
 				if (damage > 0) {
 					other.takeDamage(damage, this.owner());
 				}

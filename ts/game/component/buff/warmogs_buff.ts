@@ -3,14 +3,14 @@ import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { Buff, BuffOptions } from 'game/component/buff'
 import { BuffType, StatType } from 'game/factory/api'
+import { Optional } from 'util/optional'
 
-export class DodgyBuff extends Buff {
+export class WarmogsBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
-		// At max level, dodge while using equip
 		return new Map([
-			[StatType.SPEED_BOOST, 0.1 * level],
-			[StatType.USE_BOOST, 0.25 * level],
+			[StatType.HEALTH, 50 * level],
+			[StatType.HEALTH_BOOST, 0.1 * level],
 		]);
 	}
 }

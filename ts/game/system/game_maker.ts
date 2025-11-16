@@ -184,6 +184,11 @@ export class GameMaker extends SystemBase implements System {
 
 	getEquips(clientId : number) : [EntityType, EntityType] {
 		if (this._config.type() === GameMode.FREE) {
+			const loadout = game.clientDialog().message(DialogType.LOADOUT);
+			if (loadout.getEquipType() !== EntityType.UNKNOWN && loadout.getAltEquipType() !== EntityType.UNKNOWN) {
+				return [loadout.getEquipType(), loadout.getAltEquipType()];
+			}
+
 			return EquipFactory.nextDefaultPair();
 		}
 
@@ -503,7 +508,7 @@ export class GameMaker extends SystemBase implements System {
 			break;
 		case GameState.GAME:
 			this.applyBuffs();
-
+			
 			// This shouldn't be necessary, but clear just in case.
 	    	this.queueForceSubmit(DialogType.LOADOUT);
 
@@ -684,6 +689,12 @@ export class GameMaker extends SystemBase implements System {
 
 	private applyBuffs() : void {
 		if (this._config.getStartingLoadout() !== LoadoutType.BUFF) {
+			// Clean up buffs from previous buff mode
+			if (this._round === 1) {
+				game.playerStates().execute<PlayerState>((playerState : PlayerState) => {
+					playerState.targetEntity().clearBuffs();
+				});
+			}
 			return;
 		}
 

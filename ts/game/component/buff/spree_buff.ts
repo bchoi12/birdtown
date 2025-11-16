@@ -22,7 +22,7 @@ export class SpreeBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.HP_REGEN, level >= 1 ? 2 : 0],
+			[StatType.HP_REGEN, level * 2],
 			[StatType.SPEED_BOOST, level * 0.05],
 			[StatType.DAMAGE_BOOST, level >= 2 ? (level - 1) * 0.25 : 0],
 			[StatType.DAMAGE_TAKEN_BOOST, level >= 2 ? (level - 1) * 0.25 : 0],

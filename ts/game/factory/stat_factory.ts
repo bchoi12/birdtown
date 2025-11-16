@@ -7,16 +7,24 @@ import { StatType } from 'game/factory/api'
 export namespace StatFactory {
 
 	const baseStats = new Map<StatType, number>([
+		[StatType.CRIT_CHANCE, 0],
+		[StatType.CRIT_BOOST, 1],
 		[StatType.DAMAGE_BOOST, 1],
+		[StatType.DAMAGE_CLOSE_BOOST, 1],
+		[StatType.DAMAGE_FAR_BOOST, 1],
 		[StatType.DAMAGE_TAKEN_BOOST, 1],
+		[StatType.DAMAGE_RESIST_BOOST, 1],
+		[StatType.HEALTH_BOOST, 1],
+		[StatType.SCALING, 1],
 		[StatType.SPEED_BOOST, 1],
 		[StatType.SPEED_DEBUFF, 1],
 	]);
 
 	const statMin = new Map<StatType, number>([
-		[StatType.DAMAGE_RESIST_BOOST, 0.1],
-		[StatType.FIRE_BOOST, 0.1],
-		[StatType.RELOAD_BOOST, 0.1],
+		[StatType.DAMAGE_BOOST, 0.1],
+		[StatType.DAMAGE_RESIST_BOOST, 0.05],
+		[StatType.FIRE_BOOST, 0.15],
+		[StatType.RELOAD_BOOST, 0.2],
 		[StatType.SCALING, 0.3],
 		[StatType.SPEED_DEBUFF, 0.1],
 		[StatType.USE_BOOST, 0.1],
@@ -28,9 +36,7 @@ export namespace StatFactory {
 
 	const entityStats = new Map<EntityType, Map<StatType, number>>([
 		// Player
-		// TODO: SCALING, DISTANCE_DAMAGE_BOOST, PERIL_DAMAGE_BOOST, CLOSE_DAMAGE_BOOST,
-		// VAMPIRE BUFF (DAMAGE + LIFESTEAL + TAKE DAMAGE)
-		// ALWAYS CHARGED
+		// TODO: PERIL_DAMAGE_BOOST
 		// PIERCE ATTRIBUTE
 		// BUFFS THAT PROCESS DAMAGE
 		[EntityType.PLAYER, new Map([

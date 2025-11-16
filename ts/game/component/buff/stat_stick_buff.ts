@@ -16,9 +16,7 @@ export class StatStickBuff extends Buff {
 		StatType.DAMAGE_CLOSE_BOOST,
 		StatType.DAMAGE_FAR_BOOST,
 		StatType.DAMAGE_RESIST_BOOST,
-		StatType.DOUBLE_JUMPS,
 		StatType.FIRE_BOOST,
-		StatType.HEAL_PERCENT,
 		StatType.HEALTH,
 		StatType.HP_REGEN,
 		StatType.LIFE_STEAL,
@@ -36,7 +34,7 @@ export class StatStickBuff extends Buff {
 		this._rng = new SeededRandom(0);
 
 		if (this.isSource()) {
-			this.setSeed(Math.ceil(1000 * Math.random()));
+			this.setSeed(Math.ceil(10000 * Math.random()));
 		}
 
 		this.addProp<number>({

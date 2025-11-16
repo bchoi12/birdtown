@@ -93,6 +93,7 @@ export interface Entity extends GameObject {
 	hasBuff(type : BuffType) : boolean;
 	hasMaxedBuff(type : BuffType) : boolean;
 	addBuff(type : BuffType, delta : number) : void;
+	buffLevel(type : BuffType) : number;
 	levelUp() : void;
 	setBuffMin(type : BuffType, min : number) : void;
 	removeBuff(type : BuffType) : void;
@@ -443,6 +444,12 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		console.log("Add buff %s +%d for %s", BuffType[type], delta, this.name());
 		this.getComponent<Buffs>(ComponentType.BUFFS).addBuff(type, delta);
 	}
+	buffLevel(type : BuffType) : number {
+		if (!this.hasComponent(ComponentType.BUFFS)) {
+			return;
+		}
+		return this.getComponent<Buffs>(ComponentType.BUFFS).buffLevel(type);
+	}
 	levelUp() : void {
 		if (!this.hasComponent(ComponentType.BUFFS)) {
 			return;
@@ -510,13 +517,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 
 		// Damage stuff
-		if (delta > 0) {
-			if (this.hasStat(StatType.DAMAGE_TAKEN_BOOST)) {
-				delta *= this.getStat(StatType.DAMAGE_TAKEN_BOOST);
-			}
-			if (this.hasStat(StatType.DAMAGE_RESIST_BOOST)) {
-				delta /= this.getStat(StatType.DAMAGE_RESIST_BOOST);
-			}
+		if (delta > 0 && this.id() !== from.id()) {
+			delta *= this.getStat(StatType.DAMAGE_TAKEN_BOOST);
+			delta /= this.getStat(StatType.DAMAGE_RESIST_BOOST);
 
 			if (from.rollStat(StatType.EXPOSE_CHANCE)) {
 				this.addBuff(BuffType.EXPOSE, 1);

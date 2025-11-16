@@ -9,8 +9,8 @@ export class ExplosionBuff extends Buff {
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
 			[StatType.BURST_BONUS, this.atMaxLevel() ? 1 : 0],
-			[StatType.EXPLOSION_BOOST, 0.2 * level],
-			[StatType.EXPLOSION_DAMAGE, 3 * level],
+			[StatType.EXPLOSION_BOOST, 0.5 * level],
+			[StatType.EXPLOSION_DAMAGE, 5 * level],
 		]);
 	}
 }

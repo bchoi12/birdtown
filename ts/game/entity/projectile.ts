@@ -17,7 +17,6 @@ import { Vec2 } from 'util/vector'
 export abstract class Projectile extends EntityBase {
 
 	protected _collisions : Array<[MATTER.Collision, Entity]>;
-	protected _damageMultiplier : number;
 	protected _hitId : number;
 	protected _hits : Set<number>;
 	protected _prevPos : Vec2;
@@ -32,7 +31,6 @@ export abstract class Projectile extends EntityBase {
 		this.addType(EntityType.PROJECTILE);
 
 		this._collisions = new Array();
-		this._damageMultiplier = 1;
 		this._hitId = 0;
 		this._hits = new Set();
 		this._prevPos = Vec2.zero();
@@ -64,23 +62,13 @@ export abstract class Projectile extends EntityBase {
 		super.initialize();
 
 		const owner = this.owner();
-		if (owner.hasStat(StatType.DAMAGE_BOOST)) {
-			this._damageMultiplier *= owner.getStat(StatType.DAMAGE_BOOST);
-		}
-
 		if (this.isSource()) {
 			if (owner.rollStat(StatType.CRIT_CHANCE)) {
 				this.setAttribute(AttributeType.CRITICAL, true);
-				this._damageMultiplier *= owner.getStat(StatType.CRIT_BOOST);
-
-				const critChance = owner.getStat(StatType.CRIT_CHANCE);
-				if (critChance > 1) {
-					this._damageMultiplier *= critChance;
-				}
 			}
 		}
 
-		if (this.hasProfile() && owner.hasStat(StatType.SCALING)) {
+		if (this.hasProfile()) {
 			this.profile().multScaling(owner.getStat(StatType.SCALING));
 		}
 	}
@@ -213,21 +201,39 @@ export abstract class Projectile extends EntityBase {
 	}
 
 	protected hitDamage() : number {
-		let damage = this.getStat(StatType.DAMAGE) * this._damageMultiplier;
+		let mult = 1;
+
 		if (this.hasOwner()) {
+			mult += this.owner().getStat(StatType.DAMAGE_BOOST) - 1;
+
 			if (this.owner().hasStat(StatType.DAMAGE_CLOSE_BOOST)) {
 				const weight = Math.max(0, 1 - 2 * this.ttlElapsed());
-				damage *= Fns.normalizeRange(1, weight, this.owner().getStat(StatType.DAMAGE_CLOSE_BOOST));
+				mult += Fns.lerpRange(1, weight, this.owner().getStat(StatType.DAMAGE_CLOSE_BOOST)) - 1;
 			}
 			if (this.owner().hasStat(StatType.DAMAGE_FAR_BOOST)) {
 				const weight = Math.max(0, 2 * this.ttlElapsed() - 1);
-				damage *= Fns.normalizeRange(1, weight, this.owner().getStat(StatType.DAMAGE_FAR_BOOST));
+				mult += Fns.lerpRange(1, weight, this.owner().getStat(StatType.DAMAGE_FAR_BOOST)) - 1;
 			}
 		}
-		return damage;
+
+		if (this.getAttribute(AttributeType.CRITICAL)) {
+			mult += this.owner().getStat(StatType.CRIT_BOOST) - 1;
+		}
+
+		return this.getStat(StatType.DAMAGE) * mult;
 	}
 	protected unstickDamage() : number {
-		return this.getStat(StatType.UNSTICK_DAMAGE) * this._damageMultiplier;
+		let mult = 1;
+
+		if (this.hasOwner()) {
+			mult += this.owner().getStat(StatType.DAMAGE_BOOST) - 1;
+		}
+
+		if (this.getAttribute(AttributeType.CRITICAL)) {
+			mult += owner.getStat(StatType.CRIT_BOOST) - 1;
+		}
+
+		return this.getStat(StatType.UNSTICK_DAMAGE) * mult;
 	}
 	protected applyUnstickDamage(id : number) : void {
 		const dmg = this.unstickDamage();

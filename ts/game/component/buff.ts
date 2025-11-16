@@ -9,6 +9,7 @@ import { BuffType, StatType } from 'game/factory/api'
 import { BuffFactory } from 'game/factory/buff_factory'
 
 import { Fns } from 'util/fns'
+import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
 
 import { StringFactory } from 'strings/string_factory'
@@ -35,16 +36,16 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.DAMAGE_RESIST_BOOST, 0.05],
 		[StatType.DAMAGE_TAKEN_BOOST, 0.1],
 		[StatType.DOUBLE_JUMPS, 1],
-		[StatType.EXPOSE_CHANCE, 0.01],
-		[StatType.FIRE_BOOST, 0.1],
-		[StatType.HEAL_PERCENT, 0.02],
+		[StatType.FIRE_BOOST, 0.15],
+		[StatType.HEAL_PERCENT, 0.05],
 		[StatType.HEALTH, 25],
-		[StatType.HP_REGEN, 0.5],
+		[StatType.HEALTH_BOOST, 0.1],
+		[StatType.HP_REGEN, 3],
 		[StatType.SCALING, 0.1],
-		[StatType.SLOW_CHANCE, 0.1],
+		[StatType.SLOW_CHANCE, 0.3],
 		[StatType.SPEED_BOOST, 0.1],
 		[StatType.SPEED_DEBUFF, 0.1],
-		[StatType.LIFE_STEAL, 0.02],
+		[StatType.LIFE_STEAL, 0.1],
 		[StatType.USE_BOOST, 0.25],
 	]);
 
@@ -52,6 +53,7 @@ export abstract class Buff extends ComponentBase implements Component {
 	protected _level : number;
 	protected _maxLevel : number;
 	protected _resetOnSpawn : boolean;
+	protected _levelAnnounce : Optional<number>;
 
 	protected _addTimer : Timer;
 	protected _resetTimer : Timer;
@@ -67,6 +69,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		this._level = 0;
 		this._maxLevel = options.maxLevel;
 		this._resetOnSpawn = options.resetOnSpawn;
+		this._levelAnnounce = new Optional();
 
 		this._addTimer = this.newTimer({
 			canInterrupt: true,
@@ -164,10 +167,22 @@ export abstract class Buff extends ComponentBase implements Component {
 			this.applyStats(this.getStatCache());
 
 			if (delta > 0 && StringFactory.hasBuffName(this._buffType)) {
-				const name = StringFactory.getBuffName(this._buffType);
-				game.playerState(this.entity().clientId())?.chatBubble(`${name} Lv${level}`);
+				this._levelAnnounce.set(level);
+				
+				if (!this.entity().deactivated()) {
+					this.announceLevel();
+				}
 			}
 		}	
+	}
+
+	announceLevel() : void {
+		if (this._levelAnnounce.has()) {
+			const name = StringFactory.getBuffName(this._buffType);
+			game.playerState(this.entity().clientId())?.chatBubble(`${name} Lv${this._levelAnnounce.get()}`);
+		}
+
+		this._levelAnnounce.clear();
 	}
 
 	adding() : boolean { return this._addTimer.hasTimeLeft(); }
