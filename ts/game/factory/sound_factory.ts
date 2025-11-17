@@ -97,6 +97,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.CRIT, {
+			path: "crit.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.DASH, {
 			path: "dash.mp3",
 			options: {

@@ -244,28 +244,24 @@ export abstract class Projectile extends EntityBase {
 		}
 
 		this._hitId = other.id();
-		if (this._playImpactSound && other.impactSound() !== SoundType.UNKNOWN) {
-			SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
-		}
 
-		if (this.getAttribute(AttributeType.CRITICAL)) {
-			for (let i = 0; i < 4; ++i) {
-				this.addEntity(EntityType.SPHERE_PARTICLE, {
-					offline: true,
-					ttl: 400,
-					profileInit: {
-						pos: this.profile().pos(),
-						vel: {
-							x: Fns.randomNoise(0.1),
-							y: Fns.randomNoise(0.1),
-						},
-						scaling: { x: 0.15, y: 0.15 },
+		if (this.getAttribute(AttributeType.CRITICAL) && other.getAttribute(AttributeType.ALIVE)) {
+			this.addEntity(EntityType.RING_PARTICLE, {
+				offline: true,
+				ttl: 200,
+				profileInit: {
+					pos: this.profile().pos().clone().addRandomOffset({ x: 0.05, y: 0.05 }),
+				},
+				modelInit: {
+					transforms: {
+						scale: { x: 0.3, y: 0.3, z: 0.3 },
 					},
-					modelInit: {
-						staticColor: this.owner().clientColor(),
-					}
-				});
-			}
+					staticColor: this.owner().clientColor(),
+				}
+			});
+			SoundFactory.playFromPos(SoundType.CRIT, this.profile().getRenderPos().toBabylon3(), {});		
+		} else if (this._playImpactSound && other.impactSound() !== SoundType.UNKNOWN) {
+			SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
 		}
 	}
 	protected abstract onMiss() : void;

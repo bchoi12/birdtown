@@ -70,6 +70,7 @@ import { CubeParticle } from 'game/entity/particle/cube_particle'
 import { EnergyCubeParticle } from 'game/entity/particle/energy_cube_particle'
 import { MuzzleParticle } from 'game/entity/particle/muzzle_particle'
 import { LaunchParticle } from 'game/entity/particle/launch_particle'
+import { RingParticle } from 'game/entity/particle/ring_particle'
 import { SmokeParticle } from 'game/entity/particle/smoke_particle'
 import { SparkParticle } from 'game/entity/particle/spark_particle'
 import { SphereParticle } from 'game/entity/particle/sphere_particle'
@@ -192,6 +193,7 @@ export namespace EntityFactory {
 		[EntityType.ENERGY_CUBE_PARTICLE, (options : EntityOptions) => { return new EnergyCubeParticle(options); }],
 		[EntityType.MUZZLE_PARTICLE, (options : EntityOptions) => { return new MuzzleParticle(options); }],
 		[EntityType.LAUNCH_PARTICLE, (options : EntityOptions) => { return new LaunchParticle(options); }],
+		[EntityType.RING_PARTICLE, (options : EntityOptions) => { return new RingParticle(options); }],
 		[EntityType.SMOKE_PARTICLE, (options : EntityOptions) => { return new SmokeParticle(options); }],
 		[EntityType.SPARK_PARTICLE, (options : EntityOptions) => { return new SparkParticle(options); }],
 		[EntityType.SPHERE_PARTICLE, (options : EntityOptions) => { return new SphereParticle(options); }],
@@ -243,6 +245,7 @@ export namespace EntityFactory {
 		[EntityType.ENERGY_CUBE_PARTICLE, { x: 1, y: 1, z: 1}],
 		[EntityType.MUZZLE_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.LAUNCH_PARTICLE, { x: 1, y: 1, z: 1 }],
+		[EntityType.RING_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.SMOKE_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.SPARK_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.SPHERE_PARTICLE, { x: 1, y: 1, z: 1 }],

@@ -13,6 +13,7 @@ export namespace ParticleFactory {
 		[ParticleType.CUBE, createCube],
 		[ParticleType.ENERGY_CUBE, createCube],
 		[ParticleType.PLANE, createPlane],
+		[ParticleType.RING, createRing],
 		[ParticleType.SMOKE, createSphere],
 		[ParticleType.SPARK, createCube],
 		[ParticleType.SPHERE, createSphere],
@@ -86,10 +87,22 @@ export namespace ParticleFactory {
 		tear.material = new BABYLON.StandardMaterial(name, game.scene());
 		return tear;
 	}
+
+	function createRing() : BABYLON.Mesh {
+		const name = "particle-ring";
+		let ring = BABYLON.MeshBuilder.CreateTorus(name, {
+			thickness: 0.04,
+			diameter: 1,
+		}, game.scene());
+		ring.isVisible = false;
+		ring.material = new BABYLON.StandardMaterial(name, game.scene());
+		return ring;
+	}
 	function createTorus() : BABYLON.Mesh {
 		const name = "particle-torus";
 		let torus = BABYLON.MeshBuilder.CreateTorus(name, {
 			thickness: 0.3,
+			diameter: 1,
 		}, game.scene());
 		torus.isVisible = false;
 		torus.material = new BABYLON.StandardMaterial(name, game.scene());
