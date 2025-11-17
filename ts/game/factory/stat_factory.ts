@@ -273,9 +273,9 @@ export namespace StatFactory {
 		[EntityType.RIFLE, new Map([
 			[StatType.BURSTS, 8],
 			[StatType.CHARGED_BURSTS, 8],
-			[StatType.CHARGED_FIRE_TIME, 200],
+			[StatType.CHARGED_FIRE_TIME, 150],
 			[StatType.CHARGED_FORCE, 0.1],
-			[StatType.CHARGED_RELOAD_TIME, 800],
+			[StatType.CHARGED_RELOAD_TIME, 600],
 			[StatType.FIRE_TIME, 400],
 			[StatType.FORCE, 0],
 			[StatType.PROJECTILE_SPEED, 1],

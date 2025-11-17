@@ -245,20 +245,22 @@ export abstract class Projectile extends EntityBase {
 
 		this._hitId = other.id();
 
-		if (this.getAttribute(AttributeType.CRITICAL) && other.getAttribute(AttributeType.ALIVE)) {
-			this.addEntity(EntityType.RING_PARTICLE, {
-				offline: true,
-				ttl: 200,
-				profileInit: {
-					pos: this.profile().pos().clone().addRandomOffset({ x: 0.05, y: 0.05 }),
-				},
-				modelInit: {
-					transforms: {
-						scale: { x: 0.3, y: 0.3, z: 0.3 },
+		if (!this.getAttribute(AttributeType.CRITICAL) && !other.getAttribute(AttributeType.ALIVE)) {
+			for (let i = 0; i < 3; ++i) {
+				this.addEntity(EntityType.RING_PARTICLE, {
+					offline: true,
+					ttl: 100 + 100 * i,
+					profileInit: {
+						pos: this.profile().pos().clone().addRandomOffset({ x: 0.1, y: 0.1 }),
 					},
-					staticColor: this.owner().clientColor(),
-				}
-			});
+					modelInit: {
+						transforms: {
+							scale: { x: 0.2, y: 0.2, z: 0.2 },
+						},
+						staticColor: this.owner().clientColor(),
+					}
+				});
+			}
 			SoundFactory.playFromPos(SoundType.CRIT, this.profile().getRenderPos().toBabylon3(), {});		
 		} else if (this._playImpactSound && other.impactSound() !== SoundType.UNKNOWN) {
 			SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
