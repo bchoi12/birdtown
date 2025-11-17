@@ -201,7 +201,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 		let juice = this.getStat(StatType.USE_JUICE);
 		if (this.hasOwner() && this.owner().hasStat(StatType.USE_BOOST)) {
-			juice /= this.owner().getStat(StatType.USE_BOOST);
+			juice /= Math.max(0.1, 1 + this.owner().getStat(StatType.USE_BOOST));
 		}
 
 		return juice;
@@ -221,7 +221,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 			return 0;
 		}
 
-		return 1 - Fns.normalizeRange(100, this._juiceSinceGrounded, 400);
+		return (1 - Fns.normalizeRange(100, this._juiceSinceGrounded, 400)) * (1 + this.owner().getStat(StatType.CHARGE_BOOST));
 	}
 
 	protected simulateUse(uses : number) : void {

@@ -10,7 +10,7 @@ export class WarmogsBuff extends Buff {
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
 			[StatType.HEALTH, 50 * level],
-			[StatType.HEALTH_BOOST, 0.1 * level],
+			[StatType.HEALTH_BOOST, 0.15 * level],
 		]);
 	}
 }

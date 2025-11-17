@@ -8,7 +8,8 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { StepData } from 'game/game_object'
-import { SoundType, StatType } from 'game/factory/api'
+import { ColorType, SoundType, StatType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 import { SoundFactory } from 'game/factory/sound_factory'
 
 import { Fns } from 'util/fns'
@@ -69,7 +70,7 @@ export abstract class Projectile extends EntityBase {
 		}
 
 		if (this.hasProfile()) {
-			this.profile().multScaling(owner.getStat(StatType.SCALING));
+			this.profile().multScaling(owner.getStat(StatType.SCALING) * owner.getStat(StatType.PROJECTILE_SCALING));
 		}
 	}
 
@@ -179,7 +180,7 @@ export abstract class Projectile extends EntityBase {
 
 		const hitDamage = this.hitDamage();
 		if (hitDamage !== 0) {
-			other.takeDamage(hitDamage, this.hasOwner() ? this.owner() : this);
+			other.takeDamage(hitDamage, this.owner(), this);
 		}
 		this.onHit(other);
 	}
@@ -200,40 +201,31 @@ export abstract class Projectile extends EntityBase {
 		});
 	}
 
-	protected hitDamage() : number {
+	protected getDamageMultiplier(applyDistanceBoosts : boolean) : number {
 		let mult = 1;
-
 		if (this.hasOwner()) {
-			mult += this.owner().getStat(StatType.DAMAGE_BOOST) - 1;
+			mult += this.owner().getStat(StatType.DAMAGE_BOOST);
 
-			if (this.owner().hasStat(StatType.DAMAGE_CLOSE_BOOST)) {
-				const weight = Math.max(0, 1 - 2 * this.ttlElapsed());
-				mult += Fns.lerpRange(1, weight, this.owner().getStat(StatType.DAMAGE_CLOSE_BOOST)) - 1;
-			}
-			if (this.owner().hasStat(StatType.DAMAGE_FAR_BOOST)) {
-				const weight = Math.max(0, 2 * this.ttlElapsed() - 1);
-				mult += Fns.lerpRange(1, weight, this.owner().getStat(StatType.DAMAGE_FAR_BOOST)) - 1;
+			if (applyDistanceBoosts) {
+				const closeWeight = Math.max(0, 1 - 2 * this.ttlElapsed());
+				mult += Fns.lerpRange(0, closeWeight, this.owner().getStat(StatType.DAMAGE_CLOSE_BOOST));
+
+				const farWeight = Math.max(0, 2 * this.ttlElapsed() - 1);
+				mult += Fns.lerpRange(0, farWeight, this.owner().getStat(StatType.DAMAGE_FAR_BOOST));
 			}
 		}
 
 		if (this.getAttribute(AttributeType.CRITICAL)) {
-			mult += this.owner().getStat(StatType.CRIT_BOOST) - 1;
+			mult += this.owner().getStat(StatType.CRIT_BOOST);
 		}
 
-		return this.getStat(StatType.DAMAGE) * mult;
+		return Math.max(0.1, mult);
+	}
+	protected hitDamage() : number {
+		return this.getStat(StatType.DAMAGE) * this.getDamageMultiplier(/*applyDistanceBoosts=*/true);
 	}
 	protected unstickDamage() : number {
-		let mult = 1;
-
-		if (this.hasOwner()) {
-			mult += this.owner().getStat(StatType.DAMAGE_BOOST) - 1;
-		}
-
-		if (this.getAttribute(AttributeType.CRITICAL)) {
-			mult += owner.getStat(StatType.CRIT_BOOST) - 1;
-		}
-
-		return this.getStat(StatType.UNSTICK_DAMAGE) * mult;
+		return this.getStat(StatType.UNSTICK_DAMAGE) * this.getDamageMultiplier(/*applyDistanceBoosts=*/false);
 	}
 	protected applyUnstickDamage(id : number) : void {
 		const dmg = this.unstickDamage();
@@ -242,8 +234,8 @@ export abstract class Projectile extends EntityBase {
 		}
 
 		const [stuckEntity, ok] = game.entities().getEntity(id);
-		if (ok) {
-			stuckEntity.takeDamage(dmg, this.hasOwner() ? this.owner() : this);
+		if (ok && this.hasOwner()) {
+			stuckEntity.takeDamage(dmg, this.owner(), this);
 		}
 	}
 	protected onHit(other : Entity) : void {
@@ -254,6 +246,26 @@ export abstract class Projectile extends EntityBase {
 		this._hitId = other.id();
 		if (this._playImpactSound && other.impactSound() !== SoundType.UNKNOWN) {
 			SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
+		}
+
+		if (this.getAttribute(AttributeType.CRITICAL)) {
+			for (let i = 0; i < 4; ++i) {
+				this.addEntity(EntityType.SPHERE_PARTICLE, {
+					offline: true,
+					ttl: 400,
+					profileInit: {
+						pos: this.profile().pos(),
+						vel: {
+							x: Fns.randomNoise(0.1),
+							y: Fns.randomNoise(0.1),
+						},
+						scaling: { x: 0.15, y: 0.15 },
+					},
+					modelInit: {
+						staticColor: this.owner().clientColor(),
+					}
+				});
+			}
 		}
 	}
 	protected abstract onMiss() : void;

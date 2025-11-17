@@ -21,7 +21,7 @@ export namespace EquipFactory {
 		[EntityType.PISTOL, [EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.PURPLE_GLOVE, [EntityType.PURPLE_HEADBAND]],
 		[EntityType.RED_GLOVE, [EntityType.RED_HEADBAND]],
-		[EntityType.RIFLE, [EntityType.BLACK_HEADBAND, EntityType.RED_HEADBAND]],
+		[EntityType.RIFLE, [EntityType.BLACK_HEADBAND, EntityType.RED_HEADBAND, EntityType.SCOUTER]],
 		[EntityType.SHOTGUN, [EntityType.COWBOY_HAT, EntityType.PURPLE_HEADBAND]],
 		[EntityType.WING_CANNON, [EntityType.SCOUTER, EntityType.POCKET_ROCKET]],
 	]);
@@ -36,7 +36,6 @@ export namespace EquipFactory {
 		[EntityType.ORB_CANNON, [EntityType.SCOUTER]],
 		[EntityType.PURPLE_GLOVE, [EntityType.SCOUTER]],
 		[EntityType.RED_GLOVE, [EntityType.SCOUTER]],
-		[EntityType.RIFLE, [EntityType.SCOUTER]],
 		[EntityType.SHOTGUN, [EntityType.SCOUTER]],
 
 		[EntityType.GOLDEN_GUN, [EntityType.SCOUTER]],
@@ -159,9 +158,9 @@ export namespace EquipFactory {
 	}
 
 	const starterWeapons = new Map<BuffType, EntityType[]>([
-		[BuffType.ACROBATIC, [EntityType.MINIGUN, EntityType.PISTOL, EntityType.PURPLE_GLOVE, EntityType.RED_GLOVE, EntityType.SHOTGUN]],
-		[BuffType.BIG, [EntityType.BAZOOKA, EntityType.GATLING, EntityType.ORB_CANNON, EntityType.SHOTGUN, EntityType.WING_CANNON]],
-		[BuffType.EAGLE_EYE, [EntityType.GATLING, EntityType.LASER_GUN, EntityType.MINIGUN, EntityType.PISTOL, EntityType.RIFLE]],
+		[BuffType.ACROBATIC, [EntityType.MINIGUN, EntityType.PISTOL, EntityType.PURPLE_GLOVE, EntityType.RED_GLOVE, EntityType.RIFLE, EntityType.SHOTGUN]],
+		[BuffType.BIG, [EntityType.BAZOOKA, EntityType.GATLING, EntityType.ORB_CANNON, EntityType.PURPLE_GLOVE, EntityType.SHOTGUN, EntityType.WING_CANNON]],
+		[BuffType.EAGLE_EYE, [EntityType.GATLING, EntityType.LASER_GUN, EntityType.MINIGUN, EntityType.PISTOL, EntityType.RED_GLOVE, EntityType.RIFLE]],
 	]);
 	export function getStarterPair(type : BuffType) : [EntityType, EntityType] {
 		return getStarterPairN(type, 1)[0];

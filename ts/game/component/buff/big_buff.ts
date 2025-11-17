@@ -10,7 +10,7 @@ export class BigBuff extends Buff {
 		// TODO: some shielding mechanic
 		return new Map([
 			[StatType.DAMAGE_BOOST, 0.1 * level],
-			[StatType.DAMAGE_RESIST_BOOST, 0.05 * level],
+			[StatType.DAMAGE_RESIST_BOOST, 0.1 * level],
 			[StatType.HEALTH, 40 + 60 * (level - 1)],
 			[StatType.SCALING, 0.1 * level],
 		]);

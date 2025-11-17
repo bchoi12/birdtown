@@ -72,6 +72,7 @@ import { MuzzleParticle } from 'game/entity/particle/muzzle_particle'
 import { LaunchParticle } from 'game/entity/particle/launch_particle'
 import { SmokeParticle } from 'game/entity/particle/smoke_particle'
 import { SparkParticle } from 'game/entity/particle/spark_particle'
+import { SphereParticle } from 'game/entity/particle/sphere_particle'
 import { SweatParticle } from 'game/entity/particle/sweat_particle'
 import { TextParticle } from 'game/entity/particle/text_particle'
 import { WaterParticle } from 'game/entity/particle/water_particle'
@@ -193,6 +194,7 @@ export namespace EntityFactory {
 		[EntityType.LAUNCH_PARTICLE, (options : EntityOptions) => { return new LaunchParticle(options); }],
 		[EntityType.SMOKE_PARTICLE, (options : EntityOptions) => { return new SmokeParticle(options); }],
 		[EntityType.SPARK_PARTICLE, (options : EntityOptions) => { return new SparkParticle(options); }],
+		[EntityType.SPHERE_PARTICLE, (options : EntityOptions) => { return new SphereParticle(options); }],
 		[EntityType.SWEAT_PARTICLE, (options : EntityOptions) => { return new SweatParticle(options); }],
 		[EntityType.TEXT_PARTICLE, (options : EntityOptions) => { return new TextParticle(options); }],
 		[EntityType.WATER_PARTICLE, (options : EntityOptions) => { return new WaterParticle(options); }],
@@ -243,6 +245,7 @@ export namespace EntityFactory {
 		[EntityType.LAUNCH_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.SMOKE_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.SPARK_PARTICLE, { x: 1, y: 1, z: 1 }],
+		[EntityType.SPHERE_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.SWEAT_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.TEXT_PARTICLE, { x: 1, y: 1, z: 1 }],
 		[EntityType.WATER_PARTICLE, { x: 1, y: 1, z: 1 }],

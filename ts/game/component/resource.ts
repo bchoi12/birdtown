@@ -14,7 +14,8 @@ import { Optional } from 'util/optional'
 
 export type ResourceUpdate = {
 	delta : number;
-	entity? : Entity;
+	from? : Entity;
+	hitEntity? : Entity;
 }
 
 export class Resource extends ComponentBase implements Component {
@@ -84,7 +85,7 @@ export class Resource extends ComponentBase implements Component {
 			this._logBuffer.get().push(new ChangeLog({
 				timestamp: Date.now(),
 				delta: update.delta,
-				entity: update.entity,	
+				from: update.from,	
 			}));
 		}
 	}

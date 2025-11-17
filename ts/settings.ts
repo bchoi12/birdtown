@@ -32,7 +32,7 @@ import { Cookie } from 'settings/cookie'
 
 import { KeyType } from 'ui/api'
 
-import { isDesktopApp, isMobile, isLocalhost } from 'util/common'
+import { isMobile, isLocalhost } from 'util/common'
 
 class Settings {
 

@@ -10,7 +10,8 @@ export class DodgyBuff extends Buff {
 		// At max level, dodge while using equip
 		return new Map([
 			[StatType.SPEED_BOOST, 0.1 * level],
-			[StatType.USE_BOOST, 0.25 * level],
+			[StatType.CHARGE_BOOST, 0.2 * level],
+			[StatType.USE_BOOST, 0.2 * level],
 		]);
 	}
 }

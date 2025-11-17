@@ -7,7 +7,7 @@ import { Optional } from 'util/optional'
 type ChangeLogInitOptions = {
 	timestamp : number;
 	delta : number;
-	entity? : Entity;
+	from? : Entity;
 }
 
 export class ChangeLog {
@@ -21,8 +21,8 @@ export class ChangeLog {
 		this._delta = initOptions.delta;
 		this._entityLog = new Optional();
 
-		if (initOptions.entity) {
-			this._entityLog.set(new EntityLog(initOptions.entity));
+		if (initOptions.from) {
+			this._entityLog.set(new EntityLog(initOptions.from));
 		}
 	}
 

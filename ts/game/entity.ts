@@ -20,6 +20,8 @@ import { GameObject, GameObjectBase, StepData } from 'game/game_object'
 import { BuffType, StatType, SoundType } from 'game/factory/api'
 import { StatFactory } from 'game/factory/stat_factory'
 
+import { Flags } from 'global/flags'
+
 import { StringFactory } from 'strings/string_factory'
 import { ParamString } from 'strings/param_string'
 
@@ -112,7 +114,7 @@ export interface Entity extends GameObject {
 	addForce(force : Vec) : void;
 	heal(amount : number) : void;
 	healthPercent() : number;
-	takeDamage(amount : number, from : Entity) : void;
+	takeDamage(amount : number, from : Entity, hitEntity? : Entity) : void;
 	emote(type : EmotionType, value? : number) : void;
 	dead() : boolean;
 
@@ -440,8 +442,14 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			console.error("Warning: skipping adding unknown buff for %s", this.name());
 			return;
 		}
+		if (delta === 0) {
+			console.error("Warning: skipping buff delta of 0 for %s, %s", BuffType[type], this.name());
+			return;
+		}
 
-		console.log("Add buff %s +%d for %s", BuffType[type], delta, this.name());
+		if (Flags.printDebug.get()) {
+			console.log("Add buff %s +%d for %s", BuffType[type], delta, this.name());
+		}
 		this.getComponent<Buffs>(ComponentType.BUFFS).addBuff(type, delta);
 	}
 	buffLevel(type : BuffType) : number {
@@ -495,7 +503,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		return this.getComponent<Resources>(ComponentType.RESOURCES).healthPercent();
 	}
-	takeDamage(delta : number, from : Entity) : void {
+	takeDamage(delta : number, from : Entity, hitEntity? : Entity) : void {
 		if (!this.isSource() || !this.hasComponent(ComponentType.RESOURCES)) { return; }
 
 		if (delta >= 0 && (this.getAttribute(AttributeType.INVINCIBLE) || this.dead())) {
@@ -518,14 +526,15 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		// Damage stuff
 		if (delta > 0 && this.id() !== from.id()) {
-			delta *= this.getStat(StatType.DAMAGE_TAKEN_BOOST);
-			delta /= this.getStat(StatType.DAMAGE_RESIST_BOOST);
+			let mult = 1 + this.getStat(StatType.DAMAGE_TAKEN_BOOST) - this.getStat(StatType.DAMAGE_RESIST_BOOST);
+			delta *= Math.max(0.1, mult);
 
+			const buffDelta = hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL) ? 2 : 1;
 			if (from.rollStat(StatType.EXPOSE_CHANCE)) {
-				this.addBuff(BuffType.EXPOSE, 1);
+				this.addBuff(BuffType.EXPOSE, buffDelta);
 			}
 			if (from.rollStat(StatType.SLOW_CHANCE)) {
-				this.addBuff(BuffType.SLOW, 1);
+				this.addBuff(BuffType.SLOW, buffDelta);
 			}
 			if (this.getAttribute(AttributeType.ALIVE)) {
 				if (from.hasStat(StatType.LIFE_STEAL)) {
@@ -536,7 +545,8 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		this.getComponent<Resources>(ComponentType.RESOURCES).updateResource(StatType.HEALTH, {
 			delta: -delta,
-			entity: from,
+			from: from,
+			hitEntity : hitEntity,
 		});
 	}
 	emote(type : EmotionType, value? : number) : void {

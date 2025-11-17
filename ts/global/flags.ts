@@ -1,11 +1,12 @@
 
-import { BoolFlag, NumberFlag, StringFlag } from 'global/flag'
+import { BoolFlag, NumberFlag, PlatformFlag, StringFlag } from 'global/flag'
 
-import { isDesktopApp, isMobile, isLocalhost } from 'util/common'
+import { isMobile, isLocalhost } from 'util/common'
 
 export namespace Flags {
 
-	const isDiscord = window.location.search.includes("discord");
+	// Change this when exporting to other platforms.
+	export const platform = new PlatformFlag("platform", "web");
 
 	// Core
 	export const room = new StringFlag("room", "");
@@ -19,10 +20,10 @@ export namespace Flags {
 
 	// Debug
 	export const peerDebug = new NumberFlag("peerDebug", 2);
-	export const printDebug = new BoolFlag("printDebug", isLocalhost() || isDiscord);
+	export const printDebug = new BoolFlag("printDebug", isLocalhost() || platform.isDiscord());
 
 	// Platform specific
-	export const showQuitButton = new BoolFlag("showQuitButton", isDesktopApp() && !isDiscord);
+	export const showQuitButton = new BoolFlag("showQuitButton", platform.isDesktop());
 	export const allowLocation = new BoolFlag("allowLocation", !isDesktopApp());
 	export const allowSharing = new BoolFlag("allowSharing", true);
 	export const shareSameURL = new BoolFlag("shareSameURL", !isDesktopApp());
@@ -34,7 +35,7 @@ export namespace Flags {
 	export const localPerchPort = new NumberFlag("localPerchPort", 3000);
 	export const usePerch = new BoolFlag("usePerch", !isLocalhost());
 	export const refreshToken = new BoolFlag("refreshToken", isLocalhost());
-	export const perchProxy = new StringFlag("perchProxy", isDiscord ? "perch" : "");
+	export const perchProxy = new StringFlag("perchProxy", platform.isDiscord() ? "perch" : "");
 
 	export function validate() : [boolean, string] {
 		if (useLocalPerch.get() && usePerch.get()) {
@@ -42,5 +43,24 @@ export namespace Flags {
 		}
 
 		return [true, ""];
+	}
+
+	function isDesktopApp() {
+	    // Renderer process
+	    if (typeof window !== 'undefined' && typeof window.process === 'object') {
+	        return true;
+	    }
+
+	    // Main process
+	    if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
+	        return true;
+	    }
+
+	    // Detect the user agent when the `nodeIntegration` option is set to true
+	    if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+	        return true;
+	    }
+
+	    return false;
 	}
 }

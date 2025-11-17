@@ -45,12 +45,12 @@ export class HealthResource extends Resource {
 		this._max.set(this.getStat());
 	}
 
-	protected override getStat() : number { return super.getStat() * this.entity().getStat(StatType.HEALTH_BOOST); }
+	protected override getStat() : number { return super.getStat() * (1 + this.entity().getStat(StatType.HEALTH_BOOST)); }
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (!this.entity().hasStat(StatType.HP_REGEN) || this.entity().getStat(StatType.HP_REGEN) === 0 || this._resource <= 0) {
+		if (this.entity().getStat(StatType.HP_REGEN) === 0 || this._resource <= 0) {
 			this._regenTimer.reset();
 			return;
 		}
@@ -72,8 +72,8 @@ export class HealthResource extends Resource {
 	protected override logUpdate(update : ResourceUpdate) : boolean {
 		return update.delta < 0
 			&& this.entity().allTypes().has(EntityType.PLAYER)
-			&& update.entity
-			&& this.entity().id() !== update.entity.id();
+			&& update.from
+			&& this.entity().id() !== update.from.id();
 	}
 
 	protected override processDelta(delta : number) : void {
@@ -101,7 +101,7 @@ export class HealthResource extends Resource {
 
 		let weight = 0;
 		if (this.entityType() === EntityType.PLAYER) {
-			weight = Fns.normalizeRange(10, Math.abs(delta), 50);
+			weight = Fns.normalizeRange(10, Math.abs(delta), 100);
 		} else if (this.entity().allTypes().has(EntityType.ENEMY)) {
 			weight = 2 * Fns.normalizeRange(10, Math.abs(delta), 100);
 		}
@@ -109,7 +109,7 @@ export class HealthResource extends Resource {
 		if (game.lakitu().inFOV(pos)) {
 			let height = HealthResource._textHeight;
 			if (this.entity().allTypes().has(EntityType.PLAYER)) {
-				height += 0.5 * weight;
+				height += weight;
 			}
 
 			const [particle, hasParticle] = this.entity().addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {

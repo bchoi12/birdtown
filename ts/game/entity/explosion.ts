@@ -141,7 +141,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 		if (!other.getAttribute(AttributeType.INVINCIBLE) && !other.getAttribute(AttributeType.COOL)) {
 			let magnitude = this.force();
 			if (this.owner().hasStat(StatType.EXPLOSION_BOOST)) {
-				magnitude *= this.owner().getStat(StatType.EXPLOSION_BOOST);
+				magnitude *= (1 + this.owner().getStat(StatType.EXPLOSION_BOOST));
 			}
 
 			// Use body to handle multi-body profiles.
@@ -151,9 +151,10 @@ export abstract class Explosion extends EntityBase implements Entity {
 			if (magnitude > 0
 				&& !this.matchAssociations([AssociationType.OWNER], other)
 				&& this.owner().hasStat(StatType.EXPLOSION_DAMAGE)) {
-				const damage = magnitude * this.owner().getStat(StatType.EXPLOSION_DAMAGE) * this.owner().getStat(StatType.DAMAGE_BOOST);
+
+				const damage = magnitude * this.owner().getStat(StatType.EXPLOSION_DAMAGE) * (1 + this.owner().getStat(StatType.DAMAGE_BOOST));
 				if (damage > 0) {
-					other.takeDamage(damage, this.owner());
+					other.takeDamage(damage, this.owner(), this);
 				}
 			}
 		}

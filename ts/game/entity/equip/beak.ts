@@ -63,8 +63,8 @@ export abstract class Beak extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.BEAK; }
 
-	override takeDamage(amount : number, from : Entity) : void {
-		super.takeDamage(amount, from);
+	override takeDamage(amount : number, from : Entity, hitEntity : Entity) : void {
+		super.takeDamage(amount, from, hitEntity);
 
 		if (!this.isSource() || this.owner()?.dead()) {
 			return;

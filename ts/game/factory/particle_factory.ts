@@ -15,6 +15,7 @@ export namespace ParticleFactory {
 		[ParticleType.PLANE, createPlane],
 		[ParticleType.SMOKE, createSphere],
 		[ParticleType.SPARK, createCube],
+		[ParticleType.SPHERE, createSphere],
 		[ParticleType.TEAR, createTear],
 		[ParticleType.TORUS, createTorus],
 		[ParticleType.TETRAHEDRON, createTetrahedron],

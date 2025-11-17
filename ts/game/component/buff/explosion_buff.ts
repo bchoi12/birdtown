@@ -10,7 +10,8 @@ export class ExplosionBuff extends Buff {
 		return new Map([
 			[StatType.BURST_BONUS, this.atMaxLevel() ? 1 : 0],
 			[StatType.EXPLOSION_BOOST, 0.5 * level],
-			[StatType.EXPLOSION_DAMAGE, 5 * level],
+			[StatType.EXPLOSION_DAMAGE, 10],
+			[StatType.PROJECTILE_SCALING, 0.25 * level],
 		]);
 	}
 }

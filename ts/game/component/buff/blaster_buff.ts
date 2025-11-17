@@ -9,7 +9,7 @@ export class BlasterBuff extends Buff {
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
 			[StatType.DAMAGE_CLOSE_BOOST, 0.2 * level],
-			[StatType.DAMAGE_RESIST_BOOST, 0.05 * level],
+			[StatType.DAMAGE_RESIST_BOOST, 0.1 * level],
 		]);
 	}
 }

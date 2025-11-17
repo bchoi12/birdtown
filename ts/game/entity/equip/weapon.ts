@@ -233,17 +233,19 @@ export abstract class Weapon extends Equip<Player> {
 		let mult = 1;
 		let bonus = 0;
 		if (this.hasOwner()) {
-			mult = this.owner().getStat(StatType.BURST_BOOST);
+			mult += this.owner().getStat(StatType.BURST_BOOST);
 			bonus = this.owner().getStat(StatType.BURST_BONUS);
 		}
 		if (this.charged() && this.hasStat(StatType.CHARGED_BURSTS)) {
-			return Math.floor(mult * this.getStat(StatType.CHARGED_BURSTS) + bonus);
+			return Math.round(mult * this.getStat(StatType.CHARGED_BURSTS) + bonus);
 		}
-		return Math.floor(mult * this.getStat(StatType.BURSTS) + bonus);
+		return Math.round(mult * this.getStat(StatType.BURSTS) + bonus);
 	}
 	timer() : Timer { return this._stateTimer; }
 	private getTime(state : WeaponState) : number {
 		let time = 0;
+		let mult = 1;
+
 		switch (state) {
 		case WeaponState.REVVING:
 			if (this.hasStat(StatType.REV_TIME)) {
@@ -257,8 +259,8 @@ export abstract class Weapon extends Equip<Player> {
 				time = this.getStat(StatType.FIRE_TIME);
 			}
 
-			if (this.hasOwner() && this.owner().hasStat(StatType.FIRE_BOOST)) {
-				time /= this.owner().getStat(StatType.FIRE_BOOST);
+			if (this.hasOwner()) {
+				mult += this.owner().getStat(StatType.FIRE_BOOST);
 			}
 			break;
 		case WeaponState.RELOADING:
@@ -267,12 +269,12 @@ export abstract class Weapon extends Equip<Player> {
 			} else {
 				time = this.getStat(StatType.RELOAD_TIME);
 			}
-			if (this.hasOwner() && this.owner().hasStat(StatType.RELOAD_BOOST)) {
-				time /= this.owner().getStat(StatType.RELOAD_BOOST);
+			if (this.hasOwner()) {
+				mult += this.owner().getStat(StatType.RELOAD_BOOST);
 			}
 			break;
 		}
-		return time;
+		return time / mult;
 	}
 	getDir() : Vec2 {
 		if (this._shootNode === null) {

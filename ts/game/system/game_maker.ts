@@ -691,8 +691,10 @@ export class GameMaker extends SystemBase implements System {
 		if (this._config.getStartingLoadout() !== LoadoutType.BUFF) {
 			// Clean up buffs from previous buff mode
 			if (this._round === 1) {
-				game.playerStates().execute<PlayerState>((playerState : PlayerState) => {
+				game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
 					playerState.targetEntity().clearBuffs();
+				}, (playerState : PlayerState) => {
+					return playerState.hasTargetEntity();
 				});
 			}
 			return;
@@ -708,7 +710,7 @@ export class GameMaker extends SystemBase implements System {
 				playerState.targetEntity().levelUp();	
 			}
 
-			if (loadout.hasBuffType()) {
+			if (loadout.getBuffType() !== BuffType.UNKNOWN) {
 				playerState.targetEntity().addBuff(loadout.getBuffType(), 1);
 			} else if (this._round === 1) {
 				console.error("Warning: applying random starter buff");
@@ -718,7 +720,7 @@ export class GameMaker extends SystemBase implements System {
 				playerState.targetEntity().addBuff(BuffFactory.randomBuff(), 1);
 			}
 
-			if (loadout.hasBonusBuffType()) {
+			if (loadout.getBonusBuffType() !== BuffType.UNKNOWN) {
 				playerState.targetEntity().addBuff(loadout.getBonusBuffType(), 1);
 			}
 

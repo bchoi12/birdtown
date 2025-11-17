@@ -2,8 +2,8 @@
 
 abstract class Flag<T> {
 
-	private _name : string;
-	private _value : T;
+	protected _name : string;
+	protected _value : T;
 
 	constructor(name : string, value : T) {
 		this._name = name;
@@ -64,5 +64,37 @@ export class StringFlag extends Flag<string>{
 
 	override convert(param : string) : string {
 		return param;
+	}
+}
+
+type Platform = "desktop" | "discord" | "web";
+export class PlatformFlag extends Flag<Platform> {
+
+	private static readonly _desktopPlatforms = new Set<Platform>([
+		"desktop",
+		"discord",
+	]);
+
+	private static readonly _webPlatforms = new Set<Platform>([
+		"web",
+	]);
+
+	constructor(name : string, value : string) {
+		super(name, <Platform>value.toLowerCase());
+	}
+
+	override convert(param : string) : Platform {
+		return <Platform>param.toLowerCase();
+	}
+
+	isDesktop() {
+		return PlatformFlag._desktopPlatforms.has(this.get());
+	}
+	isDiscord() {
+		return this.get() === "discord";
+	}
+
+	isWeb() {
+		return !this.isDesktop();
 	}
 }

@@ -319,17 +319,17 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		this._profile.setLimitFn((profile : Profile) => {
 			let maxHorizontalVel = profile.knockbackMillis() > 0 ? Player._maxHorizontalVel : Player._maxWalkingVel;
+
+			let mult = 1;
 			if (this.getAttribute(AttributeType.BUBBLED)) {
-				maxHorizontalVel *= 1.2;
+				mult += 0.2;
 			}
-			if (this.hasStat(StatType.SPEED_BOOST)) {
-				maxHorizontalVel *= this.getStat(StatType.SPEED_BOOST);
-			}
+			mult += this.getStat(StatType.SPEED_BOOST);
+			maxHorizontalVel *= Math.max(0.1, mult);
+
+			maxHorizontalVel *= (1 + this.getStat(StatType.SPEED_DEBUFF));
 			if (this.getAttribute(AttributeType.UNDERWATER)) {
 				maxHorizontalVel *= 0.6;
-			}
-			if (this.hasStat(StatType.SPEED_DEBUFF)) {
-				maxHorizontalVel /= this.getStat(StatType.SPEED_DEBUFF);
 			}
 
 			if (Math.abs(profile.vel().x) > maxHorizontalVel) {
@@ -696,15 +696,15 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 	override impactSound() : SoundType { return SoundType.PLAYER_THUD; }
 
-	override takeDamage(amount : number, from : Entity) : void {
+	override takeDamage(amount : number, from : Entity, hitEntity? : Entity) : void {
 		this._entityTrackers.getEntities<Beak>(EntityType.BEAK).execute((beak : Beak) => {
-			beak.takeDamage(amount, from);
+			beak.takeDamage(amount, from, hitEntity);
 		});
 		if (this.isSource() && amount > 0) {
 			this._damageCounter.add(amount);
 			this.damageEffect(amount);
 		}
-		super.takeDamage(amount, from);
+		super.takeDamage(amount, from, hitEntity);
 	}
 	private damageEffect(dmg : number) : void {
 		if (dmg <= 0) {
@@ -831,7 +831,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				const [reviver, hasReviver] = game.entities().getEntity(this._reviverId);
 				if (hasReviver) {
 					if (reviver.hasStat(StatType.REVIVE_BOOST)) {
-						amount *= reviver.getStat(StatType.REVIVE_BOOST);
+						amount *= Math.max(0.1, 1 + reviver.getStat(StatType.REVIVE_BOOST));
 					}					
 				}
 				this.heal(amount);

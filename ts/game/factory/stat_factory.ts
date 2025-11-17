@@ -7,27 +7,33 @@ import { StatType } from 'game/factory/api'
 export namespace StatFactory {
 
 	const baseStats = new Map<StatType, number>([
+		[StatType.BURST_BONUS, 0],
+		[StatType.BURST_BOOST, 0],
+		[StatType.CHARGE_BOOST, 0],
 		[StatType.CRIT_CHANCE, 0],
-		[StatType.CRIT_BOOST, 1],
-		[StatType.DAMAGE_BOOST, 1],
-		[StatType.DAMAGE_CLOSE_BOOST, 1],
-		[StatType.DAMAGE_FAR_BOOST, 1],
-		[StatType.DAMAGE_TAKEN_BOOST, 1],
-		[StatType.DAMAGE_RESIST_BOOST, 1],
-		[StatType.HEALTH_BOOST, 1],
+		[StatType.CRIT_BOOST, 0],
+		[StatType.DAMAGE_BOOST, 0],
+		[StatType.DAMAGE_CLOSE_BOOST, 0],
+		[StatType.DAMAGE_FAR_BOOST, 0],
+		[StatType.DAMAGE_TAKEN_BOOST, 0],
+		[StatType.DAMAGE_RESIST_BOOST, 0],
+		[StatType.EXPLOSION_BOOST, 0],
+		[StatType.EXPLOSION_DAMAGE, 0],
+		[StatType.FIRE_BOOST, 0],
+		[StatType.HEAL_PERCENT, 0],
+		[StatType.HEALTH_BOOST, 0],
+		[StatType.HP_REGEN, 0],
+		[StatType.PROJECTILE_SCALING, 1],
+		[StatType.RELOAD_BOOST, 0],
+		[StatType.REVIVE_BOOST, 0],
 		[StatType.SCALING, 1],
-		[StatType.SPEED_BOOST, 1],
-		[StatType.SPEED_DEBUFF, 1],
+		[StatType.SPEED_BOOST, 0],
+		[StatType.SPEED_DEBUFF, 0],
+		[StatType.USE_BOOST, 0],
 	]);
 
 	const statMin = new Map<StatType, number>([
-		[StatType.DAMAGE_BOOST, 0.1],
-		[StatType.DAMAGE_RESIST_BOOST, 0.05],
-		[StatType.FIRE_BOOST, 0.15],
-		[StatType.RELOAD_BOOST, 0.2],
 		[StatType.SCALING, 0.3],
-		[StatType.SPEED_DEBUFF, 0.1],
-		[StatType.USE_BOOST, 0.1],
 	]);
 
 	const statMax = new Map<StatType, number>([
@@ -40,25 +46,14 @@ export namespace StatFactory {
 		// PIERCE ATTRIBUTE
 		// BUFFS THAT PROCESS DAMAGE
 		[EntityType.PLAYER, new Map([
-			[StatType.BURST_BONUS, 0],
-			[StatType.BURST_BOOST, 1],
-			[StatType.CRIT_CHANCE, 0],
-			[StatType.CRIT_BOOST, 1.5],
+			[StatType.CRIT_BOOST, 0.5],
 			[StatType.DOUBLE_JUMPS, 1],
-			[StatType.EXPLOSION_BOOST, 1],
-			[StatType.EXPLOSION_DAMAGE, 0],
 			[StatType.EXPOSE_CHANCE, 0],
-			[StatType.FIRE_BOOST, 1],
 			[StatType.HEALTH, 100],
-			[StatType.HEAL_PERCENT, 0],
-			[StatType.HP_REGEN, 0],
 			[StatType.HP_REGEN_DELAY, 3000],
 			[StatType.SLOW_CHANCE, 0],
 			[StatType.LIFE_STEAL, 0],
-			[StatType.RELOAD_BOOST, 1],
-			[StatType.REVIVE_BOOST, 1],
 			[StatType.SCALING, 1],
-			[StatType.USE_BOOST, 1],
 		])],
 
 		// Other Entities
@@ -277,9 +272,10 @@ export namespace StatFactory {
 		// 63 DPS + fast bullet + partial clip
 		[EntityType.RIFLE, new Map([
 			[StatType.BURSTS, 8],
-			[StatType.CHARGED_BURSTS, 1],
-			[StatType.CHARGED_FIRE_TIME, 300],
-			[StatType.CHARGED_RELOAD_TIME, 300],
+			[StatType.CHARGED_BURSTS, 8],
+			[StatType.CHARGED_FIRE_TIME, 200],
+			[StatType.CHARGED_FORCE, 0.1],
+			[StatType.CHARGED_RELOAD_TIME, 800],
 			[StatType.FIRE_TIME, 400],
 			[StatType.FORCE, 0],
 			[StatType.PROJECTILE_SPEED, 1],
