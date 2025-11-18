@@ -4,14 +4,13 @@ import { GameObjectState } from 'game/api'
 import { Buff, BuffOptions } from 'game/component/buff'
 import { BuffType, StatType } from 'game/factory/api'
 
-export class ExplosionBuff extends Buff {
+export class FieryBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.BURST_BONUS, this.atMaxLevel() ? 1 : 0],
-			[StatType.EXPLOSION_BOOST, 0.5 * level],
-			[StatType.EXPLOSION_DAMAGE, 10],
-			[StatType.PROJECTILE_SCALING_BOOST, 0.4 * level],
+			[StatType.CRIT_CHANCE, 0.2],
+			[StatType.FIRE_BOOST, 0.2 * level],
+			[StatType.FLAME_CHANCE, 0.2 * level],
 		]);
 	}
 }

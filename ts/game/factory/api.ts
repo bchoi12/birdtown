@@ -13,6 +13,7 @@ export enum BuffType {
 	CRIT,
 	DODGY,
 	EXPLOSION,
+	FIERY,
 	GLASS_CANNON,
 	HEALER,
 	ICY,
@@ -29,8 +30,9 @@ export enum BuffType {
 	// Item specific
 	BLACK_HEADBAND,
 
-	// Debuffs
+	// Status
 	EXPOSE,
+	FLAME,
 	SLOW,
 }
 
@@ -447,6 +449,7 @@ export enum StatType {
 	EXPOSE_CHANCE,
 	FIRE_BOOST,
 	FIRE_TIME,
+	FLAME_CHANCE,
 	FORCE,
 	FRICTION,
 	HEAL_PERCENT,
@@ -461,7 +464,7 @@ export enum StatType {
 	MAX_VERTICAL_SPEED,
 	MAX_WALKING_SPEED,
 	PROJECTILE_ACCEL,
-	PROJECTILE_SCALING,
+	PROJECTILE_SCALING_BOOST,
 	PROJECTILE_SPEED,
 	PROJECTILE_TTL,
 	RELOAD_BOOST,

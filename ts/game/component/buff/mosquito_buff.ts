@@ -14,6 +14,7 @@ export class MosquitoBuff extends Buff {
 			[StatType.DOUBLE_JUMPS, level],
 			[StatType.FIRE_BOOST, 0.15 * level],
 			[StatType.SCALING, -0.1 * level],
+			[StatType.SPEED_BOOST, 0.1 * level],
 		]);
 	}
 }

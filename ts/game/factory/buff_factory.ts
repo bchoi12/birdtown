@@ -13,6 +13,8 @@ import { DodgyBuff } from 'game/component/buff/dodgy_buff'
 import { EagleEyeBuff } from 'game/component/buff/eagle_eye_buff'
 import { ExplosionBuff } from 'game/component/buff/explosion_buff'
 import { ExposeBuff } from 'game/component/buff/expose_buff'
+import { FieryBuff } from 'game/component/buff/fiery_buff'
+import { FlameBuff } from 'game/component/buff/flame_buff'
 import { GlassCannonBuff } from 'game/component/buff/glass_cannon_buff'
 import { HealerBuff } from 'game/component/buff/healer_buff'
 import { IcyBuff } from 'game/component/buff/icy_buff'
@@ -45,6 +47,7 @@ export namespace BuffFactory {
 		[BuffType.CRIT, (type : BuffType) => { return new CritBuff(type, { maxLevel: 3 }) }],
 		[BuffType.DODGY, (type : BuffType) => { return new DodgyBuff(type, { maxLevel: 3 }) }],
 		[BuffType.EXPLOSION, (type : BuffType) => { return new ExplosionBuff(type, { maxLevel: 3 }) }],
+		[BuffType.FIERY, (type : BuffType) => { return new FieryBuff(type, { maxLevel: 3 }) }],
 		[BuffType.GLASS_CANNON, (type : BuffType) => { return new GlassCannonBuff(type, { maxLevel: 3 }) }],
 		[BuffType.HEALER, (type : BuffType) => { return new HealerBuff(type, { maxLevel: 3 }) }],
 		[BuffType.ICY, (type : BuffType) => { return new IcyBuff(type, { maxLevel: 3 }) }],
@@ -53,7 +56,7 @@ export namespace BuffFactory {
 		[BuffType.MOSQUITO, (type : BuffType) => { return new MosquitoBuff(type, { maxLevel: 3 }) }],
 		[BuffType.SNIPER, (type : BuffType) => { return new SniperBuff(type, { maxLevel: 3 }) }],
 		[BuffType.SPREE, (type : BuffType) => { return new SpreeBuff(type, {maxLevel: 3, resetOnSpawn: true })}],
-		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, { maxLevel: 1000 }) }],
+		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, { maxLevel: 300 }) }],
 		[BuffType.TANK, (type : BuffType) => { return new TankBuff(type, { maxLevel: 3 }) }],
 		[BuffType.VAMPIRE, (type : BuffType) => { return new VampireBuff(type, { maxLevel: 3 }) }],
 		[BuffType.WARMOGS, (type : BuffType) => { return new WarmogsBuff(type, { maxLevel: 3 }) }],
@@ -61,6 +64,7 @@ export namespace BuffFactory {
 		[BuffType.BLACK_HEADBAND, (type : BuffType) => { return new BlackHeadbandBuff(type, { maxLevel: 1 }) }],
 
 		[BuffType.EXPOSE, (type : BuffType) => { return new ExposeBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
+		[BuffType.FLAME, (type : BuffType) => { return new FlameBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
 		[BuffType.SLOW, (type : BuffType) => { return new SlowBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
 	]);
 
@@ -90,24 +94,24 @@ export namespace BuffFactory {
 		BuffType.BLASTER,
 		BuffType.COOL,
 		BuffType.CRIT,
+		BuffType.FIERY,
 		BuffType.GLASS_CANNON,
 		BuffType.ICY,
 		BuffType.JUMPER,
-		BuffType.STAT_STICK,
 		BuffType.VAMPIRE,
 		BuffType.WARMOGS);
-	export function getGeneralBuffs(player : Player) : Array<BuffType> {
+	function getGeneralBuffs(player : Player) : Set<BuffType> {
 		if (!player.hasComponent(ComponentType.BUFFS)) {
 			console.error("Error: %s does not have buff component", player.name());
-			return [];
+			return new Set();
 		}
 
 		const buffs = player.getComponent<Buffs>(ComponentType.BUFFS);
 
-		let pickableBuffs = new Array<BuffType>();
+		let pickableBuffs = new Set<BuffType>();
 		generalBuffs.forEach((buff : BuffType) => {
 			if (buffs.canBuff(buff)) {
-				pickableBuffs.push(buff);
+				pickableBuffs.add(buff);
 			}
 		});
 		return pickableBuffs;
@@ -139,26 +143,32 @@ export namespace BuffFactory {
 
 		prereqBuffs.forEach((buffs : Array<BuffType>, reqType : BuffType) => {
 			if (player.hasBuff(reqType)) {
-				pickableBuffs.push(...buffs);
+				buffs.forEach((buff : BuffType) => {
+					pickableBuffs.add(buff);
+				});
 			}
 		});
 
 		if (player.altEquipType() === EntityType.SCOUTER) {
-			pickableBuffs.push(BuffType.JUICED);
+			pickableBuffs.add(BuffType.JUICED);
 		}
-
 		if (dodgeEquips.has(player.altEquipType())) {
-			pickableBuffs.push(BuffType.DODGY);
+			pickableBuffs.add(BuffType.DODGY);
 		}
-
 		if (explodeWeapons.has(player.equipType())) {
-			pickableBuffs.push(BuffType.EXPLOSION);
+			pickableBuffs.add(BuffType.EXPLOSION);
+		}
+		if (game.controller().isTeamMode()) {
+			pickableBuffs.add(BuffType.HEALER);
 		}
 
-		if (game.controller().isTeamMode()) {
-			pickableBuffs.push(BuffType.HEALER);
-		}
-		return pickableBuffs;
+		pickableBuffs.forEach((buff : BuffType) => {
+			if (player.hasMaxedBuff(buff)) {
+				pickableBuffs.delete(buff);
+			}
+		});
+
+		return Array.from(pickableBuffs);
 	}
 	export function getBuffsN(n : number) : Array<BuffType> {
 		let pickableBuffs = getBuffs();

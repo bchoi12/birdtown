@@ -41,6 +41,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.HEAL_PERCENT, 0.1],
 		[StatType.HEALTH, 50],
 		[StatType.HP_REGEN, 3],
+		[StatType.PROJECTILE_SCALING_BOOST, 0.4],
 		[StatType.SCALING, 0.1],
 		[StatType.SLOW_CHANCE, 0.3],
 		[StatType.SPEED_BOOST, 0.1],
@@ -174,6 +175,17 @@ export abstract class Buff extends ComponentBase implements Component {
 				}
 			}
 		}	
+	}
+	protected decayOnLevel(level : number, delta : number) : void {
+		if (level <= 0) {
+			return;
+		}
+
+		if (delta > 0) {
+			this.addAfter(3000, -1);
+		} else if (delta < 0) {
+			this.addAfter(500, -1);
+		}
 	}
 
 	announceLevel() : void {

@@ -15,14 +15,6 @@ export class SlowBuff extends Buff {
 	override onLevel(level : number, delta : number) : void {
 		super.onLevel(level, delta);
 
-		if (level <= 0) {
-			return;
-		}
-
-		if (delta > 0) {
-			this.addAfter(3000, -1);
-		} else if (delta < 0) {
-			this.addAfter(500, -1);
-		}
+		this.decayOnLevel(level, delta);
 	}
 }

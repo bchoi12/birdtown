@@ -114,7 +114,7 @@ export interface Entity extends GameObject {
 	addForce(force : Vec) : void;
 	heal(amount : number) : void;
 	healthPercent() : number;
-	takeDamage(amount : number, from : Entity, hitEntity? : Entity) : void;
+	takeDamage(amount : number, from? : Entity, hitEntity? : Entity) : void;
 	emote(type : EmotionType, value? : number) : void;
 	dead() : boolean;
 
@@ -503,13 +503,14 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		return this.getComponent<Resources>(ComponentType.RESOURCES).healthPercent();
 	}
-	takeDamage(delta : number, from : Entity, hitEntity? : Entity) : void {
+	takeDamage(delta : number, from? : Entity, hitEntity? : Entity) : void {
 		if (!this.isSource() || !this.hasComponent(ComponentType.RESOURCES)) { return; }
 
 		if (delta >= 0 && (this.getAttribute(AttributeType.INVINCIBLE) || this.dead())) {
 			return;
 		}
 		if (delta > 0
+			&& from
 			&& this.id() !== from.id()
 			&& this.sameTeam(from)
 			&& !game.controller().config().getFriendlyFireOr(false)) {
@@ -525,7 +526,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 
 		// Damage stuff
-		if (delta > 0 && this.id() !== from.id()) {
+		if (delta > 0 && from && this.id() !== from.id()) {
 			let mult = 1 + this.getStat(StatType.DAMAGE_TAKEN_BOOST) - this.getStat(StatType.DAMAGE_RESIST_BOOST);
 			delta *= Math.max(0.1, mult);
 
@@ -536,7 +537,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			if (from.rollStat(StatType.SLOW_CHANCE)) {
 				this.addBuff(BuffType.SLOW, buffDelta);
 			}
-			if (this.getAttribute(AttributeType.ALIVE)) {
+			if (from.rollStat(StatType.FLAME_CHANCE)) {
+				this.addBuff(BuffType.FLAME, buffDelta);
+			}
+			if (this.getAttribute(AttributeType.ALIVE) && !this.dead()) {
 				if (from.hasStat(StatType.LIFE_STEAL)) {
 					from.heal(from.getStat(StatType.LIFE_STEAL) * delta);
 				}

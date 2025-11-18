@@ -62,15 +62,17 @@ export abstract class Projectile extends EntityBase {
 	override initialize() : void {
 		super.initialize();
 
+		if (!this.isSource()) {
+			return;
+		}
+
 		const owner = this.owner();
-		if (this.isSource()) {
-			if (owner.rollStat(StatType.CRIT_CHANCE)) {
-				this.setAttribute(AttributeType.CRITICAL, true);
-			}
+		if (owner.rollStat(StatType.CRIT_CHANCE)) {
+			this.setAttribute(AttributeType.CRITICAL, true);
 		}
 
 		if (this.hasProfile()) {
-			this.profile().multScaling(owner.getStat(StatType.SCALING) * owner.getStat(StatType.PROJECTILE_SCALING));
+			this.profile().multScaling(owner.getStat(StatType.SCALING) + owner.getStat(StatType.PROJECTILE_SCALING_BOOST));
 		}
 	}
 
