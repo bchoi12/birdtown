@@ -332,7 +332,7 @@ export namespace StringFactory {
 		[BuffType.SNIPER, "Massive damage when far away"],
 		[BuffType.STAT_STICK, "Increases stats randomly"],
 		[BuffType.TANK, "Massively increase your size, tankiness, and health"],
-		[BuffType.VAMPIRE, "Increase firing rate and life steal effects. Minor chance of poison"],
+		[BuffType.VAMPIRE, "Increase firing rate, life steal effects, and damage resistance. Minor chance of poison"],
 		[BuffType.WARMOGS, "Increases health by a flat amount and percentage"],
 	]);
 	export function getBuffDescription(type : BuffType) : string {
