@@ -113,6 +113,7 @@ export interface Entity extends GameObject {
 
 	addForce(force : Vec) : void;
 	heal(amount : number) : void;
+	maxHealth() : number;
 	healthPercent() : number;
 	takeDamage(amount : number, from? : Entity, hitEntity? : Entity) : void;
 	emote(type : EmotionType, value? : number) : void;
@@ -498,6 +499,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			delta: delta,
 		});
 	}
+	maxHealth() : number {
+		if (!this.hasComponent(ComponentType.RESOURCES)) { return 0; }
+
+		return this.getComponent<Resources>(ComponentType.RESOURCES).maxHealth();
+	}
 	healthPercent() : number {
 		if (!this.hasComponent(ComponentType.RESOURCES)) { return 1; }
 
@@ -518,19 +524,21 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			if (from.hasStat(StatType.HEAL_PERCENT)) {
 				this.heal(from.getStat(StatType.HEAL_PERCENT) * delta);
 			}
-			return;
-		}
 
-		if (game.controller().config().hasDamageMultiplier()) {
-			delta *= game.controller().config().getDamageMultiplier();;
+			// TODO: imbue chance here
+
+			return;
 		}
 
 		// Damage stuff
 		if (delta > 0 && from && this.id() !== from.id()) {
+			const buffDelta = hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL) ? 2 : 1;
+
+			delta += from.getStat(StatType.DAMAGE_ADDITION) * buffDelta - this.getStat(StatType.DAMAGE_REDUCTION);
+
 			let mult = 1 + this.getStat(StatType.DAMAGE_TAKEN_BOOST) - this.getStat(StatType.DAMAGE_RESIST_BOOST);
 			delta *= Math.max(0.1, mult);
 
-			const buffDelta = hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL) ? 2 : 1;
 			if (from.rollStat(StatType.EXPOSE_CHANCE)) {
 				this.addBuff(BuffType.EXPOSE, buffDelta);
 			}
@@ -540,11 +548,23 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			if (from.rollStat(StatType.FLAME_CHANCE)) {
 				this.addBuff(BuffType.FLAME, buffDelta);
 			}
+			if (from.rollStat(StatType.POISON_CHANCE)) {
+				this.addBuff(BuffType.POISON, buffDelta);
+			}
 			if (this.getAttribute(AttributeType.ALIVE) && !this.dead()) {
 				if (from.hasStat(StatType.LIFE_STEAL)) {
 					from.heal(from.getStat(StatType.LIFE_STEAL) * delta);
 				}
+				if (from.hasStat(StatType.HEALTH_ADDITION)) {
+					from.heal(StatType.HEALTH_ADDITION * buffDelta);
+				}
 			}
+
+			delta = Math.max(0, delta);
+		}
+
+		if (game.controller().config().hasDamageMultiplier()) {
+			delta *= game.controller().config().getDamageMultiplier();;
 		}
 
 		this.getComponent<Resources>(ComponentType.RESOURCES).updateResource(StatType.HEALTH, {

@@ -101,7 +101,9 @@ export abstract class Explosion extends EntityBase implements Entity {
 			this.delete();
 		});
 
-		this.profile().multScaling(this.owner().getStat(StatType.SCALING) + this.owner().getStat(StatType.PROJECTILE_SCALING_BOOST));
+		if (this.isSource()) {
+			this.profile().multScaling(this.owner().getStat(StatType.SCALING) + this.owner().getStat(StatType.PROJECTILE_SCALING_BOOST));
+		}
 	}
 
 	override update(stepData : StepData) : void {

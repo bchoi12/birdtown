@@ -28,6 +28,7 @@ export class CoolBuff extends Buff {
 		return new Map([
 			[StatType.BURST_BONUS, level >= 3 ? 1 : 0],
 			[StatType.RELOAD_BOOST, level >= 2 ? 0.2 : 0],
+			[StatType.SPEED_BOOST, 0.1 * level],
 			[StatType.CRIT_CHANCE, 0.2],
 		]);
 	}

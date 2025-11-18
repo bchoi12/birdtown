@@ -40,9 +40,10 @@ export class HealthResource extends Resource {
 	override reset() : void {
 		super.reset();
 
-		this.set(this.getStat());
+		const stat = this.getStat();
+		this.set(stat);
 		this._min.set(0);
-		this._max.set(this.getStat());
+		this._max.set(stat);
 	}
 
 	protected override getStat() : number { return super.getStat() * (1 + this.entity().getStat(StatType.HEALTH_BOOST)); }

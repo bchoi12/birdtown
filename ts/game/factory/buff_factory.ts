@@ -21,6 +21,7 @@ import { IcyBuff } from 'game/component/buff/icy_buff'
 import { JuicedBuff } from 'game/component/buff/juiced_buff'
 import { JumperBuff } from 'game/component/buff/jumper_buff'
 import { MosquitoBuff } from 'game/component/buff/mosquito_buff'
+import { PoisonBuff } from 'game/component/buff/poison_buff'
 import { SlowBuff } from 'game/component/buff/slow_buff'
 import { SniperBuff } from 'game/component/buff/sniper_buff'
 import { SpreeBuff } from 'game/component/buff/spree_buff'
@@ -65,6 +66,7 @@ export namespace BuffFactory {
 
 		[BuffType.EXPOSE, (type : BuffType) => { return new ExposeBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
 		[BuffType.FLAME, (type : BuffType) => { return new FlameBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
+		[BuffType.POISON, (type : BuffType) => { return new PoisonBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
 		[BuffType.SLOW, (type : BuffType) => { return new SlowBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
 	]);
 
@@ -91,15 +93,12 @@ export namespace BuffFactory {
 	}
 
 	const generalBuffs = new Array<BuffType>(
-		BuffType.BLASTER,
 		BuffType.COOL,
 		BuffType.CRIT,
 		BuffType.FIERY,
 		BuffType.GLASS_CANNON,
 		BuffType.ICY,
-		BuffType.JUMPER,
-		BuffType.VAMPIRE,
-		BuffType.WARMOGS);
+		BuffType.VAMPIRE);
 	function getGeneralBuffs(player : Player) : Set<BuffType> {
 		if (!player.hasComponent(ComponentType.BUFFS)) {
 			console.error("Error: %s does not have buff component", player.name());
@@ -129,9 +128,12 @@ export namespace BuffFactory {
 		EntityType.PURPLE_GLOVE,
 		EntityType.WING_CANNON,
 	]);
+	const stickWeapons = new Set<EntityType>([
+		EntityType.PURPLE_GLOVE,
+	]);
 	const prereqBuffs = new Map<BuffType, Array<BuffType>>([
 		[BuffType.ACROBATIC, [BuffType.MOSQUITO, BuffType.TANK]],
-		[BuffType.BIG, [BuffType.TANK]],
+		[BuffType.BIG, [BuffType.TANK, BuffType.JUMPER]],
 		[BuffType.EAGLE_EYE, [BuffType.MOSQUITO]],
 	]);
 	// Unused: SNIPER
@@ -157,6 +159,9 @@ export namespace BuffFactory {
 		}
 		if (explodeWeapons.has(player.equipType())) {
 			pickableBuffs.add(BuffType.EXPLOSION);
+		}
+		if (!stickWeapons.has(player.equipType())) {
+			pickableBuffs.add(BuffType.BLASTER);
 		}
 		if (game.controller().isTeamMode()) {
 			pickableBuffs.add(BuffType.HEALER);

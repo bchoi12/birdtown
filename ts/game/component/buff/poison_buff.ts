@@ -10,23 +10,22 @@ import { CubeParticle } from 'game/entity/particle/cube_particle'
 import { Fns } from 'util/fns'
 import { RateLimiter } from 'util/rate_limiter'
 
-export class FlameBuff extends Buff {
-
-	private static readonly _baseDamage = 2;
+export class PoisonBuff extends Buff {
 
 	private _damageLimiter : RateLimiter;
-	private _flameLimiter : RateLimiter;
+	private _particleLimiter : RateLimiter;
 
 	constructor(type : BuffType, options : BuffOptions) {
 		super(type, options);
 
 		this._damageLimiter = new RateLimiter(500);
-		this._flameLimiter = new RateLimiter(3000);
+		this._particleLimiter = new RateLimiter(3000);
 	}
+
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.SPEED_BOOST, 0.15 * level],
+			[StatType.DAMAGE_TAKEN_BOOST, 0.05 * level],
 		]);
 	}
 
@@ -47,13 +46,13 @@ export class FlameBuff extends Buff {
 		const millis = stepData.millis;
 
 		if (this._damageLimiter.check(millis)) {
-			this.entity().takeDamage(FlameBuff._baseDamage * level);
+			this.entity().takeDamage(Math.ceil(0.02 * this.entity().maxHealth()));
 		}
 
-		this._flameLimiter.setLimit(20 + 10 * (this.maxLevel() - level));
+		this._particleLimiter.setLimit(30 + 20 * (this.maxLevel() - level));
 
-		// On fire
-		if (this._flameLimiter.check(millis)) {
+		// Poisoned :(
+		if (this._particleLimiter.check(millis)) {
 			const pos = this.entity().profile().pos();
 			const width = this.entity().profile().dim().x;
 			const size = 0.1 + 0.05 * level;
@@ -75,7 +74,7 @@ export class FlameBuff extends Buff {
 					transforms: {
 						scale: { x: size, y: size, z: size },
 					},
-					materialType: MaterialType.PARTICLE_RED,
+					materialType: MaterialType.PARTICLE_GREEN,
 				}
 			});
 		}

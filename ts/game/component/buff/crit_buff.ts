@@ -10,7 +10,7 @@ export class CritBuff extends Buff {
 		return new Map([
 			[StatType.CRIT_CHANCE, 0.2],
 			[StatType.CRIT_BOOST, 0.5 * level],
-			[StatType.LIFE_STEAL, 0.1 * level],
+			[StatType.POISON_CHANCE, 0.2 * level],
 		]);
 	}
 }

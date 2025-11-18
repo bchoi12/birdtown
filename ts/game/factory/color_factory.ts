@@ -115,6 +115,7 @@ export namespace ColorFactory {
 		[ColorType.PARTICLE_RED, HexColor.fromHex(0xdc5a3a)],
 		[ColorType.PARTICLE_ORANGE, HexColor.fromHex(0xffc361)],
 		[ColorType.PARTICLE_YELLOW, HexColor.fromHex(0xfdff8a)],
+		[ColorType.PARTICLE_GREEN, HexColor.fromHex(0x8aff94)],
 		[ColorType.PARTICLE_BLUE, HexColor.fromHex(0xc2f8ff)],
 		[ColorType.PARTICLE_PURPLE, HexColor.fromHex(0xa465e2)],
 

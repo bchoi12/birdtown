@@ -265,6 +265,10 @@ export namespace MaterialFactory {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.PARTICLE_YELLOW).toBabylonColor3();
 		});
+		standardMaterial(MaterialType.PARTICLE_GREEN, (mat : BABYLON.StandardMaterial) => {
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.color(ColorType.PARTICLE_GREEN).toBabylonColor3();
+		});
 		standardMaterial(MaterialType.PARTICLE_BLUE, (mat : BABYLON.StandardMaterial) => {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.PARTICLE_BLUE).toBabylonColor3();

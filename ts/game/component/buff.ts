@@ -31,14 +31,16 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.CHARGE_BOOST, 0.2],
 		[StatType.CRIT_CHANCE, 0.2],
 		[StatType.CRIT_BOOST, 0.25],
+		[StatType.DAMAGE_ADDITION, 5],
 		[StatType.DAMAGE_BOOST, 0.1],
-		[StatType.DAMAGE_CLOSE_BOOST, 0.2],
+		[StatType.DAMAGE_CLOSE_BOOST, 0.25],
 		[StatType.DAMAGE_FAR_BOOST, 0.2],
+		[StatType.DAMAGE_REDUCTION, 5],
 		[StatType.DAMAGE_RESIST_BOOST, 0.1],
 		[StatType.DAMAGE_TAKEN_BOOST, 0.1],
 		[StatType.DOUBLE_JUMPS, 1],
 		[StatType.FIRE_BOOST, 0.15],
-		[StatType.HEAL_PERCENT, 0.1],
+		[StatType.HEALTH_ADDITION, 5],
 		[StatType.HEALTH, 50],
 		[StatType.HP_REGEN, 3],
 		[StatType.PROJECTILE_SCALING_BOOST, 0.4],
@@ -47,7 +49,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.SPEED_BOOST, 0.1],
 		[StatType.SPEED_DEBUFF, 0.1],
 		[StatType.LIFE_STEAL, 0.1],
-		[StatType.USE_BOOST, 0.2],
+		[StatType.USE_BOOST, 0.25],
 	]);
 
 	protected _buffType : BuffType;

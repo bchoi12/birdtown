@@ -14,7 +14,7 @@ export class AcrobaticBuff extends Buff {
 			[StatType.HEALTH, 30 + 50 * (level - 1)],
 			[StatType.HP_REGEN, 3 * level],
 			[StatType.SPEED_BOOST, 0.1 * level],
-			[StatType.USE_BOOST, 0.2 * level],
+			[StatType.USE_BOOST, 0.25 * level],
 		]);
 	}
 
