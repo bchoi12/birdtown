@@ -363,7 +363,7 @@ export class Profile extends ComponentBase implements Component {
 	}
 
 	hasBody() : boolean { return this._body !== null; } 
-	private body() : MATTER.Body { return this._body; }
+	body() : MATTER.Body { return this._body; }
 	bodyPos() : Vec { return this._body.position; }
 	isStatic() : boolean { return this._body.isStatic; }
 	onBody(fn : OnBodyFn) : void {

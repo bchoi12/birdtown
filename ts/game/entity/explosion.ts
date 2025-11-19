@@ -48,7 +48,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 				return BodyFactory.circle(profile.pos(), profile.initDim(), {
 					isStatic: true,
 					isSensor: true,
-					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.EXPLOSION),
 				});
 			},
 			init: entityOptions.profileInit,
@@ -131,7 +131,27 @@ export abstract class Explosion extends EntityBase implements Entity {
 			return;
 		}
 
-		if (collision.bodyB.isStatic || collision.bodyB.isSensor) {
+		if (collision.bodyB.isStatic) {
+			return;
+		}
+
+		// Affect projectiles
+		let magnitude = this.force();
+		if (other.allTypes().has(EntityType.PROJECTILE)
+			&& Math.abs(magnitude) >= 0.5
+			&& !other.profile().vel().isZero()
+			&& !this.matchAssociations([AssociationType.OWNER], other)) {
+			if (this.isSource()) {
+				let dist = other.profile().pos().clone().sub(this._profile.pos());
+				if (magnitude < 0) {
+					dist.negate();
+				}
+
+				if (!dist.isZero()) {
+					MATTER.Body.setVelocity(other.profile().body(), other.profile().vel().setAngleRad(dist.angleRad()));
+				}
+			}
+			this._hits.add(other.id());
 			return;
 		}
 
@@ -140,7 +160,6 @@ export abstract class Explosion extends EntityBase implements Entity {
 		}
 
 		if (!other.getAttribute(AttributeType.INVINCIBLE) && !other.getAttribute(AttributeType.COOL)) {
-			let magnitude = this.force();
 			if (this.owner().hasStat(StatType.EXPLOSION_BOOST)) {
 				magnitude *= (1 + this.owner().getStat(StatType.EXPLOSION_BOOST));
 			}

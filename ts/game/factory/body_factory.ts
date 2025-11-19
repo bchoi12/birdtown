@@ -66,6 +66,10 @@ export namespace BodyFactory {
 			addCollisionPair(CollisionCategory.BOUND, CollisionCategory.PLAYER);
 			addCollisionPair(CollisionCategory.BOUND, CollisionCategory.SOLID);
 
+			addCollisionPair(CollisionCategory.EXPLOSION, CollisionCategory.HIT_BOX);			
+			addCollisionPair(CollisionCategory.EXPLOSION, CollisionCategory.PLAYER);
+			addCollisionPair(CollisionCategory.EXPLOSION, CollisionCategory.SOLID);
+
 			addCollisionPair(CollisionCategory.HIT_BOX, CollisionCategory.PLAYER);
 			addCollisionPair(CollisionCategory.HIT_BOX, CollisionCategory.SOLID);
 
