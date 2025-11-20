@@ -8,10 +8,12 @@ export class GlassCannonBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.BURST_BONUS, this.atMaxLevel() ? 1 : 0],
-			[StatType.BURST_BOOST, 0.25 * level],
+			[StatType.BURST_BONUS, 1],
 			[StatType.DAMAGE_ADDITION, 5 * level],
-			[StatType.FIRE_BOOST, 0.15 * level],
+			[StatType.FIRE_BOOST, 0.3 * level],
+			[StatType.HEALTH_ADDITION, 3 * level],
+			[StatType.HEALTH_BOOST, -0.2 * level],
+			[StatType.LIFE_STEAL, 0.1 * level],
 		]);
 	}
 }

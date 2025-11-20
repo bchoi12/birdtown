@@ -183,7 +183,7 @@ export abstract class Buff extends ComponentBase implements Component {
 			return;
 		}
 
-		if (delta > 0) {
+		if (delta >= 0) {
 			this.addAfter(3000, -1);
 		} else if (delta < 0) {
 			this.addAfter(500, -1);

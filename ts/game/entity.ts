@@ -524,9 +524,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			if (from.hasStat(StatType.HEAL_PERCENT)) {
 				this.heal(from.getStat(StatType.HEAL_PERCENT) * delta);
 			}
-
-			// TODO: imbue chance here
-
+			if (from.hasStat(StatType.IMBUE_LEVEL)) {
+				const imbueLevel = from.getStat(StatType.IMBUE_LEVEL);
+				this.addBuff(BuffType.IMBUE, imbueLevel > this.buffLevel(BuffType.IMBUE) ? 1 : 0);
+			}
 			return;
 		}
 

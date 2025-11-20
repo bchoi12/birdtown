@@ -55,6 +55,7 @@ export namespace StatFactory {
 			[StatType.FLAME_CHANCE, 0],
 			[StatType.HEALTH, 100],
 			[StatType.HP_REGEN_DELAY, 3000],
+			[StatType.IMBUE_LEVEL, 0],
 			[StatType.LIFE_STEAL, 0],
 			[StatType.POISON_CHANCE, 0],
 			[StatType.SLOW_CHANCE, 0],

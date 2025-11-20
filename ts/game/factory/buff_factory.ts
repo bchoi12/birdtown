@@ -1,7 +1,7 @@
 
 import { game } from 'game'
 import { ComponentType } from 'game/component/api'
-import { Buff } from 'game/component/buff'
+import { Buff, BuffOptions } from 'game/component/buff'
 import { Buffs } from 'game/component/buffs'
 import { AcrobaticBuff } from 'game/component/buff/acrobatic_buff'
 import { BigBuff } from 'game/component/buff/big_buff'
@@ -18,6 +18,7 @@ import { FlameBuff } from 'game/component/buff/flame_buff'
 import { GlassCannonBuff } from 'game/component/buff/glass_cannon_buff'
 import { HealerBuff } from 'game/component/buff/healer_buff'
 import { IcyBuff } from 'game/component/buff/icy_buff'
+import { ImbueBuff } from 'game/component/buff/imbue_buff'
 import { JuicedBuff } from 'game/component/buff/juiced_buff'
 import { JumperBuff } from 'game/component/buff/jumper_buff'
 import { MosquitoBuff } from 'game/component/buff/mosquito_buff'
@@ -38,36 +39,91 @@ import { SeededRandom } from 'util/seeded_random'
 
 export namespace BuffFactory {
 
+	const starterMetadata : BuffOptions = {
+		maxLevel: 5,
+	};
+	const basicMetadata = {
+		maxLevel: 1,
+	}
+	const upgraderMetadata = {
+		maxLevel: 3,
+	};
+	const statusMetadata : BuffOptions = {
+		maxLevel: 1,
+		resetOnSpawn: true,
+	}
+	const stackingMetadata : BuffOptions = {
+		maxLevel: 6,
+		resetOnSpawn: true,
+	};
+
+	const metadata = new Map<BuffType, BuffOptions>([
+		[BuffType.ACROBATIC, starterMetadata],
+		[BuffType.BIG, starterMetadata],
+		[BuffType.EAGLE_EYE, starterMetadata],
+
+		[BuffType.BLASTER, basicMetadata],
+		[BuffType.GLASS_CANNON, basicMetadata],
+
+		[BuffType.COOL, upgraderMetadata],
+		[BuffType.CRIT, upgraderMetadata],
+		[BuffType.DODGY, upgraderMetadata],
+		[BuffType.EXPLOSION, upgraderMetadata],
+		[BuffType.FIERY, upgraderMetadata],
+		[BuffType.HEALER, upgraderMetadata],
+		[BuffType.ICY, upgraderMetadata],
+		[BuffType.JUICED, upgraderMetadata],
+		[BuffType.JUMPER, upgraderMetadata],
+		[BuffType.MOSQUITO, upgraderMetadata],
+		[BuffType.TANK, upgraderMetadata],
+		[BuffType.STAT_STICK, { maxLevel: 300 }],
+
+		// Unused
+		[BuffType.SNIPER, upgraderMetadata],
+		[BuffType.VAMPIRE, upgraderMetadata],
+		[BuffType.WARMOGS, upgraderMetadata],
+
+		[BuffType.EXPOSE, stackingMetadata],
+		[BuffType.FLAME, stackingMetadata],
+		[BuffType.IMBUE, stackingMetadata],
+		[BuffType.POISON, stackingMetadata],
+		[BuffType.SLOW, stackingMetadata],
+
+		[BuffType.BLACK_HEADBAND, statusMetadata],
+		[BuffType.SPREE, {maxLevel: 3, resetOnSpawn: true }],
+	]);
+
 	const createFns = new Map<BuffType, (type : BuffType) => Buff>([
-		[BuffType.ACROBATIC, (type : BuffType) => { return new AcrobaticBuff(type, { maxLevel: 5 }) }],
-		[BuffType.BIG, (type : BuffType) => { return new BigBuff(type, { maxLevel: 5 }) }],
-		[BuffType.EAGLE_EYE, (type : BuffType) => { return new EagleEyeBuff(type, { maxLevel: 5 }) }],
+		[BuffType.ACROBATIC, (type : BuffType) => { return new AcrobaticBuff(type, metadata.get(type)) }],
+		[BuffType.BIG, (type : BuffType) => { return new BigBuff(type, metadata.get(type)) }],
+		[BuffType.EAGLE_EYE, (type : BuffType) => { return new EagleEyeBuff(type, metadata.get(type)) }],
 
-		[BuffType.BLASTER, (type : BuffType) => { return new BlasterBuff(type, { maxLevel: 3 })}],
-		[BuffType.COOL, (type : BuffType) => { return new CoolBuff(type, { maxLevel: 3 })}],
-		[BuffType.CRIT, (type : BuffType) => { return new CritBuff(type, { maxLevel: 3 }) }],
-		[BuffType.DODGY, (type : BuffType) => { return new DodgyBuff(type, { maxLevel: 3 }) }],
-		[BuffType.EXPLOSION, (type : BuffType) => { return new ExplosionBuff(type, { maxLevel: 3 }) }],
-		[BuffType.FIERY, (type : BuffType) => { return new FieryBuff(type, { maxLevel: 3 }) }],
-		[BuffType.GLASS_CANNON, (type : BuffType) => { return new GlassCannonBuff(type, { maxLevel: 3 }) }],
-		[BuffType.HEALER, (type : BuffType) => { return new HealerBuff(type, { maxLevel: 3 }) }],
-		[BuffType.ICY, (type : BuffType) => { return new IcyBuff(type, { maxLevel: 3 }) }],
-		[BuffType.JUICED, (type : BuffType) => { return new JuicedBuff(type, { maxLevel: 3 }) }],
-		[BuffType.JUMPER, (type : BuffType) => { return new JumperBuff(type, { maxLevel: 3 }) }],
-		[BuffType.MOSQUITO, (type : BuffType) => { return new MosquitoBuff(type, { maxLevel: 3 }) }],
-		[BuffType.SNIPER, (type : BuffType) => { return new SniperBuff(type, { maxLevel: 3 }) }],
-		[BuffType.SPREE, (type : BuffType) => { return new SpreeBuff(type, {maxLevel: 3, resetOnSpawn: true })}],
-		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, { maxLevel: 300 }) }],
-		[BuffType.TANK, (type : BuffType) => { return new TankBuff(type, { maxLevel: 3 }) }],
-		[BuffType.VAMPIRE, (type : BuffType) => { return new VampireBuff(type, { maxLevel: 3 }) }],
-		[BuffType.WARMOGS, (type : BuffType) => { return new WarmogsBuff(type, { maxLevel: 3 }) }],
+		[BuffType.BLASTER, (type : BuffType) => { return new BlasterBuff(type, metadata.get(type))}],
+		[BuffType.COOL, (type : BuffType) => { return new CoolBuff(type, metadata.get(type))}],
+		[BuffType.CRIT, (type : BuffType) => { return new CritBuff(type, metadata.get(type)) }],
+		[BuffType.DODGY, (type : BuffType) => { return new DodgyBuff(type, metadata.get(type)) }],
+		[BuffType.EXPLOSION, (type : BuffType) => { return new ExplosionBuff(type, metadata.get(type)) }],
+		[BuffType.FIERY, (type : BuffType) => { return new FieryBuff(type, metadata.get(type)) }],
+		[BuffType.GLASS_CANNON, (type : BuffType) => { return new GlassCannonBuff(type, metadata.get(type)) }],
+		[BuffType.HEALER, (type : BuffType) => { return new HealerBuff(type, metadata.get(type)) }],
+		[BuffType.ICY, (type : BuffType) => { return new IcyBuff(type, metadata.get(type)) }],
+		[BuffType.JUICED, (type : BuffType) => { return new JuicedBuff(type, metadata.get(type)) }],
+		[BuffType.JUMPER, (type : BuffType) => { return new JumperBuff(type, metadata.get(type)) }],
+		[BuffType.MOSQUITO, (type : BuffType) => { return new MosquitoBuff(type, metadata.get(type)) }],
+		[BuffType.SNIPER, (type : BuffType) => { return new SniperBuff(type, metadata.get(type)) }],
+		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, metadata.get(type)) }],
+		[BuffType.TANK, (type : BuffType) => { return new TankBuff(type, metadata.get(type)) }],
+		[BuffType.VAMPIRE, (type : BuffType) => { return new VampireBuff(type, metadata.get(type)) }],
+		[BuffType.WARMOGS, (type : BuffType) => { return new WarmogsBuff(type, metadata.get(type)) }],
 
-		[BuffType.BLACK_HEADBAND, (type : BuffType) => { return new BlackHeadbandBuff(type, { maxLevel: 1 }) }],
+		[BuffType.BLACK_HEADBAND, (type : BuffType) => { return new BlackHeadbandBuff(type, metadata.get(type)) }],
+		[BuffType.SPREE, (type : BuffType) => { return new SpreeBuff(type, metadata.get(type))}],
 
-		[BuffType.EXPOSE, (type : BuffType) => { return new ExposeBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
-		[BuffType.FLAME, (type : BuffType) => { return new FlameBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
-		[BuffType.POISON, (type : BuffType) => { return new PoisonBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
-		[BuffType.SLOW, (type : BuffType) => { return new SlowBuff(type, { maxLevel: 6, resetOnSpawn: true }) }],
+		[BuffType.EXPOSE, (type : BuffType) => { return new ExposeBuff(type, metadata.get(type)) }],
+		[BuffType.FLAME, (type : BuffType) => { return new FlameBuff(type, metadata.get(type)) }],
+		[BuffType.IMBUE, (type : BuffType) => { return new ImbueBuff(type, metadata.get(type)) }],
+		[BuffType.POISON, (type : BuffType) => { return new PoisonBuff(type, metadata.get(type)) }],
+		[BuffType.SLOW, (type : BuffType) => { return new SlowBuff(type, metadata.get(type)) }],
 	]);
 
 	export function create<T extends Buff>(type : BuffType) : T {

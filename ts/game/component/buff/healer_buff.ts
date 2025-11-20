@@ -8,9 +8,8 @@ export class HealerBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			// TODO: replace FIRE_BOOST with IMBUE_CHANCE that powers up allies (0.15 damage resist, 0.15 damage boost)
-			[StatType.FIRE_BOOST, 0.15 * level],
 			[StatType.HEAL_PERCENT, 0.1 * level],
+			[StatType.IMBUE_LEVEL, 2 * level],
 			[StatType.REVIVE_BOOST, 0.2 * level],
 		]);
 	}
