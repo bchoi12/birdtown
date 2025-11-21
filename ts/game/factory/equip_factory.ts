@@ -148,20 +148,30 @@ export namespace EquipFactory {
 		}
 		return [type, recommendedPairs.get(type)[0]];
 	}
-	function getRecommendedAltEquip(type : EntityType) : EntityType {
+	function getRecommendedAltEquip(type : EntityType, exclude? : Set<EntityType>) : EntityType {
 		if (!recommendedPairs.has(type)) {
 			console.error("Error: no equip pairings for %s", EntityType[type]);
 			return EntityType.UNKNOWN;
 		}
 
-		const list = recommendedPairs.get(type);
+		let list = [];
+		recommendedPairs.get(type).forEach((type : EntityType) => {
+			if (exclude && !exclude.has(type)) {
+				list.push(type);
+			}
+		});
+		if (list.length <= 0) {
+			console.error("Error: excluded all recommended pairings for %s", EntityType[type], exclude);
+			return EntityType.UNKNOWN;
+		}
+
 		return list[equipRandom.int(list.length)];
 	}
 
 	const starterWeapons = new Map<BuffType, EntityType[]>([
-		[BuffType.ACROBATIC, [EntityType.MINIGUN, EntityType.PISTOL, EntityType.PURPLE_GLOVE, EntityType.RED_GLOVE, EntityType.RIFLE, EntityType.SHOTGUN]],
-		[BuffType.BIG, [EntityType.BAZOOKA, EntityType.GATLING, EntityType.ORB_CANNON, EntityType.PURPLE_GLOVE, EntityType.SHOTGUN, EntityType.WING_CANNON]],
-		[BuffType.EAGLE_EYE, [EntityType.GATLING, EntityType.LASER_GUN, EntityType.MINIGUN, EntityType.PISTOL, EntityType.RED_GLOVE, EntityType.RIFLE]],
+		[BuffType.ACROBATIC, [EntityType.BAZOOKA, EntityType.MINIGUN, EntityType.LASER_GUN, EntityType.PURPLE_GLOVE, EntityType.RED_GLOVE, EntityType.RIFLE, EntityType.SHOTGUN, EntityType.WING_CANNON]],
+		[BuffType.BIG, [EntityType.BAZOOKA, EntityType.GATLING, EntityType.ORB_CANNON, EntityType.PISTOL, EntityType.PURPLE_GLOVE, EntityType.SHOTGUN, EntityType.WING_CANNON]],
+		[BuffType.EAGLE_EYE, [EntityType.GATLING, EntityType.LASER_GUN, EntityType.MINIGUN, EntityType.ORB_CANNON, EntityType.PISTOL, EntityType.RED_GLOVE, EntityType.RIFLE]],
 	]);
 	export function getStarterPair(type : BuffType) : [EntityType, EntityType] {
 		return getStarterPairN(type, 1)[0];

@@ -560,9 +560,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			if (this.getAttribute(AttributeType.LIVING) && !this.dead()) {
 				if (from.hasStat(StatType.LIFE_STEAL)) {
 					from.heal(from.getStat(StatType.LIFE_STEAL) * delta);
+					console.log("life steal: ", from.getStat(StatType.LIFE_STEAL) * delta);
 				}
 				if (from.hasStat(StatType.HEALTH_ADDITION)) {
 					from.heal(from.getStat(StatType.HEALTH_ADDITION) * buffDelta);
+					console.log("health add:", from.getStat(StatType.HEALTH_ADDITION) * buffDelta);
 				}
 			}
 

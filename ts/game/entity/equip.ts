@@ -109,7 +109,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 	protected getBaseChargeRate() : number { return this.getStatOr(StatType.CHARGE_RATE, 0); }
 	protected getBaseUseJuice() : number { return this.getStatOr(StatType.USE_JUICE, 0); }
-	protected getChargeDelay() : number { return this.getStat(StatType.CHARGE_DELAY); }
+	protected getChargeDelay() : number { return this.getStatOr(StatType.CHARGE_DELAY, 0); }
 
 	override initialize() : void {
 		super.initialize();

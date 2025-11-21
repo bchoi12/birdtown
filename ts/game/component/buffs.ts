@@ -44,6 +44,11 @@ export class Buffs extends ComponentBase implements Component {
 		});
 	}
 	addBuff<T extends Buff>(type : BuffType, delta : number) : void {
+		if (type === null || type === undefined || type === 0) {
+			console.error("Warning: invalid BuffType", type);
+			return;
+		}
+
 		let buff = this.registerBuff(type);
 
 		if (delta !== 0) {

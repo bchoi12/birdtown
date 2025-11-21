@@ -119,7 +119,6 @@ export class ClientsHandler extends HandlerBase implements Handler {
 			}
 
 			let clientWrapper = this._clients.get(clientId);
-
 			if (this._sendChat) {
 				ui.chat(ChatType.PRINT, "disconnected!", {
 					clientId: clientId,

@@ -2,14 +2,26 @@
 import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { Buff, BuffOptions } from 'game/component/buff'
+import { EntityType } from 'game/entity/api'
+import { Player } from 'game/entity/player'
 import { BuffType, StatType } from 'game/factory/api'
+
 
 export class JuicedBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
+			[StatType.BURST_BONUS, this.hasScouter() ? 1 : 0],
 			[StatType.FIRE_BOOST, 0.15 * level],
 			[StatType.RELOAD_BOOST, 0.2 * level],
 		]);
+	}
+
+	private hasScouter() : boolean {
+		if (this.entity().type() !== EntityType.PLAYER) {
+			return false;
+		}
+
+		return this.entity<Player>().altEquipType() === EntityType.SCOUTER;
 	}
 }

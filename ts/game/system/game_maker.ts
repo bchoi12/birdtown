@@ -332,7 +332,11 @@ export class GameMaker extends SystemBase implements System {
 			if (this.timeLimitReached(current)) {
 				return GameState.GAME;
 			}
-			if (game.clientDialogs().inSync(DialogType.LOADOUT)) {
+			const inSync = game.clientDialogs().inSync(DialogType.LOADOUT, (clientDialog : ClientDialog) => {
+				const clientId = clientDialog.clientId();
+				return game.playerStates().hasPlayerState(clientId) && game.playerState(clientId).isPlaying();
+			})
+			if (inSync) {
 				return GameState.GAME;
 			}
 			break;

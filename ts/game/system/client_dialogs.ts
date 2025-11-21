@@ -14,8 +14,11 @@ export class ClientDialogs extends ClientSystemManager implements System {
 		this.setFactoryFn((clientId : number) => { return this.addClientDialog(new ClientDialog(clientId)); })
 	}
 
-	inSync(type : DialogType) : boolean {
+	inSync(type : DialogType, filter : (clientDialog : ClientDialog) => boolean) : boolean {
 		return this.matchAll<ClientDialog>((clientDialog : ClientDialog) => {
+			if (!filter(clientDialog)) {
+				return true;
+			}
 			return clientDialog.inSync(type);
 		});
 	}

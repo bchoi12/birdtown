@@ -105,7 +105,7 @@ export class Booster extends Equip<Player> {
 
 		// Only allow source to jump since otherwise it's jittery.
 		if (this.hasOwner()) {
-			this.owner().addForce({ y: this.getStat(StatType.FORCE) });
+			this.owner().addForce({ y: this.getStat(StatType.FORCE) * this.owner().getStat(StatType.SCALING) });
 			this.soundPlayer().playFromEntity(SoundType.BOOST, this.owner());
 		}
 	}

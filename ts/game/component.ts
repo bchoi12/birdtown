@@ -54,7 +54,7 @@ export abstract class ComponentBase extends GameObjectBase implements Component 
 	setSubComponent() : void { this._isSubComponent = true; }
 
 	type() : ComponentType { return this._type; }
-	entity() : Entity { return this._entity.get(); }
+	entity<T extends Entity>() : T { return <T>this._entity.get(); }
 	entityType() : EntityType { return this._entity.has() ? this._entity.get().type() : EntityType.UNKNOWN; }
 	setEntity<T extends Entity>(entity : T) : void {
 		this.addNameParams({
