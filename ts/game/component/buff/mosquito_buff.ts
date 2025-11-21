@@ -8,7 +8,7 @@ export class MosquitoBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.BURST_BOOST, 0.25 * level],
+			[StatType.BURST_BOOST, 0.5 * level],
 			[StatType.DAMAGE_BOOST, -0.1 * level],
 			[StatType.DAMAGE_TAKEN_BOOST, 0.1 * level],
 			[StatType.DOUBLE_JUMPS, level],

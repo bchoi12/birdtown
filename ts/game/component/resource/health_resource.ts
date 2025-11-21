@@ -78,7 +78,7 @@ export class HealthResource extends Resource {
 	}
 
 	protected override processDelta(delta : number) : void {
-		if (delta === 0 || !this.initialized()) {
+		if (delta === 0 || !this.initialized() || Number.isNaN(delta)) {
 			return;
 		}
 

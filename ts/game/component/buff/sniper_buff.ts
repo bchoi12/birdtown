@@ -8,7 +8,9 @@ export class SniperBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.DAMAGE_FAR_BOOST, 0.2 * level],
+			[StatType.DAMAGE_FAR_BOOST, 0.25 * level],
+			[StatType.RELOAD_BOOST, 0.2 * level],
+			[StatType.LIFE_STEAL, 0.1 * level],
 		]);
 	}
 }

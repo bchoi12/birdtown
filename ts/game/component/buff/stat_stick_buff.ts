@@ -34,7 +34,7 @@ export class StatStickBuff extends Buff {
 		this._rng = new SeededRandom(0);
 
 		if (this.isSource()) {
-			this.setSeed(Math.ceil(10000 * Math.random()));
+			this.generateSeed();
 		}
 
 		this.addProp<number>({
@@ -61,6 +61,17 @@ export class StatStickBuff extends Buff {
 		return boosts;
 	}
 
+	override onLevel(level : number, delta : number) : void {
+		super.onLevel(level, delta);
+
+		if (level === 0 && this.isSource()) {
+			this.generateSeed();
+		}
+	}
+
+	private generateSeed() : void {
+		this.setSeed(Math.ceil(10000 * Math.random()));
+	}
 	private setSeed(seed : number) : void {
 		this._seed = seed;
 		this._rng.seed(seed);

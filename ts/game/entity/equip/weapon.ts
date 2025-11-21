@@ -237,7 +237,7 @@ export abstract class Weapon extends Equip<Player> {
 			bonus = this.owner().getStat(StatType.BURST_BONUS);
 		}
 		if (this.charged() && this.hasStat(StatType.CHARGED_BURSTS)) {
-			return Math.round(mult * this.getStat(StatType.CHARGED_BURSTS) + bonus);
+			return Math.floor(mult * this.getStat(StatType.CHARGED_BURSTS) + bonus);
 		}
 		return Math.round(mult * this.getStat(StatType.BURSTS) + bonus);
 	}

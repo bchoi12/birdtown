@@ -10,7 +10,6 @@ export class BlasterBuff extends Buff {
 		return new Map([
 			[StatType.BURST_BONUS, 1],
 			[StatType.DAMAGE_CLOSE_BOOST, 0.3],
-			[StatType.DAMAGE_REDUCTION, 5],
 			[StatType.SCALING, 0.2],
 		]);
 	}

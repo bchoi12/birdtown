@@ -58,7 +58,7 @@ export class SlowBuff extends Buff {
 						y: pos.y,
 					},
 					vel: {
-						x: Fns.randomNoise(0.06),
+						x: Fns.randomNoise(0.1),
 						y: 0,
 					},
 					angle: Math.PI * Math.random(),

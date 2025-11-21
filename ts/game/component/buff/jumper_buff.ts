@@ -8,8 +8,8 @@ export class JumperBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.SPEED_BOOST, 0.2],
-			[StatType.DOUBLE_JUMPS, 2],
+			[StatType.SPEED_BOOST, 0.2 * level],
+			[StatType.DOUBLE_JUMPS, 2 * level],
 		]);
 	}
 }

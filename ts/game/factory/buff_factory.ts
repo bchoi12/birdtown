@@ -44,6 +44,7 @@ export namespace BuffFactory {
 	// verbal alchemy
 	// squawk shields
 	// meditation?
+	// tank cannon (bruiser buff, % health -> dmg)
 	// PERIL_DAMAGE_BOOST
 	// PIERCE ATTRIBUTE
 	// BUFFS THAT PROCESS DAMAGE
@@ -54,7 +55,10 @@ export namespace BuffFactory {
 	const basicMetadata = {
 		maxLevel: 1,
 	}
-	const upgraderMetadata = {
+	const upgradeMetadata = {
+		maxLevel: 2,
+	};
+	const specialMetadata = {
 		maxLevel: 3,
 	};
 	const statusMetadata : BuffOptions = {
@@ -75,22 +79,24 @@ export namespace BuffFactory {
 		[BuffType.EXPLOSION, basicMetadata],
 		[BuffType.GLASS_CANNON, basicMetadata],
 		[BuffType.JUMPER, basicMetadata],
+		[BuffType.SNIPER, basicMetadata],
 
-		[BuffType.COOL, upgraderMetadata],
-		[BuffType.CRIT, upgraderMetadata],
-		[BuffType.DODGY, upgraderMetadata],
-		[BuffType.FIERY, upgraderMetadata],
-		[BuffType.HEALER, upgraderMetadata],
-		[BuffType.ICY, upgraderMetadata],
-		[BuffType.JUICED, upgraderMetadata],
-		[BuffType.MOSQUITO, upgraderMetadata],
-		[BuffType.TANK, upgraderMetadata],
+		[BuffType.CRIT, upgradeMetadata],
+		[BuffType.FIERY, upgradeMetadata],
+		[BuffType.ICY, upgradeMetadata],
+		[BuffType.MOSQUITO, upgradeMetadata],
+		[BuffType.TANK, upgradeMetadata],
+
+		[BuffType.COOL, specialMetadata],
+		[BuffType.DODGY, specialMetadata],
+		[BuffType.HEALER, specialMetadata],
+		[BuffType.JUICED, specialMetadata],
+
 		[BuffType.STAT_STICK, { maxLevel: 300 }],
 
 		// Unused
-		[BuffType.SNIPER, upgraderMetadata],
-		[BuffType.VAMPIRE, upgraderMetadata],
-		[BuffType.WARMOGS, upgraderMetadata],
+		[BuffType.VAMPIRE, upgradeMetadata],
+		[BuffType.WARMOGS, upgradeMetadata],
 
 		[BuffType.EXPOSE, stackingMetadata],
 		[BuffType.FLAME, stackingMetadata],
@@ -101,6 +107,8 @@ export namespace BuffFactory {
 		[BuffType.BLACK_HEADBAND, statusMetadata],
 		[BuffType.SPREE, {maxLevel: 3, resetOnSpawn: true }],
 	]);
+
+	export function maxLevel(type : BuffType) : number { return metadata.get(type).maxLevel; }
 
 	const createFns = new Map<BuffType, (type : BuffType) => Buff>([
 		[BuffType.ACROBATIC, (type : BuffType) => { return new AcrobaticBuff(type, metadata.get(type)) }],
@@ -162,8 +170,7 @@ export namespace BuffFactory {
 		BuffType.CRIT,
 		BuffType.FIERY,
 		BuffType.GLASS_CANNON,
-		BuffType.ICY,
-		BuffType.VAMPIRE);
+		BuffType.ICY);
 	function getGeneralBuffs(player : Player) : Set<BuffType> {
 		if (!player.hasComponent(ComponentType.BUFFS)) {
 			console.error("Error: %s does not have buff component", player.name());
@@ -174,7 +181,7 @@ export namespace BuffFactory {
 
 		let pickableBuffs = new Set<BuffType>();
 		generalBuffs.forEach((buff : BuffType) => {
-			if (buffs.canBuff(buff)) {
+			if (buffs.canBuff(buff) && hasPrereq(player, buff)) {
 				pickableBuffs.add(buff);
 			}
 		});
@@ -196,25 +203,30 @@ export namespace BuffFactory {
 	const stickWeapons = new Set<EntityType>([
 		EntityType.PURPLE_GLOVE,
 	]);
-	const prereqBuffs = new Map<BuffType, Array<BuffType>>([
-		[BuffType.ACROBATIC, [BuffType.MOSQUITO, BuffType.TANK]],
-		[BuffType.BIG, [BuffType.TANK, BuffType.JUMPER]],
-		[BuffType.EAGLE_EYE, [BuffType.MOSQUITO]],
+
+	const prereqs = new Map<BuffType, Array<BuffType>>([
+		[BuffType.MOSQUITO, [BuffType.ACROBATIC, BuffType.EAGLE_EYE]],
+		[BuffType.TANK, [BuffType.ACROBATIC, BuffType.TANK]],
 	]);
-	// Unused: SNIPER
+	export function hasPrereq(player : Player, type : BuffType) : boolean {
+		if (!prereqs.has(type)) {
+			return true;
+		}
+		const buffs = prereqs.get(type);
+		for (let i = 0; i < buffs.length; ++i) {
+			if (player.hasBuff(buffs[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
 	export function getBuffs() : Array<BuffType> {
 		return getBuffsForPlayer(game.playerState().targetEntity<Player>());
 	}
 	export function getBuffsForPlayer(player : Player) : Array<BuffType> {
 		let pickableBuffs = getGeneralBuffs(player);
 
-		prereqBuffs.forEach((buffs : Array<BuffType>, reqType : BuffType) => {
-			if (player.hasBuff(reqType)) {
-				buffs.forEach((buff : BuffType) => {
-					pickableBuffs.add(buff);
-				});
-			}
-		});
+		pickableBuffs.add(chooseBuffs(player, [BuffType.MOSQUITO, BuffType.TANK]));
 
 		if (!EquipFactory.invalidAlts(player.equipType()).includes(EntityType.SCOUTER)) {
 			pickableBuffs.add(BuffType.JUICED);
@@ -226,12 +238,13 @@ export namespace BuffFactory {
 			pickableBuffs.add(BuffType.EXPLOSION);
 		}
 		if (!stickWeapons.has(player.equipType())) {
-			pickableBuffs.add(BuffType.BLASTER);
+			pickableBuffs.add(chooseBuffs(player, [BuffType.BLASTER, BuffType.SNIPER]));
 		}
 		if (game.controller().isTeamMode()) {
 			pickableBuffs.add(BuffType.HEALER);
 		}
 
+		pickableBuffs.delete(BuffType.UNKNOWN);
 		pickableBuffs.forEach((buff : BuffType) => {
 			if (player.hasMaxedBuff(buff)) {
 				pickableBuffs.delete(buff);
@@ -239,6 +252,21 @@ export namespace BuffFactory {
 		});
 
 		return Array.from(pickableBuffs);
+	}
+	export function chooseBuffs(player : Player, buffs : Array<BuffType>) : BuffType {
+		for (let i = 0; i < buffs.length; ++i) {
+			if (!hasPrereq(player, buffs[i])) {
+				continue;
+			}
+
+			if (player.hasBuff(buffs[i])) {
+				if (player.hasMaxedBuff(buffs[i])) {
+					return BuffType.UNKNOWN;
+				}
+				return buffs[i];
+			}
+		}
+		return buffRandom.pick<BuffType>(buffs);
 	}
 	export function getBuffsN(n : number) : Array<BuffType> {
 		let pickableBuffs = getBuffs();

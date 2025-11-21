@@ -29,6 +29,9 @@ export class BuffButtonWrapper extends LoadoutButtonWrapper<BuffType> {
 
 		const currentLevel = game.playerState().targetEntity().buffLevel(type);
 		if (currentLevel >= 1) {
+			if (currentLevel === BuffFactory.maxLevel(type) - 1) {
+				return `${StringFactory.getBuffName(type)} LvMAX`; 
+			}
 			return `${StringFactory.getBuffName(type)} Lv${currentLevel + 1}`;
 		}
 		return StringFactory.getBuffName(type);

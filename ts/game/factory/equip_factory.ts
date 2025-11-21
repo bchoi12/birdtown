@@ -156,7 +156,7 @@ export namespace EquipFactory {
 
 		let list = [];
 		recommendedPairs.get(type).forEach((type : EntityType) => {
-			if (exclude && !exclude.has(type)) {
+			if (!exclude || !exclude.has(type)) {
 				list.push(type);
 			}
 		});
