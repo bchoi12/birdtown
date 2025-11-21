@@ -44,9 +44,9 @@ export class Resources extends ComponentBase implements Component {
 	// Convenience methods
 	maxHealth() : number {
 		if (!this.hasResource(StatType.HEALTH)) {
-			return;
+			return 0;
 		}
-		this.getSubComponent<HealthResource>(StatType.HEALTH).max();
+		return this.getSubComponent<HealthResource>(StatType.HEALTH).max();
 	}
 	fullHeal() : void {
 		if (!this.hasResource(StatType.HEALTH)) {

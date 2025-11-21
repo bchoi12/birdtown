@@ -34,10 +34,19 @@ import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { BuffType } from 'game/factory/api'
+import { EquipFactory } from 'game/factory/equip_factory'
 
 import { SeededRandom } from 'util/seeded_random'
 
 export namespace BuffFactory {
+
+	// TODO: exodia buffs + weapon
+	// verbal alchemy
+	// squawk shields
+	// meditation?
+	// PERIL_DAMAGE_BOOST
+	// PIERCE ATTRIBUTE
+	// BUFFS THAT PROCESS DAMAGE
 
 	const starterMetadata : BuffOptions = {
 		maxLevel: 5,
@@ -63,17 +72,17 @@ export namespace BuffFactory {
 		[BuffType.EAGLE_EYE, starterMetadata],
 
 		[BuffType.BLASTER, basicMetadata],
+		[BuffType.EXPLOSION, basicMetadata],
 		[BuffType.GLASS_CANNON, basicMetadata],
+		[BuffType.JUMPER, basicMetadata],
 
 		[BuffType.COOL, upgraderMetadata],
 		[BuffType.CRIT, upgraderMetadata],
 		[BuffType.DODGY, upgraderMetadata],
-		[BuffType.EXPLOSION, upgraderMetadata],
 		[BuffType.FIERY, upgraderMetadata],
 		[BuffType.HEALER, upgraderMetadata],
 		[BuffType.ICY, upgraderMetadata],
 		[BuffType.JUICED, upgraderMetadata],
-		[BuffType.JUMPER, upgraderMetadata],
 		[BuffType.MOSQUITO, upgraderMetadata],
 		[BuffType.TANK, upgraderMetadata],
 		[BuffType.STAT_STICK, { maxLevel: 300 }],
@@ -207,7 +216,7 @@ export namespace BuffFactory {
 			}
 		});
 
-		if (player.altEquipType() === EntityType.SCOUTER) {
+		if (!EquipFactory.invalidAlts(player.equipType()).includes(EntityType.SCOUTER)) {
 			pickableBuffs.add(BuffType.JUICED);
 		}
 		if (dodgeEquips.has(player.altEquipType())) {

@@ -45,9 +45,6 @@ export namespace StatFactory {
 
 	const entityStats = new Map<EntityType, Map<StatType, number>>([
 		// Player
-		// TODO: PERIL_DAMAGE_BOOST
-		// PIERCE ATTRIBUTE
-		// BUFFS THAT PROCESS DAMAGE
 		[EntityType.PLAYER, new Map([
 			[StatType.CRIT_BOOST, 0.5],
 			[StatType.DOUBLE_JUMPS, 1],

@@ -57,7 +57,8 @@ export namespace EquipFactory {
 
 	export function seed(n : number) : void { equipRandom.seed(n); }
 	export function weaponList() : EntityType[] { return [...recommendedPairs.keys()]; }
-	export function specialWeapons() : EntityType[] { return [EntityType.GOLDEN_GUN]; }
+	export function specialWeapons() : EntityType[] { return [...specialPairs.keys()]; }
+	export function invalidAlts(weaponType : EntityType) : EntityType[] { return invalidPairs.has(weaponType) ? invalidPairs.get(weaponType) : []; }
 	export function equipList(type : EntityType) : EquipList {
 		let seen = new Set();
 

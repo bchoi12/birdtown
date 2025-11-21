@@ -22,7 +22,6 @@ export class PoisonBuff extends Buff {
 		this._particleLimiter = new RateLimiter(3000);
 	}
 
-
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
 			[StatType.DAMAGE_TAKEN_BOOST, 0.05 * level],

@@ -17,23 +17,24 @@ export enum BuffType {
 	GLASS_CANNON,
 	HEALER,
 	ICY,
-	IMBUE,
 	JUICED,
 	JUMPER,
 	MOSQUITO,
-	SPREE,
 	SNIPER,
 	STAT_STICK,
+	SQUAWK_SHOT,
 	TANK,
 	VAMPIRE,
 	WARMOGS,
 
-	// Item specific
+	// Specific
 	BLACK_HEADBAND,
+	SPREE,
 
 	// Status
 	EXPOSE,
 	FLAME,
+	IMBUE,
 	POISON,
 	SLOW,
 }

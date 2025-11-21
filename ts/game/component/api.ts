@@ -28,7 +28,6 @@ export enum AssociationType {
 export enum AttributeType {
 	UNKNOWN,
 
-	ALIVE,
 	BUBBLED,
 	CHARGED,
 	COOL,
@@ -37,6 +36,7 @@ export enum AttributeType {
 	GROUNDED,
 	INVINCIBLE,
 	LEVITATING,
+	LIVING,
 	REVIVING,
 	SOLID,
 	UNDERWATER,

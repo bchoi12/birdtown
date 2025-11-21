@@ -127,7 +127,7 @@ export class GameMaker extends SystemBase implements System {
 		if (game.playerStates().numPlayers() <= 2) {
 			return false;
 		}
-		return this._config.getWinCondition() === WinConditionType.TEAM_LIVES || this._config.getWinCondition() === WinConditionType.TEAM_POINTS
+		return this._config.getWinCondition() === WinConditionType.TEAM_LIVES || this._config.getWinCondition() === WinConditionType.TEAM_POINTS;
 	}
 	setWinnerClientId(clientId : number) : void {
 		if (!game.playerStates().hasPlayerState(clientId)) {

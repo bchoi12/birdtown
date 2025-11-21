@@ -7,7 +7,7 @@ import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 import { TextParticle } from 'game/entity/particle/text_particle'
-import { ColorType, MeshType, SoundType } from 'game/factory/api'
+import { BuffType, ColorType, MeshType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { GameData } from 'game/game_data'
@@ -77,6 +77,25 @@ export abstract class Beak extends Equip<Player> {
 
 	protected override hudType() : HudType { return HudType.SQUAWK; }
 	protected override useKeyType() : KeyType { return KeyType.SQUAWK; }
+
+	protected override getBaseChargeRate() : number {
+		if (this.hasBuff(BuffType.SQUAWK_SHOT)) {
+			return 120;
+		}
+		return super.getBaseChargeRate();
+	}
+	protected override getBaseUseJuice() : number {
+		if (this.hasBuff(BuffType.SQUAWK_SHOT)) {
+			return 100;
+		}
+		return super.getBaseUseJuice();
+	}
+	protected override getChargeDelay() : number {
+		if (this.hasBuff(BuffType.SQUAWK_SHOT)) {
+			return 200;
+		}
+		return super.getChargeDelay();
+	}
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);

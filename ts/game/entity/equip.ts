@@ -107,12 +107,16 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	protected hudType() : HudType { return HudType.UNKNOWN; };
 	protected useKeyType() : KeyType { return KeyType.ALT_MOUSE_CLICK; };
 
+	protected getBaseChargeRate() : number { return this.getStatOr(StatType.CHARGE_RATE, 0); }
+	protected getBaseUseJuice() : number { return this.getStatOr(StatType.USE_JUICE, 0); }
+	protected getChargeDelay() : number { return this.getStat(StatType.CHARGE_DELAY); }
+
 	override initialize() : void {
 		super.initialize();
 
 		this.owner().equip(this);
 		this._juice = Equip._maxJuice;
-		this._chargeRate = this.getStatOr(StatType.CHARGE_RATE, 0);
+		this._chargeRate = this.getBaseChargeRate();
 	}
 
 	override preUpdate(stepData : StepData) : void {
@@ -195,15 +199,15 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		}
 	}
 	private getUseJuice() : number {
-		if (!this.hasStat(StatType.USE_JUICE)) {
+		let juice = this.getBaseUseJuice();
+
+		if (juice <= 0) {
 			return 0;
 		}
 
-		let juice = this.getStat(StatType.USE_JUICE);
 		if (this.hasOwner() && this.owner().hasStat(StatType.USE_BOOST)) {
 			juice /= Math.max(0.1, 1 + this.owner().getStat(StatType.USE_BOOST));
 		}
-
 		return juice;
 	}
 
@@ -214,14 +218,14 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		}
 	}
 	private chargeMultiplier() : number {
+		const mult = 1 + this.owner().getStat(StatType.CHARGE_BOOST);
 		if (this._juiceSinceGrounded <= 100) {
-			return 1;
+			return mult;
 		}
 		if (this._juiceSinceGrounded >= 400) {
 			return 0;
 		}
-
-		return (1 - Fns.normalizeRange(100, this._juiceSinceGrounded, 400)) * (1 + this.owner().getStat(StatType.CHARGE_BOOST));
+		return (1 - Fns.normalizeRange(100, this._juiceSinceGrounded, 400)) * mult;
 	}
 
 	protected simulateUse(uses : number) : void {
@@ -230,9 +234,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this._juice = Math.max(0, this._juice - juice);
 		this._juiceSinceGrounded += juice;
 
-		if (this.hasStat(StatType.CHARGE_DELAY)) {
-			this.delayCharge(this.getStat(StatType.CHARGE_DELAY));
-		}
+		this.delayCharge(this.getChargeDelay());
 
 		this._lastUseCounter = this.keyCounter(this.useKeyType());
 	}

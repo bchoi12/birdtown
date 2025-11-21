@@ -210,7 +210,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				this.getUp();
 			}
 
-			this.setAttribute(AttributeType.ALIVE, !dead);
+			this.setAttribute(AttributeType.LIVING, !dead);
 		});
 		this._groundedTracker = new ChangeTracker(() => {
 			return this.getAttribute(AttributeType.GROUNDED);
@@ -282,7 +282,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
-		this._attributes.setAttribute(AttributeType.ALIVE, true);
+		this._attributes.setAttribute(AttributeType.LIVING, true);
 		this._attributes.setAttribute(AttributeType.SOLID, true);
 
 		this._buffs = this.addComponent<Buffs>(new Buffs());
