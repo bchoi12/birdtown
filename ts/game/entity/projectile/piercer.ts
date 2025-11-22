@@ -5,13 +5,15 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BulletBase } from 'game/entity/projectile/bullet'
 
-export class Cartridge extends BulletBase {
-
+export class Piercer extends BulletBase {
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.CARTRIDGE, entityOptions);
+		super(EntityType.PIERCER, entityOptions);
+
+		this.setAttribute(AttributeType.PIERCING, true);
+		this.setSnapOnHit(false);
 	}
 
 	protected override trailScaling(stepData : StepData) : number {
-		return Math.min(4, this._trail.scaling.x + 8 * stepData.millis / 1000);
+		return Math.min(5, this._trail.scaling.x + 10 * stepData.millis / 1000);
 	}
 }

@@ -77,6 +77,7 @@ export enum EntityType {
 	ORB_EXPLOSION,
 	PELLET,
 	PERGOLA,
+	PIERCER,
 	PISTOL,
 	PLANE,
 	PLATFORM,

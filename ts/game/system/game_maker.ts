@@ -502,7 +502,6 @@ export class GameMaker extends SystemBase implements System {
 	    	});
 
 			game.audio().setAmbiance(this.getAmbiance());
-
 			
 			break;
 		case GameState.SETUP:
@@ -511,10 +510,10 @@ export class GameMaker extends SystemBase implements System {
 			this.setWinnerClientId(0);
 			break;
 		case GameState.GAME:
-			this.applyBuffs();
-			
 			// This shouldn't be necessary, but clear just in case.
 	    	this.queueForceSubmit(DialogType.LOADOUT);
+
+			this.applyBuffs();		
 
 			game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
 				playerState.setVIP(this.isVIP(playerState.clientId()));
@@ -682,6 +681,17 @@ export class GameMaker extends SystemBase implements System {
 				return clientDialog.clientId() === nextId;
 			});
 			return;
+		}
+
+		// Clear buffs from last round.
+		if (this._config.getStartingLoadout() === LoadoutType.BUFF) {
+			game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {
+				let loadout = clientDialog.message(DialogType.LOADOUT);
+				loadout.setBuffType(BuffType.UNKNOWN);
+				loadout.setBonusBuffType(BuffType.UNKNOWN);
+			}, (clientDialog : ClientDialog) => {
+				return this.isPlaying(clientDialog.clientId());
+			});
 		}
 
 		game.clientDialogs().executeIf<ClientDialog>((clientDialog : ClientDialog) => {

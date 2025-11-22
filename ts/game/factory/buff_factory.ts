@@ -7,6 +7,7 @@ import { AcrobaticBuff } from 'game/component/buff/acrobatic_buff'
 import { BigBuff } from 'game/component/buff/big_buff'
 import { BlackHeadbandBuff } from 'game/component/buff/black_headband_buff'
 import { BlasterBuff } from 'game/component/buff/blaster_buff'
+import { BruiserBuff } from 'game/component/buff/bruiser_buff'
 import { CoolBuff } from 'game/component/buff/cool_buff'
 import { CritBuff } from 'game/component/buff/crit_buff'
 import { DodgyBuff } from 'game/component/buff/dodgy_buff'
@@ -77,6 +78,7 @@ export namespace BuffFactory {
 
 		[BuffType.BLASTER, basicMetadata],
 		[BuffType.EXPLOSION, basicMetadata],
+		[BuffType.BRUISER, basicMetadata],
 		[BuffType.GLASS_CANNON, basicMetadata],
 		[BuffType.JUMPER, basicMetadata],
 		[BuffType.SNIPER, basicMetadata],
@@ -116,6 +118,7 @@ export namespace BuffFactory {
 		[BuffType.EAGLE_EYE, (type : BuffType) => { return new EagleEyeBuff(type, metadata.get(type)) }],
 
 		[BuffType.BLASTER, (type : BuffType) => { return new BlasterBuff(type, metadata.get(type))}],
+		[BuffType.BRUISER, (type : BuffType) => { return new BruiserBuff(type, metadata.get(type))}],
 		[BuffType.COOL, (type : BuffType) => { return new CoolBuff(type, metadata.get(type))}],
 		[BuffType.CRIT, (type : BuffType) => { return new CritBuff(type, metadata.get(type)) }],
 		[BuffType.DODGY, (type : BuffType) => { return new DodgyBuff(type, metadata.get(type)) }],
@@ -227,6 +230,7 @@ export namespace BuffFactory {
 		let pickableBuffs = getGeneralBuffs(player);
 
 		pickableBuffs.add(chooseBuffs(player, [BuffType.MOSQUITO, BuffType.TANK]));
+		pickableBuffs.add(chooseBuffs(player, [BuffType.GLASS_CANNON, BuffType.BRUISER]));
 
 		if (!EquipFactory.invalidAlts(player.equipType()).includes(EntityType.SCOUTER)) {
 			pickableBuffs.add(BuffType.JUICED);
@@ -254,6 +258,7 @@ export namespace BuffFactory {
 		return Array.from(pickableBuffs);
 	}
 	export function chooseBuffs(player : Player, buffs : Array<BuffType>) : BuffType {
+		let validBuffs = [];
 		for (let i = 0; i < buffs.length; ++i) {
 			if (!hasPrereq(player, buffs[i])) {
 				continue;
@@ -265,8 +270,15 @@ export namespace BuffFactory {
 				}
 				return buffs[i];
 			}
+
+			validBuffs.push(buffs[i]);
 		}
-		return buffRandom.pick<BuffType>(buffs);
+
+		if (validBuffs.length === 0) {
+			return BuffType.UNKNOWN;
+		}
+
+		return buffRandom.pick<BuffType>(validBuffs);
 	}
 	export function getBuffsN(n : number) : Array<BuffType> {
 		let pickableBuffs = getBuffs();

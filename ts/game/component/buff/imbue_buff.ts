@@ -43,7 +43,7 @@ export class ImbueBuff extends Buff {
 		}
 
 		const millis = stepData.millis;
-		this._particleLimiter.setLimit(30 + 20 * (this.maxLevel() - level));
+		this._particleLimiter.setLimit(30 + 30 * (this.maxLevel() - level));
 
 		// Inspired :)
 		if (this._particleLimiter.check(millis)) {

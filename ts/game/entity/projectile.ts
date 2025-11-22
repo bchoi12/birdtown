@@ -241,7 +241,7 @@ export abstract class Projectile extends EntityBase {
 		}
 	}
 	protected onHit(other : Entity) : void {
-		if (this._hitId !== 0 || !this.initialized()) {
+		if (this._hitId !== other.id() || !this.initialized()) {
 			return;
 		}
 

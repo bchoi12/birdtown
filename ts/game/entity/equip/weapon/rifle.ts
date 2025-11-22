@@ -40,7 +40,7 @@ export class Rifle extends Weapon {
 		const pos = this.shootPos();
 		const unitDir = this.getDir();
 
-		this.addEntity(EntityType.CARTRIDGE, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
+		this.addEntity(this.charged() ? EntityType.PIERCER : EntityType.CARTRIDGE, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
 
 		let recoil = unitDir.clone().negate().scale(this.getStat(this.charged() ? StatType.CHARGED_FORCE : StatType.FORCE));
 		this.owner().addForce(recoil);

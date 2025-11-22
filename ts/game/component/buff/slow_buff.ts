@@ -42,27 +42,33 @@ export class SlowBuff extends Buff {
 		}
 
 		const millis = stepData.millis;
-		this._particleLimiter.setLimit(100 + 50 * (this.maxLevel() - level));
+		this._particleLimiter.setLimit(30 + 30 * (this.maxLevel() - level));
 
 		// Slow :(
 		if (this._particleLimiter.check(millis)) {
+			const vel = this.entity().profile().vel();
+
+			if (Math.abs(vel.x) < 1e-2) {
+				return;
+			}
+
 			const pos = this.entity().profile().pos();
-			const width = this.entity().profile().dim().x;
-			const size = 0.1 + 0.05 * level;
+			const height = this.entity().profile().dim().y;
+
+			const size = 0.2 + 0.1 * level;
 			const [cube, hasCube] = this.entity().addEntity<CubeParticle>(EntityType.CUBE_PARTICLE, {
 				offline: true,
 				ttl: 150,
 				profileInit: {
 					pos: {
-						x: pos.x + Fns.randomNoise(width / 2),
-						y: pos.y,
+						x: pos.x,
+						y: pos.y + Fns.randomNoise(height / 2),
 					},
 					vel: {
-						x: Fns.randomNoise(0.1),
+						x: -Math.sign(vel.x) * (Math.abs(vel.x) + 0.2),
 						y: 0,
 					},
 					angle: Math.PI * Math.random(),
-					gravity: true,
 				},
 				modelInit: {
 					transforms: {

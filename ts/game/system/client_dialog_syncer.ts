@@ -84,7 +84,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 				}
 
 				if (this._stagingMsg.getVersion() >= this._message.getVersion()) {
-					this._message.copy(this._stagingMsg);
+					this._message.merge(this._stagingMsg);
 					this.setDialogState(DialogState.IN_SYNC);
 				}
 			},
@@ -95,7 +95,7 @@ export class ClientDialogSyncer extends ClientSideSystem implements System {
 					return;
 				}
 				if (this._stagingMsg.getVersion() >= this._message.getVersion()) {
-					this._message.copy(this._stagingMsg);
+					this._message.merge(this._stagingMsg);
 					this.propagate();
 				}
 			},

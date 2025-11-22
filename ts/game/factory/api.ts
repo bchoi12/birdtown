@@ -9,6 +9,7 @@ export enum BuffType {
 
 	// Generic
 	BLASTER,
+	BRUISER,
 	COOL,
 	CRIT,
 	DODGY,

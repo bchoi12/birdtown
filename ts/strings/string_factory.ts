@@ -283,6 +283,7 @@ export namespace StringFactory {
 		[BuffType.EAGLE_EYE, "SHARP BIRD"],
 
 		[BuffType.BLASTER, "Booty Blaster"],
+		[BuffType.BRUISER, "Bruiser"],
 		[BuffType.COOL, "Really Cool Bird"],
 		[BuffType.CRIT, "Sinister Fellow"],
 		[BuffType.DODGY, "Macho Grubba"],
@@ -318,6 +319,7 @@ export namespace StringFactory {
 		[BuffType.EAGLE_EYE, "Increase your weapon mastery, ramping damage, and life steal each round"],
 
 		[BuffType.BLASTER, "Massive damage when up close"],
+		[BuffType.BRUISER, "Increase your health and gain damage based on your bonus health"],
 		[BuffType.COOL, "Become cool - at level 3, ignore explosions"],
 		[BuffType.CRIT, "Increases critical effects and poison chance"],
 		[BuffType.DODGY, "Use your skills more - at level 3, dodge projectiles while flipping"],

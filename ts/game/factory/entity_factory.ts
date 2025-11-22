@@ -90,6 +90,7 @@ import { Orb } from 'game/entity/projectile/orb'
 import { MegaRocket } from 'game/entity/projectile/mega_rocket'
 import { MiniRocket } from 'game/entity/projectile/mini_rocket'
 import { Pellet } from 'game/entity/projectile/pellet'
+import { Piercer } from 'game/entity/projectile/piercer'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Star } from 'game/entity/projectile/star'
 import { SpawnPoint } from 'game/entity/spawn_point'
@@ -157,6 +158,7 @@ export namespace EntityFactory {
 		[EntityType.ORB_EXPLOSION, (options : EntityOptions) => { return new OrbExplosion(options); }],
 		[EntityType.PELLET, (options : EntityOptions) => { return new Pellet(options); }],
 		[EntityType.PERGOLA, (options : EntityOptions) => { return new Pergola(options); }],
+		[EntityType.PIERCER, (options : EntityOptions) => { return new Piercer(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLATFORM, (options : EntityOptions) => { return new Platform(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
@@ -229,6 +231,7 @@ export namespace EntityFactory {
 		[EntityType.ORB, { x: 0.4, y: 0.4, z : 0.4 }],
 		[EntityType.PELLET, { x: 0.2, y: 0.2, z : 0.2 }],
 		[EntityType.PERGOLA, { x: 4, y: 4, z: 4 }],
+		[EntityType.PIERCER, { x: 0.8, y: 0.18, z : 0.18 }],
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],
 		[EntityType.ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
