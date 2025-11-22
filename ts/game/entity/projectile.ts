@@ -241,7 +241,7 @@ export abstract class Projectile extends EntityBase {
 		}
 	}
 	protected onHit(other : Entity) : void {
-		if (this._hitId !== other.id() || !this.initialized()) {
+		if (this._hitId === other.id() || !this.initialized()) {
 			return;
 		}
 
@@ -265,7 +265,7 @@ export abstract class Projectile extends EntityBase {
 			}
 			SoundFactory.playFromPos(SoundType.CRIT, this.profile().getRenderPos().toBabylon3(), {});		
 		} else if (this._playImpactSound && other.impactSound() !== SoundType.UNKNOWN) {
-			SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});		
+			SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});
 		}
 	}
 	protected abstract onMiss() : void;

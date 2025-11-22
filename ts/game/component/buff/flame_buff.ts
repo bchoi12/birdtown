@@ -1,6 +1,7 @@
 
 import { game } from 'game'
 import { GameObjectState } from 'game/api'
+import { AttributeType } from 'game/component/api'
 import { Buff, BuffOptions } from 'game/component/buff'
 import { BuffType, MaterialType, StatType } from 'game/factory/api'
 import { StepData } from 'game/game_object'
@@ -12,7 +13,7 @@ import { RateLimiter } from 'util/rate_limiter'
 
 export class FlameBuff extends Buff {
 
-	private static readonly _baseDamage = 2;
+	private static readonly _baseDamage = 3;
 
 	private _damageLimiter : RateLimiter;
 	private _flameLimiter : RateLimiter;
@@ -41,6 +42,11 @@ export class FlameBuff extends Buff {
 
 		const level = this.level();
 		if (level < 1) {
+			return;
+		}
+
+		if (this.entity().getAttribute(AttributeType.UNDERWATER)) {
+			this.setLevel(0);
 			return;
 		}
 

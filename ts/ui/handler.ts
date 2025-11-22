@@ -49,7 +49,11 @@ export class HandlerBase {
 		}
 
 		this._previousMode = new Optional();
-		this._mode = new Optional(options.mode);
+		this._mode = new Optional();
+
+		if (options && options.mode) {
+			this._mode.set(options.mode);
+		}
 	}
 
 	type() : HandlerType { return this._type; }

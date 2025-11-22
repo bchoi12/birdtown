@@ -11,7 +11,7 @@ import { TopCliff, TopMiniCliff, TopCliffWall } from 'game/entity/block/cliff/to
 import { Tree } from 'game/entity/block/tree'
 import { Bound } from 'game/entity/bound'
 import { Floor } from 'game/entity/bound/floor'
-import { Platform } from 'game/entity/bound/platform'
+import { Platform, UnderwaterRock } from 'game/entity/bound/platform'
 import { Cloud } from 'game/entity/cloud'
 import { DyingStar } from 'game/entity/dying_star'
 import { Pergola } from 'game/entity/pergola'
@@ -187,6 +187,7 @@ export namespace EntityFactory {
 		[EntityType.TOP_MINI_CLIFF, (options : EntityOptions) => { return new TopMiniCliff(options); }],
 		[EntityType.TOP_HAT, (options : EntityOptions) => { return new TopHat(options); }],
 		[EntityType.TREE, (options : EntityOptions) => { return new Tree(options); }],
+		[EntityType.UNDERWATER_ROCK, (options : EntityOptions) => { return new UnderwaterRock(options); }],
 		[EntityType.WATER, (options : EntityOptions) => { return new Water(options); }],
 		[EntityType.WEAPON_CRATE, (options : EntityOptions) => { return new WeaponCrate(options); }],
 		[EntityType.WING_CANNON, (options : EntityOptions) => { return new WingCannon(options); }],

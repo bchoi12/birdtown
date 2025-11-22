@@ -49,7 +49,7 @@ export class BottomCliff extends Cliff {
 		const profileInit =
 			this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: dim, y: dim, z: 5 }, {x: pos.x, y: pos.y });
 
-		this.addTrackedEntity(EntityType.PLATFORM, {
+		this.addTrackedEntity(EntityType.UNDERWATER_ROCK, {
 			profileInit: profileInit,
 			modelInit: {
 				materialType: pos.y <= 3 ? MaterialType.CLIFF_DARK_GRAY : MaterialType.CLIFF_GRAY,
@@ -108,7 +108,7 @@ export class BottomMiniCliff extends MiniCliff {
 		const profileInit =
 			this._profile.createRelativeInit(CardinalDir.BOTTOM_LEFT, {x: dim, y: dim, z: 5 }, {x: pos.x, y: pos.y });
 
-		this.addTrackedEntity(EntityType.PLATFORM, {
+		this.addTrackedEntity(EntityType.UNDERWATER_ROCK, {
 			profileInit: profileInit,
 			modelInit: {
 				materialType: pos.y <= 3 ? MaterialType.CLIFF_DARK_GRAY : MaterialType.CLIFF_GRAY,

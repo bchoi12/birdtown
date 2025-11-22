@@ -66,6 +66,9 @@ export namespace StatFactory {
 		[EntityType.WEAPON_CRATE, new Map([
 			[StatType.HEALTH, 40],
 		])],
+		[EntityType.UNDERWATER_ROCK, new Map([
+			[StatType.HEALTH, 100],
+		])],
 
 		// Equips
 		[EntityType.BOOBY_BEAK, new Map([
