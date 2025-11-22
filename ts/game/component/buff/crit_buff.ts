@@ -8,8 +8,8 @@ export class CritBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.CRIT_CHANCE, 0.2],
-			[StatType.CRIT_BOOST, 0.5 * level],
+			[StatType.CRIT_CHANCE, 0.1 * level],
+			[StatType.CRIT_BOOST, 0.2 * level],
 			[StatType.POISON_CHANCE, 0.2 * level],
 		]);
 	}

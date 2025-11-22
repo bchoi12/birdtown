@@ -8,7 +8,7 @@ export class IcyBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.CRIT_CHANCE, 0.2],
+			[StatType.CRIT_CHANCE, 0.1 * level],
 			[StatType.DAMAGE_BOOST, 0.1 * level],
 			[StatType.PROJECTILE_SCALING_BOOST, 0.5 * level],
 			[StatType.SLOW_CHANCE, 0.4 * level],

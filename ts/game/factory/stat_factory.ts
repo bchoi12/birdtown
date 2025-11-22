@@ -46,7 +46,7 @@ export namespace StatFactory {
 	const entityStats = new Map<EntityType, Map<StatType, number>>([
 		// Player
 		[EntityType.PLAYER, new Map([
-			[StatType.CRIT_BOOST, 0.5],
+			[StatType.CRIT_BOOST, 0.2],
 			[StatType.DOUBLE_JUMPS, 1],
 			[StatType.EXPOSE_CHANCE, 0],
 			[StatType.FLAME_CHANCE, 0],
@@ -159,13 +159,13 @@ export namespace StatFactory {
 		[EntityType.BAZOOKA, new Map([
 			[StatType.BURSTS, 1],
 			[StatType.CHARGED_BURSTS, 1],
-			[StatType.CHARGED_FIRE_TIME, 300],
+			[StatType.CHARGED_FIRE_TIME, 750],
 			[StatType.CHARGED_FORCE, 0.75],
 			[StatType.CHARGED_RELOAD_TIME, 1000],
 			[StatType.CHARGED_PROJECTILE_ACCEL, 1.8],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0.3],
 			[StatType.CHARGED_PROJECTILE_TTL, 600],
-			[StatType.FIRE_TIME, 300],
+			[StatType.FIRE_TIME, 500],
 			[StatType.FORCE, 0.3],
 			[StatType.PROJECTILE_ACCEL, 1.5],
 			[StatType.PROJECTILE_SPEED, 0.2],
@@ -313,7 +313,7 @@ export namespace StatFactory {
 		[EntityType.LASER_GUN, new Map([
 			[StatType.BURSTS, 3],
 			[StatType.CHARGED_BURSTS, 1],
-			[StatType.CHARGED_FIRE_TIME, 75],
+			[StatType.CHARGED_FIRE_TIME, 250],
 			[StatType.CHARGED_RELOAD_TIME, 500],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1.1],
 			[StatType.CHARGED_PROJECTILE_TTL, 500],
@@ -333,7 +333,7 @@ export namespace StatFactory {
 		[EntityType.WING_CANNON, new Map([
 			[StatType.BURSTS, 5],
 			[StatType.CHARGED_BURSTS, 1],
-			[StatType.CHARGED_FIRE_TIME, 500],
+			[StatType.CHARGED_FIRE_TIME, 600],
 			[StatType.CHARGED_RELOAD_TIME, 1000],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0],
 			[StatType.CHARGED_PROJECTILE_TTL, 750],
