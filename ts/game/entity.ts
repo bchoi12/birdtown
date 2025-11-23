@@ -149,6 +149,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 	protected _type : EntityType;
 	protected _allTypes : Set<EntityType>;
+	protected _orderedTypes : Array<EntityType>;
 	protected _entityName : ParamString;
 	protected _ttlTimer : Optional<Timer>;
 
@@ -169,7 +170,8 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		this._type = type;
 		this._allTypes = new Set();
-		this._allTypes.add(type);
+		this._orderedTypes = new Array();
+		this.addType(type);
 		this._entityName = StringFactory.getEntityName(this);
 		this._ttlTimer = new Optional();
 
@@ -219,8 +221,18 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 
 	type() : EntityType { return this._type; }
-	addType(type : EntityType) { this._allTypes.add(type); }
+	addType(type : EntityType) {
+		this._orderedTypes.push(type);
+		this._allTypes.add(type);
+	}
 	allTypes() : Set<EntityType> { return this._allTypes; }
+	orderedTypes() : Array<EntityType> { return this._orderedTypes; }
+	parentType() : EntityType {
+		if (this._orderedTypes.length >= 2) {
+			return this._orderedTypes[this._orderedTypes.length - 2];
+		}
+		return EntityType.UNKNOWN;
+	}
 
 	hasLevelVersion() : boolean { return this._levelVersion > 0; }
 	levelVersion() : number { return this.hasLevelVersion() ? this._levelVersion : 0; }

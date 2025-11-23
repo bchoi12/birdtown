@@ -7,7 +7,7 @@ import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { StepData } from 'game/game_object'
-import { StatType } from 'game/factory/api'
+import { BuffType, StatType } from 'game/factory/api'
 
 import { settings } from 'settings'
 
@@ -237,5 +237,58 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this.delayCharge(this.getChargeDelay());
 
 		this._lastUseCounter = this.keyCounter(this.useKeyType());
+	}
+
+	getDir() : Vec2 {
+		return this.inputDir().clone();
+	}
+	charged() : boolean { return false; }
+	protected getProjectileSpeed() : number {
+		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_SPEED)) {
+			return this.getStat(StatType.CHARGED_PROJECTILE_SPEED);
+		}
+		return this.getStat(StatType.PROJECTILE_SPEED);
+	}
+	protected getProjectileTTL() : number {
+		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_TTL)) {
+			return this.getStat(StatType.CHARGED_PROJECTILE_TTL);
+		}
+		return this.getStat(StatType.PROJECTILE_TTL);
+	}
+	protected getProjectileAccel() : number {
+		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_ACCEL)) {
+			return this.getStat(StatType.CHARGED_PROJECTILE_ACCEL);
+		}
+		if (this.hasStat(StatType.PROJECTILE_ACCEL)) {
+			return this.getStat(StatType.PROJECTILE_ACCEL);
+		}
+		return 0;
+	}
+	protected getProjectileOptions(pos : Vec2, unitDir : Vec2, angle? : number) : EntityOptions {
+		let vel = unitDir.clone().scale(this.getProjectileSpeed());
+
+		let options : EntityOptions = {
+			ttl: this.getProjectileTTL(),
+			associationInit: {
+				owner: this.owner(),
+			},
+			modelInit: {},
+			profileInit: {
+				pos: pos,
+				vel: vel,
+			},
+		};
+
+		let projectileAccel = this.getProjectileAccel();
+		if (projectileAccel !== 0) {
+			let acc = unitDir.clone().scale(projectileAccel);
+			options.profileInit.acc = acc;
+		}
+
+		if (angle) {
+			options.profileInit.angle = angle;
+		}
+
+		return options;
 	}
 }

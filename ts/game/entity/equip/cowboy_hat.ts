@@ -52,8 +52,12 @@ export class CowboyHat extends Equip<Player> {
 	override delete() : void {
 		super.delete();
 
-		if (this.hasOwner() && this.owner().hasModel()) {
-			this.owner().model().rotation().z = 0;
+		if (this.hasOwner()) {
+			this.owner().setAttribute(AttributeType.DODGY, false);
+
+			if (this.owner().hasModel()) {
+				this.owner().model().rotation().z = 0;
+			}
 		}
 	}
 

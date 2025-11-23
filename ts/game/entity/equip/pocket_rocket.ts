@@ -64,20 +64,8 @@ export class PocketRocket extends Equip<Player> {
 		const pos = this._weapon.shootPos();
 		const unitDir = this._weapon.getDir();
 
-		let vel = unitDir.clone().scale(this.getStat(StatType.PROJECTILE_SPEED));
-		let acc = unitDir.clone().scale(this.getStat(StatType.PROJECTILE_ACCEL));
-		this.addEntity(EntityType.MINI_ROCKET, {
-			ttl: this.getStat(StatType.PROJECTILE_TTL),
-			associationInit: {
-				owner: this.owner(),
-			},
-			profileInit: {
-				pos: pos,
-				vel: vel,
-				acc: acc,
-			},
-		});
+		this.addEntity(EntityType.MINI_ROCKET, this.getProjectileOptions(pos, unitDir));
 
-		this.soundPlayer().playFromEntity(SoundType.ROCKET, this.owner());
+		this.soundPlayer().playFromEntity(SoundType.ROCKET, this.owner(), { playbackRate: 1.2 });
 	}
 }

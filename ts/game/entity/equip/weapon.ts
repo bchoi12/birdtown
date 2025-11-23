@@ -276,9 +276,9 @@ export abstract class Weapon extends Equip<Player> {
 		}
 		return time / mult;
 	}
-	getDir() : Vec2 {
+	override getDir() : Vec2 {
 		if (this._shootNode === null) {
-			return this.inputDir().clone();
+			return super.getDir();
 		}
 
 		let mouse = this.inputMouse().clone();
@@ -297,57 +297,9 @@ export abstract class Weapon extends Equip<Player> {
 		}
 		return origin.sub(mouse).negate().normalize();
 	}
-	getProjectileSpeed() : number {
-		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_SPEED)) {
-			return this.getStat(StatType.CHARGED_PROJECTILE_SPEED);
-		}
-		return this.getStat(StatType.PROJECTILE_SPEED);
-	}
-	getProjectileTTL() : number {
-		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_TTL)) {
-			return this.getStat(StatType.CHARGED_PROJECTILE_TTL);
-		}
-		return this.getStat(StatType.PROJECTILE_TTL);
-	}
-	getProjectileAccel() : number {
-		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_ACCEL)) {
-			return this.getStat(StatType.CHARGED_PROJECTILE_ACCEL);
-		}
-		if (this.hasStat(StatType.PROJECTILE_ACCEL)) {
-			return this.getStat(StatType.PROJECTILE_ACCEL);
-		}
-		return 0;
-	}
-	getProjectileOptions(pos : Vec2, unitDir : Vec2, angle? : number) : EntityOptions {
-		let vel = unitDir.clone().scale(this.getProjectileSpeed());
-
-		let options : EntityOptions = {
-			ttl: this.getProjectileTTL(),
-			associationInit: {
-				owner: this.owner(),
-			},
-			modelInit: {},
-			profileInit: {
-				pos: pos,
-				vel: vel,
-			},
-		};
-
-		let projectileAccel = this.getProjectileAccel();
-		if (projectileAccel !== 0) {
-			let acc = unitDir.clone().scale(projectileAccel);
-			options.profileInit.acc = acc;
-		}
-
-		if (angle) {
-			options.profileInit.angle = angle;
-		}
-
-		return options;
-	}
 
 	chargedThreshold() : number { return 1000; }
-	charged() : boolean {
+	override charged() : boolean {
 		if (this.hasOwner() && this.owner().hasMaxedBuff(BuffType.JUICED)) {
 			return true;
 		}
