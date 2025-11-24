@@ -37,6 +37,7 @@ export enum AttributeType {
 	INVINCIBLE,
 	LEVITATING,
 	LIVING,
+	PHASING,
 	PIERCING,
 	REVIVING,
 	SOLID,

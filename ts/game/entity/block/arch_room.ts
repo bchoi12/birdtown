@@ -71,7 +71,7 @@ export class ArchRoom extends ArchBase implements Entity {
 			return;
 		}
 
-		if (!other.allTypes().has(EntityType.PLAYER)) {
+		if (!other.hasType(EntityType.PLAYER)) {
 			return;
 		}
 

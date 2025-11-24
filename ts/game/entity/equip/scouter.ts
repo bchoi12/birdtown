@@ -73,7 +73,7 @@ export class Scouter extends Equip<Player> {
 
 		if (this._weapon === null || this._weapon.deleted()) {
 			const weapons = <Weapon[]>this.owner().equips().findN((equip : Equip<Player>) => {
-				return equip.allTypes().has(EntityType.WEAPON) && equip.valid();
+				return equip.hasType(EntityType.WEAPON) && equip.valid();
 			}, 1);
 
 			if (weapons.length < 1) {

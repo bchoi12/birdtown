@@ -33,7 +33,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.CRIT_BOOST, 0.2],
 		[StatType.DAMAGE_ADDITION, 5],
 		[StatType.DAMAGE_BOOST, 0.1],
-		[StatType.DAMAGE_CLOSE_BOOST, 0.25],
+		[StatType.DAMAGE_CLOSE_BOOST, 0.3],
 		[StatType.DAMAGE_FAR_BOOST, 0.2],
 		[StatType.DAMAGE_REDUCTION, 3],
 		[StatType.DAMAGE_RESIST_BOOST, 0.1],
@@ -222,4 +222,5 @@ export abstract class Buff extends ComponentBase implements Component {
 		});
 	}
 	resetOnSpawn() : boolean { return this._resetOnSpawn; }
+	onRespawn() : void {}
 }

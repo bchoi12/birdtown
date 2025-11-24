@@ -38,7 +38,7 @@ export abstract class Cliff extends CliffBase {
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
 
-		this.allTypes().add(EntityType.CLIFF);
+		this.addType(EntityType.CLIFF);
 	}
 
 	override meshType() : MeshType { return MeshType.CLIFF; }
@@ -48,7 +48,7 @@ export abstract class MiniCliff extends CliffBase {
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
 
-		this.allTypes().add(EntityType.MINI_CLIFF);
+		this.addType(EntityType.MINI_CLIFF);
 	}
 
 	override meshType() : MeshType { return MeshType.MINI_CLIFF; }
@@ -58,7 +58,7 @@ export abstract class CliffWall extends CliffBase {
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
 
-		this.allTypes().add(EntityType.CLIFF_WALL);
+		this.addType(EntityType.CLIFF_WALL);
 	}
 
 	override meshType() : MeshType { return MeshType.CLIFF_WALL; }

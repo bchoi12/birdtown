@@ -11,7 +11,7 @@ export class JuicedBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.BURST_BONUS, this.hasScouter() ? 1 : 0],
+			[StatType.BURST_BONUS, (this.atMaxLevel() && this.hasScouter()) ? 1 : 0],
 			[StatType.FIRE_BOOST, 0.15 * level],
 			[StatType.RELOAD_BOOST, this.atMaxLevel() ? -0.4 : 0.2 * level],
 		]);

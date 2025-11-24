@@ -10,6 +10,7 @@ export class StatStickBuff extends Buff {
 
 	private static readonly _stats : Array<StatType> = new Array(
 		StatType.BURST_BOOST,
+		StatType.CHARGE_BOOST,
 		StatType.CRIT_CHANCE,
 		StatType.CRIT_BOOST,
 		StatType.DAMAGE_BOOST,
@@ -18,8 +19,8 @@ export class StatStickBuff extends Buff {
 		StatType.DAMAGE_RESIST_BOOST,
 		StatType.FIRE_BOOST,
 		StatType.HEALTH,
-		StatType.HP_REGEN,
 		StatType.LIFE_STEAL,
+		StatType.PROJECTILE_SCALING_BOOST,
 		StatType.SPEED_BOOST,
 		StatType.USE_BOOST,
 	);

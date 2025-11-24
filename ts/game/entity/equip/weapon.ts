@@ -239,7 +239,7 @@ export abstract class Weapon extends Equip<Player> {
 		if (this.charged() && this.hasStat(StatType.CHARGED_BURSTS)) {
 			return Math.floor(mult * this.getStat(StatType.CHARGED_BURSTS) + bonus);
 		}
-		return Math.round(mult * this.getStat(StatType.BURSTS) + bonus);
+		return Math.floor(mult * this.getStat(StatType.BURSTS) + bonus);
 	}
 	timer() : Timer { return this._stateTimer; }
 	private getTime(state : WeaponState) : number {

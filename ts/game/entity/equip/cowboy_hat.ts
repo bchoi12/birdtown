@@ -89,7 +89,7 @@ export class CowboyHat extends Equip<Player> {
 			this.owner().profile().setVel({x: 0, y: 0});
 			this.owner().addForce(force);
 			this.owner().equips().findAll((equip : Equip<Player>) => {
-				return equip.allTypes().has(EntityType.WEAPON) && equip.valid();
+				return equip.hasType(EntityType.WEAPON) && equip.valid();
 			}).forEach((weapon : Weapon) => {
 				weapon.quickReload(CowboyHat._quickReloadTime);
 			});

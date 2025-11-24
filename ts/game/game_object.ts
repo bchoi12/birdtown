@@ -209,7 +209,12 @@ export abstract class GameObjectBase {
 			const objectNames = unready.length > GameObjectBase._numObjectsToPrint
 				? unready.slice(0, GameObjectBase._numObjectsToPrint - 1).join(",")
 				: unready.join(",");
-			console.error("Warning: %s not ready, bad objects: %s, and %d more", this.name(), objectNames, extra);
+
+			if (extra === 0) {
+				console.error("Warning: %s not ready, bad objects: %s", this.name(), objectNames);
+			} else {
+				console.error("Warning: %s not ready, bad objects: %s, and %d more", this.name(), objectNames, extra);
+			}
 		} else {
 			console.error("Warning: %s not ready", this.name());
 		}

@@ -22,8 +22,9 @@ export enum BuffType {
 	JUMPER,
 	MOSQUITO,
 	SNIPER,
-	STAT_STICK,
 	SQUAWK_SHOT,
+	STAT_STICK,
+	SUN,
 	TANK,
 	VAMPIRE,
 	WARMOGS,
@@ -428,6 +429,7 @@ export enum SoundType {
 export enum StatType {
 	UNKNOWN,
 
+	AIR_SPEED_BOOST,
 	BURST_BONUS,
 	BURST_BOOST,
 	BURST_BULLETS,

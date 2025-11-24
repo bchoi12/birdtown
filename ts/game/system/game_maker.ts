@@ -184,8 +184,8 @@ export class GameMaker extends SystemBase implements System {
 
 	getEquips(clientId : number) : [EntityType, EntityType] {
 		if (this._config.type() === GameMode.FREE) {
-			const loadout = game.clientDialog().message(DialogType.LOADOUT);
-			if (loadout.getEquipType() !== EntityType.UNKNOWN && loadout.getAltEquipType() !== EntityType.UNKNOWN) {
+			const loadout = game.clientDialog(clientId)?.message(DialogType.LOADOUT);
+			if (loadout && loadout.getEquipType() !== EntityType.UNKNOWN && loadout.getAltEquipType() !== EntityType.UNKNOWN) {
 				return [loadout.getEquipType(), loadout.getAltEquipType()];
 			}
 

@@ -46,7 +46,8 @@ export namespace StatFactory {
 	const entityStats = new Map<EntityType, Map<StatType, number>>([
 		// Player
 		[EntityType.PLAYER, new Map([
-			[StatType.CRIT_BOOST, 0.2],
+			[StatType.AIR_SPEED_BOOST, 0],
+			[StatType.CRIT_BOOST, 0.4],
 			[StatType.DOUBLE_JUMPS, 1],
 			[StatType.EXPOSE_CHANCE, 0],
 			[StatType.FLAME_CHANCE, 0],
@@ -71,29 +72,33 @@ export namespace StatFactory {
 		])],
 
 		// Equips
+		[EntityType.BEAK, new Map([
+			[StatType.CHARGE_RATE, 33],
+			[StatType.CHARGED_PROJECTILE_ACCEL, 0],
+			[StatType.CHARGED_PROJECTILE_SPEED, 0],
+			[StatType.CHARGED_PROJECTILE_TTL, 750],
+			[StatType.PROJECTILE_ACCEL, 1.5],
+			[StatType.PROJECTILE_SPEED, 0.2],
+			[StatType.PROJECTILE_TTL, 550],
+		])],
 		[EntityType.BOOBY_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 300],
-			[StatType.CHARGE_RATE, 25],
 			[StatType.USE_JUICE, 33],
 		])],
 		[EntityType.CHICKEN_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 500],
-			[StatType.CHARGE_RATE, 40],
 			[StatType.USE_JUICE, 50],
 		])],
 		[EntityType.DUCK_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 300],
-			[StatType.CHARGE_RATE, 25],
 			[StatType.USE_JUICE, 33],
 		])],
 		[EntityType.EAGLE_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 1200],
-			[StatType.CHARGE_RATE, 33],
 			[StatType.USE_JUICE, 100],
 		])],
 		[EntityType.ROBIN_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 500],
-			[StatType.CHARGE_RATE, 40],
 			[StatType.USE_JUICE, 50],
 		])],
 
@@ -282,7 +287,7 @@ export namespace StatFactory {
 			[StatType.CHARGED_FIRE_TIME, 200],
 			[StatType.CHARGED_FORCE, 0.1],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1.1],
-			[StatType.CHARGED_PROJECTILE_TTL, 400],
+			[StatType.CHARGED_PROJECTILE_TTL, 475],
 			[StatType.CHARGED_RELOAD_TIME, 1600],
 			[StatType.FIRE_TIME, 400],
 			[StatType.FORCE, 0],
@@ -355,26 +360,37 @@ export namespace StatFactory {
 		])],
 	])
 
-	export function has(entityType : EntityType, statType : StatType) : boolean {
-		return baseStats.has(statType) || entityStats.has(entityType) && entityStats.get(entityType).has(statType);
+	function hasType(entityType : EntityType, statType : StatType) : boolean {
+		return entityStats.has(entityType) && entityStats.get(entityType).has(statType);
 	}
-	export function base(entityType : EntityType, statType : StatType) : number {
-		if (!entityStats.has(entityType)) {
-			if (baseStats.has(statType)) {
-				return baseStats.get(statType);
-			}
-			console.error("Warning: entity %s has no stats", EntityType[entityType]);
+	export function has(entity : Entity, statType : StatType) : boolean {
+		const entityType = entity.type();
+		const parentType = entity.parentType();
+
+		return baseStats.has(statType) || hasType(entityType, statType) || hasType(parentType, statType);
+	}
+	export function base(entity : Entity, statType : StatType) : number {
+		if (!has(entity, statType)) {
+			console.error("Warning: entity %s (parent: %s) is missing %s", entity.name(), EntityType[entity.parentType()], StatType[statType]);
 			return 0;
 		}
-		const stats = entityStats.get(entityType);
-		if (!stats.has(statType)) {
-			if (baseStats.has(statType)) {
-				return baseStats.get(statType);
-			}
-			console.error("Warning: entity %s is missing stat %s", EntityType[entityType], StatType[statType]);
-			return 0;
+
+		const entityType = entity.type();
+		if (hasType(entityType, statType)) {
+			return entityStats.get(entityType).get(statType);
 		}
-		return stats.get(statType);
+
+		const parentType = entity.parentType();
+		if (hasType(parentType, statType)) {
+			return entityStats.get(parentType).get(statType);
+		}
+
+		if (baseStats.has(statType)) {
+			return baseStats.get(statType);
+		}
+
+		console.error("Warning: no valid stat entries found for %s, %s", entity.name(), StatType[statType]);
+		return 0;
 	}
 	export function clamp(type : StatType, value : number) : number {
 		if (statMin.has(type)) {

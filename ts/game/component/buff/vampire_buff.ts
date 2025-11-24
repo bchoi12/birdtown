@@ -3,16 +3,47 @@ import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { Buff, BuffOptions } from 'game/component/buff'
 import { BuffType, StatType } from 'game/factory/api'
+import { TimeType } from 'game/system/api'
 
 export class VampireBuff extends Buff {
 
+	private _night : boolean;
+
+	constructor(type : BuffType, options : BuffOptions) {
+		super(type, options);
+
+		this._night = false;
+	}
+
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.DAMAGE_RESIST_BOOST, 0.1 * level],
-			[StatType.FIRE_BOOST, 0.15 * level],
-			[StatType.HEALTH_ADDITION, 3 * level],
-			[StatType.LIFE_STEAL, 0.05 * level],
-			[StatType.POISON_CHANCE, 0.05 * level],
-		]);
+			[StatType.BURST_BOOST, this._night ? 1 : 0],
+			[StatType.FIRE_BOOST, (this._night ? 0.3 : 0.1) * level],
+			[StatType.DAMAGE_RESIST_BOOST, (this._night ? 0.1 : 0) * level],
+			[StatType.HEALTH, (this._night ? 150 : 25) * level],
+			[StatType.LIFE_STEAL, (this._night ? 0.1 : 0) * level],
+			[StatType.RELOAD_BOOST, (this._night ? 0.3 : 0.1) * level],
+			[StatType.SCALING, (this._night ? 0.5 : 0)],
+		])
+	}
+
+	override onLevel(level : number, delta : number) : void {
+		super.onLevel(level, delta);
+
+		this.checkNight();
+	}
+
+	override onRespawn() : void {
+		this.checkNight();
+	}
+
+	private checkNight() : void {
+		const night = game.world().getTime() === TimeType.NIGHT;
+
+		if (this._night !== night) {
+			this.revertStats(this.getStatCache());
+			this._night = night;
+			this.applyStats(this.getStatCache());
+		}
 	}
 }

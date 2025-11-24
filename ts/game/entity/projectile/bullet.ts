@@ -101,10 +101,6 @@ export abstract class BulletBase extends Projectile {
 	protected override onHit(other : Entity) : void {
 		super.onHit(other);
 
-		if (!other.allTypes().has(EntityType.BOUND) && this.getAttribute(AttributeType.PIERCING)) {
-			return;
-		}
-
 		if (this.initialized()) {
 			for (let i = 0; i < 3; ++i) {
 				this.addEntity(EntityType.SPARK_PARTICLE, {

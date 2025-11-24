@@ -34,7 +34,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
 
-		this.allTypes().add(EntityType.EXPLOSION);
+		this.addType(EntityType.EXPLOSION);
 
 		this._lifeTimer = this.newTimer({
 			canInterrupt: false,
@@ -120,24 +120,32 @@ export abstract class Explosion extends EntityBase implements Entity {
 		}
 	}
 
-	override collide(collision : MATTER.Collision, other : Entity) : void {
-		super.collide(collision, other);
-
+	protected canCollide(collision : MATTER.Collision, other : Entity) : boolean {
 		if (this.fading()) {
-			return;
+			return false;
 		}
 
 		if (this._hits.has(other.id())) {
-			return;
+			return false;
 		}
 
 		if (collision.bodyB.isStatic) {
+			return false;
+		}
+
+		return true;	
+	}
+
+	override collide(collision : MATTER.Collision, other : Entity) : void {
+		super.collide(collision, other);
+
+		if (!this.canCollide(collision, other)) {
 			return;
 		}
 
 		// Affect projectiles
 		let magnitude = this.force();
-		if (other.allTypes().has(EntityType.PROJECTILE)
+		if (other.hasType(EntityType.PROJECTILE)
 			&& Math.abs(magnitude) >= 0.5
 			&& !other.profile().vel().isZero()
 			&& !this.matchAssociations([AssociationType.OWNER], other)) {

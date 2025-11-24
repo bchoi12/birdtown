@@ -42,6 +42,8 @@ export class Laser extends Projectile {
 		this.setSnapOnHit(false);
 		this.setPlayImpactSound(false);
 
+		this.setAttribute(AttributeType.PHASING, true);
+
 		this._profile = this.addComponent<Profile>(new Profile({
 			readyFn: () => { return this._profile.hasAngle(); },
 			bodyFn: (profile : Profile) => {

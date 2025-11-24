@@ -72,7 +72,7 @@ export class HealthResource extends Resource {
 
 	protected override logUpdate(update : ResourceUpdate) : boolean {
 		return update.delta < 0
-			&& this.entity().allTypes().has(EntityType.PLAYER)
+			&& this.entity().hasType(EntityType.PLAYER)
 			&& update.from
 			&& this.entity().id() !== update.from.id();
 	}
@@ -103,13 +103,15 @@ export class HealthResource extends Resource {
 		let weight = 0;
 		if (this.entityType() === EntityType.PLAYER) {
 			weight = Fns.normalizeRange(10, Math.abs(delta), 100);
-		} else if (this.entity().allTypes().has(EntityType.ENEMY)) {
+		} else if (this.entity().hasType(EntityType.ENEMY)) {
 			weight = 2 * Fns.normalizeRange(10, Math.abs(delta), 100);
 		}
 
+		weight *= this.entity().getStat(StatType.SCALING);
+
 		if (game.lakitu().inFOV(pos)) {
 			let height = HealthResource._textHeight;
-			if (this.entity().allTypes().has(EntityType.PLAYER)) {
+			if (this.entity().hasType(EntityType.PLAYER)) {
 				height += weight;
 			}
 

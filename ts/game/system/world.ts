@@ -201,7 +201,7 @@ export class World extends SystemBase implements System {
 			entity.delete();
 		});
 		game.entities().findEntities((entity : Entity) => {
-			return entity.allTypes().has(EntityType.BLOCK);
+			return entity.hasType(EntityType.BLOCK);
 		}).forEach((entity : Entity) => {
 			if (entity.hasModel()) {
 				entity.model().setVisible(false);

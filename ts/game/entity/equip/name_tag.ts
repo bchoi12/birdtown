@@ -56,7 +56,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.NAME_TAG, entityOptions);
 
-		this._displayName = new Optional("");
+		this._displayName = new Optional();
 		this._enabled = true;
 		this._oscillateTime = 0;
 		this._oscillation = 0;
@@ -75,13 +75,11 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		});
 
 		this._model = this.addComponent<Model>(new Model({
-			readyFn: () => {
+			readyFn: (model : Model) => {
 				return this._displayName.has();
 			},
 			meshFn: (model : Model) => {
-
 				const displayName = this.displayName();
-
 				let mesh;
 				if (displayName !== "") {
 					const text = ` ${displayName} `;
@@ -172,10 +170,15 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	}
 
 	setBarWidth(percent : number) : void {
+		if (percent < 0 || percent > 1) {
+			console.error("Warning: clamping bar width from", percent);
+		}
+
+		const clampPercent = Fns.clamp(0, percent, 1);
 		this._model.onLoad((model : Model) => {		
 			let bar = model.subMesh(SubMesh.BAR);
-			bar.scaling.x = percent;
-			bar.position.x = (percent - 1) / 2  * this._width;
+			bar.scaling.x = clampPercent;
+			bar.position.x = (clampPercent - 1) / 2  * this._width;
 		});
 	}
 

@@ -278,28 +278,30 @@ export namespace StringFactory {
 
 
 	const buffNames = new Map<BuffType, string>([
-		[BuffType.ACROBATIC, "FAST BIRD"],
+		[BuffType.ACROBATIC, "ASSASSIN BIRD"],
 		[BuffType.BIG, "BIG BIRD"],
-		[BuffType.EAGLE_EYE, "SHARP BIRD"],
+		[BuffType.EAGLE_EYE, "SHARPSHOOTER BIRD"],
 
 		[BuffType.BLASTER, "Booty Blaster"],
-		[BuffType.BRUISER, "Bruiser"],
-		[BuffType.COOL, "Really Cool Bird"],
-		[BuffType.CRIT, "Sinister Fellow"],
+		[BuffType.BRUISER, "Atmogs"],
+		[BuffType.COOL, "Really Cool Birb"],
+		[BuffType.CRIT, "Sly Dog"],
 		[BuffType.DODGY, "Macho Grubba"],
 		[BuffType.EXPLOSION, "Boomer"],
-		[BuffType.FIERY, "Rotisserie"],
+		[BuffType.FIERY, "Poulet Rôti"],
 		[BuffType.GLASS_CANNON, "Tons of Damage"],
 		[BuffType.HEALER, "Healer"],
-		[BuffType.ICY, "Really Cold Bird"],
+		[BuffType.ICY, "Really Cold Brrd"],
 		[BuffType.JUICED, "Juicer"],
-		[BuffType.JUMPER, "Jumper"],
-		[BuffType.MOSQUITO, "Mosquito"],
+		[BuffType.JUMPER, "Zeppelin"],
+		[BuffType.MOSQUITO, "Skeeter"],
 		[BuffType.SPREE, "Spree"],
-		[BuffType.SNIPER, "Eagle Eye"],
+		[BuffType.SNIPER, "Hawkeye"],
 		[BuffType.STAT_STICK, "Stat Stick"],
+		[BuffType.SUN, "Photosynthesis"],
+		[BuffType.SQUAWK_SHOT, "Squawk Shot"],
 		[BuffType.TANK, "TANK"],
-		[BuffType.VAMPIRE, "Sucker"],
+		[BuffType.VAMPIRE, "Terminally Online"],
 		[BuffType.WARMOGS, "Health Stacker"],
 	]);
 
@@ -329,14 +331,16 @@ export namespace StringFactory {
 		[BuffType.HEALER, "Heal and buff your teammates with your bullets"],
 		[BuffType.ICY, "Shoot giant bullets that slow down your enemies"],
 		[BuffType.JUICED, "Slightly increases weapon mastery - at level 3, your weapon is always charged"],
-		[BuffType.JUMPER, "Increase speed and number of double jumps"],
+		[BuffType.JUMPER, "Increase number of double jumps and air speed"],
 		[BuffType.MOSQUITO, "Become annoying"],
+		[BuffType.SQUAWK_SHOT, "Squawk to fire a projectile"],
+		[BuffType.SUN, "Permanently gain health and grow larger whenever the sun comes out"],
 		[BuffType.TANK, "Massively increase your size, tankiness, and health"],
+		[BuffType.VAMPIRE, "Massively increases offensive capabilities, but only at night"],
 
 		[BuffType.STAT_STICK, "Increases stats randomly"],
 
 		[BuffType.SNIPER, "Massive damage when far away"],
-		[BuffType.VAMPIRE, "Increase firing rate, life steal effects, and damage resistance. Minor chance of poison"],
 		[BuffType.WARMOGS, "Increases health by a flat amount and percentage"],
 	]);
 	export function getBuffDescription(type : BuffType) : string {

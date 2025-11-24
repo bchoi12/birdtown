@@ -256,8 +256,8 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		return this.getStat(StatType.PROJECTILE_TTL);
 	}
 	protected getProjectileAccel() : number {
-		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_ACCEL)) {
-			return this.getStat(StatType.CHARGED_PROJECTILE_ACCEL);
+		if (this.charged()) {
+			return this.getStatOr(StatType.CHARGED_PROJECTILE_ACCEL, 0);
 		}
 		if (this.hasStat(StatType.PROJECTILE_ACCEL)) {
 			return this.getStat(StatType.PROJECTILE_ACCEL);

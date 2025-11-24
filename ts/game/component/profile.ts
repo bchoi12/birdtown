@@ -983,11 +983,11 @@ export class Profile extends ComponentBase implements Component {
 
 		// Find overlap of rectangle bounding boxes.
 		// Skip attached profiles since it doesn't matter.
-		if (other.allTypes().has(EntityType.BOUND) && !this._attachId.has()) {
+		if (other.hasType(EntityType.BOUND) && !this._attachId.has()) {
 			let overlap = this.overlap(other.profile());
 			let vel = this.vel();
 			const yCollision = this.isYCollision(overlap, vel);
-			if (other.allTypes().has(EntityType.FLOOR)) {
+			if (other.hasType(EntityType.FLOOR)) {
 				if (pen.x !== 0) {
 					normal.x = 0;
 					normal.y = this._pos.y > other.profile().pos().y ? 1 : -1;

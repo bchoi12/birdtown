@@ -49,7 +49,7 @@ export abstract class Projectile extends EntityBase {
 				
 				if (hasOther && !this._hits.has(other.id())) {
 					this._hits.add(other.id());
-					this.onHit(other);
+					this.recordHit(other);
 				}
 			},
 		});
@@ -170,21 +170,19 @@ export abstract class Projectile extends EntityBase {
 			return;
 		}
 
-		if (this._snapOnHit && this.hasProfile()) {
-			// Snap to bounds
-			if (other.allTypes().has(EntityType.BOUND)) {
-				this.profile().snapTo(other.profile(), /*limit=*/1);
+		// Snap to bounds
+		if (this._snapOnHit && this.hasProfile() && other.hasType(EntityType.BOUND)) {
+			this.profile().snapTo(other.profile(), /*limit=*/1);
 
-				// Little hack to snap explosion to right spot
-				this._prevPos.copyVec(this.profile().pos());
-			}
+			// Little hack to snap explosion to right spot
+			this._prevPos.copyVec(this.profile().pos());
 		}
 
 		const hitDamage = this.hitDamage();
 		if (hitDamage !== 0) {
 			other.takeDamage(hitDamage, this.owner(), this);
 		}
-		this.onHit(other);
+		this.recordHit(other);
 	}
 
 	protected explode(type : EntityType, entityOptions? : EntityOptions) : void {
@@ -240,12 +238,16 @@ export abstract class Projectile extends EntityBase {
 			stuckEntity.takeDamage(dmg, this.owner(), this);
 		}
 	}
-	protected onHit(other : Entity) : void {
+	protected recordHit(other : Entity) : void {
 		if (this._hitId === other.id() || !this.initialized()) {
 			return;
 		}
 
 		this._hitId = other.id();
+
+		if (other.hasType(EntityType.EXPLOSION)) {
+			return;	
+		}
 
 		if (this.getAttribute(AttributeType.CRITICAL) && other.getAttribute(AttributeType.LIVING)) {
 			for (let i = 0; i < 3; ++i) {
@@ -267,7 +269,17 @@ export abstract class Projectile extends EntityBase {
 		} else if (this._playImpactSound && other.impactSound() !== SoundType.UNKNOWN) {
 			SoundFactory.playFromPos(other.impactSound(), this.profile().getRenderPos().toBabylon3(), {});
 		}
+
+		if (this.getAttribute(AttributeType.PHASING)) {
+			return;
+		}
+		if (this.getAttribute(AttributeType.PIERCING) && !other.hasType(EntityType.BOUND)) {
+			return;
+		}
+		this.onHit(other);
 	}
+
+	protected onHit(other : Entity) : void {}
 	protected abstract onMiss() : void;
 	protected onExpire() : void { this.onMiss(); }
 }

@@ -51,6 +51,8 @@ export type EntityOptions = {
 export interface Entity extends GameObject {
 	type() : EntityType;
 	allTypes() : Set<EntityType>;
+	parentType() : EntityType;
+	hasType(type : EntityType) : boolean;
 	id() : number;
 
 	hasClientId() : boolean;
@@ -226,13 +228,14 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this._allTypes.add(type);
 	}
 	allTypes() : Set<EntityType> { return this._allTypes; }
-	orderedTypes() : Array<EntityType> { return this._orderedTypes; }
 	parentType() : EntityType {
+		// Order is [type(), broadest, ..., parent]
 		if (this._orderedTypes.length >= 2) {
-			return this._orderedTypes[this._orderedTypes.length - 2];
+			return this._orderedTypes[this._orderedTypes.length - 1];
 		}
 		return EntityType.UNKNOWN;
 	}
+	hasType(type : EntityType) : boolean { return this._allTypes.has(type); }
 
 	hasLevelVersion() : boolean { return this._levelVersion > 0; }
 	levelVersion() : number { return this.hasLevelVersion() ? this._levelVersion : 0; }
@@ -411,10 +414,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 
 	hasStat(type : StatType) : boolean {
-		return StatFactory.has(this.type(), type);
+		return StatFactory.has(this, type);
 	}
 	baseStat(type : StatType) : number {
-		return StatFactory.base(this.type(), type);
+		return StatFactory.base(this, type);
 	}
 	getStat(type : StatType) : number {
 		let stat = this.baseStat(type);
@@ -543,7 +546,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			}
 			if (from.hasStat(StatType.IMBUE_LEVEL)) {
 				const imbueLevel = from.getStat(StatType.IMBUE_LEVEL);
-				this.addBuff(BuffType.IMBUE, imbueLevel > this.buffLevel(BuffType.IMBUE) ? 1 : 0);
+
+				if (imbueLevel > 0) {
+					this.addBuff(BuffType.IMBUE, imbueLevel > this.buffLevel(BuffType.IMBUE) ? 1 : 0);
+				}
 			}
 			return;
 		}

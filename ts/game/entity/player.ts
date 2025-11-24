@@ -173,7 +173,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.PLAYER, entityOptions);
 
-		this.allTypes().add(EntityType.INTERACTABLE);
+		this.addType(EntityType.INTERACTABLE);
 
 		this._armDir = Vec2.i();
 		this._armTransforms = new Transforms();
@@ -204,7 +204,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				this._profile.resetInertia();
 				this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
 				this._profile.setAcc({x: 0});
-				this._profile.addVel({y: 0.7 * this.jumpVel()});
+				this._profile.addVel({y: 0.7 * this.getJumpVel()});
 				this.emote(EmotionType.DEAD);
 			} else {
 				this.getUp();
@@ -319,18 +319,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		this._profile.setLimitFn((profile : Profile) => {
 			let maxHorizontalVel = profile.knockbackMillis() > 0 ? Player._maxHorizontalVel : Player._maxWalkingVel;
-
-			let mult = 1;
-			if (this.getAttribute(AttributeType.BUBBLED)) {
-				mult += 0.2;
-			}
-			mult += this.getStat(StatType.SPEED_BOOST);
-			maxHorizontalVel *= Math.max(0.1, mult);
-
-			maxHorizontalVel *= (1 + this.getStat(StatType.SPEED_DEBUFF));
-			if (this.getAttribute(AttributeType.UNDERWATER)) {
-				maxHorizontalVel *= 0.6;
-			}
+			maxHorizontalVel *= this.getSpeedMultiplier();
 
 			if (Math.abs(profile.vel().x) > maxHorizontalVel) {
 				profile.vel().x = Math.sign(profile.vel().x) * maxHorizontalVel;
@@ -510,6 +499,11 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 		this._reviverId = id;
 	}
+	onStartRound() : void {
+		this.setAttribute(AttributeType.REVIVING, false);
+		this.fullHeal();
+		this._buffs.refresh();
+	}
 	respawn(spawn : Vec2) : void {
 		if (this.isSource() || this.clientIdMatches()) {
 			this.setAttribute(AttributeType.GROUNDED, false);
@@ -528,7 +522,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this.fullHeal();
 		this.getUp();
 		this.updateLoadout();
-		this._buffs.onRespawn();
+		this._buffs.refresh();
 	}
 	getUp() : void {
 		this.cancelRevive();
@@ -641,9 +635,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				return;
 			}
 
-			if (equip.allTypes().has(EntityType.WEAPON)) {
+			if (equip.hasType(EntityType.WEAPON)) {
 				this._equipType = equip.type();
-			} else if (!equip.allTypes().has(EntityType.HEADWEAR) && !equip.allTypes().has(EntityType.BEAK)) {
+			} else if (!equip.hasType(EntityType.HEADWEAR) && !equip.hasType(EntityType.BEAK)) {
 				// Kinda fragile
 				this._altEquipType = equip.type();
 			}
@@ -766,9 +760,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 			let sideAcc = 0;
 			if (this.key(KeyType.LEFT, KeyState.DOWN)) {
-				sideAcc = -Player._sideAcc;
+				sideAcc = -Player._sideAcc * this.getSpeedMultiplier();
 			} else if (this.key(KeyType.RIGHT, KeyState.DOWN)) {
-				sideAcc = Player._sideAcc;
+				sideAcc = Player._sideAcc * this.getSpeedMultiplier();
 			}
 
 			// Accel multipliers
@@ -797,13 +791,13 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			}
 			if (this._canJump && this._canJumpTimer.hasTimeLeft()) {
 				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
-					this._profile.jump(Math.max(this._profile.vel().y, this.jumpVel()));
+					this._profile.jump(Math.max(this._profile.vel().y, this.getJumpVel()));
 					this._canJump = false;
 					this._canJumpTimer.reset();
 				}
 			} else if (this._doubleJumps > 0) {
-				if (this.key(KeyType.JUMP, KeyState.PRESSED) && this._profile.vel().y < this.jumpVel()) {
-					this._profile.jump(this.jumpVel());
+				if (this.key(KeyType.JUMP, KeyState.PRESSED) && this._profile.vel().y < this.getJumpVel()) {
+					this._profile.jump(this.getJumpVel());
 
 					if (!this.getAttribute(AttributeType.UNDERWATER)) {
 						this._doubleJumps--;
@@ -907,7 +901,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			let currentDistSq : number = null;
 			for (let i = 0; i < bodies.length; ++i) {
 				const [entity, ok] = game.physics().queryEntity(bodies[i]);
-				if (!ok || !entity.allTypes().has(EntityType.INTERACTABLE) || this.id() === entity.id()) {
+				if (!ok || !entity.hasType(EntityType.INTERACTABLE) || this.id() === entity.id()) {
 					continue;
 				}
 				const interactable = <InteractEntity>entity;
@@ -942,7 +936,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		if (this.getAttribute(AttributeType.REVIVING)) {
 			const [reviver, hasReviver] = game.entities().getEntity(this._reviverId);
 
-			if (!hasReviver || !reviver.allTypes().has(EntityType.PLAYER)) {
+			if (!hasReviver || !reviver.hasType(EntityType.PLAYER)) {
 				this.cancelRevive();
 			} else {
 				const distSq = reviver.profile().pos().distSq(this._profile.pos());
@@ -1157,7 +1151,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		if (this.id() === other.id()) {
 			return false;
 		}
-		if (!other.allTypes().has(EntityType.PLAYER)) {
+		if (!other.hasType(EntityType.PLAYER)) {
 			return false;
 		}
 		if (!this.dead()) {
@@ -1222,7 +1216,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		});
 	}
 
-	private jumpVel() : number {
+	private getJumpVel() : number {
 		const scaling = this.getStat(StatType.SCALING);
 
 		if (scaling <= 1) {
@@ -1230,6 +1224,24 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		}
 		return (0.4 * scaling + 0.6) * Player._jumpVel;
 	}
+	private getSpeedMultiplier() : number {
+		let mult = 1 + this.getStat(StatType.SPEED_BOOST);
+		if (this.getAttribute(AttributeType.BUBBLED)) {
+			mult += 0.2;
+		}
+
+		if (!this.getAttribute(AttributeType.GROUNDED)) {
+			mult += this.getStat(StatType.AIR_SPEED_BOOST) * (1 + this.getStat(StatType.DOUBLE_JUMPS) - this._doubleJumps);
+		}
+
+		mult *= 1 - this.getStat(StatType.SPEED_DEBUFF);
+
+		if (this.getAttribute(AttributeType.UNDERWATER)) {
+			mult *= 0.6;
+		}
+		return Math.max(0.1, mult);
+	}
+
 	private recomputeDir(dir : Vec2) : void {
 		if (Math.sign(dir.x) !== Math.sign(this._headDir.x)) {
 			if (Math.abs(dir.x) > 0.2) {

@@ -27,7 +27,9 @@ import { PoisonBuff } from 'game/component/buff/poison_buff'
 import { SlowBuff } from 'game/component/buff/slow_buff'
 import { SniperBuff } from 'game/component/buff/sniper_buff'
 import { SpreeBuff } from 'game/component/buff/spree_buff'
+import { SquawkShotBuff } from 'game/component/buff/squawk_shot_buff'
 import { StatStickBuff } from 'game/component/buff/stat_stick_buff'
+import { SunBuff } from 'game/component/buff/sun_buff'
 import { TankBuff } from 'game/component/buff/tank_buff'
 import { VampireBuff } from 'game/component/buff/vampire_buff'
 import { WarmogsBuff } from 'game/component/buff/warmogs_buff'
@@ -76,18 +78,23 @@ export namespace BuffFactory {
 		[BuffType.BIG, starterMetadata],
 		[BuffType.EAGLE_EYE, starterMetadata],
 
-		[BuffType.BLASTER, basicMetadata],
 		[BuffType.EXPLOSION, basicMetadata],
+		[BuffType.JUMPER, basicMetadata],
+
 		[BuffType.BRUISER, basicMetadata],
 		[BuffType.GLASS_CANNON, basicMetadata],
-		[BuffType.JUMPER, basicMetadata],
-		[BuffType.SNIPER, basicMetadata],
 
 		[BuffType.CRIT, upgradeMetadata],
 		[BuffType.FIERY, upgradeMetadata],
 		[BuffType.ICY, upgradeMetadata],
+		[BuffType.SQUAWK_SHOT, upgradeMetadata],
+
 		[BuffType.MOSQUITO, upgradeMetadata],
 		[BuffType.TANK, upgradeMetadata],
+		[BuffType.SUN, upgradeMetadata],
+		[BuffType.VAMPIRE, upgradeMetadata],
+		[BuffType.BLASTER, upgradeMetadata],
+		[BuffType.SNIPER, upgradeMetadata],
 
 		[BuffType.COOL, specialMetadata],
 		[BuffType.DODGY, specialMetadata],
@@ -97,7 +104,6 @@ export namespace BuffFactory {
 		[BuffType.STAT_STICK, { maxLevel: 300 }],
 
 		// Unused
-		[BuffType.VAMPIRE, upgradeMetadata],
 		[BuffType.WARMOGS, upgradeMetadata],
 
 		[BuffType.EXPOSE, stackingMetadata],
@@ -131,7 +137,9 @@ export namespace BuffFactory {
 		[BuffType.JUMPER, (type : BuffType) => { return new JumperBuff(type, metadata.get(type)) }],
 		[BuffType.MOSQUITO, (type : BuffType) => { return new MosquitoBuff(type, metadata.get(type)) }],
 		[BuffType.SNIPER, (type : BuffType) => { return new SniperBuff(type, metadata.get(type)) }],
+		[BuffType.SQUAWK_SHOT, (type : BuffType) => { return new SquawkShotBuff(type, metadata.get(type)) }],
 		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, metadata.get(type)) }],
+		[BuffType.SUN, (type : BuffType) => { return new SunBuff(type, metadata.get(type)) }],
 		[BuffType.TANK, (type : BuffType) => { return new TankBuff(type, metadata.get(type)) }],
 		[BuffType.VAMPIRE, (type : BuffType) => { return new VampireBuff(type, metadata.get(type)) }],
 		[BuffType.WARMOGS, (type : BuffType) => { return new WarmogsBuff(type, metadata.get(type)) }],
@@ -172,8 +180,8 @@ export namespace BuffFactory {
 		BuffType.COOL,
 		BuffType.CRIT,
 		BuffType.FIERY,
-		BuffType.GLASS_CANNON,
-		BuffType.ICY);
+		BuffType.ICY,
+		BuffType.JUMPER);
 	function getGeneralBuffs(player : Player) : Set<BuffType> {
 		if (!player.hasComponent(ComponentType.BUFFS)) {
 			console.error("Error: %s does not have buff component", player.name());
@@ -231,6 +239,10 @@ export namespace BuffFactory {
 
 		pickableBuffs.add(chooseBuffs(player, [BuffType.MOSQUITO, BuffType.TANK]));
 		pickableBuffs.add(chooseBuffs(player, [BuffType.GLASS_CANNON, BuffType.BRUISER]));
+		pickableBuffs.add(chooseBuffs(player, [BuffType.SUN, BuffType.VAMPIRE]));
+
+		// TODO: add squawk shield
+		pickableBuffs.add(chooseBuffs(player, [BuffType.SQUAWK_SHOT]));
 
 		if (!EquipFactory.invalidAlts(player.equipType()).includes(EntityType.SCOUTER)) {
 			pickableBuffs.add(BuffType.JUICED);

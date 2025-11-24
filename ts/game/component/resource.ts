@@ -43,6 +43,16 @@ export class Resource extends ComponentBase implements Component {
 			export: () => { return this._resource; },
 			import: (obj : number) => { this.importResource(obj); },
 		});
+		this.addProp<number>({
+			has: () => { return this._min.has(); },
+			export: () => { return this._min.get(); },
+			import: (obj : number) => { this._min.set(obj); },
+		});
+		this.addProp<number>({
+			has: () => { return this._max.has(); },
+			export: () => { return this._max.get(); },
+			import: (obj : number) => { this._max.set(obj); },
+		});
 	}
 
 	override initialize() : void {
@@ -54,7 +64,7 @@ export class Resource extends ComponentBase implements Component {
 	get() : number { return this._resource; }
 	set(value : number) : void { this._resource = value; }
 	reset() : void { this._resource = this.getStat(); }
-	percent() : number {return this.initialized() ? this._resource / this.getStat() : 0; }
+	percent() : number {return (this.initialized() && this.hasMax()) ? (this._resource / this.max()) : 0; }
 	atMin() : boolean { return this._min.has() && this._resource <= this._min.get(); }
 	hasMax() : boolean { return this._max.has(); }
 	max() : number { return this._max.get(); }

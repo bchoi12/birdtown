@@ -49,7 +49,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
 
-		this.allTypes().add(EntityType.CRATE);
+		this.addType(EntityType.CRATE);
 
 		this._materialShifter = new MaterialShifter();
 		this._opened = false;
@@ -151,7 +151,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 
 		this._nameTag = nameTag;
 		this._nameTag.setVisible(false);
-		// this._nameTag.setDisplayName(KeyNames.boxed(settings.keyCode(KeyType.INTERACT)));
+		this._nameTag.setDisplayName("");
 	}
 
 	override delete() : void {

@@ -40,22 +40,24 @@ type LevelOptions = {
 
 export class Level extends SystemBase implements System {
 
-	private static readonly _levelRotation = [LevelType.BIRDTOWN, LevelType.CLIFF_LAKE];
-
 	private _levelMsg : GameMessage;
+	private _levelRotation : Array<LevelType>;
+	private _levelIndex : number;
 	private _bounds : Box2;
 	private _rng : SeededRandom;
 	private _defaultSpawn : Vec2;
-	private _randomCounter : number;
 
 	constructor() {
 		super(SystemType.LEVEL);
 
 		this._levelMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
+		this._levelRotation = [LevelType.BIRDTOWN, LevelType.CLIFF_LAKE];
+		this._levelIndex = 0;
 		this._bounds = Box2.zero();
-		this._rng = new SeededRandom(0);
+		this._rng = new SeededRandom(Math.floor(Math.random() * 100));
 		this._defaultSpawn = Vec2.zero();
-		this._randomCounter = 0;
+
+		this._rng.shuffle(this._levelRotation);
 
 		this.addProp<MessageObject>({
 			has: () => { return this._levelMsg.updated(); },
@@ -184,8 +186,14 @@ export class Level extends SystemBase implements System {
 	}
 
 	randomLevel() : LevelType {
-		const levelType = Level._levelRotation[this._randomCounter];
-		this._randomCounter++;
+		const levelType = this._levelRotation[this._levelIndex];
+		this._levelIndex++;
+
+		if (this._levelIndex >= this._levelRotation.length) {
+			this._levelIndex = 0;
+			this._rng.shuffle(this._levelRotation);
+		}
+
 		return levelType;
 	}
 	loadLevel(options : LevelOptions) : void {

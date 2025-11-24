@@ -63,6 +63,8 @@ export abstract class Beak extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.BEAK; }
 
+	override charged() : boolean { return this.hasOwner() && this.owner().hasMaxedBuff(BuffType.SQUAWK_SHOT); }
+
 	override takeDamage(amount : number, from? : Entity, hitEntity? : Entity) : void {
 		super.takeDamage(amount, from, hitEntity);
 
@@ -78,21 +80,22 @@ export abstract class Beak extends Equip<Player> {
 	protected override hudType() : HudType { return HudType.SQUAWK; }
 	protected override useKeyType() : KeyType { return KeyType.SQUAWK; }
 
+	private hasSquawkShot() : boolean { return this.hasOwner() && this.owner().hasBuff(BuffType.SQUAWK_SHOT); }
 	protected override getBaseChargeRate() : number {
-		if (this.hasBuff(BuffType.SQUAWK_SHOT)) {
-			return 120;
+		if (this.hasSquawkShot()) {
+			return 100;
 		}
 		return super.getBaseChargeRate();
 	}
 	protected override getBaseUseJuice() : number {
-		if (this.hasBuff(BuffType.SQUAWK_SHOT)) {
+		if (this.hasSquawkShot()) {
 			return 100;
 		}
 		return super.getBaseUseJuice();
 	}
 	protected override getChargeDelay() : number {
-		if (this.hasBuff(BuffType.SQUAWK_SHOT)) {
-			return 200;
+		if (this.hasSquawkShot()) {
+			return 600;
 		}
 		return super.getChargeDelay();
 	}
@@ -108,7 +111,7 @@ export abstract class Beak extends Equip<Player> {
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 
-		if (!this.hasOwner()) {
+		if (!this.initialized()) {
 			return;
 		}
 
@@ -118,15 +121,12 @@ export abstract class Beak extends Equip<Player> {
 		});
 		this.soundPlayer().playFromEntity(this.soundType(), this.owner());
 
-		if (!this.initialized()) {
-			return;
-		}
-
+		const modelPos = this.model().root().getAbsolutePosition();
 		const [particle, hasParticle] = this.addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
 			offline: true,
 			ttl: 1200,
 			profileInit: {
-				pos: Vec3.fromBabylon3(this.model().root().getAbsolutePosition()).add({ z: 0.3 }),
+				pos: Vec3.fromBabylon3(modelPos).add({ z: 0.3 }),
 				vel: Vec2.unitFromRad(this.owner().headAngle()).scale(0.03),
 				acc: { x: 0, y: 0.03 },
 			},
@@ -136,6 +136,13 @@ export abstract class Beak extends Equip<Player> {
 				text: "🎵",
 				height: 0.7,
 			});
+		}
+
+		const unitDir = this.getDir();
+		if (this.charged()) {
+			this.addEntity(EntityType.LASER, this.getProjectileOptions(Vec3.fromBabylon3(modelPos), unitDir, unitDir.angleRad()));
+		} else if (this.hasSquawkShot()) {
+			this.addEntity(EntityType.ROCKET, this.getProjectileOptions(Vec3.fromBabylon3(modelPos), unitDir));			
 		}
 	}
 
