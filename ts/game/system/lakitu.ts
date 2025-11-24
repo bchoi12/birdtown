@@ -2,10 +2,12 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { GameState, GameObjectState } from 'game/api'
-import { AssociationType, AttributeType } from 'game/component/api'
+import { AssociationType, AttributeType} from 'game/component/api'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
+import { BuffType, ColorType } from 'game/factory/api'
+import { BuffFactory } from 'game/factory/buff_factory'
 import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType, PlayerRole } from 'game/system/api'
@@ -484,12 +486,25 @@ export class Lakitu extends SystemBase implements System {
 			ui.updateHud(this.targetEntity().getHudData());
 			ui.setHudClientId(this.targetEntity().clientId());
 
-			const underwater = this.targetEntity().getAttribute(AttributeType.UNDERWATER);
-			ui.setUnderwater(underwater);
+			ui.setScreenColor(ColorType.WATER, this.targetEntity().getAttribute(AttributeType.UNDERWATER));
+			ui.setScreenColor(ColorType.BLACK, this.targetEntity().getAttribute(AttributeType.COOL));
+
+			let maxLevel = 0;
+			let maxBuff = BuffType.UNKNOWN;
+			BuffFactory.colors.forEach((color : ColorType, buff : BuffType) => {
+				const buffLevel = this.targetEntity().buffLevel(buff);
+				if (buffLevel > maxLevel) {
+					maxLevel = buffLevel;
+					maxBuff = buff;
+				}
+			});
+			BuffFactory.colors.forEach((color : ColorType, buff : BuffType) => {
+				ui.setScreenColor(color, buff === maxBuff);
+			});
 		} else {
 			ui.hideHud();
 			ui.setHudClientId(game.clientId());
-			ui.setUnderwater(false);
+			ui.clearScreenColors();
 		}
 
 		if (game.playerState().role() === PlayerRole.SPECTATING

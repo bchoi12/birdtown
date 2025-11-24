@@ -3,6 +3,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { GameState } from 'game/api'
+import { ColorType } from 'game/factory/api'
 
 import { Flags } from 'global/flags'
 
@@ -293,7 +294,8 @@ class UI {
 	updateHud(huds : Map<HudType, HudOptions>) : void { this._hudHandler.updateHud(huds); }
 	hideHud() : void { this._hudHandler.hideHud(); }
 	flashScreen(color : string, millis : number) : void { this._hudHandler.flashScreen(color, millis); }
-	setUnderwater(underwater : boolean) : void { this._hudHandler.setUnderwater(underwater); }
+	setScreenColor(type : ColorType, enabled : boolean) : void { this._hudHandler.setScreenColor(type, enabled); }
+	clearScreenColors() : void { this._hudHandler.clearScreenColors(); }
 	addPlayer(clientId : number) : void { this._sidebarHandler.addPlayer(clientId); }
 	removePlayer(clientId : number) : void { this._sidebarHandler.removePlayer(clientId); }
 	highlightPlayer(clientId : number) : void { this._sidebarHandler.highlightPlayer(clientId); }

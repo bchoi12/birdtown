@@ -11,7 +11,7 @@ export class IcyBuff extends Buff {
 			[StatType.CRIT_CHANCE, 0.1 * level],
 			[StatType.DAMAGE_BOOST, 0.1 * level],
 			[StatType.PROJECTILE_SCALING_BOOST, 0.5 * level],
-			[StatType.SLOW_CHANCE, 0.4 * level],
+			[StatType.SLOW_CHANCE, 0.3 * level],
 		]);
 	}
 }

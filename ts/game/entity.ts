@@ -71,7 +71,8 @@ export interface Entity extends GameObject {
 
 	// Methods spanning components
 	getHudData() : Map<HudType, HudOptions>;
-	setTTL(ttl : number, onDelete? : () => void);
+	setTTL(ttl : number, onDelete? : () => void) : void;
+	restartTTL() : void;
 	ttlElapsed() : number;
 	ttlMillisElapsed() : number;
 	key(type : KeyType, state : KeyState) : boolean;
@@ -107,6 +108,7 @@ export interface Entity extends GameObject {
 
 	// Associations
 	getAssociations() : Map<AssociationType, number>;
+	setOwner(id : number) : void;
 	setTeam(team : TeamType) : void;
 	sameTeam(other : Entity) : boolean;
 	hasOwner() : boolean;
@@ -115,6 +117,7 @@ export interface Entity extends GameObject {
 
 	addForce(force : Vec) : void;
 	heal(amount : number) : void;
+	health() : number;
 	maxHealth() : number;
 	healthPercent() : number;
 	takeDamage(amount : number, from? : Entity, hitEntity? : Entity) : void;
@@ -259,6 +262,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	getComponent<T extends Component>(type : ComponentType) : T { return this.getChild<T>(type); }
 
 	getHudData() : Map<HudType, HudOptions> { return new Map(); }
+	restartTTL() : void {
+		if (this._ttlTimer.has()) {
+			this._ttlTimer.get().restart();
+		}
+	}
 	setTTL(ttl : number, onDelete? : () => void) : void {
 		if (!this._ttlTimer.has()) {
 			this._ttlTimer.set(this.newTimer({
@@ -334,6 +342,15 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			return 0;
 		}
 		return this.getComponent<Association>(ComponentType.ASSOCIATION).getAssociation(AssociationType.TEAM);
+	}
+	setOwner(id : number) : void {
+		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
+			console.error("Error: cannot set owner for %s which has no Association component", this.name());
+			return;
+		}
+
+		let association = this.getComponent<Association>(ComponentType.ASSOCIATION);
+		association.setOwner(id);
 	}
 	setTeam(team : TeamType) : void {
 		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
@@ -513,6 +530,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this.getComponent<Resources>(ComponentType.RESOURCES).updateResource(StatType.HEALTH, {
 			delta: delta,
 		});
+	}
+	health() : number {
+		if (!this.hasComponent(ComponentType.RESOURCES)) { return 0; }
+
+		return this.getComponent<Resources>(ComponentType.RESOURCES).health();	
 	}
 	maxHealth() : number {
 		if (!this.hasComponent(ComponentType.RESOURCES)) { return 0; }

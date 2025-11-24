@@ -63,7 +63,7 @@ export abstract class Beak extends Equip<Player> {
 
 	override attachType() : AttachType { return AttachType.BEAK; }
 
-	override charged() : boolean { return this.hasOwner() && this.owner().hasMaxedBuff(BuffType.SQUAWK_SHOT); }
+	override charged() : boolean { return this.hasOwner() && (this.owner().hasMaxedBuff(BuffType.SQUAWK_SHOT) || this.owner().hasMaxedBuff(BuffType.SQUAWK_SHIELD)); }
 
 	override takeDamage(amount : number, from? : Entity, hitEntity? : Entity) : void {
 		super.takeDamage(amount, from, hitEntity);
@@ -80,21 +80,21 @@ export abstract class Beak extends Equip<Player> {
 	protected override hudType() : HudType { return HudType.SQUAWK; }
 	protected override useKeyType() : KeyType { return KeyType.SQUAWK; }
 
-	private hasSquawkShot() : boolean { return this.hasOwner() && this.owner().hasBuff(BuffType.SQUAWK_SHOT); }
+	private hasSquawkBuff() : boolean { return this.hasOwner() && (this.owner().hasBuff(BuffType.SQUAWK_SHOT) || this.owner().hasBuff(BuffType.SQUAWK_SHIELD)); }
 	protected override getBaseChargeRate() : number {
-		if (this.hasSquawkShot()) {
+		if (this.hasSquawkBuff()) {
 			return 100;
 		}
 		return super.getBaseChargeRate();
 	}
 	protected override getBaseUseJuice() : number {
-		if (this.hasSquawkShot()) {
+		if (this.hasSquawkBuff()) {
 			return 100;
 		}
 		return super.getBaseUseJuice();
 	}
 	protected override getChargeDelay() : number {
-		if (this.hasSquawkShot()) {
+		if (this.hasSquawkBuff()) {
 			return 600;
 		}
 		return super.getChargeDelay();
@@ -138,12 +138,29 @@ export abstract class Beak extends Equip<Player> {
 			});
 		}
 
-		const unitDir = this.getDir();
-		if (this.charged()) {
-			this.addEntity(EntityType.LASER, this.getProjectileOptions(this.owner().profile().pos(), unitDir, unitDir.angleRad()));
-		} else if (this.hasSquawkShot()) {
-			this.addEntity(EntityType.ROCKET, this.getProjectileOptions(Vec3.fromBabylon3(modelPos), unitDir));			
-		}
+		if (this.owner().hasBuff(BuffType.SQUAWK_SHOT)) {
+			const unitDir = this.getDir();
+			if (this.charged()) {
+				this.addEntity(EntityType.LASER, this.getProjectileOptions(this.owner().profile().pos(), unitDir, unitDir.angleRad()));
+			} else {
+				this.addEntity(EntityType.ROCKET, this.getProjectileOptions(Vec3.fromBabylon3(modelPos), unitDir));			
+			}
+		} /*else if (this.owner().hasBuff(BuffType.SQUAWK_SHIELD)) {
+			if (this.charged()) {
+
+			} else {
+
+			}
+		}*/
+
+		this.addEntity(EntityType.SQUAWK_SHIELD, {
+			associationInit: {
+				owner: this.owner(),
+			},
+			profileInit: {
+				pos: this.owner().profile().pos(),
+			},
+		})
 	}
 
 	override preRender() : void {

@@ -17,6 +17,26 @@ export class HexColor {
 	static white() : HexColor { return new HexColor(0xffffff); }
 	static black() : HexColor { return new HexColor(0x000000); }
 
+	static fromColors(...colors : HexColor[]) : HexColor {
+		let r = 0;
+		let g = 0;
+		let b = 0;
+
+		colors.forEach((color : HexColor) => {
+			r += color.r();
+			g += color.g();
+			b += color.b();
+		});
+
+		if (colors.length > 0) {
+			r = Math.round(r / colors.length);
+			g = Math.round(g / colors.length);
+			b = Math.round(b / colors.length);
+		}
+
+		return HexColor.fromRGB(r, g, b);
+	}
+
 	static hexToRGB(hex : number) : [number, number, number] {
 		hex = HexColor.clampHex(hex);
 		return [

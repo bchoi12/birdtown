@@ -13,7 +13,8 @@ import { RateLimiter } from 'util/rate_limiter'
 
 export class FlameBuff extends Buff {
 
-	private static readonly _baseDamage = 3;
+	private static readonly _baseDamage = 1;
+	private static readonly _percentDamage = 0.01;
 
 	private _damageLimiter : RateLimiter;
 	private _flameLimiter : RateLimiter;
@@ -27,7 +28,7 @@ export class FlameBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.SPEED_BOOST, 0.15 * level],
+			[StatType.SPEED_BOOST, 0.05 * level],
 		]);
 	}
 
@@ -53,7 +54,8 @@ export class FlameBuff extends Buff {
 		const millis = stepData.millis;
 
 		if (this._damageLimiter.check(millis)) {
-			this.entity().takeDamage(FlameBuff._baseDamage * level);
+			const dmg = FlameBuff._baseDamage + Math.ceil(FlameBuff._percentDamage * this.entity().health());
+			this.entity().takeDamage(dmg * level);
 		}
 
 		this._flameLimiter.setLimit(20 + 10 * (this.maxLevel() - level));

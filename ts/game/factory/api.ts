@@ -22,6 +22,7 @@ export enum BuffType {
 	JUMPER,
 	MOSQUITO,
 	SNIPER,
+	SQUAWK_SHIELD,
 	SQUAWK_SHOT,
 	STAT_STICK,
 	SUN,
@@ -290,6 +291,7 @@ export enum MaterialType {
 	PARTICLE_GREEN,
 	PARTICLE_BLUE,
 	PARTICLE_PURPLE,
+	PARTICLE_WHITE
 }
 
 export enum MeshType {

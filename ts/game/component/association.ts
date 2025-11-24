@@ -117,6 +117,9 @@ export class Association extends ComponentBase implements Component {
 		return 0;
 	}
 
+	setOwner(id : number) : void {
+		this.setAssociation(AssociationType.OWNER, id);
+	}
 	setTeam(team : TeamType) : void {
 		this.setAssociation(AssociationType.TEAM, team);
 	}

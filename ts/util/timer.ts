@@ -50,6 +50,12 @@ export class Timer {
 			this._onComplete = () => {};
 		}
 	}
+	restart() : void {
+		if (this._totalMillis <= 0) {
+			return;
+		}
+		this.start(this._totalMillis, this._onComplete);
+	}
 
 	reset() : void { this._state = TimerState.NOT_STARTED; }
 	finish() : void {

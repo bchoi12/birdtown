@@ -11,7 +11,7 @@ export class FieryBuff extends Buff {
 			[StatType.CRIT_CHANCE, 0.1 * level],
 			[StatType.DAMAGE_ADDITION, 5 * level],
 			[StatType.FIRE_BOOST, 0.15 * level],
-			[StatType.FLAME_CHANCE, 0.3 * level],
+			[StatType.FLAME_CHANCE, 0.2 * level],
 		]);
 	}
 }

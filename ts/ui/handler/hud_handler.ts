@@ -1,5 +1,7 @@
 
 import { game } from 'game'
+import { ColorType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 
 import { ui } from 'ui'
 import { HudType, HudOptions } from 'ui/api'
@@ -9,6 +11,8 @@ import { Html } from 'ui/html'
 import { Handler, HandlerBase } from 'ui/handler'
 import { HudBlockWrapper } from 'ui/wrapper/hud_block_wrapper'
 import { NameWrapper } from 'ui/wrapper/name_wrapper'
+
+import { HexColor } from 'util/hex_color'
 
 enum PositionType {
 	UNKNOWN,
@@ -61,7 +65,7 @@ export class HudHandler extends HandlerBase implements Handler {
 	private _nameWrapper : NameWrapper;
 	private _blocks : Map<HudType, HudBlockWrapper>;
 
-	private _underwater : boolean;
+	private _screenColors : Set<ColorType>;
 	private _vignetteElm : HTMLElement;
 
 	constructor() {
@@ -80,7 +84,7 @@ export class HudHandler extends HandlerBase implements Handler {
 
 		this._blocks = new Map();
 
-		this._underwater = false;
+		this._screenColors = new Set();
 		this._vignetteElm = Html.elm(Html.divVignette);
 		this._vignetteElm.style.transition = HudHandler._vignetteTransition;
 	}
@@ -163,21 +167,35 @@ export class HudHandler extends HandlerBase implements Handler {
 		this._vignetteElm.offsetHeight;
 	}
 
-	// TODO: blend colors together to do multiple screen effects (fire, water, poison, cool)
-	setCool(cool : boolean) : void {
-
-	}
-	setUnderwater(underwater : boolean) : void {
-		if (this._underwater === underwater) {
+	setScreenColor(type : ColorType, enabled : boolean) : void {
+		if (enabled === this._screenColors.has(type)) {
 			return;
 		}
-		this._underwater = underwater;
 
-		if (this._underwater) {
-			this._vignetteElm.style.backgroundColor = "rgba(146, 223, 247, 0.75)";
+		if (enabled) {
+			this._screenColors.add(type);
 		} else {
-			this._vignetteElm.style.backgroundColor = "";
+			this._screenColors.delete(type);
 		}
+		this.updateScreenColors();	
+	}
+	clearScreenColors() : void {
+		if (this._screenColors.size === 0) {
+			return;
+		}
+
+		this._screenColors.clear();
+		this.updateScreenColors();
+	}
+	private updateScreenColors() : void {
+		if (this._screenColors.size === 0) {
+			this._vignetteElm.style.backgroundColor = "";
+			return;
+		}
+
+		let colors : Array<HexColor> = Array.from(this._screenColors).map((type : ColorType) => ColorFactory.color(type));
+		let color = HexColor.fromColors(...colors);
+		this._vignetteElm.style.backgroundColor = `rgba(${color.r()}, ${color.g()}, ${color.b()}, 0.75)`;
 	}
 
 	private getOrAddBlock(type : HudType) : HudBlockWrapper {

@@ -277,6 +277,10 @@ export namespace MaterialFactory {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.PARTICLE_PURPLE).toBabylonColor3();
 		});
+		standardMaterial(MaterialType.PARTICLE_WHITE, (mat : BABYLON.StandardMaterial) => {
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.color(ColorType.WHITE).toBabylonColor3();
+		});
 
 		standardMaterial(MaterialType.FROZEN_WATER, (mat : BABYLON.StandardMaterial) => {
 			mat.diffuseColor = ColorFactory.color(ColorType.WATER).toBabylonColor3();

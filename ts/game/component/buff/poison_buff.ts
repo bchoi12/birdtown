@@ -12,7 +12,7 @@ import { RateLimiter } from 'util/rate_limiter'
 
 export class PoisonBuff extends Buff {
 
-	private static readonly _percentDamage = 0.02;
+	private static readonly _percentDamage = 0.01;
 
 	private _damageLimiter : RateLimiter;
 	private _particleLimiter : RateLimiter;
@@ -47,7 +47,7 @@ export class PoisonBuff extends Buff {
 		const millis = stepData.millis;
 
 		if (this._damageLimiter.check(millis)) {
-			this.entity().takeDamage(Math.ceil(PoisonBuff._percentDamage * this.entity().maxHealth()));
+			this.entity().takeDamage(Math.ceil(PoisonBuff._percentDamage * this.entity().maxHealth() * level / 2));
 		}
 
 		this._particleLimiter.setLimit(30 + 20 * (this.maxLevel() - level));

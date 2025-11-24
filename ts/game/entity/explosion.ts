@@ -55,9 +55,6 @@ export abstract class Explosion extends EntityBase implements Entity {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setMinimapOptions({
-			color: this.color(),
-		});
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: (model: Model) => { return this._profile.ready(); },
@@ -80,17 +77,17 @@ export abstract class Explosion extends EntityBase implements Entity {
 		return super.ready() && this._association.hasRefreshedOwner();
 	}
 
-	meshFn() : BABYLON.Mesh {
+	protected meshFn() : BABYLON.Mesh {
 		return BABYLON.MeshBuilder.CreateSphere(this.name(), {
 			diameter: this._profile.initDim().x,
 		}, game.scene())
 	}
 
-	abstract force() : number;
-	abstract materialType() : MaterialType;
-	soundType() : SoundType { return SoundType.EXPLOSION; }
-	ttl() : number { return Explosion._ttl; }
-	color() : string { return MaterialFactory.material<BABYLON.StandardMaterial>(this.materialType()).emissiveColor.toHexString(); }
+	protected abstract force() : number;
+	protected abstract materialType() : MaterialType;
+
+	protected soundType() : SoundType { return SoundType.EXPLOSION; }
+	protected ttl() : number { return Explosion._ttl; }
 	fading() : boolean { return this._lifeTimer.percentElapsed() > Explosion._fadePercent; }
 
 	override initialize() : void {
@@ -145,30 +142,39 @@ export abstract class Explosion extends EntityBase implements Entity {
 			return;
 		}
 
-		// Affect projectiles if enabled
+		// Act as shield if _reflectProjectiles is true
 		let magnitude = this.force();
-		if (this._reflectProjectiles
-			&& other.hasType(EntityType.PROJECTILE)
+		if (this._reflectProjectiles) {
+			if (other.hasType(EntityType.PROJECTILE)
 			&& Math.abs(magnitude) >= 0.5
 			&& !other.profile().vel().isZero()
 			&& !this.matchAssociations([AssociationType.OWNER], other)) {
-			if (this.isSource()) {
-				let dist = other.profile().pos().clone().sub(this._profile.pos());
-				if (magnitude < 0) {
-					dist.negate();
-				}
-
-				if (!dist.isZero()) {
-					const angle = dist.angleRad();
-					MATTER.Body.setVelocity(other.profile().body(), other.profile().vel().setAngleRad(angle));
-
-					if (other.profile().hasAngle()) {
-						MATTER.Body.setAngle(other.profile().body(), angle);
+				if (this.isSource()) {
+					let dist = other.profile().pos().clone().sub(this._profile.pos());
+					if (magnitude < 0) {
+						dist.negate();
 					}
+
+					if (!dist.isZero()) {
+						const angle = dist.angleRad();
+						MATTER.Body.setVelocity(other.profile().body(), other.profile().vel().setAngleRad(angle));
+
+						if (other.profile().hasAngle()) {
+							MATTER.Body.setAngle(other.profile().body(), angle);
+						}
+					}
+
+					other.setOwner(this.owner().id());
+					other.restartTTL();
 				}
+				this._hits.add(other.id());
+				return;
 			}
-			this._hits.add(other.id());
-			return;
+
+			if (this.matchAssociations([AssociationType.OWNER], other) || this.sameTeam(other)) {
+				this._hits.add(other.id());
+				return;
+			}
 		}
 
 		if (!other.getAttribute(AttributeType.SOLID)) {

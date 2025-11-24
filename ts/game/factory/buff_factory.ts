@@ -27,6 +27,7 @@ import { PoisonBuff } from 'game/component/buff/poison_buff'
 import { SlowBuff } from 'game/component/buff/slow_buff'
 import { SniperBuff } from 'game/component/buff/sniper_buff'
 import { SpreeBuff } from 'game/component/buff/spree_buff'
+import { SquawkShieldBuff } from 'game/component/buff/squawk_shield_buff'
 import { SquawkShotBuff } from 'game/component/buff/squawk_shot_buff'
 import { StatStickBuff } from 'game/component/buff/stat_stick_buff'
 import { SunBuff } from 'game/component/buff/sun_buff'
@@ -36,7 +37,7 @@ import { WarmogsBuff } from 'game/component/buff/warmogs_buff'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
-import { BuffType } from 'game/factory/api'
+import { BuffType, ColorType } from 'game/factory/api'
 import { EquipFactory } from 'game/factory/equip_factory'
 
 import { SeededRandom } from 'util/seeded_random'
@@ -44,12 +45,9 @@ import { SeededRandom } from 'util/seeded_random'
 export namespace BuffFactory {
 
 	// TODO: exodia buffs + weapon
-	// verbal alchemy
 	// squawk shields
 	// meditation?
-	// tank cannon (bruiser buff, % health -> dmg)
 	// PERIL_DAMAGE_BOOST
-	// PIERCE ATTRIBUTE
 	// BUFFS THAT PROCESS DAMAGE
 
 	const starterMetadata : BuffOptions = {
@@ -69,7 +67,7 @@ export namespace BuffFactory {
 		resetOnSpawn: true,
 	}
 	const stackingMetadata : BuffOptions = {
-		maxLevel: 6,
+		maxLevel: 8,
 		resetOnSpawn: true,
 	};
 
@@ -88,6 +86,7 @@ export namespace BuffFactory {
 		[BuffType.FIERY, upgradeMetadata],
 		[BuffType.ICY, upgradeMetadata],
 		[BuffType.SQUAWK_SHOT, upgradeMetadata],
+		[BuffType.SQUAWK_SHIELD, upgradeMetadata],
 
 		[BuffType.MOSQUITO, upgradeMetadata],
 		[BuffType.TANK, upgradeMetadata],
@@ -116,6 +115,13 @@ export namespace BuffFactory {
 		[BuffType.SPREE, {maxLevel: 3, resetOnSpawn: true }],
 	]);
 
+	export const colors = new Map<BuffType, ColorType>([
+		[BuffType.IMBUE, ColorType.PARTICLE_YELLOW],
+		[BuffType.POISON, ColorType.PARTICLE_GREEN],
+		[BuffType.FLAME, ColorType.PARTICLE_RED],
+		[BuffType.SLOW, ColorType.PARTICLE_BLUE],
+	]);
+
 	export function maxLevel(type : BuffType) : number { return metadata.get(type).maxLevel; }
 
 	const createFns = new Map<BuffType, (type : BuffType) => Buff>([
@@ -137,6 +143,7 @@ export namespace BuffFactory {
 		[BuffType.JUMPER, (type : BuffType) => { return new JumperBuff(type, metadata.get(type)) }],
 		[BuffType.MOSQUITO, (type : BuffType) => { return new MosquitoBuff(type, metadata.get(type)) }],
 		[BuffType.SNIPER, (type : BuffType) => { return new SniperBuff(type, metadata.get(type)) }],
+		[BuffType.SQUAWK_SHIELD, (type : BuffType) => { return new SquawkShieldBuff(type, metadata.get(type)) }],
 		[BuffType.SQUAWK_SHOT, (type : BuffType) => { return new SquawkShotBuff(type, metadata.get(type)) }],
 		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, metadata.get(type)) }],
 		[BuffType.SUN, (type : BuffType) => { return new SunBuff(type, metadata.get(type)) }],
@@ -242,7 +249,7 @@ export namespace BuffFactory {
 		pickableBuffs.add(chooseBuffs(player, [BuffType.SUN, BuffType.VAMPIRE]));
 
 		// TODO: add squawk shield
-		pickableBuffs.add(chooseBuffs(player, [BuffType.SQUAWK_SHOT]));
+		pickableBuffs.add(chooseBuffs(player, [BuffType.SQUAWK_SHOT, BuffType.SQUAWK_SHIELD]));
 
 		if (!EquipFactory.invalidAlts(player.equipType()).includes(EntityType.SCOUTER)) {
 			pickableBuffs.add(BuffType.JUICED);
