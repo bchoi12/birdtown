@@ -20,7 +20,7 @@ export class SavedCounter {
 	set(value : number) : void { this._count = value; }
 	add(value : number) : void { this._count += value; }
 
-	save() : number {
+	syncAndPop() : number {
 		const diff = this.diff();
 		this._saved = this._count;
 		return diff;

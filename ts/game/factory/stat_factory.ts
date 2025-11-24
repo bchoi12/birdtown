@@ -250,7 +250,7 @@ export namespace StatFactory {
 			[StatType.FIRE_TIME, 140],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 425],
-			[StatType.RELOAD_TIME, 900],
+			[StatType.RELOAD_TIME, 925],
 		])],
 		[EntityType.BULLET, new Map([
 			[StatType.DAMAGE, 25],

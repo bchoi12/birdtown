@@ -275,7 +275,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			export: () => { return this._damageCounter.count(); },
 			import: (obj : number) => {
 				this._damageCounter.set(obj);
-				this.damageEffect(this._damageCounter.save());
+				this.damageEffect(this._damageCounter.syncAndPop());
 			},
 		});
 

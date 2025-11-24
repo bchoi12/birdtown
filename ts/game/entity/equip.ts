@@ -43,6 +43,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	protected _uses : SavedCounter;
 	protected _canUse : boolean;
 	protected _lastUseCounter : number;
+	protected _instantUse : boolean;
 
 	protected _juice : number;
 	protected _juiceSinceGrounded : number;
@@ -60,6 +61,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this._uses = new SavedCounter(0);
 		this._canUse = false;
 		this._lastUseCounter = 0;
+		this._instantUse = false;
 
 		this._juice = 0
 		this._juiceSinceGrounded = 0;
@@ -122,6 +124,8 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
 
+		this._instantUse = true;
+
 		if (this.isSource()) {
 			this._canUse = this.checkCanUse();
 		}
@@ -130,11 +134,9 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	override update(stepData : StepData) : void {
 		super.update(stepData)
 
-		if (!this.isSource()) {
-			const uses = this._uses.save();
-			if (uses > 0) {
-				this.simulateUse(uses);
-			}
+		const uses = this._uses.syncAndPop();
+		if (uses > 0) {
+			this.simulateUse(uses);
 		}
 	}
 
@@ -150,6 +152,8 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 			this._juice += this._chargeRate * millis / 1000 * this.chargeMultiplier();
 			this._juice = Math.min(this._juice, Equip._maxJuice);
 		}
+
+		this._instantUse = false;
 	}
 
 	override key(type : KeyType, state : KeyState) : boolean {
@@ -194,8 +198,11 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	protected recordUse(n? : number) : void {
 		if (this.isSource()) {
 			const uses = n ? n : 1;
-			this.simulateUse(uses);
 			this._uses.add(uses);
+
+			if (this._instantUse) {
+				this.simulateUse(this._uses.syncAndPop());
+			}
 		}
 	}
 	private getUseJuice() : number {
