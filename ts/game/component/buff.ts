@@ -28,7 +28,7 @@ export abstract class Buff extends ComponentBase implements Component {
 	protected static readonly _intervals : Map<StatType, number> = new Map([
 		[StatType.BURST_BONUS, 1],
 		[StatType.BURST_BOOST, 0.25],
-		[StatType.CHARGE_BOOST, 0.2],
+		[StatType.CHARGE_BOOST, 0.1],
 		[StatType.CRIT_CHANCE, 0.1],
 		[StatType.CRIT_BOOST, 0.2],
 		[StatType.DAMAGE_ADDITION, 5],

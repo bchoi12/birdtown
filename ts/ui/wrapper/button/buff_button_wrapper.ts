@@ -17,10 +17,6 @@ import { LoadoutButtonWrapper } from 'ui/wrapper/button/loadout_button_wrapper'
 
 export class BuffButtonWrapper extends LoadoutButtonWrapper<BuffType> {
 
-	constructor() {
-		super();
-	}
-
 	protected override unknownValue() : BuffType { return BuffType.UNKNOWN; }
 	protected override getName(type : BuffType) : string {
 		if (BuffFactory.isStarter(type)) {

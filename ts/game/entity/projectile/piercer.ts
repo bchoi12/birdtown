@@ -14,6 +14,6 @@ export class Piercer extends BulletBase {
 	}
 
 	protected override trailScaling(stepData : StepData) : number {
-		return Math.min(5, this._trail.scaling.x + 10 * stepData.millis / 1000);
+		return Math.min(2, this._trail.scaling.x + 10 * stepData.millis / 1000);
 	}
 }

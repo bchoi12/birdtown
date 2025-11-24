@@ -224,7 +224,7 @@ export namespace EntityFactory {
 		[EntityType.CLIFF_WALL, { x: 15, y: 7 }],
 		[EntityType.GOLDEN_BULLET, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
-		[EntityType.LASER, { x: 25, y: 0.4, z : 0.1 }],
+		[EntityType.LASER, { x: 25, y: 0.5, z : 0.1 }],
 		[EntityType.MEGA_ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
 		[EntityType.MINI_CLIFF, { x: 5, y: 7 }],
 		[EntityType.MINI_ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],

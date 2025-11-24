@@ -12,6 +12,6 @@ export class Cartridge extends BulletBase {
 	}
 
 	protected override trailScaling(stepData : StepData) : number {
-		return Math.min(4, this._trail.scaling.x + 8 * stepData.millis / 1000);
+		return Math.min(2, this._trail.scaling.x + 8 * stepData.millis / 1000);
 	}
 }

@@ -32,4 +32,13 @@ export class SunBuff extends Buff {
 			this.applyStats(this.getStatCache());
 		}
 	}
+
+	override onLevel(level : number, delta : number) : void {
+		super.onLevel(level, delta);
+
+		if (level < 1) {
+			this._sun = 1;
+		}
+	}
+
 }

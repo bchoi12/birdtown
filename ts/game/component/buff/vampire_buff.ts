@@ -15,12 +15,13 @@ export class VampireBuff extends Buff {
 		this._night = false;
 	}
 
+	// TODO: add some demon horns or something
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.BURST_BOOST, this._night ? 1 : 0],
+			[StatType.BURST_BOOST, (this._night ? 0.5 : 0) * level],
 			[StatType.FIRE_BOOST, (this._night ? 0.3 : 0.1) * level],
 			[StatType.DAMAGE_RESIST_BOOST, (this._night ? 0.1 : 0) * level],
-			[StatType.HEALTH, (this._night ? 150 : 25) * level],
+			[StatType.HEALTH, (this._night ? 200 : 25) * level],
 			[StatType.LIFE_STEAL, (this._night ? 0.1 : 0) * level],
 			[StatType.RELOAD_BOOST, (this._night ? 0.3 : 0.1) * level],
 			[StatType.SCALING, (this._night ? 0.5 : 0)],

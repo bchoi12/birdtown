@@ -229,10 +229,10 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		if (this._juiceSinceGrounded <= 100) {
 			return mult;
 		}
-		if (this._juiceSinceGrounded >= 400) {
+		if (this._juiceSinceGrounded >= 300) {
 			return 0;
 		}
-		return (1 - Fns.normalizeRange(100, this._juiceSinceGrounded, 400)) * mult;
+		return (1 - Fns.normalizeRange(100, this._juiceSinceGrounded, 300)) * mult;
 	}
 
 	protected simulateUse(uses : number) : void {

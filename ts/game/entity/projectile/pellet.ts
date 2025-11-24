@@ -86,7 +86,7 @@ export class Pellet extends Projectile {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		this._trail.scaling.x = Math.min(1.2, this._trail.scaling.x + 6 * stepData.millis / 1000);
+		this._trail.scaling.x = Math.min(1, this._trail.scaling.x + 6 * stepData.millis / 1000);
 	}
 
 	protected override onHit(other : Entity) : void {

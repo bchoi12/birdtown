@@ -26,6 +26,7 @@ export class Laser extends Projectile {
 	private static readonly _ttl = 750;
 	private static readonly _activateTiming = 0.15;
 	private static readonly _damageTiming = 0.55;
+	private static readonly _fadeTiming = 0.7;
 	private static readonly _initialScale = 0.1;
 
 	private _active : boolean;
@@ -116,14 +117,17 @@ export class Laser extends Projectile {
 			this._profile.setAngle(vel.angleRad());
 		}
 
-		if (this.ttlElapsed() >= Laser._damageTiming) {
-			if (!this._active) {
+		const ttlElapsed = this.ttlElapsed();
+		if (ttlElapsed >= Laser._damageTiming) {
+			if (ttlElapsed >= Laser._fadeTiming) {
+				this._active = false;
+			} else {
 				this._active = true;
 			}
-			const weight = (this.ttlElapsed() - Laser._damageTiming) / (1 - Laser._damageTiming);
+			const weight = (ttlElapsed - Laser._damageTiming) / (1 - Laser._damageTiming);
 			this._model.scaling().y = 1 - weight;
-		} else if (this.ttlElapsed() >= Laser._activateTiming) {
-			const weight = 0.4 * (this.ttlElapsed() - Laser._activateTiming) / (Laser._damageTiming - Laser._activateTiming);
+		} else if (ttlElapsed >= Laser._activateTiming) {
+			const weight = 0.3 * (ttlElapsed - Laser._activateTiming) / (Laser._damageTiming - Laser._activateTiming);
 			this._model.scaling().y = Laser._initialScale + (1 - Laser._initialScale) * weight;
 		}
 	}

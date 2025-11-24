@@ -331,7 +331,7 @@ export namespace StringFactory {
 		[BuffType.HEALER, "Heal and buff your teammates with your bullets"],
 		[BuffType.ICY, "Shoot giant bullets that slow down your enemies"],
 		[BuffType.JUICED, "Slightly increases weapon mastery - at level 3, your weapon is always charged"],
-		[BuffType.JUMPER, "Increase number of double jumps and air speed"],
+		[BuffType.JUMPER, "Increase number of jumps and gain speed after each jump"],
 		[BuffType.MOSQUITO, "Become annoying"],
 		[BuffType.SQUAWK_SHOT, "Squawk to fire a projectile"],
 		[BuffType.SUN, "Permanently gain health and grow larger whenever the sun comes out"],

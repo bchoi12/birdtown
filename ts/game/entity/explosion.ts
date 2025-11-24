@@ -26,6 +26,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 
 	protected _hits : Set<number>;
 	protected _lifeTimer : Timer;
+	protected _reflectProjectiles : boolean;
 
 	protected _association : Association;
 	protected _profile : Profile;
@@ -40,6 +41,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 			canInterrupt: false,
 		});
 		this._hits = new Set();
+		this._reflectProjectiles = false;
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
 
@@ -143,9 +145,10 @@ export abstract class Explosion extends EntityBase implements Entity {
 			return;
 		}
 
-		// Affect projectiles
+		// Affect projectiles if enabled
 		let magnitude = this.force();
-		if (other.hasType(EntityType.PROJECTILE)
+		if (this._reflectProjectiles
+			&& other.hasType(EntityType.PROJECTILE)
 			&& Math.abs(magnitude) >= 0.5
 			&& !other.profile().vel().isZero()
 			&& !this.matchAssociations([AssociationType.OWNER], other)) {
