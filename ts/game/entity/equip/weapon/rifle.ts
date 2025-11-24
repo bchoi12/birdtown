@@ -34,6 +34,12 @@ export class Rifle extends Weapon {
 	override meshType() : MeshType { return MeshType.RIFLE; }
 	override reloadSound() : SoundType { return SoundType.QUICK_RELOAD; }
 
+	override initialize() : void {
+		super.initialize();
+
+		this.quickReload();
+	}
+
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 

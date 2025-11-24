@@ -110,7 +110,7 @@ export namespace StatFactory {
 			[StatType.USE_JUICE, 100],
 		])],
 		[EntityType.BOOSTER, new Map([
-			[StatType.CHARGE_DELAY, 400],
+			[StatType.CHARGE_DELAY, 300],
 			[StatType.CHARGE_RATE, 100],
 			[StatType.FORCE, 2],
 			[StatType.USE_JUICE, 100],
@@ -126,8 +126,8 @@ export namespace StatFactory {
 			[StatType.USE_JUICE, 100],
 		])],
 		[EntityType.JETPACK, new Map([
-			[StatType.CHARGE_DELAY, 400],
-			[StatType.CHARGE_RATE, 150],
+			[StatType.CHARGE_DELAY, 300],
+			[StatType.CHARGE_RATE, 160],
 			// Adjusted by time
 			[StatType.USE_JUICE, 0.1],
 		])],
@@ -191,6 +191,13 @@ export namespace StatFactory {
 		[EntityType.GATLING, new Map([
 			// TODO: fill out recoil values
 			[StatType.BURSTS, 20],
+			[StatType.CHARGED_BURSTS, 10],
+			[StatType.CHARGED_FIRE_TIME, 20],
+			[StatType.CHARGED_FORCE, 0],
+			[StatType.CHARGED_RELOAD_TIME, 600],
+			[StatType.CHARGED_PROJECTILE_SPEED, 1],
+			[StatType.CHARGED_PROJECTILE_TTL, 450],
+			[StatType.CHARGED_REV_TIME, 0],
 			[StatType.FIRE_TIME, 80],
 			[StatType.HORIZONTAL_RECOIL, 0],
 			[StatType.PROJECTILE_SPEED, 0.8],
@@ -205,7 +212,12 @@ export namespace StatFactory {
 		// 250 DPS
 		[EntityType.GOLDEN_GUN, new Map([
 			[StatType.BURSTS, 1],
-			[StatType.FIRE_TIME, 100],
+			[StatType.CHARGED_BURSTS, 3],
+			[StatType.CHARGED_FIRE_TIME, 140],
+			[StatType.CHARGED_RELOAD_TIME, 1200],
+			[StatType.CHARGED_PROJECTILE_SPEED, 1],
+			[StatType.CHARGED_PROJECTILE_TTL, 450],
+			[StatType.FIRE_TIME, 140],
 			[StatType.PROJECTILE_SPEED, 1],
 			[StatType.PROJECTILE_TTL, 400],
 			[StatType.RELOAD_TIME, 1200],
@@ -289,12 +301,12 @@ export namespace StatFactory {
 			[StatType.CHARGED_FORCE, 0.1],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1.1],
 			[StatType.CHARGED_PROJECTILE_TTL, 475],
-			[StatType.CHARGED_RELOAD_TIME, 1500],
-			[StatType.FIRE_TIME, 375],
+			[StatType.CHARGED_RELOAD_TIME, 1400],
+			[StatType.FIRE_TIME, 350],
 			[StatType.FORCE, 0],
 			[StatType.PROJECTILE_SPEED, 1],
 			[StatType.PROJECTILE_TTL, 375],
-			[StatType.RELOAD_TIME, 1500],
+			[StatType.RELOAD_TIME, 1400],
 		])],
 		[EntityType.CARTRIDGE, new Map([
 			[StatType.DAMAGE, 30],
@@ -309,10 +321,10 @@ export namespace StatFactory {
 			[StatType.BURST_BULLETS, 4],
 			[StatType.FIRE_TIME, 220],
 			[StatType.FORCE, 0.5],
-			[StatType.PROJECTILE_SPEED, 0.6],
-			[StatType.PROJECTILE_TTL, 400],
+			[StatType.PROJECTILE_SPEED, 0.65],
+			[StatType.PROJECTILE_TTL, 360],
 			[StatType.RELOAD_TIME, 900],
-			[StatType.SPREAD, 24],
+			[StatType.SPREAD, 23],
 		])],
 		[EntityType.PELLET, new Map([
 			[StatType.DAMAGE, 15],

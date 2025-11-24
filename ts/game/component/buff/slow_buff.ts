@@ -55,7 +55,7 @@ export class SlowBuff extends Buff {
 			const pos = this.entity().profile().pos();
 			const height = this.entity().profile().dim().y;
 
-			const size = 0.2 + 0.1 * level;
+			const size = 0.1 + 0.1 * level;
 			const [cube, hasCube] = this.entity().addEntity<CubeParticle>(EntityType.CUBE_PARTICLE, {
 				offline: true,
 				ttl: 150,

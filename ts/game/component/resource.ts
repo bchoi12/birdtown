@@ -8,6 +8,8 @@ import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { StatType } from 'game/factory/api'
 
+import { Flags } from 'global/flags'
+
 import { Fns } from 'util/fns'
 import { RingBuffer } from 'util/buffer/ring_buffer'
 import { Optional } from 'util/optional'
@@ -74,6 +76,12 @@ export class Resource extends ComponentBase implements Component {
 	updateResource(update : ResourceUpdate) : void {
 		if (!this.isSource() || !this.initialized()) {
 			return;
+		}
+
+		if (Flags.printDebug.get()) {
+			if (Number.isNaN(update.delta)) {
+				console.error("Warning: NaN update for", this.entity().name());
+			}
 		}
 
 		if (this._min.has() && this._resource + update.delta < this._min.get()) {

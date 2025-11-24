@@ -64,7 +64,7 @@ export class HealthCrate extends Crate {
 			return;
 		}
 
-		entity.takeDamage(-this.amount(), this, this);
+		entity.takeDamage(-Math.max(0.05 * entity.maxHealth(), this.amount()), this, this);
 		this._showHeart = true;
 		this.open();
 	}

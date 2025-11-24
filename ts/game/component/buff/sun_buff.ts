@@ -12,7 +12,12 @@ export class SunBuff extends Buff {
 	constructor(type : BuffType, options : BuffOptions) {
 		super(type, options);
 
-		this._sun = 1;
+		this._sun = 0;
+
+		this.addProp<number>({
+			import: (obj : number) => { this.setSun(obj); },
+			export: () => { return this._sun; },
+		});
 	}
 
 	override boosts(level : number) : Map<StatType, number> {
@@ -24,21 +29,32 @@ export class SunBuff extends Buff {
 	}
 
 	override onRespawn() : void {
-		const sun = game.world().getTime() !== TimeType.NIGHT;
+		super.onRespawn();
 
-		if (sun) {
-			this.revertStats(this.getStatCache());
-			this._sun += this.level();
-			this.applyStats(this.getStatCache());
-		}
+		this.checkSun();
 	}
 
 	override onLevel(level : number, delta : number) : void {
 		super.onLevel(level, delta);
 
 		if (level < 1) {
-			this._sun = 1;
+			this.setSun(0);
 		}
+	}
+
+	private checkSun() : void {
+		if (!this.isSource()) {
+			return;
+		}
+
+		const sun = game.world().getTime() !== TimeType.NIGHT;
+		this.setSun(this._sun + this.level());
+	}
+
+	private setSun(sun : number) : void {
+		this.revertStats(this.getStatCache());
+		this._sun = sun;
+		this.applyStats(this.getStatCache());
 	}
 
 }

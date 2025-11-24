@@ -21,7 +21,7 @@ export namespace EquipFactory {
 		[EntityType.PISTOL, [EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.PURPLE_GLOVE, [EntityType.PURPLE_HEADBAND]],
 		[EntityType.RED_GLOVE, [EntityType.RED_HEADBAND]],
-		[EntityType.RIFLE, [EntityType.BLACK_HEADBAND, EntityType.RED_HEADBAND, EntityType.SCOUTER]],
+		[EntityType.RIFLE, [EntityType.BLACK_HEADBAND, EntityType.RED_HEADBAND]],
 		[EntityType.SHOTGUN, [EntityType.COWBOY_HAT, EntityType.PURPLE_HEADBAND]],
 		[EntityType.WING_CANNON, [EntityType.SCOUTER, EntityType.POCKET_ROCKET]],
 	]);
@@ -31,14 +31,11 @@ export namespace EquipFactory {
 	])
 
 	const invalidPairs = new Map<EntityType, EntityType[]>([
-		[EntityType.GATLING, [EntityType.SCOUTER]],
 		[EntityType.MINIGUN, [EntityType.SCOUTER]],
 		[EntityType.ORB_CANNON, [EntityType.SCOUTER]],
 		[EntityType.PURPLE_GLOVE, [EntityType.SCOUTER]],
 		[EntityType.RED_GLOVE, [EntityType.SCOUTER]],
 		[EntityType.SHOTGUN, [EntityType.SCOUTER]],
-
-		[EntityType.GOLDEN_GUN, [EntityType.SCOUTER]],
 	]);
 
 	let weapons = [...recommendedPairs.keys()];

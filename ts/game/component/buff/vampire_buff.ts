@@ -13,6 +13,11 @@ export class VampireBuff extends Buff {
 		super(type, options);
 
 		this._night = false;
+
+		this.addProp<boolean>({
+			import: (obj : boolean) => { this.setNight(obj); },
+			export: () => { return this._night; },
+		});
 	}
 
 	// TODO: add some demon horns or something
@@ -36,16 +41,24 @@ export class VampireBuff extends Buff {
 	}
 
 	override onRespawn() : void {
+		super.onRespawn();
+
 		this.checkNight();
 	}
 
-	private checkNight() : void {
-		const night = game.world().getTime() === TimeType.NIGHT;
-
+	private setNight(night : boolean) : void {
 		if (this._night !== night) {
 			this.revertStats(this.getStatCache());
 			this._night = night;
 			this.applyStats(this.getStatCache());
 		}
+	}
+
+	private checkNight() : void {
+		if (!this.isSource()) {
+			return;
+		}
+
+		this.setNight(game.world().getTime() === TimeType.NIGHT);
 	}
 }

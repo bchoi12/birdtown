@@ -111,7 +111,7 @@ export class GameMaker extends SystemBase implements System {
 		});
 		this.addProp<number>({
 			export: () => { return this._round; },
-			import: (obj : number) => { this._round = obj; },
+			import: (obj : number) => { this.setRound(obj); },
 			options: {
 				filters: GameData.tcpFilters,
 			},
@@ -121,6 +121,21 @@ export class GameMaker extends SystemBase implements System {
 	config() : GameConfigMessage { return this._config; }
 	mode() : GameMode { return this._config.type(); }
 	round() : number { return this._round; }
+	setRound(round : number) : void {
+		if (this._round === round) {
+			return;
+		}
+
+		this._round = round
+
+		if (this._round === 0) {
+			return;
+		}
+
+		game.playerStates().execute((playerState : PlayerState) => {
+			playerState.onStartRound();
+		});
+	}
 	winnerClientId() : number { return this._winnerClientId; }
 	winningTeam() : number { return this._winningTeam; }
 	isTeamMode() : boolean {
@@ -459,7 +474,7 @@ export class GameMaker extends SystemBase implements System {
 			}
 	    	break;
 		case GameState.LOAD:
-			this._round++;
+			this.setRound(this._round + 1);
 
 			if (this._round > 1 && this._round % 2 === 1) {
 				game.world().incrementTime();
@@ -474,9 +489,6 @@ export class GameMaker extends SystemBase implements System {
 				}
 			}, (tablet : Tablet) => {
 				return this.isPlaying(tablet.clientId());
-			});
-			game.playerStates().execute((playerState : PlayerState) => {
-				playerState.onStartRound();
 			});
 
 			const [numPlayers, numTeams] = this._playerConfig.numPlayersAndTeams();
@@ -502,7 +514,6 @@ export class GameMaker extends SystemBase implements System {
 	    	});
 
 			game.audio().setAmbiance(this.getAmbiance());
-			
 			break;
 		case GameState.SETUP:
 			this.assignRoles();

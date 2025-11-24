@@ -248,10 +248,11 @@ export abstract class Weapon extends Equip<Player> {
 
 		switch (state) {
 		case WeaponState.REVVING:
-			if (this.hasStat(StatType.REV_TIME)) {
+			if (this.charged() && this.hasStat(StatType.CHARGED_REV_TIME)) {
+				time = this.getStat(StatType.CHARGED_REV_TIME);
+			} else if (this.hasStat(StatType.REV_TIME)) {
 				time = this.getStat(StatType.REV_TIME);
 			}
-
 			if (this.hasOwner()) {
 				mult += this.owner().getStat(StatType.REV_BOOST);
 			}
