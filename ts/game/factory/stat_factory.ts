@@ -28,6 +28,7 @@ export namespace StatFactory {
 		[StatType.HP_REGEN, 0],
 		[StatType.PROJECTILE_SCALING_BOOST, 0],
 		[StatType.RELOAD_BOOST, 0],
+		[StatType.REV_BOOST, 0],
 		[StatType.REVIVE_BOOST, 0],
 		[StatType.SCALING, 1],
 		[StatType.SPEED_BOOST, 0],
@@ -201,13 +202,13 @@ export namespace StatFactory {
 		[EntityType.CALIBER, new Map([
 			[StatType.DAMAGE, 12],
 		])],
-		// 200 DPS
+		// 250 DPS
 		[EntityType.GOLDEN_GUN, new Map([
 			[StatType.BURSTS, 1],
 			[StatType.FIRE_TIME, 100],
 			[StatType.PROJECTILE_SPEED, 1],
 			[StatType.PROJECTILE_TTL, 400],
-			[StatType.RELOAD_TIME, 1400],
+			[StatType.RELOAD_TIME, 1200],
 		])],
 		[EntityType.GOLDEN_BULLET, new Map([
 			[StatType.DAMAGE, 300],
@@ -310,7 +311,7 @@ export namespace StatFactory {
 			[StatType.FORCE, 0.5],
 			[StatType.PROJECTILE_SPEED, 0.6],
 			[StatType.PROJECTILE_TTL, 400],
-			[StatType.RELOAD_TIME, 1000],
+			[StatType.RELOAD_TIME, 900],
 			[StatType.SPREAD, 24],
 		])],
 		[EntityType.PELLET, new Map([

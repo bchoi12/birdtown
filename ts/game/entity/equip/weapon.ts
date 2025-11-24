@@ -251,6 +251,10 @@ export abstract class Weapon extends Equip<Player> {
 			if (this.hasStat(StatType.REV_TIME)) {
 				time = this.getStat(StatType.REV_TIME);
 			}
+
+			if (this.hasOwner()) {
+				mult += this.owner().getStat(StatType.REV_BOOST);
+			}
 			break;
 		case WeaponState.FIRING:
 			if (this.charged() && this.hasStat(StatType.CHARGED_FIRE_TIME)) {

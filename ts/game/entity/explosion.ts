@@ -104,7 +104,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 		});
 
 		if (this.isSource()) {
-			this.profile().multScaling(this.owner().getStat(StatType.SCALING) + this.owner().getStat(StatType.PROJECTILE_SCALING_BOOST));
+			this.profile().multScaling(Math.max(1, this.owner().getStat(StatType.SCALING)) + this.owner().getStat(StatType.PROJECTILE_SCALING_BOOST));
 		}
 	}
 

@@ -30,6 +30,7 @@ export class CoolBuff extends Buff {
 			[StatType.DAMAGE_RESIST_BOOST, this.atMaxLevel() ? 0.2 : 0],
 			[StatType.FIRE_BOOST, 0.15 * level],
 			[StatType.RELOAD_BOOST, 0.2 * level],
+			[StatType.REV_BOOST, 0.5 * level],
 			[StatType.SPEED_BOOST, 0.1 * level],
 		]);
 	}
