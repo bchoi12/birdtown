@@ -156,7 +156,12 @@ export abstract class Explosion extends EntityBase implements Entity {
 				}
 
 				if (!dist.isZero()) {
-					MATTER.Body.setVelocity(other.profile().body(), other.profile().vel().setAngleRad(dist.angleRad()));
+					const angle = dist.angleRad();
+					MATTER.Body.setVelocity(other.profile().body(), other.profile().vel().setAngleRad(angle));
+
+					if (other.profile().hasAngle()) {
+						MATTER.Body.setAngle(other.profile().body(), angle);
+					}
 				}
 			}
 			this._hits.add(other.id());

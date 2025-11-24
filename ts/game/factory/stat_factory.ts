@@ -40,7 +40,7 @@ export namespace StatFactory {
 	]);
 
 	const statMax = new Map<StatType, number>([
-		[StatType.SCALING, 4],
+		[StatType.SCALING, 2.7],
 	]);
 
 	const entityStats = new Map<EntityType, Map<StatType, number>>([
@@ -242,12 +242,12 @@ export namespace StatFactory {
 		[EntityType.PISTOL, new Map([
 			[StatType.BURSTS, 3],
 			[StatType.CHARGED_BURSTS, 6],
-			[StatType.CHARGED_FIRE_TIME, 100],
+			[StatType.CHARGED_FIRE_TIME, 90],
 			[StatType.CHARGED_FORCE, 0.2],
 			[StatType.CHARGED_RELOAD_TIME, 1000],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0.9],
 			[StatType.CHARGED_PROJECTILE_TTL, 550],
-			[StatType.FIRE_TIME, 160],
+			[StatType.FIRE_TIME, 140],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 425],
 			[StatType.RELOAD_TIME, 900],
@@ -345,7 +345,7 @@ export namespace StatFactory {
 			[StatType.CHARGED_RELOAD_TIME, 1000],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0],
 			[StatType.CHARGED_PROJECTILE_TTL, 750],
-			[StatType.CHARGED_FORCE, 0.3],
+			[StatType.CHARGED_FORCE, 0],
 			[StatType.FIRE_TIME, 100],
 			[StatType.FORCE, 0.1],
 			[StatType.PROJECTILE_SPEED, 0.8],

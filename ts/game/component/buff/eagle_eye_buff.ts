@@ -8,7 +8,7 @@ export class EagleEyeBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.EXPOSE_CHANCE, 0.25 + 0.15 * level],
+			[StatType.EXPOSE_CHANCE, 0.2 + 0.1 * level],
 			[StatType.FIRE_BOOST, 0.15 * level],
 			[StatType.HEALTH, 20 + 40 * (level - 1)],
 			[StatType.LIFE_STEAL, 0.05 * level],

@@ -12,7 +12,7 @@ export class BigBuff extends Buff {
 			[StatType.DAMAGE_REDUCTION, 3 * level],
 			[StatType.DAMAGE_RESIST_BOOST, 0.1 * level],
 			[StatType.HEALTH, 40 + 60 * (level - 1)],
-			[StatType.SCALING, 0.1 * level],
+			[StatType.SCALING, 0.1 + 0.05 * level],
 		]);
 	}
 

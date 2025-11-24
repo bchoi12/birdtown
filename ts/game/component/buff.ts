@@ -49,7 +49,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.SPEED_BOOST, 0.1],
 		[StatType.SPEED_DEBUFF, 0.1],
 		[StatType.LIFE_STEAL, 0.05],
-		[StatType.USE_BOOST, 0.25],
+		[StatType.USE_BOOST, 0.2],
 	]);
 
 	protected _buffType : BuffType;
@@ -171,12 +171,12 @@ export abstract class Buff extends ComponentBase implements Component {
 
 			if (delta > 0 && StringFactory.hasBuffName(this._buffType)) {
 				this._levelAnnounce.set(level);
-				
-				if (!this.entity().deactivated()) {
-					this.announceLevel();
-				}
 			}
-		}	
+		}
+
+		if (level === 0 || delta < 0) {
+			this._levelAnnounce.clear();
+		}
 	}
 	protected decayOnLevel(level : number, delta : number) : void {
 		if (level <= 0) {
@@ -194,9 +194,8 @@ export abstract class Buff extends ComponentBase implements Component {
 		if (this._levelAnnounce.has()) {
 			const name = StringFactory.getBuffName(this._buffType);
 			game.playerState(this.entity().clientId())?.chatBubble(`${name} Lv${this._levelAnnounce.get()}`);
+			this._levelAnnounce.clear();
 		}
-
-		this._levelAnnounce.clear();
 	}
 
 	adding() : boolean { return this._addTimer.hasTimeLeft(); }

@@ -94,7 +94,7 @@ export class TopHat extends Equip<Player> {
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 
-		let force = this.inputDir().clone().scale(this.getStat(StatType.FORCE));
+		let force = this.inputDir().clone().scale(this.getStat(StatType.FORCE) * this.owner().getStat(StatType.SCALING));
 		this._dir = force.x === 0 ? 1 : Math.sign(force.x);
 
 		if (this.hasOwner()) {

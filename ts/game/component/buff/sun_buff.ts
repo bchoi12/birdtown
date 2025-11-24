@@ -17,8 +17,9 @@ export class SunBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
+			[StatType.DAMAGE_RESIST_BOOST, 0.025 * this._sun],
 			[StatType.HEALTH, 50 * this._sun],
-			[StatType.SCALING, 0.1 * this._sun],
+			[StatType.SCALING, 0.05 * this._sun],
 		])
 	}
 

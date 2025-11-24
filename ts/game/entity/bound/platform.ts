@@ -70,44 +70,61 @@ export class Platform extends PlatformBase {
 
 export class UnderwaterRock extends PlatformBase {
 
+	private _exploded : boolean;
+
 	private _resources : Resources;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.UNDERWATER_ROCK, entityOptions);
 
+		this._exploded = false;
+
 		this._resources = this.addComponent<Resources>(new Resources({
 			stats: [StatType.HEALTH],
 		}));
+
+		this.addProp<boolean>({
+			has: () => { return this._exploded; },
+			import: (obj : boolean) => { this.explode(); },
+			export: () => { return this._exploded; }
+		})
 	}
 
 	override takeDamage(damage : number, from? : Entity, hitEntity? : Entity) : void {
 		super.takeDamage(damage, from, hitEntity);
 
 		if (this.dead()) {
-
-			if (this.initialized() && this._model.hasMaterialType()) {
-				for (let i = 0; i < 9; ++i) {
-					const dim = this._profile.dim();
-					this.addEntity(EntityType.CUBE_PARTICLE, {
-						offline: true,
-						ttl: 1200,
-						profileInit: {
-							pos: this._profile.pos().clone().add({ x: Fns.randomNoise(dim.x / 3), y: Fns.randomNoise(dim.y / 3), }),
-							vel: {
-								x: Fns.randomNoise(0.2),
-								y: Fns.randomRange(0.1, 0.2),
-							},
-							scaling: { x: 0.25, y: 0.25 },
-							gravity: true,
-						},
-						modelInit: {
-							materialType: this._model.materialType(),
-						}
-					});
-				}
-			}
-
-			this.delete();
+			this.explode();
 		}
+	}
+
+	explode() : void {
+		if (this._exploded) {
+			return;
+		}
+
+		this._exploded = true;
+		if (this.initialized() && this._model.hasMaterialType()) {
+			for (let i = 0; i < 9; ++i) {
+				const dim = this._profile.dim();
+				this.addEntity(EntityType.CUBE_PARTICLE, {
+					offline: true,
+					ttl: 1200,
+					profileInit: {
+						pos: this._profile.pos().clone().add({ x: Fns.randomNoise(dim.x / 3), y: Fns.randomNoise(dim.y / 3), }),
+						vel: {
+							x: Fns.randomNoise(0.2),
+							y: Fns.randomRange(0.1, 0.2),
+						},
+						scaling: { x: 0.25, y: 0.25 },
+						gravity: true,
+					},
+					modelInit: {
+						materialType: this._model.materialType(),
+					}
+				});
+			}
+		}
+		this.delete();
 	}
 }

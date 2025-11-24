@@ -163,6 +163,10 @@ export class HudHandler extends HandlerBase implements Handler {
 		this._vignetteElm.offsetHeight;
 	}
 
+	// TODO: blend colors together to do multiple screen effects (fire, water, poison, cool)
+	setCool(cool : boolean) : void {
+
+	}
 	setUnderwater(underwater : boolean) : void {
 		if (this._underwater === underwater) {
 			return;

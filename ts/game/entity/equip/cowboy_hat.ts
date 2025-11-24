@@ -9,7 +9,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/equip/weapon'
 import { Player } from 'game/entity/player'
-import { BuffType, ColorType, MeshType, SoundType } from 'game/factory/api'
+import { BuffType, ColorType, MeshType, StatType, SoundType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -82,7 +82,7 @@ export class CowboyHat extends Equip<Player> {
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 
-		let force = this.inputDir().clone().scale(0.6);
+		let force = this.inputDir().clone().scale(this.getStat(StatType.FORCE) * this.owner().getStat(StatType.SCALING));
 		this._dir = force.x === 0 ? 1 : Math.sign(force.x);
 
 		if (this.hasOwner()) {

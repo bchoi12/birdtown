@@ -70,4 +70,12 @@ export class SpreeBuff extends Buff {
 			}
 		});
 	}
+
+	protected override onLevel(level : number, delta : number) : void {
+		super.onLevel(level, delta);
+
+		if (delta > 0) {
+			this.announceLevel();
+		}
+	}
 }

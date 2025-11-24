@@ -1222,20 +1222,18 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		if (scaling <= 1) {
 			return Player._jumpVel;
 		}
-		return (0.4 * scaling + 0.6) * Player._jumpVel;
+		return (0.3 * scaling + 0.7) * Player._jumpVel;
 	}
 	private getSpeedMultiplier() : number {
 		let mult = 1 + this.getStat(StatType.SPEED_BOOST);
 		if (this.getAttribute(AttributeType.BUBBLED)) {
 			mult += 0.2;
 		}
-
 		if (!this.getAttribute(AttributeType.GROUNDED)) {
 			mult += this.getStat(StatType.AIR_SPEED_BOOST) * (1 + this.getStat(StatType.DOUBLE_JUMPS) - this._doubleJumps);
 		}
 
 		mult *= 1 - this.getStat(StatType.SPEED_DEBUFF);
-
 		if (this.getAttribute(AttributeType.UNDERWATER)) {
 			mult *= 0.6;
 		}

@@ -98,7 +98,6 @@ export class PurpleHeadband extends Equip<Player> {
 
 		this.owner().profile().setVel({x: 0, y: 0});
 
-		// Only allow source to jump since otherwise it's jittery.
 		let force = this.inputDir().clone().scale(this.getStat(StatType.FORCE) * this.owner().getStat(StatType.SCALING));
 		this.owner().addForce(force);
 

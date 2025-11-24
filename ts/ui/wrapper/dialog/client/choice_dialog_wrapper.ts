@@ -222,6 +222,7 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 
 		let selectedBuff = starters[Math.floor(Math.random() * numStarters)];
 		this.dialogMessage().setBuffType(selectedBuff);
+		this.dialogMessage().setBonusBuffType(BuffType.UNKNOWN);
 
 		let equipPair = EquipFactory.getStarterPair(selectedBuff);
 		this.dialogMessage().setEquipType(equipPair[0]);
@@ -264,6 +265,8 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 		const numBuffs = bonus ? num * 2 : num;
 		const buffs = BuffFactory.getBuffsN(numBuffs);
 
+		let prepick = Math.floor(Math.random() * num);
+
 		for (let i = 0; i < num; ++i) {
 			let column = columns.column(i);
 			column.elm().style.textAlign = "center";
@@ -274,9 +277,14 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 			if (bonus) {
 				button.updateSecond(buffs[i + num]);
 			}
+
+			if (prepick === i) {
+				this.dialogMessage().setBuffType(buffs[i]);
+				this.dialogMessage().setBonusBuffType(bonus ? buffs[i + num] : BuffType.UNKNOWN);
+			}
+
 			button.addOnClick(() => {
 				this.dialogMessage().setBuffType(buffs[i]);
-
 				if (bonus) {
 					this.dialogMessage().setBonusBuffType(buffs[i + num]);
 				}
