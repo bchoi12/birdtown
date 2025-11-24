@@ -735,7 +735,6 @@ export class GameMaker extends SystemBase implements System {
 			}
 
 			if (this._round > 1
-				&& playerState.onLosingTeam()
 				&& loadout.hasBonusBuffType()
 				&& loadout.getBonusBuffType() !== BuffType.UNKNOWN) {
 				playerState.targetEntity().addBuff(loadout.getBonusBuffType(), 1);
