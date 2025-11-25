@@ -1,4 +1,5 @@
 
+import { AttributeType } from 'game/component/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BoltBase } from 'game/entity/projectile/bolt'
@@ -8,6 +9,8 @@ export class ChargedBolt extends BoltBase {
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.CHARGED_BOLT, entityOptions);
+
+		this.setAttribute(AttributeType.CRITICAL, true);
 
 		this._glow = 0.7;
 	}

@@ -44,6 +44,8 @@ export class GoldenBullet extends Projectile {
 		this._trail.rotation.x = Math.PI / 2;
 		this._trail.isVisible = false;
 
+		this.setAttribute(AttributeType.CRITICAL, true);
+
 		this._profile = this.addComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {

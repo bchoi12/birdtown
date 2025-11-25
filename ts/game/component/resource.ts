@@ -95,12 +95,12 @@ export class Resource extends ComponentBase implements Component {
 
 		if (this._min.has() && this._resource + delta < this._min.get()) {
 			delta = Fns.clamp(-this._resource, delta, this._min.get());
-			this._resource = this._min.get();
+			this.set(this._min.get());
 		} else if (this._max.has() && this._resource + delta > this._max.get()) {
 			delta = Fns.clamp(0, delta, this._max.get() - this._resource);
-			this._resource = this._max.get();
+			this.set(this._max.get());
 		} else {
-			this._resource += delta;
+			this.set(this._resource + delta);
 		}
 
 		let remainder = update.delta - delta;
@@ -124,9 +124,9 @@ export class Resource extends ComponentBase implements Component {
 	protected logUpdate(update : ResourceUpdate) : boolean { return false; }
 	protected importResource(value : number) : void {
 		const delta = value - this._resource;
-		this.processDelta(delta);
 
-		this._resource = value;
+		this.processDelta(delta);
+		this.set(value);
 	}
 	protected preprocessUpdate(update : ResourceUpdate) : void {}
 	protected processDelta(delta : number) : void {}

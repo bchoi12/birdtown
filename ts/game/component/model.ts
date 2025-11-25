@@ -159,6 +159,7 @@ export class Model extends ComponentBase implements Component {
 	root() : BABYLON.TransformNode { return this._root; }
 	hasMesh() : boolean { return this._mesh !== null; }
 	setMesh(mesh : BABYLON.Mesh) {
+		this.disposeMesh();
 		this._mesh = mesh;
 		this._mesh.name = this.entity().name();
 		this.applyToMeshes((mesh : BABYLON.Mesh) => {
@@ -184,6 +185,11 @@ export class Model extends ComponentBase implements Component {
 			this._mesh.onReady = () => {
 				this.executeOnLoad();
 			};
+		}
+	}
+	disposeMesh() : void {
+		if (this._mesh !== null) {
+			this._mesh.dispose();
 		}
 	}
 	mesh() : BABYLON.Mesh { return this._mesh; }

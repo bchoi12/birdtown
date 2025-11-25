@@ -45,7 +45,6 @@ export namespace StatFactory {
 	]);
 
 	const entityStats = new Map<EntityType, Map<StatType, number>>([
-		// Player
 		[EntityType.PLAYER, new Map([
 			[StatType.AIR_SPEED_BOOST, 0],
 			[StatType.CRIT_BOOST, 0.5],
@@ -225,7 +224,8 @@ export namespace StatFactory {
 			[StatType.RELOAD_TIME, 1200],
 		])],
 		[EntityType.GOLDEN_BULLET, new Map([
-			[StatType.DAMAGE, 300],
+			// Always critical
+			[StatType.DAMAGE, 200],
 		])],
 		// >90 DPS + slight spread
 		// 4 shots in 500ms
@@ -349,7 +349,8 @@ export namespace StatFactory {
 			[StatType.DAMAGE, 15],
 		])],
 		[EntityType.CHARGED_BOLT, new Map([
-			[StatType.DAMAGE, 75],
+			// Always critical
+			[StatType.DAMAGE, 50],
 		])],
 		// 78 DPS + disrupt + hard aim + burst
 		// 5 shots in 1600ms

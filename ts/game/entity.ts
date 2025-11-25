@@ -116,6 +116,8 @@ export interface Entity extends GameObject {
 	matchAssociations(types : AssociationType[], other : Entity) : boolean;
 
 	addForce(force : Vec) : void;
+	shield() : number;
+	addShield(amount : number) : void;
 	heal(amount : number) : void;
 	health() : number;
 	maxHealth() : number;
@@ -524,6 +526,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this.profile().addSourceForce(force);
 	}
 
+	shield() : number {
+		if (!this.hasComponent(ComponentType.RESOURCES)) { return 0; }
+
+		return this.getComponent<Resources>(ComponentType.RESOURCES).shield();	
+	}
 	addShield(delta : number) : void {
 		if (!this.hasComponent(ComponentType.RESOURCES)) { return; }
 
@@ -594,19 +601,19 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 			delta = Math.min(0, delta);
 
-			delta = resources.updateResource(StatType.SHIELD, {
-				delta: delta,
-				from: from,
-				hitEntity: hitEntity,
-			});
+			let buffDelta = 1;
+			if (this.shield() > 0) {
+				delta = resources.updateResource(StatType.SHIELD, {
+					delta: delta,
+					from: from,
+					hitEntity: hitEntity,
+				});
+			} else if (hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL)) {
+				delta *= 1 + from.getStat(StatType.CRIT_BOOST);
+				buffDelta = 2;
+			}
 
 			if (delta < 0) {
-				let buffDelta = 1;
-				if (hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL)) {
-					delta *= 1 + from.getStat(StatType.CRIT_BOOST);
-					buffDelta = 2;
-				}
-				
 				if (from.rollStat(StatType.EXPOSE_CHANCE)) {
 					this.addBuff(BuffType.EXPOSE, buffDelta);
 				}

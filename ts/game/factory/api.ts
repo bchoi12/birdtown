@@ -33,6 +33,7 @@ export enum BuffType {
 	// Specific
 	BLACK_HEADBAND,
 	SPREE,
+	VIP,
 
 	// Status
 	EXPOSE,

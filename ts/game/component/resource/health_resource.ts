@@ -98,6 +98,10 @@ export class HealthResource extends Resource {
 			return;
 		}
 
+		if (this.entity().dead()) {
+			return;
+		}
+
 		let pos = this.entity().profile().pos();
 
 		let weight = 0;

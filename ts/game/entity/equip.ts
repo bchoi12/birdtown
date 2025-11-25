@@ -112,6 +112,12 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	protected getBaseChargeRate() : number { return this.getStatOr(StatType.CHARGE_RATE, 0); }
 	protected getBaseUseJuice() : number { return this.getStatOr(StatType.USE_JUICE, 0); }
 	protected getChargeDelay() : number { return this.getStatOr(StatType.CHARGE_DELAY, 0); }
+	protected getScaledForce() : number {
+		if (!this.hasOwner()) {
+			return this.getStat(StatType.FORCE);
+		}
+		return this.getStat(StatType.FORCE) * this.owner().getStat(StatType.SCALING) * this.owner().getStat(StatType.SCALING);
+	}
 
 	override initialize() : void {
 		super.initialize();

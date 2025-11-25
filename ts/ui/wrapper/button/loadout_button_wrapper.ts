@@ -132,7 +132,7 @@ export abstract class LoadoutButtonWrapper<T extends number> extends ButtonWrapp
 		}
 
 		this._secondItemElm.textContent = this.getName(type);
-		this._secondKeyElm.style.display = "revert";
+		this._secondKeyElm.style.display = "inline";
 		this._secondDescriptionElm.textContent = this.getDescription(type);
 		Icon.change(this._secondIcon, this.getIconType(type));
 

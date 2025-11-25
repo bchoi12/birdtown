@@ -72,7 +72,7 @@ export class SlowBuff extends Buff {
 				},
 				modelInit: {
 					transforms: {
-						scale: { x: size, y: size, z: size },
+						scale: { x: size, y: size / 2, z: size / 2 },
 					},
 					materialType: MaterialType.PARTICLE_BLUE,
 				}

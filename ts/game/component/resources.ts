@@ -62,6 +62,7 @@ export class Resources extends ComponentBase implements Component {
 		}
 		this.getSubComponent<HealthResource>(StatType.HEALTH).setHealthPercent(percent);
 	}
+	shield() : number { return this.hasResource(StatType.SHIELD) ? this.getSubComponent<HealthResource>(StatType.SHIELD).get() : 0; }
 	health() : number { return this.hasResource(StatType.HEALTH) ? this.getSubComponent<HealthResource>(StatType.HEALTH).get() : 0; }
 	healthPercent() : number {
 		if (!this.hasResource(StatType.HEALTH)) {

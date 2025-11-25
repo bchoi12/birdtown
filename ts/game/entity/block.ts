@@ -101,7 +101,7 @@ export abstract class Block extends EntityBase implements Entity {
 				return BodyFactory.rectangle(profile.pos(), profile.initDim(), {
 					isSensor: true,
 					isStatic: true,
-					collisionFilter: this.canOcclude() ? BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE) : BodyFactory.neverCollideFilter(),
+					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.INTERACTABLE),
 				});
 			},
 			init: entityOptions.profileInit,
@@ -125,6 +125,13 @@ export abstract class Block extends EntityBase implements Entity {
 						} else {
 							this._canTransparent = true;
 						}
+					}
+
+					if (!this.canOcclude()) {
+						this._profile.onBody((profile : Profile) => {
+							console.log("NEVER COLLIDE");
+							profile.body().collisionFilter = BodyFactory.neverCollideFilter();
+						});
 					}
 
 					model.translation().copyVec(this.meshOffset());

@@ -244,7 +244,9 @@ export abstract class Projectile extends EntityBase {
 			return;	
 		}
 
-		if (this.getAttribute(AttributeType.CRITICAL) && other.getAttribute(AttributeType.LIVING)) {
+		if (this.getAttribute(AttributeType.CRITICAL)
+			&& other.getAttribute(AttributeType.LIVING)
+			&& other.shield() <= 0) {
 			for (let i = 0; i < 3; ++i) {
 				this.addEntity(EntityType.RING_PARTICLE, {
 					offline: true,

@@ -5,15 +5,12 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { GameState } from 'game/api'
 import { AttributeType } from 'game/component/api'
-import { Profile } from 'game/component/profile'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 import { StepData } from 'game/game_object'
-
-import { DialogType } from 'ui/api'
 
 import { Timer } from 'util/timer'
 import { Vec3 } from 'util/vector'
@@ -32,7 +29,6 @@ export class Bubble extends Equip<Player> {
 	private _lifeTimer : Timer;
 
 	private _model : Model;
-	private _profile : Profile;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.BUBBLE, entityOptions);

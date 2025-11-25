@@ -30,6 +30,7 @@ import { PurpleHeadband } from 'game/entity/equip/purple_headband'
 import { RedHeadband } from 'game/entity/equip/red_headband'
 import { Scouter } from 'game/entity/equip/scouter'
 import { Shades } from 'game/entity/equip/shades'
+import { ShieldRing } from 'game/entity/equip/shield_ring'
 import { TopHat } from 'game/entity/equip/top_hat'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
@@ -178,6 +179,7 @@ export namespace EntityFactory {
 		[EntityType.ROCKET_EXPLOSION, (options : EntityOptions) => { return new RocketExplosion(options); }],
 		[EntityType.SCOUTER, (options : EntityOptions) => { return new Scouter(options); }],
 		[EntityType.SHADES, (options : EntityOptions) => { return new Shades(options); }],
+		[EntityType.SHIELD_RING, (options : EntityOptions) => { return new ShieldRing(options); }],
 		[EntityType.SHOTGUN, (options : EntityOptions) => { return new Shotgun(options); }],
 		[EntityType.SPAWN_POINT, (options : EntityOptions) => { return new SpawnPoint(options); }],
 		[EntityType.SQUAWK_SHIELD, (options : EntityOptions) => { return new SquawkShield(options); }],

@@ -42,7 +42,6 @@ export enum AttributeType {
 	REVIVING,
 	SOLID,
 	UNDERWATER,
-	VIP,
 }
 
 export enum EmotionType {

@@ -158,13 +158,13 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		this._model.translation().z = Fns.randomNoise(0.05);
 
 		this._model.onLoad((model : Model) => {
-			model.mesh().position.y = this.owner().profile().dim().y + 0.1;
+			model.mesh().position.y = this.owner().profile().dim().y / 2 + NameTag._height;
 			
 			let bar = model.subMesh(SubMesh.BAR);
 			bar.position.y = model.mesh().position.y - NameTag._height / 2;
 
 			let pointer = model.subMesh(SubMesh.POINTER);
-			pointer.position.y = this.owner().profile().dim().y - NameTag._height / 2 - NameTag._pointerHeight / 2;
+			pointer.position.y = bar.position.y - NameTag._pointerHeight / 2;
 			pointer.rotation.z = - Math.PI / 2;
 		});
 	}

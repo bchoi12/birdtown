@@ -524,10 +524,9 @@ export class GameMaker extends SystemBase implements System {
 			// This shouldn't be necessary, but clear just in case.
 	    	this.queueForceSubmit(DialogType.LOADOUT);
 
-			this.applyBuffs();		
+			this.applyBuffs();
 
 			game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
-				playerState.setVIP(this.isVIP(playerState.clientId()));
 				playerState.setRole(PlayerRole.SPAWNING);
 			}, (playerState : PlayerState) => {
 				return playerState.isPlaying();
@@ -714,14 +713,20 @@ export class GameMaker extends SystemBase implements System {
 
 	private applyBuffs() : void {
 		if (this._config.getStartingLoadout() !== LoadoutType.BUFF) {
-			// Clean up buffs from previous buff mode
-			if (this._round === 1) {
-				game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
-					playerState.targetEntity().clearBuffs();
-				}, (playerState : PlayerState) => {
-					return playerState.hasTargetEntity();
-				});
-			}
+			// Clean up any leftover buffs
+			game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
+				playerState.targetEntity().clearBuffs();
+
+				const vip = this.isVIP(playerState.clientId());
+				playerState.setVIP(vip);
+
+				if (vip) {
+					playerState.targetEntity().addBuff(BuffType.VIP, 1);
+				}
+
+			}, (playerState : PlayerState) => {
+				return playerState.hasTargetEntity();
+			});
 			return;
 		}
 

@@ -68,7 +68,7 @@ export abstract class Beak extends Equip<Player> {
 	override takeDamage(amount : number, from? : Entity, hitEntity? : Entity) : void {
 		super.takeDamage(amount, from, hitEntity);
 
-		if (!this.isSource() || !this.hasOwner() || this.owner().dead()) {
+		if (!this.isSource() || !this.hasOwner() || this.owner().dead() || this.owner().shield() > 0) {
 			return;
 		}
 

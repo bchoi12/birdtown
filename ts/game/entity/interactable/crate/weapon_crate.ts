@@ -1,15 +1,14 @@
 
 import { game } from 'game'
 import { StepData } from 'game/game_object'
-import { AttributeType, ComponentType } from 'game/component/api'
-import { Attributes } from 'game/component/attributes'
+import { ComponentType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Crate } from 'game/entity/interactable/crate'
 import { Player } from 'game/entity/player'
-import { ColorType, MaterialType } from 'game/factory/api'
+import { BuffType, ColorType, MaterialType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EquipFactory } from 'game/factory/equip_factory'
 import { LoadoutType, WeaponSetType } from 'game/system/api'
@@ -78,7 +77,7 @@ export class WeaponCrate extends Crate {
 
 		const player = <Player>entity;
 
-		if (player.isLakituTarget() && !player.getAttribute(AttributeType.VIP) && interactable) {
+		if (player.isLakituTarget() && !player.hasBuff(BuffType.VIP) && interactable) {
 			ui.showTooltip(TooltipType.WEAPON_CRATE, {
 				ttl: 500,
 				names: [this.equipList()],
@@ -91,7 +90,7 @@ export class WeaponCrate extends Crate {
 		}
 
 		const player = <Player>entity;
-		if (!player.getAttribute(AttributeType.VIP)) {
+		if (!player.hasBuff(BuffType.VIP)) {
 			player.createEquips(this.equipType(), this.altEquipType());
 		}
 

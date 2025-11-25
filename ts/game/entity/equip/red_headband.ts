@@ -138,7 +138,7 @@ export class RedHeadband extends Equip<Player> {
 		if (this.hasOwner()) {
 			this.owner().profile().setVel({x: 0, y: 0});
 
-			let force = this.inputDir().clone().scale(this.getStat(StatType.FORCE) * this.owner().getStat(StatType.SCALING));
+			let force = this.inputDir().clone().scale(this.getScaledForce());
 			this.owner().addForce(force);
 			this._dir = force.x === 0 ? 1 : Math.sign(force.x);
 

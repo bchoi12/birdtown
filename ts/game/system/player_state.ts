@@ -282,7 +282,6 @@ export class PlayerState extends ClientSystem implements System {
 			this._roleTimer.reset();
 
 			let player = this.targetEntity<Player>();
-			player.setAttribute(AttributeType.VIP, false);
 			player.setAttribute(AttributeType.REVIVING, false);
 			player.upright();
 			this.spawnPlayer();
@@ -293,7 +292,6 @@ export class PlayerState extends ClientSystem implements System {
 			return;
 		}
 
-		this.targetEntity<Player>().setAttribute(AttributeType.VIP, false);
 		this.targetEntity<Player>().onStartRound();
 		this.setRole(this._startingRole);
 	}

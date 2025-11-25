@@ -80,7 +80,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 	protected meshFn() : BABYLON.Mesh {
 		return BABYLON.MeshBuilder.CreateSphere(this.name(), {
 			diameter: this._profile.initDim().x,
-		}, game.scene())
+		}, game.scene());
 	}
 
 	protected abstract force() : number;

@@ -98,6 +98,7 @@ export enum EntityType {
 	SHADES,
 	SHOTGUN,
 	LASER_GUN,
+	SHIELD_RING,
 	SPAWN_POINT,
 	SQUAWK_SHIELD,
 	STAR,

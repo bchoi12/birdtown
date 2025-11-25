@@ -33,6 +33,7 @@ import { StatStickBuff } from 'game/component/buff/stat_stick_buff'
 import { SunBuff } from 'game/component/buff/sun_buff'
 import { TankBuff } from 'game/component/buff/tank_buff'
 import { VampireBuff } from 'game/component/buff/vampire_buff'
+import { VipBuff } from 'game/component/buff/vip_buff'
 import { WarmogsBuff } from 'game/component/buff/warmogs_buff'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -112,6 +113,7 @@ export namespace BuffFactory {
 		[BuffType.SLOW, stackingMetadata],
 
 		[BuffType.BLACK_HEADBAND, statusMetadata],
+		[BuffType.VIP, statusMetadata],
 		[BuffType.SPREE, {maxLevel: 3, resetOnSpawn: true }],
 	]);
 
@@ -153,6 +155,7 @@ export namespace BuffFactory {
 
 		[BuffType.BLACK_HEADBAND, (type : BuffType) => { return new BlackHeadbandBuff(type, metadata.get(type)) }],
 		[BuffType.SPREE, (type : BuffType) => { return new SpreeBuff(type, metadata.get(type))}],
+		[BuffType.VIP, (type : BuffType) => { return new VipBuff(type, metadata.get(type))}],
 
 		[BuffType.EXPOSE, (type : BuffType) => { return new ExposeBuff(type, metadata.get(type)) }],
 		[BuffType.FLAME, (type : BuffType) => { return new FlameBuff(type, metadata.get(type)) }],
