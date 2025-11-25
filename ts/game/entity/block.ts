@@ -129,7 +129,6 @@ export abstract class Block extends EntityBase implements Entity {
 
 					if (!this.canOcclude()) {
 						this._profile.onBody((profile : Profile) => {
-							console.log("NEVER COLLIDE");
 							profile.body().collisionFilter = BodyFactory.neverCollideFilter();
 						});
 					}

@@ -109,7 +109,7 @@ export class ShieldRing extends Equip<Player> {
 		let ring = BABYLON.MeshBuilder.CreateTorus(this.name(), {
 			thickness: 0.03,
 			diameter: this._diameter,
-			tessellation: numBits < 3 ? 12 : numBits,
+			tessellation: numBits < 3 ? 4 : numBits,
 		}, game.scene());
 		ring.rotation.y = Math.PI / 2;
 		ring.rotation.z = -Math.PI / 2;
@@ -161,14 +161,8 @@ export class ShieldRing extends Equip<Player> {
 		}
 
 		if (rearrange) {
-			if (numBits > 2) {
-				let ring = this.createRing(numBits);
-				this._model.setMesh(ring);
-				console.log("CREATE RING", this.owner().name());
-			} else {
-				this._model.disposeMesh();
-				console.log("DISPOSE RING", this.owner().name());
-			}
+			let ring = this.createRing(numBits);
+			this._model.setMesh(ring);
 		}
 	}
 

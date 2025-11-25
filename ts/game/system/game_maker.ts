@@ -70,7 +70,7 @@ export class GameMaker extends SystemBase implements System {
 	private _vipIds : Optional<Set<number>>;
 	private _winners : Array<number>;
 	private _winnerClientId : number;
-	private _winningTeam : number;
+	private _winningTeam : TeamType;
 	private _errorMsg : string;
 
 	constructor() {
@@ -145,14 +145,25 @@ export class GameMaker extends SystemBase implements System {
 		return this._config.getWinCondition() === WinConditionType.TEAM_LIVES || this._config.getWinCondition() === WinConditionType.TEAM_POINTS;
 	}
 	setWinnerClientId(clientId : number) : void {
-		if (!game.playerStates().hasPlayerState(clientId)) {
+		if (clientId === 0 || !game.playerStates().hasPlayerState(clientId)) {
 			this._winnerClientId = 0;
 			this._winningTeam = TeamType.UNKNOWN;
 			return;
 		}
 
 		this._winnerClientId = clientId;
-		this._winningTeam = game.playerState(clientId).team();
+		this.setWinnerTeam(game.playerState(clientId).team());
+
+		if (Flags.printDebug.get()) {
+			console.log("%s: winner id is %d", this.name(), clientId);
+		}
+	}
+	setWinnerTeam(team : TeamType) : void {
+		this._winningTeam = team;
+
+		if (Flags.printDebug.get()) {
+			console.log("%s: winning team is %s", this.name(), TeamType[this._winningTeam]);
+		}
 	}
 	timeLimit(state : GameState) : number {
 		switch (state) {
@@ -247,7 +258,8 @@ export class GameMaker extends SystemBase implements System {
 		if (config.getLevelType() === LevelType.RANDOM && this._currentLevel !== LevelType.UNKNOWN) {
 			config.setLevelType(this._currentLevel);
 		}
-		return this.setConfig(config, this._playerConfig); }
+		return this.setConfig(config, this._playerConfig);
+	}
 	setConfig(config : GameConfigMessage, playerConfig : PlayerConfig, rematch? : boolean) : boolean {
 		this._config = config;
 
@@ -360,13 +372,14 @@ export class GameMaker extends SystemBase implements System {
 				return GameState.FINISH;
 			}
 
-			const [winners, done] = this.checkWinners();
+			const [winners, team, done] = this.checkWinners();
 			if (done) {
 				this._winners = winners;
 				if (this._winners.length === 1) {
 					this.setWinnerClientId(this._winners[0]);
 				} else {
 					this.setWinnerClientId(0);
+					this.setWinnerTeam(team);
 				}
 				return GameState.FINISH;
 			}
@@ -518,12 +531,10 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.SETUP:
 			this.assignRoles();
 			this.setupPlayers();
-			this.setWinnerClientId(0);
 			break;
 		case GameState.GAME:
 			// This shouldn't be necessary, but clear just in case.
 	    	this.queueForceSubmit(DialogType.LOADOUT);
-
 			this.applyBuffs();
 
 			game.playerStates().executeIf<PlayerState>((playerState : PlayerState) => {
@@ -531,6 +542,9 @@ export class GameMaker extends SystemBase implements System {
 			}, (playerState : PlayerState) => {
 				return playerState.isPlaying();
 			});
+
+			// Set this last since some set up depends on previous winners
+			this.setWinnerClientId(0);
 			break;
 		case GameState.FINISH:
 			this.queueForceSubmit(DialogType.LOADOUT);
@@ -750,10 +764,13 @@ export class GameMaker extends SystemBase implements System {
 				playerState.targetEntity().addBuff(BuffFactory.randomBuff(), 1);
 			}
 
-			if (this._round > 1
-				&& loadout.hasBonusBuffType()
-				&& loadout.getBonusBuffType() !== BuffType.UNKNOWN) {
-				playerState.targetEntity().addBuff(loadout.getBonusBuffType(), 1);
+			if (this._round > 1 && playerState.onLosingTeam()) {
+				if (loadout.hasBonusBuffType() && loadout.getBonusBuffType() !== BuffType.UNKNOWN) {
+					playerState.targetEntity().addBuff(loadout.getBonusBuffType(), 1);
+				} else {
+					console.error("Warning: applying random bonus buff");
+					playerState.targetEntity().addBuff(BuffFactory.randomBuff(), 1);
+				}
 			}
 
 			loadout.setBuffType(BuffType.UNKNOWN);
@@ -771,7 +788,7 @@ export class GameMaker extends SystemBase implements System {
 		});
 	}
 
-	private checkWinners() : [Array<number>, boolean] {
+	private checkWinners() : [Array<number>, TeamType, boolean] {
 		let winners = [];
 		switch (this._config.getWinCondition()) {
 		case WinConditionType.LIVES:
@@ -779,7 +796,7 @@ export class GameMaker extends SystemBase implements System {
 				return !tablet.outOfLives() && this.isPlaying(tablet.clientId());
 			});
 			if (winners.length <= 1) {
-				return [winners, true];
+				return [winners, TeamType.UNKNOWN, true];
 			}
 			break;
 		case WinConditionType.POINTS:
@@ -787,7 +804,7 @@ export class GameMaker extends SystemBase implements System {
 				return tablet.getInfo(InfoType.SCORE) >= this._config.getPoints() && this.isPlaying(tablet.clientId());
 			});
 			if (winners.length >= 1) {
-				return [winners, true];
+				return [winners, TeamType.UNKNOWN, true];
 			}
 			break;
 		case WinConditionType.TEAM_LIVES:
@@ -799,7 +816,7 @@ export class GameMaker extends SystemBase implements System {
 				winners = this.findPlayerStateIds((playerState : PlayerState) => {
 					return teams.has(playerState.team());
 				});
-				return [winners, true];
+				return [winners, [...teams][0], true];
 			}
 			break;
 		case WinConditionType.TEAM_POINTS:
@@ -810,7 +827,9 @@ export class GameMaker extends SystemBase implements System {
 			});
 
 			if (winners.length >= 1) {
-				return [winners, true];
+				const teams = this.getTeams(winners);
+
+				return [winners, teams.size === 1 ? [...teams][0] : TeamType.UNKNOWN, true];
 			}
 			break;
 		}
@@ -826,11 +845,11 @@ export class GameMaker extends SystemBase implements System {
 				winners = this.findPlayerStateIds((playerState : PlayerState) => {
 					return team === playerState.team();
 				});
-				return [winners, true];
+				return [winners, team, true];
 			}
 		}
 
-		return [winners, false];
+		return [winners, TeamType.UNKNOWN, false];
 	}
 
 	private findTabletIds(predicate : (tablet : Tablet) => boolean) {
@@ -862,7 +881,7 @@ export class GameMaker extends SystemBase implements System {
 			for (let i = 0; i < this._winners.length; ++i) {
 				if (game.playerStates().hasPlayerState(this._winners[i])) {
 					const team = game.playerState(this._winners[i]).team();
-					if (team !== 0) {
+					if (team !== TeamType.UNKNOWN) {
 						return ["Team " + team];
 					}
 				}

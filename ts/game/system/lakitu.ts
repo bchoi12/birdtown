@@ -2,7 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 import { game } from 'game'
 import { GameState, GameObjectState } from 'game/api'
-import { AssociationType, AttributeType} from 'game/component/api'
+import { AssociationType, AttributeType, TeamType, } from 'game/component/api'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
@@ -185,7 +185,7 @@ export class Lakitu extends SystemBase implements System {
 		}
 
 		const team = game.playerState().team();
-		if (team !== 0 && team !== player.team()) {
+		if (team !== TeamType.UNKNOWN && team !== player.team()) {
 			return false;
 		}
 

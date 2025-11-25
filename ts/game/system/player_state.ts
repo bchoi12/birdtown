@@ -221,11 +221,22 @@ export class PlayerState extends ClientSystem implements System {
 		return true;
 	}
 	team() : TeamType { return this._team; }
-	onWinningTeam() : boolean { return this._team !== 0 && this._team === game.controller().winningTeam(); }
-	onLosingTeam() : boolean { return this._team !== 0 && game.controller().winningTeam() !== 0 && this._team !== game.controller().winningTeam(); }
+	onWinningTeam() : boolean {
+		return this._team !== TeamType.UNKNOWN && this._team === game.controller().winningTeam();
+	}
+	onLosingTeam() : boolean {
+		return this._team !== TeamType.UNKNOWN && this._team !== game.controller().winningTeam();
+	}
 	setTeam(team : TeamType) : void {
+		if (Flags.printDebug.get()) {
+			console.log("%s: assigned to %s", this.name(), TeamType[team]);
+		}
+
 		this._team = team;
 		this.applyTeam();
+	}
+	sameTeam(team : TeamType) : boolean {
+		return this._team !== TeamType.UNKNOWN && this._team === team;
 	}
 	private applyTeam() : void {
 		if (!this.hasTargetEntity()) {

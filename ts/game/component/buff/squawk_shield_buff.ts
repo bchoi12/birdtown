@@ -17,7 +17,7 @@ export class SquawkShieldBuff extends Buff {
 	override boosts(level : number) : Map<StatType, number> {
 		// Squawk to shield
 		return new Map([
-			[StatType.SHIELD, 20 * level],
+			[StatType.SHIELD, 10 * level],
 		]);
 	}
 }

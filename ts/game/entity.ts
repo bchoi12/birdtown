@@ -111,6 +111,7 @@ export interface Entity extends GameObject {
 	setOwner(id : number) : void;
 	setTeam(team : TeamType) : void;
 	sameTeam(other : Entity) : boolean;
+	team() : TeamType;
 	hasOwner() : boolean;
 	owner() : Entity;
 	matchAssociations(types : AssociationType[], other : Entity) : boolean;
@@ -339,12 +340,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 		return associations;
 	}
-	team() : number {
-		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
-			return 0;
-		}
-		return this.getComponent<Association>(ComponentType.ASSOCIATION).getAssociation(AssociationType.TEAM);
-	}
 	setOwner(id : number) : void {
 		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
 			console.error("Error: cannot set owner for %s which has no Association component", this.name());
@@ -365,6 +360,13 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	}
 	sameTeam(other : Entity) : boolean {
 		return this.matchAssociations([AssociationType.TEAM], other);
+	}
+	team() : TeamType {
+		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
+			return TeamType.UNKNOWN;
+		}
+
+		return this.getComponent<Association>(ComponentType.ASSOCIATION).getAssociation(AssociationType.TEAM);
 	}
 	hasOwner() : boolean {
 		if (!this.hasComponent(ComponentType.ASSOCIATION)) {

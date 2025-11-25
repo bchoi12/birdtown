@@ -269,13 +269,19 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		super.preRender();
 
 		let enabled = true;
-		if (this.owner().hasProfile() && !this.owner().profile().visible()
-			|| this.owner().isLakituTarget()
-			|| this.owner().state() === GameObjectState.DEACTIVATED) {
+		if (this.owner().isLakituTarget() || this.owner().state() === GameObjectState.DEACTIVATED) {
+			// Don't show self or deactivated objs
+			enabled = false;
+		} else if (game.playerState().sameTeam(this.owner().team())) {
+			// Same team should be able to see
+			enabled = true;
+		} else if (this.owner().hasProfile() && !this.owner().profile().visible()) {
+			// Don't show if occluded
 			enabled = false;
 		} else if (this.owner().type() === EntityType.PLAYER) {
+			// Don't show when dead
 			const player = <Player>this.owner();
-			if (player.healthPercent() === 0) {
+			if (player.dead()) {
 				enabled = false;
 			}
 		}
