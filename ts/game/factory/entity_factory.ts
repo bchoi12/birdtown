@@ -58,7 +58,7 @@ import { MegaRocketExplosion } from 'game/entity/explosion/mega_rocket_explosion
 import { MiniOrbExplosion } from 'game/entity/explosion/mini_orb_explosion'
 import { OrbExplosion } from 'game/entity/explosion/orb_explosion'
 import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
-import { SquawkShield } from 'game/entity/explosion/squawk_shield'
+import { SquawkShield, MegaSquawkShield } from 'game/entity/explosion/squawk_shield'
 import { StarExplosion } from 'game/entity/explosion/star_explosion'
 import { HealthCrate } from 'game/entity/interactable/crate/health_crate'
 import { WeaponCrate } from 'game/entity/interactable/crate/weapon_crate'
@@ -147,6 +147,7 @@ export namespace EntityFactory {
 		[EntityType.KNIFE, (options : EntityOptions) => { return new Knife(options); }],
 		[EntityType.LASER, (options : EntityOptions) => { return new Laser(options); }],
 		[EntityType.LASER_GUN, (options : EntityOptions) => { return new LaserGun(options); }],
+		[EntityType.MEGA_SQUAWK_SHIELD, (options : EntityOptions) => { return new MegaSquawkShield(options); }],
 		[EntityType.MEGA_ROCKET, (options : EntityOptions) => { return new MegaRocket(options); }],
 		[EntityType.MEGA_ROCKET_EXPLOSION, (options : EntityOptions) => { return new MegaRocketExplosion(options); }],
 		[EntityType.MINIGUN, (options : EntityOptions) => { return new Minigun(options); }],
@@ -270,6 +271,7 @@ export namespace EntityFactory {
 		[EntityType.GOLDEN_EXPLOSION, { x: 2.5, y: 2.5, z: 2.5 }],
 		[EntityType.HEALTH_CRATE, {x: 1, y: 1, z: 1 }],
 		[EntityType.MEGA_ROCKET_EXPLOSION, { x: 8, y: 8, z: 8 }],
+		[EntityType.MEGA_SQUAWK_SHIELD, { x: 6, y: 6, z: 6 }],
 		[EntityType.MINI_ORB_EXPLOSION, {x: 1, y: 1, z: 1 }],
 		[EntityType.ORB_EXPLOSION, { x: 2.2, y: 2.2, z: 2.2 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],

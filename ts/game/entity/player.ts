@@ -419,7 +419,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this.soundPlayer().registerSound(SoundType.FOOTSTEP);
 
 		this._resources = this.addComponent<Resources>(new Resources({
-			stats: [StatType.HEALTH],
+			stats: [StatType.HEALTH, StatType.SHIELD],
 		}));
 	}
 
@@ -688,6 +688,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		return pos;
 	}
 
+	// TODO: if has shields, make some other sound
 	override impactSound() : SoundType { return SoundType.PLAYER_THUD; }
 
 	override takeDamage(amount : number, from? : Entity, hitEntity? : Entity) : void {

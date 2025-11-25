@@ -214,11 +214,6 @@ export abstract class Projectile extends EntityBase {
 				mult += Fns.lerpRange(0, farWeight, this.owner().getStat(StatType.DAMAGE_FAR_BOOST));
 			}
 		}
-
-		if (this.getAttribute(AttributeType.CRITICAL)) {
-			mult += this.owner().getStat(StatType.CRIT_BOOST);
-		}
-
 		return Math.max(0.1, mult);
 	}
 	protected hitDamage() : number {

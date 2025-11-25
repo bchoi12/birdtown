@@ -121,6 +121,7 @@ export namespace ColorFactory {
 
 		[ColorType.TEXT_RED, HexColor.fromHex(0xdc3a3a)],
 		[ColorType.TEXT_GREEN, HexColor.fromHex(0x3adc70)],
+		[ColorType.TEXT_GRAY, HexColor.fromHex(0x8b8b8b)],
 
 		// UI colors
 		[ColorType.UI_GREEN, HexColor.fromHex(0x46b363)],

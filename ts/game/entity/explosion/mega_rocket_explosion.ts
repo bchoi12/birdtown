@@ -10,7 +10,7 @@ export class MegaRocketExplosion extends Explosion {
 		super(EntityType.MEGA_ROCKET_EXPLOSION, entityOptions);
 	}
 
-	override ttl() : number { return 2 * super.ttl(); }
+	override ttl() : number { return 1.5 * super.ttl(); }
 	override force() : number { return 2; }
 	override materialType() : MaterialType { return MaterialType.PARTICLE_RED; }
 }

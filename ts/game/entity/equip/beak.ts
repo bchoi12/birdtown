@@ -145,22 +145,27 @@ export abstract class Beak extends Equip<Player> {
 			} else {
 				this.addEntity(EntityType.ROCKET, this.getProjectileOptions(Vec3.fromBabylon3(modelPos), unitDir));			
 			}
-		} /*else if (this.owner().hasBuff(BuffType.SQUAWK_SHIELD)) {
+		} else if (this.owner().hasBuff(BuffType.SQUAWK_SHIELD)) {
 			if (this.charged()) {
-
+				this.addEntity(EntityType.MEGA_SQUAWK_SHIELD, {
+					associationInit: {
+						owner: this.owner(),
+					},
+					profileInit: {
+						pos: this.owner().profile().pos(),
+					},
+				});
 			} else {
-
+				this.addEntity(EntityType.SQUAWK_SHIELD, {
+					associationInit: {
+						owner: this.owner(),
+					},
+					profileInit: {
+						pos: this.owner().profile().pos(),
+					},
+				});
 			}
-		}*/
-
-		this.addEntity(EntityType.SQUAWK_SHIELD, {
-			associationInit: {
-				owner: this.owner(),
-			},
-			profileInit: {
-				pos: this.owner().profile().pos(),
-			},
-		})
+		}
 	}
 
 	override preRender() : void {

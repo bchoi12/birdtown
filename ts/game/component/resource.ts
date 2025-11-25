@@ -29,6 +29,7 @@ export class Resource extends ComponentBase implements Component {
 
 	protected _min : Optional<number>;
 	protected _max : Optional<number>;
+	protected _maxDeltaPercent : number;
 	protected _logBuffer : Optional<RingBuffer<ChangeLog>>;
 
 	constructor(statType : StatType) {
@@ -39,6 +40,7 @@ export class Resource extends ComponentBase implements Component {
 
 		this._min = new Optional();
 		this._max = new Optional();
+		this._maxDeltaPercent = 1;
 		this._logBuffer = new Optional();
 
 		this.addProp<number>({
@@ -73,26 +75,36 @@ export class Resource extends ComponentBase implements Component {
 	atMax() : boolean { return this._max.has() && this._resource >= this._max.get(); }
 	protected getStat() : number { return this.initialized() ? this.entity().getStat(this._statType) : 0; }
 
-	updateResource(update : ResourceUpdate) : void {
-		if (!this.isSource() || !this.initialized()) {
-			return;
-		}
-
+	updateResource(update : ResourceUpdate) : number {
 		if (Flags.printDebug.get()) {
 			if (Number.isNaN(update.delta)) {
 				console.error("Warning: NaN update for", this.entity().name());
 			}
 		}
 
-		if (this._min.has() && this._resource + update.delta < this._min.get()) {
-			update.delta = Fns.clamp(-this._resource, update.delta, this._min.get());
+		if (!this.isSource() || !this.initialized()) {
+			return update.delta;
+		}
+
+		this.preprocessUpdate(update);
+
+		let delta = update.delta;
+		if (this.hasMax()) {
+			delta = Math.sign(delta) * Math.min(Math.abs(delta), Math.ceil(this._maxDeltaPercent * this.max()));
+		}
+
+		if (this._min.has() && this._resource + delta < this._min.get()) {
+			delta = Fns.clamp(-this._resource, delta, this._min.get());
 			this._resource = this._min.get();
-		} else if (this._max.has() && this._resource + update.delta > this._max.get()) {
-			update.delta = Fns.clamp(0, update.delta, this._max.get() - this._resource);
+		} else if (this._max.has() && this._resource + delta > this._max.get()) {
+			delta = Fns.clamp(0, delta, this._max.get() - this._resource);
 			this._resource = this._max.get();
 		} else {
-			this._resource += update.delta;
+			this._resource += delta;
 		}
+
+		let remainder = update.delta - delta;
+		update.delta = delta;
 
 		this.processDelta(update.delta);
 		if (this.logUpdate(update)) {
@@ -106,6 +118,8 @@ export class Resource extends ComponentBase implements Component {
 				from: update.from,	
 			}));
 		}
+
+		return remainder;
 	}
 	protected logUpdate(update : ResourceUpdate) : boolean { return false; }
 	protected importResource(value : number) : void {
@@ -114,6 +128,7 @@ export class Resource extends ComponentBase implements Component {
 
 		this._resource = value;
 	}
+	protected preprocessUpdate(update : ResourceUpdate) : void {}
 	protected processDelta(delta : number) : void {}
 
 	flush(pick : (log : ChangeLog) => boolean, stop : (log : ChangeLog) => boolean) : [ChangeLog, boolean] {

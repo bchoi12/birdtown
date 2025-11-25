@@ -48,7 +48,7 @@ export namespace StatFactory {
 		// Player
 		[EntityType.PLAYER, new Map([
 			[StatType.AIR_SPEED_BOOST, 0],
-			[StatType.CRIT_BOOST, 0.4],
+			[StatType.CRIT_BOOST, 0.5],
 			[StatType.DOUBLE_JUMPS, 1],
 			[StatType.EXPOSE_CHANCE, 0],
 			[StatType.FLAME_CHANCE, 0],
@@ -57,6 +57,8 @@ export namespace StatFactory {
 			[StatType.IMBUE_LEVEL, 0],
 			[StatType.LIFE_STEAL, 0],
 			[StatType.POISON_CHANCE, 0],
+			[StatType.SHIELD, 0],
+			[StatType.SHIELD_STEAL, 0],
 			[StatType.SLOW_CHANCE, 0],
 			[StatType.SCALING, 1],
 		])],

@@ -4,6 +4,7 @@ import { Component, ComponentBase } from 'game/component'
 import { ComponentType } from 'game/component/api'
 import { Resource, ResourceUpdate } from 'game/component/resource'
 import { HealthResource } from 'game/component/resource/health_resource'
+import { ShieldResource } from 'game/component/resource/shield_resource'
 import { ChangeLog } from 'game/component/util/change_log'
 import { Entity } from 'game/entity'
 import { StatType } from 'game/factory/api'
@@ -16,6 +17,7 @@ export class Resources extends ComponentBase implements Component {
 
 	private static readonly _createFns = new Map<StatType, () => Resource>([
 		[StatType.HEALTH, () => { return new HealthResource(); }],
+		[StatType.SHIELD, () => { return new ShieldResource(); }],
 	])
 
 	constructor(init : ResourcesInitOptions) {
@@ -89,13 +91,13 @@ export class Resources extends ComponentBase implements Component {
 		return this.registerSubComponent<T>(type, <T>new Resource(type));
 	}
 
-	updateResource(type : StatType, update : ResourceUpdate) : void {
+	updateResource(type : StatType, update : ResourceUpdate) : number {
 		if (!this.hasResource(type)) {
 			console.error("Error: attempting to update nonexistent stat %d for %s", type, this.name());
-			return;
+			return update.delta;
 		}
 
-		this.getSubComponent<Resource>(type).updateResource(update);
+		return this.getSubComponent<Resource>(type).updateResource(update);
 	}
 
 	private flushResource(type : StatType, pick : (log : ChangeLog) => boolean, stop : (log : ChangeLog) => boolean) : [ChangeLog, boolean] {

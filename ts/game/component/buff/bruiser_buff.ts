@@ -23,7 +23,7 @@ export class BruiserBuff extends Buff {
 
 		return new Map([
 			[StatType.DAMAGE_BOOST, 0.05 * Math.floor(2 * bonusHealth * healthBoost / BruiserBuff._healthInterval)],
-			[StatType.DAMAGE_RESIST_BOOST, Math.min(0.5, 0.025 * Math.floor(10 * scaling))],
+			[StatType.SHIELD, 5 * Math.floor(10 * scaling)],
 		]);
 	}
 }

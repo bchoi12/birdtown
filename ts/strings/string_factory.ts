@@ -317,12 +317,12 @@ export namespace StringFactory {
 	}
 
 	const buffUsage = new Map<BuffType, string>([
-		[BuffType.ACROBATIC, "Increase your mobility and critical strikes each round"],
-		[BuffType.BIG, "Increase your size, damage, and tankiness each round"],
-		[BuffType.EAGLE_EYE, "Increase your weapon mastery, ramping damage, and life steal each round"],
+		[BuffType.ACROBATIC, "Increase your mobility, critical strikes, and skill charge each round"],
+		[BuffType.BIG, "Increase your size, damage, and shielding each round"],
+		[BuffType.EAGLE_EYE, "Increase your weapon mastery, life steal, and ramping damage each round"],
 
 		[BuffType.BLASTER, "Massive damage when up close"],
-		[BuffType.BRUISER, "Increase your health and gain damage based on your bonus health"],
+		[BuffType.BRUISER, "Increase your health and gain damage and shielding based on your bonus health"],
 		[BuffType.COOL, "Gain speed, faster reloads and cooler crits - at level 3, ignore explosions"],
 		[BuffType.CRIT, "Increases critical effects and poison chance (% health)"],
 		[BuffType.DODGY, "Use your skills more - at level 3, dodge projectiles while flipping"],
@@ -334,8 +334,8 @@ export namespace StringFactory {
 		[BuffType.JUICED, "Slightly increases weapon mastery - at level 3, your weapon is always charged"],
 		[BuffType.JUMPER, "Increase number of jumps and gain speed after each jump"],
 		[BuffType.MOSQUITO, "Become annoying - move and fire faster at the cost of your damage"],
-		[BuffType.SQUAWK_SHIELD, "Squawk to deflect nearby projectiles"],
-		[BuffType.SQUAWK_SHOT, "Squawk to fire a projectile"],
+		[BuffType.SQUAWK_SHIELD, "Squawk to deflect nearby projectiles, gain a bit of shielding"],
+		[BuffType.SQUAWK_SHOT, "Squawk to fire a projectile, gain a bit of damage"],
 		[BuffType.SUN, "Permanently gain health and grow larger whenever the sun comes out"],
 		[BuffType.TANK, "Massively increase your size, tankiness, and health"],
 		[BuffType.VAMPIRE, "Massively increases offensive capabilities, but only at night"],

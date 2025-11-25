@@ -524,6 +524,13 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this.profile().addSourceForce(force);
 	}
 
+	addShield(delta : number) : void {
+		if (!this.hasComponent(ComponentType.RESOURCES)) { return; }
+
+		this.getComponent<Resources>(ComponentType.RESOURCES).updateResource(StatType.SHIELD, {
+			delta: delta,
+		});
+	}
 	heal(delta : number) : void {
 		if (!this.hasComponent(ComponentType.RESOURCES)) { return; }
 
@@ -577,40 +584,57 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 
 		// Damage stuff
-		if (delta > 0 && from && this.id() !== from.id()) {
-			const buffDelta = hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL) ? 2 : 1;
-
+		let resources = this.getComponent<Resources>(ComponentType.RESOURCES);
+		delta = -delta;
+		if (delta < 0 && from && this.id() !== from.id()) {
 			let mult = 1 + this.getStat(StatType.DAMAGE_TAKEN_BOOST) - this.getStat(StatType.DAMAGE_RESIST_BOOST);
 			delta *= Math.max(0.1, mult);
 
-			delta += Math.max(0, from.getStat(StatType.DAMAGE_ADDITION) * buffDelta - this.getStat(StatType.DAMAGE_REDUCTION));
+			delta -= Math.min(0, from.getStat(StatType.DAMAGE_ADDITION) - this.getStat(StatType.DAMAGE_REDUCTION));
 
-			if (from.rollStat(StatType.EXPOSE_CHANCE)) {
-				this.addBuff(BuffType.EXPOSE, buffDelta);
-			}
-			if (from.rollStat(StatType.SLOW_CHANCE)) {
-				this.addBuff(BuffType.SLOW, buffDelta);
-			}
-			if (from.rollStat(StatType.FLAME_CHANCE)) {
-				this.addBuff(BuffType.FLAME, buffDelta);
-			}
-			if (from.rollStat(StatType.POISON_CHANCE)) {
-				this.addBuff(BuffType.POISON, buffDelta);
-			}
-			if (this.getAttribute(AttributeType.LIVING) && !this.dead()) {
-				if (from.hasStat(StatType.LIFE_STEAL)) {
-					from.heal(from.getStat(StatType.LIFE_STEAL) * delta);
-				}
-				if (from.hasStat(StatType.HEALTH_ADDITION)) {
-					from.heal(from.getStat(StatType.HEALTH_ADDITION) * buffDelta);
-				}
-			}
+			delta = Math.min(0, delta);
 
-			delta = Math.max(0, delta);
+			delta = resources.updateResource(StatType.SHIELD, {
+				delta: delta,
+				from: from,
+				hitEntity: hitEntity,
+			});
+
+			if (delta < 0) {
+				let buffDelta = 1;
+				if (hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL)) {
+					delta *= 1 + from.getStat(StatType.CRIT_BOOST);
+					buffDelta = 2;
+				}
+				
+				if (from.rollStat(StatType.EXPOSE_CHANCE)) {
+					this.addBuff(BuffType.EXPOSE, buffDelta);
+				}
+				if (from.rollStat(StatType.SLOW_CHANCE)) {
+					this.addBuff(BuffType.SLOW, buffDelta);
+				}
+				if (from.rollStat(StatType.FLAME_CHANCE)) {
+					this.addBuff(BuffType.FLAME, buffDelta);
+				}
+				if (from.rollStat(StatType.POISON_CHANCE)) {
+					this.addBuff(BuffType.POISON, buffDelta);
+				}
+				if (this.getAttribute(AttributeType.LIVING) && !this.dead()) {
+					if (from.hasStat(StatType.LIFE_STEAL)) {
+						from.heal(from.getStat(StatType.LIFE_STEAL) * Math.abs(delta));
+					}
+					if (from.hasStat(StatType.SHIELD_STEAL)) {
+						from.heal(from.getStat(StatType.SHIELD_STEAL) * Math.abs(delta));
+					}
+					if (from.hasStat(StatType.HEALTH_ADDITION)) {
+						from.heal(from.getStat(StatType.HEALTH_ADDITION) * buffDelta);
+					}
+				}
+			}
 		}
 
-		this.getComponent<Resources>(ComponentType.RESOURCES).updateResource(StatType.HEALTH, {
-			delta: -delta,
+		resources.updateResource(StatType.HEALTH, {
+			delta: delta,
 			from: from,
 			hitEntity : hitEntity,
 		});

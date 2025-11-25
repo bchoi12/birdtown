@@ -9,7 +9,6 @@ export class FieryBuff extends Buff {
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
 			[StatType.CRIT_CHANCE, 0.1 * level],
-			[StatType.DAMAGE_ADDITION, 5 * level],
 			[StatType.FIRE_BOOST, 0.15 * level],
 			[StatType.FLAME_CHANCE, 0.2 * level],
 		]);
