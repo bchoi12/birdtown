@@ -59,18 +59,27 @@ export enum IconType {
 	UPDATE,
 
 	// HUD
+	ACROBAT,
 	BACKFLIP,
 	BATTERY_ERROR,
 	BATTERY_FULL,
+	BLENDER,
 	BIRD,
 	BOLT,
+	BUG,
 	DASH,
+	DRINK,
+	EXPLOSION,
+	FAST_TRUCK,
+	FIRE,
 	GATLING,
 	HEADPHONES,
 	HEART,
 	JET,
+	KEYBOARD,
 	LINE,
 	LOCK,
+	MAGNIFYING_GLASS,
 	MINIGUN,
 	MONEY,
 	MUSIC_NOTE,
@@ -82,16 +91,26 @@ export enum IconType {
 	TORNADO,
 	UNLOCK,
 	ORBS,
+	OVEN,
+	PLANT,
+	PROPANE,
+	SHIELD,
 	SNOW,
+	SNOWFLAKE,
 	SPRAY,
 	STAR,
 	SWORDS,
+	TRAIL_SHORT,
+	TRAIL_LONG,
 	WARNING,
+	WEIGHT,
+	YAKITORI,
 }
 
 export namespace Icon {
 
 	const names = new Map<IconType, string>([
+		[IconType.ACROBAT, "sports_martial_arts"],
 		[IconType.ARROW_DOWN, "keyboard_arrow_down"],
 		[IconType.ARROW_LEFT, "keyboard_arrow_left"],
 		[IconType.ARROW_RIGHT, "keyboard_arrow_right"],
@@ -99,22 +118,30 @@ export namespace Icon {
 		[IconType.BACKFLIP, "replay"],
 		[IconType.BATTERY_ERROR, "battery_error"],
 		[IconType.BATTERY_FULL, "battery_full"],
+		[IconType.BLENDER, "blender"],
 		[IconType.BIRD, "raven"],
+		[IconType.BUG, "pest_control"],
 		[IconType.BOLT, "bolt"],
 		[IconType.CANCEL, "cancel"],
 		[IconType.CHECK, "check"],
 		[IconType.CHECK_CIRCLE, "check_circle"],
 		[IconType.COPY, "content_copy"],
 		[IconType.DASH, "sprint"],
+		[IconType.DRINK, "local_bar"],
 		[IconType.DICE, "ifl"],
 		[IconType.ERROR, "error"],
+		[IconType.EXPLOSION, "explosion"],
+		[IconType.FAST_TRUCK, "delivery_truck_speed"],	
+		[IconType.FIRE, "mode_heat"],
 		[IconType.GATLING, "clear_all"],
 		[IconType.HEADPHONES, "headphones"],
 		[IconType.HEART, "favorite"],
 		[IconType.HOST, "home"],
 		[IconType.INFINITY, "all_inclusive"],
 		[IconType.JET, "flight_takeoff"],
+		[IconType.KEYBOARD, "keyboard"],
 		[IconType.LOCK, "lock"],
+		[IconType.MAGNIFYING_GLASS, "search"],
 		[IconType.MENU_OPEN, "menu_open"],
 		[IconType.MIC, "mic"],
 		[IconType.MINIGUN, "sort"],
@@ -130,11 +157,14 @@ export namespace Icon {
 		[IconType.NETWORK_SIGNAL, "signal_cellular_alt"],
 		[IconType.ONE_MORE, "counter_1"],
 		[IconType.ORBS, "scatter_plot"],
+		[IconType.OVEN, "oven"],
 		[IconType.PENDING, "pending"],
 		[IconType.PERSON, "person"],
 		[IconType.PERSON_PLUS, "person_add"],
 		[IconType.PERSON_SLASH, "person_off"],
+		[IconType.PLANT, "potted_plant"],
 		[IconType.PLUS, "add"],
+		[IconType.PROPANE, "propane"],
 		[IconType.READY, "checklist"],
 		[IconType.REFRESH, "refresh"],
 		[IconType.RENDER, "filter"],
@@ -146,16 +176,20 @@ export namespace Icon {
 		[IconType.ROCKING_HORSE, "bedroom_baby"],
 		[IconType.ROLL, "cached"],
 		[IconType.SHARE, "share"],
+		[IconType.SHIELD, "shield"],
 		[IconType.SIGN, "signpost"],
 		[IconType.SKILLET, "skillet"],
 		[IconType.SKULL, "skull"],
 		[IconType.SPRAY, "sprinkler"],
 		[IconType.SNOW, "snowing"],
+		[IconType.SNOWFLAKE, "mode_cool"],
 		[IconType.STAR, "star"],
 		[IconType.SWORDS, "swords"],
 		[IconType.TELEKENESIS, "move_selection_right"],
 		[IconType.TIMER, "timer"],
 		[IconType.TORNADO, "tornado"],
+		[IconType.TRAIL_LONG, "trail_length"],
+		[IconType.TRAIL_SHORT, "trail_length_short"],	
 		[IconType.TROPHY, "trophy"],
 		[IconType.UNLOCK, "lock_open_right"],
 		[IconType.UPDATE, "update"],
@@ -164,6 +198,8 @@ export namespace Icon {
 		[IconType.VOLUME_NONE, "volume_mute"],
 		[IconType.VOLUME_X, "no_sound"],
 		[IconType.WARNING, "warning"],
+		[IconType.WEIGHT, "weight"],
+		[IconType.YAKITORI, "yakitori"],
 	]);
 
 	export function baseElement() : HTMLElement {
@@ -233,7 +269,41 @@ export namespace Icon {
 		return entityIcons.get(type);
 	}
 
+	const buffIcons = new Map<BuffType, IconType>([
+		[BuffType.ACROBATIC, IconType.ACROBAT],
+		[BuffType.BIG, IconType.WEIGHT],
+		[BuffType.EAGLE_EYE, IconType.MAGNIFYING_GLASS],
+
+		[BuffType.EXPLOSION, IconType.EXPLOSION],
+		[BuffType.JUMPER, IconType.ROCKET],
+
+		[BuffType.BRUISER, IconType.WEIGHT],
+		[BuffType.GLASS_CANNON, IconType.DRINK],
+
+		[BuffType.CRIT, IconType.SKULL],
+		[BuffType.FIERY, IconType.OVEN],
+		[BuffType.ICY, IconType.SNOWFLAKE],
+		[BuffType.SQUAWK_SHOT, IconType.MUSIC_NOTE],
+		[BuffType.SQUAWK_SHIELD, IconType.SHIELD],
+
+		[BuffType.MOSQUITO, IconType.BUG],
+		[BuffType.TANK, IconType.PROPANE],
+		[BuffType.SUN, IconType.PLANT],
+		[BuffType.VAMPIRE, IconType.KEYBOARD],
+		[BuffType.BLASTER, IconType.TRAIL_SHORT],
+		[BuffType.SNIPER, IconType.TRAIL_LONG],
+
+		[BuffType.COOL, IconType.HEADPHONES],
+		[BuffType.DODGY, IconType.FAST_TRUCK],
+		[BuffType.HEALER, IconType.PERSON_PLUS],
+		[BuffType.JUICED, IconType.BLENDER],
+
+		[BuffType.STAT_STICK, IconType.YAKITORI],
+
+		// Unused
+		[BuffType.WARMOGS, IconType.HEART],
+	]);
 	export function getBuffIconType(type : BuffType) : IconType {
-		return IconType.TORNADO;
+		return buffIcons.has(type) ? buffIcons.get(type) : IconType.TORNADO;
 	}
 }

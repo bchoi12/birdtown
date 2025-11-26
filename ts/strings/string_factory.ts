@@ -280,7 +280,7 @@ export namespace StringFactory {
 	const buffNames = new Map<BuffType, string>([
 		[BuffType.ACROBATIC, "ASSASSIN BIRD"],
 		[BuffType.BIG, "BIG BIRD"],
-		[BuffType.EAGLE_EYE, "SHARPSHOOTER BIRD"],
+		[BuffType.EAGLE_EYE, "CARRY BIRD"],
 
 		[BuffType.BLASTER, "Booty Blaster"],
 		[BuffType.BRUISER, "Atmogs"],
@@ -288,7 +288,7 @@ export namespace StringFactory {
 		[BuffType.CRIT, "Sly Dog"],
 		[BuffType.DODGY, "Macho Grubba"],
 		[BuffType.EXPLOSION, "Boomer"],
-		[BuffType.FIERY, "Poulet Rôti"],
+		[BuffType.FIERY, "Rotisserie"],
 		[BuffType.GLASS_CANNON, "Tons of Damage"],
 		[BuffType.HEALER, "Inspiration"],
 		[BuffType.ICY, "Really Cold Brrd"],
