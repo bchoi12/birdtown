@@ -83,11 +83,8 @@ export namespace BuffFactory {
 		[BuffType.BRUISER, basicMetadata],
 		[BuffType.GLASS_CANNON, basicMetadata],
 
-		[BuffType.CRIT, upgradeMetadata],
 		[BuffType.FIERY, upgradeMetadata],
 		[BuffType.ICY, upgradeMetadata],
-		[BuffType.SQUAWK_SHOT, upgradeMetadata],
-		[BuffType.SQUAWK_SHIELD, upgradeMetadata],
 
 		[BuffType.MOSQUITO, upgradeMetadata],
 		[BuffType.TANK, upgradeMetadata],
@@ -95,11 +92,15 @@ export namespace BuffFactory {
 		[BuffType.VAMPIRE, upgradeMetadata],
 		[BuffType.BLASTER, upgradeMetadata],
 		[BuffType.SNIPER, upgradeMetadata],
+		[BuffType.SQUAWK_SHOT, upgradeMetadata],
+		[BuffType.SQUAWK_SHIELD, upgradeMetadata],
 
 		[BuffType.COOL, specialMetadata],
 		[BuffType.DODGY, specialMetadata],
-		[BuffType.HEALER, specialMetadata],
 		[BuffType.JUICED, specialMetadata],
+
+		[BuffType.HEALER, specialMetadata],
+		[BuffType.CRIT, specialMetadata],
 
 		[BuffType.STAT_STICK, { maxLevel: 300 }],
 
@@ -188,9 +189,6 @@ export namespace BuffFactory {
 
 	const generalBuffs = new Array<BuffType>(
 		BuffType.COOL,
-		BuffType.CRIT,
-		BuffType.FIERY,
-		BuffType.ICY,
 		BuffType.JUMPER);
 	function getGeneralBuffs(player : Player) : Set<BuffType> {
 		if (!player.hasComponent(ComponentType.BUFFS)) {
@@ -250,6 +248,7 @@ export namespace BuffFactory {
 		pickableBuffs.add(chooseBuffs(player, [BuffType.MOSQUITO, BuffType.TANK]));
 		pickableBuffs.add(chooseBuffs(player, [BuffType.GLASS_CANNON, BuffType.BRUISER]));
 		pickableBuffs.add(chooseBuffs(player, [BuffType.SUN, BuffType.VAMPIRE]));
+		pickableBuffs.add(chooseBuffs(player, [BuffType.ICY, BuffType.FIERY]));
 
 		// TODO: add squawk shield
 		pickableBuffs.add(chooseBuffs(player, [BuffType.SQUAWK_SHOT, BuffType.SQUAWK_SHIELD]));
@@ -267,7 +266,9 @@ export namespace BuffFactory {
 			pickableBuffs.add(chooseBuffs(player, [BuffType.BLASTER, BuffType.SNIPER]));
 		}
 		if (game.controller().isTeamMode()) {
-			pickableBuffs.add(BuffType.HEALER);
+			pickableBuffs.add(chooseBuffs(player, [BuffType.HEALER, BuffType.CRIT]));
+		} else {
+			pickableBuffs.add(BuffType.CRIT);
 		}
 
 		pickableBuffs.delete(BuffType.UNKNOWN);

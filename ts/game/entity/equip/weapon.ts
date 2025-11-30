@@ -59,6 +59,7 @@ export enum ReloadType {
 export abstract class Weapon extends Equip<Player> {
 
 	private static readonly _shootNodeName = "shoot";
+	private static readonly _chargedThreshold = 1000;
 	private static readonly _recoilRecoveryTime = 100;
 	private static readonly _recoil = new Map<RecoilType, Transforms>([
 		[RecoilType.NONE, new Transforms()],
@@ -230,15 +231,19 @@ export abstract class Weapon extends Equip<Player> {
 	weaponState() : WeaponState { return this._weaponState; }
 	bursts() : number { return this._bursts; }
 	protected getMaxBursts() : number {
-		let mult = 1;
-		let bonus = 0;
-		if (this.hasOwner()) {
-			mult += this.owner().getStat(StatType.BURST_BOOST);
-			bonus = this.owner().getStat(StatType.BURST_BONUS);
+		if (!this.hasOwner()) {
+			return this.getStat(StatType.BURSTS);
 		}
+
 		if (this.charged() && this.hasStat(StatType.CHARGED_BURSTS)) {
-			return Math.floor(mult * this.getStat(StatType.CHARGED_BURSTS) + bonus);
+			if (this.owner().hasMaxedBuff(BuffType.JUICED) && this._charged) {
+				return 2 * this.getStat(StatType.CHARGED_BURSTS);
+			}
+			return this.getStat(StatType.CHARGED_BURSTS);
 		}
+
+		let mult = 1 + this.owner().getStat(StatType.BURST_BOOST);
+		let bonus = this.owner().getStat(StatType.BURST_BONUS);
 		return Math.floor(mult * this.getStat(StatType.BURSTS) + bonus);
 	}
 	timer() : Timer { return this._stateTimer; }
@@ -303,7 +308,7 @@ export abstract class Weapon extends Equip<Player> {
 		return origin.sub(mouse).negate().normalize();
 	}
 
-	chargedThreshold() : number { return 1000; }
+	chargedThreshold() : number { return Weapon._chargedThreshold / Math.max(0.1, this.getStat(StatType.CHARGE_BOOST)); }
 	override charged() : boolean {
 		if (this.hasOwner() && this.owner().hasMaxedBuff(BuffType.JUICED)) {
 			return true;
@@ -313,10 +318,6 @@ export abstract class Weapon extends Equip<Player> {
 	chargeMillis() : number { return this._charger.millis(); }
 	charging() : boolean { return this._charging; }
 	setCharging(charging : boolean) : void {
-		if (this.hasOwner() && this.owner().hasMaxedBuff(BuffType.JUICED)) {
-			this._charging = false;
-			return;
-		}
 		if (this._charging === charging) {
 			return;
 		}
@@ -437,7 +438,9 @@ export abstract class Weapon extends Equip<Player> {
 
 		if (this._charging) {
 			if (this._charger.millis() === 0 && this.hasOwner() && this.owner().isLakituTarget()) {
-				this.soundPlayer().playFromEntity(SoundType.CHARGE, this.owner());
+				this.soundPlayer().playFromEntity(SoundType.CHARGE, this.owner(), {
+					playbackRate: Weapon._chargedThreshold / this.chargedThreshold(),
+				});
 			}
 			this._charger.elapse(millis);
 		} else {
