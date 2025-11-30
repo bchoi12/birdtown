@@ -8,13 +8,13 @@ export class AcrobaticBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.CHARGE_BOOST, 0.1 * level],
+			[StatType.CHARGE_BOOST, 0.2 * level],
 			[StatType.CRIT_CHANCE, 0.2],
 			[StatType.CRIT_BOOST, 0.2 + 0.1 * (level - 1)],
 			[StatType.HEALTH, 30 + 50 * (level - 1)],
-			[StatType.HP_REGEN, 3 * level],
+			[StatType.HP_REGEN, 2 * level],
 			[StatType.SPEED_BOOST, 0.1 * level],
-			[StatType.USE_BOOST, 0.2 * level],
+			[StatType.USE_BOOST, 0.1 * level],
 		]);
 	}
 

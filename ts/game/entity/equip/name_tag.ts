@@ -278,6 +278,11 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		} else if (this.owner().hasProfile() && !this.owner().profile().visible()) {
 			// Don't show if occluded
 			enabled = false;
+		} else if (game.playerState().validTargetEntity()
+			&& this.owner().getAttribute(AttributeType.UNDERWATER)
+			&& !game.playerState().targetEntity().getAttribute(AttributeType.UNDERWATER)) {
+			// Don't underwater nametags unless also underwater
+			enabled = false;
 		} else if (this.owner().type() === EntityType.PLAYER) {
 			// Don't show when dead
 			const player = <Player>this.owner();

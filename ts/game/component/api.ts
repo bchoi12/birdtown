@@ -39,6 +39,7 @@ export enum AttributeType {
 	LIVING,
 	PHASING,
 	PIERCING,
+	POISONING,
 	REVIVING,
 	SOLID,
 	UNDERWATER,

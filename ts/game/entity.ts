@@ -625,7 +625,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 				if (from.rollStat(StatType.FLAME_CHANCE)) {
 					this.addBuff(BuffType.FLAME, buffDelta);
 				}
-				if (from.rollStat(StatType.POISON_CHANCE)) {
+				if (hitEntity && hitEntity.getAttribute(AttributeType.POISONING)) {
+					this.addBuff(BuffType.POISON, Math.max(4, buffDelta));
+				} else if (from.rollStat(StatType.POISON_CHANCE)) {
 					this.addBuff(BuffType.POISON, buffDelta);
 				}
 				if (this.getAttribute(AttributeType.LIVING) && !this.dead()) {

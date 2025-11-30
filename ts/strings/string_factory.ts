@@ -71,7 +71,7 @@ export namespace StringFactory {
 		[EntityType.POCKET_ROCKET, ParamString.of("Launches a mini rocket out of nowhere")],
 		[EntityType.PURPLE_HEADBAND, ParamString.of("Dash in the direction of your cursor")],
 		[EntityType.PURPLE_GLOVE, ParamString.of("Toss 4 stars that explode after a short delay")],
-		[EntityType.RED_HEADBAND, ParamString.of("Backflip opposite to your cursor and throw a sneaky knife")],
+		[EntityType.RED_HEADBAND, ParamString.of("Backflip opposite to your cursor and throw a poisoned knife")],
 		[EntityType.RED_GLOVE, ParamString.of("Toss 2 deadly knives")],
 		[EntityType.RIFLE, ParamString.of("Fire a single long-range shot")],
 		[EntityType.SCOUTER, ParamString.of("Hold to look ahead and charge your weapon")],

@@ -68,7 +68,7 @@ export namespace BuffFactory {
 		resetOnSpawn: true,
 	}
 	const stackingMetadata : BuffOptions = {
-		maxLevel: 8,
+		maxLevel: 6,
 		resetOnSpawn: true,
 	};
 

@@ -235,16 +235,17 @@ export abstract class Weapon extends Equip<Player> {
 			return this.getStat(StatType.BURSTS);
 		}
 
-		if (this.charged() && this.hasStat(StatType.CHARGED_BURSTS)) {
-			if (this.owner().hasMaxedBuff(BuffType.JUICED) && this._charged) {
-				return 2 * this.getStat(StatType.CHARGED_BURSTS);
-			}
-			return this.getStat(StatType.CHARGED_BURSTS);
-		}
-
+		let bursts = this.getStat(StatType.BURSTS);
 		let mult = 1 + this.owner().getStat(StatType.BURST_BOOST);
 		let bonus = this.owner().getStat(StatType.BURST_BONUS);
-		return Math.floor(mult * this.getStat(StatType.BURSTS) + bonus);
+
+		if (this.charged() && this.hasStat(StatType.CHARGED_BURSTS)) {
+			if (this.owner().hasMaxedBuff(BuffType.JUICED) && this._charged) {
+				mult += 1;
+			}
+			bursts = this.getStat(StatType.CHARGED_BURSTS);
+		}
+		return Math.floor(mult * bursts + bonus);
 	}
 	timer() : Timer { return this._stateTimer; }
 	private getTime(state : WeaponState) : number {
@@ -308,7 +309,7 @@ export abstract class Weapon extends Equip<Player> {
 		return origin.sub(mouse).negate().normalize();
 	}
 
-	chargedThreshold() : number { return Weapon._chargedThreshold / Math.max(0.1, this.getStat(StatType.CHARGE_BOOST)); }
+	chargedThreshold() : number { return Weapon._chargedThreshold / Math.max(0.1, 1 + this.getStat(StatType.CHARGE_BOOST)); }
 	override charged() : boolean {
 		if (this.hasOwner() && this.owner().hasMaxedBuff(BuffType.JUICED)) {
 			return true;

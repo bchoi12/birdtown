@@ -60,6 +60,7 @@ export enum IconType {
 
 	// HUD
 	ACROBAT,
+	ARROW_STACK,
 	BACKFLIP,
 	BATTERY_ERROR,
 	BATTERY_FULL,
@@ -114,6 +115,7 @@ export namespace Icon {
 		[IconType.ARROW_DOWN, "keyboard_arrow_down"],
 		[IconType.ARROW_LEFT, "keyboard_arrow_left"],
 		[IconType.ARROW_RIGHT, "keyboard_arrow_right"],
+		[IconType.ARROW_STACK, "arrow_shape_up_stack_2"],
 		[IconType.ARROW_UP, "keyboard_arrow_up"],
 		[IconType.BACKFLIP, "replay"],
 		[IconType.BATTERY_ERROR, "battery_error"],
@@ -278,7 +280,7 @@ export namespace Icon {
 		[BuffType.JUMPER, IconType.ROCKET],
 
 		[BuffType.BRUISER, IconType.WEIGHT],
-		[BuffType.GLASS_CANNON, IconType.DRINK],
+		[BuffType.GLASS_CANNON, IconType.ARROW_STACK],
 
 		[BuffType.CRIT, IconType.SKULL],
 		[BuffType.FIERY, IconType.OVEN],

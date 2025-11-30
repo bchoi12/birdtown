@@ -52,7 +52,7 @@ export namespace StatFactory {
 			[StatType.EXPOSE_CHANCE, 0],
 			[StatType.FLAME_CHANCE, 0],
 			[StatType.HEALTH, 100],
-			[StatType.HP_REGEN_DELAY, 3000],
+			[StatType.HP_REGEN_DELAY, 4000],
 			[StatType.IMBUE_LEVEL, 0],
 			[StatType.LIFE_STEAL, 0],
 			[StatType.POISON_CHANCE, 0],
@@ -295,6 +295,9 @@ export namespace StatFactory {
 		[EntityType.KNIFE, new Map([
 			[StatType.DAMAGE, 20],
 		])],
+		[EntityType.POISONING_KNIFE, new Map([
+			[StatType.DAMAGE, 20],
+		])],
 		// 63 DPS + fast bullet + partial clip
 		[EntityType.RIFLE, new Map([
 			[StatType.BURSTS, 8],
@@ -303,12 +306,12 @@ export namespace StatFactory {
 			[StatType.CHARGED_FORCE, 0.1],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1.1],
 			[StatType.CHARGED_PROJECTILE_TTL, 475],
-			[StatType.CHARGED_RELOAD_TIME, 1400],
+			[StatType.CHARGED_RELOAD_TIME, 1200],
 			[StatType.FIRE_TIME, 350],
 			[StatType.FORCE, 0],
 			[StatType.PROJECTILE_SPEED, 1],
 			[StatType.PROJECTILE_TTL, 375],
-			[StatType.RELOAD_TIME, 1400],
+			[StatType.RELOAD_TIME, 1200],
 		])],
 		[EntityType.CARTRIDGE, new Map([
 			[StatType.DAMAGE, 30],

@@ -51,14 +51,14 @@ export class HealthResource extends Resource {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (this.entity().getStat(StatType.HP_REGEN) === 0 || this._resource <= 0) {
+		if (this.entity().getStat(StatType.HP_REGEN) === 0 || this._resource <= 0 || this.entity().dead()) {
 			this._regenTimer.reset();
 			return;
 		}
 
 		if (this._regenTimer.done()) {
 			this.updateResource({
-				delta: this.entity().getStat(StatType.HP_REGEN),
+				delta: Math.max(1, Math.round(this.entity().maxHealth() * this.entity().getStat(StatType.HP_REGEN) / 100)),
 			});
 			this._regenTimer.start(1000);
 		} else if (!this._regenTimer.hasTimeLeft()) {

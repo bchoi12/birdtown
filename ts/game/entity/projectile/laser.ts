@@ -106,7 +106,9 @@ export class Laser extends Projectile {
 		}
 
 		this._model.scaling().y = Laser._initialScale;
-		SoundFactory.playFromPos(SoundType.LASER, this._profile.pos().toBabylon3());
+		SoundFactory.playFromPos(SoundType.LASER, this._profile.pos().toBabylon3(), {
+			playbackRate: game.runner().updateSpeed(),
+		});
 	}
 
 	override update(stepData : StepData) : void {

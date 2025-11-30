@@ -19,28 +19,31 @@ import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 import { StepData } from 'game/game_object'
 
+import { GameGlobals } from 'global/game_globals'
+
 import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
+import { RateLimiter } from 'util/rate_limiter'
 import { Vec, Vec2 } from 'util/vector'
 
-export class Knife extends Projectile {
+abstract class KnifeBase extends Projectile {
 
-	private static readonly _trailVertices = [
+	protected static readonly _trailVertices = [
         new BABYLON.Vector3(0, 0, 0.05),
         new BABYLON.Vector3(-2, 0, 0),
         new BABYLON.Vector3(0, 0, -0.05),
 	];
 
-	private _trail : BABYLON.Mesh;
+	protected _trail : BABYLON.Mesh;
 
-	private _model : Model;
-	private _profile : Profile;
+	protected _model : Model;
+	protected _profile : Profile;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.KNIFE, entityOptions);
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
 
 		this._trail = BABYLON.MeshBuilder.ExtrudePolygon(this.name() + "-trail", {
-			shape: Knife._trailVertices,
+			shape: KnifeBase._trailVertices,
 			depth: 0.1,
 		}, game.scene(), earcut);
 
@@ -127,6 +130,45 @@ export class Knife extends Projectile {
 					}
 				});
 			}
+		}
+	}
+}
+
+export class Knife extends KnifeBase {
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.KNIFE, entityOptions);
+	}
+}
+
+export class PoisoningKnife extends KnifeBase {
+
+	private _poisonLimiter : RateLimiter;
+
+	constructor(entityOptions : EntityOptions) {
+		super(EntityType.POISONING_KNIFE, entityOptions);
+
+		this._poisonLimiter = new RateLimiter(60);
+
+		this.setAttribute(AttributeType.POISONING, true);
+	}
+
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+
+		if (this._poisonLimiter.check(stepData.millis)) {
+			this.addEntity(EntityType.CUBE_PARTICLE, {
+				offline: true,
+				ttl: 800,
+				profileInit: {
+					pos: this._profile.pos(),
+					vel: { x: 0, y: 0 },
+					acc: { x: 0, y: GameGlobals.gravity / 2 },
+					scaling: { x: 0.2, y: 0.2 },
+				},
+				modelInit: {
+					materialType: MaterialType.PARTICLE_GREEN,
+				}
+			});
 		}
 	}
 }

@@ -20,6 +20,11 @@ export type BuffOptions = {
 	resetOnSpawn? : boolean;
 }
 
+export type DecayOptions = {
+	initial : number;
+	subsequent : number;
+}
+
 export abstract class Buff extends ComponentBase implements Component {
 
 	protected static readonly _emptyStats = new Set<StatType>();
@@ -42,7 +47,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.FIRE_BOOST, 0.15],
 		[StatType.HEALTH_ADDITION, 5],
 		[StatType.HEALTH, 50],
-		[StatType.HP_REGEN, 3],
+		[StatType.HP_REGEN, 2],
 		[StatType.PROJECTILE_SCALING_BOOST, 0.5],
 		[StatType.SCALING, 0.1],
 		[StatType.SLOW_CHANCE, 0.3],
@@ -178,15 +183,22 @@ export abstract class Buff extends ComponentBase implements Component {
 			this._levelAnnounce.clear();
 		}
 	}
-	protected decayOnLevel(level : number, delta : number) : void {
+	protected decayOnLevel(level : number, delta : number, options? : DecayOptions) : void {
 		if (level <= 0) {
 			return;
 		}
 
+		if (!options) {
+			options = {
+				initial: 2000,
+				subsequent: 2000 / this.maxLevel(),
+			}
+		}
+
 		if (delta >= 0) {
-			this.addAfter(2000, -1);
+			this.addAfter(options.initial, -1);
 		} else if (delta < 0) {
-			this.addAfter(500, -1);
+			this.addAfter(options.subsequent, -1);
 		}
 	}
 

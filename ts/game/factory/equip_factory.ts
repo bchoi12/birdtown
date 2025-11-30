@@ -166,8 +166,11 @@ export namespace EquipFactory {
 	}
 
 	const starterWeapons = new Map<BuffType, EntityType[]>([
+		// Crit or movement
 		[BuffType.ACROBATIC, [EntityType.BAZOOKA, EntityType.MINIGUN, EntityType.LASER_GUN, EntityType.PURPLE_GLOVE, EntityType.RED_GLOVE, EntityType.RIFLE, EntityType.SHOTGUN, EntityType.WING_CANNON]],
+		// Big damage
 		[BuffType.BIG, [EntityType.BAZOOKA, EntityType.GATLING, EntityType.ORB_CANNON, EntityType.PISTOL, EntityType.PURPLE_GLOVE, EntityType.SHOTGUN, EntityType.WING_CANNON]],
+		// Fire fast
 		[BuffType.EAGLE_EYE, [EntityType.GATLING, EntityType.LASER_GUN, EntityType.MINIGUN, EntityType.ORB_CANNON, EntityType.PISTOL, EntityType.RED_GLOVE, EntityType.RIFLE]],
 	]);
 	export function getStarterPair(type : BuffType) : [EntityType, EntityType] {

@@ -85,7 +85,7 @@ import { Caliber } from 'game/entity/projectile/caliber'
 import { Cartridge } from 'game/entity/projectile/cartridge'
 import { ChargedBolt } from 'game/entity/projectile/charged_bolt'
 import { GoldenBullet } from 'game/entity/projectile/golden_bullet'
-import { Knife } from 'game/entity/projectile/knife'
+import { Knife, PoisoningKnife } from 'game/entity/projectile/knife'
 import { Laser } from 'game/entity/projectile/laser'
 import { MiniOrb } from 'game/entity/projectile/mini_orb'
 import { Orb } from 'game/entity/projectile/orb'
@@ -167,6 +167,7 @@ export namespace EntityFactory {
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],
 		[EntityType.PISTOL, (options : EntityOptions) => { return new Pistol(options); }],
 		[EntityType.POCKET_ROCKET, (options : EntityOptions) => { return new PocketRocket(options); }],
+		[EntityType.POISONING_KNIFE, (options : EntityOptions) => { return new PoisoningKnife(options); }],
 		[EntityType.PURPLE_GLOVE, (options : EntityOptions) => { return new PurpleGlove(options); }],
 		[EntityType.PURPLE_HEADBAND, (options : EntityOptions) => { return new PurpleHeadband(options); }],
 		[EntityType.RED_GLOVE, (options : EntityOptions) => { return new RedGlove(options); }],
@@ -240,6 +241,7 @@ export namespace EntityFactory {
 		[EntityType.PIERCER, { x: 0.8, y: 0.18, z : 0.18 }],
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],
+		[EntityType.POISONING_KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
 		[EntityType.SIGN, {x: 1, y: 2, z: 0.2 }],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],
