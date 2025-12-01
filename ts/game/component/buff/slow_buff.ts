@@ -22,7 +22,6 @@ export class SlowBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.DAMAGE_RESIST_BOOST, 0.05 * level],
 			[StatType.SPEED_DEBUFF, 0.15 * level],
 		]);
 	}

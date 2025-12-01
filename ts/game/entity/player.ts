@@ -460,7 +460,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	}
 	revive() : void {
 		this.setAttribute(AttributeType.GROUNDED, true);
-		this._resources.setHealthPercent(0.5);
+		this._resources.setHealth(Math.min(300, Math.ceil(0.5 * this.maxHealth())));
 		this.getUp();
 
 		const [bubble, hasBubble] = this.addEntity<Bubble>(EntityType.BUBBLE, {

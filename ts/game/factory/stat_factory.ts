@@ -334,7 +334,7 @@ export namespace StatFactory {
 		[EntityType.PELLET, new Map([
 			[StatType.DAMAGE, 15],
 		])],
-		// ? DPS
+		// 80 DPS
 		[EntityType.LASER_CANNON, new Map([
 			[StatType.BURSTS, 2],
 			[StatType.CHARGED_BURSTS, 1],

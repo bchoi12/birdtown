@@ -14,7 +14,7 @@ import { RateLimiter } from 'util/rate_limiter'
 export class FlameBuff extends Buff {
 
 	private static readonly _tick = 750;
-	private static readonly _percentDamage = 0.015;
+	private static readonly _percentDamage = 0.008;
 
 	private _damageLimiter : RateLimiter;
 	private _flameLimiter : RateLimiter;
