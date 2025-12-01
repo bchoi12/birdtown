@@ -15,6 +15,7 @@ export namespace EquipFactory {
 	const recommendedPairs = new Map<EntityType, EntityType[]>([
 		[EntityType.BAZOOKA, [EntityType.JETPACK, EntityType.COWBOY_HAT, EntityType.SCOUTER]],
 		[EntityType.GATLING, [EntityType.BOOSTER, EntityType.HEADPHONES]],
+		[EntityType.LASER_CANNON, [EntityType.PURPLE_HEADBAND, EntityType.SCOUTER]],
 		[EntityType.LASER_GUN, [EntityType.SCOUTER, EntityType.POCKET_ROCKET]],
 		[EntityType.MINIGUN, [EntityType.BLACK_HEADBAND, EntityType.PURPLE_HEADBAND]],
 		[EntityType.ORB_CANNON, [EntityType.HEADPHONES, EntityType.JETPACK]],
@@ -167,11 +168,23 @@ export namespace EquipFactory {
 
 	const starterWeapons = new Map<BuffType, EntityType[]>([
 		// Crit or movement
-		[BuffType.ACROBATIC, [EntityType.BAZOOKA, EntityType.MINIGUN, EntityType.LASER_GUN, EntityType.PURPLE_GLOVE, EntityType.RED_GLOVE, EntityType.RIFLE, EntityType.SHOTGUN, EntityType.WING_CANNON]],
+		[BuffType.ACROBATIC, [
+			EntityType.BAZOOKA, EntityType.MINIGUN, EntityType.LASER_CANNON,
+			EntityType.LASER_GUN, EntityType.PURPLE_GLOVE, EntityType.RED_GLOVE,
+			EntityType.RIFLE, EntityType.SHOTGUN,
+		]],
 		// Big damage
-		[BuffType.BIG, [EntityType.BAZOOKA, EntityType.GATLING, EntityType.ORB_CANNON, EntityType.PISTOL, EntityType.PURPLE_GLOVE, EntityType.SHOTGUN, EntityType.WING_CANNON]],
+		[BuffType.BIG,[
+			EntityType.BAZOOKA, EntityType.GATLING, EntityType.LASER_CANNON,
+			EntityType.ORB_CANNON, EntityType.PISTOL, EntityType.PURPLE_GLOVE,
+			EntityType.SHOTGUN, EntityType.WING_CANNON,
+		]],
 		// Fire fast
-		[BuffType.EAGLE_EYE, [EntityType.GATLING, EntityType.LASER_GUN, EntityType.MINIGUN, EntityType.ORB_CANNON, EntityType.PISTOL, EntityType.RED_GLOVE, EntityType.RIFLE]],
+		[BuffType.EAGLE_EYE, [
+			EntityType.GATLING, EntityType.LASER_GUN, EntityType.MINIGUN,
+			EntityType.ORB_CANNON, EntityType.PISTOL, EntityType.RED_GLOVE,
+			EntityType.RIFLE, EntityType.WING_CANNON,
+		]],
 	]);
 	export function getStarterPair(type : BuffType) : [EntityType, EntityType] {
 		return getStarterPairN(type, 1)[0];
@@ -203,6 +216,7 @@ export namespace EquipFactory {
 		[EntityType.RED_GLOVE, new Set([EquipTag.ASSASSINATE, EquipTag.RAPID_FIRE])],
 		[EntityType.RIFLE, new Set([EquipTag.PRECISION_WEAPON, EquipTag.LONG_RANGE])],
 		[EntityType.SHOTGUN, new Set([EquipTag.MELEE_RANGE, EquipTag.BIG_BURST, EquipTag.BIG_RECOIL])],
+		[EntityType.LASER_CANNON, new Set([EquipTag.HEAVY_HITTER, EquipTag.DISRUPTIVE, EquipTag.NEEDS_REV])],
 		[EntityType.LASER_GUN, new Set([EquipTag.SIMPLE_SHOT, EquipTag.RAPID_FIRE])],
 		[EntityType.WING_CANNON, new Set([EquipTag.BIG_DAMAGE, EquipTag.DISRUPTIVE])],
 
@@ -252,15 +266,20 @@ export namespace EquipFactory {
 				merged.add(EquipTag.MEGA_ROCKET);
 				merged.add(EquipTag.ONE_SHOT);
 				break;
+			case EntityType.GOLDEN_GUN:
 			case EntityType.PISTOL:
 				merged.add(EquipTag.ONE_SHOT);
+				break;
+			case EntityType.LASER_CANNON:
+			case EntityType.WING_CANNON:
+				merged.add(EquipTag.LASER);
 				break;
 			case EntityType.LASER_GUN:
 				merged.add(EquipTag.BIG_BURST);
 				merged.add(EquipTag.DISRUPTIVE);
 				break;
-			case EntityType.WING_CANNON:
-				merged.add(EquipTag.LASER);
+			case EntityType.RIFLE:
+				merged.add(EquipTag.PIERCING);
 				break;
 			}
 		}

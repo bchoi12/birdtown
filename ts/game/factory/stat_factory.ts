@@ -334,6 +334,26 @@ export namespace StatFactory {
 		[EntityType.PELLET, new Map([
 			[StatType.DAMAGE, 15],
 		])],
+		// ? DPS
+		[EntityType.LASER_CANNON, new Map([
+			[StatType.BURSTS, 2],
+			[StatType.CHARGED_BURSTS, 1],
+			[StatType.CHARGED_FIRE_TIME, 600],
+			[StatType.CHARGED_RELOAD_TIME, 1000],
+			[StatType.CHARGED_PROJECTILE_SPEED, 0],
+			[StatType.CHARGED_PROJECTILE_TTL, 750],
+			[StatType.CHARGED_FORCE, 0],
+			[StatType.CHARGED_REV_TIME, 0],
+			[StatType.FIRE_TIME, 110],
+			[StatType.FORCE, 0],
+			[StatType.PROJECTILE_SPEED, 0.9],
+			[StatType.PROJECTILE_TTL, 375],
+			[StatType.RELOAD_TIME, 500],
+			[StatType.REV_TIME, 400],
+		])],
+		[EntityType.PURPLE_BOLT, new Map([
+			[StatType.DAMAGE, 40],
+		])],
 		// 75 DPS
 		// 3 shots in 600ms
 		[EntityType.LASER_GUN, new Map([
@@ -352,7 +372,7 @@ export namespace StatFactory {
 			[StatType.DAMAGE, 15],
 		])],
 		[EntityType.CHARGED_BOLT, new Map([
-			// Always critical
+			// Always critical (1.5x)
 			[StatType.DAMAGE, 50],
 		])],
 		// 78 DPS + disrupt + hard aim + burst

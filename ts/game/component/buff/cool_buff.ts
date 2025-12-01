@@ -29,7 +29,7 @@ export class CoolBuff extends Buff {
 			[StatType.CRIT_CHANCE, Math.min(0.2, 0.1 * level)],
 			[StatType.CRIT_BOOST, 0.1 * level],
 			[StatType.RELOAD_BOOST, 0.2 * level],
-			[StatType.REV_BOOST, 0.5 * level],
+			[StatType.REV_BOOST, 0.2 * level],
 			[StatType.SPEED_BOOST, 0.1 * level],
 		]);
 	}

@@ -43,6 +43,7 @@ import { RobinHair } from 'game/entity/equip/headwear/robin_hair'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
 import { GoldenGun } from 'game/entity/equip/weapon/golden_gun'
+import { LaserCannon } from 'game/entity/equip/weapon/laser_cannon'
 import { LaserGun } from 'game/entity/equip/weapon/laser_gun'
 import { Minigun } from 'game/entity/equip/weapon/minigun'
 import { OrbCannon } from 'game/entity/equip/weapon/orb_cannon'
@@ -58,6 +59,7 @@ import { GoldenExplosion } from 'game/entity/explosion/golden_explosion'
 import { MegaRocketExplosion } from 'game/entity/explosion/mega_rocket_explosion'
 import { MiniOrbExplosion } from 'game/entity/explosion/mini_orb_explosion'
 import { OrbExplosion } from 'game/entity/explosion/orb_explosion'
+import { PurpleBoltExplosion } from 'game/entity/explosion/purple_bolt_explosion'
 import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
 import { SquawkShield, MegaSquawkShield } from 'game/entity/explosion/squawk_shield'
 import { StarExplosion } from 'game/entity/explosion/star_explosion'
@@ -87,12 +89,13 @@ import { ChargedBolt } from 'game/entity/projectile/charged_bolt'
 import { GoldenBullet } from 'game/entity/projectile/golden_bullet'
 import { Knife, PoisoningKnife } from 'game/entity/projectile/knife'
 import { Laser } from 'game/entity/projectile/laser'
-import { MiniOrb } from 'game/entity/projectile/mini_orb'
-import { Orb } from 'game/entity/projectile/orb'
 import { MegaRocket } from 'game/entity/projectile/mega_rocket'
 import { MiniRocket } from 'game/entity/projectile/mini_rocket'
+import { MiniOrb } from 'game/entity/projectile/mini_orb'
+import { Orb } from 'game/entity/projectile/orb'
 import { Pellet } from 'game/entity/projectile/pellet'
 import { Piercer } from 'game/entity/projectile/piercer'
+import { PurpleBolt } from 'game/entity/projectile/purple_bolt'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Star } from 'game/entity/projectile/star'
 import { SpawnPoint } from 'game/entity/spawn_point'
@@ -147,6 +150,7 @@ export namespace EntityFactory {
 		[EntityType.JETPACK, (options : EntityOptions) => { return new Jetpack(options); }],
 		[EntityType.KNIFE, (options : EntityOptions) => { return new Knife(options); }],
 		[EntityType.LASER, (options : EntityOptions) => { return new Laser(options); }],
+		[EntityType.LASER_CANNON, (options : EntityOptions) => { return new LaserCannon(options); }],
 		[EntityType.LASER_GUN, (options : EntityOptions) => { return new LaserGun(options); }],
 		[EntityType.MEGA_SQUAWK_SHIELD, (options : EntityOptions) => { return new MegaSquawkShield(options); }],
 		[EntityType.MEGA_ROCKET, (options : EntityOptions) => { return new MegaRocket(options); }],
@@ -168,6 +172,8 @@ export namespace EntityFactory {
 		[EntityType.PISTOL, (options : EntityOptions) => { return new Pistol(options); }],
 		[EntityType.POCKET_ROCKET, (options : EntityOptions) => { return new PocketRocket(options); }],
 		[EntityType.POISONING_KNIFE, (options : EntityOptions) => { return new PoisoningKnife(options); }],
+		[EntityType.PURPLE_BOLT, (options : EntityOptions) => { return new PurpleBolt(options); }],
+		[EntityType.PURPLE_BOLT_EXPLOSION, (options : EntityOptions) => { return new PurpleBoltExplosion(options); }],
 		[EntityType.PURPLE_GLOVE, (options : EntityOptions) => { return new PurpleGlove(options); }],
 		[EntityType.PURPLE_HEADBAND, (options : EntityOptions) => { return new PurpleHeadband(options); }],
 		[EntityType.RED_GLOVE, (options : EntityOptions) => { return new RedGlove(options); }],
@@ -242,6 +248,7 @@ export namespace EntityFactory {
 		[EntityType.PLANE, {x: 10.5, y: 4, z: 10.6 }],
 		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],
 		[EntityType.POISONING_KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
+		[EntityType.PURPLE_BOLT, { x: 0.9, y: 0.18, z : 0.18 }],
 		[EntityType.ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
 		[EntityType.SIGN, {x: 1, y: 2, z: 0.2 }],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],
@@ -278,6 +285,7 @@ export namespace EntityFactory {
 		[EntityType.MEGA_SQUAWK_SHIELD, { x: 6, y: 6, z: 6 }],
 		[EntityType.MINI_ORB_EXPLOSION, {x: 1, y: 1, z: 1 }],
 		[EntityType.ORB_EXPLOSION, { x: 2.2, y: 2.2, z: 2.2 }],
+		[EntityType.PURPLE_BOLT_EXPLOSION, { x: 2.2, y: 2.2, z: 2.2 }],
 		[EntityType.ROCKET_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.SQUAWK_SHIELD, { x: 5, y: 5, z: 5 }],
 		[EntityType.STAR_EXPLOSION, {x: 0.7, y: 0.7, z: 0.7 }],

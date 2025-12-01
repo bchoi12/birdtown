@@ -6,10 +6,10 @@ import { EntityType } from 'game/entity/api'
 import { Explosion } from 'game/entity/explosion'
 import { MaterialType, SoundType } from 'game/factory/api'
 
-export class BoltExplosion extends Explosion {
+export class PurpleBoltExplosion extends Explosion {
 
 	constructor(entityOptions : EntityOptions) {
-		super(EntityType.BOLT_EXPLOSION, entityOptions);
+		super(EntityType.PURPLE_BOLT_EXPLOSION, entityOptions);
 	}
 
 	override meshFn() : BABYLON.Mesh {
@@ -18,7 +18,7 @@ export class BoltExplosion extends Explosion {
 		return mesh;
 	}
 
-	override force() : number { return 1; }
-	override materialType() : MaterialType { return MaterialType.PARTICLE_ORANGE; }
+	override force() : number { return 0.8; }
+	override materialType() : MaterialType { return MaterialType.PARTICLE_PURPLE; }
 	override soundType() : SoundType { return SoundType.BOOM; }
 }

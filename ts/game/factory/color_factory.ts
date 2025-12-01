@@ -97,6 +97,7 @@ export namespace ColorFactory {
 		[ColorType.SHOOTER_ORANGE, HexColor.fromHex(0xffb163)],
 		[ColorType.SHOOTER_DARK_ORANGE, HexColor.fromHex(0xe68525)],
 		[ColorType.SHOOTER_YELLOW, HexColor.fromHex(0xe6d753)],
+		[ColorType.SHOOTER_PURPLE, HexColor.fromHex(0x997cf2)],
 
 		// Pickup series (saturated, stand out from level)
 		[ColorType.PICKUP_BLUE, HexColor.fromHex(0x3c5ffa)],
@@ -150,6 +151,7 @@ export namespace ColorFactory {
 		[EntityType.GOLDEN_GUN, [ColorType.WESTERN_YELLOW]],
 		[EntityType.HEADPHONES, [ColorType.SHOOTER_YELLOW]],
 		[EntityType.JETPACK, [ColorType.BLASTER_RED]],
+		[EntityType.LASER_CANNON, [ColorType.SHOOTER_PURPLE]],
 		[EntityType.LASER_GUN, [ColorType.SHOOTER_BLUE]],
 		[EntityType.MINIGUN, [ColorType.EASTERN_BLACK]],
 		[EntityType.ORB_CANNON, [ColorType.SHOOTER_YELLOW]],

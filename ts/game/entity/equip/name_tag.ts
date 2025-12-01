@@ -154,6 +154,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 	override initialize() : void {
 		super.initialize();
 
+		this._model.translation().y = 0.1;
 		// Prevent overlap with other nametags
 		this._model.translation().z = Fns.randomNoise(0.05);
 

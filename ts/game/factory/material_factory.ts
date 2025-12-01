@@ -168,17 +168,21 @@ export namespace MaterialFactory {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_LIGHT_BLUE).toBabylonColor3();
 		});
+		standardMaterial(MaterialType.SHOOTER_ORANGE, (mat : BABYLON.StandardMaterial) => {
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_ORANGE).toBabylonColor3();
+		});
 		standardMaterial(MaterialType.SHOOTER_YELLOW, (mat : BABYLON.StandardMaterial) => {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_YELLOW).toBabylonColor3();
 		});
+		standardMaterial(MaterialType.SHOOTER_PURPLE, (mat : BABYLON.StandardMaterial) => {
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_PURPLE).toBabylonColor3();
+		});
 		standardMaterial(MaterialType.SHOOTER_WHITE, (mat : BABYLON.StandardMaterial) => {
 			mat.disableLighting = true;
 			mat.emissiveColor = ColorFactory.color(ColorType.WHITE).toBabylonColor3();
-		});
-		standardMaterial(MaterialType.SHOOTER_ORANGE, (mat : BABYLON.StandardMaterial) => {
-			mat.disableLighting = true;
-			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_ORANGE).toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.WESTERN_YELLOW_TRAIL, (mat : BABYLON.StandardMaterial) => {

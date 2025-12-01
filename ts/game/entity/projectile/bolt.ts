@@ -75,12 +75,7 @@ export abstract class BoltBase extends Projectile {
 	}
 
 	protected materialType() : MaterialType {
-		switch (this.type()) {
-		case EntityType.CHARGED_BOLT:
-			return MaterialType.SHOOTER_ORANGE;
-		default:
-			return MaterialType.SHOOTER_BLUE;
-		}
+		return MaterialType.SHOOTER_BLUE;
 	}
 
 	override update(stepData : StepData) : void {

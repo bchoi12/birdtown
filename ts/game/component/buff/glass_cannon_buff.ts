@@ -13,7 +13,7 @@ export class GlassCannonBuff extends Buff {
 			[StatType.HEALTH_ADDITION, 3 * level],
 			[StatType.HEALTH_BOOST, -0.2 * level],
 			[StatType.LIFE_STEAL, 0.05 * level],
-			[StatType.REV_BOOST, 0.5 * level],
+			[StatType.REV_BOOST, 0.2 * level],
 		]);
 	}
 }

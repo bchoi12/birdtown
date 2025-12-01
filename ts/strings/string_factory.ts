@@ -28,6 +28,7 @@ export namespace StringFactory {
 		[EntityType.GOLDEN_GUN, ParamString.of("golden gun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.GOLDEN_GUN).toString())],
 		[EntityType.HEADPHONES, ParamString.of("headphones").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.HEADPHONES).toString())],
 		[EntityType.JETPACK, ParamString.of("jetpack").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.JETPACK).toString())],
+		[EntityType.LASER_CANNON, ParamString.of("laser cannon").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.LASER_CANNON).toString())],
 		[EntityType.LASER_GUN, ParamString.of("laser gun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.LASER_GUN).toString())],
 		[EntityType.MINIGUN, ParamString.of("minigun").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.MINIGUN).toString())],
 		[EntityType.ORB_CANNON, ParamString.of("orb blaster").set(ParamType.COLOR, ColorFactory.entityColor(EntityType.ORB_CANNON).toString())],
@@ -64,6 +65,7 @@ export namespace StringFactory {
 		[EntityType.GOLDEN_GUN, ParamString.of("One-shot your enemies")],
 		[EntityType.HEADPHONES, ParamString.of("Hold to manifest dying star that collapses upon itself")],
 		[EntityType.JETPACK, ParamString.of("Lift yourself into the air")],
+		[EntityType.LASER_CANNON, ParamString.of("Rev a double shot of explosive high-energy bolts")],
 		[EntityType.LASER_GUN, ParamString.of("Fire a short burst of high-energy bolts")],
 		[EntityType.MINIGUN, ParamString.of("Fire a rapid burst with slight spread")],
 		[EntityType.ORB_CANNON, ParamString.of("Hold to rev up a barrage of explosive orbs")],
@@ -203,6 +205,7 @@ export namespace StringFactory {
 		[EquipTag.MEGA_ROCKET, "BIG ROCKET"],
 		[EquipTag.MASSIVE_DAMAGE, "MASSIVE DAMAGE"],
 		[EquipTag.ONE_SHOT, "ONE SHOT"],
+		[EquipTag.PIERCING, "PIERCING"],
 		[EquipTag.REALLY_DISRUPTIVE, "REALLY DISRUPTIVE"],
 	]);
 	export function getTagName(tag : EquipTag) : string {
