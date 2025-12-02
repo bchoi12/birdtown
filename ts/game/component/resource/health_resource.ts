@@ -58,7 +58,7 @@ export class HealthResource extends Resource {
 
 		if (this._regenTimer.done()) {
 			this.updateResource({
-				delta: Math.max(1, Math.round(this.entity().maxHealth() * this.entity().getStat(StatType.HP_REGEN) / 100)),
+				delta: Math.max(1, Math.round(this.entity().maxHealth() * this.entity().getStat(StatType.HP_REGEN))),
 			});
 			this._regenTimer.start(1000);
 		} else if (!this._regenTimer.hasTimeLeft()) {

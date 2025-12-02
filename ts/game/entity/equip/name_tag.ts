@@ -284,12 +284,9 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 			&& !game.playerState().targetEntity().getAttribute(AttributeType.UNDERWATER)) {
 			// Don't underwater nametags unless also underwater
 			enabled = false;
-		} else if (this.owner().type() === EntityType.PLAYER) {
+		} else if (this.owner().type() === EntityType.PLAYER && this.owner().dead()) {
 			// Don't show when dead
-			const player = <Player>this.owner();
-			if (player.dead()) {
-				enabled = false;
-			}
+			enabled = false;
 		}
 		this.setEnabled(enabled);
 	}

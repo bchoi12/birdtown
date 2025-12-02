@@ -12,7 +12,7 @@ export class AcrobaticBuff extends Buff {
 			[StatType.CRIT_CHANCE, 0.2],
 			[StatType.CRIT_BOOST, 0.2 + 0.1 * (level - 1)],
 			[StatType.HEALTH, 30 + 50 * (level - 1)],
-			[StatType.HP_REGEN, 2 * level],
+			[StatType.HP_REGEN, .02 * level],
 			[StatType.SPEED_BOOST, 0.1 * level],
 			[StatType.USE_BOOST, 0.1 * level],
 		]);

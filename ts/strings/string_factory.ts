@@ -216,10 +216,12 @@ export namespace StringFactory {
 	}
 
 	const statNames = new Map<StatType, string>([
+		[StatType.AIR_SPEED_BOOST, "Air Speed Boost"],
 		[StatType.BURST_BONUS, "Bonus Ammo"],
 		[StatType.BURST_BOOST, "Ammo Boost"],
-		[StatType.BURST_BULLETS, "Ammo"],
-		[StatType.BURSTS, "Shots"],
+		[StatType.BURST_BULLETS, "Bullets"],
+		[StatType.BURSTS, "Ammo"],
+		[StatType.CHARGE_BOOST, "Charge Boost"],
 		[StatType.CHARGE_DELAY, "Charge Delay"],
 		[StatType.CHARGE_RATE, "Charge Rate"],
 		[StatType.CHARGED_BURSTS, "Charged Ammo"],
@@ -229,12 +231,13 @@ export namespace StringFactory {
 		[StatType.CHARGED_PROJECTILE_TTL, "Charged Bullet Lifetime"],
 		[StatType.CHARGED_FORCE, "Charged Force"],
 		[StatType.CHARGED_RELOAD_TIME, "Charged Reload Time"],
+		[StatType.CHARGED_REV_TIME, "Charged Rev Time"],
 		[StatType.CRIT_CHANCE, "Crit Chance"],
 		[StatType.CRIT_BOOST, "Crit Damage Boost"],
 		[StatType.DAMAGE, "Damage"],
 		[StatType.DAMAGE_BOOST, "Damage Boost"],
 		[StatType.DAMAGE_CLOSE_BOOST, "Closeup Damage Boost"],
-		[StatType.DAMAGE_FAR_BOOST, "Sharpshooter Damage Boost"],
+		[StatType.DAMAGE_FAR_BOOST, "Faraway Damage Boost"],
 		[StatType.DAMAGE_TAKEN_BOOST, "Damage Taken Boost"],
 		[StatType.DAMAGE_RESIST_BOOST, "Damage Resist Boost"],
 		[StatType.DOUBLE_JUMPS, "Double Jumps"],
@@ -247,38 +250,134 @@ export namespace StringFactory {
 		[StatType.FRICTION, "Friction"],
 		[StatType.HEAL_PERCENT, "Healing Bullets"],
 		[StatType.HEALTH, "Health"],
+		[StatType.HEALTH_ADDITION, "On-hit Health"],
+		[StatType.HEALTH_BOOST, "Health Boost"],
 		[StatType.HORIZONTAL_ACCEL, "Horizontal Accel"],
-		[StatType.HP_REGEN, "HP Regen"],
+		[StatType.HP_REGEN, "HP Regeneration"],
 		[StatType.HP_REGEN_DELAY, "HP Regen Delay"],
-		[StatType.SLOW_CHANCE, "Slow Chance"],
+		[StatType.IMBUE_LEVEL, "Inspiration Level"],
+		[StatType.LIFE_STEAL, "Life Steal"],
 		[StatType.MAX_HORIZONTAL_SPEED, "Horizontal Speed"],
 		[StatType.MAX_VERTICAL_SPEED, "Vertical Speed"],
 		[StatType.MAX_WALKING_SPEED, "Walking Speed"],
+		[StatType.POISON_CHANCE, "Poison Chance"],
 		[StatType.PROJECTILE_ACCEL, "Bullet Accel"],
+		[StatType.PROJECTILE_SCALING_BOOST, "Projectile Size Boost"],
 		[StatType.PROJECTILE_SPEED, "Bullet Speed"],
 		[StatType.PROJECTILE_TTL, "Bullet Lifetime"],
 		[StatType.RELOAD_BOOST, "Reload Boost"],
 		[StatType.RELOAD_TIME, "Reload Time"],
+		[StatType.REV_BOOST, "Rev Boost"],
 		[StatType.REV_TIME, "Rev Time"],
 		[StatType.REVIVE_BOOST, "Revive Boost"],
 		[StatType.SCALING, "Size"],
+		[StatType.SHIELD, "Shield"],
+		[StatType.SHIELD_STEAL, "Shield Steal"],
 		[StatType.SPEED_BOOST, "Speed Boost"],
 		[StatType.SPEED_DEBUFF, "Slow"],
-		[StatType.LIFE_STEAL, "Life Steal"],
+		[StatType.SLOW_CHANCE, "Slow Chance"],
 		[StatType.SPEED, "Speed"],
 		[StatType.SPREAD, "Spread"],
 		[StatType.UNSTICK_DAMAGE, "Stick Damage"],
-		[StatType.USE_BOOST, "Equip Boost"],
-		[StatType.USE_JUICE, "Equip Energy"],
+		[StatType.USE_BOOST, "Equip Efficiency"],
+		[StatType.USE_JUICE, "Equip Energy Usage"],
+	]);
+
+
+
+	const toSign = (value : number) => value > 0 ? '+' : '';
+
+	type StatFn = (name : string, value : number) => string;
+	const toBoost : StatFn = (name : string, value : number) => `${toSign(value)}${Math.round(100 * value)}% ${name}`;
+	const toPercent : StatFn = (name : string, value : number) => `${Math.round(100 * value)}% ${name}`;
+	const toInt : StatFn = (name : string, value : number) => `${toSign(value)}${Math.round(value)} ${name}`;
+	const toNum : StatFn = (name : string, value : number) => `${toSign(value)}${Math.round(10 * value)/10} ${name}`;
+	const toRate : StatFn = (name : string, value : number) => `${toSign(value)}${Math.round(value)}% ${name}`;
+	const toTime : StatFn = (name : string, value : number) => `${value > 1000 ? Math.round(value / 1000) : value}${value > 1000 ? 's' : 'ms'} ${name}`;
+
+	const statFns = new Map<StatType, StatFn>([
+		[StatType.AIR_SPEED_BOOST, toBoost],
+		[StatType.BURST_BONUS, toInt],
+		[StatType.BURST_BOOST, toBoost],
+		[StatType.BURST_BULLETS, toInt],
+		[StatType.BURSTS, toInt],
+		[StatType.CHARGE_BOOST, toBoost],
+		[StatType.CHARGE_DELAY, toInt],
+		[StatType.CHARGE_RATE, toRate],
+		[StatType.CHARGED_BURSTS, toInt],
+		[StatType.CHARGED_FIRE_TIME, toTime],
+		[StatType.CHARGED_PROJECTILE_ACCEL, toNum],
+		[StatType.CHARGED_PROJECTILE_SPEED, toNum],
+		[StatType.CHARGED_PROJECTILE_TTL, toTime],
+		[StatType.CHARGED_FORCE, toNum],
+		[StatType.CHARGED_RELOAD_TIME, toTime],
+		[StatType.CHARGED_REV_TIME, toTime],
+		[StatType.CRIT_CHANCE, toPercent],
+		[StatType.CRIT_BOOST, toBoost],
+		[StatType.DAMAGE, toInt],
+		[StatType.DAMAGE_BOOST, toBoost],
+		[StatType.DAMAGE_CLOSE_BOOST, toBoost],
+		[StatType.DAMAGE_FAR_BOOST, toBoost],
+		[StatType.DAMAGE_TAKEN_BOOST, toBoost],
+		[StatType.DAMAGE_RESIST_BOOST, toBoost],
+		[StatType.DOUBLE_JUMPS, toInt],
+		[StatType.EXPLOSION_BOOST, toBoost],
+		[StatType.EXPLOSION_DAMAGE, toInt],
+		[StatType.EXPOSE_CHANCE, toPercent],
+		[StatType.FIRE_BOOST, toBoost],
+		[StatType.FIRE_TIME, toTime],
+		[StatType.FORCE, toNum],
+		[StatType.FRICTION, toNum],
+		[StatType.HEAL_PERCENT, toPercent],
+		[StatType.HEALTH, toInt],
+		[StatType.HEALTH_ADDITION, toInt],
+		[StatType.HEALTH_BOOST, toBoost],
+		[StatType.HORIZONTAL_ACCEL, toNum],
+		[StatType.HP_REGEN, toPercent],
+		[StatType.HP_REGEN_DELAY, toTime],
+		[StatType.IMBUE_LEVEL, toInt],
+		[StatType.LIFE_STEAL, toPercent],
+		[StatType.MAX_HORIZONTAL_SPEED, toNum],
+		[StatType.MAX_VERTICAL_SPEED, toNum],
+		[StatType.MAX_WALKING_SPEED, toNum],
+		[StatType.POISON_CHANCE, toBoost],
+		[StatType.PROJECTILE_ACCEL, toNum],
+		[StatType.PROJECTILE_SCALING_BOOST, toBoost],
+		[StatType.PROJECTILE_SPEED, toNum],
+		[StatType.PROJECTILE_TTL, toTime],
+		[StatType.RELOAD_BOOST, toBoost],
+		[StatType.RELOAD_TIME, toTime],
+		[StatType.REV_BOOST, toBoost],
+		[StatType.REV_TIME, toTime],
+		[StatType.REVIVE_BOOST, toBoost],
+		[StatType.SCALING, toPercent],
+		[StatType.SHIELD, toInt],
+		[StatType.SHIELD_STEAL, toPercent],
+		[StatType.SPEED_BOOST, toBoost],
+		[StatType.SPEED_DEBUFF, toBoost],
+		[StatType.SLOW_CHANCE, toPercent],
+		[StatType.SPEED, toNum],
+		[StatType.SPREAD, toInt],
+		[StatType.UNSTICK_DAMAGE, toInt],
+		[StatType.USE_BOOST, toBoost],
+		[StatType.USE_JUICE, toInt],
 	]);
 
 	export function getStatName(type : StatType) : string {
 		if (statNames.has(type)) {
 			return statNames.get(type);
 		}
-		return "Unknown Stat";
+		return StatType[type];
 	}
 
+	export function getStat(type : StatType, value : number) : string {
+		const name = getStatName(type);
+
+		if (statFns.has(type)) {
+			return statFns.get(type)(name, value);
+		}
+		return `${value} ${name}`;
+	}
 
 	const buffNames = new Map<BuffType, string>([
 		[BuffType.ACROBATIC, "ASSASSIN BIRD"],

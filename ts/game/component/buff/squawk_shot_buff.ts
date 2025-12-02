@@ -17,6 +17,7 @@ export class SquawkShotBuff extends Buff {
 	override boosts(level : number) : Map<StatType, number> {
 		// Squawk to fire projectiles
 		return new Map([
+			[StatType.CHARGE_BOOST, 0.2 * level],
 			[StatType.DAMAGE_BOOST, 0.1 * level],
 		]);
 	}

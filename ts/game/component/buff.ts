@@ -47,7 +47,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.FIRE_BOOST, 0.15],
 		[StatType.HEALTH_ADDITION, 5],
 		[StatType.HEALTH, 50],
-		[StatType.HP_REGEN, 2],
+		[StatType.HP_REGEN, .02],
 		[StatType.PROJECTILE_SCALING_BOOST, 0.5],
 		[StatType.SCALING, 0.1],
 		[StatType.SLOW_CHANCE, 0.3],

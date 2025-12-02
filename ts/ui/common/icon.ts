@@ -60,7 +60,6 @@ export enum IconType {
 
 	// HUD
 	ACROBAT,
-	ARROW_STACK,
 	BACKFLIP,
 	BATTERY_ERROR,
 	BATTERY_FULL,
@@ -69,6 +68,7 @@ export enum IconType {
 	BOLT,
 	BUG,
 	DASH,
+	DESTRUCTION,
 	DRINK,
 	EXPLOSION,
 	FAST_TRUCK,
@@ -116,7 +116,6 @@ export namespace Icon {
 		[IconType.ARROW_DOWN, "keyboard_arrow_down"],
 		[IconType.ARROW_LEFT, "keyboard_arrow_left"],
 		[IconType.ARROW_RIGHT, "keyboard_arrow_right"],
-		[IconType.ARROW_STACK, "arrow_shape_up_stack_2"],
 		[IconType.ARROW_UP, "keyboard_arrow_up"],
 		[IconType.BACKFLIP, "replay"],
 		[IconType.BATTERY_ERROR, "battery_error"],
@@ -130,8 +129,9 @@ export namespace Icon {
 		[IconType.CHECK_CIRCLE, "check_circle"],
 		[IconType.COPY, "content_copy"],
 		[IconType.DASH, "sprint"],
-		[IconType.DRINK, "local_bar"],
+		[IconType.DESTRUCTION, "destruction"],
 		[IconType.DICE, "ifl"],
+		[IconType.DRINK, "local_bar"],
 		[IconType.ERROR, "error"],
 		[IconType.EXPLOSION, "explosion"],
 		[IconType.FAST_TRUCK, "delivery_truck_speed"],	
@@ -283,7 +283,7 @@ export namespace Icon {
 		[BuffType.JUMPER, IconType.ROCKET],
 
 		[BuffType.BRUISER, IconType.WEIGHT],
-		[BuffType.GLASS_CANNON, IconType.ARROW_STACK],
+		[BuffType.GLASS_CANNON, IconType.DESTRUCTION],
 
 		[BuffType.CRIT, IconType.SKULL],
 		[BuffType.FIERY, IconType.OVEN],

@@ -4,6 +4,7 @@ import { GameMode } from 'game/api'
 import { Entity } from 'game/entity'
 import { EntityType, FrequencyType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
+import { StatType } from 'game/factory/api'
 
 import { GameConfigMessage } from 'message/game_config_message'
 
@@ -26,6 +27,7 @@ export class RulesDialogWrapper extends DialogWrapper {
 	private _playerColumn : ColumnWrapper;
 	private _nameWrapper : NameWrapper;
 	private _equipElm : HTMLElement;
+	private _statsElm : HTMLElement;
 
 	constructor() {
 		super();
@@ -44,6 +46,9 @@ export class RulesDialogWrapper extends DialogWrapper {
 		this._playerColumn.contentElm().appendChild(this._nameWrapper.elm());
 		this._equipElm = Html.div();
 		this._playerColumn.contentElm().appendChild(this._equipElm);
+		this._statsElm = Html.div();
+		this._statsElm.style.listStyleType = "none";
+		this._playerColumn.contentElm().appendChild(this._statsElm);
 
 		this._rulesColumn = columnsWrapper.column(0);
 	}
@@ -110,6 +115,8 @@ export class RulesDialogWrapper extends DialogWrapper {
 		if (target.type() === EntityType.PLAYER) {
 			const player = <Player>target;
 			this.updateEquips([player.equipType(), player.altEquipType()]);
+
+			this.updateStats(player.buffs().boostCache());
 		}
 	}
 
@@ -132,5 +139,17 @@ export class RulesDialogWrapper extends DialogWrapper {
 		html += "</ul>";
 
 		this._equipElm.innerHTML = html;
+	}
+
+	private updateStats(cache : Map<StatType, number>) : void {
+		let html = "<ul>";
+		cache.forEach((value : number, type : StatType) => {
+			html += "<li>";
+			html += StringFactory.getStat(type, value);
+			html += "</li>";
+		});
+		html += "</ul>";
+
+		this._statsElm.innerHTML = html;
 	}
 }
