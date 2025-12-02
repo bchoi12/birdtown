@@ -27,7 +27,7 @@ export class PoisonBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.DAMAGE_TAKEN_BOOST, 0.025 * level],
+			[StatType.DAMAGE_TAKEN_BOOST, 0.05 * level],
 		]);
 	}
 

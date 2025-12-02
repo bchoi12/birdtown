@@ -6,11 +6,9 @@ import { BuffType, StatType } from 'game/factory/api'
 
 export class ExposeBuff extends Buff {
 
-	private static readonly _interval = 0.25;
-
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.DAMAGE_TAKEN_BOOST, ExposeBuff._interval * level],
+			[StatType.DAMAGE_TAKEN_BOOST, 0.2 * level],
 		]);
 	}
 

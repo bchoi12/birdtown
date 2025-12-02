@@ -9,6 +9,7 @@ export class BigBuff extends Buff {
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
 			[StatType.DAMAGE_BOOST, 0.1 * level],
+			[StatType.DAMAGE_CLOSE_BOOST, 0.1 * level],
 			[StatType.HEALTH, 20 + 50 * (level - 1)],
 			[StatType.SCALING, 0.2 + 0.05 * level],
 			[StatType.SHIELD, 20 + 10 * (level - 1)],
