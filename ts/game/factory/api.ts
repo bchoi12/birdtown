@@ -231,6 +231,7 @@ export enum EquipTag {
 
 	// Combo tags
 	BARRAGE,
+	DOUBLE_LASER,
 	LASER,
 	MEGA_ROCKET,
 	MASSIVE_DAMAGE,

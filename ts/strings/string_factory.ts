@@ -201,6 +201,7 @@ export namespace StringFactory {
 		[EquipTag.DODGY, "Dodgy"],
 		[EquipTag.NEEDS_REV, "Needs to Rev"],
 		[EquipTag.BARRAGE, "BARRAGE"],
+		[EquipTag.DOUBLE_LASER, "DOUBLE LASER"],
 		[EquipTag.LASER, "LASER"],
 		[EquipTag.MEGA_ROCKET, "BIG ROCKET"],
 		[EquipTag.MASSIVE_DAMAGE, "MASSIVE DAMAGE"],

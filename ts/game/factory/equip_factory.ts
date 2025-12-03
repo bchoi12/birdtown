@@ -271,8 +271,8 @@ export namespace EquipFactory {
 				merged.add(EquipTag.ONE_SHOT);
 				break;
 			case EntityType.LASER_CANNON:
-			case EntityType.WING_CANNON:
-				merged.add(EquipTag.LASER);
+				merged.add(EquipTag.DOUBLE_LASER);
+				merged.add(EquipTag.ONE_SHOT);
 				break;
 			case EntityType.LASER_GUN:
 				merged.add(EquipTag.BIG_BURST);
@@ -280,6 +280,9 @@ export namespace EquipFactory {
 				break;
 			case EntityType.RIFLE:
 				merged.add(EquipTag.PIERCING);
+				break;
+			case EntityType.WING_CANNON:
+				merged.add(EquipTag.LASER);
 				break;
 			}
 		}
