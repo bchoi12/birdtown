@@ -71,7 +71,6 @@ export enum IconType {
 	DESTRUCTION,
 	DRINK,
 	EXPLOSION,
-	FAST_TRUCK,
 	FIRE,
 	GATLING,
 	HEADPHONES,
@@ -134,7 +133,6 @@ export namespace Icon {
 		[IconType.DRINK, "local_bar"],
 		[IconType.ERROR, "error"],
 		[IconType.EXPLOSION, "explosion"],
-		[IconType.FAST_TRUCK, "delivery_truck_speed"],	
 		[IconType.FIRE, "mode_heat"],
 		[IconType.GATLING, "clear_all"],
 		[IconType.HEADPHONES, "headphones"],
@@ -275,9 +273,9 @@ export namespace Icon {
 	}
 
 	const buffIcons = new Map<BuffType, IconType>([
-		[BuffType.ACROBATIC, IconType.ACROBAT],
+		[BuffType.ASSASSIN, IconType.ACROBAT],
 		[BuffType.BIG, IconType.WEIGHT],
-		[BuffType.EAGLE_EYE, IconType.MAGNIFYING_GLASS],
+		[BuffType.CARRY, IconType.MAGNIFYING_GLASS],
 
 		[BuffType.EXPLOSION, IconType.EXPLOSION],
 		[BuffType.JUMPER, IconType.ROCKET],
@@ -285,7 +283,7 @@ export namespace Icon {
 		[BuffType.BRUISER, IconType.WEIGHT],
 		[BuffType.GLASS_CANNON, IconType.DESTRUCTION],
 
-		[BuffType.CRIT, IconType.SKULL],
+		[BuffType.SLY, IconType.SKULL],
 		[BuffType.FIERY, IconType.OVEN],
 		[BuffType.ICY, IconType.SNOWFLAKE],
 		[BuffType.SQUAWK_SHOT, IconType.MUSIC_NOTE],
@@ -294,12 +292,12 @@ export namespace Icon {
 		[BuffType.MOSQUITO, IconType.BUG],
 		[BuffType.TANK, IconType.PROPANE],
 		[BuffType.SUN, IconType.PLANT],
-		[BuffType.VAMPIRE, IconType.KEYBOARD],
+		[BuffType.NIGHT, IconType.KEYBOARD],
 		[BuffType.BLASTER, IconType.TRAIL_SHORT],
 		[BuffType.SNIPER, IconType.TRAIL_LONG],
 
 		[BuffType.COOL, IconType.HEADPHONES],
-		[BuffType.DODGY, IconType.FAST_TRUCK],
+		[BuffType.DODGY, IconType.BACKFLIP],
 		[BuffType.HEALER, IconType.PERSON_PLUS],
 		[BuffType.JUICED, IconType.BLENDER],
 

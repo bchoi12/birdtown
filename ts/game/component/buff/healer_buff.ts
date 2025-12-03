@@ -10,7 +10,6 @@ export class HealerBuff extends Buff {
 		return new Map([
 			[StatType.HEAL_PERCENT, 0.1 * level],
 			[StatType.IMBUE_LEVEL, 2 * level],
-			[StatType.REVIVE_BOOST, 0.1 * level],
 		]);
 	}
 }

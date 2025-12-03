@@ -32,8 +32,7 @@ export class Buffs extends ComponentBase implements Component {
 		this.execute<Buff>((buff : Buff, type : BuffType) => {
 			// TODO: doesn't really work
 			// buff.announceLevel();
-
-			if (buff.resetOnSpawn()) {
+			if (buff.resetOnSpawn() || buff.level() === 0) {
 				this.removeBuff(type);
 			} else {
 				buff.onRespawn();
@@ -59,6 +58,10 @@ export class Buffs extends ComponentBase implements Component {
 				this.updateConditionals(buff);
 			}
 			buff.addLevel(delta);
+		}
+
+		if (buff.level() === 0) {
+			this.removeBuff(type);
 		}
 	}
 	setBuffMin<T extends Buff>(type : BuffType, min : number) : void {

@@ -7,23 +7,27 @@ import { Optional } from 'util/optional'
 
 export class BruiserBuff extends Buff {
 
+	private static readonly _conditionals = new Set([StatType.DAMAGE_BOOST]);
 	private static readonly _healthInterval = 150;
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.HEALTH, BruiserBuff._healthInterval * level],
+			[StatType.HEALTH, 0.5 * BruiserBuff._healthInterval * level],
+			[StatType.SHIELD, 10 * level],
 		]);
 	}
 
-	protected override postBoosts(statCache : Map<StatType, number>) : Map<StatType, number> {
+	override conditionalStats() : Set<StatType> { return BruiserBuff._conditionals; }
+	override conditionalBoost(type : StatType) : number {
+		if (!BruiserBuff._conditionals.has(type)) {
+			return 0;
+		}
+
+		const statCache = this.getStatCache();
+
 		const bonusHealth = statCache.has(StatType.HEALTH) ? statCache.get(StatType.HEALTH) : 0;
 		const healthBoost = 1 + (statCache.has(StatType.HEALTH_BOOST) ? statCache.get(StatType.HEALTH_BOOST) : 0);
 
-		const scaling = Math.max(0, statCache.get(StatType.SCALING));
-
-		return new Map([
-			[StatType.DAMAGE_BOOST, 0.05 * Math.floor(2 * bonusHealth * healthBoost / BruiserBuff._healthInterval)],
-			[StatType.SHIELD, 5 * Math.floor(10 * scaling)],
-		]);
+		return 0.05 * Math.floor(bonusHealth * healthBoost / BruiserBuff._healthInterval);
 	}
 }

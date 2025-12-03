@@ -413,7 +413,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 
 		let otherCategory = new CategoryWrapper();
 		otherCategory.setTitle("More Options");
-		otherCategory.setExpanded(false);
+		otherCategory.setExpanded(true);
 		options.contentElm().appendChild(otherCategory.elm());
 
 		let teamMode = TeamMode.FREE_FOR_ALL;

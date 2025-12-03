@@ -4,7 +4,7 @@ import { GameObjectState } from 'game/api'
 import { Buff, BuffOptions } from 'game/component/buff'
 import { BuffType, StatType } from 'game/factory/api'
 
-export class CritBuff extends Buff {
+export class SlyBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([

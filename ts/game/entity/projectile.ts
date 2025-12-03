@@ -201,26 +201,11 @@ export abstract class Projectile extends EntityBase {
 		});
 	}
 
-	protected getDamageMultiplier(applyDistanceBoosts : boolean) : number {
-		let mult = 1;
-		if (this.hasOwner()) {
-			mult += this.owner().getStat(StatType.DAMAGE_BOOST);
-
-			if (applyDistanceBoosts) {
-				const closeWeight = Math.max(0, 1 - 2 * this.ttlElapsed());
-				mult += Fns.lerpRange(0, closeWeight, this.owner().getStat(StatType.DAMAGE_CLOSE_BOOST));
-
-				const farWeight = Math.max(0, 2 * this.ttlElapsed() - 1);
-				mult += Fns.lerpRange(0, farWeight, this.owner().getStat(StatType.DAMAGE_FAR_BOOST));
-			}
-		}
-		return Math.max(0.1, mult);
-	}
 	protected hitDamage() : number {
-		return this.getStat(StatType.DAMAGE) * this.getDamageMultiplier(/*applyDistanceBoosts=*/true);
+		return this.getStat(StatType.DAMAGE);
 	}
 	protected unstickDamage() : number {
-		return this.getStat(StatType.UNSTICK_DAMAGE) * this.getDamageMultiplier(/*applyDistanceBoosts=*/false);
+		return this.getStat(StatType.UNSTICK_DAMAGE);
 	}
 	protected applyUnstickDamage(id : number) : void {
 		const dmg = this.unstickDamage();

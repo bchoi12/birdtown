@@ -3,15 +3,14 @@ import { game } from 'game'
 import { ComponentType } from 'game/component/api'
 import { Buff, BuffOptions } from 'game/component/buff'
 import { Buffs } from 'game/component/buffs'
-import { AcrobaticBuff } from 'game/component/buff/acrobatic_buff'
+import { AssassinBuff } from 'game/component/buff/assassin_buff'
 import { BigBuff } from 'game/component/buff/big_buff'
 import { BlackHeadbandBuff } from 'game/component/buff/black_headband_buff'
 import { BlasterBuff } from 'game/component/buff/blaster_buff'
 import { BruiserBuff } from 'game/component/buff/bruiser_buff'
 import { CoolBuff } from 'game/component/buff/cool_buff'
-import { CritBuff } from 'game/component/buff/crit_buff'
 import { DodgyBuff } from 'game/component/buff/dodgy_buff'
-import { EagleEyeBuff } from 'game/component/buff/eagle_eye_buff'
+import { CarryBuff } from 'game/component/buff/carry_buff'
 import { ExplosionBuff } from 'game/component/buff/explosion_buff'
 import { ExposeBuff } from 'game/component/buff/expose_buff'
 import { FieryBuff } from 'game/component/buff/fiery_buff'
@@ -23,8 +22,10 @@ import { ImbueBuff } from 'game/component/buff/imbue_buff'
 import { JuicedBuff } from 'game/component/buff/juiced_buff'
 import { JumperBuff } from 'game/component/buff/jumper_buff'
 import { MosquitoBuff } from 'game/component/buff/mosquito_buff'
+import { NightBuff } from 'game/component/buff/night_buff'
 import { PoisonBuff } from 'game/component/buff/poison_buff'
 import { SlowBuff } from 'game/component/buff/slow_buff'
+import { SlyBuff } from 'game/component/buff/sly_buff'
 import { SniperBuff } from 'game/component/buff/sniper_buff'
 import { SpreeBuff } from 'game/component/buff/spree_buff'
 import { SquawkShieldBuff } from 'game/component/buff/squawk_shield_buff'
@@ -32,7 +33,6 @@ import { SquawkShotBuff } from 'game/component/buff/squawk_shot_buff'
 import { StatStickBuff } from 'game/component/buff/stat_stick_buff'
 import { SunBuff } from 'game/component/buff/sun_buff'
 import { TankBuff } from 'game/component/buff/tank_buff'
-import { VampireBuff } from 'game/component/buff/vampire_buff'
 import { VipBuff } from 'game/component/buff/vip_buff'
 import { WarmogsBuff } from 'game/component/buff/warmogs_buff'
 import { Entity } from 'game/entity'
@@ -46,13 +46,13 @@ import { SeededRandom } from 'util/seeded_random'
 export namespace BuffFactory {
 
 	// TODO: exodia buffs + weapon
-	// squawk shields
 	// meditation?
 	// PERIL_DAMAGE_BOOST
 	// BUFFS THAT PROCESS DAMAGE
 
 	const starterMetadata : BuffOptions = {
-		maxLevel: 5,
+		maxLevel: 4,
+		levelUp: true,
 	};
 	const basicMetadata = {
 		maxLevel: 1,
@@ -72,42 +72,50 @@ export namespace BuffFactory {
 		resetOnSpawn: true,
 	};
 
+	const percentMetadata : BuffOptions = {
+		maxLevel: 100,
+		resetOnSpawn: true,
+	}
+
 	const metadata = new Map<BuffType, BuffOptions>([
-		[BuffType.ACROBATIC, starterMetadata],
+		[BuffType.ASSASSIN, starterMetadata],
 		[BuffType.BIG, starterMetadata],
-		[BuffType.EAGLE_EYE, starterMetadata],
+		[BuffType.CARRY, starterMetadata],
 
 		[BuffType.EXPLOSION, basicMetadata],
 		[BuffType.JUMPER, basicMetadata],
 
-		[BuffType.BRUISER, basicMetadata],
-		[BuffType.GLASS_CANNON, basicMetadata],
+		[BuffType.BRUISER, upgradeMetadata],
+		[BuffType.GLASS_CANNON, upgradeMetadata],
 
 		[BuffType.FIERY, upgradeMetadata],
 		[BuffType.ICY, upgradeMetadata],
 
-		[BuffType.MOSQUITO, upgradeMetadata],
-		[BuffType.TANK, upgradeMetadata],
 		[BuffType.SUN, upgradeMetadata],
-		[BuffType.VAMPIRE, upgradeMetadata],
+		[BuffType.NIGHT, upgradeMetadata],
+
 		[BuffType.BLASTER, upgradeMetadata],
 		[BuffType.SNIPER, upgradeMetadata],
+
 		[BuffType.SQUAWK_SHOT, upgradeMetadata],
 		[BuffType.SQUAWK_SHIELD, upgradeMetadata],
+
+		[BuffType.MOSQUITO, upgradeMetadata],
+		[BuffType.TANK, upgradeMetadata],
+
+		[BuffType.HEALER, specialMetadata],
+		[BuffType.SLY, specialMetadata],
 
 		[BuffType.COOL, specialMetadata],
 		[BuffType.DODGY, specialMetadata],
 		[BuffType.JUICED, specialMetadata],
-
-		[BuffType.HEALER, specialMetadata],
-		[BuffType.CRIT, specialMetadata],
 
 		[BuffType.STAT_STICK, { maxLevel: 300 }],
 
 		// Unused
 		[BuffType.WARMOGS, upgradeMetadata],
 
-		[BuffType.EXPOSE, stackingMetadata],
+		[BuffType.EXPOSE, percentMetadata],
 		[BuffType.FLAME, stackingMetadata],
 		[BuffType.IMBUE, stackingMetadata],
 		[BuffType.POISON, stackingMetadata],
@@ -128,14 +136,14 @@ export namespace BuffFactory {
 	export function maxLevel(type : BuffType) : number { return metadata.get(type).maxLevel; }
 
 	const createFns = new Map<BuffType, (type : BuffType) => Buff>([
-		[BuffType.ACROBATIC, (type : BuffType) => { return new AcrobaticBuff(type, metadata.get(type)) }],
+		[BuffType.ASSASSIN, (type : BuffType) => { return new AssassinBuff(type, metadata.get(type)) }],
 		[BuffType.BIG, (type : BuffType) => { return new BigBuff(type, metadata.get(type)) }],
-		[BuffType.EAGLE_EYE, (type : BuffType) => { return new EagleEyeBuff(type, metadata.get(type)) }],
+		[BuffType.CARRY, (type : BuffType) => { return new CarryBuff(type, metadata.get(type)) }],
 
 		[BuffType.BLASTER, (type : BuffType) => { return new BlasterBuff(type, metadata.get(type))}],
 		[BuffType.BRUISER, (type : BuffType) => { return new BruiserBuff(type, metadata.get(type))}],
 		[BuffType.COOL, (type : BuffType) => { return new CoolBuff(type, metadata.get(type))}],
-		[BuffType.CRIT, (type : BuffType) => { return new CritBuff(type, metadata.get(type)) }],
+		[BuffType.SLY, (type : BuffType) => { return new SlyBuff(type, metadata.get(type)) }],
 		[BuffType.DODGY, (type : BuffType) => { return new DodgyBuff(type, metadata.get(type)) }],
 		[BuffType.EXPLOSION, (type : BuffType) => { return new ExplosionBuff(type, metadata.get(type)) }],
 		[BuffType.FIERY, (type : BuffType) => { return new FieryBuff(type, metadata.get(type)) }],
@@ -151,7 +159,7 @@ export namespace BuffFactory {
 		[BuffType.STAT_STICK, (type : BuffType) => { return new StatStickBuff(type, metadata.get(type)) }],
 		[BuffType.SUN, (type : BuffType) => { return new SunBuff(type, metadata.get(type)) }],
 		[BuffType.TANK, (type : BuffType) => { return new TankBuff(type, metadata.get(type)) }],
-		[BuffType.VAMPIRE, (type : BuffType) => { return new VampireBuff(type, metadata.get(type)) }],
+		[BuffType.NIGHT, (type : BuffType) => { return new NightBuff(type, metadata.get(type)) }],
 		[BuffType.WARMOGS, (type : BuffType) => { return new WarmogsBuff(type, metadata.get(type)) }],
 
 		[BuffType.BLACK_HEADBAND, (type : BuffType) => { return new BlackHeadbandBuff(type, metadata.get(type)) }],
@@ -176,7 +184,7 @@ export namespace BuffFactory {
 	let buffRandom = new SeededRandom(Math.floor(10000 * Math.random()));
 	export function seed(seed : number) : void { buffRandom.seed(seed); }
 
-	const starterBuffs = new Array<BuffType>(BuffType.ACROBATIC, BuffType.BIG, BuffType.EAGLE_EYE);
+	const starterBuffs = new Array<BuffType>(BuffType.ASSASSIN, BuffType.BIG, BuffType.CARRY);
 	export function getStarters() : Array<BuffType> {
 		return starterBuffs;
 	}
@@ -219,13 +227,12 @@ export namespace BuffFactory {
 		EntityType.PURPLE_GLOVE,
 		EntityType.WING_CANNON,
 	]);
-	const stickWeapons = new Set<EntityType>([
-		EntityType.PURPLE_GLOVE,
-	]);
 
 	const prereqs = new Map<BuffType, Array<BuffType>>([
-		[BuffType.MOSQUITO, [BuffType.ACROBATIC, BuffType.EAGLE_EYE]],
-		[BuffType.TANK, [BuffType.ACROBATIC, BuffType.TANK]],
+		[BuffType.MOSQUITO, [BuffType.ASSASSIN, BuffType.CARRY]],
+		[BuffType.TANK, [BuffType.BIG]],
+		[BuffType.GLASS_CANNON, [BuffType.ASSASSIN, BuffType.CARRY]],
+		[BuffType.BRUISER, [BuffType.ASSASSIN, BuffType.BIG]],
 	]);
 	export function hasPrereq(player : Player, type : BuffType) : boolean {
 		if (!prereqs.has(type)) {
@@ -247,8 +254,9 @@ export namespace BuffFactory {
 
 		pickableBuffs.add(chooseBuffs(player, [BuffType.MOSQUITO, BuffType.TANK]));
 		pickableBuffs.add(chooseBuffs(player, [BuffType.GLASS_CANNON, BuffType.BRUISER]));
-		pickableBuffs.add(chooseBuffs(player, [BuffType.SUN, BuffType.VAMPIRE]));
+		pickableBuffs.add(chooseBuffs(player, [BuffType.SUN, BuffType.NIGHT]));
 		pickableBuffs.add(chooseBuffs(player, [BuffType.ICY, BuffType.FIERY]));
+		pickableBuffs.add(chooseBuffs(player, [BuffType.BLASTER, BuffType.SNIPER]));
 
 		// TODO: add squawk shield
 		pickableBuffs.add(chooseBuffs(player, [BuffType.SQUAWK_SHOT, BuffType.SQUAWK_SHIELD]));
@@ -262,13 +270,10 @@ export namespace BuffFactory {
 		if (explodeWeapons.has(player.equipType())) {
 			pickableBuffs.add(BuffType.EXPLOSION);
 		}
-		if (!stickWeapons.has(player.equipType())) {
-			pickableBuffs.add(chooseBuffs(player, [BuffType.BLASTER, BuffType.SNIPER]));
-		}
 		if (game.controller().isTeamMode()) {
-			pickableBuffs.add(chooseBuffs(player, [BuffType.HEALER, BuffType.CRIT]));
+			pickableBuffs.add(chooseBuffs(player, [BuffType.HEALER, BuffType.SLY]));
 		} else {
-			pickableBuffs.add(BuffType.CRIT);
+			pickableBuffs.add(BuffType.SLY);
 		}
 
 		pickableBuffs.delete(BuffType.UNKNOWN);

@@ -144,6 +144,10 @@ export class RulesDialogWrapper extends DialogWrapper {
 	private updateStats(cache : Map<StatType, number>) : void {
 		let html = "<ul>";
 		cache.forEach((value : number, type : StatType) => {
+			if (Math.abs(value) < 1e-3) {
+				return;
+			}
+
 			html += "<li>";
 			html += StringFactory.getStat(type, value);
 			html += "</li>";

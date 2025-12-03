@@ -43,6 +43,7 @@ export class ChatHandler extends HandlerBase implements Handler {
 		    grawlix: '*****',
 		    grawlixChar: '*',
 		});
+		this._profanity.removeWords(["assassin"]);
 		this._hideTimeout = new Optional();
 	}
 

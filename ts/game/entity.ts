@@ -28,6 +28,7 @@ import { ParamString } from 'strings/param_string'
 import { HudType, HudOptions, KeyType, KeyState, TooltipType } from 'ui/api'
 
 import { defined } from 'util/common'
+import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
 import { Vec, Vec2, Vec3 } from 'util/vector'
@@ -597,10 +598,20 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		delta = -delta;
 		if (delta < 0 && from && this.id() !== from.id()) {
 			let mult = 1 + this.getStat(StatType.DAMAGE_TAKEN_BOOST) - this.getStat(StatType.DAMAGE_RESIST_BOOST);
+
+			if (this.hasProfile() && from.hasProfile()) {
+				if (from.hasStat(StatType.DAMAGE_CLOSE_BOOST)) {
+					const dist = this.profile().pos().dist(from.profile().pos());
+					mult += Fns.normalizeRange(10, dist, 20) * from.getStat(StatType.DAMAGE_CLOSE_BOOST);
+				}
+				if (from.hasStat(StatType.DAMAGE_FAR_BOOST)) {
+					const dist = this.profile().pos().dist(from.profile().pos());
+					mult += Fns.normalizeRange(10, dist, 0) * from.getStat(StatType.DAMAGE_CLOSE_BOOST);
+				}
+			}
 			delta *= Math.max(0.1, mult);
 
 			delta -= Math.min(0, from.getStat(StatType.DAMAGE_ADDITION) - this.getStat(StatType.DAMAGE_REDUCTION));
-
 			delta = Math.min(0, delta);
 
 			let buffDelta = 1;
@@ -616,8 +627,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			}
 
 			if (delta < 0) {
-				if (from.rollStat(StatType.EXPOSE_CHANCE)) {
-					this.addBuff(BuffType.EXPOSE, buffDelta);
+				if (from.hasStat(StatType.EXPOSE_PERCENT)) {
+					const exposeDelta = buffDelta * Math.floor(Math.abs(delta) * from.getStat(StatType.EXPOSE_PERCENT));
+					if (exposeDelta > 0) {
+						this.addBuff(BuffType.EXPOSE, exposeDelta);
+					}
 				}
 				if (from.rollStat(StatType.SLOW_CHANCE)) {
 					this.addBuff(BuffType.SLOW, buffDelta);

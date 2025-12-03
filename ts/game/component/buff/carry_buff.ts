@@ -4,21 +4,14 @@ import { GameObjectState } from 'game/api'
 import { Buff, BuffOptions } from 'game/component/buff'
 import { BuffType, StatType } from 'game/factory/api'
 
-export class EagleEyeBuff extends Buff {
+export class CarryBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.EXPOSE_CHANCE, 0.1 + 0.15 * level],
-			[StatType.FIRE_BOOST, 0.15 * level],
-			[StatType.HEALTH, 20 + 40 * (level - 1)],
+			[StatType.EXPOSE_PERCENT, 0.2 + 0.2 * level],
+			[StatType.FIRE_BOOST, 0.2 * level],
+			[StatType.HEALTH, 35 * level],
 			[StatType.LIFE_STEAL, 0.05 * level],
-			[StatType.RELOAD_BOOST, 0.1 * level],
 		]);
-	}
-
-	override levelUp() : void {
-		super.levelUp();
-
-		this.addLevel(1);
 	}
 }

@@ -26,11 +26,11 @@ export class CoolBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.CRIT_CHANCE, Math.min(0.2, 0.1 * level)],
+			[StatType.CRIT_CHANCE, 0.1 * level],
 			[StatType.CRIT_BOOST, 0.1 * level],
 			[StatType.RELOAD_BOOST, 0.2 * level],
-			[StatType.REV_BOOST, 0.2 * level],
-			[StatType.SPEED_BOOST, 0.1 * level],
+			[StatType.SPEED_BOOST, 0.05 * level],
+			[StatType.USE_BOOST, this.atMaxLevel() ? 1 : 0],
 		]);
 	}
 

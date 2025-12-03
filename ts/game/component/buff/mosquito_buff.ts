@@ -10,11 +10,8 @@ export class MosquitoBuff extends Buff {
 		return new Map([
 			[StatType.BURST_BOOST, 0.5 * level],
 			[StatType.DAMAGE_BOOST, -0.1 * level],
-			[StatType.DAMAGE_TAKEN_BOOST, 0.1 * level],
 			[StatType.DOUBLE_JUMPS, level],
-			[StatType.FIRE_BOOST, 0.15 * level],
 			[StatType.SCALING, -0.1 * level],
-			[StatType.SPEED_BOOST, 0.1 * level],
 		]);
 	}
 }

@@ -17,6 +17,7 @@ import { StringFactory } from 'strings/string_factory'
 export type BuffOptions = {
 	maxLevel : number;
 
+	levelUp? : boolean;
 	resetOnSpawn? : boolean;
 }
 
@@ -33,7 +34,7 @@ export abstract class Buff extends ComponentBase implements Component {
 	protected static readonly _intervals : Map<StatType, number> = new Map([
 		[StatType.BURST_BONUS, 1],
 		[StatType.BURST_BOOST, 0.25],
-		[StatType.CHARGE_BOOST, 0.1],
+		[StatType.CHARGE_BOOST, 0.25],
 		[StatType.CRIT_CHANCE, 0.1],
 		[StatType.CRIT_BOOST, 0.2],
 		[StatType.DAMAGE_ADDITION, 5],
@@ -51,7 +52,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.PROJECTILE_SCALING_BOOST, 0.5],
 		[StatType.SCALING, 0.1],
 		[StatType.SLOW_CHANCE, 0.3],
-		[StatType.SPEED_BOOST, 0.1],
+		[StatType.SPEED_BOOST, 0.05],
 		[StatType.SPEED_DEBUFF, 0.1],
 		[StatType.LIFE_STEAL, 0.05],
 		[StatType.USE_BOOST, 0.2],
@@ -60,6 +61,7 @@ export abstract class Buff extends ComponentBase implements Component {
 	protected _buffType : BuffType;
 	protected _level : number;
 	protected _maxLevel : number;
+	protected _levelUp : boolean;
 	protected _resetOnSpawn : boolean;
 	protected _levelAnnounce : Optional<number>;
 
@@ -76,6 +78,7 @@ export abstract class Buff extends ComponentBase implements Component {
 		this._buffType = type;
 		this._level = 0;
 		this._maxLevel = options.maxLevel;
+		this._levelUp = options.levelUp;
 		this._resetOnSpawn = options.resetOnSpawn;
 		this._levelAnnounce = new Optional();
 
@@ -92,6 +95,14 @@ export abstract class Buff extends ComponentBase implements Component {
 		});
 	}
 
+	override delete() : void {
+		super.delete();
+
+		if (this.level() > 0) {
+			this.setLevel(0);	
+		}
+	}
+
 	override canStep() : boolean { return this._level > 0 && super.canStep(); }
 
 	protected applyStats(cache : Map<StatType, number>) : void {
@@ -104,22 +115,12 @@ export abstract class Buff extends ComponentBase implements Component {
 		boosts.forEach((delta : number, type : StatType) => {
 			cache.set(type, (cache.has(type) ? cache.get(type) : 0) + delta);
 		});
-
-		const postBoosts = this.postBoosts(cache);
-		postBoosts.forEach((delta : number, type : StatType) => {
-			cache.set(type, (cache.has(type) ? cache.get(type) : 0) + delta);
-		});
 	}
 	protected revertStats(cache : Map<StatType, number>) : void {
 		const level = this.level();
 		if (level === 0) {
 			return;
 		}
-
-		const postBoosts = this.postBoosts(cache);
-		postBoosts.forEach((delta : number, type : StatType) => {
-			cache.set(type, (cache.has(type) ? cache.get(type) : 0) - delta);
-		});
 
 		const boosts = this.boosts(level);
 		boosts.forEach((delta : number, type : StatType) => {
@@ -138,14 +139,17 @@ export abstract class Buff extends ComponentBase implements Component {
 	}
 
 	protected abstract boosts(level : number) : Map<StatType, number>;
-	protected postBoosts(statCache : Map<StatType, number>) : Map<StatType, number> { return Buff._emptyBoosts; }
 
 	conditionalStats() : Set<StatType> { return Buff._emptyStats; }
 	conditionalBoost(type : StatType) : number { return 0; }
 
 	getStatCache() : Map<StatType, number> { return this.getParent<Buffs>().boostCache(); }
 
-	levelUp() : void {}
+	levelUp() : void {
+		if (this._levelUp && this.level() > 0) {
+			this.addLevel(1);
+		}
+	}
 	protected maxLevel() : number { return this._maxLevel; }
 	atMaxLevel() : boolean { return this._level >= this._maxLevel; }
 	level() : number { return this._level; }
@@ -171,6 +175,11 @@ export abstract class Buff extends ComponentBase implements Component {
 		this.addLevel(delta);
 	}
 	protected onLevel(level : number, delta : number) : void {
+		if (level === 0) {
+			this.delete();
+			return;
+		}
+
 		if (level > 0 && delta !== 0) {
 			this.applyStats(this.getStatCache());
 
@@ -179,7 +188,7 @@ export abstract class Buff extends ComponentBase implements Component {
 			}
 		}
 
-		if (level === 0 || delta < 0) {
+		if (delta < 0) {
 			this._levelAnnounce.clear();
 		}
 	}

@@ -9,20 +9,17 @@ import { SeededRandom } from 'util/seeded_random'
 export class StatStickBuff extends Buff {
 
 	private static readonly _stats : Array<StatType> = new Array(
-		StatType.BURST_BOOST,
 		StatType.CHARGE_BOOST,
 		StatType.CRIT_CHANCE,
 		StatType.CRIT_BOOST,
 		StatType.DAMAGE_BOOST,
-		StatType.DAMAGE_CLOSE_BOOST,
-		StatType.DAMAGE_FAR_BOOST,
 		StatType.DAMAGE_RESIST_BOOST,
 		StatType.FIRE_BOOST,
 		StatType.HEALTH,
 		StatType.LIFE_STEAL,
 		StatType.PROJECTILE_SCALING_BOOST,
+		StatType.SHIELD,
 		StatType.SPEED_BOOST,
-		StatType.USE_BOOST,
 	);
 
 	private _seed : number;

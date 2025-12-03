@@ -141,7 +141,7 @@ export abstract class Beak extends Equip<Player> {
 		if (this.owner().hasBuff(BuffType.SQUAWK_SHOT)) {
 			const unitDir = this.getDir();
 			if (this.charged()) {
-				this.addEntity(EntityType.LASER, this.getProjectileOptions(this.owner().profile().pos(), unitDir, unitDir.angleRad()));
+				this.addEntity(EntityType.BEAK_BULLET, this.getProjectileOptions(this.owner().profile().pos(), unitDir, unitDir.angleRad()));
 			} else {
 				this.addEntity(EntityType.ROCKET, this.getProjectileOptions(Vec3.fromBabylon3(modelPos), unitDir));			
 			}

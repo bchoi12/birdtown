@@ -86,7 +86,7 @@ import { Bullet } from 'game/entity/projectile/bullet'
 import { Caliber } from 'game/entity/projectile/caliber'
 import { Cartridge } from 'game/entity/projectile/cartridge'
 import { ChargedBolt } from 'game/entity/projectile/charged_bolt'
-import { GoldenBullet } from 'game/entity/projectile/golden_bullet'
+import { GoldenBullet, BeakBullet } from 'game/entity/projectile/golden_bullet'
 import { Knife, PoisoningKnife } from 'game/entity/projectile/knife'
 import { Laser } from 'game/entity/projectile/laser'
 import { MegaRocket } from 'game/entity/projectile/mega_rocket'
@@ -112,6 +112,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOF, (options : EntityOptions) => { return new ArchRoof(options); }],
 		[EntityType.BACKGROUND_ARCH_ROOM, (options : EntityOptions) => { return new BackgroundArchRoom(options); }],
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
+		[EntityType.BEAK_BULLET, (options : EntityOptions) => { return new BeakBullet(options); }],
 		[EntityType.BILLBOARD, (options : EntityOptions) => { return new Billboard(options); }],
 		[EntityType.BLACK_HEADBAND, (options : EntityOptions) => { return new BlackHeadband(options); }],
 		[EntityType.BLACK_HOLE, (options : EntityOptions) => { return new BlackHole(options); }],
@@ -222,6 +223,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOM, { x: 12, y: 6, z: 8 }],
 		[EntityType.ARCH_ROOF, { x: 12, y: 1, z: 8 }],
 		[EntityType.BACKGROUND_ARCH_ROOM, { x: 12, y: 6 }],
+		[EntityType.BEAK_BULLET, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.BILLBOARD, { x: 8, y: 6.4, z: 0.5 }],
 		[EntityType.BUSH, { x: 3.3, y: 2 }],
 		[EntityType.BOLT, { x: 0.7, y: 0.15, z : 0.15 }],

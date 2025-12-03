@@ -5,7 +5,7 @@ import { Buff, BuffOptions } from 'game/component/buff'
 import { BuffType, StatType } from 'game/factory/api'
 import { TimeType } from 'game/system/api'
 
-export class VampireBuff extends Buff {
+export class NightBuff extends Buff {
 
 	private _night : boolean;
 
@@ -23,15 +23,9 @@ export class VampireBuff extends Buff {
 	// TODO: add some demon horns or something
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.CHARGE_BOOST, (this._night ? 0.2 : 0) * level],
-			[StatType.CRIT_CHANCE, (this._night ? 0.2 : 0) * level],
-			[StatType.CRIT_BOOST, (this._night ? 0.2 : 0) * level],
-			[StatType.DAMAGE_BOOST, (this.atMaxLevel() && this._night) ? 0.2 : 0],
-			[StatType.FIRE_BOOST, (this._night ? 0.2 : 0.1) * level],
+			[StatType.DAMAGE_BOOST, (this._night ? 0.2 : 0.05) * level],
 			[StatType.LIFE_STEAL, (this._night ? 0.1 : 0) * level],
-			[StatType.RELOAD_BOOST, (this._night ? 0.2 : 0.1) * level],
-			[StatType.REV_BOOST, (this._night ? 0.5 : 0) * level],
-			[StatType.POISON_CHANCE, (this._night ? 0.2 : 0) * level],
+			[StatType.SHIELD, (this._night ? 150 : 0) * level],
 		])
 	}
 

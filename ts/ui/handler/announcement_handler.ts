@@ -183,7 +183,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 
 		const rand = Math.random();
 
-		const num = 7;
+		const num = 11;
 		const seed = game.level().seed() + game.controller().round();
 
 		if (seed % num === 0) {
@@ -199,10 +199,22 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 			return `${nameList} ${(names.length > 1 ? "PUT" : "PUTS")} 'EM IN THE DOGHOUSE!`;
 		}
 		if (seed % num === 4) {
-			return `${nameList} JUST BLASTED THOSE BOOTIES!`;
+			return `${nameList} JUST BLASTED YOUR BOOTY!`;
 		}
 		if (seed % num === 5) {
 			return `${nameList} ${(names.length > 1 ? "REWRITE" : "REWRITES")} HISTORY!`;
+		}
+		if (seed % num === 6) {
+			return `FAITHFUL ${nameList} FANS REJOICE!`;
+		}
+		if (seed % num === 7) {
+			return `${nameList} ${(names.length > 1 ? "BEGIN" : "BEGINS")} A NEW EMPIRE!`;
+		}
+		if (seed % num === 8) {
+			return `${nameList}: REMEMBER THE ${(names.length > 1 ? "NAMES" : "NAME")}!`;
+		}
+		if (seed % num === 9) {
+			return `${nameList} ${(names.length > 1 ? "TAKE" : "TAKES")} IT OFFLINE!`;
 		}
 
 		return `${nameList} ${(names.length > 1 ? "WIN" : "WINS")} IT ALL!`;

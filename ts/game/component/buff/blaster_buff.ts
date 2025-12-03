@@ -8,8 +8,7 @@ export class BlasterBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.CRIT_CHANCE, 0.1 * level],
-			[StatType.DAMAGE_CLOSE_BOOST, 0.3 * level],
+			[StatType.DAMAGE_CLOSE_BOOST, 0.5 * level],
 			[StatType.PROJECTILE_SCALING_BOOST, 0.5 * level],
 		]);
 	}

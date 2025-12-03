@@ -20,7 +20,7 @@ import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Vec, Vec2 } from 'util/vector'
 
-export class GoldenBullet extends Projectile {
+abstract class GoldenBulletBase extends Projectile {
 
 	private static readonly _trailVertices = [
         new BABYLON.Vector3(0, 0, 0.08),
@@ -33,8 +33,8 @@ export class GoldenBullet extends Projectile {
 	private _model : Model;
 	private _profile : Profile;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.GOLDEN_BULLET, entityOptions);
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
 
 		this._trail = BABYLON.MeshBuilder.ExtrudePolygon(this.name() + "-trail", {
 			shape: GoldenBullet._trailVertices,
@@ -107,5 +107,19 @@ export class GoldenBullet extends Projectile {
 
 	override onMiss() : void {
 		this.explode(EntityType.GOLDEN_EXPLOSION, {});
+	}
+}
+
+export class GoldenBullet extends GoldenBulletBase {
+
+	constructor(options : EntityOptions) {
+		super(EntityType.GOLDEN_BULLET, options);
+	}
+}
+
+export class BeakBullet extends GoldenBulletBase {
+
+	constructor(options : EntityOptions) {
+		super(EntityType.BEAK_BULLET, options);
 	}
 }

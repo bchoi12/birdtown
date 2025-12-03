@@ -8,7 +8,7 @@ export class VipBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.SHIELD, 50],
+			[StatType.SHIELD, 50 * level],
 		]);
 	}
 }
