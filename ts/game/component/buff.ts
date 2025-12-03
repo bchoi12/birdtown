@@ -105,7 +105,7 @@ export abstract class Buff extends ComponentBase implements Component {
 
 	override canStep() : boolean { return this._level > 0 && super.canStep(); }
 
-	protected applyStats(cache : Map<StatType, number>) : void {
+	applyStats(cache : Map<StatType, number>) : void {
 		const level = this.level();
 		if (level === 0) {
 			return;
@@ -150,7 +150,7 @@ export abstract class Buff extends ComponentBase implements Component {
 			this.addLevel(1);
 		}
 	}
-	protected maxLevel() : number { return this._maxLevel; }
+	maxLevel() : number { return this._maxLevel; }
 	atMaxLevel() : boolean { return this._level >= this._maxLevel; }
 	level() : number { return this._level; }
 	addLevel(delta : number) : void {

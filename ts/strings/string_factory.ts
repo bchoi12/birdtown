@@ -316,7 +316,7 @@ export namespace StringFactory {
 		[StatType.CHARGED_RELOAD_TIME, toTime],
 		[StatType.CHARGED_REV_TIME, toTime],
 		[StatType.CRIT_CHANCE, toPercent],
-		[StatType.CRIT_BOOST, toMult],
+		[StatType.CRIT_BOOST, toBoost],
 		[StatType.DAMAGE, toInt],
 		[StatType.DAMAGE_BOOST, toMult],
 		[StatType.DAMAGE_CLOSE_BOOST, toMult],
@@ -325,7 +325,7 @@ export namespace StringFactory {
 		[StatType.DAMAGE_RESIST_BOOST, toBoost],
 		[StatType.DOUBLE_JUMPS, toInt],
 		[StatType.EXPLOSION_BOOST, toMult],
-		[StatType.EXPLOSION_DAMAGE, toMult],
+		[StatType.EXPLOSION_DAMAGE, toNum],
 		[StatType.EXPOSE_PERCENT, toPercent],
 		[StatType.FIRE_BOOST, toMult],
 		[StatType.FIRE_TIME, toTime],
@@ -423,7 +423,7 @@ export namespace StringFactory {
 	}
 
 	const buffUsage = new Map<BuffType, string>([
-		[BuffType.ASSASSIN, "Increase your mobility, critical strikes, and skill charge each round"],
+		[BuffType.ASSASSIN, "Increase your mobility, critical damage, and charge rate each round"],
 		[BuffType.BIG, "Increase your size, damage, and shielding each round"],
 		[BuffType.CARRY, "Increase your weapon mastery, life steal, and ramping damage each round"],
 

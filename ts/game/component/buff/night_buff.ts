@@ -23,9 +23,9 @@ export class NightBuff extends Buff {
 	// TODO: add some demon horns or something
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.DAMAGE_BOOST, (this._night ? 0.2 : 0.05) * level],
+			[StatType.DAMAGE_BOOST, (this._night ? 0.2 : 0) * level],
 			[StatType.LIFE_STEAL, (this._night ? 0.1 : 0) * level],
-			[StatType.SHIELD, (this._night ? 150 : 0) * level],
+			[StatType.SHIELD, (this._night ? 75 : 0) * level],
 		])
 	}
 

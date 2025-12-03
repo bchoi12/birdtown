@@ -29,14 +29,18 @@ export class Buffs extends ComponentBase implements Component {
 	}
 
 	refresh() : void {
+		this._boostCache.clear();
+
 		this.execute<Buff>((buff : Buff, type : BuffType) => {
 			// TODO: doesn't really work
 			// buff.announceLevel();
 			if (buff.resetOnSpawn() || buff.level() === 0) {
 				this.removeBuff(type);
-			} else {
-				buff.onRespawn();
+				return;
 			}
+
+			buff.onRespawn();
+			buff.applyStats(this._boostCache);
 		});
 	}
 
@@ -91,9 +95,9 @@ export class Buffs extends ComponentBase implements Component {
 
 		let buff = this.buff(type);
 		if (buff.level() > 0) {
-			this.updateConditionals(buff);
 			buff.setLevel(0);
 		}
+		this.updateConditionals(buff);
 	}
 	clearBuffs() : void {
 		this.execute<Buff>((buff : Buff, type : BuffType) => {

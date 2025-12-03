@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 import { GameMode } from 'game/api'
+import { Buff } from 'game/component/buff'
+import { Buffs } from 'game/component/buffs'
 import { Entity } from 'game/entity'
 import { EntityType, FrequencyType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
@@ -116,7 +118,7 @@ export class RulesDialogWrapper extends DialogWrapper {
 			const player = <Player>target;
 			this.updateEquips([player.equipType(), player.altEquipType()]);
 
-			this.updateStats(player.buffs().boostCache());
+			this.updateBuffs(player.buffs());
 		}
 	}
 
@@ -155,5 +157,24 @@ export class RulesDialogWrapper extends DialogWrapper {
 		html += "</ul>";
 
 		this._statsElm.innerHTML = html;
+	}
+
+	private updateBuffs(buffs : Buffs) : void {
+		let html = "<ul>";
+
+		buffs.execute((buff : Buff) => {
+			if (buff.level() <= 0) {
+				return;
+			}
+
+			html += "<li>";
+			html += `${StringFactory.getBuffName(buff.buffType())} Lv${buff.level()}/${buff.maxLevel()}`;
+			html += "</li>";
+		});
+
+		html += "</ul>";
+
+		this._statsElm.innerHTML = html;
+
 	}
 }

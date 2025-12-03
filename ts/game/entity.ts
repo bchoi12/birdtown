@@ -599,7 +599,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		if (delta < 0 && from && this.id() !== from.id()) {
 			let mult = 1 + this.getStat(StatType.DAMAGE_TAKEN_BOOST) - this.getStat(StatType.DAMAGE_RESIST_BOOST);
 
-			if (this.hasProfile() && from.hasProfile()) {
+			if (hitEntity && hitEntity.hasType(EntityType.PROJECTILE) && this.hasProfile() && from.hasProfile()) {
 				if (from.hasStat(StatType.DAMAGE_CLOSE_BOOST)) {
 					const dist = this.profile().pos().dist(from.profile().pos());
 					mult += Fns.normalizeRange(10, dist, 20) * from.getStat(StatType.DAMAGE_CLOSE_BOOST);
