@@ -29,6 +29,7 @@ export enum SettingType {
 	// beta 1.098
 	MOUSE_CODES,
 	MOUSE_DOWN,
+	BUFF_STATS,
 }
 
 export enum AntiAliasSetting {
@@ -36,6 +37,11 @@ export enum AntiAliasSetting {
 	LOW,
 	MEDIUM,
 	HIGH,
+}
+
+export enum BuffStatsSetting {
+	OFF,
+	ON,
 }
 
 export enum ChatSetting {

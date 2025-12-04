@@ -9,6 +9,7 @@ import {
 	SettingType,
 
 	AntiAliasSetting,
+	BuffStatsSetting,
 	ChatSetting,
 	ClientPredictionSetting,
 	DamageNumberSetting,
@@ -55,6 +56,7 @@ class Settings {
 	public chatSetting : ChatSetting;
 	public screenShakeSetting : ScreenShakeSetting;
 	public clickLockSetting : ClickLockSetting;
+	public buffStatsSetting : BuffStatsSetting;
 
 	// Audio
 	public volumePercent : number;
@@ -114,6 +116,7 @@ class Settings {
 		this.chatSetting = ChatSetting.FILTER;
 		this.screenShakeSetting = ScreenShakeSetting.ON;
 		this.clickLockSetting = ClickLockSetting.OFF;
+		this.buffStatsSetting = BuffStatsSetting.OFF;
 
 		this.volumePercent = Settings._volumePercent;
 		this.musicSetting = MusicSetting.ON
@@ -150,6 +153,7 @@ class Settings {
 			[SettingType.CHAT, ChatSetting[this.chatSetting]],
 			[SettingType.MOUSE_DOWN, ClickLockSetting[this.clickLockSetting]],
 			[SettingType.SCREEN_SHAKE, ScreenShakeSetting[this.screenShakeSetting]],
+			[SettingType.BUFF_STATS, BuffStatsSetting[this.buffStatsSetting]],
 
 			[SettingType.VOLUME_PERCENT, "" + this.volumePercent],
 			[SettingType.MUSIC, MusicSetting[this.musicSetting]],
@@ -213,6 +217,9 @@ class Settings {
 		});
 		this.loadSetting(SettingType.SCREEN_SHAKE, <string[]> Object.values(ScreenShakeSetting), (value : string) => {
 			this.screenShakeSetting = ScreenShakeSetting[value];
+		});
+		this.loadSetting(SettingType.BUFF_STATS, <string[]> Object.values(BuffStatsSetting), (value : string) => {
+			this.buffStatsSetting = BuffStatsSetting[value];
 		});
 
 		this.loadSetting(SettingType.ANTI_ALIAS, <string[]> Object.values(AntiAliasSetting), (value : string) => {
@@ -306,6 +313,8 @@ class Settings {
 			return 60;
 		}
 	}
+	showBuffStats() : boolean { return this.buffStatsSetting === BuffStatsSetting.ON; }
+	toggleBuffStats() : void { this.buffStatsSetting = this.buffStatsSetting === BuffStatsSetting.OFF ? BuffStatsSetting.ON : BuffStatsSetting.OFF; }
 
 	fxaaSamples() : number {
 		switch (this.antiAliasSetting) {

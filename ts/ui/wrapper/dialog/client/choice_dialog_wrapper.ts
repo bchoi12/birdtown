@@ -7,6 +7,8 @@ import { BuffFactory } from 'game/factory/buff_factory'
 import { EquipFactory } from 'game/factory/equip_factory'
 import { LoadoutType } from 'game/system/api'
 
+import { settings } from 'settings'
+
 import { StringFactory } from 'strings/string_factory'
 
 import { DialogType } from 'ui/api'
@@ -228,6 +230,8 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 		this.dialogMessage().setEquipType(equipPair[0]);
 		this.dialogMessage().setAltEquipType(equipPair[1]);
 
+		let buttons = [];
+		let details = this.addDetailsButton();
 		for (let i = 0; i < numStarters; ++i) {
 			let column = columns.column(i);
 			column.elm().style.textAlign = "center";
@@ -238,13 +242,23 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 				selectedBuff = starters[i];
 
 				if (selectedBuff !== BuffType.UNKNOWN) {
+					this.footerElm().removeChild(details.elm());
+
 					this.dialogMessage().setBuffType(starters[i]);
 					this.addBuffEquipPage(starters[i]);
 					this.nextPage();
 				}
 			});
 			column.contentElm().appendChild(button.elm());
+			buttons.push(button);
 		}
+
+		details.addOnClick(() => {
+			settings.toggleBuffStats();
+			buttons.forEach((button : BuffButtonWrapper) => {
+				button.refresh();
+			});
+		});
 	}
 
 	protected addBuffEquipPage(buffType : BuffType) : void {
@@ -267,6 +281,7 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 
 		let prepick = Math.floor(Math.random() * num);
 
+		let buttons = [];
 		for (let i = 0; i < num; ++i) {
 			let column = columns.column(i);
 			column.elm().style.textAlign = "center";
@@ -291,13 +306,32 @@ export abstract class ChoiceDialogWrapper extends ClientDialogWrapper {
 				this.nextPage();
 			});
 			column.contentElm().appendChild(button.elm());
+			buttons.push(button);
 		}
+
+		let details = this.addDetailsButton();
+		details.addOnClick(() => {
+			settings.toggleBuffStats();
+			buttons.forEach((button : BuffButtonWrapper) => {
+				button.refresh();
+			});
+		});
 	}
 
 	protected addRerollButton() : ButtonWrapper {
 		let buttonWrapper = new ButtonWrapper();
 		buttonWrapper.setIcon(IconType.REROLL);
 		buttonWrapper.setText("Reroll");
+		buttonWrapper.elm().style.float = "right";
+
+		this.footerElm().appendChild(buttonWrapper.elm());
+		return buttonWrapper;
+	}
+
+	protected addDetailsButton() : ButtonWrapper {
+		let buttonWrapper = new ButtonWrapper();
+		buttonWrapper.setIcon(IconType.READ_MORE);
+		buttonWrapper.setText("Toggle Details");
 		buttonWrapper.elm().style.float = "right";
 
 		this.footerElm().appendChild(buttonWrapper.elm());

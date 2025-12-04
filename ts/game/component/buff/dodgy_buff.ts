@@ -11,7 +11,7 @@ export class DodgyBuff extends Buff {
 		return new Map([
 			[StatType.SPEED_BOOST, 0.05 * level],
 			[StatType.CHARGE_BOOST, 0.25 * level],
-			[StatType.USE_BOOST, this.atMaxLevel() ? 1 : 0],
+			[StatType.USE_BOOST, level === this.maxLevel() ? 1 : 0],
 		]);
 	}
 }

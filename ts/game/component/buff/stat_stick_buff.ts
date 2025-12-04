@@ -44,6 +44,9 @@ export class StatStickBuff extends Buff {
 
 	override ready() : boolean { return super.ready() && this._seed > 0; }
 
+	override preview(level : number) : Map<StatType, number> {
+		return new Map();
+	}
 	override boosts(level : number) : Map<StatType, number> {
 		this._rng.seed(this._seed);
 

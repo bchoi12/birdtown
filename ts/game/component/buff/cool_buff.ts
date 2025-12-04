@@ -30,7 +30,7 @@ export class CoolBuff extends Buff {
 			[StatType.CRIT_BOOST, 0.1 * level],
 			[StatType.RELOAD_BOOST, 0.2 * level],
 			[StatType.SPEED_BOOST, 0.05 * level],
-			[StatType.USE_BOOST, this.atMaxLevel() ? 1 : 0],
+			[StatType.USE_BOOST, level === this.maxLevel() ? 1 : 0],
 		]);
 	}
 

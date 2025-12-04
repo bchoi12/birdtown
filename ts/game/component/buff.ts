@@ -145,6 +145,27 @@ export abstract class Buff extends ComponentBase implements Component {
 
 	getStatCache() : Map<StatType, number> { return this.getParent<Buffs>().boostCache(); }
 
+	preview(level : number) : Map<StatType, number> {
+		if (level <= 0) {
+			return new Map();
+		}
+
+		const prev = this.boosts(level - 1);
+		let next = this.boosts(level);
+
+		next.forEach((value : number, stat : StatType) => {
+			if (prev.has(stat)) {
+				next.set(stat, value - prev.get(stat));
+			}
+
+			if (Math.abs(next.get(stat)) < 1e-3) {
+				next.delete(stat);
+			}
+		});
+
+		return next;
+	}
+
 	levelUp() : void {
 		if (this._levelUp && this.level() > 0) {
 			this.addLevel(1);

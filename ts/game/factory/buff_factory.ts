@@ -38,8 +38,10 @@ import { WarmogsBuff } from 'game/component/buff/warmogs_buff'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
-import { BuffType, ColorType } from 'game/factory/api'
+import { BuffType, ColorType, StatType } from 'game/factory/api'
 import { EquipFactory } from 'game/factory/equip_factory'
+
+import { StringFactory } from 'strings/string_factory'
 
 import { SeededRandom } from 'util/seeded_random'
 
@@ -235,6 +237,10 @@ export namespace BuffFactory {
 		[BuffType.BRUISER, [BuffType.ASSASSIN, BuffType.BIG]],
 	]);
 	export function hasPrereq(player : Player, type : BuffType) : boolean {
+		if (type === BuffType.HEALER && !game.controller().isTeamMode()) {
+			return false;
+		}
+
 		if (!prereqs.has(type)) {
 			return true;
 		}
@@ -249,17 +255,46 @@ export namespace BuffFactory {
 	export function getBuffs() : Array<BuffType> {
 		return getBuffsForPlayer(game.playerState().targetEntity<Player>());
 	}
+
+	const pickSets = new Set<Set<BuffType>>([
+		new Set([BuffType.MOSQUITO, BuffType.TANK]),
+		new Set([BuffType.GLASS_CANNON, BuffType.BRUISER]),
+		new Set([BuffType.SUN, BuffType.NIGHT]),
+		new Set([BuffType.ICY, BuffType.FIERY]),
+		new Set([BuffType.BLASTER, BuffType.SNIPER]),
+		new Set([BuffType.HEALER, BuffType.SLY]),
+		new Set([BuffType.SQUAWK_SHOT, BuffType.SQUAWK_SHIELD]),
+	]);
+
+	let incompatibleMap = new Map();
+	export function incompatibleBuffs(type : BuffType) : Set<BuffType> {
+		if (incompatibleMap.size === 0) {
+			pickSets.forEach((buffSet : Set<BuffType>) => {
+				buffSet.forEach((buff : BuffType) => {
+					if (!incompatibleMap.has(buff)) {
+						incompatibleMap.set(buff, new Set());
+					}
+
+					buffSet.forEach((otherBuff : BuffType) => {
+						if (buff !== otherBuff) {
+							incompatibleMap.get(buff).add(otherBuff);
+						}
+					});
+				});
+			});
+
+			console.log(Object.fromEntries(incompatibleMap));
+		}
+
+		return incompatibleMap.has(type) ? incompatibleMap.get(type) : new Set();
+	}
+
 	export function getBuffsForPlayer(player : Player) : Array<BuffType> {
 		let pickableBuffs = getGeneralBuffs(player);
 
-		pickableBuffs.add(chooseBuffs(player, [BuffType.MOSQUITO, BuffType.TANK]));
-		pickableBuffs.add(chooseBuffs(player, [BuffType.GLASS_CANNON, BuffType.BRUISER]));
-		pickableBuffs.add(chooseBuffs(player, [BuffType.SUN, BuffType.NIGHT]));
-		pickableBuffs.add(chooseBuffs(player, [BuffType.ICY, BuffType.FIERY]));
-		pickableBuffs.add(chooseBuffs(player, [BuffType.BLASTER, BuffType.SNIPER]));
-
-		// TODO: add squawk shield
-		pickableBuffs.add(chooseBuffs(player, [BuffType.SQUAWK_SHOT, BuffType.SQUAWK_SHIELD]));
+		pickSets.forEach((buffSet : Set<BuffType>) => {
+			pickableBuffs.add(chooseBuffs(player, Array.from(buffSet)));
+		});
 
 		if (!EquipFactory.invalidAlts(player.equipType()).includes(EntityType.SCOUTER)) {
 			pickableBuffs.add(BuffType.JUICED);
@@ -269,11 +304,6 @@ export namespace BuffFactory {
 		}
 		if (explodeWeapons.has(player.equipType())) {
 			pickableBuffs.add(BuffType.EXPLOSION);
-		}
-		if (game.controller().isTeamMode()) {
-			pickableBuffs.add(chooseBuffs(player, [BuffType.HEALER, BuffType.SLY]));
-		} else {
-			pickableBuffs.add(BuffType.SLY);
 		}
 
 		pickableBuffs.delete(BuffType.UNKNOWN);
@@ -319,6 +349,28 @@ export namespace BuffFactory {
 	}
 	export function randomBuff() : BuffType {
 		return getBuffsN(1)[0];
+	}
+
+	export function autoLevels(type : BuffType) : boolean {
+		return metadata.has(type) && metadata.get(type).levelUp;
+	}
+	export function preview(type : BuffType, level : number) : Array<string> {
+		if (level <= 0 || type === BuffType.UNKNOWN) {
+			return [];
+		}
+
+		let buff = this.create(type);
+		if (buff === null) {
+			return [];
+		}
+
+		let preview = buff.preview(level);
+		let details = [];
+
+		preview.forEach((value : number, type : StatType) => {
+			details.push(StringFactory.getStat(type, value));
+		});
+		return details;
 	}
 
 }

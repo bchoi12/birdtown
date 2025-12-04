@@ -11,7 +11,7 @@ export class TankBuff extends Buff {
 		return new Map([
 			[StatType.DAMAGE_RESIST_BOOST, 0.1 * level],
 			[StatType.HEALTH, 50 * level],
-			[StatType.HEALTH_BOOST, 0.1 * level],
+			[StatType.HEALTH_BOOST, 0.05 * level],
 			[StatType.SCALING, 0.1 * level],
 		]);
 	}

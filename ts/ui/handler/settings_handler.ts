@@ -6,6 +6,7 @@ import { Flags } from 'global/flags'
 import { settings } from 'settings'
 import {
 	AntiAliasSetting,
+	BuffStatsSetting,
 	ChatSetting,
 	ClientPredictionSetting,
 	DamageNumberSetting,
@@ -180,6 +181,24 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			get: () => { return settings.damageNumberSetting; },
 			html: () => {
 				if (settings.damageNumberSetting === DamageNumberSetting.ON) {
+					return "On";
+				}
+				return "Off";
+			},
+		}));
+
+		this.addSetting(gameplay, new LabelNumberWrapper({
+			label: "Buff Details",
+			value: Number(settings.buffStatsSetting),
+			plus: (current : number) => {
+				settings.buffStatsSetting = BuffStatsSetting.ON;
+			},
+			minus: (current : number) => {
+				settings.buffStatsSetting = BuffStatsSetting.OFF;
+			},
+			get: () => { return settings.buffStatsSetting; },
+			html: () => {
+				if (settings.buffStatsSetting === BuffStatsSetting.ON) {
 					return "On";
 				}
 				return "Off";

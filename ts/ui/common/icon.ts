@@ -34,6 +34,7 @@ export enum IconType {
 	MINUS,
 	MOUSE,
 	PLUS,
+	READ_MORE,
 	REFRESH,
 	REROLL,
 	RESET_GRAPHICS,
@@ -63,10 +64,12 @@ export enum IconType {
 	BACKFLIP,
 	BATTERY_ERROR,
 	BATTERY_FULL,
+	BARS,
 	BLENDER,
 	BIRD,
 	BOLT,
 	BUG,
+	CHURCH,
 	DASH,
 	DESTRUCTION,
 	DRINK,
@@ -75,6 +78,7 @@ export enum IconType {
 	GATLING,
 	HEADPHONES,
 	HEART,
+	ICE_CREAM,
 	JET,
 	KEYBOARD,
 	LASER,
@@ -91,6 +95,7 @@ export enum IconType {
 	TELEKENESIS,
 	TORNADO,
 	UNLOCK,
+	UPGRADE,
 	ORBS,
 	OVEN,
 	PLANT,
@@ -105,7 +110,6 @@ export enum IconType {
 	TRAIL_LONG,
 	WARNING,
 	WEIGHT,
-	YAKITORI,
 }
 
 export namespace Icon {
@@ -119,6 +123,7 @@ export namespace Icon {
 		[IconType.BACKFLIP, "replay"],
 		[IconType.BATTERY_ERROR, "battery_error"],
 		[IconType.BATTERY_FULL, "battery_full"],
+		[IconType.BARS, "bar_chart"],
 		[IconType.BLENDER, "blender"],
 		[IconType.BIRD, "raven"],
 		[IconType.BUG, "pest_control"],
@@ -126,6 +131,7 @@ export namespace Icon {
 		[IconType.CANCEL, "cancel"],
 		[IconType.CHECK, "check"],
 		[IconType.CHECK_CIRCLE, "check_circle"],
+		[IconType.CHURCH, "church"],
 		[IconType.COPY, "content_copy"],
 		[IconType.DASH, "sprint"],
 		[IconType.DESTRUCTION, "destruction"],
@@ -138,6 +144,7 @@ export namespace Icon {
 		[IconType.HEADPHONES, "headphones"],
 		[IconType.HEART, "favorite"],
 		[IconType.HOST, "home"],
+		[IconType.ICE_CREAM, "icecream"],
 		[IconType.INFINITY, "all_inclusive"],
 		[IconType.JET, "flight_takeoff"],
 		[IconType.KEYBOARD, "keyboard"],
@@ -167,6 +174,7 @@ export namespace Icon {
 		[IconType.PLANT, "potted_plant"],
 		[IconType.PLUS, "add"],
 		[IconType.PROPANE, "propane"],
+		[IconType.READ_MORE, "read_more"],
 		[IconType.READY, "checklist"],
 		[IconType.REFRESH, "refresh"],
 		[IconType.RENDER, "filter"],
@@ -195,13 +203,13 @@ export namespace Icon {
 		[IconType.TROPHY, "trophy"],
 		[IconType.UNLOCK, "lock_open_right"],
 		[IconType.UPDATE, "update"],
+		[IconType.UPGRADE, "keyboard_double_arrow_up"],
 		[IconType.VOLUME_HIGH, "volume_up"],
 		[IconType.VOLUME_LOW, "volume_down"],
 		[IconType.VOLUME_NONE, "volume_mute"],
 		[IconType.VOLUME_X, "no_sound"],
 		[IconType.WARNING, "warning"],
 		[IconType.WEIGHT, "weight"],
-		[IconType.YAKITORI, "yakitori"],
 	]);
 
 	export function baseElement() : HTMLElement {
@@ -285,7 +293,7 @@ export namespace Icon {
 
 		[BuffType.SLY, IconType.SKULL],
 		[BuffType.FIERY, IconType.OVEN],
-		[BuffType.ICY, IconType.SNOWFLAKE],
+		[BuffType.ICY, IconType.ICE_CREAM],
 		[BuffType.SQUAWK_SHOT, IconType.MUSIC_NOTE],
 		[BuffType.SQUAWK_SHIELD, IconType.SHIELD],
 
@@ -301,12 +309,22 @@ export namespace Icon {
 		[BuffType.HEALER, IconType.PERSON_PLUS],
 		[BuffType.JUICED, IconType.BLENDER],
 
-		[BuffType.STAT_STICK, IconType.YAKITORI],
+		[BuffType.STAT_STICK, IconType.BARS],
+
+		[BuffType.EXPOSE, IconType.LOWEST_SPEC],
+		[BuffType.FLAME, IconType.FIRE],
+		[BuffType.IMBUE, IconType.CHURCH],
+		[BuffType.POISON, IconType.BUG],
+		[BuffType.SLOW, IconType.SNOWFLAKE],
+
+
+		[BuffType.SPREE, IconType.UPGRADE],
 
 		// Unused
 		[BuffType.WARMOGS, IconType.HEART],
 	]);
+	export function hasBuffIconType(type : BuffType) : boolean { return buffIcons.has(type); }
 	export function getBuffIconType(type : BuffType) : IconType {
-		return buffIcons.has(type) ? buffIcons.get(type) : IconType.TORNADO;
+		return buffIcons.has(type) ? buffIcons.get(type) : IconType.UPGRADE;
 	}
 }
