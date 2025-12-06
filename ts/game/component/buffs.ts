@@ -7,6 +7,8 @@ import { Entity } from 'game/entity'
 import { BuffType, StatType } from 'game/factory/api'
 import { BuffFactory } from 'game/factory/buff_factory'
 
+import { Flags } from 'global/flags'
+
 export class Buffs extends ComponentBase implements Component {
 
 	private _boostCache : Map<StatType, number>;
@@ -30,10 +32,10 @@ export class Buffs extends ComponentBase implements Component {
 
 	refresh() : void {
 		this._boostCache.clear();
-
 		this.execute<Buff>((buff : Buff, type : BuffType) => {
 			// TODO: doesn't really work
 			// buff.announceLevel();
+
 			if (buff.resetOnSpawn() || buff.level() === 0) {
 				this.removeBuff(type);
 				return;
@@ -50,32 +52,29 @@ export class Buffs extends ComponentBase implements Component {
 		});
 	}
 	addBuff<T extends Buff>(type : BuffType, delta : number) : void {
+		if (delta === 0) {
+			return;
+		}
 		if (type === null || type === undefined || type === 0) {
 			console.error("Warning: invalid BuffType", type);
 			return;
 		}
 
 		let buff = this.registerBuff(type);
+		buff.addLevel(delta);
+		this.updateConditionals(buff);
 
-		if (delta !== 0) {
-			if (buff.level() === 0) {
-				this.updateConditionals(buff);
-			}
-			buff.addLevel(delta);
-		}
-
-		if (buff.level() === 0) {
-			this.removeBuff(type);
+		if (Flags.printDebug.get()) {
+			console.log("%s: Add %d to %s -> Lv%d", this.name(), delta, BuffType[type], buff.level());
 		}
 	}
 	setBuffMin<T extends Buff>(type : BuffType, min : number) : void {
 		let buff = this.registerBuff(type);
 
 		if (buff.level() < min) {
-			if (buff.level() === 0) {
-				this.updateConditionals(buff);
-			}
 			buff.setLevel(min);
+
+			this.updateConditionals(buff);
 		}
 	}
 	hasBuff(type : BuffType) : boolean {
@@ -100,10 +99,17 @@ export class Buffs extends ComponentBase implements Component {
 		this.updateConditionals(buff);
 	}
 	clearBuffs() : void {
+		let removed : string[] = [];
 		this.execute<Buff>((buff : Buff, type : BuffType) => {
 			this.removeBuff(type);
+
+			removed.push(BuffType[type]);
 		});
 		this._boostCache.clear();
+
+		if (Flags.printDebug.get() && removed.length > 0) {
+			console.log("%s: cleared %s", this.name(), removed.join(", "));
+		}
 	}
 	private buff<T extends Buff>(type : BuffType) : T {
 		if (!this.hasSubComponent(type)) {

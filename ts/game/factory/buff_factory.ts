@@ -145,7 +145,6 @@ export namespace BuffFactory {
 		[BuffType.BLASTER, (type : BuffType) => { return new BlasterBuff(type, metadata.get(type))}],
 		[BuffType.BRUISER, (type : BuffType) => { return new BruiserBuff(type, metadata.get(type))}],
 		[BuffType.COOL, (type : BuffType) => { return new CoolBuff(type, metadata.get(type))}],
-		[BuffType.SLY, (type : BuffType) => { return new SlyBuff(type, metadata.get(type)) }],
 		[BuffType.DODGY, (type : BuffType) => { return new DodgyBuff(type, metadata.get(type)) }],
 		[BuffType.EXPLOSION, (type : BuffType) => { return new ExplosionBuff(type, metadata.get(type)) }],
 		[BuffType.FIERY, (type : BuffType) => { return new FieryBuff(type, metadata.get(type)) }],
@@ -155,6 +154,7 @@ export namespace BuffFactory {
 		[BuffType.JUICED, (type : BuffType) => { return new JuicedBuff(type, metadata.get(type)) }],
 		[BuffType.JUMPER, (type : BuffType) => { return new JumperBuff(type, metadata.get(type)) }],
 		[BuffType.MOSQUITO, (type : BuffType) => { return new MosquitoBuff(type, metadata.get(type)) }],
+		[BuffType.SLY, (type : BuffType) => { return new SlyBuff(type, metadata.get(type)) }],
 		[BuffType.SNIPER, (type : BuffType) => { return new SniperBuff(type, metadata.get(type)) }],
 		[BuffType.SQUAWK_SHIELD, (type : BuffType) => { return new SquawkShieldBuff(type, metadata.get(type)) }],
 		[BuffType.SQUAWK_SHOT, (type : BuffType) => { return new SquawkShotBuff(type, metadata.get(type)) }],
@@ -282,8 +282,6 @@ export namespace BuffFactory {
 					});
 				});
 			});
-
-			console.log(Object.fromEntries(incompatibleMap));
 		}
 
 		return incompatibleMap.has(type) ? incompatibleMap.get(type) : new Set();

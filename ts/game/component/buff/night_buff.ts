@@ -46,6 +46,8 @@ export class NightBuff extends Buff {
 			this.revertStats(this.getStatCache());
 			this._night = night;
 			this.applyStats(this.getStatCache());
+
+			this.entity().resetResource(StatType.SHIELD);
 		}
 	}
 

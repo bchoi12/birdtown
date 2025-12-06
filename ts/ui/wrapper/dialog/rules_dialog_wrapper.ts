@@ -163,7 +163,7 @@ export class RulesDialogWrapper extends DialogWrapper {
 		let html = "<ul>";
 
 		buffs.execute((buff : Buff) => {
-			if (buff.level() <= 0) {
+			if (buff.level() <= 0 || !StringFactory.hasBuffName(buff.buffType())) {
 				return;
 			}
 

@@ -8,7 +8,7 @@ export class CarryBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.EXPOSE_PERCENT, level > 0 ? 0.2 + 0.2 * level : 0],
+			[StatType.EXPOSE_PERCENT, 0.25 * level],
 			[StatType.FIRE_BOOST, 0.2 * level],
 			[StatType.HEALTH, 40 * level],
 			[StatType.LIFE_STEAL, 0.05 * level],

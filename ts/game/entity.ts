@@ -118,6 +118,7 @@ export interface Entity extends GameObject {
 	matchAssociations(types : AssociationType[], other : Entity) : boolean;
 
 	addForce(force : Vec) : void;
+	resetResource(type : StatType) : void;
 	shield() : number;
 	addShield(amount : number) : void;
 	heal(amount : number) : void;
@@ -484,10 +485,6 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			console.error("Warning: skipping buff delta of 0 for %s, %s", BuffType[type], this.name());
 			return;
 		}
-
-		if (Flags.printDebug.get()) {
-			console.log("Add buff %s +%d for %s", BuffType[type], delta, this.name());
-		}
 		this.getComponent<Buffs>(ComponentType.BUFFS).addBuff(type, delta);
 	}
 	buffLevel(type : BuffType) : number {
@@ -529,6 +526,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this.profile().addSourceForce(force);
 	}
 
+	resetResource(type : StatType) : void {
+		if (!this.hasComponent(ComponentType.RESOURCES)) { return; }
+
+		this.getComponent<Resources>(ComponentType.RESOURCES).resetResource(type);
+	}
 	shield() : number {
 		if (!this.hasComponent(ComponentType.RESOURCES)) { return 0; }
 
@@ -628,7 +630,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 			if (delta < 0) {
 				if (from.hasStat(StatType.EXPOSE_PERCENT)) {
-					const exposeDelta = buffDelta * Math.floor(Math.abs(delta) * from.getStat(StatType.EXPOSE_PERCENT));
+					const exposeDelta = Math.round(Math.abs(delta) * from.getStat(StatType.EXPOSE_PERCENT));
 					if (exposeDelta > 0) {
 						this.addBuff(BuffType.EXPOSE, exposeDelta);
 					}

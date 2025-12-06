@@ -12,6 +12,7 @@ import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
 import { StepData } from 'game/game_object'
 import { MaterialType } from 'game/factory/api'
+import { EntityFactory } from 'game/factory/entity_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
 
 import { Fns } from 'util/fns'
@@ -80,7 +81,7 @@ export class ShieldRing extends Equip<Player> {
 
 		this._model = this.addComponent<Model>(new Model({
 			meshFn: (model : Model) => {
-				const ownerDim = this.owner().profile().initDim();
+				const ownerDim = EntityFactory.getDimension(this.owner().type());
 				this._diameter = 2 * Math.max(ownerDim.x, ownerDim.y);
 			},
 			init: entityOptions.modelInit,
@@ -128,12 +129,12 @@ export class ShieldRing extends Equip<Player> {
 		}
 
 		const shield = this._shield.get();
-		if (shield === 0) {
+		if (shield <= 0) {
 			this.delete();
 			return;
 		}
 
-		const numBits = Math.ceil(shield / 10);
+		const numBits = Math.max(1, Math.ceil(shield / 10));
 		let rearrange = numBits !== this._bits.length;
 
 		while(numBits < this._bits.length) {

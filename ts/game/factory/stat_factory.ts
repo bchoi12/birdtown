@@ -193,7 +193,7 @@ export namespace StatFactory {
 			// TODO: fill out recoil values
 			[StatType.BURSTS, 20],
 			[StatType.CHARGED_BURSTS, 10],
-			[StatType.CHARGED_FIRE_TIME, 25],
+			[StatType.CHARGED_FIRE_TIME, 40],
 			[StatType.CHARGED_FORCE, 0],
 			[StatType.CHARGED_RELOAD_TIME, 600],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1],

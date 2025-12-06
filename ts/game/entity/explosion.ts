@@ -171,6 +171,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 					}
 
 					other.setOwner(this.owner().id());
+					other.setAttribute(AttributeType.CRITICAL, true);
 					other.restartTTL();
 				}
 				this._hits.add(other.id());

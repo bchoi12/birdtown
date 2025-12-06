@@ -22,7 +22,7 @@ export class SunBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.HEALTH, 25 * (this._sun + level)],
+			[StatType.HEALTH, 30 * (this._sun + level)],
 			[StatType.SCALING, 0.05 * (this._sun + level)],
 		])
 	}
@@ -54,6 +54,8 @@ export class SunBuff extends Buff {
 		this.revertStats(this.getStatCache());
 		this._sun = sun;
 		this.applyStats(this.getStatCache());
+
+		this.entity().resetResource(StatType.HEALTH);
 	}
 
 }

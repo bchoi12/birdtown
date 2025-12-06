@@ -66,7 +66,6 @@ export abstract class Buff extends ComponentBase implements Component {
 	protected _levelAnnounce : Optional<number>;
 
 	protected _addTimer : Timer;
-	protected _resetTimer : Timer;
 
 	constructor(type : BuffType, options : BuffOptions) {
 		super(ComponentType.BUFF);
@@ -85,9 +84,6 @@ export abstract class Buff extends ComponentBase implements Component {
 		this._addTimer = this.newTimer({
 			canInterrupt: true,
 		});
-		this._resetTimer = this.newTimer({
-			canInterrupt: true,
-		});
 		
 		this.addProp<number>({
 			export: () => { return this._level; },
@@ -97,6 +93,8 @@ export abstract class Buff extends ComponentBase implements Component {
 
 	override delete() : void {
 		super.delete();
+
+		console.log("%s: deleted %s from Lv%d", this.name(), BuffType[this._buffType], this.level());
 
 		if (this.level() > 0) {
 			this.setLevel(0);	
@@ -197,7 +195,6 @@ export abstract class Buff extends ComponentBase implements Component {
 	}
 	protected onLevel(level : number, delta : number) : void {
 		if (level === 0) {
-			this.delete();
 			return;
 		}
 
@@ -246,19 +243,6 @@ export abstract class Buff extends ComponentBase implements Component {
 		this._addTimer.start(millis, () => {
 			if (this.isSource()) {
 				this.addLevel(delta);
-			}
-		});
-	}
-	resetting() : boolean { return this._resetTimer.hasTimeLeft(); }
-	resetAfter(millis : number) : void {
-		// Pick lower reset value
-		if (this._resetTimer.hasTimeLeft() && millis > this._resetTimer.millisLeft()) {
-			return;
-		}
-
-		this._resetTimer.start(millis, () => {
-			if (this.isSource()) {
-				this.setLevel(0);
 			}
 		});
 	}

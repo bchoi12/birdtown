@@ -42,6 +42,12 @@ export class Resources extends ComponentBase implements Component {
 		}
 		return this.getSubComponent<Resource>(type).get();
 	}
+	resetResource(type : StatType) : void {
+		if (!this.hasResource(type)) {
+			console.error("Warning: cannot reset missing stat %s", StatType[type]);
+		}
+		this.getSubComponent<ShieldResource>(type).reset();
+	}
 
 	// Convenience methods
 	maxHealth() : number {
@@ -68,7 +74,7 @@ export class Resources extends ComponentBase implements Component {
 		}
 		this.getSubComponent<HealthResource>(StatType.HEALTH).setHealthPercent(percent);
 	}
-	shield() : number { return this.hasResource(StatType.SHIELD) ? this.getSubComponent<HealthResource>(StatType.SHIELD).get() : 0; }
+	shield() : number { return this.hasResource(StatType.SHIELD) ? this.getSubComponent<ShieldResource>(StatType.SHIELD).get() : 0; }
 	health() : number { return this.hasResource(StatType.HEALTH) ? this.getSubComponent<HealthResource>(StatType.HEALTH).get() : 0; }
 	healthPercent() : number {
 		if (!this.hasResource(StatType.HEALTH)) {
