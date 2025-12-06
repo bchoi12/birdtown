@@ -55,6 +55,7 @@ export class SunBuff extends Buff {
 		this._sun = sun;
 		this.applyStats(this.getStatCache());
 
+		// TODO: also refresh scaling?
 		this.entity().resetResource(StatType.HEALTH);
 	}
 
