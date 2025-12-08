@@ -91,6 +91,8 @@ export class Laser extends Projectile {
 				...entityOptions.modelInit,
 			},
 		}));
+
+		this.setAttribute(AttributeType.BURNING, true);
 	}
 
 	override initialize() : void {

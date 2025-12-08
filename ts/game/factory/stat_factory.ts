@@ -141,7 +141,7 @@ export namespace StatFactory {
 			[StatType.USE_JUICE, 50],
 		])],
 		[EntityType.MINI_ROCKET, new Map([
-			[StatType.DAMAGE, 40],
+			[StatType.DAMAGE, 35],
 		])],
 		[EntityType.PURPLE_HEADBAND, new Map([
 			[StatType.CHARGE_DELAY, 450],
@@ -183,7 +183,7 @@ export namespace StatFactory {
 			[StatType.RELOAD_TIME, 900],
 		])],
 		[EntityType.ROCKET, new Map([
-			[StatType.DAMAGE, 60],
+			[StatType.DAMAGE, 50],
 		])],
 		[EntityType.MEGA_ROCKET, new Map([
 			[StatType.DAMAGE, 100],

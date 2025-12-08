@@ -10,6 +10,7 @@ export class ChargedBolt extends BoltBase {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.CHARGED_BOLT, entityOptions);
 
+		this.setAttribute(AttributeType.BURNING, true);
 		this.setAttribute(AttributeType.CRITICAL, true);
 
 		this._glow = 0.7;

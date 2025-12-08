@@ -60,6 +60,8 @@ export abstract class RocketBase extends Projectile {
 		this._profile.setMinimapOptions({
 			color: ColorFactory.color(ColorType.BLASTER_RED).toString(),
 		});
+
+		this.setAttribute(AttributeType.BURNING, true);
 	}
 
 	override update(stepData : StepData) : void {

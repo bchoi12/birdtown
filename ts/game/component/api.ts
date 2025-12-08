@@ -29,6 +29,7 @@ export enum AttributeType {
 	UNKNOWN,
 
 	BUBBLED,
+	BURNING,
 	CHARGED,
 	COOL,
 	CRITICAL,
