@@ -576,11 +576,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			delta *= game.controller().config().getDamageMultiplier();;
 		}
 
+
 		if (delta > 0
 			&& from
 			&& this.id() !== from.id()
-			&& this.sameTeam(from)
-			&& !game.controller().config().getFriendlyFireOr(false)) {
+			&& this.sameTeam(from)) {
 
 			if (from.hasStat(StatType.HEAL_PERCENT)) {
 				this.heal(from.getStat(StatType.HEAL_PERCENT) * delta);
@@ -592,7 +592,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 					this.addBuff(BuffType.IMBUE, imbueLevel > this.buffLevel(BuffType.IMBUE) ? 1 : 0);
 				}
 			}
-			return;
+
+			const noDamage = from.hasBuff(BuffType.HEALER) && !game.controller().config().getFriendlyFireOr(false);
+			if (noDamage) {
+				return;
+			}
 		}
 
 		// Damage stuff
