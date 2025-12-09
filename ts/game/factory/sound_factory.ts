@@ -202,6 +202,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.ROCK_BREAK, {
+			path: "rock_break.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.ROCKET, {
 			path: "rocket.mp3",
 			options: {

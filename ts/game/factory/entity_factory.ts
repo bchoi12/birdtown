@@ -63,6 +63,7 @@ import { PurpleBoltExplosion } from 'game/entity/explosion/purple_bolt_explosion
 import { RocketExplosion } from 'game/entity/explosion/rocket_explosion'
 import { SquawkShield, MegaSquawkShield } from 'game/entity/explosion/squawk_shield'
 import { StarExplosion } from 'game/entity/explosion/star_explosion'
+import { BuffCrate } from 'game/entity/interactable/crate/buff_crate'
 import { HealthCrate } from 'game/entity/interactable/crate/health_crate'
 import { WeaponCrate } from 'game/entity/interactable/crate/weapon_crate'
 import { Table } from 'game/entity/interactable/table'
@@ -127,6 +128,7 @@ export namespace EntityFactory {
 		[EntityType.BOTTOM_MINI_CLIFF, (options : EntityOptions) => { return new BottomMiniCliff(options); }],
 		[EntityType.BOUND, (options : EntityOptions) => { return new Bound(options); }],
 		[EntityType.BUBBLE, (options : EntityOptions) => { return new Bubble(options); }],
+		[EntityType.BUFF_CRATE, (options : EntityOptions) => { return new BuffCrate(options); }],
 		[EntityType.BULLET, (options : EntityOptions) => { return new Bullet(options); }],
 		[EntityType.BUSH, (options : EntityOptions) => { return new Bush(options); }],
 		[EntityType.CALIBER, (options : EntityOptions) => { return new Caliber(options); }],
@@ -280,6 +282,7 @@ export namespace EntityFactory {
 		[EntityType.BLACK_HOLE, { x: 8, y: 8, z: 8 }],
 		[EntityType.BLOCK_ENEMY, { x: 1, y: 1, z: 1 }],
 		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
+		[EntityType.BUFF_CRATE, {x: 1, y: 1, z: 1 }],
 		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],
 		[EntityType.GOLDEN_EXPLOSION, { x: 2.5, y: 2.5, z: 2.5 }],
 		[EntityType.HEALTH_CRATE, {x: 1, y: 1, z: 1 }],

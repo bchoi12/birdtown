@@ -102,6 +102,7 @@ export namespace ColorFactory {
 		// Pickup series (saturated, stand out from level)
 		[ColorType.PICKUP_BLUE, HexColor.fromHex(0x3c5ffa)],
 		[ColorType.PICKUP_RED, HexColor.fromHex(0xfa493c)],
+		[ColorType.PICKUP_PURPLE, HexColor.fromHex(0x813bf9)],
 		[ColorType.PICKUP_YELLOW, HexColor.fromHex(0xf6ff56)],
 
 		// Environment series

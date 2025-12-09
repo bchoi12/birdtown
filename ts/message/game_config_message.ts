@@ -10,6 +10,7 @@ import { StringFactory } from 'strings/string_factory'
 enum GameConfigProp {
 	UNKNOWN,
 
+	BUFF_CRATE_SPAWN,
 	DAMAGE_MULTIPLIER,
 	HEALTH_CRATE_SPAWN,
 	LEVEL_LAYOUT,
@@ -20,7 +21,6 @@ enum GameConfigProp {
 	PLAYERS_MIN,
 	PLAYERS_MAX,
 	POINTS,
-
 	RESET_POINTS,
 	SPAWN_TIME,
 	STARTING_LOADOUT,
@@ -35,6 +35,7 @@ enum GameConfigProp {
 export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> implements Message<GameMode, GameConfigProp> {
 
 	private static readonly _baseProps : [number, Descriptor][] = [
+		[GameConfigProp.BUFF_CRATE_SPAWN, {}],
 		[GameConfigProp.FRIENDLY_FIRE, {}],
 		[GameConfigProp.HEALTH_CRATE_SPAWN, {}],
 		[GameConfigProp.LEVEL_LAYOUT, {}],
@@ -157,6 +158,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelLayout(LevelLayout.CIRCLE);
 			this.setLevelSeed(Math.floor(33 * Math.random()));
 			this.setStartingLoadout(LoadoutType.RANDOM);
+			this.setBuffCrateSpawn(FrequencyType.NEVER);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setWinCondition(WinConditionType.NONE);
@@ -171,6 +173,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 
 		this.setFriendlyFire(false);
 		this.setResetPoints(false);
+		this.setBuffCrateSpawn(FrequencyType.NEVER);
 		this.setHealthCrateSpawn(FrequencyType.NEVER);
 		this.setWeaponCrateSpawn(FrequencyType.NEVER);
 
@@ -196,7 +199,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		case GameMode.FREE_FOR_ALL:
 			this.setPlayersMin(2);
 			this.setLevelLayout(LevelLayout.NORMAL);
-			this.setHealthCrateSpawn(FrequencyType.NEVER);
+			this.setBuffCrateSpawn(FrequencyType.RARE);
+			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setPoints(5);
 			this.setStartingLoadout(LoadoutType.CHOOSE);
@@ -206,8 +210,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		case GameMode.GOLDEN_GUN:
 			this.setPlayersMin(2);
 			this.setLevelLayout(LevelLayout.NORMAL);
-			this.setHealthCrateSpawn(FrequencyType.NEVER);
-			this.setWeaponCrateSpawn(FrequencyType.NEVER);
+			this.setBuffCrateSpawn(FrequencyType.RARE);
+			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setPoints(5);
 			this.setStartingLoadout(LoadoutType.RANDOM);
 			this.setVictories(3);
@@ -215,6 +219,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			break;
 		case GameMode.INVASION:
 			this.setPlayersMin(1);
+			this.setBuffCrateSpawn(FrequencyType.RARE);
 			this.setHealthCrateSpawn(FrequencyType.NEVER);
 			this.setWeaponCrateSpawn(FrequencyType.NEVER);
 			this.setLevelType(LevelType.BIRDTOWN);
@@ -230,6 +235,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setTimeSetup(45000);
 			this.setSpawnTime(15000);
 			this.setStartingLoadout(LoadoutType.PICK);
+			this.setBuffCrateSpawn(FrequencyType.UBIQUITOUS);
 			this.setHealthCrateSpawn(FrequencyType.UBIQUITOUS);
 			this.setWeaponCrateSpawn(FrequencyType.UBIQUITOUS);
 			this.setWinCondition(WinConditionType.NONE);
@@ -237,8 +243,9 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		case GameMode.SPREE:
 			this.setPlayersMin(2);
 			this.setLevelLayout(LevelLayout.CIRCLE);
-			this.setHealthCrateSpawn(FrequencyType.RARE);
-			this.setWeaponCrateSpawn(FrequencyType.RARE);
+			this.setBuffCrateSpawn(FrequencyType.RARE);
+			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
+			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setPoints(5);
 			this.setResetPoints(true);
 			this.setStartingLoadout(LoadoutType.CHOOSE);
@@ -252,6 +259,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelLayout(LevelLayout.TINY);
 			this.setSpawnTime(3000);
 			this.setStartingLoadout(LoadoutType.RANDOM);
+			this.setBuffCrateSpawn(FrequencyType.LOW);
 			this.setHealthCrateSpawn(FrequencyType.NEVER);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setVictories(3);
@@ -262,8 +270,9 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setPlayersMin(2);
 			this.setLevelLayout(LevelLayout.CIRCLE);
 			this.setStartingLoadout(LoadoutType.CHOOSE);
+			this.setBuffCrateSpawn(FrequencyType.RARE);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
-			this.setWeaponCrateSpawn(FrequencyType.NEVER);
+			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.LIVES);
 			break;
@@ -271,6 +280,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLives(1);
 			this.setPlayersMin(2);
 			this.setLevelLayout(LevelLayout.NORMAL);
+			this.setBuffCrateSpawn(FrequencyType.RARE);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.LOW);
 			this.setStartingLoadout(LoadoutType.CHOOSE);
@@ -281,6 +291,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setPoints(10);
 			this.setPlayersMin(2);
 			this.setLevelLayout(LevelLayout.CIRCLE);
+			this.setBuffCrateSpawn(FrequencyType.RARE);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.LOW);
 			this.setStartingLoadout(LoadoutType.CHOOSE);
@@ -291,6 +302,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLives(1);
 			this.setPlayersMin(2);
 			this.setLevelLayout(LevelLayout.NORMAL);
+			this.setBuffCrateSpawn(FrequencyType.RARE);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.LOW);
 			this.setStartingLoadout(LoadoutType.CHOOSE);
@@ -303,6 +315,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 
     // Begin auto-generated code (v2.1)
     override serializable() { return true; }
+
+    hasBuffCrateSpawn() : boolean { return this.has(GameConfigProp.BUFF_CRATE_SPAWN); }
+    getBuffCrateSpawn() : FrequencyType { return this.get<FrequencyType>(GameConfigProp.BUFF_CRATE_SPAWN); }
+    getBuffCrateSpawnOr(value : FrequencyType) : FrequencyType { return this.getOr<FrequencyType>(GameConfigProp.BUFF_CRATE_SPAWN, value); }
+    setBuffCrateSpawn(value : FrequencyType) : void { this.set<FrequencyType>(GameConfigProp.BUFF_CRATE_SPAWN, value); }
 
     hasDamageMultiplier() : boolean { return this.has(GameConfigProp.DAMAGE_MULTIPLIER); }
     getDamageMultiplier() : number { return this.get<number>(GameConfigProp.DAMAGE_MULTIPLIER); }
@@ -401,6 +418,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 
     /*
     const enumClass = "GameConfigProp";
+    ["BUFF_CRATE_SPAWN", "FrequencyType"],
     ["DAMAGE_MULTIPLIER", "number"],
     ["FRIENDLY_FIRE", "boolean"],
     ["HEALTH_CRATE_SPAWN", "FrequencyType"],

@@ -63,6 +63,9 @@ export namespace StatFactory {
 		])],
 
 		// Other Entities
+		[EntityType.BUFF_CRATE, new Map([
+			[StatType.HEALTH, 40],
+		])],
 		[EntityType.HEALTH_CRATE, new Map([
 			[StatType.HEALTH, 40],
 		])],
@@ -186,7 +189,7 @@ export namespace StatFactory {
 			[StatType.DAMAGE, 50],
 		])],
 		[EntityType.MEGA_ROCKET, new Map([
-			[StatType.DAMAGE, 100],
+			[StatType.DAMAGE, 96],
 		])],
 		// 150 DPS + 360 delay
 		[EntityType.GATLING, new Map([

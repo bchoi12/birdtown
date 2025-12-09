@@ -18,6 +18,7 @@ export type BuffOptions = {
 	maxLevel : number;
 
 	levelUp? : boolean;
+	temporary? : boolean;
 	resetOnSpawn? : boolean;
 }
 
@@ -62,6 +63,7 @@ export abstract class Buff extends ComponentBase implements Component {
 	protected _level : number;
 	protected _maxLevel : number;
 	protected _levelUp : boolean;
+	protected _temporary : boolean;
 	protected _resetOnSpawn : boolean;
 	protected _levelAnnounce : Optional<number>;
 
@@ -78,7 +80,8 @@ export abstract class Buff extends ComponentBase implements Component {
 		this._level = 0;
 		this._maxLevel = options.maxLevel;
 		this._levelUp = options.levelUp;
-		this._resetOnSpawn = options.resetOnSpawn;
+		this._temporary = options.temporary;
+		this._resetOnSpawn = options.temporary || options.resetOnSpawn;
 		this._levelAnnounce = new Optional();
 
 		this._addTimer = this.newTimer({
@@ -246,6 +249,7 @@ export abstract class Buff extends ComponentBase implements Component {
 			}
 		});
 	}
+	temporary() : boolean { return this._temporary; }
 	resetOnSpawn() : boolean { return this._resetOnSpawn; }
 	onRespawn() : void {}
 }

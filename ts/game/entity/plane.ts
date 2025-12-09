@@ -11,7 +11,7 @@ import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-import { SeededRandom } from 'util/seeded_random'
+import { globalRandom } from 'util/seeded_random'
 import { RateLimiter } from 'util/rate_limiter'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -28,8 +28,8 @@ export class Plane extends EntityBase implements Entity {
 	private static readonly _crateSpawnInterval = 3000;
 
 	private _crateSpawner : RateLimiter;
-	private _lastCrateType : EntityType;
-	private _rng : SeededRandom;
+	private _crateList : Array<EntityType>;
+	private _crateIndex : number;
 
 	private _model : Model;
 	private _profile : Profile;
@@ -38,7 +38,18 @@ export class Plane extends EntityBase implements Entity {
 		super(EntityType.PLANE, entityOptions);
 
 		this._crateSpawner = new RateLimiter(Plane._crateSpawnInterval);
-		this._lastCrateType = EntityType.UNKNOWN;
+
+		this._crateList = new Array(
+			EntityType.HEALTH_CRATE,
+			EntityType.HEALTH_CRATE,
+			EntityType.HEALTH_CRATE,
+			EntityType.WEAPON_CRATE,
+			EntityType.WEAPON_CRATE,
+			EntityType.BUFF_CRATE,
+		);
+		this._crateIndex = 0;
+
+		globalRandom.shuffle(this._crateList);
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
@@ -119,7 +130,7 @@ export class Plane extends EntityBase implements Entity {
 	}
 
 	private maybeDropCrate() : void {
-		let crateType = this._lastCrateType === EntityType.HEALTH_CRATE ? EntityType.WEAPON_CRATE : EntityType.HEALTH_CRATE;
+		let crateType = this._crateList[this._crateIndex % this._crateList.length];
 
 		const numCrates = game.entities().getMap(crateType).numEntities();
 
@@ -133,6 +144,11 @@ export class Plane extends EntityBase implements Entity {
 			});
 		}
 
-		this._lastCrateType = crateType;
+		this._crateIndex++;
+
+		if (this._crateIndex >= this._crateList.length) {
+			globalRandom.shuffle(this._crateList);
+			this._crateIndex = 0;
+		}
 	}
 }

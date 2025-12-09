@@ -33,6 +33,7 @@ import { SquawkShotBuff } from 'game/component/buff/squawk_shot_buff'
 import { StatStickBuff } from 'game/component/buff/stat_stick_buff'
 import { SunBuff } from 'game/component/buff/sun_buff'
 import { TankBuff } from 'game/component/buff/tank_buff'
+import { TempCritBuff, TempDamageBuff, TempFiringBuff, TempShieldBuff } from 'game/component/buff/temp_buff'
 import { VipBuff } from 'game/component/buff/vip_buff'
 import { WarmogsBuff } from 'game/component/buff/warmogs_buff'
 import { Entity } from 'game/entity'
@@ -73,6 +74,11 @@ export namespace BuffFactory {
 		maxLevel: 6,
 		resetOnSpawn: true,
 	};
+	const temporaryMetadata : BuffOptions = {
+		maxLevel: 1,
+		temporary: true,
+		resetOnSpawn: true,
+	}
 
 	const percentMetadata : BuffOptions = {
 		maxLevel: 100,
@@ -126,6 +132,11 @@ export namespace BuffFactory {
 		[BuffType.BLACK_HEADBAND, statusMetadata],
 		[BuffType.VIP, statusMetadata],
 		[BuffType.SPREE, {maxLevel: 3, resetOnSpawn: true }],
+
+		[BuffType.TEMP_CRIT, temporaryMetadata],
+		[BuffType.TEMP_DAMAGE, temporaryMetadata],
+		[BuffType.TEMP_FIRING, temporaryMetadata],
+		[BuffType.TEMP_SHIELD, temporaryMetadata],
 	]);
 
 	export const colors = new Map<BuffType, ColorType>([
@@ -173,6 +184,11 @@ export namespace BuffFactory {
 		[BuffType.IMBUE, (type : BuffType) => { return new ImbueBuff(type, metadata.get(type)) }],
 		[BuffType.POISON, (type : BuffType) => { return new PoisonBuff(type, metadata.get(type)) }],
 		[BuffType.SLOW, (type : BuffType) => { return new SlowBuff(type, metadata.get(type)) }],
+
+		[BuffType.TEMP_CRIT, (type : BuffType) => { return new TempCritBuff(type, metadata.get(type)) }],
+		[BuffType.TEMP_DAMAGE, (type : BuffType) => { return new TempDamageBuff(type, metadata.get(type)) }],
+		[BuffType.TEMP_FIRING, (type : BuffType) => { return new TempFiringBuff(type, metadata.get(type)) }],
+		[BuffType.TEMP_SHIELD, (type : BuffType) => { return new TempShieldBuff(type, metadata.get(type)) }],
 	]);
 
 	export function create<T extends Buff>(type : BuffType) : T {
@@ -195,6 +211,11 @@ export namespace BuffFactory {
 	}
 	export function isStarter(type : BuffType) : boolean {
 		return starterBuffs.includes(type);
+	}
+
+	const temporaryBuffs = new Array<BuffType>(BuffType.TEMP_CRIT, BuffType.TEMP_DAMAGE, BuffType.TEMP_FIRING, BuffType.TEMP_SHIELD);
+	export function getTemporary() : BuffType {
+		return temporaryBuffs[Math.floor(Math.random() * temporaryBuffs.length)];
 	}
 
 	const generalBuffs = new Array<BuffType>(

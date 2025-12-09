@@ -200,6 +200,9 @@ export namespace MaterialFactory {
 		standardMaterial(MaterialType.PICKUP_RED, (mat : BABYLON.StandardMaterial) => {
 			mat.diffuseColor = ColorFactory.color(ColorType.PICKUP_RED).toBabylonColor3();
 		});
+		standardMaterial(MaterialType.PICKUP_PURPLE, (mat : BABYLON.StandardMaterial) => {
+			mat.diffuseColor = ColorFactory.color(ColorType.PICKUP_PURPLE).toBabylonColor3();
+		});
 		standardMaterial(MaterialType.PICKUP_YELLOW, (mat : BABYLON.StandardMaterial) => {
 			mat.diffuseColor = ColorFactory.color(ColorType.PICKUP_YELLOW).toBabylonColor3();
 		});

@@ -28,7 +28,7 @@ export class LaserCannon extends Weapon {
 	override attachType() : AttachType { return AttachType.ARM; }
 	override recoilType() : RecoilType { return RecoilType.LARGE; }
 	override reloadType() : ReloadType { return ReloadType.VERTICAL; }
-	override meshType() : MeshType { return MeshType.LASER_GUN; }
+	override meshType() : MeshType { return MeshType.LASER_CANNON; }
 
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);

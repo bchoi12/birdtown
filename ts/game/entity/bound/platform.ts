@@ -8,7 +8,8 @@ import { Resources } from 'game/component/resources'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { BoundBase } from 'game/entity/bound'
-import { ColorCategory, DepthType, StatType } from 'game/factory/api'
+import { ColorCategory, DepthType, SoundType, StatType } from 'game/factory/api'
+import { SoundFactory } from 'game/factory/sound_factory'
 
 import { Fns } from 'util/fns'
 
@@ -124,6 +125,8 @@ export class UnderwaterRock extends PlatformBase {
 					}
 				});
 			}
+
+			SoundFactory.playFromPos(SoundType.ROCK_BREAK, this._profile.pos().toBabylon3());
 		}
 		this.delete();
 	}

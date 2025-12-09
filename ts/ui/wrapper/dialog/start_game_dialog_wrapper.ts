@@ -430,6 +430,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE_TURNS, LoadoutType.PICK_TURNS, LoadoutType.RANDOM_ALL, LoadoutType.GOLDEN_GUN]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			otherCategory.contentElm().appendChild(this.buffCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
@@ -448,6 +449,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());
+			otherCategory.contentElm().appendChild(this.buffCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
@@ -461,6 +463,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
 			coreCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			otherCategory.contentElm().appendChild(this.buffCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			break;
@@ -471,6 +474,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());	
 			coreCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
+			otherCategory.contentElm().appendChild(this.buffCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
@@ -482,6 +486,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			otherCategory.contentElm().appendChild(this.buffCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
@@ -493,6 +498,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
 			coreCategory.contentElm().appendChild(this.friendlyFireWrapper(this._configMsg).elm());						
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			otherCategory.contentElm().appendChild(this.buffCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
@@ -511,6 +517,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
 			coreCategory.contentElm().appendChild(this.friendlyFireWrapper(this._configMsg).elm());						
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			otherCategory.contentElm().appendChild(this.buffCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
@@ -523,6 +530,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
 			coreCategory.contentElm().appendChild(this.friendlyFireWrapper(this._configMsg).elm());						
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
+			otherCategory.contentElm().appendChild(this.buffCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
@@ -751,6 +759,28 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 	}
 
+	private buffCrateWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
+			label: "Buff crate drop rate",
+			value: Number(msg.getBuffCrateSpawn()),
+			plus: (current : number) => {
+				if (current === FrequencyType.UBIQUITOUS) {
+					return;
+				}
+				current++;
+				msg.setBuffCrateSpawn(current);
+			},
+			minus: (current : number) => {
+				if (current === FrequencyType.NEVER) {
+					return;
+				}
+				current--;
+				msg.setBuffCrateSpawn(current);
+			},
+			get: () => { return msg.getBuffCrateSpawn(); },
+			html: (current : number) => { return Strings.toTitleCase(FrequencyType[current]); },
+		});
+	}
 	private healthCrateWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
 		return new LabelNumberWrapper({
 			label: "Health crate drop rate",

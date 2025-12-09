@@ -98,6 +98,13 @@ export class Buffs extends ComponentBase implements Component {
 		}
 		this.updateConditionals(buff);
 	}
+	clearTempBuffsExcept(keepType : BuffType) : void {
+		this.executeIf<Buff>((buff : Buff, type : BuffType) => {
+			this.removeBuff(type);
+		}, (buff : Buff, type : BuffType) => {
+			return buff.temporary() && type !== keepType;
+		});
+	}
 	clearBuffs() : void {
 		let removed : string[] = [];
 		this.execute<Buff>((buff : Buff, type : BuffType) => {

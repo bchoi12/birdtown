@@ -41,6 +41,7 @@ export enum EntityType {
 	BOTTOM_MINI_CLIFF,
 	BOUND,
 	BUBBLE,
+	BUFF_CRATE,
 	BULLET,
 	BUSH,
 	CARTRIDGE,

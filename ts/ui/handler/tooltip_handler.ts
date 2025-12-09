@@ -116,6 +116,13 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			return "Reviving...";
 		case TooltipType.BUBBLE:
 			return `Press ${KeyNames.keyTypeHTML(KeyType.JUMP)} to pop the bubble`;
+		case TooltipType.BUFF_ACQUIRED:
+			if (names.length < 1) {
+				return "Buff acquired!";
+			}
+			return `${names[0]}!`;
+		case TooltipType.BUFF_CRATE:
+			return `Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to gain a random temporary buff`;
 		case TooltipType.CONTROLS:
 			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.MENU)} at any time to update settings & controls`;
 		case TooltipType.COPIED_URL:

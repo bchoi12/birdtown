@@ -113,11 +113,12 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 						if (mesh.material.name === "crate") {
 							this._materialShifter.setMaterial(mesh.material, Box2.fromBox({
 								min: {x: 0, y: 0},
-								max: {x: 1, y: 2},
+								max: {x: 1, y: 3},
 							}));
 
 							this._materialShifter.registerOffset(EntityType.HEALTH_CRATE, {x: 0, y: 0});
 							this._materialShifter.registerOffset(EntityType.WEAPON_CRATE, {x: 0, y: 1});
+							this._materialShifter.registerOffset(EntityType.BUFF_CRATE, {x: 0, y: 2});
 							this._materialShifter.offset(this.type());
 						}
 					});

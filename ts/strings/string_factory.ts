@@ -410,6 +410,12 @@ export namespace StringFactory {
 		[BuffType.TANK, "BORB"],
 		[BuffType.NIGHT, "Keyboard Warrior"],
 		[BuffType.WARMOGS, "Health Stacker"],
+
+		[BuffType.TEMP_CRIT, "Crit"],
+		[BuffType.TEMP_DAMAGE, "Damage"],
+		[BuffType.TEMP_FIRING, "Firing"],
+		[BuffType.TEMP_SHIELD, "Shield"],
+
 	]);
 
 	export function hasBuffName(type : BuffType) : boolean {
@@ -450,6 +456,11 @@ export namespace StringFactory {
 
 		[BuffType.SNIPER, "Massive damage when far away"],
 		[BuffType.WARMOGS, "Increases health by a flat amount and percentage"],
+
+		[BuffType.TEMP_CRIT, "Critical strike effects acquired"],
+		[BuffType.TEMP_DAMAGE, "Bullet damage increased"],
+		[BuffType.TEMP_FIRING, "Weapon mastery increased"],
+		[BuffType.TEMP_SHIELD, "Shield and life steal acquired"],
 	]);
 	export function getBuffDescription(type : BuffType) : string {
 		if (buffUsage.has(type)) {

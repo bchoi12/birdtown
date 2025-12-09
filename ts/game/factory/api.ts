@@ -41,6 +41,12 @@ export enum BuffType {
 	IMBUE,
 	POISON,
 	SLOW,
+
+	// Temporaries
+	TEMP_CRIT,
+	TEMP_DAMAGE,
+	TEMP_FIRING,
+	TEMP_SHIELD,
 }
 
 export enum ColliderType {
@@ -158,8 +164,9 @@ export enum ColorType {
 	SHOOTER_YELLOW,
 	SHOOTER_PURPLE,
 
-	PICKUP_BLUE,
 	PICKUP_RED,
+	PICKUP_BLUE,
+	PICKUP_PURPLE,
 	PICKUP_YELLOW,
 
 	SKY_DAY_TOP,
@@ -283,8 +290,9 @@ export enum MaterialType {
 	EASTERN_RED_TRAIL,
 	EASTERN_RED_SOLID_TRAIL,
 
-	PICKUP_BLUE,
 	PICKUP_RED,
+	PICKUP_BLUE,
+	PICKUP_PURPLE,
 	PICKUP_YELLOW,
 
 	SKY_DAY,
@@ -316,6 +324,7 @@ export enum MeshType {
 	BAZOOKA,
 	GATLING,
 	GOLDEN_GUN,
+	LASER_CANNON,
 	LASER_GUN,
 	MINIGUN,
 	ORB_CANNON,
@@ -419,6 +428,7 @@ export enum SoundType {
 	QUICK_RELOAD,
 	RELOAD,
 	RIFLE,
+	ROCK_BREAK,
 	ROCKET,
 	SCIFI_RELOAD,
 	SCREAM,

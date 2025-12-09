@@ -638,6 +638,7 @@ kbd {
     display: block;
     visibility: hidden;
     text-align: center;
+    text-overflow: clip;
     width: 100%;
 
     top: 12%;

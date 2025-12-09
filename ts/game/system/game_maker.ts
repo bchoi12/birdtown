@@ -37,7 +37,7 @@ import { globalRandom } from 'util/seeded_random'
 
 export class GameMaker extends SystemBase implements System {
 
-	private static readonly _announcementBuffer = 500;
+	private static readonly _announcementBuffer = 250;
 	private static readonly _lastDamageTime = 15000;
 	private static readonly _finishTimeLimit = 3000;
 	private static readonly _victoryTimeLimit = 7500;
@@ -199,6 +199,8 @@ export class GameMaker extends SystemBase implements System {
 	}
 	private limitPerPlayer(type : EntityType) : number {
 		switch (type) {
+		case EntityType.BUFF_CRATE:
+			return GameMaker._limitPerPlayer.get(this._config.getBuffCrateSpawnOr(0));
 		case EntityType.HEALTH_CRATE:
 			return GameMaker._limitPerPlayer.get(this._config.getHealthCrateSpawnOr(0));
 		case EntityType.WEAPON_CRATE:
