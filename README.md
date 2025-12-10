@@ -22,11 +22,15 @@ Beta has been launched! Play now at either
 
 ![UI screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog088.png?raw=true)
 
-## Patch Notes
- * beta 1.098
- 	* fix a bunch of small bugs
- 	* add some flare to spin-off game modes
- 	* add support for using TURN server
+## Recent Updates
+ * v1.1
+ 	* TURN server support (goodbye symmetric NAT issues)
+ 	* Buff system and new game mode Buff Battle
+ 	* Brand new level Birdff (also procedurally generated)
+ 	* More accessibility options and settings menu overhaul
+ 	* New weapons and equips
+ 	* Jazz up some old game modes
+ 	* Lots more small polishes
 
 ## Engine Highlights
  * Custom built for the web with nearly instant load times. All assets are streamed to you on-demand.

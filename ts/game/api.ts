@@ -48,12 +48,14 @@ export enum GameMode {
 	SURVIVAL,
 	TEAM_BATTLE,
 
-	// beta 1.1
+	// v1.1
 	GOLDEN_GUN,
 	VIP,
 	BUFF_BATTLE,
-	INVASION,
 	TEAM_DEATHMATCH,
+
+	// TBD
+	INVASION,
 }
 
 export enum GameObjectState {
