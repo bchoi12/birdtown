@@ -4,7 +4,7 @@ import { BoolFlag, NumberFlag, Platform, PlatformFlag, StringFlag } from 'global
 export namespace Flags {
 
 	// Change this when exporting to other platforms.
-	const platformOverride : Platform = "";
+	const platformOverride : Platform = null;
 	export const platform = new PlatformFlag("platform", platformOverride ? platformOverride : guessPlatform());
 
 	// Core
@@ -23,7 +23,7 @@ export namespace Flags {
 	export const devDebug = new BoolFlag("devDebug", isLocalhost());
 
 	// Platform specific
-	export const showQuitButton = new BoolFlag("showQuitButton", platform.isDesktop());
+	export const showQuitButton = new BoolFlag("showQuitButton", platform.isDesktop() && !platform.isDiscord());
 	export const allowLocation = new BoolFlag("allowLocation", !platform.isDesktop());
 	export const allowSharing = new BoolFlag("allowSharing", true);
 	export const shareSameURL = new BoolFlag("shareSameURL", !platform.isDesktop());

@@ -11,6 +11,8 @@ document.fonts.ready.then(() => {
 		console.error(error);
 	}
 
+	console.log("Your platform: %s", Flags.platform.get());
+
 	setTimeout(() => {
 		document.getElementById("div-initializing").style.display = "none";
 		document.getElementById("div-screen").style.display = "block";

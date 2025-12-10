@@ -148,8 +148,19 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		this._table.clearRows();
 		this._lastRefresh = Date.now();
 
+		const onFailure = () => {
+			this._infoElm.textContent = "Failed to query matchmaking server. Try starting a game instead?";
+			this._hostButton.show();
+			this._table.elm().style.display = "none";
+		}
+
 		perch.getRooms((data) => {
 			this._pending = false;
+
+			if (!data) {
+				onFailure();
+				return;
+			}
 
 			const rooms = Object.entries(data);
 			if (!rooms || rooms.length === 0) {
@@ -187,9 +198,7 @@ export class ServerWrapper extends HtmlWrapper<HTMLElement> {
 		}, () => {
 			this._pending = false;
 
-			this._infoElm.textContent = "Failed to query matchmaking server. Try starting a game instead?";
-			this._hostButton.show();
-			this._table.elm().style.display = "none";
+			onFailure();
 		});
 	}
 	private timeSinceRefresh() : number { return Date.now() - this._lastRefresh; }
