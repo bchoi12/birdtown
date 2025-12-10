@@ -593,7 +593,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 				}
 			}
 
-			const noDamage = from.hasBuff(BuffType.HEALER) && !game.controller().config().getFriendlyFireOr(false);
+			const noDamage = from.hasBuff(BuffType.HEALER) || !game.controller().config().getFriendlyFireOr(false);
 			if (noDamage) {
 				return;
 			}

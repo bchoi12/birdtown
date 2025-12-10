@@ -53,7 +53,10 @@ export class Laser extends Projectile {
 					collisionFilter: BodyFactory.collisionFilter(CollisionCategory.HIT_BOX),
 				});
 			},
-			init: entityOptions.profileInit,
+			init: {
+				clampPos: false,
+				...entityOptions.profileInit,
+			},
 		}));
 		this._profile.setMinimapOptions({
 			color: ColorFactory.color(ColorType.SHOOTER_ORANGE).toString(),

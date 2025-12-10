@@ -14,7 +14,6 @@ import { DialogMessage } from 'message/dialog_message'
 
 import { DialogType } from 'ui/api'
 
-import { isLocalhost } from 'util/common'
 import { LinkedList } from 'util/linked_list'
 
 export class ClientDialog extends ClientSystem implements System {

@@ -33,8 +33,6 @@ import { Cookie } from 'settings/cookie'
 
 import { KeyType } from 'ui/api'
 
-import { isMobile, isLocalhost } from 'util/common'
-
 class Settings {
 
 	private static readonly _mouseLockKeys = new Set([KeyType.MOUSE_CLICK, KeyType.ALT_MOUSE_CLICK]);
@@ -110,8 +108,8 @@ class Settings {
 		this.mouseCodes.set(KeyType.MOUSE_CLICK, 0);
 		this.mouseCodes.set(KeyType.ALT_MOUSE_CLICK, 2);
 
-		this.fullscreenSetting = isMobile() ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
-		this.clientPredictionSetting = isMobile() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
+		this.fullscreenSetting = Flags.useMobileSettings.get() ? FullscreenSetting.FULLSCREEN : FullscreenSetting.WINDOWED;
+		this.clientPredictionSetting = Flags.useMobileSettings.get() ? ClientPredictionSetting.HIGH : ClientPredictionSetting.MEDIUM;
 		this.damageNumberSetting = DamageNumberSetting.OFF;
 		this.chatSetting = ChatSetting.FILTER;
 		this.screenShakeSetting = ScreenShakeSetting.ON;
@@ -124,16 +122,16 @@ class Settings {
 		this.soundSetting = SoundSetting.ON;
 		this.soundPercent = Settings._soundPercent;
 
-		if (isMobile()) {
+		if (Flags.useMobileSettings.get()) {
 			this.lowestSpec();
 		} else {
 			this.recommendedGraphics();
 		}
 
 		this.inspectorSetting = InspectorSetting.OFF;
-		this.delaySetting = isLocalhost() ? DelaySetting.LOCAL : DelaySetting.NONE;
-		this.jitterSetting = isLocalhost() ? JitterSetting.WIFI : JitterSetting.NONE;
-		this.networkStabilitySetting = isLocalhost() ? NetworkStabilitySetting.GOOD : NetworkStabilitySetting.PERFECT;
+		this.delaySetting = Flags.printDebug.get() ? DelaySetting.LOCAL : DelaySetting.NONE;
+		this.jitterSetting = Flags.printDebug.get() ? JitterSetting.WIFI : JitterSetting.NONE;
+		this.networkStabilitySetting = Flags.printDebug.get() ? NetworkStabilitySetting.GOOD : NetworkStabilitySetting.PERFECT;
 	}
 
 	reset() : void {

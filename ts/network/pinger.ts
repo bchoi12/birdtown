@@ -38,8 +38,13 @@ export class Pinger {
 	ping() : number { return Math.ceil(this._pingTimes.average()); }
 	pingLoss() : number { return this._pingLoss.average(); }
 
-	unresponsive(peer : string) : boolean { return this.millisSincePing(peer) >= Pinger._pingTimeout; }
-	private millisSincePing(peer : string) : number { return this._lastReceivedTime.has(peer) ? Math.max(0, Date.now() - this._lastReceivedTime.get(peer)) : 0; }
+	unresponsive(peer : string) : boolean {
+		return this.millisSincePing(peer) >= Pinger._pingTimeout;
+	}
+	receivedPing(peer : string) : boolean { return this._lastReceivedTime.has(peer); }
+	private millisSincePing(peer : string) : number {
+		return this.receivedPing(peer) ? Math.max(0, Date.now() - this._lastReceivedTime.get(peer)) : 0;
+	}
 
 	initializeForHost(host : Netcode) {
 		host.addMessageCallback(NetworkMessageType.PING, (msg : NetworkMessage) => {

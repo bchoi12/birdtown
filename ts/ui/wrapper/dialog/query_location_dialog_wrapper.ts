@@ -16,13 +16,14 @@ export class QueryLocationDialogWrapper extends DialogWrapper {
 		this.setTitle("Allow Location?");
 		this.shrink();
 		this.important();
+		this.addSubmitTimer(15 * 1000);
 
 		let pageWrapper = this.addPage();
 
 		pageWrapper.elm().style.fontSize = "0.8em";
-        pageWrapper.elm().innerHTML = `<span>We use your <strong>approximate</strong> location for:</span>`
+        pageWrapper.elm().innerHTML = `<span>We use your <strong>approximate</strong> location for</span>`
     		+ `<ul><li>estimating server location when hosting public games</li><li>estimating the distance from you to any public games</li></ul>`
-    		+ `<span>You <strong>do not</strong> need to share your location to play.</span>`;
+    		+ `<span>You will <strong>never</strong> have to share your location to play.</span>`;
 
 		let okButton = this.addOKButton("Close");
 		okButton.addOnClick(() => {

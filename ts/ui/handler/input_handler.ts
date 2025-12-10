@@ -1,6 +1,8 @@
 
 import { game } from 'game'
 
+import { Flags } from 'global/flags'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -9,7 +11,6 @@ import { Handler, HandlerBase } from 'ui/handler'
 import { HandlerType } from 'ui/handler/api'
 import { Html } from 'ui/html'
 
-import { isMobile } from 'util/common'
 import { Optional } from 'util/optional'
 import { Vec, Vec2 } from 'util/vector'
 
@@ -78,47 +79,47 @@ export class InputHandler extends HandlerBase implements Handler {
 	}
 
 	override setup() : void {
-		if (isMobile()) {
+		if (Flags.useMobileSettings.get()) {
 			document.addEventListener("touchstart", (e : any) => { this.updateTouch(e, TouchType.START); });
 			document.addEventListener("touchmove", (e : any) => { this.updateTouch(e, TouchType.MOVE); });
 			document.addEventListener("touchend", (e : any) => { this.updateTouch(e, TouchType.END); });
-		} else {
-			document.addEventListener("keydown", (e : any) => {
-				if (e.repeat || ui.mode() !== UiMode.GAME) return;
-
-				if (this._keyDownCallbacks.has(e.keyCode)) {
-					e.preventDefault();
-					this._keyDownCallbacks.get(e.keyCode)(e);
-				}
-			});
-			document.addEventListener("keyup", (e : any) => {
-				if (e.repeat || ui.mode() !== UiMode.GAME) return;
-
-				if (this._keyUpCallbacks.has(e.keyCode)) {
-					e.preventDefault();
-					this._keyUpCallbacks.get(e.keyCode)(e);
-				}
-			});
-			window.onblur = () => {
-				this._keys.clear();
-			};
-
-	    	document.addEventListener("mousemove", (e : any) => {
-	    		if (ui.mode() !== UiMode.GAME) return;
-
-	    		this.recordMouse(e);
-	    	});
-	    	document.addEventListener("mousedown", (e : any) => {
-	    		if (ui.mode() !== UiMode.GAME || ui.usingTray()) return;
-
-	    		this.mouseDown(e);
-	    	});
-	    	document.addEventListener("mouseup", (e : any) => {
-	    		if (ui.mode() !== UiMode.GAME) return;
-
-	    		this.mouseUp(e);
-	    	});
 		}
+
+		document.addEventListener("keydown", (e : any) => {
+			if (e.repeat || ui.mode() !== UiMode.GAME) return;
+
+			if (this._keyDownCallbacks.has(e.keyCode)) {
+				e.preventDefault();
+				this._keyDownCallbacks.get(e.keyCode)(e);
+			}
+		});
+		document.addEventListener("keyup", (e : any) => {
+			if (e.repeat || ui.mode() !== UiMode.GAME) return;
+
+			if (this._keyUpCallbacks.has(e.keyCode)) {
+				e.preventDefault();
+				this._keyUpCallbacks.get(e.keyCode)(e);
+			}
+		});
+		window.onblur = () => {
+			this._keys.clear();
+		};
+
+    	document.addEventListener("mousemove", (e : any) => {
+    		if (ui.mode() !== UiMode.GAME) return;
+
+    		this.recordMouse(e);
+    	});
+    	document.addEventListener("mousedown", (e : any) => {
+    		if (ui.mode() !== UiMode.GAME || ui.usingTray()) return;
+
+    		this.mouseDown(e);
+    	});
+    	document.addEventListener("mouseup", (e : any) => {
+    		if (ui.mode() !== UiMode.GAME) return;
+
+    		this.mouseUp(e);
+    	});
 
 		this.reset();
 	}

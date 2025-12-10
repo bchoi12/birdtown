@@ -49,6 +49,8 @@ export class DialogHandler extends HandlerBase implements Handler {
 		[DialogType.YOUR_ROOM, () => { return new YourRoomDialogWrapper()}],
 	]);
 
+	private static readonly _initTypes = new Set([DialogType.INIT, DialogType.QUERY_LOCATION]);
+
 	private _dialogsElm : HTMLElement;
 	private _dialogQueue : Array<DialogType>;
 	private _dialogs : Map<DialogType, DialogWrapper>;
@@ -113,7 +115,7 @@ export class DialogHandler extends HandlerBase implements Handler {
 			return;
 		}
 
-		if (!game.playerInitialized() && type !== DialogType.INIT) {
+		if (!game.playerInitialized() && !DialogHandler._initTypes.has(type)) {
 			return;
 		}
 

@@ -20,7 +20,6 @@ import { ui } from 'ui'
 import { KeyType, StatusType } from 'ui/api'
 
 import { CircleMap } from 'util/circle_map'
-import { isLocalhost } from 'util/common'
 import { Fns, InterpType } from 'util/fns'
 import { Panner } from 'util/panner'
 import { Vec, Vec2, Vec3 } from 'util/vector'

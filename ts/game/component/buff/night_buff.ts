@@ -12,7 +12,7 @@ export class NightBuff extends Buff {
 	constructor(type : BuffType, options : BuffOptions) {
 		super(type, options);
 
-		this._night = false;
+		this._night = game.world().getTime() === TimeType.NIGHT;
 
 		this.addProp<boolean>({
 			import: (obj : boolean) => { this.setNight(obj); },

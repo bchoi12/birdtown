@@ -238,8 +238,8 @@ class UI {
 
 		ui.pushDialog(DialogType.QUERY_LOCATION);
 		navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => {
-			ui.forceSubmitDialog(DialogType.QUERY_LOCATION);
 			if (position.coords && position.coords.latitude && position.coords.longitude) {
+				ui.forceSubmitDialog(DialogType.QUERY_LOCATION);
 				this._location.set(position.coords.latitude, position.coords.longitude);
 				onSuccess(this._location);
 			} else {
@@ -250,8 +250,10 @@ class UI {
 			onError();
 		},
 		{
-			maximumAge: 3000,
-			timeout: 3000,
+			// 1 hour cached position
+			maximumAge: 60 * 60 * 1000,
+			// high timeout so you can read the dialog
+			timeout: 15000,
 			enableHighAccuracy: false,
 		});
 	}

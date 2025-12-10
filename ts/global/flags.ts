@@ -1,8 +1,6 @@
 
 import { BoolFlag, NumberFlag, PlatformFlag, StringFlag } from 'global/flag'
 
-import { isMobile, isLocalhost } from 'util/common'
-
 export namespace Flags {
 
 	// Change this when exporting to other platforms.
@@ -21,6 +19,7 @@ export namespace Flags {
 	// Debug
 	export const peerDebug = new NumberFlag("peerDebug", 2);
 	export const printDebug = new BoolFlag("printDebug", isLocalhost() || platform.isDiscord());
+	export const devDebug = new BoolFlag("devDebug", isLocalhost());
 
 	// Platform specific
 	export const showQuitButton = new BoolFlag("showQuitButton", platform.isDesktop());
@@ -29,6 +28,7 @@ export namespace Flags {
 	export const shareSameURL = new BoolFlag("shareSameURL", !isDesktopApp());
 	export const checkVersionMismatch = new BoolFlag("checkVersionMismatch", true);
 	export const checkNewVersion = new BoolFlag("checkNewVersion", !isDesktopApp());
+	export const useMobileSettings = new BoolFlag("useMobileSettings", isMobile());
 
 	// Perch
 	export const useLocalPerch = new BoolFlag("useLocalPerch", isLocalhost());
@@ -62,5 +62,13 @@ export namespace Flags {
 	    }
 
 	    return false;
+	}
+
+	function isMobile() : boolean {
+    	return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    }
+
+	function isLocalhost() : boolean {
+	    return location.hostname === "localhost" || location.hostname === "127.0.0.1";
 	}
 }

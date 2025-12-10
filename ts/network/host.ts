@@ -130,6 +130,13 @@ export class Host extends Netcode {
 
 	private registerCallbacks() : void {
 		this.addRegisterCallback((connection : Connection) => {
+			if (connection.registered()) {
+				if (Flags.printDebug.get()) {
+					console.error("Warning: skipping double registration for %s, clientId=%d", connection.id(), connection.clientId());
+				}
+				return;
+			}
+
 			const clientId = game.nextClientId();
 			connection.setClientId(clientId);
 			

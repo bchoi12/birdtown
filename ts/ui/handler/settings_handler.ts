@@ -38,8 +38,6 @@ import { LabelNumberWrapper } from 'ui/wrapper/label/label_number_wrapper'
 import { SettingWrapper } from 'ui/wrapper/label/setting_wrapper'
 import { Html } from 'ui/html'
 
-import { isLocalhost } from 'util/common'
-
 export class SettingsHandler extends HandlerBase implements Handler{
 
 	private _wrappers : Array<LabelNumberWrapper>;
@@ -368,7 +366,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			html: () => { return Math.round(100 * settings.soundPercent) + "%"; },
 		}));
 
-		if (isLocalhost()) {
+		if (Flags.devDebug.get()) {
 			let debug = this.createCategory("Debug");
 			debug.setExpanded(false);
 

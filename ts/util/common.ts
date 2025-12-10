@@ -1,6 +1,4 @@
 
-import { Flags } from 'global/flags'
-
 export function defined(...objects : any) : boolean {
     for (let i = 0; i < objects.length; ++i) {
         if (objects[i] === null || typeof objects[i] === 'undefined') {
@@ -12,17 +10,4 @@ export function defined(...objects : any) : boolean {
 
 export function assignOr<T extends Object>(obj : T, or : T) : T {
     return defined(obj) ? obj : or;
-}
-
-export function isLocalhost() : boolean {
-    return location.hostname === "localhost" || location.hostname === "127.0.0.1";
-}
-
-export function isFirefox() : boolean {
-    return navigator.userAgent.toLowerCase().includes('firefox');
-}
-
-const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-export function isMobile() : boolean {
-    return mobile;
 }

@@ -457,7 +457,7 @@ export namespace StringFactory {
 		[BuffType.SNIPER, "Massive damage when far away"],
 		[BuffType.WARMOGS, "Increases health by a flat amount and percentage"],
 
-		[BuffType.TEMP_CRIT, "Critical strike effects acquired"],
+		[BuffType.TEMP_CRIT, "Critical strikes acquired and speed increased"],
 		[BuffType.TEMP_DAMAGE, "Bullet damage increased"],
 		[BuffType.TEMP_FIRING, "Weapon mastery increased"],
 		[BuffType.TEMP_SHIELD, "Shield and life steal acquired"],

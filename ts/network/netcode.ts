@@ -25,7 +25,7 @@ import { ui } from 'ui'
 import { ChatType, DialogType } from 'ui/api'
 
 import { Buffer } from 'util/buffer'
-import { defined, isLocalhost } from 'util/common'
+import { defined } from 'util/common'
 import { DoubleMap } from 'util/double_map'
 import { Optional } from 'util/optional'
 
@@ -330,7 +330,10 @@ export abstract class Netcode {
 				return;
 			}
 
-			if (this._pinger.unresponsive(id)) {
+			if (!this._pinger.receivedPing(id) && connection.timeSinceRegistration() > 10000) {
+				console.error(`Never received first ping from ${id}`);
+				this.disconnect(DisconnectType.TIMEOUT, id);
+			} else if (this._pinger.unresponsive(id)) {
 				console.error(`Connection to ${id} timed out`);
 				this.disconnect(DisconnectType.TIMEOUT, id);
 			}
@@ -382,7 +385,7 @@ export abstract class Netcode {
 			return;
 		}
 
-		if (channels.ready()) {
+		if (channels.ready() && !connection.registered()) {
 			this._registerBuffer.push(connection);
 		}
 	}
@@ -603,12 +606,19 @@ export abstract class Netcode {
 
 	onKick(clientId : number) : void {}
 	kick(clientId : number) : void {
+		let kicked = false;
+
 		this._connections.forEach((connection : Connection) => {
 			if (clientId === connection.clientId()) {
 				this.onKick(clientId);
 				this.disconnect(DisconnectType.KICK, connection.id());
+				kicked = true;
 			}
 		});
+
+		if (!kicked) {
+			console.error("Failed to kick %d!", clientId);
+		}
 	}
 
 	private updateRoomMetadata() : Promise<void> {
