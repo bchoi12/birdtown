@@ -4,8 +4,8 @@ import { BoolFlag, NumberFlag, Platform, PlatformFlag, StringFlag } from 'global
 export namespace Flags {
 
 	// Change this when exporting to other platforms.
-	const platformOverride = "";
-	export const platform = new PlatformFlag("platform", platformOverride.length > 0 ? platformOverride : guessPlatform());
+	const platformOverride : Platform = "";
+	export const platform = new PlatformFlag("platform", platformOverride ? platformOverride : guessPlatform());
 
 	// Core
 	export const room = new StringFlag("room", "");
