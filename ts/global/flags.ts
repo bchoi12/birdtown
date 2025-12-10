@@ -1,10 +1,11 @@
 
-import { BoolFlag, NumberFlag, PlatformFlag, StringFlag } from 'global/flag'
+import { BoolFlag, NumberFlag, Platform, PlatformFlag, StringFlag } from 'global/flag'
 
 export namespace Flags {
 
 	// Change this when exporting to other platforms.
-	export const platform = new PlatformFlag("platform", "web");
+	const platformOverride = "";
+	export const platform = new PlatformFlag("platform", platformOverride.length > 0 ? platformOverride : guessPlatform());
 
 	// Core
 	export const room = new StringFlag("room", "");
@@ -23,11 +24,11 @@ export namespace Flags {
 
 	// Platform specific
 	export const showQuitButton = new BoolFlag("showQuitButton", platform.isDesktop());
-	export const allowLocation = new BoolFlag("allowLocation", !isDesktopApp());
+	export const allowLocation = new BoolFlag("allowLocation", !platform.isDesktop());
 	export const allowSharing = new BoolFlag("allowSharing", true);
-	export const shareSameURL = new BoolFlag("shareSameURL", !isDesktopApp());
+	export const shareSameURL = new BoolFlag("shareSameURL", !platform.isDesktop());
 	export const checkVersionMismatch = new BoolFlag("checkVersionMismatch", true);
-	export const checkNewVersion = new BoolFlag("checkNewVersion", !isDesktopApp());
+	export const checkNewVersion = new BoolFlag("checkNewVersion", !platform.isDesktop());
 	export const useMobileSettings = new BoolFlag("useMobileSettings", isMobile());
 
 	// Perch
@@ -43,6 +44,13 @@ export namespace Flags {
 		}
 
 		return [true, ""];
+	}
+
+	function guessPlatform() : Platform {
+		if (isDesktopApp()) {
+			return "desktop";
+		}
+		return "web";
 	}
 
 	function isDesktopApp() {

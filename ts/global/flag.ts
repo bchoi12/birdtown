@@ -67,7 +67,7 @@ export class StringFlag extends Flag<string>{
 	}
 }
 
-type Platform = "desktop" | "discord" | "web";
+export type Platform = "desktop" | "discord" | "web";
 export class PlatformFlag extends Flag<Platform> {
 
 	private static readonly _desktopPlatforms = new Set<Platform>([
@@ -93,7 +93,6 @@ export class PlatformFlag extends Flag<Platform> {
 	isDiscord() {
 		return this.get() === "discord";
 	}
-
 	isWeb() {
 		return !this.isDesktop();
 	}
