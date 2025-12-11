@@ -152,6 +152,11 @@ export abstract class Netcode {
 			}
 
 			await perch.getTurnCredentials((data) => {
+				if (!data || !data.iceServers) {
+					console.error("Failed to obtain TURN credentials", data);
+					return;
+				}
+
 				data.iceServers.forEach((iceServer) => {
 					peerOptions.config.iceServers.push(iceServer);
 				});
