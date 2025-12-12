@@ -33,10 +33,12 @@ abstract class TempBuff extends Buff {
 			return;
 		}
 
-		ui.showTooltip(TooltipType.BUFF_ACQUIRED, {
-			names: [StringFactory.getBuffDescription(this._buffType)],
-			ttl: 3000,
-		});
+		if (this.entity().isLakituTarget()) {
+			ui.showTooltip(TooltipType.BUFF_ACQUIRED, {
+				names: [StringFactory.getBuffDescription(this._buffType)],
+				ttl: 3000,
+			});
+		}
 
 		this.getParent<Buffs>().clearTempBuffsExcept(this._buffType);
 
