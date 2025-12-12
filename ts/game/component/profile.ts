@@ -886,7 +886,7 @@ export class Profile extends ComponentBase implements Component {
 			} 
 		} 
 
-		if (game.level().isCircle() && !this._disallowClampPos) {
+		if (game.level().isCircle() && !this._disallowClampPos || !game.level().isCircle() && this._clampPos) {
 			game.level().clampProfile(this);
 		}
 		if (this._limitFn.has()) {

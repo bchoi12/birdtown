@@ -58,7 +58,7 @@ export class FlameBuff extends Buff {
 			this.entity().takeDamage(dmg);
 		}
 
-		this._flameLimiter.setLimit(20 + 10 * (this.maxLevel() - level));
+		this._flameLimiter.setLimit(40 + 20 * (this.maxLevel() - level));
 
 		// On fire
 		if (this._flameLimiter.check(millis)) {

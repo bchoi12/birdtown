@@ -170,6 +170,13 @@ export class TooltipHandler extends HandlerBase implements Handler {
 				return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to view game modes\nOnly the host can start a game`;
 			}
 			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to start a new game!`;
+		case TooltipType.NEW_TEAM:
+			if (names.length < 1) {
+				return "You joined a new team!";
+			}
+			return `You joined the ${names[0]}!`;
+		case TooltipType.VIP:
+			return "You are the VIP! Stay safe out there!"
 		case TooltipType.WEAPON_CRATE:
 			if (names.length !== 1) {
 				return "";

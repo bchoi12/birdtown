@@ -41,7 +41,7 @@ export class SlowBuff extends Buff {
 		}
 
 		const millis = stepData.millis;
-		this._particleLimiter.setLimit(30 + 30 * (this.maxLevel() - level));
+		this._particleLimiter.setLimit(40 + 40 * (this.maxLevel() - level));
 
 		// Slow :(
 		if (this._particleLimiter.check(millis)) {

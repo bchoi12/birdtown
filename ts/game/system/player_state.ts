@@ -41,6 +41,11 @@ export class PlayerState extends ClientSystem implements System {
 		KeyType.ALT_MOUSE_CLICK,
 	];
 
+	private static readonly _teamNames = new Map([
+		[TeamType.TEAM_ONE, "Red Team"],
+		[TeamType.TEAM_TWO, "Blue Team"],
+	]);
+
 	// Time in airplane
 	private static readonly _spawnTime = 5000;
 
@@ -230,6 +235,16 @@ export class PlayerState extends ClientSystem implements System {
 	setTeam(team : TeamType) : void {
 		if (Flags.printDebug.get()) {
 			console.log("%s: assigned to %s", this.name(), TeamType[team]);
+		}
+
+		if (this.validTargetEntity()
+			&& this.targetEntity().isLakituTarget()
+			&& this._team !== team
+			&& PlayerState._teamNames.has(team)) {
+			ui.showTooltip(TooltipType.NEW_TEAM, {
+				names: [PlayerState._teamNames.get(team)],
+				ttl: 3000,
+			});
 		}
 
 		this._team = team;

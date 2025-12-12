@@ -190,8 +190,8 @@ export class Lakitu extends SystemBase implements System {
 
 		return player.valid()
 			&& player.state() !== GameObjectState.DEACTIVATED
-			&& game.playerState(player.clientId()).isPlaying() && (player.clientIdMatches() || !player.dead())
-			&& game.playerStates().hasPlayerState(player.clientId());
+			&& game.playerStates().hasPlayerState(player.clientId())
+			&& game.playerState(player.clientId()).isPlaying() && (player.clientIdMatches() || !player.dead());
 	}
 	private targetPlayer() : boolean {
 		if (!game.playerState().hasTargetEntity()) {

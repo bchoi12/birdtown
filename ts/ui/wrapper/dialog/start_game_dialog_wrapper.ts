@@ -204,19 +204,21 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			description: "Be the last bird in a tiny level in a series of lightning quick rounds.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 3,
+			maxRecommended: 6,
 		});
 		this.populateMode(GameMode.SPREE, {
 			requirements: [],
 			description: "Free for all, but lose all of your points on death.\r\n\r\nBecome faster, stronger, and more 'glass cannon' as your spree grows.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 3,
-			maxRecommended: 8,
+			maxRecommended: 6,
 		});
 		this.populateMode(GameMode.SURVIVAL, {
 			requirements: [],
 			description: "Be the last bird in town.\r\n\r\nRecommended for larger groups along with the 'Endless' level modifier.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 4,
+			maxRecommended: 8,
 		});
 		this.populateMode(GameMode.DUEL, {
 			requirements: [],

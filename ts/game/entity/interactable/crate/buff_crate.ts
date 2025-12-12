@@ -35,7 +35,7 @@ export class BuffCrate extends Crate {
 			color: ColorFactory.color(ColorType.PICKUP_PURPLE).toString(),
 		});
 
-		this._particleLimiter = new RateLimiter(600);
+		this._particleLimiter = new RateLimiter(1200);
 	}
 
 	override outerMaterial() : MaterialType { return MaterialType.PICKUP_PURPLE; }

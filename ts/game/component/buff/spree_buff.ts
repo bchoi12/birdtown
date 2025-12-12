@@ -38,7 +38,7 @@ export class SpreeBuff extends Buff {
 		}
 
 		const millis = stepData.millis;
-		this._flameLimiter.setLimit(50 + 25 * (this.maxLevel() - level));
+		this._flameLimiter.setLimit(75 + 25 * (this.maxLevel() - level));
 
 		if (!this._flameLimiter.check(millis)) {
 			return;

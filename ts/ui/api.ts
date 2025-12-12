@@ -13,6 +13,7 @@ export enum UiMode {
 
 export enum AnnouncementType {
 	UNKNOWN,
+	FREE_FOR_ALL,
 	GAME_END,
 	GAME_ERROR,
 	GAME_FINISH,
@@ -22,6 +23,7 @@ export enum AnnouncementType {
 	LEVEL,
 	PLAYER_JOINED,
 	PLAYER_LEFT,
+	TEAM_MODE,
 	WELCOME,
 }
 
@@ -180,6 +182,7 @@ export enum TooltipType {
 	HIKING_SWIM,
 	HIKING_NIGHT,
 	MUSIC,
+	NEW_TEAM,
 	POINTER_LOCK,
 	REMATCH,
 	REMATCH_FAILED,
@@ -187,6 +190,7 @@ export enum TooltipType {
 	REVIVING,
 	SPAWN,
 	START_GAME,
+	VIP,
 	WEAPON_CRATE,
 }
 

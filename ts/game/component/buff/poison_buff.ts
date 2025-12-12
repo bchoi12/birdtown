@@ -52,7 +52,7 @@ export class PoisonBuff extends Buff {
 			this.entity().takeDamage(Math.ceil(PoisonBuff._tick / 1000 * level * PoisonBuff._percentDamage * missingHealth));
 		}
 
-		this._particleLimiter.setLimit(30 + 20 * (this.maxLevel() - level));
+		this._particleLimiter.setLimit(60 + 40 * (this.maxLevel() - level));
 
 		// Poisoned :(
 		if (this._particleLimiter.check(millis)) {

@@ -23,7 +23,7 @@ abstract class TempBuff extends Buff {
 	constructor(type : BuffType, options : BuffOptions) {
 		super(type, options);
 
-		this._particleLimiter = new RateLimiter(60);
+		this._particleLimiter = new RateLimiter(100);
 	}
 
 	override onLevel(level : number, delta : number) : void {
