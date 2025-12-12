@@ -47,6 +47,7 @@ export type ProfileInitOptions = {
 
 	// Allow going outside level
 	clampPos? : boolean;
+	disallowClampPos? : boolean;
 
 	// Do some extra postprocessing so we don't get stuck due to small collisions when moving
 	ignoreTinyCollisions? : boolean;
@@ -84,7 +85,8 @@ export class Profile extends ComponentBase implements Component {
 
 	private _degraded : boolean;
 	private _ignoreTinyCollisions : boolean;
-	private _clampPos : Optional<boolean>;
+	private _clampPos : boolean;
+	private _disallowClampPos : boolean;
 	private _bodyFn : BodyFn;
 	private _onBodyFns : Array<OnBodyFn>;
 	private _readyFn : ReadyFn;
@@ -126,7 +128,8 @@ export class Profile extends ComponentBase implements Component {
 
 		this._degraded = false;
 		this._ignoreTinyCollisions = false;
-		this._clampPos = Optional.empty(false);
+		this._clampPos = false;
+		this._disallowClampPos = false;
 		this._bodyFn = profileOptions.bodyFn;
 		this._onBodyFns = new Array();
 
@@ -272,7 +275,8 @@ export class Profile extends ComponentBase implements Component {
 	initFromOptions(init : ProfileInitOptions) : void {
 		if (init.degraded) { this._degraded = init.degraded; }
 		if (init.ignoreTinyCollisions) { this._ignoreTinyCollisions = init.ignoreTinyCollisions; }
-		if (init.clampPos) { this._clampPos.set(init.clampPos); }
+		if (init.clampPos) { this._clampPos = init.clampPos; }
+		if (init.disallowClampPos) { this._disallowClampPos = init.disallowClampPos; }
 		if (init.pos) { this.setPos(init.pos); }
 		if (init.vel) { this.setVel(init.vel); }
 		if (init.acc) { this.setAcc(init.acc); }
@@ -771,7 +775,7 @@ export class Profile extends ComponentBase implements Component {
 			} else if (point.x - this._pos.x > game.level().bounds().width() / 2) {
 				point.x -= game.level().bounds().width();
 			}
-		} else if (this._clampPos.has() && this._clampPos.get()) {
+		} else if (this._clampPos) {
 			game.level().clampPos(point);
 		}
 
@@ -882,8 +886,7 @@ export class Profile extends ComponentBase implements Component {
 			} 
 		} 
 
-		// Can disable clamp here if clampPos is explicitly false
-		if (game.level().isCircle() && (!this._clampPos.has() || this._clampPos.get())) {
+		if (game.level().isCircle() && !this._disallowClampPos) {
 			game.level().clampProfile(this);
 		}
 		if (this._limitFn.has()) {

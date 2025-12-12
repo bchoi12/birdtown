@@ -54,7 +54,7 @@ export class Laser extends Projectile {
 				});
 			},
 			init: {
-				clampPos: false,
+				disallowClampPos: true,
 				...entityOptions.profileInit,
 			},
 		}));
