@@ -133,7 +133,7 @@ export class GameMaker extends SystemBase implements System {
 		}
 
 		game.playerStates().execute((playerState : PlayerState) => {
-			playerState.onStartRound();
+			playerState.onStartRound(this._round);
 		});
 	}
 	winnerClientId() : number { return this._winnerClientId; }
@@ -389,6 +389,11 @@ export class GameMaker extends SystemBase implements System {
 			game.playerStates().executeIf((playerState : PlayerState) => {
 				const clientId = playerState.clientId();
 				const player = playerState.targetEntity<Player>();
+
+				// Reset role after being revived.
+				if (!player.dead() && playerState.role() === PlayerRole.SPECTATING) {
+					playerState.setRole(PlayerRole.GAMING);
+				}
 
 				if (playerState.role() === PlayerRole.GAMING) {
 					if (!game.clientDialog(clientId).inSync(DialogType.LOADOUT)) {

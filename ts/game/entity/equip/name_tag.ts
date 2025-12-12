@@ -274,7 +274,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 			// Don't show self or deactivated objs
 			enabled = false;
 		} else if (game.playerState().sameTeam(this.owner().team())) {
-			// Same team should be able to see
+			// Same team should be able to see, even when dead
 			enabled = true;
 		} else if (this.owner().hasProfile() && !this.owner().profile().visible()) {
 			// Don't show if occluded

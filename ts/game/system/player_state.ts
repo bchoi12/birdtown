@@ -56,6 +56,7 @@ export class PlayerState extends ClientSystem implements System {
 	private _targetId : number;
 	private _startingRole : PlayerRole;
 	private _team : TeamType;
+	private _announceTeam : Optional<TeamType>;
 	private _role : PlayerRole;
 	private _vip : boolean;
 	private _roleTimer : Timer;
@@ -74,6 +75,7 @@ export class PlayerState extends ClientSystem implements System {
 
 		this._startingRole = PlayerRole.UNKNOWN;
 		this._team = TeamType.UNKNOWN;
+		this._announceTeam = new Optional();
 		this._role = PlayerRole.UNKNOWN;
 		this._vip = false;
 		this._lastChange = Date.now();
@@ -237,14 +239,10 @@ export class PlayerState extends ClientSystem implements System {
 			console.log("%s: assigned to %s", this.name(), TeamType[team]);
 		}
 
-		if (this.validTargetEntity()
-			&& this.targetEntity().isLakituTarget()
-			&& this._team !== team
-			&& PlayerState._teamNames.has(team)) {
-			ui.showTooltip(TooltipType.NEW_TEAM, {
-				names: [PlayerState._teamNames.get(team)],
-				ttl: 3000,
-			});
+		if (PlayerState._teamNames.has(team)) {
+			this._announceTeam.set(team);
+		} else {
+			this._announceTeam.clear();
 		}
 
 		this._team = team;
@@ -313,13 +311,21 @@ export class PlayerState extends ClientSystem implements System {
 			this.spawnPlayer();
 		}
 	}
-	onStartRound() : void {
+	onStartRound(round : number) : void {
 		if (!this.validTargetEntity()) {
 			return;
 		}
 
 		this.targetEntity<Player>().onStartRound();
 		this.setRole(this._startingRole);
+
+		if (this._announceTeam.has() && this.targetEntity().isLakituTarget()) {
+			ui.showTooltip(TooltipType.NEW_TEAM, {
+				names: [PlayerState._teamNames.get(this._announceTeam.get())],
+				ttl: 5000,
+			});
+			this._announceTeam.clear();
+		}
 	}
 	die() : void {
 		if (this.validTargetEntity()) {

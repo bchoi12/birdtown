@@ -199,6 +199,9 @@ export class Lakitu extends SystemBase implements System {
 			return false;
 		}
 		if (this._mode === TargetMode.PLAYER) {
+			if (this.targetEntity().id() !== game.playerState().targetEntity().id()) {
+				this.setTargetEntity(game.playerState().targetEntity());
+			}
 			return true;
 		}
 
@@ -404,6 +407,10 @@ export class Lakitu extends SystemBase implements System {
 				}
 				break;
 			case PlayerRole.SPECTATING:
+				if (game.playerState().targetEntity()?.getAttribute(AttributeType.REVIVING)) {
+					this.targetPlayer();
+				}
+
 				// Add any missing players
 				game.entities().getMap(EntityType.PLAYER).executeIf<Player>((player : Player) => {
 					if (!this._players.has(player.id())) {

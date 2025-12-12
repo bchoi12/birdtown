@@ -809,7 +809,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 						bubble.pop();
 					});
 				} else {
-					if (this.isLakituTarget() && this.clientIdMatches() && game.controller().gameState() === GameState.GAME) {
+					if (this.isLakituTarget()
+						&& !this.getAttribute(AttributeType.GROUNDED)
+						&& this.clientIdMatches()
+						&& game.controller().gameState() === GameState.GAME) {
 						ui.showTooltip(TooltipType.BUBBLE, {});
 					}
 				}
@@ -1168,11 +1171,13 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			return;
 		}
 
-		this._reviverId = entity.id();
+		if (this.isSource()) {
+			this._reviverId = entity.id();
+			this.setAttribute(AttributeType.REVIVING, true);
+		}
 		if (entity.clientIdMatches()) {
 			ui.hideTooltip(TooltipType.REVIVE);
 		}
-		this.setAttribute(AttributeType.REVIVING, true);
 	}
 
 	private updateLoadout() : void {
