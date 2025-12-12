@@ -65,7 +65,7 @@ export class FlameBuff extends Buff {
 			const pos = this.entity().profile().pos();
 			const width = this.entity().profile().dim().x;
 			const size = 0.1 + 0.05 * level;
-			const [cube, hasCube] = this.entity().addEntity<CubeParticle>(EntityType.ENERGY_CUBE_PARTICLE, {
+			const [cube, hasCube] = this.entity().addEntity<CubeParticle>(EntityType.CUBE_PARTICLE, {
 				offline: true,
 				ttl: 400 + level * 200,
 				profileInit: {

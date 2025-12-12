@@ -38,7 +38,7 @@ export class SpreeBuff extends Buff {
 		}
 
 		const millis = stepData.millis;
-		this._flameLimiter.setLimit(20 + 20 * (this.maxLevel() - level));
+		this._flameLimiter.setLimit(50 + 25 * (this.maxLevel() - level));
 
 		if (!this._flameLimiter.check(millis)) {
 			return;
@@ -48,7 +48,7 @@ export class SpreeBuff extends Buff {
 		const pos = this.entity().profile().pos();
 		const width = this.entity().profile().dim().x;
 		const size = 0.1 + 0.05 * level;
-		const [cube, hasCube] = this.entity().addEntity<CubeParticle>(EntityType.ENERGY_CUBE_PARTICLE, {
+		const [cube, hasCube] = this.entity().addEntity<CubeParticle>(EntityType.CUBE_PARTICLE, {
 			offline: true,
 			ttl: 400 + level * 200,
 			profileInit: {
