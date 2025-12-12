@@ -8,6 +8,8 @@ import { Entity } from 'game/entity'
 import { BuffType, StatType } from 'game/factory/api'
 import { BuffFactory } from 'game/factory/buff_factory'
 
+import { Flags } from 'global/flags'
+
 import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
 import { Timer } from 'util/timer'
@@ -97,7 +99,9 @@ export abstract class Buff extends ComponentBase implements Component {
 	override delete() : void {
 		super.delete();
 
-		console.log("%s: deleted %s from Lv%d", this.name(), BuffType[this._buffType], this.level());
+		if (Flags.printDebug.get()) {
+			console.log("%s: deleted %s from Lv%d", this.name(), BuffType[this._buffType], this.level());
+		}
 
 		if (this.level() > 0) {
 			this.setLevel(0);	
