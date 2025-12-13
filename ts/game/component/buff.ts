@@ -180,19 +180,18 @@ export abstract class Buff extends ComponentBase implements Component {
 	atMaxLevel() : boolean { return this._level >= this._maxLevel; }
 	level() : number { return this._level; }
 	addLevel(delta : number) : void {
-		if (delta === 0 || delta > 0 && this.atMaxLevel() || delta < 0 && this._level === 0) {
+		if (delta === 0 || delta >= 0 && this.atMaxLevel() || delta <= 0 && this._level === 0) {
 			this.onLevel(this._level, 0);
 			return;
 		}
 
 		this.revertStats(this.getStatCache());
-		this._level += delta;
-		this._level = Fns.clamp(0, this._level, this._maxLevel);
+		this._level = Fns.clamp(0, this._level + delta, this._maxLevel);
 
 		this.onLevel(this._level, delta);
 	}
 	setLevel(level : number) : void {
-		level = Math.min(level, this._maxLevel);
+		level = Fns.clamp(0, level, this._maxLevel);
 
 		if (this._level === level) {
 			return;

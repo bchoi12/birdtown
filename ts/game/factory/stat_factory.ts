@@ -37,6 +37,7 @@ export namespace StatFactory {
 	]);
 
 	const statMin = new Map<StatType, number>([
+		[StatType.PROJECTILE_SCALING_BOOST, 0],
 		[StatType.SCALING, 0.3],
 	]);
 

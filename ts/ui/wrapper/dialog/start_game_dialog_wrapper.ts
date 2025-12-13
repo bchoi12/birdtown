@@ -217,15 +217,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			requirements: [],
 			description: "Be the last bird in town.\r\n\r\nRecommended for larger groups along with the 'Endless' level modifier.",
 			parent: classicCategory.contentElm(),
-			minRecommended: 4,
-			maxRecommended: 8,
 		});
 		this.populateMode(GameMode.DUEL, {
 			requirements: [],
 			description: "Tryhard mode.\r\n\r\nOutsweat your opponent on a small symmetrical level where everyone gets the same loadout.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 2,
-			maxRecommended: 4,
+			maxRecommended: 2,
 		});
 		this.populateMode(GameMode.TEAM_BATTLE, {
 			requirements: [],
@@ -239,19 +237,17 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			parent: teamCategory.contentElm(),
 			minRecommended: 2,
 		});
-		/*
-		this.populateMode(GameMode.TEAM_DEATHMATCH, {
-			requirements: [],
-			description: "Chaotic team based deathmatch. Drop in from the sky and fight with your team.\r\n\r\nReach the score limit with your team to win.",
-			parent: teamCategory.contentElm(),
-			minRecommended: 4,
-		});
-		*/
 		this.populateMode(GameMode.VIP, {
 			requirements: [],
 			description: "Like Team Battle, but each team has a VIP with a Golden Gun.\r\n\r\nEliminate the other team's VIP and protect yours at all costs.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 4,
+		});
+		this.populateMode(GameMode.TEAM_DEATHMATCH, {
+			requirements: [],
+			description: "Chaotic team based deathmatch. Drop in from the sky and fight with your team.\r\n\r\nReach the score limit with your team to win.",
+			parent: teamCategory.contentElm(),
+			minRecommended: 6,
 		});
 
 		this._infoWrappers.forEach((wrapper : ModeInfoWrapper, mode : GameMode) => {

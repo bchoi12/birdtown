@@ -176,7 +176,7 @@ export class TooltipHandler extends HandlerBase implements Handler {
 			}
 			return `You joined the ${names[0]}!`;
 		case TooltipType.VIP:
-			return "You are the VIP! Stay safe out there!"
+			return "You are the VIP!\nYou've been granted a shield, faster revives, and the Golden Gun."
 		case TooltipType.WEAPON_CRATE:
 			if (names.length !== 1) {
 				return "";

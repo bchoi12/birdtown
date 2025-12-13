@@ -202,7 +202,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setBuffCrateSpawn(FrequencyType.RARE);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
-			this.setPoints(5);
+			this.setPoints(4);
 			this.setStartingLoadout(LoadoutType.CHOOSE);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.POINTS);
@@ -212,7 +212,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelLayout(LevelLayout.NORMAL);
 			this.setBuffCrateSpawn(FrequencyType.RARE);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
-			this.setPoints(5);
+			this.setPoints(4);
 			this.setStartingLoadout(LoadoutType.RANDOM);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.POINTS);
@@ -246,7 +246,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setBuffCrateSpawn(FrequencyType.RARE);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
 			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
-			this.setPoints(5);
+			this.setPoints(4);
 			this.setResetPoints(true);
 			this.setStartingLoadout(LoadoutType.CHOOSE);
 			this.setVictories(3);

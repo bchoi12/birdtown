@@ -31,15 +31,17 @@ export class Buffs extends ComponentBase implements Component {
 	}
 
 	refresh() : void {
+		this.execute<Buff>((buff : Buff, type : BuffType) => {
+			if (buff.resetOnSpawn() || buff.level() === 0) {
+				this.removeBuff(type);
+			}
+		});
+
+		// Reset everything and recompute
 		this._boostCache.clear();
 		this.execute<Buff>((buff : Buff, type : BuffType) => {
 			// TODO: doesn't really work
 			// buff.announceLevel();
-
-			if (buff.resetOnSpawn() || buff.level() === 0) {
-				this.removeBuff(type);
-				return;
-			}
 
 			buff.onRespawn();
 			buff.applyStats(this._boostCache);

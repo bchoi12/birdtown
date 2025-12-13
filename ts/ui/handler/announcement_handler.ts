@@ -116,7 +116,7 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 				}
 			}
 			return {
-				main: this.victoryMessage(names),
+				main: `${this.victoryMessage(names)}!!!`,
 			};
 		case AnnouncementType.GENERIC:
 			return {
@@ -178,36 +178,36 @@ export class AnnouncementHandler extends HandlerBase implements Handler {
 		const seed = game.level().seed() + game.controller().round();
 
 		if (seed % num === 0) {
-			return `AND ${nameList} JUST GAVE 'EM THE CORPORATION!`;
+			return `AND ${nameList} JUST GAVE 'EM THE CORPORATION`;
 		}
 		if (seed % num === 1) {
-			return `AND ${nameList} ${(names.length > 1 ? "SMOKE" : "SMOKES")} THE COMPETITION!`;
+			return `AND ${nameList} ${(names.length > 1 ? "SMOKE" : "SMOKES")} THE COMPETITION`;
 		}
 		if (seed % num === 2) {
-			return `AND ${nameList} ${(names.length > 1 ? "REIGN" : "REIGNS")} SUPREME!`;
+			return `AND ${nameList} ${(names.length > 1 ? "REIGN" : "REIGNS")} SUPREME`;
 		}
 		if (seed % num === 3) {
-			return `AND ${nameList} ${(names.length > 1 ? "PUT" : "PUTS")} 'EM IN THE DOGHOUSE!`;
+			return `AND ${nameList} ${(names.length > 1 ? "PUT" : "PUTS")} 'EM IN THE DOGHOUSE`;
 		}
 		if (seed % num === 4) {
-			return `${nameList} JUST BLASTED YOUR BOOTY!`;
+			return `${nameList} JUST BLASTED YOUR BOOTY`;
 		}
 		if (seed % num === 5) {
-			return `AND ${nameList} ${(names.length > 1 ? "REWRITE" : "REWRITES")} HISTORY!`;
+			return `AND ${nameList} ${(names.length > 1 ? "REWRITE" : "REWRITES")} HISTORY`;
 		}
 		if (seed % num === 6) {
-			return `FAITHFUL ${nameList} FANS REJOICE!`;
+			return `FAITHFUL ${nameList} FANS REJOICE`;
 		}
 		if (seed % num === 7) {
-			return `AND ${nameList} ${(names.length > 1 ? "BEGIN" : "BEGINS")} A NEW EMPIRE!`;
+			return `AND ${nameList} ${(names.length > 1 ? "BEGIN" : "BEGINS")} A NEW EMPIRE`;
 		}
 		if (seed % num === 8) {
-			return `${nameList}: REMEMBER THE ${(names.length > 1 ? "NAMES" : "NAME")}!`;
+			return `${nameList}: REMEMBER THE ${(names.length > 1 ? "NAMES" : "NAME")}`;
 		}
 		if (seed % num === 9) {
-			return `AND ${nameList} ${(names.length > 1 ? "TAKE" : "TAKES")} IT OFFLINE!`;
+			return `AND ${nameList} ${(names.length > 1 ? "TAKE" : "TAKES")} IT OFFLINE`;
 		}
 
-		return `AND ${nameList} ${(names.length > 1 ? "WIN" : "WINS")} IT ALL!`;
+		return `AND ${nameList} ${(names.length > 1 ? "WIN" : "WINS")} IT ALL`;
 	}
 }

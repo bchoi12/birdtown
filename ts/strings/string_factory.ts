@@ -141,15 +141,17 @@ export namespace StringFactory {
 	export function getModeDescription(config : GameConfigMessage) : string {
 		switch (config.type()) {			
 		case GameMode.DUEL:
-			return "Win the 1v1";
+			return "Prove you're the biggest tryhard";
 		case GameMode.FREE_FOR_ALL:
-		case GameMode.GOLDEN_GUN:
 			return `Be the first to score ${config.getPoints()} ${Strings.plural("point", config.getPoints())}`;
+		case GameMode.GOLDEN_GUN:
+			return `Cook other players to obtain the Golden Gun and be the first to score ${config.getPoints()} ${Strings.plural("point", config.getPoints())} with it`
 		case GameMode.INVASION:
 			return `Defend Birdtown against the invasion`;
 		case GameMode.PRACTICE:
 			return game.isHost() ? `Press ${KeyNames.keyTypeHTML(KeyType.MENU)} to exit` : "Try out the game";
 		case GameMode.BUFF_BATTLE:
+			return "Become the buffest of birds";
 		case GameMode.SUDDEN_DEATH:
 		case GameMode.SURVIVAL:
 			return "Be the last one standing";
@@ -158,7 +160,7 @@ export namespace StringFactory {
 		case GameMode.TEAM_BATTLE:
 			return "Eliminate the enemy team";
 		case GameMode.TEAM_DEATHMATCH:
-			return `Score ${config.getPoints()} before the other team`;
+			return `Score ${config.getPoints()} ${Strings.plural("point", config.getPoints())} before the other team`;
 		case GameMode.VIP:
 			return "Eliminate the other team's VIP";
 		default:
