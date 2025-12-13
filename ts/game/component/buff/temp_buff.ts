@@ -29,7 +29,7 @@ abstract class TempBuff extends Buff {
 	override onLevel(level : number, delta : number) : void {
 		super.onLevel(level, delta);
 
-		if (level <= 0 || delta <= 0) {
+		if (level <= 0 || delta < 0) {
 			return;
 		}
 
