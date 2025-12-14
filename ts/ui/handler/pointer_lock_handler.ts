@@ -53,7 +53,12 @@ export class PointerLockHandler extends HandlerBase implements Handler {
 
 	private updatePointerLock() : void {
 		if (this._requested && ui.mode() === UiMode.GAME) {
-			game.canvas().requestPointerLock();
+			// Small delay before locking again. Helps with stuff like MENU -> GAME -> DIALOG
+			setTimeout(() => {
+				if (this._requested && ui.mode() === UiMode.GAME) {
+					game.canvas().requestPointerLock();
+				}
+			}, 100);
 		} else if (this.pointerLocked()) {
 			document.exitPointerLock();
 		}

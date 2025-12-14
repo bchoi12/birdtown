@@ -6,6 +6,7 @@ import { EntityType } from 'game/entity/api'
 import { Player } from 'game/entity/player'
 import { MusicType } from 'game/factory/api'
 import { MusicFactory } from 'game/factory/music_factory'
+import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { System, SystemBase } from 'game/system'
 import { SystemType, AmbianceType } from 'game/system/api'
@@ -54,11 +55,17 @@ export class Audio extends SystemBase implements System {
 		this.addProp<AmbianceType>({
 			import: (obj : AmbianceType) => { this._ambiance = obj; },
 			export: () => { return this._ambiance; },
-		})
+			options: {
+				filters: GameData.tcpFilters,
+			},
+		});
 		this.addProp<MusicType>({
 			import: (obj : MusicType) => { this.queueMusic(obj); },
 			export: () => { return this._queuedType; },
-		})
+			options: {
+				filters: GameData.tcpFilters,
+			},
+		});
 	}
 
 	setAmbiance(type : AmbianceType) : void {
@@ -87,7 +94,7 @@ export class Audio extends SystemBase implements System {
 		const index = this._ambianceIndex.get(this._ambiance);
 		this._ambianceIndex.set(this._ambiance, index + 1);
 		const trackList = this._ambianceTracks.get(this._ambiance);
-		game.audio().queueMusic(trackList[index % trackList.length]);
+		this.queueMusic(trackList[index % trackList.length]);
 	}
 
 	private queueMusic(type : MusicType) : void {
@@ -106,12 +113,26 @@ export class Audio extends SystemBase implements System {
 
 		if (this._music.has()) {
 			this._music.get().setVolume(0, MusicFactory.fadeSecs);
-			setTimeout(() => {
-				this.playMusic();
-			}, MusicFactory.fadeSecs * 1000);
-		} else {
-			this.playMusic();
+			this._music.get().stop(MusicFactory.fadeSecs);
+			this._music.clear();
 		}
+
+		if (this._queuedType === MusicType.UNKNOWN) {
+			this._currentType = MusicType.UNKNOWN;
+			return;
+		}
+
+		let music = MusicFactory.fadePlay(this._queuedType);
+		if (music === null) {
+			console.error("Error: failed to load music %s", MusicType[this._queuedType]);
+			return;
+		}
+
+		this._currentType = this._queuedType;
+		if (Flags.printDebug.get()) {
+			console.log("Audio: playing %s", MusicType[this._currentType]);
+		}
+		this._music.set(music);
 	}
 
 	onAudioEnabled() : void {
@@ -125,46 +146,11 @@ export class Audio extends SystemBase implements System {
 		this.queueMusic(MusicType.UNKNOWN);
 	}
 
-	private stopMusic() : void {
-		if (this._music.has()) {
-			this._music.get().stop();
-			this._music.clear();
-		}
-		this._currentType = MusicType.UNKNOWN;
-		this._queuedType = MusicType.UNKNOWN;
-	}
-
 	refreshSettings() : void {
 		if (!this._music.has()) {
 			return;
 		}
-		this._music.get().setVolume(settings.musicVolume());
-	}
-
-	private playMusic() : void {
-		if (this._queuedType === MusicType.UNKNOWN) {
-			this._currentType = MusicType.UNKNOWN;
-			this.stopMusic();
-			return;
-		}
-		if (this._music.has() && this._currentType === this._queuedType) {
-			if (Flags.printDebug.get()) {
-				console.log("Audio: already playing %s", MusicType[this._queuedType]);
-			}
-			return;
-		}
-
-		let music = MusicFactory.play(this._queuedType);
-		if (music === null) {
-			console.error("Error: failed to load music %s", MusicType[this._queuedType]);
-			return;
-		}
-
-		this._currentType = this._queuedType;
-		if (Flags.printDebug.get()) {
-			console.log("Audio: playing %s", MusicType[this._currentType]);
-		}
-		this._music.set(music);
+		this._music.get().setVolume(MusicFactory.volume(this._currentType));
 	}
 
 	override postPhysics(stepData : StepData) : void {

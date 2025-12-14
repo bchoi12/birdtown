@@ -20,26 +20,30 @@ type MusicMetadata = {
 
 export namespace MusicFactory {
 
-	export const fadeSecs = 4;
+	export const fadeSecs = 3;
 
 	const metadata = new Map<MusicType, MusicMetadata>([
 		[MusicType.BIRDTOWN, {
 			path: "birdtown.mp3",
-			options: {}
+			options: {
+				volume: 1.0,
+			},
 		}],
 		[MusicType.CULMINATION, {
 			path: "culmination.mp3",
 			attribution: "steven-obrien.net",
 			track: "Culmination",
 			artist: "Steven O'brien",
-			options: {}
+			options: {
+				volume: 1.0,
+			},
 		}],
 		[MusicType.EPIC_FUNKY, {
 			path: "epic_funky.mp3",
 			attribution: "steven-obrien.net",
 			track: "Epic Funky Rock Strings",
 			artist: "Steven O'brien",
-			options: {}
+			options: {},
 		}],
 		[MusicType.EPIC_THEME, {
 			path: "epic_theme.mp3",
@@ -48,7 +52,7 @@ export namespace MusicFactory {
 			artist: "Steven O'brien",
 			options: {
 				volume: 0.8,
-			}
+			},
 		}],
 		[MusicType.EXTREME_EDGE, {
 			path: "extreme_edge.mp3",
@@ -57,14 +61,16 @@ export namespace MusicFactory {
 			artist: "Steven O'brien",
 			options: {
 				volume: 0.5,
-			}
+			},
 		}],
 		[MusicType.GEAR_HEAD, {
 			path: "gear_head.mp3",
 			attribution: "steven-obrien.net",
 			track: "Gear Head",
 			artist: "Steven O'brien",
-			options: {},
+			options: {
+				volume: 1.0,
+			},
 		}],
 		[MusicType.NIGHT_WALK, {
 			path: "night_walk.mp3",
@@ -77,11 +83,22 @@ export namespace MusicFactory {
 		}],
 	]);
 
+	export function volume(type : MusicType) : number {
+		let songVolume = metadata.get(type).options.volume ? metadata.get(type).options.volume : 1;
+		return settings.musicVolume() * songVolume;
+	}
 
-	export function play(type : MusicType) : BABYLON.Sound {
+	let musicCache = new Map<MusicType, BABYLON.Sound>();
+	export function fadePlay(type : MusicType) : BABYLON.Sound {
 		if (!metadata.has(type)) {
 			console.error("Error: music %s is missing metadata", MusicType[type]);
 			return null;
+		}
+
+		if (musicCache.has(type)) {
+			let music = musicCache.get(type);
+			onReady(type, music);
+			return music;
 		}
 
 		const meta = metadata.get(type);
@@ -89,29 +106,41 @@ export namespace MusicFactory {
 			"music-" + MusicType[type],
 			"music/" + meta.path,
 			game.scene(),
-			() => {
-				const resolvedOptions = {
-					...MediaGlobals.gameOptions,
-					...metadata.get(type).options,
-					loop: true,
-				};
-				music.updateOptions(resolvedOptions);
-				music.setVolume(0);
-				music.play();
-
-				let songVolume = metadata.get(type).options.volume ? metadata.get(type).options.volume : 1;
-
-				music.setVolume(settings.musicVolume() * songVolume, fadeSecs);
-			},
+			() => { onReady(type, music); },
 			MediaGlobals.gameOptions);
 
 		if (meta.attribution) {
 			ui.showTooltip(TooltipType.MUSIC, {
 				ttl: 5000,
-				names: [meta.track + " by " + meta.artist + "\n" + meta.attribution],
+				names: [`${meta.track} by ${meta.artist}\n${meta.attribution}`],
 			});
 		}
 
+		musicCache.set(type, music);
 		return music;
+	}
+
+	export function stopAll() : void {
+		musicCache.forEach((music : BABYLON.Sound) => {
+			music.stop();
+		});
+	}
+	export function stop(type : MusicType) : void {
+		if (musicCache.has(type)) {
+			musicCache.get(type).stop();
+		}
+	}
+
+	function onReady(type : MusicType, music : BABYLON.Sound) : void {
+		const resolvedOptions = {
+			...MediaGlobals.gameOptions,
+			...metadata.get(type).options,
+			loop: true,
+		};
+		music.updateOptions(resolvedOptions);
+		music.setVolume(0);
+		music.play();
+
+		music.setVolume(volume(type), fadeSecs);
 	}
 }

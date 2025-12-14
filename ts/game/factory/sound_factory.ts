@@ -406,9 +406,6 @@ export namespace SoundFactory {
 		unload(type, sound);
 	}
 
-	function hasSound(type : SoundType) : boolean {
-		return soundCache.has(type) && soundCache.get(type).size() > 0;
-	}
 	function getOptions(type : SoundType, options? : BABYLON.ISoundOptions) : BABYLON.ISoundOptions {
 		return {
 			...MediaGlobals.gameOptions,
