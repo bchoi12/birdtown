@@ -205,7 +205,7 @@ export class Lakitu extends SystemBase implements System {
 			return true;
 		}
 
-		if (this._mode === TargetMode.WINNER) {
+		if (this._mode === TargetMode.WINNER || this._mode === TargetMode.UNKNOWN) {
 			this.resetPan(Lakitu._quickPan);
 		} else {
 			this.resetPan(Lakitu._slowPan);

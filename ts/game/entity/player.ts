@@ -816,7 +816,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 						ui.showTooltip(TooltipType.BUBBLE, {});
 					}
 				}
-			} else if (this.isLakituTarget() && this.clientIdMatches()) {
+			} else if (this.isLakituTarget() && this.clientIdMatches() || this.getAttribute(AttributeType.GROUNDED)) {
 				ui.hideTooltip(TooltipType.BUBBLE);
 			}
 		} else {
