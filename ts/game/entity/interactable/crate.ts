@@ -180,7 +180,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 					}
 				});
 			}
-			SoundFactory.playFromPos(SoundType.CRATE, this._profile.pos().toBabylon3());
+			SoundFactory.playFromPos(SoundType.CRATE, this._profile.getRenderPos().toBabylon3());
 			this._exploded = true;
 		}
 
@@ -201,7 +201,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 			return;
 		}
 
-		SoundFactory.playFromPos(SoundType.TABLE_FLIP, this._profile.pos().toBabylon3(), {
+		SoundFactory.playFromPos(SoundType.TABLE_FLIP, this._profile.getRenderPos().toBabylon3(), {
 			volume: settings.soundVolume() * Fns.clamp(0.3, lenSq / 0.5, 1),
 		});
 		this._lastSound = Date.now();

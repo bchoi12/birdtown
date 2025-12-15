@@ -46,8 +46,8 @@ export class ImbueBuff extends Buff {
 		this._particleLimiter.setLimit(30 + 30 * (this.maxLevel() - level));
 
 		// Inspired :)
-		if (this._particleLimiter.check(millis)) {
-			const pos = this.entity().profile().pos();
+		const pos = this.entity().profile().pos();
+		if (this._particleLimiter.check(millis) && game.lakitu().inFOV(pos)) {
 			const width = this.entity().profile().dim().x;
 			const size = 0.1 + 0.05 * level;
 			const [cube, hasCube] = this.entity().addEntity<CubeParticle>(EntityType.CUBE_PARTICLE, {

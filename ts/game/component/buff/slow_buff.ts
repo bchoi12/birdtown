@@ -44,14 +44,14 @@ export class SlowBuff extends Buff {
 		this._particleLimiter.setLimit(40 + 40 * (this.maxLevel() - level));
 
 		// Slow :(
-		if (this._particleLimiter.check(millis)) {
+		const pos = this.entity().profile().pos();
+		if (this._particleLimiter.check(millis) && game.lakitu().inFOV(pos)) {
 			const vel = this.entity().profile().vel();
 
 			if (Math.abs(vel.x) < 1e-2) {
 				return;
 			}
 
-			const pos = this.entity().profile().pos();
 			const height = this.entity().profile().dim().y;
 
 			const size = 0.1 + 0.1 * level;

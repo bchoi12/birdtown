@@ -201,7 +201,7 @@ export class Water extends EntityBase implements Entity {
 		}
 
 		if (splashIn) {
-			const soundPos = new BABYLON.Vector3(entity.profile().pos().x, waterLevel, 0);
+			const soundPos = new BABYLON.Vector3(entity.profile().getRenderPos().x, waterLevel, 0);
 			SoundFactory.playFromPos(SoundType.SPLASH_IN, soundPos, {
 				volume: settings.soundVolume() * Math.min(0.7, weight),
 			});

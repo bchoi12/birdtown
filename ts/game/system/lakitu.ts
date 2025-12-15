@@ -96,12 +96,22 @@ export class Lakitu extends SystemBase implements System {
 
 	camera() : BABYLON.UniversalCamera { return this._camera; }
 	fov() : Vec2 { return this._fov; }
-	inFOV(vec : Vec, buffer? : number) : boolean {
-		if (!buffer) {
-			buffer = 0;
+	inFOV(vec : Vec) : boolean {
+		return this.inFOVBuffer(vec, 0);
+	}
+	inFOVBuffer(vec : Vec, buffer : number) : boolean {
+		const fov = this.fov();
+
+		if (game.level().isCircle()) {
+			let clamped = Vec2.fromVec(vec);
+			game.level().clampPos(clamped);
+
+			return clamped.x > this._target.x - fov.x / 2 - buffer
+				&& clamped.x < this._target.x + fov.x / 2 + buffer
+				&& clamped.y > this._target.y - fov.y / 2 - buffer
+				&& clamped.y < this._target.y + fov.y / 2 + buffer;
 		}
 
-		const fov = this.fov();
 		return vec.x > this._target.x - fov.x / 2 - buffer
 			&& vec.x < this._target.x + fov.x / 2 + buffer
 			&& vec.y > this._target.y - fov.y / 2 - buffer

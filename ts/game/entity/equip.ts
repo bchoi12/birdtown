@@ -176,7 +176,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 			return false;
 		}
 
-		if (player.getAttribute(AttributeType.BUBBLED)) {
+		if (player.getAttribute(AttributeType.BUBBLED) && !player.getAttribute(AttributeType.GROUNDED)) {
 			return false;
 		}
 

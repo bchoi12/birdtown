@@ -126,7 +126,7 @@ export class UnderwaterRock extends PlatformBase {
 				});
 			}
 
-			SoundFactory.playFromPos(SoundType.ROCK_BREAK, this._profile.pos().toBabylon3());
+			SoundFactory.playFromPos(SoundType.ROCK_BREAK, this._profile.getRenderPos().toBabylon3());
 		}
 		this.delete();
 	}

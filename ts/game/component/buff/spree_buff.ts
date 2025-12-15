@@ -40,12 +40,12 @@ export class SpreeBuff extends Buff {
 		const millis = stepData.millis;
 		this._flameLimiter.setLimit(75 + 25 * (this.maxLevel() - level));
 
-		if (!this._flameLimiter.check(millis)) {
+		const pos = this.entity().profile().pos();
+		if (!this._flameLimiter.check(millis) || !game.lakitu().inFOV(pos)) {
 			return;
 		}
 
 		// On fire
-		const pos = this.entity().profile().pos();
 		const width = this.entity().profile().dim().x;
 		const size = 0.1 + 0.05 * level;
 		const [cube, hasCube] = this.entity().addEntity<CubeParticle>(EntityType.CUBE_PARTICLE, {
