@@ -14,5 +14,5 @@ export class HikingSign extends Sign {
 		super(EntityType.HIKING_SIGN, entityOptions);
 	}
 
-	override tooltipType() : TooltipType { return game.world().getTime() === TimeType.NIGHT ? TooltipType.HIKING_NIGHT : TooltipType.HIKING_SWIM; }
+	override tooltipType() : TooltipType { return game.world().isFreezing() ? TooltipType.HIKING_NIGHT : TooltipType.HIKING_SWIM; }
 }

@@ -35,6 +35,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 	private static readonly _height = 0.4;
 	private static readonly _textureHeight = 64;
+	private static readonly _barHeightPercent = 0.25;
 	private static readonly _pointerHeight = 0.1;
 
 	private static readonly _font = "64px " + UiGlobals.font;
@@ -133,7 +134,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 				let bar = BABYLON.MeshBuilder.CreateBox(this.name() + "-bar", {
 					width: this._width,
-					height: NameTag._height * 0.2,
+					height: NameTag._height * NameTag._barHeightPercent,
 					depth: NameTag._height * 0.1,
 					sideOrientation: BABYLON.Mesh.DOUBLESIDE,
 				});

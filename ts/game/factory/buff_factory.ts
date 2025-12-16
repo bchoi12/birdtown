@@ -19,6 +19,7 @@ import { GlassCannonBuff } from 'game/component/buff/glass_cannon_buff'
 import { HealerBuff } from 'game/component/buff/healer_buff'
 import { IcyBuff } from 'game/component/buff/icy_buff'
 import { ImbueBuff } from 'game/component/buff/imbue_buff'
+import { JetpackBuff } from 'game/component/buff/jetpack_buff'
 import { JuicedBuff } from 'game/component/buff/juiced_buff'
 import { JumperBuff } from 'game/component/buff/jumper_buff'
 import { MosquitoBuff } from 'game/component/buff/mosquito_buff'
@@ -130,6 +131,7 @@ export namespace BuffFactory {
 		[BuffType.SLOW, stackingMetadata],
 
 		[BuffType.BLACK_HEADBAND, statusMetadata],
+		[BuffType.JETPACK, statusMetadata],
 		[BuffType.VIP, statusMetadata],
 		[BuffType.SPREE, {maxLevel: 3, resetOnSpawn: true }],
 
@@ -162,6 +164,7 @@ export namespace BuffFactory {
 		[BuffType.GLASS_CANNON, (type : BuffType) => { return new GlassCannonBuff(type, metadata.get(type)) }],
 		[BuffType.HEALER, (type : BuffType) => { return new HealerBuff(type, metadata.get(type)) }],
 		[BuffType.ICY, (type : BuffType) => { return new IcyBuff(type, metadata.get(type)) }],
+		[BuffType.JETPACK, (type : BuffType) => { return new JetpackBuff(type, metadata.get(type)) }],
 		[BuffType.JUICED, (type : BuffType) => { return new JuicedBuff(type, metadata.get(type)) }],
 		[BuffType.JUMPER, (type : BuffType) => { return new JumperBuff(type, metadata.get(type)) }],
 		[BuffType.MOSQUITO, (type : BuffType) => { return new MosquitoBuff(type, metadata.get(type)) }],

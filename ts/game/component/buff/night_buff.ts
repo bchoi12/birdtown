@@ -5,6 +5,9 @@ import { Buff, BuffOptions } from 'game/component/buff'
 import { BuffType, StatType } from 'game/factory/api'
 import { TimeType } from 'game/system/api'
 
+import { ui } from 'ui'
+import { TooltipType } from 'ui/api'
+
 export class NightBuff extends Buff {
 
 	private _night : boolean;
@@ -12,7 +15,7 @@ export class NightBuff extends Buff {
 	constructor(type : BuffType, options : BuffOptions) {
 		super(type, options);
 
-		this._night = game.world().getTime() === TimeType.NIGHT;
+		this._night = game.world().hasMoon();
 
 		this.addProp<boolean>({
 			import: (obj : boolean) => { this.setNight(obj); },
@@ -25,7 +28,7 @@ export class NightBuff extends Buff {
 		return new Map([
 			[StatType.DAMAGE_BOOST, (this._night ? 0.2 : 0.03) * level],
 			[StatType.LIFE_STEAL, (this._night ? 0.1 : 0.01) * level],
-			[StatType.SHIELD, (this._night ? 75 : 5) * level],
+			[StatType.SHIELD, (this._night ? 60 : 5) * level],
 		])
 	}
 
@@ -48,6 +51,12 @@ export class NightBuff extends Buff {
 			this.applyStats(this.getStatCache());
 
 			this.entity().resetResource(StatType.SHIELD);
+
+			if (this._night && this.entity().clientIdMatches()) {
+				ui.showTooltip(TooltipType.MOON, {
+					ttl: 3000,
+				});
+			}
 		}
 	}
 
@@ -55,7 +64,10 @@ export class NightBuff extends Buff {
 		if (!this.isSource()) {
 			return;
 		}
+		if (game.controller().round() <= 1) {
+			return;
+		}
 
-		this.setNight(game.world().getTime() === TimeType.NIGHT);
+		this.setNight(game.world().hasMoon());
 	}
 }

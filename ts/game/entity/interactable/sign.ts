@@ -119,7 +119,7 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 	}
 
 	override canInteractWith(entity : Entity) : boolean {
-		return entity.clientIdMatches() && super.canInteractWith(entity);
+		return entity.isLakituTarget() && entity.clientIdMatches() && super.canInteractWith(entity);
 	}
 
 	override setInteractableWith(entity : Entity, interactable : boolean) : void {
@@ -130,7 +130,7 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 		}
 	}
 	override interactWith(entity : Entity) : void {
-		if (!entity.clientIdMatches()) {
+		if (!entity.isLakituTarget() || !entity.clientIdMatches()) {
 			return;
 		}
 

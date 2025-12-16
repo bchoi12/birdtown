@@ -47,7 +47,7 @@ export class World extends SystemBase implements System {
 
 	private static readonly _greenSettings = {
 		skyMaterial: MaterialType.GREEN_SCREEN,
-		lightDir: new BABYLON.Vector3(1, -3, -4).normalize(),
+		lightDir: new BABYLON.Vector3(-2, -2, -6).normalize(),
 		directionalIntensity: 1.3,
 		directionalDiffuse: new BABYLON.Color3(1, 1, 1),
 		hemisphericIntensity: 0.7,
@@ -56,6 +56,15 @@ export class World extends SystemBase implements System {
 	};
 
 	private static readonly _timeSettings = new Map<TimeType, TimeSettings>([
+		[TimeType.DAWN, {
+			skyMaterial: MaterialType.SKY_DAWN,
+			lightDir: new BABYLON.Vector3(1, -3, -4).normalize(),
+			directionalIntensity: 2,
+			directionalDiffuse: new BABYLON.Color3(1, 0.77, 1),
+			hemisphericIntensity: 0.2,
+			hemisphericDiffuse: new BABYLON.Color3(1, 1, 1),
+			hemisphericBottomColor: new BABYLON.Color3(0.7, 0.7, 0.7),
+		}],
 		[TimeType.DAY, {
 			skyMaterial: MaterialType.SKY_DAY,
 			lightDir: new BABYLON.Vector3(1, -3, -4).normalize(),
@@ -88,8 +97,10 @@ export class World extends SystemBase implements System {
 	private _scene : BABYLON.Scene;
 	private _layers : Map<LayerType, BABYLON.EffectLayer>;
 
+	private _hour : number;
 	private _currentTime : TimeType;
 	private _desiredTime : TimeType;
+
 	private _lightDir : BABYLON.Vector3;
 	private _hemisphericLight : BABYLON.HemisphericLight;
 	private _directionalLight : BABYLON.DirectionalLight;
@@ -121,6 +132,7 @@ export class World extends SystemBase implements System {
         	mainTextureRatio: 4,
 		}));
 
+		this._hour = 0;
 		this._currentTime = TimeType.UNKNOWN;
 		this._desiredTime = TimeType.UNKNOWN;
 
@@ -157,7 +169,7 @@ export class World extends SystemBase implements System {
 
 		MaterialFactory.initialize();
 		if (this.isSource()) {
-			this.setTime(TimeType.DAY);
+			this.setHour(new Date().getHours());
 		}
 
 		this._shadowGenerator.bias = 7e-3;
@@ -167,10 +179,22 @@ export class World extends SystemBase implements System {
 	}
 
 	incrementTime() : void {
-		if (this._desiredTime === TimeType.NIGHT) {
+		if (this.isSource()) {
+			this.setHour(this._hour + 4);
+		}
+	}
+
+	setHour(hour : number) : void {
+		this._hour = hour % 24;
+
+		if (this._hour >= 5 && this._hour < 9) {
+			this.setTime(TimeType.DAWN);
+		} else if (this._hour >= 9 && this._hour < 17) {
 			this.setTime(TimeType.DAY);
+		} else if (this._hour >= 17 && this._hour < 21) {
+			this.setTime(TimeType.EVENING);
 		} else {
-			this.setTime(this._desiredTime + 1);
+			this.setTime(TimeType.NIGHT);
 		}
 	}
 	setTime(type : TimeType) : void {
@@ -192,7 +216,11 @@ export class World extends SystemBase implements System {
 
 	    this._currentTime = type;
 	}
-	getTime() : TimeType { return this._desiredTime; }
+	hasLowSun() : boolean { return this._desiredTime === TimeType.DAWN || this._desiredTime === TimeType.EVENING; }
+	hasSun() : boolean { return this._desiredTime !== TimeType.NIGHT; }
+	hasMoon() : boolean { return this._desiredTime === TimeType.NIGHT; }
+	isFreezing() : boolean { return this.hasMoon(); }
+
 	greenScreen() : void {
 		game.entities().getMap(EntityType.BACKGROUND_ARCH_ROOM).execute((entity : Entity) => {
 			entity.delete();

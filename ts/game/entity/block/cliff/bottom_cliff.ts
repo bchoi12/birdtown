@@ -26,7 +26,7 @@ export class BottomCliff extends Cliff {
 		this.addFloor(
 			this._profile.createRelativeInit(CardinalDir.BOTTOM, {x: this._profile.dim().x, y: this.thickness(), z: CliffBase._waterFloorDepth }));
 
-		if (game.world().getTime() === TimeType.NIGHT) {
+		if (game.world().isFreezing()) {
 			return;
 		}
 

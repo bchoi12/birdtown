@@ -319,7 +319,9 @@ export class PlayerState extends ClientSystem implements System {
 		this.targetEntity<Player>().onStartRound();
 		this.setRole(this._startingRole);
 
-		if (this._announceTeam.has() && this.targetEntity().isLakituTarget()) {
+		if (this._announceTeam.has()
+			&& this.targetEntity().clientIdMatches()
+			&& game.controller().round() === 1) {
 			ui.showTooltip(TooltipType.NEW_TEAM, {
 				names: [PlayerState._teamNames.get(this._announceTeam.get())],
 				ttl: 5000,

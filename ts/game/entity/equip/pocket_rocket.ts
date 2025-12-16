@@ -66,6 +66,6 @@ export class PocketRocket extends Equip<Player> {
 
 		this.addEntity(EntityType.MINI_ROCKET, this.getProjectileOptions(pos, unitDir));
 
-		this.soundPlayer().playFromEntity(SoundType.ROCKET, this.owner(), { playbackRate: 1.3 });
+		this.soundPlayer().playFromEntity(SoundType.ROCKET, this.owner(), { playbackRate: 1.2 });
 	}
 }

@@ -139,7 +139,9 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		case TooltipType.HIKING_SWIM:
 			return `${Icon.string(IconType.WARNING)} No lifeguard on duty! ${Icon.string(IconType.WARNING)}\nSwim at your own risk`
 		case TooltipType.HIKING_NIGHT:
-			return `${Icon.string(IconType.WARNING)} Freezing temperatures at the lake tonight! ${Icon.string(IconType.WARNING)}`			
+			return `${Icon.string(IconType.WARNING)} Freezing temperatures at the lake tonight! ${Icon.string(IconType.WARNING)}`
+		case TooltipType.MOON:
+			return "Night falls and you become absurdly powerful..."
 		case TooltipType.MUSIC:
 			if (names.length !== 1) {
 				return "";
@@ -170,6 +172,11 @@ export class TooltipHandler extends HandlerBase implements Handler {
 				return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to view game modes\nOnly the host can start a game`;
 			}
 			return `${Icon.string(IconType.SIGN)} Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to start a new game!`;
+		case TooltipType.SUNSHINE:
+			if (names.length < 1) {
+				return "The sunshine gives you strength...";
+			}
+			return `You have ${names[0]} stack(s) of sunshine!`;
 		case TooltipType.NEW_TEAM:
 			if (names.length < 1) {
 				return "You joined a new team!";

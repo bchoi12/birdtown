@@ -51,7 +51,7 @@ export class Water extends EntityBase implements Entity {
 		this._frozen = new Optional();
 
 		if (this.isSource()) {
-			this._frozen.set(game.world().getTime() === TimeType.NIGHT);
+			this._frozen.set(game.world().isFreezing());
 		}
 
 		this._underwater = false;

@@ -172,7 +172,7 @@ export class Level extends SystemBase implements System {
 		}, 1);
 		if (spawns.length === 1) {
 			player.respawn(spawns[0].profile().pos());
-			return true
+			return true;
 		}
 	}
 	private spawnAtPlane(player : Player) : boolean {

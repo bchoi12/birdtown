@@ -5,6 +5,9 @@ import { Buff, BuffOptions } from 'game/component/buff'
 import { BuffType, StatType } from 'game/factory/api'
 import { TimeType } from 'game/system/api'
 
+import { ui } from 'ui'
+import { TooltipType } from 'ui/api'
+
 export class SunBuff extends Buff {
 
 	private _sun : number;
@@ -46,17 +49,34 @@ export class SunBuff extends Buff {
 			return;
 		}
 
-		const sun = game.world().getTime() !== TimeType.NIGHT;
-		this.setSun(this._sun + this.level());
+		if (game.controller().round() <= 1) {
+			return;
+		}
+
+		const sun = game.world().hasSun();
+		if (sun) {
+			this.setSun(this._sun + this.level());
+		}
 	}
 
 	private setSun(sun : number) : void {
+		if (this._sun === sun) {
+			return;
+		}
+
 		this.revertStats(this.getStatCache());
 		this._sun = sun;
 		this.applyStats(this.getStatCache());
 
 		// TODO: also refresh scaling?
 		this.entity().resetResource(StatType.HEALTH);
+
+		if (this.entity().clientIdMatches() && this._sun > 0) {
+			ui.showTooltip(TooltipType.SUNSHINE, {
+				names: ["" + this._sun],
+				ttl: 3000,
+			});
+		}
 	}
 
 }

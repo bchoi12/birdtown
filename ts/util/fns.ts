@@ -43,6 +43,7 @@ export namespace Fns {
 		return Math.max(min, Math.min(n, max));
 	}
 
+	// Make 0-1
 	export function  normalizeRange(min : number, n : number, max : number) : number {
 		return clamp(0, (n - min) / (max - min), 1);
 	}

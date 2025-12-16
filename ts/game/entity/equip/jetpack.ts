@@ -7,7 +7,7 @@ import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/player'
-import { ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
+import { BuffType, ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
@@ -74,6 +74,15 @@ export class Jetpack extends Equip<Player> {
 	override attachType() : AttachType { return AttachType.BACK; }
 	protected override hudType() : HudType { return HudType.JETPACK; }
 
+	override delete() : void {
+		super.delete();
+
+		this.soundPlayer().stop(SoundType.JETPACK);
+		if (this.hasOwner()) {
+			this.owner().removeBuff(BuffType.JETPACK);
+		}
+	}
+
 	override preUpdate(stepData : StepData) : void {
 		super.preUpdate(stepData);
 
@@ -86,8 +95,11 @@ export class Jetpack extends Equip<Player> {
 
 		if (this.canUse() && this.useKeyDown()) {
 			this.recordUse(millis);
+
+			this.owner().setBuffMin(BuffType.JETPACK, 1);
 		} else {
 			this.soundPlayer().stop(SoundType.JETPACK);
+			this.owner().removeBuff(BuffType.JETPACK);
 		}
 	}
 

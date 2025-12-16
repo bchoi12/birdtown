@@ -144,7 +144,8 @@ export class ShieldRing extends Equip<Player> {
 		for (let i = 0; i < numBits; ++i) {
 			let size = ShieldRing._bitSize;
 			if (i === numBits - 1 && shield % 10 > 0) {
-				size *= Fns.lerpRange(0.3, (shield % 10) / 10, 1);
+				let shieldMod = Math.floor(shield % 10);
+				size *= Fns.lerpRange(0.3, (shieldMod === 0 ? 10 : shieldMod) / 10, 1);
 			}
 
 			if (this._bits.length <= i) {
@@ -178,8 +179,8 @@ export class ShieldRing extends Equip<Player> {
 
 		const visible = !this.owner().deactivated();
 		if (this._visible !== visible) {
-			this._model.setVisible(this._visible);
 			this._visible = visible;
+			this._model.setVisible(this._visible);
 		}
 
 		if (!this._visible) {

@@ -33,7 +33,7 @@ abstract class TempBuff extends Buff {
 			return;
 		}
 
-		if (this.entity().isLakituTarget()) {
+		if (this.entity().clientIdMatches()) {
 			ui.showTooltip(TooltipType.BUFF_ACQUIRED, {
 				names: [StringFactory.getBuffDescription(this._buffType)],
 				ttl: 3000,

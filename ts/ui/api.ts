@@ -181,6 +181,7 @@ export enum TooltipType {
 	HEALTH_CRATE,
 	HIKING_SWIM,
 	HIKING_NIGHT,
+	MOON,
 	MUSIC,
 	NEW_TEAM,
 	POINTER_LOCK,
@@ -190,6 +191,7 @@ export enum TooltipType {
 	REVIVING,
 	SPAWN,
 	START_GAME,
+	SUNSHINE,
 	VIP,
 	WEAPON_CRATE,
 }

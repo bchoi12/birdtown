@@ -366,7 +366,7 @@ export namespace SoundFactory {
 		}
 
 		sound.setPosition(pos);
-		sound.updateOptions(getOptions(type, options));
+		sound.updateOptions(getGameOptions(type, options));
 		sound.play();
 		unload(type, sound);
 	}
@@ -385,8 +385,8 @@ export namespace SoundFactory {
 			return;
 		}
 
-		let resolvedOptions = getOptions(type, options)
-		resolvedOptions.playbackRate *= entity.playbackRate() * Math.max(0.3, game.runner().updateSpeed());
+		let resolvedOptions = getGameOptions(type, options);
+		resolvedOptions.playbackRate *= entity.playbackRate();
 		if (entity.isLakituTarget()) {
 			// Default to no spatial sound when originating from the target.
 			resolvedOptions.spatialSound = false;
@@ -414,5 +414,11 @@ export namespace SoundFactory {
 			volume: settings.soundVolume(),
 			...(options ? options : {}),
 		};
+	}
+
+	function getGameOptions(type : SoundType, options? : BABYLON.ISoundOptions) : BABYLON.ISoundOptions {
+		let gameOptions = getOptions(type, options)
+		gameOptions.playbackRate *= Math.max(0.3, game.runner().updateSpeed());
+		return gameOptions;
 	}
 }

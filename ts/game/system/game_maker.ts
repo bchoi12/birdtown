@@ -495,8 +495,7 @@ export class GameMaker extends SystemBase implements System {
 	    	break;
 		case GameState.LOAD:
 			this.setRound(this._round + 1);
-
-			if (this._round > 1 && this._round % 2 === 1) {
+			if (this._round > 1) {
 				game.world().incrementTime();
 			}
 

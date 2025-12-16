@@ -97,6 +97,7 @@ export enum PlayerRole {
 export enum TimeType {
 	UNKNOWN,
 
+	DAWN,
 	DAY,
 	EVENING,
 	NIGHT,

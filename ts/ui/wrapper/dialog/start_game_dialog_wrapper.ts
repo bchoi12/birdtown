@@ -233,7 +233,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.BUFF_BATTLE, {
 			requirements: [],
-			description: "Team Battle, but with buffs after each round.\r\n\r\nThe winning team gets one buff and the losing team gets two buffs. Unlike Team Battle, this game mode works great for smaller groups too.",
+			description: "Team Battle, but choose unique buffs after each round.\r\n\r\nOn the first round, choose a class and your loadout. Afterwards, the winning team gets one buff and the losing team gets two buffs.\r\n\r\nUnlike Team Battle, this game mode works great for smaller groups too.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 2,
 		});
@@ -245,7 +245,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.TEAM_DEATHMATCH, {
 			requirements: [],
-			description: "Chaotic team based deathmatch. Drop in from the sky and fight with your team.\r\n\r\nReach the score limit with your team to win.",
+			description: "Chaotic team based deathmatch. Drop in from the sky and fight alongside your team.\r\n\r\nReach the score limit with your team to win.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 6,
 		});

@@ -606,11 +606,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			let mult = 1 + this.getStat(StatType.DAMAGE_TAKEN_BOOST) - this.getStat(StatType.DAMAGE_RESIST_BOOST);
 
 			if (hitEntity && hitEntity.hasType(EntityType.PROJECTILE) && this.hasProfile() && from.hasProfile()) {
-				if (from.hasStat(StatType.DAMAGE_CLOSE_BOOST)) {
-					const dist = this.profile().pos().dist(from.profile().pos());
-					mult += Fns.normalizeRange(10, dist, 20) * from.getStat(StatType.DAMAGE_CLOSE_BOOST);
-				}
 				if (from.hasStat(StatType.DAMAGE_FAR_BOOST)) {
+					const distSq = this.profile().pos().distSq(from.profile().pos());
+					mult += Fns.normalizeRange(10 * 10, distSq, 20 * 20) * from.getStat(StatType.DAMAGE_FAR_BOOST);
+				}
+				if (from.hasStat(StatType.DAMAGE_CLOSE_BOOST)) {
 					const dist = this.profile().pos().dist(from.profile().pos());
 					mult += Fns.normalizeRange(10, dist, 0) * from.getStat(StatType.DAMAGE_CLOSE_BOOST);
 				}
@@ -628,7 +628,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 					hitEntity: hitEntity,
 				});
 			} else if (hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL)) {
-				delta *= 1 + from.getStat(StatType.CRIT_BOOST);
+				delta *= 1 + from.getStat(StatType.CRIT_BOOST) + Math.max(0, 1 - from.getStat(StatType.CRIT_CHANCE));
 				buffDelta = 2;
 			}
 

@@ -224,13 +224,17 @@ export class ChatHandler extends HandlerBase implements Handler {
 		case "/connections":
 			console.log(game.netcode().connections());
 			break;
+		case "/dawn":
+			game.world().setTime(TimeType.DAWN);
+			this.chat(ChatType.PRINT, "Buenos días");
+			break;
 		case "/day":
 			game.world().setTime(TimeType.DAY);
-			this.chat(ChatType.PRINT, "Buenos días");
+			this.chat(ChatType.PRINT, "Buenas tardes");
 			break;
 		case "/evening":
 			game.world().setTime(TimeType.EVENING);
-			this.chat(ChatType.PRINT, "Buenas tardes");
+			this.chat(ChatType.PRINT, "Buenas noches");
 			break;
 		case "/night":
 			game.world().setTime(TimeType.NIGHT);

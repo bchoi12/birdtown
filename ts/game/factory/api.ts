@@ -17,6 +17,7 @@ export enum BuffType {
 	GLASS_CANNON,
 	HEALER,
 	ICY,
+	JETPACK,
 	JUICED,
 	JUMPER,
 	MOSQUITO,
@@ -295,6 +296,7 @@ export enum MaterialType {
 	PICKUP_PURPLE,
 	PICKUP_YELLOW,
 
+	SKY_DAWN,
 	SKY_DAY,
 	SKY_EVENING,
 	SKY_NIGHT,

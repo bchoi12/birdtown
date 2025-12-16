@@ -18,7 +18,7 @@ export class Tree extends Block {
 		if (this.isSource()) {
 			const rand = Math.random();
 
-			if (game.world().getTime() === TimeType.EVENING) {
+			if (game.world().hasLowSun()) {
 				this._hexColors.setColor(ColorCategory.SECONDARY, ColorFactory.toHex(ColorType.TREE_WHITE));
 
 				if (rand < 0.32) {
@@ -38,7 +38,7 @@ export class Tree extends Block {
 				} else if (rand < 0.5) {
 					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_DARK_GREEN));
 				} else if (rand > 0.98) {
-					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(game.world().getTime() === TimeType.NIGHT ? ColorType.TREE_PURPLE : ColorType.TREE_RED));
+					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(game.world().hasMoon() ? ColorType.TREE_PURPLE : ColorType.TREE_RED));
 					this._hexColors.setColor(ColorCategory.SECONDARY, ColorFactory.toHex(ColorType.TREE_WHITE));
 				} else {
 					this._hexColors.setColor(ColorCategory.BASE, ColorFactory.toHex(ColorType.TREE_GREEN));

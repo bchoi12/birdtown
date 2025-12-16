@@ -12,7 +12,7 @@ import { Vec } from 'util/vector'
 
 export abstract class CliffBase extends Block {
 
-	protected static readonly _floorDepth = 16;
+	protected static readonly _floorDepth = 20;
 	protected static readonly _waterFloorDepth = 40;
 
 	protected _rng : SeededRandom;
