@@ -45,4 +45,6 @@ export abstract class Headwear extends Equip<Entity & EquipEntity> {
 	abstract meshType() : MeshType;
 
 	override attachType() : AttachType { return AttachType.HEAD; }
+
+	shouldHide(type : AttachType) : boolean { return type === AttachType.HEAD; }
 }

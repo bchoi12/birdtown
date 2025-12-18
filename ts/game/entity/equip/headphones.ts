@@ -42,7 +42,7 @@ export class Headphones extends Equip<Player> {
 		}));
 	}
 
-	override attachType() : AttachType { return AttachType.FOREHEAD; }
+	override attachType() : AttachType { return AttachType.EARS; }
 
 	protected override hudType() : HudType { return HudType.HEADPHONES; }
 

@@ -111,6 +111,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		[BirdType.CHICKEN, TextureType.BIRD_CHICKEN],
 		[BirdType.DUCK, TextureType.BIRD_DUCK],
 		[BirdType.EAGLE, TextureType.BIRD_EAGLE],
+		[BirdType.PIGEON, TextureType.BIRD_PIGEON],
 		[BirdType.ROBIN, TextureType.BIRD_ROBIN],
 	]);
 	private static readonly _eyeTextures = new Map<BirdType, TextureType>([
@@ -118,6 +119,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		[BirdType.CHICKEN, TextureType.BLACK_EYE],
 		[BirdType.DUCK, TextureType.BLACK_EYE],
 		[BirdType.EAGLE, TextureType.EAGLE_EYE],
+		[BirdType.PIGEON, TextureType.WHITE_EYE],
 		[BirdType.ROBIN, TextureType.WHITE_EYE],
 	]);
 
@@ -126,11 +128,13 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		[BirdType.CHICKEN, EntityType.CHICKEN_BEAK],
 		[BirdType.DUCK, EntityType.DUCK_BEAK],
 		[BirdType.EAGLE, EntityType.EAGLE_BEAK],
+		[BirdType.PIGEON, EntityType.PIGEON_BEAK],
 		[BirdType.ROBIN, EntityType.ROBIN_BEAK],
 	]);
 	private static readonly _hairTypes = new Map<BirdType, EntityType>([
 		[BirdType.BOOBY, EntityType.BOOBY_HAIR],
 		[BirdType.CHICKEN, EntityType.CHICKEN_HAIR],
+		[BirdType.PIGEON, EntityType.PIGEON_HAIR],
 		[BirdType.ROBIN, EntityType.ROBIN_HAIR],
 	]);
 
@@ -609,6 +613,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				});
 				break;
 			case AttachType.FOREHEAD:
+			case AttachType.EARS:
 				const forehead = m.getBone(BoneType.FOREHEAD);
 				equipModel.onLoad((em : Model) => {
 					em.root().attachToBone(forehead, m.mesh());
@@ -631,6 +636,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				console.error("Error: unhandled attach type", AttachType[equip.attachType()]);
 				return;
 			}
+
+			this._entityTrackers.getEntities<Headwear>(EntityType.HEADWEAR).execute((headwear : Headwear) => {
+				headwear.model().setVisible(!headwear.shouldHide(equip.attachType()));
+			});
 
 			if (equip.hasType(EntityType.WEAPON)) {
 				this._equipType = equip.type();

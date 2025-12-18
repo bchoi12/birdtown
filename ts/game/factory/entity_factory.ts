@@ -36,9 +36,11 @@ import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { DuckBeak } from 'game/entity/equip/beak/duck_beak'
 import { EagleBeak } from 'game/entity/equip/beak/eagle_beak'
+import { PigeonBeak } from 'game/entity/equip/beak/pigeon_beak'
 import { RobinBeak } from 'game/entity/equip/beak/robin_beak'
 import { BoobyHair } from 'game/entity/equip/headwear/booby_hair'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
+import { PigeonHair } from 'game/entity/equip/headwear/pigeon_hair'
 import { RobinHair } from 'game/entity/equip/headwear/robin_hair'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
@@ -169,6 +171,8 @@ export namespace EntityFactory {
 		[EntityType.PELLET, (options : EntityOptions) => { return new Pellet(options); }],
 		[EntityType.PERGOLA, (options : EntityOptions) => { return new Pergola(options); }],
 		[EntityType.PIERCER, (options : EntityOptions) => { return new Piercer(options); }],
+		[EntityType.PIGEON_BEAK, (options : EntityOptions) => { return new PigeonBeak(options); }],
+		[EntityType.PIGEON_HAIR, (options : EntityOptions) => { return new PigeonHair(options); }],
 		[EntityType.PLANE, (options : EntityOptions) => { return new Plane(options); }],
 		[EntityType.PLATFORM, (options : EntityOptions) => { return new Platform(options); }],
 		[EntityType.PLAYER, (options : EntityOptions) => { return new Player(options); }],

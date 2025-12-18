@@ -103,6 +103,10 @@ export namespace StatFactory {
 			[StatType.CHARGE_DELAY, 1200],
 			[StatType.USE_JUICE, 100],
 		])],
+		[EntityType.PIGEON_BEAK, new Map([
+			[StatType.CHARGE_DELAY, 1200],
+			[StatType.USE_JUICE, 100],
+		])],
 		[EntityType.ROBIN_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 500],
 			[StatType.USE_JUICE, 50],
@@ -269,7 +273,7 @@ export namespace StatFactory {
 			[StatType.CHARGED_RELOAD_TIME, 1000],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0.9],
 			[StatType.CHARGED_PROJECTILE_TTL, 550],
-			[StatType.FIRE_TIME, 140],
+			[StatType.FIRE_TIME, 150],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 425],
 			[StatType.RELOAD_TIME, 925],

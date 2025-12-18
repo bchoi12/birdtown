@@ -83,6 +83,8 @@ export enum EntityType {
 	PELLET,
 	PERGOLA,
 	PIERCER,
+	PIGEON_BEAK,
+	PIGEON_HAIR,
 	PISTOL,
 	PLANE,
 	PLATFORM,
@@ -141,6 +143,7 @@ export enum BirdType {
 	CHICKEN,
 	DUCK,
 	EAGLE,
+	PIGEON,
 	ROBIN,
 }
 

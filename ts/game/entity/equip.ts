@@ -27,7 +27,10 @@ export enum AttachType {
 	BACK,
 	BEAK,
 	EYE,
+
 	FOREHEAD,
+	EARS,
+
 	HEAD,
 	ROOT,
 }

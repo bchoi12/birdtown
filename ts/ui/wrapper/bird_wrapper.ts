@@ -9,11 +9,13 @@ import { ButtonWrapper } from 'ui/wrapper/button_wrapper'
 
 export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 
+	// TODO: move to StringFactory
 	private static readonly _names = new Map([
 		[BirdType.BOOBY, "Blue-footed Booby"],
 		[BirdType.CHICKEN, "Chicken"],
 		[BirdType.DUCK, "Mallard Duck"],
 		[BirdType.EAGLE, "Bald Eagle"],
+		[BirdType.PIGEON, "Baseball Pigeon"],
 		[BirdType.ROBIN, "Robin"],
 	]);
 

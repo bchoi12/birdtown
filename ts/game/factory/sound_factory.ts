@@ -164,6 +164,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.PIGEON_COO, {
+			path: "pigeon_coo.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 		[SoundType.PISTOL, {
 			path: "pistol.mp3",
 			options: {
