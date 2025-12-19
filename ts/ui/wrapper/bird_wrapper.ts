@@ -15,6 +15,7 @@ export class BirdWrapper extends HtmlWrapper<HTMLElement> {
 		[BirdType.CHICKEN, "Chicken"],
 		[BirdType.DUCK, "Mallard Duck"],
 		[BirdType.EAGLE, "Bald Eagle"],
+		[BirdType.FLAMINGO, "Flamingo"],
 		[BirdType.PIGEON, "Baseball Pigeon"],
 		[BirdType.RAVEN, "Raven"],
 		[BirdType.ROBIN, "Robin"],

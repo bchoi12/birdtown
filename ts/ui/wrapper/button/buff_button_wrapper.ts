@@ -21,7 +21,7 @@ export class BuffButtonWrapper extends LoadoutButtonWrapper<BuffType> {
 
 	protected override unknownValue() : BuffType { return BuffType.UNKNOWN; }
 	protected override getName(type : BuffType) : string {
-		if (BuffFactory.isStarter(type)) {
+		if (BuffFactory.isStarter(type) || type === BuffType.STAT_STICK) {
 			return StringFactory.getBuffName(type);
 		}
 

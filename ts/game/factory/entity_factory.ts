@@ -36,11 +36,13 @@ import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { DuckBeak } from 'game/entity/equip/beak/duck_beak'
 import { EagleBeak } from 'game/entity/equip/beak/eagle_beak'
+import { FlamingoBeak } from 'game/entity/equip/beak/flamingo_beak'
 import { PigeonBeak } from 'game/entity/equip/beak/pigeon_beak'
 import { RavenBeak } from 'game/entity/equip/beak/raven_beak'
 import { RobinBeak } from 'game/entity/equip/beak/robin_beak'
 import { BoobyHair } from 'game/entity/equip/headwear/booby_hair'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
+import { FlamingoHair } from 'game/entity/equip/headwear/flamingo_hair'
 import { PigeonHair } from 'game/entity/equip/headwear/pigeon_hair'
 import { RavenHair } from 'game/entity/equip/headwear/raven_hair'
 import { RobinHair } from 'game/entity/equip/headwear/robin_hair'
@@ -93,7 +95,7 @@ import { Cartridge } from 'game/entity/projectile/cartridge'
 import { ChargedBolt } from 'game/entity/projectile/charged_bolt'
 import { GoldenBullet, BeakBullet } from 'game/entity/projectile/golden_bullet'
 import { Knife, PoisoningKnife } from 'game/entity/projectile/knife'
-import { Laser } from 'game/entity/projectile/laser'
+import { Laser, PurpleLaser } from 'game/entity/projectile/laser'
 import { MegaRocket } from 'game/entity/projectile/mega_rocket'
 import { MiniRocket } from 'game/entity/projectile/mini_rocket'
 import { MiniOrb } from 'game/entity/projectile/mini_orb'
@@ -146,6 +148,8 @@ export namespace EntityFactory {
 		[EntityType.DUCK_BEAK, (options : EntityOptions) => { return new DuckBeak(options); }],
 		[EntityType.DYING_STAR, (options : EntityOptions) => { return new DyingStar(options); }],
 		[EntityType.EAGLE_BEAK, (options : EntityOptions) => { return new EagleBeak(options); }],
+		[EntityType.FLAMINGO_BEAK, (options : EntityOptions) => { return new FlamingoBeak(options); }],
+		[EntityType.FLAMINGO_HAIR, (options : EntityOptions) => { return new FlamingoHair(options); }],
 		[EntityType.FLOOR, (options : EntityOptions) => { return new Floor(options); }],
 		[EntityType.GATLING, (options : EntityOptions) => { return new Gatling(options); }],
 		[EntityType.GOLDEN_BULLET, (options : EntityOptions) => { return new GoldenBullet(options); }],
@@ -185,6 +189,7 @@ export namespace EntityFactory {
 		[EntityType.PURPLE_BOLT_EXPLOSION, (options : EntityOptions) => { return new PurpleBoltExplosion(options); }],
 		[EntityType.PURPLE_GLOVE, (options : EntityOptions) => { return new PurpleGlove(options); }],
 		[EntityType.PURPLE_HEADBAND, (options : EntityOptions) => { return new PurpleHeadband(options); }],
+		[EntityType.PURPLE_LASER, (options : EntityOptions) => { return new PurpleLaser(options); }],
 		[EntityType.RAVEN_BEAK, (options : EntityOptions) => { return new RavenBeak(options); }],
 		[EntityType.RAVEN_HAIR, (options : EntityOptions) => { return new RavenHair(options); }],
 		[EntityType.RED_GLOVE, (options : EntityOptions) => { return new RedGlove(options); }],
@@ -261,6 +266,7 @@ export namespace EntityFactory {
 		[EntityType.PLAYER, {x: 0.8, y: 1.44, z: 1 }],
 		[EntityType.POISONING_KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.PURPLE_BOLT, { x: 0.9, y: 0.18, z : 0.18 }],
+		[EntityType.PURPLE_LASER, { x: 25, y: 0.35, z : 0.1 }],
 		[EntityType.ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
 		[EntityType.SIGN, {x: 1, y: 2, z: 0.2 }],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],

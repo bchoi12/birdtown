@@ -334,7 +334,7 @@ export abstract class Weapon extends Equip<Player> {
 		}
 	}
 
-	protected firing() : boolean {
+	firing() : boolean {
 		return this.canUse() && this.useKeyDown() && (this.charged() || !this.charging());
 	}
 	fire() : void {

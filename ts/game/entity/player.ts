@@ -58,6 +58,7 @@ enum AnimationGroup {
 
 enum Animation {
 	IDLE = "Idle",
+	IDLE_TUCK = "IdleTuck",
 	WALK = "Walk",
 	JUMP = "Jump",
 }
@@ -100,7 +101,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private static readonly _sweatDegs = [40, 50, 130, 140];
 
 	private static readonly _animations = new Map<AnimationGroup, Set<string>>([
-		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.WALK, Animation.JUMP])],
+		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.IDLE_TUCK, Animation.WALK, Animation.JUMP])],
 	]);
 	private static readonly _controllableBones = new Set<string>([
 		BoneType.ARM, BoneType.ARMATURE, BoneType.BACK, BoneType.BEAK, BoneType.EYE, BoneType.FOREHEAD, BoneType.HEAD, BoneType.NECK,
@@ -111,6 +112,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		[BirdType.CHICKEN, TextureType.BIRD_CHICKEN],
 		[BirdType.DUCK, TextureType.BIRD_DUCK],
 		[BirdType.EAGLE, TextureType.BIRD_EAGLE],
+		[BirdType.FLAMINGO, TextureType.BIRD_FLAMINGO],
 		[BirdType.PIGEON, TextureType.BIRD_PIGEON],
 		[BirdType.RAVEN, TextureType.BIRD_RAVEN],
 		[BirdType.ROBIN, TextureType.BIRD_ROBIN],
@@ -120,6 +122,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		[BirdType.CHICKEN, TextureType.BLACK_EYE],
 		[BirdType.DUCK, TextureType.BLACK_EYE],
 		[BirdType.EAGLE, TextureType.EAGLE_EYE],
+		[BirdType.FLAMINGO, TextureType.BLACK_EYE],
 		[BirdType.PIGEON, TextureType.WHITE_EYE],
 		[BirdType.RAVEN, TextureType.WHITE_EYE],
 		[BirdType.ROBIN, TextureType.WHITE_EYE],
@@ -130,6 +133,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		[BirdType.CHICKEN, EntityType.CHICKEN_BEAK],
 		[BirdType.DUCK, EntityType.DUCK_BEAK],
 		[BirdType.EAGLE, EntityType.EAGLE_BEAK],
+		[BirdType.FLAMINGO, EntityType.FLAMINGO_BEAK],
 		[BirdType.PIGEON, EntityType.PIGEON_BEAK],
 		[BirdType.RAVEN, EntityType.RAVEN_BEAK],
 		[BirdType.ROBIN, EntityType.ROBIN_BEAK],
@@ -137,6 +141,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	private static readonly _hairTypes = new Map<BirdType, EntityType>([
 		[BirdType.BOOBY, EntityType.BOOBY_HAIR],
 		[BirdType.CHICKEN, EntityType.CHICKEN_HAIR],
+		[BirdType.FLAMINGO, EntityType.FLAMINGO_HAIR],
 		[BirdType.PIGEON, EntityType.PIGEON_HAIR],
 		[BirdType.RAVEN, EntityType.RAVEN_HAIR],
 		[BirdType.ROBIN, EntityType.ROBIN_HAIR],
@@ -641,15 +646,15 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				return;
 			}
 
-			this._entityTrackers.getEntities<Headwear>(EntityType.HEADWEAR).execute((headwear : Headwear) => {
-				headwear.model().setVisible(!headwear.shouldHide(equip.attachType()));
-			});
-
 			if (equip.hasType(EntityType.WEAPON)) {
 				this._equipType = equip.type();
 			} else if (!equip.hasType(EntityType.HEADWEAR) && !equip.hasType(EntityType.BEAK)) {
 				// Kinda fragile
 				this._altEquipType = equip.type();
+
+				this._entityTrackers.getEntities<Headwear>(EntityType.HEADWEAR).execute((headwear : Headwear) => {
+					headwear.model().setVisible(!headwear.shouldHide(equip.attachType()));
+				});
 			}
 		});
 	}
@@ -1056,7 +1061,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					});
 				}
 			} else {
-				this._model.playAnimation(Animation.IDLE);
+				this._model.playAnimation(this.birdType() === BirdType.FLAMINGO ? Animation.IDLE_TUCK : Animation.IDLE);
 				this._walkSmokeRateLimiter.reset();
 			}
 		}

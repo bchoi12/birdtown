@@ -139,6 +139,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.FLAMINGO_SOUND, {
+			path: "flamingo_sound.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.GATLING, {
 			path: "gatling.mp3",
 			options: {

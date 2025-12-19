@@ -103,6 +103,10 @@ export namespace StatFactory {
 			[StatType.CHARGE_DELAY, 1200],
 			[StatType.USE_JUICE, 100],
 		])],
+		[EntityType.FLAMINGO_BEAK, new Map([
+			[StatType.CHARGE_DELAY, 500],
+			[StatType.USE_JUICE, 50],
+		])],
 		[EntityType.PIGEON_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 1200],
 			[StatType.USE_JUICE, 100],
@@ -184,7 +188,7 @@ export namespace StatFactory {
 			[StatType.CHARGED_BURSTS, 1],
 			[StatType.CHARGED_FIRE_TIME, 750],
 			[StatType.CHARGED_FORCE, 0.75],
-			[StatType.CHARGED_RELOAD_TIME, 1000],
+			[StatType.CHARGED_RELOAD_TIME, 900],
 			[StatType.CHARGED_PROJECTILE_ACCEL, 1.8],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0.3],
 			[StatType.CHARGED_PROJECTILE_TTL, 600],
@@ -275,7 +279,7 @@ export namespace StatFactory {
 			[StatType.CHARGED_BURSTS, 6],
 			[StatType.CHARGED_FIRE_TIME, 90],
 			[StatType.CHARGED_FORCE, 0.2],
-			[StatType.CHARGED_RELOAD_TIME, 1000],
+			[StatType.CHARGED_RELOAD_TIME, 925],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0.9],
 			[StatType.CHARGED_PROJECTILE_TTL, 550],
 			[StatType.FIRE_TIME, 150],
@@ -354,8 +358,8 @@ export namespace StatFactory {
 		[EntityType.LASER_CANNON, new Map([
 			[StatType.BURSTS, 2],
 			[StatType.CHARGED_BURSTS, 2],
-			[StatType.CHARGED_FIRE_TIME, 700],
-			[StatType.CHARGED_RELOAD_TIME, 1200],
+			[StatType.CHARGED_FIRE_TIME, 500],
+			[StatType.CHARGED_RELOAD_TIME, 900],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0],
 			[StatType.CHARGED_PROJECTILE_TTL, 750],
 			[StatType.CHARGED_FORCE, 0],
@@ -370,13 +374,16 @@ export namespace StatFactory {
 		[EntityType.PURPLE_BOLT, new Map([
 			[StatType.DAMAGE, 40],
 		])],
+		[EntityType.PURPLE_LASER, new Map([
+			[StatType.DAMAGE, 50],
+		])],
 		// 75 DPS
 		// 3 shots in 600ms
 		[EntityType.LASER_GUN, new Map([
 			[StatType.BURSTS, 3],
 			[StatType.CHARGED_BURSTS, 1],
 			[StatType.CHARGED_FIRE_TIME, 400],
-			[StatType.CHARGED_RELOAD_TIME, 500],
+			[StatType.CHARGED_RELOAD_TIME, 400],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1.1],
 			[StatType.CHARGED_PROJECTILE_TTL, 500],
 			[StatType.FIRE_TIME, 75],
@@ -397,7 +404,7 @@ export namespace StatFactory {
 			[StatType.BURSTS, 5],
 			[StatType.CHARGED_BURSTS, 1],
 			[StatType.CHARGED_FIRE_TIME, 700],
-			[StatType.CHARGED_RELOAD_TIME, 1000],
+			[StatType.CHARGED_RELOAD_TIME, 1200],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0],
 			[StatType.CHARGED_PROJECTILE_TTL, 750],
 			[StatType.CHARGED_FORCE, 0],
@@ -411,7 +418,7 @@ export namespace StatFactory {
 			[StatType.DAMAGE, 25],
 		])],
 		[EntityType.LASER, new Map([
-			[StatType.DAMAGE, 60],
+			[StatType.DAMAGE, 70],
 		])],
 	])
 

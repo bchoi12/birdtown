@@ -21,7 +21,7 @@ import { Fns } from 'util/fns'
 import { Timer } from 'util/timer'
 import { Vec, Vec2 } from 'util/vector'
 
-export class Laser extends Projectile {
+abstract class LaserBase extends Projectile {
 
 	private static readonly _ttl = 750;
 	private static readonly _activateTiming = 0.15;
@@ -34,8 +34,8 @@ export class Laser extends Projectile {
 	private _model : Model;
 	private _profile : Profile;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.LASER, entityOptions);
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
 
 		this._active = false;
 
@@ -79,7 +79,7 @@ export class Laser extends Projectile {
 					height: dim.y,
 					depth: 0.1,
 				}, game.scene());
-				outline.material = MaterialFactory.material(MaterialType.SHOOTER_ORANGE);
+				outline.material = MaterialFactory.material(this.outlineMaterial());
 
 				mesh.addChild(outline);
 
@@ -97,6 +97,8 @@ export class Laser extends Projectile {
 
 		this.setAttribute(AttributeType.BURNING, true);
 	}
+
+	abstract outlineMaterial() : MaterialType;
 
 	override initialize() : void {
 		super.initialize();
@@ -184,4 +186,22 @@ export class Laser extends Projectile {
 	}
 
 	override onMiss() : void {}
+}
+
+export class Laser extends LaserBase {
+
+	constructor(options : EntityOptions) {
+		super(EntityType.LASER, options);
+	}
+
+	override outlineMaterial() : MaterialType { return MaterialType.SHOOTER_ORANGE; }
+}
+
+export class PurpleLaser extends LaserBase {
+
+	constructor(options : EntityOptions) {
+		super(EntityType.PURPLE_LASER, options);
+	}
+
+	override outlineMaterial() : MaterialType { return MaterialType.SHOOTER_PURPLE; }
 }

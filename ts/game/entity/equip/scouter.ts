@@ -111,11 +111,11 @@ export class Scouter extends Equip<Player> {
 			return;
 		}
 
-		if (!this._particleLimiter.check(millis)) {
+		if (!this._weapon.charging() && !this._weapon.charged() || this._weapon.firing()) {
 			return;
 		}
 
-		if (!this._weapon.charging() && !this._weapon.charged()) {
+		if (!this._particleLimiter.check(millis)) {
 			return;
 		}
 

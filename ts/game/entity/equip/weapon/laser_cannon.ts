@@ -37,7 +37,7 @@ export class LaserCannon extends Weapon {
 		const unitDir = this.getDir();
 
 		if (this.charged()) {
-			this.addEntity(EntityType.LASER, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
+			this.addEntity(EntityType.PURPLE_LASER, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
 		} else {
 			this.addEntity(EntityType.PURPLE_BOLT, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
 			this.soundPlayer().playFromEntity(SoundType.CHARGED_BOLT, this.owner());
