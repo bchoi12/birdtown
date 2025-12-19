@@ -37,10 +37,12 @@ import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { DuckBeak } from 'game/entity/equip/beak/duck_beak'
 import { EagleBeak } from 'game/entity/equip/beak/eagle_beak'
 import { PigeonBeak } from 'game/entity/equip/beak/pigeon_beak'
+import { RavenBeak } from 'game/entity/equip/beak/raven_beak'
 import { RobinBeak } from 'game/entity/equip/beak/robin_beak'
 import { BoobyHair } from 'game/entity/equip/headwear/booby_hair'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { PigeonHair } from 'game/entity/equip/headwear/pigeon_hair'
+import { RavenHair } from 'game/entity/equip/headwear/raven_hair'
 import { RobinHair } from 'game/entity/equip/headwear/robin_hair'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
@@ -183,6 +185,8 @@ export namespace EntityFactory {
 		[EntityType.PURPLE_BOLT_EXPLOSION, (options : EntityOptions) => { return new PurpleBoltExplosion(options); }],
 		[EntityType.PURPLE_GLOVE, (options : EntityOptions) => { return new PurpleGlove(options); }],
 		[EntityType.PURPLE_HEADBAND, (options : EntityOptions) => { return new PurpleHeadband(options); }],
+		[EntityType.RAVEN_BEAK, (options : EntityOptions) => { return new RavenBeak(options); }],
+		[EntityType.RAVEN_HAIR, (options : EntityOptions) => { return new RavenHair(options); }],
 		[EntityType.RED_GLOVE, (options : EntityOptions) => { return new RedGlove(options); }],
 		[EntityType.RED_HEADBAND, (options : EntityOptions) => { return new RedHeadband(options); }],
 		[EntityType.REMATCH_SIGN, (options : EntityOptions) => { return new RematchSign(options); }],

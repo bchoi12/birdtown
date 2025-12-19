@@ -63,6 +63,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.CAW, {
+			path: "caw.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 		[SoundType.CHARGE, {
 			path: "charge.mp3",
 			disallowDistortion: true,
@@ -90,6 +96,12 @@ export namespace SoundFactory {
 			options: {
 				spatialSound: true,
 			},
+		}],
+		[SoundType.COO, {
+			path: "coo.mp3",
+			options: {
+				spatialSound: true,
+			}
 		}],
 		[SoundType.CRATE, {
 			path: "crate.mp3",
@@ -163,12 +175,6 @@ export namespace SoundFactory {
 			options: {
 				spatialSound: true,
 			},
-		}],
-		[SoundType.PIGEON_COO, {
-			path: "pigeon_coo.mp3",
-			options: {
-				spatialSound: true,
-			}
 		}],
 		[SoundType.PISTOL, {
 			path: "pistol.mp3",
