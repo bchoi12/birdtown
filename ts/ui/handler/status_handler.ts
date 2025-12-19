@@ -19,7 +19,7 @@ export class StatusHandler extends HandlerBase implements Handler {
 	private static readonly _ttl = new Map<StatusType, number>([
 		[StatusType.DEGRADED, 3 * 1000],
 		[StatusType.HOST_DEGRADED, 3 * 1000],
-		[StatusType.KEYS, 8 * 1000],
+		[StatusType.KEYS, 10 * 1000],
 		[StatusType.SPECTATING, 10 * 1000],
 	]);
 
@@ -205,7 +205,8 @@ export class StatusHandler extends HandlerBase implements Handler {
 			case StatusType.KEYS:
 				wrapper.setHTML(
 					`Use ${KeyNames.keyTypeHTML(KeyType.LEFT)} and ${KeyNames.keyTypeHTML(KeyType.RIGHT)} to move\r\n\r\n` +
-					`Press ${KeyNames.keyTypeHTML(KeyType.JUMP)} to jump/double jump`
+					`Press ${KeyNames.keyTypeHTML(KeyType.JUMP)} to jump/double jump\r\n\r\n` +
+					`Press ${KeyNames.keyTypeHTML(KeyType.POINTER_LOCK)} to lock your mouse to the screen`
 				);
 				break;
 			case StatusType.SPECTATING:

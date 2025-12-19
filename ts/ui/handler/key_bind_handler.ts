@@ -1,4 +1,6 @@
 
+import { Flags } from 'global/flags'
+
 import { settings } from 'settings'
 
 import { ui } from 'ui'
@@ -102,10 +104,13 @@ export class KeyBindHandler extends HandlerBase implements Handler {
 			name: "Open Scoreboard",
 			type: KeyType.SCOREBOARD,
 		});
-		this.addKeyBind(menu,{
-			name: "Screenshot (beta)",
-			type: KeyType.PHOTO,
-		});
+
+		if (Flags.devDebug.get()) {
+			this.addKeyBind(menu,{
+				name: "Screenshot (beta)",
+				type: KeyType.PHOTO,
+			});
+		}
 	}
 
 	override reset() : void {
