@@ -151,14 +151,14 @@ export abstract class ClientSystem extends SystemBase implements System {
 	clientIdMatches() : boolean { return this._clientId === game.clientId(); }
 
 	anyKey(types : KeyType[], state : KeyState) : boolean {
-		return types.some((type : KeyType) => this.key(type, state));
+		return types.some((type : KeyType) => this.checkKey(type, state));
 	}
-	key(type : KeyType, state : KeyState) : boolean {
+	checkKey(type : KeyType, state : KeyState) : boolean {
 		if (!game.input().hasKeys(this.clientId())) {
 			return false;
 		}
 		const keys = game.keys(this.clientId());
-		return keys.getKey(type).checkState(state);
+		return keys.key(type).checkState(state);
 	}
 
 	override networkBehavior() : NetworkBehavior {

@@ -109,6 +109,11 @@ export class Bubble extends Equip<Player> {
 	override initialize() : void {
 		super.initialize();
 
+		if (this.owner().getAttribute(AttributeType.BUBBLED)) {
+			this.delete();
+			return;
+		}
+
 		this.owner().setAttribute(AttributeType.BUBBLED, true);
 		this.owner().setAttribute(AttributeType.INVINCIBLE, true);
 

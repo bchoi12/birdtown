@@ -131,6 +131,7 @@ export namespace StatFactory {
 			[StatType.USE_JUICE, 100],
 		])],
 		[EntityType.HEADPHONES, new Map([
+			[StatType.CHARGE_DELAY, 300],
 			[StatType.CHARGE_RATE, 70],
 			[StatType.USE_JUICE, 100],
 		])],

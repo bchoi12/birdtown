@@ -61,11 +61,11 @@ export class Headphones extends Equip<Player> {
 		if (this._charge > 0) {
 			this._charge = Math.min(this._charge, Headphones._fullChargeTime);
 
-			const shakeStrength = this._charge / Headphones._fullChargeTime;
+			const shakeStrength = Fns.lerpRange(0.5, this._charge / Headphones._fullChargeTime, 1);
 			this._model.translation().copyVec({
-				x: shakeStrength * Fns.randomNoise(0.08),
-				y: shakeStrength * Fns.randomNoise(0.08),
-				z: shakeStrength * Fns.randomNoise(0.04),
+				x: shakeStrength * Fns.randomNoise(0.1),
+				y: shakeStrength * Fns.randomNoise(0.1),
+				z: shakeStrength * Fns.randomNoise(0.05),
 			})
 		} else {
 			this._model.translation().scale(0);

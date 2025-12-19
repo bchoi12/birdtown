@@ -300,7 +300,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 
 		const keys = game.keys(clientId);
-		return keys.getKey(type).checkState(state);
+		return keys.key(type).checkState(state);
 	}
 	keyCounter(type : KeyType) : number {
 		const clientId = this.hasClientId() ? this.clientId() : game.clientId();
@@ -309,7 +309,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 
 		const keys = game.keys(clientId);
-		return keys.getKey(type).counter();
+		return keys.key(type).counter();
 	}
 	inputDir() : Vec2 {
 		const clientId = this.hasClientId() ? this.clientId() : game.clientId();

@@ -450,10 +450,10 @@ export class Lakitu extends SystemBase implements System {
 					}
 
 					let newClientId = null;
-					if (game.keys().getKey(KeyType.RIGHT).pressed()
+					if (game.keys().key(KeyType.RIGHT).pressed()
 						|| !this._players.has(this._spectateClientId)) {
 						newClientId = this._players.nextAndDelete(this._spectateClientId);
-					} else if (game.keys().getKey(KeyType.LEFT).pressed()) {
+					} else if (game.keys().key(KeyType.LEFT).pressed()) {
 						newClientId = this._players.prevAndDelete(this._spectateClientId);
 					}
 

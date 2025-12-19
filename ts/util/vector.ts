@@ -272,6 +272,9 @@ export class Vec2 implements Vec {
     lerp(vec : Vec, t : number) : Vec2 {
         return this.interpolate(vec, t, (t : number) => { return t;});
     }
+    lerpClone(vec : Vec, t : number) : Vec2 {
+        return this.clone().lerp(vec, t);
+    }
 
     copy(vec : Vec2) : Vec2 { 
         this.x = vec.x;
@@ -444,6 +447,9 @@ export class Vec3 extends Vec2 implements Vec {
     }
     override lerp(vec : Vec, t : number) : Vec3 {
         return this.interpolate(vec, t, (t : number) => { return t;});
+    }
+    override lerpClone(vec : Vec, t : number) : Vec3 {
+        return this.clone().lerp(vec, t);
     }
 
     override copy(vec : Vec3) : Vec3 { 

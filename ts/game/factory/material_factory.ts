@@ -130,13 +130,13 @@ export namespace MaterialFactory {
 		});
 
 		standardMaterial(MaterialType.DYING_STAR, (mat : BABYLON.StandardMaterial) => {
-			mat.specularPower = 8;
-			mat.diffuseColor = ColorFactory.color(ColorType.WHITE).toBabylonColor3();
+			mat.disableLighting = true;
+			mat.emissiveColor = ColorFactory.color(ColorType.BLACK).toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.DYING_STAR_RING, (mat : BABYLON.StandardMaterial) => {
 			mat.disableLighting = true;
-			mat.emissiveColor = ColorFactory.color(ColorType.SHOOTER_ORANGE).toBabylonColor3();
+			mat.emissiveColor = ColorFactory.color(ColorType.WHITE).toBabylonColor3();
 		});
 
 		standardMaterial(MaterialType.GREEN_SCREEN, (mat : BABYLON.StandardMaterial) => {

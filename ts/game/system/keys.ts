@@ -58,23 +58,9 @@ export class Keys extends ClientSideSystem implements System {
 		});
 	}
 
-	getKey(type : KeyType) : Key { return this.getChild<Key>(type); }
-	keys() : Set<KeyType> {
-		let keys = new Set<KeyType>();
-		if (this.state() === GameObjectState.DEACTIVATED) {
-			return keys;
-		}
-
-		this.findAll<Key>((key : Key) => {
-			return key.down();
-		}).forEach((key : Key) => {
-			keys.add(key.keyType());
-		});
-		return keys;
-	}
+	key(type : KeyType) : Key { return this.getChild<Key>(type); }
 	dir() : Vec2 { return this._dir; }
 	mouse() : Vec2 { return this._mouse; }
-	mouseWorld() : BABYLON.Vector3 { return new BABYLON.Vector3(this._mouse.x, this._mouse.y, 0); }
 
 	maxDiff() : number {
 		let diff = 0;
@@ -124,9 +110,9 @@ export class Keys extends ClientSideSystem implements System {
 		const mouse = ui.mouse();
 		const screen = ui.screenRect();
 
-		// Z-coordinate is not necessarily 0
+		// Z-coordinate is not 0 (due to affine transform stuff)
 		let mouseWorld = BABYLON.Vector3.Unproject(
-			new BABYLON.Vector3(mouse.x, mouse.y, 0.99),
+			new BABYLON.Vector3(mouse.x, mouse.y, 1),
 			screen.width,
 			screen.height,
 			BABYLON.Matrix.Identity(),

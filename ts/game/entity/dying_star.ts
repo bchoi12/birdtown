@@ -132,12 +132,14 @@ export class DyingStar extends EntityBase {
 		super.update(stepData);
 		const millis = stepData.millis;
 
-		this._profile.setPos(this._initPos.get().interpolateClone(this._target.get(), this.ttlElapsed(), Fns.interpFns.get(InterpType.NEGATIVE_SQUARE)));
+		const weight = Fns.interp(InterpType.NEGATIVE_SQUARE, this.ttlElapsed());
+		
+		this._profile.setPos(this._initPos.get().lerpClone(this._target.get(), weight));
+		
+		this.model().scaling().setAll(Fns.lerpRange(0.5, weight, 3));
 
-		this.model().scaling().setAll(2 + 0.5 * Math.sin(2 * Math.PI * this.ttlElapsed()));
-
-		this.model().rotation().x += this._dir.x * 5 * millis / 1000;
-		this.model().rotation().y += this._dir.y * 7 * millis / 1000;
-		this.model().rotation().z += this._dir.x * 11 * millis / 1000;
+		this.model().rotation().x += this._dir.x * 5 * weight * millis / 1000;
+		this.model().rotation().y += this._dir.y * 7 * weight * millis / 1000;
+		this.model().rotation().z += this._dir.x * 11 * weight * millis / 1000;
 	}
 }
