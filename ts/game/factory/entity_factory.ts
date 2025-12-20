@@ -33,6 +33,7 @@ import { Shades } from 'game/entity/equip/shades'
 import { ShieldRing } from 'game/entity/equip/shield_ring'
 import { TopHat } from 'game/entity/equip/top_hat'
 import { BoobyBeak } from 'game/entity/equip/beak/booby_beak'
+import { CardinalBeak } from 'game/entity/equip/beak/cardinal_beak'
 import { ChickenBeak } from 'game/entity/equip/beak/chicken_beak'
 import { DuckBeak } from 'game/entity/equip/beak/duck_beak'
 import { EagleBeak } from 'game/entity/equip/beak/eagle_beak'
@@ -41,6 +42,7 @@ import { PigeonBeak } from 'game/entity/equip/beak/pigeon_beak'
 import { RavenBeak } from 'game/entity/equip/beak/raven_beak'
 import { RobinBeak } from 'game/entity/equip/beak/robin_beak'
 import { BoobyHair } from 'game/entity/equip/headwear/booby_hair'
+import { CardinalHair } from 'game/entity/equip/headwear/cardinal_hair'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { FlamingoHair } from 'game/entity/equip/headwear/flamingo_hair'
 import { PigeonHair } from 'game/entity/equip/headwear/pigeon_hair'
@@ -138,6 +140,8 @@ export namespace EntityFactory {
 		[EntityType.BULLET, (options : EntityOptions) => { return new Bullet(options); }],
 		[EntityType.BUSH, (options : EntityOptions) => { return new Bush(options); }],
 		[EntityType.CALIBER, (options : EntityOptions) => { return new Caliber(options); }],
+		[EntityType.CARDINAL_BEAK, (options : EntityOptions) => { return new CardinalBeak(options); }],
+		[EntityType.CARDINAL_HAIR, (options : EntityOptions) => { return new CardinalHair(options); }],
 		[EntityType.CARTRIDGE, (options : EntityOptions) => { return new Cartridge(options); }],
 		[EntityType.CHARGED_BOLT, (options : EntityOptions) => { return new ChargedBolt(options); }],
 		[EntityType.CHICKEN_BEAK, (options : EntityOptions) => { return new ChickenBeak(options); }],

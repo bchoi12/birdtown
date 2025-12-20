@@ -63,6 +63,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.CARDINAL_SOUND, {
+			path: "cardinal_sound.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 		[SoundType.CAW, {
 			path: "caw.mp3",
 			options: {

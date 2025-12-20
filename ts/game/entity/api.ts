@@ -44,6 +44,8 @@ export enum EntityType {
 	BUFF_CRATE,
 	BULLET,
 	BUSH,
+	CARDINAL_BEAK,
+	CARDINAL_HAIR,
 	CARTRIDGE,
 	CALIBER,
 	CHARGED_BOLT,
@@ -145,6 +147,7 @@ export enum BirdType {
 	UNKNOWN,
 
 	BOOBY,
+	CARDINAL,
 	CHICKEN,
 	DUCK,
 	EAGLE,

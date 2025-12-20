@@ -91,6 +91,10 @@ export namespace StatFactory {
 			[StatType.CHARGE_DELAY, 300],
 			[StatType.USE_JUICE, 33],
 		])],
+		[EntityType.CARDINAL_BEAK, new Map([
+			[StatType.CHARGE_DELAY, 500],
+			[StatType.USE_JUICE, 50],
+		])],
 		[EntityType.CHICKEN_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 500],
 			[StatType.USE_JUICE, 50],
@@ -205,11 +209,11 @@ export namespace StatFactory {
 		[EntityType.MEGA_ROCKET, new Map([
 			[StatType.DAMAGE, 96],
 		])],
-		// 150 DPS + 360 delay
+		// 150 DPS + 400 delay
 		[EntityType.GATLING, new Map([
 			// TODO: fill out recoil values
-			[StatType.BURSTS, 20],
-			[StatType.CHARGED_BURSTS, 10],
+			[StatType.BURSTS, 16],
+			[StatType.CHARGED_BURSTS, 8],
 			[StatType.CHARGED_FIRE_TIME, 40],
 			[StatType.CHARGED_FORCE, 0],
 			[StatType.CHARGED_RELOAD_TIME, 600],
@@ -221,7 +225,7 @@ export namespace StatFactory {
 			[StatType.PROJECTILE_SPEED, 0.8],
 			[StatType.PROJECTILE_TTL, 425],
 			[StatType.RELOAD_TIME, 600],
-			[StatType.REV_TIME, 360],
+			[StatType.REV_TIME, 400],
 			[StatType.VERTICAL_RECOIL, 0],
 		])],
 		[EntityType.CALIBER, new Map([
@@ -375,7 +379,7 @@ export namespace StatFactory {
 			[StatType.DAMAGE, 40],
 		])],
 		[EntityType.PURPLE_LASER, new Map([
-			[StatType.DAMAGE, 50],
+			[StatType.DAMAGE, 45],
 		])],
 		// 75 DPS
 		// 3 shots in 600ms
@@ -418,7 +422,7 @@ export namespace StatFactory {
 			[StatType.DAMAGE, 25],
 		])],
 		[EntityType.LASER, new Map([
-			[StatType.DAMAGE, 70],
+			[StatType.DAMAGE, 60],
 		])],
 	])
 

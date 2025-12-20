@@ -109,6 +109,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 	private static readonly _birdTextures = new Map<BirdType, TextureType>([
 		[BirdType.BOOBY, TextureType.BIRD_BOOBY],
+		[BirdType.CARDINAL, TextureType.BIRD_CARDINAL],
 		[BirdType.CHICKEN, TextureType.BIRD_CHICKEN],
 		[BirdType.DUCK, TextureType.BIRD_DUCK],
 		[BirdType.EAGLE, TextureType.BIRD_EAGLE],
@@ -119,6 +120,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	]);
 	private static readonly _eyeTextures = new Map<BirdType, TextureType>([
 		[BirdType.BOOBY, TextureType.BLACK_EYE],
+		[BirdType.CARDINAL, TextureType.WHITE_EYE],
 		[BirdType.CHICKEN, TextureType.BLACK_EYE],
 		[BirdType.DUCK, TextureType.BLACK_EYE],
 		[BirdType.EAGLE, TextureType.EAGLE_EYE],
@@ -130,6 +132,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 	private static readonly _beakTypes = new Map<BirdType, EntityType>([
 		[BirdType.BOOBY, EntityType.BOOBY_BEAK],
+		[BirdType.CARDINAL, EntityType.CARDINAL_BEAK],
 		[BirdType.CHICKEN, EntityType.CHICKEN_BEAK],
 		[BirdType.DUCK, EntityType.DUCK_BEAK],
 		[BirdType.EAGLE, EntityType.EAGLE_BEAK],
@@ -140,6 +143,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	]);
 	private static readonly _hairTypes = new Map<BirdType, EntityType>([
 		[BirdType.BOOBY, EntityType.BOOBY_HAIR],
+		[BirdType.CARDINAL, EntityType.CARDINAL_HAIR],
 		[BirdType.CHICKEN, EntityType.CHICKEN_HAIR],
 		[BirdType.FLAMINGO, EntityType.FLAMINGO_HAIR],
 		[BirdType.PIGEON, EntityType.PIGEON_HAIR],
