@@ -628,7 +628,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 					hitEntity: hitEntity,
 				});
 			} else if (hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL)) {
-				delta *= 1 + from.getStat(StatType.CRIT_BOOST) + Math.max(0, 1 - from.getStat(StatType.CRIT_CHANCE));
+				delta *= 1 + from.getStat(StatType.CRIT_BOOST) + Math.max(0, from.getStat(StatType.CRIT_CHANCE) - 1);
 				buffDelta = 2;
 			}
 
