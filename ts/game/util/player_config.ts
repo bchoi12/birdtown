@@ -72,13 +72,13 @@ export class PlayerConfig {
 	static roleString(role : StartRole) : string {
 		switch (role) {
 		case StartRole.PLAYING:
-			return "PLAYING";
+			return "Playing✅";
 		case StartRole.TEAM_ONE:
-			return "TEAM ONE";
+			return "Red Team🔴";
 		case StartRole.TEAM_TWO:
-			return "TEAM TWO";
+			return "Blue Team🔵";
 		case StartRole.SPECTATING:
-			return "SPECTATING ONLY";
+			return "Spectating👁️‍🗨️";
 		}
 		return "???";
 	}
@@ -101,10 +101,10 @@ export class PlayerConfig {
 		}
 
 		if (msg.hasPlayersMin() && numPlayers < msg.getPlayersMin()) {
-			errors.push("Need at least " + msg.getPlayersMin() + " active players");
+			errors.push("Need at least " + msg.getPlayersMin() + " player(s)");
 		}
 		if (msg.hasPlayersMax() && numPlayers > msg.getPlayersMax()) {
-			errors.push(msg.modeName() + " can only have up to " + msg.getPlayersMax() + " active players");
+			errors.push(msg.modeName() + " can only have up to " + msg.getPlayersMax() + " player(s)");
 		}
 
 		if (msg.getWinCondition() === WinConditionType.POINTS || msg.getWinCondition() === WinConditionType.TEAM_POINTS) {

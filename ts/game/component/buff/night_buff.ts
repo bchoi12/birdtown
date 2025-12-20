@@ -28,7 +28,7 @@ export class NightBuff extends Buff {
 		return new Map([
 			[StatType.DAMAGE_BOOST, (this._night ? 0.2 : 0.03) * level],
 			[StatType.LIFE_STEAL, (this._night ? 0.1 : 0.01) * level],
-			[StatType.SHIELD, (this._night ? 60 : 5) * level],
+			[StatType.SHIELD, (this._night ? 50 : 5) * level],
 		])
 	}
 

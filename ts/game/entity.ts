@@ -603,7 +603,8 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		let resources = this.getComponent<Resources>(ComponentType.RESOURCES);
 		delta = -delta;
 		if (delta < 0 && from && this.id() !== from.id()) {
-			let mult = 1 + this.getStat(StatType.DAMAGE_TAKEN_BOOST) - this.getStat(StatType.DAMAGE_RESIST_BOOST);
+			let mult = 1 + from.getStat(StatType.DAMAGE_BOOST);
+			mult += this.getStat(StatType.DAMAGE_TAKEN_BOOST) - this.getStat(StatType.DAMAGE_RESIST_BOOST);
 
 			if (hitEntity && hitEntity.hasType(EntityType.PROJECTILE) && this.hasProfile() && from.hasProfile()) {
 				if (from.hasStat(StatType.DAMAGE_FAR_BOOST)) {

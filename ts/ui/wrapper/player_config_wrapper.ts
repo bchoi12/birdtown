@@ -94,9 +94,11 @@ export class PlayerConfigWrapper extends HtmlWrapper<HTMLElement> {
 		this._infoElm.style.display = "block";
 		this._infoElm.style.textAlign = "left";
 		let html = "Player setup is invalid!<br>";
+		html += "<ul>";
 		for (let i = 0 ; i < errors.length; ++i) {
 			html += `<li>${errors[i]}</li>`;
 		}
+		html += "</ul>";
 		this._infoElm.innerHTML = html;
 	}
 

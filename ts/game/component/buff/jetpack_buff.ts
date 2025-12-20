@@ -8,7 +8,7 @@ export class JetpackBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.SPEED_BOOST, 0.25 * level],
+			[StatType.SPEED_BOOST, 0.2 * level],
 		]);
 	}
 }
