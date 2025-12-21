@@ -138,7 +138,7 @@ class Game {
 				this.setClientId(1);
 
 				window.onbeforeunload = (e) => {
-					if (this._netcode.getNumConnected() > 0) {
+					if (this._netcode.getNumConnected() > 0 && !Flags.platform.isDesktop()) {
 						return "Are you sure you want to leave? The game will end and all players will be disconnected.";
 					}
 					return undefined;
