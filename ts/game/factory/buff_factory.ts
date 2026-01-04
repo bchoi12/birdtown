@@ -133,7 +133,7 @@ export namespace BuffFactory {
 		[BuffType.BLACK_HEADBAND, statusMetadata],
 		[BuffType.JETPACK, statusMetadata],
 		[BuffType.VIP, statusMetadata],
-		[BuffType.SPREE, {maxLevel: 3, resetOnSpawn: true }],
+		[BuffType.SPREE, {maxLevel: 10, resetOnSpawn: true }],
 
 		[BuffType.TEMP_CRIT, temporaryMetadata],
 		[BuffType.TEMP_DAMAGE, temporaryMetadata],

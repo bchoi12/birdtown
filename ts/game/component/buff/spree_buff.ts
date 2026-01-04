@@ -21,11 +21,13 @@ export class SpreeBuff extends Buff {
 	}
 
 	override boosts(level : number) : Map<StatType, number> {
+		const regenLevel = Math.min(level, 5);
+		const dmgLevel = Math.min(level, 5);
 		return new Map([
-			[StatType.HP_REGEN, level * .02],
+			[StatType.HP_REGEN, regenLevel * .02],
 			[StatType.SPEED_BOOST, level * 0.05],
-			[StatType.DAMAGE_BOOST, level >= 2 ? (level - 1) * 0.25 : 0],
-			[StatType.DAMAGE_TAKEN_BOOST, level >= 2 ? (level - 1) * 0.15 : 0],
+			[StatType.DAMAGE_BOOST, dmgLevel * 0.2],
+			[StatType.DAMAGE_TAKEN_BOOST, dmgLevel * 0.1],
 		]);
 	}
 
@@ -38,7 +40,7 @@ export class SpreeBuff extends Buff {
 		}
 
 		const millis = stepData.millis;
-		this._flameLimiter.setLimit(75 + 25 * (this.maxLevel() - level));
+		this._flameLimiter.setLimit(75 + 25 * Math.max(0, 5 - level));
 
 		const pos = this.entity().profile().pos();
 		if (!this._flameLimiter.check(millis) || !game.lakitu().inFOV(pos)) {

@@ -195,7 +195,7 @@ export namespace StatFactory {
 			[StatType.CHARGED_RELOAD_TIME, 900],
 			[StatType.CHARGED_PROJECTILE_ACCEL, 1.8],
 			[StatType.CHARGED_PROJECTILE_SPEED, 0.3],
-			[StatType.CHARGED_PROJECTILE_TTL, 600],
+			[StatType.CHARGED_PROJECTILE_TTL, 550],
 			[StatType.FIRE_TIME, 500],
 			[StatType.FORCE, 0.3],
 			[StatType.PROJECTILE_ACCEL, 1.5],
@@ -207,7 +207,7 @@ export namespace StatFactory {
 			[StatType.DAMAGE, 50],
 		])],
 		[EntityType.MEGA_ROCKET, new Map([
-			[StatType.DAMAGE, 96],
+			[StatType.DAMAGE, 95],
 		])],
 		// 150 DPS + 400 delay
 		[EntityType.GATLING, new Map([
