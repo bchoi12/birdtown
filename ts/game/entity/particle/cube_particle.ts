@@ -32,7 +32,6 @@ export class CubeParticle extends Particle {
 		this._initialScale = this._profile.scaling().clone();
 	}
 
-	override renderShadows() : boolean { return true; }
 	override particleType() : ParticleType { return ParticleType.CUBE; }
 	override processModel(model : Model) : void {
 		model.mesh().receiveShadows = false;

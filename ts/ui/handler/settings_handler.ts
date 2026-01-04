@@ -366,7 +366,7 @@ export class SettingsHandler extends HandlerBase implements Handler{
 			html: () => { return Math.round(100 * settings.soundPercent) + "%"; },
 		}));
 
-		if (Flags.devDebug.get()) {
+		if (Flags.devMode.get()) {
 			let debug = this.createCategory("Debug");
 			debug.setExpanded(false);
 

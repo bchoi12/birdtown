@@ -109,12 +109,12 @@ export class Client extends Netcode {
 	}
 
 	private registerCallbacks() : void {
-		this.addMessageCallback(NetworkMessageType.INIT_CLIENT, (msg : NetworkMessage) => {
+		this.addMessageCallback(NetworkMessageType.INIT_CLIENT, (fromId : string, msg : NetworkMessage) => {
 			const clientId = msg.getClientId();
 			game.setClientId(clientId);
 		});
 
-		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
+		this.addMessageCallback(NetworkMessageType.CHAT, (fromId : string, msg : NetworkMessage) => {
 			if (msg.hasChatMessage()) {
 				ui.chat(msg.getChatTypeOr(ChatType.PRINT), msg.getChatMessage(), {
 					clientId: msg.getClientIdOr(0),
@@ -122,13 +122,13 @@ export class Client extends Netcode {
 			}
 		});
 
-		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
+		this.addMessageCallback(NetworkMessageType.VOICE, (fromId : string, msg : NetworkMessage) => {
 			if (!msg.getVoiceEnabled()) {
 				this.closeMediaConnection(msg.getClientId());
 			}
 		});
 
-		this.addMessageCallback(NetworkMessageType.VOICE_MAP, (msg : NetworkMessage) => {
+		this.addMessageCallback(NetworkMessageType.VOICE_MAP, (fromId : string, msg : NetworkMessage) => {
 			if (!this._voiceEnabled) { return; }
 
 			const clients = new Map<number, string>();

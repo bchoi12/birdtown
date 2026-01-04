@@ -111,6 +111,10 @@ export namespace StatFactory {
 			[StatType.CHARGE_DELAY, 500],
 			[StatType.USE_JUICE, 50],
 		])],
+		[EntityType.GOOSE_BEAK, new Map([
+			[StatType.CHARGE_DELAY, 300],
+			[StatType.USE_JUICE, 33],
+		])],
 		[EntityType.PIGEON_BEAK, new Map([
 			[StatType.CHARGE_DELAY, 1200],
 			[StatType.USE_JUICE, 100],

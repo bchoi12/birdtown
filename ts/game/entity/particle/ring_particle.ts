@@ -21,7 +21,6 @@ export class RingParticle extends Particle {
 		this._initialScale = Vec3.one();
 	}
 
-	override renderShadows() : boolean { return true; }
 	override particleType() : ParticleType { return ParticleType.RING; }
 	override processModel(model : Model) : void {
 		model.rotation().y = Math.PI / 2;

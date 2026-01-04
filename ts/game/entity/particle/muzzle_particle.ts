@@ -32,7 +32,6 @@ export class MuzzleParticle extends Particle {
 		this._initialScale.copyVec(this._model.scaling());
 	}
 
-	override renderShadows() : boolean { return false; }
 	override particleType() : ParticleType { return ParticleType.TETRAHEDRON; }
 	override processModel(model : Model) : void {
 		model.mesh().receiveShadows = false;

@@ -94,7 +94,6 @@ export class TextParticle extends Particle {
 		});
 	}
 
-	override renderShadows() : boolean { return true; }
 	override particleType() : ParticleType { return ParticleType.PLANE; }
 	override processModel(model : Model) : void {
 		let texture = new BABYLON.DynamicTexture(this.name() + "-text", {

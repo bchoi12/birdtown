@@ -20,7 +20,7 @@ export namespace Flags {
 	// Debug
 	export const peerDebug = new NumberFlag("peerDebug", 2);
 	export const printDebug = new BoolFlag("printDebug", isLocalhost() || platform.isDiscord());
-	export const devDebug = new BoolFlag("devDebug", isLocalhost());
+	export const devMode = new BoolFlag("devMode", isLocalhost());
 
 	// Platform specific
 	export const showQuitButton = new BoolFlag("showQuitButton", platform.isDesktop() && !platform.isDiscord());

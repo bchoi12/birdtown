@@ -16,12 +16,14 @@ export class Expression extends ComponentBase implements Component {
 
 	private _current : EmotionType;
 	private _emotions : Map<EmotionType, number>;
+	private _override : Optional<EmotionType>;
 
 	constructor() {
 		super(ComponentType.EXPRESSION);
 
 		this._current = EmotionType.NORMAL;
 		this._emotions = new Map();
+		this._override = new Optional();
 	}
 
 	override reset() : void {
@@ -32,6 +34,8 @@ export class Expression extends ComponentBase implements Component {
 	}
 
 	emotion() : EmotionType { return this._current; }
+	setOverride(type : EmotionType) : void { this._override.set(type); }
+	clearOverride() : void { this._override.clear(); }
 	private value(type : EmotionType) : number {  return this._emotions.has(type) ? this._emotions.get(type) : 0; }
 	private fade(type : EmotionType, millis : number) : number {
 		if (!this._emotions.has(type) || !Expression._durations.has(type)) {
@@ -57,6 +61,9 @@ export class Expression extends ComponentBase implements Component {
 
 		if (this.value(EmotionType.DEAD) > 0) {
 			this._current = EmotionType.DEAD;
+			return;
+		} else if (this._override.has()) {
+			this._current = this._override.get();
 			return;
 		}
 

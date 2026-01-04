@@ -18,7 +18,6 @@ export class WaterParticle extends Particle {
 		super(EntityType.WATER_PARTICLE, entityOptions);
 	}
 
-	override renderShadows() : boolean { return false; }
 	override particleType() : ParticleType { return ParticleType.WATER; }
 	override processModel(model : Model) : void {
 	}

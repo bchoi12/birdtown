@@ -163,6 +163,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.HONK, {
+			path: "honk.mp3",
+			options: {
+				spatialSound: true,
+			},
+		}],
 		[SoundType.JETPACK, {
 			path: "jetpack.mp3",
 			options: {

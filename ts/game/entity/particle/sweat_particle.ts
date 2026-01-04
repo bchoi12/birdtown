@@ -20,7 +20,6 @@ export class SweatParticle extends Particle {
 		super(EntityType.SWEAT_PARTICLE, entityOptions);
 	}
 
-	override renderShadows() : boolean { return true; }
 	override particleType() : ParticleType { return ParticleType.TEAR; }
 	override processModel(model : Model) : void {
 		model.mesh().receiveShadows = false;

@@ -31,7 +31,7 @@ import { Optional } from 'util/optional'
 
 type PeerMap = Map<string, ChannelMap>;
 type RegisterCallback = (connection : Connection) => void;
-type MessageCallback<T extends NetworkMessage> = (message : T) => void;
+type MessageCallback<T extends NetworkMessage> = (fromId : string, message : T) => void;
 
 enum DataFormat {
 	UNKNOWN,
@@ -76,7 +76,7 @@ export abstract class Netcode {
 	protected _registerBuffer : Buffer<Connection>;
 	protected _registerCallbacks : Array<RegisterCallback>;
 
-	protected _messageBuffer : Buffer<NetworkMessage>;
+	protected _messageBuffer : Buffer<[string, NetworkMessage]>;
 	protected _messageCallbacks : Map<NetworkMessageType, MessageCallback<NetworkMessage>>;
 
 	protected _mediaConnections : Map<number, MediaConnection>;
@@ -109,7 +109,7 @@ export abstract class Netcode {
 		this._voiceEnabled = false;
 		this._audioContext = new Optional();
 
-		this.addMessageCallback(NetworkMessageType.GAME, (msg : NetworkMessage) => {
+		this.addMessageCallback(NetworkMessageType.GAME, (fromId : string, msg : NetworkMessage) => {
 			game.runner().importData(msg.getData(), msg.getSeqNum());
 		});
 	}
@@ -345,9 +345,9 @@ export abstract class Netcode {
 		});
 
 		for (let i = 0; i < this._messageBuffer.size(); ++i) {
-			const incoming = this._messageBuffer.get(i);
+			const [fromId, incoming] = this._messageBuffer.get(i);
 			if (this._messageCallbacks.has(incoming.type())) {
-				this._messageCallbacks.get(incoming.type())(incoming);
+				this._messageCallbacks.get(incoming.type())(fromId, incoming);
 			}
 		}
 		this._messageBuffer.clear();
@@ -427,25 +427,17 @@ export abstract class Netcode {
 		this._messageCallbacks.set(type, cb);
 	}
 
-	broadcast(type : ChannelType, msg : NetworkMessage) : void {
-		this._connections.forEach((outgoing, id) => {
-			if (!outgoing.channels().ready()) {
-				return;
-			}
-
-			this.send(id, type, msg);
-		});
-	}
-
-	send(id : string, type : ChannelType, msg : NetworkMessage) : boolean {
-		msg.setName(id);
+	private preparePayload(msg : NetworkMessage) : [Uint8Array, boolean] {
 		if (!msg.valid()) {
-			console.error("Error: attempting to send invalid message", msg);
-			return false;
+			console.error("Error: attempted to encode invalid message", msg);
+			return [null, false];
 		}
 
+		return [encode(msg.exportObject()), true];
+	}
+	private sendPayload(id : string, type : ChannelType, payload : Uint8Array) : boolean {
 		if (!this._connections.has(id)) {
-			console.error("Error: trying to send message to missing connection", id, msg);
+			console.error("Error: trying to send payload to missing connection", id);
 			return false;
 		}
 
@@ -458,15 +450,17 @@ export abstract class Netcode {
 			return false;
 		}
 
-		// For debugging - fail to send UDP packet.
-		if (type === ChannelType.UDP && settings.sendSuccessRate() < Math.random()) {
-			return true;
-		}
+		let delay = 0;
+		if (Flags.devMode.get()) {
+			// For debugging - fail to send UDP packet.
+			if (type === ChannelType.UDP && settings.sendSuccessRate() < Math.random()) {
+				return true;
+			}
 
-		const payload = encode(msg.exportObject());
-		let delay = settings.delay();
-		if (Date.now() % 3000 <= 500) {
-			delay += settings.jitter() * (0.5 + 0.5 * Math.random());
+			delay += settings.delay();
+			if (Date.now() % 3000 <= 500) {
+				delay += settings.jitter() * (0.5 + 0.5 * Math.random());
+			}
 		}
 		if (delay > 0) {
 			setTimeout(() => {
@@ -476,6 +470,26 @@ export abstract class Netcode {
 			channels.send(type, payload);
 		}
 		return true;
+	}
+
+	// Same as send() but encode payload once
+	broadcast(type : ChannelType, msg : NetworkMessage) : boolean {
+		const [payload, payloadOk] = this.preparePayload(msg);
+		if (!payloadOk) {
+			return false;
+		}
+
+		this._connections.forEach((outgoing, id) => {
+			this.sendPayload(id, type, payload);
+		});
+		return true;
+	}
+	send(id : string, type : ChannelType, msg : NetworkMessage) : boolean {
+		const [payload, payloadOk] = this.preparePayload(msg);
+		if (!payloadOk) {
+			return false;
+		}
+		return this.sendPayload(id, type, payload);
 	}
 
 	callAll(clients : Map<number, string>, onSuccess : () => void, onError : () => void) : void {
@@ -672,10 +686,6 @@ export abstract class Netcode {
 
 		let msg = new NetworkMessage(NetworkMessageType.UNKNOWN);
 		msg.parseObject(<MessageObject>decode(bytes));
-
-		const connection = this._connections.get(id);
-		msg.setName(id);
-
 		if (!msg.valid()) {
 			console.error("Error: received invalid message over network", msg);
 			return;
@@ -683,9 +693,9 @@ export abstract class Netcode {
 
 		if (this._messageCallbacks.has(msg.type())) {
 			if (msg.type() === NetworkMessageType.GAME) {
-				this._messageBuffer.push(msg);
+				this._messageBuffer.push([id, msg]);
 			} else {
-				this._messageCallbacks.get(msg.type())(msg);
+				this._messageCallbacks.get(msg.type())(id, msg);
 			}
 		}
 

@@ -153,20 +153,20 @@ export class Host extends Netcode {
 			}
 		});
 
-		this.addMessageCallback(NetworkMessageType.CHAT, (msg : NetworkMessage) => {
+		this.addMessageCallback(NetworkMessageType.CHAT, (fromId : string, msg : NetworkMessage) => {
 			if (msg.hasChatMessage()) {
-				this.handleChat(msg.name(), msg.getChatTypeOr(ChatType.PRINT), msg.getChatMessage());
+				this.handleChat(fromId, msg.getChatTypeOr(ChatType.PRINT), msg.getChatMessage());
 			} else if (msg.hasGameMode()) {
-				this.handleChat(msg.name(), ChatType.PRINT, `wants to play ${StringFactory.getModeName(msg.getGameMode())}!`);
+				this.handleChat(fromId, ChatType.PRINT, `wants to play ${StringFactory.getModeName(msg.getGameMode())}!`);
 			}
 		});
 
-		this.addMessageCallback(NetworkMessageType.JOIN_VOICE, (msg : NetworkMessage) => {
-			this.handleChat(msg.name(), ChatType.PRINT, "joined voice chat!");
+		this.addMessageCallback(NetworkMessageType.JOIN_VOICE, (fromId : string, msg : NetworkMessage) => {
+			this.handleChat(fromId, ChatType.PRINT, "joined voice chat!");
 		});
 
-		this.addMessageCallback(NetworkMessageType.VOICE, (msg : NetworkMessage) => {
-			let connection = this.connection(msg.name());
+		this.addMessageCallback(NetworkMessageType.VOICE, (fromId : string, msg : NetworkMessage) => {
+			let connection = this.connection(fromId);
 			connection.setVoiceEnabled(msg.getVoiceEnabled());
 
 			let outgoingMsg = new NetworkMessage(NetworkMessageType.VOICE);
@@ -177,7 +177,7 @@ export class Host extends Netcode {
 			if (outgoingMsg.getVoiceEnabled()) {
 				let voiceMapMsg = new NetworkMessage(NetworkMessageType.VOICE_MAP);
 				voiceMapMsg.setClientMap(Object.fromEntries(this.getVoiceMap()));
-				this.send(msg.name(), ChannelType.TCP, voiceMapMsg);
+				this.send(fromId, ChannelType.TCP, voiceMapMsg);
 			} else {
 				this.closeMediaConnection(msg.getClientId());
 			}

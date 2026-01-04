@@ -18,7 +18,6 @@ export class SmokeParticle extends Particle {
 		super(EntityType.SMOKE_PARTICLE, entityOptions);
 	}
 
-	override renderShadows() : boolean { return true; }
 	override particleType() : ParticleType { return ParticleType.SMOKE; }
 	override processModel(model : Model) : void {
 		model.material<BABYLON.StandardMaterial>().specularPower = 0;

@@ -47,14 +47,14 @@ export class Pinger {
 	}
 
 	initializeForHost(host : Netcode) {
-		host.addMessageCallback(NetworkMessageType.PING, (msg : NetworkMessage) => {
-			this._lastReceivedTime.set(msg.name(), Date.now());
-			host.send(msg.name(), ChannelType.UDP, msg);
+		host.addMessageCallback(NetworkMessageType.PING, (fromId : string, msg : NetworkMessage) => {
+			this._lastReceivedTime.set(fromId, Date.now());
+			host.send(fromId, ChannelType.UDP, msg);
 		});
 	}
 
 	initializeForClient(client : Netcode) {
-		client.addMessageCallback(NetworkMessageType.PING, (msg : NetworkMessage) => {
+		client.addMessageCallback(NetworkMessageType.PING, (fromId : string, msg : NetworkMessage) => {
 			const seqNum = msg.getSeqNum();
 			if (seqNum > this._lastSent) {
 				console.error("Error: received ping response with future sequence number %d, last sent is %d", seqNum, this._lastSent);
@@ -66,7 +66,7 @@ export class Pinger {
 				this._pingLoss.push(1);
 			}
 			this._lastReceived = Math.max(this._lastReceived, seqNum);
-			this._lastReceivedTime.set(msg.name(), Date.now());
+			this._lastReceivedTime.set(fromId, Date.now());
 			if (seqNum < this._lastSent) {
 				return;
 			}

@@ -2,6 +2,7 @@
 import { game } from 'game'
 import { GameMode, GameState, GameObjectState } from 'game/api'
 import { ComponentType, AttributeType, TeamType } from 'game/component/api'
+import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
@@ -22,7 +23,7 @@ import { Timer } from 'util/timer'
 
 export class PlayerState extends ClientSystem implements System {
 
-	private static readonly _defaultChatColor = "#FFFFFF";
+	private static readonly _defaultChatColor = "#ebebeb";
 
 	private static readonly _disallowRoleChangeStates = new Set([
 		GameState.PRELOAD, GameState.FINISH, GameState.VICTORY, GameState.ERROR
@@ -88,22 +89,37 @@ export class PlayerState extends ClientSystem implements System {
 			has: () => { return this._disconnected; },
 			export: () => { return this._disconnected; },
 			import: (obj : boolean) => { this.setDisconnected(obj); },
+			options: {
+				filters: GameData.tcpFilters,
+			},
 		});
 		this.addProp<number>({
 			export: () => { return this._targetId; },
 			import: (obj : number) => { this._targetId = obj; },
+			options: {
+				filters: GameData.tcpFilters,
+			},
 		});
 		this.addProp<PlayerRole>({
 			export: () => { return this._startingRole; },
 			import: (obj: PlayerRole) => { this.setStartingRole(obj); },
+			options: {
+				filters: GameData.tcpFilters,
+			},
 		});
 		this.addProp<TeamType>({
 			export: () => { return this._team; },
 			import: (obj : number) => { this.setTeam(obj); },
+			options: {
+				filters: GameData.tcpFilters,
+			},
 		});
 		this.addProp<PlayerRole>({
 			export: () => { return this._role; },
 			import: (obj: PlayerRole) => { this.setRole(obj); },
+			options: {
+				filters: GameData.tcpFilters,
+			},
 		});
 	}
 
@@ -236,7 +252,7 @@ export class PlayerState extends ClientSystem implements System {
 	}
 	setTeam(team : TeamType) : void {
 		if (Flags.printDebug.get()) {
-			console.log("%s: assigned to %s", this.name(), TeamType[team]);
+			console.log("%s: assigned to team %s", this.name(), TeamType[team]);
 		}
 
 		if (PlayerState._teamNames.has(team)) {
