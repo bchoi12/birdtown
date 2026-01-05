@@ -54,7 +54,7 @@ export enum GameMode {
 	BUFF_BATTLE,
 	TEAM_DEATHMATCH,
 
-	// TBD
+	// v1.11
 	INVASION,
 }
 

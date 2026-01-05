@@ -11,7 +11,7 @@ import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { NameTag } from 'game/entity/equip/name_tag'
 import { Interactable } from 'game/entity/interactable'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { CollisionCategory, ColorType, MeshType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -98,10 +98,6 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 				profile.vel().x = 0;
 			}
 		});
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.TABLE).toString(),
-		});
-
 		this._subProfile = this._profile.addSubComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
 				let topDim = { x: this._profile.initDim().x, y: 0.5 };
@@ -128,10 +124,6 @@ export class Table extends Interactable implements Entity, EquipEntity, Interact
 				subProfile.uprightStop();
 				profile.setGravityFactor(1);
 			});
-		});
-
-		this._subProfile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.TABLE).toString(),
 		});
 	}
 

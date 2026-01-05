@@ -60,9 +60,6 @@ export abstract class CaliberBase extends Projectile {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.SHOOTER_YELLOW).toString(),
-		})
 	}
 
 	protected override onHit(other : Entity) : void {

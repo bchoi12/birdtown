@@ -10,7 +10,7 @@ import { EntityType } from 'game/entity/api'
 import { Crate } from 'game/entity/interactable/crate'
 import { CubeParticle } from 'game/entity/particle/cube_particle'
 import { TextParticle } from 'game/entity/particle/text_particle'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { ColorType, MaterialType } from 'game/factory/api'
 import { BuffFactory } from 'game/factory/buff_factory'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -30,10 +30,6 @@ export class BuffCrate extends Crate {
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.BUFF_CRATE, entityOptions);
-
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.PICKUP_PURPLE).toString(),
-		});
 
 		this._particleLimiter = new RateLimiter(1200);
 	}

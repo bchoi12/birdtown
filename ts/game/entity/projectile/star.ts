@@ -57,9 +57,6 @@ export class Star extends Projectile {
 				...entityOptions.profileInit,
 			}
 		}));
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.EASTERN_PURPLE).toString(),
-		})
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },

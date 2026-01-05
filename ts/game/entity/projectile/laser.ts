@@ -58,9 +58,6 @@ abstract class LaserBase extends Projectile {
 				...entityOptions.profileInit,
 			},
 		}));
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.SHOOTER_ORANGE).toString(),
-		})
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },

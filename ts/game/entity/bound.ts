@@ -31,10 +31,6 @@ export abstract class BoundBase extends EntityBase implements Entity {
 		this._profile.setVisible(false);
 	}
 
-	protected setMinimapOptions(options : MinimapOptions) : void {
-		this._profile.setMinimapOptions(options);
-	}
-
 	override impactSound() : SoundType { return SoundType.THUD; }
 }
 

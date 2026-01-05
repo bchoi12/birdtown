@@ -39,6 +39,12 @@ export namespace SoundFactory {
 				spatialSound: true,
 			},
 		}],
+		[SoundType.BIRD_THUD, {
+			path: "bird_thud.mp3",
+			options: {
+				spatialSound: true,
+			}
+		}],
 		[SoundType.BLAST, {
 			path: "blast.mp3",
 			options: {
@@ -199,12 +205,6 @@ export namespace SoundFactory {
 			options: {
 				spatialSound: true,
 			},
-		}],
-		[SoundType.PLAYER_THUD, {
-			path: "player_thud.mp3",
-			options: {
-				spatialSound: true,
-			}
 		}],
 		[SoundType.PUNCH, {
 			path: "punch.mp3",

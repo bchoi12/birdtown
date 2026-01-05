@@ -57,9 +57,6 @@ export class DyingStar extends EntityBase {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.BLACK).toString(),
-		})
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },
 			meshFn: (model : Model) => {

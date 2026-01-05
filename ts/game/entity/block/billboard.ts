@@ -51,15 +51,6 @@ export class Billboard extends Block {
 
 	override ready() : boolean { return super.ready() && this._textureType !== TextureType.UNKNOWN; }
 
-	override initialize() : void {
-		super.initialize();
-
-		this._profile.setMinimapOptions({
-			color: this._hexColors.color(ColorCategory.BASE).toString(),
-			depthType: DepthType.FRONT,
-		});
-	}
-
 	override meshType() : MeshType { return MeshType.BILLBOARD; }
 	override thickness() : number { return 0; }
 

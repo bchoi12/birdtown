@@ -3,7 +3,7 @@ import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { Buff, BuffOptions } from 'game/component/buff'
 import { EntityType } from 'game/entity/api'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { BuffType, StatType } from 'game/factory/api'
 
 

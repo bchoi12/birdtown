@@ -6,7 +6,7 @@ import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { BuffType, ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -376,7 +376,7 @@ export abstract class Weapon extends Equip<Player> {
 			this._playReloadSound = true;
 		}
 	}
-	quickReload(millis? : number) : void {
+	quickReload(millis : number) : void {
 		this._bursts = this.getMaxBursts();
 		if (millis <= 0) {
 			this.setWeaponState(WeaponState.IDLE);
@@ -389,14 +389,13 @@ export abstract class Weapon extends Equip<Player> {
 		}
 	}
 
-	hudType() : HudType { return HudType.BULLETS; }
+	override hudType() : HudType { return HudType.BULLETS; }
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
 		hudData.set(this.hudType(), {
 			charging: !this.canUse(),
 			count: this.bursts(),
 			percentGone: 1 - (this.reloading() && !this._interruptible ? this.reloadPercent() : (this.bursts() / this.getMaxBursts())),
-			color: this.clientColorOr(ColorFactory.color(ColorType.WHITE).toString()),
 			keyType: this.useKeyType(),
 		});
 

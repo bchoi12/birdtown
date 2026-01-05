@@ -411,6 +411,7 @@ export enum SoundType {
 
 	BAWK,
 	BIRD_SONG,
+	BIRD_THUD,
 	BLAST,
 	BOLT,
 	BOOM,
@@ -437,7 +438,6 @@ export enum SoundType {
 	LASER,
 	MACHINE_GUN,
 	MINIGUN,
-	PLAYER_THUD,
 	PISTOL,
 	PUNCH,
 	QUACK,

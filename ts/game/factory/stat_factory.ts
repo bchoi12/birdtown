@@ -88,7 +88,7 @@ export namespace StatFactory {
 			[StatType.PROJECTILE_TTL, 550],
 		])],
 		[EntityType.BOOBY_BEAK, new Map([
-			[StatType.CHARGE_DELAY, 300],
+			[StatType.CHARGE_DELAY, 350],
 			[StatType.USE_JUICE, 33],
 		])],
 		[EntityType.CARDINAL_BEAK, new Map([
@@ -100,7 +100,7 @@ export namespace StatFactory {
 			[StatType.USE_JUICE, 50],
 		])],
 		[EntityType.DUCK_BEAK, new Map([
-			[StatType.CHARGE_DELAY, 300],
+			[StatType.CHARGE_DELAY, 350],
 			[StatType.USE_JUICE, 33],
 		])],
 		[EntityType.EAGLE_BEAK, new Map([
@@ -112,7 +112,7 @@ export namespace StatFactory {
 			[StatType.USE_JUICE, 50],
 		])],
 		[EntityType.GOOSE_BEAK, new Map([
-			[StatType.CHARGE_DELAY, 300],
+			[StatType.CHARGE_DELAY, 350],
 			[StatType.USE_JUICE, 33],
 		])],
 		[EntityType.PIGEON_BEAK, new Map([
@@ -120,7 +120,7 @@ export namespace StatFactory {
 			[StatType.USE_JUICE, 100],
 		])],
 		[EntityType.RAVEN_BEAK, new Map([
-			[StatType.CHARGE_DELAY, 300],
+			[StatType.CHARGE_DELAY, 350],
 			[StatType.USE_JUICE, 33],
 		])],
 		[EntityType.ROBIN_BEAK, new Map([

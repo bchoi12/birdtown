@@ -7,7 +7,7 @@ import { Profile } from 'game/component/profile'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Crate } from 'game/entity/interactable/crate'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { BuffType, ColorType, MaterialType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EquipFactory } from 'game/factory/equip_factory'
@@ -50,10 +50,6 @@ export class WeaponCrate extends Crate {
 			export: () => { return this._altEquipType; },
 			import: (obj : EntityType) => { this._altEquipType = obj; },
 		});
-
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.PICKUP_BLUE).toString(),
-		})
 	}
 
 	override ready() : boolean { return super.ready() && this._equipType !== EntityType.UNKNOWN && this._altEquipType !== EntityType.UNKNOWN; }

@@ -42,9 +42,6 @@ export abstract class BoltBase extends Projectile {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.SHOOTER_BLUE).toString(),
-		})
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },

@@ -8,7 +8,7 @@ import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/equip/weapon'
 import { CubeParticle } from 'game/entity/particle/cube_particle'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { ColorType, MaterialType, MeshType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -61,7 +61,6 @@ export class Scouter extends Equip<Player> {
 			charging: !this._weapon.charged(),
 			percentGone: 1 - this._weapon.chargeMillis() / this._weapon.chargedThreshold(),
 			empty: true,
-			color: this.clientColorOr(ColorFactory.color(ColorType.SHOOTER_DARK_ORANGE).toString()),
 			keyType: this.useKeyType(),
 		});
 		return hudData;

@@ -5,7 +5,7 @@ import { Association } from 'game/component/association'
 import { Attributes } from 'game/component/attributes'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { StepData } from 'game/game_object'
 import { BuffType, StatType } from 'game/factory/api'
 
@@ -95,9 +95,11 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 	override getHudData() : Map<HudType, HudOptions> {
 		let hudData = super.getHudData();
+		if (this.allTypes().has(EntityType.WEAPON)) {
+			return hudData;
+		}
 
 		const hudType = this.hudType();
-
 		if (hudType !== HudType.UNKNOWN) {
 			hudData.set(this.hudType(), {
 				charging: !this.canUse(),

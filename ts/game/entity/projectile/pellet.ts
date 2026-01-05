@@ -53,9 +53,6 @@ export class Pellet extends Projectile {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.WESTERN_YELLOW).toString(),
-		});
 
 		this._model = this.addComponent<Model>(new Model({
 			readyFn: () => { return this._profile.ready(); },

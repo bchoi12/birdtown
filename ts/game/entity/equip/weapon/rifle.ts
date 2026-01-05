@@ -37,7 +37,7 @@ export class Rifle extends Weapon {
 	override initialize() : void {
 		super.initialize();
 
-		this.quickReload();
+		this.quickReload(0);
 	}
 
 	protected override simulateUse(uses : number) : void {

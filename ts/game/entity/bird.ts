@@ -2,7 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import * as MATTER from 'matter-js'
 
 import { game } from 'game'
-import { GameState, GameObjectState } from 'game/api'
+import { GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { AssociationType, AttributeType, ComponentType, EmotionType } from 'game/component/api'
 import { Association } from 'game/component/association'
@@ -14,7 +14,7 @@ import { Model } from 'game/component/model'
 import { Profile } from 'game/component/profile'
 import { Resources } from 'game/component/resources'
 import { ChangeLog } from 'game/component/util/change_log'
-import { Entity, EntityBase, EntityOptions, EquipEntity, InteractEntity } from 'game/entity'
+import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType, BirdType, BoneType } from 'game/entity/api'
 import { Crate } from 'game/entity/interactable/crate'
 import { Equip, AttachType } from 'game/entity/equip'
@@ -22,7 +22,6 @@ import { Beak } from 'game/entity/equip/beak'
 import { Bubble } from 'game/entity/equip/bubble'
 import { Headwear } from 'game/entity/equip/headwear'
 import { NameTag } from 'game/entity/equip/name_tag'
-import { TextParticle } from 'game/entity/particle/text_particle'
 import { BuffType, CollisionCategory, ColorType, MaterialType, MeshType, StatType, TextureType } from 'game/factory/api'
 import { DepthType, SoundType } from 'game/factory/api'
 import { BodyFactory } from 'game/factory/body_factory'
@@ -36,7 +35,6 @@ import { Transforms } from 'game/util/transforms'
 import { settings } from 'settings'
 
 import { ui } from 'ui'
-import { HudType, HudOptions, KeyType, KeyState, InfoType, TooltipType } from 'ui/api'
 
 import { Box2 } from 'util/box'
 import { Buffer } from 'util/buffer'
@@ -48,7 +46,7 @@ import { Optional } from 'util/optional'
 import { RateLimiter } from 'util/rate_limiter'
 import { SavedCounter } from 'util/saved_counter'
 import { Timer} from 'util/timer'
-import { Vec, Vec2, Vec3 } from 'util/vector'
+import { Vec, Vec2 } from 'util/vector'
 
 enum AnimationGroup {
 	UNKNOWN,
@@ -68,46 +66,43 @@ enum Material {
 	EYE = "eye",
 }
 
-export class Player extends EntityBase implements EquipEntity, InteractEntity {
+export abstract class Bird extends EntityBase implements EquipEntity {
 	// blockdudes3 = 18.0
-	private static readonly _sideAcc = 0.5;
-	private static readonly _jumpVel = 0.33;
-	private static readonly _maxHorizontalVel = 0.5;
-	private static readonly _maxWalkingVel = 0.25;
-	private static readonly _maxVerticalVel = 0.6;
-	private static readonly _maxFloatingVel = 0.1;
-	private static readonly _minSpeed = 5e-4;
+	protected static readonly _sideAcc = 0.5;
+	protected static readonly _jumpVel = 0.33;
+	protected static readonly _maxHorizontalVel = 0.5;
+	protected static readonly _maxWalkingVel = 0.25;
+	protected static readonly _maxVerticalVel = 0.6;
+	protected static readonly _maxFloatingVel = 0.1;
+	protected static readonly _minSpeed = 5e-4;
 
-	private static readonly _turnMultiplier = 3.0;
-	private static readonly _fallMultiplier = 1.5;
-	private static readonly _lowSpeedMultiplier = 1.5;
-	private static readonly _lowSpeedThreshold = 0.05;
+	protected static readonly _turnMultiplier = 3.0;
+	protected static readonly _fallMultiplier = 1.5;
+	protected static readonly _lowSpeedMultiplier = 1.5;
+	protected static readonly _lowSpeedThreshold = 0.05;
 
-	private static readonly _friction = 20;
-	private static readonly _airResistance = 5;
+	protected static readonly _friction = 20;
+	protected static readonly _airResistance = 5;
 
-	private static readonly _rotationOffset = -0.1;
-	private static readonly _jumpGracePeriod = 160;
+	protected static readonly _rotationOffset = -0.1;
+	protected static readonly _jumpGracePeriod = 160;
 
-	private static readonly _knockbackRecoveryTime = 250;
-	private static readonly _interactCheckInterval = 100;
-	private static readonly _heartInterval = 1000;
-	private static readonly _damageFlashTime = 160;
-	private static readonly _reviveTime = 5000;
-	private static readonly _sweatInterval = 4000;
-	private static readonly _walkSmokeInterval = 150;
+	protected static readonly _knockbackRecoveryTime = 250;
+	protected static readonly _damageFlashTime = 160;
+	protected static readonly _sweatInterval = 4000;
+	protected static readonly _walkSmokeInterval = 150;
 
-	private static readonly _headDim = {x: 0.96, y: 1.06};
-	private static readonly _sweatDegs = [40, 50, 130, 140];
+	protected static readonly _headDim = {x: 0.96, y: 1.06};
+	protected static readonly _sweatDegs = [40, 50, 130, 140];
 
-	private static readonly _animations = new Map<AnimationGroup, Set<string>>([
+	protected static readonly _animations = new Map<AnimationGroup, Set<string>>([
 		[AnimationGroup.MOVEMENT, new Set([Animation.IDLE, Animation.IDLE_TUCK, Animation.WALK, Animation.JUMP])],
 	]);
-	private static readonly _controllableBones = new Set<string>([
+	protected static readonly _controllableBones = new Set<string>([
 		BoneType.ARM, BoneType.ARMATURE, BoneType.BACK, BoneType.BEAK, BoneType.EYE, BoneType.FOREHEAD, BoneType.HEAD, BoneType.NECK,
 	]);
 
-	private static readonly _birdTextures = new Map<BirdType, TextureType>([
+	protected static readonly _birdTextures = new Map<BirdType, TextureType>([
 		[BirdType.BOOBY, TextureType.BIRD_BOOBY],
 		[BirdType.CARDINAL, TextureType.BIRD_CARDINAL],
 		[BirdType.CHICKEN, TextureType.BIRD_CHICKEN],
@@ -119,7 +114,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		[BirdType.RAVEN, TextureType.BIRD_RAVEN],
 		[BirdType.ROBIN, TextureType.BIRD_ROBIN],
 	]);
-	private static readonly _eyeTextures = new Map<BirdType, TextureType>([
+	protected static readonly _eyeTextures = new Map<BirdType, TextureType>([
 		[BirdType.BOOBY, TextureType.BLACK_EYE],
 		[BirdType.CARDINAL, TextureType.WHITE_EYE],
 		[BirdType.CHICKEN, TextureType.BLACK_EYE],
@@ -132,7 +127,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		[BirdType.ROBIN, TextureType.WHITE_EYE],
 	]);
 
-	private static readonly _beakTypes = new Map<BirdType, EntityType>([
+	protected static readonly _beakTypes = new Map<BirdType, EntityType>([
 		[BirdType.BOOBY, EntityType.BOOBY_BEAK],
 		[BirdType.CARDINAL, EntityType.CARDINAL_BEAK],
 		[BirdType.CHICKEN, EntityType.CHICKEN_BEAK],
@@ -144,7 +139,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		[BirdType.RAVEN, EntityType.RAVEN_BEAK],
 		[BirdType.ROBIN, EntityType.ROBIN_BEAK],
 	]);
-	private static readonly _hairTypes = new Map<BirdType, EntityType>([
+	protected static readonly _hairTypes = new Map<BirdType, EntityType>([
 		[BirdType.BOOBY, EntityType.BOOBY_HAIR],
 		[BirdType.CARDINAL, EntityType.CARDINAL_HAIR],
 		[BirdType.CHICKEN, EntityType.CHICKEN_HAIR],
@@ -155,45 +150,39 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	]);
 
 	// TODO: package in struct, Pose, PlayerPose?
-	private _armDir : Vec2;
-	private _armTransforms : Transforms;
-	private _baseMaterial : Optional<BABYLON.PBRMaterial>;
-	private _headDir : Vec2;
-	private _boneOrigins : Map<BoneType, BABYLON.Vector3>;
-	private _eyeShifter : MaterialShifter;
+	protected _armDir : Vec2;
+	protected _armTransforms : Transforms;
+	protected _baseMaterial : Optional<BABYLON.PBRMaterial>;
+	protected _headDir : Vec2;
+	protected _boneOrigins : Map<BoneType, BABYLON.Vector3>;
+	protected _eyeShifter : MaterialShifter;
 
-	private _canJump : boolean;
-	private _canJumpTimer : Timer;
-	private _doubleJumps : number;
-	private _dead : boolean;
-	private _damageCounter : SavedCounter;
-	private _damageTimer : Timer;
-	private _equipType : EntityType;
-	private _altEquipType : EntityType;
-	private _deadTracker : ChangeTracker<boolean>;
-	private _groundedTracker : ChangeTracker<boolean>;
-	private _heartRateLimiter : RateLimiter;
-	private _nameTag : NameTag;
-	private _reviverId : number;
-	private _sweatRateLimiter : RateLimiter;
-	private _walkSmokeRateLimiter : RateLimiter;
-	private _nearestInteractable : Optional<InteractEntity>;
-	private _interactRateLimiter : RateLimiter;
+	protected _canJump : boolean;
+	protected _canJumpTimer : Timer;
+	protected _doubleJumps : number;
+	protected _dead : boolean;
+	protected _damageCounter : SavedCounter;
+	protected _damageTimer : Timer;
+	protected _equipType : EntityType;
+	protected _altEquipType : EntityType;
+	protected _deadTracker : ChangeTracker<boolean>;
+	protected _groundedTracker : ChangeTracker<boolean>;
+	protected _nameTag : NameTag;
+	protected _sweatRateLimiter : RateLimiter;
+	protected _walkSmokeRateLimiter : RateLimiter;
 
-	private _association : Association;
-	private _attributes : Attributes;
-	private _buffs : Buffs;
-	private _entityTrackers : EntityTrackers;
-	private _expression : Expression;
-	private _model : Model;
-	private _profile : Profile;
-	private _resources : Resources;
-	private _headSubProfile : Profile;
+	protected _association : Association;
+	protected _attributes : Attributes;
+	protected _buffs : Buffs;
+	protected _entityTrackers : EntityTrackers;
+	protected _expression : Expression;
+	protected _model : Model;
+	protected _profile : Profile;
+	protected _resources : Resources;
+	protected _headSubProfile : Profile;
 
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.PLAYER, entityOptions);
-
-		this.addType(EntityType.INTERACTABLE);
+	constructor(type : EntityType, entityOptions : EntityOptions) {
+		super(type, entityOptions);
 
 		this._armDir = Vec2.i();
 		this._armTransforms = new Transforms();
@@ -214,62 +203,12 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		});
 		this._equipType = EntityType.UNKNOWN;
 		this._altEquipType = EntityType.UNKNOWN;
-		this._deadTracker = new ChangeTracker(() => {
-			return this.dead();
-		}, (dead : boolean) => {
-			if (dead) {
-				const x = this._profile.vel().x;
-				const sign = x >= 0 ? -1 : 1;
-
-				this._profile.resetInertia();
-				this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
-				this._profile.setAcc({x: 0});
-				this._profile.addVel({y: 0.7 * this.getJumpVel()});
-				this.emote(EmotionType.DEAD);
-			} else {
-				this.getUp();
-			}
-
-			this.setAttribute(AttributeType.LIVING, !dead);
-		});
-		this._groundedTracker = new ChangeTracker(() => {
-			return this.getAttribute(AttributeType.GROUNDED);
-		}, (grounded : boolean) => {
-			if (this._model.hasMesh()
-				&& grounded
-				&& !this.dead()) {
-				for (let i of [-1, 1]) {
-					const scale = 0.25 + 0.1 * Math.random();
-					this.addEntity(EntityType.SMOKE_PARTICLE, {
-						offline: true,
-						ttl: 500,
-						profileInit: {
-							pos: this._profile.pos().clone().sub({ y: this._profile.dim().y / 2 - 0.3 }),
-							vel: { x: 0.05 * i * (1 + 0.5 * Math.random()) },
-							acc: { x: -0.1 * i, y: 0.1 },
-							scaling: { x: scale, y: scale },
-						},
-						modelInit: {
-							transforms: {
-								translate: { z: this._model.mesh().position.z + 0.3 },
-							}
-						}
-					});
-				}
-			}
-		});
-		this._heartRateLimiter = new RateLimiter(Player._heartInterval);
+		this._deadTracker = new ChangeTracker(() => { return this.dead(); }, (dead : boolean) => { this.onDead(dead) });
+		this._groundedTracker = new ChangeTracker(() => { return this.grounded(); }, (grounded : boolean) => { this.onGrounded(grounded); });
 		this._nameTag = null;
-		this._reviverId = 0;
-		this._sweatRateLimiter = new RateLimiter(Player._sweatInterval);
-		this._walkSmokeRateLimiter = new RateLimiter(Player._walkSmokeInterval);
-		this._nearestInteractable = new Optional();
-		this._interactRateLimiter = new RateLimiter(Player._interactCheckInterval);
+		this._sweatRateLimiter = new RateLimiter(Bird._sweatInterval);
+		this._walkSmokeRateLimiter = new RateLimiter(Bird._walkSmokeInterval);
 
-		this.addProp<number>({
-			export: () => { return this._doubleJumps; },
-			import: (obj : number) => { this._doubleJumps = obj; },
-		});
 		this.addProp<boolean>({
 			export: () => { return this._dead; },
 			import: (obj : boolean) => { this._dead = obj; },
@@ -282,20 +221,12 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			export: () => { return this._altEquipType; },
 			import: (obj : EntityType) => { this._altEquipType = obj; },
 		});
-		this.addProp<GameObjectState>({
-			export: () => { return this.state(); },
-			import: (obj : GameObjectState) => { this.setState(obj); },
-		});
-		this.addProp<number>({
-			export: () => { return this._reviverId; },
-			import: (obj : number) => { this.importReviverId(obj); },
-		});
 		this.addProp<number>({
 			has: () => { return this._damageCounter.count() > 0; },
 			export: () => { return this._damageCounter.count(); },
 			import: (obj : number) => {
 				this._damageCounter.set(obj);
-				this.damageEffect(this._damageCounter.syncAndPop());
+				this.onDamage(this._damageCounter.syncAndPop());
 			},
 		});
 
@@ -338,14 +269,14 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._profile.setAcc({x: 0, y: 0});
 
 		this._profile.setLimitFn((profile : Profile) => {
-			let maxHorizontalVel = profile.knockbackMillis() > 0 ? Player._maxHorizontalVel : Player._maxWalkingVel;
+			let maxHorizontalVel = profile.knockbackMillis() > 0 ? Bird._maxHorizontalVel : Bird._maxWalkingVel;
 			maxHorizontalVel *= this.getSpeedMultiplier();
 
 			if (Math.abs(profile.vel().x) > maxHorizontalVel) {
 				profile.vel().x = Math.sign(profile.vel().x) * maxHorizontalVel;
 			}
 
-			let maxVerticalVel = this.getAttribute(AttributeType.BUBBLED) ? Player._maxFloatingVel : Player._maxVerticalVel;
+			let maxVerticalVel = this.getAttribute(AttributeType.BUBBLED) ? Bird._maxFloatingVel : Bird._maxVerticalVel;
 			if (this.getAttribute(AttributeType.UNDERWATER)) {
 				maxVerticalVel *= this._profile.vel().y > 0 ? 0.7 : 0.3;
 			}
@@ -363,7 +294,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			},
 			init: {
 				pos: {x: 0, y: 0},
-				dim: Player._headDim,
+				dim: Bird._headDim,
 			},
 			prePhysicsFn: (profile : Profile) => { profile.snapWithOffset(this._profile, { y: 0.22 }); },
 		}));
@@ -380,10 +311,10 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 						if (mesh.material.name === Material.BASE) {
 							this._baseMaterial.set(mesh.material);
-							const texture = Player._birdTextures.get(this.birdType());
+							const texture = Bird._birdTextures.get(this.birdType());
 							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(texture));
 						} else if (mesh.material.name === Material.EYE) {
-							const texture = Player._eyeTextures.get(this.birdType());
+							const texture = Bird._eyeTextures.get(this.birdType());
 
 							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(texture));
 							mesh.material.albedoTexture.hasAlpha = true;
@@ -403,7 +334,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					});
 
 					result.animationGroups.forEach((animationGroup : BABYLON.AnimationGroup) => {
-						const movementAnimations = Player._animations.get(AnimationGroup.MOVEMENT);
+						const movementAnimations = Bird._animations.get(AnimationGroup.MOVEMENT);
 						if (movementAnimations.has(animationGroup.name)) {
 							animationGroup.enableBlending = true;
 							animationGroup.blendingSpeed = 0.25;
@@ -416,7 +347,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 						model.registerBone(bone);
 					});
 
-					Player._controllableBones.forEach((name : string) => {
+					Bird._controllableBones.forEach((name : string) => {
 						if (!model.hasBone(name)) {
 							console.error("Error: missing bone %s for %s", name, this.name());
 							return;
@@ -426,7 +357,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					})
 
 					let armature = model.getBone(BoneType.ARMATURE).getTransformNode();
-					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + Player._rotationOffset, 0);
+					armature.rotation = new BABYLON.Vector3(0, Math.PI / 2 + Bird._rotationOffset, 0);
 					const dim = this._profile.initDim();
 					armature.position.y -= dim.y / 2;
 
@@ -443,14 +374,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		}));
 	}
 
-	override ready() : boolean {
-		return super.ready() && this.hasClientId() && game.tablets().hasTablet(this.clientId()) && game.tablet(this.clientId()).isSetup();
-	}
-
 	override initialize() : void {
 		super.initialize();
-
-		game.keys(this.clientId()).setTargetEntity(this);
 
 		const [nameTag, hasNameTag] = this.addEntity<NameTag>(EntityType.NAME_TAG, {
 			associationInit: {
@@ -470,7 +395,12 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		}
 	}
 
-	displayName() : string { return game.tablet(this.clientId()).displayName(); }
+	abstract displayName() : string;
+	protected abstract walkDir() : number;
+	protected abstract jumping() : boolean;
+	protected abstract doubleJumping() : boolean;
+	protected abstract reorient() : void;
+
 	override setTeam(team : number) : void {
 		super.setTeam(team);
 
@@ -478,52 +408,23 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			this._nameTag.forcePointerColor(game.tablet(this.clientId()).color());
 		}
 	}
-	revive() : void {
-		this.setAttribute(AttributeType.GROUNDED, true);
-		this._resources.setHealth(Math.min(300, Math.ceil(0.5 * this.maxHealth())));
-		this.getUp();
 
-		const [bubble, hasBubble] = this.addEntity<Bubble>(EntityType.BUBBLE, {
-			associationInit: {
-				owner: this,
-			},
-			clientId: this.clientId(),
-			levelVersion: game.level().version(),
+	override dead() : boolean { return this._dead; }
+
+	// TODO: if has shields, make some other sound?
+	override impactSound() : SoundType { return SoundType.BIRD_THUD; }
+
+	override takeDamage(amount : number, from? : Entity, hitEntity? : Entity) : void {
+		this._entityTrackers.getEntities<Beak>(EntityType.BEAK).execute((beak : Beak) => {
+			beak.takeDamage(amount, from, hitEntity);
 		});
-		if (hasBubble) {
-			bubble.hardPop();
+		if (this.isSource() && amount > 0) {
+			this._damageCounter.add(amount);
+			this.onDamage(amount);
 		}
+		super.takeDamage(amount, from, hitEntity);
 	}
-	private cancelRevive() : void {
-		this.setAttribute(AttributeType.REVIVING, false);
 
-		const [reviver, hasReviver] = game.entities().getEntity(this._reviverId);
-		if (hasReviver && reviver.clientIdMatches()) {
-			ui.hideTooltip(TooltipType.REVIVING);
-		}
-
-		this._reviverId = 0;
-		if (this.clientIdMatches()) {
-			ui.hideTooltip(TooltipType.BEING_REVIVED);
-		}
-	}
-	private importReviverId(id : number) : void {
-		if (this._reviverId === id) {
-			return;
-		}
-
-		const [reviver, hasReviver] = game.entities().getEntity(this._reviverId);
-		if (hasReviver && reviver.clientIdMatches()) {
-			ui.hideTooltip(TooltipType.REVIVING);
-		}
-
-		this._reviverId = id;
-	}
-	onStartRound() : void {
-		this.setAttribute(AttributeType.REVIVING, false);
-		this.fullHeal();
-		this._buffs.refresh();
-	}
 	respawn(spawn : Vec2) : void {
 		if (this.isSource() || this.clientIdMatches()) {
 			this.setAttribute(AttributeType.GROUNDED, false);
@@ -541,7 +442,6 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._buffs.refresh();
 	}
 	getUp() : void {
-		this.cancelRevive();
 		this._dead = false;
 		this._expression.reset();
 
@@ -553,23 +453,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this.model().rotation().z = 0;
 		this._profile.upright();
 	}
-	floatRespawn(spawn : Vec2) : void {
-		this.respawn(spawn);
+	grounded() : boolean { return this.getAttribute(AttributeType.GROUNDED); }
 
-		if (this.isSource()) {
-			this._entityTrackers.clearEntityType(EntityType.BUBBLE);
-			const [bubble, hasBubble] = this.addEntity<Bubble>(EntityType.BUBBLE, {
-				associationInit: {
-					owner: this,
-				},
-				clientId: this.clientId(),
-				levelVersion: game.level().version(),
-			});
-			if (hasBubble) {
-				this._entityTrackers.trackEntity<Bubble>(EntityType.BUBBLE, bubble);
-			}
-		}
-	}
 	lastDamager(millis : number) : [ChangeLog, boolean] { return this._resources.lastDamager(millis); }
 	fullHeal() : void {
 		this._resources.fullHeal();
@@ -578,9 +463,11 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	die() : void {
 		this.setAttribute(AttributeType.INVINCIBLE, false);
 		this.addShield(-this.shield());
-		this.takeDamage(this._resources.health(), this);
+
+		if (!this._resources.dead()) {
+			this.takeDamage(this._resources.health(), this);
+		}
 	}
-	override dead() : boolean { return this._dead; }
 
 	birdType() : BirdType { return game.tablet(this.clientId()).birdType(); }
 	headAngle() : number { return this._headSubProfile.angle(); }
@@ -589,8 +476,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 	equipType() : EntityType { return this._equipType; }
 	altEquipType() : EntityType { return this._altEquipType; }
-	equips() : CircleMap<number, Equip<Player>> { return this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP); }
-	equip(equip : Equip<Player>) : void {
+	equips() : CircleMap<number, Equip<Bird>> { return this._entityTrackers.getEntities<Equip<Bird>>(EntityType.EQUIP); }
+	equip(equip : Equip<Bird>) : void {
 		this._model.onLoad((m : Model) => {
 			let equipModel = equip.model();
 
@@ -667,7 +554,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 	}
 	createEquips(equipType : EntityType, altEquipType? : EntityType) : void {
 		this._entityTrackers.clearEntityType(EntityType.EQUIP);
-		const [equip, hasEquip] = this.addEntity<Equip<Player>>(equipType, {
+		const [equip, hasEquip] = this.addEntity<Equip<Bird>>(equipType, {
 			associationInit: {
 				owner: this,
 			},
@@ -675,12 +562,12 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			levelVersion: game.level().version(),
 		});
 		if (hasEquip) {
-			this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, equip);
+			this._entityTrackers.trackEntity<Equip<Bird>>(EntityType.EQUIP, equip);
 			this._equipType = equipType;
 		}
 
 		if (altEquipType) {
-			const [altEquip, hasAltEquip] = this.addEntity<Equip<Player>>(altEquipType, {
+			const [altEquip, hasAltEquip] = this.addEntity<Equip<Bird>>(altEquipType, {
 				associationInit: {
 					owner: this,
 				},
@@ -688,62 +575,13 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				levelVersion: game.level().version(),
 			});
 			if (hasAltEquip) {
-				this._entityTrackers.trackEntity<Equip<Player>>(EntityType.EQUIP, altEquip);
+				this._entityTrackers.trackEntity<Equip<Bird>>(EntityType.EQUIP, altEquip);
 				this._altEquipType = altEquipType;
 			}
 		}
 	}
 	mergeArmTransforms(transforms : Transforms) : void {
 		this._armTransforms.merge(transforms);
-	}
-
-	override cameraOffset() : Vec3 {
-		let pos = super.cameraOffset();
-		this.equips().execute((equip : Equip<Player>) => {
-			pos.add(equip.cameraOffset());
-		});
-		this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).executeFirst((bubble : Bubble) => {
-			pos.add(bubble.cameraOffset());
-		}, (bubble : Bubble) => {
-			return true;
-		});
-		return pos;
-	}
-
-	// TODO: if has shields, make some other sound
-	override impactSound() : SoundType { return SoundType.PLAYER_THUD; }
-
-	override takeDamage(amount : number, from? : Entity, hitEntity? : Entity) : void {
-		this._entityTrackers.getEntities<Beak>(EntityType.BEAK).execute((beak : Beak) => {
-			beak.takeDamage(amount, from, hitEntity);
-		});
-		if (this.isSource() && amount > 0) {
-			this._damageCounter.add(amount);
-			this.damageEffect(amount);
-		}
-		super.takeDamage(amount, from, hitEntity);
-	}
-	private damageEffect(dmg : number) : void {
-		if (dmg <= 0) {
-			return;
-		}
-
-		const time = Fns.clamp(1, 0.5 * Math.ceil(Math.min(80, dmg) / 10), 2) * Player._damageFlashTime; 
-		if (!this._damageTimer.hasTimeLeft() || time > this._damageTimer.millisLeft()) {
-			this._damageTimer.start(time, () => {
-				this.setDamageEffect(0);
-			});
-		}
-
-		if (this.isLakituTarget()) {
-			game.lakitu().shake(time);
-			ui.flashScreen(ColorFactory.toString(ColorType.BLACK), 3 * time);
-		}
-	}
-	private setDamageEffect(percent : number) : void {
-		if (this._baseMaterial.has()) {
-			this._baseMaterial.get().emissiveColor = new BABYLON.Color3(percent, percent, percent);
-		}
 	}
 
 	override preUpdate(stepData : StepData) : void {
@@ -754,10 +592,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			// Out of bounds
 			if (this._profile.pos().y < game.level().bounds().min.y) {
 				this.die();
-			}
-
-			if (this._resources.dead()) {
-				this._dead = true;
+			} else if (this._resources.dead()) {
+				this.die();
 			}
 		}
 
@@ -768,41 +604,35 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		super.update(stepData);
 		let millis = stepData.millis;
 
-		if (this._damageTimer.hasTimeLeft() && this._damageTimer.millisElapsed() < 30) {	
-			millis *= 0.5;
-		}
-
 		// Gravity
-		const fastFall = !this.getAttribute(AttributeType.GROUNDED) && this._profile.vel().y < 0 && !this.getAttribute(AttributeType.UNDERWATER);
-		let gravityFactor = fastFall ? Player._fallMultiplier : 1;
-		this._profile.setGravityFactor(gravityFactor);
+		const fastFall = !this.grounded() && this._profile.vel().y < 0 && !this.getAttribute(AttributeType.UNDERWATER);
+		this._profile.setGravityFactor(fastFall ? Bird._fallMultiplier : 1);
 
 		if (!this.dead()) {
 			// HACK to fix elusive netcode race condition causing players to tilt
 			this._profile.upright();
 
-			let sideAcc = 0;
-			if (this.key(KeyType.LEFT, KeyState.DOWN)) {
-				sideAcc = -Player._sideAcc * this.getSpeedMultiplier();
-			} else if (this.key(KeyType.RIGHT, KeyState.DOWN)) {
-				sideAcc = Player._sideAcc * this.getSpeedMultiplier();
-			}
+			const walkDir = this.walkDir();
+			if (walkDir === 0) {
+				this._profile.setAcc({ x: 0 });
+			} else {
+				let sideAcc = walkDir * Bird._sideAcc * this.getSpeedMultiplier();
 
-			// Accel multipliers
-			if (sideAcc !== 0 && this._profile.knockbackMillis() === 0) {
-				const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
-				const sideSpeed = Math.abs(this._profile.vel().x);
+				if (this._profile.knockbackMillis() <= 0) {
+					const turning = Math.sign(this._profile.acc().x) === -Math.sign(this._profile.vel().x);
+					const sideSpeed = Math.abs(this._profile.vel().x);
 
-				if (turning) {
-					sideAcc *= Player._turnMultiplier;
-				} else if (sideSpeed < Player._lowSpeedThreshold) {
-					sideAcc *= (1 + Player._lowSpeedThreshold - sideSpeed) * Player._lowSpeedMultiplier;
+					if (turning) {
+						sideAcc *= Bird._turnMultiplier;
+					} else if (sideSpeed < Bird._lowSpeedThreshold) {
+						sideAcc *= (1 + Bird._lowSpeedThreshold - sideSpeed) * Bird._lowSpeedMultiplier;
+					}
 				}
+				this._profile.setAcc({ x: sideAcc });
 			}
-			this._profile.setAcc({ x: sideAcc });
 
 			// Compute head and arm directions
-			this.recomputeDir(this.inputDir());
+			this.reorient();
 			this._headSubProfile.setAngle(this._headDir.angleRad());
 
 			// Check for actions during grounded changes
@@ -813,13 +643,13 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				this._doubleJumps = this.getStat(StatType.DOUBLE_JUMPS);
 			}
 			if (this._canJump && this._canJumpTimer.hasTimeLeft()) {
-				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
+				if (this.jumping()) {
 					this._profile.jump(Math.max(this._profile.vel().y, this.getJumpVel()));
 					this._canJump = false;
 					this._canJumpTimer.reset();
 				}
-			} else if (this._doubleJumps > 0) {
-				if (this.key(KeyType.JUMP, KeyState.PRESSED) && this._profile.vel().y < this.getJumpVel()) {
+			} else if (this.doubleJumping()) {
+				if (this._doubleJumps > 0 && this._profile.vel().y < this.getJumpVel()) {
 					this._profile.jump(this.getJumpVel());
 
 					if (!this.getAttribute(AttributeType.UNDERWATER)) {
@@ -827,48 +657,19 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 					}
 				}
 			}
-
-			if (this.getAttribute(AttributeType.BUBBLED) && this._entityTrackers.hasEntityType(EntityType.BUBBLE)) {
-				if (this.key(KeyType.JUMP, KeyState.DOWN)) {
-					this._entityTrackers.getEntities<Bubble>(EntityType.BUBBLE).execute((bubble : Bubble) => {
-						bubble.pop();
-					});
-				} else {
-					if (this.isLakituTarget()
-						&& !this.getAttribute(AttributeType.GROUNDED)
-						&& this.clientIdMatches()
-						&& game.controller().gameState() === GameState.GAME) {
-						ui.showTooltip(TooltipType.BUBBLE, {});
-					}
-				}
-			} else if (this.isLakituTarget() && this.clientIdMatches() || this.getAttribute(AttributeType.GROUNDED)) {
-				ui.hideTooltip(TooltipType.BUBBLE);
-			}
-		} else {
-			if (this.getAttribute(AttributeType.REVIVING)) {
-				let amount = this._resources.maxHealth() * millis / Player._reviveTime;
-
-				const [reviver, hasReviver] = game.entities().getEntity(this._reviverId);
-				if (hasReviver) {
-					if (reviver.hasStat(StatType.REVIVE_BOOST)) {
-						amount *= Math.max(0.1, 1 + reviver.getStat(StatType.REVIVE_BOOST));
-					}					
-				}
-				this.heal(amount);
-			}
 		}
 
 		// Friction and air resistance
-		if (Math.abs(this._profile.vel().x) < Player._minSpeed
-			|| this._profile.acc().x === 0 && Math.abs(this._profile.vel().x) < 10 * Player._minSpeed) {
+		if (Math.abs(this._profile.vel().x) < Bird._minSpeed
+			|| this._profile.acc().x === 0 && Math.abs(this._profile.vel().x) < 10 * Bird._minSpeed) {
 			this._profile.setVel({x: 0});
 		} else if (this._profile.knockbackMillis() === 0
 			&& (this._profile.acc().x === 0 || Math.sign(this._profile.acc().x) !== Math.sign(this._profile.vel().x))) {
 			let sideVel = this._profile.vel().x;
-			if (this.getAttribute(AttributeType.GROUNDED)) {
-				sideVel *= 1 / (1 + Player._friction * millis / 1000);
+			if (this.grounded()) {
+				sideVel *= 1 / (1 + Bird._friction * millis / 1000);
 			} else {
-				sideVel *= 1 / (1 + Player._airResistance * millis / 1000);
+				sideVel *= 1 / (1 + Bird._airResistance * millis / 1000);
 			}
 			this._profile.setVel({x: sideVel });
 		}
@@ -886,7 +687,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 			if (collision.normal.y > 0.8 && this._profile.overlap(other.profile()).x > 0.1) {
 				if (!this._canJump && this._profile.vel().y < -0.1) {
-					const volume = Fns.interp(InterpType.SQUARE, Fns.normalizeRange(-0.1, this._profile.vel().y, -Player._maxVerticalVel));
+					const volume = Fns.interp(InterpType.SQUARE, Fns.normalizeRange(-0.1, this._profile.vel().y, -Bird._maxVerticalVel));
 					this.soundPlayer().playFromSelf(SoundType.FOOTSTEP, {
 						volume: settings.soundVolume() * volume,
 					});
@@ -894,7 +695,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 
 				this._canJump = true;
 				this._doubleJumps = this.getStat(StatType.DOUBLE_JUMPS);
-				this._canJumpTimer.start(Player._jumpGracePeriod);
+				this._canJumpTimer.start(Bird._jumpGracePeriod);
 			}
 		}
 	}
@@ -903,106 +704,14 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		super.postPhysics(stepData);
 
 		const millis = stepData.millis;
-		const realMillis = stepData.realMillis;
 
 		if (this.isSource() || this.clientIdMatches()) {
 			this.setAttribute(AttributeType.GROUNDED, this._canJumpTimer.millisLeft() > 0);
 		}
 
-		// Check for nearby interactables
-		if (this._interactRateLimiter.check(realMillis)) {
-			// Need to use render position for circular levels
-			const pos = this._profile.pos();
-			const width = this._profile.width();
-			const height = this._profile.height();
-			const bounds = MATTER.Bounds.create([
-				{ x: pos.x - width / 2 - 1, y: pos.y - height / 2 - 1 },
-				{ x: pos.x + width / 2 + 1, y: pos.y - height / 2 - 1 },
-				{ x: pos.x + width / 2 + 1, y: pos.y + height / 2 },
-				{ x: pos.x - width / 2 - 1, y: pos.y + height / 2 },
-			]);
-			const bodies = MATTER.Query.region(game.physics().world().bodies, bounds);
-
-			let nearestInteractable : InteractEntity = null;
-			let currentDistSq : number = null;
-			for (let i = 0; i < bodies.length; ++i) {
-				const [entity, ok] = game.physics().queryEntity(bodies[i]);
-				if (!ok || !entity.hasType(EntityType.INTERACTABLE) || this.id() === entity.id()) {
-					continue;
-				}
-				const interactable = <InteractEntity>entity;
-				const distSq = pos.distSq(entity.profile().pos());
-				if (nearestInteractable === null || distSq < currentDistSq) {
-					nearestInteractable = interactable;
-					currentDistSq = distSq
-				}
-			}
-
-			// Swap nearest interactable, if any.
-			if (this._nearestInteractable.has()) {
-				this._nearestInteractable.get().setInteractableWith(this, false);
-				this._nearestInteractable.clear();
-			}
-			if (nearestInteractable !== null) {
-				nearestInteractable.setInteractableWith(this, true);
-				this._nearestInteractable.set(nearestInteractable);
-			}
-		}
-
-		// Interact with stuff
-		// TODO: put in update?
-		if (this._nearestInteractable.has()
-			&& this._nearestInteractable.get().canInteractWith(this)
-			&& this.key(KeyType.INTERACT, KeyState.PRESSED)) {
-			this._nearestInteractable.get().interactWith(this);
-			this._interactRateLimiter.prime();
-		}
-
-		const healthPercent = this.healthPercent();
-		if (this.getAttribute(AttributeType.REVIVING)) {
-			const [reviver, hasReviver] = game.entities().getEntity(this._reviverId);
-
-			if (!hasReviver || !reviver.hasType(EntityType.PLAYER)) {
-				this.cancelRevive();
-			} else {
-				const distSq = reviver.profile().pos().distSq(this._profile.pos());
-				if (distSq > 4) {
-					this.cancelRevive();
-				} else {
-					if (this.clientIdMatches()) {
-						ui.showTooltip(TooltipType.BEING_REVIVED, {
-							ttl: 500,
-							names: [reviver.displayName(), "" + Math.floor(100 * this.healthPercent())],
-						});
-					}
-					if (reviver.clientIdMatches()) {
-						ui.showTooltip(TooltipType.REVIVING, { names: [this.displayName(), "" + Math.floor(100 * this.healthPercent())] });
-					}
-
-					if (this._heartRateLimiter.checkPercent(millis, Math.max(0.3, 1 - healthPercent))) {
-						const [particle, hasParticle] = this.addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
-							offline: true,
-							ttl: 500 + healthPercent * 500,
-							profileInit: {
-								pos: this._profile.pos().clone().add({ x: Fns.randomNoise(0.3) }),
-								vel: { x: 0, y: 0.02 + healthPercent * 0.01 },
-							},
-						});
-
-						if (hasParticle) {
-							particle.setText({
-								text: "❤️",
-								height: 0.7 + healthPercent * 0.3,
-								textColor: ColorFactory.toString(ColorType.RED),
-							});
-						}
-					}
-				}
-			}
-		}
-
 		// Sweat
 		// TODO: move this and other particles to ParticleFactory
+		const healthPercent = this.healthPercent();
 		if (!this.dead() && healthPercent <= 0.5 && this._sweatRateLimiter.checkPercent(millis, Math.max(0.2, healthPercent))) {
 			const weight = 1 - healthPercent;
 
@@ -1011,7 +720,7 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			const forward = Vec2.fromVec({ x: 1.3, y: 0 }).rotateDeg(headAngle);
 			for (let i = 0; i < 4; ++i) {
 				const sign = forward.x < 0 ? -1 : 1;
-				const dir = forward.clone().rotateDeg(sign * Player._sweatDegs[i]);
+				const dir = forward.clone().rotateDeg(sign * Bird._sweatDegs[i]);
 				const pos = dir.clone().add(this._profile.pos());
 
 				this.addEntity(EntityType.SWEAT_PARTICLE, {
@@ -1034,17 +743,17 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				});	
 			}
 		}
-		if (healthPercent <= 0.15) {
+		if (healthPercent <= 0.2) {
 			this.emote(EmotionType.SAD, 0.3);
 		}
 
 		// Animation
 		if (this._model.hasMesh()) {
-			if (!this._attributes.getAttribute(AttributeType.GROUNDED) || this.dead()) {
+			if (!this.grounded() || this.dead()) {
 				this._model.playAnimation(Animation.JUMP);
 			} else if (Math.abs(this._profile.acc().x) > 1e-2 || Math.abs(this._profile.vel().x) > 1e-2) {
 				this._model.playAnimation(Animation.WALK, {
-					speedRatio: 0.3 + 1.2 * Math.abs(this._profile.vel().x / Player._maxWalkingVel),
+					speedRatio: 0.3 + 1.2 * Math.abs(this._profile.vel().x / Bird._maxWalkingVel),
 				});
 
 				if (Math.abs(this._profile.vel().x) > 0.1 && this._walkSmokeRateLimiter.check(millis)) {
@@ -1085,8 +794,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		this._eyeShifter.offset(this._expression.emotion());
 
 		if (!this.dead()) {
-			if (this.clientIdMatches() && !this.dead()) {
-				this.recomputeDir(game.keys(this.clientId()).dir());
+			if (this.clientIdMatches()) {
+				this.reorient();
 			}
 			const headSign = this._headDir.x === 0 ? 1 : Math.sign(this._headDir.x);
 			this._model.mesh().scaling.x = headSign * Math.abs(this._model.mesh().scaling.x);
@@ -1116,9 +825,9 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			));
 		}
 
-		if (this._damageTimer.hasTimeLeft() && this._baseMaterial.has()) {
+		if (this._damageTimer.hasTimeLeft()) {
 			const weight = 1 - this._damageTimer.percentElapsed();
-			this.setDamageEffect(weight);
+			this.flashWhite(weight);
 		}
 
 		if (this._nameTag !== null) {
@@ -1126,93 +835,38 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		}
 	}
 
-	override getHudData() : Map<HudType, HudOptions> {
-		let hudData = super.getHudData();
-
-		const tablet = game.tablet(this.clientId());
-		hudData.set(HudType.HEALTH, {
-			percentGone: 1 - this._resources.healthPercent(),
-			count: Math.ceil(this._resources.health()),
-			color: this.clientColorOr("#000000"),
-			keyLives: tablet.getInfo(InfoType.LIVES),
-		});
-
-		this._entityTrackers.getEntities<Beak>(EntityType.BEAK).execute((beak : Beak) => {
-			beak.getHudData().forEach((counter : HudOptions, type : HudType) => {
-				hudData.set(type, counter);
-			});
-		});
-
-		if (this._entityTrackers.hasEntityType(EntityType.BEAK) && this.clientIdMatches()) {
-			hudData.set(HudType.MOUSE_LOCK, {
-				charging: !ui.pointerLocked(),
-				empty: true,
-				color: this.clientColorOr("#000000"),
-				keyType: KeyType.POINTER_LOCK,
-			});
+	protected damageToTime(dmg : number) : number {
+		if (dmg <= 0) {
+			return 0;
 		}
-
-		this._entityTrackers.getEntities<Equip<Player>>(EntityType.EQUIP).execute((equip : Equip<Player>) => {
-			equip.getHudData().forEach((counter : HudOptions, type : HudType) => {
-				hudData.set(type, counter);
-			});
-		});
-		return hudData;
+		return Fns.clamp(1, 0.5 * Math.ceil(Math.min(80, dmg) / 10), 2) * Bird._damageFlashTime; 
 	}
-
-	setInteractableWith(entity : Entity, interactable : boolean) : void {
-		if (entity.clientIdMatches()) {
-			if (interactable && this.canBeRevived(entity)) {
-				ui.showTooltip(TooltipType.REVIVE, { ttl: 500, names: [this.displayName()] });
-			}
-		}
-	}
-	canInteractWith(entity : Entity) : boolean {
-		return this.canBeRevived(entity);
-	}
-	private canBeRevived(other : Entity) : boolean {
-		if (!game.controller().allowRevives()) {
-			return false;
-		}
-		if (this.id() === other.id()) {
-			return false;
-		}
-		if (!other.hasType(EntityType.PLAYER)) {
-			return false;
-		}
-		if (!this.dead()) {
-			return false;
-		}
-		if (this.getAttribute(AttributeType.REVIVING)) {
-			return false;
-		}
-		if (!this.sameTeam(other)) {
-			return false;
-		}
-		return true;
-	}
-	interactWith(entity : Entity) : void {
-		if (this.getAttribute(AttributeType.REVIVING)) {
+	protected onDamage(dmg : number) : void {
+		if (dmg <= 0) {
 			return;
 		}
 
-		if (this.isSource()) {
-			this._reviverId = entity.id();
-			this.setAttribute(AttributeType.REVIVING, true);
+		const time = this.damageToTime(dmg);
+		if (!this._damageTimer.hasTimeLeft() || time > this._damageTimer.millisLeft()) {
+			this._damageTimer.start(time, () => {
+				this.flashWhite(0);
+			});
 		}
-		if (entity.clientIdMatches()) {
-			ui.hideTooltip(TooltipType.REVIVE);
+	}
+	protected flashWhite(percent : number) : void {
+		if (this._baseMaterial.has()) {
+			this._baseMaterial.get().emissiveColor = new BABYLON.Color3(percent, percent, percent);
 		}
 	}
 
-	private updateLoadout() : void {
+	protected updateLoadout() : void {
 		if (!this.isSource()) {
 			return;
 		}
 
 		this._model.onLoad(() => {
 			if (!this._entityTrackers.hasEntityType(EntityType.BEAK)) {
-				const beakType = Player._beakTypes.get(this.birdType());
+				const beakType = Bird._beakTypes.get(this.birdType());
 				const [beak, hasBeak] = this.addEntity<Beak>(beakType, {
 					associationInit: {
 						owner: this,
@@ -1224,8 +878,8 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 				}
 			}
 
-			if (!this._entityTrackers.hasEntityType(EntityType.HEADWEAR) && Player._hairTypes.has(this.birdType())) {
-				const hairType = Player._hairTypes.get(this.birdType());
+			if (!this._entityTrackers.hasEntityType(EntityType.HEADWEAR) && Bird._hairTypes.has(this.birdType())) {
+				const hairType = Bird._hairTypes.get(this.birdType());
 				const [headwear, hasHeadwear] = this.addEntity<Headwear>(hairType, {
 					associationInit: {
 						owner: this,
@@ -1244,20 +898,58 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 		});
 	}
 
-	private getJumpVel() : number {
-		const scaling = this.getStat(StatType.SCALING);
-
-		if (scaling <= 1) {
-			return Player._jumpVel;
+	protected onGrounded(grounded : boolean) : void {
+		if (this._model.hasMesh()
+			&& grounded
+			&& !this.dead()) {
+			for (let i of [-1, 1]) {
+				const scale = 0.25 + 0.1 * Math.random();
+				this.addEntity(EntityType.SMOKE_PARTICLE, {
+					offline: true,
+					ttl: 500,
+					profileInit: {
+						pos: this._profile.pos().clone().sub({ y: this._profile.dim().y / 2 - 0.3 }),
+						vel: { x: 0.05 * i * (1 + 0.5 * Math.random()) },
+						acc: { x: -0.1 * i, y: 0.1 },
+						scaling: { x: scale, y: scale },
+					},
+					modelInit: {
+						transforms: {
+							translate: { z: this._model.mesh().position.z + 0.3 },
+						}
+					}
+				});
+			}
 		}
-		return (0.3 * scaling + 0.7) * Player._jumpVel;
 	}
-	private getSpeedMultiplier() : number {
+	protected onDead(dead : boolean) : void {
+		if (dead) {
+			const x = this._profile.vel().x;
+			const sign = x >= 0 ? -1 : 1;
+
+			this._profile.resetInertia();
+			this._profile.setAngularVelocity(sign * Math.max(0.3, Math.abs(x)));
+			this._profile.setAcc({x: 0});
+			this._profile.addVel({y: 0.7 * this.getJumpVel()});
+			this.emote(EmotionType.DEAD);
+		} else {
+			this.getUp();
+		}
+	}
+
+	protected getJumpVel() : number {
+		const scaling = this.getStat(StatType.SCALING);
+		if (scaling <= 1) {
+			return Bird._jumpVel;
+		}
+		return (0.3 * scaling + 0.7) * Bird._jumpVel;
+	}
+	protected getSpeedMultiplier() : number {
 		let mult = 1 + this.getStat(StatType.SPEED_BOOST);
 		if (this.getAttribute(AttributeType.BUBBLED)) {
 			mult += 0.2;
 		}
-		if (!this.getAttribute(AttributeType.GROUNDED)) {
+		if (!this.grounded()) {
 			mult += this.getStat(StatType.AIR_SPEED_BOOST) * (1 + this.getStat(StatType.DOUBLE_JUMPS) - this._doubleJumps);
 		}
 
@@ -1266,22 +958,5 @@ export class Player extends EntityBase implements EquipEntity, InteractEntity {
 			mult *= 0.6;
 		}
 		return Math.max(0.1, mult);
-	}
-
-	private recomputeDir(dir : Vec2) : void {
-		if (Math.sign(dir.x) !== Math.sign(this._headDir.x)) {
-			if (Math.abs(dir.x) > 0.2) {
-				this._headDir.copy(dir);
-			}
-		} else {
-			this._headDir.copy(dir);
-		}
-
-		if (Math.abs(this._headDir.x) < .707) {
-			this._headDir.x = Math.sign(this._headDir.x);
-			this._headDir.y = Math.sign(this._headDir.y);
-		}
-		this._headDir.normalize();
-		this._armDir.copy(dir).normalize();
 	}
 }

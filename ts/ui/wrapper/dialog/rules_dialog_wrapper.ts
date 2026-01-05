@@ -5,7 +5,7 @@ import { Buff } from 'game/component/buff'
 import { Buffs } from 'game/component/buffs'
 import { Entity } from 'game/entity'
 import { EntityType, FrequencyType } from 'game/entity/api'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { StatType } from 'game/factory/api'
 
 import { GameConfigMessage } from 'message/game_config_message'

@@ -7,7 +7,7 @@ import { StepData } from 'game/game_object'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { TextParticle } from 'game/entity/particle/text_particle'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { System, ClientSystem } from 'game/system'
 import { SystemType, PlayerRole } from 'game/system/api'
 

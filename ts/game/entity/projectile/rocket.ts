@@ -57,9 +57,6 @@ export abstract class RocketBase extends Projectile {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.BLASTER_RED).toString(),
-		});
 
 		this.setAttribute(AttributeType.BURNING, true);
 	}

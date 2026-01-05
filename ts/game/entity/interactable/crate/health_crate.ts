@@ -9,7 +9,7 @@ import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { Crate } from 'game/entity/interactable/crate'
 import { TextParticle } from 'game/entity/particle/text_particle'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { ColorType, MaterialType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { EquipFactory } from 'game/factory/equip_factory'
@@ -27,10 +27,6 @@ export class HealthCrate extends Crate {
 		super(EntityType.HEALTH_CRATE, entityOptions);
 
 		this._showHeart = false;
-
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.PICKUP_RED).toString(),
-		});
 
 		this.addProp<boolean>({
 			has: () => { return this._showHeart; },

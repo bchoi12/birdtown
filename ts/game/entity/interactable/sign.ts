@@ -59,10 +59,6 @@ export abstract class Sign extends Interactable implements EquipEntity, Interact
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.ARCH_BROWN).toString(),
-			depthType: DepthType.BEHIND,
-		});
 	}
 
 	override initialize() : void {

@@ -5,7 +5,7 @@ import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { Equip, AttachType } from 'game/entity/equip'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { MaterialType, MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 

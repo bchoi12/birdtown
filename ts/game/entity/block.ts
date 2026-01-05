@@ -142,20 +142,6 @@ export abstract class Block extends EntityBase implements Entity {
 		}));
 	}
 
-	override initialize() : void {
-		super.initialize();
-
-		// Set up minimap rendering after processing mesh
-		this._model.onLoad(() => {
-			if (this._hexColors.hasColor(ColorCategory.BASE) && this.canOcclude()) {
-				this._profile.setMinimapOptions({
-					color: this._hexColors.color(ColorCategory.BASE).toString(),
-					depthType: DepthType.FRONT,
-				});
-			}
-		});
-	}
-
 	abstract meshType() : MeshType;
 	meshOffset() : Vec { return Vec3.zero(); }
 	abstract thickness() : number;

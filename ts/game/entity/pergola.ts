@@ -60,10 +60,6 @@ export class Pergola extends EntityBase implements Entity {
 				profile.vel().x = 0;
 			}
 		});
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.ARCH_WHITE).toString(),
-			depthType: DepthType.BACKGROUND,
-		});
 
 		this._subProfile = this._profile.addSubComponent<Profile>(new Profile({
 			bodyFn: (profile : Profile) => {
@@ -81,10 +77,6 @@ export class Pergola extends EntityBase implements Entity {
 			},
 		}));
 		this._subProfile.setInertia(Infinity);
-		this._subProfile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.ARCH_BROWN).toString(),
-			depthType: DepthType.FLOOR,
-		});
 		this._subProfile.onBody((subProfile : Profile) => {
 			this._profile.onBody((profile : Profile) => {
 				profile.setAngle(0);

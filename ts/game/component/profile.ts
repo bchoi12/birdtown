@@ -380,32 +380,9 @@ export class Profile extends ComponentBase implements Component {
 	visible() : boolean { return this.hasBody() && this._visible && !this._occluded; }
 	setVisible(visible : boolean) : void {
 		this._visible = visible;
-		/*
-		this.onBody((profile : Profile) => {
-			profile.body().render.visible = this.visible();
-		});
-		*/
 	}
 	setOccluded(occluded : boolean) : void {
 		this._occluded = occluded;
-		/*
-		this.onBody((profile : Profile) => {
-			profile.body().render.visible = this.visible();
-		});
-		*/
-	}
-	setMinimapOptions(options : MinimapOptions) : void {
-		/*
-		this.onBody((profile : Profile) => {
-			profile.body().render.fillStyle = options.color;
-			profile.body().render.strokeStyle = options.color;
-			profile.body().render.visible = true;
-
-			if (options.depthType) {
-				profile.body().plugin.zIndex = options.depthType;
-			}
-		});
-		*/
 	}
 
 	collisionBuffer() : CollisionBuffer { return this._collisionBuffer; }

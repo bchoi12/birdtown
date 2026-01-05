@@ -39,7 +39,7 @@ import { VipBuff } from 'game/component/buff/vip_buff'
 import { WarmogsBuff } from 'game/component/buff/warmogs_buff'
 import { Entity } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { Player } from 'game/entity/player'
+import { Player } from 'game/entity/bird/player'
 import { BuffType, ColorType, StatType } from 'game/factory/api'
 import { EquipFactory } from 'game/factory/equip_factory'
 

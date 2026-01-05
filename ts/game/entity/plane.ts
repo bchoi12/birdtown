@@ -82,10 +82,6 @@ export class Plane extends EntityBase implements Entity {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setMinimapOptions({
-			color: ColorFactory.color(ColorType.RED).toString(),
-			depthType: DepthType.BEHIND,
-		});
 
 		const vel = this.xVel();
 		this._profile.setVel({x: vel, y: 0});

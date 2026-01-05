@@ -16,15 +16,6 @@ export class Bush extends Block {
 		this._hexColors.setColor(ColorCategory.BASE, ColorFactory.color(ColorType.GREEN).toHex());
 	}
 
-	override initialize() : void {
-		super.initialize();
-
-		this._profile.setMinimapOptions({
-			color: this._hexColors.color(ColorCategory.BASE).toString(),
-			depthType: DepthType.FRONT,
-		});
-	}
-
 	override meshType() : MeshType { return MeshType.BUSH; }
 	override thickness() : number { return 0; }
 }
