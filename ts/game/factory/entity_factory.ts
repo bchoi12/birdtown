@@ -46,7 +46,6 @@ import { BoobyHair } from 'game/entity/equip/headwear/booby_hair'
 import { CardinalHair } from 'game/entity/equip/headwear/cardinal_hair'
 import { ChickenHair } from 'game/entity/equip/headwear/chicken_hair'
 import { FlamingoHair } from 'game/entity/equip/headwear/flamingo_hair'
-import { GooseHair } from 'game/entity/equip/headwear/goose_hair'
 import { PigeonHair } from 'game/entity/equip/headwear/pigeon_hair'
 import { RavenHair } from 'game/entity/equip/headwear/raven_hair'
 import { RobinHair } from 'game/entity/equip/headwear/robin_hair'
@@ -162,7 +161,6 @@ export namespace EntityFactory {
 		[EntityType.GOLDEN_EXPLOSION, (options : EntityOptions) => { return new GoldenExplosion(options); }],
 		[EntityType.GOLDEN_GUN, (options : EntityOptions) => { return new GoldenGun(options); }],
 		[EntityType.GOOSE_BEAK, (options : EntityOptions) => { return new GooseBeak(options); }],
-		[EntityType.GOOSE_HAIR, (options : EntityOptions) => { return new GooseHair(options); }],
 		[EntityType.HEADPHONES, (options : EntityOptions) => { return new Headphones(options); }],
 		[EntityType.HEALTH_CRATE, (options : EntityOptions) => { return new HealthCrate(options); }],
 		[EntityType.HIKING_SIGN, (options : EntityOptions) => { return new HikingSign(options); }],
