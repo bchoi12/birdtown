@@ -23,8 +23,6 @@ import { Timer } from 'util/timer'
 
 export class PlayerState extends ClientSystem implements System {
 
-	private static readonly _defaultChatColor = "#ebebeb";
-
 	private static readonly _disallowRoleChangeStates = new Set([
 		GameState.PRELOAD, GameState.FINISH, GameState.VICTORY, GameState.ERROR
 	]);
@@ -372,7 +370,7 @@ export class PlayerState extends ClientSystem implements System {
 		if (hasParticle) {
 			particle.setText({
 				text: msg,
-				textColor: this.targetEntity().clientColorOr(PlayerState._defaultChatColor),
+				textColor: this.targetEntity().clientColor(),
 				height: 1,
 				renderOnTop: true,
 			});

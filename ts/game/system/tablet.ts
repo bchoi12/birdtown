@@ -42,7 +42,6 @@ export class Tablet extends ClientSystem implements System {
 	private static readonly _teamColors = new Map<number, string>([
 		[TeamType.TEAM_ONE, ColorFactory.toString(ColorType.PLAYER_RED)],
 		[TeamType.TEAM_TWO, ColorFactory.toString(ColorType.PLAYER_BLUE)],
-		[TeamType.ENEMY, ColorFactory.toString(ColorType.GRAY)],
 	]);
 	private static readonly _defaultColor = "#FFFFFF";
 	private static readonly _displayNameMaxLength = 16;

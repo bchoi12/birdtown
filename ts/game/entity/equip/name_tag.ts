@@ -31,7 +31,6 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 	private static readonly _defaultTextColor = "#ffffff";
 	private static readonly _defaultTextBackgroundColor = "#30303088";
-	private static readonly _defaultPointerColor = "#ff0000";
 
 	private static readonly _height = 0.4;
 	private static readonly _textureHeight = 64;
@@ -121,7 +120,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 				this._colorMaterial.disableLighting = true;
 				if (this._updatePointerColor) {
-					this._colorMaterial.emissiveColor = BABYLON.Color3.FromHexString(this.defaultPointerColor());
+					this._colorMaterial.emissiveColor = BABYLON.Color3.FromHexString(this.clientColor());
 				}
 
 				let pointer = BABYLON.MeshBuilder.CreatePolyhedron(this.name() + "-pointer", {
@@ -203,13 +202,6 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 
 		this._updatePointerColor = false;
 	}
-	private defaultPointerColor() : string {
-		if (game.tablet(game.clientId())?.hasColor()) {
-			return game.tablet(game.clientId()).color();
-		}
-
-		return NameTag._defaultPointerColor;
-	}
 
 	displayName() : string { return this._displayName.get(); }
 	setDisplayName(displayName : string) : void {
@@ -232,7 +224,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		this._model.setVisible(this._visible && this._enabled);
 
 		if (this._updatePointerColor && this._visible) {
-			const color = game.lakitu().targetEntity().clientColorOr(this.defaultPointerColor());
+			const color = game.lakitu().targetEntity().clientColor();
 			this._colorMaterial.emissiveColor = BABYLON.Color3.FromHexString(color);
 		}
 	}

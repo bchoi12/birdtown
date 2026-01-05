@@ -184,6 +184,8 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 	constructor(type : EntityType, entityOptions : EntityOptions) {
 		super(type, entityOptions);
 
+		this.addType(EntityType.BIRD);
+
 		this._armDir = Vec2.i();
 		this._armTransforms = new Transforms();
 		this._baseMaterial = new Optional();
@@ -211,7 +213,7 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 
 		this.addProp<boolean>({
 			export: () => { return this._dead; },
-			import: (obj : boolean) => { this._dead = obj; },
+			import: (obj : boolean) => { this.onDead(obj); },
 		})
 		this.addProp<EntityType>({
 			export: () => { return this._equipType; },
@@ -381,7 +383,6 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 			associationInit: {
 				owner: this,
 			},
-			clientId: this.clientId(),
 			offline: true,
 		});
 		if (hasNameTag) {
@@ -396,16 +397,18 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 	}
 
 	abstract displayName() : string;
+	protected abstract birdType() : BirdType;
 	protected abstract walkDir() : number;
 	protected abstract jumping() : boolean;
 	protected abstract doubleJumping() : boolean;
 	protected abstract reorient() : void;
+	protected abstract getEquipPair() : [EntityType, EntityType];
 
 	override setTeam(team : number) : void {
 		super.setTeam(team);
 
-		if (this._nameTag !== null && game.tablets().hasTablet(this.clientId())) {
-			this._nameTag.forcePointerColor(game.tablet(this.clientId()).color());
+		if (this._nameTag !== null) {
+			this._nameTag.forcePointerColor(this.clientColor());
 		}
 	}
 
@@ -467,9 +470,10 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 		if (!this._resources.dead()) {
 			this.takeDamage(this._resources.health(), this);
 		}
+
+		this._dead = true;
 	}
 
-	birdType() : BirdType { return game.tablet(this.clientId()).birdType(); }
 	headAngle() : number { return this._headSubProfile.angle(); }
 
 	buffs() : Buffs { return this._buffs; }
@@ -558,7 +562,6 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 			associationInit: {
 				owner: this,
 			},
-			clientId: this.clientId(),
 			levelVersion: game.level().version(),
 		});
 		if (hasEquip) {
@@ -571,7 +574,6 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 				associationInit: {
 					owner: this,
 				},
-				clientId: this.clientId(),
 				levelVersion: game.level().version(),
 			});
 			if (hasAltEquip) {
@@ -589,15 +591,14 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 		const millis = stepData.millis;
 
 		if (this.isSource()) {
-			// Out of bounds
+			// Check if we dead
 			if (this._profile.pos().y < game.level().bounds().min.y) {
 				this.die();
 			} else if (this._resources.dead()) {
 				this.die();
 			}
+			this._deadTracker.check();
 		}
-
-		this._deadTracker.check();
 	}
 
 	override update(stepData : StepData) : void {
@@ -871,7 +872,6 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 					associationInit: {
 						owner: this,
 					},
-					clientId: this.clientId(),
 				});
 				if (hasBeak) {
 					this._entityTrackers.trackEntity<Beak>(EntityType.BEAK, beak);
@@ -884,14 +884,13 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 					associationInit: {
 						owner: this,
 					},
-					clientId: this.clientId(),
 				});
 				if (hasHeadwear) {
 					this._entityTrackers.trackEntity<Headwear>(EntityType.HEADWEAR, headwear);
 				}
 			}
 
-			const [equipType, altEquipType] = game.controller().getEquips(this.clientId());
+			const [equipType, altEquipType] = this.getEquipPair();
 			this.createEquips(equipType, altEquipType);
 
 			this._resources.reset();
@@ -923,6 +922,8 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 		}
 	}
 	protected onDead(dead : boolean) : void {
+		this._dead = dead;
+
 		if (dead) {
 			const x = this._profile.vel().x;
 			const sign = x >= 0 ? -1 : 1;

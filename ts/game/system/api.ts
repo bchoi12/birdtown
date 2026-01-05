@@ -119,5 +119,5 @@ export enum WinConditionType {
 	TEAM_LIVES,
 	TEAM_POINTS,
 
-	BOSS,
+	COOP,
 }

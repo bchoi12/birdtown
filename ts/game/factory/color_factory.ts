@@ -8,6 +8,10 @@ import { SeededRandom } from 'util/seeded_random'
 
 export namespace ColorFactory {
 
+	export const whiteHex = "#FFFFFF";
+	export const blackHex = "#000000";
+	export const grayHex = "#808080";
+
 	const colorMap = new Map<ColorType, HexColor>([
 
 		// Basic series
@@ -111,7 +115,7 @@ export namespace ColorFactory {
 		[ColorType.SKY_EVENING_TOP, HexColor.fromHex(0xffdbc2)],
 		[ColorType.SKY_EVENING_BOTTOM, HexColor.fromHex(0xffe7d6)],
 		[ColorType.SKY_NIGHT_TOP, HexColor.fromHex(0x004f8a)],
-		[ColorType.SKY_NIGHT_BOTTOM, HexColor.fromHex(0x003d6b)],
+		[ColorType.SKY_NIGHT_BOTTOM, HexColor.fromHex(0x39006b)],
 
 		// Particle series (light and works well with opacity)
 		[ColorType.PARTICLE_RED, HexColor.fromHex(0xdc5a3a)],
@@ -182,7 +186,7 @@ export namespace ColorFactory {
 	export function toString(type : ColorType) : string {
 		if (!colorMap.has(type)) {
 			console.error("Warning: color is not in color map", ColorType[type]);
-			return "#FFFFFF";
+			return whiteHex;
 		}
 		return colorMap.get(type).toString();
 	}

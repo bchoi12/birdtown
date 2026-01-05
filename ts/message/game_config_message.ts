@@ -12,6 +12,7 @@ enum GameConfigProp {
 
 	BUFF_CRATE_SPAWN,
 	DAMAGE_MULTIPLIER,
+	DIFFICULTY,
 	HEALTH_CRATE_SPAWN,
 	LEVEL_LAYOUT,
 	LEVEL_SEED,
@@ -227,7 +228,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelSeed(1);
 			this.setStartingLoadout(LoadoutType.BUFF);
 			this.setTimeSetup(35000);
-			this.setWinCondition(WinConditionType.BOSS);
+			this.setWinCondition(WinConditionType.COOP);
 			break;
 		case GameMode.PRACTICE:
 			this.setPlayersMin(1);

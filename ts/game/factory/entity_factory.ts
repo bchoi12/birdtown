@@ -17,7 +17,6 @@ import { DyingStar } from 'game/entity/dying_star'
 import { Pergola } from 'game/entity/pergola'
 import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/bird/player'
-import { BlockEnemy } from 'game/entity/enemy/block_enemy'
 import { BlackHeadband } from 'game/entity/equip/black_headband'
 import { Bubble } from 'game/entity/equip/bubble'
 import { Booster } from 'game/entity/equip/booster'
@@ -126,7 +125,6 @@ export namespace EntityFactory {
 		[EntityType.BILLBOARD, (options : EntityOptions) => { return new Billboard(options); }],
 		[EntityType.BLACK_HEADBAND, (options : EntityOptions) => { return new BlackHeadband(options); }],
 		[EntityType.BLACK_HOLE, (options : EntityOptions) => { return new BlackHole(options); }],
-		[EntityType.BLOCK_ENEMY, (options : EntityOptions) => { return new BlockEnemy(options); }],
 		[EntityType.BOLT, (options : EntityOptions) => { return new Bolt(options); }],
 		[EntityType.BOOSTER, (options : EntityOptions) => { return new Booster(options); }],
 		[EntityType.BOLT_EXPLOSION, (options : EntityOptions) => { return new BoltExplosion(options); }],
@@ -300,7 +298,6 @@ export namespace EntityFactory {
 	export const dimensions = new Map<EntityType, Vec>([
 		...staticDimensions,
 		[EntityType.BLACK_HOLE, { x: 8, y: 8, z: 8 }],
-		[EntityType.BLOCK_ENEMY, { x: 1, y: 1, z: 1 }],
 		[EntityType.BOLT_EXPLOSION, { x: 3, y: 3, z: 3 }],
 		[EntityType.BUFF_CRATE, {x: 1, y: 1, z: 1 }],
 		[EntityType.DYING_STAR, { x: 0.5, y: 0.5, z: 0.5 }],

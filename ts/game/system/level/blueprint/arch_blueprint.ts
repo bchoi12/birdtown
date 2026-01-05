@@ -228,9 +228,9 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 	}
 
 	override minBuffer() : number { return 1; }
-	override sideBuffer() : number { return this.getLayout() === LevelLayout.INVASION ? 0 : 10; }
+	override sideBuffer() : number { return this.getLayout() === LevelLayout.INVASION ? -0.5 : 10; }
 	override seamBuffer() : number { return 6; }
-	override planeBuffer() : number { return 15; }
+	override planeBuffer() : number { return this.getLayout() === LevelLayout.INVASION ? 20 : 15; }
 
 	maxHeight() : number { return this._maxHeight; }
 	numBuildings() : number { return this._buildings.length; }
@@ -752,6 +752,8 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 			{ height: 1 },
 			{ height: 1 },
 			{ height: 1 },
+			{ height: 1 },
+			{ height: 1 },
 		]);
 
 		for (let i = 0; i < this.numBuildings(); ++i) {
@@ -761,7 +763,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 				let block = building.block(j);
 
 				if (block.entityType() === ArchBlueprint.roofType()) {
-					if (i === 1) {
+					if (i === 2) {
 						block.pushEntityOptions(EntityType.PLATFORM, {
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ y: 5 }),
@@ -771,7 +773,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 								materialType: MaterialType.ARCH_PLATFORM,
 							}
 						});
-					} else {
+					} else if (i % 2 === 0) {
 						block.pushEntityOptions(EntityType.PLATFORM, {
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ y: 2.5 }),

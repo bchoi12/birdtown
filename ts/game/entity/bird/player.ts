@@ -5,7 +5,7 @@ import { GameState, GameObjectState } from 'game/api'
 import { StepData } from 'game/game_object'
 import { AttributeType } from 'game/component/api'
 import { Entity, EntityOptions, InteractEntity } from 'game/entity'
-import { EntityType } from 'game/entity/api'
+import { EntityType, BirdType } from 'game/entity/api'
 import { Bird } from 'game/entity/bird'
 import { Equip } from 'game/entity/equip'
 import { Beak } from 'game/entity/equip/beak'
@@ -96,6 +96,7 @@ export class Player extends Bird implements InteractEntity {
 	}
 
 	override displayName() : string { return game.tablet(this.clientId()).displayName(); }
+	protected override 	birdType() : BirdType { return game.tablet(this.clientId()).birdType(); }
 	protected override walkDir() : number {
 		if (this.key(KeyType.LEFT, KeyState.DOWN)) {
 			return -1;
@@ -126,6 +127,9 @@ export class Player extends Bird implements InteractEntity {
 		}
 		this._headDir.normalize();
 		this._armDir.copy(dir).normalize();
+	}
+	protected override getEquipPair() : [EntityType, EntityType] {
+		return game.controller().getEquips(this.clientId());
 	}
 
 	override getHudData() : Map<HudType, HudOptions> {

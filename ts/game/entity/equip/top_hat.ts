@@ -58,7 +58,7 @@ export class TopHat extends Equip<Player> {
 			}
 
 			let mat = new BABYLON.StandardMaterial(this.name() + "-sash", game.scene());
-			mat.diffuseColor = BABYLON.Color3.FromHexString(this.clientColorOr(ColorFactory.color(ColorType.RED).toString()));
+			mat.diffuseColor = BABYLON.Color3.FromHexString(this.clientColor());
 			mesh.material = mat;	
 		});
 	}

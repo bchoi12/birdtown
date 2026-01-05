@@ -178,7 +178,6 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			description: "Try out the game.\r\n\r\nAll levels, layouts, and equip combos are allowed.",
 			parent: classicCategory.contentElm(),
 		});
-		/*
 		this.populateMode(GameMode.INVASION, {
 			requirements: [],
 			description: "Defend Birdtown against an invasion using teamwork and unique buffs.\r\n\r\nDifficulty scales with number of players.",
@@ -186,7 +185,6 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			minRecommended: 1,
 			maxRecommended: 4,
 		});
-		*/
 		this.populateMode(GameMode.FREE_FOR_ALL, {
 			requirements: [],
 			description: "Classic free for all.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
@@ -417,7 +415,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		let teamMode = TeamMode.FREE_FOR_ALL;
 		if (this._configMsg.getWinCondition() === WinConditionType.TEAM_LIVES || this._configMsg.getWinCondition() === WinConditionType.TEAM_POINTS) {
 			teamMode = TeamMode.TWO_TEAMS;
-		} else if (this._configMsg.getWinCondition() === WinConditionType.BOSS) {
+		} else if (this._configMsg.getWinCondition() === WinConditionType.COOP) {
 			teamMode = TeamMode.COOP;
 		}
 
@@ -455,6 +453,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			break;
 		case GameMode.INVASION:
 			// TODO: difficulty setting
+			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());
 			break;
 		case GameMode.PRACTICE:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());

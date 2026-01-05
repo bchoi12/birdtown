@@ -111,19 +111,12 @@ export class HealthResource extends Resource {
 		let pos = this.entity().profile().pos();
 
 		let weight = 0;
-		if (this.entityType() === EntityType.PLAYER) {
-			weight = Fns.normalizeRange(10, Math.abs(delta), 100);
-		} else if (this.entity().hasType(EntityType.ENEMY)) {
-			weight = 2 * Fns.normalizeRange(10, Math.abs(delta), 100);
+		if (this.entity().hasType(EntityType.BIRD)) {
+			weight = Fns.normalizeRange(10, Math.abs(delta), 100) * this.entity().getStat(StatType.SCALING);
 		}
 
-		weight *= this.entity().getStat(StatType.SCALING);
-
 		if (game.lakitu().inFOV(pos)) {
-			let height = HealthResource._textHeight;
-			if (this.entity().hasType(EntityType.PLAYER)) {
-				height += weight;
-			}
+			let height = HealthResource._textHeight + weight;
 
 			const [particle, hasParticle] = this.entity().addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
 				offline: true,

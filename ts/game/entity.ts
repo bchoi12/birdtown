@@ -18,6 +18,7 @@ import { EntityType } from 'game/entity/api'
 import { Equip } from 'game/entity/equip'
 import { GameObject, GameObjectBase, StepData } from 'game/game_object'
 import { BuffType, StatType, SoundType } from 'game/factory/api'
+import { ColorFactory } from 'game/factory/color_factory'
 import { StatFactory } from 'game/factory/stat_factory'
 
 import { Flags } from 'global/flags'
@@ -139,7 +140,7 @@ export interface Entity extends GameObject {
 	// For UI
 	displayName() : string;
 	clientColor() : string;
-	clientColorOr(color : string) : string;
+	fallbackColor() : string;
 }
 
 export interface EquipEntity extends Entity {
@@ -712,12 +713,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	impactSound() : SoundType { return SoundType.UNKNOWN; }
 
 	clientColor() : string {
-		return this.clientColorOr("#FFFFFF");
-	}
-	clientColorOr(or : string) : string {
 		if (this.hasClientId() && game.tablets().hasTablet(this.clientId())) {
 			return game.tablet(this.clientId()).color();
 		}
-		return or;
+		return this.fallbackColor();
 	}
+	fallbackColor() : string { return ColorFactory.grayHex; }
 }

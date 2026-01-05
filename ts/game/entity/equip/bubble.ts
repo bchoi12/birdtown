@@ -11,6 +11,7 @@ import { EntityType } from 'game/entity/api'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/bird/player'
 import { StepData } from 'game/game_object'
+import { ColorFactory } from 'game/factory/color_factory'
 
 import { Timer } from 'util/timer'
 import { Vec3 } from 'util/vector'
@@ -53,7 +54,7 @@ export class Bubble extends Equip<Player> {
 					diameter: 2 * Math.max(ownerDim.x, ownerDim.y),
 				}, game.scene());
 
-				this._material.diffuseColor = BABYLON.Color3.FromHexString(this.clientColorOr("#000000"));
+				this._material.diffuseColor = BABYLON.Color3.FromHexString(this.clientColor());
 
 				bubble.material = this._material;
 				model.setMesh(bubble);
