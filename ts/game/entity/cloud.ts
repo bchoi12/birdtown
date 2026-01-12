@@ -54,7 +54,6 @@ export class Cloud extends EntityBase implements Entity {
 				...entityOptions.profileInit,
 			},
 		}));
-		this._profile.setVisible(false);
 	}
 
 	override initialize() : void {

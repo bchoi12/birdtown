@@ -16,6 +16,8 @@ export enum ComponentType {
 	RESOURCE,
 	RESOURCES,
 	SOUND_PLAYER,
+	TARGETER,
+	TRAITS,
 }
 
 export enum AssociationType {
@@ -53,6 +55,15 @@ export enum EmotionType {
 	MAD,
 	SAD,
 	DEAD,
+}
+
+export enum TraitType {
+	UNKNOWN,
+
+	ANGER,
+	CRUELTY,
+	PATIENCE,
+	SKILL,
 }
 
 export enum TeamType {

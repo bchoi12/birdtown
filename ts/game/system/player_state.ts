@@ -159,7 +159,7 @@ export class PlayerState extends ClientSystem implements System {
 	}
 	waitUntil(role : PlayerRole, millis : number, cb? : () => void) : void {
 		this.setRole(PlayerRole.WAITING);
-		this._roleTimer.start(millis, () => {
+		this._roleTimer.timeout(millis, () => {
 			this.setRole(role);
 			if (cb) {
 				cb();

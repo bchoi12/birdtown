@@ -15,6 +15,8 @@ export type ResourcesInitOptions = {
 
 export class Resources extends ComponentBase implements Component {
 
+	private static readonly _lastDamageTime = 15000;
+
 	private static readonly _createFns = new Map<StatType, () => Resource>([
 		[StatType.HEALTH, () => { return new HealthResource(); }],
 		[StatType.SHIELD, () => { return new ShieldResource(); }],
@@ -84,7 +86,7 @@ export class Resources extends ComponentBase implements Component {
 	}
 	dead() : boolean { return this.hasResource(StatType.HEALTH) && this.getSubComponent<HealthResource>(StatType.HEALTH).atMin(); }
 
-	lastDamager(sinceMillis : number) : [ChangeLog, boolean] {
+	lastDamager() : [ChangeLog, boolean] {
 		return this.flushResource(StatType.HEALTH, (log : ChangeLog) => {
 			// Pick
 			if (!log.hasEntityLog() || log.entityLog().id() === this.entity().id()) {
@@ -93,7 +95,7 @@ export class Resources extends ComponentBase implements Component {
 			return true;
 		}, (log : ChangeLog) => {
 			// Stop
-			return log.timestamp() < sinceMillis;
+			return log.timestamp() < Resources._lastDamageTime;
 		});
 	}
 

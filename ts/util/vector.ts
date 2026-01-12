@@ -221,7 +221,6 @@ export class Vec2 implements Vec {
         }
         return this;
     }
-
     setAngleRad(rad : number) : Vec2 {
         const len = this.length();
         this.x = Math.cos(rad) * len;

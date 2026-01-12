@@ -246,7 +246,7 @@ export abstract class Buff extends ComponentBase implements Component {
 	adding() : boolean { return this._addTimer.hasTimeLeft(); }
 	addAfter(millis : number, delta : number) : void {
 		// Applying add refreshes timer
-		this._addTimer.start(millis, () => {
+		this._addTimer.timeout(millis, () => {
 			if (this.isSource()) {
 				this.addLevel(delta);
 			}

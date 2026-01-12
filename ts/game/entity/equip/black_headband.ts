@@ -133,8 +133,6 @@ export class BlackHeadband extends Equip<Player> {
 		super.simulateUse(uses);
 
 		this.owner().profile().setVel({x: 0, y: 0});
-
-		let force = this.inputDir().clone().scale(this.getStat(StatType.FORCE));
 		this.owner().addForce({ y: this.getStat(StatType.FORCE) });
 
 		this._jumpTimer.start(BlackHeadband._jumpTime);

@@ -157,6 +157,9 @@ export class Tablet extends ClientSystem implements System {
 		this.addInfo(InfoType.KILLS, 1);
 		this.addInfo(InfoType.SCORE, -1);
 	}
+	addKill() : void {
+		this.addInfo(InfoType.KILLS, 1);
+	}
 	addInfo(type : InfoType, delta : number) : void {
 		this.setInfo(type, (this.hasInfo(type) ? this.getInfo(type) : 0) + delta);
 	}

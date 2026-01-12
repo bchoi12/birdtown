@@ -11,7 +11,7 @@ import { Equip } from 'game/entity/equip'
 import { Beak } from 'game/entity/equip/beak'
 import { Bubble } from 'game/entity/equip/bubble'
 import { TextParticle } from 'game/entity/particle/text_particle'
-import { ColorType, StatType } from 'game/factory/api'
+import { ColorType, StatType, TextureType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 
 import { ui } from 'ui'
@@ -77,26 +77,11 @@ export class Player extends Bird implements InteractEntity {
 		this.fullHeal();
 		this._buffs.refresh();
 	}
-	floatRespawn(spawn : Vec2) : void {
-		this.respawn(spawn);
-
-		if (this.isSource()) {
-			this._entityTrackers.clearEntityType(EntityType.BUBBLE);
-			const [bubble, hasBubble] = this.addEntity<Bubble>(EntityType.BUBBLE, {
-				associationInit: {
-					owner: this,
-				},
-				clientId: this.clientId(),
-				levelVersion: game.level().version(),
-			});
-			if (hasBubble) {
-				this._entityTrackers.trackEntity<Bubble>(EntityType.BUBBLE, bubble);
-			}
-		}
-	}
 
 	override displayName() : string { return game.tablet(this.clientId()).displayName(); }
-	protected override 	birdType() : BirdType { return game.tablet(this.clientId()).birdType(); }
+	protected override birdType() : BirdType { return game.tablet(this.clientId()).birdType(); }
+	protected eyeTexture() : TextureType { return Bird._eyeTextures.get(this.birdType()); }
+
 	protected override walkDir() : number {
 		if (this.key(KeyType.LEFT, KeyState.DOWN)) {
 			return -1;
@@ -112,21 +97,7 @@ export class Player extends Bird implements InteractEntity {
 		return this.key(KeyType.JUMP, KeyState.PRESSED);
 	}
 	protected override reorient() : void {
-		const dir = this.inputDir();
-		if (Math.sign(dir.x) !== Math.sign(this._headDir.x)) {
-			if (Math.abs(dir.x) > 0.2) {
-				this._headDir.copy(dir);
-			}
-		} else {
-			this._headDir.copy(dir);
-		}
-
-		if (Math.abs(this._headDir.x) < .707) {
-			this._headDir.x = Math.sign(this._headDir.x);
-			this._headDir.y = Math.sign(this._headDir.y);
-		}
-		this._headDir.normalize();
-		this._armDir.copy(dir).normalize();
+		this.setDir(this.inputDir());
 	}
 	protected override getEquipPair() : [EntityType, EntityType] {
 		return game.controller().getEquips(this.clientId());
@@ -247,7 +218,7 @@ export class Player extends Bird implements InteractEntity {
 					continue;
 				}
 				const interactable = <InteractEntity>entity;
-				const distSq = pos.distSq(entity.profile().pos());
+				const distSq = game.level().distSq(this.profile(), entity.profile());
 				if (nearestInteractable === null || distSq < currentDistSq) {
 					nearestInteractable = interactable;
 					currentDistSq = distSq
@@ -281,7 +252,7 @@ export class Player extends Bird implements InteractEntity {
 			if (!hasReviver || !reviver.hasType(EntityType.PLAYER)) {
 				this.cancelRevive();
 			} else {
-				const distSq = reviver.profile().pos().distSq(this._profile.pos());
+				const distSq = game.level().distSq(this._profile, reviver.profile());
 				if (distSq > 4) {
 					this.cancelRevive();
 				} else {

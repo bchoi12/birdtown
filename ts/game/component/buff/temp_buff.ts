@@ -94,7 +94,7 @@ export class TempCritBuff extends TempBuff {
 		return new Map([
 			[StatType.CRIT_CHANCE, 0.3 * level],
 			[StatType.CRIT_BOOST, 0.5 * level],
-			[StatType.SPEED_BOOST, 0.15 * level],
+			[StatType.SPEED_BOOST, 0.2 * level],
 		]);
 	}
 }

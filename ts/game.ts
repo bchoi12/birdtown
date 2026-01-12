@@ -4,6 +4,7 @@ import { System } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { Announcer } from 'game/system/announcer'
 import { Audio } from 'game/system/audio'
+import { Buster } from 'game/system/buster'
 import { Controller } from 'game/system/controller'
 import { ClientDialog } from 'game/system/client_dialog'
 import { ClientDialogs } from 'game/system/client_dialogs'
@@ -53,6 +54,7 @@ class Game {
 	private _runner : Runner;
 	private _announcer : Announcer;
 	private _audio : Audio;
+	private _buster : Buster;
 	private _clientDialogs : ClientDialogs;
 	private _entities : Entities;
 	private _controller : Controller;
@@ -104,6 +106,7 @@ class Game {
 			this._runner = new Runner();
 			this._announcer = new Announcer();
 			this._audio = new Audio();
+			this._buster = new Buster();
 			this._clientDialogs = new ClientDialogs();
 			this._entities = new Entities();
 			this._controller = new Controller();
@@ -123,6 +126,7 @@ class Game {
 			this._runner.push(this._playerStates);
 			this._runner.push(this._level);
 			this._runner.push(this._input);
+			this._runner.push(this._buster);
 			this._runner.push(this._entities);
 			this._runner.push(this._physics);
 			this._runner.push(this._tablets);
@@ -227,6 +231,7 @@ class Game {
 
 	announcer() : Announcer { return this._announcer; }
 	audio() : Audio { return this._audio; }
+	buster() : Buster { return this._buster; }
 	clientDialogs() : ClientDialogs { return this._clientDialogs; }
 	clientDialog(id? : number) : ClientDialog { return this._clientDialogs.clientDialog(id); }
 	controller() : Controller { return this._controller; }

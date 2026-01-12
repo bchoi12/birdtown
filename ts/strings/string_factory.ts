@@ -94,7 +94,7 @@ export namespace StringFactory {
 
 	const levelNames = new Map<LevelType, ParamString>([
 		[LevelType.BIRDTOWN, ParamString.of("Birdtown")],
-		[LevelType.CLIFF_LAKE, ParamString.of("Birdff")],
+		[LevelType.BIRDROCK, ParamString.of("Birdrock")],
 		[LevelType.RANDOM, ParamString.of("Random")],
 	]);
 	export function getLevelName(type : LevelType) : string {

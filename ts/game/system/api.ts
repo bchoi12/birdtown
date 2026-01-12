@@ -3,6 +3,7 @@ export enum SystemType {
 	UNKNOWN,
 	ANNOUNCER,
 	AUDIO,
+	BUSTER,
 	CLIENT_DIALOG,
 	CLIENT_DIALOG_SYNCER,
 	CLIENT_DIALOGS,
@@ -40,7 +41,7 @@ export enum AmbianceType {
 export enum LevelType {
 	UNKNOWN,
 	BIRDTOWN,
-	CLIFF_LAKE,
+	BIRDROCK,
 
 	// Cannot random
 	LOBBY,

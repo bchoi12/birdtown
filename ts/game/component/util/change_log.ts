@@ -1,4 +1,6 @@
 
+import { game } from 'game'
+import { AssociationType } from 'game/component/api'
 import { Entity } from 'game/entity'
 import { EntityLog } from 'game/util/entity_log'
 
@@ -35,6 +37,21 @@ export class ChangeLog {
 			console.error("Warning: retrieved EntityLog without checking if it exists");
 		}
 		return this._entityLog.get();
+	}
+
+	owner<T extends Entity>() : [T, boolean] {
+		if (!this.hasEntityLog()) {
+			return [null, false];
+		}
+
+		// Update tablet for last damager.
+		const associations = this.entityLog().associations();
+		if (associations.has(AssociationType.OWNER)) {
+			const ownerId = associations.get(AssociationType.OWNER);
+			return game.entities().getEntity<T>(ownerId);
+		}
+
+		return [null, false];
 	}
 
 }

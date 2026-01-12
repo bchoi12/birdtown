@@ -155,7 +155,6 @@ export class Profile extends ComponentBase implements Component {
 		this._scaleFactor = Vec2.one();
 		this._smoother = new Smoother();
 		this._occluded = false;
-		this._visible = true;
 
 		this._pos = null;
 		this._vel = null;
@@ -377,10 +376,7 @@ export class Profile extends ComponentBase implements Component {
 			this._onBodyFns.push(fn);
 		}
 	}
-	visible() : boolean { return this.hasBody() && this._visible && !this._occluded; }
-	setVisible(visible : boolean) : void {
-		this._visible = visible;
-	}
+	visible() : boolean { return this.hasBody() && !this._occluded; }
 	setOccluded(occluded : boolean) : void {
 		this._occluded = occluded;
 	}
@@ -883,9 +879,7 @@ export class Profile extends ComponentBase implements Component {
 			this._prePhysicsFn(this);
 		}
 
-		if (this._visible && this._occluded) {
-			this.setOccluded(false);
-		}
+		this.setOccluded(false);
 
 		if (this._applyScaling) {
 			MATTER.Body.scale(this._body, this._scaleFactor.x, this._scaleFactor.y);

@@ -26,7 +26,7 @@ Beta has been launched! Play now at either
  * v1.1
  	* TURN server support (goodbye symmetric NAT issues)
  	* Buff system and new game mode Buff Battle
- 	* Brand new level Birdff (also procedurally generated)
+ 	* Brand new level Birdrock (also procedurally generated)
  	* More accessibility options and settings menu overhaul
  	* New weapons and equips
  	* Jazz up some old game modes

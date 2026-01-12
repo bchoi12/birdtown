@@ -96,7 +96,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 		if (this.soundType() !== SoundType.UNKNOWN) {
 			this.soundPlayer().playFromSelf(this.soundType());
 		}
-		this._lifeTimer.start(this.ttl() * 2, () => {
+		this._lifeTimer.timeout(this.ttl() * 2, () => {
 			this.delete();
 		});
 
@@ -154,7 +154,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 			if (other.hasType(EntityType.PROJECTILE)
 			&& Math.abs(magnitude) >= 0.5
 			&& !other.profile().vel().isZero()
-			&& !this.matchAssociations([AssociationType.OWNER], other)) {
+			&& !this.sameOwner(other)) {
 				if (this.isSource()) {
 					let dist = other.profile().pos().clone().sub(this._profile.pos());
 					if (magnitude < 0) {
@@ -178,7 +178,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 				return;
 			}
 
-			if (this.matchAssociations([AssociationType.OWNER], other) || this.sameTeam(other)) {
+			if (this.sameOwner(other) || this.sameTeam(other)) {
 				this._hits.add(other.id());
 				return;
 			}
@@ -198,7 +198,7 @@ export abstract class Explosion extends EntityBase implements Entity {
 			other.addForce(force);
 
 			if (magnitude > 0
-				&& !this.matchAssociations([AssociationType.OWNER], other)
+				&& !this.sameOwner(other)
 				&& this.owner().hasStat(StatType.EXPLOSION_DAMAGE)) {
 
 				const damage = magnitude * this.owner().getStat(StatType.EXPLOSION_DAMAGE) * (1 + this.owner().getStat(StatType.DAMAGE_BOOST));

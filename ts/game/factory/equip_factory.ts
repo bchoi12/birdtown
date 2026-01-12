@@ -94,12 +94,15 @@ export namespace EquipFactory {
 		return allEquips.recommended[randomEquip];
 	}
 
+	export function nextWeapon() : EntityType {
+		return weapons[getNextIndex()];
+	}
 	export function next() : [EntityType, EntityType] {
-		const weapon = weapons[getNextIndex()];
+		const weapon = nextWeapon();
 		return getRandomPair(weapon);
 	}
 	export function nextDefaultPair() : [EntityType, EntityType] {
-		const weapon = weapons[getNextIndex()];
+		const weapon = nextWeapon();
 		return getDefaultPair(weapon);
 	}
 	export function random() : [EntityType, EntityType] {

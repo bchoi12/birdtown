@@ -3,7 +3,7 @@ import * as MATTER from 'matter-js'
 import { game } from 'game'
 import { GameObjectState } from 'game/api'
 import { Component } from 'game/component'
-import { ComponentType, AssociationType, AttributeType, EmotionType, TeamType } from 'game/component/api'
+import { ComponentType, AssociationType, AttributeType, EmotionType, TeamType, TraitType } from 'game/component/api'
 import { Association, AssociationInitOptions } from 'game/component/association'
 import { Attributes, AttributesInitOptions } from 'game/component/attributes'
 import { Buffs } from 'game/component/buffs'
@@ -12,6 +12,7 @@ import { Expression } from 'game/component/expression'
 import { HexColorsInitOptions } from 'game/component/hex_colors'
 import { Model, ModelInitOptions } from 'game/component/model'
 import { Profile, ProfileInitOptions } from 'game/component/profile'
+import { Traits, TraitsInitOptions } from 'game/component/traits'
 import { SoundPlayer } from 'game/component/sound_player'
 import { Resources } from 'game/component/resources'
 import { EntityType } from 'game/entity/api'
@@ -48,6 +49,7 @@ export type EntityOptions = {
 	hexColorsInit? : HexColorsInitOptions;
 	modelInit? : ModelInitOptions;
 	profileInit? : ProfileInitOptions
+	traitsInit? : TraitsInitOptions;
 }
 
 export interface Entity extends GameObject {
@@ -79,8 +81,8 @@ export interface Entity extends GameObject {
 	ttlMillisElapsed() : number;
 	key(type : KeyType, state : KeyState) : boolean;
 	keyCounter(type : KeyType) : number;
+	setInputDir(vec : Vec) : void;
 	inputDir() : Vec2;
-	inputMouse() : Vec2;
 	cameraOffset() : Vec3;
 
 	// Convenience getters/setters
@@ -91,7 +93,10 @@ export interface Entity extends GameObject {
 	hasAttribute(type : AttributeType) : boolean;
 	getAttribute(type : AttributeType) : boolean;
 	setAttribute(type : AttributeType, value : boolean) : void;
-	maybeSetAttribute(type : AttributeType, value : boolean) : void;
+	hasTrait(type : TraitType) : boolean;
+	getTrait(type : TraitType) : number;
+	randTrait(type : TraitType) : number;
+	rollTrait(type : TraitType, value : number) : boolean;
 	hasStat(type : StatType) : boolean;
 	baseStat(type : StatType) : number;
 	getStat(type : StatType) : number;
@@ -116,7 +121,7 @@ export interface Entity extends GameObject {
 	team() : TeamType;
 	hasOwner() : boolean;
 	owner() : Entity;
-	matchAssociations(types : AssociationType[], other : Entity) : boolean;
+	sameOwner(other : Entity) : boolean;
 
 	addForce(force : Vec) : void;
 	resetResource(type : StatType) : void;
@@ -163,6 +168,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	protected _orderedTypes : Array<EntityType>;
 	protected _entityName : ParamString;
 	protected _ttlTimer : Optional<Timer>;
+	protected _inputDir : Vec2;
 
 	protected _levelVersion : number;
 
@@ -185,6 +191,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		this.addType(type);
 		this._entityName = StringFactory.getEntityName(this);
 		this._ttlTimer = new Optional();
+		this._inputDir = Vec2.i();
 
 		if (entityOptions.offline) {
 			this.setOffline(true);
@@ -280,7 +287,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			}));
 		}
 
-		this._ttlTimer.get().start(ttl, () => {
+		this._ttlTimer.get().timeout(ttl, () => {
 			if (onDelete) {
 				onDelete();
 			}
@@ -312,20 +319,13 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		const keys = game.keys(clientId);
 		return keys.key(type).counter();
 	}
+	setInputDir(vec : Vec) : void { this._inputDir.copyVec(vec); }
 	inputDir() : Vec2 {
-		const clientId = this.hasClientId() ? this.clientId() : game.clientId();
-		if (!game.input().hasKeys(clientId)) {
-			return Vec2.i();
+		if (!this.hasClientId() || !game.input().hasKeys(this.clientId())) {
+			return this._inputDir;
 		}
 
-		return game.keys(clientId).dir();
-	}
-	inputMouse() : Vec2 {
-		const clientId = this.hasClientId() ? this.clientId() : game.clientId();
-		if (!game.input().hasKeys(clientId)) {
-			return Vec2.i();
-		}
-		return game.keys(clientId).mouse();
+		return game.keys(this.clientId()).dir();
 	}
 	cameraOffset() : Vec3 {
 		return Vec3.zero();
@@ -377,6 +377,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 		return this.getComponent<Association>(ComponentType.ASSOCIATION).hasOwner();
 	}
+	sameOwner(other : Entity) : boolean {
+		return this.matchAssociations([AssociationType.OWNER], other);
+	}
 	owner() : Entity {
 		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
 			console.error("Error: queried owner for %s", this.name());
@@ -384,7 +387,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 		return this.getComponent<Association>(ComponentType.ASSOCIATION).owner();
 	}
-	matchAssociations(types : AssociationType[], other : Entity) : boolean {
+	private matchAssociations(types : AssociationType[], other : Entity) : boolean {
 		if (!this.hasComponent(ComponentType.ASSOCIATION)) {
 			return false;
 		}
@@ -430,11 +433,30 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 		this.getComponent<Attributes>(ComponentType.ATTRIBUTES).setAttribute(type, value);
 	}
-	maybeSetAttribute(type : AttributeType, value : boolean) : void {
-		if (!this.hasComponent(ComponentType.ATTRIBUTES)) {
-			return;
+
+	hasTrait(type : TraitType) : boolean { 
+		return this.hasComponent(ComponentType.TRAITS) && this.getComponent<Traits>(ComponentType.TRAITS).hasTrait(type);
+	}
+	getTrait(type : TraitType) : number {
+		if (!this.hasComponent(ComponentType.TRAITS)) {
+			return 0;
 		}
-		this.getComponent<Attributes>(ComponentType.ATTRIBUTES).setAttribute(type, value);
+
+		return this.getComponent<Traits>(ComponentType.TRAITS).getTrait(type);
+	}
+	randTrait(type : TraitType) : number {
+		if (!this.hasComponent(ComponentType.TRAITS)) {
+			return 0;
+		}
+
+		return this.getComponent<Traits>(ComponentType.TRAITS).rand(type);
+	}
+	rollTrait(type : TraitType, value : number) : boolean {
+		if (!this.hasComponent(ComponentType.TRAITS)) {
+			return false;
+		}
+
+		return this.getComponent<Traits>(ComponentType.TRAITS).roll(type, value);
 	}
 
 	hasStat(type : StatType) : boolean {
@@ -581,6 +603,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		if (delta > 0
 			&& from
 			&& this.id() !== from.id()
+			&& !this.hasType(EntityType.BOT)
 			&& this.sameTeam(from)) {
 
 			if (from.hasStat(StatType.HEAL_PERCENT)) {
@@ -609,11 +632,11 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 			if (hitEntity && hitEntity.hasType(EntityType.PROJECTILE) && this.hasProfile() && from.hasProfile()) {
 				if (from.hasStat(StatType.DAMAGE_FAR_BOOST)) {
-					const distSq = this.profile().pos().distSq(from.profile().pos());
+					const distSq = game.level().distSq(this.profile(), from.profile());
 					mult += Fns.normalizeRange(10 * 10, distSq, 20 * 20) * from.getStat(StatType.DAMAGE_FAR_BOOST);
 				}
 				if (from.hasStat(StatType.DAMAGE_CLOSE_BOOST)) {
-					const dist = this.profile().pos().dist(from.profile().pos());
+					const dist = game.level().dist(this.profile(), from.profile());
 					mult += Fns.normalizeRange(10, dist, 0) * from.getStat(StatType.DAMAGE_CLOSE_BOOST);
 				}
 			}
@@ -718,5 +741,5 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 		return this.fallbackColor();
 	}
-	fallbackColor() : string { return ColorFactory.grayHex; }
+	fallbackColor() : string { return ColorFactory.lightGrayHex; }
 }

@@ -31,7 +31,7 @@ export class CliffBlueprint extends Blueprint<CliffBlueprintBlock> {
 		const options = this.options();
 
 		switch (this.getType()) {
-		case LevelType.CLIFF_LAKE:
+		case LevelType.BIRDROCK:
 			this.loadBirdCliff(options);
 			break;
 		default:

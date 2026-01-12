@@ -35,6 +35,14 @@ export enum AttachType {
 	ROOT,
 }
 
+export enum AutoUseType {
+	UNKNOWN,
+
+	OFF,
+	PRESS,
+	HOLD,
+}
+
 export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 
 	protected static readonly _maxJuice = 100;
@@ -44,6 +52,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	protected _owner : E;
 	// Networked counter for uses
 	protected _uses : SavedCounter;
+	protected _autoUse : AutoUseType;
 	protected _canUse : boolean;
 	protected _lastUseCounter : number;
 	protected _instantUse : boolean;
@@ -62,6 +71,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this._attributes = this.addComponent<Attributes>(new Attributes(entityOptions.attributesInit));
 
 		this._uses = new SavedCounter(0);
+		this._autoUse = AutoUseType.OFF;
 		this._canUse = false;
 		this._lastUseCounter = 0;
 		this._instantUse = false;
@@ -194,12 +204,23 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		return this._juice >= this.getUseJuice();
 	}
 	protected checkCanUse() : boolean {
-		return this.hasJuice() && (this._canUseDuringDelay || !this._chargeDelayTimer.hasTimeLeft());
+		return this.hasJuice() && (this._canUseDuringDelay || !this._chargeDelayTimer.hasTimeLeft()) && !this.owner().dead();
 	}
+
+	setAutoUse(type : AutoUseType) : void {
+		this._autoUse = type;
+	}
+
 	protected useKeyDown() : boolean {
+		if (this._autoUse === AutoUseType.PRESS || this._autoUse === AutoUseType.HOLD) {
+			return true;
+		}
 		return this.key(this.useKeyType(), KeyState.DOWN);
 	}
 	protected useKeyPressed() : boolean {
+		if (this._autoUse === AutoUseType.PRESS || this._autoUse === AutoUseType.HOLD) {
+			return true;
+		}
 		return this.keyCounter(this.useKeyType()) !== this._lastUseCounter && this.useKeyDown()
 			|| this.key(this.useKeyType(), KeyState.PRESSED)
 			|| settings.allowKeyLock(this.useKeyType()) && this.key(this.useKeyType(), KeyState.RELEASED);
@@ -255,6 +276,10 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 		this.delayCharge(this.getChargeDelay());
 
 		this._lastUseCounter = this.keyCounter(this.useKeyType());
+
+		if (this._autoUse === AutoUseType.PRESS) {
+			this._autoUse = AutoUseType.OFF;
+		}
 	}
 
 	getDir() : Vec2 {

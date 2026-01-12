@@ -16,8 +16,9 @@ import { Resources } from 'game/component/resources'
 import { ChangeLog } from 'game/component/util/change_log'
 import { Entity, EntityBase, EntityOptions, EquipEntity } from 'game/entity'
 import { EntityType, BirdType, BoneType } from 'game/entity/api'
+import { Player } from 'game/entity/bird/player'
 import { Crate } from 'game/entity/interactable/crate'
-import { Equip, AttachType } from 'game/entity/equip'
+import { Equip, AttachType, AutoUseType } from 'game/entity/equip'
 import { Beak } from 'game/entity/equip/beak'
 import { Bubble } from 'game/entity/equip/bubble'
 import { Headwear } from 'game/entity/equip/headwear'
@@ -165,6 +166,8 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 	protected _damageTimer : Timer;
 	protected _equipType : EntityType;
 	protected _altEquipType : EntityType;
+	protected _equipEntity : Equip<Bird>;
+	protected _altEquipEntity : Equip<Bird>;
 	protected _deadTracker : ChangeTracker<boolean>;
 	protected _groundedTracker : ChangeTracker<boolean>;
 	protected _nameTag : NameTag;
@@ -205,6 +208,8 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 		});
 		this._equipType = EntityType.UNKNOWN;
 		this._altEquipType = EntityType.UNKNOWN;
+		this._equipEntity = null;
+		this._altEquipEntity = null;
 		this._deadTracker = new ChangeTracker(() => { return this.dead(); }, (dead : boolean) => { this.onDead(dead) });
 		this._groundedTracker = new ChangeTracker(() => { return this.grounded(); }, (grounded : boolean) => { this.onGrounded(grounded); });
 		this._nameTag = null;
@@ -215,14 +220,6 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 			export: () => { return this._dead; },
 			import: (obj : boolean) => { this.onDead(obj); },
 		})
-		this.addProp<EntityType>({
-			export: () => { return this._equipType; },
-			import: (obj : EntityType) => { this._equipType = obj; },
-		});
-		this.addProp<EntityType>({
-			export: () => { return this._altEquipType; },
-			import: (obj : EntityType) => { this._altEquipType = obj; },
-		});
 		this.addProp<number>({
 			has: () => { return this._damageCounter.count() > 0; },
 			export: () => { return this._damageCounter.count(); },
@@ -300,7 +297,6 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 			},
 			prePhysicsFn: (profile : Profile) => { profile.snapWithOffset(this._profile, { y: 0.22 }); },
 		}));
-		this._headSubProfile.setVisible(false);
 		this._headSubProfile.setAngle(0);
 
 		this._model = this.addComponent<Model>(new Model({
@@ -316,7 +312,7 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 							const texture = Bird._birdTextures.get(this.birdType());
 							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(texture));
 						} else if (mesh.material.name === Material.EYE) {
-							const texture = Bird._eyeTextures.get(this.birdType());
+							const texture = this.eyeTexture();
 
 							(<BABYLON.Texture>mesh.material.albedoTexture).updateURL(TextureFactory.getURL(texture));
 							mesh.material.albedoTexture.hasAlpha = true;
@@ -398,6 +394,7 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 
 	abstract displayName() : string;
 	protected abstract birdType() : BirdType;
+	protected abstract eyeTexture() : TextureType;
 	protected abstract walkDir() : number;
 	protected abstract jumping() : boolean;
 	protected abstract doubleJumping() : boolean;
@@ -428,6 +425,23 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 		super.takeDamage(amount, from, hitEntity);
 	}
 
+	floatRespawn(spawn : Vec2) : void {
+		this.respawn(spawn);
+
+		if (this.isSource()) {
+			this._entityTrackers.clearEntityType(EntityType.BUBBLE);
+			const [bubble, hasBubble] = this.addEntity<Bubble>(EntityType.BUBBLE, {
+				associationInit: {
+					owner: this,
+				},
+				clientId: this.clientId(),
+				levelVersion: game.level().version(),
+			});
+			if (hasBubble) {
+				this._entityTrackers.trackEntity<Bubble>(EntityType.BUBBLE, bubble);
+			}
+		}
+	}
 	respawn(spawn : Vec2) : void {
 		if (this.isSource() || this.clientIdMatches()) {
 			this.setAttribute(AttributeType.GROUNDED, false);
@@ -458,7 +472,13 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 	}
 	grounded() : boolean { return this.getAttribute(AttributeType.GROUNDED); }
 
-	lastDamager(millis : number) : [ChangeLog, boolean] { return this._resources.lastDamager(millis); }
+	lastDamager() : [Player, boolean] {
+		const [log, hasLog] = this._resources.lastDamager();
+		if (hasLog) {
+			return log.owner<Player>();
+		}
+		return [null, false];
+	}
 	fullHeal() : void {
 		this._resources.fullHeal();
 		this.getUp();
@@ -477,6 +497,22 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 	headAngle() : number { return this._headSubProfile.angle(); }
 
 	buffs() : Buffs { return this._buffs; }
+
+	protected setEquipUse(type : AutoUseType) : void {
+		if (this._equipEntity !== null) {
+			this._equipEntity.setAutoUse(type);
+		}
+	}
+	protected setEquipDir(vec : Vec) : void {
+		if (this._equipEntity !== null) {
+			this._equipEntity.setInputDir(vec);
+		}
+	}
+	protected setAltEquipUse(type : AutoUseType) : void {
+		if (this._altEquipEntity !== null) {
+			this._altEquipEntity.setAutoUse(type);
+		}
+	}
 
 	equipType() : EntityType { return this._equipType; }
 	altEquipType() : EntityType { return this._altEquipType; }
@@ -546,13 +582,17 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 
 			if (equip.hasType(EntityType.WEAPON)) {
 				this._equipType = equip.type();
+				this._equipEntity = equip;
 			} else if (!equip.hasType(EntityType.HEADWEAR) && !equip.hasType(EntityType.BEAK)) {
 				// Kinda fragile
 				this._altEquipType = equip.type();
+				this._altEquipEntity = equip;
+			}
 
+			if (this._altEquipEntity !== null) {
 				this._entityTrackers.getEntities<Headwear>(EntityType.HEADWEAR).execute((headwear : Headwear) => {
-					headwear.model().setVisible(!headwear.shouldHide(equip.attachType()));
-				});
+					headwear.model().setVisible(!headwear.shouldHide(this._altEquipEntity.attachType()));
+				});				
 			}
 		});
 	}
@@ -836,6 +876,23 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 		}
 	}
 
+	protected setDir(dir : Vec2) : void {
+		if (Math.sign(dir.x) !== Math.sign(this._headDir.x)) {
+			if (Math.abs(dir.x) > 0.2) {
+				this._headDir.copy(dir);
+			}
+		} else {
+			this._headDir.copy(dir);
+		}
+
+		if (Math.abs(this._headDir.x) < .707) {
+			this._headDir.x = Math.sign(this._headDir.x);
+			this._headDir.y = Math.sign(this._headDir.y);
+		}
+		this._headDir.normalize();
+		this._armDir.copy(dir).normalize();
+	}
+
 	protected damageToTime(dmg : number) : number {
 		if (dmg <= 0) {
 			return 0;
@@ -849,7 +906,7 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 
 		const time = this.damageToTime(dmg);
 		if (!this._damageTimer.hasTimeLeft() || time > this._damageTimer.millisLeft()) {
-			this._damageTimer.start(time, () => {
+			this._damageTimer.timeout(time, () => {
 				this.flashWhite(0);
 			});
 		}

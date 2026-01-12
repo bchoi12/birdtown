@@ -106,7 +106,6 @@ export abstract class Block extends EntityBase implements Entity {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setVisible(false);
 
 		this._model = this.addComponent(new Model({
 			readyFn: () => {
@@ -210,7 +209,6 @@ export abstract class Block extends EntityBase implements Entity {
 			}
 		}
 
-		this._profile.setVisible(this.canOcclude() && !this.transparent());
 		this._frontMaterials.forEach((name : string) => {
 			const cachedMaterial = this._materialCache.get(name);
 			cachedMaterial.material.alpha = Fns.clamp(Block._minOpacity, alpha, cachedMaterial.alpha);

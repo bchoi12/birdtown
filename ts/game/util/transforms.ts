@@ -15,6 +15,7 @@ export type TransformOptions = {
 	scale? : Vec;
 }
 
+// TODO: move to util?
 export class Transforms {
 
 	private static readonly _factory = new Map([

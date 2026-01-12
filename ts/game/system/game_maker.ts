@@ -38,7 +38,6 @@ import { globalRandom } from 'util/seeded_random'
 export class GameMaker extends SystemBase implements System {
 
 	private static readonly _announcementBuffer = 250;
-	private static readonly _lastDamageTime = 15000;
 	private static readonly _finishTimeLimit = 3000;
 	private static readonly _victoryTimeLimit = 7500;
 	private static readonly _endTimeLimit = 2500;
@@ -604,8 +603,8 @@ export class GameMaker extends SystemBase implements System {
 			tablet.setInfo(InfoType.SCORE, 0);
 		}
 
-		const [log, hasLog] = player.lastDamager(GameMaker._lastDamageTime);
-		if (!hasLog || !log.hasEntityLog()) {
+		const [damager, hasDamager] = player.lastDamager();
+		if (!hasDamager) {
 	    	game.announcer().feed({
 	    		type: FeedType.SUICIDE,
 	    		names: [tablet.displayName()],
@@ -614,47 +613,41 @@ export class GameMaker extends SystemBase implements System {
 		}
 
 		// Update tablet for last damager.
-		const associations = log.entityLog().associations();
-		if (associations.has(AssociationType.OWNER)) {
-			const damagerId = associations.get(AssociationType.OWNER);
-			const [damager, hasDamager] = game.entities().getEntity<Player>(damagerId);
+		if (hasDamager && game.tablets().hasTablet(damager.clientId())) {
+			const damagerTablet = game.tablet(damager.clientId())
 
-			if (hasDamager && game.tablets().hasTablet(damager.clientId())) {
-				const damagerTablet = game.tablet(damager.clientId())
-
-				if (damager.sameTeam(player)) {
-					damagerTablet.addTeamKill();
-				} else {
-					if (this._config.type() === GameMode.GOLDEN_GUN) {
-						if (damager.equipType() === EntityType.GOLDEN_GUN) {
-							damagerTablet.addPointKill();
-						} else {
-							// Upgrade weapon
-							damager.createEquips(EntityType.GOLDEN_GUN, EntityType.TOP_HAT);
-						}
-					} else {
+			if (damager.sameTeam(player)) {
+				damagerTablet.addTeamKill();
+			} else {
+				if (this._config.type() === GameMode.GOLDEN_GUN) {
+					if (damager.equipType() === EntityType.GOLDEN_GUN) {
 						damagerTablet.addPointKill();
+					} else {
+						// Upgrade weapon
+						damager.createEquips(EntityType.GOLDEN_GUN, EntityType.TOP_HAT);
+					}
+				} else {
+					damagerTablet.addPointKill();
 
-						switch (this._config.type()) {
-						case GameMode.SPREE:
-							damager.addBuff(BuffType.SPREE, 1);
-							break;
-						}
+					switch (this._config.type()) {
+					case GameMode.SPREE:
+						damager.addBuff(BuffType.SPREE, 1);
+						break;
 					}
 				}
+			}
 
+	    	game.announcer().feed({
+	    		type: FeedType.KILL,
+	    		names: [damagerTablet.displayName(), tablet.displayName()],
+	    	});
+
+			if (this._config.getWinCondition() === WinConditionType.POINTS
+				&& damagerTablet.getInfo(InfoType.SCORE) === this._config.getPoints() - 1) {
 		    	game.announcer().feed({
-		    		type: FeedType.KILL,
-		    		names: [damagerTablet.displayName(), tablet.displayName()],
+		    		type: FeedType.ONE_MORE,
+		    		names: [damagerTablet.displayName()],
 		    	});
-
-				if (this._config.getWinCondition() === WinConditionType.POINTS
-					&& damagerTablet.getInfo(InfoType.SCORE) === this._config.getPoints() - 1) {
-			    	game.announcer().feed({
-			    		type: FeedType.ONE_MORE,
-			    		names: [damagerTablet.displayName()],
-			    	});
-				}
 			}
 		}
 	}

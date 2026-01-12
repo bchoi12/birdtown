@@ -11,6 +11,7 @@ export namespace ColorFactory {
 	export const whiteHex = "#FFFFFF";
 	export const blackHex = "#000000";
 	export const grayHex = "#808080";
+	export const lightGrayHex = "#ababab";
 
 	const colorMap = new Map<ColorType, HexColor>([
 
@@ -76,8 +77,7 @@ export namespace ColorFactory {
 		[ColorType.PLAYER_PINK, HexColor.fromHex(0xfc0fbd)],
 		[ColorType.PLAYER_BROWN, HexColor.fromHex(0x7d4d1a)],
 		[ColorType.PLAYER_WHITE, HexColor.fromHex(0xfbfbfb)],
-		[ColorType.PLAYER_GRAY, HexColor.fromHex(0x8b8b8b)],
-		[ColorType.PLAYER_BLACK, HexColor.fromHex(0x3b3b3b)],
+		[ColorType.PLAYER_GRAY, HexColor.fromHex(0xababab)],
 
 		// Western series (rugged?)
 		[ColorType.WESTERN_YELLOW, HexColor.fromHex(0xffef61)],
@@ -176,7 +176,7 @@ export namespace ColorFactory {
 			ColorType.PLAYER_YELLOW, ColorType.PLAYER_LIME, ColorType.PLAYER_GREEN,
 			ColorType.PLAYER_TEAL, ColorType.PLAYER_AQUA, ColorType.PLAYER_BLUE,
 			ColorType.PLAYER_PURPLE, ColorType.PLAYER_PINK, ColorType.PLAYER_BROWN,
-			ColorType.PLAYER_WHITE, ColorType.PLAYER_GRAY, ColorType.PLAYER_BLACK,
+			ColorType.PLAYER_WHITE, ColorType.PLAYER_GRAY
 		]],
 	]);
 

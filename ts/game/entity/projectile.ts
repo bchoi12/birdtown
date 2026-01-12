@@ -56,7 +56,7 @@ export abstract class Projectile extends EntityBase {
 	}
 
 	override ready() : boolean {
-		return super.ready() && this._association.hasRefreshedOwner();
+		return super.ready() && this.hasProfile() && this._association.hasRefreshedOwner();
 	}
 
 	override initialize() : void {
@@ -71,9 +71,7 @@ export abstract class Projectile extends EntityBase {
 			this.setAttribute(AttributeType.CRITICAL, true);
 		}
 
-		if (this.hasProfile()) {
-			this.profile().multScaling(Math.max(1, owner.getStat(StatType.SCALING)) + owner.getStat(StatType.PROJECTILE_SCALING_BOOST));
-		}
+		this.profile().multScaling(Math.max(1, owner.getStat(StatType.SCALING)) + owner.getStat(StatType.PROJECTILE_SCALING_BOOST));
 	}
 
 	override delete() : void {
@@ -94,9 +92,7 @@ export abstract class Projectile extends EntityBase {
 	override prePhysics(stepData : StepData) : void {
 		super.prePhysics(stepData);
 
-		if (this.hasProfile()) {
-			this._prevPos.copyVec(this.profile().pos())
-		}
+		this._prevPos.copyVec(this.profile().pos());
 	}
 
 	override collide(collision : MATTER.Collision, other : Entity) : void {
@@ -155,7 +151,7 @@ export abstract class Projectile extends EntityBase {
 		if (this._hits.has(other.id())) {
 			return false;
 		}
-		if (this.matchAssociations([AssociationType.OWNER], other)) {
+		if (this.sameOwner(other)) {
 			return false;
 		}
 		return true;
@@ -171,7 +167,7 @@ export abstract class Projectile extends EntityBase {
 		}
 
 		// Snap to bounds
-		if (this._snapOnHit && this.hasProfile() && other.hasType(EntityType.BOUND)) {
+		if (this._snapOnHit && other.hasType(EntityType.BOUND)) {
 			this.profile().snapTo(other.profile(), /*limit=*/1);
 
 			// Little hack to snap explosion to right spot
@@ -186,7 +182,7 @@ export abstract class Projectile extends EntityBase {
 	}
 
 	protected explode(type : EntityType, entityOptions? : EntityOptions) : void {
-		if (!this.hasProfile() || !this.profile().initialized()) {
+		if (!this.profile().initialized()) {
 			return;
 		}
 

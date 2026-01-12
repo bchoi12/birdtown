@@ -569,7 +569,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 	}
 
 	private levelWrapper(msg : GameConfigMessage) : LabelNumberWrapper {
-		const types = [LevelType.RANDOM, LevelType.BIRDTOWN, LevelType.CLIFF_LAKE];
+		const types = [LevelType.RANDOM, LevelType.BIRDTOWN, LevelType.BIRDROCK];
 
 		let index = types.indexOf(msg.getLevelType());
 		if (index < 0) {

@@ -28,7 +28,6 @@ export abstract class BoundBase extends EntityBase implements Entity {
 			},
 			init: entityOptions.profileInit,
 		}));
-		this._profile.setVisible(false);
 	}
 
 	override impactSound() : SoundType { return SoundType.THUD; }

@@ -224,8 +224,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 		this._model.setVisible(this._visible && this._enabled);
 
 		if (this._updatePointerColor && this._visible) {
-			const color = game.lakitu().targetEntity().clientColor();
-			this._colorMaterial.emissiveColor = BABYLON.Color3.FromHexString(color);
+			this._colorMaterial.emissiveColor = BABYLON.Color3.FromHexString(this.owner().clientColor());
 		}
 	}
 	setTagVisible(visible : boolean) : void {
@@ -277,7 +276,7 @@ export class NameTag extends Equip<Entity & EquipEntity> {
 			&& !game.playerState().targetEntity().getAttribute(AttributeType.UNDERWATER)) {
 			// Don't underwater nametags unless also underwater
 			enabled = false;
-		} else if (this.owner().type() === EntityType.PLAYER && this.owner().dead()) {
+		} else if (this.owner().hasType(EntityType.BIRD) && this.owner().dead()) {
 			// Don't show when dead
 			enabled = false;
 		}

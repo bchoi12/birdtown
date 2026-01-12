@@ -9,8 +9,6 @@ import { ClientSideSystem, System } from 'game/system'
 import { SystemType } from 'game/system/api'
 import { Key } from 'game/system/key'
 
-import { NetworkGlobals } from 'global/network_globals'
-
 import { ui } from 'ui'
 import { KeyType } from 'ui/api'
 

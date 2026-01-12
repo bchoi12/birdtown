@@ -29,9 +29,6 @@ export enum GameState {
 
 	// Reached error state and need to restart
 	ERROR,
-
-	// Reached unrecoverable error state and page needs to be fully reloaded
-	FATAL,
 }
 
 export enum GameMode {
@@ -40,9 +37,9 @@ export enum GameMode {
 	FREE,
 
 	// beta 1.0
+	PRACTICE,
 	DUEL,
 	FREE_FOR_ALL,
-	PRACTICE,
 	SPREE,
 	SUDDEN_DEATH,
 	SURVIVAL,
@@ -54,7 +51,7 @@ export enum GameMode {
 	BUFF_BATTLE,
 	TEAM_DEATHMATCH,
 
-	// v1.11
+	// v1.2
 	INVASION,
 }
 

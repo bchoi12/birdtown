@@ -148,6 +148,7 @@ export abstract class Weapon extends Equip<Player> {
 	protected _skipRecoilOnEmpty : boolean;
 
 	protected _shootNode : BABYLON.TransformNode;
+	protected _overrideDir : Vec2;
 
 	protected _model : Model;
 
@@ -173,6 +174,7 @@ export abstract class Weapon extends Equip<Player> {
 		this._skipRecoilOnEmpty = false;
 
 		this._shootNode = null;
+		this._overrideDir = Vec2.zero();
 
 		this.addProp<boolean>({
 			export: () => { return this._charged; },
@@ -226,6 +228,9 @@ export abstract class Weapon extends Equip<Player> {
 		// Doesn't really matter? Direction of projectile will be correct
 		const node = this.shootNode();
 		return Vec3.fromBabylon3(node.getAbsolutePosition());
+	}
+	setDir(vec : Vec) : void {
+		this._overrideDir.copyVec(vec);
 	}
 
 	weaponState() : WeaponState { return this._weaponState; }
@@ -292,6 +297,10 @@ export abstract class Weapon extends Equip<Player> {
 			return super.getDir();
 		}
 
+		if (!this.hasClientId() || !game.input().hasKeys(this.clientId())) {
+			return this.inputDir().clone();
+		}
+
 		let mouse = this.inputMouse().clone();
 		let origin = Vec2.fromBabylon3(this.shootNode().getAbsolutePosition());
 
@@ -307,6 +316,13 @@ export abstract class Weapon extends Equip<Player> {
 			return this.inputDir().clone();
 		}
 		return origin.sub(mouse).negate().normalize();
+	}
+	protected inputMouse() : Vec2 {
+		const clientId = this.hasClientId() ? this.clientId() : game.clientId();
+		if (!game.input().hasKeys(clientId)) {
+			return Vec2.i();
+		}
+		return game.keys(clientId).mouse();
 	}
 
 	chargedThreshold() : number { return Weapon._chargedThreshold / Math.max(0.1, 1 + this.getStat(StatType.CHARGE_BOOST)); }
@@ -343,7 +359,7 @@ export abstract class Weapon extends Equip<Player> {
 		}
 		this.recordUse();
 	}
-	protected override checkCanUse() : boolean { return !this.reloading() || this._allowPartialClip && this._bursts > 0; }
+	protected override checkCanUse() : boolean { return !this.owner().dead() && (!this.reloading() || this._allowPartialClip && this._bursts > 0); }
 	protected override useKeyType() : KeyType { return KeyType.MOUSE_CLICK; };
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);

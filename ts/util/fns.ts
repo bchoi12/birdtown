@@ -34,6 +34,11 @@ export namespace Fns {
 	export function normalizeRad(rad : number) : number {
 		return rad - 2 * Math.PI * Math.floor(rad / (2 * Math.PI));
 	}
+
+	// [-pi, pi)
+	export function minimizeRad(rad : number) : number {
+		return normalizeRad(rad + Math.PI) - Math.PI;
+	}
 	// [0, 360)
 	export function normalizeDeg(deg : number) : number {
 		return deg - 360 * Math.floor(deg / 360);
@@ -58,6 +63,10 @@ export namespace Fns {
 
 	export function randomRange(min : number, max : number) : number {
 		return min + Math.random() * (max - min);
+	}
+
+	export function randomInt(min : number, max : number) : number {
+		return min + Math.floor(Math.random() * (max - min + 1));
 	}
 
 	export const interpFns = new Map<InterpType, InterpFn>([

@@ -7,6 +7,7 @@ import { StatType } from 'game/factory/api'
 export namespace StatFactory {
 
 	const baseStats = new Map<StatType, number>([
+		[StatType.AIR_SPEED_BOOST, 0],
 		[StatType.BURST_BONUS, 0],
 		[StatType.BURST_BOOST, 0],
 		[StatType.CHARGE_BOOST, 0],
@@ -47,6 +48,22 @@ export namespace StatFactory {
 
 	const entityStats = new Map<EntityType, Map<StatType, number>>([
 		[EntityType.PLAYER, new Map([
+			[StatType.CRIT_BOOST, 0.5],
+			[StatType.DOUBLE_JUMPS, 1],
+			[StatType.EXPOSE_PERCENT, 0],
+			[StatType.FLAME_CHANCE, 0],
+			[StatType.HEALTH, 100],
+			[StatType.HP_REGEN_DELAY, 5000],
+			[StatType.IMBUE_LEVEL, 0],
+			[StatType.LIFE_STEAL, 0],
+			[StatType.POISON_CHANCE, 0],
+			[StatType.SHIELD, 0],
+			[StatType.SHIELD_STEAL, 0],
+			[StatType.SLOW_CHANCE, 0],
+			[StatType.SCALING, 1],
+		])],
+
+		[EntityType.BOT, new Map([
 			[StatType.AIR_SPEED_BOOST, 0],
 			[StatType.CRIT_BOOST, 0.5],
 			[StatType.DOUBLE_JUMPS, 1],
@@ -296,7 +313,7 @@ export namespace StatFactory {
 			[StatType.RELOAD_TIME, 925],
 		])],
 		[EntityType.BULLET, new Map([
-			[StatType.DAMAGE, 25],
+			[StatType.DAMAGE, 22],
 		])],
 		// 83 DPS + delay damage
 		// 4 shots in 1200ms

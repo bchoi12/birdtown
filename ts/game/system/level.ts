@@ -51,7 +51,7 @@ export class Level extends SystemBase implements System {
 		super(SystemType.LEVEL);
 
 		this._levelMsg = new GameMessage(GameMessageType.LEVEL_LOAD);
-		this._levelRotation = [LevelType.BIRDTOWN, LevelType.CLIFF_LAKE];
+		this._levelRotation = [LevelType.BIRDTOWN, LevelType.BIRDROCK];
 		this._levelIndex = 0;
 		this._bounds = Box2.zero();
 		this._rng = new SeededRandom(Math.floor(Math.random() * 100));
@@ -130,10 +130,40 @@ export class Level extends SystemBase implements System {
 		}
 		pos.y = Math.min(pos.y, this._bounds.max.y);
 	}
+	distSq(a : Profile, b : Profile) : number {
+		if (!this.isCircle()) {
+			return a.pos().distSq(b.pos());
+		}
+		
+		let x = Math.abs(a.pos().x - b.pos().x);
+		const width = this._bounds.width();
+		if (x > width / 2) {
+			x -= width;
+		}
+
+		const y = Math.abs(a.pos().y - b.pos().y);
+		return x * x + y * y;
+	}
+	dist(a : Profile, b : Profile) : number {
+		return Math.sqrt(this.distSq(a, b));
+	}
+	vec2(start : Profile, end : Profile) : Vec2 {
+		if (!this.isCircle()) {
+			return end.pos().clone().sub(start.pos());
+		}
+
+		let x = end.pos().x - start.pos().x;
+		const width = this._bounds.width();
+		if (Math.abs(x) > width / 2) {
+			x -= Math.sign(x) * width;
+		}
+		const y = end.pos().y - start.pos().y;
+		return new Vec2({ x: x, y: y });
+	}
 
 	hasSpawnFor(entity : Entity) : boolean {
 		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findN((spawnPoint : Entity) => {
-			return spawnPoint.valid() && spawnPoint.matchAssociations([AssociationType.TEAM], entity);
+			return spawnPoint.valid() && spawnPoint.sameTeam(entity);
 		}, 1);
 		return spawns.length === 1;
 	}
@@ -168,7 +198,7 @@ export class Level extends SystemBase implements System {
 	}
 	private spawnAtPoint(player : Player) : boolean {
 		const spawns = game.entities().getMap(EntityType.SPAWN_POINT).findN((spawnPoint : Entity) => {
-			return spawnPoint.valid() && spawnPoint.matchAssociations([AssociationType.TEAM], player);
+			return spawnPoint.valid() && spawnPoint.sameTeam(player);
 		}, 1);
 		if (spawns.length === 1) {
 			player.respawn(spawns[0].profile().pos());
@@ -248,7 +278,7 @@ export class Level extends SystemBase implements System {
 
 		let blueprint;
 		switch (msg.getLevelType()) {
-		case LevelType.CLIFF_LAKE:
+		case LevelType.BIRDROCK:
 			blueprint = new CliffBlueprint({
 				msg: msg,
 				pos: pos,

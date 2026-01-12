@@ -295,7 +295,7 @@ export class Lakitu extends SystemBase implements System {
 			return spawn.valid();
 		});
 		for (let i = 0; i < spawns.length; ++i) {
-			if (game.playerState().targetEntity().matchAssociations([AssociationType.TEAM], spawns[i])) {
+			if (game.playerState().targetEntity().sameTeam(spawns[i])) {
 				this.setTargetEntity(spawns[i]);
 				this._panners.forEach((panner : Panner, type : OffsetType) => {
 					let goal : Vec3;

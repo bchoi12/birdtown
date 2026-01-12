@@ -87,9 +87,9 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
 		)],
-		// TODO: use _gameProps
 		[GameMode.INVASION, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
+			[GameConfigProp.DIFFICULTY, {}],
 		)],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
@@ -220,8 +220,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			break;
 		case GameMode.INVASION:
 			this.setPlayersMin(1);
-			this.setBuffCrateSpawn(FrequencyType.RARE);
-			this.setHealthCrateSpawn(FrequencyType.NEVER);
+			this.setBuffCrateSpawn(FrequencyType.NEVER);
+			this.setHealthCrateSpawn(FrequencyType.RARE);
 			this.setWeaponCrateSpawn(FrequencyType.NEVER);
 			this.setLevelType(LevelType.BIRDTOWN);
 			this.setLevelLayout(LevelLayout.INVASION);

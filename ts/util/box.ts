@@ -48,6 +48,10 @@ export class Box2 implements Box {
 		if (point.y > this.max.y + buffer) { return 1; }
 		return 0;	
 	}
+
+	xRand() : number { return this.min.x + Math.random() * (this.max.x - this.min.x); }
+	yRand() : number { return this.min.y + Math.random() * (this.max.y - this.min.y); }
+
 	getCenter() : Vec {
 		return {
 			x: (this.max.x - this.min.x) / 2,

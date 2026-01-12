@@ -78,8 +78,9 @@ export class HealthResource extends Resource {
 
 	protected override logUpdate(update : ResourceUpdate) : boolean {
 		return update.delta < 0
-			&& this.entity().hasType(EntityType.PLAYER)
+			&& this.entity().hasType(EntityType.BIRD)
 			&& update.from
+			&& update.from.hasType(EntityType.PLAYER)
 			&& this.entity().id() !== update.from.id();
 	}
 

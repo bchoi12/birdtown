@@ -1,6 +1,4 @@
 
-import { SpecialName } from 'ui/common/special_name'
-
 export enum UiMode {
 	UNKNOWN,
 

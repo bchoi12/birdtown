@@ -8,11 +8,9 @@ export class Optional<T> {
 
 	constructor(value? : T) { this.set(value); }
 
-	static empty<T>(value? : T) : Optional<T> {
+	static empty<T>(value : T) : Optional<T> {
 		let empty = new Optional<T>();
-		if (defined(value)) {
-			empty._value = value;
-		}
+		empty._value = value;
 		return empty;
 	}
 

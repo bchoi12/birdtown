@@ -30,31 +30,40 @@ export class Timer {
 		this._onComplete = () => {};
 	}
 
-	start(millis : number, onComplete? : () => void) : void {
+	start(millis : number) : boolean {
 		if (millis <= 0) {
 			console.error("Error: timer duration should be positive.");
-			return;
+			return false;
 		}
 
 		if (!this._options.canInterrupt && this.hasTimeLeft()) {
-			return;
+			return false;
 		}
 
 		this._state = TimerState.RUNNING;
 		this._totalMillis = millis;
 		this._millisLeft = millis;
-
-		if (onComplete) {
-			this._onComplete = onComplete;
-		} else {
-			this._onComplete = () => {};
-		}
+		return true;
 	}
-	restart() : void {
+	timeout(millis : number, onComplete : () => void) : boolean {
+		if (this.start(millis)) {
+			this._onComplete = onComplete;
+			return true;
+		}
+		return false;
+	}
+	interval(millis : number, onComplete : () => void) : boolean {
+		return this.timeout(millis, () => {
+			onComplete();
+			this.interval(millis, onComplete);
+		});
+	}
+
+	restart() : boolean {
 		if (this._totalMillis <= 0) {
 			return;
 		}
-		this.start(this._totalMillis, this._onComplete);
+		return this.start(this._totalMillis);
 	}
 
 	reset() : void { this._state = TimerState.NOT_STARTED; }

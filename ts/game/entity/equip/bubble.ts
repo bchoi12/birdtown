@@ -118,7 +118,7 @@ export class Bubble extends Equip<Player> {
 		this.owner().setAttribute(AttributeType.BUBBLED, true);
 		this.owner().setAttribute(AttributeType.INVINCIBLE, true);
 
-		this._lifeTimer.start(Bubble._lifeDuration, () => {
+		this._lifeTimer.timeout(Bubble._lifeDuration, () => {
 			this.pop();
 		});
 	}

@@ -2,11 +2,11 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 
 export namespace MediaGlobals {
 
-	export const panningModel = "equalpower";
-	export const distanceModel = "linear";
-	export const refDistance = 6;
-	export const maxDistance = 30;
-	export const rolloffFactor = 2.2;
+	const panningModel = "equalpower";
+	const distanceModel = "linear";
+	const refDistance = 6;
+	const maxDistance = 30;
+	const rolloffFactor = 2.2;
 
 	export const gameOptions : BABYLON.ISoundOptions = {
 	    distanceModel: distanceModel,
