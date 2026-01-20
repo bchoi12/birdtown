@@ -95,6 +95,7 @@ export interface Entity extends GameObject {
 	setAttribute(type : AttributeType, value : boolean) : void;
 	hasTrait(type : TraitType) : boolean;
 	getTrait(type : TraitType) : number;
+	getTraitWeight(type : TraitType) : number;
 	randTrait(type : TraitType) : number;
 	rollTrait(type : TraitType, value : number) : boolean;
 	hasStat(type : StatType) : boolean;
@@ -443,6 +444,9 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 
 		return this.getComponent<Traits>(ComponentType.TRAITS).getTrait(type);
+	}
+	getTraitWeight(type : TraitType) : number {
+		return Fns.normalizeRange(0, this.getTrait(type), 100);
 	}
 	randTrait(type : TraitType) : number {
 		if (!this.hasComponent(ComponentType.TRAITS)) {

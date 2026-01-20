@@ -46,10 +46,6 @@ export class Traits extends ComponentBase implements Component {
 	rand(type : TraitType) : number { return Math.round(Math.random() * this.getTrait(type)); }
 
 	roll(type : TraitType, value : number) : boolean {
-		if (this.getTrait(type) >= value || value === 0) {
-			return true;
-		}
-
 		return this.rand(type) >= Math.random() * value;
 	}
 }

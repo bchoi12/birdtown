@@ -61,8 +61,11 @@ export enum TraitType {
 	UNKNOWN,
 
 	ANGER,
+	CAUTION,
 	CRUELTY,
+	JUMPY,
 	PATIENCE,
+	RECKLESS,
 	SKILL,
 }
 

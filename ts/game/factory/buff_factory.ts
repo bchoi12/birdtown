@@ -7,6 +7,7 @@ import { AssassinBuff } from 'game/component/buff/assassin_buff'
 import { BigBuff } from 'game/component/buff/big_buff'
 import { BlackHeadbandBuff } from 'game/component/buff/black_headband_buff'
 import { BlasterBuff } from 'game/component/buff/blaster_buff'
+import { BotBuff } from 'game/component/buff/bot_buff'
 import { BruiserBuff } from 'game/component/buff/bruiser_buff'
 import { CoolBuff } from 'game/component/buff/cool_buff'
 import { DodgyBuff } from 'game/component/buff/dodgy_buff'
@@ -67,6 +68,9 @@ export namespace BuffFactory {
 	const specialMetadata = {
 		maxLevel: 3,
 	};
+	const botMetadata = {
+		maxLevel: 5,
+	}
 	const statusMetadata : BuffOptions = {
 		maxLevel: 1,
 		resetOnSpawn: true,
@@ -121,6 +125,9 @@ export namespace BuffFactory {
 
 		[BuffType.STAT_STICK, { maxLevel: 300 }],
 
+		// Bots
+		[BuffType.BOT, botMetadata],
+
 		// Unused
 		[BuffType.WARMOGS, upgradeMetadata],
 
@@ -156,6 +163,7 @@ export namespace BuffFactory {
 		[BuffType.CARRY, (type : BuffType) => { return new CarryBuff(type, metadata.get(type)) }],
 
 		[BuffType.BLASTER, (type : BuffType) => { return new BlasterBuff(type, metadata.get(type))}],
+		[BuffType.BOT, (type : BuffType) => { return new BotBuff(type, metadata.get(type))}],
 		[BuffType.BRUISER, (type : BuffType) => { return new BruiserBuff(type, metadata.get(type))}],
 		[BuffType.COOL, (type : BuffType) => { return new CoolBuff(type, metadata.get(type))}],
 		[BuffType.DODGY, (type : BuffType) => { return new DodgyBuff(type, metadata.get(type)) }],

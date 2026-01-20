@@ -9,6 +9,6 @@ export class MiniRocket extends RocketBase {
 		super(EntityType.MINI_ROCKET, entityOptions);
 
 		this._explosionType = EntityType.ROCKET_EXPLOSION;
-		this._profile.setScaleFactor(0.8);
+		this._profile.setScaleFactor(0.85);
 	}
 }

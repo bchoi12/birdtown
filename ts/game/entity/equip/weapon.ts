@@ -354,7 +354,7 @@ export abstract class Weapon extends Equip<Player> {
 		return this.canUse() && this.useKeyDown() && (this.charged() || !this.charging());
 	}
 	fire() : void {
-		if (this._bursts <= 0) {
+		if (this._bursts <= 0 || this.owner().dead()) {
 			return;
 		}
 		this.recordUse();

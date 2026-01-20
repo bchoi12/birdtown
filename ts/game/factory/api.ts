@@ -31,6 +31,9 @@ export enum BuffType {
 	TANK,
 	WARMOGS,
 
+	// Bots
+	BOT,
+
 	// Specific
 	BLACK_HEADBAND,
 	SPREE,

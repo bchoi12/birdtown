@@ -1,6 +1,6 @@
 
 import { game } from 'game'
-import { EntityType } from 'game/entity/api'
+import { EntityType, BirdType } from 'game/entity/api'
 import { Bot } from 'game/entity/bird/bot'
 import { Player } from 'game/entity/bird/player'
 import { GameData } from 'game/game_data'
@@ -18,6 +18,19 @@ export type BotLimit = {
 
 export class Buster extends SystemBase implements System {
 
+	protected static readonly _birdTypes = new Array(
+		BirdType.BOOBY,
+		BirdType.CARDINAL,
+		BirdType.CHICKEN,
+		BirdType.DUCK,
+		BirdType.EAGLE,
+		BirdType.FLAMINGO,
+		BirdType.GOOSE,
+		BirdType.PIGEON,
+		BirdType.RAVEN,
+		BirdType.ROBIN,
+	);
+
 	private static readonly _spawnInterval = 3000;
 
 	private _botLimit : BotLimit;
@@ -31,8 +44,8 @@ export class Buster extends SystemBase implements System {
 		super(SystemType.BUSTER);
 
 		this._botLimit = {
-			total: 0,
-			concurrent: 0,
+			total: 10,
+			concurrent: 3,
 		};
 		this._numDeployed = 0; 
 		this._spawnLimiter = new RateLimiter(Buster._spawnInterval);
@@ -125,6 +138,7 @@ export class Buster extends SystemBase implements System {
 		});
 
 		if (ok) {
+			bot.setBirdType(Buster._birdTypes[Math.floor(Math.random() * Buster._birdTypes.length)])
 			bot.floatRespawn(pos);
 			this._numDeployed++;
 		}
