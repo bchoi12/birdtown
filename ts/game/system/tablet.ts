@@ -26,6 +26,7 @@ export class Tablet extends ClientSystem implements System {
 		[WinConditionType.POINTS, new Set([InfoType.SCORE, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
 		[WinConditionType.TEAM_LIVES, new Set([InfoType.LIVES, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
 		[WinConditionType.TEAM_POINTS, new Set([InfoType.SCORE, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
+		[WinConditionType.COOP, new Set([InfoType.SCORE, InfoType.VICTORIES, InfoType.KILLS, InfoType.DEATHS])],
 	]);
 
 	private static readonly _roundResetTypes = new Set([
@@ -149,6 +150,10 @@ export class Tablet extends ClientSystem implements System {
 			game.tablets().updateTeamScores();
 		}
 	}
+	addBossKill() : void {
+		this.addInfo(InfoType.KILLS, 1);
+		this.addInfo(InfoType.SCORE, 5);
+	}
 	addPointKill() : void {
 		this.addInfo(InfoType.KILLS, 1);
 		this.addInfo(InfoType.SCORE, 1);
@@ -156,9 +161,6 @@ export class Tablet extends ClientSystem implements System {
 	addTeamKill() : void {
 		this.addInfo(InfoType.KILLS, 1);
 		this.addInfo(InfoType.SCORE, -1);
-	}
-	addKill() : void {
-		this.addInfo(InfoType.KILLS, 1);
 	}
 	addInfo(type : InfoType, delta : number) : void {
 		this.setInfo(type, (this.hasInfo(type) ? this.getInfo(type) : 0) + delta);

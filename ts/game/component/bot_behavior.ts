@@ -24,8 +24,8 @@ export type BotBehaviorInitOptions = {
 export class BotBehavior extends ComponentBase implements Component {
 
 	private static readonly _angleEpsilon = 0.1;
-	// 8.6 deg
-	private static readonly _angleNoise = 0.15;
+	// 6.9 deg
+	private static readonly _angleNoise = 0.12;
 
 	private static readonly _minAimTime = 200;
 	private static readonly _maxAimTime = 400;
@@ -264,7 +264,9 @@ export class BotBehavior extends ComponentBase implements Component {
 					} else {
 						this._cross = 0;
 
-						if (Math.abs(this._aimDir.x) <= 0.8 * this._maxRange.x && this.entity().rollTrait(TraitType.CAUTION, 500)) {
+						if (Math.abs(this._aimDir.x) <= 0.8 * this._maxRange.x
+							&& game.level().bounds().xSide(this.entity().profile().pos(), -4) === 0
+							&& this.entity().rollTrait(TraitType.CAUTION, 500)) {
 							this._reverse = -Fns.randomInt(10, 20);
 						}
 					}
@@ -305,6 +307,10 @@ export class BotBehavior extends ComponentBase implements Component {
 			if (this._jumpTimer.done() || this.entity().rollTrait(TraitType.JUMPY, 1500)) {
 				this._moveDir.y = 1;
 				this.startJumpTimer();
+			}
+
+			if (this._cross === 0) {
+				this._moveDir.x *= Fns.normalizeRange(0.75, 1 - this.entity().getTraitWeight(TraitType.CAUTION), 1);
 			}
 
 			if (this._inRange) {

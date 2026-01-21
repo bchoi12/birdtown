@@ -8,7 +8,7 @@ export class BotBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.DAMAGE_BOOST, -0.9 * level],
+			[StatType.DAMAGE_BOOST, -0.5 * level],
 		]);
 	}
 }

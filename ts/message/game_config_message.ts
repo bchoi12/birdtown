@@ -90,6 +90,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		[GameMode.INVASION, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
 			[GameConfigProp.DIFFICULTY, {}],
+			[GameConfigProp.VICTORIES, {}],
 		)],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
@@ -220,6 +221,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			break;
 		case GameMode.INVASION:
 			this.setPlayersMin(1);
+			this.setDifficulty(3);
 			this.setBuffCrateSpawn(FrequencyType.NEVER);
 			this.setHealthCrateSpawn(FrequencyType.RARE);
 			this.setWeaponCrateSpawn(FrequencyType.NEVER);
@@ -228,6 +230,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setLevelSeed(1);
 			this.setStartingLoadout(LoadoutType.BUFF);
 			this.setTimeSetup(35000);
+			this.setVictories(5);
 			this.setWinCondition(WinConditionType.COOP);
 			break;
 		case GameMode.PRACTICE:
@@ -327,6 +330,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getDamageMultiplierOr(value : number) : number { return this.getOr<number>(GameConfigProp.DAMAGE_MULTIPLIER, value); }
     setDamageMultiplier(value : number) : void { this.set<number>(GameConfigProp.DAMAGE_MULTIPLIER, value); }
 
+    hasDifficulty() : boolean { return this.has(GameConfigProp.DIFFICULTY); }
+    getDifficulty() : number { return this.get<number>(GameConfigProp.DIFFICULTY); }
+    getDifficultyOr(value : number) : number { return this.getOr<number>(GameConfigProp.DIFFICULTY, value); }
+    setDifficulty(value : number) : void { this.set<number>(GameConfigProp.DIFFICULTY, value); }
+
     hasFriendlyFire() : boolean { return this.has(GameConfigProp.FRIENDLY_FIRE); }
     getFriendlyFire() : boolean { return this.get<boolean>(GameConfigProp.FRIENDLY_FIRE); }
     getFriendlyFireOr(value : boolean) : boolean { return this.getOr<boolean>(GameConfigProp.FRIENDLY_FIRE, value); }
@@ -421,6 +429,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     const enumClass = "GameConfigProp";
     ["BUFF_CRATE_SPAWN", "FrequencyType"],
     ["DAMAGE_MULTIPLIER", "number"],
+    ["DIFFICULTY", "number"],
     ["FRIENDLY_FIRE", "boolean"],
     ["HEALTH_CRATE_SPAWN", "FrequencyType"],
     ["LEVEL_LAYOUT", "LevelLayout"],

@@ -83,44 +83,36 @@ export abstract class Bot extends Bird {
 export class WalkerBot extends Bot {
 
 	private _pause : boolean;
-	private _walkTimer : Timer;
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.WALKER_BOT, entityOptions);
 
-		this._pause = false;
-		this._walkTimer = this.newTimer({
-			canInterrupt: true,
-		});
+		this._pause = true;
 	}
 
 	override initialize() : void {
 		super.initialize();
 
 		this.addBuff(BuffType.BOT, 1);
-
-		this._walkTimer.interval(750, () => {
-			this.turn();
-		});
 	}
 
 	protected override botName() : string { return "Walker Bot"; }
 	protected override traitMap() : Map<TraitType, number> {
 		return new Map([
-			[TraitType.ANGER, Fns.randomInt(80, 100)],
+			[TraitType.ANGER, Fns.randomInt(50, 100)],
 			[TraitType.CRUELTY, Fns.randomInt(30, 70)],
-			[TraitType.CAUTION, Fns.randomInt(90, 95)],
-			[TraitType.JUMPY, Fns.randomInt(10, 20)],
-			[TraitType.PATIENCE, Fns.randomInt(0, 100)],
-			[TraitType.RECKLESS, Fns.randomInt(10, 15)],
-			[TraitType.SKILL, Fns.randomInt(40, 60)],
+			[TraitType.CAUTION, Fns.randomInt(0, 40)],
+			[TraitType.JUMPY, Fns.randomInt(30, 70)],
+			[TraitType.PATIENCE, Fns.randomInt(30, 70)],
+			[TraitType.RECKLESS, Fns.randomInt(30, 70)],
+			[TraitType.SKILL, Fns.randomInt(30, 70)],
 		]);
 	}
 
 	protected override eyeTexture() : TextureType { return TextureType.RED_EYE; }
 	
 	protected override walkDir() : number {
-		if (this.noAction()) {
+		if (this._pause) {
 			return 0;
 		}
 
@@ -136,15 +128,12 @@ export class WalkerBot extends Bot {
 		return [EquipFactory.nextWeapon(), EntityType.UNKNOWN];
 	}
 
-	private turn() : void {
-		if (!this._pause && Math.random() < 0.2) {
-			this._pause = true;
-			return;
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+
+		if (this.getAttribute(AttributeType.GROUNDED)) {
+			this._pause = false;
 		}
-
-		this._pause = false;
-		this.setEquipUse(this._behavior.shouldFire() && !this.noAction() ? AutoUseType.HOLD : AutoUseType.OFF);
+		this.setEquipUse(this._behavior.shouldFire() && !this._pause ? AutoUseType.HOLD : AutoUseType.OFF);
 	}
-
-	private noAction() : boolean { return this.getAttribute(AttributeType.BUBBLED) || this._pause; }
 }

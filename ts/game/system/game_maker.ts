@@ -536,6 +536,7 @@ export class GameMaker extends SystemBase implements System {
 		case GameState.SETUP:
 			this.assignRoles();
 			this.setupPlayers();
+			this.setupBots();
 			break;
 		case GameState.GAME:
 			// This shouldn't be necessary, but clear just in case.
@@ -724,6 +725,18 @@ export class GameMaker extends SystemBase implements System {
 		});
 	}
 
+	private setupBots() : void {
+		if (this._config.type() !== GameMode.INVASION) {
+			game.buster().disableBots();
+			return;
+		}
+
+		game.buster().setBotLimit({
+			total: 12,
+			concurrent: 4,
+		})
+	}
+
 	private applyBuffs() : void {
 		if (this._config.getStartingLoadout() !== LoadoutType.BUFF) {
 			// Clean up any leftover buffs
@@ -831,6 +844,14 @@ export class GameMaker extends SystemBase implements System {
 				return [winners, teams.size === 1 ? [...teams][0] : TeamType.UNKNOWN, true];
 			}
 			break;
+		case WinConditionType.COOP:
+			if (game.buster().roundComplete()) {
+				winners = this.findPlayerStateIds((playerState : PlayerState) => {
+					return playerState.team() === TeamType.COOP;
+				});
+				return [winners, TeamType.COOP, true];
+			}
+			break;
 		}
 
 		// TODO: add another param for VIP win condition
@@ -862,7 +883,7 @@ export class GameMaker extends SystemBase implements System {
 		return game.playerStates().mapIf<PlayerState, number>((playerState : PlayerState) => {
 			return playerState.clientId();
 		}, (playerState : PlayerState) => {
-			return predicate(playerState);
+			return playerState.isPlaying() && predicate(playerState);
 		});
 	}
 	private getTeams(ids : Array<number>) : Set<number> {

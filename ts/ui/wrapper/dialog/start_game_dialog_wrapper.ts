@@ -452,7 +452,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.INVASION:
-			// TODO: difficulty setting
+			coreCategory.contentElm().appendChild(this.difficultyWrapper(this._configMsg, 1, 5).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());
 			break;
 		case GameMode.PRACTICE:
@@ -691,6 +691,34 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			get: () => { return msg.getVictories(); },
 			html: (current : number) => {
 				return current + " win" + (current === 1 ? "" : "s");
+			},
+		});
+	}
+
+	private difficultyWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
+			label: "Difficulty",
+			value: msg.getDifficulty(),
+			plus: (current : number) => {
+				msg.setDifficulty(Math.min(current + 1, max));
+			},
+			minus: (current : number) => {
+				msg.setDifficulty(Math.max(min, current - 1));
+			},
+			get: () => { return msg.getDifficulty(); },
+			html: (current : number) => {
+				switch (current) {
+				case 1:
+					return "Very Easy";
+				case 2:
+					return "Easy";
+				case 3:
+					return "Normal";
+				case 4:
+					return "Hard";
+				case 5:
+					return "Very Hard";
+				}
 			},
 		});
 	}
