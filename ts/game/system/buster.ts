@@ -10,12 +10,13 @@ import { SystemType } from 'game/system/api'
 import { SystemBase, System } from 'game/system'
 
 import { RateLimiter } from 'util/rate_limiter'
-import { globalRandom } from 'util/seeded_random'
+import { SeededRandom } from 'util/seeded_random'
 import { Vec2 } from 'util/vector'
 
-export type BotLimit = {
+export type BotConfig = {
 	total : number;
 	concurrent : number;
+	seed: number;
 }
 
 export class Buster extends SystemBase implements System {
@@ -35,7 +36,8 @@ export class Buster extends SystemBase implements System {
 
 	private static readonly _spawnInterval = 3000;
 
-	private _botLimit : BotLimit;
+	private _botConfig : BotConfig;
+	private _rng : SeededRandom;
 	private _numDeployed : number;
 	private _spawnPos : Array<number>;
 	private _spawnIndex : number;
@@ -47,10 +49,12 @@ export class Buster extends SystemBase implements System {
 	constructor() {
 		super(SystemType.BUSTER);
 
-		this._botLimit = {
+		this._botConfig = {
 			total: 0,
 			concurrent: 0,
+			seed: 0,
 		};
+		this._rng = new SeededRandom(0);
 		this._numDeployed = 0;
 		this._spawnPos = new Array(0, 1, 2, 3);
 		this._spawnIndex = 0;
@@ -60,15 +64,15 @@ export class Buster extends SystemBase implements System {
 		this._playerRateLimiter = new RateLimiter(250);
 
 		this.addProp<number>({
-			import: (obj : number) => { this._botLimit.total = obj; },
-			export: () => { return this._botLimit.total; },
+			import: (obj : number) => { this._botConfig.total = obj; },
+			export: () => { return this._botConfig.total; },
 			options: {
 				filters: GameData.tcpFilters,
 			},
 		});
 		this.addProp<number>({
-			import: (obj : number) => { this._botLimit.concurrent = obj; },
-			export: () => { return this._botLimit.concurrent; },
+			import: (obj : number) => { this._botConfig.concurrent = obj; },
+			export: () => { return this._botConfig.concurrent; },
 			options: {
 				filters: GameData.tcpFilters,
 			},
@@ -82,22 +86,24 @@ export class Buster extends SystemBase implements System {
 		});
 	}
 
-	override canStep() : boolean { return super.canStep() && this._botLimit.total > 0; }
+	override canStep() : boolean { return super.canStep() && this._botConfig.total > 0; }
 
-	setBotLimit(limit : BotLimit) : void {
-		this._botLimit = limit;
+	initBots(limit : BotConfig) : void {
+		this._botConfig = limit;
 
-		globalRandom.shuffle(this._spawnPos);
+		this._rng.seed(this._botConfig.seed);
+		this._rng.shuffle(this._spawnPos);
 		this._spawnIndex = Math.floor(Math.random() * this._spawnPos.length);
 	}
 	disableBots() : void {
-		this._botLimit = {
+		this._botConfig = {
 			total: 0,
 			concurrent: 0,
+			seed: 0,
 		}
 	}
 	roundComplete() : boolean {
-		return this._botLimit.total === 0;
+		return this._botConfig.total === 0;
 	}
 
 	playerList() : Player[] {
@@ -111,7 +117,7 @@ export class Buster extends SystemBase implements System {
 				game.tablet(damager.clientId())?.addPointKill();
 			}
 
-			this._botLimit.total--;
+			this._botConfig.total--;
 			this._numDeployed--;
 		}
 	}
@@ -134,11 +140,11 @@ export class Buster extends SystemBase implements System {
 			return;
 		}
 
-		if (this._botLimit.total <= 0) {
+		if (this._botConfig.total <= 0) {
 			return;
 		}
 
-		if (this._numDeployed >= this._botLimit.total || this._numDeployed >= this._botLimit.concurrent) {
+		if (this._numDeployed >= this._botConfig.total || this._numDeployed >= this._botConfig.concurrent) {
 			return;
 		}
 
@@ -153,11 +159,11 @@ export class Buster extends SystemBase implements System {
 		});
 		this._spawnIndex++;
 		if (this._spawnIndex >= this._spawnPos.length) {
-			globalRandom.shuffle(this._spawnPos);
+			this._rng.shuffle(this._spawnPos);
 			this._spawnIndex = 0;
 		}
 
-		const [bot, ok] = this.addEntity<Bot>(EntityType.WALKER_BOT, {
+		const [bot, ok] = this.addEntity<Bot>(EntityType.BASIC_BOT, {
 			profileInit: {
 				pos: pos,
 				vel: { x: 0, y: 0},

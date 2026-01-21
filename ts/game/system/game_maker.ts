@@ -731,9 +731,10 @@ export class GameMaker extends SystemBase implements System {
 			return;
 		}
 
-		game.buster().setBotLimit({
+		game.buster().initBots({
 			total: 12,
 			concurrent: 4,
+			seed: this._config.getLevelSeed() + this._round,
 		})
 	}
 

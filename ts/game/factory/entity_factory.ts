@@ -17,7 +17,7 @@ import { DyingStar } from 'game/entity/dying_star'
 import { Pergola } from 'game/entity/pergola'
 import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/bird/player'
-import { WalkerBot } from 'game/entity/bird/bot'
+import { BasicBot } from 'game/entity/bird/bot/basic_bot'
 import { BlackHeadband } from 'game/entity/equip/black_headband'
 import { Bubble } from 'game/entity/equip/bubble'
 import { Booster } from 'game/entity/equip/booster'
@@ -121,6 +121,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOM, (options : EntityOptions) => { return new ArchRoom(options); }],
 		[EntityType.ARCH_ROOF, (options : EntityOptions) => { return new ArchRoof(options); }],
 		[EntityType.BACKGROUND_ARCH_ROOM, (options : EntityOptions) => { return new BackgroundArchRoom(options); }],
+		[EntityType.BASIC_BOT, (options : EntityOptions) => { return new BasicBot(options); }],
 		[EntityType.BAZOOKA, (options : EntityOptions) => { return new Bazooka(options); }],
 		[EntityType.BEAK_BULLET, (options : EntityOptions) => { return new BeakBullet(options); }],
 		[EntityType.BILLBOARD, (options : EntityOptions) => { return new Billboard(options); }],
@@ -221,7 +222,6 @@ export namespace EntityFactory {
 		[EntityType.TOP_HAT, (options : EntityOptions) => { return new TopHat(options); }],
 		[EntityType.TREE, (options : EntityOptions) => { return new Tree(options); }],
 		[EntityType.UNDERWATER_ROCK, (options : EntityOptions) => { return new UnderwaterRock(options); }],
-		[EntityType.WALKER_BOT, (options : EntityOptions) => { return new WalkerBot(options); }],
 		[EntityType.WATER, (options : EntityOptions) => { return new Water(options); }],
 		[EntityType.WEAPON_CRATE, (options : EntityOptions) => { return new WeaponCrate(options); }],
 		[EntityType.WING_CANNON, (options : EntityOptions) => { return new WingCannon(options); }],
@@ -283,7 +283,7 @@ export namespace EntityFactory {
 		[EntityType.TOP_CLIFF_WALL, { x: 15, y: 7 }],
 		[EntityType.TOP_MINI_CLIFF, { x: 5, y: 7 }],
 		[EntityType.TREE, { x: 3, y: 4.75, z: 3 }],
-		[EntityType.WALKER_BOT, birdDim],
+		[EntityType.BASIC_BOT, birdDim],
 
 		[EntityType.CUBE_PARTICLE, { x: 1, y: 1, z: 1}],
 		[EntityType.ENERGY_CUBE_PARTICLE, { x: 1, y: 1, z: 1}],

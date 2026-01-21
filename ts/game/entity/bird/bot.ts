@@ -1,20 +1,12 @@
 
 import { game } from 'game'
-import { AttributeType, TeamType, TraitType } from 'game/component/api'
+import { TeamType, TraitType } from 'game/component/api'
 import { BotBehavior } from 'game/component/bot_behavior'
 import { Traits } from 'game/component/traits'
 import { EntityType, BirdType } from 'game/entity/api'
 import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { Bird } from 'game/entity/bird'
-import { AutoUseType } from 'game/entity/equip'
-import { BuffType, TextureType } from 'game/factory/api'
-import { EquipFactory } from 'game/factory/equip_factory'
-import { StepData } from 'game/game_object'
-
-import { Fns } from 'util/fns'
-import { globalRandom } from 'util/seeded_random'
-import { Timer } from 'util/timer'
-import { Vec2 } from 'util/vector'
+import { TextureType } from 'game/factory/api'
 
 export abstract class Bot extends Bird {
 
@@ -66,6 +58,7 @@ export abstract class Bot extends Bird {
 	protected abstract botName() : string;
 
 	protected override birdType() : BirdType { return this._birdType; }
+	protected override eyeTexture() : TextureType { return TextureType.RED_EYE; }
 
 	protected override doubleJumping() : boolean { return this.jumping() && this._profile.vel().y < 0; }
 
@@ -77,63 +70,5 @@ export abstract class Bot extends Bird {
 
 			this.setTTL(3000);
 		}
-	}
-}
-
-export class WalkerBot extends Bot {
-
-	private _pause : boolean;
-
-	constructor(entityOptions : EntityOptions) {
-		super(EntityType.WALKER_BOT, entityOptions);
-
-		this._pause = true;
-	}
-
-	override initialize() : void {
-		super.initialize();
-
-		this.addBuff(BuffType.BOT, 1);
-	}
-
-	protected override botName() : string { return "Walker Bot"; }
-	protected override traitMap() : Map<TraitType, number> {
-		return new Map([
-			[TraitType.ANGER, Fns.randomInt(50, 100)],
-			[TraitType.CRUELTY, Fns.randomInt(30, 70)],
-			[TraitType.CAUTION, Fns.randomInt(0, 40)],
-			[TraitType.JUMPY, Fns.randomInt(30, 70)],
-			[TraitType.PATIENCE, Fns.randomInt(30, 70)],
-			[TraitType.RECKLESS, Fns.randomInt(30, 70)],
-			[TraitType.SKILL, Fns.randomInt(30, 70)],
-		]);
-	}
-
-	protected override eyeTexture() : TextureType { return TextureType.RED_EYE; }
-	
-	protected override walkDir() : number {
-		if (this._pause) {
-			return 0;
-		}
-
-		return this._behavior.moveDir().x;
-	}
-
-	protected override jumping() : boolean { return this._behavior.moveDir().y > 0.3; }
-	protected override reorient() : void {
-		this.setDir(Vec2.unitFromRad(this._behavior.angle()));
-		this.setEquipDir(this._armDir);
-	}
-	protected override getEquipPair() : [EntityType, EntityType] {
-		return [EquipFactory.nextWeapon(), EntityType.UNKNOWN];
-	}
-
-	override update(stepData : StepData) : void {
-		super.update(stepData);
-
-		if (this.getAttribute(AttributeType.GROUNDED)) {
-			this._pause = false;
-		}
-		this.setEquipUse(this._behavior.shouldFire() && !this._pause ? AutoUseType.HOLD : AutoUseType.OFF);
 	}
 }
