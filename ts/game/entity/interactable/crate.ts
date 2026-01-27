@@ -215,7 +215,6 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 	override setInteractableWith(entity : Entity, interactable : boolean) : void {
 		super.setInteractableWith(entity, interactable);
 
-
 		if (entity.isLakituTarget()) {
 			if (this._nameTag !== null) {
 				this._nameTag.setVisible(interactable);

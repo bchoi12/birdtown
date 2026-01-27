@@ -78,7 +78,7 @@ export interface Entity extends GameObject {
 	setTTL(ttl : number, onDelete? : () => void) : void;
 	restartTTL() : void;
 	ttlElapsed() : number;
-	ttlMillisElapsed() : number;
+	ttlMillisLeft() : number;
 	key(type : KeyType, state : KeyState) : boolean;
 	keyCounter(type : KeyType) : number;
 	setInputDir(vec : Vec) : void;
@@ -296,7 +296,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		});
 	}
 	ttlElapsed() : number { return this._ttlTimer.has() ? this._ttlTimer.get().percentElapsed() : 0; }
-	ttlMillisElapsed() : number { return this._ttlTimer.has() ? this._ttlTimer.get().millisElapsed() : 0; }
+	ttlMillisLeft() : number { return this._ttlTimer.has() ? this._ttlTimer.get().millisLeft() : 0; }
 
 	key(type : KeyType, state : KeyState) : boolean {
 		if (this.state() === GameObjectState.DISABLE_INPUT) {

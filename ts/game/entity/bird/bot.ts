@@ -8,6 +8,8 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { Bird } from 'game/entity/bird'
 import { TextureType } from 'game/factory/api'
 
+import { Vec } from 'util/vector'
+
 export abstract class Bot extends Bird {
 
 	protected _birdType : BirdType;
@@ -22,8 +24,8 @@ export abstract class Bot extends Bird {
 		this.setTeam(TeamType.ENEMY);
 
 		this._behavior = this.addComponent<BotBehavior>(new BotBehavior({
-			minRange: { x: 6, y: 1},
-			maxRange: { x: 18, y: 10 },
+			minRange: this.minRange(),
+			maxRange: this.maxRange(),
 		}));
 		this._traits = this.addComponent<Traits>(new Traits({
 			traits: this.traitMap(),
@@ -57,6 +59,9 @@ export abstract class Bot extends Bird {
 	protected abstract traitMap() : Map<TraitType, number>;
 	protected abstract botName() : string;
 
+	protected abstract minRange() : Vec;
+	protected abstract maxRange() : Vec;
+
 	protected override birdType() : BirdType { return this._birdType; }
 	protected override eyeTexture() : TextureType { return TextureType.RED_EYE; }
 
@@ -67,8 +72,7 @@ export abstract class Bot extends Bird {
 
 		if (dead) {
 			game.buster().processKillOn(this);
-
-			this.setTTL(3000);
+			this.setTTL(10000);
 		}
 	}
 }

@@ -11,6 +11,7 @@ enum GameConfigProp {
 	UNKNOWN,
 
 	BUFF_CRATE_SPAWN,
+	CONCURRENT_BOTS,
 	DAMAGE_MULTIPLIER,
 	DIFFICULTY,
 	HEALTH_CRATE_SPAWN,
@@ -94,6 +95,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		)],
 		[GameMode.PRACTICE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
+			[GameConfigProp.CONCURRENT_BOTS, {}],
+			[GameConfigProp.DIFFICULTY, {}],
 		)],
 		[GameMode.SPREE, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
@@ -109,6 +112,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 		)],
 		[GameMode.SURVIVAL, MessageBase.fieldDescriptor(
 			...GameConfigMessage._gameProps,
+			[GameConfigProp.CONCURRENT_BOTS, {}],
+			[GameConfigProp.DIFFICULTY, {}],
 			[GameConfigProp.LIVES, {}],
 			[GameConfigProp.TIME_GAME, { optional: true }],
 			[GameConfigProp.VICTORIES, {}],
@@ -239,6 +244,8 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setTimeSetup(45000);
 			this.setSpawnTime(15000);
 			this.setStartingLoadout(LoadoutType.PICK);
+			this.setConcurrentBots(2);
+			this.setDifficulty(0);
 			this.setBuffCrateSpawn(FrequencyType.UBIQUITOUS);
 			this.setHealthCrateSpawn(FrequencyType.UBIQUITOUS);
 			this.setWeaponCrateSpawn(FrequencyType.UBIQUITOUS);
@@ -274,9 +281,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
 			this.setPlayersMin(2);
 			this.setLevelLayout(LevelLayout.CIRCLE);
 			this.setStartingLoadout(LoadoutType.CHOOSE);
+			this.setConcurrentBots(3);
+			this.setDifficulty(2);
 			this.setBuffCrateSpawn(FrequencyType.RARE);
 			this.setHealthCrateSpawn(FrequencyType.MEDIUM);
-			this.setWeaponCrateSpawn(FrequencyType.MEDIUM);
+			this.setWeaponCrateSpawn(FrequencyType.NEVER);
 			this.setVictories(3);
 			this.setWinCondition(WinConditionType.LIVES);
 			break;
@@ -324,6 +333,11 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     getBuffCrateSpawn() : FrequencyType { return this.get<FrequencyType>(GameConfigProp.BUFF_CRATE_SPAWN); }
     getBuffCrateSpawnOr(value : FrequencyType) : FrequencyType { return this.getOr<FrequencyType>(GameConfigProp.BUFF_CRATE_SPAWN, value); }
     setBuffCrateSpawn(value : FrequencyType) : void { this.set<FrequencyType>(GameConfigProp.BUFF_CRATE_SPAWN, value); }
+
+    hasConcurrentBots() : boolean { return this.has(GameConfigProp.CONCURRENT_BOTS); }
+    getConcurrentBots() : number { return this.get<number>(GameConfigProp.CONCURRENT_BOTS); }
+    getConcurrentBotsOr(value : number) : number { return this.getOr<number>(GameConfigProp.CONCURRENT_BOTS, value); }
+    setConcurrentBots(value : number) : void { this.set<number>(GameConfigProp.CONCURRENT_BOTS, value); }
 
     hasDamageMultiplier() : boolean { return this.has(GameConfigProp.DAMAGE_MULTIPLIER); }
     getDamageMultiplier() : number { return this.get<number>(GameConfigProp.DAMAGE_MULTIPLIER); }
@@ -428,6 +442,7 @@ export class GameConfigMessage extends MessageBase<GameMode, GameConfigProp> imp
     /*
     const enumClass = "GameConfigProp";
     ["BUFF_CRATE_SPAWN", "FrequencyType"],
+    ["CONCURRENT_BOTS", "number"],
     ["DAMAGE_MULTIPLIER", "number"],
     ["DIFFICULTY", "number"],
     ["FRIENDLY_FIRE", "boolean"],

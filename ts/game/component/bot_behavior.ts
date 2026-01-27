@@ -159,9 +159,10 @@ export class BotBehavior extends ComponentBase implements Component {
 			return;
 		}
 
-		if (!this.validTarget() || this.entity().rollTrait(TraitType.ANGER, 100 - this.getFrustration())) {
+		if (!this.validTarget()
+			|| !this._hunting && this.entity().rollTrait(TraitType.ANGER, 10)
+			|| this._hunting && this.entity().rollTrait(TraitType.ANGER, this.getFrustration())) {
 			this.setTarget(entity);
-			this._hunting = true;
 		}
 	}
 	pickTarget(type : EntityType) : void {
@@ -195,6 +196,7 @@ export class BotBehavior extends ComponentBase implements Component {
 
 	setTarget(entity : Entity) : void {
 		this._target.set(entity);
+		this._hunting = true;
 		this._lastTargetTime = Date.now();
 	}
 
@@ -241,9 +243,15 @@ export class BotBehavior extends ComponentBase implements Component {
 
 			if (this.targetExists()) {
 				this._aimDir = game.level().vec2(this.entity().profile(), this._target.get().profile());
-				this._inRange = Math.abs(this._aimDir.x) <= this._maxRange.x && Math.abs(this._aimDir.y) <= this._maxRange.y;
+
+				if (this._inRange) {
+					this._inRange = Math.abs(this._aimDir.x) <= 1.8 * this._maxRange.x && Math.abs(this._aimDir.y) <= 1.8 * this._maxRange.y;
+				} else {
+					this._inRange = Math.abs(this._aimDir.x) <= this._maxRange.x && Math.abs(this._aimDir.y) <= this._maxRange.y;
+				}
 			} else {
 				this._inRange = false;
+				this._hunting = false;
 			}
 
 			if (this._hunting || this._inRange) {
@@ -265,7 +273,7 @@ export class BotBehavior extends ComponentBase implements Component {
 						this._cross = 0;
 
 						if (Math.abs(this._aimDir.x) <= 0.8 * this._maxRange.x
-							&& game.level().bounds().xSide(this.entity().profile().pos(), -4) === 0
+							&& (game.level().isCircle() || game.level().bounds().xSide(this.entity().profile().pos(), -4) === 0)
 							&& this.entity().rollTrait(TraitType.CAUTION, 500)) {
 							this._reverse = -Fns.randomInt(10, 20);
 						}
@@ -280,13 +288,13 @@ export class BotBehavior extends ComponentBase implements Component {
 					// Go back and hunt
 					this._hunting = true;
 					this._reverse = 0;
-				} else if (!this.validTarget()) {
+				} else {
 					if (!this._patrolTimer.hasTimeLeft()) {
 						// Make a new patrol decision
 						const rand = Math.random();
-						if (rand < 0.33) {
-							this._moveDir.x = Math.random() < 0.5 ? -0.5 : 0.5;
-						} else if (rand < 0.66) {
+						if (rand < 0.5) {
+							this._moveDir.x = Math.random() < 0.5 ? -0.75 : 0.75;
+						} else if (rand < 0.75) {
 							this._moveDir.x = 0;
 						}
 
@@ -305,12 +313,14 @@ export class BotBehavior extends ComponentBase implements Component {
 			}
 
 			if (this._jumpTimer.done() || this.entity().rollTrait(TraitType.JUMPY, 1500)) {
-				this._moveDir.y = 1;
+				if (this._inRange || this.entity().rollTrait(TraitType.JUMPY, 1500)) {
+					this._moveDir.y = 1;
+				}
 				this.startJumpTimer();
 			}
 
 			if (this._cross === 0) {
-				this._moveDir.x *= Fns.normalizeRange(0.75, 1 - this.entity().getTraitWeight(TraitType.CAUTION), 1);
+				this._moveDir.x *= Fns.lerpRange(0.75, 1 - this.entity().getTraitWeight(TraitType.CAUTION), 1);
 			}
 
 			if (this._inRange) {

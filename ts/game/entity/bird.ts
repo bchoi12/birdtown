@@ -596,8 +596,10 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 			}
 		});
 	}
+	clearEquips() : void { this._entityTrackers.clearEntityType(EntityType.EQUIP); }
 	createEquips(equipType : EntityType, altEquipType? : EntityType) : void {
-		this._entityTrackers.clearEntityType(EntityType.EQUIP);
+		this.clearEquips();
+
 		const [equip, hasEquip] = this.addEntity<Equip<Bird>>(equipType, {
 			associationInit: {
 				owner: this,

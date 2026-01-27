@@ -6,8 +6,10 @@ import { Bot } from 'game/entity/bird/bot'
 import { Player } from 'game/entity/bird/player'
 import { GameData } from 'game/game_data'
 import { StepData } from 'game/game_object'
-import { SystemType } from 'game/system/api'
+import { SystemType, WinConditionType } from 'game/system/api'
 import { SystemBase, System } from 'game/system'
+
+import { Flags } from 'global/flags'
 
 import { RateLimiter } from 'util/rate_limiter'
 import { SeededRandom } from 'util/seeded_random'
@@ -86,10 +88,14 @@ export class Buster extends SystemBase implements System {
 		});
 	}
 
-	override canStep() : boolean { return super.canStep() && this._botConfig.total > 0; }
+	override canStep() : boolean { return super.canStep() && this._botConfig.total > 0 && game.controller().gameState() === GameState.GAME; }
 
-	initBots(limit : BotConfig) : void {
-		this._botConfig = limit;
+	initBots(config : BotConfig) : void {
+		this._botConfig = config;
+
+		if (Flags.printDebug.get()) {
+			console.log("%s: bot config:", this.name(), this._botConfig);
+		}
 
 		this._rng.seed(this._botConfig.seed);
 		this._rng.shuffle(this._spawnPos);
@@ -114,7 +120,11 @@ export class Buster extends SystemBase implements System {
 		if (this.isSource()) {
 			const [damager, hasDamager] = bot.lastDamager();
 			if (hasDamager) {
-				game.tablet(damager.clientId())?.addPointKill();
+				if (game.controller().config().getWinCondition() === WinConditionType.COOP) {
+					game.tablet(damager.clientId())?.addPointKill();
+				} else {
+					game.tablet(damager.clientId())?.addKill();
+				}
 			}
 
 			this._botConfig.total--;
@@ -135,14 +145,6 @@ export class Buster extends SystemBase implements System {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
-
-		if (game.controller().gameState() !== GameState.GAME) {
-			return;
-		}
-
-		if (this._botConfig.total <= 0) {
-			return;
-		}
 
 		if (this._numDeployed >= this._botConfig.total || this._numDeployed >= this._botConfig.concurrent) {
 			return;

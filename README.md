@@ -16,11 +16,11 @@ Beta has been launched! Play now at either
 
 ## Screenshots
 
-![Multiplayer action](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog087.png?raw=true)
+![Multiplayer action](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog097.png?raw=true)
 
-![Recent screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog089.png?raw=true)
+![Recent screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog105.png?raw=true)
 
-![UI screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog088.png?raw=true)
+![UI screenshot](https://github.com/bchoi12/birdtown/blob/master/screenshots/devlog093.png?raw=true)
 
 ## Recent Updates
  * v1.1

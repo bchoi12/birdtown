@@ -33,6 +33,7 @@ export enum BuffType {
 
 	// Bots
 	BOT,
+	PRACTICE_BOT,
 
 	// Specific
 	BLACK_HEADBAND,

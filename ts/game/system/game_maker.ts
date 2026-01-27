@@ -726,16 +726,23 @@ export class GameMaker extends SystemBase implements System {
 	}
 
 	private setupBots() : void {
-		if (this._config.type() !== GameMode.INVASION) {
-			game.buster().disableBots();
+		if (this._config.type() === GameMode.INVASION) {
+			game.buster().initBots({
+				total: 12,
+				concurrent: 4,
+				seed: this._config.getLevelSeed() + this._round,
+			});
 			return;
 		}
 
-		game.buster().initBots({
-			total: 12,
-			concurrent: 4,
-			seed: this._config.getLevelSeed() + this._round,
-		})
+		const bots = this._config.getConcurrentBotsOr(0);
+		if (bots > 0) {
+			game.buster().initBots({
+				total: Infinity,
+				concurrent: bots,
+				seed: this._config.getLevelSeed() + this._round,
+			});
+		}
 	}
 
 	private applyBuffs() : void {

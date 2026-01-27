@@ -175,12 +175,12 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.addUnknownMode();
 		this.populateMode(GameMode.PRACTICE, {
 			requirements: [],
-			description: "Try out the game.\r\n\r\nAll levels, layouts, and equip combos are allowed.",
+			description: "Try out the game.\r\n\r\nAll levels, layouts, equip combos, and bots are allowed.",
 			parent: classicCategory.contentElm(),
 		});
 		this.populateMode(GameMode.INVASION, {
 			requirements: [],
-			description: "Defend Birdtown against an invasion using teamwork and unique buffs.\r\n\r\nDifficulty scales with number of players.",
+			description: "Defend Birdtown against an invasion of bots using teamwork and unique buffs.\r\n\r\nDifficulty scales with number of players.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 1,
 			maxRecommended: 4,
@@ -213,8 +213,9 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.SURVIVAL, {
 			requirements: [],
-			description: "Be the last bird in town.\r\n\r\nRecommended for larger groups along with the 'Endless' level modifier.",
+			description: "Be the last player in town.\r\n\r\nDefeat roaming bots to loot their loadout.\r\n\r\nRecommended for larger groups along with the 'Endless' level modifier.",
 			parent: classicCategory.contentElm(),
+			minRecommended: 3,
 		});
 		this.populateMode(GameMode.DUEL, {
 			requirements: [],
@@ -459,11 +460,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
 			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
-			coreCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
+			coreCategory.contentElm().appendChild(this.concurrentBotsWrapper(this._configMsg, 0, 5).elm());
+			coreCategory.contentElm().appendChild(this.difficultyWrapper(this._configMsg, 0, 5).elm());		
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.buffCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.weaponCrateWrapper(this._configMsg).elm());
+			otherCategory.contentElm().appendChild(this.weaponSetWrapper(this._configMsg).elm());
 			break;
 		case GameMode.SUDDEN_DEATH:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
@@ -483,6 +486,8 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
+			coreCategory.contentElm().appendChild(this.concurrentBotsWrapper(this._configMsg, 0, 5).elm());
+			coreCategory.contentElm().appendChild(this.difficultyWrapper(this._configMsg, 0, 5).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
 			otherCategory.contentElm().appendChild(this.buffCrateWrapper(this._configMsg).elm());
 			otherCategory.contentElm().appendChild(this.healthCrateWrapper(this._configMsg).elm());
@@ -695,9 +700,22 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 	}
 
+	private concurrentBotsWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
+		return new LabelNumberWrapper({
+			label: "Number of bots",
+			value: msg.getConcurrentBots(),
+			plus: (current : number) => {
+				msg.setConcurrentBots(Math.min(current + 1, max));
+			},
+			minus: (current : number) => {
+				msg.setConcurrentBots(Math.max(min, current - 1));
+			},
+			get: () => { return msg.getConcurrentBots(); },
+		});
+	}
 	private difficultyWrapper(msg : GameConfigMessage, min : number, max : number) : LabelNumberWrapper {
 		return new LabelNumberWrapper({
-			label: "Difficulty",
+			label: "Bot Strength",
 			value: msg.getDifficulty(),
 			plus: (current : number) => {
 				msg.setDifficulty(Math.min(current + 1, max));
@@ -708,16 +726,18 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			get: () => { return msg.getDifficulty(); },
 			html: (current : number) => {
 				switch (current) {
+				case 0:
+					return "Frail";
 				case 1:
-					return "Very Easy";
+					return "Weak";
 				case 2:
-					return "Easy";
+					return "Shaky";
 				case 3:
 					return "Normal";
 				case 4:
-					return "Hard";
+					return "Buff";
 				case 5:
-					return "Very Hard";
+					return "MASSIVE";
 				}
 			},
 		});

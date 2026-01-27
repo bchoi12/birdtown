@@ -150,6 +150,9 @@ export class Tablet extends ClientSystem implements System {
 			game.tablets().updateTeamScores();
 		}
 	}
+	addKill() : void {
+		this.addInfo(InfoType.KILLS, 1);
+	}
 	addBossKill() : void {
 		this.addInfo(InfoType.KILLS, 1);
 		this.addInfo(InfoType.SCORE, 5);

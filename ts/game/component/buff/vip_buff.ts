@@ -11,7 +11,6 @@ export class VipBuff extends Buff {
 
 	override boosts(level : number) : Map<StatType, number> {
 		return new Map([
-			[StatType.SHIELD, 30 * level],
 			[StatType.REVIVE_BOOST, 0.5 * level],
 		]);
 	}
