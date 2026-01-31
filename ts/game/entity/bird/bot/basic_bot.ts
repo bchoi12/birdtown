@@ -58,7 +58,7 @@ export class BasicBot extends Bot implements InteractEntity {
 	}
 
 	protected override minRange() : Vec {
-		return { x: 6, y: 1 };
+		return { x: 7, y: 1 };
 	}
 	protected override maxRange() : Vec {
 		return { x: 12, y: 10 };

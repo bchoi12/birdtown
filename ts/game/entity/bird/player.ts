@@ -24,14 +24,12 @@ import { Vec2, Vec3 } from 'util/vector'
 
 export class Player extends Bird implements InteractEntity {
 
-	private static readonly _heartInterval = 1000;
 	private static readonly _interactCheckInterval = 100;
 	private static readonly _reviveTime = 5000;
 
 	private _nearestInteractable : Optional<InteractEntity>;
 	private _interactRateLimiter : RateLimiter;
 
-	private _heartRateLimiter : RateLimiter;
 	private _reviverId : number;
 
 	constructor(entityOptions : EntityOptions) {
@@ -42,7 +40,6 @@ export class Player extends Bird implements InteractEntity {
 		this._nearestInteractable = new Optional();
 		this._interactRateLimiter = new RateLimiter(Player._interactCheckInterval);
 
-		this._heartRateLimiter = new RateLimiter(Player._heartInterval);
 		this._reviverId = 0;
 
 		this.addProp<number>({
@@ -264,25 +261,6 @@ export class Player extends Bird implements InteractEntity {
 					}
 					if (reviver.clientIdMatches()) {
 						ui.showTooltip(TooltipType.REVIVING, { names: [this.displayName(), "" + Math.floor(100 * this.healthPercent())] });
-					}
-
-					if (this._heartRateLimiter.checkPercent(millis, Math.max(0.3, 1 - healthPercent))) {
-						const [particle, hasParticle] = this.addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
-							offline: true,
-							ttl: 500 + healthPercent * 500,
-							profileInit: {
-								pos: this._profile.pos().clone().add({ x: Fns.randomNoise(0.3) }),
-								vel: { x: 0, y: 0.02 + healthPercent * 0.01 },
-							},
-						});
-
-						if (hasParticle) {
-							particle.setText({
-								text: "❤️",
-								height: 0.7 + healthPercent * 0.3,
-								textColor: ColorFactory.toString(ColorType.RED),
-							});
-						}
 					}
 				}
 			}

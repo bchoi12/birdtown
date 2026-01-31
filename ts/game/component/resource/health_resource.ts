@@ -11,14 +11,18 @@ import { StepData } from 'game/game_object'
 import { settings } from 'settings'
 
 import { Fns } from 'util/fns'
+import { RateLimiter } from 'util/rate_limiter'
 import { Timer } from 'util/timer'
 import { Vec } from 'util/vector'
 
 export class HealthResource extends Resource {
 
 	private static readonly _textHeight = 0.8;
+	private static readonly _particleInterval = 200;
 
 	private _regenTimer : Timer;
+	private _deltaBuffer : Array<number>;
+	private _particleRateLimiter : RateLimiter;
 
 	constructor() {
 		super(StatType.HEALTH);
@@ -28,6 +32,9 @@ export class HealthResource extends Resource {
 		this._regenTimer = this.newTimer({
 			canInterrupt: true,
 		});
+		// TODO: make this NumberRingBuffer if performance suffers
+		this._deltaBuffer = new Array();
+		this._particleRateLimiter = new RateLimiter(HealthResource._particleInterval);
 	}
 
 	override initialize() : void {
@@ -56,6 +63,10 @@ export class HealthResource extends Resource {
 
 	override update(stepData : StepData) : void {
 		super.update(stepData);
+
+		if (this._particleRateLimiter.check(stepData.millis) && this._deltaBuffer.length > 0) {
+			this.displayDelta(this._deltaBuffer.pop());
+		}
 
 		if (this.entity().getStat(StatType.HP_REGEN) === 0 || this._resource <= 0 || this.entity().dead()) {
 			this._regenTimer.reset();
@@ -97,26 +108,30 @@ export class HealthResource extends Resource {
 			}
 		}
 
-		if (!settings.showDamageNumbers()) {
-			return;
-		}
-
 		if (!this.entity().hasProfile()) {
 			return;
 		}
 
-		if (this.entity().dead()) {
+		if (this.entity().dead() && delta < 0) {
 			return;
 		}
 
+		this._deltaBuffer.push(delta);
+	}
+
+	private displayDelta(delta : number) : void {
 		let pos = this.entity().profile().pos();
 
-		let weight = 0;
-		if (this.entity().hasType(EntityType.BIRD)) {
-			weight = Fns.normalizeRange(10, Math.abs(delta), 100) * this.entity().getStat(StatType.SCALING);
+		if (!game.lakitu().inFOV(pos)) {
+			return;
 		}
 
-		if (game.lakitu().inFOV(pos)) {
+		if (settings.showDamageNumbers()) {
+			let weight = 0;
+			if (this.entity().hasType(EntityType.BIRD)) {
+				weight = Fns.normalizeRange(10, Math.abs(delta), 100) * this.entity().getStat(StatType.SCALING);
+			}
+
 			let height = HealthResource._textHeight + weight;
 
 			const [particle, hasParticle] = this.entity().addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
@@ -144,6 +159,27 @@ export class HealthResource extends Resource {
 						renderOnTop: true,
 					});
 				}
+		}
+
+			return;
+		}
+
+		if (delta > 0) {
+			const [particle, hasParticle] = this.entity().addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
+				offline: true,
+				ttl: 750,
+				profileInit: {
+					pos: pos,
+					vel: { x: 0, y: 0.03 },
+				},
+			});
+
+			if (hasParticle) {
+				particle.setText({
+					text: "❤️",
+					height: 1,
+					textColor: ColorFactory.toString(ColorType.RED),
+				});
 			}
 		}
 	}

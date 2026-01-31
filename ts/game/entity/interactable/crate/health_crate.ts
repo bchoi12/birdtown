@@ -21,18 +21,8 @@ import { TooltipType } from 'ui/api'
 
 export class HealthCrate extends Crate {
 
-	private _showHeart : boolean;
-
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.HEALTH_CRATE, entityOptions);
-
-		this._showHeart = false;
-
-		this.addProp<boolean>({
-			has: () => { return this._showHeart; },
-			export: () => { return this._showHeart; },
-			import: (obj : boolean) => { this._showHeart = obj; },
-		})
 	}
 
 	override outerMaterial() : MaterialType { return MaterialType.PICKUP_RED; }
@@ -60,33 +50,7 @@ export class HealthCrate extends Crate {
 			return;
 		}
 
-		entity.takeDamage(-Math.max(0.05 * entity.maxHealth(), this.amount()), this, this);
-		this._showHeart = true;
+		entity.heal(Math.max(0.05 * entity.maxHealth(), this.amount()));
 		this.open();
-	}
-
-	override open() : void {
-		super.open();
-
-		if (!this._showHeart) {
-			return;
-		}
-
-		const [particle, hasParticle] = this.addEntity<TextParticle>(EntityType.TEXT_PARTICLE, {
-			offline: true,
-			ttl: 750,
-			profileInit: {
-				pos: this._profile.pos(),
-				vel: { x: 0, y: 0.02 },
-			},
-		});
-
-		if (hasParticle) {
-			particle.setText({
-				text: "❤️",
-				height: 1,
-				textColor: ColorFactory.toString(ColorType.RED),
-			});
-		}
 	}
 }
