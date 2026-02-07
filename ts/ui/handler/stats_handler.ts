@@ -43,17 +43,19 @@ export class StatsHandler extends HandlerBase implements Handler {
 
 		// Ping or signaling
 		if (game.isHost()) {
-			this.addStat(new StatWrapper({
-				icon: IconType.NETWORK_SIGNAL,
+			if (!game.netcode().offline()) {
+				this.addStat(new StatWrapper({
+					icon: IconType.NETWORK_SIGNAL,
 
-				goodPercent: 1,
-				badPercent: 0,
-				iconOnly: true,
-				suffix: " " + game.netcode().room(),
+					goodPercent: 1,
+					badPercent: 0,
+					iconOnly: true,
+					suffix: " " + game.netcode().room(),
 
-				get: () => { return this._signalingDisconnected ? 0 : 1; },
-				getTarget: () => { return 1; },
-			}));
+					get: () => { return this._signalingDisconnected ? 0 : 1; },
+					getTarget: () => { return 1; },
+				}));
+			}
 		} else {
 			this.addStat(new StatWrapper({
 				icon: IconType.NETWORK_SIGNAL,

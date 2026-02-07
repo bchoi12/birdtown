@@ -43,6 +43,7 @@ export type NetcodeOptions = {
 	room : string;
 	password : string;
 	isHost : boolean;
+	offline : boolean;
 
 	hostOptions? : HostOptions;
 	clientOptions? : ClientOptions;
@@ -62,6 +63,8 @@ export abstract class Netcode {
 
 	protected _room : string;
 	protected _password : string;
+	protected _offline : boolean;
+
 	protected _hostName : string;
 	protected _peerName : string;
 	protected _clientId : number;
@@ -87,6 +90,7 @@ export abstract class Netcode {
 	constructor(options : NetcodeOptions) {
 		this._room = options.room.toUpperCase();
 		this._password = options.password;
+		this._offline = options.offline;
 
 		this._hostName = "birdtown-" + this._room;
 		this._peerName = this._hostName + "-" + settings.userToken;
@@ -115,6 +119,11 @@ export abstract class Netcode {
 	}
 
 	async initialize(onSuccess : () => void, onError: () => void) : Promise<void> {
+		if (this._offline) {
+			onSuccess();
+			return;
+		}
+
 		const peerDebug = Flags.peerDebug.get();
 		if (perch.enabled()) {
 			console.log(`Using ${perch.url()} with ID`, this.peerName());
@@ -208,7 +217,11 @@ export abstract class Netcode {
 				this.initError(onError);
 			}
 		}, Netcode._initializeTimeout);
+
+		this.configurePeer(onSuccess, onError);
 	}
+	protected abstract configurePeer(onSuccess : () => void, onError : () => void);
+
 	initialized() : boolean { return this._initialized; }
 	hasInitError() : boolean { return this._initError; }
 	initError(onError : () => void) : void {
@@ -232,6 +245,7 @@ export abstract class Netcode {
 
 	id() : string { return this._peer.id; }
 	room() : string { return this._room; }
+	offline() : boolean { return this._offline; }
 
 	private getPerchPath() : string { return `/peer/${this.room()}/${this.password()}/${this.getParams()}/`; }
 

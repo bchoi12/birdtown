@@ -159,7 +159,7 @@ export class HealthResource extends Resource {
 						renderOnTop: true,
 					});
 				}
-		}
+			}
 
 			return;
 		}

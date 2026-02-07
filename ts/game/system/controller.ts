@@ -89,7 +89,8 @@ export class Controller extends SystemBase implements System {
 	config() : GameConfigMessage { return this._gameMaker.config(); }
 	gameMode() : GameMode { return this._gameMaker.mode(); }
 	allowRevives() : boolean {
-		return this._gameMaker.config().getWinCondition() === WinConditionType.TEAM_LIVES;
+		return this._gameMaker.config().getWinCondition() === WinConditionType.TEAM_LIVES
+			|| this._gameMaker.config().getWinCondition() === WinConditionType.COOP;
 	}
 	useTeamSpawns() : boolean {
 		return this._gameMaker.config().getWinCondition() === WinConditionType.TEAM_LIVES;

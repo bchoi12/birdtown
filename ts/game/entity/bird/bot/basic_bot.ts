@@ -82,9 +82,7 @@ export class BasicBot extends Bot implements InteractEntity {
 	}
 	private equipList() : string {
 		const pair = this.getEquipPair();
-		return StringFactory.getEntityTypeName(this._equipType).toString()
-		+ " and "
-		+ StringFactory.getEntityTypeName(this._altEquipType).toString();
+		return `${StringFactory.getEntityTypeName(this._equipType).toString()} and ${StringFactory.getEntityTypeName(this._altEquipType).toString()}`;
 	}
 
 	canInteractWith(entity : Entity) : boolean {

@@ -132,6 +132,7 @@ export class JoinGameDialogWrapper extends InitGameDialogWrapper {
 			isHost: false,
 			room: this.getRoom(),
 			password: this.getPassword(),
+			offline: false,
 			clientOptions: {},
 		};
 	}

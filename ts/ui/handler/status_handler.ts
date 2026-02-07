@@ -159,7 +159,9 @@ export class StatusHandler extends HandlerBase implements Handler {
 		let wrapper = this._stateWrappers.get(state);
 		switch (state) {
 		case GameState.FREE:
-			if (this._signalingDisconnected) {
+			if (game.netcode().offline()) {
+				wrapper.setText("Currently in offline mode");
+			} else if (this._signalingDisconnected) {
 				wrapper.setText("Lost connection to matchmaking server!\r\nYou can still play, but no new players can join");
 			} else if (game.isHost()) {
 				wrapper.setText(`Invite your friends!\r\nRoom: ${game.netcode().room()}`);

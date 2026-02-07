@@ -125,6 +125,8 @@ export class Buster extends SystemBase implements System {
 				} else {
 					game.tablet(damager.clientId())?.addKill();
 				}
+
+				damager.heal(10);
 			}
 
 			this._botConfig.total--;
@@ -170,6 +172,7 @@ export class Buster extends SystemBase implements System {
 				pos: pos,
 				vel: { x: 0, y: 0},
 			},
+			levelVersion: game.level().version(),
 		});
 
 		if (ok) {

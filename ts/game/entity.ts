@@ -573,7 +573,10 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 	heal(delta : number) : void {
 		if (!this.hasComponent(ComponentType.RESOURCES)) { return; }
 
-		let health = 
+		if (this.dead() && !this.getAttribute(AttributeType.REVIVING)) {
+			return;
+		}
+
 		this.getComponent<Resources>(ComponentType.RESOURCES).updateResource(StatType.HEALTH, {
 			delta: delta,
 		});

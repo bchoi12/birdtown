@@ -61,9 +61,7 @@ export class Host extends Netcode {
 	maxPlayers() : number { return this._options.maxPlayers; }
 
 	override ready() : boolean { return this.initialized() && this.peer().open; }
-	override async initialize(onSuccess : () => void, onError : () => void) : Promise<void> {
-		await super.initialize(onSuccess, onError);
-
+	protected override configurePeer(onSuccess : () => void, onError : () => void) : void {
 		let peer = this.peer();
 		peer.on("open", () => {
 			console.log(`Opened host connection for ${peer.id}`);

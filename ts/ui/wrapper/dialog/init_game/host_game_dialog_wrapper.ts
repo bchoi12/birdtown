@@ -31,6 +31,8 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 	private _maxPlayersSetting : LabelNumberWrapper;
 	private _publicRoom : number;
 	private _privacySetting : LabelNumberWrapper;
+	private _offline : number;
+	private _offlineSetting : LabelNumberWrapper;
 	private _name : string;
 	private _nameInput : LabelInputWrapper;
 	private _passwordInput : LabelInputWrapper;
@@ -90,6 +92,23 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 		this._passwordInput.inputElm().pattern = InitGameDialogWrapper._pattern;
 		this._advancedCategory.contentElm().appendChild(this._passwordInput.elm());
 
+		this._offline = 0;
+		this._offlineSetting = new LabelNumberWrapper({
+			label: "Online/Offline Mode",
+			value: this._offline,
+			plus: (current : number) => {
+				this._offline = 1 - this._offline;
+			},
+			minus: (current : number) => {
+				this._offline = 1 - this._offline;
+			},
+			get: () => { return this._offline; },
+			html: (current : number) => {
+				return this._offline === 1 ? "Offline (Singleplayer)" : "Online";
+			}
+		});
+		this._advancedCategory.contentElm().appendChild(this._offlineSetting.elm());
+
 		this._maxPlayers = HostGameDialogWrapper._defaultMaxPlayers;
 		this._maxPlayersSetting = new LabelNumberWrapper({
 			label: "Max Players",
@@ -123,6 +142,7 @@ export class HostGameDialogWrapper extends InitGameDialogWrapper {
 			isHost: true,
 			room: IdGen.randomId(InitGameDialogWrapper._roomLength),
 			password: this.getPassword(),
+			offline: this._offline === 1,
 			hostOptions: {
 				maxPlayers: this._maxPlayers,
 				publicRoom: this._publicRoom === 1,
