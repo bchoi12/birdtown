@@ -399,7 +399,6 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 	protected abstract jumping() : boolean;
 	protected abstract doubleJumping() : boolean;
 	protected abstract reorient() : void;
-	protected abstract getEquipPair() : [EntityType, EntityType];
 
 	override setTeam(team : number) : void {
 		super.setTeam(team);
@@ -514,6 +513,9 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 		}
 	}
 
+	protected getEquipPair() : [EntityType, EntityType] {
+		return [this.equipType(), this.altEquipType()];
+	}
 	equipType() : EntityType { return this._equipType; }
 	altEquipType() : EntityType { return this._altEquipType; }
 	equips() : CircleMap<number, Equip<Bird>> { return this._entityTrackers.getEntities<Equip<Bird>>(EntityType.EQUIP); }

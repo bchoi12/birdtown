@@ -14,11 +14,29 @@ import { ui } from 'ui'
 import { TooltipType } from 'ui/api'
 
 import { Fns } from 'util/fns'
+import { SeededRandom } from 'util/seeded_random'
 import { Vec, Vec2 } from 'util/vector'
 
 import { StringFactory } from 'strings/string_factory'
 
 export class BasicBot extends Bot implements InteractEntity {
+
+	private static readonly _firstNames = new Array(
+		"Bottimus",
+		"Bottington",
+		"Bottert",
+		"Botterita",
+		"Botter",
+	);
+
+	private static readonly _lastNames = new Array(
+		"Esq.",
+		"Sr.",
+		"Jr.",
+		"III",
+		"IV",
+		"Prime",
+	);
 
 	private _holdingWeapon : boolean;
 	private _pause : boolean;
@@ -44,7 +62,9 @@ export class BasicBot extends Bot implements InteractEntity {
 		this.addBuff(BuffType.BOT, 1);
 	}
 
-	protected override botName() : string { return "Basic Bot"; }
+	protected override botName(rng : SeededRandom) : string {
+		return rng.pick(BasicBot._firstNames) + " " + rng.pick(BasicBot._lastNames);
+	}
 	protected override traitMap() : Map<TraitType, number> {
 		return new Map([
 			[TraitType.ANGER, Fns.randomInt(80, 100)],
@@ -72,11 +92,6 @@ export class BasicBot extends Bot implements InteractEntity {
 		return this._behavior.moveDir().x;
 	}
 
-	protected override jumping() : boolean { return this._behavior.moveDir().y > 0.3; }
-	protected override reorient() : void {
-		this.setDir(Vec2.unitFromRad(this._behavior.angle()));
-		this.setEquipDir(this._armDir);
-	}
 	protected override getEquipPair() : [EntityType, EntityType] {
 		return EquipFactory.next();
 	}
@@ -96,7 +111,7 @@ export class BasicBot extends Bot implements InteractEntity {
 		const player = <Player>entity;
 
 		if (player.isLakituTarget() && !player.hasBuff(BuffType.VIP) && interactable) {
-			ui.showTooltip(TooltipType.WEAPON_CRATE, {
+			ui.showTooltip(TooltipType.LOOT_BOT, {
 				ttl: 500,
 				names: [this.equipList()],
 			});
@@ -126,7 +141,7 @@ export class BasicBot extends Bot implements InteractEntity {
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 
-		if (this.getAttribute(AttributeType.GROUNDED)) {
+		if (this.getAttribute(AttributeType.GROUNDED) && !this.getAttribute(AttributeType.BUBBLED)) {
 			this._pause = false;
 		}
 		this.setEquipUse(this._behavior.shouldFire() && !this._pause ? AutoUseType.HOLD : AutoUseType.OFF);

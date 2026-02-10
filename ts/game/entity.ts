@@ -692,7 +692,7 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 						from.heal(from.getStat(StatType.LIFE_STEAL) * Math.abs(delta));
 					}
 					if (from.hasStat(StatType.SHIELD_STEAL)) {
-						from.heal(from.getStat(StatType.SHIELD_STEAL) * Math.abs(delta));
+						from.addShield(from.getStat(StatType.SHIELD_STEAL) * Math.abs(delta));
 					}
 					if (from.hasStat(StatType.HEALTH_ADDITION)) {
 						from.heal(from.getStat(StatType.HEALTH_ADDITION) * buffDelta);

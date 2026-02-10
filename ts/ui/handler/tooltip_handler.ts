@@ -130,16 +130,21 @@ export class TooltipHandler extends HandlerBase implements Handler {
 		case TooltipType.FORCE_SUBMIT:
 			return "Dialog was auto-submitted!";
 		case TooltipType.JUST_A_SIGN:
-			return `${Icon.string(IconType.SIGN)} Just a sign with no purpose`
+			return `${Icon.string(IconType.SIGN)} Just a sign with no purpose`;
 		case TooltipType.HEALTH_CRATE:
 			if (names.length !== 1) {
 				return "";
 			}
 			return `Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to recover ${names[0]} health`;
 		case TooltipType.HIKING_SWIM:
-			return `${Icon.string(IconType.WARNING)} No lifeguard on duty! ${Icon.string(IconType.WARNING)}\nSwim at your own risk`
+			return `${Icon.string(IconType.WARNING)} No lifeguard on duty! ${Icon.string(IconType.WARNING)}\nSwim at your own risk`;
 		case TooltipType.HIKING_NIGHT:
-			return `${Icon.string(IconType.WARNING)} Freezing temperatures at the lake tonight! ${Icon.string(IconType.WARNING)}`
+			return `${Icon.string(IconType.WARNING)} Freezing temperatures at the lake tonight! ${Icon.string(IconType.WARNING)}`;
+		case TooltipType.LOOT_BOT:
+			if (names.length !== 1) {
+				return "";
+			}
+			return `Press ${KeyNames.keyTypeHTML(KeyType.INTERACT)} to loot ${names[0]}`;
 		case TooltipType.MOON:
 			return "Night falls and you become absurdly powerful..."
 		case TooltipType.MUSIC:

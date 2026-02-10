@@ -230,7 +230,7 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 	override minBuffer() : number { return 1; }
 	override sideBuffer() : number { return this.getLayout() === LevelLayout.INVASION ? -0.5 : 10; }
 	override seamBuffer() : number { return 6; }
-	override planeBuffer() : number { return this.getLayout() === LevelLayout.INVASION ? 20 : 15; }
+	override planeBuffer() : number { return 15; }
 
 	maxHeight() : number { return this._maxHeight; }
 	numBuildings() : number { return this._buildings.length; }
@@ -748,13 +748,43 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 	}
 
 	private loadInvasion(options : BlueprintOptions) : void {
-		this.addBuildings([
-			{ height: 1 },
-			{ height: 1 },
-			{ height: 1 },
-			{ height: 1 },
-			{ height: 1 },
-		]);
+
+		const rand = this.rng().next();
+		let pergolas = new Set();
+
+		if (rand < 0.35) {
+			this.addBuildings([
+				{ height: 1 },
+				{ height: 1 },
+				{ height: 2 },
+				{ height: 1 },
+				{ height: 1 },
+			]);
+
+			pergolas.add(0);
+			pergolas.add(4);
+		} else if (rand < 0.7) {
+			this.addBuildings([
+				{ height: 1 },
+				{ height: 2 },
+				{ height: 1 },
+				{ height: 2 },
+				{ height: 1 },
+			]);
+
+			pergolas.add(2);
+		} else {
+			this.addBuildings([
+				{ height: 1 },
+				{ height: 2 },
+				{ height: 1 },
+				{ height: 1 },
+				{ height: 1 },
+			]);
+
+			pergolas.add(1);
+			pergolas.add(3);
+		}
 
 		for (let i = 0; i < this.numBuildings(); ++i) {
 			let building = this.building(i);
@@ -763,21 +793,17 @@ export class ArchBlueprint extends Blueprint<ArchBlueprintBlock> {
 				let block = building.block(j);
 
 				if (block.entityType() === ArchBlueprint.roofType()) {
-					if (i === 2) {
-						block.pushEntityOptions(EntityType.PLATFORM, {
+					if (pergolas.has(i)) {
+						block.pushEntityOptions(EntityType.PERGOLA, {
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ y: 5 }),
-								dim: { x: 5, y: 0.5, z: 3 },
 							},
-							modelInit: {
-								materialType: MaterialType.ARCH_PLATFORM,
-							}
 						});
-					} else if (i % 2 === 0) {
+					} else if (building.height() === 1) {
 						block.pushEntityOptions(EntityType.PLATFORM, {
 							profileInit: {
 								pos: Vec2.fromVec(block.pos()).add({ y: 2.5 }),
-								dim: { x: 3, y: 0.5, z: 3 },
+								dim: { x: 3.3, y: 0.5, z: 3 },
 							},
 							modelInit: {
 								materialType: MaterialType.ARCH_PLATFORM,

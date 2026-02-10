@@ -8,7 +8,8 @@ import { Entity, EntityBase, EntityOptions } from 'game/entity'
 import { Bird } from 'game/entity/bird'
 import { TextureType } from 'game/factory/api'
 
-import { Vec } from 'util/vector'
+import { SeededRandom, globalRandom } from 'util/seeded_random'
+import { Vec, Vec2 } from 'util/vector'
 
 export abstract class Bot extends Bird {
 
@@ -42,7 +43,10 @@ export abstract class Bot extends Bird {
 
 	setBirdType(type : BirdType) : void { this._birdType = type; }
 
-	override displayName() : string { return this.botName(); }
+	override displayName() : string {
+		globalRandom.seed(this.id());
+		return this.botName(globalRandom);
+	}
 
 	override takeDamage(delta : number, from? : Entity, hitEntity? : Entity) : void {
 		super.takeDamage(delta, from, hitEntity);
@@ -57,7 +61,7 @@ export abstract class Bot extends Bird {
 	}
 
 	protected abstract traitMap() : Map<TraitType, number>;
-	protected abstract botName() : string;
+	protected abstract botName(rng : SeededRandom) : string;
 
 	protected abstract minRange() : Vec;
 	protected abstract maxRange() : Vec;
@@ -65,7 +69,13 @@ export abstract class Bot extends Bird {
 	protected override birdType() : BirdType { return this._birdType; }
 	protected override eyeTexture() : TextureType { return TextureType.RED_EYE; }
 
+	protected override jumping() : boolean { return this._behavior.moveDir().y > 0.5; }
 	protected override doubleJumping() : boolean { return this.jumping() && this._profile.vel().y < 0; }
+
+	protected override reorient() : void {
+		this.setDir(Vec2.unitFromRad(this._behavior.angle()));
+		this.setEquipDir(this._armDir);
+	}
 
 	protected override onDead(dead : boolean) : void {
 		super.onDead(dead);

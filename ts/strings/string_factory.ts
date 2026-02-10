@@ -452,7 +452,7 @@ export namespace StringFactory {
 		[BuffType.SQUAWK_SHOT, "Squawk to fire a projectile, gain a bit of damage"],
 		[BuffType.SUN, "Permanently gain health and grow larger whenever the sun is out"],
 		[BuffType.TANK, "Massively increase your size, tankiness, and % health"],
-		[BuffType.NIGHT, "Provides a massive shield, damage, and life steal...but only at night"],
+		[BuffType.NIGHT, "Massively increases damage and life steal...but only at night"],
 
 		[BuffType.STAT_STICK, "Increases stats randomly"],
 

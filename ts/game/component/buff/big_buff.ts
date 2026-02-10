@@ -12,7 +12,8 @@ export class BigBuff extends Buff {
 			[StatType.DAMAGE_CLOSE_BOOST, 0.1 * level],
 			[StatType.HEALTH, 50 * level],
 			[StatType.SCALING, 0.3 + 0.05 * level],
-			[StatType.SHIELD, 15 * level],
+			[StatType.SHIELD, 10 * level],
+			[StatType.SHIELD_STEAL, 0.03 * level],
 		]);
 	}
 }

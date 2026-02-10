@@ -176,6 +176,7 @@ export enum TooltipType {
 	HEALTH_CRATE,
 	HIKING_SWIM,
 	HIKING_NIGHT,
+	LOOT_BOT,
 	MOON,
 	MUSIC,
 	NEW_TEAM,

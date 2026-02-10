@@ -18,6 +18,7 @@ import { Pergola } from 'game/entity/pergola'
 import { Plane } from 'game/entity/plane'
 import { Player } from 'game/entity/bird/player'
 import { BasicBot } from 'game/entity/bird/bot/basic_bot'
+import { DuckBot } from 'game/entity/bird/bot/duck_bot'
 import { BlackHeadband } from 'game/entity/equip/black_headband'
 import { Bubble } from 'game/entity/equip/bubble'
 import { Booster } from 'game/entity/equip/booster'
@@ -151,6 +152,7 @@ export namespace EntityFactory {
 		[EntityType.CONTROLS_SIGN, (options : EntityOptions) => { return new ControlsSign(options); }],
 		[EntityType.COWBOY_HAT, (options : EntityOptions) => { return new CowboyHat(options); }],
 		[EntityType.DUCK_BEAK, (options : EntityOptions) => { return new DuckBeak(options); }],
+		[EntityType.DUCK_BOT, (options : EntityOptions) => { return new DuckBot(options); }],
 		[EntityType.DYING_STAR, (options : EntityOptions) => { return new DyingStar(options); }],
 		[EntityType.EAGLE_BEAK, (options : EntityOptions) => { return new EagleBeak(options); }],
 		[EntityType.FLAMINGO_BEAK, (options : EntityOptions) => { return new FlamingoBeak(options); }],
@@ -245,6 +247,7 @@ export namespace EntityFactory {
 		[EntityType.ARCH_ROOM, { x: 12, y: 6, z: 8 }],
 		[EntityType.ARCH_ROOF, { x: 12, y: 1, z: 8 }],
 		[EntityType.BACKGROUND_ARCH_ROOM, { x: 12, y: 6 }],
+		[EntityType.BASIC_BOT, birdDim],
 		[EntityType.BEAK_BULLET, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.BILLBOARD, { x: 8, y: 6.4, z: 0.5 }],
 		[EntityType.BUSH, { x: 3.3, y: 2 }],
@@ -258,6 +261,7 @@ export namespace EntityFactory {
 		[EntityType.CHARGED_BOLT, { x: 1.4, y: 0.24, z : 0.24 }],
 		[EntityType.CLIFF, { x: 15, y: 7 }],
 		[EntityType.CLIFF_WALL, { x: 15, y: 7 }],
+		[EntityType.DUCK_BOT, birdDim],
 		[EntityType.GOLDEN_BULLET, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.LASER, { x: 28, y: 0.5, z : 0.1 }],
@@ -283,7 +287,6 @@ export namespace EntityFactory {
 		[EntityType.TOP_CLIFF_WALL, { x: 15, y: 7 }],
 		[EntityType.TOP_MINI_CLIFF, { x: 5, y: 7 }],
 		[EntityType.TREE, { x: 3, y: 4.75, z: 3 }],
-		[EntityType.BASIC_BOT, birdDim],
 
 		[EntityType.CUBE_PARTICLE, { x: 1, y: 1, z: 1}],
 		[EntityType.ENERGY_CUBE_PARTICLE, { x: 1, y: 1, z: 1}],

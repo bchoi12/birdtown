@@ -126,7 +126,7 @@ export class Buster extends SystemBase implements System {
 					game.tablet(damager.clientId())?.addKill();
 				}
 
-				damager.heal(10);
+				damager.heal(Math.max(10, 0.05 * damager.maxHealth()));
 			}
 
 			this._botConfig.total--;
@@ -177,7 +177,7 @@ export class Buster extends SystemBase implements System {
 
 		if (ok) {
 			bot.setBirdType(Buster._birdTypes[Math.floor(Math.random() * Buster._birdTypes.length)])
-			bot.respawn(pos);
+			bot.floatRespawn(pos);
 			this._numDeployed++;
 		}
 	}

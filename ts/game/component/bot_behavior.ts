@@ -127,7 +127,10 @@ export class BotBehavior extends ComponentBase implements Component {
 
 	angle() : number { return this._angle; }
 	inRange() : boolean { return this._inRange; }
-	shouldFire() : boolean { return this.inRange() && this.validTarget() && Math.abs(this._angleDiff) < 2 * BotBehavior._angleNoise; }
+	shouldFire() : boolean {
+		return !this.entity().dead() && !this.entity().getAttribute(AttributeType.BUBBLED)
+			&& this.inRange() && this.validTarget() && Math.abs(this._angleDiff) < 2 * BotBehavior._angleNoise;
+	}
 
 	targetExists() : boolean {
 		return this._target.has() && this._target.get().valid();

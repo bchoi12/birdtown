@@ -20,7 +20,7 @@ export class Bubble extends Equip<Player> {
 
 	private static readonly _alpha = 0.3;
 	private static readonly _cameraOffset = -1.5;
-	private static readonly _popDuration = 750;
+	private static readonly _popDuration = 500;
 	private static readonly _minLifeDuration = 250;
 	private static readonly _lifeDuration = 10000;
 

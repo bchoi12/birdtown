@@ -57,6 +57,7 @@ export enum EntityType {
 	COWBOY_HAT,
 	CRATE,
 	DUCK_BEAK,
+	DUCK_BOT,
 	DYING_STAR,
 	EAGLE_BEAK,
 	FLAMINGO_BEAK,
