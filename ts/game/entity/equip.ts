@@ -287,25 +287,37 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 	}
 	charged() : boolean { return false; }
 	protected getProjectileSpeed() : number {
-		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_SPEED)) {
-			return this.getStat(StatType.CHARGED_PROJECTILE_SPEED);
+		let mult = 1;
+		if (this.hasOwner()) {
+			mult = Math.max(0.1, mult + this.owner().getStatOr(StatType.PROJECTILE_SPEED_BOOST, 0));
 		}
-		return this.getStat(StatType.PROJECTILE_SPEED);
+
+		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_SPEED)) {
+			return mult * this.getStat(StatType.CHARGED_PROJECTILE_SPEED);
+		}
+		return mult * this.getStat(StatType.PROJECTILE_SPEED);
 	}
 	protected getProjectileTTL() : number {
-		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_TTL)) {
-			return this.getStat(StatType.CHARGED_PROJECTILE_TTL);
+		let mult = 1;
+		if (this.hasOwner()) {
+			mult = Math.max(0.1, mult + this.owner().getStatOr(StatType.PROJECTILE_TTL_BOOST, 0));
 		}
-		return this.getStat(StatType.PROJECTILE_TTL);
+
+		if (this.charged() && this.hasStat(StatType.CHARGED_PROJECTILE_TTL)) {
+			return mult * this.getStat(StatType.CHARGED_PROJECTILE_TTL);
+		}
+		return mult * this.getStat(StatType.PROJECTILE_TTL);
 	}
 	protected getProjectileAccel() : number {
+		let mult = 1;
+		if (this.hasOwner()) {
+			mult = Math.max(0.1, mult + this.owner().getStatOr(StatType.PROJECTILE_SPEED_BOOST, 0));
+		}
+
 		if (this.charged()) {
-			return this.getStatOr(StatType.CHARGED_PROJECTILE_ACCEL, 0);
+			return mult * this.getStatOr(StatType.CHARGED_PROJECTILE_ACCEL, 0);
 		}
-		if (this.hasStat(StatType.PROJECTILE_ACCEL)) {
-			return this.getStat(StatType.PROJECTILE_ACCEL);
-		}
-		return 0;
+		return mult * this.getStatOr(StatType.PROJECTILE_ACCEL, 0);
 	}
 	protected getProjectileOptions(pos : Vec2, unitDir : Vec2, angle? : number) : EntityOptions {
 		let vel = unitDir.clone().scale(this.getProjectileSpeed());
@@ -319,6 +331,7 @@ export abstract class Equip<E extends Entity & EquipEntity> extends EntityBase {
 			profileInit: {
 				pos: pos,
 				vel: vel,
+				gravity: this.getStatOr(StatType.PROJECTILE_GRAVITY, 0),
 			},
 		};
 

@@ -730,8 +730,7 @@ export class GameMaker extends SystemBase implements System {
 	private setupBots() : void {
 		if (this._config.type() === GameMode.INVASION) {
 			game.buster().initBots({
-				total: 12,
-				concurrent: 4,
+				round: this._round,
 				seed: this._config.getLevelSeed() + this._round,
 			});
 			return;
@@ -740,9 +739,11 @@ export class GameMaker extends SystemBase implements System {
 		const bots = this._config.getConcurrentBotsOr(0);
 		if (bots > 0) {
 			game.buster().initBots({
+				round: this._round,
+				seed: this._config.getLevelSeed() + this._round,
+			}, {
 				total: Infinity,
 				concurrent: bots,
-				seed: this._config.getLevelSeed() + this._round,
 			});
 		}
 	}

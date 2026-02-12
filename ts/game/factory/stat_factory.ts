@@ -28,6 +28,8 @@ export namespace StatFactory {
 		[StatType.HEALTH_BOOST, 0],
 		[StatType.HP_REGEN, 0],
 		[StatType.PROJECTILE_SCALING_BOOST, 0],
+		[StatType.PROJECTILE_SPEED_BOOST, 0],
+		[StatType.PROJECTILE_TTL_BOOST, 0],
 		[StatType.RELOAD_BOOST, 0],
 		[StatType.REV_BOOST, 0],
 		[StatType.REVIVE_BOOST, 0],
@@ -195,6 +197,7 @@ export namespace StatFactory {
 			[StatType.CHARGE_DELAY, 450],
 			[StatType.CHARGE_RATE, 200],
 			[StatType.FORCE, -0.8],
+			[StatType.PROJECTILE_GRAVITY, 1],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 550],
 			[StatType.USE_JUICE, 100],
@@ -320,6 +323,7 @@ export namespace StatFactory {
 		[EntityType.PURPLE_GLOVE, new Map([
 			[StatType.BURSTS, 4],
 			[StatType.FIRE_TIME, 150],
+			[StatType.PROJECTILE_GRAVITY, 1],
 			[StatType.PROJECTILE_SPEED, 0.75],
 			[StatType.PROJECTILE_TTL, 1000],
 			[StatType.RELOAD_TIME, 600],
@@ -333,6 +337,7 @@ export namespace StatFactory {
 		[EntityType.RED_GLOVE, new Map([
 			[StatType.BURSTS, 2],
 			[StatType.FIRE_TIME, 110],
+			[StatType.PROJECTILE_GRAVITY, 1],
 			[StatType.PROJECTILE_SPEED, 0.85],
 			[StatType.PROJECTILE_TTL, 550],
 			[StatType.RELOAD_TIME, 400],

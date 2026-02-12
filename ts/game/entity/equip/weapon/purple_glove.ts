@@ -9,7 +9,7 @@ import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
 import { Projectile } from 'game/entity/projectile'
 import { Weapon, RecoilType, ReloadType } from 'game/entity/equip/weapon'
-import { MaterialType, MeshType, SoundType } from 'game/factory/api'
+import { MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { EntityFactory } from 'game/factory/entity_factory'
 import { StepData } from 'game/game_object'
 
@@ -35,7 +35,11 @@ export class PurpleGlove extends Weapon {
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
 
-		this.addEntity(EntityType.STAR, this.getProjectileOptions(this.shootPos(), this.getDir()));
+		// Use static TTL for projectiles
+		let projectileOptions = this.getProjectileOptions(this.shootPos(), this.getDir());
+		projectileOptions.ttl = this.getStat(StatType.PROJECTILE_TTL);
+
+		this.addEntity(EntityType.STAR, projectileOptions);
 		this.soundPlayer().playFromEntity(SoundType.THROW, this.owner());
 	}
 }

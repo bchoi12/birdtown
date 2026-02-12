@@ -55,7 +55,7 @@ abstract class KnifeBase extends Projectile {
 				});
 			},
 			init: {
-				gravity: true,
+				gravity: 1,
 				...entityOptions.profileInit,
 			}
 		}));

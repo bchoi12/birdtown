@@ -189,7 +189,7 @@ export class Water extends EntityBase implements Entity {
 						y: Math.min(0.2, 0.5 * scale) + Math.random() * 0.1,
 					},
 					scaling: { x: scale, y: scale },
-					gravity: true,
+					gravity: 1,
 				},
 				modelInit: {
 					transforms: {

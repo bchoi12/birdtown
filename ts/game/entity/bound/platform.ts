@@ -118,7 +118,7 @@ export class UnderwaterRock extends PlatformBase {
 							y: Fns.randomRange(0.1, 0.2),
 						},
 						scaling: { x: 0.25, y: 0.25 },
-						gravity: true,
+						gravity: 1,
 					},
 					modelInit: {
 						materialType: this._model.materialType(),

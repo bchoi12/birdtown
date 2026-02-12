@@ -15,15 +15,28 @@ import { RateLimiter } from 'util/rate_limiter'
 import { SeededRandom } from 'util/seeded_random'
 import { Vec2 } from 'util/vector'
 
+export type BotInit = {
+	round : number;
+	seed: number;
+}
+
 export type BotConfig = {
 	total : number;
 	concurrent : number;
-	seed: number;
+}
+
+enum BotSpawnType {
+	UNKNOWN,
+
+	BASIC,
+
+	DUCK_GANG,
+	PIGEON_CARTEL,
 }
 
 export class Buster extends SystemBase implements System {
 
-	protected static readonly _birdTypes = new Array(
+	private static readonly _birdTypes = new Array(
 		BirdType.BOOBY,
 		BirdType.CARDINAL,
 		BirdType.CHICKEN,
@@ -35,9 +48,10 @@ export class Buster extends SystemBase implements System {
 		BirdType.RAVEN,
 		BirdType.ROBIN,
 	);
-
 	private static readonly _spawnInterval = 3000;
 
+	private _botSpawn : BotSpawnType;
+	private _invasionTypes : Array<BotSpawnType>;
 	private _botConfig : BotConfig;
 	private _rng : SeededRandom;
 	private _numDeployed : number;
@@ -51,10 +65,14 @@ export class Buster extends SystemBase implements System {
 	constructor() {
 		super(SystemType.BUSTER);
 
+		this._botSpawn = BotSpawnType.UNKNOWN;
+		this._invasionTypes = new Array(
+			BotSpawnType.DUCK_GANG,
+			BotSpawnType.PIGEON_CARTEL,
+		);
 		this._botConfig = {
 			total: 0,
 			concurrent: 0,
-			seed: 0,
 		};
 		this._rng = new SeededRandom(0);
 		this._numDeployed = 0;
@@ -90,22 +108,34 @@ export class Buster extends SystemBase implements System {
 
 	override canStep() : boolean { return super.canStep() && this._botConfig.total > 0 && game.controller().gameState() === GameState.GAME; }
 
-	initBots(config : BotConfig) : void {
-		this._botConfig = config;
+	initBots(init : BotInit, config? : BotConfig) : void {
+		this._rng.seed(init.seed);
+		this._rng.shuffle(this._spawnPos);
+		this._spawnIndex = Math.floor(Math.random() * this._spawnPos.length);
+
+		if (init.round <= 1) {
+			this._rng.shuffle(this._invasionTypes);
+		}
+
+		if (config) {
+			this._botSpawn = BotSpawnType.BASIC;
+			this._botConfig = config;
+		} else {
+			this._botSpawn = this._invasionTypes[init.round % this._invasionTypes.length];
+			this._botConfig = {
+				total: 12,
+				concurrent: 2,
+			}
+		}
 
 		if (Flags.printDebug.get()) {
 			console.log("%s: bot config:", this.name(), this._botConfig);
 		}
-
-		this._rng.seed(this._botConfig.seed);
-		this._rng.shuffle(this._spawnPos);
-		this._spawnIndex = Math.floor(Math.random() * this._spawnPos.length);
 	}
 	disableBots() : void {
 		this._botConfig = {
 			total: 0,
 			concurrent: 0,
-			seed: 0,
 		}
 	}
 	roundComplete() : boolean {
@@ -156,6 +186,22 @@ export class Buster extends SystemBase implements System {
 			return;
 		}
 
+		switch (this._botSpawn) {
+		case BotSpawnType.BASIC:
+			this.spawnBot(EntityType.BASIC_BOT, Buster._birdTypes[Math.floor(Math.random() * Buster._birdTypes.length)]);
+			break;
+		case BotSpawnType.DUCK_GANG:
+			this.spawnBot(EntityType.BASIC_BOT, BirdType.DUCK);
+			break;
+		case BotSpawnType.PIGEON_CARTEL:
+			this.spawnBot(EntityType.BASIC_BOT, BirdType.PIGEON);
+			break;
+		default:
+			console.error("Error: unimplemented spawn type %s", BotSpawnType[this._botSpawn]);
+		}
+	}
+
+	private spawnBot(entityType : EntityType, birdType : BirdType) : void {
 		const bounds = game.level().bounds();
 		const pos = new Vec2({
 			x: (this._spawnPos[this._spawnIndex % this._spawnPos.length] + Math.random()) * bounds.width() / this._spawnPos.length,
@@ -167,7 +213,7 @@ export class Buster extends SystemBase implements System {
 			this._spawnIndex = 0;
 		}
 
-		const [bot, ok] = this.addEntity<Bot>(EntityType.BASIC_BOT, {
+		const [bot, ok] = this.addEntity<Bot>(entityType, {
 			profileInit: {
 				pos: pos,
 				vel: { x: 0, y: 0},
@@ -176,7 +222,7 @@ export class Buster extends SystemBase implements System {
 		});
 
 		if (ok) {
-			bot.setBirdType(Buster._birdTypes[Math.floor(Math.random() * Buster._birdTypes.length)])
+			bot.setBirdType(birdType);
 			bot.floatRespawn(pos);
 			this._numDeployed++;
 		}

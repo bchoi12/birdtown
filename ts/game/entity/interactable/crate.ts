@@ -81,7 +81,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 			},
 			init: {
 				clampPos: true,
-				gravity: true,
+				gravity: 1,
 				...entityOptions.profileInit
 			},
 		}));
@@ -170,7 +170,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 							y: Fns.randomRange(0.2, 0.3),
 						},
 						scaling: { x: 0.25, y: 0.25 },
-						gravity: true,
+						gravity: 1,
 					},
 					modelInit: {
 						transforms: {

@@ -14,8 +14,10 @@ export class BotBuff extends Buff {
 			[StatType.DAMAGE_BOOST, -0.6 + 0.2 * difficulty],
 			[StatType.HEALTH, Math.max(0, 25 * (round - 1))],
 			[StatType.HEALTH_BOOST, -0.3 + 0.1 * difficulty],
+			[StatType.PROJECTILE_SPEED_BOOST, Math.min(0, -0.28 + 0.07 * difficulty)],
+			[StatType.PROJECTILE_SPEED_BOOST, Math.max(0, 0.28 - 0.07 * difficulty)],
 			[StatType.SCALING, Math.max(0, -0.3 + 0.1 * difficulty)],
-			[StatType.SPEED_BOOST, Math.min(0, -0.3 + 0.1 * difficulty)],
+			[StatType.SPEED_BOOST, Math.min(0, -0.5 + 0.1 * difficulty)],
 			[StatType.RELOAD_BOOST, Math.min(0, -0.6 + 0.2 * difficulty)],
 		]);
 	}

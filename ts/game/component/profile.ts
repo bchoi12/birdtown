@@ -40,7 +40,7 @@ export type ProfileInitOptions = {
 	dim? : Vec;
 	scaling? : Vec;
 	angle? : number;
-	gravity? : boolean;
+	gravity? : number;
 
 	// Send less data over the network
 	degraded? : boolean;
@@ -282,7 +282,7 @@ export class Profile extends ComponentBase implements Component {
 		if (init.dim) { this.setDim(init.dim); }
 		if (init.scaling) { this.setScaling(init.scaling); }
 		if (init.angle) { this.setAngle(init.angle); }
-		if (init.gravity) { this.setGravityFactor(1); }
+		if (init.gravity) { this.setGravityFactor(init.gravity); }
 	}
 
 	override ready() : boolean {

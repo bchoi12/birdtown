@@ -257,7 +257,7 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 			},
 			init: {
 				clampPos: true,
-				gravity: true,
+				gravity: 1,
 				ignoreTinyCollisions: true,
 				...entityOptions.profileInit,
 			},
