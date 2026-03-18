@@ -83,7 +83,10 @@ export class DuckBot extends Bot {
 	}
 
 	protected override reorient() : void {
-		this.setDir(Vec2.unitFromRad(this._behavior.angle()));
+		const xDist = this._behavior.aimVec().x;
+		const weight = Math.sign(xDist) * Fns.clamp(0, Math.abs(xDist) / 10, 1);
+
+		this.setDir(Vec2.unitFromRad(this._behavior.angle()), Fns.lerpRange(0, weight, 0.1));
 		this.setEquipDir(this._armDir);
 	}
 

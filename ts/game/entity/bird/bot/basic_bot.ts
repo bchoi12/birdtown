@@ -22,6 +22,7 @@ import { StringFactory } from 'strings/string_factory'
 export class BasicBot extends Bot implements InteractEntity {
 
 	private static readonly _firstNames = new Array(
+		"Botrina",
 		"Bottimus",
 		"Bottington",
 		"Bottert",
@@ -30,6 +31,7 @@ export class BasicBot extends Bot implements InteractEntity {
 	);
 
 	private static readonly _lastNames = new Array(
+		"Bot",
 		"Esq.",
 		"Sr.",
 		"Jr.",

@@ -41,7 +41,7 @@ export class BotBehavior extends ComponentBase implements Component {
 	private _minRange : Vec2;
 	private _maxRange : Vec2;
 	private _inRange : boolean;
-	private _aimDir : Vec2;
+	private _aimVec : Vec2;
 	private _moveDir : Vec2;
 	private _reverse : number;
 	private _cross : number;
@@ -64,7 +64,7 @@ export class BotBehavior extends ComponentBase implements Component {
 		this._minRange = Vec2.fromVec(init.minRange);
 		this._maxRange = Vec2.fromVec(init.maxRange);
 		this._inRange = false;
-		this._aimDir = Vec2.zero();
+		this._aimVec = Vec2.zero();
 		this._moveDir = Vec2.zero();
 		this._reverse = 0;
 		this._cross = 0;
@@ -128,8 +128,20 @@ export class BotBehavior extends ComponentBase implements Component {
 	angle() : number { return this._angle; }
 	inRange() : boolean { return this._inRange; }
 	shouldFire() : boolean {
-		return !this.entity().dead() && !this.entity().getAttribute(AttributeType.BUBBLED)
-			&& this.inRange() && this.validTarget() && Math.abs(this._angleDiff) < 2 * BotBehavior._angleNoise;
+		if (this.entity().dead()) {
+			return false;
+		}
+		if (this.entity().getAttribute(AttributeType.BUBBLED)) {
+			return false;
+		}
+		if (!this.validTarget()) {
+			return false;
+		}
+		if (this.entity().getAttribute(AttributeType.GROUNDED) && this.aimVec().y < -3 && Math.abs(this.aimVec().x) < 2) {
+			return false;
+		}
+
+		return this.inRange() && Math.abs(this._angleDiff) < 2 * BotBehavior._angleNoise;
 	}
 
 	targetExists() : boolean {
@@ -209,6 +221,10 @@ export class BotBehavior extends ComponentBase implements Component {
 		}
 		return Math.floor(100 * Fns.normalizeRange(BotBehavior._minChaseTime, Date.now() - this._lastTargetTime, BotBehavior._maxChaseTime));
 	}
+
+	aimVec() : Vec2 {
+		return this._aimVec;
+	}
 	moveDir() : Vec2 {
 		return this._moveDir;
 	}
@@ -223,7 +239,7 @@ export class BotBehavior extends ComponentBase implements Component {
 		}
 	}
 	private startJumpTimer() : void {
-		this._jumpTimer.start(Fns.randomInt(3000, 6000) + Fns.normalizeRange(3000, this.entity().getTraitWeight(TraitType.JUMPY), 0));
+		this._jumpTimer.start(Fns.randomInt(4000, 6000) + Fns.normalizeRange(4000, this.entity().getTraitWeight(TraitType.JUMPY), 0));
 	}
 
 	override preUpdate(stepData : StepData) : void {
@@ -245,12 +261,12 @@ export class BotBehavior extends ComponentBase implements Component {
 		if (this._updateWatch.millis() >= interval) {
 
 			if (this.targetExists()) {
-				this._aimDir = game.level().vec2(this.entity().profile(), this._target.get().profile());
+				this._aimVec = game.level().vec2(this.entity().profile(), this._target.get().profile());
 
 				if (this._inRange) {
-					this._inRange = Math.abs(this._aimDir.x) <= 1.8 * this._maxRange.x && Math.abs(this._aimDir.y) <= 1.8 * this._maxRange.y;
+					this._inRange = Math.abs(this._aimVec.x) <= 1.8 * this._maxRange.x && Math.abs(this._aimVec.y) <= 1.8 * this._maxRange.y;
 				} else {
-					this._inRange = Math.abs(this._aimDir.x) <= this._maxRange.x && Math.abs(this._aimDir.y) <= this._maxRange.y;
+					this._inRange = Math.abs(this._aimVec.x) <= this._maxRange.x && Math.abs(this._aimVec.y) <= this._maxRange.y;
 				}
 			} else {
 				this._inRange = false;
@@ -259,30 +275,30 @@ export class BotBehavior extends ComponentBase implements Component {
 
 			if (this._hunting || this._inRange) {
 				this._moveDir.copyVec({
-					x: Math.sign(this._aimDir.x) * Fns.normalizeRange(this._minRange.x, Math.abs(this._aimDir.x), this._maxRange.x),
-					y: Math.sign(this._aimDir.y) * Fns.normalizeRange(this._minRange.y, Math.abs(this._aimDir.y), this._maxRange.y),
+					x: Math.sign(this._aimVec.x) * Fns.normalizeRange(this._minRange.x, Math.abs(this._aimVec.x), this._maxRange.x),
+					y: Math.sign(this._aimVec.y) * Fns.normalizeRange(this._minRange.y, Math.abs(this._aimVec.y), this._maxRange.y),
 				});
 
-				if (Math.abs(this._aimDir.y) <= 2 * this._minRange.y || !this.entity().rollTrait(TraitType.JUMPY, 100)) {
+				if (Math.abs(this._aimVec.y) <= 2 * this._minRange.y || !this.entity().rollTrait(TraitType.JUMPY, 100)) {
 					this._moveDir.y = 0;
 				}
 
 				if (this._reverse >= 0) {
-					if (Math.abs(this._aimDir.x) <= 1.5 * this._minRange.x) {
+					if (Math.abs(this._aimVec.x) <= 1.5 * this._minRange.x) {
 						if (this._cross === 0 && this.entity().rollTrait(TraitType.RECKLESS, 300)) {
-							this._cross = Math.sign(this._aimDir.x);
+							this._cross = Math.sign(this._aimVec.x);
 						}
 					} else {
 						this._cross = 0;
 
-						if (Math.abs(this._aimDir.x) <= 0.8 * this._maxRange.x
+						if (Math.abs(this._aimVec.x) <= 0.8 * this._maxRange.x
 							&& (game.level().isCircle() || game.level().bounds().xSide(this.entity().profile().pos(), -4) === 0)
 							&& this.entity().rollTrait(TraitType.CAUTION, 500)) {
 							this._reverse = -Fns.randomInt(10, 20);
 						}
 					}
 				} else {
-					if (Math.abs(this._aimDir.x) >= 0.8 * this._maxRange.x) {
+					if (Math.abs(this._aimVec.x) >= 0.8 * this._maxRange.x) {
 						this._reverse += Fns.randomInt(2, 4);
 					}
 				}
@@ -309,13 +325,13 @@ export class BotBehavior extends ComponentBase implements Component {
 
 			if (this._cross !== 0) {
 				this._moveDir.x = this._cross;
-				this._moveDir.y = this._aimDir.y >= -0.2 ? 1 : 0;
+				this._moveDir.y = this._aimVec.y >= -0.2 ? 1 : 0;
 			} else if (this._reverse < 0) {
 				this._moveDir.x = -this._moveDir.x;
 				this._reverse++;
 			}
 
-			if (this._jumpTimer.done() || this.entity().rollTrait(TraitType.JUMPY, 1500)) {
+			if (this._jumpTimer.millisElapsed() > 1500 && (this._jumpTimer.done() || this.entity().rollTrait(TraitType.JUMPY, 1500))) {
 				if (this._inRange || this.entity().rollTrait(TraitType.JUMPY, 1500)) {
 					this._moveDir.y = 1;
 				}
@@ -327,13 +343,13 @@ export class BotBehavior extends ComponentBase implements Component {
 			}
 
 			if (this._inRange) {
-				const distSq = this._aimDir.lengthSq();
+				const distSq = this._aimVec.lengthSq();
 				const angleNoise =
 					(1.2 - skillWeight)
 					* Fns.normalizeRange(0, distSq, 150)
 					* BotBehavior._angleNoise;
 
-				const aimAngle = this._aimDir.angleRad();
+				const aimAngle = this._aimVec.angleRad();
 				this._angleDiff = Fns.minimizeRad(aimAngle - this._angle);
 
 				if (Math.abs(this._angleDiff) < (1.2 - skillWeight) * Math.abs(angleNoise)) {

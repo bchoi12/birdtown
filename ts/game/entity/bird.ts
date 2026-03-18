@@ -880,7 +880,7 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 		}
 	}
 
-	protected setDir(dir : Vec2) : void {
+	protected setDir(dir : Vec2, armAngleOffset? : number) : void {
 		if (Math.sign(dir.x) !== Math.sign(this._headDir.x)) {
 			if (Math.abs(dir.x) > 0.2) {
 				this._headDir.copy(dir);
@@ -894,7 +894,12 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 			this._headDir.y = Math.sign(this._headDir.y);
 		}
 		this._headDir.normalize();
-		this._armDir.copy(dir).normalize();
+
+		this._armDir.copy(dir)
+		this._armDir.normalize();
+		if (armAngleOffset) {
+			this._armDir.rotateRad(armAngleOffset);
+		}
 	}
 
 	protected damageToTime(dmg : number) : number {

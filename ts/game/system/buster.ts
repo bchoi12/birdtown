@@ -68,7 +68,7 @@ export class Buster extends SystemBase implements System {
 		this._botSpawn = BotSpawnType.UNKNOWN;
 		this._invasionTypes = new Array(
 			BotSpawnType.DUCK_GANG,
-			BotSpawnType.PIGEON_CARTEL,
+			BotSpawnType.DUCK_GANG,
 		);
 		this._botConfig = {
 			total: 0,
@@ -191,7 +191,7 @@ export class Buster extends SystemBase implements System {
 			this.spawnBot(EntityType.BASIC_BOT, Buster._birdTypes[Math.floor(Math.random() * Buster._birdTypes.length)]);
 			break;
 		case BotSpawnType.DUCK_GANG:
-			this.spawnBot(EntityType.BASIC_BOT, BirdType.DUCK);
+			this.spawnBot(EntityType.DUCK_BOT, BirdType.DUCK);
 			break;
 		case BotSpawnType.PIGEON_CARTEL:
 			this.spawnBot(EntityType.BASIC_BOT, BirdType.PIGEON);
