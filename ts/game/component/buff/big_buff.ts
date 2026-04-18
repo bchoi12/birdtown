@@ -13,7 +13,7 @@ export class BigBuff extends Buff {
 			[StatType.HEALTH, 50 * level],
 			[StatType.SCALING, 0.3 + 0.05 * level],
 			[StatType.SHIELD, 10 * level],
-			[StatType.SHIELD_STEAL, 0.03 * level],
+			[StatType.SHIELD_REGEN, level > 0 ? 0.2 : 0],
 		]);
 	}
 }

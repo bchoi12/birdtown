@@ -20,6 +20,7 @@ export namespace StatFactory {
 		[StatType.DAMAGE_TAKEN_BOOST, 0],
 		[StatType.DAMAGE_REDUCTION, 0],
 		[StatType.DAMAGE_RESIST_BOOST, 0],
+		[StatType.DODGE_CHANCE, 0],
 		[StatType.EXPLOSION_BOOST, 0],
 		[StatType.EXPLOSION_DAMAGE, 0],
 		[StatType.EXPOSE_PERCENT, 0],
@@ -29,6 +30,7 @@ export namespace StatFactory {
 		[StatType.HEAL_PERCENT, 0],
 		[StatType.HEALTH_BOOST, 0],
 		[StatType.HP_REGEN, 0],
+		[StatType.SHIELD_REGEN, 0],
 		[StatType.IMBUE_LEVEL, 0],
 		[StatType.LIFE_STEAL, 0],
 		[StatType.POISON_CHANCE, 0],
@@ -61,22 +63,25 @@ export namespace StatFactory {
 			[StatType.CRIT_BOOST, 0.5],
 			[StatType.DOUBLE_JUMPS, 1],
 			[StatType.HEALTH, 100],
-			[StatType.HP_REGEN_DELAY, 5000],
+			[StatType.HP_REGEN_DELAY, 6000],
+			[StatType.SHIELD_REGEN_DELAY, 6000],
 		])],
 
 		[EntityType.BASIC_BOT, new Map([
 			[StatType.CRIT_BOOST, 0.5],
 			[StatType.DOUBLE_JUMPS, 1],
 			[StatType.HEALTH, 60],
-			[StatType.HP_REGEN_DELAY, 5000],
+			[StatType.HP_REGEN_DELAY, 10000],
+			[StatType.SHIELD_REGEN_DELAY, 6000],
 		])],
 
 		[EntityType.DUCK_BOT, new Map([
 			[StatType.CRIT_BOOST, 0.5],
 			[StatType.DOUBLE_JUMPS, 2],
 			[StatType.HEALTH, 60],
-			[StatType.HP_REGEN_DELAY, 5000],
+			[StatType.HP_REGEN_DELAY, 10000],
 			[StatType.POISON_CHANCE, 0.2],
+			[StatType.SHIELD_REGEN_DELAY, 6000],
 		])],
 
 		// Other Entities

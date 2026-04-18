@@ -21,13 +21,11 @@ export class SpreeBuff extends Buff {
 	}
 
 	override boosts(level : number) : Map<StatType, number> {
-		const regenLevel = Math.min(level, 5);
-		const dmgLevel = Math.min(level, 5);
 		return new Map([
-			[StatType.HP_REGEN, regenLevel * .02],
-			[StatType.SPEED_BOOST, level * 0.05],
-			[StatType.DAMAGE_BOOST, dmgLevel * 0.2],
-			[StatType.DAMAGE_TAKEN_BOOST, dmgLevel * 0.1],
+			[StatType.AIR_SPEED_BOOST, 0.1 * level],
+			[StatType.DOUBLE_JUMPS, level],
+			[StatType.FIRE_BOOST, 0.2 * level],
+			[StatType.RELOAD_BOOST, 0.2 * level],
 		]);
 	}
 

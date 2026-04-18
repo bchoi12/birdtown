@@ -35,7 +35,6 @@ export abstract class Buff extends ComponentBase implements Component {
 	protected static readonly _emptyBoosts = new Map<StatType, number>();
 
 	protected static readonly _intervals : Map<StatType, number> = new Map([
-		[StatType.BURST_BONUS, 1],
 		[StatType.BURST_BOOST, 0.25],
 		[StatType.CHARGE_BOOST, 0.25],
 		[StatType.CRIT_CHANCE, 0.1],
@@ -44,14 +43,11 @@ export abstract class Buff extends ComponentBase implements Component {
 		[StatType.DAMAGE_BOOST, 0.1],
 		[StatType.DAMAGE_CLOSE_BOOST, 0.3],
 		[StatType.DAMAGE_FAR_BOOST, 0.2],
-		[StatType.DAMAGE_REDUCTION, 3],
 		[StatType.DAMAGE_RESIST_BOOST, 0.1],
 		[StatType.DAMAGE_TAKEN_BOOST, 0.1],
 		[StatType.DOUBLE_JUMPS, 1],
 		[StatType.FIRE_BOOST, 0.15],
-		[StatType.HEALTH_ADDITION, 5],
 		[StatType.HEALTH, 50],
-		[StatType.HP_REGEN, .02],
 		[StatType.PROJECTILE_SCALING_BOOST, 0.5],
 		[StatType.SCALING, 0.1],
 		[StatType.SLOW_CHANCE, 0.3],

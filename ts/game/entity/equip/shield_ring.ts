@@ -142,12 +142,6 @@ export class ShieldRing extends Equip<Player> {
 		}
 
 		for (let i = 0; i < numBits; ++i) {
-			let size = ShieldRing._bitSize;
-			if (i === numBits - 1 && shield % 10 > 0) {
-				let shieldMod = Math.floor(shield % 10);
-				size *= Fns.lerpRange(0.3, (shieldMod === 0 ? 10 : shieldMod) / 10, 1);
-			}
-
 			if (this._bits.length <= i) {
 				let bit = new ShieldBit(`${this.name()}-${i}`);
 				bit.mesh().position.x = this._diameter / 2;
@@ -155,7 +149,7 @@ export class ShieldRing extends Equip<Player> {
 				this._bits.push(bit);
 			}
 
-			this._bits[i].mesh().scaling.set(size, size, size);
+			this._bits[i].mesh().scaling.set(ShieldRing._bitSize, ShieldRing._bitSize, ShieldRing._bitSize);
 
 			if (rearrange) {
 				this._bits[i].root().rotation.z = (i / numBits) * 2 * Math.PI;

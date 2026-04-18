@@ -154,7 +154,7 @@ export namespace StringFactory {
 			return "Become the buffest of birds";
 		case GameMode.SUDDEN_DEATH:
 		case GameMode.SURVIVAL:
-			return "Be the last one standing";
+			return "Be the last bird";
 		case GameMode.SPREE:
 			return `Score ${config.getPoints()} ${Strings.plural("point", config.getPoints())} in a row`;
 		case GameMode.TEAM_BATTLE:
@@ -243,6 +243,7 @@ export namespace StringFactory {
 		[StatType.DAMAGE_FAR_BOOST, "Faraway Damage"],
 		[StatType.DAMAGE_TAKEN_BOOST, "Damage Taken"],
 		[StatType.DAMAGE_RESIST_BOOST, "Damage Resist"],
+		[StatType.DODGE_CHANCE, "Dodge Chance"],
 		[StatType.DOUBLE_JUMPS, "Double Jumps"],
 		[StatType.EXPLOSION_BOOST, "Explosion Size"],
 		[StatType.EXPLOSION_DAMAGE, "Explosion Damage"],
@@ -276,6 +277,8 @@ export namespace StringFactory {
 		[StatType.REVIVE_BOOST, "Revive Speed"],
 		[StatType.SCALING, "Size"],
 		[StatType.SHIELD, "Shield"],
+		[StatType.SHIELD_REGEN, "Shield Regen"],
+		[StatType.SHIELD_REGEN_DELAY, "Shield Regen Delay"],
 		[StatType.SHIELD_STEAL, "Shield Steal"],
 		[StatType.SPEED_BOOST, "Speed"],
 		[StatType.SPEED_DEBUFF, "Slow"],
@@ -439,7 +442,7 @@ export namespace StringFactory {
 		[BuffType.BRUISER, "Increase your health and shielding, gain damage based on health"],
 		[BuffType.COOL, "Gain speed, faster reloads and cooler crits - at level 3, ignore explosions"],
 		[BuffType.SLY, "Increases critical effects and poison chance (% missing health damage)"],
-		[BuffType.DODGY, "Use your skills more - at level 3, dodge projectiles while flipping"],
+		[BuffType.DODGY, "Increase charge rate and dodge chance - at level 3, dodge projectiles while flipping"],
 		[BuffType.EXPLOSION, "Increase explosion size and damage"],
 		[BuffType.FIERY, "Fire faster and set your opponents on fire (% max health damage)"],
 		[BuffType.GLASS_CANNON, "Increase damage and life steal at the cost of your health"],

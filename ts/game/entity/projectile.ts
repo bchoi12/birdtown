@@ -162,7 +162,9 @@ export abstract class Projectile extends EntityBase {
 		}
 		this._hits.add(other.id());
 
-		if (other.getAttribute(AttributeType.INVINCIBLE) || other.getAttribute(AttributeType.DODGY)) {
+		if (other.getAttribute(AttributeType.INVINCIBLE)
+			|| other.getAttribute(AttributeType.DODGY)
+			|| other.rollStat(StatType.DODGE_CHANCE, this.id())) {
 			return;
 		}
 

@@ -115,7 +115,6 @@ export class TempFiringBuff extends TempBuff {
 		return new Map([
 			[StatType.FIRE_BOOST, 0.4 * level],
 			[StatType.RELOAD_BOOST, 0.4 * level],
-			[StatType.USE_BOOST, level > 0 ? 1 : 0],
 		]);
 	}
 }

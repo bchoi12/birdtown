@@ -19,6 +19,7 @@ export class ShieldResource extends Resource {
 
 	private static readonly _textHeight = 0.8;
 
+	private _regenTimer : Timer;
 	private _ring : ShieldRing;
 
 	constructor() {
@@ -26,6 +27,9 @@ export class ShieldResource extends Resource {
 
 		this._min.set(0);
 
+		this._regenTimer = this.newTimer({
+			canInterrupt: true,
+		});
 		this._ring = null;
 	}
 
@@ -54,6 +58,24 @@ export class ShieldResource extends Resource {
 		super.set(value);
 
 		this.updateRing(value);
+	}
+
+	override update(stepData : StepData) : void {
+		super.update(stepData);
+
+		if (this.entity().getStat(StatType.SHIELD_REGEN) === 0 || this.getStat() <= 0 || this.entity().dead()) {
+			this._regenTimer.reset();
+			return;
+		}
+
+		if (this._regenTimer.done()) {
+			this.updateResource({
+				delta: Math.max(1, Math.round(this.getStat() * this.entity().getStat(StatType.SHIELD_REGEN))),
+			});
+			this._regenTimer.start(1000);
+		} else if (!this._regenTimer.hasTimeLeft()) {
+			this._regenTimer.start(this.entity().getStat(StatType.SHIELD_REGEN_DELAY));
+		}
 	}
 
 	private updateRing(shield : number) : void {
@@ -98,6 +120,10 @@ export class ShieldResource extends Resource {
 	}
 
 	protected override processDelta(delta : number) : void {
+		if (delta < 0) {
+			this._regenTimer.start(this.entity().getStat(StatType.SHIELD_REGEN_DELAY));
+		}
+
 		if (this._ring === null && this.get() > 0) {
 			this.updateRing(this.get());
 		} else if (this._ring !== null && this.get() <= 0) {

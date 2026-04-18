@@ -175,7 +175,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.addUnknownMode();
 		this.populateMode(GameMode.PRACTICE, {
 			requirements: [],
-			description: "Try out the game.\r\n\r\nAll levels, layouts, equip combos, and bots are allowed.",
+			description: "Try out the game and practice against bots.\r\n\r\nCustomize settings to your heart's content.",
 			parent: classicCategory.contentElm(),
 		});
 		this.populateMode(GameMode.INVASION, {
@@ -189,13 +189,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			requirements: [],
 			description: "Classic free for all.\r\n\r\nGain points by cooking other players and reach the score limit to win.",
 			parent: classicCategory.contentElm(),
-			minRecommended: 3,
+			minRecommended: 4,
 		});
 		this.populateMode(GameMode.GOLDEN_GUN, {
 			requirements: [],
 			description: "Free for all, but with a twist.\r\n\r\nCook any other player to upgrade your weapon to the Golden Gun. You can only score points after upgrading.",
 			parent: classicCategory.contentElm(),
-			minRecommended: 3,
+			minRecommended: 4,
 		});
 		this.populateMode(GameMode.SUDDEN_DEATH, {
 			requirements: [],
@@ -206,45 +206,43 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.SPREE, {
 			requirements: [],
-			description: "Free for all, but lose all of your points on death.\r\n\r\nBecome faster, stronger, and more 'glass cannon' as your spree grows.",
+			description: "Free for all, but lose all of your points on death.\r\n\r\nTake flight (gain another double jump) and rain down destruction (shoot faster) as your spree grows.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 3,
 			maxRecommended: 6,
 		});
 		this.populateMode(GameMode.SURVIVAL, {
 			requirements: [],
-			description: "Be the last player in town.\r\n\r\nDefeat roaming bots to loot their loadout.\r\n\r\nRecommended for larger groups along with the 'Endless' level modifier.",
+			description: "Be the last bird in an endless town.\r\n\r\nDefeat roaming bots to loot their loadout.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 3,
 		});
 		this.populateMode(GameMode.DUEL, {
 			requirements: [],
-			description: "Tryhard mode.\r\n\r\nOutsweat your opponent on a small symmetrical level where everyone gets the same loadout.",
+			description: "Tryhard mode.\r\n\r\nOutsweat your opponent on a symmetrical level where everyone gets the same loadout.",
 			parent: teamCategory.contentElm(),
-			minRecommended: 2,
-			maxRecommended: 2,
 		});
 		this.populateMode(GameMode.TEAM_BATTLE, {
 			requirements: [],
-			description: "Everyone has one life. Both teams start on either end of the level.\r\n\r\nEliminate the enemy team while reviving your teammates.",
+			description: "Everyone has one life.\r\n\r\nEliminate the enemy team while reviving your teammates.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 4,
 		});
 		this.populateMode(GameMode.BUFF_BATTLE, {
 			requirements: [],
-			description: "Team Battle, but choose unique buffs after each round.\r\n\r\nOn the first round, choose a class and your loadout. Afterwards, the winning team gets one buff and the losing team gets two buffs.\r\n\r\nUnlike Team Battle, this game mode works great for smaller groups too.",
+			description: "Team Battle, but choose unique buffs after each round.\r\n\r\nOn the first round, choose a class and your loadout.\r\n\r\nAfterwards, the winning team gets one buff and the losing team gets two buffs.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 2,
 		});
 		this.populateMode(GameMode.VIP, {
 			requirements: [],
-			description: "Like Team Battle, but each team has a VIP with a Golden Gun.\r\n\r\nEliminate the other team's VIP and protect yours at all costs.",
+			description: "Each team has a VIP with a Golden Gun.\r\n\r\nEliminate the other team's VIP and protect yours at all costs.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 4,
 		});
 		this.populateMode(GameMode.TEAM_DEATHMATCH, {
 			requirements: [],
-			description: "Chaotic team based deathmatch. Drop in from the sky and fight alongside your team.\r\n\r\nReach the score limit with your team to win.",
+			description: "Chaotic team based deathmatch. Drop in from the sky and fight alongside your team.\r\n\r\nReach the score limit to win.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 6,
 		});
@@ -443,7 +441,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			} else {
 				coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM, LoadoutType.GOLDEN_GUN]).elm());
 			}
-			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.pointsWrapper(this._configMsg, 1, 15).elm());
 			otherCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());
@@ -458,7 +456,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			break;
 		case GameMode.PRACTICE:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
-			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());
 			coreCategory.contentElm().appendChild(this.concurrentBotsWrapper(this._configMsg, 0, 5).elm());
 			coreCategory.contentElm().appendChild(this.difficultyWrapper(this._configMsg, 0, 5).elm());		
@@ -470,7 +468,7 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			break;
 		case GameMode.SUDDEN_DEATH:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
-			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
+			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());	
 			coreCategory.contentElm().appendChild(this.damageMultiplierWrapper(this._configMsg, 1, 10).elm());						
@@ -482,7 +480,6 @@ export class StartGameDialogWrapper extends DialogWrapper {
 			break;
 		case GameMode.SURVIVAL:
 			coreCategory.contentElm().appendChild(this.levelWrapper(this._configMsg).elm());
-			coreCategory.contentElm().appendChild(this.layoutWrapper(this._configMsg, [LevelLayout.NORMAL, LevelLayout.CIRCLE, LevelLayout.TINY, LevelLayout.MIRROR]).elm());
 			coreCategory.contentElm().appendChild(this.victoriesWrapper(this._configMsg, 1, 10).elm());
 			coreCategory.contentElm().appendChild(this.livesWrapper(this._configMsg, 1, 5).elm());
 			coreCategory.contentElm().appendChild(this.loadoutWrapper(this._configMsg, [LoadoutType.CHOOSE, LoadoutType.PICK, LoadoutType.RANDOM]).elm());

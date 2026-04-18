@@ -32,6 +32,7 @@ import { HudType, HudOptions, KeyType, KeyState, TooltipType } from 'ui/api'
 import { defined } from 'util/common'
 import { Fns } from 'util/fns'
 import { Optional } from 'util/optional'
+import { globalRandom } from 'util/seeded_random'
 import { Timer } from 'util/timer'
 import { Vec, Vec2, Vec3 } from 'util/vector'
 
@@ -102,7 +103,7 @@ export interface Entity extends GameObject {
 	baseStat(type : StatType) : number;
 	getStat(type : StatType) : number;
 	getStatOr(type : StatType, or : number) : number;
-	rollStat(type : StatType) : boolean;
+	rollStat(type : StatType, seed? : number) : boolean;
 	hasBuff(type : BuffType) : boolean;
 	hasMaxedBuff(type : BuffType) : boolean;
 	addBuff(type : BuffType, delta : number) : void;
@@ -482,9 +483,13 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 		}
 		return this.getStat(type);
 	}
-	rollStat(type : StatType) : boolean {
+	rollStat(type : StatType, seed? : number) : boolean {
 		if (!this.hasStat(type)) {
 			return false;
+		}
+		if (seed) {
+			globalRandom.seed(seed);
+			return this.getStat(type) > globalRandom.next();
 		}
 		return this.getStat(type) > Math.random();
 	}
@@ -654,13 +659,13 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 			delta = Math.min(0, delta);
 
 			let buffDelta = 1;
-			if (this.shield() > 0) {
-				delta = resources.updateResource(StatType.SHIELD, {
-					delta: delta,
-					from: from,
-					hitEntity: hitEntity,
-				});
-			} else if (hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL)) {
+			const prevShield = this.shield();
+			delta = resources.updateResource(StatType.SHIELD, {
+				delta: delta,
+				from: from,
+				hitEntity: hitEntity,
+			});
+			if (prevShield <= 0 && hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL)) {
 				delta *= 1 + from.getStat(StatType.CRIT_BOOST) + Math.max(0, from.getStat(StatType.CRIT_CHANCE) - 1);
 				buffDelta = 2;
 			}
