@@ -175,12 +175,12 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		this.addUnknownMode();
 		this.populateMode(GameMode.PRACTICE, {
 			requirements: [],
-			description: "Try out the game and practice against bots.\r\n\r\nCustomize settings to your heart's content.",
+			description: "Try out the game.\r\n\r\nPractice against bots and customize settings to your heart's content.",
 			parent: classicCategory.contentElm(),
 		});
 		this.populateMode(GameMode.INVASION, {
 			requirements: [],
-			description: "Defend Birdtown against an invasion of bots using teamwork and unique buffs.\r\n\r\nDifficulty scales with number of players.",
+			description: "Defend Birdtown against an invasion using teamwork and unique buffs.\r\n\r\nPvE/Cooperative mode. Difficulty scales with number of players.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 1,
 			maxRecommended: 4,
@@ -193,13 +193,13 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.GOLDEN_GUN, {
 			requirements: [],
-			description: "Free for all, but with a twist.\r\n\r\nCook any other player to upgrade your weapon to the Golden Gun. You can only score points after upgrading.",
+			description: "Free for all, but with a twist.\r\n\r\nCook any other player to upgrade your weapon to the Golden Gun. You can only score points with the Golden Gun.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 4,
 		});
 		this.populateMode(GameMode.SUDDEN_DEATH, {
 			requirements: [],
-			description: "Be the last bird in a tiny level in a series of lightning quick rounds.",
+			description: "Be the last bird in lightning quick rounds.\r\n\r\nFeaturing a tiny level, randomized loadouts, and double damage.",
 			parent: classicCategory.contentElm(),
 			minRecommended: 3,
 			maxRecommended: 6,
@@ -230,19 +230,19 @@ export class StartGameDialogWrapper extends DialogWrapper {
 		});
 		this.populateMode(GameMode.BUFF_BATTLE, {
 			requirements: [],
-			description: "Team Battle, but choose unique buffs after each round.\r\n\r\nOn the first round, choose a class and your loadout.\r\n\r\nAfterwards, the winning team gets one buff and the losing team gets two buffs.",
+			description: "Team Battle, but with buffs.\r\n\r\nOn the first round, choose a class and your loadout.\r\n\r\nAfterwards, the winning team gets one buff and the losing team gets two buffs.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 2,
 		});
 		this.populateMode(GameMode.VIP, {
 			requirements: [],
-			description: "Each team has a VIP with a Golden Gun.\r\n\r\nEliminate the other team's VIP and protect yours at all costs.",
+			description: "Team Battle, but each team has a VIP with a Golden Gun.\r\n\r\nEliminate the other team's VIP and protect yours at all costs.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 4,
 		});
 		this.populateMode(GameMode.TEAM_DEATHMATCH, {
 			requirements: [],
-			description: "Chaotic team based deathmatch. Drop in from the sky and fight alongside your team.\r\n\r\nReach the score limit to win.",
+			description: "Chaotic team based deathmatch.\r\n\r\nDrop in from the sky and fight alongside your team. Reach the score limit to win.",
 			parent: teamCategory.contentElm(),
 			minRecommended: 6,
 		});

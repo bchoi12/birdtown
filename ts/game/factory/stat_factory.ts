@@ -262,13 +262,13 @@ export namespace StatFactory {
 			[StatType.BURSTS, 1],
 			[StatType.CHARGED_BURSTS, 3],
 			[StatType.CHARGED_FIRE_TIME, 140],
-			[StatType.CHARGED_RELOAD_TIME, 1400],
+			[StatType.CHARGED_RELOAD_TIME, 1300],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1],
 			[StatType.CHARGED_PROJECTILE_TTL, 450],
 			[StatType.FIRE_TIME, 140],
 			[StatType.PROJECTILE_SPEED, 1],
 			[StatType.PROJECTILE_TTL, 400],
-			[StatType.RELOAD_TIME, 1400],
+			[StatType.RELOAD_TIME, 1300],
 		])],
 		// Always critical
 		[EntityType.BEAK_BULLET, new Map([
