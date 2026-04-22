@@ -68,6 +68,9 @@ export abstract class Projectile extends EntityBase {
 
 		const owner = this.owner();
 		if (owner.rollStat(StatType.CRIT_CHANCE)) {
+			if (this.getAttribute(AttributeType.CRITICAL)) {
+				this.setAttribute(AttributeType.DOUBLE_CRITICAL, true);
+			}
 			this.setAttribute(AttributeType.CRITICAL, true);
 		}
 
@@ -164,7 +167,7 @@ export abstract class Projectile extends EntityBase {
 
 		if (other.getAttribute(AttributeType.INVINCIBLE)
 			|| other.getAttribute(AttributeType.DODGY)
-			|| other.rollStat(StatType.DODGE_CHANCE, this.id())) {
+			|| other.rollStat(StatType.DODGE_CHANCE, this.id() + other.id())) {
 			return;
 		}
 

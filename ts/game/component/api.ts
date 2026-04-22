@@ -36,6 +36,7 @@ export enum AttributeType {
 	COOL,
 	CRITICAL,
 	DODGY,
+	DOUBLE_CRITICAL,
 	GROUNDED,
 	INVINCIBLE,
 	LEVITATING,

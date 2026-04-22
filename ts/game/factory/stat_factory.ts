@@ -64,6 +64,7 @@ export namespace StatFactory {
 			[StatType.DOUBLE_JUMPS, 1],
 			[StatType.HEALTH, 100],
 			[StatType.HP_REGEN_DELAY, 6000],
+			[StatType.PROJECTILE_SCALING_BOOST, 0.2],
 			[StatType.SHIELD_REGEN_DELAY, 6000],
 		])],
 
