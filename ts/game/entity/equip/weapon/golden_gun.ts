@@ -6,7 +6,6 @@ import { game } from 'game'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
 import { AttachType } from 'game/entity/equip'
-import { GoldenBullet } from 'game/entity/projectile/golden_bullet'
 import { Weapon, RecoilType, ReloadType } from 'game/entity/equip/weapon'
 import { ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -51,7 +50,7 @@ export class GoldenGun extends Weapon {
 		const pos = this.shootPos();
 		const unitDir = this.getDir();
 
-		this.addEntity<GoldenBullet>(EntityType.GOLDEN_BULLET, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
+		this.addEntity(EntityType.GOLDEN_BULLET, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
 
 		this.soundPlayer().playFromEntity(SoundType.GOLDEN_GUN, this.owner());
 	}

@@ -16,21 +16,18 @@ import { HudType, HudOptions } from 'ui/api'
 
 import { Vec3 } from 'util/vector'
 
-export class WingCannon extends Weapon {
+export class GoldenWing extends Weapon {
 
 	constructor(options : EntityOptions) {
-		super(EntityType.WING_CANNON, options);
-
-		// Overwrite parent
-		this._allowPartialClip = true;
-		this._interruptible = true;
+		super(EntityType.GOLDEN_WING, options);
 
 		this.soundPlayer().registerSound(SoundType.WING_CANNON);
 	}
 
 	override attachType() : AttachType { return AttachType.ARM; }
-	override recoilType() : RecoilType { return RecoilType.WHIP; }
-	override meshType() : MeshType { return MeshType.WING_CANNON; }
+	override recoilType() : RecoilType { return RecoilType.MEDIUM; }
+	override reloadType() : ReloadType { return ReloadType.RAISE; }
+	override meshType() : MeshType { return MeshType.GOLDEN_WING; }
 	override hudType() : HudType { return HudType.ORBS; }
 
 
@@ -38,19 +35,20 @@ export class WingCannon extends Weapon {
 		super.simulateUse(uses);
 
 		const pos = this.shootPos();
-		const unitDir = this.getDir();
 
-		if (this.charged()) {
-			this.addEntity(EntityType.LASER, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
+		const spreadDeg = this.getStat(StatType.SPREAD);
+		const ammo = this.bursts();
 
-			let recoil = unitDir.clone().negate().scale(this.getStat(StatType.CHARGED_FORCE));
-			this.owner().addForce(recoil);
-		} else {
-			this.addEntity(EntityType.ORB, this.getProjectileOptions(pos, unitDir, unitDir.angleRad()));
-			this.soundPlayer().playFromEntity(SoundType.WING_CANNON, this.owner());
-
-			let recoil = unitDir.clone().negate().scale(this.getStat(StatType.FORCE));
-			this.owner().addForce(recoil);
+		let dir = this.getDir();
+		if (ammo % 2 === 0) {
+			if (ammo % 4 === 0) {
+				dir.rotateDeg(spreadDeg / 2);
+			} else {
+				dir.rotateDeg(-spreadDeg / 2);
+			}
 		}
+
+		this.addEntity(EntityType.STICKY_ORB, this.getProjectileOptions(pos, dir));
+		this.soundPlayer().playFromEntity(SoundType.WING_CANNON, this.owner());
 	}
 }

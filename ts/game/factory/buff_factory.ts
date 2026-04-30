@@ -257,6 +257,8 @@ export namespace BuffFactory {
 	]);
 	const explodeWeapons = new Set<EntityType>([
 		EntityType.BAZOOKA,
+		EntityType.GOLDEN_GUN,
+		EntityType.GOLDEN_WING,
 		EntityType.ORB_CANNON,
 		EntityType.PURPLE_GLOVE,
 		EntityType.WING_CANNON,

@@ -53,6 +53,7 @@ import { RobinHair } from 'game/entity/equip/headwear/robin_hair'
 import { Bazooka } from 'game/entity/equip/weapon/bazooka'
 import { Gatling } from 'game/entity/equip/weapon/gatling'
 import { GoldenGun } from 'game/entity/equip/weapon/golden_gun'
+import { GoldenWing } from 'game/entity/equip/weapon/golden_wing'
 import { LaserCannon } from 'game/entity/equip/weapon/laser_cannon'
 import { LaserGun } from 'game/entity/equip/weapon/laser_gun'
 import { Minigun } from 'game/entity/equip/weapon/minigun'
@@ -109,6 +110,7 @@ import { Piercer } from 'game/entity/projectile/piercer'
 import { PurpleBolt } from 'game/entity/projectile/purple_bolt'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { Star } from 'game/entity/projectile/star'
+import { StickyOrb } from 'game/entity/projectile/sticky_orb'
 import { SpawnPoint } from 'game/entity/spawn_point'
 import { Water } from 'game/entity/water'
 
@@ -162,6 +164,7 @@ export namespace EntityFactory {
 		[EntityType.GOLDEN_BULLET, (options : EntityOptions) => { return new GoldenBullet(options); }],
 		[EntityType.GOLDEN_EXPLOSION, (options : EntityOptions) => { return new GoldenExplosion(options); }],
 		[EntityType.GOLDEN_GUN, (options : EntityOptions) => { return new GoldenGun(options); }],
+		[EntityType.GOLDEN_WING, (options : EntityOptions) => { return new GoldenWing(options); }],
 		[EntityType.GOOSE_BEAK, (options : EntityOptions) => { return new GooseBeak(options); }],
 		[EntityType.HEADPHONES, (options : EntityOptions) => { return new Headphones(options); }],
 		[EntityType.HEALTH_CRATE, (options : EntityOptions) => { return new HealthCrate(options); }],
@@ -217,6 +220,7 @@ export namespace EntityFactory {
 		[EntityType.STAR, (options : EntityOptions) => { return new Star(options); }],
 		[EntityType.STAR_EXPLOSION, (options : EntityOptions) => { return new StarExplosion(options); }],
 		[EntityType.START_GAME_SIGN, (options : EntityOptions) => { return new StartGameSign(options); }],
+		[EntityType.STICKY_ORB, (options : EntityOptions) => { return new StickyOrb(options); }],
 		[EntityType.TABLE, (options : EntityOptions) => { return new Table(options); }],
 		[EntityType.TOP_CLIFF, (options : EntityOptions) => { return new TopCliff(options); }],
 		[EntityType.TOP_CLIFF_WALL, (options : EntityOptions) => { return new TopCliffWall(options); }],
@@ -264,7 +268,7 @@ export namespace EntityFactory {
 		[EntityType.DUCK_BOT, birdDim],
 		[EntityType.GOLDEN_BULLET, { x: 0.6, y: 0.18, z : 0.18 }],
 		[EntityType.KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
-		[EntityType.LASER, { x: 28, y: 0.5, z : 0.1 }],
+		[EntityType.LASER, { x: 25, y: 0.5, z : 0.1 }],
 		[EntityType.MEGA_ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
 		[EntityType.MINI_CLIFF, { x: 5, y: 7 }],
 		[EntityType.MINI_ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
@@ -277,11 +281,12 @@ export namespace EntityFactory {
 		[EntityType.PLAYER, birdDim],
 		[EntityType.POISONING_KNIFE, {x: 0.6, y: 0.3, z: 0.2 }],
 		[EntityType.PURPLE_BOLT, { x: 0.9, y: 0.18, z : 0.18 }],
-		[EntityType.PURPLE_LASER, { x: 28, y: 0.35, z : 0.1 }],
+		[EntityType.PURPLE_LASER, { x: 25, y: 0.35, z : 0.1 }],
 		[EntityType.ROCKET, { x: 0.4, y: 0.4, z: 0.4 }],
 		[EntityType.SIGN, {x: 1, y: 2, z: 0.2 }],
 		[EntityType.SPAWN_POINT, {x: 1, y: 1, z: 1 }],
 		[EntityType.STAR, {x: 0.35, y: 0.35, z: 0.1 }],
+		[EntityType.STICKY_ORB, { x: 0.3, y: 0.3, z: 0.3 }],
 		[EntityType.TABLE, { x: 2, y: 1.25, z: 3 }],
 		[EntityType.TOP_CLIFF, { x: 15, y: 7 }],
 		[EntityType.TOP_CLIFF_WALL, { x: 15, y: 7 }],

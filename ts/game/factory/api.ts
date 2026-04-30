@@ -339,6 +339,7 @@ export enum MeshType {
 	BAZOOKA,
 	GATLING,
 	GOLDEN_GUN,
+	GOLDEN_WING,
 	LASER_CANNON,
 	LASER_GUN,
 	MINIGUN,
@@ -348,6 +349,7 @@ export enum MeshType {
 	RED_GLOVE,
 	RIFLE,
 	SHOTGUN,
+	WING_CANNON,
 
 	KNIFE,
 	ROCKET,
@@ -363,7 +365,6 @@ export enum MeshType {
 	SHADES,
 	TOP_HAT,
 	RED_HEADBAND,
-	WING_CANNON,
 
 	ARCH_ROOM,
 	ARCH_ROOF,

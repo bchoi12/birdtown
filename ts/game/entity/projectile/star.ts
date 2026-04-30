@@ -39,6 +39,9 @@ export class Star extends Projectile {
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.STAR, entityOptions);
 
+		// Overwrite parent
+		this._sticky = true;
+
 		this._spinning = true;
 		this._trail = BABYLON.MeshBuilder.ExtrudePolygon(this.name() + "-trail", {
 			shape: Star._trailVertices,
@@ -84,18 +87,6 @@ export class Star extends Projectile {
 		});
 	}
 
-	stick(entity : Entity) : boolean {
-		if (!this._profile.initialized() || this._profile.attached()) {
-			return false;
-		}
-		if (!entity.hasProfile()) {
-			return false;
-		}
-
-		const offset = this._profile.pos().clone().sub(entity.profile().pos());
-		return this._profile.attachTo(entity.profile(), offset);
-	}
-
 	override update(stepData : StepData) : void {
 		super.update(stepData);
 		const millis = stepData.millis;
@@ -127,30 +118,8 @@ export class Star extends Projectile {
 		this._model.rotation().z = this._profile.vel().angleRad();
 	}
 
-	override canHit(collision : MATTER.Collision, other : Entity) : boolean {
-		return !this._profile.attached() && super.canHit(collision, other);
-	}
-	protected override onHit(other : Entity) : void {
-		super.onHit(other);
-
-		for (const id of this.hits()) {
-			const [entity, ok] = game.entities().getEntity(id);
-			if (ok && this.stick(entity)) {
-				break;
-			}
-		}
-	}
-
 	override onMiss() : void {
 		const dim = EntityFactory.getStaticDimension(this.type());
 		this.explode(EntityType.STAR_EXPLOSION, {});
-	}
-
-	override onExpire() : void {
-		super.onExpire();
-
-		if (this._profile.attached()) {
-			this.applyUnstickDamage(this._profile.attachId());
-		}
 	}
 }

@@ -22,6 +22,7 @@ export abstract class Projectile extends EntityBase {
 	protected _hits : Set<number>;
 	protected _prevPos : Vec2;
 	protected _snapOnHit : boolean;
+	protected _sticky : boolean;
 	protected _playImpactSound : boolean;
 
 	protected _association : Association;
@@ -36,6 +37,7 @@ export abstract class Projectile extends EntityBase {
 		this._hits = new Set();
 		this._prevPos = Vec2.zero();
 		this._snapOnHit = true;
+		this._sticky = false;
 		this._playImpactSound = true;
 
 		this._association = this.addComponent<Association>(new Association(entityOptions.associationInit));
@@ -157,6 +159,9 @@ export abstract class Projectile extends EntityBase {
 		if (this.sameOwner(other)) {
 			return false;
 		}
+		if (this._sticky && this.profile().attached()) {
+			return false;
+		}
 		return true;
 	}
 	protected hit(collision : MATTER.Collision, other : Entity) : void {
@@ -184,6 +189,26 @@ export abstract class Projectile extends EntityBase {
 			other.takeDamage(hitDamage, this.owner(), this);
 		}
 		this.recordHit(other);
+	}
+
+	protected stick(entity : Entity) : boolean {
+		if (!this._sticky) {
+			console.error("Warning: tried to stick", this.name());
+			return false;
+		}
+		if (!this.hasProfile()) {
+			console.error("Warning: missing profile for sticking", this.name());
+			return false;
+		}
+		if (!this.profile().initialized() || this.profile().attached()) {
+			return false;
+		}
+		if (!entity.hasProfile()) {
+			return false;
+		}
+
+		const offset = this.profile().pos().clone().sub(entity.profile().pos());
+		return this.profile().attachTo(entity.profile(), offset);
 	}
 
 	protected explode(type : EntityType, entityOptions? : EntityOptions) : void {
@@ -243,7 +268,7 @@ export abstract class Projectile extends EntityBase {
 					},
 					modelInit: {
 						transforms: {
-							scale: { x: 0.2, y: 0.2, z: 0.2 },
+							scale: { x: 0.3, y: 0.3, z: 0.3 },
 						},
 						staticColor: this.owner().clientColor(),
 					}
@@ -263,7 +288,22 @@ export abstract class Projectile extends EntityBase {
 		this.onHit(other);
 	}
 
-	protected onHit(other : Entity) : void {}
+	protected onHit(other : Entity) : void {
+		if (this._sticky) {
+			for (const id of this.hits()) {
+				const [entity, ok] = game.entities().getEntity(id);
+				if (ok && this.stick(entity)) {
+					break;
+				}
+			}
+		}
+	}
 	protected abstract onMiss() : void;
-	protected onExpire() : void { this.onMiss(); }
+	protected onExpire() : void {
+		this.onMiss();
+
+		if (this._sticky && this.profile().attached()) {
+			this.applyUnstickDamage(this.profile().attachId());
+		}
+	}
 }

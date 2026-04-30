@@ -108,7 +108,7 @@ export class Resources extends ComponentBase implements Component {
 
 	updateResource(type : StatType, update : ResourceUpdate) : number {
 		if (!this.hasResource(type)) {
-			console.error("Error: attempting to update nonexistent stat %d for %s", type, this.name());
+			console.error("Error: attempting to update nonexistent stat %s for %s", StatType[type], this.name());
 			return update.delta;
 		}
 
@@ -117,7 +117,7 @@ export class Resources extends ComponentBase implements Component {
 
 	private flushResource(type : StatType, pick : (log : ChangeLog) => boolean, stop : (log : ChangeLog) => boolean) : [ChangeLog, boolean] {
 		if (!this.hasResource(type)) {
-			console.error("Error: attempting to flush nonexistent stat %d for %s", type, this.name());
+			console.error("Error: attempting to flush nonexistent stat %s for %s", StatType[type], this.name());
 			return [null, false];
 		}
 		return this.getSubComponent<Resource>(type).flush(pick, stop);

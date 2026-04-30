@@ -263,13 +263,13 @@ export namespace StatFactory {
 			[StatType.BURSTS, 1],
 			[StatType.CHARGED_BURSTS, 3],
 			[StatType.CHARGED_FIRE_TIME, 140],
-			[StatType.CHARGED_RELOAD_TIME, 1300],
+			[StatType.CHARGED_RELOAD_TIME, 1200],
 			[StatType.CHARGED_PROJECTILE_SPEED, 1],
 			[StatType.CHARGED_PROJECTILE_TTL, 450],
 			[StatType.FIRE_TIME, 140],
 			[StatType.PROJECTILE_SPEED, 1],
 			[StatType.PROJECTILE_TTL, 400],
-			[StatType.RELOAD_TIME, 1300],
+			[StatType.RELOAD_TIME, 1200],
 		])],
 		// Always critical
 		[EntityType.BEAK_BULLET, new Map([
@@ -277,6 +277,24 @@ export namespace StatFactory {
 		])],
 		[EntityType.GOLDEN_BULLET, new Map([
 			[StatType.DAMAGE, 200],
+		])],
+		[EntityType.GOLDEN_WING, new Map([
+			[StatType.BURSTS, 4],
+			[StatType.CHARGED_BURSTS, 8],
+			[StatType.CHARGED_FIRE_TIME, 70],
+			[StatType.CHARGED_RELOAD_TIME, 600],
+			[StatType.CHARGED_PROJECTILE_SPEED, 0.7],
+			[StatType.CHARGED_PROJECTILE_TTL, 700],
+			[StatType.CHARGED_FORCE, 0],
+			[StatType.FIRE_TIME, 85],
+			[StatType.PROJECTILE_SPEED, 0.7],
+			[StatType.PROJECTILE_TTL, 700],
+			[StatType.RELOAD_TIME, 400],
+			[StatType.SPREAD, 5],
+		])],
+		[EntityType.STICKY_ORB, new Map([
+			[StatType.DAMAGE, 5],
+			[StatType.UNSTICK_DAMAGE, 25],
 		])],
 		// >90 DPS + slight spread
 		// 4 shots in 500ms
@@ -431,8 +449,6 @@ export namespace StatFactory {
 			// Always critical (1.5x)
 			[StatType.DAMAGE, 50],
 		])],
-		// 78 DPS + disrupt + hard aim + burst
-		// 5 shots in 1600ms
 		[EntityType.WING_CANNON, new Map([
 			[StatType.BURSTS, 5],
 			[StatType.CHARGED_BURSTS, 1],
@@ -441,11 +457,11 @@ export namespace StatFactory {
 			[StatType.CHARGED_PROJECTILE_SPEED, 0],
 			[StatType.CHARGED_PROJECTILE_TTL, 750],
 			[StatType.CHARGED_FORCE, 0],
-			[StatType.FIRE_TIME, 100],
-			[StatType.FORCE, 0.1],
+			[StatType.FIRE_TIME, 150],
+			[StatType.FORCE, 0],
 			[StatType.PROJECTILE_SPEED, 0.8],
 			[StatType.PROJECTILE_TTL, 400],
-			[StatType.RELOAD_TIME, 1200],
+			[StatType.RELOAD_TIME, 1500],
 		])],
 		[EntityType.ORB, new Map([
 			[StatType.DAMAGE, 25],

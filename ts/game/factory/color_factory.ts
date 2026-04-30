@@ -154,6 +154,7 @@ export namespace ColorFactory {
 		[EntityType.COWBOY_HAT, [ColorType.WESTERN_BROWN]],
 		[EntityType.GATLING, [ColorType.SHOOTER_DARK_BLUE, ColorType.SHOOTER_BLUE]],
 		[EntityType.GOLDEN_GUN, [ColorType.WESTERN_YELLOW]],
+		[EntityType.GOLDEN_WING, [ColorType.WESTERN_YELLOW]],
 		[EntityType.HEADPHONES, [ColorType.SHOOTER_YELLOW]],
 		[EntityType.JETPACK, [ColorType.BLASTER_RED]],
 		[EntityType.LASER_CANNON, [ColorType.SHOOTER_PURPLE]],

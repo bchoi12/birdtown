@@ -29,6 +29,7 @@ export namespace EquipFactory {
 
 	const specialPairs = new Map<EntityType, EntityType[]>([
 		[EntityType.GOLDEN_GUN, [EntityType.TOP_HAT]],
+		[EntityType.GOLDEN_WING, [EntityType.TOP_HAT]],
 	])
 
 	const invalidPairs = new Map<EntityType, EntityType[]>([
@@ -224,6 +225,7 @@ export namespace EquipFactory {
 		[EntityType.WING_CANNON, new Set([EquipTag.BIG_DAMAGE, EquipTag.DISRUPTIVE])],
 
 		[EntityType.GOLDEN_GUN, new Set([EquipTag.PRECISION_WEAPON, EquipTag.ONE_SHOT])],
+		[EntityType.GOLDEN_WING, new Set([EquipTag.RAPID_FIRE, EquipTag.BIG_DAMAGE, EquipTag.DISRUPTIVE])],
 
 		[EntityType.BLACK_HEADBAND, new Set([EquipTag.AIR_MOBILITY])],
 		[EntityType.BOOSTER, new Set([EquipTag.AIR_MOBILITY])],
@@ -270,6 +272,7 @@ export namespace EquipFactory {
 				merged.add(EquipTag.ONE_SHOT);
 				break;
 			case EntityType.GOLDEN_GUN:
+			case EntityType.GOLDEN_WING:
 			case EntityType.PISTOL:
 				merged.add(EquipTag.ONE_SHOT);
 				break;

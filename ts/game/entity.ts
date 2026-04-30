@@ -660,11 +660,13 @@ export abstract class EntityBase extends GameObjectBase implements Entity {
 
 			let buffDelta = 1;
 			const prevShield = this.shield();
-			delta = resources.updateResource(StatType.SHIELD, {
-				delta: delta,
-				from: from,
-				hitEntity: hitEntity,
-			});
+			if (resources.hasResource(StatType.SHIELD)) {
+				delta = resources.updateResource(StatType.SHIELD, {
+					delta: delta,
+					from: from,
+					hitEntity: hitEntity,
+				});
+			}
 			if (prevShield <= 0 && hitEntity && hitEntity.getAttribute(AttributeType.CRITICAL)) {
 				let critBoost = (hitEntity.getAttribute(AttributeType.DOUBLE_CRITICAL) ? 2 : 1) * from.getStat(StatType.CRIT_BOOST);
 				critBoost += 0.5 * Math.max(0, from.getStat(StatType.CRIT_CHANCE) - 1);

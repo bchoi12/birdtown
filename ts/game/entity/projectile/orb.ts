@@ -84,14 +84,15 @@ export abstract class OrbBase extends Projectile {
 	protected override onHit(other : Entity) : void {
 		super.onHit(other);
 
-		this.explode(this._explosionType, {});
-		this.delete();
+		if (!this._sticky) {
+			this.explode(this._explosionType, {});
+			this.delete();
+		}
 	}
 
 	override onMiss() : void {
 		this.explode(this._explosionType, {});
 	}
-	override onExpire() : void { this.onMiss(); }
 }
 
 export class Orb extends OrbBase {

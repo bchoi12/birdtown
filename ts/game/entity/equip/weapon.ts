@@ -208,6 +208,10 @@ export abstract class Weapon extends Equip<Player> {
 		super.initialize();
 
 		this.setWeaponState(WeaponState.RELOADING);
+
+		if (this._allowPartialClip && this._interruptible) {
+			this.quickReload(0);
+		}
 	}
 
 	abstract meshType() : MeshType;

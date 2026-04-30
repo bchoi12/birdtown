@@ -248,6 +248,7 @@ export namespace Icon {
 		[EntityType.BAZOOKA, IconType.ROCKET],
 		[EntityType.GATLING, IconType.GATLING],
 		[EntityType.GOLDEN_GUN, IconType.MONEY],
+		[EntityType.GOLDEN_WING, IconType.ORBS],
 		[EntityType.LASER_CANNON, IconType.LASER],
 		[EntityType.LASER_GUN, IconType.BOLT],
 		[EntityType.MINIGUN, IconType.MINIGUN],
