@@ -28,10 +28,10 @@ export class ProgressWrapper extends HtmlWrapper<HTMLElement> {
 			if (this._percent === percent) {
 				return;
 			}
-		} else if (Math.abs(this._percent - percent) < .05) {
+		} else if (Math.abs(this._percent - percent) < .03) {
 			return;
 		}
-
+		// TODO: use transform/scale instead?
 		this._percent = percent;
 		this.elm().style.width = Fns.clamp(0, 100 * percent, 100) + "%";
 	}
