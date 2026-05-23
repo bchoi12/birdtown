@@ -7,9 +7,10 @@ import { Model } from 'game/component/model'
 import { SoundPlayer } from 'game/component/sound_player'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
+import { Bird } from 'game/entity/bird'
+import { Player } from 'game/entity/bird/player'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/equip/weapon'
-import { Player } from 'game/entity/bird/player'
 import { BuffType, ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -20,7 +21,7 @@ import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
 import { Vec3 } from 'util/vector'
 
-export class TopHat extends Equip<Player> {
+export class TopHat extends Equip<Bird> {
 
 	private static readonly _dashTime = 275;
 

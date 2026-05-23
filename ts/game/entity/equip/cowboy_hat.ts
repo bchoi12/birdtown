@@ -6,6 +6,7 @@ import { Model } from 'game/component/model'
 import { SoundPlayer } from 'game/component/sound_player'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
+import { Bird } from 'game/entity/bird'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/equip/weapon'
 import { Player } from 'game/entity/bird/player'
@@ -19,7 +20,7 @@ import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
 import { Vec3 } from 'util/vector'
 
-export class CowboyHat extends Equip<Player> {
+export class CowboyHat extends Equip<Bird> {
 
 	private static readonly _dashTime = 275;
 	private static readonly _quickReloadTime = CowboyHat._dashTime - 50;
@@ -88,7 +89,9 @@ export class CowboyHat extends Equip<Player> {
 		if (this.hasOwner()) {
 			this.owner().profile().setVel({x: 0, y: 0});
 			this.owner().addForce(force);
-			this.owner().equips().findAll((equip : Equip<Player>) => {
+			this.owner().equips().mapIf<Weapon>((equip : Equip<Bird>) => {
+				return <Weapon>equip;
+			}, (equip : Equip<Bird>) => {
 				return equip.hasType(EntityType.WEAPON) && equip.valid();
 			}).forEach((weapon : Weapon) => {
 				weapon.quickReload(CowboyHat._quickReloadTime);

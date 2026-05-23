@@ -6,9 +6,10 @@ import { Model } from 'game/component/model'
 import { SoundPlayer } from 'game/component/sound_player'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
+import { Bird } from 'game/entity/bird'
+import { Player } from 'game/entity/bird/player'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/equip/weapon'
-import { Player } from 'game/entity/bird/player'
 import { Rocket } from 'game/entity/projectile/rocket'
 import { ColorType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -18,7 +19,7 @@ import { HudType, HudOptions, KeyType } from 'ui/api'
 import { Timer } from 'util/timer'
 import { Vec3 } from 'util/vector'
 
-export class PocketRocket extends Equip<Player> {
+export class PocketRocket extends Equip<Bird> {
 
 	private _weapon : Weapon;
 
@@ -38,7 +39,7 @@ export class PocketRocket extends Equip<Player> {
 		super.preUpdate(stepData);
 
 		if (this._weapon === null || !this._weapon.valid()) {
-			const weapons = <Weapon[]>this.owner().equips().findN((equip : Equip<Player>) => {
+			const weapons = <Weapon[]>this.owner().equips().findN((equip : Equip<Bird>) => {
 				return equip.hasType(EntityType.WEAPON) && equip.valid();
 			}, 1);
 

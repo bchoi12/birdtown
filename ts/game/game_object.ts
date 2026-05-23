@@ -136,7 +136,7 @@ export abstract class GameObjectBase {
 	protected _readyCalls : number;
 
 	protected _data : GameData;
-	protected _propHandlers : Map<number, PropHandler<Object>>;
+	protected _propHandlers : Map<number, PropHandler<any>>;
 	protected _parent : GameObject;
 	protected _childObjects : CircleMap<number, GameObject>;
 	protected _dataBuffers : Map<number, Array<DataBuffer>>;
@@ -434,15 +434,15 @@ export abstract class GameObjectBase {
 		this._childObjects.delete(id);
 	}
 
-	countIf<T extends GameObject>(predicate : ChildPredicate<T>) : number { return this._childObjects.countIf(predicate); }
-	findAll<T extends GameObject>(predicate : ChildPredicate<T>) : T[] { return <T[]>this._childObjects.findAll(predicate); }
-	findN<T extends GameObject>(predicate : ChildPredicate<T>, limit : number) : T[] { return <T[]>this._childObjects.findN(predicate, limit); }
-	matchAny<T extends GameObject>(predicate : ChildPredicate<T>) : boolean { return this._childObjects.matchAny(predicate); }
-	matchAll<T extends GameObject>(predicate : ChildPredicate<T>) : boolean { return this._childObjects.matchAll(predicate); }
-	mapAll<T extends GameObject, O>(map : (t : T) => O) : O[] { return this._childObjects.mapAll(map); }
-	mapIf<T extends GameObject, O>(map : (t : T) => O, predicate : (t : T) => boolean) : O[] { return this._childObjects.mapIf(map, predicate); }
-	execute<T extends GameObject>(execute : ChildExecute<T>) : void { this._childObjects.execute(execute); }
-	executeIf<T extends GameObject>(execute : ChildExecute<T>, predicate : ChildPredicate<T>) : void { this._childObjects.executeIf(execute, predicate); }
+	countIf<T extends GameObject>(predicate : ChildPredicate<T>) : number { return this._childObjects.countIf(predicate as ChildPredicate<GameObject>); }
+	findAll<T extends GameObject>(predicate : ChildPredicate<T>) : T[] { return <T[]>this._childObjects.findAll(predicate as ChildPredicate<GameObject>); }
+	findN<T extends GameObject>(predicate : ChildPredicate<T>, limit : number) : T[] { return <T[]>this._childObjects.findN(predicate as ChildPredicate<GameObject>, limit); }
+	matchAny<T extends GameObject>(predicate : ChildPredicate<T>) : boolean { return this._childObjects.matchAny(predicate as ChildPredicate<GameObject>); }
+	matchAll<T extends GameObject>(predicate : ChildPredicate<T>) : boolean { return this._childObjects.matchAll(predicate as ChildPredicate<GameObject>); }
+	mapAll<T extends GameObject, O>(map : (t : T) => O) : O[] { return this._childObjects.mapAll(map as (t : GameObject) => O); }
+	mapIf<T extends GameObject, O>(map : (t : T) => O, predicate : ChildPredicate<T>) : O[] { return this._childObjects.mapIf(map as (t : GameObject) => O, predicate as ChildPredicate<GameObject>); }
+	execute<T extends GameObject>(execute : ChildExecute<T>) : void { this._childObjects.execute(execute as ChildExecute<GameObject>); }
+	executeIf<T extends GameObject>(execute : ChildExecute<T>, predicate : ChildPredicate<T>) : void { this._childObjects.executeIf(execute as ChildExecute<GameObject>, predicate as ChildPredicate<GameObject>); }
 
 	newTimer(options : TimerOptions) : Timer {
 		let timer = new Timer(options);

@@ -8,9 +8,10 @@ import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { BoneType } from 'game/entity/api'
+import { Bird } from 'game/entity/bird'
+import { Player } from 'game/entity/bird/player'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon, RecoilType } from 'game/entity/equip/weapon'
-import { Player } from 'game/entity/bird/player'
 import { Knife } from 'game/entity/projectile/knife'
 import { BuffType, ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -23,7 +24,7 @@ import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
 import { Vec2, Vec3 } from 'util/vector'
 
-export class RedHeadband extends Equip<Player> {
+export class RedHeadband extends Equip<Bird> {
 
 	private static readonly _trailVertices = [
         new BABYLON.Vector3(0, 0, 0.4),
@@ -105,7 +106,7 @@ export class RedHeadband extends Equip<Player> {
 		super.preUpdate(stepData);
 
 		if (this._weapon === null || !this._weapon.valid()) {
-			const weapons = <Weapon[]>this.owner().equips().findN((equip : Equip<Player>) => {
+			const weapons = <Weapon[]>this.owner().equips().findN((equip : Equip<Bird>) => {
 				return equip.hasType(EntityType.WEAPON) && equip.valid();
 			}, 1);
 

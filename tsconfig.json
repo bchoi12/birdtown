@@ -1,6 +1,9 @@
 {
     "compilerOptions": {
-        "baseUrl": "./ts",
+        "paths": {
+            "*": ["./ts/*"]
+        },
+
         "rootDir": "./ts",
         "target": "es6",
         "outDir": "js",
@@ -14,8 +17,16 @@
         "lib": [
             "dom",
             "es2015.promise",
-            "es5"
+            "es2015",
+            "es2020",
+        ],
+        "types": [
+            "node",
+            "@webgpu/types",
         ],
         "declaration": true,
+
+        "skipLibCheck": true,
+        "strictNullChecks": false,
     },
 }

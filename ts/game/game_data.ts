@@ -21,7 +21,7 @@ export class GameData {
 	public static readonly udp = DataFilter.UDP;
 	public static readonly tcp = DataFilter.TCP;
 
-	private _gameProps : Map<number, GameProp<Object>>;
+	private _gameProps : Map<number, GameProp<any>>;
 
 	constructor() {
 		this._gameProps = new Map();
@@ -29,7 +29,7 @@ export class GameData {
 
 	empty() : boolean { return this._gameProps.size === 0; }
 	has(key : number) : boolean { return this._gameProps.has(key); }
-	get(key : number) : GameProp<Object> { return this._gameProps.get(key); }
+	get(key : number) : GameProp<any> { return this._gameProps.get(key); }
 	getValue<T extends Object>(key : number) : T { return <T>this._gameProps.get(key).get(); }
 
 	import(key : number, value : Object, seqNum : number) : boolean {
@@ -80,7 +80,7 @@ export class GameData {
 
 		let filtered : DataMap = {};
 		let hasData = false;
-		this._gameProps.forEach((prop : GameProp<Object>, key : number) => {
+		this._gameProps.forEach((prop : GameProp<any>, key : number) => {
 			const [value, shouldPublish] = prop.publish(filter, seqNum);
 			if (shouldPublish) {
 				filtered[key] = value;
@@ -92,7 +92,7 @@ export class GameData {
 
 	toObject() : DataMap {
 		let obj = {};
-		this._gameProps.forEach((prop : GameProp<Object>, key : number) => {
+		this._gameProps.forEach((prop : GameProp<any>, key : number) => {
 			obj[key] = prop.get();
 		});
 		return obj;

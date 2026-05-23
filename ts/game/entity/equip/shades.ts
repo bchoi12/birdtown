@@ -4,12 +4,13 @@ import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
-import { Equip, AttachType } from 'game/entity/equip'
+import { Bird } from 'game/entity/bird'
 import { Player } from 'game/entity/bird/player'
+import { Equip, AttachType } from 'game/entity/equip'
 import { MaterialType, MeshType } from 'game/factory/api'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
 
-export class Shades extends Equip<Player> {
+export class Shades extends Equip<Bird> {
 
 	constructor(entityOptions : EntityOptions) {
 		super(EntityType.SHADES, entityOptions);

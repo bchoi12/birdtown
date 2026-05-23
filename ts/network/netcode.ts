@@ -434,7 +434,7 @@ export abstract class Netcode {
 		this._registerCallbacks.push(cb);
 	}
 
-	addMessageCallback<T extends NetworkMessage>(type : NetworkMessageType, cb : MessageCallback<T>) {
+	addMessageCallback(type : NetworkMessageType, cb : MessageCallback<NetworkMessage>) {
 		if (this._messageCallbacks.has(type)) {
 			console.error("Warning: overwriting callback for %s message", NetworkMessageType[type]);
 		}

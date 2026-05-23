@@ -139,10 +139,10 @@ export abstract class MessageBase<T extends number, P extends number> {
 			return this;
 		}
 
-		const descriptor = this.messageDescriptor().get(this.type());
-		descriptor.forEach((descriptor : Descriptor, prop : P) => {
-			if (other.has(prop)) {
-				this.set(prop, other.get(prop));
+		const fieldDescriptor : FieldDescriptor = this.messageDescriptor().get(this.type());
+		fieldDescriptor.forEach((descriptor : Descriptor, prop : number) => {
+			if (other.has(<P>prop)) {
+				this.set(<P>prop, other.get(<P>prop));
 			}
 		});
 		return this;

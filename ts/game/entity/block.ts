@@ -71,7 +71,7 @@ export abstract class Block extends EntityBase implements Entity {
 	protected _canTransparent : boolean;
 	protected _materialCache : Map<string, CachedMaterial>;
 	protected _frontMaterials : Set<string>
-	protected _transparentFrontMeshes : Array<BABYLON.Mesh>;
+	protected _transparentFrontMeshes : Array<BABYLON.AbstractMesh>;
 
 	protected _attributes : Attributes;
 	protected _cardinals : Cardinals;
@@ -118,7 +118,7 @@ export abstract class Block extends EntityBase implements Entity {
 
 					if (this._frontMaterials.size > 0 || this._transparentFrontMeshes.length > 0) {
 						if (this.hasOpenings() && this.openings().empty()) {
-							this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
+							this._transparentFrontMeshes.forEach((mesh : BABYLON.AbstractMesh) => {
 								mesh.material.alpha = 1;
 							});
 						} else {
@@ -215,11 +215,11 @@ export abstract class Block extends EntityBase implements Entity {
 		});
 
 		if (this._alpha === 0 && alpha > 0) {
-			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
+			this._transparentFrontMeshes.forEach((mesh : BABYLON.AbstractMesh) => {
 				mesh.isVisible = true;
 			});
 		} else if (this._alpha > 0 && alpha === 0) {
-			this._transparentFrontMeshes.forEach((mesh : BABYLON.Mesh) => {
+			this._transparentFrontMeshes.forEach((mesh : BABYLON.AbstractMesh) => {
 				mesh.isVisible = false;
 			});
 		}
@@ -237,8 +237,8 @@ export abstract class Block extends EntityBase implements Entity {
 	}
 
 	protected processMesh(mesh : BABYLON.Mesh) : void {
-		mesh.getChildMeshes().forEach((child : BABYLON.Mesh) => {
-			this.processMesh(child);
+		mesh.getChildMeshes().forEach((child : BABYLON.AbstractMesh) => {
+			this.processMesh(<BABYLON.Mesh>child);
 		});
 
 		if (!mesh.material) { return; }

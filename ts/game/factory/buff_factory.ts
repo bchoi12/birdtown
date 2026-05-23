@@ -391,7 +391,7 @@ export namespace BuffFactory {
 			return [];
 		}
 
-		let buff = this.create(type);
+		let buff = create(type);
 		if (buff === null) {
 			return [];
 		}

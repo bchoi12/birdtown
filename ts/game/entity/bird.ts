@@ -304,7 +304,7 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 			meshFn: (model : Model) => {
 				MeshFactory.load(MeshType.BIRD, (result : LoadResult) => {
 					let mesh = result.mesh;
-					mesh.getChildMeshes().forEach((mesh : BABYLON.Mesh) => {
+					mesh.getChildMeshes().forEach((mesh : BABYLON.AbstractMesh) => {
 						if (!mesh.material || !(mesh.material instanceof BABYLON.PBRMaterial)) { return; }
 
 						if (mesh.material.name === Material.BASE) {

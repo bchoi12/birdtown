@@ -5,10 +5,12 @@ import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
+import { Bird } from 'game/entity/bird'
+import { Player } from 'game/entity/bird/player'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Weapon } from 'game/entity/equip/weapon'
+import { Particle } from 'game/entity/particle'
 import { CubeParticle } from 'game/entity/particle/cube_particle'
-import { Player } from 'game/entity/bird/player'
 import { ColorType, MaterialType, MeshType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -19,7 +21,7 @@ import { Fns, InterpType } from 'util/fns'
 import { RateLimiter } from 'util/rate_limiter'
 import { Vec2, Vec3 } from 'util/vector'
 
-export class Scouter extends Equip<Player> {
+export class Scouter extends Equip<Bird> {
 
 	private static readonly _lookVertical = 5;
 	private static readonly _lookHorizontal = 12;
@@ -71,7 +73,7 @@ export class Scouter extends Equip<Player> {
 		const millis = stepData.millis;
 
 		if (this._weapon === null || this._weapon.deleted()) {
-			const weapons = <Weapon[]>this.owner().equips().findN((equip : Equip<Player>) => {
+			const weapons = <Weapon[]>this.owner().equips().findN((equip : Equip<Bird>) => {
 				return equip.hasType(EntityType.WEAPON) && equip.valid();
 			}, 1);
 
@@ -149,7 +151,7 @@ export class Scouter extends Equip<Player> {
 
 		if (hasCube) {
 			cube.profile().setAngularVelocity(-0.1 * Math.sign(offset.x));
-			cube.overrideUpdateFn((stepData : StepData, particle : CubeParticle) => {
+			cube.overrideUpdateFn((stepData : StepData, particle : Particle) => {
 				particle.profile().moveTo(pos, {
 					millis: millis,
 					posEpsilon: 0.05,

@@ -8,8 +8,9 @@ import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { Equip, AttachType } from 'game/entity/equip'
+import { Bird } from 'game/entity/bird'
 import { Player } from 'game/entity/bird/player'
+import { Equip, AttachType } from 'game/entity/equip'
 import { StepData } from 'game/game_object'
 import { MaterialType } from 'game/factory/api'
 import { EntityFactory } from 'game/factory/entity_factory'
@@ -60,7 +61,7 @@ class ShieldBit {
 	}
 }
 
-export class ShieldRing extends Equip<Player> {
+export class ShieldRing extends Equip<Bird> {
 
 	private static readonly _bitSize = 0.2;
 

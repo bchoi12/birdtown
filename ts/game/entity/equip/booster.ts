@@ -5,6 +5,7 @@ import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
+import { Bird } from 'game/entity/bird'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/bird/player'
 import { ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
@@ -18,7 +19,7 @@ import { RateLimiter } from 'util/rate_limiter'
 import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
-export class Booster extends Equip<Player> {
+export class Booster extends Equip<Bird> {
 
 	private static readonly _fireMeshName = "fire";
 
@@ -26,7 +27,7 @@ export class Booster extends Equip<Player> {
 
 	private _smoker : RateLimiter;
 
-	private _fire : BABYLON.Mesh;
+	private _fire : BABYLON.AbstractMesh;
 
 	private _model : Model;
 
@@ -42,7 +43,7 @@ export class Booster extends Equip<Player> {
 				MeshFactory.load(MeshType.BOOSTER, (result : LoadResult) => {
 					let mesh = result.mesh;
 
-					result.meshes.forEach((fireMesh : BABYLON.Mesh) => {
+					result.meshes.forEach((fireMesh : BABYLON.AbstractMesh) => {
 						if (fireMesh.name === Booster._fireMeshName) {
 							this._fire = fireMesh;
 						}

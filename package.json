@@ -14,8 +14,10 @@
     "@types/earcut": "^3.0.0",
     "@types/matter-js": "^0.20.2",
     "@types/msgpack": "^0.0.34",
+    "@webgpu/types": "^0.1.70",
     "electron": "^39.1.0",
     "ts-loader": "^9.5.4",
+    "tsconfig-paths-webpack-plugin": "^4.2.0",
     "typescript": "^5.9.3",
     "webpack": "^5.102.1",
     "webpack-cli": "^6.0.1"

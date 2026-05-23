@@ -5,8 +5,9 @@ import { AttributeType, EmotionType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
-import { Equip, AttachType } from 'game/entity/equip'
+import { Bird } from 'game/entity/bird'
 import { Player } from 'game/entity/bird/player'
+import { Equip, AttachType } from 'game/entity/equip'
 import { BuffType, ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MeshFactory, LoadResult } from 'game/factory/mesh_factory'
@@ -56,7 +57,7 @@ export enum ReloadType {
 	VERTICAL,
 }
 
-export abstract class Weapon extends Equip<Player> {
+export abstract class Weapon extends Equip<Bird> {
 
 	private static readonly _shootNodeName = "shoot";
 	private static readonly _chargedThreshold = 1000;

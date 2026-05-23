@@ -107,7 +107,7 @@ export abstract class Crate extends Interactable implements Entity, EquipEntity,
 
 					mesh.scaling.set(scaling.x, scaling.y, (scaling.x + scaling.y) / 2);
 
-					mesh.getChildMeshes().forEach((mesh : BABYLON.Mesh) => {
+					mesh.getChildMeshes().forEach((mesh : BABYLON.AbstractMesh) => {
 						if (!mesh.material || !(mesh.material instanceof BABYLON.PBRMaterial)) { return; }
 
 						if (mesh.material.name === "crate") {

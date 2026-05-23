@@ -4,6 +4,7 @@ import { game } from 'game'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { Bird } from 'game/entity/bird'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/bird/player'
 import { TextParticle } from 'game/entity/particle/text_particle'
@@ -23,7 +24,7 @@ enum Animation {
 	SQUAWK = "Squawk",
 }
 
-export abstract class Beak extends Equip<Player> {
+export abstract class Beak extends Equip<Bird> {
 
 	private static readonly _animations = new Set<string>([Animation.IDLE, Animation.SQUAWK]);
 

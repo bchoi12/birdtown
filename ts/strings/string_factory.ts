@@ -47,7 +47,7 @@ export namespace StringFactory {
 	]);
 
 	export function getEntityName(entity : Entity) : ParamString {
-		return this.getEntityTypeName(entity.type());
+		return getEntityTypeName(entity.type());
 	}
 	export function getEntityTypeName(type : EntityType) : ParamString {
 		if (entityNames.has(type)) {

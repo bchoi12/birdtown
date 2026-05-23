@@ -5,6 +5,7 @@ import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
+import { Bird } from 'game/entity/bird'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/bird/player'
 import { BuffType, ColorType, MeshType, SoundType, StatType } from 'game/factory/api'
@@ -18,7 +19,7 @@ import { RateLimiter } from 'util/rate_limiter'
 import { Timer } from 'util/timer'
 import { Vec2 } from 'util/vector'
 
-export class Jetpack extends Equip<Player> {
+export class Jetpack extends Equip<Bird> {
 
 	private static readonly _fireMeshName = "fire";
 	private static readonly _smokeDelay = 30;
@@ -29,7 +30,7 @@ export class Jetpack extends Equip<Player> {
 	private _enabled : boolean;
 	private _smoker : RateLimiter;
 
-	private _fire : BABYLON.Mesh;
+	private _fire : BABYLON.AbstractMesh;
 
 	private _model : Model;
 
@@ -49,7 +50,7 @@ export class Jetpack extends Equip<Player> {
 				MeshFactory.load(MeshType.JETPACK, (result : LoadResult) => {
 					let mesh = result.mesh;
 
-					result.meshes.forEach((fireMesh : BABYLON.Mesh) => {
+					result.meshes.forEach((fireMesh : BABYLON.AbstractMesh) => {
 						if (fireMesh.name === Jetpack._fireMeshName) {
 							this._fire = fireMesh;
 						}

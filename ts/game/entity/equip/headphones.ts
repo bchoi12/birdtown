@@ -5,8 +5,9 @@ import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
-import { Equip, AttachType } from 'game/entity/equip'
+import { Bird } from 'game/entity/bird'
 import { DyingStar } from 'game/entity/dying_star'
+import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/bird/player'
 import { ColorType, MeshType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
@@ -18,7 +19,7 @@ import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
 import { Vec3 } from 'util/vector'
 
-export class Headphones extends Equip<Player> {
+export class Headphones extends Equip<Bird> {
 
 	private static readonly _maxRange = 16;
 	private static readonly _fullChargeTime = 750;

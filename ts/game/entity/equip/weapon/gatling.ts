@@ -28,7 +28,7 @@ export abstract class GatlingBase extends Weapon {
 	protected _maxSpeed : Vec;
 	protected _recoilVel : Vec;
 	protected _rotateRad : number;
-	protected _spinner : BABYLON.Mesh;
+	protected _spinner : BABYLON.AbstractMesh;
 
 	constructor(type : EntityType, options : EntityOptions) {
 		super(type, options);
@@ -60,7 +60,7 @@ export abstract class GatlingBase extends Weapon {
 	override processMesh(mesh : BABYLON.Mesh, result : LoadResult) : void {
 		super.processMesh(mesh, result);
 
-		result.meshes.forEach((mesh : BABYLON.Mesh) => {
+		result.meshes.forEach((mesh : BABYLON.AbstractMesh) => {
 			if (mesh.name === Gatling._spinnerName) {
 				this._spinner = mesh;
 			}

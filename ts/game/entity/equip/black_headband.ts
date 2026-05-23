@@ -8,6 +8,7 @@ import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { BoneType } from 'game/entity/api'
+import { Bird } from 'game/entity/bird'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/bird/player'
 import { BuffType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
@@ -23,7 +24,7 @@ import { RateLimiter } from 'util/rate_limiter'
 import { Timer } from 'util/timer'
 import { Vec2, Vec3 } from 'util/vector'
 
-export class BlackHeadband extends Equip<Player> {
+export class BlackHeadband extends Equip<Bird> {
 
 	private static readonly _jumpTime = 250;
 	private static readonly _floatTime = 2000;

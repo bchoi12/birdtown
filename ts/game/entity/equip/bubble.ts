@@ -8,6 +8,7 @@ import { AttributeType } from 'game/component/api'
 import { Model } from 'game/component/model'
 import { Entity, EntityOptions } from 'game/entity'
 import { EntityType } from 'game/entity/api'
+import { Bird } from 'game/entity/bird'
 import { Equip, AttachType } from 'game/entity/equip'
 import { Player } from 'game/entity/bird/player'
 import { StepData } from 'game/game_object'
@@ -16,7 +17,7 @@ import { ColorFactory } from 'game/factory/color_factory'
 import { Timer } from 'util/timer'
 import { Vec3 } from 'util/vector'
 
-export class Bubble extends Equip<Player> {
+export class Bubble extends Equip<Bird> {
 
 	private static readonly _alpha = 0.3;
 	private static readonly _cameraOffset = -1.5;

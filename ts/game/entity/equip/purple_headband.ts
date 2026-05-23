@@ -8,8 +8,9 @@ import { Model } from 'game/component/model'
 import { EntityType } from 'game/entity/api'
 import { Entity, EntityOptions } from 'game/entity'
 import { BoneType } from 'game/entity/api'
-import { Equip, AttachType } from 'game/entity/equip'
+import { Bird } from 'game/entity/bird'
 import { Player } from 'game/entity/bird/player'
+import { Equip, AttachType } from 'game/entity/equip'
 import { ColorType, MaterialType, MeshType, SoundType, StatType } from 'game/factory/api'
 import { ColorFactory } from 'game/factory/color_factory'
 import { MaterialFactory } from 'game/factory/material_factory'
@@ -21,7 +22,7 @@ import { Fns, InterpType } from 'util/fns'
 import { Timer } from 'util/timer'
 import { Vec2, Vec3 } from 'util/vector'
 
-export class PurpleHeadband extends Equip<Player> {
+export class PurpleHeadband extends Equip<Bird> {
 
 	private static readonly _trailVertices = [
         new BABYLON.Vector3(0, 0, 0.4),
