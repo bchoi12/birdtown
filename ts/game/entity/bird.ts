@@ -71,7 +71,7 @@ export abstract class Bird extends EntityBase implements EquipEntity {
 	// blockdudes3 = 18.0
 	protected static readonly _sideAcc = 0.5;
 	protected static readonly _jumpVel = 0.33;
-	protected static readonly _maxHorizontalVel = 0.5;
+	protected static readonly _maxHorizontalVel = 0.45;
 	protected static readonly _maxWalkingVel = 0.25;
 	protected static readonly _maxVerticalVel = 0.6;
 	protected static readonly _maxFloatingVel = 0.1;

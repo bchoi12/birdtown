@@ -12,7 +12,7 @@ export class BotBuff extends Buff {
 
 		return new Map([
 			[StatType.DAMAGE_BOOST, -0.6 + 0.2 * difficulty],
-			[StatType.HEALTH, Math.max(0, 25 * (round - 1))],
+			[StatType.HEALTH, Math.max(25, 25 * (round - 1))],
 			[StatType.HEALTH_BOOST, -0.3 + 0.1 * difficulty],
 			[StatType.PROJECTILE_SPEED_BOOST, Math.min(0, -0.32 + 0.08 * difficulty)],
 			[StatType.PROJECTILE_TTL_BOOST, Math.max(0, 0.32 - 0.08 * difficulty)],

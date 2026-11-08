@@ -21,10 +21,6 @@ export class WingCannon extends Weapon {
 	constructor(options : EntityOptions) {
 		super(EntityType.WING_CANNON, options);
 
-		// Overwrite parent
-		this._allowPartialClip = true;
-		this._interruptible = true;
-
 		this.soundPlayer().registerSound(SoundType.WING_CANNON);
 	}
 
@@ -32,7 +28,7 @@ export class WingCannon extends Weapon {
 	override recoilType() : RecoilType { return RecoilType.WHIP; }
 	override meshType() : MeshType { return MeshType.WING_CANNON; }
 	override hudType() : HudType { return HudType.ORBS; }
-
+	override reloadType() : ReloadType { return ReloadType.RAISE; }
 
 	protected override simulateUse(uses : number) : void {
 		super.simulateUse(uses);
