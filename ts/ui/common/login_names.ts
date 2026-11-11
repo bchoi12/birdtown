@@ -31,7 +31,7 @@ export namespace LoginNames {
 		["Heihei", ColorType.PLAYER_TEAL],
 		["Henny Penny", ColorType.PLAYER_YELLOW],
 		["Henry Tobasco", ColorType.PLAYER_RED],
-		["Herkey", ColorType.PLAYER_GOLD],
+		["HERKY", ColorType.PLAYER_GOLD],
 		["Ho-oh", ColorType.PLAYER_RED],
 		["Iago", ColorType.PLAYER_RED],
 		["José Carioca", ColorType.PLAYER_LIME],
